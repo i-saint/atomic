@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "atomic", "atomic.vcproj", "{68A6CCAD-3E00-4791-9731-27B59578CAA6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{68A6CCAD-3E00-4791-9731-27B59578CAA6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{68A6CCAD-3E00-4791-9731-27B59578CAA6}.Debug|Win32.Build.0 = Debug|Win32
+		{68A6CCAD-3E00-4791-9731-27B59578CAA6}.Release|Win32.ActiveCfg = Release|Win32
+		{68A6CCAD-3E00-4791-9731-27B59578CAA6}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
