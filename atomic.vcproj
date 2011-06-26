@@ -229,6 +229,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Game\FractionRenderer.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Game\FractionTask.cpp"
 				>
 			</File>
@@ -266,6 +270,10 @@
 			</File>
 			<File
 				RelativePath=".\ist\Graphics.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ist\GraphicsUtil.h"
 				>
 			</File>
 			<File

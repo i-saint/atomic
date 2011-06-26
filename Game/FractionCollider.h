@@ -1,9 +1,7 @@
 #ifndef __atomic_FractionCollider__
 #define __atomic_FractionCollider__
 
-
-namespace atomic
-{
+namespace atomic {
 
 
 class FractionCollider

@@ -25,7 +25,7 @@ public:
     };
 
 private:
-    GLuint m_buffer_object;
+    GLuint m_handle;
     GLuint m_size;
 
 public:
@@ -42,13 +42,21 @@ public:
 
     // data は NULL でもよく、その場合メモリ確保だけが行われる。
     void allocate(GLuint size, USAGE usage, void *data=NULL);
+
+    GLuint getHandle() const { return m_handle; }
 };
 
 typedef BufferObject<GL_ARRAY_BUFFER>           VertexBufferObject;
 typedef BufferObject<GL_ELEMENT_ARRAY_BUFFER>   IndexBufferObject;
 typedef BufferObject<GL_PIXEL_PACK_BUFFER>      PixelPackBufferObject;
 typedef BufferObject<GL_PIXEL_UNPACK_BUFFER>    PixelUnpackBufferObject;
-typedef BufferObject<GL_UNIFORM_BUFFER>         UniformBufferObject;
+
+class UniformBufferObject : public BufferObject<GL_UNIFORM_BUFFER>
+{
+public:
+    void bindBase(GLuint index) const;
+    void bindRange(GLuint index, GLintptr offset, GLsizeiptr size) const;
+};
 
 } // namespace graphics
 } // namespace ist

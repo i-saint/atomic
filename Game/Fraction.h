@@ -30,6 +30,8 @@ struct __declspec(align(16)) FractionData
 
 
 class FractionCollider;
+class FractionRenderer;
+
 class Task_FractionUpdate;
 
 class FractionSet
@@ -62,16 +64,16 @@ public:
     private:
         typedef eastl::vector<FractionCollider*> FractionColliderCont;
 
-        ModelData m_model;
+        FractionRenderer *m_renderer;
         FractionColliderCont m_colliders;
         Task_FractionUpdate* m_update_task;
 
     public:
         Interframe();
         ~Interframe();
-        void                    resizeColliders(uint32 block_num);         // thread unsafe
-        FractionCollider*       getCollider(uint32 block);    // thread safe
-        ModelData*              getCubeModel() { return &m_model; }
+        FractionRenderer*       getRenderer() { return m_renderer; }
+        void                    resizeColliders(uint32 block_num);          // thread unsafe
+        FractionCollider*       getCollider(uint32 block);                  // thread safe
         Task_FractionUpdate*    getUpdateTask() { return m_update_task; }
     };
 

@@ -21,7 +21,7 @@ bool AtomicApplication::Initialize(size_t x, size_t y, size_t width, size_t heig
     {
         return false;
     }
-    TaskScheduler::initializeSingleton(11);
+    TaskScheduler::initializeSingleton();
 
     m_game = EA_ALIGNED_NEW(AtomicGame, 16) AtomicGame();
     return true;

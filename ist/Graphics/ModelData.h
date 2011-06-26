@@ -82,6 +82,20 @@ public:
         glDisableClientState(GL_NORMAL_ARRAY);
         glDisableClientState(GL_VERTEX_ARRAY);
     }
+
+    void drawInstanced(GLuint num_intance) const
+    {
+        m_vbo.bind();
+        glVertexPointer(m_vertex_format, GL_FLOAT, 0, 0);
+        m_nbo.bind();
+        glNormalPointer(GL_FLOAT, 0, 0);
+        m_ibo.bind();
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_NORMAL_ARRAY);
+        glDrawElementsInstanced(m_primitive_type, m_num_index, m_index_format, 0, num_intance);
+        glDisableClientState(GL_NORMAL_ARRAY);
+        glDisableClientState(GL_VERTEX_ARRAY);
+    }
 };
 
 } // namespace graphics

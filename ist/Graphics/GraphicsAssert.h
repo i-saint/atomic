@@ -1,5 +1,5 @@
-#ifndef __ist_Graphic_Camera__
-#define __ist_Graphic_Camera__
+#ifndef __ist_Graphic_Assert__
+#define __ist_Graphic_Assert__
 
 #ifdef IST_ENABLE_GRAPHICS_ASSERT
     #include "../Base/Assert.h"
@@ -15,5 +15,5 @@
     #define CheckGLError()
 #endif
 
-#endif // __ist_Graphic_Camera__
+#endif // __ist_Graphic_Assert__
 

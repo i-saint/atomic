@@ -11,11 +11,11 @@ bool CreateTexture2DFromFile(Texture2D& tex, const char *filename);
 bool CreateTexture2DFromStream(Texture2D& tex, std::istream& st);
 
 bool CreateVertexShaderFromFile(VertexShader& sh, const char *filename);
-bool CreateGeometryShaderFromFile(FragmentShader& sh, const char *filename);
-bool CreateFragmentShaderFromFile(GeometryShader& sh, const char *filename);
+bool CreateGeometryShaderFromFile(GeometryShader& sh, const char *filename);
+bool CreateFragmentShaderFromFile(FragmentShader& sh, const char *filename);
 bool CreateVertexShaderFromStream(VertexShader& sh, std::istream& st);
-bool CreateGeometryShaderFromStream(FragmentShader& sh, std::istream& st);
-bool CreateFragmentShaderFromStream(GeometryShader& sh, std::istream& st);
+bool CreateGeometryShaderFromStream(GeometryShader& sh, std::istream& st);
+bool CreateFragmentShaderFromStream(FragmentShader& sh, std::istream& st);
 
 
 

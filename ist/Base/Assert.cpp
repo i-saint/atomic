@@ -9,8 +9,7 @@
 namespace ist {
 
 
-// Visual Studio のデバッグウィンドウの横幅に対応する文字数(バイト数ではない)
-static const int DPRINTF_MES_LENGTH  = 256;
+static const int DPRINTF_MES_LENGTH  = 1024;
 
 
 namespace

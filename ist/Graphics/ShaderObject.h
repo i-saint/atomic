@@ -14,26 +14,26 @@ public:
         SHADER_TYPE = ShaderType,
     };
 private:
-    GLhandleARB m_handle;
+    GLuint m_handle;
 
 public:
     ShaderObject();
     ~ShaderObject();
 
-    GLhandleARB getHandle() const { return m_handle; }
+    GLuint getHandle() const { return m_handle; }
 
     bool initialize(const char *src, int length);
     void finalize();
 };
 
-typedef ShaderObject<GL_VERTEX_SHADER_ARB> VertexShader;
-typedef ShaderObject<GL_FRAGMENT_SHADER_ARB> FragmentShader;
-typedef ShaderObject<GL_GEOMETRY_SHADER_ARB> GeometryShader;
+typedef ShaderObject<GL_VERTEX_SHADER> VertexShader;
+typedef ShaderObject<GL_FRAGMENT_SHADER> FragmentShader;
+typedef ShaderObject<GL_GEOMETRY_SHADER> GeometryShader;
 
 class ProgramObject : public GraphicsResource
 {
 private:
-    GLhandleARB m_handle;
+    GLuint m_handle;
 
 private:
     void attachVertexShader(VertexShader *sh);
@@ -56,6 +56,9 @@ public:
 
     GLint getUniformLocation(const char *name);
     GLint getAttribLocation(const char *name);
+
+    GLint getUniformBlockIndex(const char *name);
+    void setUniformBlockBinding(GLuint uniformBlockIndex, GLuint uniformBufferHandle);
 
     // uniform variable
     // int
@@ -94,6 +97,13 @@ public:
     void setVertexAttrib2fv(GLint al, const GLfloat *v);
     void setVertexAttrib3fv(GLint al, const GLfloat *v);
     void setVertexAttrib4fv(GLint al, const GLfloat *v);
+    //
+    // dviser
+    void setVertexAttribPointerF32(GLint al, GLint size, GLboolean normalize, GLsizei stride, const GLvoid *v);
+    void setVertexAttribPointerI32(GLint al, GLint size, GLsizei stride, const GLvoid *v);
+    void enableVertexAttribArray(GLuint  index);
+    void disableVertexAttribArray(GLuint  index);
+    void setVertexAttribDivisor(GLint al, GLint v);
 };
 
 

@@ -71,6 +71,7 @@ bool ColorNBuffer<NumColorBuffers>::initialize(GLsizei width, GLsizei height)
         m_color[i].unbind();
         attachTexture(m_color[i], FrameBufferObject::ATTACH(ATTACH_COLOR0+i));
     }
+    return true;
 }
 template ColorNBuffer<1>;
 template ColorNBuffer<2>;

@@ -6,16 +6,16 @@ namespace ist {
 namespace graphics {
 
 template<GLuint BufferType>
-BufferObject<BufferType>::BufferObject() : m_buffer_object(0), m_size(0)
+BufferObject<BufferType>::BufferObject() : m_handle(0), m_size(0)
 {
-    glGenBuffers(1, &m_buffer_object);
+    glGenBuffers(1, &m_handle);
     CheckGLError();
 }
 
 template<GLuint BufferType>
 BufferObject<BufferType>::~BufferObject()
 {
-    glDeleteBuffers(1, &m_buffer_object);
+    glDeleteBuffers(1, &m_handle);
     CheckGLError();
 }
 
@@ -28,7 +28,7 @@ GLuint BufferObject<BufferType>::size() const
 template<GLuint BufferType>
 void BufferObject<BufferType>::bind() const
 {
-    glBindBuffer(BufferType, m_buffer_object);
+    glBindBuffer(BufferType, m_handle);
     CheckGLError();
 }
 
@@ -42,7 +42,7 @@ void BufferObject<BufferType>::unbind() const
 template<GLuint BufferType>
 void* BufferObject<BufferType>::lock(LOCK mode)
 {
-    glBindBuffer(BufferType, m_buffer_object);
+    glBindBuffer(BufferType, m_handle);
     CheckGLError();
     void *r = glMapBuffer(BufferType, mode);
     CheckGLError();
@@ -54,7 +54,7 @@ void* BufferObject<BufferType>::lock(LOCK mode)
 template<GLuint BufferType>
 void BufferObject<BufferType>::unlock()
 {
-    glBindBuffer(BufferType, m_buffer_object);
+    glBindBuffer(BufferType, m_handle);
     CheckGLError();
     glUnmapBuffer(BufferType);
     CheckGLError();
@@ -66,7 +66,7 @@ template<GLuint BufferType>
 void BufferObject<BufferType>::allocate(GLuint size, USAGE usage, void *data)
 {
     m_size = size;
-    glBindBuffer(BufferType, m_buffer_object);
+    glBindBuffer(BufferType, m_handle);
     glBufferData(BufferType, size, data, usage);
     CheckGLError();
     glBindBuffer(BufferType, 0);
@@ -77,6 +77,17 @@ template BufferObject<GL_ELEMENT_ARRAY_BUFFER>;
 template BufferObject<GL_PIXEL_PACK_BUFFER>;
 template BufferObject<GL_PIXEL_UNPACK_BUFFER>;
 template BufferObject<GL_UNIFORM_BUFFER>;
+
+
+void UniformBufferObject::bindBase(GLuint index) const
+{
+    glBindBufferBase(GL_UNIFORM_BUFFER, index, getHandle());
+}
+
+void UniformBufferObject::bindRange(GLuint index, GLintptr offset, GLsizeiptr size) const
+{
+    glBindBufferRange(GL_UNIFORM_BUFFER, index, getHandle(), offset, size);
+}
 
 
 } // namespace graphics

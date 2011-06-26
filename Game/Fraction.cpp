@@ -9,6 +9,7 @@ using namespace ist::graphics;
 #include "Fraction.h"
 #include "FractionTask.h"
 #include "FractionCollider.h"
+#include "FractionRenderer.h"
 
 
 namespace atomic
@@ -44,117 +45,20 @@ struct LessZ
 
 
 
-void SetFloat3(float (&v)[3], float x, float y, float z)
-{
-    v[0] = x;
-    v[1] = y;
-    v[2] = z;
-}
-void SetFloat3(float (&v)[3], float (&s)[3])
-{
-    v[0] = s[0];
-    v[1] = s[1];
-    v[2] = s[2];
-}
-
-void CreateCubeModel(ModelData& model)
-{
-    float vertex[24][3];
-    float normal[24][3];
-    int index[24];
-
-    float n[3];
-    float ur[3];
-    float bl[3];
-    SetFloat3(ur,  3, 3, 3);
-    SetFloat3(bl, -3,-3,-3);
-
-    SetFloat3(n, 1.0f, 0.0f, 0.0f);
-    SetFloat3(normal[0], n);
-    SetFloat3(normal[1], n);
-    SetFloat3(normal[2], n);
-    SetFloat3(normal[3], n);
-    SetFloat3(vertex[0], ur[0], ur[1], ur[2]);
-    SetFloat3(vertex[1], ur[0], bl[1], ur[2]);
-    SetFloat3(vertex[2], ur[0], bl[1], bl[2]);
-    SetFloat3(vertex[3], ur[0], ur[1], bl[2]);
-
-    SetFloat3(n, -1.0f, 0.0f, 0.0f);
-    SetFloat3(normal[4], n);
-    SetFloat3(normal[5], n);
-    SetFloat3(normal[6], n);
-    SetFloat3(normal[7], n);
-    SetFloat3(vertex[4], bl[0], ur[1], ur[2]);
-    SetFloat3(vertex[5], bl[0], ur[1], bl[2]);
-    SetFloat3(vertex[6], bl[0], bl[1], bl[2]);
-    SetFloat3(vertex[7], bl[0], bl[1], ur[2]);
-
-    SetFloat3(n, 0.0f, 1.0f, 0.0f);
-    SetFloat3(normal[8], n);
-    SetFloat3(normal[9], n);
-    SetFloat3(normal[10], n);
-    SetFloat3(normal[11], n);
-    SetFloat3(vertex[8], ur[0], ur[1], ur[2]);
-    SetFloat3(vertex[9], ur[0], ur[1], bl[2]);
-    SetFloat3(vertex[10], bl[0], ur[1], bl[2]);
-    SetFloat3(vertex[11], bl[0], ur[1], ur[2]);
-
-    SetFloat3(n, 0.0f, -1.0f, 0.0f);
-    SetFloat3(normal[12], n);
-    SetFloat3(normal[13], n);
-    SetFloat3(normal[14], n);
-    SetFloat3(normal[15], n);
-    SetFloat3(vertex[12], ur[0], bl[1], ur[2]);
-    SetFloat3(vertex[13], bl[0], bl[1], ur[2]);
-    SetFloat3(vertex[14], bl[0], bl[1], bl[2]);
-    SetFloat3(vertex[15], ur[0], bl[1], bl[2]);
-
-    SetFloat3(n, 0.0f, 0.0f, 1.0f);
-    SetFloat3(normal[16], n);
-    SetFloat3(normal[17], n);
-    SetFloat3(normal[18], n);
-    SetFloat3(normal[19], n);
-    SetFloat3(vertex[16], ur[0], ur[1], ur[2]);
-    SetFloat3(vertex[17], bl[0], ur[1], ur[2]);
-    SetFloat3(vertex[18], bl[0], bl[1], ur[2]);
-    SetFloat3(vertex[19], ur[0], bl[1], ur[2]);
-
-    SetFloat3(n, 0.0f, 0.0f, -1.0f);
-    SetFloat3(normal[20], n);
-    SetFloat3(normal[21], n);
-    SetFloat3(normal[22], n);
-    SetFloat3(normal[23], n);
-    SetFloat3(vertex[20], ur[0], ur[1], bl[2]);
-    SetFloat3(vertex[21], ur[0], bl[1], bl[2]);
-    SetFloat3(vertex[22], bl[0], bl[1], bl[2]);
-    SetFloat3(vertex[23], bl[0], ur[1], bl[2]);
-
-    for(size_t i=0; i<24; ++i) {
-        index[i] = i;
-    }
-
-    model.setVertex(vertex, 24, ModelData::VTX_FLOAT3, ModelData::USAGE_STATIC);
-    model.setNormal(normal, 24, ModelData::USAGE_STATIC);
-    model.setIndex(index, 24, ModelData::IDX_INT32, ModelData::PRM_QUADS, ModelData::USAGE_STATIC);
-}
-
-
 
 FractionSet::Interframe::Interframe()
 {
-    CreateCubeModel(m_model);
     m_update_task = EA_NEW(Task_FractionUpdate) Task_FractionUpdate();
+    m_renderer = EA_NEW(FractionRenderer) FractionRenderer();
 }
 
 FractionSet::Interframe::~Interframe()
 {
+    EA_DELETE(m_renderer);
     EA_DELETE(m_update_task);
 
-    for(uint32 i=0; i<m_colliders.size(); ++i) {
-        EA_DELETE(m_colliders[0]);
-    }
+    for(uint32 i=0; i<m_colliders.size(); ++i) { EA_DELETE(m_colliders[i]); }
     m_colliders.clear();
-    CreateCubeModel(m_model);
 }
 
 void FractionSet::Interframe::resizeColliders(uint32 block_num)
@@ -261,18 +165,13 @@ void FractionSet::processMessage()
 
 void FractionSet::draw()
 {
-    ModelData *model = getInterframe()->getCubeModel();
-    // todo: 頂点データとか作成して描画コマンド発行
-    for(uint32 i=0; i<m_data.size(); ++i) {
-        FractionData& data = m_data[i];
-        if(data.alive) {
-            const float *pos = (float*)&data.pos;
-            glPushMatrix();
-            glTranslatef(pos[0], pos[1], pos[2]);
-            model->draw();
-            glPopMatrix();
-        }
+    FractionRenderer *renderer = getInterframe()->getRenderer();
+    size_t num_data = m_data.size();
+    renderer->resizePositin(num_data);
+    for(uint32 i=0; i<num_data; ++i) {
+        renderer->setPosition(i, m_data[i].pos);
     }
+    renderer->draw();
 }
 
 

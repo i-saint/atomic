@@ -1,5 +1,5 @@
-#ifndef __ist_Graphic_Camera_H__
-#define __ist_Graphic_Camera_H__
+#ifndef __ist_Graphic_Camera__
+#define __ist_Graphic_Camera__
 
 namespace ist {
 namespace graphics {
@@ -149,4 +149,4 @@ public:
 
 } // namespace graphics
 } // namespace ist
-#endif //__ist_Graphic_Camera_H__
+#endif //__ist_Graphic_Camera__

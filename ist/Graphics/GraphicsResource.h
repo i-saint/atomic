@@ -7,7 +7,13 @@ namespace graphics {
 
 class GraphicsResource
 {
+private:
+    // non copyable
+    GraphicsResource(const GraphicsResource&);
+    GraphicsResource& operator=(const GraphicsResource&);
+
 public:
+    GraphicsResource() {}
     virtual ~GraphicsResource() {}
     virtual void OnDeviceLost() {}
     virtual void OnDeviceRestored() {}
