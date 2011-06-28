@@ -65,7 +65,7 @@ class TaskScheduler
 {
 private:
     typedef boost::shared_ptr<impl::TaskThread> thread_ptr;
-    typedef eastl::vector<thread_ptr> thread_cont;
+    typedef stl::vector<thread_ptr> thread_cont;
     typedef boost::scoped_ptr<impl::TaskQueue> queue_ptr;
 
     static TaskScheduler *s_instance;
@@ -118,8 +118,8 @@ public:
 class ChainedTask : public Task
 {
 protected:
-    eastl::vector<TaskPtr> m_children;
-    eastl::vector<TaskPtr> m_chain;
+    stl::vector<TaskPtr> m_children;
+    stl::vector<TaskPtr> m_chain;
 
 public:
     void clear()

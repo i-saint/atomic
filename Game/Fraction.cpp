@@ -6,6 +6,7 @@ using namespace ist::graphics;
 #include "../types.h"
 #include "Message.h"
 #include "World.h"
+#include "AtomicApplication.h"
 #include "Fraction.h"
 #include "FractionTask.h"
 #include "FractionCollider.h"
@@ -269,8 +270,9 @@ void FractionSet::move(uint32 block)
 
         // ’µ‚Ë•Ô‚Á‚Ä‚é‚Ì‚Å‚ ‚ê‚Î‘¬“x‚ð”½“]
         SOAVECTOR4 v_nextv  = SOAVectorTranspose4(v_next.x, v_next.y, v_next.z);
-        uint32* is_boundv = (uint32*)&is_bound;
         SOAVECTOR4 ref_dir = SOAVectorTranspose4(p_dir.x, p_dir.y, p_dir.z);
+        uint32 *is_boundv = (uint32*)&is_bound;
+        float32 *speedv = (float*)&v_speed;
         for(uint32 i=0; i<e; ++i) {
             if(is_boundv[i]>0) {
                 XMMATRIX reflection = XMMatrixReflect(ref_dir.v[i]);
@@ -311,8 +313,8 @@ void FractionSet::collisionTest(size_t block)
             XHolder *xl, *xh;
             xlh.x  -= RADIUS * 2.0f;
             xhh.x  += RADIUS * 2.0f;
-            xl      = eastl::lower_bound(xob, xob+xindex, xlh, LessX<XHolder>());
-            xh      = eastl::lower_bound(xob+xindex, xoe, xhh, LessX<XHolder>());
+            xl      = stl::lower_bound(xob, xob+xindex, xlh, LessX<XHolder>());
+            xh      = stl::lower_bound(xob+xindex, xoe, xhh, LessX<XHolder>());
             xbegin  = xl==xob+xindex ? xindex : m_data[xl->index].xindex;
             xend    = xh==xoe ? num_data : m_data[xh->index].xindex;
 
@@ -324,8 +326,8 @@ void FractionSet::collisionTest(size_t block)
             YHolder *yl, *yh;
             ylh.y  -= RADIUS * 2.0f;
             yhh.y  += RADIUS * 2.0f;
-            yl      = eastl::lower_bound(yob, yob+yindex, ylh, LessY<YHolder>());
-            yh      = eastl::lower_bound(yob+yindex, yoe, yhh, LessY<YHolder>());
+            yl      = stl::lower_bound(yob, yob+yindex, ylh, LessY<YHolder>());
+            yh      = stl::lower_bound(yob+yindex, yoe, yhh, LessY<YHolder>());
             ybegin  = yl==yob+yindex ? yindex : m_data[yl->index].yindex;
             yend    = yh==yoe ? num_data : m_data[yh->index].yindex;
 
@@ -337,8 +339,8 @@ void FractionSet::collisionTest(size_t block)
             ZHolder *zl, *zh;
             zlh.z  -= RADIUS * 2.0f;
             zhh.z  += RADIUS * 2.0f;
-            zl      = eastl::lower_bound(zob, zob+zindex, zlh, LessZ<ZHolder>());
-            zh      = eastl::lower_bound(zob+zindex, zoe, zhh, LessZ<ZHolder>());
+            zl      = stl::lower_bound(zob, zob+zindex, zlh, LessZ<ZHolder>());
+            zh      = stl::lower_bound(zob+zindex, zoe, zhh, LessZ<ZHolder>());
             zbegin  = zl==zob+zindex ? zindex : m_data[zl->index].zindex;
             zend    = zh==zoe ? num_data : m_data[zh->index].zindex;
 
@@ -407,7 +409,7 @@ void FractionSet::sortXOrder()
         m_xorder[i] = xo;
     }
 
-    eastl::stable_sort(m_xorder.begin(), m_xorder.end(), LessX<XHolder>());
+    stl::stable_sort(m_xorder.begin(), m_xorder.end(), LessX<XHolder>());
     for(size_t i=0; i<num_data; ++i) {
         m_data[m_xorder[i].index].xindex = i;
     }
@@ -424,7 +426,7 @@ void FractionSet::sortYOrder()
         m_yorder[i] = yo;
     }
 
-    eastl::stable_sort(m_yorder.begin(), m_yorder.end(), LessY<YHolder>());
+    stl::stable_sort(m_yorder.begin(), m_yorder.end(), LessY<YHolder>());
     for(size_t i=0; i<num_data; ++i) {
         m_data[m_yorder[i].index].yindex = i;
     }
@@ -441,7 +443,7 @@ void FractionSet::sortZOrder()
         m_zorder[i] = zo;
     }
 
-    eastl::stable_sort(m_zorder.begin(), m_zorder.end(), LessZ<ZHolder>());
+    stl::stable_sort(m_zorder.begin(), m_zorder.end(), LessZ<ZHolder>());
     for(size_t i=0; i<num_data; ++i) {
         m_data[m_zorder[i].index].zindex = i;
     }

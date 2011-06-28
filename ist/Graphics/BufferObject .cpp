@@ -6,17 +6,34 @@ namespace ist {
 namespace graphics {
 
 template<GLuint BufferType>
-BufferObject<BufferType>::BufferObject() : m_handle(0), m_size(0)
+BufferObject<BufferType>::BufferObject()
+: m_handle(0)
+, m_size(0)
+{
+}
+
+template<GLuint BufferType>
+BufferObject<BufferType>::~BufferObject()
+{
+    finalize();
+}
+
+
+template<GLuint BufferType>
+void BufferObject<BufferType>::initialize()
 {
     glGenBuffers(1, &m_handle);
     CheckGLError();
 }
 
 template<GLuint BufferType>
-BufferObject<BufferType>::~BufferObject()
+void BufferObject<BufferType>::finalize()
 {
-    glDeleteBuffers(1, &m_handle);
-    CheckGLError();
+    if(m_handle!=0) {
+        glDeleteBuffers(1, &m_handle);
+        CheckGLError();
+    }
+    m_handle = 0;
 }
 
 template<GLuint BufferType>

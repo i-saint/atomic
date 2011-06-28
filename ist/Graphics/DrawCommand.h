@@ -84,7 +84,7 @@ struct DC_Matrix
 class DrawCommandList
 {
 private:
-    eastl::vector<char> m_commandbuf;
+    stl::vector<char> m_commandbuf;
 
 public:
     void resizeBuffer(size_t size);

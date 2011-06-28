@@ -27,12 +27,11 @@ void AtomicGame::update()
 void AtomicGame::draw()
 {
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glShadeModel(GL_SMOOTH);
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
     glEnable(GL_CULL_FACE);
 
-    glClearColor(0.0f,0.0f,0.0f,0.0f);
+    glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
 

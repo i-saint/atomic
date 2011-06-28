@@ -1,6 +1,8 @@
 #ifndef __ist_Graphic_Assert__
 #define __ist_Graphic_Assert__
 
+//#define IST_ENABLE_GRAPHICS_ASSERT
+
 #ifdef IST_ENABLE_GRAPHICS_ASSERT
     #include "../Base/Assert.h"
 

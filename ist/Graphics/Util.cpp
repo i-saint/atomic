@@ -61,8 +61,10 @@ bool CreateFragmentShaderFromStream(FragmentShader& sh, std::istream& st)   { re
 template<size_t NumColorBuffers>
 bool ColorNBuffer<NumColorBuffers>::initialize(GLsizei width, GLsizei height)
 {
+    super::initialize();
+
     for(size_t i=0; i<NumColorBuffers; ++i) {
-        m_color[i].initialize(width, height, Texture2D::FMT_RGBA_I8);
+        m_color[i].initialize(width, height, Texture2D::FMT_RGBA_U8);
         m_color[i].bind();
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -85,6 +87,8 @@ template ColorNBuffer<8>;
 
 bool DepthBuffer::initialize(GLsizei width, GLsizei height)
 {
+    super::initialize();
+
     m_depth.initialize(width, height, Texture2D::FMT_DEPTH_F32);
     m_depth.bind();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -106,21 +110,65 @@ bool DepthBuffer::initialize(GLsizei width, GLsizei height)
 
 
 template<size_t NumColorBuffers>
-bool ColorNDepthBuffer<NumColorBuffers>::initialize(GLsizei width, GLsizei height)
+ColorNDepthBuffer<NumColorBuffers>::ColorNDepthBuffer()
+: m_width(0)
+, m_height(0)
 {
-    for(size_t i=0; i<NumColorBuffers; ++i) {
-        m_color[i].initialize(width, height, Texture2D::FMT_RGBA_I8);
-        m_color[i].bind();
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        m_color[i].unbind();
-        attachTexture(m_color[i], FrameBufferObject::ATTACH(ATTACH_COLOR0+i));
-    }
+    std::fill_n(m_owned, _countof(m_owned), (Texture2D*)NULL);
+    m_depth = NULL;
+    std::fill_n(m_color, _countof(m_color), (Texture2D*)NULL);
+}
 
-    m_depth.initialize(width, height, RenderBuffer::FMT_DEPTH_F32);
-    attachRenderBuffer(m_depth, ATTACH_DEPTH);
+template<size_t NumColorBuffers>
+ColorNDepthBuffer<NumColorBuffers>::~ColorNDepthBuffer()
+{
+    for(size_t i=0; i<_countof(m_owned); ++i) {
+        delete m_owned[i];
+    }
+}
+
+template<size_t NumColorBuffers>
+bool ColorNDepthBuffer<NumColorBuffers>::initialize(GLsizei width, GLsizei height, FORMAT fmt)
+{
+    super::initialize();
+
+    m_width = width;
+    m_height = height;
+
+    int num_owned = 0;
+    {
+        if(!m_depth) {
+            Texture2D *depth = new Texture2D();
+            depth->initialize(width, height, Texture2D::FMT_DEPTH_F32);
+            depth->bind();
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+            //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+            //glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
+            depth->unbind();
+            m_owned[num_owned++] = depth;
+            m_depth = depth;
+        }
+        attachTexture(*m_depth, ATTACH_DEPTH);
+    }
+    for(size_t i=0; i<NumColorBuffers; ++i) {
+        if(!m_color[i]) {
+            Texture2D *color = new Texture2D();
+            color->initialize(width, height, Texture2D::FORMAT(fmt));
+            color->bind();
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            color->unbind();
+            m_owned[num_owned++] = color;
+            m_color[i] = color;
+        }
+        attachTexture(*m_color[i], FrameBufferObject::ATTACH(ATTACH_COLOR0+i));
+    }
     return true;
 }
 template ColorNDepthBuffer<1>;

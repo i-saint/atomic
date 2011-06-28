@@ -10,20 +10,21 @@ template<size_t ShaderType>
 ShaderObject<ShaderType>::ShaderObject()
   : m_handle(0)
 {
-    // create
-    m_handle = glCreateShader(SHADER_TYPE);
-    CheckGLError();
 }
 
 template<size_t ShaderType>
 ShaderObject<ShaderType>::~ShaderObject()
 {
-    glDeleteShader(m_handle);
+    finalize();
 }
 
 template<size_t ShaderType>
 bool ShaderObject<ShaderType>::initialize(const char *src, int length)
 {
+    // create
+    m_handle = glCreateShader(SHADER_TYPE);
+    CheckGLError();
+
     // set shader source
     glShaderSource(m_handle, 1, &src, &length);
     if(glGetError() != GL_NO_ERROR) {
@@ -42,7 +43,8 @@ bool ShaderObject<ShaderType>::initialize(const char *src, int length)
             int l;
             GLchar *info_log = new GLchar[length];
             glGetShaderInfoLog(m_handle, length, &l, info_log);
-            IST_ASSERT(info_log);
+            IST_PUTS(info_log);
+            IST_ASSERT("compile failed.");
             delete[] info_log;
         }
         return false;
@@ -54,6 +56,16 @@ bool ShaderObject<ShaderType>::initialize(const char *src, int length)
 template<size_t ShaderType>
 void ShaderObject<ShaderType>::finalize()
 {
+    if(m_handle!=0) {
+        glDeleteShader(m_handle);
+    }
+    m_handle = 0;
+}
+
+template<size_t ShaderType>
+GLuint ShaderObject<ShaderType>::getHandle() const
+{
+    return m_handle;
 }
 
 template ShaderObject<GL_VERTEX_SHADER>;
@@ -63,43 +75,34 @@ template ShaderObject<GL_GEOMETRY_SHADER>;
 
 
 ProgramObject::ProgramObject()
-: m_handle(0)
+    : m_handle(0)
 {
-    m_handle = glCreateProgram();
-    CheckGLError();
 }
 
 ProgramObject::~ProgramObject()
 {
-    glDeleteProgram(m_handle);
+    finalize();
 }
 
-void ProgramObject::attachVertexShader(VertexShader *sh)
+
+bool ProgramObject::initialize(VertexShader *vsh, GeometryShader *gsh, FragmentShader *fsh)
 {
-    if(sh) {
-        glAttachShader(m_handle, sh->getHandle());
+    m_handle = glCreateProgram();
+    CheckGLError();
+
+    if(vsh) {
+        glAttachShader(m_handle, vsh->getHandle());
         CheckGLError();
     }
-}
-
-void ProgramObject::attachGeometryShader(GeometryShader *sh)
-{
-    if(sh) {
-        glAttachShader(m_handle, sh->getHandle());
+    if(gsh) {
+        glAttachShader(m_handle, gsh->getHandle());
         CheckGLError();
     }
-}
-
-void ProgramObject::attachFragmentShader(FragmentShader *sh)
-{
-    if(sh) {
-        glAttachShader(m_handle, sh->getHandle());
+    if(fsh) {
+        glAttachShader(m_handle, fsh->getHandle());
         CheckGLError();
     }
-}
 
-bool ProgramObject::link()
-{
     // link
     glLinkProgram(m_handle);
     CheckGLError();
@@ -114,7 +117,8 @@ bool ProgramObject::link()
             int l;
             GLchar *info_log = new GLchar[length];
             glGetProgramInfoLog(m_handle, length, &l, info_log);
-            IST_ASSERT(info_log);
+            IST_PUTS(info_log);
+            IST_ASSERT("compile failed.");
             delete[] info_log;
         }
         return false;
@@ -123,16 +127,12 @@ bool ProgramObject::link()
     return true;
 }
 
-bool ProgramObject::initialize(VertexShader *vsh, GeometryShader *gsh, FragmentShader *fsh)
-{
-    attachVertexShader(vsh);
-    attachGeometryShader(gsh);
-    attachFragmentShader(fsh);
-    return link();
-}
-
 void ProgramObject::finalize()
 {
+    if(m_handle!=0) {
+        glDeleteProgram(m_handle);
+    }
+    m_handle = 0;
 }
 
 

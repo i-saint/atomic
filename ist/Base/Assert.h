@@ -4,6 +4,7 @@
 
 #ifndef IST_DISABLE_ASSERT
 
+#define IST_PUTS(str) ist::DebugPuts(str)
 #define IST_PRINT(...) ist::DebugPrint(__FILE__, __LINE__, __VA_ARGS__)
 #define IST_ASSERT(...)\
     {\
@@ -21,6 +22,8 @@ namespace ist
     void SetAssertHandler(AssertHandler handler);
     void SetPanicHandler(PanicHandler handler);
 
+    void DebugPuts(const char* fmt);
+
     void DebugPrint(const char* file, int line, const char* fmt, ...);
     void DebugPrintV(const char* file, int line, const char* fmt, va_list vl);
 
@@ -31,6 +34,7 @@ namespace ist
 
 
 #else // IST_DISABLE_ASSERT
+#define IST_PUTS(str)
 #define IST_PRINT(...)
 #define IST_ASSERT(...)
 #endif // IST_DISABLE_ASSERT

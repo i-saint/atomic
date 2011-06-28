@@ -8,12 +8,27 @@
 namespace atomic {
 
 
+static AtomicApplication *s_inst = NULL;
+
+
+AtomicApplication* AtomicApplication::getInstance() { return s_inst; }
+
 AtomicApplication::AtomicApplication()
     : m_request_exit(false)
     , m_game(NULL)
 {
+    if(s_inst) {
+        IST_ASSERT("ìÒèdèâä˙âª");
+    }
+    s_inst = this;
 }
 
+AtomicApplication::~AtomicApplication()
+{
+    if(s_inst==this) {
+        s_inst = NULL;
+    }
+}
 
 bool AtomicApplication::Initialize(size_t x, size_t y, size_t width, size_t height, const wchar_t *title, bool fullscreen)
 {
@@ -21,7 +36,7 @@ bool AtomicApplication::Initialize(size_t x, size_t y, size_t width, size_t heig
     {
         return false;
     }
-    TaskScheduler::initializeSingleton();
+    TaskScheduler::initializeSingleton(11);
 
     m_game = EA_ALIGNED_NEW(AtomicGame, 16) AtomicGame();
     return true;

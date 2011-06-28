@@ -3,42 +3,6 @@
 
 namespace atomic {
 
-
-class FractionShader
-{
-private:
-    ProgramObject m_shader;
-    VertexShader m_vsh;
-    FragmentShader m_fsh;
-    GLuint m_ipos;
-
-public:
-    FractionShader();
-    void bind() const;
-    void unbind() const;
-};
-
-class FractionRenderer
-{
-private:
-    eastl::vector<XMVECTOR> m_pos;
-    ModelData m_model;
-    ProgramObject m_shader;
-    VertexShader m_vsh;
-    FragmentShader m_fsh;
-    eastl::vector<UniformBufferObject*> m_posbuf;
-    GLuint m_ipos;
-
-public:
-    FractionRenderer();
-    ~FractionRenderer();
-    void resizePositin(uint32 size) { m_pos.resize(size); }
-    void setPosition(uint32 i, XMVECTOR pos) { m_pos[i]=pos; }
-    void draw();
-};
-
-
-
 inline void SetFloat3(float (&v)[3], float x, float y, float z)
 {
     v[0] = x;
@@ -51,8 +15,56 @@ inline void SetFloat3(float (&v)[3], float (&s)[3])
     v[1] = s[1];
     v[2] = s[2];
 }
+inline void SetFloat3(float (&v)[3], XMVECTOR s)
+{
+    v[0] = ((float*)&s)[0];
+    v[1] = ((float*)&s)[1];
+    v[2] = ((float*)&s)[2];
+}
 
-inline void CreateCubeModel(ModelData& model)
+
+
+inline void CreateSphereModel(ModelData& model, float32 radius)
+{
+    const float pi = 3.14159f;
+    const float radian = pi/180.0f;
+    
+    const int ydiv = 12;
+    const int xzdiv = 24;
+    XMVECTOR v[ydiv][xzdiv];
+    float n[ydiv][xzdiv][3];
+    int index[(ydiv-1)*(xzdiv)*4];
+
+    for(int i=0; i<ydiv; ++i) {
+        float ang = ((180.0f/(ydiv-1)*i-90.0f)*radian);
+        v[i][0] = XMVectorSet(cos(ang)*radius, sin(ang)*radius, 0, 1.0);
+    }
+    XMMATRIX mat = XMMatrixIdentity();
+    for(int j=0; j<xzdiv; ++j) {
+        for(int i=0; i<ydiv; ++i) {
+            v[i][j] = XMVector4Transform(v[i][0], mat);
+            SetFloat3(n[i][j], XMVector3Normalize(v[i][j]));
+        }
+        mat = XMMatrixRotationY(360.0f/xzdiv*j*radian);
+    }
+
+    int *ci = index;
+    for(int i=0; i<ydiv-1; ++i) {
+        for(int j=0; j<xzdiv; ++j) {
+            ci[0] = xzdiv*(i)  + j;
+            ci[1] = xzdiv*(i)  + ((j+1)%xzdiv);
+            ci[2] = xzdiv*(i+1)+ ((j+1)%xzdiv);
+            ci[3] = xzdiv*(i+1)+ j;
+            ci+=4;
+        }
+    }
+    model.setVertex(v, ydiv*xzdiv, ModelData::VTX_FLOAT4, ModelData::USAGE_STATIC);
+    model.setNormal(n, ydiv*xzdiv, ModelData::USAGE_STATIC);
+    model.setIndex(index, ((ydiv-1)*(xzdiv)*4), ModelData::IDX_INT32, ModelData::PRM_QUADS, ModelData::USAGE_STATIC);
+
+}
+
+inline void CreateCubeModel(ModelData& model, float32 len)
 {
     float vertex[24][3];
     float normal[24][3];
@@ -61,8 +73,8 @@ inline void CreateCubeModel(ModelData& model)
     float n[3];
     float ur[3];
     float bl[3];
-    SetFloat3(ur,  3, 3, 3);
-    SetFloat3(bl, -3,-3,-3);
+    SetFloat3(ur,  len/2.0f, len/2.0f, len/2.0f);
+    SetFloat3(bl, -len/2.0f,-len/2.0f,-len/2.0f);
 
     SetFloat3(n, 1.0f, 0.0f, 0.0f);
     SetFloat3(normal[0], n);
@@ -133,47 +145,198 @@ inline void CreateCubeModel(ModelData& model)
     model.setIndex(index, 24, ModelData::IDX_INT32, ModelData::PRM_QUADS, ModelData::USAGE_STATIC);
 }
 
+void DrawScreen(float32 min_tx, float32 min_ty, float32 max_tx, float32 max_ty)
+{
+    OrthographicCamera cam;
+    cam.setScreen(0.0f, 1.0f, 0.0f, 1.0f);
+    cam.bind();
+
+    float32 min_x = 0.0f;
+    float32 min_y = 0.0f;
+    float32 max_x = 1.0f;
+    float32 max_y = 1.0f;
+
+    glBegin(GL_QUADS);
+    glTexCoord2f(min_tx, min_ty);
+    glVertex2f(min_x, min_y);
+    glTexCoord2f(max_tx, min_ty);
+    glVertex2f(max_x, min_y);
+    glTexCoord2f(max_tx, max_ty);
+    glVertex2f(max_x, max_y);
+    glTexCoord2f(min_tx, max_ty);
+    glVertex2f(min_x, max_y);
+    glEnd();
+}
+
+
+
+class FractionShader
+{
+private:
+    ProgramObject m_shader;
+    VertexShader m_vsh;
+    FragmentShader m_fsh;
+    GLuint m_ipos;
+
+    Color4DepthBuffer m_render_target;
+
+public:
+    FractionShader();
+    void bind() const;
+    void unbind() const;
+};
+
+class FractionRenderer
+{
+public:
+    static const uint32 RENDERBUFFER_SIZE = 1024;
+
+private:
+    stl::vector<XMVECTOR> m_fraction_pos;
+    stl::vector<XMVECTOR> m_light_pos;
+    ModelData m_fraction_model;
+    ModelData m_light_model;
+
+    ProgramObject m_sh_gbuffer;
+    VertexShader m_vsh_gbuffer;
+    FragmentShader m_fsh_gbuffer;
+    UniformBufferObject m_fraction_pos_buf;
+    GLuint m_i_fracton_pos;
+
+    ProgramObject m_sh_deferred;
+    VertexShader m_vsh_deferred;
+    FragmentShader m_fsh_deferred;
+    UniformBufferObject m_light_pos_buf;
+    GLuint m_i_light_pos;
+
+    ProgramObject m_sh_out;
+    VertexShader m_vsh_out;
+    FragmentShader m_fsh_out;
+
+    Color3DepthBuffer m_rt_gbuffer;
+    ColorDepthBuffer m_rt_deferred;
+    //FrameBufferObject m_fbo;
+    //Texture2D m_depth;
+    //Texture2D m_color[4];
+
+public:
+    FractionRenderer();
+    ~FractionRenderer();
+    void resizePositin(uint32 size) { m_fraction_pos.resize(size); }
+    void setPosition(uint32 i, XMVECTOR pos) { m_fraction_pos[i]=pos; }
+    void draw();
+};
+
+
+
+
 FractionRenderer::FractionRenderer()
 {
-    CreateCubeModel(m_model);
-    CreateVertexShaderFromFile(m_vsh, "shader/fraction.vsh");
-    CreateFragmentShaderFromFile(m_fsh, "shader/fraction.fsh");
-    m_shader.initialize(&m_vsh, NULL, &m_fsh);
+    CreateCubeModel(m_fraction_model, 6.0f);
+    CreateSphereModel(m_light_model, 150.0f);
 
-    m_ipos = m_shader.getUniformBlockIndex("FractionData");
+    CreateVertexShaderFromFile(m_vsh_gbuffer, "shader/gbuffer.vsh");
+    CreateFragmentShaderFromFile(m_fsh_gbuffer, "shader/gbuffer.fsh");
+    m_sh_gbuffer.initialize(&m_vsh_gbuffer, NULL, &m_fsh_gbuffer);
+    m_i_fracton_pos = m_sh_gbuffer.getUniformBlockIndex("FractionData");
+    m_fraction_pos_buf.initialize();
+
+    CreateVertexShaderFromFile(m_vsh_deferred, "shader/deferred.vsh");
+    CreateFragmentShaderFromFile(m_fsh_deferred, "shader/deferred.fsh");
+    m_sh_deferred.initialize(&m_vsh_deferred, NULL, &m_fsh_deferred);
+    m_i_light_pos = m_sh_deferred.getUniformBlockIndex("LightData");
+    m_light_pos_buf.initialize();
+
+    CreateVertexShaderFromFile(m_vsh_out, "shader/out.vsh");
+    CreateFragmentShaderFromFile(m_fsh_out, "shader/out.fsh");
+    m_sh_out.initialize(&m_vsh_out, NULL, &m_fsh_out);
+
+    m_rt_gbuffer.initialize(RENDERBUFFER_SIZE, RENDERBUFFER_SIZE, Color3DepthBuffer::FMT_RGBA_F32);
+
+    m_rt_deferred.setDepthBuffer(m_rt_gbuffer.getDepthBuffer());
+    m_rt_deferred.initialize(RENDERBUFFER_SIZE, RENDERBUFFER_SIZE);
 }
 
 FractionRenderer::~FractionRenderer()
 {
-    for(uint32 i=0; i<m_posbuf.size(); ++i) { EA_DELETE(m_posbuf[i]); }
-    m_posbuf.clear();
 }
 
 void FractionRenderer::draw()
 {
-    const uint32 instances_par_batch = 1024;
-    const uint32 num_instances = m_pos.size();
-    const uint32 num_batch = num_instances/instances_par_batch + (num_instances%instances_par_batch!=0 ? 1 : 0);
+    // G-buffer pass
+    {
+        const uint32 instances_par_batch = 1024;
+        const uint32 num_instances = m_fraction_pos.size();
+        const uint32 num_batch = num_instances/instances_par_batch + (num_instances%instances_par_batch!=0 ? 1 : 0);
 
-    while(m_posbuf.size()<num_batch) {
-        UniformBufferObject *uni = EA_NEW(UniformBufferObject) UniformBufferObject();
-        uni->allocate(sizeof(float)*4*instances_par_batch, UniformBufferObject::USAGE_STREAM);
-        m_posbuf.push_back(uni);
+        m_fraction_pos_buf.allocate(sizeof(XMVECTOR)*num_instances, UniformBufferObject::USAGE_STREAM, &m_fraction_pos[0]);
+
+        m_rt_gbuffer.bind();
+        glClearColor(0.0f,0.0f,0.0f,0.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        GetCamera()->bind();
+        for(uint32 i=0; i<num_batch; ++i) {
+            uint32 n = std::min<uint32>(num_instances-(i*instances_par_batch), instances_par_batch);
+            m_fraction_pos_buf.bindRange(i, sizeof(XMVECTOR)*(instances_par_batch*i), sizeof(XMVECTOR)*n);
+            m_sh_gbuffer.setUniformBlockBinding(m_i_fracton_pos, i);
+            m_sh_gbuffer.bind();
+            m_fraction_model.drawInstanced(n);
+            m_sh_gbuffer.unbind();
+        }
+        m_rt_gbuffer.unbind();
     }
-    for(uint32 i=0; i<num_batch; ++i) {
-        uint32 n = std::min<uint32>(num_instances-(i*instances_par_batch), instances_par_batch);
-        UniformBufferObject *uni = m_posbuf[i];
-        void *p = uni->lock(UniformBufferObject::LOCK_WRITE);
-        memcpy(p,  &m_pos[i*instances_par_batch], n*sizeof(XMVECTOR));
-        uni->unlock();
 
-        uni->bindBase(0);
-        m_shader.setUniformBlockBinding(m_ipos, 0);
+    // deferred shading pass
+    {
+        const uint32 instances_par_batch = 1024;
+        const uint32 num_fraction = m_fraction_pos.size();
+        m_light_pos.clear();
+        for(uint32 i=0; i<num_fraction; i+=200) {
+            m_light_pos.push_back(m_fraction_pos[i]);
+        }
+        const uint32 num_lights = m_light_pos.size();
+        const uint32 num_batch = num_lights/instances_par_batch + (num_lights%instances_par_batch!=0 ? 1 : 0);
 
-        m_shader.bind();
-        m_model.drawInstanced(n);
-        m_shader.unbind();
+        m_light_pos_buf.allocate(sizeof(XMVECTOR)*num_lights, UniformBufferObject::USAGE_STREAM, &m_light_pos[0]);
+
+        m_rt_deferred.bind();
+        m_sh_deferred.bind();
+        m_rt_gbuffer.getColorBuffer(0)->bind(Texture2D::SLOT_0);
+        m_rt_gbuffer.getColorBuffer(1)->bind(Texture2D::SLOT_1);
+        m_rt_gbuffer.getColorBuffer(2)->bind(Texture2D::SLOT_2);
+        m_sh_deferred.setUniform1i(0, Texture2D::SLOT_0);
+        m_sh_deferred.setUniform1i(1, Texture2D::SLOT_1);
+        m_sh_deferred.setUniform1i(2, Texture2D::SLOT_2);
+        glClearColor(0.0f,0.0f,0.0f,1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+        glDepthMask(GL_FALSE);
+        GetCamera()->bind();
+        for(uint32 i=0; i<num_batch; ++i) {
+            uint32 n = std::min<uint32>(num_lights-(i*instances_par_batch), instances_par_batch);
+            m_light_pos_buf.bindRange(i, sizeof(XMVECTOR)*(instances_par_batch*i), sizeof(XMVECTOR)*n);
+            m_sh_deferred.setUniformBlockBinding(m_i_fracton_pos, i);
+            m_light_model.drawInstanced(n);
+        }
+        glDepthMask(GL_TRUE);
+        glDisable(GL_BLEND);
+        m_rt_gbuffer.getColorBuffer(2)->unbind(Texture2D::SLOT_2);
+        m_rt_gbuffer.getColorBuffer(1)->unbind(Texture2D::SLOT_1);
+        m_rt_gbuffer.getColorBuffer(0)->unbind(Texture2D::SLOT_0);
+        m_sh_deferred.unbind();
+        m_rt_deferred.unbind();
     }
+
+    // output
+    {
+        m_rt_deferred.getColorBuffer(0)->bind(Texture2D::SLOT_0);
+        m_sh_out.bind();
+        DrawScreen(0.0f, 0.0f, float(GetWindowWidth())/float32(m_rt_deferred.getWidth()), float(GetWindowHeight())/float32(m_rt_deferred.getHeight()));
+        m_sh_out.unbind();
+        m_rt_deferred.getColorBuffer(0)->unbind(Texture2D::SLOT_0);
+    }
+
 
     //for(uint32 i=0; i<num; ++i) {
     //    const float *pos = (float*)&m_pos[i];

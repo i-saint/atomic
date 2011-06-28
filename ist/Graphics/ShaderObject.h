@@ -20,10 +20,10 @@ public:
     ShaderObject();
     ~ShaderObject();
 
-    GLuint getHandle() const { return m_handle; }
-
     bool initialize(const char *src, int length);
     void finalize();
+
+    GLuint getHandle() const;
 };
 
 typedef ShaderObject<GL_VERTEX_SHADER> VertexShader;
@@ -44,8 +44,6 @@ private:
 public:
     ProgramObject();
     ~ProgramObject();
-
-    bool operator!() const { return !m_handle; }
 
     bool initialize(VertexShader *vsh, GeometryShader *gsh, FragmentShader *fsh);
     void finalize();

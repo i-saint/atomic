@@ -32,4 +32,6 @@
 #include <sstream>
 #include <fstream>
 
+namespace stl = eastl;
+
 // TODO: プログラムに必要な追加ヘッダーをここで参照してください。

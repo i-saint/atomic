@@ -47,7 +47,11 @@ private:
 
 public:
     ModelData()
-    {}
+    {
+        m_vbo.initialize();
+        m_nbo.initialize();
+        m_ibo.initialize();
+    }
 
     void setVertex(void *data, size_t num_vertex, VERTEX_FORMAT fmt, USAGE usage)
     {

@@ -14,7 +14,7 @@ inline void bad_alloc_hander(const Allocator* allocator)
 
 
 
-template<class ParentAllocatorType=eastl::allocator, bool AllowOverflow=false>
+template<class ParentAllocatorType=stl::allocator, bool AllowOverflow=false>
 class stack_allocator
 {
 public:
@@ -98,7 +98,7 @@ public:
 };
 
 
-template<class ParentAllocatorType=eastl::allocator, bool AllowOverflow=false>
+template<class ParentAllocatorType=stl::allocator, bool AllowOverflow=false>
 class pool_allocator
 {
 public:
@@ -190,7 +190,7 @@ public:
     // ”ñŒÝŠ·‹@”\
     void defrag()
     {
-        eastl::stable_sort(m_unused+m_used, m_unused+m_max_element);
+        stl::stable_sort(m_unused+m_used, m_unused+m_max_element);
     }
 };
 

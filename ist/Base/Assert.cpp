@@ -23,6 +23,16 @@ void SetAssertHandler(AssertHandler handler) { s_assert_handler = handler; }
 void SetPanicHandler(PanicHandler handler)   { s_panic_handler = handler; }
 
 
+void DebugPuts(const char* str)
+{
+#ifdef _WIN32
+    ::OutputDebugStringA(str);
+#else
+    puts(str);
+    fflush(stdout);
+#endif // _WIN32
+}
+
 void DebugPrint(const char* file, int line, const char* fmt, ...)
 {
     va_list vl;
@@ -33,15 +43,16 @@ void DebugPrint(const char* file, int line, const char* fmt, ...)
 
 void DebugPrintV(const char* file, int line, const char* fmt, va_list vl)
 {
-    char buf[DPRINTF_MES_LENGTH];
 #ifdef _WIN32
+    char buf[DPRINTF_MES_LENGTH];
     _snprintf_s(buf, DPRINTF_MES_LENGTH, "%s:%d - ", file, line);
     ::OutputDebugStringA(buf);
     _vsnprintf_s(buf, DPRINTF_MES_LENGTH, fmt, vl);
     ::OutputDebugStringA(buf);
-#endif // _WIN32
+#else
     vprintf(fmt, vl);
     fflush(stdout);
+#endif // _WIN32
 }
 
 
@@ -56,20 +67,21 @@ int DebugAssert(const char* file, int line, const char* fmt, ...)
 
 int DebugAssertV(const char* file, int line, const char* fmt, va_list vl)
 {
-    char buf[DPRINTF_MES_LENGTH];
 #ifdef _WIN32
+    char buf[DPRINTF_MES_LENGTH];
     _snprintf_s(buf, DPRINTF_MES_LENGTH, "assertion failed %s:%d - ", file, line);
     ::OutputDebugStringA(buf);
     _vsnprintf_s(buf, DPRINTF_MES_LENGTH, fmt, vl);
     ::OutputDebugStringA(buf);
     DebugBreak();
-#endif // _WIN32
-    printf("assert %s : %d\n", file, line);
+#else
+    printf("assertion failed %s:%d - ", file, line);
     vprintf(fmt, vl);
-
     fflush(stdout);
     fgets(buf, DPRINTF_MES_LENGTH, stdin);
     return s_assert_handler ? s_assert_handler() : 0;
+#endif // _WIN32
+    return 0;
 }
 
 

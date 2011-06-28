@@ -87,6 +87,8 @@ LRESULT CALLBACK WndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lPara
 Application::Application()
 : m_hwnd(NULL)
 , m_hglrc(NULL)
+, m_width(0)
+, m_height(0)
 {
 }
 
@@ -103,6 +105,8 @@ bool Application::Initialize(size_t x, size_t y, size_t width, size_t height, co
     }
     g_the_app = this;
 
+    m_width = width;
+    m_height = height;
     m_fullscreen = fullscreen;
     int style = fullscreen ? WS_POPUP : WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME ^ WS_MAXIMIZEBOX;
     int flag = WS_POPUP | WS_VISIBLE;

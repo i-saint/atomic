@@ -10,11 +10,11 @@ class PooledFactoryBase
 {
 protected:
     typedef PooledFactoryBase ThisType;
-    eastl::vector<BaseObjectType*> m_unused;
+    stl::vector<BaseObjectType*> m_unused;
 
-    static eastl::set<ThisType*>& getFactories()
+    static stl::set<ThisType*>& getFactories()
     {
-        static eastl::set<ThisType*> s_factories;
+        static stl::set<ThisType*> s_factories;
         return s_factories;
     }
 
@@ -61,7 +61,7 @@ protected:
 public:
     void deleteAllFactories()
     {
-        eastl::set<ThisType*>& cont = getFactories();
+        stl::set<ThisType*>& cont = getFactories();
         while(!cont.empty())
         {
             delete *cont.begin();
@@ -180,9 +180,9 @@ class Task_FractionUpdate : public Task
 {
 private:
     FractionSet *m_obj;
-    eastl::vector<Task_FractionMove*> m_move_tasks;
-    eastl::vector<Task_FractionCollisionTest*> m_col_test_tasks;
-    eastl::vector<Task_FractionCollisionProcess*> m_col_proc_tasks;
+    stl::vector<Task_FractionMove*> m_move_tasks;
+    stl::vector<Task_FractionCollisionTest*> m_col_test_tasks;
+    stl::vector<Task_FractionCollisionProcess*> m_col_proc_tasks;
     Task_FractionSortX *m_sortx_task;
     Task_FractionSortY *m_sorty_task;
     Task_FractionSortZ *m_sortz_task;

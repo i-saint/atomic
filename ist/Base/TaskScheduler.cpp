@@ -40,7 +40,7 @@ namespace impl
 class TaskQueue
 {
 private:
-    typedef eastl::list<TaskPtr> task_cont;
+    typedef stl::list<TaskPtr> task_cont;
     task_cont m_tasks;
     boost::mutex m_suspender;
     boost::condition_variable m_cond;

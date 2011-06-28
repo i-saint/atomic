@@ -68,13 +68,13 @@ public:
 private:
     size_t                  m_num_data_chunk;
     size_t                  m_num_result_chunk;
-    eastl::vector<quadword> m_data;
-    eastl::vector<quadword> m_result;
+    stl::vector<quadword> m_data;
+    stl::vector<quadword> m_result;
 
     DataHeader              m_tmp_data_header;
     ResultHeader            m_tmp_result_header;
-    eastl::vector<Data>     m_tmp_data;
-    eastl::vector<Result>   m_tmp_result;
+    stl::vector<Data>     m_tmp_data;
+    stl::vector<Result>   m_tmp_result;
 
 
 public:

@@ -24,7 +24,7 @@ public:
         LOCK_READWRITE  = GL_READ_WRITE,
     };
 
-private:
+protected:
     GLuint m_handle;
     GLuint m_size;
 
@@ -32,7 +32,8 @@ public:
     BufferObject();
     ~BufferObject();
 
-    GLuint size() const;
+    void initialize();
+    void finalize();
 
     void bind() const;
     void unbind() const;
@@ -43,6 +44,7 @@ public:
     // data は NULL でもよく、その場合メモリ確保だけが行われる。
     void allocate(GLuint size, USAGE usage, void *data=NULL);
 
+    GLuint size() const;
     GLuint getHandle() const { return m_handle; }
 };
 

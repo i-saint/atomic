@@ -56,13 +56,16 @@ public:
     World* getNext() { return m_next; }
 
     FractionSet* getFractions() { return m_fraction_set; }
+    PerspectiveCamera* getCamera() { return &m_camera; }
     SFMT* getRandom() { return &m_rand; }
 };
 
 
 #define GetWorld() World::getInterframe()->getCurrentWorld()
 #define GetPrevWorld() GetWorld()->getPrev()
+
 #define GetFractions() GetWorld()->getFractions()
+#define GetCamera() GetWorld()->getCamera()
 
 #define GenFloatRand() GetWorld()->getRandom()->genFloat32()
 #define GenVector2Rand() GetWorld()->getRandom()->genVector2()

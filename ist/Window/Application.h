@@ -93,6 +93,9 @@ private:
     DEVMODE     m_devmode;
     bool        m_fullscreen;
 
+    size_t m_width;
+    size_t m_height;
+
 public:
     Application();
     virtual ~Application();
@@ -104,6 +107,9 @@ public:
     virtual int handleWindowMessage(const WindowMessage& wm)=0;
 
     void translateMessage();
+
+    size_t getWindowWidth() const { return m_width; }
+    size_t getWindowHeight() const { return m_height; }
 };
 
 } // namespace ist

@@ -39,9 +39,9 @@ enum {
 
 
 
-typedef eastl::allocator PermanentAllocator;
-//typedef stack_allocator< stack_allocator<eastl::allocator> > FrameScopedAllocator; // ‚ ‚Æ‚Å‚±‚¿‚ç‚É
-typedef eastl::allocator FrameScopedAllocator;
+typedef stl::allocator PermanentAllocator;
+//typedef stack_allocator< stack_allocator<stl::allocator> > FrameScopedAllocator; // ‚ ‚Æ‚Å‚±‚¿‚ç‚É
+typedef stl::allocator FrameScopedAllocator;
 
 
 

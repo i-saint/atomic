@@ -12,7 +12,11 @@ private:
     AtomicGame *m_game;
 
 public:
+    static AtomicApplication* getInstance();
+
+public:
     AtomicApplication();
+    ~AtomicApplication();
     virtual bool Initialize(size_t x, size_t y, size_t width, size_t height, const wchar_t *title, bool fullscreen=false);
     virtual void Finalize();
     virtual void mainLoop();
@@ -21,6 +25,10 @@ public:
     void update();
     void draw();
 };
+
+
+#define GetWindowWidth() AtomicApplication::getInstance()->getWindowWidth()
+#define GetWindowHeight() AtomicApplication::getInstance()->getWindowHeight()
 
 } // namespace atomic
 #endif __atomic_AtomicApplication__

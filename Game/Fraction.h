@@ -62,7 +62,7 @@ public:
     class Interframe
     {
     private:
-        typedef eastl::vector<FractionCollider*> FractionColliderCont;
+        typedef stl::vector<FractionCollider*> FractionColliderCont;
 
         FractionRenderer *m_renderer;
         FractionColliderCont m_colliders;
@@ -88,11 +88,11 @@ public:
 
 
 private:
-    typedef eastl::vector<FractionData, FrameScopedAllocator> DataCont;
-    typedef eastl::vector<XHolder, FrameScopedAllocator> XCont;
-    typedef eastl::vector<YHolder, FrameScopedAllocator> YCont;
-    typedef eastl::vector<ZHolder, FrameScopedAllocator> ZCont;
-    typedef eastl::vector<Message_GenerateFraction, FrameScopedAllocator> GenMessageCont;
+    typedef stl::vector<FractionData, FrameScopedAllocator> DataCont;
+    typedef stl::vector<XHolder, FrameScopedAllocator> XCont;
+    typedef stl::vector<YHolder, FrameScopedAllocator> YCont;
+    typedef stl::vector<ZHolder, FrameScopedAllocator> ZCont;
+    typedef stl::vector<Message_GenerateFraction, FrameScopedAllocator> GenMessageCont;
 
     DataCont    m_data;
     XCont       m_xorder;
