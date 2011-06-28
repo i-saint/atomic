@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "../ist/ist.h"
 #include "../types.h"
+#include "AtomicApplication.h"
 #include "Message.h"
 #include "Fraction.h"
 #include "World.h"
@@ -93,6 +94,7 @@ void World::draw()
     glEnable(GL_LIGHT0);
 
     m_camera.setPosition(XMVector3Transform(m_camera.getPosition(), XMMatrixRotationY(XMConvertToRadians(0.1f))));
+    m_camera.setAspect(GetWindowAspectRatio());
     m_camera.bind();
 
     m_fraction_set->draw();

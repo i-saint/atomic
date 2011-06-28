@@ -349,6 +349,7 @@ void FractionSet::collisionTest(size_t block)
         for(uint32 xi=xbegin; xi<xend; ++xi) {
             FractionData& target = m_data[m_xorder[xi].index];
             if(  target.id!=self_id &&
+                (target.xindex>=xbegin && target.xindex<xend) &&
                 (target.yindex>=ybegin && target.yindex<yend) &&
                 (target.zindex>=zbegin && target.zindex<zend) )
             {

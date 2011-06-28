@@ -169,6 +169,26 @@ void DrawScreen(float32 min_tx, float32 min_ty, float32 max_tx, float32 max_ty)
 }
 
 
+uint32 CalcFrameBufferWidth()
+{
+    uint32 r = 256;
+    uint32 window_width = GetWindowWidth();
+    while(r < window_width) {
+        r *= 2;
+    }
+    return r;
+}
+
+uint32 CalcFrameBufferHeight()
+{
+    uint32 r = 256;
+    uint32 window_height = GetWindowHeight();
+    while(r < window_height) {
+        r *= 2;
+    }
+    return r;
+}
+
 
 class FractionShader
 {
@@ -232,6 +252,9 @@ public:
 
 FractionRenderer::FractionRenderer()
 {
+    uint32 framebuffer_width = CalcFrameBufferWidth();
+    uint32 framebuffer_height = CalcFrameBufferHeight();
+
     CreateCubeModel(m_fraction_model, 6.0f);
     CreateSphereModel(m_light_model, 150.0f);
 
@@ -251,10 +274,10 @@ FractionRenderer::FractionRenderer()
     CreateFragmentShaderFromFile(m_fsh_out, "shader/out.fsh");
     m_sh_out.initialize(&m_vsh_out, NULL, &m_fsh_out);
 
-    m_rt_gbuffer.initialize(RENDERBUFFER_SIZE, RENDERBUFFER_SIZE, Color3DepthBuffer::FMT_RGBA_F32);
+    m_rt_gbuffer.initialize(framebuffer_width, framebuffer_height, Color3DepthBuffer::FMT_RGBA_F32);
 
     m_rt_deferred.setDepthBuffer(m_rt_gbuffer.getDepthBuffer());
-    m_rt_deferred.initialize(RENDERBUFFER_SIZE, RENDERBUFFER_SIZE);
+    m_rt_deferred.initialize(framebuffer_width, framebuffer_height);
 }
 
 FractionRenderer::~FractionRenderer()
@@ -263,6 +286,11 @@ FractionRenderer::~FractionRenderer()
 
 void FractionRenderer::draw()
 {
+    const PerspectiveCamera *camera = GetCamera();
+    float aspect_ratio = camera->getAspect();
+    float x_scale = float32(GetWindowWidth())/float32(m_rt_deferred.getWidth());
+    float y_scale = float32(GetWindowHeight())/float32(m_rt_deferred.getHeight()) * aspect_ratio;
+
     // G-buffer pass
     {
         const uint32 instances_par_batch = 1024;
@@ -274,7 +302,7 @@ void FractionRenderer::draw()
         m_rt_gbuffer.bind();
         glClearColor(0.0f,0.0f,0.0f,0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        GetCamera()->bind();
+        camera->bind();
         for(uint32 i=0; i<num_batch; ++i) {
             uint32 n = std::min<uint32>(num_instances-(i*instances_par_batch), instances_par_batch);
             m_fraction_pos_buf.bindRange(i, sizeof(XMVECTOR)*(instances_par_batch*i), sizeof(XMVECTOR)*n);
@@ -304,15 +332,17 @@ void FractionRenderer::draw()
         m_rt_gbuffer.getColorBuffer(0)->bind(Texture2D::SLOT_0);
         m_rt_gbuffer.getColorBuffer(1)->bind(Texture2D::SLOT_1);
         m_rt_gbuffer.getColorBuffer(2)->bind(Texture2D::SLOT_2);
-        m_sh_deferred.setUniform1i(0, Texture2D::SLOT_0);
-        m_sh_deferred.setUniform1i(1, Texture2D::SLOT_1);
-        m_sh_deferred.setUniform1i(2, Texture2D::SLOT_2);
+        m_sh_deferred.setUniform1i(m_sh_deferred.getUniformLocation("ColorBuffer"), Texture2D::SLOT_0);
+        m_sh_deferred.setUniform1i(m_sh_deferred.getUniformLocation("NormalBuffer"), Texture2D::SLOT_1);
+        m_sh_deferred.setUniform1i(m_sh_deferred.getUniformLocation("PositionBuffer"), Texture2D::SLOT_2);
+        m_sh_deferred.setUniform1f(m_sh_deferred.getUniformLocation("AspectRatio"), aspect_ratio);
+        m_sh_deferred.setUniform2f(m_sh_deferred.getUniformLocation("TexcoordScale"), x_scale, y_scale);
         glClearColor(0.0f,0.0f,0.0f,1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE);
         glDepthMask(GL_FALSE);
-        GetCamera()->bind();
+        camera->bind();
         for(uint32 i=0; i<num_batch; ++i) {
             uint32 n = std::min<uint32>(num_lights-(i*instances_par_batch), instances_par_batch);
             m_light_pos_buf.bindRange(i, sizeof(XMVECTOR)*(instances_par_batch*i), sizeof(XMVECTOR)*n);
@@ -332,6 +362,7 @@ void FractionRenderer::draw()
     {
         m_rt_deferred.getColorBuffer(0)->bind(Texture2D::SLOT_0);
         m_sh_out.bind();
+        m_sh_out.setUniform1i(m_sh_out.getUniformLocation("ColorBuffer"), Texture2D::SLOT_0);
         DrawScreen(0.0f, 0.0f, float(GetWindowWidth())/float32(m_rt_deferred.getWidth()), float(GetWindowHeight())/float32(m_rt_deferred.getHeight()));
         m_sh_out.unbind();
         m_rt_deferred.getColorBuffer(0)->unbind(Texture2D::SLOT_0);

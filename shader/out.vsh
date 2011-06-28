@@ -1,9 +1,9 @@
 #version 410 compatibility
 
-out vec2 texcoord;
+out vec2 Texcoord;
 
 void main(void)
 {
-    texcoord = gl_MultiTexCoord0.xy;
+    Texcoord = gl_MultiTexCoord0.xy;
     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 }

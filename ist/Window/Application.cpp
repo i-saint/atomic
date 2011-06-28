@@ -176,10 +176,29 @@ bool Application::Initialize(size_t x, size_t y, size_t width, size_t height, co
 
     //PixelFormatèâä˙âª
     ::wglMakeCurrent(m_hdc, m_hglrc);
-    ::SetWindowPos(m_hwnd,(HWND)-1, x,y, width,height, SWP_SHOWWINDOW);
     //::ShowCursor(false);
 
     ::glewInit();
+
+    DEVMODE devmode_sav;
+    if(fullscreen) {
+        devmode_sav.dmSize = sizeof(devmode_sav);
+        devmode_sav.dmDriverExtra = 0;
+        devmode_sav.dmPelsWidth = width;
+        devmode_sav.dmPelsHeight = height;
+        HDC hdc = GetDC(NULL);
+        devmode_sav.dmBitsPerPel = GetDeviceCaps(hdc,BITSPIXEL);
+        ReleaseDC(0,hdc);
+        devmode_sav.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
+
+        ::SetWindowPos(m_hwnd,(HWND)-1, 0,0, width,height, SWP_SHOWWINDOW);
+        if(::ChangeDisplaySettings(&devmode_sav,CDS_FULLSCREEN)!=DISP_CHANGE_SUCCESSFUL) {
+            return false;
+        }
+    }
+    else {
+        ::SetWindowPos(m_hwnd,(HWND)-1, x,y, width,height, SWP_SHOWWINDOW);
+    }
 
     return true;
 }

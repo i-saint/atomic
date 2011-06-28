@@ -59,5 +59,5 @@ struct Message_GenerateFraction
 void SendKillMessage(id_t receiver);
 void SendDestroyMessage(id_t receiver);
 
-} // namespace scntilla
+} // namespace atomic
 #endif // __atomic_Message__

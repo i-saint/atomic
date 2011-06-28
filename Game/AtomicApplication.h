@@ -29,6 +29,7 @@ public:
 
 #define GetWindowWidth() AtomicApplication::getInstance()->getWindowWidth()
 #define GetWindowHeight() AtomicApplication::getInstance()->getWindowHeight()
+#define GetWindowAspectRatio() (float(GetWindowWidth())/float(GetWindowHeight()))
 
 } // namespace atomic
 #endif __atomic_AtomicApplication__
