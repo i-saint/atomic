@@ -5,9 +5,15 @@
 
 #pragma once
 
+#define GLM_FORCE_INLINE    // glm ‚ÌƒCƒ“ƒ‰ƒCƒ“‰»‚Æ SSE ‰»
+#define GLM_FORCE_SSE2      //
+#define GLM_GTX_simd_vec4   //
+#define GLM_GTX_simd_mat4   //
+
 #include <stdio.h>
 #include <GL/glew.h>
-#include <Cg/cgGL.h>
+#include <glm/glm.hpp>
+//#include <Cg/cgGL.h>
 #include <windows.h>
 #include <xnamath.h>
 #include <stdlib.h>

@@ -56,6 +56,8 @@ LRESULT CALLBACK WndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lPara
         }
         return 0;
 
+
+
     case WM_CREATE:
         {
             ::timeBeginPeriod(1);

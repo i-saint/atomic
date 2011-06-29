@@ -119,7 +119,7 @@ public:
     };
 private:
     GLuint m_handle;
-    GLuint m_attaches[17];
+    GLuint m_attaches[18]; // 
 
 public:
     FrameBufferObject();
