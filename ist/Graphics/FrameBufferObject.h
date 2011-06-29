@@ -119,7 +119,7 @@ public:
     };
 private:
     GLuint m_handle;
-    GLuint m_attaches[18]; // 
+    GLuint m_attaches; // 0bit-15bit –Ú‚ª‚»‚ê‚¼‚ê ATTACH_COLOR0-ATTACH_COLOR15 ‚É‘Î‰ž
 
 public:
     FrameBufferObject();

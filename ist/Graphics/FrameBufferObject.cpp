@@ -200,8 +200,8 @@ GLsizei RenderBuffer::getHeight() const { return m_height; }
 
 FrameBufferObject::FrameBufferObject()
 : m_handle(0)
+, m_attaches(0)
 {
-    std::fill_n(m_attaches, _countof(m_attaches), 0);
 }
 
 FrameBufferObject::~FrameBufferObject()
@@ -229,10 +229,7 @@ bool FrameBufferObject::attachRenderBuffer(RenderBuffer& rb, ATTACH attach)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     if(attach!=ATTACH_DEPTH) {
-        for(int i=0; i<_countof(m_attaches); ++i) {
-            if(m_attaches[i]==attach) { break; }
-            if(m_attaches[i]==0) { m_attaches[i]=attach; break; }
-        }
+        m_attaches |= 1<<(attach-ATTACH_COLOR0);
     }
     return true;
 }
@@ -244,10 +241,7 @@ bool FrameBufferObject::attachTexture(Texture2D& tex, ATTACH attach, GLint level
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     if(attach!=ATTACH_DEPTH) {
-        for(int i=0; i<_countof(m_attaches); ++i) {
-            if(m_attaches[i]==attach) { break; }
-            if(m_attaches[i]==0) { m_attaches[i]=attach; break; }
-        }
+        m_attaches |= 1<<(attach-ATTACH_COLOR0);
     }
     return true;
 }
@@ -256,11 +250,14 @@ void FrameBufferObject::bind() const
 {
     glBindFramebuffer(GL_FRAMEBUFFER, m_handle);
 
-    int i=0;
-    for(; i<_countof(m_attaches); ++i) {
-        if(m_attaches[i]==0) { break; }
+    GLint num_attaches = 0;
+    GLuint attaches[16];
+    for(int i=0; i<_countof(attaches); ++i) {
+        if((m_attaches & (1<<i)) != 0) {
+            attaches[num_attaches++] = ATTACH_COLOR0+i;
+        }
     }
-    glDrawBuffers(i, m_attaches);
+    glDrawBuffers(num_attaches, attaches);
 }
 
 void FrameBufferObject::unbind() const
