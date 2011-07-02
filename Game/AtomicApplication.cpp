@@ -92,6 +92,7 @@ void AtomicDrawThread::kick()
 {
     waitForDrawComplete();
     m_is_ready_to_draw = true;
+    m_is_draw_complete = false;
     m_cond_wait_for_draw.notify_all();
 }
 
@@ -109,7 +110,6 @@ void AtomicDrawThread::operator()()
                 m_cond_wait_for_draw.wait(lock);
             }
             m_is_ready_to_draw = false;
-            m_is_draw_complete = false;
             boost::timer t;
             AtomicRenderer::getInstance()->draw();
             //IST_PRINT("%lf\n", t.elapsed());

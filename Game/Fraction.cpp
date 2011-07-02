@@ -236,9 +236,10 @@ void FractionSet::move(uint32 block)
     const uint32 begin = block*BLOCK_SIZE;
     const uint32 end = std::min<uint32>((block+1)*BLOCK_SIZE, num_data);
 
+    const float32 GRAVITY = 0.07f;
     const float SPHERE_RADIUS = 225.0f;
     XMVECTOR gravity_center     = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-    XMVECTOR gravity_strength   = _mm_set1_ps(0.05f);
+    XMVECTOR gravity_strength   = _mm_set1_ps(GRAVITY);
     XMVECTOR max_speed          = _mm_set1_ps(FractionSet::MAX_VEL);
     XMVECTOR decelerate         = _mm_set1_ps(FractionSet::DECELERATE);
     XMVECTOR sphere_radius      = _mm_set1_ps(SPHERE_RADIUS+RADIUS);
@@ -281,10 +282,15 @@ void FractionSet::move(uint32 block)
         float32 *speedv = (float*)&v_speed;
         for(uint32 i=0; i<e; ++i) {
             if(is_boundv[i]>0) {
-                XMMATRIX reflection = XMMatrixReflect(ref_dir.v[i]);
-                XMVECTOR tv = XMVector3Transform(v_nextv.v[i], reflection);
-                data[i].vel = XMVectorMultiply(tv, _mm_set1_ps(BOUNCE));
-                //data[i].vel = XMVectorMultiply(ref_dir.v[i], XMVector3Length(v_nextv.v[i]));
+                if(speedv[i]<=GRAVITY) {
+                    data[i].vel = _mm_set1_ps(0.0f);
+                }
+                else {
+                    XMMATRIX reflection = XMMatrixReflect(ref_dir.v[i]);
+                    XMVECTOR tv = XMVector3Transform(v_nextv.v[i], reflection);
+                    data[i].vel = XMVectorMultiply(tv, _mm_set1_ps(BOUNCE));
+                    //data[i].vel = XMVectorMultiply(ref_dir.v[i], XMVector3Length(v_nextv.v[i]));
+                }
                 float d = SPHERE_RADIUS + FractionSet::RADIUS;
                 data[i].pos = XMVectorMultiply(ref_dir.v[i], _mm_set1_ps(d));
             }
@@ -386,10 +392,8 @@ void FractionSet::collisionProcess(size_t block)
             const FractionCollider::Result& col = *collision;
             dir = XMVectorAdd(dir, col.dir);
             vel = XMVectorAdd(vel, col.vel);
-
             ++collision;
         }
-        //dir = XMVector3Normalize(dir);
         const XMVECTOR bounce = _mm_set1_ps(BOUNCE);
         const XMVECTOR neg_bounce = _mm_set1_ps((1.0f-BOUNCE)*0.6f);
         XMMATRIX vref = XMMatrixReflect(XMVector3Normalize(dir));
