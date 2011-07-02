@@ -221,6 +221,7 @@ bool Application::initializeDraw()
     //::ShowCursor(false);
 
     ::glewInit();
+    wglSwapIntervalEXT(GL_FALSE);
 
     return true;
 }

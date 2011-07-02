@@ -12,16 +12,18 @@
 
 #include <stdio.h>
 #include <GL/glew.h>
+#include <GL/wglew.h>
 #include <glm/glm.hpp>
+
 //#include <Cg/cgGL.h>
 #include <windows.h>
+#include <mmsystem.h>
 #include <xnamath.h>
 #include <stdlib.h>
 #include <xmmintrin.h>
 #include <emmintrin.h>
 #include <pmmintrin.h>
 #include <tmmintrin.h>
-#include <iostream>
 #include <boost/timer.hpp>
 #include <boost/thread.hpp>
 #include <boost/smart_ptr.hpp>

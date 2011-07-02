@@ -165,6 +165,10 @@ void FractionSet::processMessage()
 
 void FractionSet::draw()
 {
+    TaskScheduler *scheduler = TaskScheduler::getInstance();
+    Task_FractionUpdate *task = getInterframe()->getUpdateTask();
+    scheduler->waitFor(task);
+
     PassGBuffer_Cube *cube = GetCubeRenderer();
     PassDeferred_SphereLight *light = GetSphereLightRenderer();
 

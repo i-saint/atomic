@@ -1,6 +1,6 @@
 #version 410 compatibility
 
-layout(std140) uniform LightData
+layout(std140) uniform LightPosition
 {
     vec4 light_pos_array[1024];
 };

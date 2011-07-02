@@ -35,6 +35,8 @@ bool ShaderDeferred::initialize()
     m_loc_aspect_ratio      = getUniformLocation("AspectRatio");
     m_loc_texcoord_scale    = getUniformLocation("TexcoordScale");
 
+    m_block_light_position = getUniformBlockIndex("LightPosition");
+
     return true;
 }
 
