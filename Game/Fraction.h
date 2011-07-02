@@ -34,7 +34,7 @@ class FractionRenderer;
 
 class Task_FractionUpdate;
 
-class FractionSet
+class FractionSet : boost::noncopyable
 {
 public:
     static const size_t BLOCK_SIZE;
@@ -59,19 +59,17 @@ public:
         float32 z;
     };
 
-    class Interframe
+    class Interframe : boost::noncopyable
     {
     private:
         typedef stl::vector<FractionCollider*> FractionColliderCont;
 
-        FractionRenderer *m_renderer;
         FractionColliderCont m_colliders;
         Task_FractionUpdate* m_update_task;
 
     public:
         Interframe();
         ~Interframe();
-        FractionRenderer*       getRenderer() { return m_renderer; }
         void                    resizeColliders(uint32 block_num);          // thread unsafe
         FractionCollider*       getCollider(uint32 block);                  // thread safe
         Task_FractionUpdate*    getUpdateTask() { return m_update_task; }

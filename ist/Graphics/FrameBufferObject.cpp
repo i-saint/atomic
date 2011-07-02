@@ -209,9 +209,10 @@ FrameBufferObject::~FrameBufferObject()
     finalize();
 }
 
-void FrameBufferObject::initialize()
+bool FrameBufferObject::initialize()
 {
     glGenFramebuffers(1, &m_handle);
+    return true;
 }
 
 void FrameBufferObject::finalize()

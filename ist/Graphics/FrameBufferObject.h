@@ -125,7 +125,7 @@ public:
     FrameBufferObject();
     ~FrameBufferObject();
 
-    void initialize();
+    bool initialize();
     void finalize();
 
     bool attachRenderBuffer(RenderBuffer& tex, ATTACH attach);

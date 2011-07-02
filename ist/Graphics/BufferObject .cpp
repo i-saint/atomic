@@ -20,10 +20,11 @@ BufferObject<BufferType>::~BufferObject()
 
 
 template<GLuint BufferType>
-void BufferObject<BufferType>::initialize()
+bool BufferObject<BufferType>::initialize()
 {
     glGenBuffers(1, &m_handle);
     CheckGLError();
+    return true;
 }
 
 template<GLuint BufferType>

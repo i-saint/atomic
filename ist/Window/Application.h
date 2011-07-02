@@ -93,15 +93,18 @@ private:
     DEVMODE     m_devmode;
     bool        m_fullscreen;
 
-    size_t m_width;
-    size_t m_height;
+    size_t m_x, m_y;
+    size_t m_width, m_height;
 
 public:
     Application();
     virtual ~Application();
 
-    virtual bool Initialize(size_t x, size_t y, size_t width, size_t height, const wchar_t *title, bool fullscreen=false);
-    virtual void Finalize();
+    virtual bool initialize(size_t x, size_t y, size_t width, size_t height, const wchar_t *title, bool fullscreen=false);
+    virtual void finalize();
+
+    virtual bool initializeDraw();
+    virtual void finalizeDraw();
 
     virtual void mainLoop()=0;
     virtual int handleWindowMessage(const WindowMessage& wm)=0;

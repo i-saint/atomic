@@ -32,7 +32,7 @@ public:
     BufferObject();
     ~BufferObject();
 
-    void initialize();
+    bool initialize();
     void finalize();
 
     void bind() const;

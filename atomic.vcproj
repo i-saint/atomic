@@ -489,6 +489,70 @@
 				</Filter>
 			</Filter>
 		</Filter>
+		<Filter
+			Name="Shader"
+			>
+			<File
+				RelativePath=".\shader\deferred.fsh"
+				>
+			</File>
+			<File
+				RelativePath=".\shader\deferred.vsh"
+				>
+			</File>
+			<File
+				RelativePath=".\shader\gbuffer.fsh"
+				>
+			</File>
+			<File
+				RelativePath=".\shader\gbuffer.vsh"
+				>
+			</File>
+			<File
+				RelativePath=".\shader\out.fsh"
+				>
+			</File>
+			<File
+				RelativePath=".\shader\out.vsh"
+				>
+			</File>
+			<File
+				RelativePath=".\shader\ssao.fsh"
+				>
+			</File>
+			<File
+				RelativePath=".\shader\ssao.vsh"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Graphics"
+			>
+			<File
+				RelativePath=".\Graphics\GraphicResourceManager.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Graphics\GraphicResourceManager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Graphics\Renderer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Graphics\Renderer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Graphics\Shader.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Graphics\Shader.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\main.cpp"
 			>

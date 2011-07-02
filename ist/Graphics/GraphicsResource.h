@@ -15,6 +15,8 @@ private:
 public:
     GraphicsResource() {}
     virtual ~GraphicsResource() {}
+    virtual bool initialize() { return false; }
+    virtual void finalize() {}
     virtual void OnDeviceLost() {}
     virtual void OnDeviceRestored() {}
 };

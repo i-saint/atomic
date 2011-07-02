@@ -1,22 +1,29 @@
 #include "stdafx.h"
 #include "../types.h"
 #include "World.h"
+#include "AtomicApplication.h"
 #include "AtomicGame.h"
+#include "../Graphics/GraphicResourceManager.h"
+#include "../Graphics/Renderer.h"
 
 namespace atomic {
 
 
 AtomicGame::AtomicGame()
+: m_world(NULL)
 {
-    World::InitializeInterframe();
-    m_world = EA_ALIGNED_NEW(World, 16) World(NULL);
+    AtomicRenderer::initializeInstance();
+    World::initializeInterframe();
+    m_world = AT_ALIGNED_NEW(World, 16) World(NULL);
 }
 
 AtomicGame::~AtomicGame()
 {
-    EA_DELETE(m_world);
-    World::FinalizeInterframe();
+    AT_DELETE(m_world);
+    World::finalizeInterframe();
+    AtomicRenderer::finalizeInstance();
 }
+
 
 void AtomicGame::update()
 {
@@ -26,20 +33,12 @@ void AtomicGame::update()
 
 void AtomicGame::draw()
 {
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glCullFace(GL_BACK);
-    glFrontFace(GL_CCW);
-    glEnable(GL_CULL_FACE);
-
-    glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glLoadIdentity();
-
-    glEnable(GL_DEPTH_TEST);
-
+    WaitForDrawComplete();
+    AtomicRenderer::getInstance()->beforeDraw();
     m_world->draw();
-
-    glSwapBuffers();
+    KickDraw();
 }
+
+
 
 } // namespace atomic

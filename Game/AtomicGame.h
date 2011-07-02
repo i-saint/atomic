@@ -2,6 +2,8 @@
 #define __atomic_AtomicGame__
 namespace atomic {
 
+class World;
+class AtomicRenderer;
 
 class AtomicGame
 {
@@ -11,6 +13,7 @@ private:
 public:
     AtomicGame();
     ~AtomicGame();
+
     void update();
     void draw();
 };

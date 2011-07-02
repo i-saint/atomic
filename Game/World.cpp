@@ -20,25 +20,25 @@ World::Interframe::Interframe()
 
 World::Interframe *World::s_interframe;
 
-void World::InitializeInterframe()
+void World::initializeInterframe()
 {
     if(!s_interframe) {
-        s_interframe = EA_ALIGNED_NEW(Interframe, 16) Interframe();
+        s_interframe = AT_ALIGNED_NEW(Interframe, 16) Interframe();
     }
     FractionSet::InitializeInterframe();
 }
 
-void World::FinalizeInterframe()
+void World::finalizeInterframe()
 {
     FractionSet::FinalizeInterframe();
-    EA_DELETE(s_interframe);
+    AT_DELETE(s_interframe);
 }
 
 
 World::World(World* prev) : m_prev(prev), m_next(NULL)
 {
     m_rand.initialize(0);
-    m_fraction_set = EA_ALIGNED_NEW(FractionSet, 16) FractionSet(NULL, NULL);
+    m_fraction_set = AT_ALIGNED_NEW(FractionSet, 16) FractionSet(NULL, NULL);
 
     m_camera.setPosition(XMVectorSet(100.0f, 100.0f, 500.0f, 0.0f));
     m_camera.setZNear(1.0f);
@@ -47,7 +47,7 @@ World::World(World* prev) : m_prev(prev), m_next(NULL)
 
 World::~World()
 {
-    EA_DELETE(m_fraction_set);
+    AT_DELETE(m_fraction_set);
 
     if(m_prev) { m_prev->m_next = m_next; }
     if(m_next) { m_next->m_prev = m_prev; }

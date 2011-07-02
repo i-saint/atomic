@@ -7,6 +7,8 @@ namespace atomic {
 class FractionCollider
 {
 public:
+    // 衝突元オブジェクトデータ
+    // [DataHeader][Data][Data]... というメモリ配置にします
     union __declspec(align(16)) DataHeader
     {
         struct {
@@ -36,6 +38,8 @@ public:
         XMVECTOR v[2];
     };
 
+    // 衝突結果データ
+    // [ResultHeader][Result][Result]... というメモリ配置にします
     union __declspec(align(16)) ResultHeader
     {
         struct {

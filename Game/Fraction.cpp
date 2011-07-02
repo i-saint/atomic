@@ -11,6 +11,7 @@ using namespace ist::graphics;
 #include "FractionTask.h"
 #include "FractionCollider.h"
 #include "FractionRenderer.h"
+#include "../Graphics/Renderer.h"
 
 
 namespace atomic
@@ -49,23 +50,21 @@ struct LessZ
 
 FractionSet::Interframe::Interframe()
 {
-    m_update_task = EA_NEW(Task_FractionUpdate) Task_FractionUpdate();
-    m_renderer = EA_NEW(FractionRenderer) FractionRenderer();
+    m_update_task = AT_NEW(Task_FractionUpdate) Task_FractionUpdate();
 }
 
 FractionSet::Interframe::~Interframe()
 {
-    EA_DELETE(m_renderer);
-    EA_DELETE(m_update_task);
+    AT_DELETE(m_update_task);
 
-    for(uint32 i=0; i<m_colliders.size(); ++i) { EA_DELETE(m_colliders[i]); }
+    for(uint32 i=0; i<m_colliders.size(); ++i) { AT_DELETE(m_colliders[i]); }
     m_colliders.clear();
 }
 
 void FractionSet::Interframe::resizeColliders(uint32 block_num)
 {
     while(m_colliders.size() < block_num) {
-        FractionCollider *idata = EA_ALIGNED_NEW(FractionCollider, 16) FractionCollider();
+        FractionCollider *idata = AT_ALIGNED_NEW(FractionCollider, 16) FractionCollider();
         m_colliders.push_back(idata);
     }
 }
@@ -83,13 +82,13 @@ FractionSet::Interframe *FractionSet::s_interframe;
 void FractionSet::InitializeInterframe()
 {
     if(!s_interframe) {
-        s_interframe = EA_ALIGNED_NEW(Interframe, 16) Interframe();
+        s_interframe = AT_ALIGNED_NEW(Interframe, 16) Interframe();
     }
 }
 
 void FractionSet::FinalizeInterframe()
 {
-    EA_DELETE(s_interframe);
+    AT_DELETE(s_interframe);
 }
 
 
@@ -166,13 +165,16 @@ void FractionSet::processMessage()
 
 void FractionSet::draw()
 {
-    FractionRenderer *renderer = getInterframe()->getRenderer();
+    PassGBuffer_Cube *cube = GetCubeRenderer();
+    PassDeferred_SphereLight *light = GetSphereLightRenderer();
+
     size_t num_data = m_data.size();
-    renderer->resizePositin(num_data);
     for(uint32 i=0; i<num_data; ++i) {
-        renderer->setPosition(i, m_data[i].pos);
+        cube->pushInstance(m_data[i].pos);
     }
-    renderer->draw();
+    for(uint32 i=0; i<num_data; i+=200) {
+        light->pushInstance(m_data[i].pos);
+    }
 }
 
 

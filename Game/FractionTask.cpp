@@ -13,28 +13,28 @@ namespace atomic
 
 Task_FractionUpdate::Task_FractionUpdate()
 {
-    m_sortx_task = EA_NEW(Task_FractionSortX) Task_FractionSortX();
-    m_sorty_task = EA_NEW(Task_FractionSortY) Task_FractionSortY();
-    m_sortz_task = EA_NEW(Task_FractionSortZ) Task_FractionSortZ();
+    m_sortx_task = AT_NEW(Task_FractionSortX) Task_FractionSortX();
+    m_sorty_task = AT_NEW(Task_FractionSortY) Task_FractionSortY();
+    m_sortz_task = AT_NEW(Task_FractionSortZ) Task_FractionSortZ();
 }
 
 Task_FractionUpdate::~Task_FractionUpdate()
 {
     for(size_t i=0; i<m_move_tasks.size(); ++i) {
-        EA_DELETE(m_move_tasks[i]);
+        AT_DELETE(m_move_tasks[i]);
     }
     for(size_t i=0; i<m_col_test_tasks.size(); ++i) {
-        EA_DELETE(m_col_test_tasks[i]);
+        AT_DELETE(m_col_test_tasks[i]);
     }
     for(size_t i=0; i<m_col_proc_tasks.size(); ++i) {
-        EA_DELETE(m_col_proc_tasks[i]);
+        AT_DELETE(m_col_proc_tasks[i]);
     }
     m_move_tasks.clear();
     m_col_test_tasks.clear();
     m_col_proc_tasks.clear();
-    EA_DELETE(m_sortx_task);
-    EA_DELETE(m_sorty_task);
-    EA_DELETE(m_sortz_task);
+    AT_DELETE(m_sortx_task);
+    AT_DELETE(m_sorty_task);
+    AT_DELETE(m_sortz_task);
 }
 
 void Task_FractionUpdate::initialize(FractionSet *obj)
@@ -54,13 +54,13 @@ void Task_FractionUpdate::exec()
     // 衝突器とタスク数をブロックサイズに合わせる
     FractionSet::getInterframe()->resizeColliders(num_blocks);
     while(m_move_tasks.size()<num_blocks) {
-        m_move_tasks.push_back(EA_NEW(Task_FractionMove) Task_FractionMove());
+        m_move_tasks.push_back(AT_NEW(Task_FractionMove) Task_FractionMove());
     }
     while(m_col_test_tasks.size()<num_blocks) {
-        m_col_test_tasks.push_back(EA_NEW(Task_FractionCollisionTest) Task_FractionCollisionTest());
+        m_col_test_tasks.push_back(AT_NEW(Task_FractionCollisionTest) Task_FractionCollisionTest());
     }
     while(m_col_proc_tasks.size()<num_blocks) {
-        m_col_proc_tasks.push_back(EA_NEW(Task_FractionCollisionProcess) Task_FractionCollisionProcess());
+        m_col_proc_tasks.push_back(AT_NEW(Task_FractionCollisionProcess) Task_FractionCollisionProcess());
     }
 
     // 移動タスクをスケジュール&実行完了待ち

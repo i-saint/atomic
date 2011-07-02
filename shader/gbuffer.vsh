@@ -1,8 +1,8 @@
 #version 410 compatibility
 
-layout(std140) uniform FractionData
+layout(std140) uniform InstancePosition
 {
-    vec4 fraction_pos[1024];
+    vec4 instance_pos[1024];
 };
 
 out vec3 VertexPosition;
@@ -11,7 +11,7 @@ out vec4 VertexColor;
 
 void main(void)
 {
-    vec4 fractionPos = fraction_pos[gl_InstanceID];
+    vec4 fractionPos = instance_pos[gl_InstanceID];
     vec4 vert = gl_Vertex+fractionPos;
 
     VertexPosition = (gl_Vertex+fractionPos).xyz;

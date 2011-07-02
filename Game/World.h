@@ -12,10 +12,10 @@ class FractionSet;
 class VFXSet;
 
 
-class World
+class World : boost::noncopyable
 {
 public:
-    class Interframe
+    class Interframe : boost::noncopyable
     {
     private:
         World* m_current_world;
@@ -30,8 +30,8 @@ private:
     static Interframe *s_interframe;
 
 public:
-    static void InitializeInterframe();
-    static void FinalizeInterframe();
+    static void initializeInterframe();
+    static void finalizeInterframe();
     static Interframe* getInterframe() { return s_interframe; }
 
 private:
@@ -61,16 +61,17 @@ public:
 };
 
 
-#define GetWorld() World::getInterframe()->getCurrentWorld()
-#define GetPrevWorld() GetWorld()->getPrev()
+#define GetWorld()          World::getInterframe()->getCurrentWorld()
+#define GetPrevWorld()      GetWorld()->getPrev()
 
-#define GetFractions() GetWorld()->getFractions()
-#define GetCamera() GetWorld()->getCamera()
+#define GetFractions()      GetWorld()->getFractions()
+#define GetCamera()         GetWorld()->getCamera()
 
-#define GenFloatRand() GetWorld()->getRandom()->genFloat32()
-#define GenVector2Rand() GetWorld()->getRandom()->genVector2()
-#define GenVector3Rand() GetWorld()->getRandom()->genVector3()
-#define GenVector4Rand() GetWorld()->getRandom()->genVector4()
+#define GetRandom()         GetWorld()->getRandom()
+#define GenFloatRand()      GetRandom()->genFloat32()
+#define GenVector2Rand()    GetRandom()->genVector2()
+#define GenVector3Rand()    GetRandom()->genVector3()
+#define GenVector4Rand()    GetRandom()->genVector4()
 
 class Task_WorldUpdate;
 class Task_WorldDraw;

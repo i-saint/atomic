@@ -20,6 +20,9 @@ typedef float   float32;
 typedef double  float64;
 
 
+// __m128 を直接 eastl::vector とかに格納すると、
+// アライメントが 16 に揃ってないアドレスに SSE のコピー命令でアクセスしてクラッシュしたりする。
+// なので eastl::vector に格納するときは下記の構造体で代用し、キャストでなんとかする。
 struct __declspec(align(16)) quadword { char c[16]; };
 
 
