@@ -37,10 +37,10 @@ enum RT_INDEX {
 };
 
 enum GBUFFER {
-    GBUFFER_COLOR = Texture2D::SLOT_0,
-    GBUFFER_GLOW = Texture2D::SLOT_1,
-    GBUFFER_NORMAL = Texture2D::SLOT_2,
-    GBUFFER_POSITION = Texture2D::SLOT_3,
+    GBUFFER_COLOR       = Texture2D::SLOT_0,
+    GBUFFER_GLOW        = Texture2D::SLOT_1,
+    GBUFFER_NORMAL      = Texture2D::SLOT_2,
+    GBUFFER_POSITION    = Texture2D::SLOT_3,
 };
 
 enum TEX2D_INDEX {
@@ -49,13 +49,14 @@ enum TEX2D_INDEX {
 };
 
 enum VBO_INDEX {
-    VBO_RESERVED,
+    VBO_BOX_POS,
+    VBO_CUBE_POS,
+    VBO_SPHERE_LIGHT_POS,
     VBO_END,
 };
 
 enum UBO_INDEX {
-    UBO_CUBE_POS,
-    UBO_LIGHT_POS,
+    UBO_DUMMY,
     UBO_END,
 };
 

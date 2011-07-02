@@ -8,15 +8,10 @@ namespace ist {
 namespace graphics {
 
 
-class ModelData
+class ModelData : public VertexArray
 {
+typedef VertexArray super;
 public:
-    enum VERTEX_FORMAT
-    {
-        VTX_FLOAT2 = 2,
-        VTX_FLOAT3 = 3,
-        VTX_FLOAT4 = 4,
-    };
     enum INDEX_FORMAT
     {
         IDX_INT16 = GL_UNSIGNED_SHORT,
@@ -35,23 +30,26 @@ public:
         USAGE_DYNAMIC = VertexBufferObject::USAGE_DYNAMIC,
         USAGE_STREAM  = VertexBufferObject::USAGE_STREAM,
     };
+    enum {
+        MAX_ATTRIBUTES = 4,
+    };
 
 private:
-    VertexBufferObject m_vbo;
-    VertexBufferObject m_nbo;
+    VertexBufferObject m_data[MAX_ATTRIBUTES];
     IndexBufferObject m_ibo;
-    int m_vertex_format;
     int m_index_format;
     int m_primitive_type;
     size_t m_num_index;
 
 public:
     ModelData();
+    ~ModelData();
     bool initialize();
     void finalize();
-    void setVertex(void *data, size_t num_vertex, VERTEX_FORMAT fmt, USAGE usage);
-    void setNormal(void *data, size_t num_vertex, USAGE usage);
-    void setIndex(void *data, size_t num_index, INDEX_FORMAT fmt, PRIMITIVE_TYPE prm, USAGE usage);
+    // num_elements: 1,2,3,4
+    void setData(int index, void *data, size_t num_vertex, size_t num_elements, USAGE usage=USAGE_STATIC);
+    void setInstanceData(int index, size_t num_elements, VertexBufferObject &data);
+    void setIndex(void *data, size_t num_index, INDEX_FORMAT fmt, PRIMITIVE_TYPE prm, USAGE usage=USAGE_STATIC);
 
     void draw() const;
     void drawInstanced(GLuint num_intance) const;

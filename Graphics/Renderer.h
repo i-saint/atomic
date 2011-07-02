@@ -68,7 +68,7 @@ private:
     stl::vector<XMVECTOR> m_instance_pos;
     ShaderGBuffer *m_sh_gbuffer;
     ModelData *m_model;
-    UniformBufferObject *m_ubo_instance_pos;
+    VertexBufferObject *m_vbo_instance_pos;
 
 public:
     PassGBuffer_Cube();
@@ -84,7 +84,7 @@ private:
     stl::vector<XMVECTOR> m_instance_pos;
     ShaderDeferred *m_sh_deferred;
     ModelData *m_model;
-    UniformBufferObject *m_ubo_instance_pos;
+    VertexBufferObject *m_vbo_instance_pos;
 
 public:
     PassDeferred_SphereLight();

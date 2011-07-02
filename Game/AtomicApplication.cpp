@@ -96,6 +96,29 @@ void AtomicDrawThread::kick()
     m_cond_wait_for_draw.notify_all();
 }
 
+class Timer
+{
+private:
+    LARGE_INTEGER m_start;
+    LARGE_INTEGER m_end;
+
+public:
+    Timer()
+    {
+        m_start.QuadPart = 0;
+        m_end.QuadPart = 0;
+        ::QueryPerformanceCounter( &m_start );
+    }
+
+    float32 getElapsedMillisecond()
+    {
+        LARGE_INTEGER freq;
+        ::QueryPerformanceCounter( &m_end );
+        ::QueryPerformanceFrequency( &freq );
+        return ((float32)(m_end.QuadPart - m_start.QuadPart) / (float32)freq.QuadPart)*1000.0f;
+    }
+};
+
 void AtomicDrawThread::operator()()
 {
     m_app->initializeDraw();
@@ -110,9 +133,9 @@ void AtomicDrawThread::operator()()
                 m_cond_wait_for_draw.wait(lock);
             }
             m_is_ready_to_draw = false;
-            boost::timer t;
+            Timer t;
             AtomicRenderer::getInstance()->draw();
-            //IST_PRINT("%lf\n", t.elapsed());
+            //IST_PRINT("%lf\n", t.getElapsedMillisecond());
             m_is_draw_complete = true;
             m_cond_wait_for_complete.notify_all();
         }

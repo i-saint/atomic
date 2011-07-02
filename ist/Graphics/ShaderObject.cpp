@@ -223,13 +223,6 @@ void ProgramObject::setVertexAttrib2fv(GLint al, const GLfloat *v) { glVertexAtt
 void ProgramObject::setVertexAttrib3fv(GLint al, const GLfloat *v) { glVertexAttrib3fv(al, v); }
 void ProgramObject::setVertexAttrib4fv(GLint al, const GLfloat *v) { glVertexAttrib4fv(al, v); }
 
-void ProgramObject::setVertexAttribPointerF32(GLint al, GLint size, GLboolean normalize, GLsizei stride, const GLvoid *v) { glVertexAttribPointer(al, size, GL_FLOAT, normalize, stride, v); }
-void ProgramObject::setVertexAttribPointerI32(GLint al, GLint size, GLsizei stride, const GLvoid *v) { glVertexAttribIPointer(al, size, GL_INT, stride, v); }
-
-void ProgramObject::enableVertexAttribArray(GLuint i) { glEnableVertexAttribArray(i); }
-void ProgramObject::disableVertexAttribArray(GLuint i) { glDisableVertexAttribArray(i); }
-void ProgramObject::setVertexAttribDivisor(GLint al, GLint v) { glVertexAttribDivisor(al, v); }
-
 
 } // namespace graphics
 } // namespace ist

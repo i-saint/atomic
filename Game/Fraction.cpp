@@ -10,7 +10,6 @@ using namespace ist::graphics;
 #include "Fraction.h"
 #include "FractionTask.h"
 #include "FractionCollider.h"
-#include "FractionRenderer.h"
 #include "../Graphics/Renderer.h"
 
 

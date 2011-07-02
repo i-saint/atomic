@@ -1,22 +1,20 @@
 #version 410 compatibility
 
-layout(std140) uniform LightPosition
-{
-    vec4 light_pos_array[1024];
-};
+layout(location=0) in vec4 a_VertexPosition;
+layout(location=2) in vec4 a_InstancePosition;
 
-out vec4 light_pos;
-out vec4 light_screen_pos;
-out vec4 light_color;
-out vec4 screen_pos;
+out vec4 v_LightPosition;
+out vec4 v_LightPositionMVP;
+out vec4 v_LightColor;
+out vec4 v_VertexPositionMVP;
 
 
 void main(void)
 {
-    light_pos = light_pos_array[gl_InstanceID]*1.1;
+    v_LightPosition = a_InstancePosition*1.1;
 
-    light_color = normalize(light_pos);
-    screen_pos = gl_ModelViewProjectionMatrix * (gl_Vertex+light_pos);
-    light_screen_pos = gl_ModelViewProjectionMatrix * light_pos;
-    gl_Position = screen_pos;
+    v_LightColor = normalize(v_LightPosition);
+    v_LightPositionMVP = gl_ModelViewProjectionMatrix * v_LightPosition;
+    v_VertexPositionMVP = gl_ModelViewProjectionMatrix * (a_VertexPosition+v_LightPosition);
+    gl_Position = v_VertexPositionMVP;
 }

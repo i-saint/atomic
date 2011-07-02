@@ -1,38 +1,56 @@
 #include "stdafx.h"
+#include "../Base/Assert.h"
 #include "ModelData.h"
 
 namespace ist {
 namespace graphics {
 
 ModelData::ModelData()
+: m_index_format(0)
+, m_primitive_type(0)
+, m_num_index(0)
 {
+}
+
+ModelData::~ModelData()
+{
+    finalize();
 }
 
 bool ModelData::initialize()
 {
-    m_vbo.initialize();
-    m_nbo.initialize();
+    super::initialize();
+    for(size_t i=0; i<_countof(m_data); ++i) {
+        m_data[i].initialize();
+    }
     m_ibo.initialize();
     return true;
 }
 
 void ModelData::finalize()
 {
-    m_vbo.finalize();
-    m_nbo.finalize();
     m_ibo.finalize();
+    for(size_t i=0; i<_countof(m_data); ++i) {
+        m_data[i].finalize();
+    }
+    super::finalize();
 }
 
 
-void ModelData::setVertex(void *data, size_t num_vertex, VERTEX_FORMAT fmt, USAGE usage)
+void ModelData::setData(int index, void *data, size_t num_vertex, size_t num_elements, USAGE usage)
 {
-    m_vertex_format = fmt;
-    m_vbo.allocate(sizeof(float)*m_vertex_format*num_vertex, (VertexBufferObject::USAGE)usage, data);
+    if(index>=MAX_ATTRIBUTES) {
+        IST_ASSERT("");
+    }
+    m_data[index].allocate(sizeof(float)*num_vertex*num_elements, (VertexBufferObject::USAGE)usage, data);
+    m_data[index].bind();
+    super::setAttribute(index, num_elements, m_data[index]);
+    m_data[index].unbind();
 }
 
-void ModelData::setNormal(void *data, size_t num_vertex, USAGE usage)
+void ModelData::setInstanceData(int index, size_t num_elements, VertexBufferObject &data)
 {
-    m_nbo.allocate(sizeof(float)*3*num_vertex, (VertexBufferObject::USAGE)usage, data);
+    super::setInstanceAttribute(index, num_elements, data);
 }
 
 void ModelData::setIndex(void *data, size_t num_index, INDEX_FORMAT fmt, PRIMITIVE_TYPE prm, USAGE usage)
@@ -46,30 +64,20 @@ void ModelData::setIndex(void *data, size_t num_index, INDEX_FORMAT fmt, PRIMITI
 
 void ModelData::draw() const
 {
-    m_vbo.bind();
-    glVertexPointer(m_vertex_format, GL_FLOAT, 0, 0);
-    m_nbo.bind();
-    glNormalPointer(GL_FLOAT, 0, 0);
+    bind();
     m_ibo.bind();
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_NORMAL_ARRAY);
     glDrawElements(m_primitive_type, m_num_index, m_index_format, 0);
-    glDisableClientState(GL_NORMAL_ARRAY);
-    glDisableClientState(GL_VERTEX_ARRAY);
+    m_ibo.unbind();
+    unbind();
 }
 
 void ModelData::drawInstanced(GLuint num_intance) const
 {
-    m_vbo.bind();
-    glVertexPointer(m_vertex_format, GL_FLOAT, 0, 0);
-    m_nbo.bind();
-    glNormalPointer(GL_FLOAT, 0, 0);
+    super::bind();
     m_ibo.bind();
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_NORMAL_ARRAY);
     glDrawElementsInstanced(m_primitive_type, m_num_index, m_index_format, 0, num_intance);
-    glDisableClientState(GL_NORMAL_ARRAY);
-    glDisableClientState(GL_VERTEX_ARRAY);
+    m_ibo.unbind();
+    super::unbind();
 }
 
 } // namespace graphics

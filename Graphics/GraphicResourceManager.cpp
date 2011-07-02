@@ -62,15 +62,15 @@ inline void CreateSphereModel(ModelData& model, float32 radius)
             ci+=4;
         }
     }
-    model.setVertex(v, ydiv*xzdiv, ModelData::VTX_FLOAT4, ModelData::USAGE_STATIC);
-    model.setNormal(n, ydiv*xzdiv, ModelData::USAGE_STATIC);
-    model.setIndex(index, ((ydiv-1)*(xzdiv)*4), ModelData::IDX_INT32, ModelData::PRM_QUADS, ModelData::USAGE_STATIC);
+    model.setData(0, v, ydiv*xzdiv, 4);
+    model.setData(1, n, ydiv*xzdiv, 3);
+    model.setIndex(index, ((ydiv-1)*(xzdiv)*4), ModelData::IDX_INT32, ModelData::PRM_QUADS);
 
 }
 
 inline void CreateCubeModel(ModelData& model, float32 len)
 {
-    float vertex[24][3];
+    XMVECTOR vertex[24];
     float normal[24][3];
     int index[24];
 
@@ -85,68 +85,68 @@ inline void CreateCubeModel(ModelData& model, float32 len)
     SetFloat3(normal[1], n);
     SetFloat3(normal[2], n);
     SetFloat3(normal[3], n);
-    SetFloat3(vertex[0], ur[0], ur[1], ur[2]);
-    SetFloat3(vertex[1], ur[0], bl[1], ur[2]);
-    SetFloat3(vertex[2], ur[0], bl[1], bl[2]);
-    SetFloat3(vertex[3], ur[0], ur[1], bl[2]);
+    vertex[0] = XMVectorSet(ur[0], ur[1], ur[2], 1.0f);
+    vertex[1] = XMVectorSet(ur[0], bl[1], ur[2], 1.0f);
+    vertex[2] = XMVectorSet(ur[0], bl[1], bl[2], 1.0f);
+    vertex[3] = XMVectorSet(ur[0], ur[1], bl[2], 1.0f);
 
     SetFloat3(n, -1.0f, 0.0f, 0.0f);
     SetFloat3(normal[4], n);
     SetFloat3(normal[5], n);
     SetFloat3(normal[6], n);
     SetFloat3(normal[7], n);
-    SetFloat3(vertex[4], bl[0], ur[1], ur[2]);
-    SetFloat3(vertex[5], bl[0], ur[1], bl[2]);
-    SetFloat3(vertex[6], bl[0], bl[1], bl[2]);
-    SetFloat3(vertex[7], bl[0], bl[1], ur[2]);
+    vertex[4] = XMVectorSet(bl[0], ur[1], ur[2], 1.0f);
+    vertex[5] = XMVectorSet(bl[0], ur[1], bl[2], 1.0f);
+    vertex[6] = XMVectorSet(bl[0], bl[1], bl[2], 1.0f);
+    vertex[7] = XMVectorSet(bl[0], bl[1], ur[2], 1.0f);
 
     SetFloat3(n, 0.0f, 1.0f, 0.0f);
     SetFloat3(normal[8], n);
     SetFloat3(normal[9], n);
     SetFloat3(normal[10], n);
     SetFloat3(normal[11], n);
-    SetFloat3(vertex[8], ur[0], ur[1], ur[2]);
-    SetFloat3(vertex[9], ur[0], ur[1], bl[2]);
-    SetFloat3(vertex[10], bl[0], ur[1], bl[2]);
-    SetFloat3(vertex[11], bl[0], ur[1], ur[2]);
+    vertex[8] = XMVectorSet(ur[0], ur[1], ur[2], 1.0f);
+    vertex[9] = XMVectorSet(ur[0], ur[1], bl[2], 1.0f);
+    vertex[10] = XMVectorSet(bl[0], ur[1], bl[2], 1.0f);
+    vertex[11] = XMVectorSet(bl[0], ur[1], ur[2], 1.0f);
 
     SetFloat3(n, 0.0f, -1.0f, 0.0f);
     SetFloat3(normal[12], n);
     SetFloat3(normal[13], n);
     SetFloat3(normal[14], n);
     SetFloat3(normal[15], n);
-    SetFloat3(vertex[12], ur[0], bl[1], ur[2]);
-    SetFloat3(vertex[13], bl[0], bl[1], ur[2]);
-    SetFloat3(vertex[14], bl[0], bl[1], bl[2]);
-    SetFloat3(vertex[15], ur[0], bl[1], bl[2]);
+    vertex[12] = XMVectorSet(ur[0], bl[1], ur[2], 1.0f);
+    vertex[13] = XMVectorSet(bl[0], bl[1], ur[2], 1.0f);
+    vertex[14] = XMVectorSet(bl[0], bl[1], bl[2], 1.0f);
+    vertex[15] = XMVectorSet(ur[0], bl[1], bl[2], 1.0f);
 
     SetFloat3(n, 0.0f, 0.0f, 1.0f);
     SetFloat3(normal[16], n);
     SetFloat3(normal[17], n);
     SetFloat3(normal[18], n);
     SetFloat3(normal[19], n);
-    SetFloat3(vertex[16], ur[0], ur[1], ur[2]);
-    SetFloat3(vertex[17], bl[0], ur[1], ur[2]);
-    SetFloat3(vertex[18], bl[0], bl[1], ur[2]);
-    SetFloat3(vertex[19], ur[0], bl[1], ur[2]);
+    vertex[16] = XMVectorSet(ur[0], ur[1], ur[2], 1.0f);
+    vertex[17] = XMVectorSet(bl[0], ur[1], ur[2], 1.0f);
+    vertex[18] = XMVectorSet(bl[0], bl[1], ur[2], 1.0f);
+    vertex[19] = XMVectorSet(ur[0], bl[1], ur[2], 1.0f);
 
     SetFloat3(n, 0.0f, 0.0f, -1.0f);
     SetFloat3(normal[20], n);
     SetFloat3(normal[21], n);
     SetFloat3(normal[22], n);
     SetFloat3(normal[23], n);
-    SetFloat3(vertex[20], ur[0], ur[1], bl[2]);
-    SetFloat3(vertex[21], ur[0], bl[1], bl[2]);
-    SetFloat3(vertex[22], bl[0], bl[1], bl[2]);
-    SetFloat3(vertex[23], bl[0], ur[1], bl[2]);
+    vertex[20] = XMVectorSet(ur[0], ur[1], bl[2], 1.0f);
+    vertex[21] = XMVectorSet(ur[0], bl[1], bl[2], 1.0f);
+    vertex[22] = XMVectorSet(bl[0], bl[1], bl[2], 1.0f);
+    vertex[23] = XMVectorSet(bl[0], ur[1], bl[2], 1.0f);
 
     for(size_t i=0; i<24; ++i) {
         index[i] = i;
     }
 
-    model.setVertex(vertex, 24, ModelData::VTX_FLOAT3, ModelData::USAGE_STATIC);
-    model.setNormal(normal, 24, ModelData::USAGE_STATIC);
-    model.setIndex(index, 24, ModelData::IDX_INT32, ModelData::PRM_QUADS, ModelData::USAGE_STATIC);
+    model.setData(0, &vertex, 24, 4);
+    model.setData(1, normal, 24, 3);
+    model.setIndex(index, 24, ModelData::IDX_INT32, ModelData::PRM_QUADS);
 }
 
 void DrawScreen(float32 min_tx, float32 min_ty, float32 max_tx, float32 max_ty)

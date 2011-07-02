@@ -12,8 +12,6 @@ bool ShaderGBuffer::initialize()
     CreateFragmentShaderFromFile(m_fsh, "shader/gbuffer.fsh");
     super::initialize(&m_vsh, NULL, &m_fsh);
 
-    m_block_instance_position = getUniformBlockIndex("InstancePosition");
-
     return true;
 }
 
@@ -26,16 +24,14 @@ bool ShaderDeferred::initialize()
     CreateFragmentShaderFromFile(m_fsh, "shader/deferred.fsh");
     super::initialize(&m_vsh, NULL, &m_fsh);
 
-    m_loc_color_buffer      = getUniformLocation("ColorBuffer");
-    //m_loc_glow_buffer       = getUniformLocation("GlowBuffer"); // ‚ ‚Æ‚Å
-    m_loc_normal_buffer     = getUniformLocation("NormalBuffer");
-    m_loc_position_buffer   = getUniformLocation("PositionBuffer");
-    //m_loc_depth_buffer      = getUniformLocation("DepthBuffer");
+    m_loc_color_buffer      = getUniformLocation("u_ColorBuffer");
+    //m_loc_glow_buffer       = getUniformLocation("u_GlowBuffer"); // ‚ ‚Æ‚Å
+    m_loc_normal_buffer     = getUniformLocation("u_NormalBuffer");
+    m_loc_position_buffer   = getUniformLocation("u_PositionBuffer");
+    //m_loc_depth_buffer      = getUniformLocation("u_DepthBuffer");
 
-    m_loc_aspect_ratio      = getUniformLocation("AspectRatio");
-    m_loc_texcoord_scale    = getUniformLocation("TexcoordScale");
-
-    m_block_light_position = getUniformBlockIndex("LightPosition");
+    m_loc_aspect_ratio      = getUniformLocation("u_AspectRatio");
+    m_loc_texcoord_scale    = getUniformLocation("u_TexcoordScale");
 
     return true;
 }

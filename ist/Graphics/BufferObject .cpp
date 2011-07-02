@@ -108,5 +108,60 @@ void UniformBufferObject::bindRange(GLuint index, GLintptr offset, GLsizeiptr si
 }
 
 
+VertexArray::VertexArray()
+: m_handle(0)
+{
+}
+
+VertexArray::~VertexArray()
+{
+    finalize();
+}
+
+bool VertexArray::initialize()
+{
+    glGenVertexArrays(1, &m_handle);
+    return true;
+}
+
+void VertexArray::finalize()
+{
+    if(m_handle!=0) {
+        glDeleteVertexArrays(1, &m_handle);
+    }
+    m_handle = 0;
+}
+
+void VertexArray::bind() const
+{
+    glBindVertexArray(m_handle);
+}
+
+void VertexArray::unbind() const
+{
+    glBindVertexArray(0);
+}
+
+void VertexArray::setAttribute(GLuint i, GLint size, VertexBufferObject &vbo)
+{
+    glBindVertexArray(m_handle);
+    glEnableVertexAttribArray(i);
+    vbo.bind();
+    glVertexAttribPointer(i, size, GL_FLOAT, GL_FALSE, 0, NULL);
+    glBindVertexArray(0);
+}
+
+void VertexArray::setInstanceAttribute(GLuint i, GLint size, VertexBufferObject &vbo)
+{
+    glBindVertexArray(m_handle);
+    glEnableVertexAttribArray(i);
+    vbo.bind();
+    glVertexAttribPointer(i, size, GL_FLOAT, GL_FALSE, 0, NULL);
+    glVertexAttribDivisor(i, 1);
+    glBindVertexArray(0);
+}
+
+
+
 } // namespace graphics
 } // namespace ist

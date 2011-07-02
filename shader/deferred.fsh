@@ -1,43 +1,43 @@
 #version 410 compatibility
 
-uniform sampler2D ColorBuffer;
-uniform sampler2D NormalBuffer;
-uniform sampler2D PositionBuffer;
-uniform float AspectRatio;
-uniform vec2 TexcoordScale;
+uniform sampler2D u_ColorBuffer;
+uniform sampler2D u_NormalBuffer;
+uniform sampler2D u_PositionBuffer;
+uniform float u_AspectRatio;
+uniform vec2 u_TexcoordScale;
 
-in vec4 light_pos;
-in vec4 light_screen_pos;
-in vec4 light_color;
-in vec4 screen_pos;
+in vec4 v_LightPosition;
+in vec4 v_LightPositionMVP;
+in vec4 v_LightColor;
+in vec4 v_VertexPositionMVP;
 
-layout(location=0) out vec4 FragColor;
+layout(location=0) out vec4 o_FragColor;
 
 
 
 void main()
 {
     vec2 coord;
-    coord.x = (1.0 + (screen_pos.x/screen_pos.w))*0.5;
-    coord.y = (1.0 + (screen_pos.y/screen_pos.w))*0.5 / AspectRatio;
-    coord *= TexcoordScale;
+    coord.x = (1.0 + (v_VertexPositionMVP.x/v_VertexPositionMVP.w))*0.5;
+    coord.y = (1.0 + (v_VertexPositionMVP.y/v_VertexPositionMVP.w))*0.5 / u_AspectRatio;
+    coord *= u_TexcoordScale;
 
-    vec4 frag_position = texture(PositionBuffer, coord);
+    vec4 frag_position = texture(u_PositionBuffer, coord);
 
-    vec3 Albedo = texture(ColorBuffer, coord).xyz;
+    vec3 Albedo = texture(u_ColorBuffer, coord).xyz;
     vec3 Ambient = normalize(frag_position.xyz)*0.05;
-    vec3 Normal = texture(NormalBuffer, coord).xyz;
-    vec3 L = normalize(light_pos.xyz - frag_position.xyz);
+    vec3 Normal = texture(u_NormalBuffer, coord).xyz;
+    vec3 L = normalize(v_LightPosition.xyz - frag_position.xyz);
     vec4 color;
-    color.xyz = light_color.xyz * (
+    color.xyz = v_LightColor.xyz * (
                     Ambient +
                     Albedo * max(dot(Normal,L), 0.0)
                  );
 
-    float strength = max(125.0-length(frag_position.xyz-light_pos.xyz), 0.0)/125.0;
+    float strength = max(125.0-length(frag_position.xyz-v_LightPosition.xyz), 0.0)/125.0;
     color.rgb *= pow(strength, 0.7);
 
-    FragColor = color;
+    o_FragColor = color;
 
-    FragColor.w = 1.0;
+    o_FragColor.w = 1.0;
 }

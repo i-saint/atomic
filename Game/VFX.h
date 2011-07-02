@@ -5,14 +5,14 @@ namespace atomic
 {
 
 
-class ForceSet
+class VFXSet
 {
 private:
-    ForceSet *m_prev, *m_next
+    VFXSet *m_prev, *m_next;
 
 public:
-    ForceSet(ForceSet* prev);
-    ~ForceSet();
+    VFXSet(VFXSet* prev);
+    ~VFXSet();
 
     void update();
     void sync();

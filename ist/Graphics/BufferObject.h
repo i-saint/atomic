@@ -60,6 +60,26 @@ public:
     void bindRange(GLuint index, GLintptr offset, GLsizeiptr size) const;
 };
 
+
+class VertexArray : public GraphicsResource
+{
+private:
+    GLuint m_handle;
+
+public:
+    VertexArray();
+    ~VertexArray();
+    bool initialize();
+    void finalize();
+
+    void bind() const;
+    void unbind() const;
+
+    // size: 1,2,3,4
+    void setAttribute(GLuint index, GLint size, VertexBufferObject &vbo);
+    void setInstanceAttribute(GLuint i, GLint size, VertexBufferObject &vbo);
+};
+
 } // namespace graphics
 } // namespace ist
 #endif // __ist_Graphics_BufferObject__

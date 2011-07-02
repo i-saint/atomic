@@ -188,7 +188,7 @@ PassGBuffer_Cube::PassGBuffer_Cube()
 {
     m_sh_gbuffer = GetShaderGBuffer();
     m_model = GetModelData(MODEL_CUBE);
-    m_ubo_instance_pos = GetUniformBufferObject(UBO_CUBE_POS);
+    m_vbo_instance_pos = GetVertexBufferObject(VBO_CUBE_POS);
     m_instance_pos.reserve(65536);
 }
 
@@ -199,20 +199,13 @@ void PassGBuffer_Cube::beforeDraw()
 
 void PassGBuffer_Cube::draw()
 {
-    const uint32 instances_par_batch = 1024;
     const uint32 num_instances = m_instance_pos.size();
-    const uint32 num_batch = num_instances/instances_par_batch + (num_instances%instances_par_batch!=0 ? 1 : 0);
+    m_vbo_instance_pos->allocate(sizeof(XMVECTOR)*num_instances, VertexBufferObject::USAGE_STREAM, &m_instance_pos[0]);
 
-    m_ubo_instance_pos->allocate(sizeof(XMVECTOR)*num_instances, UniformBufferObject::USAGE_STREAM, &m_instance_pos[0]);
-
-    for(uint32 i=0; i<num_batch; ++i) {
-        uint32 n = std::min<uint32>(num_instances-(i*instances_par_batch), instances_par_batch);
-        m_ubo_instance_pos->bindRange(i, sizeof(XMVECTOR)*(instances_par_batch*i), sizeof(XMVECTOR)*n);
-        m_sh_gbuffer->setInstancePositionBinding(i);
-        m_sh_gbuffer->bind();
-        m_model->drawInstanced(n);
-        m_sh_gbuffer->unbind();
-    }
+    m_sh_gbuffer->bind();
+    m_model->setInstanceData(2, 4, *m_vbo_instance_pos);
+    m_model->drawInstanced(num_instances);
+    m_sh_gbuffer->unbind();
 }
 
 
@@ -220,7 +213,7 @@ PassDeferred_SphereLight::PassDeferred_SphereLight()
 {
     m_sh_deferred = GetShaderDeferred();
     m_model = GetModelData(MODEL_SPHERE);
-    m_ubo_instance_pos = GetUniformBufferObject(UBO_LIGHT_POS);
+    m_vbo_instance_pos = GetVertexBufferObject(VBO_SPHERE_LIGHT_POS);
     m_instance_pos.reserve(1024);
 }
 
@@ -231,18 +224,11 @@ void PassDeferred_SphereLight::beforeDraw()
 
 void PassDeferred_SphereLight::draw()
 {
-    const uint32 instances_par_batch = 1024;
-    const uint32 num_lights = m_instance_pos.size();
-    const uint32 num_batch = num_lights/instances_par_batch + (num_lights%instances_par_batch!=0 ? 1 : 0);
+    const uint32 num_instances = m_instance_pos.size();
+    m_vbo_instance_pos->allocate(sizeof(XMVECTOR)*num_instances, VertexBufferObject::USAGE_STREAM, &m_instance_pos[0]);
 
-    m_ubo_instance_pos->allocate(sizeof(XMVECTOR)*num_lights, UniformBufferObject::USAGE_STREAM, &m_instance_pos[0]);
-
-    for(uint32 i=0; i<num_batch; ++i) {
-        uint32 n = std::min<uint32>(num_lights-(i*instances_par_batch), instances_par_batch);
-        m_ubo_instance_pos->bindRange(i, sizeof(XMVECTOR)*(instances_par_batch*i), sizeof(XMVECTOR)*n);
-        m_sh_deferred->setLightPositionBinding(i);
-        m_model->drawInstanced(n);
-    }
+    m_model->setInstanceData(2, 4, *m_vbo_instance_pos);
+    m_model->drawInstanced(num_instances);
 
 }
 

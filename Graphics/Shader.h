@@ -10,12 +10,8 @@ private:
     VertexShader m_vsh;
     FragmentShader m_fsh;
 
-    GLuint m_block_instance_position;
-
 public:
     bool initialize();
-
-    void setInstancePositionBinding(int index) { setUniformBlockBinding(m_block_instance_position, index); }
 };
 
 
@@ -35,8 +31,6 @@ private:
     GLuint m_loc_aspect_ratio;
     GLuint m_loc_texcoord_scale;
 
-    GLuint m_block_light_position;
-
 public:
     bool initialize();
 
@@ -47,8 +41,6 @@ public:
     void setDepthBuffer(int32 v)    { setUniform1i(m_loc_depth_buffer, v); }
     void setAspectRatio(float32 v)  { setUniform1f(m_loc_aspect_ratio, v); }
     void setTexcoordScale(float32 v1, float32 v2) { setUniform2f(m_loc_texcoord_scale, v1, v2); }
-
-    void setLightPositionBinding(int index) { setUniformBlockBinding(m_block_light_position, index); }
 };
 
 
