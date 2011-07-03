@@ -17,6 +17,7 @@ public:
 
 class PassGBuffer_Cube;
 class PassDeferred_SphereLight;
+class PassPostprocess_Bloom;
 
 
 class AtomicRenderer : public boost::noncopyable
@@ -24,13 +25,14 @@ class AtomicRenderer : public boost::noncopyable
 private:
     ShaderGBuffer *m_sh_gbuffer;
     ShaderDeferred *m_sh_deferred;
-    ProgramObject *m_sh_out;
+    ShaderOutput *m_sh_out;
 
     RenderTargetGBuffer *m_rt_gbuffer;
     RenderTargetDeferred *m_rt_deferred;
 
     PassGBuffer_Cube *m_renderer_cube;
     PassDeferred_SphereLight *m_renderer_sphere_light;
+    PassPostprocess_Bloom *m_renderer_bloom;
     stl::vector<Renderer*> m_renderers[PASS_END];
 
 private:
@@ -92,6 +94,20 @@ public:
     void draw();
 
     void pushInstance(XMVECTOR v) { m_instance_pos.push_back(v); }
+};
+
+class PassPostprocess_Bloom : public Renderer
+{
+private:
+    RenderTargetDeferred *m_rt_deferred;
+    RenderTargetGauss *m_rt_gauss0;
+    RenderTargetGauss *m_rt_gauss1;
+    ShaderBloom *m_sh_bloom;
+
+public:
+    PassPostprocess_Bloom();
+    void beforeDraw();
+    void draw();
 };
 
 } // namespace atomic

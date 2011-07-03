@@ -44,6 +44,33 @@ public:
 };
 
 
+class ShaderBloom : public ProgramObject
+{
+typedef ProgramObject super;
+private:
+    VertexShader m_vsh;
+    FragmentShader m_fsh;
+
+    GLuint m_loc_color_buffer;
+    GLuint m_loc_screen_width;
+    GLuint m_loc_screen_height;
+    GLuint m_loc_texcoord_min;
+    GLuint m_loc_texcoord_max;
+
+public:
+    bool initialize();
+    void setColorBuffer(int32 v)    { setUniform1i(m_loc_color_buffer, v); }
+    void setScreenWidth(float32 v)  { setUniform1f(m_loc_screen_width, v); }
+    void setScreenHeight(float32 v) { setUniform1f(m_loc_screen_height, v); }
+    void setTexcoordMin(float32 v1, float32 v2)  { setUniform2f(m_loc_texcoord_min, v1, v2); }
+    void setTexcoordMax(float32 v1, float32 v2)  { setUniform2f(m_loc_texcoord_max, v1, v2); }
+
+    void switchToPickupPass();
+    void switchToHorizontalBlurPass();
+    void switchToVerticalBlurPass();
+    void switchToAddPass();
+};
+
 class ShaderOutput : public ProgramObject
 {
 typedef ProgramObject super;
@@ -51,8 +78,11 @@ private:
     VertexShader m_vsh;
     FragmentShader m_fsh;
 
+    GLuint m_loc_color_buffer;
+
 public:
     bool initialize();
+    void setColorBuffer(int32 v)    { setUniform1i(m_loc_color_buffer, v); }
 };
 
 } // namespace atomic

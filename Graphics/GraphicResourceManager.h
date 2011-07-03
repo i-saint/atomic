@@ -24,7 +24,7 @@ enum MODEL_INDEX {
 enum SH_INDEX {
     SH_GBUFFER,
     SH_DEFERRED,
-    SH_POSTPROCESS,
+    SH_BLOOM,
     SH_OUTPUT,
     SH_END,
 };
@@ -62,6 +62,7 @@ enum UBO_INDEX {
 
 typedef Color3DepthBuffer RenderTargetGBuffer;
 typedef ColorDepthBuffer RenderTargetDeferred;
+typedef ColorBuffer RenderTargetGauss;
 
 class GraphicResourceManager : boost::noncopyable
 {
@@ -69,6 +70,7 @@ private:
 
     ShaderGBuffer   *m_sh_gbuffer;
     ShaderDeferred  *m_sh_deferred;
+    ShaderBloom     *m_sh_bloom;
     ShaderOutput    *m_sh_output;
 
     RenderTargetGBuffer     *m_rt_gbuffer;
@@ -97,14 +99,15 @@ public:
     VertexBufferObject* getVertexBufferObject(VBO_INDEX i)      { return m_vbo[i]; }
     UniformBufferObject* getUniformBufferObject(UBO_INDEX i)    { return m_ubo[i]; }
 
-    ShaderGBuffer* getShaderGBuffer()           { return m_sh_gbuffer; }
-    ShaderDeferred* getShaderDeferred()         { return m_sh_deferred; }
-    ShaderOutput* getShaderOutput()             { return m_sh_output; }
+    ShaderGBuffer*  getShaderGBuffer()      { return m_sh_gbuffer; }
+    ShaderDeferred* getShaderDeferred()     { return m_sh_deferred; }
+    ShaderBloom*    getShaderBloom()        { return m_sh_bloom; }
+    ShaderOutput*   getShaderOutput()       { return m_sh_output; }
 
     void swapBuffers();
-    RenderTargetGBuffer* getRenderTargetGBuffer()   { return m_rt_gbuffer; }
-    RenderTargetDeferred* getRenderTargetDeferred() { return m_rt_deferred; }
-    ColorBuffer* getRenderTargetGauss(uint32 i)     { return m_rt_gauss[i]; }
+    RenderTargetGBuffer*    getRenderTargetGBuffer()        { return m_rt_gbuffer; }
+    RenderTargetDeferred*   getRenderTargetDeferred()       { return m_rt_deferred; }
+    RenderTargetGauss*      getRenderTargetGauss(uint32 i)  { return m_rt_gauss[i]; }
 };
 
 
@@ -116,6 +119,7 @@ public:
 
 #define GetShaderGBuffer()                  GetGraphicResourceManager()->getShaderGBuffer()
 #define GetShaderDeferred()                 GetGraphicResourceManager()->getShaderDeferred()
+#define GetShaderBloom()                    GetGraphicResourceManager()->getShaderBloom()
 #define GetShaderOutput()                   GetGraphicResourceManager()->getShaderOutput()
 
 #define GetModelData(i)             GetGraphicResourceManager()->getModelData(i)

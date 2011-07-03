@@ -1,12 +1,12 @@
 #version 410 compatibility
 
-uniform sampler2D ColorBuffer;
-in vec2 Texcoord;
+uniform sampler2D u_ColorBuffer;
+in vec2 v_Texcoord;
 
-layout(location=0) out vec4 FragColor;
+layout(location=0) out vec4 o_FragColor;
 
 
 void main()
 {
-    FragColor = texture2D(ColorBuffer, Texcoord);
+    o_FragColor = texture(u_ColorBuffer, v_Texcoord);
 }

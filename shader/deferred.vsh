@@ -9,7 +9,7 @@ out vec4 v_LightColor;
 out vec4 v_VertexPositionMVP;
 
 
-void main(void)
+void main()
 {
     v_LightPosition = a_InstancePosition*1.1;
 

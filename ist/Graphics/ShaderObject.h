@@ -95,13 +95,14 @@ public:
     void setVertexAttrib2fv(GLint al, const GLfloat *v);
     void setVertexAttrib3fv(GLint al, const GLfloat *v);
     void setVertexAttrib4fv(GLint al, const GLfloat *v);
-    //
-    // dviser
-    void setVertexAttribPointerF32(GLint al, GLint size, GLboolean normalize, GLsizei stride, const GLvoid *v);
-    void setVertexAttribPointerI32(GLint al, GLint size, GLsizei stride, const GLvoid *v);
-    void enableVertexAttribArray(GLuint  index);
-    void disableVertexAttribArray(GLuint  index);
-    void setVertexAttribDivisor(GLint al, GLint v);
+
+    // subroutine
+    GLuint getSubroutineIndexV(const char *name);
+    GLuint getSubroutineIndexG(const char *name);
+    GLuint getSubroutineIndexF(const char *name);
+    void setSubroutineV(GLsizei count, GLuint *indices);
+    void setSubroutineG(GLsizei count, GLuint *indices);
+    void setSubroutineF(GLsizei count, GLuint *indices);
 };
 
 

@@ -223,6 +223,12 @@ void ProgramObject::setVertexAttrib2fv(GLint al, const GLfloat *v) { glVertexAtt
 void ProgramObject::setVertexAttrib3fv(GLint al, const GLfloat *v) { glVertexAttrib3fv(al, v); }
 void ProgramObject::setVertexAttrib4fv(GLint al, const GLfloat *v) { glVertexAttrib4fv(al, v); }
 
+GLuint ProgramObject::getSubroutineIndexV(const char *name) { return glGetSubroutineIndex(m_handle, GL_VERTEX_SHADER, name); }
+GLuint ProgramObject::getSubroutineIndexG(const char *name) { return glGetSubroutineIndex(m_handle, GL_GEOMETRY_SHADER, name); }
+GLuint ProgramObject::getSubroutineIndexF(const char *name) { return glGetSubroutineIndex(m_handle, GL_FRAGMENT_SHADER, name); }
+void ProgramObject::setSubroutineV(GLsizei count, GLuint *indices) { glUniformSubroutinesuiv(GL_VERTEX_SHADER, count, indices); }
+void ProgramObject::setSubroutineG(GLsizei count, GLuint *indices) { glUniformSubroutinesuiv(GL_GEOMETRY_SHADER, count, indices); }
+void ProgramObject::setSubroutineF(GLsizei count, GLuint *indices) { glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, count, indices); }
 
 } // namespace graphics
 } // namespace ist

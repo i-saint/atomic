@@ -7,26 +7,6 @@
 namespace atomic {
 
 
-inline void SetFloat3(float (&v)[3], float x, float y, float z)
-{
-    v[0] = x;
-    v[1] = y;
-    v[2] = z;
-}
-inline void SetFloat3(float (&v)[3], float (&s)[3])
-{
-    v[0] = s[0];
-    v[1] = s[1];
-    v[2] = s[2];
-}
-inline void SetFloat3(float (&v)[3], XMVECTOR s)
-{
-    v[0] = ((float*)&s)[0];
-    v[1] = ((float*)&s)[1];
-    v[2] = ((float*)&s)[2];
-}
-
-
 
 inline void CreateSphereModel(ModelData& model, float32 radius)
 {
@@ -35,21 +15,22 @@ inline void CreateSphereModel(ModelData& model, float32 radius)
 
     const int ydiv = 12;
     const int xzdiv = 24;
-    XMVECTOR v[ydiv][xzdiv];
-    float n[ydiv][xzdiv][3];
+    glm::vec4 v[ydiv][xzdiv];
+    glm::vec3 n[ydiv][xzdiv];
     int index[(ydiv-1)*(xzdiv)*4];
 
     for(int i=0; i<ydiv; ++i) {
         float ang = ((180.0f/(ydiv-1)*i-90.0f)*radian);
-        v[i][0] = XMVectorSet(cos(ang)*radius, sin(ang)*radius, 0, 1.0);
+        v[i][0] = glm::vec4(cos(ang)*radius, sin(ang)*radius, 0, 1.0);
     }
-    XMMATRIX mat = XMMatrixIdentity();
+
+    glm::mat4 mat;
     for(int j=0; j<xzdiv; ++j) {
         for(int i=0; i<ydiv; ++i) {
-            v[i][j] = XMVector4Transform(v[i][0], mat);
-            SetFloat3(n[i][j], XMVector3Normalize(v[i][j]));
+            v[i][j] = mat * v[i][0];
+            n[i][j] = glm::normalize(glm::vec3(v[i][j].x, v[i][j].y, v[i][j].z));
         }
-        mat = XMMatrixRotationY(360.0f/xzdiv*j*radian);
+        mat = glm::rotate(glm::mat4(), 360.0f/xzdiv*j, glm::vec3(0.0f, 1.0f, 0.0f));
     }
 
     int *ci = index;
@@ -70,75 +51,73 @@ inline void CreateSphereModel(ModelData& model, float32 radius)
 
 inline void CreateCubeModel(ModelData& model, float32 len)
 {
-    XMVECTOR vertex[24];
-    float normal[24][3];
+    glm::vec4 vertex[24];
+    glm::vec3 normal[24];
     int index[24];
 
-    float n[3];
-    float ur[3];
-    float bl[3];
-    SetFloat3(ur,  len/2.0f, len/2.0f, len/2.0f);
-    SetFloat3(bl, -len/2.0f,-len/2.0f,-len/2.0f);
+    glm::vec3 ur = glm::vec3( len/2.0f, len/2.0f, len/2.0f);
+    glm::vec3 bl = glm::vec3(-len/2.0f,-len/2.0f,-len/2.0f);
+    glm::vec3 n;
 
-    SetFloat3(n, 1.0f, 0.0f, 0.0f);
-    SetFloat3(normal[0], n);
-    SetFloat3(normal[1], n);
-    SetFloat3(normal[2], n);
-    SetFloat3(normal[3], n);
-    vertex[0] = XMVectorSet(ur[0], ur[1], ur[2], 1.0f);
-    vertex[1] = XMVectorSet(ur[0], bl[1], ur[2], 1.0f);
-    vertex[2] = XMVectorSet(ur[0], bl[1], bl[2], 1.0f);
-    vertex[3] = XMVectorSet(ur[0], ur[1], bl[2], 1.0f);
+    n = glm::vec3(1.0f, 0.0f, 0.0f);
+    normal[0] = n;
+    normal[1] = n;
+    normal[2] = n;
+    normal[3] = n;
+    vertex[0] = glm::vec4(ur[0], ur[1], ur[2], 1.0f);
+    vertex[1] = glm::vec4(ur[0], bl[1], ur[2], 1.0f);
+    vertex[2] = glm::vec4(ur[0], bl[1], bl[2], 1.0f);
+    vertex[3] = glm::vec4(ur[0], ur[1], bl[2], 1.0f);
 
-    SetFloat3(n, -1.0f, 0.0f, 0.0f);
-    SetFloat3(normal[4], n);
-    SetFloat3(normal[5], n);
-    SetFloat3(normal[6], n);
-    SetFloat3(normal[7], n);
-    vertex[4] = XMVectorSet(bl[0], ur[1], ur[2], 1.0f);
-    vertex[5] = XMVectorSet(bl[0], ur[1], bl[2], 1.0f);
-    vertex[6] = XMVectorSet(bl[0], bl[1], bl[2], 1.0f);
-    vertex[7] = XMVectorSet(bl[0], bl[1], ur[2], 1.0f);
+    n = glm::vec3(-1.0f, 0.0f, 0.0f);
+    normal[4] = n;
+    normal[5] = n;
+    normal[6] = n;
+    normal[7] = n;
+    vertex[4] = glm::vec4(bl[0], ur[1], ur[2], 1.0f);
+    vertex[5] = glm::vec4(bl[0], ur[1], bl[2], 1.0f);
+    vertex[6] = glm::vec4(bl[0], bl[1], bl[2], 1.0f);
+    vertex[7] = glm::vec4(bl[0], bl[1], ur[2], 1.0f);
 
-    SetFloat3(n, 0.0f, 1.0f, 0.0f);
-    SetFloat3(normal[8], n);
-    SetFloat3(normal[9], n);
-    SetFloat3(normal[10], n);
-    SetFloat3(normal[11], n);
-    vertex[8] = XMVectorSet(ur[0], ur[1], ur[2], 1.0f);
-    vertex[9] = XMVectorSet(ur[0], ur[1], bl[2], 1.0f);
-    vertex[10] = XMVectorSet(bl[0], ur[1], bl[2], 1.0f);
-    vertex[11] = XMVectorSet(bl[0], ur[1], ur[2], 1.0f);
+    n = glm::vec3(0.0f, 1.0f, 0.0f);
+    normal[8] = n;
+    normal[9] = n;
+    normal[10] = n;
+    normal[11] = n;
+    vertex[8] = glm::vec4(ur[0], ur[1], ur[2], 1.0f);
+    vertex[9] = glm::vec4(ur[0], ur[1], bl[2], 1.0f);
+    vertex[10] = glm::vec4(bl[0], ur[1], bl[2], 1.0f);
+    vertex[11] = glm::vec4(bl[0], ur[1], ur[2], 1.0f);
 
-    SetFloat3(n, 0.0f, -1.0f, 0.0f);
-    SetFloat3(normal[12], n);
-    SetFloat3(normal[13], n);
-    SetFloat3(normal[14], n);
-    SetFloat3(normal[15], n);
-    vertex[12] = XMVectorSet(ur[0], bl[1], ur[2], 1.0f);
-    vertex[13] = XMVectorSet(bl[0], bl[1], ur[2], 1.0f);
-    vertex[14] = XMVectorSet(bl[0], bl[1], bl[2], 1.0f);
-    vertex[15] = XMVectorSet(ur[0], bl[1], bl[2], 1.0f);
+    n = glm::vec3(0.0f, -1.0f, 0.0f);
+    normal[12] = n;
+    normal[13] = n;
+    normal[14] = n;
+    normal[15] = n;
+    vertex[12] = glm::vec4(ur[0], bl[1], ur[2], 1.0f);
+    vertex[13] = glm::vec4(bl[0], bl[1], ur[2], 1.0f);
+    vertex[14] = glm::vec4(bl[0], bl[1], bl[2], 1.0f);
+    vertex[15] = glm::vec4(ur[0], bl[1], bl[2], 1.0f);
 
-    SetFloat3(n, 0.0f, 0.0f, 1.0f);
-    SetFloat3(normal[16], n);
-    SetFloat3(normal[17], n);
-    SetFloat3(normal[18], n);
-    SetFloat3(normal[19], n);
-    vertex[16] = XMVectorSet(ur[0], ur[1], ur[2], 1.0f);
-    vertex[17] = XMVectorSet(bl[0], ur[1], ur[2], 1.0f);
-    vertex[18] = XMVectorSet(bl[0], bl[1], ur[2], 1.0f);
-    vertex[19] = XMVectorSet(ur[0], bl[1], ur[2], 1.0f);
+    n = glm::vec3(0.0f, 0.0f, 1.0f);
+    normal[16] = n;
+    normal[17] = n;
+    normal[18] = n;
+    normal[19] = n;
+    vertex[16] = glm::vec4(ur[0], ur[1], ur[2], 1.0f);
+    vertex[17] = glm::vec4(bl[0], ur[1], ur[2], 1.0f);
+    vertex[18] = glm::vec4(bl[0], bl[1], ur[2], 1.0f);
+    vertex[19] = glm::vec4(ur[0], bl[1], ur[2], 1.0f);
 
-    SetFloat3(n, 0.0f, 0.0f, -1.0f);
-    SetFloat3(normal[20], n);
-    SetFloat3(normal[21], n);
-    SetFloat3(normal[22], n);
-    SetFloat3(normal[23], n);
-    vertex[20] = XMVectorSet(ur[0], ur[1], bl[2], 1.0f);
-    vertex[21] = XMVectorSet(ur[0], bl[1], bl[2], 1.0f);
-    vertex[22] = XMVectorSet(bl[0], bl[1], bl[2], 1.0f);
-    vertex[23] = XMVectorSet(bl[0], ur[1], bl[2], 1.0f);
+    n = glm::vec3(0.0f, 0.0f, -1.0f);
+    normal[20] = n;
+    normal[21] = n;
+    normal[22] = n;
+    normal[23] = n;
+    vertex[20] = glm::vec4(ur[0], ur[1], bl[2], 1.0f);
+    vertex[21] = glm::vec4(ur[0], bl[1], bl[2], 1.0f);
+    vertex[22] = glm::vec4(bl[0], bl[1], bl[2], 1.0f);
+    vertex[23] = glm::vec4(bl[0], ur[1], bl[2], 1.0f);
 
     for(size_t i=0; i<24; ++i) {
         index[i] = i;
@@ -250,12 +229,15 @@ bool GraphicResourceManager::initialize()
     {
         m_sh_gbuffer    = AT_NEW(ShaderGBuffer) ShaderGBuffer();
         m_sh_deferred   = AT_NEW(ShaderDeferred) ShaderDeferred();
+        m_sh_bloom      = AT_NEW(ShaderBloom) ShaderBloom();
         m_sh_output     = AT_NEW(ShaderOutput) ShaderOutput();
         m_sh_gbuffer->initialize();
         m_sh_deferred->initialize();
+        m_sh_bloom->initialize();
         m_sh_output->initialize();
         m_shader[SH_GBUFFER]    = m_sh_gbuffer;
         m_shader[SH_DEFERRED]   = m_sh_deferred;
+        m_shader[SH_BLOOM]      = m_sh_bloom;
         m_shader[SH_OUTPUT]     = m_sh_output;
     }
     {

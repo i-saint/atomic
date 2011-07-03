@@ -36,8 +36,10 @@ AtomicRenderer::AtomicRenderer()
 
     m_renderer_cube = AT_NEW(PassGBuffer_Cube) PassGBuffer_Cube();
     m_renderer_sphere_light = AT_NEW(PassDeferred_SphereLight) PassDeferred_SphereLight();
+    m_renderer_bloom = AT_NEW(PassPostprocess_Bloom) PassPostprocess_Bloom();
     m_renderers[PASS_GBUFFER].push_back(m_renderer_cube);
     m_renderers[PASS_DEFERRED].push_back(m_renderer_sphere_light);
+    m_renderers[PASS_POSTPROCESS].push_back(m_renderer_bloom);
 }
 
 AtomicRenderer::~AtomicRenderer()
@@ -176,7 +178,7 @@ void AtomicRenderer::pass_Output()
 {
     m_rt_deferred->getColorBuffer(0)->bind(Texture2D::SLOT_0);
     m_sh_out->bind();
-    m_sh_out->setUniform1i(m_sh_out->getUniformLocation("ColorBuffer"), Texture2D::SLOT_0);
+    m_sh_out->setColorBuffer(Texture2D::SLOT_0);
     DrawScreen(0.0f, 0.0f, float(GetWindowWidth())/float32(m_rt_deferred->getWidth()), float(GetWindowHeight())/float32(m_rt_deferred->getHeight()));
     m_sh_out->unbind();
     m_rt_deferred->getColorBuffer(0)->unbind(Texture2D::SLOT_0);
@@ -230,6 +232,64 @@ void PassDeferred_SphereLight::draw()
     m_model->setInstanceData(2, 4, *m_vbo_instance_pos);
     m_model->drawInstanced(num_instances);
 
+}
+
+
+PassPostprocess_Bloom::PassPostprocess_Bloom()
+: m_rt_deferred(NULL)
+, m_rt_gauss0(NULL)
+, m_rt_gauss1(NULL)
+, m_sh_bloom(NULL)
+{
+    m_rt_deferred = GetRenderTargetDeferred();
+    m_rt_gauss0 = GetRenderTargetGauss(0);
+    m_rt_gauss1 = GetRenderTargetGauss(1);
+    m_sh_bloom = GetShaderBloom();
+}
+
+void PassPostprocess_Bloom::beforeDraw()
+{
+}
+
+void PassPostprocess_Bloom::draw()
+{
+    m_sh_bloom->bind();
+    // ‹P“x’Šo
+    {
+        m_rt_gauss0->bind();
+        m_rt_deferred->getColorBuffer(0)->bind();
+        // todo
+        m_rt_deferred->getColorBuffer(0)->unbind();
+        m_rt_gauss0->unbind();
+    }
+
+    // ‰¡ƒuƒ‰[
+    {
+        m_rt_gauss1->bind();
+        m_rt_gauss0->getColorBuffer(0)->bind();
+        // todo
+        m_rt_gauss0->getColorBuffer(0)->unbind();
+        m_rt_gauss1->unbind();
+    }
+
+    // cƒuƒ‰[
+    {
+        m_rt_gauss0->bind();
+        m_rt_gauss1->getColorBuffer(0)->bind();
+        // todo
+        m_rt_gauss1->getColorBuffer(0)->unbind();
+        m_rt_gauss0->unbind();
+    }
+
+    // ‰ÁŽZ
+    {
+        m_rt_deferred->bind();
+        m_rt_gauss0->getColorBuffer(0)->bind();
+        // todo
+        m_rt_gauss0->getColorBuffer(0)->unbind();
+        m_rt_deferred->unbind();
+    }
+    m_sh_bloom->unbind();
 }
 
 } // namespace atomic
