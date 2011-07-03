@@ -4,7 +4,10 @@
 
 namespace atomic {
 
-void DrawScreen(float32 min_tx, float32 min_ty, float32 max_tx, float32 max_ty);
+void DrawScreen(vec2 min_pos, vec2 max_pos, vec2 min_tc, vec2 max_tc);
+void DrawScreen(vec2 min_tc, vec2 max_tc);
+void DrawScreen();
+
 
 enum PASS {
     PASS_SHADOW_DEPTH,
@@ -17,6 +20,7 @@ enum PASS {
 };
 
 enum MODEL_INDEX {
+    MODEL_QUAD,
     MODEL_CUBE,
     MODEL_SPHERE,
     MODEL_END,
@@ -41,6 +45,7 @@ enum GBUFFER {
     GBUFFER_GLOW        = Texture2D::SLOT_1,
     GBUFFER_NORMAL      = Texture2D::SLOT_2,
     GBUFFER_POSITION    = Texture2D::SLOT_3,
+    GBUFFER_DEPTH       = Texture2D::SLOT_4,
 };
 
 enum TEX2D_INDEX {
@@ -51,7 +56,10 @@ enum TEX2D_INDEX {
 enum VBO_INDEX {
     VBO_BOX_POS,
     VBO_CUBE_POS,
+    VBO_CUBE_SCALE,
+    VBO_CUBE_GLOW,
     VBO_SPHERE_LIGHT_POS,
+    VBO_SPHERE_LIGHT_SCALE,
     VBO_END,
 };
 

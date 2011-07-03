@@ -8,6 +8,6 @@ out vec2 v_Texcoord;
 
 void main()
 {
-    v_Texcoord = a_Texcoord;
+    v_Texcoord = gl_MultiTexCoord0.xy;
     gl_Position = gl_ModelViewProjectionMatrix * a_VertexPosition;
 }

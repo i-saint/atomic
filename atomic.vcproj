@@ -404,6 +404,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\ist\Graphics\types.h"
+					>
+				</File>
+				<File
 					RelativePath=".\ist\Graphics\Util.cpp"
 					>
 				</File>

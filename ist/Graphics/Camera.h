@@ -14,12 +14,8 @@ private:
     size_t m_height;
 
 public:
-    Viewport()
-        : m_x(0)
-        , m_y(0)
-        , m_width(100)
-        , m_height(100)
-    {}
+    Viewport() : m_x(0), m_y(0), m_width(100), m_height(100) {}
+    Viewport(int x, int y, size_t w, size_t h) : m_x(x), m_y(y), m_width(w), m_height(h) {}
 
     int getX() const        { return m_x; }
     int getY() const        { return m_y; }

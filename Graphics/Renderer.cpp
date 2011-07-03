@@ -40,6 +40,8 @@ AtomicRenderer::AtomicRenderer()
     m_renderers[PASS_GBUFFER].push_back(m_renderer_cube);
     m_renderers[PASS_DEFERRED].push_back(m_renderer_sphere_light);
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_bloom);
+
+    m_default_viewport.setViewport(0, 0, GetWindowWidth(), GetWindowHeight());
 }
 
 AtomicRenderer::~AtomicRenderer()
@@ -67,7 +69,6 @@ void AtomicRenderer::draw()
 
     glLoadIdentity();
 
-    glEnable(GL_DEPTH_TEST);
 
     pass_Shadow();
     pass_GBuffer();
@@ -84,12 +85,14 @@ void AtomicRenderer::pass_Shadow()
 {
     glClear(GL_DEPTH_BUFFER_BIT);
     glFrontFace(GL_CW);
+    glEnable(GL_DEPTH_TEST);
 
     uint32 num_renderers = m_renderers[PASS_SHADOW_DEPTH].size();
     for(uint32 i=0; i<num_renderers; ++i) {
         m_renderers[PASS_SHADOW_DEPTH][i]->draw();
     }
 
+    glDisable(GL_DEPTH_TEST);
     glFrontFace(GL_CCW);
 }
 
@@ -102,12 +105,14 @@ void AtomicRenderer::pass_GBuffer()
     camera->bind();
     glClearColor(0.0f,0.0f,0.0f,0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
 
     uint32 num_renderers = m_renderers[PASS_GBUFFER].size();
     for(uint32 i=0; i<num_renderers; ++i) {
         m_renderers[PASS_GBUFFER][i]->draw();
     }
 
+    glDisable(GL_DEPTH_TEST);
     m_sh_gbuffer->unbind();
     m_rt_gbuffer->unbind();
 }
@@ -116,8 +121,9 @@ void AtomicRenderer::pass_Deferred()
 {
     const PerspectiveCamera *camera = GetCamera();
     float aspect_ratio = camera->getAspect();
-    float x_scale = float32(GetWindowWidth())/float32(m_rt_deferred->getWidth());
-    float y_scale = float32(GetWindowHeight())/float32(m_rt_deferred->getHeight()) * aspect_ratio;
+    vec2 tex_scale = vec2(
+        float32(GetWindowWidth())/float32(m_rt_deferred->getWidth()),
+        float32(GetWindowHeight())/float32(m_rt_deferred->getHeight()) * aspect_ratio);
 
     m_rt_deferred->bind();
     m_sh_deferred->bind();
@@ -129,10 +135,11 @@ void AtomicRenderer::pass_Deferred()
     m_sh_deferred->setNormalBuffer(Texture2D::SLOT_1);
     m_sh_deferred->setPositionBuffer(Texture2D::SLOT_2);
     m_sh_deferred->setAspectRatio(aspect_ratio);
-    m_sh_deferred->setTexcoordScale(x_scale, y_scale);
+    m_sh_deferred->setTexcoordScale(tex_scale);
     glClearColor(0.0f,0.0f,0.0f,1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     glEnable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     glDepthMask(GL_FALSE);
 
@@ -142,6 +149,7 @@ void AtomicRenderer::pass_Deferred()
     }
 
     glDepthMask(GL_TRUE);
+    glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
     m_rt_gbuffer->getColorBuffer(2)->unbind(Texture2D::SLOT_2);
     m_rt_gbuffer->getColorBuffer(1)->unbind(Texture2D::SLOT_1);
@@ -176,10 +184,14 @@ void AtomicRenderer::pass_UI()
 
 void AtomicRenderer::pass_Output()
 {
+    OrthographicCamera cam;
+    cam.setScreen(0.0f, 1.0f, 0.0f, 1.0f);
+    cam.bind();
+
     m_rt_deferred->getColorBuffer(0)->bind(Texture2D::SLOT_0);
     m_sh_out->bind();
     m_sh_out->setColorBuffer(Texture2D::SLOT_0);
-    DrawScreen(0.0f, 0.0f, float(GetWindowWidth())/float32(m_rt_deferred->getWidth()), float(GetWindowHeight())/float32(m_rt_deferred->getHeight()));
+    DrawScreen(vec2(0.0f, 0.0f), vec2(float(GetWindowWidth())/float32(m_rt_deferred->getWidth()), float(GetWindowHeight())/float32(m_rt_deferred->getHeight())));
     m_sh_out->unbind();
     m_rt_deferred->getColorBuffer(0)->unbind(Texture2D::SLOT_0);
 }
@@ -253,11 +265,43 @@ void PassPostprocess_Bloom::beforeDraw()
 
 void PassPostprocess_Bloom::draw()
 {
+    const float32 aspect_ratio = GetWindowAspectRatio();
+    Viewport viewports[] = {
+        Viewport(  0,0, 256,256),
+        Viewport(256,0, 128,128),
+        Viewport(384,0,  64, 64),
+        Viewport(448,0,  32, 32),
+    };
+    vec2 texcoord_pos[] = {
+        vec2( 0.0f, 0.0f),
+        vec2( 0.5f, 0.0f),
+        vec2(0.75f, 0.0f),
+        vec2(0.875f, 0.0f),
+    };
+    vec2 texcoord_size[] = {
+        vec2(  0.5f,  1.0f),
+        vec2( 0.25f,  0.5f),
+        vec2(0.125f, 0.25f),
+        vec2(0.0625f, 0.125f),
+    };
+
+    OrthographicCamera cam;
+    cam.setScreen(0.0f, 1.0f, 0.0f, 1.0f);
+    cam.bind();
+
     m_sh_bloom->bind();
+    m_sh_bloom->setScreenWidth((float32)m_rt_gauss0->getWidth());
+    m_sh_bloom->setScreenHeight((float32)m_rt_gauss0->getHeight());
     // ‹P“x’Šo
     {
+        m_sh_bloom->switchToPickupPass();
         m_rt_gauss0->bind();
-        m_rt_deferred->getColorBuffer(0)->bind();
+        m_rt_deferred->getColorBuffer(0)->bind(Texture2D::SLOT_0);
+        m_sh_bloom->setColorBuffer(Texture2D::SLOT_0);
+        for(uint32 i=0; i<_countof(viewports); ++i) {
+            viewports[i].bind();
+            DrawScreen();
+        }
         // todo
         m_rt_deferred->getColorBuffer(0)->unbind();
         m_rt_gauss0->unbind();
@@ -265,31 +309,65 @@ void PassPostprocess_Bloom::draw()
 
     // ‰¡ƒuƒ‰[
     {
+        m_sh_bloom->switchToHorizontalBlurPass();
         m_rt_gauss1->bind();
-        m_rt_gauss0->getColorBuffer(0)->bind();
-        // todo
+        m_rt_gauss0->getColorBuffer(0)->bind(Texture2D::SLOT_0);
+        m_sh_bloom->setColorBuffer(Texture2D::SLOT_0);
+        for(uint32 i=0; i<_countof(viewports); ++i) {
+            viewports[i].bind();
+            vec2 tmin = texcoord_pos[i];
+            vec2 tmax = texcoord_pos[i]+texcoord_size[i];
+            tmax.y /= aspect_ratio;
+            m_sh_bloom->setTexcoordMin(tmin);
+            m_sh_bloom->setTexcoordMax(tmax);
+            DrawScreen(texcoord_pos[i], texcoord_pos[i]+texcoord_size[i]);
+        }
         m_rt_gauss0->getColorBuffer(0)->unbind();
         m_rt_gauss1->unbind();
     }
 
     // cƒuƒ‰[
     {
+        m_sh_bloom->switchToVerticalBlurPass();
         m_rt_gauss0->bind();
-        m_rt_gauss1->getColorBuffer(0)->bind();
-        // todo
+        m_rt_gauss1->getColorBuffer(0)->bind(Texture2D::SLOT_0);
+        m_sh_bloom->setColorBuffer(Texture2D::SLOT_0);
+        for(uint32 i=0; i<_countof(viewports); ++i) {
+            viewports[i].bind();
+            vec2 tmin = texcoord_pos[i];
+            vec2 tmax = texcoord_pos[i]+texcoord_size[i];
+            tmax.y /= aspect_ratio;
+            m_sh_bloom->setTexcoordMin(tmin);
+            m_sh_bloom->setTexcoordMax(tmax);
+            DrawScreen(texcoord_pos[i], texcoord_pos[i]+texcoord_size[i]);
+        }
         m_rt_gauss1->getColorBuffer(0)->unbind();
         m_rt_gauss0->unbind();
     }
 
     // ‰ÁŽZ
+    GetDefaultViewport()->bind();
     {
+        m_sh_bloom->switchToCompositePass();
         m_rt_deferred->bind();
-        m_rt_gauss0->getColorBuffer(0)->bind();
-        // todo
+        m_rt_gauss0->getColorBuffer(0)->bind(Texture2D::SLOT_0);
+        m_sh_bloom->setColorBuffer(Texture2D::SLOT_0);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+        for(uint32 i=0; i<_countof(viewports); ++i) {
+            vec2 tmin = texcoord_pos[i];
+            vec2 tmax = texcoord_pos[i]+texcoord_size[i];
+            tmax.y /= aspect_ratio;
+            DrawScreen(tmin, tmax);
+        }
+        glDisable(GL_BLEND);
         m_rt_gauss0->getColorBuffer(0)->unbind();
         m_rt_deferred->unbind();
     }
     m_sh_bloom->unbind();
+
+    GetDefaultViewport()->bind();
+
 }
 
 } // namespace atomic

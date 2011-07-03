@@ -35,6 +35,8 @@ private:
     PassPostprocess_Bloom *m_renderer_bloom;
     stl::vector<Renderer*> m_renderers[PASS_END];
 
+    Viewport m_default_viewport;
+
 private:
     static AtomicRenderer *s_inst;
 
@@ -58,10 +60,12 @@ public:
 
     PassGBuffer_Cube* getCubeRenderer() { return m_renderer_cube; }
     PassDeferred_SphereLight* getSphereLightRenderer() { return m_renderer_sphere_light; }
+    const Viewport* getDefaultViewport() const { return &m_default_viewport; }
 };
 
 #define GetCubeRenderer() AtomicRenderer::getInstance()->getCubeRenderer()
 #define GetSphereLightRenderer() AtomicRenderer::getInstance()->getSphereLightRenderer()
+#define GetDefaultViewport() AtomicRenderer::getInstance()->getDefaultViewport()
 
 
 class PassGBuffer_Cube : public Renderer

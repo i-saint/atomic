@@ -49,6 +49,11 @@ bool ShaderBloom::initialize()
     m_loc_texcoord_min      = getUniformLocation("u_TexcoordMin");
     m_loc_texcoord_max      = getUniformLocation("u_TexcoordMax");
 
+    m_sub_pickup            = getSubroutineIndexF("pickup");
+    m_sub_hblur             = getSubroutineIndexF("horizontalBlur");
+    m_sub_vblur             = getSubroutineIndexF("verticalBlur");
+    m_sub_composite         = getSubroutineIndexF("composite");
+
     return true;
 }
 

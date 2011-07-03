@@ -1,6 +1,7 @@
 #ifndef __ist_Graphics_ShaderObject__
 #define __ist_Graphics_ShaderObject__
 
+#include "types.h"
 #include "GraphicsResource.h"
 
 namespace ist {
@@ -60,15 +61,15 @@ public:
 
     // uniform variable
     // int
-    void setUniform1i(GLint al, GLint v0);
-    void setUniform2i(GLint al, GLint v0, GLint v1);
-    void setUniform3i(GLint al, GLint v0, GLint v1, GLint v2);
-    void setUniform4i(GLint al, GLint v0, GLint v1, GLint v2, GLint v3);
+    void setUniform1i(GLint al, GLint v);
+    void setUniform2i(GLint al, const ivec2& v);
+    void setUniform3i(GLint al, const ivec3& v);
+    void setUniform4i(GLint al, const ivec4& v);
     // float
-    void setUniform1f(GLint al, GLfloat v0);
-    void setUniform2f(GLint al, GLfloat v0, GLfloat v1);
-    void setUniform3f(GLint al, GLfloat v0, GLfloat v1, GLfloat v2);
-    void setUniform4f(GLint al, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3);
+    void setUniform1f(GLint al, GLfloat v);
+    void setUniform2f(GLint al, const vec2& v);
+    void setUniform3f(GLint al, const vec3& v);
+    void setUniform4f(GLint al, const vec4& v);
     // int array
     void setUniform1iv(GLint al, GLuint count, const GLint *v);
     void setUniform2iv(GLint al, GLuint count, const GLint *v);

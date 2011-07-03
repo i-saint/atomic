@@ -182,16 +182,16 @@ void ProgramObject::setUniformBlockBinding(GLuint uniformBlockIndex, GLuint unif
 
 // uniform variable
 // int
-void ProgramObject::setUniform1i(GLint al, GLint v0) { glUniform1i(al, v0); }
-void ProgramObject::setUniform2i(GLint al, GLint v0, GLint v1) { glUniform2i(al, v0, v1); }
-void ProgramObject::setUniform3i(GLint al, GLint v0, GLint v1, GLint v2) { glUniform3i(al, v0, v1, v2); }
-void ProgramObject::setUniform4i(GLint al, GLint v0, GLint v1, GLint v2, GLint v3) { glUniform4i(al, v0, v1, v2, v3); }
+void ProgramObject::setUniform1i(GLint al, GLint v) { glUniform1i(al, v); }
+void ProgramObject::setUniform2i(GLint al, const ivec2& v) { glUniform2i(al, v.x, v.y); }
+void ProgramObject::setUniform3i(GLint al, const ivec3& v) { glUniform3i(al, v.x, v.y, v.z); }
+void ProgramObject::setUniform4i(GLint al, const ivec4& v) { glUniform4i(al, v.x, v.y, v.z, v.w); }
 
 // float
 void ProgramObject::setUniform1f(GLint al, GLfloat v0) { glUniform1f(al, v0); }
-void ProgramObject::setUniform2f(GLint al, GLfloat v0, GLfloat v1) { glUniform2f(al, v0, v1); }
-void ProgramObject::setUniform3f(GLint al, GLfloat v0, GLfloat v1, GLfloat v2) { glUniform3f(al, v0, v1, v2); }
-void ProgramObject::setUniform4f(GLint al, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3) { glUniform4f(al, v0, v1, v2, v3); }
+void ProgramObject::setUniform2f(GLint al, const vec2& v) { glUniform2f(al, v.x, v.y); }
+void ProgramObject::setUniform3f(GLint al, const vec3& v) { glUniform3f(al, v.x, v.y, v.z); }
+void ProgramObject::setUniform4f(GLint al, const vec4& v) { glUniform4f(al, v.x, v.y, v.z, v.w); }
 
 // int array
 void ProgramObject::setUniform1iv(GLint al, GLuint count, const GLint *v) { glUniform1iv(al, count, v); }

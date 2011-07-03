@@ -5,7 +5,6 @@ uniform float u_ScreenWidth;
 uniform float u_ScreenHeight;
 uniform vec2 u_TexcoordMin;
 uniform vec2 u_TexcoordMax;
-
 in vec2 v_Texcoord;
 
 layout(location=0) out vec4 o_FragColor;
@@ -45,6 +44,12 @@ vec4 verticalBlur()
                   texture(u_ColorBuffer, clamp(v_Texcoord-gap, u_TexcoordMin, u_TexcoordMax))) * Weight[i];
     }
     return color;
+}
+
+subroutine(passType)
+vec4 composite()
+{
+    return texture(u_ColorBuffer, v_Texcoord) * 0.75;
 }
 
 

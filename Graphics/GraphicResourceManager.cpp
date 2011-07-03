@@ -15,22 +15,22 @@ inline void CreateSphereModel(ModelData& model, float32 radius)
 
     const int ydiv = 12;
     const int xzdiv = 24;
-    glm::vec4 v[ydiv][xzdiv];
-    glm::vec3 n[ydiv][xzdiv];
+    vec4 v[ydiv][xzdiv];
+    vec3 n[ydiv][xzdiv];
     int index[(ydiv-1)*(xzdiv)*4];
 
     for(int i=0; i<ydiv; ++i) {
         float ang = ((180.0f/(ydiv-1)*i-90.0f)*radian);
-        v[i][0] = glm::vec4(cos(ang)*radius, sin(ang)*radius, 0, 1.0);
+        v[i][0] = vec4(cos(ang)*radius, sin(ang)*radius, 0, 1.0);
     }
 
-    glm::mat4 mat;
+    mat4 mat;
     for(int j=0; j<xzdiv; ++j) {
         for(int i=0; i<ydiv; ++i) {
             v[i][j] = mat * v[i][0];
-            n[i][j] = glm::normalize(glm::vec3(v[i][j].x, v[i][j].y, v[i][j].z));
+            n[i][j] = glm::normalize(vec3(v[i][j].x, v[i][j].y, v[i][j].z));
         }
-        mat = glm::rotate(glm::mat4(), 360.0f/xzdiv*j, glm::vec3(0.0f, 1.0f, 0.0f));
+        mat = glm::rotate(mat4(), 360.0f/xzdiv*j, vec3(0.0f, 1.0f, 0.0f));
     }
 
     int *ci = index;
@@ -51,73 +51,73 @@ inline void CreateSphereModel(ModelData& model, float32 radius)
 
 inline void CreateCubeModel(ModelData& model, float32 len)
 {
-    glm::vec4 vertex[24];
-    glm::vec3 normal[24];
+    vec4 vertex[24];
+    vec3 normal[24];
     int index[24];
 
-    glm::vec3 ur = glm::vec3( len/2.0f, len/2.0f, len/2.0f);
-    glm::vec3 bl = glm::vec3(-len/2.0f,-len/2.0f,-len/2.0f);
-    glm::vec3 n;
+    vec3 ur = vec3( len/2.0f, len/2.0f, len/2.0f);
+    vec3 bl = vec3(-len/2.0f,-len/2.0f,-len/2.0f);
+    vec3 n;
 
-    n = glm::vec3(1.0f, 0.0f, 0.0f);
+    n = vec3(1.0f, 0.0f, 0.0f);
     normal[0] = n;
     normal[1] = n;
     normal[2] = n;
     normal[3] = n;
-    vertex[0] = glm::vec4(ur[0], ur[1], ur[2], 1.0f);
-    vertex[1] = glm::vec4(ur[0], bl[1], ur[2], 1.0f);
-    vertex[2] = glm::vec4(ur[0], bl[1], bl[2], 1.0f);
-    vertex[3] = glm::vec4(ur[0], ur[1], bl[2], 1.0f);
+    vertex[0] = vec4(ur[0], ur[1], ur[2], 1.0f);
+    vertex[1] = vec4(ur[0], bl[1], ur[2], 1.0f);
+    vertex[2] = vec4(ur[0], bl[1], bl[2], 1.0f);
+    vertex[3] = vec4(ur[0], ur[1], bl[2], 1.0f);
 
-    n = glm::vec3(-1.0f, 0.0f, 0.0f);
+    n = vec3(-1.0f, 0.0f, 0.0f);
     normal[4] = n;
     normal[5] = n;
     normal[6] = n;
     normal[7] = n;
-    vertex[4] = glm::vec4(bl[0], ur[1], ur[2], 1.0f);
-    vertex[5] = glm::vec4(bl[0], ur[1], bl[2], 1.0f);
-    vertex[6] = glm::vec4(bl[0], bl[1], bl[2], 1.0f);
-    vertex[7] = glm::vec4(bl[0], bl[1], ur[2], 1.0f);
+    vertex[4] = vec4(bl[0], ur[1], ur[2], 1.0f);
+    vertex[5] = vec4(bl[0], ur[1], bl[2], 1.0f);
+    vertex[6] = vec4(bl[0], bl[1], bl[2], 1.0f);
+    vertex[7] = vec4(bl[0], bl[1], ur[2], 1.0f);
 
-    n = glm::vec3(0.0f, 1.0f, 0.0f);
+    n = vec3(0.0f, 1.0f, 0.0f);
     normal[8] = n;
     normal[9] = n;
     normal[10] = n;
     normal[11] = n;
-    vertex[8] = glm::vec4(ur[0], ur[1], ur[2], 1.0f);
-    vertex[9] = glm::vec4(ur[0], ur[1], bl[2], 1.0f);
-    vertex[10] = glm::vec4(bl[0], ur[1], bl[2], 1.0f);
-    vertex[11] = glm::vec4(bl[0], ur[1], ur[2], 1.0f);
+    vertex[8] = vec4(ur[0], ur[1], ur[2], 1.0f);
+    vertex[9] = vec4(ur[0], ur[1], bl[2], 1.0f);
+    vertex[10] = vec4(bl[0], ur[1], bl[2], 1.0f);
+    vertex[11] = vec4(bl[0], ur[1], ur[2], 1.0f);
 
-    n = glm::vec3(0.0f, -1.0f, 0.0f);
+    n = vec3(0.0f, -1.0f, 0.0f);
     normal[12] = n;
     normal[13] = n;
     normal[14] = n;
     normal[15] = n;
-    vertex[12] = glm::vec4(ur[0], bl[1], ur[2], 1.0f);
-    vertex[13] = glm::vec4(bl[0], bl[1], ur[2], 1.0f);
-    vertex[14] = glm::vec4(bl[0], bl[1], bl[2], 1.0f);
-    vertex[15] = glm::vec4(ur[0], bl[1], bl[2], 1.0f);
+    vertex[12] = vec4(ur[0], bl[1], ur[2], 1.0f);
+    vertex[13] = vec4(bl[0], bl[1], ur[2], 1.0f);
+    vertex[14] = vec4(bl[0], bl[1], bl[2], 1.0f);
+    vertex[15] = vec4(ur[0], bl[1], bl[2], 1.0f);
 
-    n = glm::vec3(0.0f, 0.0f, 1.0f);
+    n = vec3(0.0f, 0.0f, 1.0f);
     normal[16] = n;
     normal[17] = n;
     normal[18] = n;
     normal[19] = n;
-    vertex[16] = glm::vec4(ur[0], ur[1], ur[2], 1.0f);
-    vertex[17] = glm::vec4(bl[0], ur[1], ur[2], 1.0f);
-    vertex[18] = glm::vec4(bl[0], bl[1], ur[2], 1.0f);
-    vertex[19] = glm::vec4(ur[0], bl[1], ur[2], 1.0f);
+    vertex[16] = vec4(ur[0], ur[1], ur[2], 1.0f);
+    vertex[17] = vec4(bl[0], ur[1], ur[2], 1.0f);
+    vertex[18] = vec4(bl[0], bl[1], ur[2], 1.0f);
+    vertex[19] = vec4(ur[0], bl[1], ur[2], 1.0f);
 
-    n = glm::vec3(0.0f, 0.0f, -1.0f);
+    n = vec3(0.0f, 0.0f, -1.0f);
     normal[20] = n;
     normal[21] = n;
     normal[22] = n;
     normal[23] = n;
-    vertex[20] = glm::vec4(ur[0], ur[1], bl[2], 1.0f);
-    vertex[21] = glm::vec4(ur[0], bl[1], bl[2], 1.0f);
-    vertex[22] = glm::vec4(bl[0], bl[1], bl[2], 1.0f);
-    vertex[23] = glm::vec4(bl[0], ur[1], bl[2], 1.0f);
+    vertex[20] = vec4(ur[0], ur[1], bl[2], 1.0f);
+    vertex[21] = vec4(ur[0], bl[1], bl[2], 1.0f);
+    vertex[22] = vec4(bl[0], bl[1], bl[2], 1.0f);
+    vertex[23] = vec4(bl[0], ur[1], bl[2], 1.0f);
 
     for(size_t i=0; i<24; ++i) {
         index[i] = i;
@@ -128,27 +128,28 @@ inline void CreateCubeModel(ModelData& model, float32 len)
     model.setIndex(index, 24, ModelData::IDX_INT32, ModelData::PRM_QUADS);
 }
 
-void DrawScreen(float32 min_tx, float32 min_ty, float32 max_tx, float32 max_ty)
+void DrawScreen(vec2 min_pos, vec2 max_pos, vec2 min_tc, vec2 max_tc)
 {
-    OrthographicCamera cam;
-    cam.setScreen(0.0f, 1.0f, 0.0f, 1.0f);
-    cam.bind();
-
-    float32 min_x = 0.0f;
-    float32 min_y = 0.0f;
-    float32 max_x = 1.0f;
-    float32 max_y = 1.0f;
-
     glBegin(GL_QUADS);
-    glTexCoord2f(min_tx, min_ty);
-    glVertex2f(min_x, min_y);
-    glTexCoord2f(max_tx, min_ty);
-    glVertex2f(max_x, min_y);
-    glTexCoord2f(max_tx, max_ty);
-    glVertex2f(max_x, max_y);
-    glTexCoord2f(min_tx, max_ty);
-    glVertex2f(min_x, max_y);
+    glTexCoord2f(min_tc.x, min_tc.y);
+    glVertex2f(min_pos.x, min_pos.y);
+    glTexCoord2f(max_tc.x, min_tc.y);
+    glVertex2f(max_pos.x, min_pos.y);
+    glTexCoord2f(max_tc.x, max_tc.y);
+    glVertex2f(max_pos.x, max_pos.y);
+    glTexCoord2f(min_tc.x, max_tc.y);
+    glVertex2f(min_pos.x, max_pos.y);
     glEnd();
+}
+
+void DrawScreen(vec2 min_tc, vec2 max_tc)
+{
+    DrawScreen(vec2(0.0f, 0.0f), vec2(1.0f, 1.0f), min_tc, max_tc);
+}
+
+void DrawScreen()
+{
+    DrawScreen(vec2(0.0f, 0.0f), vec2(1.0f, 1.0f), vec2(0.0f, 0.0f), vec2(1.0f, 1.0f));
 }
 
 
@@ -254,7 +255,7 @@ bool GraphicResourceManager::initialize()
 
         for(uint32 i=0; i<_countof(m_rt_gauss); ++i) {
             m_rt_gauss[i] = AT_NEW(ColorBuffer) ColorBuffer();
-            m_rt_gauss[i]->initialize(512, 512, ColorBuffer::FMT_RGBA_U8);
+            m_rt_gauss[i]->initialize(512, 256, ColorBuffer::FMT_RGBA_U8);
         }
 
         m_fbo[RT_GBUFFER] = m_rt_gbuffer;

@@ -40,7 +40,7 @@ public:
     void setPositionBuffer(int32 v) { setUniform1i(m_loc_position_buffer, v); }
     void setDepthBuffer(int32 v)    { setUniform1i(m_loc_depth_buffer, v); }
     void setAspectRatio(float32 v)  { setUniform1f(m_loc_aspect_ratio, v); }
-    void setTexcoordScale(float32 v1, float32 v2) { setUniform2f(m_loc_texcoord_scale, v1, v2); }
+    void setTexcoordScale(const vec2& v) { setUniform2f(m_loc_texcoord_scale, v); }
 };
 
 
@@ -57,18 +57,23 @@ private:
     GLuint m_loc_texcoord_min;
     GLuint m_loc_texcoord_max;
 
+    GLuint m_sub_pickup;
+    GLuint m_sub_hblur;
+    GLuint m_sub_vblur;
+    GLuint m_sub_composite;
+
 public:
     bool initialize();
     void setColorBuffer(int32 v)    { setUniform1i(m_loc_color_buffer, v); }
     void setScreenWidth(float32 v)  { setUniform1f(m_loc_screen_width, v); }
     void setScreenHeight(float32 v) { setUniform1f(m_loc_screen_height, v); }
-    void setTexcoordMin(float32 v1, float32 v2)  { setUniform2f(m_loc_texcoord_min, v1, v2); }
-    void setTexcoordMax(float32 v1, float32 v2)  { setUniform2f(m_loc_texcoord_max, v1, v2); }
+    void setTexcoordMin(const vec2& v)  { setUniform2f(m_loc_texcoord_min, v); }
+    void setTexcoordMax(const vec2& v)  { setUniform2f(m_loc_texcoord_max, v); }
 
-    void switchToPickupPass();
-    void switchToHorizontalBlurPass();
-    void switchToVerticalBlurPass();
-    void switchToAddPass();
+    void switchToPickupPass()           { setSubroutineF(1, &m_sub_pickup); }
+    void switchToHorizontalBlurPass()   { setSubroutineF(1, &m_sub_hblur); }
+    void switchToVerticalBlurPass()     { setSubroutineF(1, &m_sub_vblur); }
+    void switchToCompositePass()        { setSubroutineF(1, &m_sub_composite); }
 };
 
 class ShaderOutput : public ProgramObject

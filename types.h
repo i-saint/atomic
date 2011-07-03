@@ -19,6 +19,13 @@ typedef unsigned long long  uint64;
 typedef float   float32;
 typedef double  float64;
 
+using glm::vec2;
+using glm::vec3;
+using glm::vec4;
+using glm::mat2;
+using glm::mat3;
+using glm::mat4;
+
 
 // __m128 を直接 eastl::vector とかに格納すると、
 // アライメントが 16 に揃ってないアドレスに SSE のコピー命令でアクセスしてクラッシュしたりする。
