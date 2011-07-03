@@ -91,41 +91,27 @@ void AtomicDrawThread::waitForDrawComplete()
 void AtomicDrawThread::kick()
 {
     waitForDrawComplete();
-    m_is_ready_to_draw = true;
-    m_is_draw_complete = false;
-    m_cond_wait_for_draw.notify_all();
+    {
+        boost::unique_lock<boost::mutex> lock(m_mutex_wait_for_draw);
+        m_is_ready_to_draw = true;
+        m_is_draw_complete = false;
+        m_cond_wait_for_draw.notify_all();
+    }
 }
 
-class Timer
-{
-private:
-    LARGE_INTEGER m_start;
-    LARGE_INTEGER m_end;
-
-public:
-    Timer()
-    {
-        m_start.QuadPart = 0;
-        m_end.QuadPart = 0;
-        ::QueryPerformanceCounter( &m_start );
-    }
-
-    float32 getElapsedMillisecond()
-    {
-        LARGE_INTEGER freq;
-        ::QueryPerformanceCounter( &m_end );
-        ::QueryPerformanceFrequency( &freq );
-        return ((float32)(m_end.QuadPart - m_start.QuadPart) / (float32)freq.QuadPart)*1000.0f;
-    }
-};
 
 void AtomicDrawThread::operator()()
 {
     m_app->initializeDraw();
     GraphicResourceManager::intializeInstance();
-    m_is_initialized = true;
-    m_cond_wait_for_initialize.notify_all();
+    {
+        boost::unique_lock<boost::mutex> lock(m_mutex_wait_for_initialize);
+        m_is_initialized = true;
+        m_cond_wait_for_initialize.notify_all();
+    }
 
+    PerformanceCounter fps_counter;
+    uint32 fps = 0;
     {
         boost::unique_lock<boost::mutex> lock(m_mutex_wait_for_draw);
         while(!m_stop_flag) {
@@ -133,11 +119,14 @@ void AtomicDrawThread::operator()()
                 m_cond_wait_for_draw.wait(lock);
             }
             m_is_ready_to_draw = false;
-            Timer t;
             AtomicRenderer::getInstance()->draw();
-            //IST_PRINT("%lf\n", t.getElapsedMillisecond());
-            m_is_draw_complete = true;
-            m_cond_wait_for_complete.notify_all();
+            {
+                boost::unique_lock<boost::mutex> lock(m_mutex_wait_for_complete);
+                m_is_draw_complete = true;
+                m_cond_wait_for_complete.notify_all();
+            }
+
+            fps_counter.count();
         }
     }
     GraphicResourceManager::finalizeInstance();

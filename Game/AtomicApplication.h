@@ -2,6 +2,7 @@
 #define __atomic_AtomicApplication__
 namespace atomic {
 
+
 class AtomicGame;
 class AtomicDrawThread;
 

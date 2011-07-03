@@ -54,6 +54,46 @@ typedef stl::allocator PermanentAllocator;
 typedef stl::allocator FrameScopedAllocator;
 
 
+class PerformanceCounter
+{
+private:
+    LARGE_INTEGER m_start;
+    LARGE_INTEGER m_end;
+    uint32 m_fps;
+
+public:
+    PerformanceCounter()
+    {
+        reset();
+    }
+
+    void reset()
+    {
+        m_start.QuadPart = 0;
+        m_end.QuadPart = 0;
+        m_fps = 0;
+        ::QueryPerformanceCounter( &m_start );
+    }
+
+    float32 getElapsedMillisecond()
+    {
+        LARGE_INTEGER freq;
+        ::QueryPerformanceCounter( &m_end );
+        ::QueryPerformanceFrequency( &freq );
+        return ((float32)(m_end.QuadPart - m_start.QuadPart) / (float32)freq.QuadPart)*1000.0f;
+    }
+
+    void count()
+    {
+        ++m_fps;
+        float32 elapsed = getElapsedMillisecond();
+        if(elapsed > 1000.0f) {
+            IST_PRINT("%dfps (avg. %.2fms)\n", m_fps, elapsed/m_fps);
+            reset();
+        }
+    }
+};
+
 
 } // namespace atomic
 #endif // __atomic_Types__
