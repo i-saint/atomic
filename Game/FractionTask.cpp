@@ -16,6 +16,8 @@ Task_FractionUpdate::Task_FractionUpdate()
     m_sortx_task = AT_NEW(Task_FractionSortX) Task_FractionSortX();
     m_sorty_task = AT_NEW(Task_FractionSortY) Task_FractionSortY();
     m_sortz_task = AT_NEW(Task_FractionSortZ) Task_FractionSortZ();
+    m_grid_task = AT_NEW(Task_FractionGrid) Task_FractionGrid();
+
 }
 
 Task_FractionUpdate::~Task_FractionUpdate()
@@ -23,15 +25,16 @@ Task_FractionUpdate::~Task_FractionUpdate()
     for(size_t i=0; i<m_move_tasks.size(); ++i) {
         AT_DELETE(m_move_tasks[i]);
     }
+    m_move_tasks.clear();
     for(size_t i=0; i<m_col_test_tasks.size(); ++i) {
         AT_DELETE(m_col_test_tasks[i]);
     }
+    m_col_test_tasks.clear();
     for(size_t i=0; i<m_col_proc_tasks.size(); ++i) {
         AT_DELETE(m_col_proc_tasks[i]);
     }
-    m_move_tasks.clear();
-    m_col_test_tasks.clear();
     m_col_proc_tasks.clear();
+    AT_DELETE(m_grid_task);
     AT_DELETE(m_sortx_task);
     AT_DELETE(m_sorty_task);
     AT_DELETE(m_sortz_task);
@@ -70,13 +73,17 @@ void Task_FractionUpdate::exec()
     scheduler->schedule((Task**)&m_move_tasks[0], num_blocks);
     scheduler->waitFor((Task**)&m_move_tasks[0], num_blocks);
 
-    // ソートタスクをスケジュール&実行完了待ち
-    m_sortx_task->initialize(m_obj);
-    m_sorty_task->initialize(m_obj);
-    m_sortz_task->initialize(m_obj);
-    Task *sorts[] ={m_sortx_task, m_sorty_task, m_sortz_task};
-    scheduler->schedule(sorts, _countof(sorts));
-    scheduler->waitFor(sorts, _countof(sorts));
+    //// ソートタスクをスケジュール&実行完了待ち
+    //m_sortx_task->initialize(m_obj);
+    //m_sorty_task->initialize(m_obj);
+    //m_sortz_task->initialize(m_obj);
+    //Task *sorts[] ={m_sortx_task, m_sorty_task, m_sortz_task};
+    //scheduler->schedule(sorts, _countof(sorts));
+    //scheduler->waitFor(sorts, _countof(sorts));
+
+    m_grid_task->initialize(m_obj);
+    scheduler->schedule(m_grid_task);
+    scheduler->waitFor(m_grid_task);
 
     // 衝突判定タスクをスケジュール&実行完了待ち
     for(uint32 i=0; i<num_blocks; ++i) {
@@ -105,6 +112,7 @@ void Task_FractionUpdate::waitForCompletion()
 
     Task *sorts[] ={m_sortx_task, m_sorty_task, m_sortz_task};
     scheduler->waitFor(sorts, _countof(sorts));
+    scheduler->waitFor(m_grid_task);
 }
 
 

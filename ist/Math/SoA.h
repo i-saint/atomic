@@ -269,8 +269,10 @@ __forceinline SOAVECTOR4 SOAVectorTranspose4(const XMVECTOR& v0, const XMVECTOR&
 //  SoA Add
 ///////////////////////////////////////////////////////////////
 
+// コピー渡しの方が望ましいはずですが、なんか Debug 版だとアドレスが 16 の倍数じゃなくなってクラッシュすることがあるので参照渡しにしています。
+// 最適化有効時はちゃんとインライン化されてるので速度面ではたぶん大丈夫。
 template<class T, class U>
-__forceinline SOAVECTOR2 SOAVectorAdd2(const T a, const U b)
+__forceinline SOAVECTOR2 SOAVectorAdd2(const T &a, const U &b)
 {
     SOAVECTOR2 r;
     r.x = XMVectorAdd(a.x, b.x);
@@ -279,7 +281,7 @@ __forceinline SOAVECTOR2 SOAVectorAdd2(const T a, const U b)
 }
 
 template<class T, class U>
-__forceinline SOAVECTOR3 SOAVectorAdd3(const T a, const U b)
+__forceinline SOAVECTOR3 SOAVectorAdd3(const T &a, const U &b)
 {
     SOAVECTOR3 r;
     r.x = XMVectorAdd(a.x, b.x);
@@ -289,7 +291,7 @@ __forceinline SOAVECTOR3 SOAVectorAdd3(const T a, const U b)
 }
 
 template<class T, class U>
-__forceinline SOAVECTOR4 SOAVectorAdd4(const T a, const U b)
+__forceinline SOAVECTOR4 SOAVectorAdd4(const T &a, const U &b)
 {
     SOAVECTOR4 r;
     r.x = XMVectorAdd(a.x, b.x);
@@ -305,7 +307,7 @@ __forceinline SOAVECTOR4 SOAVectorAdd4(const T a, const U b)
 ///////////////////////////////////////////////////////////////
 
 template<class T, class U>
-__forceinline SOAVECTOR2 SOAVectorSubtract2(const T a, const U b)
+__forceinline SOAVECTOR2 SOAVectorSubtract2(const T& a, const U& b)
 {
     SOAVECTOR2 r;
     r.x = XMVectorSubtract(a.x, b.x);
@@ -314,7 +316,7 @@ __forceinline SOAVECTOR2 SOAVectorSubtract2(const T a, const U b)
 }
 
 template<class T, class U>
-__forceinline SOAVECTOR3 SOAVectorSubtract3(const T a, const U b)
+__forceinline SOAVECTOR3 SOAVectorSubtract3(const T& a, const U& b)
 {
     SOAVECTOR3 r;
     r.x = XMVectorSubtract(a.x, b.x);
@@ -324,7 +326,7 @@ __forceinline SOAVECTOR3 SOAVectorSubtract3(const T a, const U b)
 }
 
 template<class T, class U>
-__forceinline SOAVECTOR4 SOAVectorSubtract4(const T a, const U b)
+__forceinline SOAVECTOR4 SOAVectorSubtract4(const T& a, const U& b)
 {
     SOAVECTOR4 r;
     r.x = XMVectorSubtract(a.x, b.x);
@@ -340,7 +342,7 @@ __forceinline SOAVECTOR4 SOAVectorSubtract4(const T a, const U b)
 ///////////////////////////////////////////////////////////////
 
 template<class T, class U>
-__forceinline SOAVECTOR2 SOAVectorMultiply2(const T a, const U b)
+__forceinline SOAVECTOR2 SOAVectorMultiply2(const T &a, const U &b)
 {
     SOAVECTOR2 r;
     r.x = XMVectorMultiply(a.x, b.x);
@@ -349,7 +351,7 @@ __forceinline SOAVECTOR2 SOAVectorMultiply2(const T a, const U b)
 }
 
 template<class T, class U>
-__forceinline SOAVECTOR3 SOAVectorMultiply3(const T a, const U b)
+__forceinline SOAVECTOR3 SOAVectorMultiply3(const T &a, const U &b)
 {
     SOAVECTOR3 r;
     r.x = XMVectorMultiply(a.x, b.x);
@@ -359,7 +361,7 @@ __forceinline SOAVECTOR3 SOAVectorMultiply3(const T a, const U b)
 }
 
 template<class T, class U>
-__forceinline SOAVECTOR4 SOAVectorMultiply4(const T a, const U b)
+__forceinline SOAVECTOR4 SOAVectorMultiply4(const T &a, const U &b)
 {
     SOAVECTOR4 r;
     r.x = XMVectorMultiply(a.x, b.x);
@@ -373,7 +375,7 @@ __forceinline SOAVECTOR4 SOAVectorMultiply4(const T a, const U b)
 // "__declspec(align('16')) の仮引数は配置されません"
 // が出るので、XMVECTOR を取るバージョンは別名にします…。
 template<class T>
-__forceinline SOAVECTOR2 SOAVectorMultiply2S(const T a, const XMVECTOR b)
+__forceinline SOAVECTOR2 SOAVectorMultiply2S(const T &a, const XMVECTOR b)
 {
     SOAVECTOR2 r;
     r.x = XMVectorMultiply(a.x, b);
@@ -382,7 +384,7 @@ __forceinline SOAVECTOR2 SOAVectorMultiply2S(const T a, const XMVECTOR b)
 }
 
 template<class T>
-__forceinline SOAVECTOR3 SOAVectorMultiply3S(const T a, const XMVECTOR b)
+__forceinline SOAVECTOR3 SOAVectorMultiply3S(const T &a, const XMVECTOR b)
 {
     SOAVECTOR3 r;
     r.x = XMVectorMultiply(a.x, b);
@@ -392,7 +394,7 @@ __forceinline SOAVECTOR3 SOAVectorMultiply3S(const T a, const XMVECTOR b)
 }
 
 template<class T>
-__forceinline SOAVECTOR4 SOAVectorMultiply4S(const T a, const XMVECTOR b)
+__forceinline SOAVECTOR4 SOAVectorMultiply4S(const T &a, const XMVECTOR b)
 {
     SOAVECTOR4 r;
     r.x = XMVectorMultiply(a.x, b);
@@ -407,7 +409,7 @@ __forceinline SOAVECTOR4 SOAVectorMultiply4S(const T a, const XMVECTOR b)
 ///////////////////////////////////////////////////////////////
 
 template<class T, class U>
-__forceinline SOAVECTOR2 SOAVectorDivide2(const T a, const U b)
+__forceinline SOAVECTOR2 SOAVectorDivide2(const T &a, const U &b)
 {
     SOAVECTOR2 r;
     r.x = XMVectorDivide(a.x, b.x);
@@ -416,7 +418,7 @@ __forceinline SOAVECTOR2 SOAVectorDivide2(const T a, const U b)
 }
 
 template<class T, class U>
-__forceinline SOAVECTOR3 SOAVectorDivide3(const T a, const U b)
+__forceinline SOAVECTOR3 SOAVectorDivide3(const T &a, const U &b)
 {
     SOAVECTOR3 r;
     r.x = XMVectorDivide(a.x, b.x);
@@ -426,7 +428,7 @@ __forceinline SOAVECTOR3 SOAVectorDivide3(const T a, const U b)
 }
 
 template<class T, class U>
-__forceinline SOAVECTOR4 SOAVectorDivide4(const T a, const U b)
+__forceinline SOAVECTOR4 SOAVectorDivide4(const T &a, const U &b)
 {
     SOAVECTOR4 r;
     r.x = XMVectorDivide(a.x, b.x);
@@ -437,7 +439,7 @@ __forceinline SOAVECTOR4 SOAVectorDivide4(const T a, const U b)
 }
 
 template<class T>
-__forceinline SOAVECTOR2 SOAVectorDivide2S(const T a, const XMVECTOR b)
+__forceinline SOAVECTOR2 SOAVectorDivide2S(const T &a, const XMVECTOR &b)
 {
     SOAVECTOR2 r;
     r.x = XMVectorDivide(a.x, b);
@@ -446,7 +448,7 @@ __forceinline SOAVECTOR2 SOAVectorDivide2S(const T a, const XMVECTOR b)
 }
 
 template<class T>
-__forceinline SOAVECTOR3 SOAVectorDivide3S(const T a, const XMVECTOR b)
+__forceinline SOAVECTOR3 SOAVectorDivide3S(const T &a, const XMVECTOR &b)
 {
     SOAVECTOR3 r;
     r.x = XMVectorDivide(a.x, b);
@@ -456,7 +458,7 @@ __forceinline SOAVECTOR3 SOAVectorDivide3S(const T a, const XMVECTOR b)
 }
 
 template<class T>
-__forceinline SOAVECTOR4 SOAVectorDivide4S(const T a, const XMVECTOR b)
+__forceinline SOAVECTOR4 SOAVectorDivide4S(const T &a, const XMVECTOR &b)
 {
     SOAVECTOR4 r;
     r.x = XMVectorDivide(a.x, b);
@@ -472,21 +474,21 @@ __forceinline SOAVECTOR4 SOAVectorDivide4S(const T a, const XMVECTOR b)
 ///////////////////////////////////////////////////////////////
 
 template<class T>
-__forceinline XMVECTOR SOAVectorLengthSquare2(const T a)
+__forceinline XMVECTOR SOAVectorLengthSquare2(const T &a)
 {
     SOAVECTOR2 square = SOAVectorMultiply2<T, T>(a, a);
     return XMVectorAdd(square.x, square.y);
 }
 
 template<class T>
-__forceinline XMVECTOR SOAVectorLengthSquare3(const T a)
+__forceinline XMVECTOR SOAVectorLengthSquare3(const T &a)
 {
     SOAVECTOR3 square = SOAVectorMultiply3<T, T>(a, a);
     return XMVectorAdd(XMVectorAdd(square.x, square.y), square.z);
 }
 
 template<class T>
-__forceinline XMVECTOR SOAVectorLengthSquare4(const T a)
+__forceinline XMVECTOR SOAVectorLengthSquare4(const T &a)
 {
     SOAVECTOR4 square = SOAVectorMultiply4<T, T>(a, a);
     return XMVectorAdd(XMVectorAdd(XMVectorAdd(square.x, square.y), square.z), square.w);
@@ -498,19 +500,19 @@ __forceinline XMVECTOR SOAVectorLengthSquare4(const T a)
 ///////////////////////////////////////////////////////////////
 
 template<class T>
-__forceinline XMVECTOR SOAVectorLength2(const T a)
+__forceinline XMVECTOR SOAVectorLength2(const T &a)
 {
     return XMVectorSqrt(SOAVectorLengthSquare2<T>(a));
 }
 
 template<class T>
-__forceinline XMVECTOR SOAVectorLength3(const T a)
+__forceinline XMVECTOR SOAVectorLength3(const T &a)
 {
     return XMVectorSqrt(SOAVectorLengthSquare3<T>(a));
 }
 
 template<class T>
-__forceinline XMVECTOR SOAVectorLength4(const T a)
+__forceinline XMVECTOR SOAVectorLength4(const T &a)
 {
     return XMVectorSqrt(SOAVectorLengthSquare4<T>(a));
 }
@@ -521,7 +523,7 @@ __forceinline XMVECTOR SOAVectorLength4(const T a)
 ///////////////////////////////////////////////////////////////
 
 template<class T>
-__forceinline SOAVECTOR2 SOAVectorNormalize2(const T a)
+__forceinline SOAVECTOR2 SOAVectorNormalize2(const T &a)
 {
     XMVECTOR len = SOAVectorLength2(a);
     SOAVECTOR2 r = SOAVectorDivide2S(a, len);
@@ -529,7 +531,7 @@ __forceinline SOAVECTOR2 SOAVectorNormalize2(const T a)
 }
 
 template<class T>
-__forceinline SOAVECTOR3 SOAVectorNormalize3(const T a)
+__forceinline SOAVECTOR3 SOAVectorNormalize3(const T &a)
 {
     XMVECTOR len = SOAVectorLength3(a);
     SOAVECTOR3 r = SOAVectorDivide3S(a, len);
@@ -537,7 +539,7 @@ __forceinline SOAVECTOR3 SOAVectorNormalize3(const T a)
 }
 
 template<class T>
-__forceinline SOAVECTOR4 SOAVectorNormalize4(const T a)
+__forceinline SOAVECTOR4 SOAVectorNormalize4(const T &a)
 {
     XMVECTOR len = SOAVectorLength4(a);
     SOAVECTOR4 r = SOAVectorDivide4S(a, len);

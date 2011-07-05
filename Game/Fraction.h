@@ -1,6 +1,7 @@
 #ifndef __atomic_Fraction__
 #define __atomic_Fraction__
 
+#include "FractionCollider.h"
 
 namespace atomic {
 
@@ -14,22 +15,17 @@ struct __declspec(align(16)) FractionData
             uint32 id;
             uint32 alive;
             uint32 index;
-            uint32 xindex;
-            uint32 yindex;
-            uint32 zindex;
             uint32 frame;
-            uint32 color;
         };
         XMVECTOR param[2];
     };
     XMVECTOR pos;
     XMVECTOR vel;
-    XMVECTOR axis1;
-    XMVECTOR axis2;
 };
 
 
 class FractionCollider;
+class FractionGrid;
 class FractionRenderer;
 
 class Task_FractionUpdate;
@@ -58,21 +54,34 @@ public:
         uint32 index;
         float32 z;
     };
+    struct GridRange
+    {
+        XMVECTOR range_min;
+        XMVECTOR range_max;
+    };
 
     class Interframe : boost::noncopyable
     {
     private:
         typedef stl::vector<FractionCollider*> FractionColliderCont;
+        typedef stl::vector<QWordVector*> CollisionResultCont;
+        typedef stl::vector<GridRange> GridRangeCont;
 
         FractionColliderCont m_colliders;
-        Task_FractionUpdate* m_update_task;
+        CollisionResultCont m_collision_results;
+        GridRangeCont m_grid_range;
+        Task_FractionUpdate *m_update_task;
+        FractionGrid *m_grid;
 
     public:
         Interframe();
         ~Interframe();
         void                    resizeColliders(uint32 block_num);          // thread unsafe
         FractionCollider*       getCollider(uint32 block);                  // thread safe
+        QWordVector*            getCollisionResultContainer(uint32 uint32) { return m_collision_results[uint32]; }
+        GridRange*              getGridRange(uint32 uint32) { return &m_grid_range[uint32]; }
         Task_FractionUpdate*    getUpdateTask() { return m_update_task; }
+        FractionGrid*           getGrid() { return m_grid; }
     };
 
 
@@ -125,11 +134,15 @@ public:
     uint32 getNumBlocks() const;
     void processGenerateMessage();
     void move(uint32 block);
-    void collisionTest(uint32 block);
-    void collisionProcess(uint32 block);
+    //void collisionTest(uint32 block);
+    //void collisionProcess(uint32 block);
+    // yi: 0-FractionGrid::GRID_Y_NUM
+    void collisionTest(uint32 yi);
+    void collisionProcess(uint32 yi);
     void sortXOrder();
     void sortYOrder();
     void sortZOrder();
+    void updateGrid();
 
     void generateVertex(uint32 block);
 };

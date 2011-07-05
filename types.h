@@ -31,7 +31,7 @@ using glm::mat4;
 // アライメントが 16 に揃ってないアドレスに SSE のコピー命令でアクセスしてクラッシュしたりする。
 // なので eastl::vector に格納するときは下記の構造体で代用し、キャストでなんとかする。
 struct __declspec(align(16)) quadword { char c[16]; };
-
+typedef stl::vector<quadword> QWordVector;
 
 
 using ist::Task;
