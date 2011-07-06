@@ -57,28 +57,17 @@ FractionSet::Interframe::~Interframe()
 {
     AT_DELETE(m_grid);
     AT_DELETE(m_update_task);
-
-    for(uint32 i=0; i<m_colliders.size(); ++i) { AT_DELETE(m_colliders[i]); }
-    m_colliders.clear();
 }
 
 void FractionSet::Interframe::resizeColliders(uint32 block_num)
 {
-    while(m_colliders.size() < block_num) {
-        FractionCollider *idata = AT_ALIGNED_NEW(FractionCollider, 16) FractionCollider();
-        m_colliders.push_back(idata);
-
+    while(m_collision_results.size() < block_num) {
         QWordVector *rcont = AT_ALIGNED_NEW(QWordVector, 16) QWordVector();
         m_collision_results.push_back(rcont);
 
         GridRange grange = {XMVectorSet(0.0f,0.0f,0.0f,0.0f), XMVectorSet(0.0f,0.0f,0.0f,0.0f)};
         m_grid_range.push_back(GridRange());
     }
-}
-
-FractionCollider* FractionSet::Interframe::getCollider(uint32 block)
-{
-    return m_colliders[block];
 }
 
 
@@ -134,8 +123,7 @@ FractionSet::FractionSet(FractionSet* prev, FrameScopedAllocator* alloc)
 
 FractionSet::~FractionSet()
 {
-    TaskScheduler *scheduler = TaskScheduler::getInstance();
-    scheduler->waitFor(getInterframe()->getUpdateTask());
+    TaskScheduler::waitFor(getInterframe()->getUpdateTask());
 
     if(m_prev) { m_prev->m_next = m_next; }
     if(m_next) { m_next->m_prev = m_prev; }
@@ -145,18 +133,16 @@ FractionSet::~FractionSet()
 
 void FractionSet::update()
 {
-    TaskScheduler *scheduler = TaskScheduler::getInstance();
     Task_FractionUpdate *task = getInterframe()->getUpdateTask();
-    scheduler->waitFor(task);
+    TaskScheduler::waitFor(task);
     task->initialize(this);
-    scheduler->schedule(task);
+    TaskScheduler::schedule(task);
 }
 
 void FractionSet::sync()
 {
-    TaskScheduler *scheduler = TaskScheduler::getInstance();
     Task_FractionUpdate *task = getInterframe()->getUpdateTask();
-    scheduler->waitFor(task);
+    TaskScheduler::waitFor(task);
 }
 
 void FractionSet::flushMessage()
@@ -172,9 +158,8 @@ void FractionSet::processMessage()
 
 void FractionSet::draw()
 {
-    TaskScheduler *scheduler = TaskScheduler::getInstance();
     Task_FractionUpdate *task = getInterframe()->getUpdateTask();
-    scheduler->waitFor(task);
+    TaskScheduler::waitFor(task);
 
     PassGBuffer_Cube *cube = GetCubeRenderer();
     PassDeferred_SphereLight *light = GetSphereLightRenderer();
@@ -233,6 +218,9 @@ void FractionSet::processGenerateMessage()
             ++dead;
         }
     }
+
+    getInterframe()->getGrid()->resizeData(num_data);
+    getInterframe()->resizeColliders(getNumBlocks());
 }
 
 void FractionSet::move(uint32 block)
@@ -314,113 +302,6 @@ void FractionSet::move(uint32 block)
     }
 }
 
-
-//void FractionSet::collisionTest(size_t block)
-//{
-//    const uint32 num_data = m_data.size();
-//    const uint32 begin = block*BLOCK_SIZE;
-//    const uint32 end = std::min<size_t>((block+1)*BLOCK_SIZE, num_data);
-//
-//    FractionCollider *collider = getInterframe()->getCollider(block);
-//
-//    for(uint32 i=begin; i<end; ++i)
-//    {
-//        FractionData& receiver = m_data[i];
-//        uint32 xbegin, xend;
-//        uint32 ybegin, yend;
-//        uint32 zbegin, zend;
-//
-//            uint32 xindex   = receiver.xindex;
-//            XHolder xlh     = m_xorder[xindex];
-//            XHolder xhh     = m_xorder[xindex];
-//            XHolder *xob    = m_xorder.begin();
-//            XHolder *xoe    = m_xorder.end();
-//            XHolder *xl, *xh;
-//            xlh.x  -= RADIUS * 2.0f;
-//            xhh.x  += RADIUS * 2.0f;
-//            xl      = stl::lower_bound(xob, xob+xindex, xlh, LessX<XHolder>());
-//            xh      = stl::lower_bound(xob+xindex, xoe, xhh, LessX<XHolder>());
-//            xbegin  = xl==xob+xindex ? xindex : m_data[xl->index].xindex;
-//            xend    = xh==xoe ? num_data : m_data[xh->index].xindex;
-//
-//            uint32 yindex   = receiver.yindex;
-//            YHolder ylh     = m_yorder[yindex];
-//            YHolder yhh     = m_yorder[yindex];
-//            YHolder *yob    = m_yorder.begin();
-//            YHolder *yoe    = m_yorder.end();
-//            YHolder *yl, *yh;
-//            ylh.y  -= RADIUS * 2.0f;
-//            yhh.y  += RADIUS * 2.0f;
-//            yl      = stl::lower_bound(yob, yob+yindex, ylh, LessY<YHolder>());
-//            yh      = stl::lower_bound(yob+yindex, yoe, yhh, LessY<YHolder>());
-//            ybegin  = yl==yob+yindex ? yindex : m_data[yl->index].yindex;
-//            yend    = yh==yoe ? num_data : m_data[yh->index].yindex;
-//
-//            uint32 zindex   = receiver.zindex;
-//            ZHolder zlh     = m_zorder[zindex];
-//            ZHolder zhh     = m_zorder[zindex];
-//            ZHolder *zob    = m_zorder.begin();
-//            ZHolder *zoe    = m_zorder.end();
-//            ZHolder *zl, *zh;
-//            zlh.z  -= RADIUS * 2.0f;
-//            zhh.z  += RADIUS * 2.0f;
-//            zl      = stl::lower_bound(zob, zob+zindex, zlh, LessZ<ZHolder>());
-//            zh      = stl::lower_bound(zob+zindex, zoe, zhh, LessZ<ZHolder>());
-//            zbegin  = zl==zob+zindex ? zindex : m_data[zl->index].zindex;
-//            zend    = zh==zoe ? num_data : m_data[zh->index].zindex;
-//
-//        collider->beginPushData(receiver);
-//        id_t self_id   = receiver.id;
-//        for(uint32 xi=xbegin; xi<xend; ++xi) {
-//            FractionData& target = m_data[m_xorder[xi].index];
-//            if(  target.id!=self_id &&
-//                (target.xindex>=xbegin && target.xindex<xend) &&
-//                (target.yindex>=ybegin && target.yindex<yend) &&
-//                (target.zindex>=zbegin && target.zindex<zend) )
-//            {
-//                collider->pushData(target);
-//            }
-//        }
-//        collider->endPushData();
-//    }
-//
-//    collider->process();
-//}
-//
-//void FractionSet::collisionProcess(size_t block)
-//{
-//    FractionCollider *collider = getInterframe()->getCollider(block);
-//    uint32 receiver_num = collider->getResultChunkNum();
-//
-//    const FractionCollider::ResultHeader *rheader = collider->getResult();
-//    for(size_t header_i=0; header_i<receiver_num; ++header_i)
-//    {
-//        const FractionCollider::Result *collision = (const FractionCollider::Result*)(rheader+1);
-//        FractionData &receiver = m_data[rheader->receiver_index];
-//        uint32 num_collision = rheader->num_collision;
-//        XMVECTOR dir = _mm_set1_ps(0.0f);
-//        XMVECTOR vel = _mm_set1_ps(0.0f);
-//        for(size_t i=0; i<num_collision; ++i)
-//        {
-//            const FractionCollider::Result& col = *collision;
-//            dir = XMVectorAdd(dir, col.dir);
-//            vel = XMVectorAdd(vel, col.vel);
-//            ++collision;
-//        }
-//        const XMVECTOR bounce = _mm_set1_ps(BOUNCE);
-//        const XMVECTOR neg_bounce = _mm_set1_ps((1.0f-BOUNCE)*0.6f);
-//        XMMATRIX vref = XMMatrixReflect(XMVector3Normalize(dir));
-//        XMVECTOR rvel = XMVector3Transform(receiver.vel, vref);
-//        rvel = XMVectorMultiply(rvel, bounce);
-//        XMVECTOR add_vel = XMVectorMultiply(vel, neg_bounce);
-//        XMVECTOR next_vel = XMVectorAdd(rvel, add_vel);
-//        receiver.vel = next_vel;
-//        receiver.pos = XMVectorAdd(receiver.pos, XMVectorMultiply(dir, XMVector3Length(next_vel)));
-//
-//        rheader = (const FractionCollider::ResultHeader*)collision;
-//    }
-//}
-
 void FractionSet::collisionTest(uint32 block)
 {
     const uint32 num_data = m_data.size();
@@ -433,7 +314,7 @@ void FractionSet::collisionTest(uint32 block)
     for(uint32 i=begin; i<end; ++i)
     {
         FractionGrid::Data data;
-        data.v = m_data[i].pos;
+        data.pos = m_data[i].pos;
         data.index = m_data[i].index;
 
         if(grid->hitTest(results, data)) {
@@ -489,18 +370,6 @@ void FractionSet::collisionProcess(uint32 block)
     results.clear();
 }
 
-void FractionSet::sortXOrder()
-{
-}
-
-void FractionSet::sortYOrder()
-{
-}
-
-void FractionSet::sortZOrder()
-{
-}
-
 void FractionSet::updateGrid()
 {
     GridRange range = {XMVectorSet(0.0f,0.0f,0.0f,0.0f), XMVectorSet(0.0f,0.0f,0.0f,0.0f)};
@@ -517,10 +386,7 @@ void FractionSet::updateGrid()
     grid->clear();
     size_t num_data = m_data.size();
     for(size_t i=0; i<num_data; ++i) {
-        FractionGrid::Data data;
-        data.v = m_data[i].pos;
-        data.index = i;
-        grid->pushData(data);
+        grid->setData(i, m_data[i].pos, m_data[i].vel);
     }
 }
 

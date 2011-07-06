@@ -87,21 +87,21 @@ public:
 
     /// 全タスクの完了を待つ。タスクキューが空ではない場合、呼び出し元スレッドもタスク処理に加わる。 
     /// タスク内から呼ぶと永久停止するのでやっちゃダメ。 
-    void waitForAll();
+    static void waitForAll();
     /// 指定タスクの完了を待つ。タスクキューが空ではない場合、呼び出し元スレッドもタスク処理に加わる。 
-    void waitFor(TaskPtr task);
+    static void waitFor(TaskPtr task);
     /// 範囲指定バージョン 
-    void waitFor(TaskPtr tasks[], size_t num);
+    static void waitFor(TaskPtr tasks[], size_t num);
 
 
     /// タスクのスケジューリングを行う。 
-    void schedule(TaskPtr task);
+    static void schedule(TaskPtr task);
     // 範囲指定バージョン 
-    void schedule(TaskPtr tasks[], size_t num);
+    static void schedule(TaskPtr tasks[], size_t num);
 
 
-    size_t getThreadCount() const;
-    boost::thread::id getThreadId(size_t i) const;
+    static size_t getThreadCount();
+    static boost::thread::id getThreadId(size_t i);
 
 
     /// 内部実装用

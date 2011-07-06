@@ -272,12 +272,12 @@ TaskScheduler::~TaskScheduler()
 void TaskScheduler::waitForAll()
 {
     // タスクキューが空になるのを待つ
-    while(!m_task_queue->empty())
+    while(!s_instance->m_task_queue->empty())
     {
         impl::TaskThread::processTask_NoBlock();
     }
     // 全スレッドがタスクを処理し終えるのを待つ
-    while(m_task_queue->getNumIdlingThread() < m_threads.size())
+    while(s_instance->m_task_queue->getNumIdlingThread() < s_instance->m_threads.size())
     {
         boost::this_thread::yield();
     }
@@ -318,28 +318,28 @@ void TaskScheduler::waitFor(TaskPtr tasks[], size_t num)
 
 void TaskScheduler::schedule(TaskPtr task)
 {
-    m_task_queue->push(task);
+    s_instance->m_task_queue->push(task);
 }
 
 void TaskScheduler::schedule(TaskPtr tasks[], size_t num)
 {
-    m_task_queue->push(tasks, num);
+    s_instance->m_task_queue->push(tasks, num);
 }
 
 
-size_t TaskScheduler::getThreadCount() const
+size_t TaskScheduler::getThreadCount()
 {
-    return m_threads.size();
+    return s_instance->m_threads.size();
 }
 
-boost::thread::id TaskScheduler::getThreadId(size_t i) const
+boost::thread::id TaskScheduler::getThreadId(size_t i)
 {
-    return m_threads[i]->getID();
+    return s_instance->m_threads[i]->getID();
 }
 
 impl::TaskQueue* TaskScheduler::getTaskQueue()
 {
-    return m_task_queue.get();
+    return s_instance->m_task_queue.get();
 }
 
 
