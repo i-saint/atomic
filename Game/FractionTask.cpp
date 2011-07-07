@@ -13,7 +13,7 @@ namespace atomic
 
 Task_FractionUpdate::Task_FractionUpdate()
 {
-    m_grid_task = AT_NEW(Task_FractionGrid) Task_FractionGrid();
+    m_grid_task = AT_NEW(Task_FractionGrid) ();
 }
 
 Task_FractionUpdate::~Task_FractionUpdate()
@@ -47,13 +47,13 @@ void Task_FractionUpdate::exec()
     m_blocks = num_blocks;
     // 衝突器とタスク数をブロックサイズに合わせる
     while(m_move_tasks.size()<num_blocks) {
-        m_move_tasks.push_back(AT_NEW(Task_FractionMove) Task_FractionMove());
+        m_move_tasks.push_back(AT_NEW(Task_FractionMove) ());
     }
     while(m_col_test_tasks.size()<num_blocks) {
-        m_col_test_tasks.push_back(AT_NEW(Task_FractionCollisionTest) Task_FractionCollisionTest());
+        m_col_test_tasks.push_back(AT_NEW(Task_FractionCollisionTest) ());
     }
     while(m_col_proc_tasks.size()<num_blocks) {
-        m_col_proc_tasks.push_back(AT_NEW(Task_FractionCollisionProcess) Task_FractionCollisionProcess());
+        m_col_proc_tasks.push_back(AT_NEW(Task_FractionCollisionProcess) ());
     }
 
     // 移動タスクをスケジュール&実行完了待ち

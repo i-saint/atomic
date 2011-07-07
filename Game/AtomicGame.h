@@ -7,8 +7,14 @@ class AtomicRenderer;
 
 class AtomicGame
 {
+public:
+    static const uint32 MAX_WORLDS = 3;
+
 private:
-    World *m_world;
+    typedef stl::vector<World*> WorldCont;
+    WorldCont m_worlds;
+    World *m_draw_target;
+    uint32 m_current_world;
 
 public:
     AtomicGame();

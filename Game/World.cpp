@@ -23,7 +23,7 @@ World::Interframe *World::s_interframe;
 void World::initializeInterframe()
 {
     if(!s_interframe) {
-        s_interframe = AT_ALIGNED_NEW(Interframe, 16) Interframe();
+        s_interframe = AT_ALIGNED_NEW(Interframe, 16)();
     }
     FractionSet::InitializeInterframe();
 }
@@ -35,11 +35,13 @@ void World::finalizeInterframe()
 }
 
 
-World::World(World* prev) : m_prev(prev), m_next(NULL)
+World::World()
+: m_prev(NULL)
+, m_fraction_set(NULL)
 {
-    m_rand.initialize(0);
-    m_fraction_set = AT_ALIGNED_NEW(FractionSet, 16) FractionSet(NULL, NULL);
+    m_fraction_set = AT_ALIGNED_NEW(FractionSet, 16)();
 
+    m_rand.initialize(0);
     m_camera.setPosition(XMVectorSet(100.0f, 100.0f, 500.0f, 0.0f));
     m_camera.setZNear(1.0f);
     m_camera.setZFar(1000.0f);
@@ -48,14 +50,24 @@ World::World(World* prev) : m_prev(prev), m_next(NULL)
 World::~World()
 {
     AT_DELETE(m_fraction_set);
+}
 
-    if(m_prev) { m_prev->m_next = m_next; }
-    if(m_next) { m_next->m_prev = m_prev; }
+void World::initialize( World* prev, FrameAllocator& alloc )
+{
+    m_prev = prev;
+    if(prev) {
+        m_rand = prev->m_rand;
+        m_camera = prev->m_camera;
+    }
+    m_fraction_set->initialize(prev ? prev->m_fraction_set : NULL, alloc);
 }
 
 void World::update()
 {
     getInterframe()->setCurrentWorld(this);
+
+    m_camera.setPosition(XMVector3Transform(m_camera.getPosition(), XMMatrixRotationY(XMConvertToRadians(0.1f))));
+    m_camera.setAspect(GetWindowAspectRatio());
 
     m_fraction_set->update();
 }
@@ -80,9 +92,6 @@ void World::processMessage()
 
 void World::draw()
 {
-    m_camera.setPosition(XMVector3Transform(m_camera.getPosition(), XMMatrixRotationY(XMConvertToRadians(0.1f))));
-    m_camera.setAspect(GetWindowAspectRatio());
-
     m_fraction_set->draw();
 
     // todo: KickDrawCommand()

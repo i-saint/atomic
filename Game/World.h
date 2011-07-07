@@ -35,16 +35,17 @@ public:
     static Interframe* getInterframe() { return s_interframe; }
 
 private:
-    FrameScopedAllocator *m_frame_alloc;
+    World *m_prev;
     FractionSet *m_fraction_set;
-    World *m_prev, *m_next;
 
     SFMT m_rand;
     PerspectiveCamera m_camera;
 
 public:
-    World(World* prev);
+    World();
     ~World();
+
+    void initialize(World* prev, FrameAllocator& alloc);
 
     void update();
     void sync();
@@ -53,7 +54,6 @@ public:
     void draw();
 
     World* getPrev() { return m_prev; }
-    World* getNext() { return m_next; }
 
     FractionSet* getFractions() { return m_fraction_set; }
     PerspectiveCamera* getCamera() { return &m_camera; }

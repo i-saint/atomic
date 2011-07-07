@@ -178,7 +178,7 @@ GraphicResourceManager* GraphicResourceManager::s_inst = NULL;
 
 void GraphicResourceManager::intializeInstance()
 {
-    s_inst = AT_NEW(GraphicResourceManager) GraphicResourceManager();
+    s_inst = AT_NEW(GraphicResourceManager) ();
     s_inst->initialize();
 }
 
@@ -203,7 +203,7 @@ bool GraphicResourceManager::initialize()
 
     {
         for(uint32 i=0; i<_countof(m_model); ++i) {
-            m_model[i] = AT_NEW(ModelData) ModelData();
+            m_model[i] = AT_NEW(ModelData) ();
             m_model[i]->initialize();
         }
         CreateCubeModel(*m_model[MODEL_CUBE], 6.0f);
@@ -211,27 +211,27 @@ bool GraphicResourceManager::initialize()
     }
     {
         for(uint32 i=0; i<_countof(m_tex2d); ++i) {
-            m_tex2d[i] = AT_NEW(Texture2D) Texture2D();
+            m_tex2d[i] = AT_NEW(Texture2D) ();
             m_tex2d[i]->initialize();
         }
     }
     {
         for(uint32 i=0; i<_countof(m_vbo); ++i) {
-            m_vbo[i] = AT_NEW(VertexBufferObject) VertexBufferObject();
+            m_vbo[i] = AT_NEW(VertexBufferObject) ();
             m_vbo[i]->initialize();
         }
     }
     {
         for(uint32 i=0; i<_countof(m_ubo); ++i) {
-            m_ubo[i] = AT_NEW(UniformBufferObject) UniformBufferObject();
+            m_ubo[i] = AT_NEW(UniformBufferObject) ();
             m_ubo[i]->initialize();
         }
     }
     {
-        m_sh_gbuffer    = AT_NEW(ShaderGBuffer) ShaderGBuffer();
-        m_sh_deferred   = AT_NEW(ShaderDeferred) ShaderDeferred();
-        m_sh_bloom      = AT_NEW(ShaderBloom) ShaderBloom();
-        m_sh_output     = AT_NEW(ShaderOutput) ShaderOutput();
+        m_sh_gbuffer    = AT_NEW(ShaderGBuffer) ();
+        m_sh_deferred   = AT_NEW(ShaderDeferred) ();
+        m_sh_bloom      = AT_NEW(ShaderBloom) ();
+        m_sh_output     = AT_NEW(ShaderOutput) ();
         m_sh_gbuffer->initialize();
         m_sh_deferred->initialize();
         m_sh_bloom->initialize();
@@ -246,15 +246,15 @@ bool GraphicResourceManager::initialize()
         //m_tex_rand.initialize(64, 64, Texture2D::FMT_RGB_U8, m_rand);
     }
     {
-        m_rt_gbuffer = AT_NEW(RenderTargetGBuffer) RenderTargetGBuffer();
+        m_rt_gbuffer = AT_NEW(RenderTargetGBuffer) ();
         m_rt_gbuffer->initialize(framebuffer_width, framebuffer_height, Color3DepthBuffer::FMT_RGBA_F32);
 
-        m_rt_deferred = AT_NEW(RenderTargetDeferred) RenderTargetDeferred();
+        m_rt_deferred = AT_NEW(RenderTargetDeferred) ();
         m_rt_deferred->setDepthBuffer(m_rt_gbuffer->getDepthBuffer());
         m_rt_deferred->initialize(framebuffer_width, framebuffer_height);
 
         for(uint32 i=0; i<_countof(m_rt_gauss); ++i) {
-            m_rt_gauss[i] = AT_NEW(ColorBuffer) ColorBuffer();
+            m_rt_gauss[i] = AT_NEW(ColorBuffer) ();
             m_rt_gauss[i]->initialize(512, 256, ColorBuffer::FMT_RGBA_U8);
         }
 

@@ -50,8 +50,8 @@ enum {
 
 
 typedef stl::allocator PermanentAllocator;
-//typedef stack_allocator< stack_allocator<stl::allocator> > FrameScopedAllocator; // ‚ ‚Æ‚Å‚±‚¿‚ç‚É
-typedef stl::allocator FrameScopedAllocator;
+//typedef stack_allocator< stack_allocator<stl::allocator> > FrameAllocator; // ‚ ‚Æ‚Å‚±‚¿‚ç‚É
+typedef stl::allocator FrameAllocator;
 
 
 class PerformanceCounter

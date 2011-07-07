@@ -16,41 +16,12 @@ using namespace ist::graphics;
 namespace atomic
 {
 
-template<class T>
-struct LessX
-{
-    bool operator()(const T& a, const T& b) const
-    {
-        return a.x < b.x;
-    }
-};
-
-template<class T>
-struct LessY
-{
-    bool operator()(const T& a, const T& b) const
-    {
-        return a.y < b.y;
-    }
-};
-
-template<class T>
-struct LessZ
-{
-    bool operator()(const T& a, const T& b) const
-    {
-        return a.z < b.z;
-    }
-};
-
-
-
 
 
 FractionSet::Interframe::Interframe()
 {
-    m_update_task = AT_NEW(Task_FractionUpdate) Task_FractionUpdate();
-    m_grid = AT_NEW(FractionGrid) FractionGrid();
+    m_update_task = AT_NEW(Task_FractionUpdate) ();
+    m_grid = AT_NEW(FractionGrid) ();
 }
 
 FractionSet::Interframe::~Interframe()
@@ -62,7 +33,7 @@ FractionSet::Interframe::~Interframe()
 void FractionSet::Interframe::resizeColliders(uint32 block_num)
 {
     while(m_collision_results.size() < block_num) {
-        QWordVector *rcont = AT_ALIGNED_NEW(QWordVector, 16) QWordVector();
+        QWordVector *rcont = AT_ALIGNED_NEW(QWordVector, 16)();
         m_collision_results.push_back(rcont);
 
         GridRange grange = {XMVectorSet(0.0f,0.0f,0.0f,0.0f), XMVectorSet(0.0f,0.0f,0.0f,0.0f)};
@@ -78,7 +49,7 @@ FractionSet::Interframe *FractionSet::s_interframe;
 void FractionSet::InitializeInterframe()
 {
     if(!s_interframe) {
-        s_interframe = AT_ALIGNED_NEW(Interframe, 16) Interframe();
+        s_interframe = AT_ALIGNED_NEW(Interframe, 16)();
     }
 }
 
@@ -96,39 +67,51 @@ const float32 FractionSet::BOUNCE = 0.4f;
 const float32 FractionSet::MAX_VEL = 1.5f;
 const float32 FractionSet::DECELERATE = 0.98f;
 
-FractionSet::FractionSet(FractionSet* prev, FrameScopedAllocator* alloc)
-: m_prev(prev), m_next(NULL)
-, m_alloc(alloc)
+FractionSet::FractionSet()
+: m_prev(NULL)
 , m_idgen(0)
 , m_num_dead(0)
 {
-    float32 xv[6] = {500.0f, -500.0f, 0.0f, 0.0f, 0.0f, 0.0f};
-    float32 yv[6] = {0.0f, 0.0f, 500.0f, -500.0f, 0.0f, 0.0f};
-    float32 zv[6] = {0.0f, 0.0f, 0.0f, 0.0f, 500.0f, -500.0f};
-    for(uint32 i=0; i<6; ++i) {
-        Message_GenerateFraction mes;
-        mes.type = MES_GENERATE_FRACTION;
-        mes.gen_type = Message_GenerateFraction::GEN_SPHERE;
-        mes.num = 3500;
-        ist::Sphere sphere;
-        sphere.x = xv[i];
-        sphere.y = yv[i];
-        sphere.z = zv[i];
-        sphere.r = 200.0f;
-        (ist::Sphere&)(*mes.shape_data) = sphere;
-        pushGenerateMessage(mes);
-
-    }
 }
 
 FractionSet::~FractionSet()
 {
     TaskScheduler::waitFor(getInterframe()->getUpdateTask());
-
-    if(m_prev) { m_prev->m_next = m_next; }
-    if(m_next) { m_next->m_prev = m_prev; }
 }
 
+
+void FractionSet::initialize( FractionSet* prev, FrameAllocator& alloc )
+{
+    Task_FractionUpdate *task = getInterframe()->getUpdateTask();
+    TaskScheduler::waitFor(task);
+
+    m_prev = prev;
+    if(prev) {
+        // todo: reserve
+        m_data.insert(m_data.begin(), prev->m_data.begin(), prev->m_data.end());
+        m_gen_mes = prev->m_gen_mes;
+        m_idgen = prev->m_idgen;
+        m_num_dead = prev->m_num_dead;
+    }
+    else {
+        float32 xv[6] = {500.0f, -500.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+        float32 yv[6] = {0.0f, 0.0f, 500.0f, -500.0f, 0.0f, 0.0f};
+        float32 zv[6] = {0.0f, 0.0f, 0.0f, 0.0f, 500.0f, -500.0f};
+        for(uint32 i=0; i<6; ++i) {
+            Message_GenerateFraction mes;
+            mes.type = MES_GENERATE_FRACTION;
+            mes.gen_type = Message_GenerateFraction::GEN_SPHERE;
+            mes.num = 3500;
+            ist::Sphere sphere;
+            sphere.x = xv[i];
+            sphere.y = yv[i];
+            sphere.z = zv[i];
+            sphere.r = 200.0f;
+            (ist::Sphere&)(*mes.shape_data) = sphere;
+            pushGenerateMessage(mes);
+        }
+    }
+}
 
 
 void FractionSet::update()

@@ -72,6 +72,20 @@ public:
     void exec();
 };
 
+class Task_FractionUpdateAfter : public Task
+{
+private:
+    FractionSet *m_obj;
+
+public:
+    Task_FractionUpdateAfter();
+    ~Task_FractionUpdateAfter();
+    void initialize(FractionSet *obj);
+    void waitForCompletion();
+
+    void exec();
+};
+
 
 } // namespace atomic
 #endif // __atomic_FractionTask__

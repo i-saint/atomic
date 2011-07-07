@@ -39,21 +39,6 @@ public:
     static const float MAX_VEL;
     static const float DECELERATE;
 
-    struct XHolder
-    {
-        uint32 index;
-        float32 x;
-    };
-    struct YHolder
-    {
-        uint32 index;
-        float32 y;
-    };
-    struct ZHolder
-    {
-        uint32 index;
-        float32 z;
-    };
     struct GridRange
     {
         XMVECTOR range_min;
@@ -92,26 +77,21 @@ public:
 
 
 private:
-    typedef stl::vector<FractionData, FrameScopedAllocator> DataCont;
-    typedef stl::vector<XHolder, FrameScopedAllocator> XCont;
-    typedef stl::vector<YHolder, FrameScopedAllocator> YCont;
-    typedef stl::vector<ZHolder, FrameScopedAllocator> ZCont;
-    typedef stl::vector<Message_GenerateFraction, FrameScopedAllocator> GenMessageCont;
+    typedef stl::vector<FractionData, FrameAllocator> DataCont;
+    typedef stl::vector<Message_GenerateFraction, FrameAllocator> GenMessageCont;
 
     DataCont    m_data;
-    XCont       m_xorder;
-    YCont       m_yorder;
-    ZCont       m_zorder;
-    GenMessageCont m_gen_mes;
+    GenMessageCont m_gen_mes; // todo: è¡Ç∑
 
-    FractionSet *m_prev, *m_next;
-    FrameScopedAllocator *m_alloc;
+    FractionSet *m_prev;
     uint32 m_idgen;
     uint32 m_num_dead;
 
 public:
-    FractionSet(FractionSet* prev, FrameScopedAllocator *alloc);
+    FractionSet();
     ~FractionSet();
+
+    void initialize(FractionSet* prev, FrameAllocator& alloc);
 
     void update();
     void sync();
@@ -120,7 +100,6 @@ public:
     void draw();
 
     FractionSet* getPrev() { return m_prev; }
-    FractionSet* getNext() { return m_next; }
     uint32 getRequiredMemoryOnNextFrame();
 
     void pushGenerateMessage(const Message_GenerateFraction& mes) { m_gen_mes.push_back(mes); }

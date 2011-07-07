@@ -167,11 +167,11 @@ bool AtomicApplication::initialize(size_t x, size_t y, size_t width, size_t heig
     }
     TaskScheduler::initializeSingleton();
 
-    m_draw_thread = AT_NEW(AtomicDrawThread) AtomicDrawThread(this);
+    m_draw_thread = AT_NEW(AtomicDrawThread) (this);
     m_draw_thread->run();
     m_draw_thread->waitForInitializeComplete();
 
-    m_game = AT_ALIGNED_NEW(AtomicGame, 16) AtomicGame();
+    m_game = AT_ALIGNED_NEW(AtomicGame, 16)();
 
     return true;
 }
