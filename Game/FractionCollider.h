@@ -18,7 +18,7 @@ public:
             float32 pos_x;
             float32 pos_y;
             float32 pos_z;
-            uint32 index;
+            uint32 id;
             float32 vel_x;
             float32 vel_y;
             float32 vel_z;
@@ -93,10 +93,6 @@ public:
             };
             union {
                 XMVECTOR vel;
-                struct {
-                    float32 velv[3];
-                    uint32 sender_index;
-                };
             };
         };
         XMVECTOR v[2];
@@ -118,12 +114,12 @@ public:
     void setGridRange(XMVECTOR rmin, XMVECTOR rmax);
 
     void resizeData(uint32 n);
-    void setData(uint32 i, XMVECTOR pos, XMVECTOR vel);
+    void pushData(uint32 id, XMVECTOR pos, XMVECTOR vel);
     void clear();
 
     XMVECTORI32 getCoord(XMVECTOR pos) const;
     // ret: num collision
-    uint32 hitTest(QWordVector &out, const Data &data) const;
+    uint32 hitTest(QWordVector &out, const FractionData &data) const;
 };
 
 

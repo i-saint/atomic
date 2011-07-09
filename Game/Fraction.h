@@ -29,9 +29,10 @@ class FractionCollider;
 class FractionGrid;
 class FractionRenderer;
 
-class Task_FractionUpdate;
+class Task_FractionBeforeDraw;
+class Task_FractionAfterDraw;
 
-class FractionSet : boost::noncopyable
+class __declspec(align(16)) FractionSet : boost::noncopyable
 {
 public:
     static const size_t BLOCK_SIZE;
@@ -40,33 +41,32 @@ public:
     static const float MAX_VEL;
     static const float DECELERATE;
 
-    struct GridRange
+    struct __declspec(align(16)) GridRange
     {
         XMVECTOR range_min;
         XMVECTOR range_max;
     };
 
-    class Interframe : boost::noncopyable
+    class __declspec(align(16)) Interframe : boost::noncopyable
     {
     private:
         typedef stl::vector<QWordVector*> CollisionResultCont;
-        typedef stl::vector<GridRange> GridRangeCont;
 
         /// m_collision_results のメモリ配置は↓のようになっています
         /// [ResultHeader][Result*ResultHeader::num_collision]...[ResultHeader(num_collision=0)]
         CollisionResultCont m_collision_results;
-        GridRangeCont m_grid_range;
-        Task_FractionUpdate *m_update_task;
+        Task_FractionBeforeDraw *m_task_beforedraw;
+        Task_FractionAfterDraw *m_task_afterdraw;
         FractionGrid *m_grid;
 
     public:
         Interframe();
         ~Interframe();
-        void                    resizeColliders(uint32 block_num);          // thread unsafe
-        QWordVector*            getCollisionResultContainer(uint32 uint32) { return m_collision_results[uint32]; }
-        GridRange*              getGridRange(uint32 uint32) { return &m_grid_range[uint32]; }
-        Task_FractionUpdate*    getUpdateTask() { return m_update_task; }
-        FractionGrid*           getGrid() { return m_grid; }
+        void                        resizeColliders(uint32 block_num);          // thread unsafe
+        QWordVector*                getCollisionResultContainer(uint32 uint32) { return m_collision_results[uint32]; }
+        Task_FractionBeforeDraw*    getTask_BeforeDraw() { return m_task_beforedraw; }
+        Task_FractionAfterDraw*     getTask_AfterDraw() { return m_task_afterdraw; }
+        FractionGrid*               getGrid() { return m_grid; }
     };
 
 
@@ -82,9 +82,10 @@ public:
 private:
     typedef stl::vector<FractionData, FrameAllocator> DataCont;
     typedef stl::vector<Message_GenerateFraction, FrameAllocator> GenMessageCont;
+    typedef stl::vector<GridRange> GridRangeCont;
 
     DataCont    m_data;
-
+    GridRangeCont m_grid_range;
     FractionSet *m_prev;
     uint32 m_idgen;
 
@@ -92,26 +93,25 @@ public:
     FractionSet();
     ~FractionSet();
 
-    void initialize(FractionSet* prev, FrameAllocator& alloc);
+    void initialize(FractionSet* prev);
 
     void update();
     void draw();
+    void sync();
 
-    FractionSet* getPrev() { return m_prev; }
-    uint32 getRequiredMemoryOnNextFrame();
-
-    FractionData* getFraction(uint32 i) { return &m_data[i]; }
+    const FractionSet* getPrev() const { return m_prev; }
+    const FractionData* getFraction(uint32 i) const { return &m_data[i]; }
 
     // 以下非同期更新タスク用
 public:
     uint32 getNumBlocks() const;
-    void processGenerateMessage();
+    void processMessage();
+    void updateState(uint32 block);
+    void updateGrid();
+
     void move(uint32 block);
     void collisionTest(uint32 block);
     void collisionProcess(uint32 block);
-    void updateGrid();
-
-    void generateVertex(uint32 block);
 };
 
 

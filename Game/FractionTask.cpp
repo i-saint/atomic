@@ -11,94 +11,97 @@ namespace atomic
 
 
 
-Task_FractionUpdate::Task_FractionUpdate()
+Task_FractionBeforeDraw::Task_FractionBeforeDraw()
+: m_obj(NULL)
 {
-    m_grid_task = AT_NEW(Task_FractionGrid) ();
 }
 
-Task_FractionUpdate::~Task_FractionUpdate()
+Task_FractionBeforeDraw::~Task_FractionBeforeDraw()
 {
-    for(size_t i=0; i<m_move_tasks.size(); ++i) {
-        AT_DELETE(m_move_tasks[i]);
+    for(size_t i=0; i<m_state_tasks.size(); ++i) {
+        AT_DELETE(m_state_tasks[i]);
     }
-    m_move_tasks.clear();
-    for(size_t i=0; i<m_col_test_tasks.size(); ++i) {
-        AT_DELETE(m_col_test_tasks[i]);
-    }
-    m_col_test_tasks.clear();
-    for(size_t i=0; i<m_col_proc_tasks.size(); ++i) {
-        AT_DELETE(m_col_proc_tasks[i]);
-    }
-    m_col_proc_tasks.clear();
-    AT_DELETE(m_grid_task);
+    m_state_tasks.clear();
 }
 
-void Task_FractionUpdate::initialize(FractionSet *obj)
+void Task_FractionBeforeDraw::initialize(FractionSet *obj)
 {
     m_obj = obj;
 }
 
-void Task_FractionUpdate::exec()
+void Task_FractionBeforeDraw::exec()
 {
     MessageRouter *message_router = atomicGetMessageRouter(MR_FRACTION);
+    FractionSet *obj = m_obj;
 
     // 生成メッセージを処理
-    m_obj->processGenerateMessage();
+    obj->processMessage();
 
     message_router->unuseAll();
 
-    uint32 num_blocks = m_obj->getNumBlocks();
-    m_blocks = num_blocks;
+    uint32 num_blocks = obj->getNumBlocks();
     // 衝突器とタスク数をブロックサイズに合わせる
-    while(m_move_tasks.size()<num_blocks) {
-        m_move_tasks.push_back(AT_NEW(Task_FractionMove) ());
+    while(m_state_tasks.size()<num_blocks) {
+        m_state_tasks.push_back(AT_NEW(Task_FractionState)());
     }
-    while(m_col_test_tasks.size()<num_blocks) {
-        m_col_test_tasks.push_back(AT_NEW(Task_FractionCollisionTest) ());
-    }
-    while(m_col_proc_tasks.size()<num_blocks) {
-        m_col_proc_tasks.push_back(AT_NEW(Task_FractionCollisionProcess) ());
+    for(uint32 i=0; i<num_blocks; ++i) {
+        m_state_tasks[i]->initialize(obj, i);
     }
     message_router->resizeMessageBlock(num_blocks);
 
-    // 移動タスクをスケジュール&実行完了待ち
-    for(uint32 i=0; i<num_blocks; ++i) {
-        m_move_tasks[i]->initialize(m_obj, i);
-    }
-    TaskScheduler::schedule((Task**)&m_move_tasks[0], num_blocks);
-    TaskScheduler::waitFor((Task**)&m_move_tasks[0], num_blocks);
 
+    // 移動タスクをスケジュール&実行完了待ち
+    if(num_blocks > 0) {
+        TaskScheduler::schedule((Task**)&m_state_tasks[0], num_blocks);
+        TaskScheduler::waitFor((Task**)&m_state_tasks[0], num_blocks);
+    }
+    message_router->route();
+
+
+    obj->updateGrid();
+    //// 描画後タスクをキック
+    //Task_FractionAfterDraw *next = FractionSet::getInterframe()->getTask_AfterDraw();
+    //next->initialize(obj);
+    //TaskScheduler::schedule(next);
+    //TaskScheduler::waitFor(next);
+}
+
+void Task_FractionBeforeDraw::waitForComplete()
+{
+    if(!m_state_tasks.empty()) {
+        TaskScheduler::waitFor((Task**)&m_state_tasks[0], m_state_tasks.size());
+    }
+}
+
+
+
+Task_FractionAfterDraw::Task_FractionAfterDraw()
+: m_obj(NULL)
+{
+    m_grid_task = AT_NEW(Task_FractionGrid) ();
+}
+
+Task_FractionAfterDraw::~Task_FractionAfterDraw()
+{
+    AT_DELETE(m_grid_task);
+}
+
+void Task_FractionAfterDraw::initialize( FractionSet *obj )
+{
+    m_obj = obj;
+}
+
+void Task_FractionAfterDraw::waitForComplete()
+{
+    TaskScheduler::waitFor(m_grid_task);
+}
+
+void Task_FractionAfterDraw::exec()
+{
+    // 衝突グリッド更新
     m_grid_task->initialize(m_obj);
     TaskScheduler::schedule(m_grid_task);
     TaskScheduler::waitFor(m_grid_task);
-
-    // 衝突判定タスクをスケジュール&実行完了待ち
-    for(uint32 i=0; i<num_blocks; ++i) {
-        m_col_test_tasks[i]->initialize(m_obj, i);
-    }
-    TaskScheduler::schedule((Task**)&m_col_test_tasks[0], num_blocks);
-    TaskScheduler::waitFor((Task**)&m_col_test_tasks[0], num_blocks);
-
-    // 衝突進行タスクをスケジュール&実行完了待ち
-    for(uint32 i=0; i<num_blocks; ++i) {
-        m_col_proc_tasks[i]->initialize(m_obj, i);
-    }
-    TaskScheduler::schedule((Task**)&m_col_proc_tasks[0], num_blocks);
-    TaskScheduler::waitFor((Task**)&m_col_proc_tasks[0], num_blocks);
-
-    message_router->route();
 }
-
-
-void Task_FractionUpdate::waitForCompletion()
-{
-    uint32 num_blocks = m_blocks;
-    TaskScheduler::waitFor((Task**)&m_move_tasks[0], num_blocks);
-    TaskScheduler::waitFor((Task**)&m_col_test_tasks[0], num_blocks);
-    TaskScheduler::waitFor((Task**)&m_col_proc_tasks[0], num_blocks);
-    TaskScheduler::waitFor(m_grid_task);
-
-}
-
 
 } // namespace atomic

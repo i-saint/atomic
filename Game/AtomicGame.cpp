@@ -20,7 +20,7 @@ AtomicGame::AtomicGame()
 
     m_worlds.resize(MAX_WORLDS);
     m_worlds[0] = AT_ALIGNED_NEW(World, 16)();
-    m_worlds[0]->initialize(NULL, *stl::get_default_allocator(NULL));
+    m_worlds[0]->initialize(NULL);
 }
 
 AtomicGame::~AtomicGame()
@@ -50,9 +50,10 @@ void AtomicGame::update()
     uint32 next_world = (m_current_world+1) % MAX_WORLDS;
     World *n = m_worlds[next_world];
     if(!n) {
-        n = AT_ALIGNED_NEW(World, 16)();
+        //n = AT_ALIGNED_NEW(World, 16)();
+        n = w;
     }
-    n->initialize(w, *stl::get_default_allocator(NULL));
+    n->initialize(w);
     m_worlds[next_world] = n;
     m_current_world = next_world;
 }

@@ -42,12 +42,12 @@ void FractionGrid::resizeData(uint32 n)
     //m_data.resize(n);
 }
 
-void FractionGrid::setData(uint32 i, XMVECTOR pos, XMVECTOR vel)
+void FractionGrid::pushData(uint32 id, XMVECTOR pos, XMVECTOR vel)
 {
     Data d;
     d.pos = pos;
     d.vel = vel;
-    d.index = i;
+    d.id = id;
     XMVECTORI32 it = getCoord(pos);
     m_blocks[it.i[1]][it.i[2]][it.i[0]].push(d);
 }
@@ -63,7 +63,7 @@ void FractionGrid::clear()
     }
 }
 
-uint32 FractionGrid::hitTest( QWordVector &out, const Data &receiver ) const
+uint32 FractionGrid::hitTest( QWordVector &out, const FractionData &receiver ) const
 {
     __declspec(thread) static stl::vector<Result> *s_tmp_result = NULL;
     if(s_tmp_result==NULL) {
@@ -89,25 +89,24 @@ uint32 FractionGrid::hitTest( QWordVector &out, const Data &receiver ) const
                 const Block *block = &m_blocks[yi][zi][xi];
                 const Data *data = block->data;
                 uint32 num_senders = block->num_data;
+                const XMVECTOR rid = XMVectorSetInt(receiver.id, receiver.id, receiver.id, receiver.id);
 
                 for(uint32 si=0; si<num_senders; si+=4) {
                     const SOAVECTOR4 tpos= SOAVectorTranspose4(data[0].pos, data[1].pos, data[2].pos, data[3].pos);
-                    const XMVECTOR   indices =tpos.w;
                     const SOAVECTOR3 dist= SOAVectorSubtract3(receiver_pos, tpos);
                     const XMVECTOR   len = SOAVectorLength3(dist);
                     const SOAVECTOR3 dir = SOAVectorDivide3S(dist, len);
                     const XMVECTOR   hit = XMVectorLessOrEqual(len, diameter);
 
+                    const XMVECTOR   eq_rid = XMVectorEqualInt(rid, tpos.w);
                     const SOAVECTOR4 dirv = SOAVectorTranspose4(dir.x, dir.y, dir.z);
                     const uint32* hitv = (const uint32*)&hit;
-                    const uint32* indicesv = (const uint32*)&indices;
+                    const uint32* eq_ridv = (const uint32*)&eq_rid;
                     uint32 e = std::min<uint32>(4, num_senders-si);
                     for(size_t i=0; i<e; ++i) {
-                        if(hitv[i] && receiver.index!=indicesv[i]) {
+                        if(hitv[i] && eq_ridv[i]==0) {
                             Result r;
                             r.dir = dirv.v[i];
-                            r.receiver_index = receiver.index;
-                            r.sender_index = indicesv[i];
                             r.vel = data[i].vel;
                             s_tmp_result->push_back(r);
                         }

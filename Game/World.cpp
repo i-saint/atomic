@@ -9,12 +9,45 @@
 using namespace ist::graphics;
 
 
-namespace atomic
+namespace atomic {
+
+
+
+class Task_WorldBeforeDraw : public Task
 {
+private:
+    World *m_obj;
+
+public:
+    void initialize(World *obj) { m_obj=obj; }
+    void waitForComplete() { TaskScheduler::waitFor(this); }
+    void exec() { m_obj->update_BeforeDraw(); }
+};
+
+class Task_WorldAfterDraw : public Task
+{
+private:
+    World *m_obj;
+
+public:
+    void initialize(World *obj) { m_obj=obj; }
+    void waitForComplete() { TaskScheduler::waitFor(this); }
+    void exec() { m_obj->update_AfterDraw(); }
+};
+
+
 
 World::Interframe::Interframe()
 : m_current_world(NULL)
 {
+    m_task_beforedraw = AT_NEW(Task_WorldBeforeDraw)();
+    m_task_afterdraw = AT_NEW(Task_WorldAfterDraw)();
+}
+
+World::Interframe::~Interframe()
+{
+    AT_DELETE(m_task_afterdraw);
+    AT_DELETE(m_task_beforedraw);
 }
 
 
@@ -40,11 +73,6 @@ World::World()
 , m_fraction_set(NULL)
 {
     m_fraction_set = AT_ALIGNED_NEW(FractionSet, 16)();
-
-    m_rand.initialize(0);
-    m_camera.setPosition(XMVectorSet(100.0f, 100.0f, 500.0f, 0.0f));
-    m_camera.setZNear(1.0f);
-    m_camera.setZFar(1000.0f);
 }
 
 World::~World()
@@ -52,22 +80,34 @@ World::~World()
     AT_DELETE(m_fraction_set);
 }
 
-void World::initialize( World* prev, FrameAllocator& alloc )
+void World::initialize( World* prev )
 {
     m_prev = prev;
     if(prev) {
+        Task_WorldBeforeDraw *task = getInterframe()->getTask_BeforeDraw();
+        task->waitForComplete();
+
         m_rand = prev->m_rand;
         m_camera = prev->m_camera;
     }
-    m_fraction_set->initialize(prev ? prev->m_fraction_set : NULL, alloc);
+    else {
+        m_rand.initialize(0);
+        m_camera.setPosition(XMVectorSet(100.0f, 100.0f, 500.0f, 0.0f));
+        m_camera.setZNear(1.0f);
+        m_camera.setZFar(1000.0f);
+    }
+
+    m_fraction_set->initialize(prev ? prev->m_fraction_set : NULL);
 }
 
 void World::update()
 {
     getInterframe()->setCurrentWorld(this);
 
-    m_camera.setPosition(XMVector3Transform(m_camera.getPosition(), XMMatrixRotationY(XMConvertToRadians(0.1f))));
-    m_camera.setAspect(atomicGetWindowAspectRatio());
+    Task_WorldBeforeDraw *task = getInterframe()->getTask_BeforeDraw();
+    task->waitForComplete();
+    task->initialize(this);
+    TaskScheduler::schedule(task);
 
     m_fraction_set->update();
 }
@@ -75,8 +115,25 @@ void World::update()
 void World::draw()
 {
     m_fraction_set->draw();
+    TaskScheduler::waitFor(getInterframe()->getTask_BeforeDraw());
+}
 
-    // todo: KickDrawCommand()
+void World::sync()
+{
+    m_fraction_set->sync();
+    TaskScheduler::waitFor(getInterframe()->getTask_BeforeDraw());
+}
+
+
+void World::update_BeforeDraw()
+{
+    m_camera.setPosition(XMVector3Transform(m_camera.getPosition(), XMMatrixRotationY(XMConvertToRadians(0.1f))));
+    m_camera.setAspect(atomicGetWindowAspectRatio());
+}
+
+void World::update_AfterDraw()
+{
+
 }
 
 

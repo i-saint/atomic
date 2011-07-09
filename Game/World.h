@@ -10,6 +10,9 @@ class EnemySet;
 class ForceSet;
 class FractionSet;
 class VFXSet;
+class World;
+class Task_WorldBeforeDraw;
+class Task_WorldAfterDraw;
 
 
 class World : boost::noncopyable
@@ -19,11 +22,17 @@ public:
     {
     private:
         World* m_current_world;
+        Task_WorldBeforeDraw *m_task_beforedraw;
+        Task_WorldAfterDraw *m_task_afterdraw;
 
     public:
         Interframe();
+        ~Interframe();
         void setCurrentWorld(World* w) { m_current_world=w; }
         World* getCurrentWorld() { return m_current_world; }
+
+        Task_WorldBeforeDraw*    getTask_BeforeDraw() { return m_task_beforedraw; }
+        Task_WorldAfterDraw*     getTask_AfterDraw() { return m_task_afterdraw; }
     };
 
 private:
@@ -45,16 +54,22 @@ public:
     World();
     ~World();
 
-    void initialize(World* prev, FrameAllocator& alloc);
+    void initialize(World* prev);
 
     void update();
     void draw();
+    void sync();
 
-    World* getPrev() { return m_prev; }
+    const World* getPrev() const { return m_prev; }
 
     FractionSet* getFractions() { return m_fraction_set; }
     PerspectiveCamera* getCamera() { return &m_camera; }
     SFMT* getRandom() { return &m_rand; }
+
+
+public:
+    void update_BeforeDraw();
+    void update_AfterDraw();
 };
 
 

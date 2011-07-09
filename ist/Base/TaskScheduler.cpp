@@ -100,17 +100,16 @@ void TaskQueue::push(TaskPtr t)
 void TaskQueue::push(TaskPtr tasks[], size_t num)
 {
     if(num==0) { return; }
-
-    // notify() Ç‹Ç≈ÉçÉbÉNîÕàÕÇ»ÇÃÇÕà”ê}ìI
-    boost::lock_guard<boost::mutex> lock(m_suspender);
-    for(size_t i=0; i<num; ++i)
     {
-        TaskPtr t = tasks[i];
-        t->beforeExec();
-        m_tasks.push_back(t);
+        boost::lock_guard<boost::mutex> lock(m_suspender);
+        for(size_t i=0; i<num; ++i)
+        {
+            TaskPtr t = tasks[i];
+            t->beforeExec();
+            m_tasks.push_back(t);
+        }
+        notify();
     }
-
-    notify();
 }
 
 
@@ -291,6 +290,7 @@ void TaskScheduler::waitFor(TaskPtr task)
 
 void TaskScheduler::waitFor(TaskPtr tasks[], size_t num)
 {
+    if(!tasks || num==0) { return; }
     for(;;) {
         bool finished = true;
         for(size_t i=0; i<num; ++i) {

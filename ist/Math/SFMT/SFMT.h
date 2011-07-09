@@ -130,7 +130,7 @@ typedef struct W128_T w128_t;
 #include "SFMT-params.h"
 
 
-class SFMT
+class __declspec(align(16)) SFMT
 {
 private:
     /*--------------------------------------

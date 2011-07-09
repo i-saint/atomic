@@ -6,80 +6,90 @@ namespace atomic {
 
 
 
+//class Task_FractionCollisionTest : public Task
+//{
+//private:
+//    FractionSet *m_obj;
+//    size_t m_block;
+//
+//public:
+//    void initialize(FractionSet *obj, size_t block) { m_obj=obj; m_block=block; }
+//    void exec() { m_obj->collisionTest(m_block); }
+//};
+//
+//class Task_FractionCollisionProcess : public Task
+//{
+//private:
+//    FractionSet *m_obj;
+//    size_t m_block;
+//
+//public:
+//    void initialize(FractionSet *obj, size_t block) { m_obj=obj; m_block=block; }
+//    void exec() { m_obj->collisionProcess(m_block); }
+//};
+//
+//class Task_FractionMove : public Task
+//{
+//typedef ist::ChainedTask super;
+//private:
+//    FractionSet *m_obj;
+//    size_t m_block;
+//
+//public:
+//    void initialize(FractionSet *obj, size_t block) { m_obj=obj; m_block=block; }
+//    void exec() { m_obj->move(m_block); }
+//};
+
+class Task_FractionState : public Task
+{
+    typedef ist::ChainedTask super;
+private:
+    FractionSet *m_obj;
+    size_t m_block;
+
+public:
+    Task_FractionState() : m_obj(NULL) {}
+    void initialize(FractionSet *obj, size_t block) { m_obj=obj; m_block=block; }
+    void exec() { m_obj->updateState(m_block); }
+};
+
 class Task_FractionGrid : public Task
 {
 private:
     FractionSet *m_obj;
 public:
+    Task_FractionGrid() : m_obj(NULL) {}
     void initialize(FractionSet *obj) { m_obj=obj; }
     void exec() { m_obj->updateGrid(); }
 };
 
-class Task_FractionCollisionTest : public Task
+
+class Task_FractionBeforeDraw : public Task
 {
 private:
     FractionSet *m_obj;
-    size_t m_block;
+    stl::vector<Task_FractionState*> m_state_tasks;
 
 public:
-    void initialize(FractionSet *obj, size_t block) { m_obj=obj; m_block=block; }
-    void exec() { m_obj->collisionTest(m_block); }
-};
-
-class Task_FractionCollisionProcess : public Task
-{
-private:
-    FractionSet *m_obj;
-    size_t m_block;
-
-public:
-    void initialize(FractionSet *obj, size_t block) { m_obj=obj; m_block=block; }
-    void exec() { m_obj->collisionProcess(m_block); }
-};
-
-
-class Task_FractionMove : public Task
-{
-typedef ist::ChainedTask super;
-private:
-    FractionSet *m_obj;
-    size_t m_block;
-
-public:
-    void initialize(FractionSet *obj, size_t block) { m_obj=obj; m_block=block; }
-    void exec() { m_obj->move(m_block); }
-};
-
-
-class Task_FractionUpdate : public Task
-{
-private:
-    FractionSet *m_obj;
-    stl::vector<Task_FractionMove*> m_move_tasks;
-    stl::vector<Task_FractionCollisionTest*> m_col_test_tasks;
-    stl::vector<Task_FractionCollisionProcess*> m_col_proc_tasks;
-    Task_FractionGrid *m_grid_task;
-    uint32 m_blocks;
-
-public:
-    Task_FractionUpdate();
-    ~Task_FractionUpdate();
+    Task_FractionBeforeDraw();
+    ~Task_FractionBeforeDraw();
     void initialize(FractionSet *obj);
-    void waitForCompletion();
+    void waitForComplete();
 
     void exec();
 };
 
-class Task_FractionUpdateAfter : public Task
+class Task_FractionAfterDraw : public Task
 {
 private:
     FractionSet *m_obj;
+    Task_FractionGrid *m_grid_task;
 
 public:
-    Task_FractionUpdateAfter();
-    ~Task_FractionUpdateAfter();
+    Task_FractionAfterDraw();
+    ~Task_FractionAfterDraw();
     void initialize(FractionSet *obj);
-    void waitForCompletion();
+    void waitForComplete();
 
     void exec();
 };

@@ -35,7 +35,7 @@ public:
 };
 
 
-class Camera
+class __declspec(align(16)) Camera
 {
 private:
     XMVECTOR m_position;
@@ -63,7 +63,7 @@ public:
 };
 
 
-class OrthographicCamera : public Camera
+class __declspec(align(16)) OrthographicCamera : public Camera
 {
 typedef Camera super;
 private:
@@ -105,7 +105,7 @@ public:
 };
 
 
-class PerspectiveCamera : public Camera
+class __declspec(align(16)) PerspectiveCamera : public Camera
 {
 typedef Camera super;
 private:
