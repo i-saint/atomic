@@ -63,9 +63,9 @@ public:
     const Viewport* getDefaultViewport() const { return &m_default_viewport; }
 };
 
-#define GetCubeRenderer() AtomicRenderer::getInstance()->getCubeRenderer()
-#define GetSphereLightRenderer() AtomicRenderer::getInstance()->getSphereLightRenderer()
-#define GetDefaultViewport() AtomicRenderer::getInstance()->getDefaultViewport()
+#define atomicGetCubeRenderer()         AtomicRenderer::getInstance()->getCubeRenderer()
+#define atomicGetSphereLightRenderer()  AtomicRenderer::getInstance()->getSphereLightRenderer()
+#define atomicGetDefaultViewport()      AtomicRenderer::getInstance()->getDefaultViewport()
 
 
 class PassGBuffer_Cube : public Renderer

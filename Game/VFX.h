@@ -15,9 +15,6 @@ public:
     ~VFXSet();
 
     void update();
-    void sync();
-    void flushMessage();
-    void processMessage();
     void draw();
 
 };

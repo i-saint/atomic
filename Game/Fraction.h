@@ -17,11 +17,12 @@ struct __declspec(align(16)) FractionData
             uint32 index;
             uint32 frame;
         };
-        XMVECTOR param[2];
+        XMVECTOR param[1];
     };
     XMVECTOR pos;
     XMVECTOR vel;
 };
+BOOST_STATIC_ASSERT(sizeof(FractionData)==48);
 
 
 class FractionCollider;
@@ -51,6 +52,8 @@ public:
         typedef stl::vector<QWordVector*> CollisionResultCont;
         typedef stl::vector<GridRange> GridRangeCont;
 
+        /// m_collision_results のメモリ配置は↓のようになっています
+        /// [ResultHeader][Result*ResultHeader::num_collision]...[ResultHeader(num_collision=0)]
         CollisionResultCont m_collision_results;
         GridRangeCont m_grid_range;
         Task_FractionUpdate *m_update_task;
@@ -81,11 +84,9 @@ private:
     typedef stl::vector<Message_GenerateFraction, FrameAllocator> GenMessageCont;
 
     DataCont    m_data;
-    GenMessageCont m_gen_mes; // todo: 消す
 
     FractionSet *m_prev;
     uint32 m_idgen;
-    uint32 m_num_dead;
 
 public:
     FractionSet();
@@ -94,15 +95,11 @@ public:
     void initialize(FractionSet* prev, FrameAllocator& alloc);
 
     void update();
-    void sync();
-    void flushMessage();
-    void processMessage();
     void draw();
 
     FractionSet* getPrev() { return m_prev; }
     uint32 getRequiredMemoryOnNextFrame();
 
-    void pushGenerateMessage(const Message_GenerateFraction& mes) { m_gen_mes.push_back(mes); }
     FractionData* getFraction(uint32 i) { return &m_data[i]; }
 
     // 以下非同期更新タスク用

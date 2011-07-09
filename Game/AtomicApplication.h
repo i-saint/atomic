@@ -31,12 +31,12 @@ public:
 };
 
 
-#define WaitForDrawComplete() AtomicApplication::getInstance()->waitForDrawComplete()
-#define KickDraw() AtomicApplication::getInstance()->kickDraw()
+#define atomicWaitForDrawComplete()     AtomicApplication::getInstance()->waitForDrawComplete()
+#define atomicKickDraw()                AtomicApplication::getInstance()->kickDraw()
 
-#define GetWindowWidth() AtomicApplication::getInstance()->getWindowWidth()
-#define GetWindowHeight() AtomicApplication::getInstance()->getWindowHeight()
-#define GetWindowAspectRatio() (float(GetWindowWidth())/float(GetWindowHeight()))
+#define atomicGetWindowWidth()          AtomicApplication::getInstance()->getWindowWidth()
+#define atomicGetWindowHeight()         AtomicApplication::getInstance()->getWindowHeight()
+#define atomicGetWindowAspectRatio()    (float(atomicGetWindowWidth())/float(atomicGetWindowHeight()))
 
 } // namespace atomic
 #endif __atomic_AtomicApplication__

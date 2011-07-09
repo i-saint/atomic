@@ -156,7 +156,7 @@ void DrawScreen()
 uint32 CalcFrameBufferWidth()
 {
     uint32 r = 256;
-    uint32 window_width = GetWindowWidth();
+    uint32 window_width = atomicGetWindowWidth();
     while(r < window_width) {
         r *= 2;
     }
@@ -166,7 +166,7 @@ uint32 CalcFrameBufferWidth()
 uint32 CalcFrameBufferHeight()
 {
     uint32 r = 256;
-    uint32 window_height = GetWindowHeight();
+    uint32 window_height = atomicGetWindowHeight();
     while(r < window_height) {
         r *= 2;
     }

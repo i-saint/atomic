@@ -27,12 +27,12 @@ void AtomicRenderer::finalizeInstance()
 
 AtomicRenderer::AtomicRenderer()
 {
-    m_sh_gbuffer    = GetShaderGBuffer();
-    m_sh_deferred   = GetShaderDeferred();
-    m_sh_out        = GetShaderOutput();
+    m_sh_gbuffer    = atomicGetShaderGBuffer();
+    m_sh_deferred   = atomicGetShaderDeferred();
+    m_sh_out        = atomicGetShaderOutput();
 
-    m_rt_gbuffer    = GetRenderTargetGBuffer();
-    m_rt_deferred   = GetRenderTargetDeferred();
+    m_rt_gbuffer    = atomicGetRenderTargetGBuffer();
+    m_rt_deferred   = atomicGetRenderTargetDeferred();
 
     m_renderer_cube = AT_NEW(PassGBuffer_Cube) ();
     m_renderer_sphere_light = AT_NEW(PassDeferred_SphereLight) ();
@@ -41,7 +41,7 @@ AtomicRenderer::AtomicRenderer()
     m_renderers[PASS_DEFERRED].push_back(m_renderer_sphere_light);
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_bloom);
 
-    m_default_viewport.setViewport(0, 0, GetWindowWidth(), GetWindowHeight());
+    m_default_viewport.setViewport(0, 0, atomicGetWindowWidth(), atomicGetWindowHeight());
 }
 
 AtomicRenderer::~AtomicRenderer()
@@ -98,7 +98,7 @@ void AtomicRenderer::pass_Shadow()
 
 void AtomicRenderer::pass_GBuffer()
 {
-    const PerspectiveCamera *camera = GetCamera();
+    const PerspectiveCamera *camera = atomicGetCamera();
 
     m_rt_gbuffer->bind();
     m_sh_gbuffer->bind();
@@ -119,11 +119,11 @@ void AtomicRenderer::pass_GBuffer()
 
 void AtomicRenderer::pass_Deferred()
 {
-    const PerspectiveCamera *camera = GetCamera();
+    const PerspectiveCamera *camera = atomicGetCamera();
     float aspect_ratio = camera->getAspect();
     vec2 tex_scale = vec2(
-        float32(GetWindowWidth())/float32(m_rt_deferred->getWidth()),
-        float32(GetWindowHeight())/float32(m_rt_deferred->getHeight()) * aspect_ratio);
+        float32(atomicGetWindowWidth())/float32(m_rt_deferred->getWidth()),
+        float32(atomicGetWindowHeight())/float32(m_rt_deferred->getHeight()) * aspect_ratio);
 
     m_rt_deferred->bind();
     m_sh_deferred->bind();
@@ -191,7 +191,7 @@ void AtomicRenderer::pass_Output()
     m_rt_deferred->getColorBuffer(0)->bind(Texture2D::SLOT_0);
     m_sh_out->bind();
     m_sh_out->setColorBuffer(Texture2D::SLOT_0);
-    DrawScreen(vec2(0.0f, 0.0f), vec2(float(GetWindowWidth())/float32(m_rt_deferred->getWidth()), float(GetWindowHeight())/float32(m_rt_deferred->getHeight())));
+    DrawScreen(vec2(0.0f, 0.0f), vec2(float(atomicGetWindowWidth())/float32(m_rt_deferred->getWidth()), float(atomicGetWindowHeight())/float32(m_rt_deferred->getHeight())));
     m_sh_out->unbind();
     m_rt_deferred->getColorBuffer(0)->unbind(Texture2D::SLOT_0);
 }
@@ -200,9 +200,9 @@ void AtomicRenderer::pass_Output()
 
 PassGBuffer_Cube::PassGBuffer_Cube()
 {
-    m_sh_gbuffer = GetShaderGBuffer();
-    m_model = GetModelData(MODEL_CUBE);
-    m_vbo_instance_pos = GetVertexBufferObject(VBO_CUBE_POS);
+    m_sh_gbuffer = atomicGetShaderGBuffer();
+    m_model = atomicGetModelData(MODEL_CUBE);
+    m_vbo_instance_pos = atomicGetVertexBufferObject(VBO_CUBE_POS);
     m_instance_pos.reserve(65536);
 }
 
@@ -225,9 +225,9 @@ void PassGBuffer_Cube::draw()
 
 PassDeferred_SphereLight::PassDeferred_SphereLight()
 {
-    m_sh_deferred = GetShaderDeferred();
-    m_model = GetModelData(MODEL_SPHERE);
-    m_vbo_instance_pos = GetVertexBufferObject(VBO_SPHERE_LIGHT_POS);
+    m_sh_deferred = atomicGetShaderDeferred();
+    m_model = atomicGetModelData(MODEL_SPHERE);
+    m_vbo_instance_pos = atomicGetVertexBufferObject(VBO_SPHERE_LIGHT_POS);
     m_instance_pos.reserve(1024);
 }
 
@@ -253,10 +253,10 @@ PassPostprocess_Bloom::PassPostprocess_Bloom()
 , m_rt_gauss1(NULL)
 , m_sh_bloom(NULL)
 {
-    m_rt_deferred = GetRenderTargetDeferred();
-    m_rt_gauss0 = GetRenderTargetGauss(0);
-    m_rt_gauss1 = GetRenderTargetGauss(1);
-    m_sh_bloom = GetShaderBloom();
+    m_rt_deferred = atomicGetRenderTargetDeferred();
+    m_rt_gauss0 = atomicGetRenderTargetGauss(0);
+    m_rt_gauss1 = atomicGetRenderTargetGauss(1);
+    m_sh_bloom = atomicGetShaderBloom();
 }
 
 void PassPostprocess_Bloom::beforeDraw()
@@ -265,7 +265,7 @@ void PassPostprocess_Bloom::beforeDraw()
 
 void PassPostprocess_Bloom::draw()
 {
-    const float32 aspect_ratio = GetWindowAspectRatio();
+    const float32 aspect_ratio = atomicGetWindowAspectRatio();
     Viewport viewports[] = {
         Viewport(  0,0, 256,256),
         Viewport(256,0, 128,128),
@@ -346,7 +346,7 @@ void PassPostprocess_Bloom::draw()
     }
 
     // ‰ÁZ
-    GetDefaultViewport()->bind();
+    atomicGetDefaultViewport()->bind();
     {
         m_sh_bloom->switchToCompositePass();
         m_rt_deferred->bind();
@@ -366,7 +366,7 @@ void PassPostprocess_Bloom::draw()
     }
     m_sh_bloom->unbind();
 
-    GetDefaultViewport()->bind();
+    atomicGetDefaultViewport()->bind();
 
 }
 

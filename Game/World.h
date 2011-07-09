@@ -48,9 +48,6 @@ public:
     void initialize(World* prev, FrameAllocator& alloc);
 
     void update();
-    void sync();
-    void flushMessage();
-    void processMessage();
     void draw();
 
     World* getPrev() { return m_prev; }
@@ -61,20 +58,17 @@ public:
 };
 
 
-#define GetWorld()          World::getInterframe()->getCurrentWorld()
-#define GetPrevWorld()      GetWorld()->getPrev()
+#define atomicGetWorld()        World::getInterframe()->getCurrentWorld()
+#define atomicGetPrevWorld()    atomicGetWorld()->getPrev()
 
-#define GetFractions()      GetWorld()->getFractions()
-#define GetCamera()         GetWorld()->getCamera()
+#define atomicGetFractions()    atomicGetWorld()->getFractions()
+#define atomicGetCamera()       atomicGetWorld()->getCamera()
 
-#define GetRandom()         GetWorld()->getRandom()
-#define GenFloatRand()      GetRandom()->genFloat32()
-#define GenVector2Rand()    GetRandom()->genVector2()
-#define GenVector3Rand()    GetRandom()->genVector3()
-#define GenVector4Rand()    GetRandom()->genVector4()
-
-class Task_WorldUpdate;
-class Task_WorldDraw;
+#define atomicGetRandom()       atomicGetWorld()->getRandom()
+#define atomicGenFloatRand()    atomicGetRandom()->genFloat32()
+#define atomicGenVector2Rand()  atomicGetRandom()->genVector2()
+#define atomicGenVector3Rand()  atomicGetRandom()->genVector3()
+#define atomicGenVector4Rand()  atomicGetRandom()->genVector4()
 
 
 } // namespace atomic

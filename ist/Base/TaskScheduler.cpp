@@ -269,15 +269,9 @@ TaskScheduler::~TaskScheduler()
     m_threads.clear();
 }
 
-void TaskScheduler::waitForAll()
+void TaskScheduler::wait()
 {
-    // タスクキューが空になるのを待つ
-    while(!s_instance->m_task_queue->empty())
-    {
-        impl::TaskThread::processTask_NoBlock();
-    }
-    // 全スレッドがタスクを処理し終えるのを待つ
-    while(s_instance->m_task_queue->getNumIdlingThread() < s_instance->m_threads.size())
+    if(!impl::TaskThread::processTask_NoBlock())
     {
         boost::this_thread::yield();
     }
@@ -312,6 +306,20 @@ void TaskScheduler::waitFor(TaskPtr tasks[], size_t num)
         else if(!impl::TaskThread::processTask_NoBlock()) {
             boost::this_thread::yield();
         }
+    }
+}
+
+void TaskScheduler::waitForAll()
+{
+    // タスクキューが空になるのを待つ
+    while(!s_instance->m_task_queue->empty())
+    {
+        impl::TaskThread::processTask_NoBlock();
+    }
+    // 全スレッドがタスクを処理し終えるのを待つ
+    while(s_instance->m_task_queue->getNumIdlingThread() < s_instance->m_threads.size())
+    {
+        boost::this_thread::yield();
     }
 }
 

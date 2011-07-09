@@ -70,7 +70,6 @@ const float32 FractionSet::DECELERATE = 0.98f;
 FractionSet::FractionSet()
 : m_prev(NULL)
 , m_idgen(0)
-, m_num_dead(0)
 {
 }
 
@@ -86,12 +85,12 @@ void FractionSet::initialize( FractionSet* prev, FrameAllocator& alloc )
     TaskScheduler::waitFor(task);
 
     m_prev = prev;
+    m_data.clear();
+
     if(prev) {
         // todo: reserve
         m_data.insert(m_data.begin(), prev->m_data.begin(), prev->m_data.end());
-        m_gen_mes = prev->m_gen_mes;
         m_idgen = prev->m_idgen;
-        m_num_dead = prev->m_num_dead;
     }
     else {
         float32 xv[6] = {500.0f, -500.0f, 0.0f, 0.0f, 0.0f, 0.0f};
@@ -99,7 +98,6 @@ void FractionSet::initialize( FractionSet* prev, FrameAllocator& alloc )
         float32 zv[6] = {0.0f, 0.0f, 0.0f, 0.0f, 500.0f, -500.0f};
         for(uint32 i=0; i<6; ++i) {
             Message_GenerateFraction mes;
-            mes.type = MES_GENERATE_FRACTION;
             mes.gen_type = Message_GenerateFraction::GEN_SPHERE;
             mes.num = 3500;
             ist::Sphere sphere;
@@ -108,7 +106,7 @@ void FractionSet::initialize( FractionSet* prev, FrameAllocator& alloc )
             sphere.z = zv[i];
             sphere.r = 200.0f;
             (ist::Sphere&)(*mes.shape_data) = sphere;
-            pushGenerateMessage(mes);
+            atomicPushMessage(MR_FRACTION, 0, mes);
         }
     }
 }
@@ -122,30 +120,13 @@ void FractionSet::update()
     TaskScheduler::schedule(task);
 }
 
-void FractionSet::sync()
-{
-    Task_FractionUpdate *task = getInterframe()->getUpdateTask();
-    TaskScheduler::waitFor(task);
-}
-
-void FractionSet::flushMessage()
-{
-    // todo: メッセージ全送信
-    // todo: 破壊メッセージ処理
-    // todo: 次フレームを作成して生成メッセージを受け渡す
-}
-
-void FractionSet::processMessage()
-{
-}
-
 void FractionSet::draw()
 {
     Task_FractionUpdate *task = getInterframe()->getUpdateTask();
     TaskScheduler::waitFor(task);
 
-    PassGBuffer_Cube *cube = GetCubeRenderer();
-    PassDeferred_SphereLight *light = GetSphereLightRenderer();
+    PassGBuffer_Cube *cube = atomicGetCubeRenderer();
+    PassDeferred_SphereLight *light = atomicGetSphereLightRenderer();
 
     size_t num_data = m_data.size();
     for(uint32 i=0; i<num_data; ++i) {
@@ -165,8 +146,9 @@ uint32 FractionSet::getNumBlocks() const
 
 void FractionSet::processGenerateMessage()
 {
-    for(uint32 i=0; i<m_gen_mes.size(); ++i) {
-        Message_GenerateFraction& mes = m_gen_mes[i];
+    MessageIterator<Message_GenerateFraction> mes_gf_iter;
+    while(mes_gf_iter.hasNext()) {
+        const Message_GenerateFraction& mes = mes_gf_iter.iterate();
         for(uint32 n=0; n<mes.num; ++n) {
             if(mes.gen_type==Message_GenerateFraction::GEN_SPHERE) {
                 ist::Sphere& sphere = (ist::Sphere&)(*mes.shape_data);
@@ -176,12 +158,12 @@ void FractionSet::processGenerateMessage()
                 fd.vel = _mm_set1_ps(0.0f);
                 fd.pos = XMVectorSet(sphere.x, sphere.y, sphere.z, 0.0f);
 
-                XMVECTOR r = GenVector3Rand();
+                XMVECTOR r = atomicGenVector3Rand();
                 r = XMVectorSubtract(r, _mm_set1_ps(0.5f));
                 r = XMVectorMultiply(r, _mm_set1_ps(2.0f));
                 r = XMVectorMultiply(r, _mm_set1_ps(sphere.r));
                 fd.pos = XMVectorAdd(fd.pos, r);
-                fd.vel = XMVectorMultiply(GenVector3Rand(), _mm_set1_ps(1.0f));
+                fd.vel = XMVectorMultiply(atomicGenVector3Rand(), _mm_set1_ps(1.0f));
 
                 m_data.push_back(fd);
             }
@@ -190,16 +172,10 @@ void FractionSet::processGenerateMessage()
             }
         }
     }
-    m_gen_mes.clear();
 
-    uint32 dead = 0;
-    m_num_dead = 0;
     const uint32 num_data = m_data.size();
     for(uint32 i=0; i<num_data; ++i) {
         m_data[i].index = i;
-        if(m_data[i].alive==0) {
-            ++dead;
-        }
     }
 
     getInterframe()->getGrid()->resizeData(num_data);
@@ -304,9 +280,10 @@ void FractionSet::collisionTest(uint32 block)
             ++receiver_num;
         }
     }
-    if(!results.empty()) {
-        FractionGrid::ResultHeader *rheader = (FractionGrid::ResultHeader*)&results[0];
-        rheader->num_chunks = receiver_num;
+    {
+        FractionGrid::ResultHeader mark_end;
+        mark_end.num_collisions = 0;
+        results.insert(results.end(), (quadword*)mark_end.v, (quadword*)(mark_end.v + sizeof(mark_end)/16));
     }
 }
 
@@ -321,13 +298,15 @@ void FractionSet::collisionProcess(uint32 block)
     }
 
     const FractionGrid::ResultHeader *rheader = (const FractionGrid::ResultHeader*)&results[0];
-    uint32 receiver_num = rheader->num_chunks;
-
-    for(size_t header_i=0; header_i<receiver_num; ++header_i)
+    for(;;)
     {
         const FractionGrid::Result *collision = (const FractionGrid::Result*)(rheader+1);
-        FractionData &receiver = m_data[rheader->receiver_index];
         uint32 num_collisions = rheader->num_collisions;
+        if(num_collisions==0) {
+            break;
+        }
+
+        FractionData &receiver = m_data[rheader->receiver_index];
         XMVECTOR dir = _mm_set1_ps(0.0f);
         XMVECTOR vel = _mm_set1_ps(0.0f);
         for(size_t i=0; i<num_collisions; ++i)

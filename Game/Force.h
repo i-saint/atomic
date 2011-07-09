@@ -25,9 +25,6 @@ public:
     ~ForceSet();
 
     void update();
-    void sync();
-    void flushMessage();
-    void processMessage();
     void draw();
 
 };

@@ -67,27 +67,9 @@ void World::update()
     getInterframe()->setCurrentWorld(this);
 
     m_camera.setPosition(XMVector3Transform(m_camera.getPosition(), XMMatrixRotationY(XMConvertToRadians(0.1f))));
-    m_camera.setAspect(GetWindowAspectRatio());
+    m_camera.setAspect(atomicGetWindowAspectRatio());
 
     m_fraction_set->update();
-}
-
-void World::sync()
-{
-    m_fraction_set->sync();
-}
-
-void World::flushMessage()
-{
-    m_fraction_set->flushMessage();
-}
-
-void World::processMessage()
-{
-    m_fraction_set->processMessage();
-
-    size_t required_memory = 0;
-    required_memory += m_fraction_set->getRequiredMemoryOnNextFrame();
 }
 
 void World::draw()

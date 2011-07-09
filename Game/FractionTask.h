@@ -2,9 +2,7 @@
 #define __atomic_FractionTask__
 
 
-namespace atomic
-{
-
+namespace atomic {
 
 
 

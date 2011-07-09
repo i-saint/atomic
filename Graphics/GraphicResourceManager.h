@@ -119,21 +119,21 @@ public:
 };
 
 
-#define GetGraphicResourceManager() GraphicResourceManager::getInstance()
+#define atomicGetGraphicResourceManager()   GraphicResourceManager::getInstance()
 
-#define GetRenderTargetGBuffer()            GetGraphicResourceManager()->getRenderTargetGBuffer()
-#define GetRenderTargetDeferred()           GetGraphicResourceManager()->getRenderTargetDeferred()
-#define GetRenderTargetGauss(i)             GetGraphicResourceManager()->getRenderTargetGauss(i)
+#define atomicGetRenderTargetGBuffer()      atomicGetGraphicResourceManager()->getRenderTargetGBuffer()
+#define atomicGetRenderTargetDeferred()     atomicGetGraphicResourceManager()->getRenderTargetDeferred()
+#define atomicGetRenderTargetGauss(i)       atomicGetGraphicResourceManager()->getRenderTargetGauss(i)
 
-#define GetShaderGBuffer()                  GetGraphicResourceManager()->getShaderGBuffer()
-#define GetShaderDeferred()                 GetGraphicResourceManager()->getShaderDeferred()
-#define GetShaderBloom()                    GetGraphicResourceManager()->getShaderBloom()
-#define GetShaderOutput()                   GetGraphicResourceManager()->getShaderOutput()
+#define atomicGetShaderGBuffer()            atomicGetGraphicResourceManager()->getShaderGBuffer()
+#define atomicGetShaderDeferred()           atomicGetGraphicResourceManager()->getShaderDeferred()
+#define atomicGetShaderBloom()              atomicGetGraphicResourceManager()->getShaderBloom()
+#define atomicGetShaderOutput()             atomicGetGraphicResourceManager()->getShaderOutput()
 
-#define GetModelData(i)             GetGraphicResourceManager()->getModelData(i)
-#define GetTexture2D(i)             GetGraphicResourceManager()->getTexture2D(i)
-#define GetVertexBufferObject(i)    GetGraphicResourceManager()->getVertexBufferObject(i)
-#define GetUniformBufferObject(i)   GetGraphicResourceManager()->getUniformBufferObject(i)
+#define atomicGetModelData(i)               atomicGetGraphicResourceManager()->getModelData(i)
+#define atomicGetTexture2D(i)               atomicGetGraphicResourceManager()->getTexture2D(i)
+#define atomicGetVertexBufferObject(i)      atomicGetGraphicResourceManager()->getVertexBufferObject(i)
+#define atomicGetUniformBufferObject(i)     atomicGetGraphicResourceManager()->getUniformBufferObject(i)
 
 } // namespace atomic
 #endif // __atomic_Graphics_GraphicResourceManager__

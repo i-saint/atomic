@@ -10,9 +10,30 @@
 #include <EASTL/list.h>
 #include <boost/thread.hpp>
 #include <boost/smart_ptr.hpp>
+#include <boost/interprocess/detail/atomic.hpp>
 
-namespace ist
+namespace ist {
+
+class SpinLock
 {
+private:
+    int m_lock;
+
+public:
+    SpinLock() : m_lock(0) { }
+
+    void lock()
+    {
+        while(::InterlockedCompareExchange((volatile LONG*)&m_lock, 1, 0) != 0) {
+        }
+    }
+
+    void unlock()
+    {
+        ::InterlockedExchange((volatile LONG*)&m_lock, 0);
+    }
+};
+
 
 class Task;
 typedef Task* TaskPtr;
@@ -84,14 +105,15 @@ public:
     static void finalizeSingleton();
     static TaskScheduler* getInstance();
 
-
-    /// 全タスクの完了を待つ。タスクキューが空ではない場合、呼び出し元スレッドもタスク処理に加わる。 
-    /// タスク内から呼ぶと永久停止するのでやっちゃダメ。 
-    static void waitForAll();
+    /// 実行待ちタスクがあればそれを処理する 
+    static void wait();
     /// 指定タスクの完了を待つ。タスクキューが空ではない場合、呼び出し元スレッドもタスク処理に加わる。 
     static void waitFor(TaskPtr task);
     /// 範囲指定バージョン 
     static void waitFor(TaskPtr tasks[], size_t num);
+    /// 全タスクの完了を待つ。タスクキューが空ではない場合、呼び出し元スレッドもタスク処理に加わる。 
+    /// タスク内から呼ぶと永久停止するのでやっちゃダメ。 
+    static void waitForAll();
 
 
     /// タスクのスケジューリングを行う。 

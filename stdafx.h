@@ -31,6 +31,7 @@
 #include <boost/smart_ptr.hpp>
 #include <boost/regex.hpp>
 #include <boost/noncopyable.hpp>
+#include <boost/static_assert.hpp>
 #include <EASTL/algorithm.h>
 #include <EASTL/sort.h>
 #include <EASTL/vector.h>

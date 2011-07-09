@@ -37,18 +37,22 @@ AtomicGame::~AtomicGame()
 
 void AtomicGame::update()
 {
+    MessageRouter *message_router = atomicGetMessageRouter(MR_SYSTEM);
+    message_router->unuseAll();
+
     World *w = m_worlds[m_current_world];
     w->update();
     m_draw_target = w;
 
-    // todo: —v‹ƒƒ‚ƒŠŽZo «‚Ý‚½‚¢‚ÈB
-    // uint32 required_memory = w->getRequiredMemoryOnNextFrame();
-    // m_frame_allocator.reserve(required_memory);
+    message_router->route();
+
 
     uint32 next_world = (m_current_world+1) % MAX_WORLDS;
-    World *n = AT_ALIGNED_NEW(World, 16)();
+    World *n = m_worlds[next_world];
+    if(!n) {
+        n = AT_ALIGNED_NEW(World, 16)();
+    }
     n->initialize(w, *stl::get_default_allocator(NULL));
-    AT_DELETE(m_worlds[next_world]);
     m_worlds[next_world] = n;
     m_current_world = next_world;
 }
@@ -56,12 +60,12 @@ void AtomicGame::update()
 
 void AtomicGame::draw()
 {
-    WaitForDrawComplete();
+    atomicWaitForDrawComplete();
     AtomicRenderer::getInstance()->beforeDraw();
     if(m_draw_target) {
         m_draw_target->draw();
     }
-    KickDraw();
+    atomicKickDraw();
 }
 
 

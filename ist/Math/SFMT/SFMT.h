@@ -256,6 +256,25 @@ public:
         m_parity[3] = PARITY4;
     }
 
+    SFMT(const SFMT& v)
+    {
+        *this = v;
+    }
+
+    SFMT& operator=(const SFMT& v)
+    {
+        memcpy(m_sfmt, v.m_sfmt, sizeof(m_sfmt));
+        memcpy(m_parity, v.m_parity, sizeof(m_parity));
+        m_idx = v.m_idx;
+        m_initialized = v.m_initialized;
+
+        m_psfmt32 =  &m_sfmt[0].u[0];
+#if !defined(BIG_ENDIAN64) || defined(ONLY64)
+        m_psfmt64 = (uint64_t *)&m_sfmt[0].u[0];
+#endif
+        return *this;
+    }
+
     void initialize(uint32_t seed) { init_gen_rand(seed); }
     double genFloat64()  { return genrand_real1(); }
     float genFloat32()  { return (float)genrand_real1(); }

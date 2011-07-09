@@ -71,7 +71,7 @@ uint32 FractionGrid::hitTest( QWordVector &out, const Data &receiver ) const
         s_tmp_result->reserve(128);
     }
 
-    FractionSet *fraction_set = GetFractions();
+    FractionSet *fraction_set = atomicGetFractions();
     const XMVECTOR diameter = _mm_set_ps1(FractionSet::RADIUS*2.0f);
     const XMVECTOR receiver_pos1 = receiver.pos;
     const SOAVECTOR3 receiver_pos = SOAVectorSet3(
@@ -122,9 +122,8 @@ uint32 FractionGrid::hitTest( QWordVector &out, const Data &receiver ) const
     if(n > 0) {
         ResultHeader rh;
         rh.receiver_index = receiver.index;
-        rh.num_chunks = 1;
         rh.num_collisions = n;
-        out.insert(out.end(), (quadword*)rh.v, (quadword*)(rh.v + sizeof(ResultHeader)/16));
+        out.insert(out.end(), (quadword*)rh.v, (quadword*)(rh.v + sizeof(rh)/16));
         out.insert(out.end(), (quadword*)(*s_tmp_result)[0].v, (quadword*)((*s_tmp_result)[0].v + n*sizeof(Result)/16));
     }
     s_tmp_result->clear();

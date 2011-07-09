@@ -26,6 +26,53 @@ bool CreateTexture2DFromStream(Texture2D& tex, std::istream& st)
     return false;
 }
 
+bool GenerateRandomTexture(Texture2D &tex, GLsizei width, GLsizei height, Texture2D::FORMAT format)
+{
+    static SFMT random;
+    return GenerateRandomTexture(tex, width, height, format, random);
+}
+
+bool GenerateRandomTexture(Texture2D &tex, GLsizei width, GLsizei height, Texture2D::FORMAT format, SFMT& random)
+{
+    char *data = NULL;
+    if(format==Texture2D::FMT_RGB_U8) {
+        int data_size = width*height*3;
+        data = new char[data_size];
+        for(int i=0; i<data_size; ++i) {
+            data[i] = random.genInt32();
+        }
+    }
+    else if(format==Texture2D::FMT_RGBA_U8) {
+        int data_size = width*height*4;
+        data = new char[data_size];
+        for(int i=0; i<data_size; ++i) {
+            data[i] = random.genInt32();
+        }
+    }
+    else if(format==Texture2D::FMT_RGB_F32) {
+        int data_size = width*height*sizeof(float)*3;
+        data = new char[data_size];
+        float *w = (float*)data;
+        for(int i=0; i<width*height*3; ++i) {
+            w[i] = random.genFloat32();
+        }
+    }
+    else if(format==Texture2D::FMT_RGBA_F32) {
+        int data_size = width*height*sizeof(float)*4;
+        data = new char[data_size];
+        float *w = (float*)data;
+        for(int i=0; i<width*height*4; ++i) {
+            w[i] = random.genFloat32();
+        }
+    }
+    else {
+        IST_ASSERT("–¢ŽÀ‘•");
+    }
+
+    bool ret =  tex.initialize(width, height, format, data);
+    delete[] data;
+    return ret;
+}
 
 
 template<class ShaderType>
@@ -229,47 +276,6 @@ template ColorNDepthBuffer<7>;
 template ColorNDepthBuffer<8>;
 
 
-bool RandomTexture::initialize(GLsizei width, GLsizei height, FORMAT format, SFMT& random)
-{
-    char *data = NULL;
-    if(format==FMT_RGB_U8) {
-        int data_size = width*height*3;
-        data = new char[data_size];
-        for(int i=0; i<data_size; ++i) {
-            data[i] = random.genInt32();
-        }
-    }
-    else if(format==FMT_RGBA_U8) {
-        int data_size = width*height*4;
-        data = new char[data_size];
-        for(int i=0; i<data_size; ++i) {
-            data[i] = random.genInt32();
-        }
-    }
-    else if(format==FMT_RGB_F32) {
-        int data_size = width*height*sizeof(float)*3;
-        data = new char[data_size];
-        float *w = (float*)data;
-        for(int i=0; i<width*height*3; ++i) {
-            w[i] = random.genFloat32();
-        }
-    }
-    else if(format==FMT_RGBA_F32) {
-        int data_size = width*height*sizeof(float)*4;
-        data = new char[data_size];
-        float *w = (float*)data;
-        for(int i=0; i<width*height*4; ++i) {
-            w[i] = random.genFloat32();
-        }
-    }
-    else {
-        IST_ASSERT("–¢ŽÀ‘•");
-    }
-
-    bool ret =  super::initialize(width, height, format, data);
-    delete[] data;
-    return ret;
-}
 
 } // namespace graphics
 } // namespace ist

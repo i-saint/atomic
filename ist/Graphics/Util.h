@@ -9,9 +9,15 @@ class SFMT;
 namespace ist {
 namespace graphics {
 
+// 画像ファイル/ストリームからテクスチャ生成
 bool CreateTexture2DFromFile(Texture2D& tex, const char *filename);
 bool CreateTexture2DFromStream(Texture2D& tex, std::istream& st);
 
+// 乱数テクスチャ生成
+bool GenerateRandomTexture(Texture2D &tex, GLsizei width, GLsizei height, Texture2D::FORMAT format);
+bool GenerateRandomTexture(Texture2D &tex, GLsizei width, GLsizei height, Texture2D::FORMAT format, SFMT& random);
+
+// ファイル/ストリームから各種シェーダ生成
 bool CreateVertexShaderFromFile(VertexShader& sh, const char *filename);
 bool CreateGeometryShaderFromFile(GeometryShader& sh, const char *filename);
 bool CreateFragmentShaderFromFile(FragmentShader& sh, const char *filename);
@@ -155,14 +161,6 @@ typedef ColorNDepthBuffer<6> Color6DepthBuffer;
 typedef ColorNDepthBuffer<7> Color7DepthBuffer;
 typedef ColorNDepthBuffer<8> Color8DepthBuffer;
 
-
-// 乱数テクスチャ
-class RandomTexture : public Texture2D
-{
-typedef Texture2D super;
-public:
-    bool initialize(GLsizei width, GLsizei height, FORMAT, SFMT& ramdom);
-};
 
 
 } // namespace graphics

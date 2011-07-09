@@ -40,8 +40,12 @@ void Task_FractionUpdate::initialize(FractionSet *obj)
 
 void Task_FractionUpdate::exec()
 {
+    MessageRouter *message_router = atomicGetMessageRouter(MR_FRACTION);
+
     // 生成メッセージを処理
     m_obj->processGenerateMessage();
+
+    message_router->unuseAll();
 
     uint32 num_blocks = m_obj->getNumBlocks();
     m_blocks = num_blocks;
@@ -55,6 +59,7 @@ void Task_FractionUpdate::exec()
     while(m_col_proc_tasks.size()<num_blocks) {
         m_col_proc_tasks.push_back(AT_NEW(Task_FractionCollisionProcess) ());
     }
+    message_router->resizeMessageBlock(num_blocks);
 
     // 移動タスクをスケジュール&実行完了待ち
     for(uint32 i=0; i<num_blocks; ++i) {
@@ -81,6 +86,7 @@ void Task_FractionUpdate::exec()
     TaskScheduler::schedule((Task**)&m_col_proc_tasks[0], num_blocks);
     TaskScheduler::waitFor((Task**)&m_col_proc_tasks[0], num_blocks);
 
+    message_router->route();
 }
 
 

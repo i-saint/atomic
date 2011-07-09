@@ -36,6 +36,7 @@ typedef stl::vector<quadword> QWordVector;
 
 using ist::Task;
 using ist::TaskScheduler;
+using ist::SpinLock;
 
 
 typedef unsigned int id_t;

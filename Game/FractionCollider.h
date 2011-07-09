@@ -73,14 +73,11 @@ public:
         const Data* getData() const { return data; }
     };
 
-    // ・ｽﾕ突鯉ｿｽ・ｽﾊデ・ｽ[・ｽ^
-    // [ResultHeader][Result][Result]... ・ｽﾆゑｿｽ・ｽ・ｽ・ｽ・ｽ・ｽ・ｽ・ｽ・ｽ・ｽz・ｽu・ｽﾉゑｿｽ・ｽﾜゑｿｽ
     union __declspec(align(16)) ResultHeader
     {
         struct {
             id_t receiver_index;
             uint32 num_collisions;
-            uint32 num_chunks;
         };
         XMVECTOR v[1];
     };
