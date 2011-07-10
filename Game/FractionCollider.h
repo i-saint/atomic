@@ -45,12 +45,12 @@ public:
             , capacity(INITAL_CAPACITY)
             , num_data(0)
         {
-            data = (Data*)AT_ALIGNED_MALLOC(sizeof(Data)*capacity, 16);
+            data = (Data*)IST_ALIGNED_MALLOC(sizeof(Data)*capacity, 16);
         }
 
         ~Block()
         {
-            AT_FREE(data);
+            IST_FREE(data);
         }
 
         void push(const Data &d)
@@ -58,9 +58,9 @@ public:
             if(num_data==capacity) {
                 Data *old = data;
                 capacity = capacity*2;
-                data = (Data*)AT_ALIGNED_MALLOC(sizeof(Data)*capacity, 16);
+                data = (Data*)IST_ALIGNED_MALLOC(sizeof(Data)*capacity, 16);
                 memcpy(data, old, sizeof(Data)*capacity/2);
-                AT_FREE(old);
+                IST_FREE(old);
             }
             data[num_data++] = d;
         }

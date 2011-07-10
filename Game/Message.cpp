@@ -42,14 +42,14 @@ MessageRouter* MessageRouter::s_instance[MR_END];
 void MessageRouter::initializeInstance()
 {
     for(uint32 i=0; i<_countof(s_instance); ++i) {
-        s_instance[i] = AT_NEW(MessageRouter)((MR_ID)i);
+        s_instance[i] = IST_NEW(MessageRouter)((MR_ID)i);
     }
 }
 
 void MessageRouter::finalizeInstance()
 {
     for(uint32 i=0; i<_countof(s_instance); ++i) {
-        AT_DELETE(s_instance[i]);
+        IST_DELETE(s_instance[i]);
     }
 }
 
@@ -67,7 +67,7 @@ MessageRouter::MessageRouter(MR_ID owner)
 , m_owner(owner)
 {
     for(uint32 i=0; i<_countof(m_blocks); ++i) {
-        m_blocks[i].push_back(AT_NEW(MessageBlock)());
+        m_blocks[i].push_back(IST_NEW(MessageBlock)());
     }
     m_front_block = &m_blocks[0];
     m_back_block = &m_blocks[1];
@@ -77,7 +77,7 @@ MessageRouter::~MessageRouter()
 {
     for(uint32 i=0; i<_countof(m_blocks); ++i) {
         for(uint32 bi=0; bi<m_blocks[i].size(); ++bi) {
-            AT_DELETE(m_blocks[i][bi]);
+            IST_DELETE(m_blocks[i][bi]);
         }
     }
 }
@@ -91,7 +91,7 @@ void MessageRouter::resizeMessageBlock(uint32 num)
 {
     for(uint32 i=0; i<_countof(m_blocks); ++i) {
         while(m_blocks[i].size() < num) {
-            m_blocks[i].push_back(AT_NEW(MessageBlock)());
+            m_blocks[i].push_back(IST_NEW(MessageBlock)());
         }
     }
 }

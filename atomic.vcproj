@@ -320,6 +320,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\ist\Base\BinaryStream.h"
+					>
+				</File>
+				<File
 					RelativePath=".\ist\Base\FileLoader.cpp"
 					>
 				</File>

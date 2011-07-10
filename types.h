@@ -26,6 +26,9 @@ using glm::mat2;
 using glm::mat3;
 using glm::mat4;
 
+typedef ist::bostream Serializer;
+typedef ist::bistream Deserializer;
+
 
 // __m128 を直接 eastl::vector とかに格納すると、
 // アライメントが 16 に揃ってないアドレスに SSE のコピー命令でアクセスしてクラッシュしたりする。
@@ -40,12 +43,6 @@ using ist::SpinLock;
 
 
 typedef unsigned int id_t;
-enum {
-    CHR_FRACTION    = 0x80000000,
-    CHR_BULLET      = 0x40000000,
-    CHR_GROUND      = 0x20000000,
-    INVALID_ID = 0xffffffff,
-};
 
 
 

@@ -6,9 +6,11 @@ inline T* call_destructor(T* p)
     return p;
 }
 
-#define AT_NEW(Type)                    new(stl::get_default_allocator(NULL)->allocate(sizeof(Type)))Type
-#define AT_ALIGNED_NEW(Type, Align)     new(stl::get_default_allocator(NULL)->allocate(sizeof(Type), Align, 0))Type
-#define AT_DELETE(Obj)                  if(Obj){stl::get_default_allocator(NULL)->deallocate(call_destructor(Obj), sizeof(*Obj)); Obj=NULL;}
+#define IST_NEW(Type)                   new(stl::get_default_allocator(NULL)->allocate(sizeof(Type)))Type
+#define IST_ALIGNED_NEW(Type, Align)    new(stl::get_default_allocator(NULL)->allocate(sizeof(Type), Align, 0))Type
+#define IST_NEW16(Type)                 IST_ALIGNED_NEW(Type,16)
+#define IST_DELETE(Obj)                 if(Obj){stl::get_default_allocator(NULL)->deallocate(call_destructor(Obj), sizeof(*Obj)); Obj=NULL;}
 
-#define AT_ALIGNED_MALLOC(Size, Align)  stl::get_default_allocator(NULL)->allocate(Size, Align, 0)
-#define AT_FREE(Obj)                    stl::get_default_allocator(NULL)->deallocate(Obj, 0)
+#define IST_MALLOC(Size)                stl::get_default_allocator(NULL)->allocate(Size)
+#define IST_ALIGNED_MALLOC(Size, Align) stl::get_default_allocator(NULL)->allocate(Size, Align, 0)
+#define IST_FREE(Obj)                   stl::get_default_allocator(NULL)->deallocate(Obj, 0)

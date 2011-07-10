@@ -20,22 +20,24 @@ namespace atomic
 
 FractionSet::Interframe::Interframe()
 {
-    m_task_beforedraw = AT_NEW(Task_FractionBeforeDraw)();
-    m_task_afterdraw = AT_NEW(Task_FractionAfterDraw)();
-    m_grid = AT_NEW(FractionGrid) ();
+    m_task_beforedraw = IST_NEW16(Task_FractionBeforeDraw)();
+    m_task_afterdraw = IST_NEW16(Task_FractionAfterDraw)();
+    m_task_copy = IST_NEW16(Task_FractionCopy)();
+    m_grid = IST_NEW16(FractionGrid)();
 }
 
 FractionSet::Interframe::~Interframe()
 {
-    AT_DELETE(m_grid);
-    AT_DELETE(m_task_afterdraw);
-    AT_DELETE(m_task_beforedraw);
+    IST_DELETE(m_grid);
+    IST_DELETE(m_task_copy);
+    IST_DELETE(m_task_afterdraw);
+    IST_DELETE(m_task_beforedraw);
 }
 
 void FractionSet::Interframe::resizeColliders(uint32 block_num)
 {
     while(m_collision_results.size() < block_num) {
-        QWordVector *rcont = AT_ALIGNED_NEW(QWordVector, 16)();
+        QWordVector *rcont = IST_NEW16(QWordVector)();
         m_collision_results.push_back(rcont);
     }
 }
@@ -46,13 +48,13 @@ FractionSet::Interframe *FractionSet::s_interframe;
 void FractionSet::InitializeInterframe()
 {
     if(!s_interframe) {
-        s_interframe = AT_ALIGNED_NEW(Interframe, 16)();
+        s_interframe = IST_NEW16(Interframe)();
     }
 }
 
 void FractionSet::FinalizeInterframe()
 {
-    AT_DELETE(s_interframe);
+    IST_DELETE(s_interframe);
 }
 
 
@@ -66,28 +68,25 @@ const float32 FractionSet::DECELERATE = 0.98f;
 
 FractionSet::FractionSet()
 : m_prev(NULL)
+, m_next(NULL)
 , m_idgen(0)
 {
 }
 
 FractionSet::~FractionSet()
 {
-    getInterframe()->getTask_BeforeDraw()->waitForComplete();
+    sync();
 }
 
 
-void FractionSet::initialize( FractionSet* prev )
+void FractionSet::initialize()
 {
-    getInterframe()->getTask_BeforeDraw()->waitForComplete();
-
-    m_prev = prev;
+    m_prev = NULL;
     m_data.clear();
 
-    if(prev) {
-        m_idgen = prev->m_idgen;
-        m_data.insert(m_data.begin(), prev->m_data.begin(), prev->m_data.end());
-    }
-    else {
+    static bool s_init = false;
+    if(!s_init) {
+        s_init = true;
         float32 xv[6] = {500.0f, -500.0f, 0.0f, 0.0f, 0.0f, 0.0f};
         float32 yv[6] = {0.0f, 0.0f, 500.0f, -500.0f, 0.0f, 0.0f};
         float32 zv[6] = {0.0f, 0.0f, 0.0f, 0.0f, 500.0f, -500.0f};
@@ -112,13 +111,12 @@ void FractionSet::update()
     Task_FractionBeforeDraw *task = getInterframe()->getTask_BeforeDraw();
     task->waitForComplete();
     task->initialize(this);
-    TaskScheduler::schedule(task);
+    task->kick();
 }
 
-void FractionSet::draw()
+void FractionSet::draw() const
 {
-    Task_FractionBeforeDraw *task = getInterframe()->getTask_BeforeDraw();
-    task->waitForComplete();
+    getInterframe()->getTask_BeforeDraw()->waitForComplete();
 
     PassGBuffer_Cube *cube = atomicGetCubeRenderer();
     PassDeferred_SphereLight *light = atomicGetSphereLightRenderer();
@@ -132,11 +130,16 @@ void FractionSet::draw()
     }
 }
 
-void FractionSet::sync()
+void FractionSet::sync() const
 {
-    Task_FractionBeforeDraw *task = getInterframe()->getTask_BeforeDraw();
-    task->waitForComplete();
+    Task_FractionBeforeDraw *task_before = getInterframe()->getTask_BeforeDraw();
+    Task_FractionAfterDraw *task_after = getInterframe()->getTask_AfterDraw();
+    Task_FractionCopy *task_copy = getInterframe()->getTask_Copy();
+    if(task_before->getOwner()==this) { task_before->waitForComplete(); }
+    if(task_after->getOwner()==this) { task_after->waitForComplete(); }
+    if(task_copy->getOwner()==this) { task_copy->waitForComplete(); }
 }
+
 
 
 uint32 FractionSet::getNumBlocks() const
@@ -144,6 +147,49 @@ uint32 FractionSet::getNumBlocks() const
     const uint32 data_size = m_data.size();
     return data_size/BLOCK_SIZE + (data_size%BLOCK_SIZE!=0 ? 1 : 0);
 }
+
+void FractionSet::setNext( FractionSet *next )
+{
+    m_next = next;
+    if(next) {
+        m_next->m_prev = this;
+    }
+}
+
+
+void FractionSet::taskBeforeDraw()
+{
+    processMessage();
+}
+
+void FractionSet::taskBeforeDraw(uint32 block)
+{
+    collisionTest(block);
+    collisionProcess(block);
+    move(block);
+}
+
+void FractionSet::taskAfterDraw()
+{
+    updateGrid();
+}
+
+void FractionSet::taskCopy( FractionSet *dst ) const
+{
+    dst->m_prev = this;
+    dst->m_idgen = m_idgen;
+
+    uint32 num_data = m_data.size();
+    dst->m_data.clear();
+    for(uint32 i=0; i<num_data; ++i) {
+        const FractionData& data = m_data[i];
+        if(data.alive!=0) {
+            dst->m_data.push_back(data);
+        }
+    }
+}
+
+
 
 void FractionSet::processMessage()
 {
@@ -159,12 +205,12 @@ void FractionSet::processMessage()
                 fd.vel = _mm_set1_ps(0.0f);
                 fd.pos = XMVectorSet(sphere.x, sphere.y, sphere.z, 0.0f);
 
-                XMVECTOR r = atomicGenVector3Rand();
+                XMVECTOR r = atomicGenRandVector3();
                 r = XMVectorSubtract(r, _mm_set1_ps(0.5f));
                 r = XMVectorMultiply(r, _mm_set1_ps(2.0f));
                 r = XMVectorMultiply(r, _mm_set1_ps(sphere.r));
                 fd.pos = XMVectorAdd(fd.pos, r);
-                fd.vel = XMVectorMultiply(atomicGenVector3Rand(), _mm_set1_ps(1.0f));
+                fd.vel = XMVectorMultiply(atomicGenRandVector3(), _mm_set1_ps(1.0f));
 
                 m_data.push_back(fd);
             }
@@ -183,38 +229,6 @@ void FractionSet::processMessage()
     getInterframe()->resizeColliders(getNumBlocks());
     m_grid_range.resize(getNumBlocks());
 }
-
-void FractionSet::updateState(uint32 block)
-{
-    collisionTest(block);
-    collisionProcess(block);
-    move(block);
-}
-
-void FractionSet::updateGrid()
-{
-    GridRange range = {XMVectorSet(0.0f,0.0f,0.0f,0.0f), XMVectorSet(0.0f,0.0f,0.0f,0.0f)};
-    uint32 num_blocks = getNumBlocks();
-    if(num_blocks > 0) {
-        range.range_max = m_grid_range[0].range_max;
-        range.range_min = m_grid_range[0].range_min;
-        for(uint32 i=1; i<num_blocks; ++i) {
-            GridRange *grange = &m_grid_range[i];
-            range.range_max = XMVectorMax(range.range_max, grange->range_max);
-            range.range_min = XMVectorMin(range.range_min, grange->range_min);
-        }
-    }
-    // todo: グリッドサイズが 0 になるの禁止
-
-    FractionGrid *grid = getInterframe()->getGrid();
-    grid->clear();
-    grid->setGridRange(range.range_min, range.range_max);
-    size_t num_data = m_data.size();
-    for(size_t i=0; i<num_data; ++i) {
-        grid->pushData(m_data[i].id, m_data[i].pos, m_data[i].vel);
-    }
-}
-
 
 void FractionSet::move(uint32 block)
 {
@@ -365,4 +379,28 @@ void FractionSet::collisionProcess(uint32 block)
     results.clear();
 }
 
+void FractionSet::updateGrid()
+{
+    GridRange range = {XMVectorSet(0.0f,0.0f,0.0f,0.0f), XMVectorSet(0.0f,0.0f,0.0f,0.0f)};
+    uint32 num_blocks = getNumBlocks();
+    if(num_blocks > 0) {
+        range.range_max = m_grid_range[0].range_max;
+        range.range_min = m_grid_range[0].range_min;
+        for(uint32 i=1; i<num_blocks; ++i) {
+            GridRange *grange = &m_grid_range[i];
+            range.range_max = XMVectorMax(range.range_max, grange->range_max);
+            range.range_min = XMVectorMin(range.range_min, grange->range_min);
+        }
+    }
+    // todo: グリッドサイズが 0 になるの禁止
+
+    FractionGrid *grid = getInterframe()->getGrid();
+    grid->clear();
+    grid->setGridRange(range.range_min, range.range_max);
+    size_t num_data = m_data.size();
+    for(size_t i=0; i<num_data; ++i) {
+        grid->pushData(m_data[i].id, m_data[i].pos, m_data[i].vel);
+    }
 }
+
+} // namespace atomic

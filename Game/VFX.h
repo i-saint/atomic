@@ -8,15 +8,19 @@ namespace atomic
 class VFXSet
 {
 private:
-    VFXSet *m_prev, *m_next;
+    VFXSet *m_prev;
 
 public:
-    VFXSet(VFXSet* prev);
+    VFXSet();
     ~VFXSet();
+
+    void initialize(VFXSet* prev);
 
     void update();
     void draw();
+    void sync();
 
+public:
 };
 
 

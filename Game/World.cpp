@@ -21,7 +21,9 @@ private:
 public:
     void initialize(World *obj) { m_obj=obj; }
     void waitForComplete() { TaskScheduler::waitFor(this); }
-    void exec() { m_obj->update_BeforeDraw(); }
+    void kick() { TaskScheduler::schedule(this); }
+    void exec();
+    World* getOwner() { return m_obj; }
 };
 
 class Task_WorldAfterDraw : public Task
@@ -32,22 +34,68 @@ private:
 public:
     void initialize(World *obj) { m_obj=obj; }
     void waitForComplete() { TaskScheduler::waitFor(this); }
-    void exec() { m_obj->update_AfterDraw(); }
+    void kick() { TaskScheduler::schedule(this); }
+    void exec();
+    World* getOwner() { return m_obj; }
 };
+
+class Task_WorldCopy : public Task
+{
+private:
+    const World *m_obj;
+    World *m_dst;
+
+public:
+    void initialize(const World *obj, World *dst) { m_obj=obj; m_dst=dst; }
+    void waitForComplete() { TaskScheduler::waitFor(this); }
+    void kick() { TaskScheduler::schedule(this); }
+    void exec();
+    const World* getOwner() { return m_obj; }
+};
+
+
+void Task_WorldBeforeDraw::exec()
+{
+    Task_WorldCopy *task_copy = World::getInterframe()->getTask_Copy();
+    // ƒRƒs[Š®—¹‘Ò‚¿
+    task_copy->waitForComplete();
+
+    m_obj->taskBeforeDraw();
+
+    task_copy->initialize(m_obj, m_obj->getNext());
+    task_copy->kick();
+}
+
+void Task_WorldAfterDraw::exec()
+{
+    m_obj->taskAfterDraw();
+}
+
+void Task_WorldCopy::exec()
+{
+    if(m_obj==m_dst) {
+        return;
+    }
+
+    m_obj->taskCopy(m_dst);
+}
+
 
 
 
 World::Interframe::Interframe()
 : m_current_world(NULL)
 {
-    m_task_beforedraw = AT_NEW(Task_WorldBeforeDraw)();
-    m_task_afterdraw = AT_NEW(Task_WorldAfterDraw)();
+    m_task_beforedraw = IST_NEW(Task_WorldBeforeDraw)();
+    m_task_afterdraw = IST_NEW(Task_WorldAfterDraw)();
+    m_task_copy = IST_NEW(Task_WorldCopy)();
 }
 
 World::Interframe::~Interframe()
 {
-    AT_DELETE(m_task_afterdraw);
-    AT_DELETE(m_task_beforedraw);
+    IST_DELETE(m_task_copy);
+    IST_DELETE(m_task_afterdraw);
+    IST_DELETE(m_task_beforedraw);
 }
 
 
@@ -56,7 +104,7 @@ World::Interframe *World::s_interframe;
 void World::initializeInterframe()
 {
     if(!s_interframe) {
-        s_interframe = AT_ALIGNED_NEW(Interframe, 16)();
+        s_interframe = IST_NEW16(Interframe)();
     }
     FractionSet::InitializeInterframe();
 }
@@ -64,40 +112,32 @@ void World::initializeInterframe()
 void World::finalizeInterframe()
 {
     FractionSet::FinalizeInterframe();
-    AT_DELETE(s_interframe);
+    IST_DELETE(s_interframe);
 }
 
 
 World::World()
 : m_prev(NULL)
+, m_next(NULL)
 , m_fraction_set(NULL)
 {
-    m_fraction_set = AT_ALIGNED_NEW(FractionSet, 16)();
+    m_fraction_set = IST_NEW16(FractionSet)();
 }
 
 World::~World()
 {
-    AT_DELETE(m_fraction_set);
+    IST_DELETE(m_fraction_set);
+    sync();
 }
 
-void World::initialize( World* prev )
+void World::initialize()
 {
-    m_prev = prev;
-    if(prev) {
-        Task_WorldBeforeDraw *task = getInterframe()->getTask_BeforeDraw();
-        task->waitForComplete();
+    m_rand.initialize(0);
+    m_camera.setPosition(XMVectorSet(100.0f, 100.0f, 500.0f, 0.0f));
+    m_camera.setZNear(1.0f);
+    m_camera.setZFar(1000.0f);
 
-        m_rand = prev->m_rand;
-        m_camera = prev->m_camera;
-    }
-    else {
-        m_rand.initialize(0);
-        m_camera.setPosition(XMVectorSet(100.0f, 100.0f, 500.0f, 0.0f));
-        m_camera.setZNear(1.0f);
-        m_camera.setZFar(1000.0f);
-    }
-
-    m_fraction_set->initialize(prev ? prev->m_fraction_set : NULL);
+    m_fraction_set->initialize();
 }
 
 void World::update()
@@ -107,33 +147,54 @@ void World::update()
     Task_WorldBeforeDraw *task = getInterframe()->getTask_BeforeDraw();
     task->waitForComplete();
     task->initialize(this);
-    TaskScheduler::schedule(task);
+    task->kick();
 
     m_fraction_set->update();
 }
 
-void World::draw()
+void World::draw() const
 {
     m_fraction_set->draw();
-    TaskScheduler::waitFor(getInterframe()->getTask_BeforeDraw());
+    getInterframe()->getTask_BeforeDraw()->waitForComplete();
 }
 
-void World::sync()
+void World::sync() const
 {
     m_fraction_set->sync();
-    TaskScheduler::waitFor(getInterframe()->getTask_BeforeDraw());
+
+    Task_WorldBeforeDraw *task_before = getInterframe()->getTask_BeforeDraw();
+    Task_WorldAfterDraw *task_after = getInterframe()->getTask_AfterDraw();
+    Task_WorldCopy *task_copy = getInterframe()->getTask_Copy();
+    if(task_before->getOwner()==this) { task_before->waitForComplete(); }
+    if(task_after->getOwner()==this) { task_after->waitForComplete(); }
+    if(task_copy->getOwner()==this) { task_copy->waitForComplete(); }
 }
 
 
-void World::update_BeforeDraw()
+void World::setNext( World *next )
+{
+    m_next = next;
+    if(next) {
+        m_next->m_prev = this;
+        m_fraction_set->setNext(next->m_fraction_set);
+    }
+}
+
+void World::taskBeforeDraw()
 {
     m_camera.setPosition(XMVector3Transform(m_camera.getPosition(), XMMatrixRotationY(XMConvertToRadians(0.1f))));
     m_camera.setAspect(atomicGetWindowAspectRatio());
 }
 
-void World::update_AfterDraw()
+void World::taskAfterDraw()
 {
+}
 
+void World::taskCopy(World *dst) const
+{
+    dst->m_prev = this;
+    dst->m_rand = m_rand;
+    dst->m_camera = m_camera;
 }
 
 

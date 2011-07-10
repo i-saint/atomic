@@ -13,7 +13,7 @@ AtomicRenderer* AtomicRenderer::s_inst = NULL;
 void AtomicRenderer::initializeInstance()
 {
     if(!s_inst) {
-        s_inst = AT_NEW(AtomicRenderer) ();
+        s_inst = IST_NEW(AtomicRenderer) ();
     }
     else {
         IST_ASSERT("already initialized");
@@ -22,7 +22,7 @@ void AtomicRenderer::initializeInstance()
 
 void AtomicRenderer::finalizeInstance()
 {
-    AT_DELETE(s_inst);
+    IST_DELETE(s_inst);
 }
 
 AtomicRenderer::AtomicRenderer()
@@ -34,9 +34,9 @@ AtomicRenderer::AtomicRenderer()
     m_rt_gbuffer    = atomicGetRenderTargetGBuffer();
     m_rt_deferred   = atomicGetRenderTargetDeferred();
 
-    m_renderer_cube = AT_NEW(PassGBuffer_Cube) ();
-    m_renderer_sphere_light = AT_NEW(PassDeferred_SphereLight) ();
-    m_renderer_bloom = AT_NEW(PassPostprocess_Bloom) ();
+    m_renderer_cube = IST_NEW(PassGBuffer_Cube) ();
+    m_renderer_sphere_light = IST_NEW(PassDeferred_SphereLight) ();
+    m_renderer_bloom = IST_NEW(PassPostprocess_Bloom) ();
     m_renderers[PASS_GBUFFER].push_back(m_renderer_cube);
     m_renderers[PASS_DEFERRED].push_back(m_renderer_sphere_light);
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_bloom);
@@ -46,8 +46,8 @@ AtomicRenderer::AtomicRenderer()
 
 AtomicRenderer::~AtomicRenderer()
 {
-    AT_DELETE(m_renderer_sphere_light);
-    AT_DELETE(m_renderer_cube);
+    IST_DELETE(m_renderer_sphere_light);
+    IST_DELETE(m_renderer_cube);
 }
 
 void AtomicRenderer::beforeDraw()

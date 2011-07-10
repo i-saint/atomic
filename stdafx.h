@@ -5,6 +5,8 @@
 
 #pragma once
 
+#define _SCL_SECURE_NO_WARNINGS
+
 #define GLM_FORCE_INLINE    // glm ‚ÌƒCƒ“ƒ‰ƒCƒ“‰»‚Æ SSE ‰»
 #define GLM_FORCE_SSE2      //
 #define GLM_GTX_simd_vec4   //

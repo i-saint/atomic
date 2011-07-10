@@ -178,14 +178,14 @@ GraphicResourceManager* GraphicResourceManager::s_inst = NULL;
 
 void GraphicResourceManager::intializeInstance()
 {
-    s_inst = AT_NEW(GraphicResourceManager) ();
+    s_inst = IST_NEW(GraphicResourceManager) ();
     s_inst->initialize();
 }
 
 void GraphicResourceManager::finalizeInstance()
 {
     s_inst->finalize();
-    AT_DELETE(s_inst)
+    IST_DELETE(s_inst)
 }
 
 
@@ -203,7 +203,7 @@ bool GraphicResourceManager::initialize()
 
     {
         for(uint32 i=0; i<_countof(m_model); ++i) {
-            m_model[i] = AT_NEW(ModelData) ();
+            m_model[i] = IST_NEW(ModelData) ();
             m_model[i]->initialize();
         }
         CreateCubeModel(*m_model[MODEL_CUBE], 6.0f);
@@ -211,27 +211,27 @@ bool GraphicResourceManager::initialize()
     }
     {
         for(uint32 i=0; i<_countof(m_tex2d); ++i) {
-            m_tex2d[i] = AT_NEW(Texture2D) ();
+            m_tex2d[i] = IST_NEW(Texture2D) ();
             m_tex2d[i]->initialize();
         }
     }
     {
         for(uint32 i=0; i<_countof(m_vbo); ++i) {
-            m_vbo[i] = AT_NEW(VertexBufferObject) ();
+            m_vbo[i] = IST_NEW(VertexBufferObject) ();
             m_vbo[i]->initialize();
         }
     }
     {
         for(uint32 i=0; i<_countof(m_ubo); ++i) {
-            m_ubo[i] = AT_NEW(UniformBufferObject) ();
+            m_ubo[i] = IST_NEW(UniformBufferObject) ();
             m_ubo[i]->initialize();
         }
     }
     {
-        m_sh_gbuffer    = AT_NEW(ShaderGBuffer) ();
-        m_sh_deferred   = AT_NEW(ShaderDeferred) ();
-        m_sh_bloom      = AT_NEW(ShaderBloom) ();
-        m_sh_output     = AT_NEW(ShaderOutput) ();
+        m_sh_gbuffer    = IST_NEW(ShaderGBuffer) ();
+        m_sh_deferred   = IST_NEW(ShaderDeferred) ();
+        m_sh_bloom      = IST_NEW(ShaderBloom) ();
+        m_sh_output     = IST_NEW(ShaderOutput) ();
         m_sh_gbuffer->initialize();
         m_sh_deferred->initialize();
         m_sh_bloom->initialize();
@@ -246,15 +246,15 @@ bool GraphicResourceManager::initialize()
         //m_tex_rand.initialize(64, 64, Texture2D::FMT_RGB_U8, m_rand);
     }
     {
-        m_rt_gbuffer = AT_NEW(RenderTargetGBuffer) ();
+        m_rt_gbuffer = IST_NEW(RenderTargetGBuffer) ();
         m_rt_gbuffer->initialize(framebuffer_width, framebuffer_height, Color3DepthBuffer::FMT_RGBA_F32);
 
-        m_rt_deferred = AT_NEW(RenderTargetDeferred) ();
+        m_rt_deferred = IST_NEW(RenderTargetDeferred) ();
         m_rt_deferred->setDepthBuffer(m_rt_gbuffer->getDepthBuffer());
         m_rt_deferred->initialize(framebuffer_width, framebuffer_height);
 
         for(uint32 i=0; i<_countof(m_rt_gauss); ++i) {
-            m_rt_gauss[i] = AT_NEW(ColorBuffer) ();
+            m_rt_gauss[i] = IST_NEW(ColorBuffer) ();
             m_rt_gauss[i]->initialize(512, 256, ColorBuffer::FMT_RGBA_U8);
         }
 
@@ -269,12 +269,12 @@ bool GraphicResourceManager::initialize()
 
 void GraphicResourceManager::finalize()
 {
-    for(uint32 i=0; i<_countof(m_model); ++i)   { if(m_model[i]) m_model[i]->finalize(); AT_DELETE( m_model[i] ); }
-    for(uint32 i=0; i<_countof(m_tex2d); ++i)   { if(m_tex2d[i]) m_tex2d[i]->finalize(); AT_DELETE( m_tex2d[i] ); }
-    for(uint32 i=0; i<_countof(m_vbo); ++i)     { if(m_vbo[i]) m_vbo[i]->finalize(); AT_DELETE( m_vbo[i] ); }
-    for(uint32 i=0; i<_countof(m_ubo); ++i)     { if(m_ubo[i]) m_ubo[i]->finalize(); AT_DELETE( m_ubo[i] ); }
-    for(uint32 i=0; i<_countof(m_fbo); ++i)     { if(m_fbo[i]) m_fbo[i]->finalize(); AT_DELETE( m_fbo[i] ); }
-    for(uint32 i=0; i<_countof(m_shader); ++i)  { if(m_shader[i]) m_shader[i]->finalize(); AT_DELETE( m_shader[i] ); }
+    for(uint32 i=0; i<_countof(m_model); ++i)   { if(m_model[i]) m_model[i]->finalize(); IST_DELETE( m_model[i] ); }
+    for(uint32 i=0; i<_countof(m_tex2d); ++i)   { if(m_tex2d[i]) m_tex2d[i]->finalize(); IST_DELETE( m_tex2d[i] ); }
+    for(uint32 i=0; i<_countof(m_vbo); ++i)     { if(m_vbo[i]) m_vbo[i]->finalize(); IST_DELETE( m_vbo[i] ); }
+    for(uint32 i=0; i<_countof(m_ubo); ++i)     { if(m_ubo[i]) m_ubo[i]->finalize(); IST_DELETE( m_ubo[i] ); }
+    for(uint32 i=0; i<_countof(m_fbo); ++i)     { if(m_fbo[i]) m_fbo[i]->finalize(); IST_DELETE( m_fbo[i] ); }
+    for(uint32 i=0; i<_countof(m_shader); ++i)  { if(m_shader[i]) m_shader[i]->finalize(); IST_DELETE( m_shader[i] ); }
 }
 
 

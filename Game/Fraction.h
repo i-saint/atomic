@@ -5,6 +5,11 @@
 
 namespace atomic {
 
+class FractionGrid;
+class Task_FractionBeforeDraw;
+class Task_FractionAfterDraw;
+class Task_FractionCopy;
+
 
 
 
@@ -25,14 +30,7 @@ struct __declspec(align(16)) FractionData
 BOOST_STATIC_ASSERT(sizeof(FractionData)==48);
 
 
-class FractionCollider;
-class FractionGrid;
-class FractionRenderer;
-
-class Task_FractionBeforeDraw;
-class Task_FractionAfterDraw;
-
-class __declspec(align(16)) FractionSet : boost::noncopyable
+class FractionSet : boost::noncopyable
 {
 public:
     static const size_t BLOCK_SIZE;
@@ -57,6 +55,7 @@ public:
         CollisionResultCont m_collision_results;
         Task_FractionBeforeDraw *m_task_beforedraw;
         Task_FractionAfterDraw *m_task_afterdraw;
+        Task_FractionCopy *m_task_copy;
         FractionGrid *m_grid;
 
     public:
@@ -66,6 +65,7 @@ public:
         QWordVector*                getCollisionResultContainer(uint32 uint32) { return m_collision_results[uint32]; }
         Task_FractionBeforeDraw*    getTask_BeforeDraw() { return m_task_beforedraw; }
         Task_FractionAfterDraw*     getTask_AfterDraw() { return m_task_afterdraw; }
+        Task_FractionCopy*          getTask_Copy() { return m_task_copy; }
         FractionGrid*               getGrid() { return m_grid; }
     };
 
@@ -86,32 +86,42 @@ private:
 
     DataCont    m_data;
     GridRangeCont m_grid_range;
-    FractionSet *m_prev;
+    const FractionSet *m_prev;
+    FractionSet *m_next;
     uint32 m_idgen;
 
 public:
     FractionSet();
     ~FractionSet();
 
-    void initialize(FractionSet* prev);
+    void initialize();
+    void serialize(Serializer& s) const;
+    void deserialize(Deserializer& s);
 
     void update();
-    void draw();
-    void sync();
+    void draw() const;
+    void sync() const;
 
+    uint32 getNumBlocks() const;
+    void setNext(FractionSet *next);
+    FractionSet* getNext() { return m_next; }
     const FractionSet* getPrev() const { return m_prev; }
+
     const FractionData* getFraction(uint32 i) const { return &m_data[i]; }
 
     // 以下非同期更新タスク用
 public:
-    uint32 getNumBlocks() const;
-    void processMessage();
-    void updateState(uint32 block);
-    void updateGrid();
+    void taskBeforeDraw();
+    void taskBeforeDraw(uint32 block);
+    void taskAfterDraw();
+    void taskCopy(FractionSet *dst) const;
 
+private:
+    void processMessage();
     void move(uint32 block);
     void collisionTest(uint32 block);
     void collisionProcess(uint32 block);
+    void updateGrid();
 };
 
 

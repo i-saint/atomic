@@ -43,7 +43,7 @@ public:
         m_center = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
     }
 
-    updateFractions(FractionData* beg, FractionData* end)
+    void updateFractions(FractionData* beg, FractionData* end)
     {
         XMVECTOR center1 = m_center;
         XMVECTOR gravity = _mm_set1_ps(m_gravity);

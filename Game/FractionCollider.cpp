@@ -67,7 +67,7 @@ uint32 FractionGrid::hitTest( QWordVector &out, const FractionData &receiver ) c
 {
     __declspec(thread) static stl::vector<Result> *s_tmp_result = NULL;
     if(s_tmp_result==NULL) {
-        s_tmp_result = AT_NEW(stl::vector<Result>) ();
+        s_tmp_result = IST_NEW(stl::vector<Result>) ();
         s_tmp_result->reserve(128);
     }
 

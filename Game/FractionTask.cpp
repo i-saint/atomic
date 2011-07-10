@@ -6,44 +6,63 @@
 #include "FractionTask.h"
 #include "FractionCollider.h"
 
-namespace atomic
+namespace atomic {
+
+
+class Task_FractionBeforeDraw_Block : public Task
 {
+private:
+    FractionSet *m_owner;
+    size_t m_block;
+public:
+    Task_FractionBeforeDraw_Block() : m_owner(NULL) {}
+    void initialize(FractionSet *obj, size_t block) { m_owner=obj; m_block=block; }
+    void exec() { m_owner->taskBeforeDraw(m_block); }
+    FractionSet* getOwner() { return m_owner; }
+};
+
+
 
 
 
 Task_FractionBeforeDraw::Task_FractionBeforeDraw()
-: m_obj(NULL)
+: m_owner(NULL)
 {
 }
 
 Task_FractionBeforeDraw::~Task_FractionBeforeDraw()
 {
     for(size_t i=0; i<m_state_tasks.size(); ++i) {
-        AT_DELETE(m_state_tasks[i]);
+        IST_DELETE(m_state_tasks[i]);
     }
     m_state_tasks.clear();
 }
 
 void Task_FractionBeforeDraw::initialize(FractionSet *obj)
 {
-    m_obj = obj;
+    m_owner = obj;
 }
 
 void Task_FractionBeforeDraw::exec()
 {
-    Task_FractionAfterDraw *after_draw = FractionSet::getInterframe()->getTask_AfterDraw();
+    Task_FractionCopy *task_copy = FractionSet::getInterframe()->getTask_Copy();
+    Task_FractionAfterDraw *task_after = FractionSet::getInterframe()->getTask_AfterDraw();
+
     MessageRouter *message_router = atomicGetMessageRouter(MR_FRACTION);
-    FractionSet *obj = m_obj;
+    FractionSet *obj = m_owner;
+
+    // コピー完了待ち
+    task_copy->waitForComplete();
 
     // 生成メッセージを処理
-    obj->processMessage();
+    obj->taskBeforeDraw();
 
     message_router->unuseAll();
 
-    uint32 num_blocks = obj->getNumBlocks();
     // 衝突器とタスク数をブロックサイズに合わせる
+    uint32 num_blocks = obj->getNumBlocks();
     while(m_state_tasks.size()<num_blocks) {
-        m_state_tasks.push_back(AT_NEW(Task_FractionState)());
+        m_state_tasks.push_back(IST_NEW(Task_FractionBeforeDraw_Block)());
     }
     for(uint32 i=0; i<num_blocks; ++i) {
         m_state_tasks[i]->initialize(obj, i);
@@ -53,7 +72,7 @@ void Task_FractionBeforeDraw::exec()
 
     // 移動タスクをスケジュール&実行完了待ち
     if(num_blocks > 0) {
-        after_draw->waitForComplete();
+        task_after->waitForComplete();
         TaskScheduler::schedule((Task**)&m_state_tasks[0], num_blocks);
         TaskScheduler::waitFor((Task**)&m_state_tasks[0], num_blocks);
     }
@@ -61,9 +80,12 @@ void Task_FractionBeforeDraw::exec()
 
 
     // 描画後タスクをキック
-    after_draw->initialize(obj);
-    TaskScheduler::schedule(after_draw);
-    TaskScheduler::waitFor(after_draw);
+    task_after->initialize(obj);
+    task_after->kick();
+
+    task_copy->initialize(obj, obj->getNext());
+    task_copy->kick();
+
 }
 
 void Task_FractionBeforeDraw::waitForComplete()
@@ -77,33 +99,56 @@ void Task_FractionBeforeDraw::waitForComplete()
 
 
 Task_FractionAfterDraw::Task_FractionAfterDraw()
-: m_obj(NULL)
+: m_owner(NULL)
 {
-    m_grid_task = AT_NEW(Task_FractionGrid) ();
 }
 
 Task_FractionAfterDraw::~Task_FractionAfterDraw()
 {
-    AT_DELETE(m_grid_task);
 }
 
 void Task_FractionAfterDraw::initialize( FractionSet *obj )
 {
-    m_obj = obj;
+    m_owner = obj;
 }
 
 void Task_FractionAfterDraw::waitForComplete()
 {
-    TaskScheduler::waitFor(m_grid_task);
     TaskScheduler::waitFor(this);
 }
 
 void Task_FractionAfterDraw::exec()
 {
     // 衝突グリッド更新
-    m_grid_task->initialize(m_obj);
-    TaskScheduler::schedule(m_grid_task);
-    TaskScheduler::waitFor(m_grid_task);
+    m_owner->taskAfterDraw();
+}
+
+
+
+Task_FractionCopy::Task_FractionCopy()
+: m_owner(NULL)
+, m_dst(NULL)
+{
+}
+
+void Task_FractionCopy::initialize( const FractionSet *obj, FractionSet *dst )
+{
+    m_owner = obj;
+    m_dst = dst;
+}
+
+void Task_FractionCopy::exec()
+{
+    if(m_owner==m_dst) {
+        return;
+    }
+
+    m_owner->taskCopy(m_dst);
+}
+
+void Task_FractionCopy::waitForComplete()
+{
+    TaskScheduler::waitFor(this);
 }
 
 } // namespace atomic

@@ -73,7 +73,7 @@ struct Message_GenerateCharacter
 
 
 enum MR_ID {
-    MR_SYSTEM,
+    //MR_SYSTEM,
     MR_FRACTION,
     //MR_BULLET,
     //MR_CHARACTER,

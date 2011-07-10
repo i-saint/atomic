@@ -167,11 +167,11 @@ bool AtomicApplication::initialize(size_t x, size_t y, size_t width, size_t heig
     }
     TaskScheduler::initializeSingleton();
 
-    m_draw_thread = AT_NEW(AtomicDrawThread) (this);
+    m_draw_thread = IST_NEW16(AtomicDrawThread)(this);
     m_draw_thread->run();
     m_draw_thread->waitForInitializeComplete();
 
-    m_game = AT_ALIGNED_NEW(AtomicGame, 16)();
+    m_game = IST_NEW16(AtomicGame)();
 
     return true;
 }
@@ -179,8 +179,8 @@ bool AtomicApplication::initialize(size_t x, size_t y, size_t width, size_t heig
 void AtomicApplication::finalize()
 {
     m_draw_thread->stop();
-    AT_DELETE(m_game);
-    AT_DELETE(m_draw_thread);
+    IST_DELETE(m_game);
+    IST_DELETE(m_draw_thread);
 
     TaskScheduler::finalizeSingleton();
     super::finalize();

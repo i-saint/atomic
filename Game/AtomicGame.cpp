@@ -19,14 +19,14 @@ AtomicGame::AtomicGame()
     World::initializeInterframe();
 
     m_worlds.resize(MAX_WORLDS);
-    m_worlds[0] = AT_ALIGNED_NEW(World, 16)();
-    m_worlds[0]->initialize(NULL);
+    m_worlds[0] = IST_NEW16(World)();
+    m_worlds[0]->initialize();
 }
 
 AtomicGame::~AtomicGame()
 {
     for(uint32 i=0; i<MAX_WORLDS; ++i) {
-        AT_DELETE(m_worlds[i]);
+        IST_DELETE(m_worlds[i]);
     }
 
     World::finalizeInterframe();
@@ -37,23 +37,24 @@ AtomicGame::~AtomicGame()
 
 void AtomicGame::update()
 {
-    MessageRouter *message_router = atomicGetMessageRouter(MR_SYSTEM);
-    message_router->unuseAll();
-
+    uint32 next_world = (m_current_world+1) % MAX_WORLDS;
     World *w = m_worlds[m_current_world];
+    World *n = m_worlds[next_world];
+    if(!n) {
+        n = IST_NEW16(World)();
+        //n = w;
+        m_worlds[next_world] = n;
+    }
+
+    //MessageRouter *message_router = atomicGetMessageRouter(MR_SYSTEM);
+    //message_router->unuseAll();
+
+    w->setNext(n);
     w->update();
     m_draw_target = w;
 
-    message_router->route();
+    //message_router->route();
 
-
-    uint32 next_world = (m_current_world+1) % MAX_WORLDS;
-    World *n = m_worlds[next_world];
-    if(!n) {
-        n = AT_ALIGNED_NEW(World, 16)();
-        m_worlds[next_world] = n;
-    }
-    n->initialize(w);
     m_current_world = next_world;
 }
 
