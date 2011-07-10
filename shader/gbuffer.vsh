@@ -13,6 +13,7 @@ void main(void)
 {
     vec4 fractionPos = a_InstancePosition;
     vec4 vert = a_VertexPosition+fractionPos;
+    vert.w = 1.0;
 
     v_VertexPosition = vert.xyz;
     v_VertexNormal = a_VertexNormal;

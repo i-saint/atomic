@@ -72,22 +72,20 @@ FractionSet::FractionSet()
 
 FractionSet::~FractionSet()
 {
-    TaskScheduler::waitFor(getInterframe()->getTask_BeforeDraw());
+    getInterframe()->getTask_BeforeDraw()->waitForComplete();
 }
 
 
 void FractionSet::initialize( FractionSet* prev )
 {
-    Task_FractionBeforeDraw *task = getInterframe()->getTask_BeforeDraw();
-    task->waitForComplete();
-    if(prev==this) { return; }
+    getInterframe()->getTask_BeforeDraw()->waitForComplete();
 
     m_prev = prev;
     m_data.clear();
 
     if(prev) {
-        m_data.insert(m_data.begin(), prev->m_data.begin(), prev->m_data.end());
         m_idgen = prev->m_idgen;
+        m_data.insert(m_data.begin(), prev->m_data.begin(), prev->m_data.end());
     }
     else {
         float32 xv[6] = {500.0f, -500.0f, 0.0f, 0.0f, 0.0f, 0.0f};
@@ -197,16 +195,20 @@ void FractionSet::updateGrid()
 {
     GridRange range = {XMVectorSet(0.0f,0.0f,0.0f,0.0f), XMVectorSet(0.0f,0.0f,0.0f,0.0f)};
     uint32 num_blocks = getNumBlocks();
-    for(uint32 i=0; i<num_blocks; ++i) {
-        GridRange *grange = &m_grid_range[i];
-        range.range_max = XMVectorMax(range.range_max, grange->range_max);
-        range.range_min = XMVectorMin(range.range_min, grange->range_min);
+    if(num_blocks > 0) {
+        range.range_max = m_grid_range[0].range_max;
+        range.range_min = m_grid_range[0].range_min;
+        for(uint32 i=1; i<num_blocks; ++i) {
+            GridRange *grange = &m_grid_range[i];
+            range.range_max = XMVectorMax(range.range_max, grange->range_max);
+            range.range_min = XMVectorMin(range.range_min, grange->range_min);
+        }
     }
     // todo: グリッドサイズが 0 になるの禁止
 
     FractionGrid *grid = getInterframe()->getGrid();
-    grid->setGridRange(range.range_min, range.range_max);
     grid->clear();
+    grid->setGridRange(range.range_min, range.range_max);
     size_t num_data = m_data.size();
     for(size_t i=0; i<num_data; ++i) {
         grid->pushData(m_data[i].id, m_data[i].pos, m_data[i].vel);
@@ -262,28 +264,32 @@ void FractionSet::move(uint32 block)
         uint32 *is_boundv = (uint32*)&is_bound;
         float32 *speedv = (float*)&v_speed;
         for(uint32 i=0; i<e; ++i) {
+            XMVECTOR r_pos;
+            XMVECTOR r_vel;
             if(is_boundv[i]>0) {
                 if(speedv[i]<=GRAVITY) {
-                    data[i].vel = _mm_set1_ps(0.0f);
+                    r_vel = _mm_set1_ps(0.0f);
                 }
                 else {
                     XMMATRIX reflection = XMMatrixReflect(ref_dir.v[i]);
                     XMVECTOR tv = XMVector3Transform(vel_nextv.v[i], reflection);
-                    data[i].vel = XMVectorMultiply(tv, _mm_set1_ps(BOUNCE));
+                    r_vel = XMVectorMultiply(tv, _mm_set1_ps(BOUNCE));
                 }
                 float d = SPHERE_RADIUS + FractionSet::RADIUS;
-                data[i].pos = XMVectorMultiply(ref_dir.v[i], _mm_set1_ps(d));
+                r_pos = XMVectorMultiply(ref_dir.v[i], _mm_set1_ps(d));
             }
             else {
-                data[i].pos = pos_nextv.v[i];
-                data[i].vel = vel_nextv.v[i];
+                r_pos = pos_nextv.v[i];
+                r_vel = vel_nextv.v[i];
             }
+            data[i].pos = r_pos;
+            data[i].vel = r_vel;
         }
     }
 
     GridRange grange = m_grid_range[block];
     grange.range_max = grange.range_min = m_data[begin].pos;
-    for(uint32 i=begin; i<end; ++i) {
+    for(uint32 i=begin+1; i<end; ++i) {
         grange.range_max = XMVectorMax(grange.range_max, m_data[i].pos);
         grange.range_min = XMVectorMin(grange.range_min, m_data[i].pos);
     }

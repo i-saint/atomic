@@ -12,6 +12,7 @@ out vec4 v_VertexPositionMVP;
 void main()
 {
     v_LightPosition = a_InstancePosition*1.1;
+    v_LightPosition.w = 0.0;
 
     v_LightColor = normalize(v_LightPosition);
     v_LightPositionMVP = gl_ModelViewProjectionMatrix * v_LightPosition;

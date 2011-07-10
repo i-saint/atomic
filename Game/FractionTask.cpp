@@ -31,6 +31,7 @@ void Task_FractionBeforeDraw::initialize(FractionSet *obj)
 
 void Task_FractionBeforeDraw::exec()
 {
+    Task_FractionAfterDraw *after_draw = FractionSet::getInterframe()->getTask_AfterDraw();
     MessageRouter *message_router = atomicGetMessageRouter(MR_FRACTION);
     FractionSet *obj = m_obj;
 
@@ -52,18 +53,17 @@ void Task_FractionBeforeDraw::exec()
 
     // 移動タスクをスケジュール&実行完了待ち
     if(num_blocks > 0) {
+        after_draw->waitForComplete();
         TaskScheduler::schedule((Task**)&m_state_tasks[0], num_blocks);
         TaskScheduler::waitFor((Task**)&m_state_tasks[0], num_blocks);
     }
     message_router->route();
 
 
-    obj->updateGrid();
-    //// 描画後タスクをキック
-    //Task_FractionAfterDraw *next = FractionSet::getInterframe()->getTask_AfterDraw();
-    //next->initialize(obj);
-    //TaskScheduler::schedule(next);
-    //TaskScheduler::waitFor(next);
+    // 描画後タスクをキック
+    after_draw->initialize(obj);
+    TaskScheduler::schedule(after_draw);
+    TaskScheduler::waitFor(after_draw);
 }
 
 void Task_FractionBeforeDraw::waitForComplete()
@@ -71,6 +71,7 @@ void Task_FractionBeforeDraw::waitForComplete()
     if(!m_state_tasks.empty()) {
         TaskScheduler::waitFor((Task**)&m_state_tasks[0], m_state_tasks.size());
     }
+    TaskScheduler::waitFor(this);
 }
 
 
@@ -94,6 +95,7 @@ void Task_FractionAfterDraw::initialize( FractionSet *obj )
 void Task_FractionAfterDraw::waitForComplete()
 {
     TaskScheduler::waitFor(m_grid_task);
+    TaskScheduler::waitFor(this);
 }
 
 void Task_FractionAfterDraw::exec()
