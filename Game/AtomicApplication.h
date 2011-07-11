@@ -4,7 +4,7 @@ namespace atomic {
 
 
 class AtomicGame;
-class AtomicDrawThread;
+class AtomicRenderThread;
 
 class AtomicApplication : public ist::Application
 {
@@ -12,7 +12,7 @@ typedef ist::Application super;
 private:
     bool m_request_exit;
     AtomicGame *m_game;
-    AtomicDrawThread *m_draw_thread;
+    AtomicRenderThread *m_draw_thread;
 
 public:
     static AtomicApplication* getInstance();
@@ -27,15 +27,21 @@ public:
 
     void waitForDrawComplete();
     void kickDraw();
+
+    // •`‰æƒXƒŒƒbƒh‚©‚çŒÄ‚Î‚ê‚é
+    void drawCallback();
+
     AtomicGame* getGame() { return m_game; }
 };
 
 
-#define atomicWaitForDrawComplete()     AtomicApplication::getInstance()->waitForDrawComplete()
-#define atomicKickDraw()                AtomicApplication::getInstance()->kickDraw()
+#define atomicGetApplication()          AtomicApplication::getInstance()
+#define atomicGetGame()                 atomicGetApplication()->getGame()
+#define atomicWaitForDrawComplete()     atomicGetApplication()->waitForDrawComplete()
+#define atomicKickDraw()                atomicGetApplication()->kickDraw()
 
-#define atomicGetWindowWidth()          AtomicApplication::getInstance()->getWindowWidth()
-#define atomicGetWindowHeight()         AtomicApplication::getInstance()->getWindowHeight()
+#define atomicGetWindowWidth()          atomicGetApplication()->getWindowWidth()
+#define atomicGetWindowHeight()         atomicGetApplication()->getWindowHeight()
 #define atomicGetWindowAspectRatio()    (float(atomicGetWindowWidth())/float(atomicGetWindowHeight()))
 
 } // namespace atomic

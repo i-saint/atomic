@@ -17,7 +17,7 @@ public:
     ~Task_FractionBeforeDraw();
     void initialize(FractionSet *obj);
     void waitForComplete();
-    void kick() { TaskScheduler::schedule(this); }
+    void kick() { TaskScheduler::push(this); }
     void exec();
 
     FractionSet* getOwner() { return m_owner; }
@@ -33,12 +33,26 @@ public:
     ~Task_FractionAfterDraw();
     void initialize(FractionSet *obj);
     void waitForComplete();
-    void kick() { TaskScheduler::schedule(this); }
+    void kick() { TaskScheduler::push(this); }
     void exec();
 
     FractionSet* getOwner() { return m_owner; }
 };
 
+
+class Task_FractionDraw : public Task
+{
+private:
+    const FractionSet *m_owner;
+
+public:
+    Task_FractionDraw() : m_owner(NULL) {}
+    void initialize(const FractionSet *obj) { m_owner=obj; }
+    void waitForComplete() { TaskScheduler::waitFor(this); }
+    void kick() { TaskScheduler::push(this); }
+    void exec() { m_owner->taskDraw(); }
+    const FractionSet* getOwner() { return m_owner; }
+};
 
 class Task_FractionCopy : public Task
 {
@@ -47,10 +61,10 @@ private:
     FractionSet *m_dst;
 
 public:
-    Task_FractionCopy();
+    Task_FractionCopy() : m_owner(NULL), m_dst(NULL) {}
     void initialize(const FractionSet *obj, FractionSet *dst);
     void waitForComplete();
-    void kick() { TaskScheduler::schedule(this); }
+    void kick() { TaskScheduler::push(this); }
     void exec();
 
     const FractionSet* getOwner() { return m_owner; }

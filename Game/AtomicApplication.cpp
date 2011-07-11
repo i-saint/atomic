@@ -10,7 +10,7 @@
 namespace atomic {
 
 
-class AtomicDrawThread
+class AtomicRenderThread
 {
 private:
     AtomicApplication *m_app;
@@ -30,8 +30,8 @@ private:
     bool m_is_end;
 
 public:
-    AtomicDrawThread(AtomicApplication *app);
-    ~AtomicDrawThread();
+    AtomicRenderThread(AtomicApplication *app);
+    ~AtomicRenderThread();
     void requestStop();
     void operator()();
 
@@ -42,7 +42,7 @@ public:
     void kick();
 };
 
-AtomicDrawThread::AtomicDrawThread(AtomicApplication *app)
+AtomicRenderThread::AtomicRenderThread(AtomicApplication *app)
 : m_app(app)
 , m_stop_flag(false)
 , m_is_initialized(false)
@@ -52,16 +52,16 @@ AtomicDrawThread::AtomicDrawThread(AtomicApplication *app)
 {
 }
 
-AtomicDrawThread::~AtomicDrawThread()
+AtomicRenderThread::~AtomicRenderThread()
 {
 }
 
-void AtomicDrawThread::run()
+void AtomicRenderThread::run()
 {
     m_thread.reset(new boost::thread(boost::ref(*this)));
 }
 
-void AtomicDrawThread::stop()
+void AtomicRenderThread::stop()
 {
     m_stop_flag = true;
     kick();
@@ -72,7 +72,7 @@ void AtomicDrawThread::stop()
     }
 }
 
-void AtomicDrawThread::waitForInitializeComplete()
+void AtomicRenderThread::waitForInitializeComplete()
 {
     boost::unique_lock<boost::mutex> lock(m_mutex_wait_for_initialize);
     while(!m_is_initialized) {
@@ -80,7 +80,7 @@ void AtomicDrawThread::waitForInitializeComplete()
     }
 }
 
-void AtomicDrawThread::waitForDrawComplete()
+void AtomicRenderThread::waitForDrawComplete()
 {
     boost::unique_lock<boost::mutex> lock(m_mutex_wait_for_complete);
     while(!m_is_draw_complete) {
@@ -88,7 +88,7 @@ void AtomicDrawThread::waitForDrawComplete()
     }
 }
 
-void AtomicDrawThread::kick()
+void AtomicRenderThread::kick()
 {
     waitForDrawComplete();
     {
@@ -100,8 +100,10 @@ void AtomicDrawThread::kick()
 }
 
 
-void AtomicDrawThread::operator()()
+void AtomicRenderThread::operator()()
 {
+    ist::SetThreadName("AtomicRenderThread");
+
     m_app->initializeDraw();
     GraphicResourceManager::intializeInstance();
     {
@@ -119,7 +121,7 @@ void AtomicDrawThread::operator()()
                 m_cond_wait_for_draw.wait(lock);
             }
             m_is_ready_to_draw = false;
-            AtomicRenderer::getInstance()->draw();
+            atomicGetApplication()->drawCallback();
             {
                 boost::unique_lock<boost::mutex> lock(m_mutex_wait_for_complete);
                 m_is_draw_complete = true;
@@ -167,7 +169,7 @@ bool AtomicApplication::initialize(size_t x, size_t y, size_t width, size_t heig
     }
     TaskScheduler::initializeSingleton();
 
-    m_draw_thread = IST_NEW16(AtomicDrawThread)(this);
+    m_draw_thread = IST_NEW16(AtomicRenderThread)(this);
     m_draw_thread->run();
     m_draw_thread->waitForInitializeComplete();
 
@@ -229,6 +231,11 @@ void AtomicApplication::waitForDrawComplete()
 void AtomicApplication::kickDraw()
 {
     m_draw_thread->kick();
+}
+
+void AtomicApplication::drawCallback()
+{
+    m_game->drawCallback();
 }
 
 

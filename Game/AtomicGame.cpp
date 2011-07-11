@@ -11,7 +11,9 @@ namespace atomic {
 
 
 AtomicGame::AtomicGame()
-: m_current_world(0)
+: m_current(NULL)
+, m_prev(NULL)
+, m_world_index(0)
 , m_draw_target(NULL)
 {
     AtomicRenderer::initializeInstance();
@@ -37,11 +39,12 @@ AtomicGame::~AtomicGame()
 
 void AtomicGame::update()
 {
-    uint32 next_world = (m_current_world+1) % MAX_WORLDS;
-    World *w = m_worlds[m_current_world];
+    uint32 next_world = (m_world_index+1) % MAX_WORLDS;
+    World *w = m_worlds[m_world_index];
     World *n = m_worlds[next_world];
     if(!n) {
         n = IST_NEW16(World)();
+        //n->initialize();
         //n = w;
         m_worlds[next_world] = n;
     }
@@ -55,18 +58,28 @@ void AtomicGame::update()
 
     //message_router->route();
 
-    m_current_world = next_world;
+    m_current = n;
+    m_prev = w;
+    m_world_index = next_world;
 }
 
 
 void AtomicGame::draw()
 {
     atomicWaitForDrawComplete();
+    // todo: フレームスキップ処理
+    m_draw_target = m_prev;
+    atomicKickDraw();
+}
+
+void AtomicGame::drawCallback()
+{
     AtomicRenderer::getInstance()->beforeDraw();
     if(m_draw_target) {
         m_draw_target->draw();
     }
-    atomicKickDraw();
+    AtomicRenderer::getInstance()->draw();
+
 }
 
 

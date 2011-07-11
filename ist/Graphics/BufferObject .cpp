@@ -9,6 +9,7 @@ template<GLuint BufferType>
 BufferObject<BufferType>::BufferObject()
 : m_handle(0)
 , m_size(0)
+, m_capacity(0)
 {
 }
 
@@ -47,25 +48,20 @@ template<GLuint BufferType>
 void BufferObject<BufferType>::bind() const
 {
     glBindBuffer(BufferType, m_handle);
-    CheckGLError();
 }
 
 template<GLuint BufferType>
 void BufferObject<BufferType>::unbind() const
 {
     glBindBuffer(BufferType, 0);
-    CheckGLError();
 }
 
 template<GLuint BufferType>
 void* BufferObject<BufferType>::lock(LOCK mode)
 {
     glBindBuffer(BufferType, m_handle);
-    CheckGLError();
     void *r = glMapBuffer(BufferType, mode);
-    CheckGLError();
     glBindBuffer(BufferType, 0);
-    CheckGLError();
     return r;
 }
 
@@ -73,21 +69,27 @@ template<GLuint BufferType>
 void BufferObject<BufferType>::unlock()
 {
     glBindBuffer(BufferType, m_handle);
-    CheckGLError();
     glUnmapBuffer(BufferType);
-    CheckGLError();
     glBindBuffer(BufferType, 0);
-    CheckGLError();
 }
 
 template<GLuint BufferType>
 void BufferObject<BufferType>::allocate(GLuint size, USAGE usage, void *data)
 {
     m_size = size;
-    glBindBuffer(BufferType, m_handle);
-    glBufferData(BufferType, size, data, usage);
-    CheckGLError();
-    glBindBuffer(BufferType, 0);
+    if(size > m_capacity) {
+        m_capacity = size;
+        glBindBuffer(BufferType, m_handle);
+        glBufferData(BufferType, size, data, usage);
+        glBindBuffer(BufferType, 0);
+    }
+    else if(data!=NULL) {
+        glBindBuffer(BufferType, m_handle);
+        void *p = glMapBuffer(BufferType, GL_WRITE_ONLY);
+        memcpy(p, data, size);
+        glUnmapBuffer(BufferType);
+        glBindBuffer(BufferType, 0);
+    }
 }
 
 template BufferObject<GL_ARRAY_BUFFER>;

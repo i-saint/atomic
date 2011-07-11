@@ -73,7 +73,7 @@ void Task_FractionBeforeDraw::exec()
     // 移動タスクをスケジュール&実行完了待ち
     if(num_blocks > 0) {
         task_after->waitForComplete();
-        TaskScheduler::schedule((Task**)&m_state_tasks[0], num_blocks);
+        TaskScheduler::push((Task**)&m_state_tasks[0], num_blocks);
         TaskScheduler::waitFor((Task**)&m_state_tasks[0], num_blocks);
     }
     message_router->route();
@@ -125,12 +125,6 @@ void Task_FractionAfterDraw::exec()
 
 
 
-Task_FractionCopy::Task_FractionCopy()
-: m_owner(NULL)
-, m_dst(NULL)
-{
-}
-
 void Task_FractionCopy::initialize( const FractionSet *obj, FractionSet *dst )
 {
     m_owner = obj;
@@ -142,7 +136,6 @@ void Task_FractionCopy::exec()
     if(m_owner==m_dst) {
         return;
     }
-
     m_owner->taskCopy(m_dst);
 }
 

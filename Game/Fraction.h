@@ -8,6 +8,7 @@ namespace atomic {
 class FractionGrid;
 class Task_FractionBeforeDraw;
 class Task_FractionAfterDraw;
+class Task_FractionDraw;
 class Task_FractionCopy;
 
 
@@ -55,6 +56,7 @@ public:
         CollisionResultCont m_collision_results;
         Task_FractionBeforeDraw *m_task_beforedraw;
         Task_FractionAfterDraw *m_task_afterdraw;
+        Task_FractionDraw *m_task_draw;
         Task_FractionCopy *m_task_copy;
         FractionGrid *m_grid;
 
@@ -65,6 +67,7 @@ public:
         QWordVector*                getCollisionResultContainer(uint32 uint32) { return m_collision_results[uint32]; }
         Task_FractionBeforeDraw*    getTask_BeforeDraw() { return m_task_beforedraw; }
         Task_FractionAfterDraw*     getTask_AfterDraw() { return m_task_afterdraw; }
+        Task_FractionDraw*          getTask_Draw() { return m_task_draw; }
         Task_FractionCopy*          getTask_Copy() { return m_task_copy; }
         FractionGrid*               getGrid() { return m_grid; }
     };
@@ -99,8 +102,9 @@ public:
     void deserialize(Deserializer& s);
 
     void update();
-    void draw() const;
     void sync() const;
+
+    Task* getDrawTask();
 
     uint32 getNumBlocks() const;
     void setNext(FractionSet *next);
@@ -114,6 +118,7 @@ public:
     void taskBeforeDraw();
     void taskBeforeDraw(uint32 block);
     void taskAfterDraw();
+    void taskDraw() const;
     void taskCopy(FractionSet *dst) const;
 
 private:

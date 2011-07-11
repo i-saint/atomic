@@ -10,6 +10,7 @@ class VFXSet;
 class World;
 class Task_WorldBeforeDraw;
 class Task_WorldAfterDraw;
+class Task_WorldDraw;
 class Task_WorldCopy;
 
 
@@ -22,6 +23,7 @@ public:
         World* m_current_world;
         Task_WorldBeforeDraw *m_task_beforedraw;
         Task_WorldAfterDraw *m_task_afterdraw;
+        Task_WorldDraw *m_task_draw;
         Task_WorldCopy *m_task_copy;
 
     public:
@@ -32,6 +34,7 @@ public:
 
         Task_WorldBeforeDraw*   getTask_BeforeDraw() { return m_task_beforedraw; }
         Task_WorldAfterDraw*    getTask_AfterDraw() { return m_task_afterdraw; }
+        Task_WorldDraw*         getTask_Draw() { return m_task_draw; }
         Task_WorldCopy*         getTask_Copy() { return m_task_copy; }
     };
 
@@ -63,6 +66,7 @@ public:
     void draw() const;
     void sync() const;
 
+    Task* getDrawTask() const;
     void setNext(World *next);
     World* getNext() { return m_next; }
     const World* getPrev() const { return m_prev; }
@@ -75,6 +79,7 @@ public:
 public:
     void taskBeforeDraw();
     void taskAfterDraw();
+    void taskDraw() const;
     void taskCopy(World *dst) const;
 };
 

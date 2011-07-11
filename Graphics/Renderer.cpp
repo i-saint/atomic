@@ -62,6 +62,7 @@ void AtomicRenderer::beforeDraw()
 
 void AtomicRenderer::draw()
 {
+    PerformanceCounter timer;
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
@@ -79,6 +80,8 @@ void AtomicRenderer::draw()
     pass_Output();
 
     glSwapBuffers();
+    //glFinish();
+    //IST_PRINT("AtomicRenderer::draw() : %.2fms\n", timer.getElapsedMillisecond());
 }
 
 void AtomicRenderer::pass_Shadow()
@@ -203,22 +206,31 @@ PassGBuffer_Cube::PassGBuffer_Cube()
     m_sh_gbuffer = atomicGetShaderGBuffer();
     m_model = atomicGetModelData(MODEL_CUBE);
     m_vbo_instance_pos = atomicGetVertexBufferObject(VBO_CUBE_POS);
-    m_instance_pos.reserve(65536);
+    m_fraction.reserve(65536);
 }
 
 void PassGBuffer_Cube::beforeDraw()
 {
-    m_instance_pos.clear();
+    m_fraction.clear();
+    m_vfx.clear();
 }
 
 void PassGBuffer_Cube::draw()
 {
-    const uint32 num_instances = m_instance_pos.size();
-    m_vbo_instance_pos->allocate(sizeof(XMVECTOR)*num_instances, VertexBufferObject::USAGE_STREAM, &m_instance_pos[0]);
+    const uint32 num_fractions = m_fraction.pos.size();
+    const uint32 num_vfxs = m_vfx.pos.size();
+    const uint32 total = num_fractions + num_vfxs;
+    m_vbo_instance_pos->allocate(sizeof(XMVECTOR)*total, VertexBufferObject::USAGE_STREAM);
+    {
+        XMVECTOR *p = (XMVECTOR*)m_vbo_instance_pos->lock(VertexBufferObject::LOCK_WRITE);
+        memcpy(p, &m_fraction.pos[0], sizeof(XMVECTOR)*num_fractions);
+        memcpy(p+num_fractions, &m_vfx.pos[0], sizeof(XMVECTOR)*num_vfxs);
+        m_vbo_instance_pos->unlock();
+    }
 
     m_sh_gbuffer->bind();
     m_model->setInstanceData(2, 4, *m_vbo_instance_pos);
-    m_model->drawInstanced(num_instances);
+    m_model->drawInstanced(total);
     m_sh_gbuffer->unbind();
 }
 

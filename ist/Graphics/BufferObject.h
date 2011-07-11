@@ -27,6 +27,7 @@ public:
 protected:
     GLuint m_handle;
     GLuint m_size;
+    GLuint m_capacity;
 
 public:
     BufferObject();

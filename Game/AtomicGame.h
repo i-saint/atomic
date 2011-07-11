@@ -13,8 +13,10 @@ public:
 private:
     typedef stl::vector<World*> WorldCont;
     WorldCont m_worlds;
+    World *m_current;
+    World *m_prev;
     World *m_draw_target;
-    uint32 m_current_world;
+    uint32 m_world_index;
 
 public:
     AtomicGame();
@@ -22,6 +24,9 @@ public:
 
     void update();
     void draw();
+
+    // •`‰æƒXƒŒƒbƒh‚©‚çŒÄ‚Î‚ê‚é
+    void drawCallback();
 };
 
 } // namespace atomic

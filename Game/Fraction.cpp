@@ -22,6 +22,7 @@ FractionSet::Interframe::Interframe()
 {
     m_task_beforedraw = IST_NEW16(Task_FractionBeforeDraw)();
     m_task_afterdraw = IST_NEW16(Task_FractionAfterDraw)();
+    m_task_draw = IST_NEW16(Task_FractionDraw)();
     m_task_copy = IST_NEW16(Task_FractionCopy)();
     m_grid = IST_NEW16(FractionGrid)();
 }
@@ -30,6 +31,7 @@ FractionSet::Interframe::~Interframe()
 {
     IST_DELETE(m_grid);
     IST_DELETE(m_task_copy);
+    IST_DELETE(m_task_draw);
     IST_DELETE(m_task_afterdraw);
     IST_DELETE(m_task_beforedraw);
 }
@@ -114,22 +116,6 @@ void FractionSet::update()
     task->kick();
 }
 
-void FractionSet::draw() const
-{
-    getInterframe()->getTask_BeforeDraw()->waitForComplete();
-
-    PassGBuffer_Cube *cube = atomicGetCubeRenderer();
-    PassDeferred_SphereLight *light = atomicGetSphereLightRenderer();
-
-    size_t num_data = m_data.size();
-    for(uint32 i=0; i<num_data; ++i) {
-        cube->pushInstance(m_data[i].pos);
-    }
-    for(uint32 i=0; i<num_data; i+=200) {
-        light->pushInstance(m_data[i].pos);
-    }
-}
-
 void FractionSet::sync() const
 {
     Task_FractionBeforeDraw *task_before = getInterframe()->getTask_BeforeDraw();
@@ -141,6 +127,16 @@ void FractionSet::sync() const
 }
 
 
+
+Task* FractionSet::getDrawTask()
+{
+    TaskScheduler::waitExclusive(getInterframe()->getTask_BeforeDraw());
+
+    Task_FractionDraw *task = getInterframe()->getTask_Draw();
+    task->waitForComplete();
+    task->initialize(this);
+    return task;
+}
 
 uint32 FractionSet::getNumBlocks() const
 {
@@ -172,6 +168,20 @@ void FractionSet::taskBeforeDraw(uint32 block)
 void FractionSet::taskAfterDraw()
 {
     updateGrid();
+}
+
+void FractionSet::taskDraw() const
+{
+    PassGBuffer_Cube *cube = atomicGetCubeRenderer();
+    PassDeferred_SphereLight *light = atomicGetSphereLightRenderer();
+
+    size_t num_data = m_data.size();
+    for(uint32 i=0; i<num_data; ++i) {
+        cube->pushFractionInstance(m_data[i].pos);
+    }
+    for(uint32 i=0; i<num_data; i+=200) {
+        light->pushInstance(m_data[i].pos);
+    }
 }
 
 void FractionSet::taskCopy( FractionSet *dst ) const

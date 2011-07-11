@@ -14,6 +14,12 @@
 
 namespace ist {
 
+// スレッドに名前を設定します。デバッガから識別しやすくなります。 
+// 生成直後の他スレッドに対しては失敗することがあり、スレッド自身が自分につけるのが望ましいです。
+void SetThreadName(uint32_t thread_id, const char *name);
+void SetThreadName(const char *name);
+
+
 class SpinLock
 {
 private:
@@ -105,22 +111,24 @@ public:
     static void finalizeSingleton();
     static TaskScheduler* getInstance();
 
-    /// 実行待ちタスクがあればそれを処理する 
-    static void wait();
-    /// 指定タスクの完了を待つ。タスクキューが空ではない場合、呼び出し元スレッドもタスク処理に加わる。 
+    /// 実行待ちタスクがあればそれを処理する。なければ偽を返す。 
+    static bool wait();
+    /// 指定タスクの完了を待つ。実行待ちタスクがある場合、呼び出し元スレッドは待ってる間タスク処理に加わる。 
+    /// タスク間で相互に待つようなシチュエーションがあると永久停止する可能性があるので注意。 
     static void waitFor(TaskPtr task);
-    /// 範囲指定バージョン 
     static void waitFor(TaskPtr tasks[], size_t num);
-    /// 全タスクの完了を待つ。タスクキューが空ではない場合、呼び出し元スレッドもタスク処理に加わる。 
+    /// 指定タスクの完了を待つ。waitFor() と違い、呼び出し元スレッドはタスク処理に加わらない。
+    static void waitExclusive(TaskPtr task);
+    static void waitExclusive(TaskPtr tasks[], size_t num);
+    /// 全タスクの完了を待つ。実行待ちタスクがある場合、呼び出し元スレッドは待ってる間タスク処理に加わる。 
     /// タスク内から呼ぶと永久停止するのでやっちゃダメ。 
     static void waitForAll();
 
-
     /// タスクのスケジューリングを行う。 
-    static void schedule(TaskPtr task);
-    // 範囲指定バージョン 
-    static void schedule(TaskPtr tasks[], size_t num);
-
+    static void push(TaskPtr task);
+    static void push(TaskPtr tasks[], size_t num);
+    static void push_front(TaskPtr task);
+    static void push_front(TaskPtr tasks[], size_t num);
 
     static size_t getThreadCount();
     static boost::thread::id getThreadId(size_t i);
@@ -156,9 +164,9 @@ public:
     void exec()
     {
         TaskScheduler& scheduler = *TaskScheduler::getInstance();
-        scheduler.schedule(&m_children[0], m_children.size());
+        scheduler.push(&m_children[0], m_children.size());
         scheduler.waitFor(&m_children[0], m_children.size());
-        scheduler.schedule(&m_chain[0], m_chain.size());
+        scheduler.push(&m_chain[0], m_chain.size());
     }
 };
 

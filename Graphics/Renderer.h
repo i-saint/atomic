@@ -71,17 +71,39 @@ public:
 class PassGBuffer_Cube : public Renderer
 {
 private:
-    stl::vector<XMVECTOR> m_instance_pos;
+    struct InstanceInfo
+    {
+        stl::vector<XMVECTOR> pos;
+        stl::vector<XMVECTOR> glow;
+        stl::vector<float32> scale;
+
+        void clear()
+        {
+            pos.clear();
+            glow.clear();
+            scale.clear();
+        }
+
+        void reserve(uint32 n)
+        {
+            pos.reserve(n);
+            glow.reserve(n);
+            scale.reserve(n);
+        }
+    };
     ShaderGBuffer *m_sh_gbuffer;
     ModelData *m_model;
     VertexBufferObject *m_vbo_instance_pos;
+    InstanceInfo m_fraction;
+    InstanceInfo m_vfx;
 
 public:
     PassGBuffer_Cube();
     void beforeDraw();  // メインスレッドから、描画処理の前に呼ばれる
     void draw();    // 描画スレッドから呼ばれる
 
-    void pushInstance(XMVECTOR v) { m_instance_pos.push_back(v); }
+    void pushFractionInstance(XMVECTOR v) { m_fraction.pos.push_back(v); }
+    void pushVFXInstance(XMVECTOR v) { m_vfx.pos.push_back(v); }
 };
 
 class PassDeferred_SphereLight : public Renderer
