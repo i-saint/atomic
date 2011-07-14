@@ -1,8 +1,5 @@
 #include "stdafx.h"
 #include "../ist/ist.h"
-
-using namespace ist::graphics;
-
 #include "../types.h"
 #include "Message.h"
 #include "World.h"

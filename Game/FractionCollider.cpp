@@ -72,7 +72,12 @@ uint32 FractionGrid::hitTest( QWordVector &out, const FractionData &receiver ) c
     }
 
     FractionSet *fraction_set = atomicGetFractions();
-    const XMVECTOR diameter = _mm_set_ps1(FractionSet::RADIUS*2.0f);
+    const float32 diameterf = FractionSet::RADIUS*2.0f;
+    const float32 rcp_radius2f = 1.0f/(FractionSet::RADIUS*2.0f);
+    const XMVECTOR two = _mm_set_ps1(2.0f);
+    const XMVECTOR diameter = _mm_set_ps1(diameterf);
+    const XMVECTOR diameter_sq = _mm_set_ps1(diameterf*diameterf);
+    const XMVECTOR rcp_radius2 = _mm_set_ps1(rcp_radius2f);
     const XMVECTOR receiver_pos1 = receiver.pos;
     const SOAVECTOR3 receiver_pos = SOAVectorSet3(
         _mm_set_ps1(XMVectorGetX(receiver_pos1)),
@@ -94,9 +99,9 @@ uint32 FractionGrid::hitTest( QWordVector &out, const FractionData &receiver ) c
                 for(uint32 si=0; si<num_senders; si+=4) {
                     const SOAVECTOR4 tpos= SOAVectorTranspose4(data[0].pos, data[1].pos, data[2].pos, data[3].pos);
                     const SOAVECTOR3 dist= SOAVectorSubtract3(receiver_pos, tpos);
-                    const XMVECTOR   len = SOAVectorLength3(dist);
-                    const SOAVECTOR3 dir = SOAVectorDivide3S(dist, len);
-                    const XMVECTOR   hit = XMVectorLessOrEqual(len, diameter);
+                    const XMVECTOR   len_sq = SOAVectorLengthSquare3(dist);
+                    const SOAVECTOR3 dir = SOAVectorMultiply3S(dist, rcp_radius2);
+                    const XMVECTOR   hit = XMVectorLessOrEqual(len_sq, diameter_sq);
 
                     const XMVECTOR   eq_rid = XMVectorEqualInt(rid, tpos.w);
                     const SOAVECTOR4 dirv = SOAVectorTranspose4(dir.x, dir.y, dir.z);

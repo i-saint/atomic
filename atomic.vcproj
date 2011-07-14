@@ -197,6 +197,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Game\Bullet.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Game\Bullet.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Game\Enemy.cpp"
 				>
 			</File>

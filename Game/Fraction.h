@@ -132,10 +132,5 @@ private:
 
 
 
-
-
-
-
 } // namespace atomic
-
 #endif // __atomic_Fraction__

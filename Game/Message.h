@@ -21,6 +21,33 @@ enum MESSAGE_TYPE
     MES_GENERATE_VFX,
 };
 
+enum BULLET_TYPE
+{
+    BULLET_OCTAHEDRON,
+
+    BULLET_END,
+};
+
+enum FORCE_TYPE
+{
+    FORCE_SPHERICAL_GRAVITY,
+    FORCE_CYLINDRICAL_GRAVITY,
+    FORCE_CUBIC_GRAVITY,
+    FORCE_INVERTED_SPHERICAL_GRAVITY,
+    FORCE_INVERTED_CYLINDRICAL_GRAVITY,
+    FORCE_INVERTED_CUBIC_GRAVITY,
+
+    FORCE_END,
+};
+
+enum CHARACTER_TYPE
+{
+    CHARACTER_TEST_PlAYER,
+    CHARACTER_TEST_ENEMY,
+
+    CHARACTER_END,
+};
+
 
 struct Message_Kill
 {
@@ -41,7 +68,7 @@ struct Message_Force
 };
 
 
-struct Message_GenerateFraction
+struct __declspec(align(16)) Message_GenerateFraction
 {
     enum GEN_TYPE
     {
@@ -55,19 +82,23 @@ struct Message_GenerateFraction
     __declspec(align(16)) char shape_data[sizeof(ist::OBB)];
 };
 
-struct Message_GenerateBullet
+struct __declspec(align(16)) Message_GenerateBullet
 {
-    uint32 force_type;
+    BULLET_TYPE bullet_type;
+    XMVECTOR pos;
+    XMVECTOR vel;
 };
 
-struct Message_GenerateForce
+struct __declspec(align(16)) Message_GenerateForce
 {
-    uint32 force_type;
+    FORCE_TYPE force_type;
+    XMVECTOR pos;
 };
 
-struct Message_GenerateCharacter
+struct __declspec(align(16)) Message_GenerateCharacter
 {
-    uint32 force_type;
+    CHARACTER_TYPE character_type;
+    XMVECTOR pos;
 };
 
 
