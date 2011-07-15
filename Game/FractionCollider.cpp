@@ -72,11 +72,10 @@ uint32 FractionGrid::hitTest( QWordVector &out, const FractionData &receiver ) c
     }
 
     FractionSet *fraction_set = atomicGetFractions();
-    const float32 diameterf = FractionSet::RADIUS*2.0f;
-    const float32 rcp_radius2f = 1.0f/(FractionSet::RADIUS*2.0f);
-    const XMVECTOR two = _mm_set_ps1(2.0f);
-    const XMVECTOR diameter = _mm_set_ps1(diameterf);
-    const XMVECTOR diameter_sq = _mm_set_ps1(diameterf*diameterf);
+    const float32 radius2f = FractionSet::RADIUS*2.0f;
+    const float32 rcp_radius2f = 1.0f/(radius2f);
+    const XMVECTOR radius2 = _mm_set_ps1(radius2f);
+    const XMVECTOR radius2_sq = _mm_set_ps1(radius2f*radius2f);
     const XMVECTOR rcp_radius2 = _mm_set_ps1(rcp_radius2f);
     const XMVECTOR receiver_pos1 = receiver.pos;
     const SOAVECTOR3 receiver_pos = SOAVectorSet3(
@@ -85,8 +84,10 @@ uint32 FractionGrid::hitTest( QWordVector &out, const FractionData &receiver ) c
         _mm_set_ps1(XMVectorGetZ(receiver_pos1))
         );
 
-    const XMVECTORI32 range_min = getCoord(XMVectorSubtract(receiver_pos1, diameter));
-    const XMVECTORI32 range_max = getCoord(XMVectorAdd(receiver_pos1, diameter));
+    // ˆÈ‰ºA SoA ‚É•À‚Ñ‘Ö‚¦‚Â‚ÂÕ“Ë”»’èB
+    // Õ“Ë‚µ‚Ä‚¢‚½‚ç ‘Šè¨©•ª‚Ö‚Ì•ûŒü‚ğZoB
+    const XMVECTORI32 range_min = getCoord(XMVectorSubtract(receiver_pos1, radius2));
+    const XMVECTORI32 range_max = getCoord(XMVectorAdd(receiver_pos1, radius2));
     for(int32 yi=range_min.i[1]; yi<=range_max.i[1]; ++yi) {
         for(int32 zi=range_min.i[2]; zi<=range_max.i[2]; ++zi) {
             for(int32 xi=range_min.i[0]; xi<=range_max.i[0]; ++xi) {
@@ -100,11 +101,20 @@ uint32 FractionGrid::hitTest( QWordVector &out, const FractionData &receiver ) c
                     const SOAVECTOR4 tpos= SOAVectorTranspose4(data[0].pos, data[1].pos, data[2].pos, data[3].pos);
                     const SOAVECTOR3 dist= SOAVectorSubtract3(receiver_pos, tpos);
                     const XMVECTOR   len_sq = SOAVectorLengthSquare3(dist);
+                    // •ûŒü‚Í ”¼Œa*2 ‚Ì‹t”‚ğ—˜—p‚µ‚ÄŠ„‚èZ‚ğg‚í‚¸‘åG”c•‚‘¬‚É“¾‚ç‚ê‚é
                     const SOAVECTOR3 dir = SOAVectorMultiply3S(dist, rcp_radius2);
-                    const XMVECTOR   hit = XMVectorLessOrEqual(len_sq, diameter_sq);
+                    const XMVECTOR   hit = XMVectorLessOrEqual(len_sq, radius2_sq);
 
                     const XMVECTOR   eq_rid = XMVectorEqualInt(rid, tpos.w);
                     const SOAVECTOR4 dirv = SOAVectorTranspose4(dir.x, dir.y, dir.z);
+
+                    // _mm_movemask_ps() g‚Á‚½ê‡«‹t‚É’x‚­‚È‚Á‚½c
+                    //const uint32 hitv = _mm_movemask_ps(hit);
+                    //const uint32 eq_ridv = _mm_movemask_ps(eq_rid);
+                    //uint32 e = std::min<uint32>(4, num_senders-si);
+                    //for(size_t i=0; i<e; ++i) {
+                    //    if((hitv&1<<i)!=0 && (eq_ridv&1<<i)==0) {
+
                     const uint32* hitv = (const uint32*)&hit;
                     const uint32* eq_ridv = (const uint32*)&eq_rid;
                     uint32 e = std::min<uint32>(4, num_senders-si);
