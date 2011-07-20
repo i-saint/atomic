@@ -1,9 +1,20 @@
-#ifndef __atomic_Graphics_Shader__
-#define __atomic_Graphics_Shader__
+#ifndef __atomic_Graphics_Shader_h__
+#define __atomic_Graphics_Shader_h__
 namespace atomic {
 
 
 class ShaderGBuffer : public ProgramObject
+{
+typedef ProgramObject super;
+private:
+    VertexShader m_vsh;
+    FragmentShader m_fsh;
+
+public:
+    bool initialize();
+};
+
+class ShaderGBuffer_Octahedron : public ProgramObject
 {
 typedef ProgramObject super;
 private:
@@ -91,4 +102,4 @@ public:
 };
 
 } // namespace atomic
-#endif // __atomic_Graphics_Shader__
+#endif // __atomic_Graphics_Shader_h__

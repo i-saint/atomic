@@ -1,5 +1,5 @@
-#ifndef __atomic_AtomicGame__
-#define __atomic_AtomicGame__
+#ifndef __atomic_AtomicGame_h__
+#define __atomic_AtomicGame_h__
 namespace atomic {
 
 class World;
@@ -30,4 +30,4 @@ public:
 };
 
 } // namespace atomic
-#endif __atomic_AtomicGame__
+#endif __atomic_AtomicGame_h__

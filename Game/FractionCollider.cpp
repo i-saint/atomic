@@ -1,11 +1,10 @@
 #include "stdafx.h"
-#include "../ist/ist.h"
-#include "../types.h"
-#include "Message.h"
-#include "World.h"
-#include "Fraction.h"
-#include "FractionTask.h"
-#include "FractionCollider.h"
+#include "ist/ist.h"
+#include "types.h"
+#include "Game/Message.h"
+#include "Game/Fraction.h"
+#include "Game/FractionTask.h"
+#include "Game/FractionCollider.h"
 
 namespace atomic {
 
@@ -71,7 +70,6 @@ uint32 FractionGrid::hitTest( QWordVector &out, const FractionData &receiver ) c
         s_tmp_result->reserve(128);
     }
 
-    FractionSet *fraction_set = atomicGetFractions();
     const float32 radius2f = FractionSet::RADIUS*2.0f;
     const float32 rcp_radius2f = 1.0f/(radius2f);
     const XMVECTOR radius2 = _mm_set_ps1(radius2f);
@@ -84,10 +82,12 @@ uint32 FractionGrid::hitTest( QWordVector &out, const FractionData &receiver ) c
         _mm_set_ps1(XMVectorGetZ(receiver_pos1))
         );
 
-    // 以下、 SoA に並び替えつつ衝突判定。
-    // 衝突していたら 相手→自分への方向を算出。
+    // 衝突候補オブジェクト群のグリッドのインデクス
     const XMVECTORI32 range_min = getCoord(XMVectorSubtract(receiver_pos1, radius2));
     const XMVECTORI32 range_max = getCoord(XMVectorAdd(receiver_pos1, radius2));
+
+    // 以下、 SoA に並び替えつつ衝突判定。
+    // 衝突していたら 相手→自分への方向を算出。
     for(int32 yi=range_min.i[1]; yi<=range_max.i[1]; ++yi) {
         for(int32 zi=range_min.i[2]; zi<=range_max.i[2]; ++zi) {
             for(int32 xi=range_min.i[0]; xi<=range_max.i[0]; ++xi) {
@@ -98,13 +98,15 @@ uint32 FractionGrid::hitTest( QWordVector &out, const FractionData &receiver ) c
                 const XMVECTOR rid = XMVectorSetInt(receiver.id, receiver.id, receiver.id, receiver.id);
 
                 for(uint32 si=0; si<num_senders; si+=4) {
+                    // 位置の w 要素は id
                     const SOAVECTOR4 tpos= SOAVectorTranspose4(data[0].pos, data[1].pos, data[2].pos, data[3].pos);
                     const SOAVECTOR3 dist= SOAVectorSubtract3(receiver_pos, tpos);
                     const XMVECTOR   len_sq = SOAVectorLengthSquare3(dist);
-                    // 方向は 半径*2 の逆数を利用して割り算を使わず大雑把＆高速に得られる
+                    // 衝突の方向は 半径*2 の逆数を利用して割り算を使わず低精度＆高速に算出
                     const SOAVECTOR3 dir = SOAVectorMultiply3S(dist, rcp_radius2);
                     const XMVECTOR   hit = XMVectorLessOrEqual(len_sq, radius2_sq);
 
+                    // id が一緒 (=自分自身との衝突) の場合結果に含めない
                     const XMVECTOR   eq_rid = XMVectorEqualInt(rid, tpos.w);
                     const SOAVECTOR4 dirv = SOAVectorTranspose4(dir.x, dir.y, dir.z);
 

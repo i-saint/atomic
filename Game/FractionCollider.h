@@ -1,5 +1,5 @@
-#ifndef __atomic_FractionCollider__
-#define __atomic_FractionCollider__
+#ifndef __atomic_FractionCollider_h__
+#define __atomic_FractionCollider_h__
 
 namespace atomic {
 
@@ -126,4 +126,4 @@ public:
 
 
 } // namespace atomic
-#endif // __atomic_FractionCollider__
+#endif // __atomic_FractionCollider_h__

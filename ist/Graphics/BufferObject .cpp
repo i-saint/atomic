@@ -144,21 +144,21 @@ void VertexArray::unbind() const
     glBindVertexArray(0);
 }
 
-void VertexArray::setAttribute(GLuint i, GLint size, VertexBufferObject &vbo)
+void VertexArray::setAttribute(GLuint i, GLint num_elements, VertexBufferObject &vbo)
 {
     glBindVertexArray(m_handle);
     glEnableVertexAttribArray(i);
     vbo.bind();
-    glVertexAttribPointer(i, size, GL_FLOAT, GL_FALSE, 0, NULL);
+    glVertexAttribPointer(i, num_elements, GL_FLOAT, GL_FALSE, 0, NULL);
     glBindVertexArray(0);
 }
 
-void VertexArray::setInstanceAttribute(GLuint i, GLint size, VertexBufferObject &vbo)
+void VertexArray::setInstanceAttribute(GLuint i, GLint num_elements, VertexBufferObject &vbo)
 {
     glBindVertexArray(m_handle);
     glEnableVertexAttribArray(i);
     vbo.bind();
-    glVertexAttribPointer(i, size, GL_FLOAT, GL_FALSE, 0, NULL);
+    glVertexAttribPointer(i, num_elements, GL_FLOAT, GL_FALSE, 0, NULL);
     glVertexAttribDivisor(i, 1);
     glBindVertexArray(0);
 }

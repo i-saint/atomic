@@ -1,5 +1,5 @@
-#ifndef __atomic_Graphics_Renderer__
-#define __atomic_Graphics_Renderer__
+#ifndef __atomic_Graphics_Renderer_h__
+#define __atomic_Graphics_Renderer_h__
 
 #include "GraphicResourceManager.h"
 
@@ -106,6 +106,51 @@ public:
     void pushVFXInstance(XMVECTOR v) { m_vfx.pos.push_back(v); }
 };
 
+
+class PassGBuffer_Octahedron : public Renderer
+{
+private:
+    struct InstanceInfo
+    {
+        stl::vector<XMVECTOR> pos;
+        stl::vector<XMVECTOR> glow;
+        stl::vector<float32> scale;
+        stl::vector<float32> time;
+        stl::vector<float32> seed;
+
+        void clear()
+        {
+            pos.clear();
+            glow.clear();
+            scale.clear();
+            time.clear();
+            seed.clear();
+        }
+
+        void reserve(uint32 n)
+        {
+            pos.reserve(n);
+            glow.reserve(n);
+            scale.reserve(n);
+            time.clear();
+            seed.clear();
+        }
+    };
+    ShaderGBuffer_Octahedron *m_sh_gbuffer;
+    ModelData *m_model;
+    VertexBufferObject *m_vbo_instance_pos;
+    InstanceInfo m_bullets;
+
+public:
+    PassGBuffer_Octahedron();
+    void beforeDraw();
+    void draw();
+
+    void pushInstance(XMVECTOR v) { m_bullets.pos.push_back(v); }
+};
+
+
+
 class PassDeferred_SphereLight : public Renderer
 {
 private:
@@ -122,6 +167,7 @@ public:
     void pushInstance(XMVECTOR v) { m_instance_pos.push_back(v); }
 };
 
+
 class PassPostprocess_Bloom : public Renderer
 {
 private:
@@ -137,4 +183,4 @@ public:
 };
 
 } // namespace atomic
-#endif // __atomic_Graphics_Renderer__
+#endif // __atomic_Graphics_Renderer_h__

@@ -1,54 +1,15 @@
-#ifndef __atomic_Bullet__
-#define __atomic_Bullet__
+#ifndef __atomic_Bullet_h__
+#define __atomic_Bullet_h__
 
 
 namespace atomic {
+
+class BulletSubset;
 
 class Task_BulletBeforeDraw;
 class Task_BulletAfterDraw;
 class Task_BulletDraw;
 class Task_BulletCopy;
-
-
-
-class Bullet_OctahedronSet : boost::noncopyable
-{
-public:
-    struct __declspec(align(16)) BulletData
-    {
-        XMVECTOR pos;
-        XMVECTOR vel;
-        union {
-            struct {
-                float32 height;
-                float32 random;
-                uint32 lifetime;
-            };
-            XMVECTOR param;
-        };
-    };
-
-private:
-    typedef stl::vector<BulletData> BulletCont;
-
-    BulletCont m_data;
-
-public:
-    Bullet_OctahedronSet();
-    ~Bullet_OctahedronSet();
-
-    uint32 getNumBullets() const { return m_data.size(); }
-    const BulletData* getBullet(uint32 i) const { return &m_data[i]; }
-
-public:
-    void taskBeforeDraw();
-    void taskAfterDraw();
-    void taskDraw();
-    void taskCopy();
-};
-
-
-class Bullet_OctahedronSet;
 
 
 class BulletSet : boost::noncopyable
@@ -72,7 +33,8 @@ private:
 
 
 private:
-    Bullet_OctahedronSet m_octahedron;
+    typedef stl::vector<BulletSubset*> BulletSubsets;
+    BulletSubsets m_subsets;
 
     const BulletSet *m_prev;
     BulletSet *m_next;
@@ -86,6 +48,7 @@ public:
     void deserialize(Deserializer& s);
 
     void update();
+    void draw() const;
     void sync() const;
 
     Task* getDrawTask();
@@ -101,7 +64,7 @@ public:
     void taskBeforeDraw(uint32 block);
     void taskAfterDraw();
     void taskDraw() const;
-    void taskCopy(FractionSet *dst) const;
+    void taskCopy(BulletSet *dst) const;
 
 private:
     void processMessage();
@@ -113,4 +76,4 @@ private:
 
 
 } // namespace atomic
-#endif // __atomic_Bullet__
+#endif // __atomic_Bullet_h__

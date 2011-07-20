@@ -76,9 +76,9 @@ public:
     void bind() const;
     void unbind() const;
 
-    // size: 1,2,3,4
-    void setAttribute(GLuint index, GLint size, VertexBufferObject &vbo);
-    void setInstanceAttribute(GLuint i, GLint size, VertexBufferObject &vbo);
+    // num_elements: 1,2,3,4
+    void setAttribute(GLuint index, GLint num_elements, VertexBufferObject &vbo);
+    void setInstanceAttribute(GLuint i, GLint num_elements, VertexBufferObject &vbo);
 };
 
 } // namespace graphics

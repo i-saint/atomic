@@ -19,10 +19,12 @@ public:
     };
     enum PRIMITIVE_TYPE
     {
-        PRM_POINTS      = GL_POINTS,
-        PRM_LINES       = GL_LINES,
-        PRM_TRIANGLES   = GL_TRIANGLES,
-        PRM_QUADS       = GL_QUADS,
+        PRM_POINTS          = GL_POINTS,
+        PRM_LINES           = GL_LINES,
+        PRM_TRIANGLES       = GL_TRIANGLES,
+        PRM_TRIANGLE_STRIP  = GL_TRIANGLE_STRIP,
+        PRM_TRIANGLE_FAN    = GL_TRIANGLE_FAN,
+        PRM_QUADS           = GL_QUADS,
     };
     enum USAGE
     {

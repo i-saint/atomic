@@ -1,132 +1,11 @@
 #include "stdafx.h"
-#include "../ist/ist.h"
-#include "../types.h"
-#include "GraphicResourceManager.h"
-#include "../Game/AtomicApplication.h"
+#include "ist/ist.h"
+#include "types.h"
+#include "Game/AtomicApplication.h"
+#include "Graphics/GraphicResourceManager.h"
 
 namespace atomic {
 
-
-
-inline void CreateSphereModel(ModelData& model, float32 radius)
-{
-    const float pi = 3.14159f;
-    const float radian = pi/180.0f;
-
-    const int ydiv = 12;
-    const int xzdiv = 24;
-    vec4 v[ydiv][xzdiv];
-    vec3 n[ydiv][xzdiv];
-    int index[(ydiv-1)*(xzdiv)*4];
-
-    for(int i=0; i<ydiv; ++i) {
-        float ang = ((180.0f/(ydiv-1)*i-90.0f)*radian);
-        v[i][0] = vec4(cos(ang)*radius, sin(ang)*radius, 0, 1.0);
-    }
-
-    mat4 mat;
-    for(int j=0; j<xzdiv; ++j) {
-        for(int i=0; i<ydiv; ++i) {
-            v[i][j] = mat * v[i][0];
-            n[i][j] = glm::normalize(vec3(v[i][j].x, v[i][j].y, v[i][j].z));
-        }
-        mat = glm::rotate(mat4(), 360.0f/xzdiv*j, vec3(0.0f, 1.0f, 0.0f));
-    }
-
-    int *ci = index;
-    for(int i=0; i<ydiv-1; ++i) {
-        for(int j=0; j<xzdiv; ++j) {
-            ci[0] = xzdiv*(i)  + j;
-            ci[1] = xzdiv*(i)  + ((j+1)%xzdiv);
-            ci[2] = xzdiv*(i+1)+ ((j+1)%xzdiv);
-            ci[3] = xzdiv*(i+1)+ j;
-            ci+=4;
-        }
-    }
-    model.setData(0, v, ydiv*xzdiv, 4);
-    model.setData(1, n, ydiv*xzdiv, 3);
-    model.setIndex(index, ((ydiv-1)*(xzdiv)*4), ModelData::IDX_INT32, ModelData::PRM_QUADS);
-
-}
-
-inline void CreateCubeModel(ModelData& model, float32 len)
-{
-    vec4 vertex[24];
-    vec3 normal[24];
-    int index[24];
-
-    vec3 ur = vec3( len/2.0f, len/2.0f, len/2.0f);
-    vec3 bl = vec3(-len/2.0f,-len/2.0f,-len/2.0f);
-    vec3 n;
-
-    n = vec3(1.0f, 0.0f, 0.0f);
-    normal[0] = n;
-    normal[1] = n;
-    normal[2] = n;
-    normal[3] = n;
-    vertex[0] = vec4(ur[0], ur[1], ur[2], 1.0f);
-    vertex[1] = vec4(ur[0], bl[1], ur[2], 1.0f);
-    vertex[2] = vec4(ur[0], bl[1], bl[2], 1.0f);
-    vertex[3] = vec4(ur[0], ur[1], bl[2], 1.0f);
-
-    n = vec3(-1.0f, 0.0f, 0.0f);
-    normal[4] = n;
-    normal[5] = n;
-    normal[6] = n;
-    normal[7] = n;
-    vertex[4] = vec4(bl[0], ur[1], ur[2], 1.0f);
-    vertex[5] = vec4(bl[0], ur[1], bl[2], 1.0f);
-    vertex[6] = vec4(bl[0], bl[1], bl[2], 1.0f);
-    vertex[7] = vec4(bl[0], bl[1], ur[2], 1.0f);
-
-    n = vec3(0.0f, 1.0f, 0.0f);
-    normal[8] = n;
-    normal[9] = n;
-    normal[10] = n;
-    normal[11] = n;
-    vertex[8] = vec4(ur[0], ur[1], ur[2], 1.0f);
-    vertex[9] = vec4(ur[0], ur[1], bl[2], 1.0f);
-    vertex[10] = vec4(bl[0], ur[1], bl[2], 1.0f);
-    vertex[11] = vec4(bl[0], ur[1], ur[2], 1.0f);
-
-    n = vec3(0.0f, -1.0f, 0.0f);
-    normal[12] = n;
-    normal[13] = n;
-    normal[14] = n;
-    normal[15] = n;
-    vertex[12] = vec4(ur[0], bl[1], ur[2], 1.0f);
-    vertex[13] = vec4(bl[0], bl[1], ur[2], 1.0f);
-    vertex[14] = vec4(bl[0], bl[1], bl[2], 1.0f);
-    vertex[15] = vec4(ur[0], bl[1], bl[2], 1.0f);
-
-    n = vec3(0.0f, 0.0f, 1.0f);
-    normal[16] = n;
-    normal[17] = n;
-    normal[18] = n;
-    normal[19] = n;
-    vertex[16] = vec4(ur[0], ur[1], ur[2], 1.0f);
-    vertex[17] = vec4(bl[0], ur[1], ur[2], 1.0f);
-    vertex[18] = vec4(bl[0], bl[1], ur[2], 1.0f);
-    vertex[19] = vec4(ur[0], bl[1], ur[2], 1.0f);
-
-    n = vec3(0.0f, 0.0f, -1.0f);
-    normal[20] = n;
-    normal[21] = n;
-    normal[22] = n;
-    normal[23] = n;
-    vertex[20] = vec4(ur[0], ur[1], bl[2], 1.0f);
-    vertex[21] = vec4(ur[0], bl[1], bl[2], 1.0f);
-    vertex[22] = vec4(bl[0], bl[1], bl[2], 1.0f);
-    vertex[23] = vec4(bl[0], ur[1], bl[2], 1.0f);
-
-    for(size_t i=0; i<24; ++i) {
-        index[i] = i;
-    }
-
-    model.setData(0, &vertex, 24, 4);
-    model.setData(1, normal, 24, 3);
-    model.setIndex(index, 24, ModelData::IDX_INT32, ModelData::PRM_QUADS);
-}
 
 void DrawScreen(vec2 min_pos, vec2 max_pos, vec2 min_tc, vec2 max_tc)
 {
@@ -206,8 +85,8 @@ bool GraphicResourceManager::initialize()
             m_model[i] = IST_NEW(ModelData) ();
             m_model[i]->initialize();
         }
-        CreateCubeModel(*m_model[MODEL_CUBE], 6.0f);
-        CreateSphereModel(*m_model[MODEL_SPHERE], 150.0f);
+        CreateCubeModel(*m_model[MODEL_CUBE_FRACTION], 6.0f);
+        CreateSphereModel(*m_model[MODEL_SPHERE_LIGHT], 150.0f, 16,8);
     }
     {
         for(uint32 i=0; i<_countof(m_tex2d); ++i) {
@@ -228,22 +107,28 @@ bool GraphicResourceManager::initialize()
         }
     }
     {
-        m_sh_gbuffer    = IST_NEW(ShaderGBuffer) ();
-        m_sh_deferred   = IST_NEW(ShaderDeferred) ();
-        m_sh_bloom      = IST_NEW(ShaderBloom) ();
-        m_sh_output     = IST_NEW(ShaderOutput) ();
+        m_sh_gbuffer = IST_NEW(ShaderGBuffer)();
         m_sh_gbuffer->initialize();
+        m_shader[SH_GBUFFER] = m_sh_gbuffer;
+
+        m_sh_gbuffer_octahedron = IST_NEW(ShaderGBuffer_Octahedron)();
+        m_sh_gbuffer_octahedron->initialize();
+        m_shader[SH_GBUFFER_OCTAHEDRON] = m_sh_gbuffer_octahedron;
+
+        m_sh_deferred = IST_NEW(ShaderDeferred)();
         m_sh_deferred->initialize();
+        m_shader[SH_DEFERRED] = m_sh_deferred;
+
+        m_sh_bloom = IST_NEW(ShaderBloom)();
         m_sh_bloom->initialize();
+        m_shader[SH_BLOOM] = m_sh_bloom;
+
+        m_sh_output = IST_NEW(ShaderOutput)();
         m_sh_output->initialize();
-        m_shader[SH_GBUFFER]    = m_sh_gbuffer;
-        m_shader[SH_DEFERRED]   = m_sh_deferred;
-        m_shader[SH_BLOOM]      = m_sh_bloom;
-        m_shader[SH_OUTPUT]     = m_sh_output;
+        m_shader[SH_OUTPUT] = m_sh_output;
     }
     {
-        //m_rand.initialize(0);
-        //m_tex_rand.initialize(64, 64, Texture2D::FMT_RGB_U8, m_rand);
+        GenerateRandomTexture(*m_tex2d[TEX2D_RANDOM], 64, 64, Texture2D::FMT_RGB_U8);
     }
     {
         m_rt_gbuffer = IST_NEW(RenderTargetGBuffer) ();

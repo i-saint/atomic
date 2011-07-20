@@ -1,10 +1,10 @@
 #include "stdafx.h"
-#include "../types.h"
-#include "World.h"
+#include "types.h"
 #include "AtomicGame.h"
 #include "AtomicApplication.h"
-#include "../Graphics/GraphicResourceManager.h"
-#include "../Graphics/Renderer.h"
+#include "Graphics/GraphicResourceManager.h"
+#include "Graphics/Renderer.h"
+#include "Game/World.h"
 
 
 namespace atomic {

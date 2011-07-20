@@ -2,7 +2,7 @@
 #include "Linear.h"
 
 namespace ist {
-namespace graphics {
+namespace linear {
 
-} // namespace graphics
+} // namespace linear
 } // namespace ist

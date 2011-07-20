@@ -1,10 +1,11 @@
 #include "stdafx.h"
-#include "../ist/ist.h"
-#include "../types.h"
+#include "ist/ist.h"
+#include "types.h"
 #include "AtomicApplication.h"
-#include "Message.h"
-#include "Fraction.h"
-#include "World.h"
+#include "Game/Message.h"
+#include "Game/Fraction.h"
+#include "Game/Bullet.h"
+#include "Game/World.h"
 
 using namespace ist::graphics;
 
@@ -140,8 +141,10 @@ World::World()
 : m_prev(NULL)
 , m_next(NULL)
 , m_fraction_set(NULL)
+, m_bullet_set(NULL)
 {
     m_fraction_set = IST_NEW16(FractionSet)();
+    m_bullet_set = IST_NEW16(BulletSet)();
 }
 
 World::~World()

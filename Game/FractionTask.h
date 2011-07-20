@@ -1,5 +1,5 @@
-#ifndef __atomic_FractionTask__
-#define __atomic_FractionTask__
+#ifndef __atomic_FractionTask_h__
+#define __atomic_FractionTask_h__
 
 namespace atomic {
 
@@ -72,4 +72,4 @@ public:
 
 
 } // namespace atomic
-#endif // __atomic_FractionTask__
+#endif // __atomic_FractionTask_h__

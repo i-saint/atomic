@@ -1,12 +1,14 @@
-#ifndef __atomic_Game_World__
-#define __atomic_Game_World__
+#ifndef __atomic_Game_World_h__
+#define __atomic_Game_World_h__
 
 namespace atomic {
 
-class EnemySet;
+class CharacterSet;
+class BulletSet;
 class ForceSet;
 class FractionSet;
 class VFXSet;
+
 class World;
 class Task_WorldBeforeDraw;
 class Task_WorldAfterDraw;
@@ -49,7 +51,9 @@ public:
 private:
     const World *m_prev;
     World *m_next;
+
     FractionSet *m_fraction_set;
+    BulletSet *m_bullet_set;
 
     SFMT m_rand;
     PerspectiveCamera m_camera;
@@ -98,4 +102,4 @@ public:
 
 
 } // namespace atomic
-#endif // __atomic_Game_World__
+#endif // __atomic_Game_World_h__

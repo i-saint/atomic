@@ -1,5 +1,5 @@
-#ifndef __atomic_AtomicApplication__
-#define __atomic_AtomicApplication__
+#ifndef __atomic_AtomicApplication_h__
+#define __atomic_AtomicApplication_h__
 namespace atomic {
 
 
@@ -45,4 +45,4 @@ public:
 #define atomicGetWindowAspectRatio()    (float(atomicGetWindowWidth())/float(atomicGetWindowHeight()))
 
 } // namespace atomic
-#endif __atomic_AtomicApplication__
+#endif __atomic_AtomicApplication_h__

@@ -16,6 +16,15 @@ bool ShaderGBuffer::initialize()
 }
 
 
+bool ShaderGBuffer_Octahedron::initialize()
+{
+    CreateVertexShaderFromFile(m_vsh, "shader/gbuffer_octahedron.vsh");
+    CreateFragmentShaderFromFile(m_fsh, "shader/gbuffer_octahedron.fsh");
+    super::initialize(&m_vsh, NULL, &m_fsh);
+
+    return true;
+}
+
 
 
 bool ShaderDeferred::initialize()

@@ -1,5 +1,5 @@
-#ifndef __atomic_Message__
-#define __atomic_Message__
+#ifndef __atomic_Message_h__
+#define __atomic_Message_h__
 
 namespace atomic {
 
@@ -30,12 +30,20 @@ enum BULLET_TYPE
 
 enum FORCE_TYPE
 {
+    FORCE_SPHERICAL_FIELD,
+    FORCE_CYLINDRICAL_FIELD,
+    FORCE_CUBIC_FIELD,
+    FORCE_INVERTED_SPHERICAL_FIELD,
+    FORCE_INVERTED_CYLINDRICAL_FIELD,
+    FORCE_INVERTED_CUBIC_FIELD,
+
     FORCE_SPHERICAL_GRAVITY,
     FORCE_CYLINDRICAL_GRAVITY,
     FORCE_CUBIC_GRAVITY,
-    FORCE_INVERTED_SPHERICAL_GRAVITY,
-    FORCE_INVERTED_CYLINDRICAL_GRAVITY,
-    FORCE_INVERTED_CUBIC_GRAVITY,
+
+    FORCE_SPHERICAL_REFLECTOR,
+    FORCE_CYLINDRICAL_REFLECTOR,
+    FORCE_CUBIC_REFLECTOR,
 
     FORCE_END,
 };
@@ -62,9 +70,17 @@ struct Message_Destroy
 };
 
 
-struct Message_Force
+struct __declspec(align(16)) Message_Force
 {
     uint32 force_type;
+    __declspec(align(16)) char force_data[64];
+
+    template<class ForceDataType>
+    void assignData(const ForceDataType& v)
+    {
+        BOOST_STATIC_ASSERT(sizeof(ForceDataType)<=sizeof(force_data));
+        reinterpret_cast<ForceDataType&>(*force_data) = v;
+    }
 };
 
 
@@ -79,7 +95,14 @@ struct __declspec(align(16)) Message_GenerateFraction
     };
     uint32 gen_type;
     uint32 num;
-    __declspec(align(16)) char shape_data[sizeof(ist::OBB)];
+    __declspec(align(16)) char shape_data[64];
+
+    template<class ShapeDataType>
+    void assignData(const ShapeDataType& v)
+    {
+        BOOST_STATIC_ASSERT(sizeof(ShapeDataType)<=sizeof(shape_data));
+        reinterpret_cast<ShapeDataType&>(*shape_data) = v;
+    }
 };
 
 struct __declspec(align(16)) Message_GenerateBullet
@@ -206,4 +229,4 @@ public:
 };
 
 } // namespace atomic
-#endif // __atomic_Message__
+#endif // __atomic_Message_h__

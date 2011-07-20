@@ -1,13 +1,13 @@
 #include "stdafx.h"
-#include "../ist/ist.h"
-#include "../types.h"
-#include "Message.h"
-#include "World.h"
+#include "ist/ist.h"
+#include "types.h"
 #include "AtomicApplication.h"
-#include "Fraction.h"
-#include "FractionTask.h"
-#include "FractionCollider.h"
-#include "../Graphics/Renderer.h"
+#include "Graphics/Renderer.h"
+#include "Game/Message.h"
+#include "Game/World.h"
+#include "Game/Fraction.h"
+#include "Game/FractionTask.h"
+#include "Game/FractionCollider.h"
 
 
 namespace atomic
@@ -98,7 +98,7 @@ void FractionSet::initialize()
             sphere.y = yv[i];
             sphere.z = zv[i];
             sphere.r = 200.0f;
-            (ist::Sphere&)(*mes.shape_data) = sphere;
+            mes.assignData<ist::Sphere>(sphere);
             atomicPushMessage(MR_FRACTION, 0, mes);
         }
     }

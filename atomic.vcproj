@@ -121,7 +121,7 @@
 				AdditionalOptions="/MP"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="external;C:\boost\boost_1_46_1"
+				AdditionalIncludeDirectories="./;external;C:\boost\boost_1_46_1"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -205,11 +205,23 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Game\Enemy.cpp"
+				RelativePath=".\Game\Bullet_Octahedron.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Game\Enemy.h"
+				RelativePath=".\Game\Bullet_Octahedron.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Game\Bullet_Subset.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Game\Character.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Game\Character.h"
 				>
 			</File>
 			<File
@@ -218,6 +230,18 @@
 			</File>
 			<File
 				RelativePath=".\Game\Force.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Game\Force_Gravity.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Game\Force_Gravity.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Game\Force_Gravity.inl"
 				>
 			</File>
 			<File
@@ -396,14 +420,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\ist\Math\Linear.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\ist\Math\Linear.h"
-					>
-				</File>
-				<File
 					RelativePath=".\ist\Graphics\ModelData.cpp"
 					>
 				</File>
@@ -435,6 +451,14 @@
 			<Filter
 				Name="Math"
 				>
+				<File
+					RelativePath=".\ist\Math\Linear.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ist\Math\Linear.h"
+					>
+				</File>
 				<File
 					RelativePath=".\ist\Math\SoA.h"
 					>
@@ -525,6 +549,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\shader\gbuffer_octahedron.fsh"
+				>
+			</File>
+			<File
+				RelativePath=".\shader\gbuffer_octahedron.vsh"
+				>
+			</File>
+			<File
 				RelativePath=".\shader\out.fsh"
 				>
 			</File>
@@ -544,6 +576,14 @@
 		<Filter
 			Name="Graphics"
 			>
+			<File
+				RelativePath=".\Graphics\CreateModelData.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Graphics\CreateModelData.h"
+				>
+			</File>
 			<File
 				RelativePath=".\Graphics\GraphicResourceManager.cpp"
 				>

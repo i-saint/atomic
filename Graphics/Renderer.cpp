@@ -204,7 +204,7 @@ void AtomicRenderer::pass_Output()
 PassGBuffer_Cube::PassGBuffer_Cube()
 {
     m_sh_gbuffer = atomicGetShaderGBuffer();
-    m_model = atomicGetModelData(MODEL_CUBE);
+    m_model = atomicGetModelData(MODEL_CUBE_FRACTION);
     m_vbo_instance_pos = atomicGetVertexBufferObject(VBO_CUBE_POS);
     m_fraction.reserve(65536);
 }
@@ -235,10 +235,46 @@ void PassGBuffer_Cube::draw()
 }
 
 
+
+
+
+PassGBuffer_Octahedron::PassGBuffer_Octahedron()
+{
+    m_sh_gbuffer = atomicGetShaderGBuffer_Octahedron();
+    m_model = atomicGetModelData(MODEL_OCTAHEDRON_BULLET);
+    m_vbo_instance_pos = atomicGetVertexBufferObject(VBO_OCTAHEDRON_POS);
+    m_bullets.reserve(2048);
+}
+
+void PassGBuffer_Octahedron::beforeDraw()
+{
+    m_bullets.clear();
+}
+
+void PassGBuffer_Octahedron::draw()
+{
+    const uint32 num_bullets = m_bullets.pos.size();
+    const uint32 total = num_bullets;
+    m_vbo_instance_pos->allocate(sizeof(XMVECTOR)*total, VertexBufferObject::USAGE_STREAM);
+    {
+        XMVECTOR *p = (XMVECTOR*)m_vbo_instance_pos->lock(VertexBufferObject::LOCK_WRITE);
+        memcpy(p, &m_bullets.pos[0], sizeof(XMVECTOR)*num_bullets);
+        m_vbo_instance_pos->unlock();
+    }
+
+    m_sh_gbuffer->bind();
+    m_model->setInstanceData(2, 4, *m_vbo_instance_pos);
+    m_model->drawInstanced(total);
+    m_sh_gbuffer->unbind();
+}
+
+
+
+
 PassDeferred_SphereLight::PassDeferred_SphereLight()
 {
     m_sh_deferred = atomicGetShaderDeferred();
-    m_model = atomicGetModelData(MODEL_SPHERE);
+    m_model = atomicGetModelData(MODEL_SPHERE_LIGHT);
     m_vbo_instance_pos = atomicGetVertexBufferObject(VBO_SPHERE_LIGHT_POS);
     m_instance_pos.reserve(1024);
 }
@@ -379,7 +415,6 @@ void PassPostprocess_Bloom::draw()
     m_sh_bloom->unbind();
 
     atomicGetDefaultViewport()->bind();
-
 }
 
 } // namespace atomic

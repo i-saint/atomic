@@ -1,8 +1,7 @@
-#ifndef __atomic_Game_VFX__
-#define __atomic_Game_VFX__
+#ifndef __atomic_Game_VFX_h__
+#define __atomic_Game_VFX_h__
 
-namespace atomic
-{
+namespace atomic {
 
 
 class VFXSet
@@ -14,19 +13,21 @@ public:
     VFXSet();
     ~VFXSet();
 
-    void initialize(VFXSet* prev);
+    void initialize();
+    void serialize(Serializer& s) const;
+    void deserialize(Deserializer& s);
 
     void update();
-    void draw();
-    void sync();
+    void draw() const;
+    void sync() const;
 
 public:
+    void taskBeforeDraw();
+    void taskAfterDraw();
+    void taskDraw() const;
+    void taskCopy(VFXSet *dst) const;
 };
 
 
-class Task_WorldUpdate;
-class Task_WorldDraw;
-
-
 } // namespace atomic
-#endif // __atomic_Game_VFX__
+#endif // __atomic_Game_VFX_h__

@@ -1,6 +1,7 @@
-#ifndef __atomic_Graphics_GraphicResourceManager__
-#define __atomic_Graphics_GraphicResourceManager__
-#include "Shader.h"
+#ifndef __atomic_Graphics_GraphicResourceManager_h__
+#define __atomic_Graphics_GraphicResourceManager_h__
+#include "Graphics/Shader.h"
+#include "Graphics/CreateModelData.h"
 
 namespace atomic {
 
@@ -20,13 +21,18 @@ enum PASS {
 };
 
 enum MODEL_INDEX {
-    MODEL_QUAD,
-    MODEL_CUBE,
-    MODEL_SPHERE,
+    MODEL_QUAD_SCREEN,
+    MODEL_QUAD_VFX,
+    MODEL_CUBE_FRACTION,
+    MODEL_CUBE_VFX,
+    MODEL_OCTAHEDRON_BULLET,
+    MODEL_SPHERE_LIGHT,
+
     MODEL_END,
 };
 enum SH_INDEX {
     SH_GBUFFER,
+    SH_GBUFFER_OCTAHEDRON,
     SH_DEFERRED,
     SH_BLOOM,
     SH_OUTPUT,
@@ -58,6 +64,11 @@ enum VBO_INDEX {
     VBO_CUBE_POS,
     VBO_CUBE_SCALE,
     VBO_CUBE_GLOW,
+    VBO_OCTAHEDRON_POS,
+    VBO_OCTAHEDRON_SCALE,
+    VBO_OCTAHEDRON_DIR,
+    VBO_OCTAHEDRON_SEED,
+    VBO_OCTAHEDRON_TIME,
     VBO_SPHERE_LIGHT_POS,
     VBO_SPHERE_LIGHT_SCALE,
     VBO_END,
@@ -76,10 +87,11 @@ class GraphicResourceManager : boost::noncopyable
 {
 private:
 
-    ShaderGBuffer   *m_sh_gbuffer;
-    ShaderDeferred  *m_sh_deferred;
-    ShaderBloom     *m_sh_bloom;
-    ShaderOutput    *m_sh_output;
+    ShaderGBuffer               *m_sh_gbuffer;
+    ShaderGBuffer_Octahedron    *m_sh_gbuffer_octahedron;
+    ShaderDeferred              *m_sh_deferred;
+    ShaderBloom                 *m_sh_bloom;
+    ShaderOutput                *m_sh_output;
 
     RenderTargetGBuffer     *m_rt_gbuffer;
     RenderTargetDeferred    *m_rt_deferred;
@@ -107,10 +119,11 @@ public:
     VertexBufferObject* getVertexBufferObject(VBO_INDEX i)      { return m_vbo[i]; }
     UniformBufferObject* getUniformBufferObject(UBO_INDEX i)    { return m_ubo[i]; }
 
-    ShaderGBuffer*  getShaderGBuffer()      { return m_sh_gbuffer; }
-    ShaderDeferred* getShaderDeferred()     { return m_sh_deferred; }
-    ShaderBloom*    getShaderBloom()        { return m_sh_bloom; }
-    ShaderOutput*   getShaderOutput()       { return m_sh_output; }
+    ShaderGBuffer*              getShaderGBuffer()              { return m_sh_gbuffer; }
+    ShaderGBuffer_Octahedron*   getShaderGBuffer_Octahedron()   { return m_sh_gbuffer_octahedron; }
+    ShaderDeferred*             getShaderDeferred()             { return m_sh_deferred; }
+    ShaderBloom*                getShaderBloom()                { return m_sh_bloom; }
+    ShaderOutput*               getShaderOutput()               { return m_sh_output; }
 
     void swapBuffers();
     RenderTargetGBuffer*    getRenderTargetGBuffer()        { return m_rt_gbuffer; }
@@ -126,6 +139,7 @@ public:
 #define atomicGetRenderTargetGauss(i)       atomicGetGraphicResourceManager()->getRenderTargetGauss(i)
 
 #define atomicGetShaderGBuffer()            atomicGetGraphicResourceManager()->getShaderGBuffer()
+#define atomicGetShaderGBuffer_Octahedron() atomicGetGraphicResourceManager()->getShaderGBuffer_Octahedron()
 #define atomicGetShaderDeferred()           atomicGetGraphicResourceManager()->getShaderDeferred()
 #define atomicGetShaderBloom()              atomicGetGraphicResourceManager()->getShaderBloom()
 #define atomicGetShaderOutput()             atomicGetGraphicResourceManager()->getShaderOutput()
@@ -136,4 +150,4 @@ public:
 #define atomicGetUniformBufferObject(i)     atomicGetGraphicResourceManager()->getUniformBufferObject(i)
 
 } // namespace atomic
-#endif // __atomic_Graphics_GraphicResourceManager__
+#endif // __atomic_Graphics_GraphicResourceManager_h__

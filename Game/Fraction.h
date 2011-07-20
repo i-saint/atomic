@@ -1,5 +1,5 @@
-#ifndef __atomic_Fraction__
-#define __atomic_Fraction__
+#ifndef __atomic_Fraction_h__
+#define __atomic_Fraction_h__
 
 #include "FractionCollider.h"
 
@@ -133,4 +133,4 @@ private:
 
 
 } // namespace atomic
-#endif // __atomic_Fraction__
+#endif // __atomic_Fraction_h__
