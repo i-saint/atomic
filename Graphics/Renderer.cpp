@@ -219,19 +219,11 @@ void PassGBuffer_Cube::beforeDraw()
 void PassGBuffer_Cube::draw()
 {
     const uint32 num_fractions = m_fraction.pos.size();
-    const uint32 num_vfxs = m_vfx.pos.size();
-    const uint32 total = num_fractions + num_vfxs;
-    m_vbo_instance_pos->allocate(sizeof(XMVECTOR)*total, VertexBufferObject::USAGE_STREAM);
-    {
-        XMVECTOR *p = (XMVECTOR*)m_vbo_instance_pos->lock(VertexBufferObject::LOCK_WRITE);
-        memcpy(p, &m_fraction.pos[0], sizeof(XMVECTOR)*num_fractions);
-        memcpy(p+num_fractions, &m_vfx.pos[0], sizeof(XMVECTOR)*num_vfxs);
-        m_vbo_instance_pos->unlock();
-    }
+    m_vbo_instance_pos->allocate(sizeof(XMVECTOR)*num_fractions, VertexBufferObject::USAGE_STREAM, &m_fraction.pos[0]);
 
     m_sh_gbuffer->bind();
     m_model->setInstanceData(2, 4, *m_vbo_instance_pos);
-    m_model->drawInstanced(total);
+    m_model->drawInstanced(num_fractions);
     m_sh_gbuffer->unbind();
 }
 
@@ -315,6 +307,7 @@ void PassPostprocess_Bloom::beforeDraw()
 void PassPostprocess_Bloom::draw()
 {
     const float32 aspect_ratio = atomicGetWindowAspectRatio();
+    const float32 rcp_aspect_ratio = 1.0f/aspect_ratio;
     const Viewport viewports[] = {
         Viewport(  0,0, 256,256),
         Viewport(256,0, 128,128),
@@ -352,7 +345,10 @@ void PassPostprocess_Bloom::draw()
         m_sh_bloom->setColorBuffer(Texture2D::SLOT_0);
         for(uint32 i=0; i<_countof(viewports); ++i) {
             viewports[i].bind();
-            DrawScreen();
+            DrawScreen(
+                vec2(0.0f, 0.0f),
+                vec2(float(atomicGetWindowWidth())/float32(m_rt_deferred->getWidth()),
+                     float(atomicGetWindowHeight())/float32(m_rt_deferred->getHeight())*aspect_ratio ));
         }
         // todo
         m_rt_deferred->getColorBuffer(0)->unbind();
@@ -369,7 +365,7 @@ void PassPostprocess_Bloom::draw()
             viewports[i].bind();
             vec2 tmin = texcoord_pos[i] + half_pixel;
             vec2 tmax = texcoord_pos[i]+texcoord_size[i] - half_pixel;
-            tmax.y /= aspect_ratio;
+            tmax.y *= rcp_aspect_ratio;
             m_sh_bloom->setTexcoordMin(tmin);
             m_sh_bloom->setTexcoordMax(tmax);
             DrawScreen(texcoord_pos[i], texcoord_pos[i]+texcoord_size[i]);
@@ -388,7 +384,7 @@ void PassPostprocess_Bloom::draw()
             viewports[i].bind();
             vec2 tmin = texcoord_pos[i] + half_pixel;
             vec2 tmax = texcoord_pos[i]+texcoord_size[i] - half_pixel;
-            tmax.y /= aspect_ratio;
+            tmax.y *= rcp_aspect_ratio;
             m_sh_bloom->setTexcoordMin(tmin);
             m_sh_bloom->setTexcoordMax(tmax);
             DrawScreen(texcoord_pos[i], texcoord_pos[i]+texcoord_size[i]);
@@ -409,7 +405,7 @@ void PassPostprocess_Bloom::draw()
         for(uint32 i=0; i<_countof(viewports); ++i) {
             vec2 tmin = texcoord_pos[i] + half_pixel;
             vec2 tmax = texcoord_pos[i]+texcoord_size[i] - half_pixel;
-            tmax.y /= aspect_ratio;
+            tmax.y *= rcp_aspect_ratio;
             DrawScreen(tmin, tmax);
         }
         glDisable(GL_BLEND);

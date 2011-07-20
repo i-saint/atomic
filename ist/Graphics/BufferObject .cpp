@@ -77,7 +77,10 @@ template<GLuint BufferType>
 void BufferObject<BufferType>::allocate(GLuint size, USAGE usage, void *data)
 {
     m_size = size;
-    if(size > m_capacity) {
+    if(size==0) {
+        return;
+    }
+    else if(size > m_capacity) {
         m_capacity = size;
         glBindBuffer(BufferType, m_handle);
         glBufferData(BufferType, size, data, usage);

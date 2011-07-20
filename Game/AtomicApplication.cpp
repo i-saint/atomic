@@ -168,6 +168,7 @@ bool AtomicApplication::initialize(size_t x, size_t y, size_t width, size_t heig
         return false;
     }
     TaskScheduler::initializeSingleton();
+    //TaskScheduler::initializeSingleton(11);
 
     m_draw_thread = IST_NEW16(AtomicRenderThread)(this);
     m_draw_thread->run();
