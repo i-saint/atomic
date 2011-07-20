@@ -39,18 +39,18 @@ private:
     GLuint m_loc_position_buffer;
     GLuint m_loc_depth_buffer;
 
-    GLuint m_loc_aspect_ratio;
+    GLuint m_loc_rcp_aspect_ratio;
     GLuint m_loc_texcoord_scale;
 
 public:
     bool initialize();
 
-    void setColorBuffer(int32 v)    { setUniform1i(m_loc_color_buffer, v); }
-    void setGlowBuffer(int32 v)     { setUniform1i(m_loc_glow_buffer, v); }
-    void setNormalBuffer(int32 v)   { setUniform1i(m_loc_normal_buffer, v); }
-    void setPositionBuffer(int32 v) { setUniform1i(m_loc_position_buffer, v); }
-    void setDepthBuffer(int32 v)    { setUniform1i(m_loc_depth_buffer, v); }
-    void setAspectRatio(float32 v)  { setUniform1f(m_loc_aspect_ratio, v); }
+    void setColorBuffer(int32 v)        { setUniform1i(m_loc_color_buffer, v); }
+    void setGlowBuffer(int32 v)         { setUniform1i(m_loc_glow_buffer, v); }
+    void setNormalBuffer(int32 v)       { setUniform1i(m_loc_normal_buffer, v); }
+    void setPositionBuffer(int32 v)     { setUniform1i(m_loc_position_buffer, v); }
+    void setDepthBuffer(int32 v)        { setUniform1i(m_loc_depth_buffer, v); }
+    void setRcpAspectRatio(float32 v)   { setUniform1f(m_loc_rcp_aspect_ratio, v); }
     void setTexcoordScale(const vec2& v) { setUniform2f(m_loc_texcoord_scale, v); }
 };
 
@@ -63,8 +63,8 @@ private:
     FragmentShader m_fsh;
 
     GLuint m_loc_color_buffer;
-    GLuint m_loc_screen_width;
-    GLuint m_loc_screen_height;
+    GLuint m_loc_rcp_screen_width;
+    GLuint m_loc_rcp_screen_height;
     GLuint m_loc_texcoord_min;
     GLuint m_loc_texcoord_max;
 
@@ -75,9 +75,9 @@ private:
 
 public:
     bool initialize();
-    void setColorBuffer(int32 v)    { setUniform1i(m_loc_color_buffer, v); }
-    void setScreenWidth(float32 v)  { setUniform1f(m_loc_screen_width, v); }
-    void setScreenHeight(float32 v) { setUniform1f(m_loc_screen_height, v); }
+    void setColorBuffer(int32 v)        { setUniform1i(m_loc_color_buffer, v); }
+    void setRcpScreenWidth(float32 v)   { setUniform1f(m_loc_rcp_screen_width, v); }
+    void setRcpScreenHeight(float32 v)  { setUniform1f(m_loc_rcp_screen_height, v); }
     void setTexcoordMin(const vec2& v)  { setUniform2f(m_loc_texcoord_min, v); }
     void setTexcoordMax(const vec2& v)  { setUniform2f(m_loc_texcoord_max, v); }
 

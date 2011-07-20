@@ -533,6 +533,14 @@
 			Name="Shader"
 			>
 			<File
+				RelativePath=".\shader\bloom.fsh"
+				>
+			</File>
+			<File
+				RelativePath=".\shader\bloom.vsh"
+				>
+			</File>
+			<File
 				RelativePath=".\shader\deferred.fsh"
 				>
 			</File>

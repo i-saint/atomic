@@ -123,8 +123,9 @@ void AtomicRenderer::pass_GBuffer()
 void AtomicRenderer::pass_Deferred()
 {
     const PerspectiveCamera *camera = atomicGetCamera();
-    float aspect_ratio = camera->getAspect();
-    vec2 tex_scale = vec2(
+    const float32 aspect_ratio = camera->getAspect();
+    const float32 rcp_aspect_ratio = 1.0f/aspect_ratio;
+    const vec2 tex_scale = vec2(
         float32(atomicGetWindowWidth())/float32(m_rt_deferred->getWidth()),
         float32(atomicGetWindowHeight())/float32(m_rt_deferred->getHeight()) * aspect_ratio);
 
@@ -137,7 +138,7 @@ void AtomicRenderer::pass_Deferred()
     m_sh_deferred->setColorBuffer(Texture2D::SLOT_0);
     m_sh_deferred->setNormalBuffer(Texture2D::SLOT_1);
     m_sh_deferred->setPositionBuffer(Texture2D::SLOT_2);
-    m_sh_deferred->setAspectRatio(aspect_ratio);
+    m_sh_deferred->setRcpAspectRatio(rcp_aspect_ratio);
     m_sh_deferred->setTexcoordScale(tex_scale);
     glClearColor(0.0f,0.0f,0.0f,1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -314,32 +315,35 @@ void PassPostprocess_Bloom::beforeDraw()
 void PassPostprocess_Bloom::draw()
 {
     const float32 aspect_ratio = atomicGetWindowAspectRatio();
-    Viewport viewports[] = {
+    const Viewport viewports[] = {
         Viewport(  0,0, 256,256),
         Viewport(256,0, 128,128),
         Viewport(384,0,  64, 64),
         Viewport(448,0,  32, 32),
     };
-    vec2 texcoord_pos[] = {
+    const vec2 texcoord_pos[] = {
         vec2( 0.0f, 0.0f),
         vec2( 0.5f, 0.0f),
         vec2(0.75f, 0.0f),
         vec2(0.875f, 0.0f),
     };
-    vec2 texcoord_size[] = {
+    const vec2 texcoord_size[] = {
         vec2(  0.5f,  1.0f),
         vec2( 0.25f,  0.5f),
         vec2(0.125f, 0.25f),
         vec2(0.0625f, 0.125f),
     };
+    const float32 rcp_width = 1.0f/(float32)m_rt_gauss0->getWidth();
+    const float32 rcp_height = 1.0f/(float32)m_rt_gauss0->getHeight();
+    const vec2 half_pixel = vec2(rcp_width, rcp_height)*0.5f;
 
     OrthographicCamera cam;
     cam.setScreen(0.0f, 1.0f, 0.0f, 1.0f);
     cam.bind();
 
     m_sh_bloom->bind();
-    m_sh_bloom->setScreenWidth((float32)m_rt_gauss0->getWidth());
-    m_sh_bloom->setScreenHeight((float32)m_rt_gauss0->getHeight());
+    m_sh_bloom->setRcpScreenWidth(rcp_width);
+    m_sh_bloom->setRcpScreenHeight(rcp_height);
     // ‹P“x’Šo
     {
         m_sh_bloom->switchToPickupPass();
@@ -363,8 +367,8 @@ void PassPostprocess_Bloom::draw()
         m_sh_bloom->setColorBuffer(Texture2D::SLOT_0);
         for(uint32 i=0; i<_countof(viewports); ++i) {
             viewports[i].bind();
-            vec2 tmin = texcoord_pos[i];
-            vec2 tmax = texcoord_pos[i]+texcoord_size[i];
+            vec2 tmin = texcoord_pos[i] + half_pixel;
+            vec2 tmax = texcoord_pos[i]+texcoord_size[i] - half_pixel;
             tmax.y /= aspect_ratio;
             m_sh_bloom->setTexcoordMin(tmin);
             m_sh_bloom->setTexcoordMax(tmax);
@@ -382,8 +386,8 @@ void PassPostprocess_Bloom::draw()
         m_sh_bloom->setColorBuffer(Texture2D::SLOT_0);
         for(uint32 i=0; i<_countof(viewports); ++i) {
             viewports[i].bind();
-            vec2 tmin = texcoord_pos[i];
-            vec2 tmax = texcoord_pos[i]+texcoord_size[i];
+            vec2 tmin = texcoord_pos[i] + half_pixel;
+            vec2 tmax = texcoord_pos[i]+texcoord_size[i] - half_pixel;
             tmax.y /= aspect_ratio;
             m_sh_bloom->setTexcoordMin(tmin);
             m_sh_bloom->setTexcoordMax(tmax);
@@ -403,8 +407,8 @@ void PassPostprocess_Bloom::draw()
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE);
         for(uint32 i=0; i<_countof(viewports); ++i) {
-            vec2 tmin = texcoord_pos[i];
-            vec2 tmax = texcoord_pos[i]+texcoord_size[i];
+            vec2 tmin = texcoord_pos[i] + half_pixel;
+            vec2 tmax = texcoord_pos[i]+texcoord_size[i] - half_pixel;
             tmax.y /= aspect_ratio;
             DrawScreen(tmin, tmax);
         }

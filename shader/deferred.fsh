@@ -3,7 +3,7 @@
 uniform sampler2D u_ColorBuffer;
 uniform sampler2D u_NormalBuffer;
 uniform sampler2D u_PositionBuffer;
-uniform float u_AspectRatio;
+uniform float u_RcpAspectRatio;
 uniform vec2 u_TexcoordScale;
 
 in vec4 v_LightPosition;
@@ -19,7 +19,7 @@ void main()
 {
     vec2 coord;
     coord.x = (1.0 + (v_VertexPositionMVP.x/v_VertexPositionMVP.w))*0.5;
-    coord.y = (1.0 + (v_VertexPositionMVP.y/v_VertexPositionMVP.w))*0.5 / u_AspectRatio;
+    coord.y = (1.0 + (v_VertexPositionMVP.y/v_VertexPositionMVP.w))*0.5* u_RcpAspectRatio;
     coord *= u_TexcoordScale;
 
     vec4 frag_position = texture(u_PositionBuffer, coord);

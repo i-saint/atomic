@@ -1,8 +1,8 @@
 #version 410 compatibility
 
 uniform sampler2D u_ColorBuffer;
-uniform float u_ScreenWidth;
-uniform float u_ScreenHeight;
+uniform float u_RcpScreenWidth;
+uniform float u_RcpScreenHeight;
 uniform vec2 u_TexcoordMin;
 uniform vec2 u_TexcoordMax;
 in vec2 v_Texcoord;
@@ -27,7 +27,7 @@ vec4 horizontalBlur()
 {
     vec4 color;
     for(int i=0; i<8; ++i) {
-        vec2 gap = vec2(float(i)/u_ScreenWidth, 0.0);
+        vec2 gap = vec2(float(i)*u_RcpScreenWidth, 0.0);
         color += (texture(u_ColorBuffer, clamp(v_Texcoord+gap, u_TexcoordMin, u_TexcoordMax)) + 
                   texture(u_ColorBuffer, clamp(v_Texcoord-gap, u_TexcoordMin, u_TexcoordMax))) * Weight[i];
     }
@@ -39,7 +39,7 @@ vec4 verticalBlur()
 {
     vec4 color;
     for(int i=0; i<8; ++i) {
-        vec2 gap = vec2(0.0, float(i)/u_ScreenHeight);
+        vec2 gap = vec2(0.0, float(i)*u_RcpScreenHeight);
         color += (texture(u_ColorBuffer, clamp(v_Texcoord+gap, u_TexcoordMin, u_TexcoordMax)) + 
                   texture(u_ColorBuffer, clamp(v_Texcoord-gap, u_TexcoordMin, u_TexcoordMax))) * Weight[i];
     }

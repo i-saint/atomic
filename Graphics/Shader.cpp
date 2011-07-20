@@ -39,7 +39,7 @@ bool ShaderDeferred::initialize()
     m_loc_position_buffer   = getUniformLocation("u_PositionBuffer");
     //m_loc_depth_buffer      = getUniformLocation("u_DepthBuffer");
 
-    m_loc_aspect_ratio      = getUniformLocation("u_AspectRatio");
+    m_loc_rcp_aspect_ratio  = getUniformLocation("u_RcpAspectRatio");
     m_loc_texcoord_scale    = getUniformLocation("u_TexcoordScale");
 
     return true;
@@ -53,8 +53,8 @@ bool ShaderBloom::initialize()
     super::initialize(&m_vsh, NULL, &m_fsh);
 
     m_loc_color_buffer      = getUniformLocation("u_ColorBuffer");
-    m_loc_screen_width      = getUniformLocation("u_ScreenWidth");
-    m_loc_screen_height     = getUniformLocation("u_ScreenHeight");
+    m_loc_rcp_screen_width  = getUniformLocation("u_RcpScreenWidth");
+    m_loc_rcp_screen_height = getUniformLocation("u_RcpScreenHeight");
     m_loc_texcoord_min      = getUniformLocation("u_TexcoordMin");
     m_loc_texcoord_max      = getUniformLocation("u_TexcoordMax");
 
