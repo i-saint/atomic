@@ -389,19 +389,29 @@ void TaskScheduler::waitFor(TaskPtr tasks[], size_t num)
 void TaskScheduler::waitExclusive( TaskPtr task )
 {
     if(!task) { return; }
-    while(!task->isFinished())
-    {
-        boost::this_thread::yield();
+    if(s_instance->m_threads.empty()) {
+        waitFor(task);
+    }
+    else {
+        while(!task->isFinished())
+        {
+            boost::this_thread::yield();
+        }
     }
 }
 
 void TaskScheduler::waitExclusive( TaskPtr tasks[], size_t num )
 {
     if(!tasks || num==0) { return; }
-    for(size_t i=0; i<num; ++i) {
-        if(!tasks[i]) { continue; }
-        while(!tasks[i]->isFinished()) {
-            boost::this_thread::yield();
+    if(s_instance->m_threads.empty()) {
+        waitFor(tasks, num);
+    }
+    else {
+        for(size_t i=0; i<num; ++i) {
+            if(!tasks[i]) { continue; }
+            while(!tasks[i]->isFinished()) {
+                boost::this_thread::yield();
+            }
         }
     }
 }
