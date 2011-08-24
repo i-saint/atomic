@@ -103,10 +103,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\shader\shader.rb"
-				>
-			</File>
-			<File
 				RelativePath=".\shader\ssao.fsh"
 				>
 			</File>
@@ -115,6 +111,10 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\shader\shader.rb"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

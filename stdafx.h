@@ -21,7 +21,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-//#include <Cg/cgGL.h>
 #include <windows.h>
 #include <mmsystem.h>
 #include <xnamath.h>
@@ -30,7 +29,6 @@
 #include <emmintrin.h>
 #include <pmmintrin.h>
 #include <tmmintrin.h>
-#include <boost/timer.hpp>
 #include <boost/thread.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/static_assert.hpp>

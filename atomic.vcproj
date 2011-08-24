@@ -534,59 +534,11 @@
 			Name="Shader"
 			>
 			<File
-				RelativePath=".\shader\bloom.fsh"
-				>
-			</File>
-			<File
-				RelativePath=".\shader\bloom.vsh"
-				>
-			</File>
-			<File
-				RelativePath=".\shader\deferred.fsh"
-				>
-			</File>
-			<File
-				RelativePath=".\shader\deferred.vsh"
-				>
-			</File>
-			<File
-				RelativePath=".\shader\gbuffer.fsh"
-				>
-			</File>
-			<File
-				RelativePath=".\shader\gbuffer.vsh"
-				>
-			</File>
-			<File
-				RelativePath=".\shader\gbuffer_octahedron.fsh"
-				>
-			</File>
-			<File
-				RelativePath=".\shader\gbuffer_octahedron.vsh"
-				>
-			</File>
-			<File
 				RelativePath=".\shader\glsl_source.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\shader\glsl_source.h"
-				>
-			</File>
-			<File
-				RelativePath=".\shader\out.fsh"
-				>
-			</File>
-			<File
-				RelativePath=".\shader\out.vsh"
-				>
-			</File>
-			<File
-				RelativePath=".\shader\ssao.fsh"
-				>
-			</File>
-			<File
-				RelativePath=".\shader\ssao.vsh"
 				>
 			</File>
 		</Filter>
@@ -625,6 +577,10 @@
 				RelativePath=".\Graphics\Shader.h"
 				>
 			</File>
+		</Filter>
+		<Filter
+			Name="Sound"
+			>
 		</Filter>
 		<File
 			RelativePath=".\main.cpp"
