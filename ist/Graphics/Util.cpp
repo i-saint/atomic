@@ -6,6 +6,7 @@
 #include "Util.h"
 #include <string>
 #include <sstream>
+#include <fstream>
 
 namespace ist {
 namespace graphics {
@@ -29,6 +30,7 @@ bool CreateTexture2DFromStream(Texture2D& tex, std::istream& st)
 bool GenerateRandomTexture(Texture2D &tex, GLsizei width, GLsizei height, Texture2D::FORMAT format)
 {
     static SFMT random;
+    if(!random.isInitialized()) { random.initialize((uint32_t)::time(0)); }
     return GenerateRandomTexture(tex, width, height, format, random);
 }
 
@@ -76,7 +78,7 @@ bool GenerateRandomTexture(Texture2D &tex, GLsizei width, GLsizei height, Textur
 
 
 template<class ShaderType>
-bool CreateShaderFromFile(ShaderType& sh, const char *filename)
+inline bool CreateShaderFromFile(ShaderType& sh, const char *filename)
 {
     std::ifstream  st(filename, std::ios::binary);
     if(st.fail()) {
@@ -87,7 +89,7 @@ bool CreateShaderFromFile(ShaderType& sh, const char *filename)
 }
 
 template<class ShaderType>
-bool CreateShaderFromStream(ShaderType& sh, std::istream& st)
+inline bool CreateShaderFromStream(ShaderType& sh, std::istream& st)
 {
     std::string source;
     std::ostringstream str_out;
@@ -97,12 +99,21 @@ bool CreateShaderFromStream(ShaderType& sh, std::istream& st)
     return sh.initialize(source.c_str(), source.size());
 }
 
+template<class ShaderType>
+inline bool CreateShaderFromString(ShaderType& sh, const char* source)
+{
+    return sh.initialize(source, strlen(source));
+}
+
 bool CreateVertexShaderFromFile(VertexShader& sh, const char *filename)     { return CreateShaderFromFile<VertexShader>(sh, filename); }
 bool CreateGeometryShaderFromFile(GeometryShader& sh, const char *filename) { return CreateShaderFromFile<GeometryShader>(sh, filename); }
 bool CreateFragmentShaderFromFile(FragmentShader& sh, const char *filename) { return CreateShaderFromFile<FragmentShader>(sh, filename); }
 bool CreateVertexShaderFromStream(VertexShader& sh, std::istream& st)       { return CreateShaderFromStream<VertexShader>(sh, st); }
 bool CreateGeometryShaderFromStream(GeometryShader& sh, std::istream& st)   { return CreateShaderFromStream<GeometryShader>(sh, st); }
 bool CreateFragmentShaderFromStream(FragmentShader& sh, std::istream& st)   { return CreateShaderFromStream<FragmentShader>(sh, st); }
+bool CreateVertexShaderFromString(VertexShader& sh, const char* source)     { return CreateShaderFromString<VertexShader>(sh, source); }
+bool CreateGeometryShaderFromString(GeometryShader& sh, const char* source) { return CreateShaderFromString<GeometryShader>(sh, source); }
+bool CreateFragmentShaderFromString(FragmentShader& sh, const char* source) { return CreateShaderFromString<FragmentShader>(sh, source); }
 
 
 

@@ -24,6 +24,9 @@ bool CreateFragmentShaderFromFile(FragmentShader& sh, const char *filename);
 bool CreateVertexShaderFromStream(VertexShader& sh, std::istream& st);
 bool CreateGeometryShaderFromStream(GeometryShader& sh, std::istream& st);
 bool CreateFragmentShaderFromStream(FragmentShader& sh, std::istream& st);
+bool CreateVertexShaderFromString(VertexShader& sh, const char* source);
+bool CreateGeometryShaderFromString(GeometryShader& sh, const char* source);
+bool CreateFragmentShaderFromString(FragmentShader& sh, const char* source);
 
 
 

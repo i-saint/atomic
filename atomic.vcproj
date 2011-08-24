@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="external;C:\boost\boost_1_46_1"
+				AdditionalIncludeDirectories="./;external;C:\boost\boost_1_46_1"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
@@ -63,7 +63,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="opengl32.lib glu32.lib winmm.lib glew32.lib EASTLEAWebKit.lib cg.lib cgGL.lib"
+				AdditionalDependencies="opengl32.lib glu32.lib winmm.lib glew32s.lib EASTLEAWebKit.lib"
 				OutputFile="$(ProjectName)_d.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="D:\lib"
@@ -119,8 +119,9 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
-				Optimization="2"
+				Optimization="3"
 				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="./;external;C:\boost\boost_1_46_1"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
@@ -141,7 +142,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="opengl32.lib glu32.lib winmm.lib glew32.lib EASTLEAWebKit.lib cg.lib cgGL.lib"
+				AdditionalDependencies="opengl32.lib glu32.lib winmm.lib glew32s.lib EASTLEAWebKit.lib"
 				OutputFile="$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="D:\lib"
@@ -562,6 +563,14 @@
 			</File>
 			<File
 				RelativePath=".\shader\gbuffer_octahedron.vsh"
+				>
+			</File>
+			<File
+				RelativePath=".\shader\glsl_source.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\shader\glsl_source.h"
 				>
 			</File>
 			<File

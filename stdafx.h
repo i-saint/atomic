@@ -12,6 +12,8 @@
 #define GLM_GTX_simd_vec4   //
 #define GLM_GTX_simd_mat4   //
 
+#define GLEW_STATIC // glew ‚Í static link ‚·‚é
+
 #include <stdio.h>
 #include <GL/glew.h>
 #include <GL/wglew.h>
@@ -30,8 +32,6 @@
 #include <tmmintrin.h>
 #include <boost/timer.hpp>
 #include <boost/thread.hpp>
-#include <boost/smart_ptr.hpp>
-#include <boost/regex.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/static_assert.hpp>
 #include <EASTL/algorithm.h>
@@ -42,8 +42,6 @@
 #include <EASTL/map.h>
 #include <EASTL/string.h>
 #include <iostream>
-#include <sstream>
-#include <fstream>
 
 namespace stl = eastl;
 

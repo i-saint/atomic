@@ -2,14 +2,15 @@
 #include "../ist/ist.h"
 #include "../types.h"
 #include "Shader.h"
+#include "shader/glsl_source.h"
 
 namespace atomic {
 
 
 bool ShaderGBuffer::initialize()
 {
-    CreateVertexShaderFromFile(m_vsh, "shader/gbuffer.vsh");
-    CreateFragmentShaderFromFile(m_fsh, "shader/gbuffer.fsh");
+    CreateVertexShaderFromString(m_vsh, g_gbuffer_vsh);
+    CreateFragmentShaderFromString(m_fsh, g_gbuffer_fsh);
     super::initialize(&m_vsh, NULL, &m_fsh);
 
     return true;
@@ -18,8 +19,8 @@ bool ShaderGBuffer::initialize()
 
 bool ShaderGBuffer_Octahedron::initialize()
 {
-    CreateVertexShaderFromFile(m_vsh, "shader/gbuffer_octahedron.vsh");
-    CreateFragmentShaderFromFile(m_fsh, "shader/gbuffer_octahedron.fsh");
+    CreateVertexShaderFromString(m_vsh, g_gbuffer_octahedron_vsh);
+    CreateFragmentShaderFromString(m_fsh, g_gbuffer_octahedron_fsh);
     super::initialize(&m_vsh, NULL, &m_fsh);
 
     return true;
@@ -29,8 +30,8 @@ bool ShaderGBuffer_Octahedron::initialize()
 
 bool ShaderDeferred::initialize()
 {
-    CreateVertexShaderFromFile(m_vsh, "shader/deferred.vsh");
-    CreateFragmentShaderFromFile(m_fsh, "shader/deferred.fsh");
+    CreateVertexShaderFromString(m_vsh, g_deferred_vsh);
+    CreateFragmentShaderFromString(m_fsh, g_deferred_fsh);
     super::initialize(&m_vsh, NULL, &m_fsh);
 
     m_loc_color_buffer      = getUniformLocation("u_ColorBuffer");
@@ -48,8 +49,8 @@ bool ShaderDeferred::initialize()
 
 bool ShaderBloom::initialize()
 {
-    CreateVertexShaderFromFile(m_vsh, "shader/bloom.vsh");
-    CreateFragmentShaderFromFile(m_fsh, "shader/bloom.fsh");
+    CreateVertexShaderFromString(m_vsh, g_bloom_vsh);
+    CreateFragmentShaderFromString(m_fsh, g_bloom_fsh);
     super::initialize(&m_vsh, NULL, &m_fsh);
 
     m_loc_color_buffer      = getUniformLocation("u_ColorBuffer");
@@ -69,8 +70,8 @@ bool ShaderBloom::initialize()
 
 bool ShaderOutput::initialize()
 {
-    CreateVertexShaderFromFile(m_vsh, "shader/out.vsh");
-    CreateFragmentShaderFromFile(m_fsh, "shader/out.fsh");
+    CreateVertexShaderFromString(m_vsh, g_out_vsh);
+    CreateFragmentShaderFromString(m_fsh, g_out_fsh);
     super::initialize(&m_vsh, NULL, &m_fsh);
 
     m_loc_color_buffer      = getUniformLocation("u_ColorBuffer");

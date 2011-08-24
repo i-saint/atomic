@@ -276,6 +276,8 @@ public:
     }
 
     void initialize(uint32_t seed) { init_gen_rand(seed); }
+    bool isInitialized() const { return m_initialized!=0; }
+
     double genFloat64()  { return genrand_real1(); }
     float genFloat32()  { return (float)genrand_real1(); }
     uint32_t genInt32()      { return gen_rand32(); }
