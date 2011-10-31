@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include <windows.h>
 #include "../Base/Assert.h"
 #include "../Base/TaskScheduler.h"
 #include "Application.h"
@@ -9,7 +8,10 @@ namespace ist
 
 Application *g_the_app = NULL;
 HINSTANCE g_hinstance = NULL;
+
+#ifdef IST_OPENGL
 HDC g_hdc = NULL;
+#endif // IST_OPENGL
 
 
 LRESULT CALLBACK WndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lParam)
@@ -88,13 +90,22 @@ LRESULT CALLBACK WndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lPara
 
 Application::Application()
 : m_hwnd(NULL)
-, m_hglrc(NULL)
 , m_x(0)
 , m_y(0)
 , m_width(0)
 , m_height(0)
+#ifdef IST_OPENGL
+, m_hdc(NULL)
+, m_hglrc(NULL)
+#endif // IST_OPENGL
+#ifdef IST_DIRECTX
+, m_dxswapchain(0)
+, m_dxdevice(0)
+, m_dxcontext(0)
+#endif // IST_DIRECTX
 {
 }
+
 
 Application::~Application()
 {
@@ -173,18 +184,13 @@ bool Application::initialize(size_t x, size_t y, size_t width, size_t height, co
 
 void Application::finalize()
 {
-    if(g_the_app==this) {
-        g_the_app = NULL;
-    }
-
-    if(m_hwnd) {
-        ::CloseWindow(m_hwnd);
-        m_hwnd = NULL;
-    }
+    if(g_the_app==this) { g_the_app = NULL; }
+    if(m_hwnd) { ::CloseWindow(m_hwnd); m_hwnd=NULL; }
 }
 
 bool Application::initializeDraw()
 {
+#ifdef IST_OPENGL
     int pixelformat;
     static PIXELFORMATDESCRIPTOR pfd = {
         sizeof(PIXELFORMATDESCRIPTOR),    //この構造体のサイズ
@@ -222,16 +228,52 @@ bool Application::initializeDraw()
 
     ::glewInit();
     wglSwapIntervalEXT(GL_FALSE);
+#endif // IST_OPENGL
+
+#ifdef IST_DIRECTX
+    // create a struct to hold information about the swap chain
+    DXGI_SWAP_CHAIN_DESC scd;
+    // clear out the struct for use
+    ZeroMemory(&scd, sizeof(scd));
+
+    // fill the swap chain description struct
+    scd.BufferCount = 1;                                    // one back buffer
+    scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;     // use 32-bit color
+    scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;      // how swap chain is to be used
+    scd.OutputWindow = m_hwnd;                              // the window to be used
+    scd.SampleDesc.Count = 4;                               // how many multisamples
+    scd.Windowed = m_fullscreen ? FALSE : TRUE;             // windowed/full-screen mode
+
+    // create a device, device context and swap chain using the information in the scd struct
+    D3D11CreateDeviceAndSwapChain(
+        NULL,
+        D3D_DRIVER_TYPE_HARDWARE,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        D3D11_SDK_VERSION,
+        &scd,
+        &m_dxswapchain,
+        &m_dxdevice,
+        NULL,
+        &m_dxcontext);
+#endif // IST_DIRECTX
 
     return true;
 }
 
 void Application::finalizeDraw()
 {
-    if(m_hglrc) {
-        ::wglDeleteContext(m_hglrc);
-        m_hglrc = NULL;
-    }
+#ifdef IST_OPENGL
+    if(m_hglrc)     { ::wglDeleteContext(m_hglrc); m_hglrc=NULL; }
+#endif // IST_OPENGL
+
+#ifdef IST_DIRECTX
+    if(m_dxswapchain)   { m_dxswapchain->Release(); m_dxswapchain=NULL; }
+    if(m_dxdevice)      { m_dxdevice->Release();    m_dxdevice=NULL;    }
+    if(m_dxcontext)     { m_dxcontext->Release();   m_dxcontext=NULL;   }
+#endif // IST_DIRECTX
 }
 
 void Application::translateMessage()
@@ -247,7 +289,9 @@ void Application::translateMessage()
 
 void glSwapBuffers()
 {
+#ifdef IST_OPENGL
     ::SwapBuffers(ist::g_hdc);
+#endif // IST_OPENGL
 }
 
 

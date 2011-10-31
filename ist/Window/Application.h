@@ -1,8 +1,6 @@
 #ifndef __ist_Application__
 #define __ist_Application__
 
-#include <windows.h>
-
 void glSwapBuffers();
 
 namespace ist
@@ -87,11 +85,20 @@ struct WM_Mouse : public WindowMessage
 class Application
 {
 private:
-    HDC         m_hdc;
     HWND        m_hwnd;
-    HGLRC       m_hglrc;
     DEVMODE     m_devmode;
     bool        m_fullscreen;
+
+#ifdef IST_OPENGL
+    HDC         m_hdc;
+    HGLRC       m_hglrc;
+#endif // IST_OPENGL
+
+#ifdef IST_DIRECTX
+    IDXGISwapChain      *m_dxswapchain;
+    ID3D11Device        *m_dxdevice;
+    ID3D11DeviceContext *m_dxcontext;
+#endif // IST_DIRECTX
 
     size_t m_x, m_y;
     size_t m_width, m_height;
