@@ -48,9 +48,9 @@ namespace detail
 #		elif(GLM_COMPONENT == GLM_COMPONENT_MS_EXT)
 		union 
 		{
-			struct{value_type x, y;};
 			struct{value_type r, g;};
 			struct{value_type s, t;};
+			struct{value_type x, y;};
 		};
 #		else//(GLM_COMPONENT == GLM_COMPONENT_GLSL_NAMES)
 		union {value_type x, r, s;};
@@ -185,8 +185,10 @@ namespace detail
 		GLM_FUNC_DECL tref2<T> & operator= (tref2<T> const & r);
 		GLM_FUNC_DECL tref2<T> & operator= (tvec2<T> const & v);
 
-		T& x;
-		T& y;
+		GLM_FUNC_DECL tvec2<T> operator() ();
+
+		T & x;
+		T & y;
 	};
 
 	GLM_DETAIL_IS_VECTOR(tvec2);

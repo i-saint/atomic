@@ -88,7 +88,7 @@ namespace detail{
 		tmat3x3<T> const & m
 	)
     {
-		*this = toQuat(m);
+		*this = gtc::quaternion::quat_cast(m);
     }
 
     template <typename T> 
@@ -97,7 +97,7 @@ namespace detail{
 		tmat4x4<T> const & m
 	)
     {
-		*this = toQuat(m);
+		*this = gtc::quaternion::quat_cast(m);
     }
 
     //////////////////////////////////////////////////////////////
@@ -474,7 +474,8 @@ namespace quaternion{
         typename detail::tquat<T>::value_type AngleRad = radians(angle);
         typename detail::tquat<T>::value_type fSin = sin(AngleRad * T(0.5));
 
-        return gtc::quaternion::cross(q, detail::tquat<T>(cos(AngleRad * T(0.5)), Tmp.x * fSin, Tmp.y * fSin, Tmp.z * fSin));
+		return q * detail::tquat<T>(cos(AngleRad * T(0.5)), Tmp.x * fSin, Tmp.y * fSin, Tmp.z * fSin);
+        //return gtc::quaternion::cross(q, detail::tquat<T>(cos(AngleRad * T(0.5)), Tmp.x * fSin, Tmp.y * fSin, Tmp.z * fSin));
 	}
 
     template <typename T> 
