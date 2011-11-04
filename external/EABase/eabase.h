@@ -154,7 +154,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     #ifndef __STDC_FORMAT_MACROS
        #define __STDC_FORMAT_MACROS
     #endif
-    #if !defined(__psp__) // The GCC compiler defines standard int types (e.g. uint32_t) but not PRId8, etc.
+    #if !defined(__psp__) && _MSC_VER!=1600// The GCC compiler defines standard int types (e.g. uint32_t) but not PRId8, etc.
         #include <inttypes.h> // PRId8, SCNd8, etc.
     #endif
     #include <stdint.h>   // int32_t, INT64_C, UINT8_MAX, etc.
@@ -752,7 +752,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         #endif
     #elif (EA_WCHAR_SIZE == 2)
         typedef char      char8_t;
-        typedef wchar_t   char16_t;
+        #if _MSC_VER!=1600
+            typedef wchar_t   char16_t;
+        #endif
         typedef uint32_t  char32_t;
     #else
         typedef char      char8_t;
