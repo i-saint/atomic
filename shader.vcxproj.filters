@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="shader">
+      <UniqueIdentifier>{0849537c-2187-4ccb-a173-dc9459c6e85d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cl">
+      <UniqueIdentifier>{57979fc1-d2c5-410f-8771-7a05c65c91b5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shader\bloom.fsh">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\bloom.vsh">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\deferred.fsh">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\deferred.vsh">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\gbuffer.fsh">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\gbuffer.vsh">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\gbuffer_octahedron.fsh">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\gbuffer_octahedron.vsh">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\out.fsh">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\out.vsh">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\ssao.fsh">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\ssao.vsh">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\shader.rb" />
+  </ItemGroup>
+</Project>
