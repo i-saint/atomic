@@ -1,7 +1,7 @@
 #ifndef __atomic_Graphics_Renderer_h__
 #define __atomic_Graphics_Renderer_h__
 
-#include "GraphicResourceManager.h"
+#include "ResourceManager.h"
 
 namespace atomic {
 

@@ -2,7 +2,7 @@
 #include "types.h"
 #include "AtomicGame.h"
 #include "AtomicApplication.h"
-#include "Graphics/GraphicResourceManager.h"
+#include "Graphics/ResourceManager.h"
 #include "Graphics/Renderer.h"
 #include "Game/World.h"
 

@@ -62,7 +62,7 @@ void FractionGrid::clear()
     }
 }
 
-uint32 FractionGrid::hitTest( QWordVector &out, const FractionData &receiver ) const
+uint32 FractionGrid::hitTest( QWordVector &out, FractionData &receiver ) const
 {
     __declspec(thread) static stl::vector<Result> *s_tmp_result = NULL;
     if(s_tmp_result==NULL) {
@@ -70,8 +70,14 @@ uint32 FractionGrid::hitTest( QWordVector &out, const FractionData &receiver ) c
         s_tmp_result->reserve(128);
     }
 
+    receiver.density = 0.0f;
+
     const float32 radius2f = FractionSet::RADIUS*2.0f;
     const float32 rcp_radius2f = 1.0f/(radius2f);
+    const float32 h_sqf = FractionSet::SMOOTH_LENGTH*FractionSet::SMOOTH_LENGTH;
+    const XMVECTOR zero = _mm_set_ps1(0.0f);
+    const XMVECTOR h_sq = _mm_set_ps1(h_sqf);
+    const XMVECTOR mass = _mm_set_ps1(FractionSet::MASS);
     const XMVECTOR radius2 = _mm_set_ps1(radius2f);
     const XMVECTOR radius2_sq = _mm_set_ps1(radius2f*radius2f);
     const XMVECTOR rcp_radius2 = _mm_set_ps1(rcp_radius2f);
@@ -104,11 +110,14 @@ uint32 FractionGrid::hitTest( QWordVector &out, const FractionData &receiver ) c
                     const XMVECTOR   len_sq = SOAVectorLengthSquare3(dist);
                     // Õ“Ë‚Ì•ûŒü‚Í ”¼Œa*2 ‚Ì‹t”‚ğ—˜—p‚µ‚ÄŠ„‚èZ‚ğg‚í‚¸’á¸“x•‚‘¬‚ÉZo
                     const SOAVECTOR3 dir = SOAVectorMultiply3S(dist, rcp_radius2);
-                    const XMVECTOR   hit = XMVectorLessOrEqual(len_sq, radius2_sq);
+                    // ‚ß‚è‚±‚ñ‚Å‚¢‚é • id ‚ªˆê (=©•ª©g‚Æ‚ÌÕ“Ë) ‚Å‚Í‚È‚¢ê‡Õ“Ë
+                    const XMVECTOR   hit = XMVectorAndInt(XMVectorLessOrEqual(len_sq, radius2_sq), XMVectorNotEqualInt(rid, tpos.w));
 
-                    // id ‚ªˆê (=©•ª©g‚Æ‚ÌÕ“Ë) ‚Ìê‡Œ‹‰Ê‚ÉŠÜ‚ß‚È‚¢
-                    const XMVECTOR   eq_rid = XMVectorEqualInt(rid, tpos.w);
                     const SOAVECTOR4 dirv = SOAVectorTranspose4(dir.x, dir.y, dir.z);
+
+                    // ”Z“xZo
+                    const XMVECTOR r_sq = XMVectorMax(XMVectorSubtract(h_sq, len_sq), zero);
+                    const XMVECTOR density = XMVectorMultiply( XMVectorMultiply(XMVectorMultiply(r_sq, r_sq), r_sq),  mass);
 
                     // _mm_movemask_ps() g‚Á‚½ê‡«‹t‚É’x‚­‚È‚Á‚½c
                     //const uint32 hitv = _mm_movemask_ps(hit);
@@ -118,10 +127,11 @@ uint32 FractionGrid::hitTest( QWordVector &out, const FractionData &receiver ) c
                     //    if((hitv&1<<i)!=0 && (eq_ridv&1<<i)==0) {
 
                     const uint32* hitv = (const uint32*)&hit;
-                    const uint32* eq_ridv = (const uint32*)&eq_rid;
+                    const float32* densityv = (const float*)&density;
                     uint32 e = std::min<uint32>(4, num_senders-si);
                     for(size_t i=0; i<e; ++i) {
-                        if(hitv[i] && eq_ridv[i]==0) {
+                        receiver.density += densityv[i];
+                        if(hitv[i]) {
                             Result r;
                             r.dir = dirv.v[i];
                             r.vel = data[i].vel;
@@ -143,6 +153,18 @@ uint32 FractionGrid::hitTest( QWordVector &out, const FractionData &receiver ) c
         out.insert(out.end(), (quadword*)(*s_tmp_result)[0].v, (quadword*)((*s_tmp_result)[0].v + n*sizeof(Result)/16));
     }
     s_tmp_result->clear();
+
+
+    // ˆ³—Í‚È‚ÇZo
+    {
+        // Precompute kernel coefficients
+        static const float32 h                 = FractionSet::SMOOTH_LENGTH;
+        static const float32 poly6_coef        = 315.0f/(64.0f*XM_PI*pow(h, 9));
+        static const float32 grad_poly6_coef   = 945.0f/(32.0f*XM_PI*pow(h, 9));
+        static const float32 lap_poly6_coef    = 945.0f/(32.0f*XM_PI*pow(h, 9));
+        static const float32 grad_spiky_coef   = -45.0f/(XM_PI*pow(h, 6));
+        static const float32 lap_vis_coef      = 45.0f/(XM_PI*pow(h, 6));
+    }
 
     return n;
 }

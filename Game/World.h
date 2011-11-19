@@ -58,6 +58,8 @@ private:
     SFMT m_rand;
     PerspectiveCamera m_camera;
 
+    uint32 m_frame;
+
 public:
     World();
     ~World();
@@ -75,6 +77,7 @@ public:
     World* getNext() { return m_next; }
     const World* getPrev() const { return m_prev; }
 
+    uint32 getFrame() const { return m_frame; }
     FractionSet* getFractions() { return m_fraction_set; }
     PerspectiveCamera* getCamera() { return &m_camera; }
     SFMT* getRandom() { return &m_rand; }
@@ -90,6 +93,7 @@ public:
 
 #define atomicGetWorld()        World::getInterframe()->getCurrentWorld()
 #define atomicGetPrevWorld()    atomicGetWorld()->getPrev()
+#define atomicGetFrame()        atomicGetWorld()->getFrame()
 
 #define atomicGetFractions()    atomicGetWorld()->getFractions()
 #define atomicGetCamera()       atomicGetWorld()->getCamera()

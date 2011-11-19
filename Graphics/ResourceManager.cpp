@@ -2,7 +2,7 @@
 #include "ist/ist.h"
 #include "types.h"
 #include "Game/AtomicApplication.h"
-#include "Graphics/GraphicResourceManager.h"
+#include "Graphics/ResourceManager.h"
 
 namespace atomic {
 
@@ -76,6 +76,9 @@ bool GraphicResourceManager::initialize()
     stl::fill_n(m_ubo, _countof(m_ubo), (UniformBufferObject*)NULL);
     stl::fill_n(m_fbo, _countof(m_fbo), (FrameBufferObject*)NULL);
     stl::fill_n(m_shader, _countof(m_shader), (ProgramObject*)NULL);
+
+    stl::fill_n(m_cl_programs, _countof(m_cl_programs), (cl::Program*)NULL);
+    stl::fill_n(m_cl_buffers, _countof(m_cl_buffers), (cl::Buffer*)NULL);
 
     uint32 framebuffer_width = CalcFrameBufferWidth();
     uint32 framebuffer_height = CalcFrameBufferHeight();
@@ -154,12 +157,15 @@ bool GraphicResourceManager::initialize()
 
 void GraphicResourceManager::finalize()
 {
-    for(uint32 i=0; i<_countof(m_model); ++i)   { if(m_model[i]) m_model[i]->finalize(); IST_DELETE( m_model[i] ); }
-    for(uint32 i=0; i<_countof(m_tex2d); ++i)   { if(m_tex2d[i]) m_tex2d[i]->finalize(); IST_DELETE( m_tex2d[i] ); }
-    for(uint32 i=0; i<_countof(m_vbo); ++i)     { if(m_vbo[i]) m_vbo[i]->finalize(); IST_DELETE( m_vbo[i] ); }
-    for(uint32 i=0; i<_countof(m_ubo); ++i)     { if(m_ubo[i]) m_ubo[i]->finalize(); IST_DELETE( m_ubo[i] ); }
-    for(uint32 i=0; i<_countof(m_fbo); ++i)     { if(m_fbo[i]) m_fbo[i]->finalize(); IST_DELETE( m_fbo[i] ); }
-    for(uint32 i=0; i<_countof(m_shader); ++i)  { if(m_shader[i]) m_shader[i]->finalize(); IST_DELETE( m_shader[i] ); }
+    for(uint32 i=0; i<_countof(m_cl_buffers); ++i)  { if(m_cl_buffers[i]) { IST_DELETE( m_cl_buffers[i] ); } }
+    for(uint32 i=0; i<_countof(m_cl_programs); ++i) { if(m_cl_programs[i]) { IST_DELETE( m_cl_programs[i] ); } }
+
+    for(uint32 i=0; i<_countof(m_model); ++i)   { if(m_model[i]) { m_model[i]->finalize(); IST_DELETE( m_model[i] ); } }
+    for(uint32 i=0; i<_countof(m_tex2d); ++i)   { if(m_tex2d[i]) { m_tex2d[i]->finalize(); IST_DELETE( m_tex2d[i] ); } }
+    for(uint32 i=0; i<_countof(m_vbo); ++i)     { if(m_vbo[i]) { m_vbo[i]->finalize(); IST_DELETE( m_vbo[i] ); } }
+    for(uint32 i=0; i<_countof(m_ubo); ++i)     { if(m_ubo[i]) { m_ubo[i]->finalize(); IST_DELETE( m_ubo[i] ); } }
+    for(uint32 i=0; i<_countof(m_fbo); ++i)     { if(m_fbo[i]) { m_fbo[i]->finalize(); IST_DELETE( m_fbo[i] ); } }
+    for(uint32 i=0; i<_countof(m_shader); ++i)  { if(m_shader[i]) { m_shader[i]->finalize(); IST_DELETE( m_shader[i] ); } }
 }
 
 

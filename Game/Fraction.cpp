@@ -64,6 +64,10 @@ const float32 FractionSet::RADIUS = 4.0f;
 const float32 FractionSet::BOUNCE = 0.4f;
 const float32 FractionSet::MAX_VEL = 1.5f;
 const float32 FractionSet::DECELERATE = 0.98f;
+const float32 FractionSet::SMOOTH_LENGTH = 4.0f;
+const float32 FractionSet::VISCOSITY = 0.2f;
+const float32 FractionSet::STIFFNESS = 1.5f;
+const float32 FractionSet::MASS = 1.0f;
 
 FractionSet::FractionSet()
 : m_prev(NULL)
@@ -188,9 +192,11 @@ void FractionSet::taskCopy( FractionSet *dst ) const
 
     uint32 num_data = m_data.size();
     dst->m_data.clear();
+
+    const uint32 frame = atomicGetFrame();
     for(uint32 i=0; i<num_data; ++i) {
         const FractionData& data = m_data[i];
-        if(data.alive!=0) {
+        if(data.end_frame > frame) {
             dst->m_data.push_back(data);
         }
     }
@@ -208,7 +214,7 @@ void FractionSet::processMessage()
                 ist::Sphere& sphere = (ist::Sphere&)(*mes.shape_data);
                 FractionData fd;
                 fd.id = ++m_idgen;
-                fd.alive = 0xFFFFFFFF;
+                fd.end_frame = 0xFFFFFFFF;
                 fd.vel = _mm_set1_ps(0.0f);
                 fd.pos = XMVectorSet(sphere.x, sphere.y, sphere.z, 0.0f);
 
@@ -273,8 +279,8 @@ void FractionSet::move(uint32 block)
 
         pos4 = SOAVectorAdd3(pos4, v_next);
         SOAVECTOR3 p_dist       = SOAVectorSubtract3(pos4, g_center4);
-        XMVECTOR p_len        = SOAVectorLength3(p_dist);
-        XMVECTOR is_bound = XMVectorLess(p_len, sphere_radius); // ’µ‚Ë•Ô‚Á‚½‚©
+        XMVECTOR p_len          = SOAVectorLength3(p_dist);
+        XMVECTOR is_bound       = XMVectorLess(p_len, sphere_radius); // ’µ‚Ë•Ô‚Á‚½‚©
         SOAVECTOR3 p_dir        = SOAVectorDivide3S(p_dist, p_len);
 
         SOAVECTOR4 pos_nextv  = SOAVectorTranspose4(pos4.x, pos4.y, pos4.z);

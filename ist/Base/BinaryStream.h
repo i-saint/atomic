@@ -8,8 +8,8 @@ public:
     bistream(std::istream& s) : m_is(*s.rdbuf()) {}
     bistream(std::streambuf& s) : m_is(s) {}
 
-    size_t read(void* p, size_t s)  { return m_is.sgetn(reinterpret_cast<char*>(p), s); }
-    size_t getReadPos() const       { return m_is.pubseekoff(0, std::ios::cur, std::ios::in); }
+    uint64 read(void* p, size_t s)  { return m_is.sgetn(reinterpret_cast<char*>(p), s); }
+    uint64 getReadPos() const       { return m_is.pubseekoff(0, std::ios::cur, std::ios::in); }
     void setReadPos(size_t pos)     { m_is.pubseekoff(pos, std::ios::beg, std::ios::in); }
 
 private:
@@ -22,8 +22,8 @@ public:
     bostream(std::ostream& s) : m_os(*s.rdbuf()) {}
     bostream(std::streambuf& s) : m_os(s) {}
 
-    size_t write(const void* p, size_t s)   { return m_os.sputn(reinterpret_cast<const char*>(p), s); }
-    size_t getWritePos() const              { return m_os.pubseekoff(0, std::ios::cur, std::ios::out); }
+    uint64 write(const void* p, size_t s)   { return m_os.sputn(reinterpret_cast<const char*>(p), s); }
+    uint64 getWritePos() const              { return m_os.pubseekoff(0, std::ios::cur, std::ios::out); }
     void setWritePos(size_t pos)            { m_os.pubseekoff(pos, std::ios::beg, std::ios::out); }
 
 private:

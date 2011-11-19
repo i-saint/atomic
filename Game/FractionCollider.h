@@ -119,7 +119,7 @@ public:
 
     XMVECTORI32 getCoord(XMVECTOR pos) const;
     // ret: num collision
-    uint32 hitTest(QWordVector &out, const FractionData &data) const;
+    uint32 hitTest(QWordVector &out, FractionData &data) const;
 };
 
 

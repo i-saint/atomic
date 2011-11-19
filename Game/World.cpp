@@ -142,6 +142,7 @@ World::World()
 , m_next(NULL)
 , m_fraction_set(NULL)
 , m_bullet_set(NULL)
+, m_frame(0)
 {
     m_fraction_set = IST_NEW16(FractionSet)();
     m_bullet_set = IST_NEW16(BulletSet)();
@@ -167,6 +168,8 @@ void World::update()
 {
     Task_WorldBeforeDraw *task = getInterframe()->getTask_BeforeDraw();
     task->waitForComplete();
+
+    ++m_frame;
 
     getInterframe()->setCurrentWorld(this);
     task->initialize(this);
@@ -242,6 +245,7 @@ void World::taskCopy(World *dst) const
     dst->m_prev = this;
     dst->m_rand = m_rand;
     dst->m_camera = m_camera;
+    dst->m_frame = m_frame;
 }
 
 

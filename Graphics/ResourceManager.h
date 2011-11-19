@@ -1,5 +1,5 @@
-#ifndef __atomic_Graphics_GraphicResourceManager_h__
-#define __atomic_Graphics_GraphicResourceManager_h__
+#ifndef __atomic_Graphics_ResourceManager_h__
+#define __atomic_Graphics_ResourceManager_h__
 #include "Graphics/Shader.h"
 #include "Graphics/CreateModelData.h"
 
@@ -10,7 +10,7 @@ void DrawScreen(vec2 min_tc, vec2 max_tc);
 void DrawScreen();
 
 
-enum PASS {
+enum DRAW_PASS {
     PASS_SHADOW_DEPTH,
     PASS_GBUFFER,
     PASS_DEFERRED,
@@ -20,7 +20,7 @@ enum PASS {
     PASS_END,
 };
 
-enum MODEL_INDEX {
+enum MODEL_RID {
     MODEL_QUAD_SCREEN,
     MODEL_QUAD_VFX,
     MODEL_CUBE_FRACTION,
@@ -30,7 +30,7 @@ enum MODEL_INDEX {
 
     MODEL_END,
 };
-enum SH_INDEX {
+enum SH_RID {
     SH_GBUFFER,
     SH_GBUFFER_OCTAHEDRON,
     SH_DEFERRED,
@@ -38,7 +38,7 @@ enum SH_INDEX {
     SH_OUTPUT,
     SH_END,
 };
-enum RT_INDEX {
+enum RT_RID {
     RT_GBUFFER,
     RT_DEFERRED,
     RT_GAUSS0,
@@ -54,12 +54,12 @@ enum GBUFFER {
     GBUFFER_DEPTH       = Texture2D::SLOT_4,
 };
 
-enum TEX2D_INDEX {
+enum TEX2D_RID {
     TEX2D_RANDOM,
     TEX2D_END,
 };
 
-enum VBO_INDEX {
+enum VBO_RID {
     VBO_BOX_POS,
     VBO_CUBE_POS,
     VBO_CUBE_SCALE,
@@ -74,10 +74,21 @@ enum VBO_INDEX {
     VBO_END,
 };
 
-enum UBO_INDEX {
+enum UBO_RID {
     UBO_DUMMY,
     UBO_END,
 };
+
+enum CLP_RID {
+    CLP_FRACTION_UPDATE,
+    CLP_END,
+};
+
+enum CLB_RID {
+    CLB_FRACTION,
+    CLB_END,
+};
+
 
 typedef Color3DepthBuffer RenderTargetGBuffer;
 typedef ColorDepthBuffer RenderTargetDeferred;
@@ -104,6 +115,9 @@ private:
     FrameBufferObject   *m_fbo[RT_END];
     ProgramObject       *m_shader[SH_END];
 
+    cl::Program         *m_cl_programs[CLP_END];
+    cl::Buffer          *m_cl_buffers[CLB_END];
+
 private:
     static GraphicResourceManager* s_inst;
     bool initialize();
@@ -114,10 +128,12 @@ public:
     static void intializeInstance();
     static void finalizeInstance();
 
-    ModelData* getModelData(MODEL_INDEX i)                      { return m_model[i]; }
-    Texture2D* getTexture2D(TEX2D_INDEX i)                      { return m_tex2d[i]; }
-    VertexBufferObject* getVertexBufferObject(VBO_INDEX i)      { return m_vbo[i]; }
-    UniformBufferObject* getUniformBufferObject(UBO_INDEX i)    { return m_ubo[i]; }
+    ModelData* getModelData(MODEL_RID i)                    { return m_model[i]; }
+    Texture2D* getTexture2D(TEX2D_RID i)                    { return m_tex2d[i]; }
+    VertexBufferObject* getVertexBufferObject(VBO_RID i)    { return m_vbo[i]; }
+    UniformBufferObject* getUniformBufferObject(UBO_RID i)  { return m_ubo[i]; }
+    cl::Program* getCLProgram(CLP_RID i)                    { return m_cl_programs[i]; }
+    cl::Buffer* getCLBuffer(CLB_RID i)                      { return m_cl_buffers[i]; }
 
     ShaderGBuffer*              getShaderGBuffer()              { return m_sh_gbuffer; }
     ShaderGBuffer_Octahedron*   getShaderGBuffer_Octahedron()   { return m_sh_gbuffer_octahedron; }
@@ -132,22 +148,25 @@ public:
 };
 
 
-#define atomicGetGraphicResourceManager()   GraphicResourceManager::getInstance()
+#define atomicGetResourceManager()   GraphicResourceManager::getInstance()
 
-#define atomicGetRenderTargetGBuffer()      atomicGetGraphicResourceManager()->getRenderTargetGBuffer()
-#define atomicGetRenderTargetDeferred()     atomicGetGraphicResourceManager()->getRenderTargetDeferred()
-#define atomicGetRenderTargetGauss(i)       atomicGetGraphicResourceManager()->getRenderTargetGauss(i)
+#define atomicGetRenderTargetGBuffer()      atomicGetResourceManager()->getRenderTargetGBuffer()
+#define atomicGetRenderTargetDeferred()     atomicGetResourceManager()->getRenderTargetDeferred()
+#define atomicGetRenderTargetGauss(i)       atomicGetResourceManager()->getRenderTargetGauss(i)
 
-#define atomicGetShaderGBuffer()            atomicGetGraphicResourceManager()->getShaderGBuffer()
-#define atomicGetShaderGBuffer_Octahedron() atomicGetGraphicResourceManager()->getShaderGBuffer_Octahedron()
-#define atomicGetShaderDeferred()           atomicGetGraphicResourceManager()->getShaderDeferred()
-#define atomicGetShaderBloom()              atomicGetGraphicResourceManager()->getShaderBloom()
-#define atomicGetShaderOutput()             atomicGetGraphicResourceManager()->getShaderOutput()
+#define atomicGetShaderGBuffer()            atomicGetResourceManager()->getShaderGBuffer()
+#define atomicGetShaderGBuffer_Octahedron() atomicGetResourceManager()->getShaderGBuffer_Octahedron()
+#define atomicGetShaderDeferred()           atomicGetResourceManager()->getShaderDeferred()
+#define atomicGetShaderBloom()              atomicGetResourceManager()->getShaderBloom()
+#define atomicGetShaderOutput()             atomicGetResourceManager()->getShaderOutput()
 
-#define atomicGetModelData(i)               atomicGetGraphicResourceManager()->getModelData(i)
-#define atomicGetTexture2D(i)               atomicGetGraphicResourceManager()->getTexture2D(i)
-#define atomicGetVertexBufferObject(i)      atomicGetGraphicResourceManager()->getVertexBufferObject(i)
-#define atomicGetUniformBufferObject(i)     atomicGetGraphicResourceManager()->getUniformBufferObject(i)
+#define atomicGetModelData(i)               atomicGetResourceManager()->getModelData(i)
+#define atomicGetTexture2D(i)               atomicGetResourceManager()->getTexture2D(i)
+#define atomicGetVertexBufferObject(i)      atomicGetResourceManager()->getVertexBufferObject(i)
+#define atomicGetUniformBufferObject(i)     atomicGetResourceManager()->getUniformBufferObject(i)
+
+#define atomicGetCLProgram(i)               atomicGetResourceManager()->getCLProgram(i)
+#define atomicGetCLBuffer(i)                atomicGetResourceManager()->getCLBuffer(i)
 
 } // namespace atomic
-#endif // __atomic_Graphics_GraphicResourceManager_h__
+#endif // __atomic_Graphics_ResourceManager_h__

@@ -100,6 +100,9 @@ private:
     ID3D11DeviceContext *m_dxcontext;
 #endif // IST_DIRECTX
 
+    cl::Context *m_cl_context;
+    cl::CommandQueue *m_cl_queue;
+
     size_t m_x, m_y;
     size_t m_width, m_height;
 
@@ -117,6 +120,9 @@ public:
     virtual int handleWindowMessage(const WindowMessage& wm)=0;
 
     void translateMessage();
+
+    cl::Context* getCLContext() { return m_cl_context; }
+    cl::CommandQueue* getCLCommandQueue() { return m_cl_queue; }
 
     size_t getWindowWidth() const { return m_width; }
     size_t getWindowHeight() const { return m_height; }

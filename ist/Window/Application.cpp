@@ -103,6 +103,8 @@ Application::Application()
 , m_dxdevice(0)
 , m_dxcontext(0)
 #endif // IST_DIRECTX
+, m_cl_context(NULL)
+, m_cl_queue(NULL)
 {
 }
 
@@ -125,15 +127,11 @@ bool Application::initialize(size_t x, size_t y, size_t width, size_t height, co
     m_fullscreen = fullscreen;
     int style = fullscreen ? WS_POPUP : WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME ^ WS_MAXIMIZEBOX;
     int flag = WS_POPUP | WS_VISIBLE;
-    if(!m_fullscreen) {
-        width  += ::GetSystemMetrics(SM_CXDLGFRAME)*2;
-        height += ::GetSystemMetrics(SM_CYDLGFRAME)*2 + ::GetSystemMetrics(SM_CYCAPTION);
 
-        m_x = x;
-        m_y = y;
-    }
-    else {
-    }
+    RECT rect = {0, 0, width, height};
+    ::AdjustWindowRect(&rect, style, FALSE);
+    width = rect.right;
+    height = rect.bottom;
 
     WNDCLASSEXW wc;
     wc.cbSize        = sizeof(wc);
@@ -185,26 +183,31 @@ bool Application::initialize(size_t x, size_t y, size_t width, size_t height, co
 void Application::finalize()
 {
     if(g_the_app==this) { g_the_app = NULL; }
+
+    if(m_cl_context) { delete m_cl_context; m_cl_context=NULL; }
     if(m_hwnd) { ::CloseWindow(m_hwnd); m_hwnd=NULL; }
 }
 
 bool Application::initializeDraw()
 {
 #ifdef IST_OPENGL
+    m_hdc = ::GetDC(m_hwnd);
+    g_hdc = m_hdc;
+
     int pixelformat;
     static PIXELFORMATDESCRIPTOR pfd = {
         sizeof(PIXELFORMATDESCRIPTOR),    //この構造体のサイズ
         1,                  //OpenGLバージョン
         PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,       //ダブルバッファ使用可能
         PFD_TYPE_RGBA,      //RGBAカラー
-        24,                 //色数
+        32,                 //色数
         0, 0,               //RGBAのビットとシフト設定        
         0, 0,                //G
         0, 0,                //B
         0, 0,                //A
         0,                  //アキュムレーションバッファ
         0, 0, 0, 0,         //RGBAアキュムレーションバッファ
-        24,                 //Zバッファ    
+        32,                 //Zバッファ    
         0,                  //ステンシルバッファ
         0,                  //使用しない
         PFD_MAIN_PLANE,     //レイヤータイプ
@@ -212,21 +215,22 @@ bool Application::initializeDraw()
         0, 0, 0             //レイヤーマスクの設定・未使用
     };
 
-    m_hdc = ::GetDC(m_hwnd);
-    g_hdc = m_hdc;
-    //ピクセルフォーマットの指定 //OpenGLレンダリングコンテキストの作成
+    // glew 用の仮のコンテキスト生成
     if(((pixelformat = ::ChoosePixelFormat(m_hdc, &pfd)) == 0)
         || ((::SetPixelFormat(m_hdc, pixelformat, &pfd) == FALSE))
         || (!(m_hglrc=::wglCreateContext(m_hdc)))) {
-            IST_PRINT("initializing opengl failed");
-            return false;
+            IST_PRINT("OpenGL initialization failed");
+    }
+    wglMakeCurrent(m_hdc, m_hglrc);
+    glewInit();
+    {
+        const GLubyte *version = glGetString(GL_VERSION);
+        const GLubyte *vendor = glGetString(GL_VENDOR);
+        IST_PRINT("OpenGL version: %s, vendor: %s\n", version, vendor);
     }
 
-    //PixelFormat初期化
-    ::wglMakeCurrent(m_hdc, m_hglrc);
     //::ShowCursor(false);
 
-    ::glewInit();
     wglSwapIntervalEXT(GL_FALSE);
 #endif // IST_OPENGL
 
@@ -260,13 +264,47 @@ bool Application::initializeDraw()
         &m_dxcontext);
 #endif // IST_DIRECTX
 
+
+    // initialize OpenCL
+    {
+        cl_int err;
+        std::vector< cl::Platform > platforms;
+        cl::Platform::get(&platforms);
+        if(platforms.empty()) {
+            IST_PRINT("OpenCL initialization failed");
+            return false;
+        }
+
+        std::string version;
+        std::string vendor;
+        platforms[0].getInfo((cl_platform_info)CL_PLATFORM_VERSION, &version);
+        platforms[0].getInfo((cl_platform_info)CL_PLATFORM_VENDOR, &vendor);
+        IST_PRINT("OpenCL version: %s, vendor: %s\n", version.c_str(), vendor.c_str());
+ 
+        cl_context_properties cprops[3] =  {CL_CONTEXT_PLATFORM, (cl_context_properties)(platforms[0])(), 0};
+
+        m_cl_context = new cl::Context(CL_DEVICE_TYPE_DEFAULT,  cprops, NULL, NULL, &err);
+        if(err != CL_SUCCESS) {
+            IST_PRINT("OpenCL create context failed. error code: 0x%08x\n", err);
+        }
+        std::vector<cl::Device> cl_devices = m_cl_context->getInfo<CL_CONTEXT_DEVICES>();
+        m_cl_queue = new cl::CommandQueue(*m_cl_context, cl_devices[0], 0, &err);
+        if(err != CL_SUCCESS) {
+            IST_PRINT("OpenCL create command queue failed. error code: 0x%08x\n", err);
+        }
+    }
+
     return true;
 }
 
 void Application::finalizeDraw()
 {
 #ifdef IST_OPENGL
-    if(m_hglrc)     { ::wglDeleteContext(m_hglrc); m_hglrc=NULL; }
+    if(m_hglrc) {
+        ::wglMakeCurrent(NULL, NULL);
+        ::wglDeleteContext(m_hglrc);
+        m_hglrc = NULL;
+    }
 #endif // IST_OPENGL
 
 #ifdef IST_DIRECTX

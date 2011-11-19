@@ -5,6 +5,10 @@
 
 #pragma once
 
+
+#define ATOMIC_ENABLE_DEBUG_FEATURE
+
+
 #define _SCL_SECURE_NO_WARNINGS
 
 #define GLM_FORCE_INLINE    // glm ‚ÌƒCƒ“ƒ‰ƒCƒ“‰»‚Æ SSE ‰»

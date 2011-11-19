@@ -19,26 +19,31 @@ struct __declspec(align(16)) FractionData
     union {
         struct {
             uint32 id;
-            uint32 alive;
             uint32 index;
-            uint32 frame;
+            uint32 end_frame;
+            float32 density;
+            float32 pressure;
         };
-        XMVECTOR param[1];
+        XMVECTOR param[2];
     };
     XMVECTOR pos;
     XMVECTOR vel;
 };
-BOOST_STATIC_ASSERT(sizeof(FractionData)==48);
+BOOST_STATIC_ASSERT(sizeof(FractionData)==64);
 
 
 class FractionSet : boost::noncopyable
 {
 public:
-    static const size_t BLOCK_SIZE;
-    static const float RADIUS;
-    static const float BOUNCE;
-    static const float MAX_VEL;
-    static const float DECELERATE;
+    static const uint32 BLOCK_SIZE;
+    static const float32 RADIUS;
+    static const float32 BOUNCE;
+    static const float32 MAX_VEL;
+    static const float32 DECELERATE;
+    static const float32 SMOOTH_LENGTH;
+    static const float32 VISCOSITY;
+    static const float32 STIFFNESS;
+    static const float32 MASS;
 
     struct __declspec(align(16)) GridRange
     {
