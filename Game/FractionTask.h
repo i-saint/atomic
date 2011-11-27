@@ -4,6 +4,7 @@
 namespace atomic {
 
 class Task_FractionBeforeDraw_Block;
+class Task_FractionSPHDensity;
 
 
 class Task_FractionBeforeDraw : public Task
@@ -11,6 +12,7 @@ class Task_FractionBeforeDraw : public Task
 private:
     FractionSet *m_owner;
     stl::vector<Task_FractionBeforeDraw_Block*> m_state_tasks;
+    stl::vector<Task_FractionSPHDensity*> m_sph_density_tasks;
 
 public:
     Task_FractionBeforeDraw();
@@ -39,20 +41,6 @@ public:
     FractionSet* getOwner() { return m_owner; }
 };
 
-
-class Task_FractionDraw : public Task
-{
-private:
-    const FractionSet *m_owner;
-
-public:
-    Task_FractionDraw() : m_owner(NULL) {}
-    void initialize(const FractionSet *obj) { m_owner=obj; }
-    void waitForComplete() { TaskScheduler::waitFor(this); }
-    void kick() { TaskScheduler::push(this); }
-    void exec() { m_owner->taskDraw(); }
-    const FractionSet* getOwner() { return m_owner; }
-};
 
 class Task_FractionCopy : public Task
 {

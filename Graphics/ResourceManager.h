@@ -115,9 +115,6 @@ private:
     FrameBufferObject   *m_fbo[RT_END];
     ProgramObject       *m_shader[SH_END];
 
-    cl::Program         *m_cl_programs[CLP_END];
-    cl::Buffer          *m_cl_buffers[CLB_END];
-
 private:
     static GraphicResourceManager* s_inst;
     bool initialize();
@@ -132,8 +129,6 @@ public:
     Texture2D* getTexture2D(TEX2D_RID i)                    { return m_tex2d[i]; }
     VertexBufferObject* getVertexBufferObject(VBO_RID i)    { return m_vbo[i]; }
     UniformBufferObject* getUniformBufferObject(UBO_RID i)  { return m_ubo[i]; }
-    cl::Program* getCLProgram(CLP_RID i)                    { return m_cl_programs[i]; }
-    cl::Buffer* getCLBuffer(CLB_RID i)                      { return m_cl_buffers[i]; }
 
     ShaderGBuffer*              getShaderGBuffer()              { return m_sh_gbuffer; }
     ShaderGBuffer_Octahedron*   getShaderGBuffer_Octahedron()   { return m_sh_gbuffer_octahedron; }

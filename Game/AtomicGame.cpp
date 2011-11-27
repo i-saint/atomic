@@ -2,7 +2,7 @@
 #include "types.h"
 #include "AtomicApplication.h"
 #include "AtomicGame.h"
-#include "Graphics/GraphicResourceManager.h"
+#include "Graphics/ResourceManager.h"
 #include "Graphics/Renderer.h"
 #include "Game/Message.h"
 #include "Game/World.h"
@@ -44,7 +44,7 @@ void AtomicGame::update()
     World *n = m_worlds[next_world];
     if(!n) {
         n = IST_NEW16(World)();
-        //n->initialize();
+        n->initialize();
         //n = w;
         m_worlds[next_world] = n;
     }

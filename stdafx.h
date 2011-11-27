@@ -7,7 +7,7 @@
 
 
 #define ATOMIC_ENABLE_DEBUG_FEATURE
-
+#define IST_OPENGL
 
 #define _SCL_SECURE_NO_WARNINGS
 
@@ -23,7 +23,9 @@
 #include <GL/wglew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <CL/cl.hpp>
+
+#include <cuda_runtime.h>
+#include <cutil.h>
 
 #include <windows.h>
 #include <mmsystem.h>

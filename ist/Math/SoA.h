@@ -470,6 +470,72 @@ __forceinline SOAVECTOR4 SOAVectorDivide4S(const T &a, const XMVECTOR &b)
 
 
 ///////////////////////////////////////////////////////////////
+//  SoA Select
+///////////////////////////////////////////////////////////////
+
+template<class T>
+__forceinline SOAVECTOR2 SOAVectorSelect2(const T &a, const T &b, const T &s)
+{
+    SOAVECTOR2 r;
+    r.x = XMVectorSelect(a.x, b.x, s.x);
+    r.y = XMVectorSelect(a.y, b.y, s.y);
+    return r;
+}
+
+template<class T>
+__forceinline SOAVECTOR3 SOAVectorSelect3(const T &a, const T &b, const T &s)
+{
+    SOAVECTOR3 r;
+    r.x = XMVectorSelect(a.x, b.x, s.x);
+    r.y = XMVectorSelect(a.y, b.y, s.y);
+    r.z = XMVectorSelect(a.z, b.z, s.z);
+    return r;
+}
+
+template<class T>
+__forceinline SOAVECTOR4 SOAVectorSelect4(const T &a, const T &b, const T &s)
+{
+    SOAVECTOR4 r;
+    r.x = XMVectorSelect(a.x, b.x, s.x);
+    r.y = XMVectorSelect(a.y, b.y, s.y);
+    r.z = XMVectorSelect(a.z, b.z, s.z);
+    r.w = XMVectorSelect(a.w, b.w, s.w);
+    return r;
+}
+
+
+template<class T>
+__forceinline SOAVECTOR2 SOAVectorSelect2S(const T &a, const T &b, const XMVECTOR &s)
+{
+    SOAVECTOR2 r;
+    r.x = XMVectorSelect(a.x, b.x, s);
+    r.y = XMVectorSelect(a.y, b.y, s);
+    return r;
+}
+
+template<class T>
+__forceinline SOAVECTOR3 SOAVectorSelect3S(const T &a, const T &b, const XMVECTOR &s)
+{
+    SOAVECTOR3 r;
+    r.x = XMVectorSelect(a.x, b.x, s);
+    r.y = XMVectorSelect(a.y, b.y, s);
+    r.z = XMVectorSelect(a.z, b.z, s);
+    return r;
+}
+
+template<class T>
+__forceinline SOAVECTOR4 SOAVectorSelect4S(const T &a, const T &b, const XMVECTOR &s)
+{
+    SOAVECTOR4 r;
+    r.x = XMVectorSelect(a.x, b.x, s);
+    r.y = XMVectorSelect(a.y, b.y, s);
+    r.z = XMVectorSelect(a.z, b.z, s);
+    r.w = XMVectorSelect(a.w, b.w, s);
+    return r;
+}
+
+
+///////////////////////////////////////////////////////////////
 //  SoA Length Square
 ///////////////////////////////////////////////////////////////
 

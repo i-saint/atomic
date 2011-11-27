@@ -21,6 +21,18 @@ public:
     FractionSet* getOwner() { return m_owner; }
 };
 
+class Task_FractionSPHDensity : public Task
+{
+private:
+    FractionSet *m_owner;
+    size_t m_block;
+public:
+    Task_FractionSPHDensity() : m_owner(NULL) {}
+    void initialize(FractionSet *obj, size_t block) { m_owner=obj; m_block=block; }
+    void exec() { m_owner->sphDensity(m_block); }
+    FractionSet* getOwner() { return m_owner; }
+};
+
 
 
 
@@ -32,10 +44,8 @@ Task_FractionBeforeDraw::Task_FractionBeforeDraw()
 
 Task_FractionBeforeDraw::~Task_FractionBeforeDraw()
 {
-    for(size_t i=0; i<m_state_tasks.size(); ++i) {
-        IST_DELETE(m_state_tasks[i]);
-    }
-    m_state_tasks.clear();
+    for(size_t i=0; i<m_state_tasks.size(); ++i) { IST_DELETE(m_state_tasks[i]); }
+    for(size_t i=0; i<m_sph_density_tasks.size(); ++i) { IST_DELETE(m_sph_density_tasks[i]); }
 }
 
 void Task_FractionBeforeDraw::initialize(FractionSet *obj)
@@ -61,31 +71,38 @@ void Task_FractionBeforeDraw::exec()
 
     // 衝突器とタスク数をブロックサイズに合わせる
     uint32 num_blocks = obj->getNumBlocks();
-    while(m_state_tasks.size()<num_blocks) {
-        m_state_tasks.push_back(IST_NEW(Task_FractionBeforeDraw_Block)());
-    }
-    for(uint32 i=0; i<num_blocks; ++i) {
-        m_state_tasks[i]->initialize(obj, i);
-    }
+    //while(m_state_tasks.size()<num_blocks) {
+    //    m_state_tasks.push_back(IST_NEW(Task_FractionBeforeDraw_Block)());
+    //    m_sph_density_tasks.push_back(IST_NEW(Task_FractionSPHDensity)());
+    //}
+    //for(uint32 i=0; i<num_blocks; ++i) {
+    //    m_state_tasks[i]->initialize(obj, i);
+    //    m_sph_density_tasks[i]->initialize(obj, i);
+    //}
     message_router->resizeMessageBlock(num_blocks);
 
 
-    // 移動タスクをスケジュール&実行完了待ち
-    if(num_blocks > 0) {
-        task_after->waitForComplete();
-        TaskScheduler::push((Task**)&m_state_tasks[0], num_blocks);
-        TaskScheduler::waitFor((Task**)&m_state_tasks[0], num_blocks);
-    }
+    //// 移動タスクをスケジュール&実行完了待ち
+    //if(num_blocks > 0) {
+    //    task_after->waitForComplete();
+
+    //    TaskScheduler::push((Task**)&m_sph_density_tasks[0], num_blocks);
+    //    TaskScheduler::waitFor((Task**)&m_sph_density_tasks[0], num_blocks);
+
+    //    TaskScheduler::push((Task**)&m_state_tasks[0], num_blocks);
+    //    TaskScheduler::waitFor((Task**)&m_state_tasks[0], num_blocks);
+    //}
     message_router->route();
 
 
-    // 描画後タスクをキック
-    task_after->initialize(obj);
-    task_after->kick();
+    //// 描画後タスクをキック
+    //task_after->initialize(obj);
+    //task_after->kick();
+    obj->taskAfterDraw();
+
 
     task_copy->initialize(obj, obj->getNext());
     task_copy->kick();
-
 }
 
 void Task_FractionBeforeDraw::waitForComplete()

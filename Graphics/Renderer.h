@@ -73,8 +73,8 @@ class PassGBuffer_Cube : public Renderer
 private:
     struct InstanceInfo
     {
-        stl::vector<XMVECTOR> pos;
-        stl::vector<XMVECTOR> glow;
+        stl::vector<float4> pos;
+        stl::vector<float4> glow;
         stl::vector<float32> scale;
 
         void clear()
@@ -102,8 +102,8 @@ public:
     void beforeDraw();  // メインスレッドから、描画処理の前に呼ばれる
     void draw();    // 描画スレッドから呼ばれる
 
-    void pushFractionInstance(XMVECTOR v) { m_fraction.pos.push_back(v); }
-    void pushVFXInstance(XMVECTOR v) { m_vfx.pos.push_back(v); }
+    void pushFractionInstance(float4 v) { m_fraction.pos.push_back(v); }
+    void pushVFXInstance(float4 v) { m_vfx.pos.push_back(v); }
 };
 
 
@@ -112,8 +112,8 @@ class PassGBuffer_Octahedron : public Renderer
 private:
     struct InstanceInfo
     {
-        stl::vector<XMVECTOR> pos;
-        stl::vector<XMVECTOR> glow;
+        stl::vector<float4> pos;
+        stl::vector<float4> glow;
         stl::vector<float32> scale;
         stl::vector<float32> time;
         stl::vector<float32> seed;
@@ -146,7 +146,7 @@ public:
     void beforeDraw();
     void draw();
 
-    void pushInstance(XMVECTOR v) { m_bullets.pos.push_back(v); }
+    void pushInstance(float4 v) { m_bullets.pos.push_back(v); }
 };
 
 
@@ -154,7 +154,7 @@ public:
 class PassDeferred_SphereLight : public Renderer
 {
 private:
-    stl::vector<XMVECTOR> m_instance_pos;
+    stl::vector<float4> m_instance_pos;
     ShaderDeferred *m_sh_deferred;
     ModelData *m_model;
     VertexBufferObject *m_vbo_instance_pos;
@@ -164,7 +164,7 @@ public:
     void beforeDraw();
     void draw();
 
-    void pushInstance(XMVECTOR v) { m_instance_pos.push_back(v); }
+    void pushInstance(float4 v) { m_instance_pos.push_back(v); }
 };
 
 

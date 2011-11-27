@@ -85,11 +85,6 @@ void Task_WorldAfterDraw::exec()
     m_obj->taskAfterDraw();
 }
 
-void Task_WorldDraw::exec()
-{
-    m_obj->taskDraw();
-}
-
 void Task_WorldCopy::exec()
 {
     if(m_obj==m_dst) {
@@ -107,14 +102,12 @@ World::Interframe::Interframe()
 {
     m_task_beforedraw = IST_NEW(Task_WorldBeforeDraw)();
     m_task_afterdraw = IST_NEW(Task_WorldAfterDraw)();
-    m_task_draw = IST_NEW(Task_WorldDraw)();
     m_task_copy = IST_NEW(Task_WorldCopy)();
 }
 
 World::Interframe::~Interframe()
 {
     IST_DELETE(m_task_copy);
-    IST_DELETE(m_task_draw);
     IST_DELETE(m_task_afterdraw);
     IST_DELETE(m_task_beforedraw);
 }
@@ -157,9 +150,9 @@ World::~World()
 void World::initialize()
 {
     m_rand.initialize(0);
-    m_camera.setPosition(XMVectorSet(100.0f, 100.0f, 500.0f, 0.0f));
-    m_camera.setZNear(1.0f);
-    m_camera.setZFar(1000.0f);
+    m_camera.setPosition(XMVectorSet(1.0f, 1.0f, 3.0f, 0.0f));
+    m_camera.setZNear(0.01f);
+    m_camera.setZFar(10.0f);
 
     m_fraction_set->initialize();
 }
@@ -180,19 +173,7 @@ void World::update()
 
 void World::draw() const
 {
-    //TaskScheduler::waitExclusive((Task*)getInterframe()->getTask_BeforeDraw());
-    //TaskScheduler::waitExclusive((Task*)FractionSet::getInterframe()->getTask_BeforeDraw());
-    //taskDraw();
-    //m_fraction_set->taskDraw();
-
-    Task *world = getDrawTask();
-    TaskScheduler::push(world);
-
-    Task *fraction = m_fraction_set->getDrawTask();
-    TaskScheduler::push(fraction);
-
-    TaskScheduler::waitExclusive(world);
-    TaskScheduler::waitExclusive(fraction);
+    m_fraction_set->draw();
 }
 
 void World::sync() const
@@ -208,15 +189,6 @@ void World::sync() const
 }
 
 
-Task* World::getDrawTask() const
-{
-
-    Task_WorldDraw *task = getInterframe()->getTask_Draw();
-    task->waitForComplete();
-    task->initialize(this);
-    return task;
-}
-
 void World::setNext( World *next )
 {
     m_next = next;
@@ -228,15 +200,11 @@ void World::setNext( World *next )
 
 void World::taskBeforeDraw()
 {
-    m_camera.setPosition(XMVector3Transform(m_camera.getPosition(), XMMatrixRotationY(XMConvertToRadians(0.1f))));
+    m_camera.setPosition(XMVector3Transform(m_camera.getPosition(), XMMatrixRotationY(XMConvertToRadians(0.05f))));
     m_camera.setAspect(atomicGetWindowAspectRatio());
 }
 
 void World::taskAfterDraw()
-{
-}
-
-void World::taskDraw() const
 {
 }
 

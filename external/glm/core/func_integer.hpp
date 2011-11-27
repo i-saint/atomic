@@ -74,7 +74,7 @@ namespace glm
 		//! returning them in the least significant bits of the result.
 		//! For unsigned data types, the most significant bits of the
 		//! result will be set to zero. For signed data types, the
-		//! most significant bits will be set to the value of bit offset + base ñ 1.
+		//! most significant bits will be set to the value of bit offset + base ÅE1.
 		//!
 		//! If bits is zero, the result will be zero. The result will be
 		//! undefined if offset or bits is negative, or if the sum of
@@ -92,7 +92,7 @@ namespace glm
 		//! Returns the insertion the bits least-significant bits of insert into base.
 		//!
 		//! The result will have bits [offset, offset + bits - 1] taken
-		//! from bits [0, bits ñ 1] of insert, and all other bits taken
+		//! from bits [0, bits ÅE1] of insert, and all other bits taken
 		//! directly from the corresponding bits of base. If bits is
 		//! zero, the result will simply be base. The result will be
 		//! undefined if offset or bits is negative, or if the sum of

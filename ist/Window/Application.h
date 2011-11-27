@@ -100,8 +100,10 @@ private:
     ID3D11DeviceContext *m_dxcontext;
 #endif // IST_DIRECTX
 
+#ifdef IST_OPENCL
     cl::Context *m_cl_context;
     cl::CommandQueue *m_cl_queue;
+#endif // IST_OPENCL
 
     size_t m_x, m_y;
     size_t m_width, m_height;
@@ -121,8 +123,10 @@ public:
 
     void translateMessage();
 
+#ifdef IST_OPENCL
     cl::Context* getCLContext() { return m_cl_context; }
     cl::CommandQueue* getCLCommandQueue() { return m_cl_queue; }
+#endif // IST_OPENCL
 
     size_t getWindowWidth() const { return m_width; }
     size_t getWindowHeight() const { return m_height; }

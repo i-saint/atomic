@@ -2,37 +2,37 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Game">
-      <UniqueIdentifier>{20bb2fb3-87c1-4a06-bb8c-9bea96e444de}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ist">
-      <UniqueIdentifier>{f1520851-e873-43c3-bcb1-ed0c8c88fdf0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ist\Window">
-      <UniqueIdentifier>{52adf1d4-1d70-4c32-9627-7530138abbad}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ist\Base">
-      <UniqueIdentifier>{b9ac315d-2b3e-4c69-9de3-7465d453544a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ist\Graphics">
-      <UniqueIdentifier>{d57b9fb2-efe5-4e5f-9d9b-9ef427ceea15}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ist\Math">
-      <UniqueIdentifier>{567baef6-33d2-4db7-88b6-1a343c87a239}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ist\Math\SFMT">
-      <UniqueIdentifier>{f158a164-5e7a-46e0-8627-6d1322f0e4c5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shader">
-      <UniqueIdentifier>{8ad3710a-dc1e-4fdf-909a-b0fc46c79756}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Sound">
-      <UniqueIdentifier>{fe831594-e421-45f4-b4e1-38c095832165}</UniqueIdentifier>
+      <UniqueIdentifier>{ea30a809-02f7-432f-8d07-b19fe2870d90}</UniqueIdentifier>
     </Filter>
     <Filter Include="Graphics">
-      <UniqueIdentifier>{69cae0e7-1435-4172-8100-f185dfa9403b}</UniqueIdentifier>
+      <UniqueIdentifier>{4befe200-1d0b-45fa-bf70-3fa44710a14a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ist">
+      <UniqueIdentifier>{c485548d-534f-4cba-a10f-492e8b842645}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ist\Window">
+      <UniqueIdentifier>{dc2cf0b7-23df-412b-987f-ae8daa20fb90}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ist\Base">
+      <UniqueIdentifier>{04f6313c-6079-47a6-b628-0a5180974495}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ist\Graphics">
+      <UniqueIdentifier>{475cd075-b1e1-4d34-9438-d1352afa54d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ist\Math">
+      <UniqueIdentifier>{01f0480f-e37f-403b-aedb-b9703bca9f42}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ist\Math\SFMT">
+      <UniqueIdentifier>{08652a54-0221-447e-a05e-cde60fa2503d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{6def42b1-51b3-412a-bee1-1d0a462e2416}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sound">
+      <UniqueIdentifier>{ae8965f0-cc3f-4ee1-bf6e-87b420fdae61}</UniqueIdentifier>
     </Filter>
     <Filter Include="GPGPU">
-      <UniqueIdentifier>{11b00e6b-aa73-4ff9-9fcb-20a57cca7398}</UniqueIdentifier>
+      <UniqueIdentifier>{52955f27-e438-4826-83dd-8b9437ee15cc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -75,6 +75,18 @@
     <ClCompile Include="Game\World.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\CreateModelData.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ResourceManager.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Renderer.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Shader.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
     <ClCompile Include="ist\Window\Application.cpp">
       <Filter>ist\Window</Filter>
     </ClCompile>
@@ -99,6 +111,9 @@
     <ClCompile Include="ist\Graphics\FrameBufferObject.cpp">
       <Filter>ist\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="ist\Graphics\GraphicsResource.cpp">
+      <Filter>ist\Graphics</Filter>
+    </ClCompile>
     <ClCompile Include="ist\Graphics\ModelData.cpp">
       <Filter>ist\Graphics</Filter>
     </ClCompile>
@@ -114,29 +129,14 @@
     <ClCompile Include="ist\Math\SFMT\SFMT.cpp">
       <Filter>ist\Math\SFMT</Filter>
     </ClCompile>
+    <ClCompile Include="shader\cl_source.cpp">
+      <Filter>Shader</Filter>
+    </ClCompile>
     <ClCompile Include="shader\glsl_source.cpp">
       <Filter>Shader</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="Graphics\Shader.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\Renderer.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\CreateModelData.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Graphics\GraphicsResource.cpp">
-      <Filter>ist\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="shader\cl_source.cpp">
-      <Filter>Shader</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\ResourceManager.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h">
@@ -180,6 +180,18 @@
     </ClInclude>
     <ClInclude Include="Game\World.h">
       <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\CreateModelData.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ResourceManager.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Renderer.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Shader.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="ist\Base.h">
       <Filter>ist</Filter>
@@ -233,6 +245,9 @@
       <Filter>ist\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="ist\Graphics\GraphicsAssert.h">
+      <Filter>ist\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Graphics\GraphicsResource.h">
       <Filter>ist\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="ist\Graphics\ModelData.h">
@@ -295,30 +310,15 @@
     <ClInclude Include="ist\Math\SFMT\SFMT.h">
       <Filter>ist\Math\SFMT</Filter>
     </ClInclude>
-    <ClInclude Include="shader\glsl_source.h">
-      <Filter>Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="types.h" />
-    <ClInclude Include="Graphics\Shader.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Renderer.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\CreateModelData.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Graphics\GraphicsResource.h">
-      <Filter>ist\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="shader\cl_source.h">
       <Filter>Shader</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\ResourceManager.h">
-      <Filter>Graphics</Filter>
+    <ClInclude Include="shader\glsl_source.h">
+      <Filter>Shader</Filter>
     </ClInclude>
-    <ClInclude Include="GPGPU\SPH.h">
+    <ClInclude Include="types.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="GPGPU\SPH.cuh">
       <Filter>GPGPU</Filter>
     </ClInclude>
   </ItemGroup>
@@ -326,8 +326,10 @@
     <None Include="Game\Force_Gravity.inl">
       <Filter>Game</Filter>
     </None>
-    <None Include="GPGPU\SPH.cu">
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="GPGPU\SPH.cu">
       <Filter>GPGPU</Filter>
-    </None>
+    </CudaCompile>
   </ItemGroup>
 </Project>

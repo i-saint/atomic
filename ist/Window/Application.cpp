@@ -103,8 +103,10 @@ Application::Application()
 , m_dxdevice(0)
 , m_dxcontext(0)
 #endif // IST_DIRECTX
+#ifdef IST_OPENCL
 , m_cl_context(NULL)
 , m_cl_queue(NULL)
+#endif // IST_OPENCL
 {
 }
 
@@ -130,8 +132,8 @@ bool Application::initialize(size_t x, size_t y, size_t width, size_t height, co
 
     RECT rect = {0, 0, width, height};
     ::AdjustWindowRect(&rect, style, FALSE);
-    width = rect.right;
-    height = rect.bottom;
+    width = rect.right - rect.left;
+    height = rect.bottom - rect.top;
 
     WNDCLASSEXW wc;
     wc.cbSize        = sizeof(wc);
@@ -184,7 +186,9 @@ void Application::finalize()
 {
     if(g_the_app==this) { g_the_app = NULL; }
 
+#ifdef IST_OPENCL
     if(m_cl_context) { delete m_cl_context; m_cl_context=NULL; }
+#endif // IST_OPENCL
     if(m_hwnd) { ::CloseWindow(m_hwnd); m_hwnd=NULL; }
 }
 
@@ -264,7 +268,7 @@ bool Application::initializeDraw()
         &m_dxcontext);
 #endif // IST_DIRECTX
 
-
+#ifdef IST_OPENCL
     // initialize OpenCL
     {
         cl_int err;
@@ -293,6 +297,7 @@ bool Application::initializeDraw()
             IST_PRINT("OpenCL create command queue failed. error code: 0x%08x\n", err);
         }
     }
+#endif // IST_OPENCL
 
     return true;
 }

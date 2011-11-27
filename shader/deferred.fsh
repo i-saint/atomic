@@ -34,7 +34,7 @@ void main()
                     Albedo * max(dot(Normal,L), 0.0)
                  );
 
-    float strength = max(125.0-length(frag_position.xyz-v_LightPosition.xyz), 0.0)/125.0;
+    float strength = max(1.25-length(frag_position.xyz-v_LightPosition.xyz), 0.0)/1.25;
     color.rgb *= pow(strength, 0.7);
 
     o_FragColor = color;

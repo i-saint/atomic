@@ -74,10 +74,7 @@ uint32 FractionGrid::hitTest( QWordVector &out, FractionData &receiver ) const
 
     const float32 radius2f = FractionSet::RADIUS*2.0f;
     const float32 rcp_radius2f = 1.0f/(radius2f);
-    const float32 h_sqf = FractionSet::SMOOTH_LENGTH*FractionSet::SMOOTH_LENGTH;
     const XMVECTOR zero = _mm_set_ps1(0.0f);
-    const XMVECTOR h_sq = _mm_set_ps1(h_sqf);
-    const XMVECTOR mass = _mm_set_ps1(FractionSet::MASS);
     const XMVECTOR radius2 = _mm_set_ps1(radius2f);
     const XMVECTOR radius2_sq = _mm_set_ps1(radius2f*radius2f);
     const XMVECTOR rcp_radius2 = _mm_set_ps1(rcp_radius2f);
@@ -115,10 +112,6 @@ uint32 FractionGrid::hitTest( QWordVector &out, FractionData &receiver ) const
 
                     const SOAVECTOR4 dirv = SOAVectorTranspose4(dir.x, dir.y, dir.z);
 
-                    // îZìxéZèo
-                    const XMVECTOR r_sq = XMVectorMax(XMVectorSubtract(h_sq, len_sq), zero);
-                    const XMVECTOR density = XMVectorMultiply( XMVectorMultiply(XMVectorMultiply(r_sq, r_sq), r_sq),  mass);
-
                     // _mm_movemask_ps() égÇ¡ÇΩèÍçáÅ´ãtÇ…íxÇ≠Ç»Ç¡ÇΩÅc
                     //const uint32 hitv = _mm_movemask_ps(hit);
                     //const uint32 eq_ridv = _mm_movemask_ps(eq_rid);
@@ -127,10 +120,8 @@ uint32 FractionGrid::hitTest( QWordVector &out, FractionData &receiver ) const
                     //    if((hitv&1<<i)!=0 && (eq_ridv&1<<i)==0) {
 
                     const uint32* hitv = (const uint32*)&hit;
-                    const float32* densityv = (const float*)&density;
                     uint32 e = std::min<uint32>(4, num_senders-si);
                     for(size_t i=0; i<e; ++i) {
-                        receiver.density += densityv[i];
                         if(hitv[i]) {
                             Result r;
                             r.dir = dirv.v[i];
@@ -147,24 +138,13 @@ uint32 FractionGrid::hitTest( QWordVector &out, FractionData &receiver ) const
     uint32 n = s_tmp_result->size();
     if(n > 0) {
         ResultHeader rh;
-        rh.receiver_index = receiver.index;
+        rh.receiver_index = receiver.id;
         rh.num_collisions = n;
         out.insert(out.end(), (quadword*)rh.v, (quadword*)(rh.v + sizeof(rh)/16));
         out.insert(out.end(), (quadword*)(*s_tmp_result)[0].v, (quadword*)((*s_tmp_result)[0].v + n*sizeof(Result)/16));
     }
     s_tmp_result->clear();
 
-
-    // à≥óÕÇ»Ç«éZèo
-    {
-        // Precompute kernel coefficients
-        static const float32 h                 = FractionSet::SMOOTH_LENGTH;
-        static const float32 poly6_coef        = 315.0f/(64.0f*XM_PI*pow(h, 9));
-        static const float32 grad_poly6_coef   = 945.0f/(32.0f*XM_PI*pow(h, 9));
-        static const float32 lap_poly6_coef    = 945.0f/(32.0f*XM_PI*pow(h, 9));
-        static const float32 grad_spiky_coef   = -45.0f/(XM_PI*pow(h, 6));
-        static const float32 lap_vis_coef      = 45.0f/(XM_PI*pow(h, 6));
-    }
 
     return n;
 }
