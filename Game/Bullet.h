@@ -14,24 +14,6 @@ class Task_BulletCopy;
 
 class BulletSet : boost::noncopyable
 {
-public:
-    class __declspec(align(16)) Interframe : boost::noncopyable
-    {
-    private:
-
-    public:
-        Interframe();
-        ~Interframe();
-    };
-
-    static void InitializeInterframe();
-    static void FinalizeInterframe();
-    static Interframe* getInterframe() { return s_interframe; }
-
-private:
-    static Interframe *s_interframe;
-
-
 private:
     typedef stl::vector<BulletSubset*> BulletSubsets;
     BulletSubsets m_subsets;
@@ -48,30 +30,13 @@ public:
     void deserialize(Deserializer& s);
 
     void update();
-    void draw() const;
-    void sync() const;
+    void draw();
+    void sync();
+    void updateAsync();
 
     Task* getDrawTask();
 
     uint32 getNumBlocks() const;
-    void setNext(BulletSet *next);
-    BulletSet* getNext() { return m_next; }
-    const BulletSet* getPrev() const { return m_prev; }
-
-    // 以下非同期更新タスク用
-public:
-    void taskBeforeDraw();
-    void taskBeforeDraw(uint32 block);
-    void taskAfterDraw();
-    void taskDraw() const;
-    void taskCopy(BulletSet *dst) const;
-
-private:
-    void processMessage();
-    void move(uint32 block);
-    void collisionTest(uint32 block);
-    void collisionProcess(uint32 block);
-    void updateGrid();
 };
 
 

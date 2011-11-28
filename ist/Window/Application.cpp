@@ -299,6 +299,12 @@ bool Application::initializeDraw()
     }
 #endif // IST_OPENCL
 
+
+    // CUDA
+    int device_id = cutGetMaxGflopsDeviceId();
+    CUDA_SAFE_CALL( cudaSetDevice(device_id) );
+    CUDA_SAFE_CALL( cudaGLSetGLDevice(device_id) );
+
     return true;
 }
 

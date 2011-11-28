@@ -1,10 +1,17 @@
+#include <GL/glew.h>
+#include <cuda.h>
+#include <cudaGL.h>
+#include <cuda_gl_interop.h>
+#include <math_constants.h>
 #include <cutil.h>
 #include <cutil_math.h>
-#include <math_constants.h>
+#include <cutil_inline_runtime.h>
+
 #include <thrust/device_ptr.h>
 #include <thrust/sort.h>
 
 #include "SPH.cuh"
+#include "SPH_internal.cuh"
 
 typedef unsigned int uint;
 
@@ -22,7 +29,6 @@ __device__ __align__(16) uint2            d_grid[SPH_GRID_DIV_3];
 #define THREAD_BLOCK_X 256
 
 
-
 __device__ int GetThreadId()
 {
     return blockDim.x * blockIdx.x + threadIdx.x;
@@ -35,11 +41,11 @@ __global__ void GClearParticles()
     int i = GetThreadId();
     d_particles[i].id = i;
     d_particles[i].lifetime = 0xffffffff;
-    uint w = (uint)sqrt((float)SPH_MAX_PARTICLE_NUM);
+    uint w = 128;
     d_particles[i].position = make_float4(
-        spacing*(i%w) - 0.9,
-        spacing*(i/w) + 0.4f,
-        spacing*0.0001f*i,
+        spacing*(i%w) - (spacing*w*0.5),
+        spacing*((i/w)%w) + 0.6,
+        /*0.0f,*/ spacing*(i/(w*w)),
         0.0f);
     d_particles[i].velocity = make_float4(0.0f);
 
@@ -60,9 +66,9 @@ void SPHInitialize()
         h_param.grad_pressure_coef  = h_param.particle_mass * -45.0f / (CUDART_PI_F * pow(h_param.smooth_len, 6));
         h_param.lap_viscosity_coef  = h_param.particle_mass * h_param.viscosity * 45.0f / (CUDART_PI_F * pow(h_param.smooth_len, 6));
         h_param.wall_stiffness      = 3000.0f;
-        h_param.grid_dim = make_float4(5.12f);
+        h_param.grid_dim = make_float4(2.56f);
         h_param.grid_dim_rcp = make_float4(1.0f) / (h_param.grid_dim / make_float4(SPH_GRID_DIV_X, SPH_GRID_DIV_Y, SPH_GRID_DIV_Z, 1.0));
-        h_param.grid_pos = make_float4(-5.12f/2.0f);
+        h_param.grid_pos = make_float4(-2.56f/2.0f);
         CUDA_SAFE_CALL( cudaMemcpyToSymbol("d_param", &h_param, sizeof(SPHParam)) );
     }
 
@@ -71,6 +77,10 @@ void SPHInitialize()
     GClearParticles<<<dimGrid, dimBlock>>>();
 }
 
+void SPHFinalize()
+{
+
+}
 
 
 __device__ int3 GridCalculateCell(float4 pos)
@@ -404,4 +414,48 @@ void SPHIntegrate()
     dim3 dimGrid( SPH_MAX_PARTICLE_NUM / THREAD_BLOCK_X );
 
     GIntegrate<<<dimGrid, dimBlock>>>();
+}
+
+
+__global__ void GCopyInstancePositions(float4 *d_instance_pos, float4 *d_light_pos)
+{
+    const unsigned int P_ID = GetThreadId();
+    int pid = d_particles[P_ID].id;
+    d_instance_pos[P_ID] = d_particles[P_ID].position;
+
+    int light_cycle = SPH_MAX_PARTICLE_NUM/16;
+    if(pid % light_cycle==0) {
+        d_light_pos[pid/light_cycle] = d_particles[P_ID].position;
+    }
+}
+
+
+
+
+DeviceBufferObject h_instance_pos;
+DeviceBufferObject h_light_pos;
+
+void SPHInitializeInstancePositionBuffer(int vbo_inspos, int vbo_lightpos)
+{
+    h_instance_pos.registerBuffer(vbo_inspos, cudaGraphicsMapFlagsWriteDiscard);
+    h_light_pos.registerBuffer(vbo_lightpos, cudaGraphicsMapFlagsWriteDiscard);
+}
+
+void SPHFinalizeInstancePositionBuffer()
+{
+    h_instance_pos.unmapBuffer();
+    h_light_pos.unmapBuffer();
+}
+
+void SPHCopyInstancePositions()
+{
+    float4 *d_inspos = (float4*)h_instance_pos.mapBuffer();
+    float4 *d_lightpos = (float4*)h_light_pos.mapBuffer();
+
+    dim3 dimBlock( THREAD_BLOCK_X );
+    dim3 dimGrid( SPH_MAX_PARTICLE_NUM / THREAD_BLOCK_X );
+    GCopyInstancePositions<<<dimGrid, dimBlock>>>(d_inspos, d_lightpos);
+
+    h_instance_pos.unmapBuffer();
+    h_light_pos.unmapBuffer();
 }

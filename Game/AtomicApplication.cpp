@@ -113,7 +113,6 @@ void AtomicRenderThread::operator()()
     }
 
     PerformanceCounter fps_counter;
-    uint32 fps = 0;
     {
         boost::unique_lock<boost::mutex> lock(m_mutex_wait_for_draw);
         while(!m_stop_flag) {

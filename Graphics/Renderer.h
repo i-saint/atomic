@@ -103,7 +103,7 @@ public:
     void draw();    // •`‰æƒXƒŒƒbƒh‚©‚çŒÄ‚Î‚ê‚é
 
     void pushFractionInstance(float4 v) { m_fraction.pos.push_back(v); }
-    void pushVFXInstance(float4 v) { m_vfx.pos.push_back(v); }
+    void pushVFXInstance(float4 v) { /*m_vfx.pos.push_back(v);*/ }
 };
 
 

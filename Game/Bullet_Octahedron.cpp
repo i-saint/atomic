@@ -16,7 +16,7 @@ Bullet_OctahedronSet::~Bullet_OctahedronSet()
 {
 }
 
-void Bullet_OctahedronSet::taskBeforeDraw()
+void Bullet_OctahedronSet::update()
 {
     uint32 num_data = m_data.size();
     uint32 begin = 0;
@@ -41,15 +41,11 @@ void Bullet_OctahedronSet::taskBeforeDraw()
     }
 }
 
-void Bullet_OctahedronSet::taskAfterDraw()
+void Bullet_OctahedronSet::draw()
 {
 }
 
-void Bullet_OctahedronSet::taskDraw() const
-{
-}
-
-void Bullet_OctahedronSet::taskCopy() const
+void Bullet_OctahedronSet::updateAsync() const
 {
 }
 

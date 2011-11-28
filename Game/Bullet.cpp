@@ -11,12 +11,8 @@ namespace atomic {
 
 
 
-
-
-
 BulletSet::BulletSet()
 {
-    m_subsets.push_back(IST_NEW16(Bullet_OctahedronSet)());
 }
 
 BulletSet::~BulletSet()

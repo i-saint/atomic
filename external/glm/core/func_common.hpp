@@ -210,8 +210,8 @@ namespace glm
 	//! you would want a threshold function with a smooth
 	//! transition. This is equivalent to:
 	//! genType t;
-	//! t = clamp ((x – edge0) / (edge1 – edge0), 0, 1);
-	//! return t * t * (3 – 2 * t);
+	//! t = clamp ((x Eedge0) / (edge1 Eedge0), 0, 1);
+	//! return t * t * (3 E2 * t);
 	//! Results are undefined if edge0 >= edge1.
     //! 
     //! \li <a href="http://www.opengl.org/sdk/docs/manglsl/xhtml/smoothstep.xml">GLSL smoothstep man page</a>

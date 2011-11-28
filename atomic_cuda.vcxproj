@@ -118,6 +118,7 @@
     <None Include="Game\Force_Gravity.inl">
       <FileType>Document</FileType>
     </None>
+    <None Include="GPGPU\SPH_internal.cuh" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="GPGPU\SPH.cu" />

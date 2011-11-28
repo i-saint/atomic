@@ -24,8 +24,17 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <cuda.h>
+#include <cudaGL.h>
 #include <cuda_runtime.h>
+#include <cudaGL.h>
+#include <cuda_gl_interop.h>
 #include <cutil.h>
+#include <cutil_math.h>
+#include <cutil_inline_runtime.h>
+#include <math_constants.h>
+
+#include <thrust/host_vector.h>
 
 #include <windows.h>
 #include <mmsystem.h>

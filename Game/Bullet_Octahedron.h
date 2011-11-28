@@ -35,10 +35,9 @@ public:
     const BulletData* getBullet(uint32 i) const { return &m_data[i]; }
 
 public:
-    void taskBeforeDraw();
-    void taskAfterDraw();
-    void taskDraw() const;
-    void taskCopy() const;
+    void update();
+    void draw();
+    void updateAsync() const;
 };
 
 }

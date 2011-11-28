@@ -8,10 +8,9 @@ class IForce
 {
 public:
     virtual ~IForce() {}
-    virtual void taskBeforeDraw()=0;
-    virtual void taskAfterDraw()=0;
-    virtual void taskDraw() const=0;
-    virtual void taskCopy() const=0;
+    virtual void update()=0;
+    virtual void draw()=0;
+    virtual void updateAsync()=0;
 };
 
 
@@ -19,10 +18,6 @@ class ForceSet
 {
 private:
     typedef stl::vector<IForce*> ForceCont;
-
-    const ForceSet *m_prev;
-    ForceSet *m_next;
-    ForceCont m_forces;
 
 
 public:
@@ -36,10 +31,7 @@ public:
     void update();
     void draw() const;
     void sync() const;
-
-    void setNext(ForceSet *next);
-    ForceSet* getNext() { return m_next; }
-    const ForceSet* getPrev() const { return m_prev; }
+    void updateAsync();
 
 public:
 };

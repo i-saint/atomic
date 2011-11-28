@@ -326,6 +326,9 @@
     <None Include="Game\Force_Gravity.inl">
       <Filter>Game</Filter>
     </None>
+    <None Include="GPGPU\SPH_internal.cuh">
+      <Filter>GPGPU</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="GPGPU\SPH.cu">

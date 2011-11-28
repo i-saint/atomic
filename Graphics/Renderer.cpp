@@ -1,8 +1,10 @@
 #include "stdafx.h"
-#include "../types.h"
-#include "../Game/AtomicApplication.h"
-#include "../Game/AtomicGame.h"
-#include "../Game/World.h"
+#include "types.h"
+#include "Game/AtomicApplication.h"
+#include "Game/AtomicGame.h"
+#include "Game/World.h"
+#include "Game/World.h"
+#include "GPGPU/SPH.cuh"
 #include "Renderer.h"
 
 namespace atomic {
@@ -37,6 +39,7 @@ AtomicRenderer::AtomicRenderer()
     m_renderer_cube = IST_NEW(PassGBuffer_Cube) ();
     m_renderer_sphere_light = IST_NEW(PassDeferred_SphereLight) ();
     m_renderer_bloom = IST_NEW(PassPostprocess_Bloom) ();
+
     m_renderers[PASS_GBUFFER].push_back(m_renderer_cube);
     m_renderers[PASS_DEFERRED].push_back(m_renderer_sphere_light);
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_bloom);
@@ -46,6 +49,7 @@ AtomicRenderer::AtomicRenderer()
 
 AtomicRenderer::~AtomicRenderer()
 {
+    IST_DELETE(m_renderer_bloom);
     IST_DELETE(m_renderer_sphere_light);
     IST_DELETE(m_renderer_cube);
 }
@@ -60,6 +64,7 @@ void AtomicRenderer::beforeDraw()
     }
 }
 
+
 void AtomicRenderer::draw()
 {
     PerformanceCounter timer;
@@ -69,7 +74,11 @@ void AtomicRenderer::draw()
     glEnable(GL_CULL_FACE);
 
     glLoadIdentity();
-
+    {
+        PerformanceCounter counter;
+        SPHCopyInstancePositions();
+        //IST_PRINT("SPHCopyInstancePositions() took %f ms.\n", counter.getElapsedMillisecond());
+    }
 
     pass_Shadow();
     pass_GBuffer();
@@ -80,7 +89,7 @@ void AtomicRenderer::draw()
     pass_Output();
 
     glSwapBuffers();
-    //glFinish();
+    glFinish();
     //IST_PRINT("AtomicRenderer::draw() : %.2fms\n", timer.getElapsedMillisecond());
 }
 
@@ -218,8 +227,10 @@ void PassGBuffer_Cube::beforeDraw()
 
 void PassGBuffer_Cube::draw()
 {
-    const uint32 num_fractions = m_fraction.pos.size();
-    m_vbo_instance_pos->allocate(sizeof(XMVECTOR)*num_fractions, VertexBufferObject::USAGE_STREAM, &m_fraction.pos[0]);
+    //const uint32 num_fractions = m_fraction.pos.size();
+    //m_vbo_instance_pos->allocate(sizeof(XMVECTOR)*num_fractions, VertexBufferObject::USAGE_STREAM, &m_fraction.pos[0]);
+
+    const uint32 num_fractions = SPH_MAX_PARTICLE_NUM;
 
     m_sh_gbuffer->bind();
     m_model->setInstanceData(2, 4, *m_vbo_instance_pos);
@@ -279,8 +290,10 @@ void PassDeferred_SphereLight::beforeDraw()
 
 void PassDeferred_SphereLight::draw()
 {
-    const uint32 num_instances = m_instance_pos.size();
-    m_vbo_instance_pos->allocate(sizeof(XMVECTOR)*num_instances, VertexBufferObject::USAGE_STREAM, &m_instance_pos[0]);
+    //const uint32 num_instances = m_instance_pos.size();
+    //m_vbo_instance_pos->allocate(sizeof(XMVECTOR)*num_instances, VertexBufferObject::USAGE_STREAM, &m_instance_pos[0]);
+
+    const uint32 num_instances = 16;
 
     m_model->setInstanceData(2, 4, *m_vbo_instance_pos);
     m_model->drawInstanced(num_instances);

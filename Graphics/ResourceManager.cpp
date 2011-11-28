@@ -3,6 +3,7 @@
 #include "types.h"
 #include "Game/AtomicApplication.h"
 #include "Graphics/ResourceManager.h"
+#include "GPGPU/SPH.cuh"
 
 namespace atomic {
 
@@ -86,7 +87,7 @@ bool GraphicResourceManager::initialize()
             m_model[i]->initialize();
         }
         CreateCubeModel(*m_model[MODEL_CUBE_FRACTION], 0.03f);
-        CreateSphereModel(*m_model[MODEL_SPHERE_LIGHT], 1.50f, 16,8);
+        CreateSphereModel(*m_model[MODEL_SPHERE_LIGHT], 2.56f, 16,8);
     }
     {
         for(uint32 i=0; i<_countof(m_tex2d); ++i) {
@@ -149,11 +150,19 @@ bool GraphicResourceManager::initialize()
         m_fbo[RT_GAUSS1] = m_rt_gauss[1];
     }
 
+    SPHInitialize();
+
+    m_vbo[VBO_CUBE_POS]->allocate(sizeof(float4)*SPH_MAX_PARTICLE_NUM, VertexBufferObject::USAGE_DYNAMIC);
+    m_vbo[VBO_SPHERE_LIGHT_POS]->allocate(sizeof(float4)*SPH_MAX_PARTICLE_NUM, VertexBufferObject::USAGE_DYNAMIC);
+    SPHInitializeInstancePositionBuffer(m_vbo[VBO_CUBE_POS]->getHandle(), m_vbo[VBO_SPHERE_LIGHT_POS]->getHandle());
+
     return true;
 }
 
 void GraphicResourceManager::finalize()
 {
+    SPHFinalize();
+
     for(uint32 i=0; i<_countof(m_model); ++i)   { if(m_model[i]) { m_model[i]->finalize(); IST_DELETE( m_model[i] ); } }
     for(uint32 i=0; i<_countof(m_tex2d); ++i)   { if(m_tex2d[i]) { m_tex2d[i]->finalize(); IST_DELETE( m_tex2d[i] ); } }
     for(uint32 i=0; i<_countof(m_vbo); ++i)     { if(m_vbo[i]) { m_vbo[i]->finalize(); IST_DELETE( m_vbo[i] ); } }

@@ -10,44 +10,13 @@ class FractionSet;
 class VFXSet;
 
 class World;
-class Task_WorldBeforeDraw;
-class Task_WorldAfterDraw;
-class Task_WorldCopy;
+class Task_WorlUpdateAsync;
 
 
 class World : boost::noncopyable
 {
-public:
-    class Interframe : boost::noncopyable
-    {
-    private:
-        World* m_current_world;
-        Task_WorldBeforeDraw *m_task_beforedraw;
-        Task_WorldAfterDraw *m_task_afterdraw;
-        Task_WorldCopy *m_task_copy;
-
-    public:
-        Interframe();
-        ~Interframe();
-        void setCurrentWorld(World* w) { m_current_world=w; }
-        World* getCurrentWorld() { return m_current_world; }
-
-        Task_WorldBeforeDraw*   getTask_BeforeDraw() { return m_task_beforedraw; }
-        Task_WorldAfterDraw*    getTask_AfterDraw() { return m_task_afterdraw; }
-        Task_WorldCopy*         getTask_Copy() { return m_task_copy; }
-    };
-
 private:
-    static Interframe *s_interframe;
-
-public:
-    static void initializeInterframe();
-    static void finalizeInterframe();
-    static Interframe* getInterframe() { return s_interframe; }
-
-private:
-    const World *m_prev;
-    World *m_next;
+    Task_WorlUpdateAsync *m_task_updateasync;
 
     FractionSet *m_fraction_set;
     BulletSet *m_bullet_set;
@@ -68,36 +37,26 @@ public:
     void update();
     void draw() const;
     void sync() const;
-
-    void setNext(World *next);
-    World* getNext() { return m_next; }
-    const World* getPrev() const { return m_prev; }
+    void updateAsync();
 
     uint32 getFrame() const { return m_frame; }
-    FractionSet* getFractions() { return m_fraction_set; }
     PerspectiveCamera* getCamera() { return &m_camera; }
     SFMT* getRandom() { return &m_rand; }
 
+    FractionSet* getFractions() { return m_fraction_set; }
 
-public:
-    void taskBeforeDraw();
-    void taskAfterDraw();
-    void taskCopy(World *dst) const;
 };
 
 
-#define atomicGetWorld()        World::getInterframe()->getCurrentWorld()
-#define atomicGetPrevWorld()    atomicGetWorld()->getPrev()
 #define atomicGetFrame()        atomicGetWorld()->getFrame()
-
-#define atomicGetFractions()    atomicGetWorld()->getFractions()
 #define atomicGetCamera()       atomicGetWorld()->getCamera()
-
 #define atomicGetRandom()       atomicGetWorld()->getRandom()
 #define atomicGenRandFloat()    atomicGetRandom()->genFloat32()
 #define atomicGenRandVector2()  atomicGetRandom()->genVector2()
 #define atomicGenRandVector3()  atomicGetRandom()->genVector3()
 #define atomicGenRandVector4()  atomicGetRandom()->genVector4()
+
+#define atomicGetFractions()    atomicGetWorld()->getFractions()
 
 
 } // namespace atomic

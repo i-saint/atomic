@@ -11,12 +11,7 @@ public:
     static const uint32 MAX_WORLDS = 3;
 
 private:
-    typedef stl::vector<World*> WorldCont;
-    WorldCont m_worlds;
-    World *m_current;
-    World *m_prev;
-    World *m_draw_target;
-    uint32 m_world_index;
+    World *m_world;
 
 public:
     AtomicGame();
@@ -27,7 +22,13 @@ public:
 
     // •`‰æƒXƒŒƒbƒh‚©‚çŒÄ‚Î‚ê‚é
     void drawCallback();
+
+
+    World* getWorld() { return m_world; }
 };
+
+#define atomicGetWorld()    atomicGetGame()->getWorld()
+
 
 } // namespace atomic
 #endif __atomic_AtomicGame_h__
