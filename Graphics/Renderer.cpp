@@ -293,7 +293,7 @@ void PassDeferred_SphereLight::draw()
     //const uint32 num_instances = m_instance_pos.size();
     //m_vbo_instance_pos->allocate(sizeof(XMVECTOR)*num_instances, VertexBufferObject::USAGE_STREAM, &m_instance_pos[0]);
 
-    const uint32 num_instances = 16;
+    const uint32 num_instances = SPH_MAX_LIGHT_NUM;
 
     m_model->setInstanceData(2, 4, *m_vbo_instance_pos);
     m_model->drawInstanced(num_instances);

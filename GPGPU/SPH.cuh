@@ -11,7 +11,7 @@ extern "C" {
     const int SPH_GRID_DIV_Z = 1<<SPH_GRID_DIV_SHIFT_Z;
     const int SPH_GRID_DIV_3 = SPH_GRID_DIV_X*SPH_GRID_DIV_Y*SPH_GRID_DIV_Z;
     const int SPH_MAX_PARTICLE_NUM = 65536;
-    //const int SPH_MAX_PARTICLE_NUM = 4096;
+    const int SPH_MAX_LIGHT_NUM = 16;
 
     struct SPHParam
     {

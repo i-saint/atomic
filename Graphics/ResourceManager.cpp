@@ -161,6 +161,7 @@ bool GraphicResourceManager::initialize()
 
 void GraphicResourceManager::finalize()
 {
+    SPHFinalizeInstancePositionBuffer();
     SPHFinalize();
 
     for(uint32 i=0; i<_countof(m_model); ++i)   { if(m_model[i]) { m_model[i]->finalize(); IST_DELETE( m_model[i] ); } }

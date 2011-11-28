@@ -147,6 +147,9 @@ void SPHUpdateGrid()
 
     GUpdateHash<<<dimGrid_par_particle, dimBlock>>>();
 
+    // thrust::sort_by_key 用にデバイス側のポインタを取得
+    // *直接 thrust::sort_by_key(d_hashes, d_hashes+SPH_MAX_PARTICLE_NUM, d_particles) とかやると、
+    //  コンパイルエラーにはならないけど意図した結果にならない (host 側用の関数が呼ばれる)
     uint *phashes = NULL;
     SPHParticle *pparticles = NULL;
     CUDA_SAFE_CALL( cudaGetSymbolAddress((void**)&phashes, "d_hashes") );
@@ -423,7 +426,7 @@ __global__ void GCopyInstancePositions(float4 *d_instance_pos, float4 *d_light_p
     int pid = d_particles[P_ID].id;
     d_instance_pos[P_ID] = d_particles[P_ID].position;
 
-    int light_cycle = SPH_MAX_PARTICLE_NUM/16;
+    int light_cycle = SPH_MAX_PARTICLE_NUM/SPH_MAX_LIGHT_NUM;
     if(pid % light_cycle==0) {
         d_light_pos[pid/light_cycle] = d_particles[P_ID].position;
     }
@@ -443,8 +446,8 @@ void SPHInitializeInstancePositionBuffer(int vbo_inspos, int vbo_lightpos)
 
 void SPHFinalizeInstancePositionBuffer()
 {
-    h_instance_pos.unmapBuffer();
-    h_light_pos.unmapBuffer();
+    h_instance_pos.unregisterBuffer();
+    h_light_pos.unregisterBuffer();
 }
 
 void SPHCopyInstancePositions()
