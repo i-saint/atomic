@@ -52,6 +52,19 @@ void FractionSet::initialize()
             atomicPushMessage(MR_FRACTION, 0, mes);
         }
     }
+
+    {
+        SPHSphericalGravity h_sg;
+        h_sg.position = make_float4(0.0f);
+        h_sg.is_active = 1;
+        h_sg.inner_radus = 0.5f;
+        h_sg.range_radus = 5.12f;
+        h_sg.strength = 1.5f;
+        for(uint32 i=0; i<_countof(m_sgravity); ++i) {
+            m_sgravity[i] = h_sg;
+        }
+
+    }
 }
 
 
@@ -80,6 +93,11 @@ void FractionSet::updateSPH()
     SPHComputeDensity();
     SPHComputeForce();
     SPHIntegrate();
+
+    float2 move = atomicGetInputs()->getMove()*0.01f;
+    m_sgravity[0].position.x += move.x;
+    m_sgravity[0].position.y += move.y;
+    SPHUpdateSphericalGravityData(m_sgravity);
 
     //PerformanceCounter counter;
     //CUDA_SAFE_CALL( cudaMemcpyFromSymbol(m_particles, "d_particles", sizeof(m_particles), 0, cudaMemcpyDeviceToHost ) );

@@ -90,8 +90,6 @@ LRESULT CALLBACK WndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lPara
 
 Application::Application()
 : m_hwnd(NULL)
-, m_x(0)
-, m_y(0)
 , m_width(0)
 , m_height(0)
 #ifdef IST_OPENGL
@@ -323,6 +321,39 @@ void Application::finalizeDraw()
     if(m_dxdevice)      { m_dxdevice->Release();    m_dxdevice=NULL;    }
     if(m_dxcontext)     { m_dxcontext->Release();   m_dxcontext=NULL;   }
 #endif // IST_DIRECTX
+}
+
+void Application::updateInput()
+{
+    // keyboard
+    ::GetKeyboardState( m_keyboard_state.getRawKeyState() );
+
+    // mouse
+    {
+        CURSORINFO cinfo;
+        cinfo.cbSize = sizeof(cinfo);
+        ::GetCursorInfo(&cinfo);
+        m_mouse_state.setX( cinfo.ptScreenPos.x );
+        m_mouse_state.setX( cinfo.ptScreenPos.y );
+    }
+    {
+        short mouse_button = 0;
+        mouse_button |= m_keyboard_state.isKeyPressed(VK_LBUTTON) ? MouseState::BU_LEFT : 0;
+        mouse_button |= m_keyboard_state.isKeyPressed(VK_RBUTTON) ? MouseState::BU_RIGHT : 0;
+        mouse_button |= m_keyboard_state.isKeyPressed(VK_MBUTTON) ? MouseState::BU_MIDDLE : 0;
+        m_mouse_state.setButtonState(mouse_button);
+    }
+
+    // joystick
+    size_t num_joysticks = stl::min<size_t>(::joyGetNumDevs(), MAX_JOYSTICK_NUM);
+    for(int i=0; i<num_joysticks; ++i) {
+        JOYINFOEX joyinfo;//ジョイスティック情報
+        joyinfo.dwSize = sizeof(JOYINFOEX);
+        joyinfo.dwFlags = JOY_RETURNALL;
+        if(::joyGetPosEx(i, &joyinfo)==JOYERR_NOERROR){
+            m_joy_state->setValue(joyinfo);
+        }
+    }
 }
 
 void Application::translateMessage()

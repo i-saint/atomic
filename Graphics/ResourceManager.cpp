@@ -150,10 +150,10 @@ bool GraphicResourceManager::initialize()
         m_fbo[RT_GAUSS1] = m_rt_gauss[1];
     }
 
-    SPHInitialize();
 
     m_vbo[VBO_CUBE_POS]->allocate(sizeof(float4)*SPH_MAX_PARTICLE_NUM, VertexBufferObject::USAGE_DYNAMIC);
-    m_vbo[VBO_SPHERE_LIGHT_POS]->allocate(sizeof(float4)*SPH_MAX_PARTICLE_NUM, VertexBufferObject::USAGE_DYNAMIC);
+    m_vbo[VBO_SPHERE_LIGHT_POS]->allocate(sizeof(float4)*SPH_MAX_LIGHT_NUM, VertexBufferObject::USAGE_DYNAMIC);
+    SPHInitialize();
     SPHInitializeInstancePositionBuffer(m_vbo[VBO_CUBE_POS]->getHandle(), m_vbo[VBO_SPHERE_LIGHT_POS]->getHandle());
 
     return true;

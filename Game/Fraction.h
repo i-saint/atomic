@@ -47,6 +47,7 @@ private:
 
     Task_FractionUpdateAsync            *m_task_asyncupdate;
     SPHParticle                         m_particles[SPH_MAX_PARTICLE_NUM];
+    SPHSphericalGravity                 m_sgravity[ SPH_MAX_SPHERICAL_GRAVITY_NUM ];
     thrust::host_vector<SPHParticle>    m_spawn;
     HashGridCont    m_grid;
     uint32          m_idgen;

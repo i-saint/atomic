@@ -193,12 +193,32 @@ void AtomicApplication::mainLoop()
     while(!m_request_exit)
     {
         translateMessage();
+        updateInput();
 
         if(m_game) {
             m_game->update();
             m_game->draw();
         }
     }
+}
+
+void AtomicApplication::updateInput()
+{
+    super::updateInput();
+
+    float2 move = make_float2(0.0f);
+    int buttons = getJoyState().getButtons();
+    if(getKeyboardState().isKeyPressed(VK_RIGHT))   { move.x = 1.0f; }
+    if(getKeyboardState().isKeyPressed(VK_LEFT))    { move.x =-1.0f; }
+    if(getKeyboardState().isKeyPressed(VK_UP))      { move.y = 1.0f; }
+    if(getKeyboardState().isKeyPressed(VK_DOWN))    { move.y =-1.0f; }
+    {
+        float2 jpos = make_float2((float)getJoyState().getX(), -(float)getJoyState().getY());
+        jpos /= 32768.0f;
+        if(length(jpos)>0.4f) { move=jpos; }
+    }
+    m_inputs.setMove(move);
+    m_inputs.setButtons(buttons);
 }
 
 int AtomicApplication::handleWindowMessage(const ist::WindowMessage& wm)

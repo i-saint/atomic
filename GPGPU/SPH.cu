@@ -21,12 +21,15 @@ typedef unsigned int uint;
 
 
 __constant__ __align__(16) SPHParam       d_param;
-__device__ __align__(16) SPHParticle      d_particles[SPH_MAX_PARTICLE_NUM];
-__device__ __align__(16) SPHParticleForce d_forces[SPH_MAX_PARTICLE_NUM];
-__device__ __align__(16) uint             d_hashes[SPH_MAX_PARTICLE_NUM];
-__device__ __align__(16) uint2            d_grid[SPH_GRID_DIV_3];
+__device__ __align__(16) SPHParticle      d_particles[ SPH_MAX_PARTICLE_NUM ];
+__device__ __align__(16) SPHParticleForce d_forces[ SPH_MAX_PARTICLE_NUM ];
+__device__ __align__(16) uint             d_hashes[ SPH_MAX_PARTICLE_NUM ];
+__device__ __align__(16) uint2            d_grid[ SPH_GRID_DIV_3 ];
 
-#define THREAD_BLOCK_X 256
+__device__ __align__(16) SPHSphericalGravity d_sgravity[ SPH_MAX_SPHERICAL_GRAVITY_NUM ];
+
+
+const int SPH_THREAD_BLOCK_X = 256;
 
 
 __device__ int GetThreadId()
@@ -45,7 +48,7 @@ __global__ void GClearParticles()
     d_particles[i].position = make_float4(
         spacing*(i%w) - (spacing*w*0.5),
         spacing*((i/w)%w) + 0.6,
-        /*0.0f,*/ spacing*(i/(w*w)),
+        /*0.0f,*/ spacing*(i/(w*w))+0.05f,
         0.0f);
     d_particles[i].velocity = make_float4(0.0f);
 
@@ -57,23 +60,33 @@ void SPHInitialize()
 {
     {
         SPHParam h_param;
-        h_param.smooth_len          = 0.018f;
+        h_param.smooth_len          = 0.02f;
         h_param.pressure_stiffness  = 200.0f;
         h_param.rest_density        = 1000.0f;
-        h_param.particle_mass       = 0.0002f;
+        h_param.particle_mass       = 0.001f;
         h_param.viscosity           = 0.1f;
         h_param.density_coef        = h_param.particle_mass * 315.0f / (64.0f * CUDART_PI_F * pow(h_param.smooth_len, 9));
         h_param.grad_pressure_coef  = h_param.particle_mass * -45.0f / (CUDART_PI_F * pow(h_param.smooth_len, 6));
         h_param.lap_viscosity_coef  = h_param.particle_mass * h_param.viscosity * 45.0f / (CUDART_PI_F * pow(h_param.smooth_len, 6));
         h_param.wall_stiffness      = 3000.0f;
-        h_param.grid_dim = make_float4(2.56f);
+        const float grid_len = 5.12f;
+        h_param.grid_dim = make_float4(grid_len, grid_len, h_param.smooth_len*SPH_GRID_DIV_Z, 0.0f);
         h_param.grid_dim_rcp = make_float4(1.0f) / (h_param.grid_dim / make_float4(SPH_GRID_DIV_X, SPH_GRID_DIV_Y, SPH_GRID_DIV_Z, 1.0));
-        h_param.grid_pos = make_float4(-2.56f/2.0f);
-        CUDA_SAFE_CALL( cudaMemcpyToSymbol("d_param", &h_param, sizeof(SPHParam)) );
+        h_param.grid_pos = make_float4(-grid_len/2.0f, -grid_len/2.0f, 0.0f, 0.0f);
+        CUDA_SAFE_CALL( cudaMemcpyToSymbol("d_param", &h_param, sizeof(h_param)) );
+    }
+    {
+        SPHSphericalGravity h_sg;
+        h_sg.position = make_float4(0.0f);
+        h_sg.is_active = 1;
+        h_sg.inner_radus = 0.5f;
+        h_sg.range_radus = 5.12f;
+        h_sg.strength = 0.5f;
+        CUDA_SAFE_CALL( cudaMemcpyToSymbol("d_sgravity", &h_sg, sizeof(h_sg)) );
     }
 
-    dim3 dimBlock( THREAD_BLOCK_X );
-    dim3 dimGrid( SPH_MAX_PARTICLE_NUM / THREAD_BLOCK_X );
+    dim3 dimBlock( SPH_THREAD_BLOCK_X );
+    dim3 dimGrid( SPH_MAX_PARTICLE_NUM / SPH_THREAD_BLOCK_X );
     GClearParticles<<<dimGrid, dimBlock>>>();
 }
 
@@ -141,9 +154,9 @@ __global__ void GUpdateGrid()
 void SPHUpdateGrid()
 {
 #ifdef SPH_ENABLE_HASHGRID
-    dim3 dimBlock( THREAD_BLOCK_X );
-    dim3 dimGrid_par_particle( SPH_MAX_PARTICLE_NUM / THREAD_BLOCK_X );
-    dim3 dimGrid_par_grid( SPH_GRID_DIV_3 / THREAD_BLOCK_X );
+    dim3 dimBlock( SPH_THREAD_BLOCK_X );
+    dim3 dimGrid_par_particle( SPH_MAX_PARTICLE_NUM / SPH_THREAD_BLOCK_X );
+    dim3 dimGrid_par_grid( SPH_GRID_DIV_3 / SPH_THREAD_BLOCK_X );
 
     GUpdateHash<<<dimGrid_par_particle, dimBlock>>>();
 
@@ -230,8 +243,8 @@ __global__ void GComputeDensity()
 
 void SPHComputeDensity()
 {
-    dim3 dimBlock( THREAD_BLOCK_X );
-    dim3 dimGrid( SPH_MAX_PARTICLE_NUM / THREAD_BLOCK_X );
+    dim3 dimBlock( SPH_THREAD_BLOCK_X );
+    dim3 dimGrid( SPH_MAX_PARTICLE_NUM / SPH_THREAD_BLOCK_X );
 
     GComputeDensity<<<dimGrid, dimBlock>>>();
 }
@@ -346,8 +359,8 @@ __global__ void GComputeForce()
 
 void SPHComputeForce()
 {
-    dim3 dimBlock( THREAD_BLOCK_X );
-    dim3 dimGrid( SPH_MAX_PARTICLE_NUM / THREAD_BLOCK_X );
+    dim3 dimBlock( SPH_THREAD_BLOCK_X );
+    dim3 dimGrid( SPH_MAX_PARTICLE_NUM / SPH_THREAD_BLOCK_X );
 
     GComputeForce<<<dimGrid, dimBlock>>>();
 }
@@ -375,15 +388,19 @@ __global__ void GIntegrate()
     //    acceleration += min(dist, 0.0f) * -d_param.wall_stiffness * make_float4(planes[i].x, planes[i].y, 0.0f, 0.0f);
     //}
     //float4 gravity = make_float4(0.0f, -0.5f, 0.0f, 0.0f);
-    //acceleration += gravity;
+
+    acceleration += min(position.z, 0.0f) * -d_param.wall_stiffness * make_float4(0.0f, 0.0f, 0.5f, 0.0f);
+    acceleration += make_float4(0.0f, 0.0f, -5.0f, 0.0f);
 
 
     // Apply gravity
-    {
-        const float4 center = make_float4(0.0f);
-        const float gravity_strength = 0.5f;
-        const float inner_radius = 0.5f;
-        const float outer_radius = 5.12f;
+    for(int i=0; i<SPH_MAX_SPHERICAL_GRAVITY_NUM; ++i) {
+        if(!d_sgravity[i].is_active) { continue; }
+
+        const float4 center = d_sgravity[i].position;
+        const float gravity_strength = d_sgravity[i].strength;
+        const float inner_radius = d_sgravity[i].inner_radus;
+        const float outer_radius = d_sgravity[i].range_radus;
 
         float4 diff = center-position;
         diff.w = 0.0f;
@@ -402,6 +419,8 @@ __global__ void GIntegrate()
 
     // Integrate
     velocity += timestep * acceleration;
+    velocity *= make_float4(0.999);
+    if(dot(velocity, velocity) > 1.0f) { velocity *= make_float4(0.98); }
     //velocity.z *= 0.0f;
     position += timestep * velocity;
     //position.z *= 0.0f;
@@ -413,8 +432,8 @@ __global__ void GIntegrate()
 
 void SPHIntegrate()
 {
-    dim3 dimBlock( THREAD_BLOCK_X );
-    dim3 dimGrid( SPH_MAX_PARTICLE_NUM / THREAD_BLOCK_X );
+    dim3 dimBlock( SPH_THREAD_BLOCK_X );
+    dim3 dimGrid( SPH_MAX_PARTICLE_NUM / SPH_THREAD_BLOCK_X );
 
     GIntegrate<<<dimGrid, dimBlock>>>();
 }
@@ -455,10 +474,16 @@ void SPHCopyInstancePositions()
     float4 *d_inspos = (float4*)h_instance_pos.mapBuffer();
     float4 *d_lightpos = (float4*)h_light_pos.mapBuffer();
 
-    dim3 dimBlock( THREAD_BLOCK_X );
-    dim3 dimGrid( SPH_MAX_PARTICLE_NUM / THREAD_BLOCK_X );
+    dim3 dimBlock( SPH_THREAD_BLOCK_X );
+    dim3 dimGrid( SPH_MAX_PARTICLE_NUM / SPH_THREAD_BLOCK_X );
     GCopyInstancePositions<<<dimGrid, dimBlock>>>(d_inspos, d_lightpos);
 
     h_instance_pos.unmapBuffer();
     h_light_pos.unmapBuffer();
+}
+
+
+void SPHUpdateSphericalGravityData(SPHSphericalGravity (&sgravity)[ SPH_MAX_SPHERICAL_GRAVITY_NUM ])
+{
+    CUDA_SAFE_CALL( cudaMemcpyToSymbol("d_sgravity", sgravity, sizeof(sgravity)) );
 }
