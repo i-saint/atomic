@@ -5,12 +5,12 @@
 #include "Graphics/ResourceManager.h"
 #include "Graphics/Renderer.h"
 #include "Game/World.h"
-
+#include "Sound/AtomicSound.h"
 
 namespace atomic {
 
 
-class AtomicRenderThread
+class AtomicRenderingThread
 {
 private:
     AtomicApplication *m_app;
@@ -30,8 +30,8 @@ private:
     bool m_is_end;
 
 public:
-    AtomicRenderThread(AtomicApplication *app);
-    ~AtomicRenderThread();
+    AtomicRenderingThread(AtomicApplication *app);
+    ~AtomicRenderingThread();
     void requestStop();
     void operator()();
 
@@ -42,7 +42,7 @@ public:
     void kick();
 };
 
-AtomicRenderThread::AtomicRenderThread(AtomicApplication *app)
+AtomicRenderingThread::AtomicRenderingThread(AtomicApplication *app)
 : m_app(app)
 , m_stop_flag(false)
 , m_is_initialized(false)
@@ -52,16 +52,16 @@ AtomicRenderThread::AtomicRenderThread(AtomicApplication *app)
 {
 }
 
-AtomicRenderThread::~AtomicRenderThread()
+AtomicRenderingThread::~AtomicRenderingThread()
 {
 }
 
-void AtomicRenderThread::run()
+void AtomicRenderingThread::run()
 {
     m_thread.reset(new boost::thread(boost::ref(*this)));
 }
 
-void AtomicRenderThread::stop()
+void AtomicRenderingThread::stop()
 {
     m_stop_flag = true;
     kick();
@@ -72,7 +72,7 @@ void AtomicRenderThread::stop()
     }
 }
 
-void AtomicRenderThread::waitForInitializeComplete()
+void AtomicRenderingThread::waitForInitializeComplete()
 {
     boost::unique_lock<boost::mutex> lock(m_mutex_wait_for_initialize);
     while(!m_is_initialized) {
@@ -80,7 +80,7 @@ void AtomicRenderThread::waitForInitializeComplete()
     }
 }
 
-void AtomicRenderThread::waitForDrawComplete()
+void AtomicRenderingThread::waitForDrawComplete()
 {
     boost::unique_lock<boost::mutex> lock(m_mutex_wait_for_complete);
     while(!m_is_draw_complete) {
@@ -88,7 +88,7 @@ void AtomicRenderThread::waitForDrawComplete()
     }
 }
 
-void AtomicRenderThread::kick()
+void AtomicRenderingThread::kick()
 {
     waitForDrawComplete();
     {
@@ -100,9 +100,9 @@ void AtomicRenderThread::kick()
 }
 
 
-void AtomicRenderThread::operator()()
+void AtomicRenderingThread::operator()()
 {
-    ist::SetThreadName("AtomicRenderThread");
+    ist::SetThreadName("AtomicRenderingThread");
 
     m_app->initializeDraw();
     GraphicResourceManager::intializeInstance();
@@ -138,26 +138,26 @@ void AtomicRenderThread::operator()()
 
 
 
-static AtomicApplication *s_inst = NULL;
+AtomicApplication *g_appinst = NULL;
 
 
-AtomicApplication* AtomicApplication::getInstance() { return s_inst; }
+AtomicApplication* AtomicApplication::getInstance() { return g_appinst; }
 
 AtomicApplication::AtomicApplication()
     : m_request_exit(false)
     , m_game(NULL)
+    , m_renderng_thread(NULL)
+    , m_sound_thread(NULL)
 {
-    if(s_inst) {
+    if(g_appinst) {
         IST_ASSERT("already initialized");
     }
-    s_inst = this;
+    g_appinst = this;
 }
 
 AtomicApplication::~AtomicApplication()
 {
-    if(s_inst==this) {
-        s_inst = NULL;
-    }
+    if(g_appinst==this) { g_appinst=NULL; }
 }
 
 bool AtomicApplication::initialize(size_t x, size_t y, size_t width, size_t height, const wchar_t *title, bool fullscreen)
@@ -169,9 +169,12 @@ bool AtomicApplication::initialize(size_t x, size_t y, size_t width, size_t heig
     TaskScheduler::initializeSingleton();
     //TaskScheduler::initializeSingleton(11);
 
-    m_draw_thread = IST_NEW16(AtomicRenderThread)(this);
-    m_draw_thread->run();
-    m_draw_thread->waitForInitializeComplete();
+    m_renderng_thread = IST_NEW16(AtomicRenderingThread)(this);
+    m_renderng_thread->run();
+    m_renderng_thread->waitForInitializeComplete();
+
+    m_sound_thread = IST_NEW16(AtomicSoundThread)();
+    m_sound_thread->run();
 
     m_game = IST_NEW16(AtomicGame)();
 
@@ -180,9 +183,11 @@ bool AtomicApplication::initialize(size_t x, size_t y, size_t width, size_t heig
 
 void AtomicApplication::finalize()
 {
-    m_draw_thread->stop();
+    m_renderng_thread->stop();
+    m_sound_thread->requestStop();
     IST_DELETE(m_game);
-    IST_DELETE(m_draw_thread);
+    IST_DELETE(m_sound_thread);
+    IST_DELETE(m_renderng_thread);
 
     TaskScheduler::finalizeSingleton();
     super::finalize();
@@ -245,12 +250,12 @@ int AtomicApplication::handleWindowMessage(const ist::WindowMessage& wm)
 
 void AtomicApplication::waitForDrawComplete()
 {
-    m_draw_thread->waitForDrawComplete();
+    m_renderng_thread->waitForDrawComplete();
 }
 
 void AtomicApplication::kickDraw()
 {
-    m_draw_thread->kick();
+    m_renderng_thread->kick();
 }
 
 void AtomicApplication::drawCallback()

@@ -36,15 +36,25 @@
     <ClCompile Include="ist\Graphics\Camera.cc" />
     <ClCompile Include="ist\Graphics\FrameBufferObject.cpp" />
     <ClCompile Include="ist\Graphics\GraphicsResource.cpp" />
+    <ClCompile Include="ist\Graphics\GraphicsUtil.cpp" />
     <ClCompile Include="ist\Graphics\ModelData.cpp" />
     <ClCompile Include="ist\Graphics\ShaderObject.cpp" />
-    <ClCompile Include="ist\Graphics\Util.cpp" />
     <ClCompile Include="ist\Math\Linear.cpp" />
     <ClCompile Include="ist\Math\SFMT\SFMT.cpp" />
+    <ClCompile Include="ist\Sound\Buffer.cpp" />
+    <ClCompile Include="ist\Sound\Internal.cpp" />
+    <ClCompile Include="ist\Sound\Listener.cpp" />
+    <ClCompile Include="ist\Sound\OggVorbis.cpp" />
+    <ClCompile Include="ist\Sound\SoundUtil.cpp" />
+    <ClCompile Include="ist\Sound\Source.cpp" />
+    <ClCompile Include="ist\Sound\SourceSet.cpp" />
+    <ClCompile Include="ist\Sound\Stream.cpp" />
+    <ClCompile Include="ist\Sound\System.cpp" />
     <ClCompile Include="ist\Window\Application.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="shader\cl_source.cpp" />
     <ClCompile Include="shader\glsl_source.cpp" />
+    <ClCompile Include="Sound\AtomicSound.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -85,10 +95,10 @@
     <ClInclude Include="ist\Graphics\FrameBufferObject.h" />
     <ClInclude Include="ist\Graphics\GraphicsAssert.h" />
     <ClInclude Include="ist\Graphics\GraphicsResource.h" />
+    <ClInclude Include="ist\Graphics\GraphicsUtil.h" />
     <ClInclude Include="ist\Graphics\ModelData.h" />
     <ClInclude Include="ist\Graphics\ShaderObject.h" />
     <ClInclude Include="ist\Graphics\types.h" />
-    <ClInclude Include="ist\Graphics\Util.h" />
     <ClInclude Include="ist\ist.h" />
     <ClInclude Include="ist\Math.h" />
     <ClInclude Include="ist\Math\Linear.h" />
@@ -107,10 +117,22 @@
     <ClInclude Include="ist\Math\SFMT\SFMT-sse2.h" />
     <ClInclude Include="ist\Math\SFMT\SFMT.h" />
     <ClInclude Include="ist\Math\SoA.h" />
+    <ClInclude Include="ist\Sound.h" />
+    <ClInclude Include="ist\Sound\Buffer.h" />
+    <ClInclude Include="ist\Sound\Internal.h" />
+    <ClInclude Include="ist\Sound\Listener.h" />
+    <ClInclude Include="ist\Sound\OggVorbis.h" />
+    <ClInclude Include="ist\Sound\SoundUtil.h" />
+    <ClInclude Include="ist\Sound\Source.h" />
+    <ClInclude Include="ist\Sound\SourceSet.h" />
+    <ClInclude Include="ist\Sound\Stream.h" />
+    <ClInclude Include="ist\Sound\System.h" />
+    <ClInclude Include="ist\Sound\types.h" />
     <ClInclude Include="ist\Window.h" />
     <ClInclude Include="ist\Window\Application.h" />
     <ClInclude Include="shader\cl_source.h" />
     <ClInclude Include="shader\glsl_source.h" />
+    <ClInclude Include="Sound\AtomicSound.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="types.h" />
   </ItemGroup>
@@ -152,15 +174,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
+    <LibraryPath>external/lib;$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
+    <LibraryPath>external/lib;$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>C:/boost/boost_1_47;./;external;$(CUDA_INC_PATH);$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;$(NVSDKCOMPUTE_ROOT)/C/common/inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./;external;$(CUDA_INC_PATH);$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;$(NVSDKCOMPUTE_ROOT)/C/common/inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Link>
@@ -183,7 +209,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>C:/boost/boost_1_47;./;external;$(CUDA_INC_PATH);$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;$(NVSDKCOMPUTE_ROOT)/C/common/inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./;external;$(CUDA_INC_PATH);$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;$(NVSDKCOMPUTE_ROOT)/C/common/inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>

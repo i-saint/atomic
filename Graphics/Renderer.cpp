@@ -89,7 +89,7 @@ void AtomicRenderer::draw()
     pass_Output();
 
     glSwapBuffers();
-    glFinish();
+    //glFinish();
     //IST_PRINT("AtomicRenderer::draw() : %.2fms\n", timer.getElapsedMillisecond());
 }
 

@@ -4,7 +4,8 @@ namespace atomic {
 
 
 class AtomicGame;
-class AtomicRenderThread;
+class AtomicRenderingThread;
+class AtomicSoundThread;
 
 struct AtomicInputState
 {
@@ -31,7 +32,8 @@ class AtomicApplication : public ist::Application
 typedef ist::Application super;
 private:
     AtomicGame *m_game;
-    AtomicRenderThread *m_draw_thread;
+    AtomicRenderingThread *m_renderng_thread;
+    AtomicSoundThread *m_sound_thread;
 
     AtomicInputState m_inputs;
     bool m_request_exit;

@@ -127,7 +127,7 @@ void FractionSet::processMessage()
                 m_spawn.push_back(fd);
             }
             else if(mes.gen_type==Message_GenerateFraction::GEN_BOX) {
-                IST_ASSERT("Message_GenerateFraction::GEN_BOX ‚Í–¢‘Î‰ž");
+                IST_ASSERT("Message_GenerateFraction::GEN_BOX is not implemented yet");
             }
         }
     }

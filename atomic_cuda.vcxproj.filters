@@ -34,6 +34,9 @@
     <Filter Include="GPGPU">
       <UniqueIdentifier>{52955f27-e438-4826-83dd-8b9437ee15cc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ist\Sound">
+      <UniqueIdentifier>{f4927df5-d398-443e-9b8e-1365e12cb98f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game\AtomicApplication.cpp">
@@ -120,9 +123,6 @@
     <ClCompile Include="ist\Graphics\ShaderObject.cpp">
       <Filter>ist\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="ist\Graphics\Util.cpp">
-      <Filter>ist\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="ist\Math\Linear.cpp">
       <Filter>ist\Math</Filter>
     </ClCompile>
@@ -137,6 +137,39 @@
     </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="ist\Sound\Listener.cpp">
+      <Filter>ist\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Sound\Buffer.cpp">
+      <Filter>ist\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Sound\OggVorbis.cpp">
+      <Filter>ist\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Sound\Internal.cpp">
+      <Filter>ist\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Sound\System.cpp">
+      <Filter>ist\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Sound\Stream.cpp">
+      <Filter>ist\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Sound\SourceSet.cpp">
+      <Filter>ist\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Sound\Source.cpp">
+      <Filter>ist\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Sound\SoundUtil.cpp">
+      <Filter>ist\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Graphics\GraphicsUtil.cpp">
+      <Filter>ist\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Sound\AtomicSound.cpp">
+      <Filter>Sound</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h">
@@ -259,9 +292,6 @@
     <ClInclude Include="ist\Graphics\types.h">
       <Filter>ist\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="ist\Graphics\Util.h">
-      <Filter>ist\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="ist\Math\Linear.h">
       <Filter>ist\Math</Filter>
     </ClInclude>
@@ -320,6 +350,45 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="GPGPU\SPH.cuh">
       <Filter>GPGPU</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Sound.h">
+      <Filter>ist</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Sound\Buffer.h">
+      <Filter>ist\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Sound\Listener.h">
+      <Filter>ist\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Sound\OggVorbis.h">
+      <Filter>ist\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Sound\Source.h">
+      <Filter>ist\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Sound\SourceSet.h">
+      <Filter>ist\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Sound\Stream.h">
+      <Filter>ist\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Sound\Internal.h">
+      <Filter>ist\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Sound\System.h">
+      <Filter>ist\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Sound\types.h">
+      <Filter>ist\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Sound\SoundUtil.h">
+      <Filter>ist\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Graphics\GraphicsUtil.h">
+      <Filter>ist\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Sound\AtomicSound.h">
+      <Filter>Sound</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
