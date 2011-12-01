@@ -3,7 +3,7 @@
 #include "../Math/SFMT/SFMT.h"
 #include "GraphicsAssert.h"
 #include "ShaderObject.h"
-#include "Util.h"
+#include "GraphicsUtil.h"
 #include <string>
 #include <sstream>
 #include <fstream>

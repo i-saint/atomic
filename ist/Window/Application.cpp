@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "../Base/Assert.h"
 #include "../Base/TaskScheduler.h"
+#include "../Sound.h"
 #include "Application.h"
 
 namespace ist
@@ -111,7 +112,7 @@ Application::Application()
 
 Application::~Application()
 {
-    finalize();
+    if(g_the_app==this) { g_the_app=NULL; }
 }
 
 bool Application::initialize(size_t x, size_t y, size_t width, size_t height, const wchar_t *title, bool fullscreen)
@@ -177,16 +178,19 @@ bool Application::initialize(size_t x, size_t y, size_t width, size_t height, co
         ::SetWindowPos(m_hwnd,(HWND)-1, x,y, width,height, SWP_SHOWWINDOW);
     }
 
+
+    // sound
+    sound::IntializeSound();
+
     return true;
 }
 
 void Application::finalize()
 {
-    if(g_the_app==this) { g_the_app = NULL; }
-
 #ifdef IST_OPENCL
     if(m_cl_context) { delete m_cl_context; m_cl_context=NULL; }
 #endif // IST_OPENCL
+    sound::FinalizeSound();
     if(m_hwnd) { ::CloseWindow(m_hwnd); m_hwnd=NULL; }
 }
 
