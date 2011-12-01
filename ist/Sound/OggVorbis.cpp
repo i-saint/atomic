@@ -103,11 +103,11 @@ OggVorbisMemoryStream::~OggVorbisMemoryStream()
 }
 
 
-bool OggVorbisMemoryStream::openStream(void* data)
+bool OggVorbisMemoryStream::openStream(void* data, size_t data_size)
 {
     closeStream();
     m_data = data;
-
+    m_datasize = data_size;
 
     ov_callbacks callbacks = {
         &OggVorbisMemoryStream::read,
@@ -115,11 +115,10 @@ bool OggVorbisMemoryStream::openStream(void* data)
         &OggVorbisMemoryStream::close,
         &OggVorbisMemoryStream::tell
     };
-    if ( ov_open_callbacks( data, &m_ov , 0, 0, callbacks ) != 0 ) {
+    if ( ov_open_callbacks( this, &m_ov , 0, 0, callbacks ) != 0 ) {
         closeStream();
         return false;
     }
-
     m_info = ov_info( &m_ov, -1 );
 
     return true;
@@ -157,27 +156,34 @@ size_t OggVorbisMemoryStream::getChannels() const { return m_info->channels; }
 size_t OggVorbisMemoryStream::getSampleRate() const { return m_info->rate; }
 size_t OggVorbisMemoryStream::getBitsPerSample() const { return 16; }
 
-
-
-size_t OggVorbisMemoryStream::read( void* buffer, size_t size, size_t maxCount, void* stream )
+OggVorbisMemoryStream::CharCont& OggVorbisMemoryStream::readByte(size_t require_size)
 {
-    if(buffer==NULL) {
-        return 0;
+    require_size -= require_size % (getChannels()*2); // alignment 
+    m_tmp.clear();
+    char tmp[4096];
+    int bitstream = 0;
+    for(;;) {
+        long read = ov_read(&m_ov, tmp, std::min<size_t>(4096, require_size-m_tmp.size()), 0, 2, 1, &bitstream);
+        m_tmp.insert(m_tmp.end(), tmp, tmp+read);
+        if(read<=0 || m_tmp.size()>=require_size) {
+            break;
+        }
     }
+    return m_tmp;
+}
+
+
+
+size_t OggVorbisMemoryStream::read( void* buffer, size_t block_size, size_t block_count, void* stream )
+{
+    if(buffer==NULL) { return 0; }
 
     OggVorbisMemoryStream *p = static_cast<OggVorbisMemoryStream*>(stream);
-
-    int resSize = p->m_datasize - p->m_position;
-    size_t count = resSize / size;
-    if ( count > maxCount ) {
-        count = maxCount;
-    }
-
-    memcpy( buffer, static_cast<char*>(p->m_data) + p->m_position, size*count );
-
-    p->m_position += size * count;
-
-    return count;
+    int remain_size = p->m_datasize - p->m_position;
+    int read_size = std::min<int>(block_size*block_count, remain_size);
+    ::memcpy( buffer, static_cast<char*>(p->m_data) + p->m_position, read_size );
+    p->m_position += read_size;
+    return read_size;
 }
 
 int OggVorbisMemoryStream::seek( void* stream, ogg_int64_t offset, int flag )

@@ -40,12 +40,13 @@ private:
     vorbis_info *m_info;
     size_t m_datasize;
     size_t m_position;
+    CharCont m_tmp;
 
 public:
     OggVorbisMemoryStream();
     virtual ~OggVorbisMemoryStream();
 
-    bool openStream(void* data);
+    bool openStream(void* data, size_t data_size);
     void closeStream();
 
     size_t size();
@@ -56,6 +57,8 @@ public:
     size_t getChannels() const;
     size_t getSampleRate() const;
     size_t getBitsPerSample() const;
+
+    CharCont& readByte(size_t require_size);
 
     // callbacks called by ogg vorbis
     static size_t read( void* buffer, size_t size, size_t maxCount, void* stream );
