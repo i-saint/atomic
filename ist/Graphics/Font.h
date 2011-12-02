@@ -6,7 +6,7 @@
 namespace ist {
 namespace graphics {
 
-class Font : GraphicsResource
+class SystemFont : GraphicsResource
 {
 private:
 #ifdef WIN32
@@ -16,8 +16,8 @@ private:
     int m_font_height;
 
 public:
-    Font();
-    ~Font();
+    SystemFont();
+    ~SystemFont();
 
     bool initialize();
     void finalize();

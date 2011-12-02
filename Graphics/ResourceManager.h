@@ -108,7 +108,7 @@ private:
     RenderTargetDeferred    *m_rt_deferred;
     ColorBuffer             *m_rt_gauss[2];
 
-    Font                *m_font;
+    SystemFont                *m_font;
     ModelData           *m_model[MODEL_END];
     Texture2D           *m_tex2d[TEX2D_END];
     VertexBufferObject  *m_vbo[VBO_END];
@@ -126,7 +126,7 @@ public:
     static void intializeInstance();
     static void finalizeInstance();
 
-    Font* getFont() { return m_font; }
+    SystemFont* getFont() { return m_font; }
     ModelData* getModelData(MODEL_RID i)                    { return m_model[i]; }
     Texture2D* getTexture2D(TEX2D_RID i)                    { return m_tex2d[i]; }
     VertexBufferObject* getVertexBufferObject(VBO_RID i)    { return m_vbo[i]; }

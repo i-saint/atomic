@@ -83,7 +83,7 @@ bool GraphicResourceManager::initialize()
     uint32 framebuffer_height = CalcFrameBufferHeight();
 
     {
-        m_font = IST_NEW(Font)();
+        m_font = IST_NEW(SystemFont)();
         m_font->initialize();
     }
     {
