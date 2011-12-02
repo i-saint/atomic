@@ -180,10 +180,10 @@ private:
     MouseState      m_mouse_state;
     JoyState        m_joy_state[MAX_JOYSTICK_NUM];
 
-#ifdef IST_OPENGL
+#if defined(IST_OPENGL) && defined(WIN32)
     HDC         m_hdc;
     HGLRC       m_hglrc;
-#endif // IST_OPENGL
+#endif // IST_OPENGL WIN32
 
 #ifdef IST_DIRECTX
     IDXGISwapChain      *m_dxswapchain;
@@ -199,6 +199,8 @@ private:
     size_t m_width, m_height;
 
 public:
+    static Application* getInstance();
+
     Application();
     virtual ~Application();
 
@@ -224,7 +226,13 @@ public:
     const KeyboardState& getKeyboardState() const   { return m_keyboard_state; }
     const MouseState& getMouseState() const         { return m_mouse_state; }
     const JoyState& getJoyState(int i=0) const      { return m_joy_state[i]; }
+#if defined(IST_OPENGL) && defined(WIN32)
+    HDC     getHDC() const { return m_hdc; }
+    HGLRC   getHGLRC() const { return m_hglrc; }
+#endif // IST_OPENGL WIN32
 };
 
 } // namespace ist
+
+#define istGetAplication()  ist::Application::getInstance()
 #endif // __ist_Application__

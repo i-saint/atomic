@@ -167,6 +167,18 @@ public:
     void pushInstance(float4 v) { m_instance_pos.push_back(v); }
 };
 
+//
+//class PassPostprocess_FXAA : public Renderer
+//{
+//private:
+//    ColorBuffer *m_rt_RGBL;
+//    ShaderFXAA *m_sh_FXAA;
+//
+//public:
+//    PassPostprocess_FXAA();
+//    void beforeDraw();
+//    void draw();
+//};
 
 class PassPostprocess_Bloom : public Renderer
 {

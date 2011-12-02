@@ -36,33 +36,33 @@ bool GenerateRandomTexture(Texture2D &tex, GLsizei width, GLsizei height, Textur
 
 bool GenerateRandomTexture(Texture2D &tex, GLsizei width, GLsizei height, Texture2D::FORMAT format, SFMT& random)
 {
-    char *data = NULL;
+    std::string buffer;
     if(format==Texture2D::FMT_RGB_U8) {
         int data_size = width*height*3;
-        data = new char[data_size];
+        buffer.resize(data_size);
         for(int i=0; i<data_size; ++i) {
-            data[i] = random.genInt32();
+            buffer[i] = random.genInt32();
         }
     }
     else if(format==Texture2D::FMT_RGBA_U8) {
         int data_size = width*height*4;
-        data = new char[data_size];
+        buffer.resize(data_size);
         for(int i=0; i<data_size; ++i) {
-            data[i] = random.genInt32();
+            buffer[i] = random.genInt32();
         }
     }
     else if(format==Texture2D::FMT_RGB_F32) {
         int data_size = width*height*sizeof(float)*3;
-        data = new char[data_size];
-        float *w = (float*)data;
+        buffer.resize(data_size);
+        float *w = (float*)&buffer[0];
         for(int i=0; i<width*height*3; ++i) {
             w[i] = random.genFloat32();
         }
     }
     else if(format==Texture2D::FMT_RGBA_F32) {
         int data_size = width*height*sizeof(float)*4;
-        data = new char[data_size];
-        float *w = (float*)data;
+        buffer.resize(data_size);
+        float *w = (float*)&buffer[0];
         for(int i=0; i<width*height*4; ++i) {
             w[i] = random.genFloat32();
         }
@@ -71,8 +71,7 @@ bool GenerateRandomTexture(Texture2D &tex, GLsizei width, GLsizei height, Textur
         IST_ASSERT("–¢ŽÀ‘•");
     }
 
-    bool ret =  tex.initialize(width, height, format, data);
-    delete[] data;
+    bool ret =  tex.initialize(width, height, format, &buffer[0]);
     return ret;
 }
 

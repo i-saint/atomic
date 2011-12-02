@@ -4,6 +4,7 @@
 #endif
 #include <EASTL/algorithm.h>
 #include "TaskScheduler.h"
+#include "../Base.h"
 
 
 namespace ist {
@@ -286,7 +287,7 @@ TaskScheduler* TaskScheduler::s_instance = NULL;
 void TaskScheduler::initializeSingleton(size_t num_thread)
 {
     if(!s_instance) {
-        s_instance = new TaskScheduler();
+        s_instance = IST_NEW(TaskScheduler)();
         s_instance->initialize(num_thread);
     }
 }
@@ -294,7 +295,8 @@ void TaskScheduler::initializeSingleton(size_t num_thread)
 void TaskScheduler:: finalizeSingleton()
 {
     if(s_instance) {
-        delete s_instance;
+        s_instance->finalize();
+        IST_SAFE_DELETE(s_instance);
         s_instance = NULL;
     }
 }
@@ -306,6 +308,10 @@ TaskScheduler* TaskScheduler::getInstance()
 
 
 TaskScheduler::TaskScheduler()
+{
+}
+
+TaskScheduler::~TaskScheduler()
 {
 }
 
@@ -333,7 +339,7 @@ void TaskScheduler::initialize(size_t num_thread)
     }
 }
 
-TaskScheduler::~TaskScheduler()
+void TaskScheduler::finalize()
 {
     for(size_t i=0; i<m_threads.size(); ++i)
     {
@@ -342,6 +348,7 @@ TaskScheduler::~TaskScheduler()
     m_task_queue->notify();
     m_threads.clear();
 }
+
 
 bool TaskScheduler::wait()
 {

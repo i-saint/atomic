@@ -59,6 +59,8 @@ public:
 
     AtomicGame* getGame() { return m_game; }
     AtomicInputState* getInputs() { return &m_inputs; }
+
+    float32 getAverageFPS() const;
 };
 
 

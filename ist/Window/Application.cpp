@@ -89,6 +89,11 @@ LRESULT CALLBACK WndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lPara
 
 
 
+Application* Application::getInstance()
+{
+    return g_the_app;
+}
+
 Application::Application()
 : m_hwnd(NULL)
 , m_width(0)

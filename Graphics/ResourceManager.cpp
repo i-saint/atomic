@@ -65,12 +65,13 @@ void GraphicResourceManager::intializeInstance()
 void GraphicResourceManager::finalizeInstance()
 {
     s_inst->finalize();
-    IST_DELETE(s_inst)
+    IST_SAFE_DELETE(s_inst);
 }
 
 
 bool GraphicResourceManager::initialize()
 {
+    m_font = NULL;
     stl::fill_n(m_model, _countof(m_model), (ModelData*)NULL);
     stl::fill_n(m_tex2d, _countof(m_tex2d), (Texture2D*)NULL);
     stl::fill_n(m_vbo, _countof(m_vbo), (VertexBufferObject*)NULL);
@@ -81,6 +82,10 @@ bool GraphicResourceManager::initialize()
     uint32 framebuffer_width = CalcFrameBufferWidth();
     uint32 framebuffer_height = CalcFrameBufferHeight();
 
+    {
+        m_font = IST_NEW(Font)();
+        m_font->initialize();
+    }
     {
         for(uint32 i=0; i<_countof(m_model); ++i) {
             m_model[i] = IST_NEW(ModelData) ();
@@ -164,12 +169,13 @@ void GraphicResourceManager::finalize()
     SPHFinalizeInstancePositionBuffer();
     SPHFinalize();
 
-    for(uint32 i=0; i<_countof(m_model); ++i)   { if(m_model[i]) { m_model[i]->finalize(); IST_DELETE( m_model[i] ); } }
-    for(uint32 i=0; i<_countof(m_tex2d); ++i)   { if(m_tex2d[i]) { m_tex2d[i]->finalize(); IST_DELETE( m_tex2d[i] ); } }
-    for(uint32 i=0; i<_countof(m_vbo); ++i)     { if(m_vbo[i]) { m_vbo[i]->finalize(); IST_DELETE( m_vbo[i] ); } }
-    for(uint32 i=0; i<_countof(m_ubo); ++i)     { if(m_ubo[i]) { m_ubo[i]->finalize(); IST_DELETE( m_ubo[i] ); } }
-    for(uint32 i=0; i<_countof(m_fbo); ++i)     { if(m_fbo[i]) { m_fbo[i]->finalize(); IST_DELETE( m_fbo[i] ); } }
-    for(uint32 i=0; i<_countof(m_shader); ++i)  { if(m_shader[i]) { m_shader[i]->finalize(); IST_DELETE( m_shader[i] ); } }
+    if(m_font) { m_font->finalize(); IST_SAFE_DELETE(m_font); }
+    for(uint32 i=0; i<_countof(m_model); ++i)   { if(m_model[i]) { m_model[i]->finalize(); IST_SAFE_DELETE( m_model[i] ); } }
+    for(uint32 i=0; i<_countof(m_tex2d); ++i)   { if(m_tex2d[i]) { m_tex2d[i]->finalize(); IST_SAFE_DELETE( m_tex2d[i] ); } }
+    for(uint32 i=0; i<_countof(m_vbo); ++i)     { if(m_vbo[i]) { m_vbo[i]->finalize(); IST_SAFE_DELETE( m_vbo[i] ); } }
+    for(uint32 i=0; i<_countof(m_ubo); ++i)     { if(m_ubo[i]) { m_ubo[i]->finalize(); IST_SAFE_DELETE( m_ubo[i] ); } }
+    for(uint32 i=0; i<_countof(m_fbo); ++i)     { if(m_fbo[i]) { m_fbo[i]->finalize(); IST_SAFE_DELETE( m_fbo[i] ); } }
+    for(uint32 i=0; i<_countof(m_shader); ++i)  { if(m_shader[i]) { m_shader[i]->finalize(); IST_SAFE_DELETE( m_shader[i] ); } }
 }
 
 

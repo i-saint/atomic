@@ -28,6 +28,7 @@ private:
     bool m_is_ready_to_draw;
     bool m_is_draw_complete;
     bool m_is_end;
+    PerformanceCounter m_fps_counter;
 
 public:
     AtomicRenderingThread(AtomicApplication *app);
@@ -40,6 +41,8 @@ public:
     void waitForInitializeComplete();
     void waitForDrawComplete();
     void kick();
+
+    float32 getAverageFPS() const { return m_fps_counter.getAverageFPS(); }
 };
 
 AtomicRenderingThread::AtomicRenderingThread(AtomicApplication *app)
@@ -112,7 +115,6 @@ void AtomicRenderingThread::operator()()
         m_cond_wait_for_initialize.notify_all();
     }
 
-    PerformanceCounter fps_counter;
     {
         boost::unique_lock<boost::mutex> lock(m_mutex_wait_for_draw);
         while(!m_stop_flag) {
@@ -127,7 +129,7 @@ void AtomicRenderingThread::operator()()
                 m_cond_wait_for_complete.notify_all();
             }
 
-            fps_counter.count();
+            m_fps_counter.count();
         }
     }
     GraphicResourceManager::finalizeInstance();
@@ -185,9 +187,9 @@ void AtomicApplication::finalize()
 {
     m_renderng_thread->stop();
     m_sound_thread->requestStop();
-    IST_DELETE(m_game);
-    IST_DELETE(m_sound_thread);
-    IST_DELETE(m_renderng_thread);
+    IST_SAFE_DELETE(m_game);
+    IST_SAFE_DELETE(m_sound_thread);
+    IST_SAFE_DELETE(m_renderng_thread);
 
     TaskScheduler::finalizeSingleton();
     super::finalize();
@@ -261,6 +263,12 @@ void AtomicApplication::kickDraw()
 void AtomicApplication::drawCallback()
 {
     m_game->drawCallback();
+}
+
+atomic::float32 AtomicApplication::getAverageFPS() const
+{
+    if(m_renderng_thread) { return m_renderng_thread->getAverageFPS(); }
+    return 0.0f;
 }
 
 

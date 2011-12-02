@@ -8,5 +8,6 @@
 #include "Graphics/ShaderObject.h"
 #include "Graphics/ModelData.h"
 #include "Graphics/Camera.h"
+#include "Graphics/Font.h"
 
 #endif // __ist_Graphics__

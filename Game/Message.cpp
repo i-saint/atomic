@@ -49,7 +49,7 @@ void MessageRouter::initializeInstance()
 void MessageRouter::finalizeInstance()
 {
     for(uint32 i=0; i<_countof(s_instance); ++i) {
-        IST_DELETE(s_instance[i]);
+        IST_SAFE_DELETE(s_instance[i]);
     }
 }
 
@@ -77,7 +77,7 @@ MessageRouter::~MessageRouter()
 {
     for(uint32 i=0; i<_countof(m_blocks); ++i) {
         for(uint32 bi=0; bi<m_blocks[i].size(); ++bi) {
-            IST_DELETE(m_blocks[i][bi]);
+            IST_SAFE_DELETE(m_blocks[i][bi]);
         }
     }
 }

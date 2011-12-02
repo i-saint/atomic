@@ -19,8 +19,6 @@
     <ClCompile Include="Game\Force.cpp" />
     <ClCompile Include="Game\Force_Gravity.cpp" />
     <ClCompile Include="Game\Fraction.cpp" />
-    <ClCompile Include="Game\FractionCollider.cpp" />
-    <ClCompile Include="Game\FractionTask.cpp" />
     <ClCompile Include="Game\Message.cpp" />
     <ClCompile Include="Game\VFX.cpp" />
     <ClCompile Include="Game\World.cpp" />
@@ -34,6 +32,7 @@
     <ClCompile Include="ist\Base\TaskScheduler.cpp" />
     <ClCompile Include="ist\Graphics\BufferObject .cpp" />
     <ClCompile Include="ist\Graphics\Camera.cc" />
+    <ClCompile Include="ist\Graphics\Font.cpp" />
     <ClCompile Include="ist\Graphics\FrameBufferObject.cpp" />
     <ClCompile Include="ist\Graphics\GraphicsResource.cpp" />
     <ClCompile Include="ist\Graphics\GraphicsUtil.cpp" />
@@ -67,11 +66,10 @@
     <ClInclude Include="Game\Bullet_Octahedron.h" />
     <ClInclude Include="Game\Bullet_Subset.h" />
     <ClInclude Include="Game\Character.h" />
+    <ClInclude Include="Game\FLoat.h" />
     <ClInclude Include="Game\Force.h" />
     <ClInclude Include="Game\Force_Gravity.h" />
     <ClInclude Include="Game\Fraction.h" />
-    <ClInclude Include="Game\FractionCollider.h" />
-    <ClInclude Include="Game\FractionTask.h" />
     <ClInclude Include="Game\Message.h" />
     <ClInclude Include="Game\VFX.h" />
     <ClInclude Include="Game\World.h" />
@@ -92,6 +90,7 @@
     <ClInclude Include="ist\Graphics\BufferObject.h" />
     <ClInclude Include="ist\Graphics\Camera.h" />
     <ClInclude Include="ist\Graphics\DrawCommand.h" />
+    <ClInclude Include="ist\Graphics\Font.h" />
     <ClInclude Include="ist\Graphics\FrameBufferObject.h" />
     <ClInclude Include="ist\Graphics\GraphicsAssert.h" />
     <ClInclude Include="ist\Graphics\GraphicsResource.h" />

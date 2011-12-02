@@ -24,7 +24,7 @@ void AtomicRenderer::initializeInstance()
 
 void AtomicRenderer::finalizeInstance()
 {
-    IST_DELETE(s_inst);
+    IST_SAFE_DELETE(s_inst);
 }
 
 AtomicRenderer::AtomicRenderer()
@@ -49,9 +49,9 @@ AtomicRenderer::AtomicRenderer()
 
 AtomicRenderer::~AtomicRenderer()
 {
-    IST_DELETE(m_renderer_bloom);
-    IST_DELETE(m_renderer_sphere_light);
-    IST_DELETE(m_renderer_cube);
+    IST_SAFE_DELETE(m_renderer_bloom);
+    IST_SAFE_DELETE(m_renderer_sphere_light);
+    IST_SAFE_DELETE(m_renderer_cube);
 }
 
 void AtomicRenderer::beforeDraw()
@@ -85,12 +85,14 @@ void AtomicRenderer::draw()
     pass_Deferred();
     pass_Forward();
     pass_Postprocess();
-    pass_UI();
     pass_Output();
+    pass_UI();
+
+    //glFinish();
+
+    timer.count();
 
     glSwapBuffers();
-    //glFinish();
-    //IST_PRINT("AtomicRenderer::draw() : %.2fms\n", timer.getElapsedMillisecond());
 }
 
 void AtomicRenderer::pass_Shadow()
@@ -193,6 +195,10 @@ void AtomicRenderer::pass_UI()
     for(uint32 i=0; i<num_renderers; ++i) {
         m_renderers[PASS_UI][i]->draw();
     }
+
+    char str_fps[64];
+    sprintf(str_fps, "FPS: %.0f", atomicGetApplication()->getAverageFPS());
+    atomicGetFont()->draw(0, 0, str_fps);
 }
 
 void AtomicRenderer::pass_Output()

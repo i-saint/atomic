@@ -12,6 +12,7 @@
 #include <boost/smart_ptr.hpp>
 #include <boost/interprocess/detail/atomic.hpp>
 
+
 namespace ist {
 
 // スレッドに名前を設定します。デバッガから識別しやすくなります。 
@@ -101,10 +102,12 @@ private:
 
 private:
     TaskScheduler();
-    ~TaskScheduler();
     void initialize(size_t num_thread);
+    void finalize();
 
 public:
+    ~TaskScheduler();
+
     /// num_thread: スレッド数。0 の場合 CPU の数に自動調整。 
     static void initializeSingleton(size_t num_thread=0);
     /// 現在処理中のタスクの完了を待って破棄。(タスクキューが空になるのを待たない) 

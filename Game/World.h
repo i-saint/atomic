@@ -1,6 +1,8 @@
 #ifndef __atomic_Game_World_h__
 #define __atomic_Game_World_h__
 
+#include "Task.h"
+
 namespace atomic {
 
 class CharacterSet;
@@ -10,13 +12,13 @@ class FractionSet;
 class VFXSet;
 
 class World;
-class Task_WorlUpdateAsync;
 
 
 class World : boost::noncopyable
 {
 private:
-    Task_WorlUpdateAsync *m_task_updateasync;
+    typedef Task_UpdateAsync<World> UpdateAsyncTask;
+    UpdateAsyncTask *m_task_updateasync;
 
     FractionSet *m_fraction_set;
     BulletSet *m_bullet_set;

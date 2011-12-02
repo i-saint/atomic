@@ -63,12 +63,6 @@
     <ClCompile Include="Game\Fraction.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="Game\FractionCollider.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\FractionTask.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
     <ClCompile Include="Game\Message.cpp">
       <Filter>Game</Filter>
     </ClCompile>
@@ -170,6 +164,9 @@
     <ClCompile Include="Sound\AtomicSound.cpp">
       <Filter>Sound</Filter>
     </ClCompile>
+    <ClCompile Include="ist\Graphics\Font.cpp">
+      <Filter>ist\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h">
@@ -197,12 +194,6 @@
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="Game\Fraction.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\FractionCollider.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\FractionTask.h">
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="Game\Message.h">
@@ -389,6 +380,12 @@
     </ClInclude>
     <ClInclude Include="Sound\AtomicSound.h">
       <Filter>Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\FLoat.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Graphics\Font.h">
+      <Filter>ist\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

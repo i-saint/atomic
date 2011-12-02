@@ -57,21 +57,20 @@ World::World()
 , m_bullet_set(NULL)
 , m_frame(0)
 {
-    m_task_updateasync = IST_NEW(Task_WorlUpdateAsync)();
-    m_task_updateasync->initialize(this);
+    m_task_updateasync = IST_NEW(UpdateAsyncTask)(this);
 
-    m_fraction_set = IST_NEW16(FractionSet)();
-    m_bullet_set = IST_NEW16(BulletSet)();
+    m_fraction_set = IST_NEW(FractionSet)();
+    m_bullet_set = IST_NEW(BulletSet)();
 }
 
 World::~World()
 {
     sync();
 
-    IST_DELETE(m_task_updateasync);
+    IST_SAFE_DELETE(m_task_updateasync);
 
-    IST_DELETE(m_fraction_set);
-    IST_DELETE(m_bullet_set);
+    IST_SAFE_DELETE(m_fraction_set);
+    IST_SAFE_DELETE(m_bullet_set);
 }
 
 void World::initialize()
@@ -103,7 +102,7 @@ void World::sync() const
 {
     m_fraction_set->sync();
 
-    m_task_updateasync->waitForComplete();
+    m_task_updateasync->join();
 }
 
 

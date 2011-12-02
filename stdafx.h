@@ -72,4 +72,10 @@ namespace stl = eastl;
 #endif // IST_DIREXTX
 
 
-// TODO: プログラムに必要な追加ヘッダーをここで参照してください。
+// leak check on Debug configuration
+#ifdef _DEBUG
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+#endif // _DEBUG
+

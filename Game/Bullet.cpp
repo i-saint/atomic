@@ -19,7 +19,7 @@ BulletSet::~BulletSet()
 {
     uint32 num_subsets = m_subsets.size();
     for(uint32 i=0; i<num_subsets; ++i) {
-        IST_DELETE(m_subsets[i]);
+        IST_SAFE_DELETE(m_subsets[i]);
     }
     m_subsets.clear();
 }

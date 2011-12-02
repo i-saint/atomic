@@ -61,9 +61,14 @@ private:
     LARGE_INTEGER m_start;
     LARGE_INTEGER m_end;
     uint32 m_fps;
+    uint32 m_prev_fps;
+    float32 m_avg_fps;
 
 public:
     PerformanceCounter()
+        : m_fps(0)
+        , m_prev_fps(0)
+        , m_avg_fps(0.0f)
     {
         reset();
     }
@@ -84,14 +89,22 @@ public:
         return ((float32)(m_end.QuadPart - m_start.QuadPart) / (float32)freq.QuadPart)*1000.0f;
     }
 
+    float32 getAverageFPS() const { return (float32)m_prev_fps; }
+
     void count()
     {
         ++m_fps;
         float32 elapsed = getElapsedMillisecond();
         if(elapsed > 1000.0f) {
-            IST_PRINT("%dfps (avg. %.2fms)\n", m_fps, elapsed/m_fps);
+            m_prev_fps = m_fps;
+            m_avg_fps = elapsed/m_fps;
             reset();
         }
+    }
+
+    void print()
+    {
+        IST_PRINT("%dfps (avg. %.2fms)\n", m_prev_fps, m_avg_fps);
     }
 };
 

@@ -10,7 +10,8 @@ extern "C" {
     const int SPH_GRID_DIV_Y = 1<<SPH_GRID_DIV_SHIFT_Y;
     const int SPH_GRID_DIV_Z = 1<<SPH_GRID_DIV_SHIFT_Z;
     const int SPH_GRID_DIV_3 = SPH_GRID_DIV_X*SPH_GRID_DIV_Y*SPH_GRID_DIV_Z;
-    const int SPH_MAX_PARTICLE_NUM = 262144;
+    //const int SPH_MAX_PARTICLE_NUM = 262144;
+    const int SPH_MAX_PARTICLE_NUM = 65536;
     const int SPH_MAX_LIGHT_NUM = 16;
     const int SPH_MAX_SPHERICAL_GRAVITY_NUM = 1;
 

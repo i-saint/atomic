@@ -7,12 +7,8 @@
 #include "Game/AtomicGame.h"
 #include "Game/World.h"
 #include "Game/Fraction.h"
-#include "Game/FractionTask.h"
-#include "Game/FractionCollider.h"
 
-namespace atomic
-{
-
+namespace atomic {
 
 
 
@@ -20,14 +16,13 @@ namespace atomic
 FractionSet::FractionSet()
 : m_idgen(0)
 {
-    m_task_asyncupdate = IST_NEW(Task_FractionUpdateAsync)();
-    m_task_asyncupdate->initialize(this);
+    m_task_asyncupdate = IST_NEW(AsyncUpdateTask)(this);
 }
 
 FractionSet::~FractionSet()
 {
     sync();
-    IST_DELETE(m_task_asyncupdate);
+    IST_SAFE_DELETE(m_task_asyncupdate);
 }
 
 
@@ -77,7 +72,7 @@ void FractionSet::update()
 
 void FractionSet::sync() const
 {
-    m_task_asyncupdate->waitForComplete();
+    m_task_asyncupdate->join();
 }
 
 

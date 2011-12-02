@@ -22,7 +22,7 @@ AtomicGame::AtomicGame()
 
 AtomicGame::~AtomicGame()
 {
-    IST_DELETE(m_world);
+    IST_SAFE_DELETE(m_world);
 
     MessageRouter::finalizeInstance();
     AtomicRenderer::finalizeInstance();
