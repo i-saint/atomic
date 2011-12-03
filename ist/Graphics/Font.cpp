@@ -25,7 +25,7 @@ bool SystemFont::initialize()
 {
     m_hdc = istGetAplication()->getHDC();
     SelectObject(m_hdc, GetStockObject(SYSTEM_FONT));
-    wglUseFontBitmapsW( m_hdc, 0, 65535, g_list_base );
+    wglUseFontBitmapsW( m_hdc, 0, 256*32, g_list_base );
 
     TEXTMETRIC metric;
     GetTextMetrics(m_hdc, &metric);

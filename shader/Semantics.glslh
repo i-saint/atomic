@@ -1,0 +1,9 @@
+#define GLSL_POSITION           0
+#define GLSL_NORMAL             1
+#define GLSL_TEXCOORD0          2
+
+#define GLSL_INSTANCE_POSITION  8
+#define GLSL_INSTANCE_NORMAL    9
+#define GLSL_INSTANCE_GLOW      10
+
+#define GLSL_RENDERSTATE_BINDING    0

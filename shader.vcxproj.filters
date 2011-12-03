@@ -15,18 +15,6 @@
     <None Include="shader\bloom.vsh">
       <Filter>shader</Filter>
     </None>
-    <None Include="shader\deferred.fsh">
-      <Filter>shader</Filter>
-    </None>
-    <None Include="shader\deferred.vsh">
-      <Filter>shader</Filter>
-    </None>
-    <None Include="shader\gbuffer_octahedron.fsh">
-      <Filter>shader</Filter>
-    </None>
-    <None Include="shader\gbuffer_octahedron.vsh">
-      <Filter>shader</Filter>
-    </None>
     <None Include="shader\out.fsh">
       <Filter>shader</Filter>
     </None>
@@ -40,13 +28,20 @@
       <Filter>shader</Filter>
     </None>
     <None Include="shader\shader.rb" />
-    <None Include="shader\gbuffer.glsl">
+    <None Include="shader\RenderStates.glslh">
       <Filter>shader</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="shader\semantics.h">
+    <None Include="shader\Common.glslh">
       <Filter>shader</Filter>
-    </ClInclude>
+    </None>
+    <None Include="shader\Semantics.glslh">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\Deferred_PointLight.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\GBuffer_Cube.glsl">
+      <Filter>shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

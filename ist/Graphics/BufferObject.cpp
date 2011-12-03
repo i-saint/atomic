@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "GraphicsAssert.h"
 #include "BufferObject.h"
+#include "../Base.h"
 
 namespace ist {
 namespace graphics {
@@ -83,6 +84,7 @@ void* BufferObject<BufferType>::map(MAP_MODE mode)
 {
     glBindBuffer(BufferType, m_handle);
     void *r = glMapBuffer(BufferType, mode);
+    if(r==NULL) { IST_ASSERT("BufferObject::map() failed\n"); }
     glBindBuffer(BufferType, 0);
     return r;
 }

@@ -5,6 +5,10 @@ layout(location=2) in vec2 a_Texcoord;
 
 out vec2 v_Texcoord;
 
+#if defined(GLSL_VS)
+#elif defined(GLSL_PS)
+#endif
+
 
 void main()
 {

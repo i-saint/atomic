@@ -21,8 +21,10 @@ public:
     ShaderObject();
     ~ShaderObject();
 
+    bool initialize();
     bool initialize(const char *src, int length);
     void finalize();
+    bool  compile(const char *src, int length);
 
     GLuint getHandle() const;
 };
@@ -37,27 +39,24 @@ private:
     GLuint m_handle;
 
 private:
-    void attachVertexShader(VertexShader *sh);
-    void attachGeometryShader(GeometryShader *sh);
-    void attachFragmentShader(FragmentShader *sh);
-    bool link();
 
 public:
     ProgramObject();
     ~ProgramObject();
 
-    bool initialize(VertexShader *vsh, GeometryShader *gsh, FragmentShader *fsh);
+    bool initialize();
     void finalize();
 
-    void bind() const;
-    void unbind() const;
+    bool link(VertexShader *vsh, FragmentShader *fsh, GeometryShader *gsh=NULL);
+    void bind();
+    void unbind();
 
 
-    GLint getUniformLocation(const char *name);
-    GLint getAttribLocation(const char *name);
+    GLint getUniformLocation(const char *name) const;
+    GLint getAttribLocation(const char *name) const;
 
-    GLint getUniformBlockIndex(const char *name);
-    void setUniformBlockBinding(GLuint uniformBlockIndex, GLuint uniformBufferHandle);
+    GLint getUniformBlockIndex(const char *name) const;
+    void setUniformBlock(GLuint uniformBlockIndex, GLuint uniformBindingIndex, GLuint uniformBufferHandle);
 
     // uniform variable
     // int

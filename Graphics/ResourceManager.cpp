@@ -4,6 +4,7 @@
 #include "Game/AtomicApplication.h"
 #include "Graphics/ResourceManager.h"
 #include "GPGPU/SPH.cuh"
+#include "shader/glsl_source.h"
 
 namespace atomic {
 
@@ -82,6 +83,7 @@ bool GraphicResourceManager::initialize()
     uint32 framebuffer_width = CalcFrameBufferWidth();
     uint32 framebuffer_height = CalcFrameBufferHeight();
 
+    // initialize opengl resources
     {
         m_font = IST_NEW(SystemFont)();
         m_font->initialize();
@@ -111,15 +113,14 @@ bool GraphicResourceManager::initialize()
             m_ubo[i] = IST_NEW(UniformBufferObject) ();
             m_ubo[i]->initialize();
         }
+        m_ubo[UBO_RENDER_STATES]->allocate(sizeof(RenderStates), UniformBufferObject::USAGE_DYNAMIC);
     }
     {
-        m_sh_gbuffer = IST_NEW(ShaderGBuffer)();
+        // create shaders
+        m_sh_gbuffer = IST_NEW(AtomicShader)();
         m_sh_gbuffer->initialize();
+        m_sh_gbuffer->loadFromMemory(g_GBuffer_Cube_glsl);
         m_shader[SH_GBUFFER] = m_sh_gbuffer;
-
-        m_sh_gbuffer_octahedron = IST_NEW(ShaderGBuffer_Octahedron)();
-        m_sh_gbuffer_octahedron->initialize();
-        m_shader[SH_GBUFFER_OCTAHEDRON] = m_sh_gbuffer_octahedron;
 
         m_sh_deferred = IST_NEW(ShaderDeferred)();
         m_sh_deferred->initialize();
@@ -134,9 +135,11 @@ bool GraphicResourceManager::initialize()
         m_shader[SH_OUTPUT] = m_sh_output;
     }
     {
+        // create textures
         GenerateRandomTexture(*m_tex2d[TEX2D_RANDOM], 64, 64, Texture2D::FMT_RGB_U8);
     }
     {
+        // create render targets
         m_rt_gbuffer = IST_NEW(RenderTargetGBuffer) ();
         m_rt_gbuffer->initialize(framebuffer_width, framebuffer_height, Color3DepthBuffer::FMT_RGBA_F32);
 
@@ -153,10 +156,6 @@ bool GraphicResourceManager::initialize()
         m_fbo[RT_DEFERRED] = m_rt_deferred;
         m_fbo[RT_GAUSS0] = m_rt_gauss[0];
         m_fbo[RT_GAUSS1] = m_rt_gauss[1];
-    }
-
-    {
-        m_ubo[UBO_DEFAULTS]->allocate(sizeof(GLSLStates), UniformBufferObject::USAGE_DYNAMIC);
     }
 
     m_vbo[VBO_FRACTION_POS]->allocate(sizeof(float4)*SPH_MAX_PARTICLE_NUM, VertexBufferObject::USAGE_DYNAMIC);

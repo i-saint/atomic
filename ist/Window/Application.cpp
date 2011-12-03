@@ -355,7 +355,7 @@ void Application::updateInput()
 
     // joystick
     size_t num_joysticks = stl::min<size_t>(::joyGetNumDevs(), MAX_JOYSTICK_NUM);
-    for(int i=0; i<num_joysticks; ++i) {
+    for(size_t i=0; i<num_joysticks; ++i) {
         JOYINFOEX joyinfo;//ジョイスティック情報
         joyinfo.dwSize = sizeof(JOYINFOEX);
         joyinfo.dwFlags = JOY_RETURNALL;

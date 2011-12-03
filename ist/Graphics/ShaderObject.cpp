@@ -19,12 +19,23 @@ ShaderObject<ShaderType>::~ShaderObject()
 }
 
 template<size_t ShaderType>
-bool ShaderObject<ShaderType>::initialize(const char *src, int length)
+bool ShaderObject<ShaderType>::initialize()
 {
-    // create
-    m_handle = glCreateShader(SHADER_TYPE);
-    CheckGLError();
+    finalize();
 
+    m_handle = glCreateShader(SHADER_TYPE);
+    return true;
+}
+
+template<size_t ShaderType>
+bool ist::graphics::ShaderObject<ShaderType>::initialize( const char *src, int length )
+{
+    return initialize() && compile(src, length);
+}
+
+template<size_t ShaderType>
+bool ist::graphics::ShaderObject<ShaderType>::compile( const char *src, int length )
+{
     // set shader source
     {
         const char vs_define[] = "#define GLSL\n#define GLSL_VS\n";
@@ -38,9 +49,6 @@ bool ShaderObject<ShaderType>::initialize(const char *src, int length)
         const int len[] = {strlen(sources[0]), length};
 
         glShaderSource(m_handle, 2, sources, len);
-        if(glGetError() != GL_NO_ERROR) {
-            return false;
-        }
     }
     // compile
     glCompileShader(m_handle);
@@ -48,7 +56,7 @@ bool ShaderObject<ShaderType>::initialize(const char *src, int length)
     // get errors
     GLint result;
     glGetShaderiv(m_handle, GL_COMPILE_STATUS, &result);
-    if(glGetError()!=GL_NO_ERROR || result==GL_FALSE) {
+    if(result==GL_FALSE) {
         int length;
         glGetShaderiv(m_handle, GL_INFO_LOG_LENGTH, &length);
         if(length > 0) {
@@ -68,10 +76,7 @@ bool ShaderObject<ShaderType>::initialize(const char *src, int length)
 template<size_t ShaderType>
 void ShaderObject<ShaderType>::finalize()
 {
-    if(m_handle!=0) {
-        glDeleteShader(m_handle);
-    }
-    m_handle = 0;
+    if(m_handle!=0) { glDeleteShader(m_handle); m_handle=0; }
 }
 
 template<size_t ShaderType>
@@ -97,21 +102,33 @@ ProgramObject::~ProgramObject()
 }
 
 
-bool ProgramObject::initialize(VertexShader *vsh, GeometryShader *gsh, FragmentShader *fsh)
+bool ProgramObject::initialize()
 {
+    finalize();
+
     m_handle = glCreateProgram();
     CheckGLError();
+    return true;
+}
 
+void ProgramObject::finalize()
+{
+    if(m_handle!=0) { glDeleteProgram(m_handle); m_handle=0; }
+    
+}
+
+bool ProgramObject::link( VertexShader *vsh, FragmentShader *fsh, GeometryShader *gsh )
+{
     if(vsh) {
         glAttachShader(m_handle, vsh->getHandle());
         CheckGLError();
     }
-    if(gsh) {
-        glAttachShader(m_handle, gsh->getHandle());
-        CheckGLError();
-    }
     if(fsh) {
         glAttachShader(m_handle, fsh->getHandle());
+        CheckGLError();
+    }
+    if(gsh) {
+        glAttachShader(m_handle, gsh->getHandle());
         CheckGLError();
     }
 
@@ -122,7 +139,8 @@ bool ProgramObject::initialize(VertexShader *vsh, GeometryShader *gsh, FragmentS
     // get errors
     GLint result;
     glGetProgramiv(m_handle, GL_LINK_STATUS, &result);
-    if(glGetError() != GL_NO_ERROR || result==GL_FALSE) {
+    CheckGLError();
+    if(result==GL_FALSE) {
         int length;
         glGetProgramiv(m_handle, GL_INFO_LOG_LENGTH, &length);
         if(length > 0) {
@@ -139,28 +157,20 @@ bool ProgramObject::initialize(VertexShader *vsh, GeometryShader *gsh, FragmentS
     return true;
 }
 
-void ProgramObject::finalize()
-{
-    if(m_handle!=0) {
-        glDeleteProgram(m_handle);
-    }
-    m_handle = 0;
-}
 
-
-void ProgramObject::bind() const
+void ProgramObject::bind()
 {
     glUseProgram(m_handle);
     CheckGLError();
 }
 
-void ProgramObject::unbind() const
+void ProgramObject::unbind()
 {
     glUseProgram(0);
 }
 
 
-GLint ProgramObject::getUniformLocation(const char *name)
+GLint ProgramObject::getUniformLocation(const char *name) const
 {
     GLint ul = glGetUniformLocation(m_handle, name);
     if(ul == -1) {
@@ -169,7 +179,7 @@ GLint ProgramObject::getUniformLocation(const char *name)
     return ul;
 }
 
-GLint ProgramObject::getAttribLocation(const char *name)
+GLint ProgramObject::getAttribLocation(const char *name) const
 {
     GLint al = glGetAttribLocation(m_handle, name);
     if(al == -1) {
@@ -178,18 +188,24 @@ GLint ProgramObject::getAttribLocation(const char *name)
     return al;
 }
 
-GLint ProgramObject::getUniformBlockIndex(const char *name)
+GLint ProgramObject::getUniformBlockIndex(const char *name) const
 {
     GLint ul = glGetUniformBlockIndex(m_handle, name);
     if(ul == -1) {
         IST_ASSERT("no such uniform block named %s\n", name);
     }
+    else {
+        GLint block_size = 0;
+        glGetActiveUniformBlockiv(m_handle, ul, GL_UNIFORM_BLOCK_DATA_SIZE, &block_size);
+        IST_PRINT("size of %s: %d\n", name, block_size);
+    }
     return ul;
 }
 
-void ProgramObject::setUniformBlockBinding(GLuint uniformBlockIndex, GLuint uniformBufferHandle)
+void ProgramObject::setUniformBlock(GLuint uniformBlockIndex, GLuint uniformBindingIndex, GLuint uniformBufferHandle)
 {
-    glUniformBlockBinding(m_handle, uniformBlockIndex, uniformBufferHandle);
+    glBindBufferBase(GL_UNIFORM_BUFFER, uniformBindingIndex, uniformBufferHandle);
+    glUniformBlockBinding(m_handle, uniformBlockIndex, uniformBindingIndex);
 }
 
 // uniform variable

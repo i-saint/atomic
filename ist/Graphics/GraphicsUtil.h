@@ -30,10 +30,20 @@ bool CreateFragmentShaderFromString(FragmentShader& sh, const char* source);
 
 
 template<class BufferObjectType>
-bool MapAndCopy(BufferObjectType& bo, typename BufferObjectType::USAGE usage, void *data, size_t data_size)
+bool MapAndWrite(BufferObjectType& bo, const void *data, size_t data_size)
 {
-    if(void *p = bo.map(usage)) {
+    if(void *p = bo.map(BufferObjectType::MAP_WRITE)) {
         ::memcpy(p, data, data_size);
+        bo.unmap();
+        return true;
+    }
+    return false;
+}
+template<class BufferObjectType>
+bool MapAndRead(BufferObjectType& bo, void *data, size_t data_size)
+{
+    if(void *p = bo.map(BufferObjectType::MAP_READ)) {
+        ::memcpy(data, p, data_size);
         bo.unmap();
         return true;
     }

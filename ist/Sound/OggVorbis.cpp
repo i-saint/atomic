@@ -47,12 +47,12 @@ void OggVorbisFileStream::closeStream()
 
 size_t OggVorbisFileStream::size()
 {
-    return ov_pcm_total(&m_ov, -1)*getChannels()*(getBitsPerSample()/8);
+    return static_cast<size_t>(ov_pcm_total(&m_ov, -1))*getChannels()*(getBitsPerSample()/8);
 }
 
 size_t OggVorbisFileStream::tell()
 {
-    return ov_pcm_tell(&m_ov)*getChannels()*(getBitsPerSample()/8);
+    return static_cast<size_t>(ov_pcm_tell(&m_ov))*getChannels()*(getBitsPerSample()/8);
 }
 
 void OggVorbisFileStream::seek(size_t v)
@@ -135,12 +135,12 @@ void OggVorbisMemoryStream::closeStream()
 
 size_t OggVorbisMemoryStream::size()
 {
-    return ov_pcm_total(&m_ov, -1)*getChannels()*(getBitsPerSample()/8);
+    return static_cast<size_t>(ov_pcm_total(&m_ov, -1))*getChannels()*(getBitsPerSample()/8);
 }
 
 size_t OggVorbisMemoryStream::tell()
 {
-    return ov_pcm_tell(&m_ov)*getChannels()*(getBitsPerSample()/8);
+    return static_cast<size_t>(ov_pcm_tell(&m_ov))*getChannels()*(getBitsPerSample()/8);
 }
 
 void OggVorbisMemoryStream::seek(size_t v)
@@ -192,15 +192,15 @@ int OggVorbisMemoryStream::seek( void* stream, ogg_int64_t offset, int flag )
 
     switch( flag ) {
     case SEEK_CUR:
-        p->m_position += offset;
+        p->m_position += static_cast<size_t>(offset);
         break;
 
     case SEEK_END:
-        p->m_position = p->m_datasize + offset;
+        p->m_position = p->m_datasize + static_cast<size_t>(offset);
         break;
 
     case SEEK_SET:
-        p->m_position = offset;
+        p->m_position = static_cast<size_t>(offset);
         break;
 
     default:

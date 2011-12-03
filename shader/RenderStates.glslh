@@ -1,0 +1,26 @@
+#ifndef __atomic_RenderStates__
+#define __atomic_RenderStates__
+#ifndef GLSL
+namespace atomic {
+#endif // GLSL
+
+struct
+#ifndef GLSL
+    __declspec(align(16))
+#endif // GLSL
+    RenderStates
+{
+    mat4 ModelViewProjectionMatrix;
+    vec4 CameraPosition;
+    float ScreenWidth;
+    float ScreenHeight;
+    float AspectRatio;
+    float RcpScreenWidth;
+    float RcpScreenHeight;
+    float RcpAspectRatio;
+};
+
+#ifndef GLSL
+} // namespace atomic
+#endif // GLSL
+#endif // __atomic_RenderStates__

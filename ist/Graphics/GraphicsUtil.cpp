@@ -95,13 +95,13 @@ inline bool CreateShaderFromStream(ShaderType& sh, std::istream& st)
     str_out << st.rdbuf();
     source = str_out.str();
 
-    return sh.initialize(source.c_str(), source.size());
+    return sh.compile(source.c_str(), source.size());
 }
 
 template<class ShaderType>
 inline bool CreateShaderFromString(ShaderType& sh, const char* source)
 {
-    return sh.initialize(source, strlen(source));
+    return sh.compile(source, strlen(source));
 }
 
 bool CreateVertexShaderFromFile(VertexShader& sh, const char *filename)     { return CreateShaderFromFile<VertexShader>(sh, filename); }

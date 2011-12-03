@@ -12,14 +12,9 @@ bool Viewport::bind() const
     return true;
 }
 
-
-const mat4& Camera::getModelViewMatrix() const
+void Camera::updateMatrix()
 {
-    if(m_mv_modified) {
-        m_mv_modified = false;
-        m_mv_matrix = glm::lookAt(vec3(m_position), vec3(m_target), vec3(m_up));
-    }
-    return m_mv_matrix;
+    m_mv_matrix = glm::lookAt(vec3(m_position), vec3(m_target), vec3(m_up));
 }
 
 bool Camera::bind() const
@@ -38,21 +33,11 @@ bool Camera::bind() const
 }
 
 
-const mat4 OrthographicCamera::getProjectionMatrix() const
+void OrthographicCamera::updateMatrix()
 {
-    if(m_p_modified) {
-        m_p_modified = false;
-        m_p_matrix = glm::ortho( m_left, m_right, m_bottom, m_top, m_znear, m_zfar);
-    }
-    return m_p_matrix;
-}
-
-const mat4 OrthographicCamera::getModelViewProjectionMatrix() const
-{
-    if(m_p_modified || isMVModified()) {
-        m_mvp_matrix = getModelViewMatrix()*getProjectionMatrix();
-    }
-    return m_mvp_matrix;
+    super::updateMatrix();
+    m_p_matrix = glm::ortho( m_left, m_right, m_bottom, m_top, m_znear, m_zfar);
+    m_mvp_matrix = getModelViewMatrix()*getProjectionMatrix();
 }
 
 bool OrthographicCamera::bind() const
@@ -64,21 +49,11 @@ bool OrthographicCamera::bind() const
 }
 
 
-const mat4 PerspectiveCamera::getProjectionMatrix() const
+void PerspectiveCamera::updateMatrix()
 {
-    if(m_p_modified) {
-        m_p_modified = false;
-        m_p_matrix = glm::perspective(m_fovy, m_aspect, m_znear, m_zfar);
-    }
-    return m_p_matrix;
-}
-
-const mat4 PerspectiveCamera::getModelViewProjectionMatrix() const
-{
-    if(m_p_modified || isMVModified()) {
-        m_mvp_matrix = getModelViewMatrix()*getProjectionMatrix();
-    }
-    return m_mvp_matrix;
+    super::updateMatrix();
+    m_p_matrix = glm::perspective(m_fovy, m_aspect, m_znear, m_zfar);
+    m_mvp_matrix = getProjectionMatrix()*getModelViewMatrix();
 }
 
 bool PerspectiveCamera::bind() const

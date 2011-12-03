@@ -1,14 +1,16 @@
-#version 330 compatibility
-#pragma include("semantics.h")
+#version 330 core
+#pragma include("Common.glslh")
 
 #ifdef GLSL_VS
 ia_out(GLSL_POSITION)           vec4 ia_VertexPosition;
 ia_out(GLSL_NORMAL)             vec3 ia_VertexNormal;
 ia_out(GLSL_INSTANCE_POSITION)  vec4 ia_InstancePosition;
 #endif
+#if defined(GLSL_VS) || defined(GLSL_PS)
 vs_out vec3 vs_VertexPosition;
 vs_out vec3 vs_VertexNormal;
 vs_out vec4 vs_VertexColor;
+#endif
 
 #if defined(GLSL_VS)
 
@@ -21,9 +23,7 @@ void main()
     vs_VertexPosition = vert.xyz;
     vs_VertexNormal = ia_VertexNormal;
     vs_VertexColor = vec4(0.6, 0.6, 0.6, 1.0);
-    //gl_Position = ModelViewProjectionMatrix * vert;
-
-    gl_Position = gl_ModelViewProjectionMatrix * vert;
+    gl_Position = u_RS.ModelViewProjectionMatrix * vert;
 }
 
 #elif defined(GLSL_PS)

@@ -38,32 +38,29 @@ public:
 class __declspec(align(16)) Camera
 {
 private:
-    mutable mat4 m_mv_matrix;
+    mat4 m_mv_matrix;
     vec4 m_position;
     vec4 m_target;
     vec4 m_up;
-    mutable bool m_mv_modified;
-
-protected:
-    bool isMVModified() const { return m_mv_modified; }
 
 public:
-    Camera() : m_mv_modified(true)
+    Camera()
     {
         m_position = vec4(0.0f, 0.0f, 100.0f, 1.0f);
         m_target = vec4(0.0f, 0.0f, 0.0f, 0.0f);
         m_up = vec4(0.0f, 1.0f, 0.0f, 0.0f);
     }
 
-    void setPosition(const vec4& v)     { m_position=v; m_mv_modified=true; }
-    void setTarget(const vec4& v)       { m_target=v;   m_mv_modified=true; }
-    void setDirection(const vec4& v)    { m_up=v;m_mv_modified=true; }
+    void setPosition(const vec4& v)     { m_position=v; }
+    void setTarget(const vec4& v)       { m_target=v; }
+    void setDirection(const vec4& v)    { m_up=v; }
 
     const vec4& getPosition() const     { return m_position; }
     const vec4& getTarget() const       { return m_target; }
-    const vec4& getUp() const    { return m_up; }
-    const mat4& getModelViewMatrix() const;
+    const vec4& getUp() const           { return m_up; }
+    const mat4& getModelViewMatrix() const  { return m_mv_matrix; }
 
+    void updateMatrix();
     bool bind() const;
 };
 
@@ -72,15 +69,14 @@ class __declspec(align(16)) OrthographicCamera : public Camera
 {
 typedef Camera super;
 private:
-    mutable mat4 m_p_matrix;
-    mutable mat4 m_mvp_matrix;
+    mat4 m_p_matrix;
+    mat4 m_mvp_matrix;
     float m_left;
     float m_right;
     float m_bottom;
     float m_top;
     float m_znear;
     float m_zfar;
-    mutable bool m_p_modified;
 
 public:
     OrthographicCamera()
@@ -90,17 +86,16 @@ public:
         , m_top(0.0f)
         , m_znear(0.1f)
         , m_zfar(1000.0f)
-        , m_p_modified(true)
     {}
 
     float getLeft() const   { return m_left; }
     float getRight() const  { return m_right; }
     float getBottom() const { return m_bottom; }
     float getTop() const    { return m_top; }
-    float getZNear() const { return m_znear; }
-    float getZFar() const  { return m_zfar; }
-    const mat4 getProjectionMatrix() const;
-    const mat4 getModelViewProjectionMatrix() const;
+    float getZNear() const  { return m_znear; }
+    float getZFar() const   { return m_zfar; }
+    const mat4& getProjectionMatrix() const         { return m_p_matrix; }
+    const mat4& getModelViewProjectionMatrix() const{ return m_mvp_matrix; }
 
     void setScreen(float l, float r, float b, float t)
     {
@@ -108,11 +103,11 @@ public:
         m_right = r;
         m_bottom = b;
         m_top = t;
-        m_p_modified = true;
     }
-    void setZNear(float v) { m_znear=v; m_p_modified=true; }
-    void setZFar(float v)  { m_zfar=v;  m_p_modified=true; }
+    void setZNear(float v) { m_znear=v; }
+    void setZFar(float v)  { m_zfar=v; }
 
+    void updateMatrix();
     bool bind() const;
 };
 
@@ -121,13 +116,12 @@ class __declspec(align(16)) PerspectiveCamera : public Camera
 {
 typedef Camera super;
 private:
-    mutable mat4 m_p_matrix;
-    mutable mat4 m_mvp_matrix;
+    mat4 m_p_matrix;
+    mat4 m_mvp_matrix;
     float m_fovy;
     float m_aspect;
     float m_znear;
     float m_zfar;
-    mutable bool m_p_modified;
 
 public:
     PerspectiveCamera()
@@ -135,15 +129,14 @@ public:
     , m_aspect(1.3333333f)
     , m_znear(0.1f)
     , m_zfar(1000.0f)
-    , m_p_modified(true)
     {}
 
     float getFovy() const   { return m_fovy; }
     float getAspect() const { return m_aspect; }
-    float getZNear() const { return m_znear; }
-    float getZFar() const  { return m_zfar; }
-    const mat4 getProjectionMatrix() const;
-    const mat4 getModelViewProjectionMatrix() const;
+    float getZNear() const  { return m_znear; }
+    float getZFar() const   { return m_zfar; }
+    const mat4& getProjectionMatrix() const         { return m_p_matrix; }
+    const mat4& getModelViewProjectionMatrix() const{ return m_mvp_matrix; }
 
     void setFrustumParam(float fovy, float aspect, float znear, float zfar)
     {
@@ -151,13 +144,13 @@ public:
         m_aspect = aspect;
         m_znear = znear;
         m_zfar = zfar;
-        m_p_modified = true;
     }
-    void setFovy(float v)   { m_fovy=v;     m_p_modified=true; }
-    void setAspect(float v) { m_aspect=v;   m_p_modified=true; }
-    void setZNear(float v)  { m_znear=v;    m_p_modified=true; }
-    void setZFar(float v)   { m_zfar=v;     m_p_modified=true; }
+    void setFovy(float v)   { m_fovy=v; }
+    void setAspect(float v) { m_aspect=v; }
+    void setZNear(float v)  { m_znear=v; }
+    void setZFar(float v)   { m_zfar=v; }
 
+    void updateMatrix();
     bool bind() const;
 };
 

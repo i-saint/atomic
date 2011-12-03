@@ -2,7 +2,7 @@
 
 SH_OUT_HEADER = "glsl_source.h"
 SH_OUT_SOURCE = "glsl_source.cpp"
-SH_REG = /\.(fsh|vsh|glsl)/
+SH_REG = /\.(fsh|vsh|glsl|glslh)/
 
 
 

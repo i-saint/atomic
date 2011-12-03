@@ -99,9 +99,6 @@
     <ClCompile Include="ist\Base\TaskScheduler.cpp">
       <Filter>ist\Base</Filter>
     </ClCompile>
-    <ClCompile Include="ist\Graphics\Camera.cc">
-      <Filter>ist\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="ist\Graphics\FrameBufferObject.cpp">
       <Filter>ist\Graphics</Filter>
     </ClCompile>
@@ -162,6 +159,9 @@
       <Filter>ist\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="ist\Graphics\BufferObject.cpp">
+      <Filter>ist\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Graphics\Camera.cpp">
       <Filter>ist\Graphics</Filter>
     </ClCompile>
   </ItemGroup>

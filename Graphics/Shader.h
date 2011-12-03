@@ -1,31 +1,31 @@
 #ifndef __atomic_Graphics_Shader_h__
 #define __atomic_Graphics_Shader_h__
 
+#include "shader/Semantics.glslh"
+#include "shader/RenderStates.glslh"
+
 namespace atomic {
 
-#include "shader/semantics.h"
-
-class ShaderGBuffer : public ProgramObject
+class AtomicShader : public ProgramObject
 {
 typedef ProgramObject super;
 private:
-    VertexShader m_vsh;
-    FragmentShader m_fsh;
+    //ProgramObject   m_program;
+    VertexShader    m_vsh;
+    FragmentShader  m_fsh;
+    int32 m_loc_renderstates;
+    int32 m_rs_binding;
 
 public:
+    AtomicShader();
     bool initialize();
+    void finalize();
+    bool loadFromMemory(const char* src);
+    bool loadFromFile(const char* filepath);
+
+    void bindRenderStates();
 };
 
-class ShaderGBuffer_Octahedron : public ProgramObject
-{
-typedef ProgramObject super;
-private:
-    VertexShader m_vsh;
-    FragmentShader m_fsh;
-
-public:
-    bool initialize();
-};
 
 
 class ShaderDeferred : public ProgramObject

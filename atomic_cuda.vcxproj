@@ -31,7 +31,7 @@
     <ClCompile Include="ist\Base\FileLoader.cpp" />
     <ClCompile Include="ist\Base\TaskScheduler.cpp" />
     <ClCompile Include="ist\Graphics\BufferObject.cpp" />
-    <ClCompile Include="ist\Graphics\Camera.cc" />
+    <ClCompile Include="ist\Graphics\Camera.cpp" />
     <ClCompile Include="ist\Graphics\Font.cpp" />
     <ClCompile Include="ist\Graphics\FrameBufferObject.cpp" />
     <ClCompile Include="ist\Graphics\GraphicsResource.cpp" />

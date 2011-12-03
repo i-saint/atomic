@@ -1,0 +1,28 @@
+#pragma include("RenderStates.glslh")
+#pragma include("Semantics.glslh")
+
+
+#ifdef GLSL
+    uniform render_states
+    {
+        RenderStates u_RS;
+    };
+#endif
+
+#if defined(GLSL_VS)
+    #define ia_out(loc) layout(location=loc) in
+    #define vs_out out
+#elif defined(GLSL)
+    #define vs_out in
+#endif
+
+#ifdef GLSL_PS
+    #define ps_out(loc) layout(location=loc) out
+#else
+#endif
+
+#if defined(GLSL_GS)
+    #define gs_out out
+#elif defined(GLSL)
+    #define gs_out in
+#endif

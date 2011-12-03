@@ -46,7 +46,7 @@ __global__ void GClearParticles()
     d_particles[i].lifetime = 0xffffffff;
     uint w = 128;
     d_particles[i].position = make_float4(
-        spacing*(i%w) - (spacing*w*0.5),
+        spacing*(i%w) - (spacing*w*0.5f),
         spacing*((i/w)%w) + 0.6,
         /*0.0f,*/ spacing*(i/(w*w))+0.05f,
         0.0f);

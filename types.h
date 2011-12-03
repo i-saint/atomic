@@ -27,16 +27,12 @@ using glm::mat4;
 using glm::ivec2;
 using glm::ivec3;
 using glm::ivec4;
+typedef int32 sampler1D;
+typedef int32 sampler2D;
+typedef int32 sampler3D;
 
 typedef ist::bostream Serializer;
 typedef ist::bistream Deserializer;
-
-
-// __m128 を直接 eastl::vector とかに格納すると、
-// アライメントが 16 に揃ってないアドレスに SSE のコピー命令でアクセスしてクラッシュしたりする。
-// なので eastl::vector に格納するときは下記の構造体で代用し、キャストでなんとかする。
-struct __declspec(align(16)) quadword { char c[16]; };
-typedef stl::vector<quadword> QWordVector;
 
 
 using ist::Task;

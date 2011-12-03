@@ -2,37 +2,68 @@
 #include "../ist/ist.h"
 #include "../types.h"
 #include "Shader.h"
+#include "Renderer.h"
 #include "shader/glsl_source.h"
 
 namespace atomic {
 
-
-bool ShaderGBuffer::initialize()
+AtomicShader::AtomicShader()
+: m_loc_renderstates(0)
+, m_rs_binding(0)
 {
-    CreateVertexShaderFromString(m_vsh, g_gbuffer_glsl);
-    CreateFragmentShaderFromString(m_fsh, g_gbuffer_glsl);
-    super::initialize(&m_vsh, NULL, &m_fsh);
+    static int32 s_gen = 0;
+    m_rs_binding = s_gen++;
+}
 
+bool AtomicShader::initialize()
+{
+    //m_program.initialize();
+    return super::initialize() && m_vsh.initialize() && m_fsh.initialize();
+}
+
+void AtomicShader::finalize()
+{
+    m_vsh.finalize();
+    m_fsh.finalize();
+    super::finalize();
+}
+
+bool AtomicShader::loadFromMemory( const char* src )
+{
+    CreateVertexShaderFromString(m_vsh, src);
+    CreateFragmentShaderFromString(m_fsh, src);
+    link(&m_vsh, &m_fsh, NULL);
+
+    m_loc_renderstates = getUniformBlockIndex("render_states");
     return true;
 }
 
-
-bool ShaderGBuffer_Octahedron::initialize()
+bool AtomicShader::loadFromFile( const char* filepath )
 {
-    CreateVertexShaderFromString(m_vsh, g_gbuffer_octahedron_vsh);
-    CreateFragmentShaderFromString(m_fsh, g_gbuffer_octahedron_fsh);
-    super::initialize(&m_vsh, NULL, &m_fsh);
+    CreateVertexShaderFromFile(m_vsh, filepath);
+    CreateFragmentShaderFromFile(m_fsh, filepath);
+    link(&m_vsh, &m_fsh, NULL);
 
+    m_loc_renderstates = getUniformBlockIndex("render_states");
     return true;
+}
+
+void AtomicShader::bindRenderStates()
+{
+    m_loc_renderstates = getUniformBlockIndex("render_states");
+    setUniformBlock(m_loc_renderstates, GLSL_RENDERSTATE_BINDING, atomicGetUniformBufferObject(UBO_RENDER_STATES)->getHandle());
 }
 
 
 
 bool ShaderDeferred::initialize()
 {
-    CreateVertexShaderFromString(m_vsh, g_deferred_vsh);
-    CreateFragmentShaderFromString(m_fsh, g_deferred_fsh);
-    super::initialize(&m_vsh, NULL, &m_fsh);
+    super::initialize();
+    m_vsh.initialize();
+    m_fsh.initialize();
+    CreateVertexShaderFromString(m_vsh, g_Deferred_PointLight_glsl);
+    CreateFragmentShaderFromString(m_fsh, g_Deferred_PointLight_glsl);
+    link(&m_vsh, &m_fsh, NULL);
 
     m_loc_color_buffer      = getUniformLocation("u_ColorBuffer");
     //m_loc_glow_buffer       = getUniformLocation("u_GlowBuffer"); // ‚ ‚Æ‚Å
@@ -49,9 +80,12 @@ bool ShaderDeferred::initialize()
 
 bool ShaderBloom::initialize()
 {
+    super::initialize();
+    m_vsh.initialize();
+    m_fsh.initialize();
     CreateVertexShaderFromString(m_vsh, g_bloom_vsh);
     CreateFragmentShaderFromString(m_fsh, g_bloom_fsh);
-    super::initialize(&m_vsh, NULL, &m_fsh);
+    link(&m_vsh, &m_fsh, NULL);
 
     m_loc_color_buffer      = getUniformLocation("u_ColorBuffer");
     m_loc_rcp_screen_width  = getUniformLocation("u_RcpScreenWidth");
@@ -70,14 +104,18 @@ bool ShaderBloom::initialize()
 
 bool ShaderOutput::initialize()
 {
+    super::initialize();
+    m_vsh.initialize();
+    m_fsh.initialize();
     CreateVertexShaderFromString(m_vsh, g_out_vsh);
     CreateFragmentShaderFromString(m_fsh, g_out_fsh);
-    super::initialize(&m_vsh, NULL, &m_fsh);
+    link(&m_vsh, &m_fsh, NULL);
 
     m_loc_color_buffer      = getUniformLocation("u_ColorBuffer");
 
     return true;
 }
+
 
 
 } // namespace atomic

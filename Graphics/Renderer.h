@@ -6,12 +6,12 @@
 namespace atomic {
 
 
-class Renderer : public boost::noncopyable
+class IRenderer : public boost::noncopyable
 {
 public:
-    virtual ~Renderer() {}
-    virtual void beforeDraw()=0;  // メインスレッドから、描画処理の前に呼ばれる
-    virtual void draw()=0;    // 描画スレッドから呼ばれる
+    virtual ~IRenderer() {}
+    virtual void beforeDraw()=0;    // メインスレッドから、描画処理の前に呼ばれる。頂点データの用意などを行う
+    virtual void draw()=0;          // 描画スレッドから呼ばれる。頂点データの GPU への転送、描画コマンド発行などを行う
 };
 
 
@@ -23,19 +23,19 @@ class PassPostprocess_Bloom;
 class AtomicRenderer : public boost::noncopyable
 {
 private:
-    ShaderGBuffer *m_sh_gbuffer;
-    ShaderDeferred *m_sh_deferred;
-    ShaderOutput *m_sh_out;
+    ShaderDeferred  *m_sh_deferred;
+    ShaderOutput    *m_sh_out;
 
-    RenderTargetGBuffer *m_rt_gbuffer;
-    RenderTargetDeferred *m_rt_deferred;
+    RenderTargetGBuffer     *m_rt_gbuffer;
+    RenderTargetDeferred    *m_rt_deferred;
 
-    PassGBuffer_Cube *m_renderer_cube;
-    PassDeferred_PointLight *m_renderer_sphere_light;
-    PassPostprocess_Bloom *m_renderer_bloom;
-    stl::vector<Renderer*> m_renderers[PASS_END];
+    PassGBuffer_Cube            *m_renderer_cube;
+    PassDeferred_PointLight     *m_renderer_sphere_light;
+    PassPostprocess_Bloom       *m_renderer_bloom;
+    stl::vector<IRenderer*> m_renderers[PASS_END];
 
-    Viewport m_default_viewport;
+    Viewport        m_default_viewport;
+    RenderStates    m_render_states;
 
 private:
     static AtomicRenderer *s_inst;
@@ -58,9 +58,10 @@ public:
     void beforeDraw();  // メインスレッドから、描画処理の前に呼ばれる
     void draw();        // 以下描画スレッドから呼ばれる
 
-    PassGBuffer_Cube* getCubeRenderer() { return m_renderer_cube; }
-    PassDeferred_PointLight* getSphereLightRenderer() { return m_renderer_sphere_light; }
-    const Viewport* getDefaultViewport() const { return &m_default_viewport; }
+    PassGBuffer_Cube* getCubeRenderer()                 { return m_renderer_cube; }
+    PassDeferred_PointLight* getSphereLightRenderer()   { return m_renderer_sphere_light; }
+    const Viewport* getDefaultViewport() const          { return &m_default_viewport; }
+    RenderStates* getRenderStates()                     { return &m_render_states; }
 };
 
 #define atomicGetCubeRenderer()         AtomicRenderer::getInstance()->getCubeRenderer()
@@ -68,7 +69,11 @@ public:
 #define atomicGetDefaultViewport()      AtomicRenderer::getInstance()->getDefaultViewport()
 
 
-class PassGBuffer_Cube : public Renderer
+
+
+
+
+class PassGBuffer_Cube : public IRenderer
 {
 private:
     struct InstanceInfo
@@ -91,24 +96,22 @@ private:
             scale.reserve(n);
         }
     };
-    ShaderGBuffer *m_sh_gbuffer;
-    ModelData *m_model;
-    VertexBufferObject *m_vbo_fraction_pos;
-    InstanceInfo m_fraction;
-    InstanceInfo m_vfx;
+    AtomicShader        *m_sh_gbuffer;
+    ModelData           *m_model;
+    VertexBufferObject  *m_vbo_fraction_pos;
+    InstanceInfo        m_vfx;
 
 public:
     PassGBuffer_Cube();
     void beforeDraw();  // メインスレッドから、描画処理の前に呼ばれる
     void draw();    // 描画スレッドから呼ばれる
 
-    void pushFractionInstance(float4 v) { m_fraction.pos.push_back(v); }
-    void pushVFXInstance(float4 v) { /*m_vfx.pos.push_back(v);*/ }
+    void pushVFXInstance(float4 v) { m_vfx.pos.push_back(v); }
 };
 
 
 
-class PassDeferred_PointLight : public Renderer
+class PassDeferred_PointLight : public IRenderer
 {
 private:
     stl::vector<float4> m_instance_pos;
@@ -137,7 +140,7 @@ public:
 //    void draw();
 //};
 
-class PassPostprocess_Bloom : public Renderer
+class PassPostprocess_Bloom : public IRenderer
 {
 private:
     RenderTargetDeferred *m_rt_deferred;

@@ -29,7 +29,6 @@ void AtomicRenderer::finalizeInstance()
 
 AtomicRenderer::AtomicRenderer()
 {
-    m_sh_gbuffer    = atomicGetShaderGBuffer();
     m_sh_deferred   = atomicGetShaderDeferred();
     m_sh_out        = atomicGetShaderOutput();
 
@@ -79,6 +78,20 @@ void AtomicRenderer::draw()
         SPHCopyInstancePositions();
         //IST_PRINT("SPHCopyInstancePositions() took %f ms.\n", counter.getElapsedMillisecond());
     }
+    {
+        PerspectiveCamera *camera = atomicGetCamera();
+        UniformBufferObject *ubo_renderstates = atomicGetUniformBufferObject(UBO_RENDER_STATES);
+        camera->updateMatrix();
+        m_render_states.ModelViewProjectionMatrix = camera->getModelViewProjectionMatrix();
+        m_render_states.CameraPosition  = camera->getPosition();
+        m_render_states.ScreenWidth     = (float32)atomicGetWindowWidth();
+        m_render_states.ScreenHeight    = (float32)atomicGetWindowHeight();
+        m_render_states.AspectRatio     = camera->getAspect();
+        m_render_states.RcpScreenWidth  = 1.0f / m_render_states.ScreenWidth;
+        m_render_states.RcpScreenHeight = 1.0f / m_render_states.ScreenHeight;
+        m_render_states.RcpAspectRatio  = 1.0f / m_render_states.AspectRatio;
+        MapAndWrite(*ubo_renderstates, &m_render_states, sizeof(m_render_states));
+    }
 
     pass_Shadow();
     pass_GBuffer();
@@ -115,7 +128,6 @@ void AtomicRenderer::pass_GBuffer()
     const PerspectiveCamera *camera = atomicGetCamera();
 
     m_rt_gbuffer->bind();
-    m_sh_gbuffer->bind();
     camera->bind();
     glClearColor(0.0f,0.0f,0.0f,0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -127,7 +139,6 @@ void AtomicRenderer::pass_GBuffer()
     }
 
     glDisable(GL_DEPTH_TEST);
-    m_sh_gbuffer->unbind();
     m_rt_gbuffer->unbind();
 }
 
@@ -139,9 +150,6 @@ void AtomicRenderer::pass_Deferred()
     const vec2 tex_scale = vec2(
         float32(atomicGetWindowWidth())/float32(m_rt_deferred->getWidth()),
         float32(atomicGetWindowHeight())/float32(m_rt_deferred->getHeight()) * aspect_ratio);
-
-    GLSLStates uniforms;
-    uniforms.ModelViewProjectionMatrix = camera->getModelViewProjectionMatrix();
 
     m_rt_deferred->bind();
     m_sh_deferred->bind();
@@ -222,15 +230,13 @@ void AtomicRenderer::pass_Output()
 
 PassGBuffer_Cube::PassGBuffer_Cube()
 {
-    m_sh_gbuffer = atomicGetShaderGBuffer();
-    m_model = atomicGetModelData(MODEL_CUBE_FRACTION);
-    m_vbo_fraction_pos = atomicGetVertexBufferObject(VBO_FRACTION_POS);
-    m_fraction.reserve(65536);
+    m_sh_gbuffer        = atomicGetShaderGBuffer();
+    m_model             = atomicGetModelData(MODEL_CUBE_FRACTION);
+    m_vbo_fraction_pos  = atomicGetVertexBufferObject(VBO_FRACTION_POS);
 }
 
 void PassGBuffer_Cube::beforeDraw()
 {
-    m_fraction.clear();
     m_vfx.clear();
 }
 
@@ -242,15 +248,11 @@ void PassGBuffer_Cube::draw()
     const uint32 num_fractions = SPH_MAX_PARTICLE_NUM;
 
     m_sh_gbuffer->bind();
+    m_sh_gbuffer->bindRenderStates();
     m_model->setInstanceData(GLSL_INSTANCE_POSITION, 4, *m_vbo_fraction_pos);
     m_model->drawInstanced(num_fractions);
     m_sh_gbuffer->unbind();
 }
-
-
-
-
-
 
 
 
@@ -274,7 +276,7 @@ void PassDeferred_PointLight::draw()
 
     const uint32 num_instances = SPH_MAX_LIGHT_NUM;
 
-    m_model->setInstanceData(2, 4, *m_vbo_instance_pos);
+    m_model->setInstanceData(GLSL_INSTANCE_POSITION, 4, *m_vbo_instance_pos);
     m_model->drawInstanced(num_instances);
 
 }

@@ -32,7 +32,6 @@ enum MODEL_RID {
 };
 enum SH_RID {
     SH_GBUFFER,
-    SH_GBUFFER_OCTAHEDRON,
     SH_DEFERRED,
     SH_BLOOM,
     SH_OUTPUT,
@@ -76,7 +75,7 @@ enum VBO_RID {
 };
 
 enum UBO_RID {
-    UBO_DEFAULTS,
+    UBO_RENDER_STATES,
     UBO_DUMMY,
     UBO_END,
 };
@@ -99,9 +98,7 @@ typedef ColorBuffer RenderTargetGauss;
 class GraphicResourceManager : boost::noncopyable
 {
 private:
-
-    ShaderGBuffer               *m_sh_gbuffer;
-    ShaderGBuffer_Octahedron    *m_sh_gbuffer_octahedron;
+    AtomicShader                *m_sh_gbuffer;
     ShaderDeferred              *m_sh_deferred;
     ShaderBloom                 *m_sh_bloom;
     ShaderOutput                *m_sh_output;
@@ -134,11 +131,10 @@ public:
     VertexBufferObject* getVertexBufferObject(VBO_RID i)    { return m_vbo[i]; }
     UniformBufferObject* getUniformBufferObject(UBO_RID i)  { return m_ubo[i]; }
 
-    ShaderGBuffer*              getShaderGBuffer()              { return m_sh_gbuffer; }
-    ShaderGBuffer_Octahedron*   getShaderGBuffer_Octahedron()   { return m_sh_gbuffer_octahedron; }
-    ShaderDeferred*             getShaderDeferred()             { return m_sh_deferred; }
-    ShaderBloom*                getShaderBloom()                { return m_sh_bloom; }
-    ShaderOutput*               getShaderOutput()               { return m_sh_output; }
+    AtomicShader*           getShaderGBuffer()              { return m_sh_gbuffer; }
+    ShaderDeferred*         getShaderDeferred()             { return m_sh_deferred; }
+    ShaderBloom*            getShaderBloom()                { return m_sh_bloom; }
+    ShaderOutput*           getShaderOutput()               { return m_sh_output; }
 
     void swapBuffers();
     RenderTargetGBuffer*    getRenderTargetGBuffer()        { return m_rt_gbuffer; }
