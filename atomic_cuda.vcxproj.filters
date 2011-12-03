@@ -99,9 +99,6 @@
     <ClCompile Include="ist\Base\TaskScheduler.cpp">
       <Filter>ist\Base</Filter>
     </ClCompile>
-    <ClCompile Include="ist\Graphics\BufferObject .cpp">
-      <Filter>ist\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="ist\Graphics\Camera.cc">
       <Filter>ist\Graphics</Filter>
     </ClCompile>
@@ -122,9 +119,6 @@
     </ClCompile>
     <ClCompile Include="ist\Math\SFMT\SFMT.cpp">
       <Filter>ist\Math\SFMT</Filter>
-    </ClCompile>
-    <ClCompile Include="shader\cl_source.cpp">
-      <Filter>Shader</Filter>
     </ClCompile>
     <ClCompile Include="shader\glsl_source.cpp">
       <Filter>Shader</Filter>
@@ -165,6 +159,9 @@
       <Filter>Sound</Filter>
     </ClCompile>
     <ClCompile Include="ist\Graphics\Font.cpp">
+      <Filter>ist\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Graphics\BufferObject.cpp">
       <Filter>ist\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
@@ -330,9 +327,6 @@
     </ClInclude>
     <ClInclude Include="ist\Math\SFMT\SFMT.h">
       <Filter>ist\Math\SFMT</Filter>
-    </ClInclude>
-    <ClInclude Include="shader\cl_source.h">
-      <Filter>Shader</Filter>
     </ClInclude>
     <ClInclude Include="shader\glsl_source.h">
       <Filter>Shader</Filter>

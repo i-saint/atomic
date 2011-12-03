@@ -1,6 +1,7 @@
 #ifndef __ist_Graphics__
 #define __ist_Graphics__
 
+#include <glm/glm.hpp>
 #include "Graphics/types.h"
 #include "Graphics/GraphicsAssert.h"
 #include "Graphics/GraphicsResource.h"

@@ -9,8 +9,8 @@ namespace atomic {
 
 bool ShaderGBuffer::initialize()
 {
-    CreateVertexShaderFromString(m_vsh, g_gbuffer_vsh);
-    CreateFragmentShaderFromString(m_fsh, g_gbuffer_fsh);
+    CreateVertexShaderFromString(m_vsh, g_gbuffer_glsl);
+    CreateFragmentShaderFromString(m_fsh, g_gbuffer_glsl);
     super::initialize(&m_vsh, NULL, &m_fsh);
 
     return true;

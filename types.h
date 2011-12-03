@@ -24,7 +24,6 @@ using glm::vec4;
 using glm::mat2;
 using glm::mat3;
 using glm::mat4;
-
 using glm::ivec2;
 using glm::ivec3;
 using glm::ivec4;

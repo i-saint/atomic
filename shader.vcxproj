@@ -63,8 +63,7 @@
     <None Include="shader\bloom.vsh" />
     <None Include="shader\deferred.fsh" />
     <None Include="shader\deferred.vsh" />
-    <None Include="shader\gbuffer.fsh" />
-    <None Include="shader\gbuffer.vsh" />
+    <None Include="shader\gbuffer.glsl" />
     <None Include="shader\gbuffer_octahedron.fsh" />
     <None Include="shader\gbuffer_octahedron.vsh" />
     <None Include="shader\out.fsh" />
@@ -72,6 +71,9 @@
     <None Include="shader\ssao.fsh" />
     <None Include="shader\ssao.vsh" />
     <None Include="shader\shader.rb" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="shader\semantics.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

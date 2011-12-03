@@ -76,7 +76,7 @@ World::~World()
 void World::initialize()
 {
     m_rand.initialize(0);
-    m_camera.setPosition(XMVectorSet(1.0f, 1.0f, 3.0f, 0.0f));
+    m_camera.setPosition(vec4(1.0f, 1.0f, 3.0f, 0.0f));
     m_camera.setZNear(0.01f);
     m_camera.setZFar(10.0f);
 

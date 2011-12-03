@@ -30,7 +30,7 @@
     <ClCompile Include="ist\Base\Assert.cpp" />
     <ClCompile Include="ist\Base\FileLoader.cpp" />
     <ClCompile Include="ist\Base\TaskScheduler.cpp" />
-    <ClCompile Include="ist\Graphics\BufferObject .cpp" />
+    <ClCompile Include="ist\Graphics\BufferObject.cpp" />
     <ClCompile Include="ist\Graphics\Camera.cc" />
     <ClCompile Include="ist\Graphics\Font.cpp" />
     <ClCompile Include="ist\Graphics\FrameBufferObject.cpp" />
@@ -51,7 +51,6 @@
     <ClCompile Include="ist\Sound\System.cpp" />
     <ClCompile Include="ist\Window\Application.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="shader\cl_source.cpp" />
     <ClCompile Include="shader\glsl_source.cpp" />
     <ClCompile Include="Sound\AtomicSound.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -129,7 +128,6 @@
     <ClInclude Include="ist\Sound\types.h" />
     <ClInclude Include="ist\Window.h" />
     <ClInclude Include="ist\Window\Application.h" />
-    <ClInclude Include="shader\cl_source.h" />
     <ClInclude Include="shader\glsl_source.h" />
     <ClInclude Include="Sound\AtomicSound.h" />
     <ClInclude Include="stdafx.h" />

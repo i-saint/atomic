@@ -16,7 +16,7 @@ public:
 
 
 class PassGBuffer_Cube;
-class PassDeferred_SphereLight;
+class PassDeferred_PointLight;
 class PassPostprocess_Bloom;
 
 
@@ -31,7 +31,7 @@ private:
     RenderTargetDeferred *m_rt_deferred;
 
     PassGBuffer_Cube *m_renderer_cube;
-    PassDeferred_SphereLight *m_renderer_sphere_light;
+    PassDeferred_PointLight *m_renderer_sphere_light;
     PassPostprocess_Bloom *m_renderer_bloom;
     stl::vector<Renderer*> m_renderers[PASS_END];
 
@@ -59,7 +59,7 @@ public:
     void draw();        // ˆÈ‰º•`‰æƒXƒŒƒbƒh‚©‚çŒÄ‚Î‚ê‚é
 
     PassGBuffer_Cube* getCubeRenderer() { return m_renderer_cube; }
-    PassDeferred_SphereLight* getSphereLightRenderer() { return m_renderer_sphere_light; }
+    PassDeferred_PointLight* getSphereLightRenderer() { return m_renderer_sphere_light; }
     const Viewport* getDefaultViewport() const { return &m_default_viewport; }
 };
 
@@ -93,7 +93,7 @@ private:
     };
     ShaderGBuffer *m_sh_gbuffer;
     ModelData *m_model;
-    VertexBufferObject *m_vbo_instance_pos;
+    VertexBufferObject *m_vbo_fraction_pos;
     InstanceInfo m_fraction;
     InstanceInfo m_vfx;
 
@@ -107,51 +107,8 @@ public:
 };
 
 
-class PassGBuffer_Octahedron : public Renderer
-{
-private:
-    struct InstanceInfo
-    {
-        stl::vector<float4> pos;
-        stl::vector<float4> glow;
-        stl::vector<float32> scale;
-        stl::vector<float32> time;
-        stl::vector<float32> seed;
 
-        void clear()
-        {
-            pos.clear();
-            glow.clear();
-            scale.clear();
-            time.clear();
-            seed.clear();
-        }
-
-        void reserve(uint32 n)
-        {
-            pos.reserve(n);
-            glow.reserve(n);
-            scale.reserve(n);
-            time.clear();
-            seed.clear();
-        }
-    };
-    ShaderGBuffer_Octahedron *m_sh_gbuffer;
-    ModelData *m_model;
-    VertexBufferObject *m_vbo_instance_pos;
-    InstanceInfo m_bullets;
-
-public:
-    PassGBuffer_Octahedron();
-    void beforeDraw();
-    void draw();
-
-    void pushInstance(float4 v) { m_bullets.pos.push_back(v); }
-};
-
-
-
-class PassDeferred_SphereLight : public Renderer
+class PassDeferred_PointLight : public Renderer
 {
 private:
     stl::vector<float4> m_instance_pos;
@@ -160,7 +117,7 @@ private:
     VertexBufferObject *m_vbo_instance_pos;
 
 public:
-    PassDeferred_SphereLight();
+    PassDeferred_PointLight();
     void beforeDraw();
     void draw();
 

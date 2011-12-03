@@ -29,6 +29,16 @@ bool CreateGeometryShaderFromString(GeometryShader& sh, const char* source);
 bool CreateFragmentShaderFromString(FragmentShader& sh, const char* source);
 
 
+template<class BufferObjectType>
+bool MapAndCopy(BufferObjectType& bo, typename BufferObjectType::USAGE usage, void *data, size_t data_size)
+{
+    if(void *p = bo.map(usage)) {
+        ::memcpy(p, data, data_size);
+        bo.unmap();
+        return true;
+    }
+    return false;
+}
 
 
 

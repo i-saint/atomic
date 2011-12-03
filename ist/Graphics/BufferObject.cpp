@@ -39,41 +39,6 @@ void BufferObject<BufferType>::finalize()
 }
 
 template<GLuint BufferType>
-GLuint BufferObject<BufferType>::size() const
-{
-    return m_size;
-}
-
-template<GLuint BufferType>
-void BufferObject<BufferType>::bind() const
-{
-    glBindBuffer(BufferType, m_handle);
-}
-
-template<GLuint BufferType>
-void BufferObject<BufferType>::unbind() const
-{
-    glBindBuffer(BufferType, 0);
-}
-
-template<GLuint BufferType>
-void* BufferObject<BufferType>::lock(LOCK mode)
-{
-    glBindBuffer(BufferType, m_handle);
-    void *r = glMapBuffer(BufferType, mode);
-    glBindBuffer(BufferType, 0);
-    return r;
-}
-
-template<GLuint BufferType>
-void BufferObject<BufferType>::unlock()
-{
-    glBindBuffer(BufferType, m_handle);
-    glUnmapBuffer(BufferType);
-    glBindBuffer(BufferType, 0);
-}
-
-template<GLuint BufferType>
 void BufferObject<BufferType>::allocate(GLuint size, USAGE usage, void *data)
 {
     m_size = size;
@@ -93,6 +58,41 @@ void BufferObject<BufferType>::allocate(GLuint size, USAGE usage, void *data)
         glUnmapBuffer(BufferType);
         glBindBuffer(BufferType, 0);
     }
+}
+
+template<GLuint BufferType>
+GLuint BufferObject<BufferType>::size() const
+{
+    return m_size;
+}
+
+template<GLuint BufferType>
+void BufferObject<BufferType>::bind() const
+{
+    glBindBuffer(BufferType, m_handle);
+}
+
+template<GLuint BufferType>
+void BufferObject<BufferType>::unbind() const
+{
+    glBindBuffer(BufferType, 0);
+}
+
+template<GLuint BufferType>
+void* BufferObject<BufferType>::map(MAP_MODE mode)
+{
+    glBindBuffer(BufferType, m_handle);
+    void *r = glMapBuffer(BufferType, mode);
+    glBindBuffer(BufferType, 0);
+    return r;
+}
+
+template<GLuint BufferType>
+void BufferObject<BufferType>::unmap()
+{
+    glBindBuffer(BufferType, m_handle);
+    glUnmapBuffer(BufferType);
+    glBindBuffer(BufferType, 0);
 }
 
 template BufferObject<GL_ARRAY_BUFFER>;
@@ -166,6 +166,33 @@ void VertexArray::setInstanceAttribute(GLuint i, GLint num_elements, VertexBuffe
     glBindVertexArray(0);
 }
 
+void VertexArray::setAttributes( VertexBufferObject& vbo, size_t stride, const Descriptor *descs, size_t num_descs )
+{
+    glBindVertexArray(m_handle);
+    vbo.bind();
+    for(size_t i=0; i<num_descs; ++i) {
+        const Descriptor& desc = descs[i];
+        glEnableVertexAttribArray(desc.location);
+        glVertexAttribPointer(desc.location, desc.num_elements, desc.type, desc.normalize, stride, (GLvoid*)desc.offset);
+        glVertexAttribDivisor(desc.location, desc.divisor);
+    }
+    vbo.unbind();
+    glBindVertexArray(0);
+}
+
+void VertexArray::setAttributes( VertexBufferObject *vbos, size_t *strides, size_t num_vbos, const Descriptor *descs, size_t num_descs )
+{
+    glBindVertexArray(m_handle);
+    for(size_t i=0; i<num_descs; ++i) {
+        const Descriptor& desc = descs[i];
+        vbos[desc.vbo_index].bind();
+        glEnableVertexAttribArray(desc.location);
+        glVertexAttribPointer(desc.location, desc.num_elements, desc.type, desc.normalize, strides[desc.vbo_index], (GLvoid*)desc.offset);
+        glVertexAttribDivisor(desc.location, desc.divisor);
+        vbos[desc.vbo_index].unbind();
+    }
+    glBindVertexArray(0);
+}
 
 
 } // namespace graphics

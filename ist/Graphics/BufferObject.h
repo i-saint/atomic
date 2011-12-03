@@ -18,10 +18,10 @@ public:
         USAGE_DYNAMIC = GL_DYNAMIC_DRAW,
         USAGE_STREAM  = GL_STREAM_DRAW,
     };
-    enum LOCK {
-        LOCK_READ       = GL_READ_ONLY,
-        LOCK_WRITE      = GL_WRITE_ONLY,
-        LOCK_READWRITE  = GL_READ_WRITE,
+    enum MAP_MODE {
+        MAP_READ       = GL_READ_ONLY,
+        MAP_WRITE      = GL_WRITE_ONLY,
+        MAP_READWRITE  = GL_READ_WRITE,
     };
 
 protected:
@@ -36,14 +36,14 @@ public:
     bool initialize();
     void finalize();
 
+    // data は NULL でもよく、その場合メモリ確保だけが行われる。
+    void allocate(GLuint size, USAGE usage, void *data=NULL);
+
     void bind() const;
     void unbind() const;
 
-    void* lock(LOCK mode);
-    void unlock();
-
-    // data は NULL でもよく、その場合メモリ確保だけが行われる。
-    void allocate(GLuint size, USAGE usage, void *data=NULL);
+    void* map(MAP_MODE mode);
+    void unmap();
 
     GLuint size() const;
     GLuint getHandle() const { return m_handle; }
@@ -64,6 +64,28 @@ public:
 
 class VertexArray : public GraphicsResource
 {
+public:
+    enum TYPE {
+        TYPE_BYTE   = GL_BYTE,
+        TYPE_UBYTE  = GL_UNSIGNED_BYTE,
+        TYPE_SHORT  = GL_SHORT,
+        TYPE_USHORT = GL_UNSIGNED_SHORT,
+        TYPE_INT    = GL_INT,
+        TYPE_UINT   = GL_UNSIGNED_INT,
+        TYPE_FLOAT  = GL_FLOAT,
+        TYPE_DOUBLE = GL_DOUBLE,
+    };
+    struct Descriptor
+    {
+        GLuint location;
+        GLuint vbo_index;
+        TYPE type;
+        GLuint num_elements; // must be 1,2,3,4
+        GLuint offset;
+        bool normalize;
+        GLuint divisor; // 0: per vertex, other: per n instance
+    };
+
 private:
     GLuint m_handle;
 
@@ -79,6 +101,9 @@ public:
     // num_elements: 1,2,3,4
     void setAttribute(GLuint index, GLint num_elements, VertexBufferObject &vbo);
     void setInstanceAttribute(GLuint i, GLint num_elements, VertexBufferObject &vbo);
+
+    void setAttributes(VertexBufferObject& vbo, size_t stride, const Descriptor *descs, size_t num_descs);
+    void setAttributes(VertexBufferObject *vbos, size_t *strides, size_t num_vbos, const Descriptor *descs, size_t num_descs);
 };
 
 } // namespace graphics

@@ -35,6 +35,7 @@ public:
     enum {
         MAX_ATTRIBUTES = 4,
     };
+    typedef VertexArray::Descriptor VertexDescriptor;
 
 private:
     VertexBufferObject m_data[MAX_ATTRIBUTES];

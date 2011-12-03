@@ -61,7 +61,8 @@ enum TEX2D_RID {
 
 enum VBO_RID {
     VBO_BOX_POS,
-    VBO_CUBE_POS,
+    VBO_FRACTION_POS,
+    VBO_RIGID_FRACTION_POS,
     VBO_CUBE_SCALE,
     VBO_CUBE_GLOW,
     VBO_OCTAHEDRON_POS,
@@ -75,6 +76,7 @@ enum VBO_RID {
 };
 
 enum UBO_RID {
+    UBO_DEFAULTS,
     UBO_DUMMY,
     UBO_END,
 };

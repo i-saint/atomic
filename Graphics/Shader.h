@@ -1,7 +1,9 @@
 #ifndef __atomic_Graphics_Shader_h__
 #define __atomic_Graphics_Shader_h__
+
 namespace atomic {
 
+#include "shader/semantics.h"
 
 class ShaderGBuffer : public ProgramObject
 {

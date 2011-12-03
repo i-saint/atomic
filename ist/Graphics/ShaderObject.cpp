@@ -26,9 +26,21 @@ bool ShaderObject<ShaderType>::initialize(const char *src, int length)
     CheckGLError();
 
     // set shader source
-    glShaderSource(m_handle, 1, &src, &length);
-    if(glGetError() != GL_NO_ERROR) {
-        return false;
+    {
+        const char vs_define[] = "#define GLSL\n#define GLSL_VS\n";
+        const char ps_define[] = "#define GLSL\n#define GLSL_PS\n";
+        const char gs_define[] = "#define GLSL\n#define GLSL_GL\n";
+
+        const char* sources[] = {NULL, src};
+        if(ShaderType==GL_VERTEX_SHADER) { sources[0]=vs_define; }
+        if(ShaderType==GL_FRAGMENT_SHADER) { sources[0]=ps_define; }
+        if(ShaderType==GL_GEOMETRY_SHADER) { sources[0]=gs_define; }
+        const int len[] = {strlen(sources[0]), length};
+
+        glShaderSource(m_handle, 2, sources, len);
+        if(glGetError() != GL_NO_ERROR) {
+            return false;
+        }
     }
     // compile
     glCompileShader(m_handle);
@@ -152,7 +164,7 @@ GLint ProgramObject::getUniformLocation(const char *name)
 {
     GLint ul = glGetUniformLocation(m_handle, name);
     if(ul == -1) {
-        IST_ASSERT("no such uniform named %s", name);
+        IST_ASSERT("no such uniform named %s\n", name);
     }
     return ul;
 }
@@ -161,7 +173,7 @@ GLint ProgramObject::getAttribLocation(const char *name)
 {
     GLint al = glGetAttribLocation(m_handle, name);
     if(al == -1) {
-        IST_ASSERT("no such attribute named %s", name);
+        IST_ASSERT("no such attribute named %s\n", name);
     }
     return al;
 }
@@ -170,7 +182,7 @@ GLint ProgramObject::getUniformBlockIndex(const char *name)
 {
     GLint ul = glGetUniformBlockIndex(m_handle, name);
     if(ul == -1) {
-        IST_ASSERT("no such uniform block named %s", name);
+        IST_ASSERT("no such uniform block named %s\n", name);
     }
     return ul;
 }
