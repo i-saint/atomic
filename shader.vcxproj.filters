@@ -15,12 +15,6 @@
     <None Include="shader\bloom.vsh">
       <Filter>shader</Filter>
     </None>
-    <None Include="shader\out.fsh">
-      <Filter>shader</Filter>
-    </None>
-    <None Include="shader\out.vsh">
-      <Filter>shader</Filter>
-    </None>
     <None Include="shader\ssao.fsh">
       <Filter>shader</Filter>
     </None>
@@ -41,6 +35,9 @@
       <Filter>shader</Filter>
     </None>
     <None Include="shader\GBuffer_Cube.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\Out.glsl">
       <Filter>shader</Filter>
     </None>
   </ItemGroup>

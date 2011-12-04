@@ -64,8 +64,7 @@
     <None Include="shader\Common.glslh" />
     <None Include="shader\Deferred_PointLight.glsl" />
     <None Include="shader\GBuffer_Cube.glsl" />
-    <None Include="shader\out.fsh" />
-    <None Include="shader\out.vsh" />
+    <None Include="shader\Out.glsl" />
     <None Include="shader\RenderStates.glslh" />
     <None Include="shader\Semantics.glslh" />
     <None Include="shader\ssao.fsh" />

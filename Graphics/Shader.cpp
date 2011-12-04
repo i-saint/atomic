@@ -38,32 +38,17 @@ bool AtomicShader::loadFromMemory( const char* src )
     return true;
 }
 
-bool AtomicShader::loadFromFile( const char* filepath )
+void AtomicShader::bind()
 {
-    CreateVertexShaderFromFile(m_vsh, filepath);
-    CreateFragmentShaderFromFile(m_fsh, filepath);
-    link(&m_vsh, &m_fsh, NULL);
-
-    m_loc_renderstates = getUniformBlockIndex("render_states");
-    return true;
-}
-
-void AtomicShader::bindRenderStates()
-{
-    m_loc_renderstates = getUniformBlockIndex("render_states");
+    super::bind();
     setUniformBlock(m_loc_renderstates, GLSL_RENDERSTATE_BINDING, atomicGetUniformBufferObject(UBO_RENDER_STATES)->getHandle());
 }
 
 
 
-bool ShaderDeferred::initialize()
+bool ShaderDeferred::loadFromMemory( const char* src )
 {
-    super::initialize();
-    m_vsh.initialize();
-    m_fsh.initialize();
-    CreateVertexShaderFromString(m_vsh, g_Deferred_PointLight_glsl);
-    CreateFragmentShaderFromString(m_fsh, g_Deferred_PointLight_glsl);
-    link(&m_vsh, &m_fsh, NULL);
+    super::loadFromMemory(src);
 
     m_loc_color_buffer      = getUniformLocation("u_ColorBuffer");
     //m_loc_glow_buffer       = getUniformLocation("u_GlowBuffer"); // ‚ ‚Æ‚Å
@@ -97,21 +82,6 @@ bool ShaderBloom::initialize()
     m_sub_hblur             = getSubroutineIndexF("horizontalBlur");
     m_sub_vblur             = getSubroutineIndexF("verticalBlur");
     m_sub_composite         = getSubroutineIndexF("composite");
-
-    return true;
-}
-
-
-bool ShaderOutput::initialize()
-{
-    super::initialize();
-    m_vsh.initialize();
-    m_fsh.initialize();
-    CreateVertexShaderFromString(m_vsh, g_out_vsh);
-    CreateFragmentShaderFromString(m_fsh, g_out_fsh);
-    link(&m_vsh, &m_fsh, NULL);
-
-    m_loc_color_buffer      = getUniformLocation("u_ColorBuffer");
 
     return true;
 }

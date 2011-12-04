@@ -48,8 +48,8 @@ public:
 
     void bind() const;
     void unbind() const;
-    void bind(SLOT n) const;
-    void unbind(SLOT n) const;
+    void bind(int slot) const;
+    void unbind(int slot) const;
 
     GLuint getHandle() const;
     GLsizei getWidth() const;

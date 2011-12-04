@@ -124,14 +124,16 @@ bool GraphicResourceManager::initialize()
 
         m_sh_deferred = IST_NEW(ShaderDeferred)();
         m_sh_deferred->initialize();
+        m_sh_deferred->loadFromMemory(g_Deferred_PointLight_glsl);
         m_shader[SH_DEFERRED] = m_sh_deferred;
 
         m_sh_bloom = IST_NEW(ShaderBloom)();
         m_sh_bloom->initialize();
         m_shader[SH_BLOOM] = m_sh_bloom;
 
-        m_sh_output = IST_NEW(ShaderOutput)();
+        m_sh_output = IST_NEW(AtomicShader)();
         m_sh_output->initialize();
+        m_sh_output->loadFromMemory(g_Out_glsl);
         m_shader[SH_OUTPUT] = m_sh_output;
     }
     {

@@ -71,6 +71,7 @@ void AtomicRenderer::draw()
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
     glEnable(GL_CULL_FACE);
+    glClear(GL_COLOR_BUFFER_BIT);
 
     glLoadIdentity();
     {
@@ -84,12 +85,18 @@ void AtomicRenderer::draw()
         camera->updateMatrix();
         m_render_states.ModelViewProjectionMatrix = camera->getModelViewProjectionMatrix();
         m_render_states.CameraPosition  = camera->getPosition();
-        m_render_states.ScreenWidth     = (float32)atomicGetWindowWidth();
-        m_render_states.ScreenHeight    = (float32)atomicGetWindowHeight();
+        m_render_states.ScreenSize      = vec2((float32)atomicGetWindowWidth(), (float32)atomicGetWindowHeight());
+        m_render_states.RcpScreenSize   = vec2(1.0f, 1.0f) / m_render_states.ScreenSize;
         m_render_states.AspectRatio     = camera->getAspect();
-        m_render_states.RcpScreenWidth  = 1.0f / m_render_states.ScreenWidth;
-        m_render_states.RcpScreenHeight = 1.0f / m_render_states.ScreenHeight;
         m_render_states.RcpAspectRatio  = 1.0f / m_render_states.AspectRatio;
+        m_render_states.ColorBuffer     = GLSL_COLOR_BUFFER;
+        m_render_states.DepthBuffer     = GLSL_DEPTH_BUFFER;
+        m_render_states.NormalBuffer    = GLSL_NORMAL_BUFFER;
+        m_render_states.PositionBuffer  = GLSL_POSITION_BUFFER;
+        m_render_states.ScreenTexcoord = vec2(
+            m_render_states.ScreenSize.x/float32(m_rt_deferred->getWidth()),
+            m_render_states.ScreenSize.y/float32(m_rt_deferred->getHeight()));
+
         MapAndWrite(*ubo_renderstates, &m_render_states, sizeof(m_render_states));
     }
 
@@ -154,12 +161,12 @@ void AtomicRenderer::pass_Deferred()
     m_rt_deferred->bind();
     m_sh_deferred->bind();
     camera->bind();
-    m_rt_gbuffer->getColorBuffer(0)->bind(Texture2D::SLOT_0);
-    m_rt_gbuffer->getColorBuffer(1)->bind(Texture2D::SLOT_1);
-    m_rt_gbuffer->getColorBuffer(2)->bind(Texture2D::SLOT_2);
-    m_sh_deferred->setColorBuffer(Texture2D::SLOT_0);
-    m_sh_deferred->setNormalBuffer(Texture2D::SLOT_1);
-    m_sh_deferred->setPositionBuffer(Texture2D::SLOT_2);
+    m_rt_gbuffer->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
+    m_rt_gbuffer->getColorBuffer(1)->bind(GLSL_NORMAL_BUFFER);
+    m_rt_gbuffer->getColorBuffer(2)->bind(GLSL_POSITION_BUFFER);
+    m_sh_deferred->setColorBuffer(GLSL_COLOR_BUFFER);
+    m_sh_deferred->setNormalBuffer(GLSL_NORMAL_BUFFER);
+    m_sh_deferred->setPositionBuffer(GLSL_POSITION_BUFFER);
     m_sh_deferred->setRcpAspectRatio(rcp_aspect_ratio);
     m_sh_deferred->setTexcoordScale(tex_scale);
     glClearColor(0.0f,0.0f,0.0f,1.0f);
@@ -177,9 +184,6 @@ void AtomicRenderer::pass_Deferred()
     glDepthMask(GL_TRUE);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
-    m_rt_gbuffer->getColorBuffer(2)->unbind(Texture2D::SLOT_2);
-    m_rt_gbuffer->getColorBuffer(1)->unbind(Texture2D::SLOT_1);
-    m_rt_gbuffer->getColorBuffer(0)->unbind(Texture2D::SLOT_0);
     m_sh_deferred->unbind();
     m_rt_deferred->unbind();
 }
@@ -218,12 +222,10 @@ void AtomicRenderer::pass_Output()
     cam.setScreen(0.0f, 1.0f, 0.0f, 1.0f);
     cam.bind();
 
-    m_rt_deferred->getColorBuffer(0)->bind(Texture2D::SLOT_0);
+    m_rt_deferred->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
     m_sh_out->bind();
-    m_sh_out->setColorBuffer(Texture2D::SLOT_0);
-    DrawScreen(vec2(0.0f, 0.0f), vec2(float(atomicGetWindowWidth())/float32(m_rt_deferred->getWidth()), float(atomicGetWindowHeight())/float32(m_rt_deferred->getHeight())));
+    glDrawArrays(GL_TRIANGLES, 0, 6);
     m_sh_out->unbind();
-    m_rt_deferred->getColorBuffer(0)->unbind(Texture2D::SLOT_0);
 }
 
 
@@ -248,7 +250,6 @@ void PassGBuffer_Cube::draw()
     const uint32 num_fractions = SPH_MAX_PARTICLE_NUM;
 
     m_sh_gbuffer->bind();
-    m_sh_gbuffer->bindRenderStates();
     m_model->setInstanceData(GLSL_INSTANCE_POSITION, 4, *m_vbo_fraction_pos);
     m_model->drawInstanced(num_fractions);
     m_sh_gbuffer->unbind();

@@ -40,7 +40,7 @@ void main()
 {
     vec2 coord;
     coord.x = (1.0 + (vs_VertexPositionMVP.x/vs_VertexPositionMVP.w))*0.5;
-    coord.y = (1.0 + (vs_VertexPositionMVP.y/vs_VertexPositionMVP.w))*0.5* u_RcpAspectRatio;
+    coord.y = (1.0 + (vs_VertexPositionMVP.y/vs_VertexPositionMVP.w))*0.5* u_RS.RcpAspectRatio;
     coord *= u_TexcoordScale;
 
     vec4 frag_position = texture(u_PositionBuffer, coord);

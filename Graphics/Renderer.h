@@ -24,7 +24,7 @@ class AtomicRenderer : public boost::noncopyable
 {
 private:
     ShaderDeferred  *m_sh_deferred;
-    ShaderOutput    *m_sh_out;
+    AtomicShader    *m_sh_out;
 
     RenderTargetGBuffer     *m_rt_gbuffer;
     RenderTargetDeferred    *m_rt_deferred;

@@ -101,7 +101,7 @@ private:
     AtomicShader                *m_sh_gbuffer;
     ShaderDeferred              *m_sh_deferred;
     ShaderBloom                 *m_sh_bloom;
-    ShaderOutput                *m_sh_output;
+    AtomicShader                *m_sh_output;
 
     RenderTargetGBuffer     *m_rt_gbuffer;
     RenderTargetDeferred    *m_rt_deferred;
@@ -134,7 +134,7 @@ public:
     AtomicShader*           getShaderGBuffer()              { return m_sh_gbuffer; }
     ShaderDeferred*         getShaderDeferred()             { return m_sh_deferred; }
     ShaderBloom*            getShaderBloom()                { return m_sh_bloom; }
-    ShaderOutput*           getShaderOutput()               { return m_sh_output; }
+    AtomicShader*           getShaderOutput()               { return m_sh_output; }
 
     void swapBuffers();
     RenderTargetGBuffer*    getRenderTargetGBuffer()        { return m_rt_gbuffer; }
@@ -150,7 +150,6 @@ public:
 #define atomicGetRenderTargetGauss(i)       atomicGetResourceManager()->getRenderTargetGauss(i)
 
 #define atomicGetShaderGBuffer()            atomicGetResourceManager()->getShaderGBuffer()
-#define atomicGetShaderGBuffer_Octahedron() atomicGetResourceManager()->getShaderGBuffer_Octahedron()
 #define atomicGetShaderDeferred()           atomicGetResourceManager()->getShaderDeferred()
 #define atomicGetShaderBloom()              atomicGetResourceManager()->getShaderBloom()
 #define atomicGetShaderOutput()             atomicGetResourceManager()->getShaderOutput()

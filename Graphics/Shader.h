@@ -9,7 +9,7 @@ namespace atomic {
 class AtomicShader : public ProgramObject
 {
 typedef ProgramObject super;
-private:
+protected:
     //ProgramObject   m_program;
     VertexShader    m_vsh;
     FragmentShader  m_fsh;
@@ -20,21 +20,17 @@ public:
     AtomicShader();
     bool initialize();
     void finalize();
-    bool loadFromMemory(const char* src);
-    bool loadFromFile(const char* filepath);
+    virtual bool loadFromMemory(const char* src);
 
-    void bindRenderStates();
+    void bind();
 };
 
 
 
-class ShaderDeferred : public ProgramObject
+class ShaderDeferred : public AtomicShader
 {
-typedef ProgramObject super;
+typedef AtomicShader super;
 private:
-    VertexShader m_vsh;
-    FragmentShader m_fsh;
-
     GLuint m_loc_color_buffer;
     GLuint m_loc_glow_buffer;
     GLuint m_loc_normal_buffer;
@@ -45,7 +41,7 @@ private:
     GLuint m_loc_texcoord_scale;
 
 public:
-    bool initialize();
+    bool loadFromMemory(const char* src);
 
     void setColorBuffer(int32 v)        { setUniform1i(m_loc_color_buffer, v); }
     void setGlowBuffer(int32 v)         { setUniform1i(m_loc_glow_buffer, v); }
@@ -87,20 +83,6 @@ public:
     void switchToHorizontalBlurPass()   { setSubroutineF(1, &m_sub_hblur); }
     void switchToVerticalBlurPass()     { setSubroutineF(1, &m_sub_vblur); }
     void switchToCompositePass()        { setSubroutineF(1, &m_sub_composite); }
-};
-
-class ShaderOutput : public ProgramObject
-{
-typedef ProgramObject super;
-private:
-    VertexShader m_vsh;
-    FragmentShader m_fsh;
-
-    GLuint m_loc_color_buffer;
-
-public:
-    bool initialize();
-    void setColorBuffer(int32 v)    { setUniform1i(m_loc_color_buffer, v); }
 };
 
 } // namespace atomic

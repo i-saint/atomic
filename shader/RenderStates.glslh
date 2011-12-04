@@ -12,12 +12,17 @@ struct
 {
     mat4 ModelViewProjectionMatrix;
     vec4 CameraPosition;
-    float ScreenWidth;
-    float ScreenHeight;
+
+    vec2 ScreenTexcoord;
+    vec2 ScreenSize;
+    vec2 RcpScreenSize;
     float AspectRatio;
-    float RcpScreenWidth;
-    float RcpScreenHeight;
     float RcpAspectRatio;
+
+    sampler2D ColorBuffer;
+    sampler2D DepthBuffer;
+    sampler2D NormalBuffer;
+    sampler2D PositionBuffer;
 };
 
 #ifndef GLSL
