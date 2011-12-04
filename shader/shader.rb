@@ -2,7 +2,7 @@
 
 SH_OUT_HEADER = "glsl_source.h"
 SH_OUT_SOURCE = "glsl_source.cpp"
-SH_REG = /\.(fsh|vsh|glsl|glslh)/
+SH_REG = /\.(fsh|vsh|glsl)$/
 
 
 
@@ -53,7 +53,7 @@ def sh_is_needs_update()
   begin
     t = File.ctime(SH_OUT_HEADER)
     Dir.foreach(".") do |f|
-      next if !f.match(SH_REG) && !f.match(/\.rb$/) && !f.match(/\.h$/)
+      next if !f.match(SH_REG) && !f.match(/\.rb$/) && !f.match(/\.h$/) && !f.match(/\.glslh$/)
       return true if File.ctime(f) > t
     end
   rescue
@@ -61,6 +61,5 @@ def sh_is_needs_update()
   end
   false
 end
-
 
 sh_update() if sh_is_needs_update()

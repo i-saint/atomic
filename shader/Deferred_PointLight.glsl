@@ -1,4 +1,4 @@
-#version 330 compatibility
+#version 330 core
 #pragma include("Common.glslh")
 
 #if defined(GLSL_VS)
@@ -21,18 +21,12 @@ void main()
     vs_LightPosition.w = 0.0;
 
     vs_LightColor = vec4(0.1, 0.1, 0.2, 0.1)+normalize(vs_LightPosition)*0.7;
-    vs_LightPositionMVP = gl_ModelViewProjectionMatrix * vs_LightPosition;
-    vs_VertexPositionMVP = gl_ModelViewProjectionMatrix * (ia_VertexPosition+vs_LightPosition);
+    vs_LightPositionMVP = u_RS.ModelViewProjectionMatrix * vs_LightPosition;
+    vs_VertexPositionMVP = u_RS.ModelViewProjectionMatrix * (ia_VertexPosition+vs_LightPosition);
     gl_Position = vs_VertexPositionMVP;
 }
 
 #elif defined(GLSL_PS)
-
-uniform sampler2D u_ColorBuffer;
-uniform sampler2D u_NormalBuffer;
-uniform sampler2D u_PositionBuffer;
-uniform float u_RcpAspectRatio;
-uniform vec2 u_TexcoordScale;
 
 ps_out(0)   vec4 ps_FragColor;
 
@@ -40,8 +34,8 @@ void main()
 {
     vec2 coord;
     coord.x = (1.0 + (vs_VertexPositionMVP.x/vs_VertexPositionMVP.w))*0.5;
-    coord.y = (1.0 + (vs_VertexPositionMVP.y/vs_VertexPositionMVP.w))*0.5* u_RS.RcpAspectRatio;
-    coord *= u_TexcoordScale;
+    coord.y = (1.0 + (vs_VertexPositionMVP.y/vs_VertexPositionMVP.w))*0.5;
+    coord *= u_RS.ScreenTexcoord;
 
     vec4 frag_position = texture(u_PositionBuffer, coord);
 
@@ -60,8 +54,6 @@ void main()
     color.w = 1.0;
 
     ps_FragColor = color;
-
-    ps_FragColor.w = 1.0;
 }
 
 #endif

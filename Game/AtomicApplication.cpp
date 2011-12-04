@@ -109,6 +109,8 @@ void AtomicRenderingThread::operator()()
 
     m_app->initializeDraw();
     GraphicResourceManager::intializeInstance();
+    AtomicRenderer::initializeInstance();
+
     {
         boost::unique_lock<boost::mutex> lock(m_mutex_wait_for_initialize);
         m_is_initialized = true;
@@ -132,6 +134,8 @@ void AtomicRenderingThread::operator()()
             m_fps_counter.count();
         }
     }
+
+    AtomicRenderer::finalizeInstance();
     GraphicResourceManager::finalizeInstance();
     m_app->finalizeDraw();
     m_is_end = true;

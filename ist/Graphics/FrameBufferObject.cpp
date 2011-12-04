@@ -100,7 +100,7 @@ void Texture2D::bind() const
 }
 void Texture2D::unbind() const
 {
-    glBindTexture(GL_TEXTURE_2D, m_handle);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Texture2D::bind(int slot) const
@@ -111,7 +111,7 @@ void Texture2D::bind(int slot) const
 void Texture2D::unbind(int slot) const
 {
     glActiveTexture(GL_TEXTURE0+slot);
-    glBindTexture(GL_TEXTURE_2D, m_handle);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 GLuint Texture2D::getHandle() const { return m_handle; }

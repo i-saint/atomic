@@ -69,6 +69,14 @@ void GraphicResourceManager::finalizeInstance()
     IST_SAFE_DELETE(s_inst);
 }
 
+inline AtomicShader* CreateAtomicShader(const char* source)
+{
+    AtomicShader *sh = IST_NEW(AtomicShader)();
+    sh->initialize();
+    sh->loadFromMemory(source);
+    return sh;
+}
+
 
 bool GraphicResourceManager::initialize()
 {
@@ -78,7 +86,7 @@ bool GraphicResourceManager::initialize()
     stl::fill_n(m_vbo, _countof(m_vbo), (VertexBufferObject*)NULL);
     stl::fill_n(m_ubo, _countof(m_ubo), (UniformBufferObject*)NULL);
     stl::fill_n(m_fbo, _countof(m_fbo), (FrameBufferObject*)NULL);
-    stl::fill_n(m_shader, _countof(m_shader), (ProgramObject*)NULL);
+    stl::fill_n(m_shader, _countof(m_shader), (AtomicShader*)NULL);
 
     uint32 framebuffer_width = CalcFrameBufferWidth();
     uint32 framebuffer_height = CalcFrameBufferHeight();
@@ -114,27 +122,17 @@ bool GraphicResourceManager::initialize()
             m_ubo[i]->initialize();
         }
         m_ubo[UBO_RENDER_STATES]->allocate(sizeof(RenderStates), UniformBufferObject::USAGE_DYNAMIC);
+        m_ubo[UBO_BLOOM_STATES]->allocate(sizeof(BloomStates), UniformBufferObject::USAGE_DYNAMIC);
     }
     {
         // create shaders
-        m_sh_gbuffer = IST_NEW(AtomicShader)();
-        m_sh_gbuffer->initialize();
-        m_sh_gbuffer->loadFromMemory(g_GBuffer_Cube_glsl);
-        m_shader[SH_GBUFFER] = m_sh_gbuffer;
-
-        m_sh_deferred = IST_NEW(ShaderDeferred)();
-        m_sh_deferred->initialize();
-        m_sh_deferred->loadFromMemory(g_Deferred_PointLight_glsl);
-        m_shader[SH_DEFERRED] = m_sh_deferred;
-
-        m_sh_bloom = IST_NEW(ShaderBloom)();
-        m_sh_bloom->initialize();
-        m_shader[SH_BLOOM] = m_sh_bloom;
-
-        m_sh_output = IST_NEW(AtomicShader)();
-        m_sh_output->initialize();
-        m_sh_output->loadFromMemory(g_Out_glsl);
-        m_shader[SH_OUTPUT] = m_sh_output;
+        m_shader[SH_GBUFFER]        = CreateAtomicShader(g_GBuffer_Cube_glsl);
+        m_shader[SH_POINTLIGHT]     = CreateAtomicShader(g_Deferred_PointLight_glsl);
+        m_shader[SH_BLOOM_LUMINANCE]= CreateAtomicShader(g_Bloom_Luminance_glsl);
+        m_shader[SH_BLOOM_HBLUR]    = CreateAtomicShader(g_Bloom_HBlur_glsl);
+        m_shader[SH_BLOOM_VBLUR]    = CreateAtomicShader(g_Bloom_VBlur_glsl);
+        m_shader[SH_BLOOM_COMPOSITE]= CreateAtomicShader(g_Bloom_Composite_glsl);
+        m_shader[SH_OUTPUT]         = CreateAtomicShader(g_Out_glsl);
     }
     {
         // create textures
@@ -161,9 +159,9 @@ bool GraphicResourceManager::initialize()
     }
 
     m_vbo[VBO_FRACTION_POS]->allocate(sizeof(float4)*SPH_MAX_PARTICLE_NUM, VertexBufferObject::USAGE_DYNAMIC);
-    m_vbo[VBO_SPHERE_LIGHT_POS]->allocate(sizeof(float4)*SPH_MAX_LIGHT_NUM, VertexBufferObject::USAGE_DYNAMIC);
+    m_vbo[VBO_POINTLIGHT_POS]->allocate(sizeof(float4)*SPH_MAX_LIGHT_NUM, VertexBufferObject::USAGE_DYNAMIC);
     SPHInitialize();
-    SPHInitializeInstancePositionBuffer(m_vbo[VBO_FRACTION_POS]->getHandle(), m_vbo[VBO_SPHERE_LIGHT_POS]->getHandle());
+    SPHInitializeInstancePositionBuffer(m_vbo[VBO_FRACTION_POS]->getHandle(), m_vbo[VBO_POINTLIGHT_POS]->getHandle());
 
     return true;
 }

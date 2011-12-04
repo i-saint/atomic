@@ -23,15 +23,14 @@ class PassPostprocess_Bloom;
 class AtomicRenderer : public boost::noncopyable
 {
 private:
-    ShaderDeferred  *m_sh_deferred;
-    AtomicShader    *m_sh_out;
+    AtomicShader            *m_sh_out;
 
     RenderTargetGBuffer     *m_rt_gbuffer;
     RenderTargetDeferred    *m_rt_deferred;
 
-    PassGBuffer_Cube            *m_renderer_cube;
-    PassDeferred_PointLight     *m_renderer_sphere_light;
-    PassPostprocess_Bloom       *m_renderer_bloom;
+    PassGBuffer_Cube        *m_renderer_cube;
+    PassDeferred_PointLight *m_renderer_sphere_light;
+    PassPostprocess_Bloom   *m_renderer_bloom;
     stl::vector<IRenderer*> m_renderers[PASS_END];
 
     Viewport        m_default_viewport;
@@ -115,7 +114,7 @@ class PassDeferred_PointLight : public IRenderer
 {
 private:
     stl::vector<float4> m_instance_pos;
-    ShaderDeferred *m_sh_deferred;
+    AtomicShader *m_shader;
     ModelData *m_model;
     VertexBufferObject *m_vbo_instance_pos;
 
@@ -143,10 +142,16 @@ public:
 class PassPostprocess_Bloom : public IRenderer
 {
 private:
-    RenderTargetDeferred *m_rt_deferred;
-    RenderTargetGauss *m_rt_gauss0;
-    RenderTargetGauss *m_rt_gauss1;
-    ShaderBloom *m_sh_bloom;
+    RenderTargetDeferred    *m_rt_deferred;
+    RenderTargetGauss       *m_rt_gauss0;
+    RenderTargetGauss       *m_rt_gauss1;
+    AtomicShader            *m_sh_luminance;
+    AtomicShader            *m_sh_hblur;
+    AtomicShader            *m_sh_vblur;
+    AtomicShader            *m_sh_composite;
+    UniformBufferObject     *m_ubo_states;
+    BloomStates             m_states;
+    int                     m_loc_state;
 
 public:
     PassPostprocess_Bloom();

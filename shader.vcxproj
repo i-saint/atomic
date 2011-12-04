@@ -59,16 +59,17 @@
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="shader\bloom.fsh" />
-    <None Include="shader\bloom.vsh" />
+    <None Include="shader\Bloom.glslh" />
+    <None Include="shader\Bloom_Composite.glsl" />
+    <None Include="shader\Bloom_HBlur.glsl" />
+    <None Include="shader\Bloom_Luminance.glsl" />
+    <None Include="shader\Bloom_VBlur.glsl" />
     <None Include="shader\Common.glslh" />
     <None Include="shader\Deferred_PointLight.glsl" />
     <None Include="shader\GBuffer_Cube.glsl" />
     <None Include="shader\Out.glsl" />
     <None Include="shader\RenderStates.glslh" />
     <None Include="shader\Semantics.glslh" />
-    <None Include="shader\ssao.fsh" />
-    <None Include="shader\ssao.vsh" />
     <None Include="shader\shader.rb" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -18,11 +18,18 @@ struct
     vec2 RcpScreenSize;
     float AspectRatio;
     float RcpAspectRatio;
+};
 
-    sampler2D ColorBuffer;
-    sampler2D DepthBuffer;
-    sampler2D NormalBuffer;
-    sampler2D PositionBuffer;
+struct
+#ifndef GLSL
+    __declspec(align(16))
+#endif // GLSL
+    BloomStates
+{
+    vec2 RcpScreenWidth;
+    vec2 ScreenTexcoord;
+    vec2 TexcoordMin;
+    vec2 TexcoordMax;
 };
 
 #ifndef GLSL

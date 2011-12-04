@@ -27,9 +27,6 @@ using glm::mat4;
 using glm::ivec2;
 using glm::ivec3;
 using glm::ivec4;
-typedef int32 sampler1D;
-typedef int32 sampler2D;
-typedef int32 sampler3D;
 
 typedef ist::bostream Serializer;
 typedef ist::bistream Deserializer;

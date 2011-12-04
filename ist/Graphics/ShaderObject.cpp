@@ -174,7 +174,7 @@ GLint ProgramObject::getUniformLocation(const char *name) const
 {
     GLint ul = glGetUniformLocation(m_handle, name);
     if(ul == -1) {
-        IST_ASSERT("no such uniform named %s\n", name);
+        IST_PRINT("no such uniform named %s\n", name);
     }
     return ul;
 }
@@ -183,7 +183,7 @@ GLint ProgramObject::getAttribLocation(const char *name) const
 {
     GLint al = glGetAttribLocation(m_handle, name);
     if(al == -1) {
-        IST_ASSERT("no such attribute named %s\n", name);
+        IST_PRINT("no such attribute named %s\n", name);
     }
     return al;
 }
@@ -192,12 +192,12 @@ GLint ProgramObject::getUniformBlockIndex(const char *name) const
 {
     GLint ul = glGetUniformBlockIndex(m_handle, name);
     if(ul == -1) {
-        IST_ASSERT("no such uniform block named %s\n", name);
+        IST_PRINT("no such uniform block named %s\n", name);
     }
     else {
-        GLint block_size = 0;
-        glGetActiveUniformBlockiv(m_handle, ul, GL_UNIFORM_BLOCK_DATA_SIZE, &block_size);
-        IST_PRINT("size of %s: %d\n", name, block_size);
+        //GLint block_size = 0;
+        //glGetActiveUniformBlockiv(m_handle, ul, GL_UNIFORM_BLOCK_DATA_SIZE, &block_size);
+        //IST_PRINT("size of %s: %d\n", name, block_size);
     }
     return ul;
 }

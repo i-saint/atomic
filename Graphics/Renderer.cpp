@@ -29,8 +29,7 @@ void AtomicRenderer::finalizeInstance()
 
 AtomicRenderer::AtomicRenderer()
 {
-    m_sh_deferred   = atomicGetShaderDeferred();
-    m_sh_out        = atomicGetShaderOutput();
+    m_sh_out        = atomicGetShader(SH_OUTPUT);
 
     m_rt_gbuffer    = atomicGetRenderTargetGBuffer();
     m_rt_deferred   = atomicGetRenderTargetDeferred();
@@ -71,7 +70,6 @@ void AtomicRenderer::draw()
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
     glEnable(GL_CULL_FACE);
-    glClear(GL_COLOR_BUFFER_BIT);
 
     glLoadIdentity();
     {
@@ -87,12 +85,8 @@ void AtomicRenderer::draw()
         m_render_states.CameraPosition  = camera->getPosition();
         m_render_states.ScreenSize      = vec2((float32)atomicGetWindowWidth(), (float32)atomicGetWindowHeight());
         m_render_states.RcpScreenSize   = vec2(1.0f, 1.0f) / m_render_states.ScreenSize;
-        m_render_states.AspectRatio     = camera->getAspect();
+        m_render_states.AspectRatio     = atomicGetWindowAspectRatio();
         m_render_states.RcpAspectRatio  = 1.0f / m_render_states.AspectRatio;
-        m_render_states.ColorBuffer     = GLSL_COLOR_BUFFER;
-        m_render_states.DepthBuffer     = GLSL_DEPTH_BUFFER;
-        m_render_states.NormalBuffer    = GLSL_NORMAL_BUFFER;
-        m_render_states.PositionBuffer  = GLSL_POSITION_BUFFER;
         m_render_states.ScreenTexcoord = vec2(
             m_render_states.ScreenSize.x/float32(m_rt_deferred->getWidth()),
             m_render_states.ScreenSize.y/float32(m_rt_deferred->getHeight()));
@@ -135,7 +129,6 @@ void AtomicRenderer::pass_GBuffer()
     const PerspectiveCamera *camera = atomicGetCamera();
 
     m_rt_gbuffer->bind();
-    camera->bind();
     glClearColor(0.0f,0.0f,0.0f,0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
@@ -151,24 +144,10 @@ void AtomicRenderer::pass_GBuffer()
 
 void AtomicRenderer::pass_Deferred()
 {
-    const PerspectiveCamera *camera = atomicGetCamera();
-    const float32 aspect_ratio = camera->getAspect();
-    const float32 rcp_aspect_ratio = 1.0f/aspect_ratio;
-    const vec2 tex_scale = vec2(
-        float32(atomicGetWindowWidth())/float32(m_rt_deferred->getWidth()),
-        float32(atomicGetWindowHeight())/float32(m_rt_deferred->getHeight()) * aspect_ratio);
-
     m_rt_deferred->bind();
-    m_sh_deferred->bind();
-    camera->bind();
     m_rt_gbuffer->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
     m_rt_gbuffer->getColorBuffer(1)->bind(GLSL_NORMAL_BUFFER);
     m_rt_gbuffer->getColorBuffer(2)->bind(GLSL_POSITION_BUFFER);
-    m_sh_deferred->setColorBuffer(GLSL_COLOR_BUFFER);
-    m_sh_deferred->setNormalBuffer(GLSL_NORMAL_BUFFER);
-    m_sh_deferred->setPositionBuffer(GLSL_POSITION_BUFFER);
-    m_sh_deferred->setRcpAspectRatio(rcp_aspect_ratio);
-    m_sh_deferred->setTexcoordScale(tex_scale);
     glClearColor(0.0f,0.0f,0.0f,1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     glEnable(GL_BLEND);
@@ -184,7 +163,6 @@ void AtomicRenderer::pass_Deferred()
     glDepthMask(GL_TRUE);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
-    m_sh_deferred->unbind();
     m_rt_deferred->unbind();
 }
 
@@ -218,10 +196,6 @@ void AtomicRenderer::pass_UI()
 
 void AtomicRenderer::pass_Output()
 {
-    OrthographicCamera cam;
-    cam.setScreen(0.0f, 1.0f, 0.0f, 1.0f);
-    cam.bind();
-
     m_rt_deferred->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
     m_sh_out->bind();
     glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -232,7 +206,7 @@ void AtomicRenderer::pass_Output()
 
 PassGBuffer_Cube::PassGBuffer_Cube()
 {
-    m_sh_gbuffer        = atomicGetShaderGBuffer();
+    m_sh_gbuffer        = atomicGetShader(SH_GBUFFER);
     m_model             = atomicGetModelData(MODEL_CUBE_FRACTION);
     m_vbo_fraction_pos  = atomicGetVertexBufferObject(VBO_FRACTION_POS);
 }
@@ -259,9 +233,9 @@ void PassGBuffer_Cube::draw()
 
 PassDeferred_PointLight::PassDeferred_PointLight()
 {
-    m_sh_deferred = atomicGetShaderDeferred();
+    m_shader = atomicGetShader(SH_POINTLIGHT);
     m_model = atomicGetModelData(MODEL_SPHERE_LIGHT);
-    m_vbo_instance_pos = atomicGetVertexBufferObject(VBO_SPHERE_LIGHT_POS);
+    m_vbo_instance_pos = atomicGetVertexBufferObject(VBO_POINTLIGHT_POS);
     m_instance_pos.reserve(1024);
 }
 
@@ -277,9 +251,10 @@ void PassDeferred_PointLight::draw()
 
     const uint32 num_instances = SPH_MAX_LIGHT_NUM;
 
+    m_shader->bind();
     m_model->setInstanceData(GLSL_INSTANCE_POSITION, 4, *m_vbo_instance_pos);
     m_model->drawInstanced(num_instances);
-
+    m_shader->unbind();
 }
 
 
@@ -287,12 +262,22 @@ PassPostprocess_Bloom::PassPostprocess_Bloom()
 : m_rt_deferred(NULL)
 , m_rt_gauss0(NULL)
 , m_rt_gauss1(NULL)
-, m_sh_bloom(NULL)
+, m_sh_luminance(NULL)
+, m_sh_hblur(NULL)
+, m_sh_vblur(NULL)
+, m_sh_composite(NULL)
+, m_ubo_states(NULL)
+, m_loc_state(0)
 {
-    m_rt_deferred = atomicGetRenderTargetDeferred();
-    m_rt_gauss0 = atomicGetRenderTargetGauss(0);
-    m_rt_gauss1 = atomicGetRenderTargetGauss(1);
-    m_sh_bloom = atomicGetShaderBloom();
+    m_rt_deferred   = atomicGetRenderTargetDeferred();
+    m_rt_gauss0     = atomicGetRenderTargetGauss(0);
+    m_rt_gauss1     = atomicGetRenderTargetGauss(1);
+    m_sh_luminance  = atomicGetShader(SH_BLOOM_LUMINANCE);
+    m_sh_hblur      = atomicGetShader(SH_BLOOM_HBLUR);
+    m_sh_vblur      = atomicGetShader(SH_BLOOM_VBLUR);
+    m_sh_composite  = atomicGetShader(SH_BLOOM_COMPOSITE);
+    m_ubo_states    = atomicGetUniformBufferObject(UBO_BLOOM_STATES);
+    m_loc_state     = m_sh_luminance->getUniformBlockIndex("bloom_states");
 }
 
 void PassPostprocess_Bloom::beforeDraw()
@@ -321,93 +306,83 @@ void PassPostprocess_Bloom::draw()
         vec2(0.125f, 0.25f),
         vec2(0.0625f, 0.125f),
     };
-    const float32 rcp_width = 1.0f/(float32)m_rt_gauss0->getWidth();
-    const float32 rcp_height = 1.0f/(float32)m_rt_gauss0->getHeight();
-    const vec2 half_pixel = vec2(rcp_width, rcp_height)*0.5f;
+    const vec2 screen_size = vec2((float32)m_rt_gauss0->getWidth(), (float32)m_rt_gauss0->getHeight());
+    const vec2 rcp_screen_size = vec2(1.0f, 1.0f) / screen_size;
+    const vec2 half_pixel = rcp_screen_size*0.5f;
 
-    OrthographicCamera cam;
-    cam.setScreen(0.0f, 1.0f, 0.0f, 1.0f);
-    cam.bind();
 
-    m_sh_bloom->bind();
-    m_sh_bloom->setRcpScreenWidth(rcp_width);
-    m_sh_bloom->setRcpScreenHeight(rcp_height);
     // ‹P“x’Šo
     {
-        m_sh_bloom->switchToPickupPass();
+        m_sh_luminance->bind();
         m_rt_gauss0->bind();
-        m_rt_deferred->getColorBuffer(0)->bind(Texture2D::SLOT_0);
-        m_sh_bloom->setColorBuffer(Texture2D::SLOT_0);
-        for(uint32 i=0; i<_countof(viewports); ++i) {
-            viewports[i].bind();
-            DrawScreen(
-                vec2(0.0f, 0.0f),
-                vec2(float(atomicGetWindowWidth())/float32(m_rt_deferred->getWidth()),
-                     float(atomicGetWindowHeight())/float32(m_rt_deferred->getHeight())*aspect_ratio ));
-        }
-        // todo
-        m_rt_deferred->getColorBuffer(0)->unbind();
+        m_rt_deferred->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
+        glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 1);
         m_rt_gauss0->unbind();
+        m_sh_luminance->unbind();
     }
 
-    // ‰¡ƒuƒ‰[
-    {
-        m_sh_bloom->switchToHorizontalBlurPass();
-        m_rt_gauss1->bind();
-        m_rt_gauss0->getColorBuffer(0)->bind(Texture2D::SLOT_0);
-        m_sh_bloom->setColorBuffer(Texture2D::SLOT_0);
-        for(uint32 i=0; i<_countof(viewports); ++i) {
-            viewports[i].bind();
-            vec2 tmin = texcoord_pos[i] + half_pixel;
-            vec2 tmax = texcoord_pos[i]+texcoord_size[i] - half_pixel;
-            tmax.y *= rcp_aspect_ratio;
-            m_sh_bloom->setTexcoordMin(tmin);
-            m_sh_bloom->setTexcoordMax(tmax);
-            DrawScreen(texcoord_pos[i], texcoord_pos[i]+texcoord_size[i]);
-        }
-        m_rt_gauss0->getColorBuffer(0)->unbind();
-        m_rt_gauss1->unbind();
-    }
+    //// ‰¡ƒuƒ‰[
+    //{
+    //    int loc_tmin = m_sh_hblur->getUniformLocation("u_TexcoordMin");
+    //    int loc_tmax = m_sh_hblur->getUniformLocation("u_TexcoordMax");
+    //    m_sh_hblur->bind();
+    //    m_rt_gauss1->bind();
+    //    m_rt_gauss0->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
+    //    for(uint32 i=0; i<1; ++i) {
+    //        viewports[i].bind();
+    //        vec2 tmin = texcoord_pos[i] + half_pixel;
+    //        vec2 tmax = texcoord_pos[i]+texcoord_size[i] - half_pixel;
+    //        tmax.y *= rcp_aspect_ratio;
+    //        m_sh_hblur->setUniform2f(loc_tmin, tmin);
+    //        m_sh_hblur->setUniform2f(loc_tmax, tmax);
+    //        glDrawArrays(GL_TRIANGLES, 0, 6);
+    //    }
+    //    m_rt_gauss0->getColorBuffer(0)->unbind();
+    //    m_rt_gauss1->unbind();
+    //    m_sh_hblur->unbind();
+    //}
 
-    // cƒuƒ‰[
-    {
-        m_sh_bloom->switchToVerticalBlurPass();
-        m_rt_gauss0->bind();
-        m_rt_gauss1->getColorBuffer(0)->bind(Texture2D::SLOT_0);
-        m_sh_bloom->setColorBuffer(Texture2D::SLOT_0);
-        for(uint32 i=0; i<_countof(viewports); ++i) {
-            viewports[i].bind();
-            vec2 tmin = texcoord_pos[i] + half_pixel;
-            vec2 tmax = texcoord_pos[i]+texcoord_size[i] - half_pixel;
-            tmax.y *= rcp_aspect_ratio;
-            m_sh_bloom->setTexcoordMin(tmin);
-            m_sh_bloom->setTexcoordMax(tmax);
-            DrawScreen(texcoord_pos[i], texcoord_pos[i]+texcoord_size[i]);
-        }
-        m_rt_gauss1->getColorBuffer(0)->unbind();
-        m_rt_gauss0->unbind();
-    }
+    //// cƒuƒ‰[
+    //{
+    //    int loc_tmin = m_sh_hblur->getUniformLocation("u_TexcoordMin");
+    //    int loc_tmax = m_sh_hblur->getUniformLocation("u_TexcoordMax");
+    //    m_sh_vblur->bind();
+    //    m_rt_gauss0->bind();
+    //    m_rt_gauss1->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
+    //    for(uint32 i=0; i<_countof(viewports); ++i) {
+    //        viewports[i].bind();
+    //        vec2 tmin = texcoord_pos[i] + half_pixel;
+    //        vec2 tmax = texcoord_pos[i]+texcoord_size[i] - half_pixel;
+    //        tmax.y *= rcp_aspect_ratio;
+    //        m_sh_vblur->setUniform2f(loc_tmin, tmin);
+    //        m_sh_vblur->setUniform2f(loc_tmax, tmax);
+    //        DrawScreen(texcoord_pos[i], texcoord_pos[i]+texcoord_size[i]);
+    //    }
+    //    m_rt_gauss1->getColorBuffer(0)->unbind();
+    //    m_rt_gauss0->unbind();
+    //    m_sh_vblur->unbind();
+    //}
 
-    // ‰ÁŽZ
-    atomicGetDefaultViewport()->bind();
-    {
-        m_sh_bloom->switchToCompositePass();
-        m_rt_deferred->bind();
-        m_rt_gauss0->getColorBuffer(0)->bind(Texture2D::SLOT_0);
-        m_sh_bloom->setColorBuffer(Texture2D::SLOT_0);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-        for(uint32 i=0; i<_countof(viewports); ++i) {
-            vec2 tmin = texcoord_pos[i] + half_pixel;
-            vec2 tmax = texcoord_pos[i]+texcoord_size[i] - half_pixel;
-            tmax.y *= rcp_aspect_ratio;
-            DrawScreen(tmin, tmax);
-        }
-        glDisable(GL_BLEND);
-        m_rt_gauss0->getColorBuffer(0)->unbind();
-        m_rt_deferred->unbind();
-    }
-    m_sh_bloom->unbind();
+    //// ‰ÁŽZ
+    //atomicGetDefaultViewport()->bind();
+    //{
+    //    m_sh_bloom->switchToCompositePass();
+    //    m_rt_deferred->bind();
+    //    m_rt_gauss0->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
+    //    m_sh_bloom->setColorBuffer(GLSL_COLOR_BUFFER);
+    //    glEnable(GL_BLEND);
+    //    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    //    for(uint32 i=0; i<_countof(viewports); ++i) {
+    //        vec2 tmin = texcoord_pos[i] + half_pixel;
+    //        vec2 tmax = texcoord_pos[i]+texcoord_size[i] - half_pixel;
+    //        tmax.y *= rcp_aspect_ratio;
+    //        DrawScreen(tmin, tmax);
+    //    }
+    //    glDisable(GL_BLEND);
+    //    m_rt_gauss0->getColorBuffer(0)->unbind();
+    //    m_rt_deferred->unbind();
+    //}
+    //m_sh_bloom->unbind();
 
     atomicGetDefaultViewport()->bind();
 }

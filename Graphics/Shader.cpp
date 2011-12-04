@@ -35,6 +35,17 @@ bool AtomicShader::loadFromMemory( const char* src )
     link(&m_vsh, &m_fsh, NULL);
 
     m_loc_renderstates = getUniformBlockIndex("render_states");
+
+#define SetSampler(name, value) { GLint l=getUniformLocation(name); if(l!=-1){ setUniform1i(l, value); }}
+    super::bind();
+    SetSampler("u_ColorBuffer",     GLSL_COLOR_BUFFER);
+    SetSampler("u_NormalBuffer",    GLSL_NORMAL_BUFFER);
+    SetSampler("u_PositionBuffer",  GLSL_POSITION_BUFFER);
+    SetSampler("u_DepthBuffer",     GLSL_DEPTH_BUFFER);
+    SetSampler("u_RandomBuffer",    GLSL_RANDOM_BUFFER);
+    super::unbind();
+#undef SetSampler
+
     return true;
 }
 
@@ -42,48 +53,6 @@ void AtomicShader::bind()
 {
     super::bind();
     setUniformBlock(m_loc_renderstates, GLSL_RENDERSTATE_BINDING, atomicGetUniformBufferObject(UBO_RENDER_STATES)->getHandle());
-}
-
-
-
-bool ShaderDeferred::loadFromMemory( const char* src )
-{
-    super::loadFromMemory(src);
-
-    m_loc_color_buffer      = getUniformLocation("u_ColorBuffer");
-    //m_loc_glow_buffer       = getUniformLocation("u_GlowBuffer"); // ‚ ‚Æ‚Å
-    m_loc_normal_buffer     = getUniformLocation("u_NormalBuffer");
-    m_loc_position_buffer   = getUniformLocation("u_PositionBuffer");
-    //m_loc_depth_buffer      = getUniformLocation("u_DepthBuffer");
-
-    m_loc_rcp_aspect_ratio  = getUniformLocation("u_RcpAspectRatio");
-    m_loc_texcoord_scale    = getUniformLocation("u_TexcoordScale");
-
-    return true;
-}
-
-
-bool ShaderBloom::initialize()
-{
-    super::initialize();
-    m_vsh.initialize();
-    m_fsh.initialize();
-    CreateVertexShaderFromString(m_vsh, g_bloom_vsh);
-    CreateFragmentShaderFromString(m_fsh, g_bloom_fsh);
-    link(&m_vsh, &m_fsh, NULL);
-
-    m_loc_color_buffer      = getUniformLocation("u_ColorBuffer");
-    m_loc_rcp_screen_width  = getUniformLocation("u_RcpScreenWidth");
-    m_loc_rcp_screen_height = getUniformLocation("u_RcpScreenHeight");
-    m_loc_texcoord_min      = getUniformLocation("u_TexcoordMin");
-    m_loc_texcoord_max      = getUniformLocation("u_TexcoordMax");
-
-    m_sub_pickup            = getSubroutineIndexF("pickup");
-    m_sub_hblur             = getSubroutineIndexF("horizontalBlur");
-    m_sub_vblur             = getSubroutineIndexF("verticalBlur");
-    m_sub_composite         = getSubroutineIndexF("composite");
-
-    return true;
 }
 
 

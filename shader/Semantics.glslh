@@ -1,3 +1,4 @@
+// vertex attributes
 #define GLSL_POSITION           0
 #define GLSL_NORMAL             1
 #define GLSL_TEXCOORD0          2
@@ -9,10 +10,12 @@
 #define GLSL_INSTANCE_NORMAL    9
 #define GLSL_INSTANCE_GLOW      10
 
+// textures
 #define GLSL_COLOR_BUFFER       0
 #define GLSL_DEPTH_BUFFER       1
 #define GLSL_NORMAL_BUFFER      2
 #define GLSL_POSITION_BUFFER    3
+#define GLSL_RANDOM_BUFFER      4
 
-
+// uniform blocks
 #define GLSL_RENDERSTATE_BINDING    0

@@ -52,7 +52,7 @@ void FractionSet::initialize()
         SPHSphericalGravity h_sg;
         h_sg.position = make_float4(0.0f);
         h_sg.is_active = 1;
-        h_sg.inner_radus = 0.5f;
+        h_sg.inner_radus = 0.25f;
         h_sg.range_radus = 5.12f;
         h_sg.strength = 1.5f;
         for(uint32 i=0; i<_countof(m_sgravity); ++i) {

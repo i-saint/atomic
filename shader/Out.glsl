@@ -25,7 +25,7 @@ ps_out(0) vec4 ps_FragColor;
 
 void main()
 {
-    ps_FragColor = texture(u_RS.ColorBuffer, vs_Texcoord);
+    ps_FragColor = texture(u_ColorBuffer, vs_Texcoord);
 }
 
 #endif

@@ -27,13 +27,17 @@ enum MODEL_RID {
     MODEL_CUBE_VFX,
     MODEL_OCTAHEDRON_BULLET,
     MODEL_SPHERE_LIGHT,
-
     MODEL_END,
 };
 enum SH_RID {
     SH_GBUFFER,
-    SH_DEFERRED,
-    SH_BLOOM,
+    SH_POINTLIGHT,
+    SH_BLOOM_LUMINANCE,
+    SH_BLOOM_HBLUR,
+    SH_BLOOM_VBLUR,
+    SH_BLOOM_COMPOSITE,
+    SH_NORMAL_HBLUR,
+    SH_NORMAL_VBLUR,
     SH_OUTPUT,
     SH_END,
 };
@@ -59,24 +63,16 @@ enum TEX2D_RID {
 };
 
 enum VBO_RID {
-    VBO_BOX_POS,
     VBO_FRACTION_POS,
     VBO_RIGID_FRACTION_POS,
-    VBO_CUBE_SCALE,
-    VBO_CUBE_GLOW,
-    VBO_OCTAHEDRON_POS,
-    VBO_OCTAHEDRON_SCALE,
-    VBO_OCTAHEDRON_DIR,
-    VBO_OCTAHEDRON_SEED,
-    VBO_OCTAHEDRON_TIME,
-    VBO_SPHERE_LIGHT_POS,
-    VBO_SPHERE_LIGHT_SCALE,
+    VBO_POINTLIGHT_POS,
+    VBO_POINTLIGHT_SCALE,
     VBO_END,
 };
 
 enum UBO_RID {
     UBO_RENDER_STATES,
-    UBO_DUMMY,
+    UBO_BLOOM_STATES,
     UBO_END,
 };
 
@@ -98,22 +94,17 @@ typedef ColorBuffer RenderTargetGauss;
 class GraphicResourceManager : boost::noncopyable
 {
 private:
-    AtomicShader                *m_sh_gbuffer;
-    ShaderDeferred              *m_sh_deferred;
-    ShaderBloom                 *m_sh_bloom;
-    AtomicShader                *m_sh_output;
-
     RenderTargetGBuffer     *m_rt_gbuffer;
     RenderTargetDeferred    *m_rt_deferred;
     ColorBuffer             *m_rt_gauss[2];
 
-    SystemFont                *m_font;
+    SystemFont          *m_font;
     ModelData           *m_model[MODEL_END];
     Texture2D           *m_tex2d[TEX2D_END];
     VertexBufferObject  *m_vbo[VBO_END];
     UniformBufferObject *m_ubo[UBO_END];
     FrameBufferObject   *m_fbo[RT_END];
-    ProgramObject       *m_shader[SH_END];
+    AtomicShader        *m_shader[SH_END];
 
 private:
     static GraphicResourceManager* s_inst;
@@ -130,11 +121,7 @@ public:
     Texture2D* getTexture2D(TEX2D_RID i)                    { return m_tex2d[i]; }
     VertexBufferObject* getVertexBufferObject(VBO_RID i)    { return m_vbo[i]; }
     UniformBufferObject* getUniformBufferObject(UBO_RID i)  { return m_ubo[i]; }
-
-    AtomicShader*           getShaderGBuffer()              { return m_sh_gbuffer; }
-    ShaderDeferred*         getShaderDeferred()             { return m_sh_deferred; }
-    ShaderBloom*            getShaderBloom()                { return m_sh_bloom; }
-    AtomicShader*           getShaderOutput()               { return m_sh_output; }
+    AtomicShader* getShader(SH_RID i)                       { return m_shader[i]; }
 
     void swapBuffers();
     RenderTargetGBuffer*    getRenderTargetGBuffer()        { return m_rt_gbuffer; }
@@ -149,19 +136,12 @@ public:
 #define atomicGetRenderTargetDeferred()     atomicGetResourceManager()->getRenderTargetDeferred()
 #define atomicGetRenderTargetGauss(i)       atomicGetResourceManager()->getRenderTargetGauss(i)
 
-#define atomicGetShaderGBuffer()            atomicGetResourceManager()->getShaderGBuffer()
-#define atomicGetShaderDeferred()           atomicGetResourceManager()->getShaderDeferred()
-#define atomicGetShaderBloom()              atomicGetResourceManager()->getShaderBloom()
-#define atomicGetShaderOutput()             atomicGetResourceManager()->getShaderOutput()
-
 #define atomicGetFont()                     atomicGetResourceManager()->getFont()
 #define atomicGetModelData(i)               atomicGetResourceManager()->getModelData(i)
 #define atomicGetTexture2D(i)               atomicGetResourceManager()->getTexture2D(i)
 #define atomicGetVertexBufferObject(i)      atomicGetResourceManager()->getVertexBufferObject(i)
 #define atomicGetUniformBufferObject(i)     atomicGetResourceManager()->getUniformBufferObject(i)
-
-#define atomicGetCLProgram(i)               atomicGetResourceManager()->getCLProgram(i)
-#define atomicGetCLBuffer(i)                atomicGetResourceManager()->getCLBuffer(i)
+#define atomicGetShader(i)                  atomicGetResourceManager()->getShader(i)
 
 } // namespace atomic
 #endif // __atomic_Graphics_ResourceManager_h__

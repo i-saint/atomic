@@ -9,18 +9,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader\bloom.fsh">
-      <Filter>shader</Filter>
-    </None>
-    <None Include="shader\bloom.vsh">
-      <Filter>shader</Filter>
-    </None>
-    <None Include="shader\ssao.fsh">
-      <Filter>shader</Filter>
-    </None>
-    <None Include="shader\ssao.vsh">
-      <Filter>shader</Filter>
-    </None>
     <None Include="shader\shader.rb" />
     <None Include="shader\RenderStates.glslh">
       <Filter>shader</Filter>
@@ -38,6 +26,21 @@
       <Filter>shader</Filter>
     </None>
     <None Include="shader\Out.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\Bloom.glslh">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\Bloom_Composite.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\Bloom_HBlur.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\Bloom_Luminance.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\Bloom_VBlur.glsl">
       <Filter>shader</Filter>
     </None>
   </ItemGroup>

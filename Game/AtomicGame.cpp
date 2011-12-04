@@ -13,7 +13,6 @@ namespace atomic {
 AtomicGame::AtomicGame()
 : m_world(NULL)
 {
-    AtomicRenderer::initializeInstance();
     MessageRouter::initializeInstance();
 
     m_world = IST_NEW16(World)();
@@ -25,7 +24,6 @@ AtomicGame::~AtomicGame()
     IST_SAFE_DELETE(m_world);
 
     MessageRouter::finalizeInstance();
-    AtomicRenderer::finalizeInstance();
 }
 
 
