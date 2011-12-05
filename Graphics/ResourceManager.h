@@ -62,7 +62,23 @@ enum TEX2D_RID {
     TEX2D_END,
 };
 
+enum VA_RID {
+    VA_SCREEN_QUAD,
+    VA_BLOOM_LUMINANCE_QUADS,
+    VA_BLOOM_BLUR_QUADS,
+    VA_BLOOM_COMPOSITE_QUAD,
+    VA_UNIT_CUBE,
+    VA_FRACTION_CUBE,
+    VA_UNIT_SPHERE,
+    VA_END,
+};
+
 enum VBO_RID {
+    VBO_SCREEN_QUAD,
+    VBO_BLOOM_LUMINANCE_QUADS,
+    VBO_BLOOM_BLUR_QUADS,
+    VBO_BLOOM_COMPOSITE_QUAD,
+
     VBO_FRACTION_POS,
     VBO_RIGID_FRACTION_POS,
     VBO_POINTLIGHT_POS,
@@ -101,6 +117,7 @@ private:
     SystemFont          *m_font;
     ModelData           *m_model[MODEL_END];
     Texture2D           *m_tex2d[TEX2D_END];
+    VertexArray         *m_va[VA_END];
     VertexBufferObject  *m_vbo[VBO_END];
     UniformBufferObject *m_ubo[UBO_END];
     FrameBufferObject   *m_fbo[RT_END];
@@ -119,6 +136,7 @@ public:
     SystemFont* getFont() { return m_font; }
     ModelData* getModelData(MODEL_RID i)                    { return m_model[i]; }
     Texture2D* getTexture2D(TEX2D_RID i)                    { return m_tex2d[i]; }
+    VertexArray* getVertexArray(VA_RID i)                   { return m_va[i]; }
     VertexBufferObject* getVertexBufferObject(VBO_RID i)    { return m_vbo[i]; }
     UniformBufferObject* getUniformBufferObject(UBO_RID i)  { return m_ubo[i]; }
     AtomicShader* getShader(SH_RID i)                       { return m_shader[i]; }
@@ -139,6 +157,7 @@ public:
 #define atomicGetFont()                     atomicGetResourceManager()->getFont()
 #define atomicGetModelData(i)               atomicGetResourceManager()->getModelData(i)
 #define atomicGetTexture2D(i)               atomicGetResourceManager()->getTexture2D(i)
+#define atomicGetVertexArray(i)             atomicGetResourceManager()->getVertexArray(i)
 #define atomicGetVertexBufferObject(i)      atomicGetResourceManager()->getVertexBufferObject(i)
 #define atomicGetUniformBufferObject(i)     atomicGetResourceManager()->getUniformBufferObject(i)
 #define atomicGetShader(i)                  atomicGetResourceManager()->getShader(i)

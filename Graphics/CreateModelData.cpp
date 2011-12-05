@@ -2,6 +2,7 @@
 #include "ist/ist.h"
 #include "types.h"
 #include "Graphics/CreateModelData.h"
+#include "shader/Semantics.glslh"
 
 
 namespace atomic {
@@ -162,6 +163,133 @@ void CreateSphereModel(ModelData& model, float32 radius, uint32 div_xz, uint32 d
     model.setData(0, &v[0], div_y*div_xz, 4);
     model.setData(1, &n[0], div_y*div_xz, 3);
     model.setIndex(&index[0], index.size(), ModelData::IDX_INT32, ModelData::PRM_QUADS);
+}
+
+void CreateScreenQuad( VertexArray& va, VertexBufferObject& vbo )
+{
+    struct __declspec(align(16)) vertex_t
+    {
+        vec2 pos;
+        vec2 tex;
+    } v[4] = {
+        {vec2( 1.0f, 1.0f), vec2(1.0, 1.0)},
+        {vec2(-1.0f, 1.0f), vec2(0.0, 1.0)},
+        {vec2(-1.0f,-1.0f), vec2(0.0, 0.0)},
+        {vec2( 1.0f,-1.0f), vec2(1.0, 0.0)},
+    };
+    vbo.allocate(sizeof(v), VertexBufferObject::USAGE_STATIC, v);
+
+    VertexArray::Descriptor descs[] = {
+        {GLSL_POSITION,  0, VertexArray::TYPE_FLOAT,2, 0, false, 0},
+        {GLSL_TEXCOORD0, 0, VertexArray::TYPE_FLOAT,2, 8, false, 0},
+    };
+    va.setAttributes(vbo, sizeof(vertex_t), descs, _countof(descs));
+}
+
+void CreateBloomLuminanceQuads( VertexArray& va, VertexBufferObject& vbo )
+{
+    struct __declspec(align(16)) vertex_t
+    {
+        vec2 pos;
+        vec2 tex;
+    } v[16] = {
+        {vec2( 0.0, 1.0), vec2(1.0, 1.0)},
+        {vec2(-1.0, 1.0), vec2(0.0, 1.0)},
+        {vec2(-1.0,-1.0), vec2(0.0, 0.0)},
+        {vec2( 0.0,-1.0), vec2(1.0, 0.0)},
+
+        {vec2(0.5, 0.0), vec2(1.0, 1.0)},
+        {vec2(0.0, 0.0), vec2(0.0, 1.0)},
+        {vec2(0.0,-1.0), vec2(0.0, 0.0)},
+        {vec2(0.5,-1.0), vec2(1.0, 0.0)},
+
+        {vec2(0.75,-0.5), vec2(1.0, 1.0)},
+        {vec2(0.5, -0.5), vec2(0.0, 1.0)},
+        {vec2(0.5, -1.0), vec2(0.0, 0.0)},
+        {vec2(0.75,-1.0), vec2(1.0, 0.0)},
+
+        {vec2(0.875,-0.75), vec2(1.0, 1.0)},
+        {vec2(0.75, -0.75), vec2(0.0, 1.0)},
+        {vec2(0.75, -1.0 ), vec2(0.0, 0.0)},
+        {vec2(0.875,-1.0 ), vec2(1.0, 0.0)},
+    };
+    vbo.allocate(sizeof(v), VertexBufferObject::USAGE_STATIC, v);
+
+    VertexArray::Descriptor descs[] = {
+        {GLSL_POSITION,  0, VertexArray::TYPE_FLOAT,2, 0, false, 0},
+        {GLSL_TEXCOORD0, 0, VertexArray::TYPE_FLOAT,2, 8, false, 0},
+    };
+    va.setAttributes(vbo, sizeof(vertex_t), descs, _countof(descs));
+}
+
+void CreateBloomBlurQuads( VertexArray& va, VertexBufferObject& vbo )
+{
+    const vec2 tp[4] = {vec2(0.0, 0.0), vec2(0.5,  0.0), vec2(0.75,  0.0 ), vec2(0.875,  0.0)};
+    const vec2 ts[4] = {vec2(0.5, 1.0), vec2(0.25, 0.5), vec2(0.125, 0.25), vec2(0.0625, 0.125)};
+
+    struct __declspec(align(16)) vertex_t
+    {
+        vec2 pos;
+        vec2 tex;
+        vec2 texmin;
+        vec2 texmax;
+    } v[16] = {
+        {vec2( 0.0, 1.0), tp[0]+ts[0],             tp[0], tp[0]+ts[0]},
+        {vec2(-1.0, 1.0), tp[0]+vec2(0.0,ts[0].y), tp[0], tp[0]+ts[0]},
+        {vec2(-1.0,-1.0), tp[0],                   tp[0], tp[0]+ts[0]},
+        {vec2( 0.0,-1.0), tp[0]+vec2(ts[0].x,0.0), tp[0], tp[0]+ts[0]},
+
+        {vec2(0.5, 0.0), tp[1]+ts[1],              tp[1], tp[1]+ts[1]},
+        {vec2(0.0, 0.0), tp[1]+vec2(0.0,ts[1].y),  tp[1], tp[1]+ts[1]},
+        {vec2(0.0,-1.0), tp[1],                    tp[1], tp[1]+ts[1]},
+        {vec2(0.5,-1.0), tp[1]+vec2(ts[1].x,0.0),  tp[1], tp[1]+ts[1]},
+
+        {vec2(0.75,-0.5), tp[2]+ts[2],             tp[2], tp[2]+ts[2]},
+        {vec2(0.5, -0.5), tp[2]+vec2(0.0,ts[2].y), tp[2], tp[2]+ts[2]},
+        {vec2(0.5, -1.0), tp[2],                   tp[2], tp[2]+ts[2]},
+        {vec2(0.75,-1.0), tp[2]+vec2(ts[2].x,0.0), tp[2], tp[2]+ts[2]},
+
+        {vec2(0.875,-0.75), tp[3]+ts[3],            tp[3], tp[3]+ts[3]},
+        {vec2(0.75, -0.75), tp[3]+vec2(0.0,ts[3].y),tp[3], tp[3]+ts[3]},
+        {vec2(0.75, -1.0 ), tp[3],                  tp[3], tp[3]+ts[3]},
+        {vec2(0.875,-1.0 ), tp[3]+vec2(ts[3].x,0.0),tp[3], tp[3]+ts[3]},
+    };
+    vbo.allocate(sizeof(v), VertexBufferObject::USAGE_STATIC, v);
+
+    VertexArray::Descriptor descs[] = {
+        {GLSL_POSITION,  0, VertexArray::TYPE_FLOAT,2, 0, false, 0},
+        {GLSL_TEXCOORD0, 0, VertexArray::TYPE_FLOAT,2, 8, false, 0},
+        {GLSL_TEXCOORD1, 0, VertexArray::TYPE_FLOAT,2,16, false, 0},
+        {GLSL_TEXCOORD2, 0, VertexArray::TYPE_FLOAT,2,24, false, 0},
+    };
+    va.setAttributes(vbo, sizeof(vertex_t), descs, _countof(descs));
+}
+
+void CreateBloomCompositeQuad( VertexArray& va, VertexBufferObject& vbo )
+{
+    const vec2 tp[4] = {vec2(0.0, 0.0), vec2(0.5,  0.0), vec2(0.75,  0.0 ), vec2(0.875,  0.0)};
+    const vec2 ts[4] = {vec2(0.5, 1.0), vec2(0.25, 0.5), vec2(0.125, 0.25), vec2(0.0625, 0.125)};
+
+    struct __declspec(align(16)) vertex_t
+    {
+        vec2 pos;
+        vec2 tex[4];
+    } v[4] = {
+        {vec2( 1.0, 1.0), {tp[0]+ts[0], tp[1]+ts[1], tp[2]+ts[2], tp[3]+ts[3]}},
+        {vec2(-1.0, 1.0), {tp[0]+vec2(0.0,ts[0].y), tp[1]+vec2(0.0,ts[1].y), tp[2]+vec2(0.0,ts[2].y), tp[3]+vec2(0.0,ts[3].y)}},
+        {vec2(-1.0,-1.0), {tp[0], tp[1], tp[2], tp[3]}},
+        {vec2( 1.0,-1.0), {tp[0]+vec2(ts[0].x,0.0), tp[1]+vec2(ts[1].x,0.0), tp[2]+vec2(ts[2].x,0.0), tp[3]+vec2(ts[3].x,0.0)}},
+    };
+    vbo.allocate(sizeof(v), VertexBufferObject::USAGE_STATIC, v);
+
+    VertexArray::Descriptor descs[] = {
+        {GLSL_POSITION,  0, VertexArray::TYPE_FLOAT,2, 0, false, 0},
+        {GLSL_TEXCOORD0, 0, VertexArray::TYPE_FLOAT,2, 8, false, 0},
+        {GLSL_TEXCOORD1, 0, VertexArray::TYPE_FLOAT,2,16, false, 0},
+        {GLSL_TEXCOORD2, 0, VertexArray::TYPE_FLOAT,2,24, false, 0},
+        {GLSL_TEXCOORD3, 0, VertexArray::TYPE_FLOAT,2,32, false, 0},
+    };
+    va.setAttributes(vbo, sizeof(vertex_t), descs, _countof(descs));
 }
 
 } // namespace atomic

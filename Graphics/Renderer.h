@@ -23,6 +23,7 @@ class PassPostprocess_Bloom;
 class AtomicRenderer : public boost::noncopyable
 {
 private:
+    VertexArray             *m_va_screenquad;
     AtomicShader            *m_sh_out;
 
     RenderTargetGBuffer     *m_rt_gbuffer;
@@ -145,12 +146,14 @@ private:
     RenderTargetDeferred    *m_rt_deferred;
     RenderTargetGauss       *m_rt_gauss0;
     RenderTargetGauss       *m_rt_gauss1;
+    VertexArray             *m_va_luminance;
+    VertexArray             *m_va_blur;
+    VertexArray             *m_va_composite;
     AtomicShader            *m_sh_luminance;
     AtomicShader            *m_sh_hblur;
     AtomicShader            *m_sh_vblur;
     AtomicShader            *m_sh_composite;
     UniformBufferObject     *m_ubo_states;
-    BloomStates             m_states;
     int                     m_loc_state;
 
 public:

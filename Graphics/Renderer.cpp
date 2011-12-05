@@ -29,6 +29,7 @@ void AtomicRenderer::finalizeInstance()
 
 AtomicRenderer::AtomicRenderer()
 {
+    m_va_screenquad = atomicGetVertexArray(VA_SCREEN_QUAD);
     m_sh_out        = atomicGetShader(SH_OUTPUT);
 
     m_rt_gbuffer    = atomicGetRenderTargetGBuffer();
@@ -198,7 +199,8 @@ void AtomicRenderer::pass_Output()
 {
     m_rt_deferred->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
     m_sh_out->bind();
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    m_va_screenquad->bind();
+    glDrawArrays(GL_QUADS, 0, 4);
     m_sh_out->unbind();
 }
 
@@ -262,6 +264,9 @@ PassPostprocess_Bloom::PassPostprocess_Bloom()
 : m_rt_deferred(NULL)
 , m_rt_gauss0(NULL)
 , m_rt_gauss1(NULL)
+, m_va_luminance(NULL)
+, m_va_blur(NULL)
+, m_va_composite(NULL)
 , m_sh_luminance(NULL)
 , m_sh_hblur(NULL)
 , m_sh_vblur(NULL)
@@ -272,6 +277,9 @@ PassPostprocess_Bloom::PassPostprocess_Bloom()
     m_rt_deferred   = atomicGetRenderTargetDeferred();
     m_rt_gauss0     = atomicGetRenderTargetGauss(0);
     m_rt_gauss1     = atomicGetRenderTargetGauss(1);
+    m_va_luminance  = atomicGetVertexArray(VA_BLOOM_LUMINANCE_QUADS);
+    m_va_blur       = atomicGetVertexArray(VA_BLOOM_BLUR_QUADS);
+    m_va_composite  = atomicGetVertexArray(VA_BLOOM_COMPOSITE_QUAD);
     m_sh_luminance  = atomicGetShader(SH_BLOOM_LUMINANCE);
     m_sh_hblur      = atomicGetShader(SH_BLOOM_HBLUR);
     m_sh_vblur      = atomicGetShader(SH_BLOOM_VBLUR);
@@ -286,105 +294,57 @@ void PassPostprocess_Bloom::beforeDraw()
 
 void PassPostprocess_Bloom::draw()
 {
-    const float32 aspect_ratio = atomicGetWindowAspectRatio();
-    const float32 rcp_aspect_ratio = 1.0f/aspect_ratio;
-    const Viewport viewports[] = {
-        Viewport(  0,0, 256,256),
-        Viewport(256,0, 128,128),
-        Viewport(384,0,  64, 64),
-        Viewport(448,0,  32, 32),
-    };
-    const vec2 texcoord_pos[] = {
-        vec2( 0.0f, 0.0f),
-        vec2( 0.5f, 0.0f),
-        vec2(0.75f, 0.0f),
-        vec2(0.875f, 0.0f),
-    };
-    const vec2 texcoord_size[] = {
-        vec2(  0.5f,  1.0f),
-        vec2( 0.25f,  0.5f),
-        vec2(0.125f, 0.25f),
-        vec2(0.0625f, 0.125f),
-    };
-    const vec2 screen_size = vec2((float32)m_rt_gauss0->getWidth(), (float32)m_rt_gauss0->getHeight());
-    const vec2 rcp_screen_size = vec2(1.0f, 1.0f) / screen_size;
-    const vec2 half_pixel = rcp_screen_size*0.5f;
-
+    Viewport vp(0,0, m_rt_gauss0->getWidth(),m_rt_gauss0->getHeight());
+    vp.bind();
 
     // ‹P“x’Šo
     {
         m_sh_luminance->bind();
         m_rt_gauss0->bind();
         m_rt_deferred->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
-        glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 1);
+        m_va_luminance->bind();
+        glDrawArrays(GL_QUADS, 0, 16);
         m_rt_gauss0->unbind();
         m_sh_luminance->unbind();
     }
 
-    //// ‰¡ƒuƒ‰[
-    //{
-    //    int loc_tmin = m_sh_hblur->getUniformLocation("u_TexcoordMin");
-    //    int loc_tmax = m_sh_hblur->getUniformLocation("u_TexcoordMax");
-    //    m_sh_hblur->bind();
-    //    m_rt_gauss1->bind();
-    //    m_rt_gauss0->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
-    //    for(uint32 i=0; i<1; ++i) {
-    //        viewports[i].bind();
-    //        vec2 tmin = texcoord_pos[i] + half_pixel;
-    //        vec2 tmax = texcoord_pos[i]+texcoord_size[i] - half_pixel;
-    //        tmax.y *= rcp_aspect_ratio;
-    //        m_sh_hblur->setUniform2f(loc_tmin, tmin);
-    //        m_sh_hblur->setUniform2f(loc_tmax, tmax);
-    //        glDrawArrays(GL_TRIANGLES, 0, 6);
-    //    }
-    //    m_rt_gauss0->getColorBuffer(0)->unbind();
-    //    m_rt_gauss1->unbind();
-    //    m_sh_hblur->unbind();
-    //}
+    // ‰¡ƒuƒ‰[
+    {
+        m_sh_hblur->bind();
+        m_rt_gauss1->bind();
+        m_rt_gauss0->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
+        m_va_blur->bind();
+        glDrawArrays(GL_QUADS, 0, 16);
+        m_rt_gauss1->unbind();
+        m_sh_hblur->unbind();
+    }
 
-    //// cƒuƒ‰[
-    //{
-    //    int loc_tmin = m_sh_hblur->getUniformLocation("u_TexcoordMin");
-    //    int loc_tmax = m_sh_hblur->getUniformLocation("u_TexcoordMax");
-    //    m_sh_vblur->bind();
-    //    m_rt_gauss0->bind();
-    //    m_rt_gauss1->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
-    //    for(uint32 i=0; i<_countof(viewports); ++i) {
-    //        viewports[i].bind();
-    //        vec2 tmin = texcoord_pos[i] + half_pixel;
-    //        vec2 tmax = texcoord_pos[i]+texcoord_size[i] - half_pixel;
-    //        tmax.y *= rcp_aspect_ratio;
-    //        m_sh_vblur->setUniform2f(loc_tmin, tmin);
-    //        m_sh_vblur->setUniform2f(loc_tmax, tmax);
-    //        DrawScreen(texcoord_pos[i], texcoord_pos[i]+texcoord_size[i]);
-    //    }
-    //    m_rt_gauss1->getColorBuffer(0)->unbind();
-    //    m_rt_gauss0->unbind();
-    //    m_sh_vblur->unbind();
-    //}
+    // cƒuƒ‰[
+    {
+        m_sh_vblur->bind();
+        m_rt_gauss0->bind();
+        m_rt_gauss1->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
+        m_va_blur->bind();
+        glDrawArrays(GL_QUADS, 0, 16);
+        m_rt_gauss0->unbind();
+        m_sh_vblur->unbind();
+    }
 
-    //// ‰ÁŽZ
-    //atomicGetDefaultViewport()->bind();
-    //{
-    //    m_sh_bloom->switchToCompositePass();
-    //    m_rt_deferred->bind();
-    //    m_rt_gauss0->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
-    //    m_sh_bloom->setColorBuffer(GLSL_COLOR_BUFFER);
-    //    glEnable(GL_BLEND);
-    //    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-    //    for(uint32 i=0; i<_countof(viewports); ++i) {
-    //        vec2 tmin = texcoord_pos[i] + half_pixel;
-    //        vec2 tmax = texcoord_pos[i]+texcoord_size[i] - half_pixel;
-    //        tmax.y *= rcp_aspect_ratio;
-    //        DrawScreen(tmin, tmax);
-    //    }
-    //    glDisable(GL_BLEND);
-    //    m_rt_gauss0->getColorBuffer(0)->unbind();
-    //    m_rt_deferred->unbind();
-    //}
-    //m_sh_bloom->unbind();
-
+    // ‰ÁŽZ
     atomicGetDefaultViewport()->bind();
+    {
+        m_sh_composite->bind();
+        m_rt_deferred->bind();
+        m_rt_gauss0->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
+        m_va_composite->bind();
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+        glDrawArrays(GL_QUADS, 0, 4);
+        glDisable(GL_BLEND);
+        m_rt_gauss0->getColorBuffer(0)->unbind();
+        m_rt_deferred->unbind();
+        m_sh_composite->unbind();
+    }
 }
 
 } // namespace atomic

@@ -83,6 +83,7 @@ bool GraphicResourceManager::initialize()
     m_font = NULL;
     stl::fill_n(m_model, _countof(m_model), (ModelData*)NULL);
     stl::fill_n(m_tex2d, _countof(m_tex2d), (Texture2D*)NULL);
+    stl::fill_n(m_va, _countof(m_va), (VertexArray*)NULL);
     stl::fill_n(m_vbo, _countof(m_vbo), (VertexBufferObject*)NULL);
     stl::fill_n(m_ubo, _countof(m_ubo), (UniformBufferObject*)NULL);
     stl::fill_n(m_fbo, _countof(m_fbo), (FrameBufferObject*)NULL);
@@ -117,12 +118,22 @@ bool GraphicResourceManager::initialize()
         }
     }
     {
+        for(uint32 i=0; i<_countof(m_va); ++i) {
+            m_va[i] = IST_NEW(VertexArray)();
+            m_va[i]->initialize();
+        }
+
+        CreateScreenQuad(*m_va[VA_SCREEN_QUAD], *m_vbo[VBO_SCREEN_QUAD]);
+        CreateBloomLuminanceQuads(*m_va[VA_BLOOM_LUMINANCE_QUADS], *m_vbo[VBO_BLOOM_LUMINANCE_QUADS]);
+        CreateBloomBlurQuads(*m_va[VA_BLOOM_BLUR_QUADS], *m_vbo[VBO_BLOOM_BLUR_QUADS]);
+        CreateBloomCompositeQuad(*m_va[VA_BLOOM_COMPOSITE_QUAD], *m_vbo[VBO_BLOOM_COMPOSITE_QUAD]);
+    }
+    {
         for(uint32 i=0; i<_countof(m_ubo); ++i) {
             m_ubo[i] = IST_NEW(UniformBufferObject) ();
             m_ubo[i]->initialize();
         }
         m_ubo[UBO_RENDER_STATES]->allocate(sizeof(RenderStates), UniformBufferObject::USAGE_DYNAMIC);
-        m_ubo[UBO_BLOOM_STATES]->allocate(sizeof(BloomStates), UniformBufferObject::USAGE_DYNAMIC);
     }
     {
         // create shaders
@@ -174,6 +185,7 @@ void GraphicResourceManager::finalize()
     if(m_font) { m_font->finalize(); IST_SAFE_DELETE(m_font); }
     for(uint32 i=0; i<_countof(m_model); ++i)   { if(m_model[i]) { m_model[i]->finalize(); IST_SAFE_DELETE( m_model[i] ); } }
     for(uint32 i=0; i<_countof(m_tex2d); ++i)   { if(m_tex2d[i]) { m_tex2d[i]->finalize(); IST_SAFE_DELETE( m_tex2d[i] ); } }
+    for(uint32 i=0; i<_countof(m_va); ++i)      { if(m_va[i]) { m_va[i]->finalize(); IST_SAFE_DELETE( m_va[i] ); } }
     for(uint32 i=0; i<_countof(m_vbo); ++i)     { if(m_vbo[i]) { m_vbo[i]->finalize(); IST_SAFE_DELETE( m_vbo[i] ); } }
     for(uint32 i=0; i<_countof(m_ubo); ++i)     { if(m_ubo[i]) { m_ubo[i]->finalize(); IST_SAFE_DELETE( m_ubo[i] ); } }
     for(uint32 i=0; i<_countof(m_fbo); ++i)     { if(m_fbo[i]) { m_fbo[i]->finalize(); IST_SAFE_DELETE( m_fbo[i] ); } }

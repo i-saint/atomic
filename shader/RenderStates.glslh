@@ -20,17 +20,6 @@ struct
     float RcpAspectRatio;
 };
 
-struct
-#ifndef GLSL
-    __declspec(align(16))
-#endif // GLSL
-    BloomStates
-{
-    vec2 RcpScreenWidth;
-    vec2 ScreenTexcoord;
-    vec2 TexcoordMin;
-    vec2 TexcoordMax;
-};
 
 #ifndef GLSL
 } // namespace atomic
