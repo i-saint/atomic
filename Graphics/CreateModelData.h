@@ -12,6 +12,7 @@ namespace atomic {
     void CreateBloomLuminanceQuads(VertexArray& va, VertexBufferObject& vbo);
     void CreateBloomBlurQuads(VertexArray& va, VertexBufferObject& vbo);
     void CreateBloomCompositeQuad(VertexArray& va, VertexBufferObject& vbo);
+    void CreateCube(VertexArray& va, VertexBufferObject& vbo, float32 len);
 
 } // namespace atomic
 #endif // __atomic_Graphics_ModelData_h__

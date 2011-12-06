@@ -25,7 +25,8 @@ vs_out vec2 vs_Texcoords[4];
 #if defined(GLSL_BLOOM_LUMINANCE)
 void main()
 {
-    vs_Texcoord = ia_VertexTexcoord0;
+    vs_Texcoord = ia_VertexTexcoord0*u_RS.ScreenTexcoord;
+    vs_Texcoord.y *= u_RS.AspectRatio;
     gl_Position = vec4(ia_VertexPosition, 0.0, 1.0);
 }
 

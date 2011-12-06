@@ -254,7 +254,6 @@ void CreateBloomBlurQuads( VertexArray& va, VertexBufferObject& vbo )
         {vec2(0.75, -1.0 ), tp[3],                  tp[3], tp[3]+ts[3]},
         {vec2(0.875,-1.0 ), tp[3]+vec2(ts[3].x,0.0),tp[3], tp[3]+ts[3]},
     };
-    vbo.allocate(sizeof(v), VertexBufferObject::USAGE_STATIC, v);
 
     VertexArray::Descriptor descs[] = {
         {GLSL_POSITION,  0, VertexArray::TYPE_FLOAT,2, 0, false, 0},
@@ -262,6 +261,8 @@ void CreateBloomBlurQuads( VertexArray& va, VertexBufferObject& vbo )
         {GLSL_TEXCOORD1, 0, VertexArray::TYPE_FLOAT,2,16, false, 0},
         {GLSL_TEXCOORD2, 0, VertexArray::TYPE_FLOAT,2,24, false, 0},
     };
+
+    vbo.allocate(sizeof(v), VertexBufferObject::USAGE_STATIC, v);
     va.setAttributes(vbo, sizeof(vertex_t), descs, _countof(descs));
 }
 
@@ -280,7 +281,6 @@ void CreateBloomCompositeQuad( VertexArray& va, VertexBufferObject& vbo )
         {vec2(-1.0,-1.0), {tp[0], tp[1], tp[2], tp[3]}},
         {vec2( 1.0,-1.0), {tp[0]+vec2(ts[0].x,0.0), tp[1]+vec2(ts[1].x,0.0), tp[2]+vec2(ts[2].x,0.0), tp[3]+vec2(ts[3].x,0.0)}},
     };
-    vbo.allocate(sizeof(v), VertexBufferObject::USAGE_STATIC, v);
 
     VertexArray::Descriptor descs[] = {
         {GLSL_POSITION,  0, VertexArray::TYPE_FLOAT,2, 0, false, 0},
@@ -289,6 +289,67 @@ void CreateBloomCompositeQuad( VertexArray& va, VertexBufferObject& vbo )
         {GLSL_TEXCOORD2, 0, VertexArray::TYPE_FLOAT,2,24, false, 0},
         {GLSL_TEXCOORD3, 0, VertexArray::TYPE_FLOAT,2,32, false, 0},
     };
+
+    vbo.allocate(sizeof(v), VertexBufferObject::USAGE_STATIC, v);
+    va.setAttributes(vbo, sizeof(vertex_t), descs, _countof(descs));
+}
+
+void CreateCube( VertexArray& va, VertexBufferObject& vbo, float32 len )
+{
+    const float32 half_len = len/2.0f;
+    const vec3 ur = vec3( half_len, half_len, half_len);
+    const vec3 bl = vec3(-half_len,-half_len,-half_len);
+    const vec4 n[6] = {
+        vec4( 1.0f, 0.0f, 0.0f, 0.0f),
+        vec4(-1.0f, 0.0f, 0.0f, 0.0f),
+        vec4( 0.0f, 1.0f, 0.0f, 0.0f),
+        vec4( 0.0f,-1.0f, 0.0f, 0.0f),
+        vec4( 0.0f, 0.0f, 1.0f, 0.0f),
+        vec4( 0.0f, 0.0f,-1.0f, 0.0f),
+    };
+
+    struct __declspec(align(16)) vertex_t
+    {
+        vec4 pos;
+        vec4 normal;
+    } v[24] = {
+        {vec4(ur[0], ur[1], ur[2], 1.0f), n[0]},
+        {vec4(ur[0], bl[1], ur[2], 1.0f), n[0]},
+        {vec4(ur[0], bl[1], bl[2], 1.0f), n[0]},
+        {vec4(ur[0], ur[1], bl[2], 1.0f), n[0]},
+
+        {vec4(bl[0], ur[1], ur[2], 1.0f), n[1]},
+        {vec4(bl[0], ur[1], bl[2], 1.0f), n[1]},
+        {vec4(bl[0], bl[1], bl[2], 1.0f), n[1]},
+        {vec4(bl[0], bl[1], ur[2], 1.0f), n[1]},
+
+        {vec4(ur[0], ur[1], ur[2], 1.0f), n[2]},
+        {vec4(ur[0], ur[1], bl[2], 1.0f), n[2]},
+        {vec4(bl[0], ur[1], bl[2], 1.0f), n[2]},
+        {vec4(bl[0], ur[1], ur[2], 1.0f), n[2]},
+
+        {vec4(ur[0], bl[1], ur[2], 1.0f), n[3]},
+        {vec4(bl[0], bl[1], ur[2], 1.0f), n[3]},
+        {vec4(bl[0], bl[1], bl[2], 1.0f), n[3]},
+        {vec4(ur[0], bl[1], bl[2], 1.0f), n[3]},
+
+        {vec4(ur[0], ur[1], ur[2], 1.0f), n[4]},
+        {vec4(bl[0], ur[1], ur[2], 1.0f), n[4]},
+        {vec4(bl[0], bl[1], ur[2], 1.0f), n[4]},
+        {vec4(ur[0], bl[1], ur[2], 1.0f), n[4]},
+
+        {vec4(ur[0], ur[1], bl[2], 1.0f), n[5]},
+        {vec4(ur[0], bl[1], bl[2], 1.0f), n[5]},
+        {vec4(bl[0], bl[1], bl[2], 1.0f), n[5]},
+        {vec4(bl[0], ur[1], bl[2], 1.0f), n[5]},
+    };
+
+    VertexArray::Descriptor descs[] = {
+        {GLSL_POSITION,  0, VertexArray::TYPE_FLOAT,4, 0, false, 0},
+        {GLSL_NORMAL,    0, VertexArray::TYPE_FLOAT,4,16, false, 0},
+    };
+
+    vbo.allocate(sizeof(v), VertexBufferObject::USAGE_STATIC, v);
     va.setAttributes(vbo, sizeof(vertex_t), descs, _countof(descs));
 }
 
