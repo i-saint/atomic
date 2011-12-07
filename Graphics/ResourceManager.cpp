@@ -81,7 +81,6 @@ inline AtomicShader* CreateAtomicShader(const char* source)
 bool GraphicResourceManager::initialize()
 {
     m_font = NULL;
-    stl::fill_n(m_model, _countof(m_model), (ModelData*)NULL);
     stl::fill_n(m_tex2d, _countof(m_tex2d), (Texture2D*)NULL);
     stl::fill_n(m_va, _countof(m_va), (VertexArray*)NULL);
     stl::fill_n(m_vbo, _countof(m_vbo), (VertexBufferObject*)NULL);
@@ -97,12 +96,6 @@ bool GraphicResourceManager::initialize()
     {
         m_font = IST_NEW(SystemFont)();
         m_font->initialize();
-    }
-    {
-        for(uint32 i=0; i<_countof(m_model); ++i) {
-            m_model[i] = IST_NEW(ModelData) ();
-            m_model[i]->initialize();
-        }
     }
     {
         for(uint32 i=0; i<_countof(m_tex2d); ++i) {
@@ -192,7 +185,6 @@ void GraphicResourceManager::finalize()
     SPHFinalize();
 
     if(m_font) { m_font->finalize(); IST_SAFE_DELETE(m_font); }
-    for(uint32 i=0; i<_countof(m_model); ++i)   { if(m_model[i]) { m_model[i]->finalize(); IST_SAFE_DELETE( m_model[i] ); } }
     for(uint32 i=0; i<_countof(m_tex2d); ++i)   { if(m_tex2d[i]) { m_tex2d[i]->finalize(); IST_SAFE_DELETE( m_tex2d[i] ); } }
     for(uint32 i=0; i<_countof(m_va); ++i)      { if(m_va[i]) { m_va[i]->finalize(); IST_SAFE_DELETE( m_va[i] ); } }
     for(uint32 i=0; i<_countof(m_vbo); ++i)     { if(m_vbo[i]) { m_vbo[i]->finalize(); IST_SAFE_DELETE( m_vbo[i] ); } }

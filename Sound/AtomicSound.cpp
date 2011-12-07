@@ -27,11 +27,27 @@ namespace atomic {
     void AtomicSoundThread::operator()()
     {
         ist::SetThreadName("AtomicSoundThread");
+        std::string sound_data;
+        const char filepath[] = "sound.ogg";
+        if(FILE *f=fopen(filepath, "rb")) {
+            fseek(f, 0, SEEK_END);
+            size_t data_size = ftell(f);
+            fseek(f, 0, SEEK_SET);
+            sound_data.resize(data_size);
+            fread(&sound_data[0], 1, data_size, f);
+            fclose(f);
+        }
+        else {
+            return;
+        }
 
         sound::StreamSourceSet source_set;
         {
-            sound::StreamPtr sp = sound::CreateStreamFromOggFile("sound.ogg");
-            if(!sp) { IST_PRINT("sound file couldn't loaded.\n"); return; }
+            sound::OggVorbisMemoryStream *ovms = new sound::OggVorbisMemoryStream();
+            if(!ovms->openStream(&sound_data[0], sound_data.size())) {
+                IST_PRINT("sound file couldn't loaded.\n"); return;
+            }
+            sound::StreamPtr sp(ovms);
             sound::StreamSourcePtr ssp(new sound::StreamSource(sp));
             source_set.append(ssp);
         }

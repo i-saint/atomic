@@ -105,9 +105,6 @@
     <ClCompile Include="ist\Graphics\GraphicsResource.cpp">
       <Filter>ist\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="ist\Graphics\ModelData.cpp">
-      <Filter>ist\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="ist\Graphics\ShaderObject.cpp">
       <Filter>ist\Graphics</Filter>
     </ClCompile>
@@ -269,9 +266,6 @@
       <Filter>ist\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="ist\Graphics\GraphicsResource.h">
-      <Filter>ist\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Graphics\ModelData.h">
       <Filter>ist\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="ist\Graphics\ShaderObject.h">

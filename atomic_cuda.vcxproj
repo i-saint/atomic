@@ -36,7 +36,6 @@
     <ClCompile Include="ist\Graphics\FrameBufferObject.cpp" />
     <ClCompile Include="ist\Graphics\GraphicsResource.cpp" />
     <ClCompile Include="ist\Graphics\GraphicsUtil.cpp" />
-    <ClCompile Include="ist\Graphics\ModelData.cpp" />
     <ClCompile Include="ist\Graphics\ShaderObject.cpp" />
     <ClCompile Include="ist\Math\Linear.cpp" />
     <ClCompile Include="ist\Math\SFMT\SFMT.cpp" />
@@ -94,7 +93,6 @@
     <ClInclude Include="ist\Graphics\GraphicsAssert.h" />
     <ClInclude Include="ist\Graphics\GraphicsResource.h" />
     <ClInclude Include="ist\Graphics\GraphicsUtil.h" />
-    <ClInclude Include="ist\Graphics\ModelData.h" />
     <ClInclude Include="ist\Graphics\ShaderObject.h" />
     <ClInclude Include="ist\Graphics\types.h" />
     <ClInclude Include="ist\ist.h" />

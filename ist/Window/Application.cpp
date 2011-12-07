@@ -185,7 +185,7 @@ bool Application::initialize(size_t x, size_t y, size_t width, size_t height, co
 
 
     // sound
-    sound::IntializeSound();
+    //sound::IntializeSound();
 
     return true;
 }
@@ -195,7 +195,7 @@ void Application::finalize()
 #ifdef IST_OPENCL
     if(m_cl_context) { delete m_cl_context; m_cl_context=NULL; }
 #endif // IST_OPENCL
-    sound::FinalizeSound();
+    //sound::FinalizeSound();
     if(m_hwnd) { ::CloseWindow(m_hwnd); m_hwnd=NULL; }
 }
 

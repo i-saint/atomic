@@ -57,6 +57,9 @@ AtomicRenderingThread::AtomicRenderingThread(AtomicApplication *app)
 
 AtomicRenderingThread::~AtomicRenderingThread()
 {
+    if(m_thread) {
+        m_thread->join();
+    }
 }
 
 void AtomicRenderingThread::run()

@@ -20,10 +20,6 @@ enum DRAW_PASS {
     PASS_END,
 };
 
-enum MODEL_RID {
-    MODEL_SPHERE_LIGHT,
-    MODEL_END,
-};
 enum SH_RID {
     SH_GBUFFER,
     SH_POINTLIGHT,
@@ -108,7 +104,6 @@ private:
     ColorBuffer             *m_rt_gauss[2];
 
     SystemFont          *m_font;
-    ModelData           *m_model[MODEL_END];
     Texture2D           *m_tex2d[TEX2D_END];
     VertexArray         *m_va[VA_END];
     VertexBufferObject  *m_vbo[VBO_END];
@@ -128,7 +123,6 @@ public:
     static void finalizeInstance();
 
     SystemFont* getFont() { return m_font; }
-    ModelData* getModelData(MODEL_RID i)                    { return m_model[i]; }
     Texture2D* getTexture2D(TEX2D_RID i)                    { return m_tex2d[i]; }
     VertexArray* getVertexArray(VA_RID i)                   { return m_va[i]; }
     VertexBufferObject* getVertexBufferObject(VBO_RID i)    { return m_vbo[i]; }
@@ -150,7 +144,6 @@ public:
 #define atomicGetRenderTargetGauss(i)       atomicGetResourceManager()->getRenderTargetGauss(i)
 
 #define atomicGetFont()                     atomicGetResourceManager()->getFont()
-#define atomicGetModelData(i)               atomicGetResourceManager()->getModelData(i)
 #define atomicGetTexture2D(i)               atomicGetResourceManager()->getTexture2D(i)
 #define atomicGetVertexArray(i)             atomicGetResourceManager()->getVertexArray(i)
 #define atomicGetVertexBufferObject(i)      atomicGetResourceManager()->getVertexBufferObject(i)
