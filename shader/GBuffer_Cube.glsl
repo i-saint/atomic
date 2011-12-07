@@ -6,7 +6,7 @@ ia_out(GLSL_POSITION)           vec4 ia_VertexPosition;
 ia_out(GLSL_NORMAL)             vec3 ia_VertexNormal;
 ia_out(GLSL_INSTANCE_POSITION)  vec4 ia_InstancePosition;
 ia_out(GLSL_INSTANCE_VELOCITY)  vec4 ia_InstanceVelocity;
-ia_out(GLSL_INSTANCE_VELOCITY)  vec4 ia_InstanceParam;
+ia_out(GLSL_INSTANCE_PARAM)     vec4 ia_InstanceParam;
 #endif
 #if defined(GLSL_VS) || defined(GLSL_PS)
 vs_out vec3 vs_VertexPosition;
