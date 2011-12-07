@@ -21,11 +21,6 @@ enum DRAW_PASS {
 };
 
 enum MODEL_RID {
-    MODEL_QUAD_SCREEN,
-    MODEL_QUAD_VFX,
-    MODEL_CUBE_FRACTION,
-    MODEL_CUBE_VFX,
-    MODEL_OCTAHEDRON_BULLET,
     MODEL_SPHERE_LIGHT,
     MODEL_END,
 };
@@ -82,27 +77,22 @@ enum VBO_RID {
     VBO_UNIT_SPHERE,
     VBO_FRACTION_CUBE,
 
-    VBO_FRACTION_POS,
+    VBO_FRACTION_INSTANCE,
     VBO_RIGID_FRACTION_POS,
-    VBO_POINTLIGHT_POS,
+    VBO_POINTLIGHT_INSTANCE,
     VBO_POINTLIGHT_SCALE,
     VBO_END,
+};
+
+enum IBO_RID {
+    IBO_SPHERE,
+    IBO_END,
 };
 
 enum UBO_RID {
     UBO_RENDER_STATES,
     UBO_BLOOM_STATES,
     UBO_END,
-};
-
-enum CLP_RID {
-    CLP_FRACTION_UPDATE,
-    CLP_END,
-};
-
-enum CLB_RID {
-    CLB_FRACTION,
-    CLB_END,
 };
 
 
@@ -122,6 +112,7 @@ private:
     Texture2D           *m_tex2d[TEX2D_END];
     VertexArray         *m_va[VA_END];
     VertexBufferObject  *m_vbo[VBO_END];
+    IndexBufferObject   *m_ibo[IBO_END];
     UniformBufferObject *m_ubo[UBO_END];
     FrameBufferObject   *m_fbo[RT_END];
     AtomicShader        *m_shader[SH_END];
@@ -141,6 +132,7 @@ public:
     Texture2D* getTexture2D(TEX2D_RID i)                    { return m_tex2d[i]; }
     VertexArray* getVertexArray(VA_RID i)                   { return m_va[i]; }
     VertexBufferObject* getVertexBufferObject(VBO_RID i)    { return m_vbo[i]; }
+    IndexBufferObject* getIndexBufferObject(IBO_RID i)      { return m_ibo[i]; }
     UniformBufferObject* getUniformBufferObject(UBO_RID i)  { return m_ubo[i]; }
     AtomicShader* getShader(SH_RID i)                       { return m_shader[i]; }
 
@@ -162,6 +154,7 @@ public:
 #define atomicGetTexture2D(i)               atomicGetResourceManager()->getTexture2D(i)
 #define atomicGetVertexArray(i)             atomicGetResourceManager()->getVertexArray(i)
 #define atomicGetVertexBufferObject(i)      atomicGetResourceManager()->getVertexBufferObject(i)
+#define atomicGetIndexBufferObject(i)       atomicGetResourceManager()->getIndexBufferObject(i)
 #define atomicGetUniformBufferObject(i)     atomicGetResourceManager()->getUniformBufferObject(i)
 #define atomicGetShader(i)                  atomicGetResourceManager()->getShader(i)
 

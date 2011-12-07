@@ -78,7 +78,6 @@ public:
     struct Descriptor
     {
         GLuint location;
-        GLuint vbo_index;
         TYPE type;
         GLuint num_elements; // must be 1,2,3,4
         GLuint offset;
@@ -103,7 +102,6 @@ public:
     void setInstanceAttribute(GLuint i, GLint num_elements, VertexBufferObject &vbo);
 
     void setAttributes(VertexBufferObject& vbo, size_t stride, const Descriptor *descs, size_t num_descs);
-    void setAttributes(VertexBufferObject *vbos, size_t *strides, size_t num_vbos, const Descriptor *descs, size_t num_descs);
 };
 
 } // namespace graphics

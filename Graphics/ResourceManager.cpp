@@ -85,6 +85,7 @@ bool GraphicResourceManager::initialize()
     stl::fill_n(m_tex2d, _countof(m_tex2d), (Texture2D*)NULL);
     stl::fill_n(m_va, _countof(m_va), (VertexArray*)NULL);
     stl::fill_n(m_vbo, _countof(m_vbo), (VertexBufferObject*)NULL);
+    stl::fill_n(m_ibo, _countof(m_ibo), (IndexBufferObject*)NULL);
     stl::fill_n(m_ubo, _countof(m_ubo), (UniformBufferObject*)NULL);
     stl::fill_n(m_fbo, _countof(m_fbo), (FrameBufferObject*)NULL);
     stl::fill_n(m_shader, _countof(m_shader), (AtomicShader*)NULL);
@@ -102,8 +103,6 @@ bool GraphicResourceManager::initialize()
             m_model[i] = IST_NEW(ModelData) ();
             m_model[i]->initialize();
         }
-        CreateCubeModel(*m_model[MODEL_CUBE_FRACTION], 0.03f);
-        CreateSphereModel(*m_model[MODEL_SPHERE_LIGHT], 2.56f, 16,8);
     }
     {
         for(uint32 i=0; i<_countof(m_tex2d); ++i) {
@@ -118,6 +117,12 @@ bool GraphicResourceManager::initialize()
         }
     }
     {
+        for(uint32 i=0; i<_countof(m_ibo); ++i) {
+            m_ibo[i] = IST_NEW(IndexBufferObject) ();
+            m_ibo[i]->initialize();
+        }
+    }
+    {
         for(uint32 i=0; i<_countof(m_va); ++i) {
             m_va[i] = IST_NEW(VertexArray)();
             m_va[i]->initialize();
@@ -127,6 +132,10 @@ bool GraphicResourceManager::initialize()
         CreateBloomLuminanceQuads(*m_va[VA_BLOOM_LUMINANCE_QUADS], *m_vbo[VBO_BLOOM_LUMINANCE_QUADS]);
         CreateBloomBlurQuads(*m_va[VA_BLOOM_BLUR_QUADS], *m_vbo[VBO_BLOOM_BLUR_QUADS]);
         CreateBloomCompositeQuad(*m_va[VA_BLOOM_COMPOSITE_QUAD], *m_vbo[VBO_BLOOM_COMPOSITE_QUAD]);
+
+        CreateCube(*m_va[VA_UNIT_CUBE], *m_vbo[VBO_UNIT_CUBE], 1.0f);
+        CreateCube(*m_va[VA_FRACTION_CUBE], *m_vbo[VBO_FRACTION_CUBE], 0.03f);
+        CreateSphere(*m_va[VA_UNIT_SPHERE], *m_vbo[VBO_UNIT_SPHERE], *m_ibo[IBO_SPHERE], 1.00f, 32,16);
     }
     {
         for(uint32 i=0; i<_countof(m_ubo); ++i) {
@@ -169,17 +178,17 @@ bool GraphicResourceManager::initialize()
         m_fbo[RT_GAUSS1] = m_rt_gauss[1];
     }
 
-    m_vbo[VBO_FRACTION_POS]->allocate(sizeof(float4)*SPH_MAX_PARTICLE_NUM, VertexBufferObject::USAGE_DYNAMIC);
-    m_vbo[VBO_POINTLIGHT_POS]->allocate(sizeof(float4)*SPH_MAX_LIGHT_NUM, VertexBufferObject::USAGE_DYNAMIC);
+    m_vbo[VBO_FRACTION_INSTANCE]->allocate(sizeof(SPHParticle)*SPH_MAX_PARTICLE_NUM, VertexBufferObject::USAGE_DYNAMIC);
+    m_vbo[VBO_POINTLIGHT_INSTANCE]->allocate(sizeof(float4)*SPH_MAX_LIGHT_NUM, VertexBufferObject::USAGE_DYNAMIC);
     SPHInitialize();
-    SPHInitializeInstancePositionBuffer(m_vbo[VBO_FRACTION_POS]->getHandle(), m_vbo[VBO_POINTLIGHT_POS]->getHandle());
+    SPHInitializeInstanceBuffers(m_vbo[VBO_FRACTION_INSTANCE]->getHandle(), m_vbo[VBO_POINTLIGHT_INSTANCE]->getHandle());
 
     return true;
 }
 
 void GraphicResourceManager::finalize()
 {
-    SPHFinalizeInstancePositionBuffer();
+    SPHFinalizeInstanceBuffers();
     SPHFinalize();
 
     if(m_font) { m_font->finalize(); IST_SAFE_DELETE(m_font); }
@@ -187,6 +196,7 @@ void GraphicResourceManager::finalize()
     for(uint32 i=0; i<_countof(m_tex2d); ++i)   { if(m_tex2d[i]) { m_tex2d[i]->finalize(); IST_SAFE_DELETE( m_tex2d[i] ); } }
     for(uint32 i=0; i<_countof(m_va); ++i)      { if(m_va[i]) { m_va[i]->finalize(); IST_SAFE_DELETE( m_va[i] ); } }
     for(uint32 i=0; i<_countof(m_vbo); ++i)     { if(m_vbo[i]) { m_vbo[i]->finalize(); IST_SAFE_DELETE( m_vbo[i] ); } }
+    for(uint32 i=0; i<_countof(m_ibo); ++i)     { if(m_ibo[i]) { m_ibo[i]->finalize(); IST_SAFE_DELETE( m_ibo[i] ); } }
     for(uint32 i=0; i<_countof(m_ubo); ++i)     { if(m_ubo[i]) { m_ubo[i]->finalize(); IST_SAFE_DELETE( m_ubo[i] ); } }
     for(uint32 i=0; i<_countof(m_fbo); ++i)     { if(m_fbo[i]) { m_fbo[i]->finalize(); IST_SAFE_DELETE( m_fbo[i] ); } }
     for(uint32 i=0; i<_countof(m_shader); ++i)  { if(m_shader[i]) { m_shader[i]->finalize(); IST_SAFE_DELETE( m_shader[i] ); } }

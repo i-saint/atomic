@@ -155,7 +155,6 @@ void VertexArray::setAttribute(GLuint i, GLint num_elements, VertexBufferObject 
     glEnableVertexAttribArray(i);
     vbo.bind();
     glVertexAttribPointer(i, num_elements, GL_FLOAT, GL_FALSE, 0, NULL);
-    glBindVertexArray(0);
 }
 
 void VertexArray::setInstanceAttribute(GLuint i, GLint num_elements, VertexBufferObject &vbo)
@@ -165,7 +164,6 @@ void VertexArray::setInstanceAttribute(GLuint i, GLint num_elements, VertexBuffe
     vbo.bind();
     glVertexAttribPointer(i, num_elements, GL_FLOAT, GL_FALSE, 0, NULL);
     glVertexAttribDivisor(i, 1);
-    glBindVertexArray(0);
 }
 
 void VertexArray::setAttributes( VertexBufferObject& vbo, size_t stride, const Descriptor *descs, size_t num_descs )
@@ -179,21 +177,6 @@ void VertexArray::setAttributes( VertexBufferObject& vbo, size_t stride, const D
         glVertexAttribDivisor(desc.location, desc.divisor);
     }
     vbo.unbind();
-    glBindVertexArray(0);
-}
-
-void VertexArray::setAttributes( VertexBufferObject *vbos, size_t *strides, size_t num_vbos, const Descriptor *descs, size_t num_descs )
-{
-    glBindVertexArray(m_handle);
-    for(size_t i=0; i<num_descs; ++i) {
-        const Descriptor& desc = descs[i];
-        vbos[desc.vbo_index].bind();
-        glEnableVertexAttribArray(desc.location);
-        glVertexAttribPointer(desc.location, desc.num_elements, desc.type, desc.normalize, strides[desc.vbo_index], (GLvoid*)desc.offset);
-        glVertexAttribDivisor(desc.location, desc.divisor);
-        vbos[desc.vbo_index].unbind();
-    }
-    glBindVertexArray(0);
 }
 
 

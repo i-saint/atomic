@@ -2,17 +2,13 @@
 #define __atomic_Graphics_CreateModelData_h__
 namespace atomic {
 
-    void CreateQuadModel(ModelData& model, float32 len);
-    void CreateCubeModel(ModelData& model, float32 len);
-    void CreateOctahedronModel(ModelData& model, float32 len_xz, float32 len_y);
-    void CreateSphereModel(ModelData& model, float32 radius, uint32 div_xz=16, uint32 div_y=16);
-    void CreateCylinderModel(ModelData& model, float32 len_y, float32 radius);
-
+    void CreateSphere(VertexArray& va, VertexBufferObject& vbo, IndexBufferObject& ibo, float32 radius, uint32 div_xz, uint32 div_y);
     void CreateScreenQuad(VertexArray& va, VertexBufferObject& vbo);
     void CreateBloomLuminanceQuads(VertexArray& va, VertexBufferObject& vbo);
     void CreateBloomBlurQuads(VertexArray& va, VertexBufferObject& vbo);
     void CreateBloomCompositeQuad(VertexArray& va, VertexBufferObject& vbo);
     void CreateCube(VertexArray& va, VertexBufferObject& vbo, float32 len);
+
 
 } // namespace atomic
 #endif // __atomic_Graphics_ModelData_h__

@@ -35,7 +35,7 @@ AtomicRenderer::AtomicRenderer()
     m_rt_gbuffer    = atomicGetRenderTargetGBuffer();
     m_rt_deferred   = atomicGetRenderTargetDeferred();
 
-    m_renderer_cube = IST_NEW(PassGBuffer_Cube) ();
+    m_renderer_cube = IST_NEW(PassGBuffer_Fraction) ();
     m_renderer_sphere_light = IST_NEW(PassDeferred_PointLight) ();
     m_renderer_bloom = IST_NEW(PassPostprocess_Bloom) ();
 
@@ -75,8 +75,8 @@ void AtomicRenderer::draw()
     glLoadIdentity();
     {
         PerformanceCounter counter;
-        SPHCopyInstancePositions();
-        //IST_PRINT("SPHCopyInstancePositions() took %f ms.\n", counter.getElapsedMillisecond());
+        SPHCopyInstances();
+        //IST_PRINT("SPHCopyInstances() took %f ms.\n", counter.getElapsedMillisecond());
     }
     {
         PerspectiveCamera *camera = atomicGetCamera();
@@ -206,28 +206,35 @@ void AtomicRenderer::pass_Output()
 
 
 
-PassGBuffer_Cube::PassGBuffer_Cube()
+PassGBuffer_Fraction::PassGBuffer_Fraction()
 {
-    m_sh_gbuffer        = atomicGetShader(SH_GBUFFER);
-    m_model             = atomicGetModelData(MODEL_CUBE_FRACTION);
-    m_vbo_fraction_pos  = atomicGetVertexBufferObject(VBO_FRACTION_POS);
+    m_sh_gbuffer    = atomicGetShader(SH_GBUFFER);
+    m_vbo_instance  = atomicGetVertexBufferObject(VBO_FRACTION_INSTANCE);
+    m_va_fraction   = atomicGetVertexArray(VA_FRACTION_CUBE);
 }
 
-void PassGBuffer_Cube::beforeDraw()
+void PassGBuffer_Fraction::beforeDraw()
 {
-    m_vfx.clear();
 }
 
-void PassGBuffer_Cube::draw()
+void PassGBuffer_Fraction::draw()
 {
     //const uint32 num_fractions = m_fraction.pos.size();
     //m_vbo_instance_pos->allocate(sizeof(XMVECTOR)*num_fractions, VertexBufferObject::USAGE_STREAM, &m_fraction.pos[0]);
 
     const uint32 num_fractions = SPH_MAX_PARTICLE_NUM;
 
+    const VertexArray::Descriptor descs[] = {
+        {GLSL_INSTANCE_PARAM,    VertexArray::TYPE_FLOAT,4,  0, false, 1},
+        {GLSL_INSTANCE_POSITION, VertexArray::TYPE_FLOAT,4, 16, false, 1},
+        {GLSL_INSTANCE_VELOCITY, VertexArray::TYPE_FLOAT,4, 32, false, 1},
+    };
+
     m_sh_gbuffer->bind();
-    m_model->setInstanceData(GLSL_INSTANCE_POSITION, 4, *m_vbo_fraction_pos);
-    m_model->drawInstanced(num_fractions);
+    m_va_fraction->bind();
+    m_va_fraction->setAttributes(*m_vbo_instance, sizeof(SPHParticle), descs, _countof(descs));
+    glDrawArraysInstanced(GL_QUADS, 0, 24, num_fractions);
+    m_va_fraction->unbind();
     m_sh_gbuffer->unbind();
 }
 
@@ -235,15 +242,16 @@ void PassGBuffer_Cube::draw()
 
 PassDeferred_PointLight::PassDeferred_PointLight()
 {
-    m_shader = atomicGetShader(SH_POINTLIGHT);
-    m_model = atomicGetModelData(MODEL_SPHERE_LIGHT);
-    m_vbo_instance_pos = atomicGetVertexBufferObject(VBO_POINTLIGHT_POS);
-    m_instance_pos.reserve(1024);
+    m_shader        = atomicGetShader(SH_POINTLIGHT);
+    m_ibo_sphere    = atomicGetIndexBufferObject(IBO_SPHERE);
+    m_va_sphere     = atomicGetVertexArray(VA_UNIT_SPHERE);
+    m_vbo_instance  = atomicGetVertexBufferObject(VBO_POINTLIGHT_INSTANCE);
+    m_instances.reserve(1024);
 }
 
 void PassDeferred_PointLight::beforeDraw()
 {
-    m_instance_pos.clear();
+    m_instances.clear();
 }
 
 void PassDeferred_PointLight::draw()
@@ -253,9 +261,18 @@ void PassDeferred_PointLight::draw()
 
     const uint32 num_instances = SPH_MAX_LIGHT_NUM;
 
+    //m_vbo_instance->allocate(sizeof(Light)*m_instances.size(), VertexBufferObject::USAGE_DYNAMIC, &m_instances[0]);
+    const VertexArray::Descriptor descs[] = {
+        {GLSL_INSTANCE_POSITION, VertexArray::TYPE_FLOAT,4, 0, false, 1},
+    };
+
     m_shader->bind();
-    m_model->setInstanceData(GLSL_INSTANCE_POSITION, 4, *m_vbo_instance_pos);
-    m_model->drawInstanced(num_instances);
+    m_va_sphere->bind();
+    m_va_sphere->setAttributes(*m_vbo_instance, sizeof(vec4), descs, _countof(descs));
+    m_ibo_sphere->bind();
+    glDrawElementsInstanced(GL_QUADS, (16-1)*(32)*4, GL_UNSIGNED_INT, 0, num_instances);
+    m_ibo_sphere->unbind();
+    m_va_sphere->unbind();
     m_shader->unbind();
 }
 

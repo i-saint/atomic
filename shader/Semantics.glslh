@@ -8,7 +8,9 @@
 
 #define GLSL_INSTANCE_POSITION  8
 #define GLSL_INSTANCE_NORMAL    9
-#define GLSL_INSTANCE_GLOW      10
+#define GLSL_INSTANCE_VELOCITY  10
+#define GLSL_INSTANCE_PARAM     11
+#define GLSL_INSTANCE_GLOW      12
 
 // textures
 #define GLSL_COLOR_BUFFER       0

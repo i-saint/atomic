@@ -3,6 +3,7 @@
 
 #if defined(GLSL_VS)
 ia_out(GLSL_POSITION)           vec4 ia_VertexPosition;
+ia_out(GLSL_NORMAL)             vec4 ia_VertexNormal;
 ia_out(GLSL_INSTANCE_POSITION)  vec4 ia_InstancePosition;
 #endif
 #if defined(GLSL_VS) || defined(GLSL_PS)
@@ -11,6 +12,10 @@ vs_out vec4 vs_LightPositionMVP;
 vs_out vec4 vs_LightColor;
 vs_out vec4 vs_VertexPositionMVP;
 #endif
+const float u_LightSize = 1.0;
+const float u_LightRange = u_LightSize*0.98;
+const float u_LightRange2 = u_LightRange*u_LightRange;
+const float u_RcpLightRange2 = 1.0/u_LightRange2;
 
 #if defined(GLSL_VS)
 
@@ -20,9 +25,11 @@ void main()
     vs_LightPosition.z += 0.1;
     vs_LightPosition.w = 0.0;
 
+    vec4 scaled_position = ia_VertexPosition * vec4(u_LightSize, u_LightSize, u_LightSize, 1.0);
+
     vs_LightColor = vec4(0.1, 0.1, 0.2, 0.1)+normalize(vs_LightPosition)*0.7;
     vs_LightPositionMVP = u_RS.ModelViewProjectionMatrix * vs_LightPosition;
-    vs_VertexPositionMVP = u_RS.ModelViewProjectionMatrix * (ia_VertexPosition+vs_LightPosition);
+    vs_VertexPositionMVP = u_RS.ModelViewProjectionMatrix * (scaled_position+vs_LightPosition);
     gl_Position = vs_VertexPositionMVP;
 }
 
@@ -49,7 +56,9 @@ void main()
                     Albedo * max(dot(Normal,L), 0.0)
                  );
 
-    float strength = max(2.3-length(frag_position.xyz-vs_LightPosition.xyz), 0.0)/2.3 * 1.5;
+    vec3 diff = frag_position.xyz-vs_LightPosition.xyz;
+    float dist2 = dot(diff, diff);
+    float strength = max(u_LightRange2-dist2, 0.0)*u_RcpLightRange2 * 1.5;
     color.rgb *= pow(strength, 0.7);
     color.w = 1.0;
 

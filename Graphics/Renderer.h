@@ -15,7 +15,7 @@ public:
 };
 
 
-class PassGBuffer_Cube;
+class PassGBuffer_Fraction;
 class PassDeferred_PointLight;
 class PassPostprocess_Bloom;
 
@@ -29,7 +29,7 @@ private:
     RenderTargetGBuffer     *m_rt_gbuffer;
     RenderTargetDeferred    *m_rt_deferred;
 
-    PassGBuffer_Cube        *m_renderer_cube;
+    PassGBuffer_Fraction        *m_renderer_cube;
     PassDeferred_PointLight *m_renderer_sphere_light;
     PassPostprocess_Bloom   *m_renderer_bloom;
     stl::vector<IRenderer*> m_renderers[PASS_END];
@@ -58,7 +58,7 @@ public:
     void beforeDraw();  // メインスレッドから、描画処理の前に呼ばれる
     void draw();        // 以下描画スレッドから呼ばれる
 
-    PassGBuffer_Cube* getCubeRenderer()                 { return m_renderer_cube; }
+    PassGBuffer_Fraction* getCubeRenderer()                 { return m_renderer_cube; }
     PassDeferred_PointLight* getSphereLightRenderer()   { return m_renderer_sphere_light; }
     const Viewport* getDefaultViewport() const          { return &m_default_viewport; }
     RenderStates* getRenderStates()                     { return &m_render_states; }
@@ -73,58 +73,43 @@ public:
 
 
 
-class PassGBuffer_Cube : public IRenderer
+class PassGBuffer_Fraction : public IRenderer
 {
 private:
-    struct InstanceInfo
-    {
-        stl::vector<float4> pos;
-        stl::vector<float4> glow;
-        stl::vector<float32> scale;
-
-        void clear()
-        {
-            pos.clear();
-            glow.clear();
-            scale.clear();
-        }
-
-        void reserve(uint32 n)
-        {
-            pos.reserve(n);
-            glow.reserve(n);
-            scale.reserve(n);
-        }
-    };
     AtomicShader        *m_sh_gbuffer;
-    ModelData           *m_model;
-    VertexBufferObject  *m_vbo_fraction_pos;
-    InstanceInfo        m_vfx;
+    VertexArray         *m_va_fraction;
+    VertexBufferObject  *m_vbo_instance;
 
 public:
-    PassGBuffer_Cube();
+    PassGBuffer_Fraction();
     void beforeDraw();  // メインスレッドから、描画処理の前に呼ばれる
     void draw();    // 描画スレッドから呼ばれる
-
-    void pushVFXInstance(float4 v) { m_vfx.pos.push_back(v); }
 };
 
 
 
 class PassDeferred_PointLight : public IRenderer
 {
+public:
+    struct Light
+    {
+        vec4 position;
+    };
+
 private:
-    stl::vector<float4> m_instance_pos;
-    AtomicShader *m_shader;
-    ModelData *m_model;
-    VertexBufferObject *m_vbo_instance_pos;
+    typedef stl::vector<Light> InstanceCont;
+    InstanceCont        m_instances;
+    AtomicShader        *m_shader;
+    IndexBufferObject   *m_ibo_sphere;
+    VertexArray         *m_va_sphere;
+    VertexBufferObject  *m_vbo_instance;
 
 public:
     PassDeferred_PointLight();
     void beforeDraw();
     void draw();
 
-    void pushInstance(float4 v) { m_instance_pos.push_back(v); }
+    void pushInstance(const Light& v) { m_instances.push_back(v); }
 };
 
 //

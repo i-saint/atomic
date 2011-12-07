@@ -426,6 +426,7 @@ __global__ void GIntegrate()
     //position.z *= 0.0f;
 
     // Update
+    d_particles[P_ID].density = d_forces[P_ID].density;
     d_particles[P_ID].position = position;
     d_particles[P_ID].velocity = velocity;
 }
@@ -439,15 +440,15 @@ void SPHIntegrate()
 }
 
 
-__global__ void GCopyInstancePositions(float4 *d_instance_pos, float4 *d_light_pos)
+__global__ void GCopyInstances(SPHParticle *d_fractions, float4 *d_lights)
 {
     const unsigned int P_ID = GetThreadId();
     int pid = d_particles[P_ID].id;
-    d_instance_pos[P_ID] = d_particles[P_ID].position;
+    d_fractions[P_ID] = d_particles[P_ID];
 
     int light_cycle = SPH_MAX_PARTICLE_NUM/SPH_MAX_LIGHT_NUM;
     if(pid % light_cycle==0) {
-        d_light_pos[pid/light_cycle] = d_particles[P_ID].position;
+        d_lights[pid/light_cycle] = d_particles[P_ID].position;
     }
 }
 
@@ -457,26 +458,26 @@ __global__ void GCopyInstancePositions(float4 *d_instance_pos, float4 *d_light_p
 DeviceBufferObject h_instance_pos;
 DeviceBufferObject h_light_pos;
 
-void SPHInitializeInstancePositionBuffer(int vbo_inspos, int vbo_lightpos)
+void SPHInitializeInstanceBuffers(int vbo_fraction, int vbo_lightpos)
 {
-    h_instance_pos.registerBuffer(vbo_inspos, cudaGraphicsMapFlagsWriteDiscard);
+    h_instance_pos.registerBuffer(vbo_fraction, cudaGraphicsMapFlagsWriteDiscard);
     h_light_pos.registerBuffer(vbo_lightpos, cudaGraphicsMapFlagsWriteDiscard);
 }
 
-void SPHFinalizeInstancePositionBuffer()
+void SPHFinalizeInstanceBuffers()
 {
     h_instance_pos.unregisterBuffer();
     h_light_pos.unregisterBuffer();
 }
 
-void SPHCopyInstancePositions()
+void SPHCopyInstances()
 {
-    float4 *d_inspos = (float4*)h_instance_pos.mapBuffer();
-    float4 *d_lightpos = (float4*)h_light_pos.mapBuffer();
+    SPHParticle *d_fractions = (SPHParticle*)h_instance_pos.mapBuffer();
+    float4 *d_lights = (float4*)h_light_pos.mapBuffer();
 
     dim3 dimBlock( SPH_THREAD_BLOCK_X );
     dim3 dimGrid( SPH_MAX_PARTICLE_NUM / SPH_THREAD_BLOCK_X );
-    GCopyInstancePositions<<<dimGrid, dimBlock>>>(d_inspos, d_lightpos);
+    GCopyInstances<<<dimGrid, dimBlock>>>(d_fractions, d_lights);
 
     h_instance_pos.unmapBuffer();
     h_light_pos.unmapBuffer();

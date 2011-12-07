@@ -37,6 +37,7 @@ extern "C" {
             struct {
                 int id;
                 int lifetime;
+                float density;
             };
             float4 padding;
         };
@@ -77,9 +78,9 @@ extern "C" {
     void SPHComputeForce();
     void SPHIntegrate();
 
-    void SPHInitializeInstancePositionBuffer(int vbo_inspos, int vbo_lightpos);
-    void SPHFinalizeInstancePositionBuffer();
-    void SPHCopyInstancePositions();
+    void SPHInitializeInstanceBuffers(int vbo_fraction, int vbo_lightpos);
+    void SPHFinalizeInstanceBuffers();
+    void SPHCopyInstances();
 
     void SPHUpdateSphericalGravityData(SPHSphericalGravity (&sgravity)[ SPH_MAX_SPHERICAL_GRAVITY_NUM ]);
 

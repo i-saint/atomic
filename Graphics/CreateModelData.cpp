@@ -3,154 +3,43 @@
 #include "types.h"
 #include "Graphics/CreateModelData.h"
 #include "shader/Semantics.glslh"
+#include <math.h>
 
 
 namespace atomic {
 
 
-void CreateQuadModel(ModelData& model, float32 len)
+void CreateSphere(
+    VertexArray& va, VertexBufferObject& vbo, IndexBufferObject& ibo,
+    float32 radius, uint32 div_xz, uint32 div_y)
 {
-    vec4 vertex[4];
-    vec3 normal[4];
-    int index[4];
-
-    const float32 half_len = len/2.0f;
-    vertex[0] = vec4( half_len,  half_len,  half_len, 1.0f);
-    vertex[1] = vec4( half_len, -half_len,  half_len, 1.0f);
-    vertex[2] = vec4( half_len, -half_len, -half_len, 1.0f);
-    vertex[3] = vec4(-half_len, -half_len, -half_len, 1.0f);
-
-    normal[0] = vec3(0.0f, 0.0f, 1.0f);
-    normal[1] = normal[0];
-    normal[2] = normal[0];
-    normal[3] = normal[0];
-
-    index[0] = 0;
-    index[1] = 1;
-    index[2] = 2;
-    index[3] = 3;
-
-    model.setData(0, vertex, _countof(vertex), 4);
-    model.setData(1, normal, _countof(normal), 3);
-    model.setIndex(index, _countof(index), ModelData::IDX_INT32, ModelData::PRM_TRIANGLE_FAN);
-}
-
-void CreateCubeModel(ModelData& model, float32 len)
-{
-    vec4 vertex[24];
-    vec3 normal[24];
-    int index[24];
-
-    const float32 half_len = len/2.0f;
-    vec3 ur = vec3( half_len, half_len, half_len);
-    vec3 bl = vec3(-half_len,-half_len,-half_len);
-    vec3 n;
-
-    n = vec3(1.0f, 0.0f, 0.0f);
-    normal[0] = n;
-    normal[1] = n;
-    normal[2] = n;
-    normal[3] = n;
-    vertex[0] = vec4(ur[0], ur[1], ur[2], 1.0f);
-    vertex[1] = vec4(ur[0], bl[1], ur[2], 1.0f);
-    vertex[2] = vec4(ur[0], bl[1], bl[2], 1.0f);
-    vertex[3] = vec4(ur[0], ur[1], bl[2], 1.0f);
-
-    n = vec3(-1.0f, 0.0f, 0.0f);
-    normal[4] = n;
-    normal[5] = n;
-    normal[6] = n;
-    normal[7] = n;
-    vertex[4] = vec4(bl[0], ur[1], ur[2], 1.0f);
-    vertex[5] = vec4(bl[0], ur[1], bl[2], 1.0f);
-    vertex[6] = vec4(bl[0], bl[1], bl[2], 1.0f);
-    vertex[7] = vec4(bl[0], bl[1], ur[2], 1.0f);
-
-    n = vec3(0.0f, 1.0f, 0.0f);
-    normal[8] = n;
-    normal[9] = n;
-    normal[10] = n;
-    normal[11] = n;
-    vertex[8] = vec4(ur[0], ur[1], ur[2], 1.0f);
-    vertex[9] = vec4(ur[0], ur[1], bl[2], 1.0f);
-    vertex[10] = vec4(bl[0], ur[1], bl[2], 1.0f);
-    vertex[11] = vec4(bl[0], ur[1], ur[2], 1.0f);
-
-    n = vec3(0.0f, -1.0f, 0.0f);
-    normal[12] = n;
-    normal[13] = n;
-    normal[14] = n;
-    normal[15] = n;
-    vertex[12] = vec4(ur[0], bl[1], ur[2], 1.0f);
-    vertex[13] = vec4(bl[0], bl[1], ur[2], 1.0f);
-    vertex[14] = vec4(bl[0], bl[1], bl[2], 1.0f);
-    vertex[15] = vec4(ur[0], bl[1], bl[2], 1.0f);
-
-    n = vec3(0.0f, 0.0f, 1.0f);
-    normal[16] = n;
-    normal[17] = n;
-    normal[18] = n;
-    normal[19] = n;
-    vertex[16] = vec4(ur[0], ur[1], ur[2], 1.0f);
-    vertex[17] = vec4(bl[0], ur[1], ur[2], 1.0f);
-    vertex[18] = vec4(bl[0], bl[1], ur[2], 1.0f);
-    vertex[19] = vec4(ur[0], bl[1], ur[2], 1.0f);
-
-    n = vec3(0.0f, 0.0f, -1.0f);
-    normal[20] = n;
-    normal[21] = n;
-    normal[22] = n;
-    normal[23] = n;
-    vertex[20] = vec4(ur[0], ur[1], bl[2], 1.0f);
-    vertex[21] = vec4(ur[0], bl[1], bl[2], 1.0f);
-    vertex[22] = vec4(bl[0], bl[1], bl[2], 1.0f);
-    vertex[23] = vec4(bl[0], ur[1], bl[2], 1.0f);
-
-    for(size_t i=0; i<24; ++i) {
-        index[i] = i;
-    }
-
-    model.setData(0, vertex, _countof(vertex), 4);
-    model.setData(1, normal, _countof(normal), 3);
-    model.setIndex(index, _countof(index), ModelData::IDX_INT32, ModelData::PRM_QUADS);
-}
-
-void CreateOctahedronModel(ModelData& model, float32 len_xz, float32 len_y)
-{
-    vec4 vertex[8*3];
-    vec3 normal[8*3];
-    int index[8*3];
-
-    IST_ASSERT("–¢ŽÀ‘•");
-
-    model.setData(0, vertex, _countof(vertex), 4);
-    model.setData(1, normal, _countof(normal), 3);
-    model.setIndex(index, _countof(index), ModelData::IDX_INT32, ModelData::PRM_TRIANGLES);
-}
-
-void CreateSphereModel(ModelData& model, float32 radius, uint32 div_xz, uint32 div_y)
-{
-    stl::vector<vec4> v(div_y*div_xz);
-    stl::vector<vec3> n(div_y*div_xz);
-    stl::vector<int32> index((div_y-1)*(div_xz)*4);
+    struct __declspec(align(16)) vertex_t
+    {
+        vec4 pos;
+        vec4 normal;
+    };
+    const uint32 vertex_size = sizeof(vertex_t)*div_y*div_xz;
+    const uint32 index_size = sizeof(uint32)*(div_y-1)*(div_xz)*4;
+    vertex_t *vert = (vertex_t*)IST_ALIGNED_MALLOC(vertex_size, 16);
+    uint32 *index = (uint32*)IST_ALIGNED_MALLOC(index_size, 16);
 
     for(uint32 yi=0; yi<div_y; ++yi) {
-        float ang = XMConvertToRadians(180.0f/(div_y-1)*yi-90.0f);
-        v[div_xz*yi] = vec4(cos(ang)*radius, sin(ang)*radius, 0, 1.0);
+        float ang = glm::radians(180.0f/(div_y-1)*yi-90.0f);
+        vert[div_xz*yi].pos = vec4(cos(ang)*radius, sin(ang)*radius, 0, 1.0);
     }
 
-    mat4 mat;
+    mat4 rot;
     for(uint32 xzi=0; xzi<div_xz; ++xzi) {
         for(uint32 yi=0; yi<div_y; ++yi) {
-            vec4 *vr = &v[div_xz*yi];
-            vec3 *nr = &n[div_xz*yi];
-            vr[xzi] = mat * vr[0];
-            nr[xzi] = glm::normalize(vec3(vr[xzi].x, vr[xzi].y, vr[xzi].z));
+            vertex_t* vp = &vert[div_xz*yi];
+            vec4 rotated = rot * vp[0].pos;
+            vp[xzi].pos = rotated;
+            vp[xzi].normal = glm::normalize(vec4(rotated.x, rotated.y, rotated.z, 0.0f));
         }
-        mat = glm::rotate(mat4(), 360.0f/div_xz*xzi, vec3(0.0f, 1.0f, 0.0f));
+        rot = glm::rotate(mat4(), 360.0f/div_xz*xzi, vec3(0.0f, 1.0f, 0.0f));
     }
 
-    int32 *ci = &index[0];
+    uint32 *ci = &index[0];
     for(uint32 yi=0; yi<div_y-1; ++yi) {
         for(uint32 xzi=0; xzi<div_xz; ++xzi) {
             ci[0] = div_xz*(yi)  + xzi;
@@ -160,9 +49,17 @@ void CreateSphereModel(ModelData& model, float32 radius, uint32 div_xz, uint32 d
             ci+=4;
         }
     }
-    model.setData(0, &v[0], div_y*div_xz, 4);
-    model.setData(1, &n[0], div_y*div_xz, 3);
-    model.setIndex(&index[0], index.size(), ModelData::IDX_INT32, ModelData::PRM_QUADS);
+
+    VertexArray::Descriptor descs[] = {
+        {GLSL_POSITION, VertexArray::TYPE_FLOAT,4,  0, false, 0},
+        {GLSL_NORMAL,   VertexArray::TYPE_FLOAT,4, 16, false, 0},
+    };
+    vbo.allocate(vertex_size, VertexBufferObject::USAGE_STATIC, vert);
+    ibo.allocate(index_size, IndexBufferObject::USAGE_STATIC, index);
+    va.setAttributes(vbo, sizeof(vertex_t), descs, _countof(descs));
+
+    IST_FREE(index);
+    IST_FREE(vert);
 }
 
 void CreateScreenQuad( VertexArray& va, VertexBufferObject& vbo )
@@ -180,8 +77,8 @@ void CreateScreenQuad( VertexArray& va, VertexBufferObject& vbo )
     vbo.allocate(sizeof(v), VertexBufferObject::USAGE_STATIC, v);
 
     VertexArray::Descriptor descs[] = {
-        {GLSL_POSITION,  0, VertexArray::TYPE_FLOAT,2, 0, false, 0},
-        {GLSL_TEXCOORD0, 0, VertexArray::TYPE_FLOAT,2, 8, false, 0},
+        {GLSL_POSITION,  VertexArray::TYPE_FLOAT,2, 0, false, 0},
+        {GLSL_TEXCOORD0, VertexArray::TYPE_FLOAT,2, 8, false, 0},
     };
     va.setAttributes(vbo, sizeof(vertex_t), descs, _countof(descs));
 }
@@ -216,8 +113,8 @@ void CreateBloomLuminanceQuads( VertexArray& va, VertexBufferObject& vbo )
     vbo.allocate(sizeof(v), VertexBufferObject::USAGE_STATIC, v);
 
     VertexArray::Descriptor descs[] = {
-        {GLSL_POSITION,  0, VertexArray::TYPE_FLOAT,2, 0, false, 0},
-        {GLSL_TEXCOORD0, 0, VertexArray::TYPE_FLOAT,2, 8, false, 0},
+        {GLSL_POSITION,  VertexArray::TYPE_FLOAT,2, 0, false, 0},
+        {GLSL_TEXCOORD0, VertexArray::TYPE_FLOAT,2, 8, false, 0},
     };
     va.setAttributes(vbo, sizeof(vertex_t), descs, _countof(descs));
 }
@@ -256,10 +153,10 @@ void CreateBloomBlurQuads( VertexArray& va, VertexBufferObject& vbo )
     };
 
     VertexArray::Descriptor descs[] = {
-        {GLSL_POSITION,  0, VertexArray::TYPE_FLOAT,2, 0, false, 0},
-        {GLSL_TEXCOORD0, 0, VertexArray::TYPE_FLOAT,2, 8, false, 0},
-        {GLSL_TEXCOORD1, 0, VertexArray::TYPE_FLOAT,2,16, false, 0},
-        {GLSL_TEXCOORD2, 0, VertexArray::TYPE_FLOAT,2,24, false, 0},
+        {GLSL_POSITION,  VertexArray::TYPE_FLOAT,2, 0, false, 0},
+        {GLSL_TEXCOORD0, VertexArray::TYPE_FLOAT,2, 8, false, 0},
+        {GLSL_TEXCOORD1, VertexArray::TYPE_FLOAT,2,16, false, 0},
+        {GLSL_TEXCOORD2, VertexArray::TYPE_FLOAT,2,24, false, 0},
     };
 
     vbo.allocate(sizeof(v), VertexBufferObject::USAGE_STATIC, v);
@@ -283,11 +180,11 @@ void CreateBloomCompositeQuad( VertexArray& va, VertexBufferObject& vbo )
     };
 
     VertexArray::Descriptor descs[] = {
-        {GLSL_POSITION,  0, VertexArray::TYPE_FLOAT,2, 0, false, 0},
-        {GLSL_TEXCOORD0, 0, VertexArray::TYPE_FLOAT,2, 8, false, 0},
-        {GLSL_TEXCOORD1, 0, VertexArray::TYPE_FLOAT,2,16, false, 0},
-        {GLSL_TEXCOORD2, 0, VertexArray::TYPE_FLOAT,2,24, false, 0},
-        {GLSL_TEXCOORD3, 0, VertexArray::TYPE_FLOAT,2,32, false, 0},
+        {GLSL_POSITION,  VertexArray::TYPE_FLOAT,2, 0, false, 0},
+        {GLSL_TEXCOORD0, VertexArray::TYPE_FLOAT,2, 8, false, 0},
+        {GLSL_TEXCOORD1, VertexArray::TYPE_FLOAT,2,16, false, 0},
+        {GLSL_TEXCOORD2, VertexArray::TYPE_FLOAT,2,24, false, 0},
+        {GLSL_TEXCOORD3, VertexArray::TYPE_FLOAT,2,32, false, 0},
     };
 
     vbo.allocate(sizeof(v), VertexBufferObject::USAGE_STATIC, v);
@@ -345,8 +242,8 @@ void CreateCube( VertexArray& va, VertexBufferObject& vbo, float32 len )
     };
 
     VertexArray::Descriptor descs[] = {
-        {GLSL_POSITION,  0, VertexArray::TYPE_FLOAT,4, 0, false, 0},
-        {GLSL_NORMAL,    0, VertexArray::TYPE_FLOAT,4,16, false, 0},
+        {GLSL_POSITION, VertexArray::TYPE_FLOAT,4, 0, false, 0},
+        {GLSL_NORMAL,   VertexArray::TYPE_FLOAT,4,16, false, 0},
     };
 
     vbo.allocate(sizeof(v), VertexBufferObject::USAGE_STATIC, v);
