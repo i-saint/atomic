@@ -43,5 +43,8 @@
     <None Include="shader\Bloom_VBlur.glsl">
       <Filter>shader</Filter>
     </None>
+    <None Include="shader\Deferred_DirectionalLight.glsl">
+      <Filter>shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

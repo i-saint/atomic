@@ -48,9 +48,6 @@
     <ClCompile Include="Game\Bullet.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Bullet_Octahedron.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
     <ClCompile Include="Game\Character.cpp">
       <Filter>Game</Filter>
     </ClCompile>
@@ -170,9 +167,6 @@
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="Game\Bullet.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\Bullet_Octahedron.h">
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="Game\Bullet_Subset.h">
@@ -369,11 +363,11 @@
     <ClInclude Include="Sound\AtomicSound.h">
       <Filter>Sound</Filter>
     </ClInclude>
-    <ClInclude Include="Game\FLoat.h">
-      <Filter>Game</Filter>
-    </ClInclude>
     <ClInclude Include="ist\Graphics\Font.h">
       <Filter>ist\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Light.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

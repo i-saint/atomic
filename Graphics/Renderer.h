@@ -2,6 +2,7 @@
 #define __atomic_Graphics_Renderer_h__
 
 #include "ResourceManager.h"
+#include "Light.h"
 
 namespace atomic {
 
@@ -16,7 +17,7 @@ public:
 
 
 class PassGBuffer_Fraction;
-class PassDeferred_PointLight;
+class PassDeferred_PointLights;
 class PassPostprocess_Bloom;
 
 
@@ -30,7 +31,7 @@ private:
     RenderTargetDeferred    *m_rt_deferred;
 
     PassGBuffer_Fraction        *m_renderer_cube;
-    PassDeferred_PointLight *m_renderer_sphere_light;
+    PassDeferred_PointLights *m_renderer_sphere_light;
     PassPostprocess_Bloom   *m_renderer_bloom;
     stl::vector<IRenderer*> m_renderers[PASS_END];
 
@@ -59,7 +60,7 @@ public:
     void draw();        // ˆÈ‰º•`‰æƒXƒŒƒbƒh‚©‚çŒÄ‚Î‚ê‚é
 
     PassGBuffer_Fraction* getCubeRenderer()                 { return m_renderer_cube; }
-    PassDeferred_PointLight* getSphereLightRenderer()   { return m_renderer_sphere_light; }
+    PassDeferred_PointLights* getSphereLightRenderer()   { return m_renderer_sphere_light; }
     const Viewport* getDefaultViewport() const          { return &m_default_viewport; }
     RenderStates* getRenderStates()                     { return &m_render_states; }
 };
@@ -88,9 +89,28 @@ public:
 
 
 
-class PassDeferred_PointLight : public IRenderer
+class PassDeferred_DirectionalLights : public IRenderer
+{
+private:
+    typedef DirectionalLight light_t;
+    typedef stl::vector<DirectionalLight> InstanceCont;
+    InstanceCont        m_instances;
+    AtomicShader        *m_shader;
+    VertexArray         *m_va_sphere;
+    VertexBufferObject  *m_vbo_instance;
+
+public:
+    PassDeferred_DirectionalLights();
+    void beforeDraw();
+    void draw();
+
+    void pushInstance(const DirectionalLight& v);
+};
+
+class PassDeferred_PointLights : public IRenderer
 {
 public:
+    typedef PointLight light_t;
     struct Light
     {
         vec4 position;
@@ -105,7 +125,7 @@ private:
     VertexBufferObject  *m_vbo_instance;
 
 public:
-    PassDeferred_PointLight();
+    PassDeferred_PointLights();
     void beforeDraw();
     void draw();
 
@@ -139,7 +159,6 @@ private:
     AtomicShader            *m_sh_vblur;
     AtomicShader            *m_sh_composite;
     UniformBufferObject     *m_ubo_states;
-    int                     m_loc_state;
 
 public:
     PassPostprocess_Bloom();

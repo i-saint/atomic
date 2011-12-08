@@ -14,7 +14,6 @@
     <ClCompile Include="Game\AtomicApplication.cpp" />
     <ClCompile Include="Game\AtomicGame.cpp" />
     <ClCompile Include="Game\Bullet.cpp" />
-    <ClCompile Include="Game\Bullet_Octahedron.cpp" />
     <ClCompile Include="Game\Character.cpp" />
     <ClCompile Include="Game\Force.cpp" />
     <ClCompile Include="Game\Force_Gravity.cpp" />
@@ -61,10 +60,8 @@
     <ClInclude Include="Game\AtomicApplication.h" />
     <ClInclude Include="Game\AtomicGame.h" />
     <ClInclude Include="Game\Bullet.h" />
-    <ClInclude Include="Game\Bullet_Octahedron.h" />
     <ClInclude Include="Game\Bullet_Subset.h" />
     <ClInclude Include="Game\Character.h" />
-    <ClInclude Include="Game\FLoat.h" />
     <ClInclude Include="Game\Force.h" />
     <ClInclude Include="Game\Force_Gravity.h" />
     <ClInclude Include="Game\Fraction.h" />
@@ -73,6 +70,7 @@
     <ClInclude Include="Game\World.h" />
     <ClInclude Include="GPGPU\SPH.cuh" />
     <ClInclude Include="Graphics\CreateModelData.h" />
+    <ClInclude Include="Graphics\Light.h" />
     <ClInclude Include="Graphics\Renderer.h" />
     <ClInclude Include="Graphics\ResourceManager.h" />
     <ClInclude Include="Graphics\Shader.h" />

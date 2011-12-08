@@ -108,20 +108,20 @@ struct __declspec(align(16)) Message_GenerateFraction
 struct __declspec(align(16)) Message_GenerateBullet
 {
     BULLET_TYPE bullet_type;
-    XMVECTOR pos;
-    XMVECTOR vel;
+    vec4 pos;
+    vec4 vel;
 };
 
 struct __declspec(align(16)) Message_GenerateForce
 {
     FORCE_TYPE force_type;
-    XMVECTOR pos;
+    vec4 pos;
 };
 
 struct __declspec(align(16)) Message_GenerateCharacter
 {
     CHARACTER_TYPE character_type;
-    XMVECTOR pos;
+    vec4 pos;
 };
 
 

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Linear.h"
+#include "../Math.h"
 
 namespace ist {
 namespace linear {

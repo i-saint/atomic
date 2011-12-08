@@ -9,9 +9,9 @@ ia_out(GLSL_INSTANCE_VELOCITY)  vec4 ia_InstanceVelocity;
 ia_out(GLSL_INSTANCE_PARAM)     vec4 ia_InstanceParam;
 #endif
 #if defined(GLSL_VS) || defined(GLSL_PS)
-vs_out vec3 vs_VertexPosition;
-vs_out vec3 vs_VertexNormal;
-vs_out vec4 vs_VertexColor;
+vs_out vec4 vs_VertexPosition;
+vs_out vec4 vs_VertexNormal;        // w = shininess
+vs_out vec4 vs_VertexColor;         // w = fresnel
 #endif
 
 #if defined(GLSL_VS)
@@ -22,8 +22,8 @@ void main()
     vec4 vert = ia_VertexPosition+fractionPos;
     vert.w = 1.0;
 
-    vs_VertexPosition = vert.xyz;
-    vs_VertexNormal = ia_VertexNormal;
+    vs_VertexPosition = vec4(vert.xyz, 1.0);
+    vs_VertexNormal = vec4(ia_VertexNormal, 120.0);
     vs_VertexColor = vec4(0.6, 0.6, 0.6, 1.0);
     gl_Position = u_RS.ModelViewProjectionMatrix * vert;
 }
@@ -37,8 +37,8 @@ ps_out(2) vec4 ps_FragPosition;
 void main()
 {
     ps_VertexColor = vs_VertexColor;
-    ps_FragNormal = vec4(vs_VertexNormal, 1.0);
-    ps_FragPosition = vec4(vs_VertexPosition, 1.0);
+    ps_FragNormal = vs_VertexNormal;
+    ps_FragPosition = vs_VertexPosition;
 }
 
 #endif

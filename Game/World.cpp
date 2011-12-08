@@ -108,7 +108,8 @@ void World::sync() const
 
 void World::updateAsync()
 {
-    //m_camera.setPosition(XMVector3Transform(m_camera.getPosition(), XMMatrixRotationY(XMConvertToRadians(0.05f))));
+    //mat4 rot = glm::rotate(mat4(), 0.05f, vec3(0.0f, 1.0f, 0.0f));
+    //m_camera.setPosition(rot * m_camera.getPosition());
     m_camera.setAspect(atomicGetWindowAspectRatio());
 }
 

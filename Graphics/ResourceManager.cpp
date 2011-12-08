@@ -3,6 +3,7 @@
 #include "types.h"
 #include "Game/AtomicApplication.h"
 #include "Graphics/ResourceManager.h"
+#include "Graphics/Light.h"
 #include "GPGPU/SPH.cuh"
 #include "shader/glsl_source.h"
 
@@ -139,13 +140,14 @@ bool GraphicResourceManager::initialize()
     }
     {
         // create shaders
-        m_shader[SH_GBUFFER]        = CreateAtomicShader(g_GBuffer_Cube_glsl);
-        m_shader[SH_POINTLIGHT]     = CreateAtomicShader(g_Deferred_PointLight_glsl);
-        m_shader[SH_BLOOM_LUMINANCE]= CreateAtomicShader(g_Bloom_Luminance_glsl);
-        m_shader[SH_BLOOM_HBLUR]    = CreateAtomicShader(g_Bloom_HBlur_glsl);
-        m_shader[SH_BLOOM_VBLUR]    = CreateAtomicShader(g_Bloom_VBlur_glsl);
-        m_shader[SH_BLOOM_COMPOSITE]= CreateAtomicShader(g_Bloom_Composite_glsl);
-        m_shader[SH_OUTPUT]         = CreateAtomicShader(g_Out_glsl);
+        m_shader[SH_GBUFFER]            = CreateAtomicShader(g_GBuffer_Cube_glsl);
+        m_shader[SH_POINTLIGHT]         = CreateAtomicShader(g_Deferred_PointLight_glsl);
+        m_shader[SH_DIRECTIONALLIGHT]   = CreateAtomicShader(g_Deferred_DirectionalLight_glsl);
+        m_shader[SH_BLOOM_LUMINANCE]    = CreateAtomicShader(g_Bloom_Luminance_glsl);
+        m_shader[SH_BLOOM_HBLUR]        = CreateAtomicShader(g_Bloom_HBlur_glsl);
+        m_shader[SH_BLOOM_VBLUR]        = CreateAtomicShader(g_Bloom_VBlur_glsl);
+        m_shader[SH_BLOOM_COMPOSITE]    = CreateAtomicShader(g_Bloom_Composite_glsl);
+        m_shader[SH_OUTPUT]             = CreateAtomicShader(g_Out_glsl);
     }
     {
         // create textures
@@ -172,7 +174,8 @@ bool GraphicResourceManager::initialize()
     }
 
     m_vbo[VBO_FRACTION_INSTANCE]->allocate(sizeof(SPHParticle)*SPH_MAX_PARTICLE_NUM, VertexBufferObject::USAGE_DYNAMIC);
-    m_vbo[VBO_POINTLIGHT_INSTANCE]->allocate(sizeof(float4)*SPH_MAX_LIGHT_NUM, VertexBufferObject::USAGE_DYNAMIC);
+    m_vbo[VBO_DIRECTIONALLIGHT_INSTANCE]->allocate(sizeof(DirectionalLight)*ATOMIC_MAX_DIRECTIONAL_LIGHTS, VertexBufferObject::USAGE_DYNAMIC);
+    m_vbo[VBO_POINTLIGHT_INSTANCE]->allocate(sizeof(PointLight)*ATOMIC_MAX_POINT_LIGHTS, VertexBufferObject::USAGE_DYNAMIC);
     SPHInitialize();
     SPHInitializeInstanceBuffers(m_vbo[VBO_FRACTION_INSTANCE]->getHandle(), m_vbo[VBO_POINTLIGHT_INSTANCE]->getHandle());
 

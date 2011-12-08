@@ -1,43 +1,34 @@
 #ifndef __ist_Graphic_Linear_h__
 #define __ist_Graphic_Linear_h__
 
+
 namespace ist {
 
 // union に入れたいなどのシチュエーションが予想されるため、コンストラクタを持たない構造にしています
 
 struct __declspec(align(16)) Point
 {
-    union {
-        struct {
-            float x, y, z;
-        };
-        XMVECTOR v;
-    };
+    vec4 v;
 
-    static Point create() { Point ret={{0.0f, 0.0f, 0.0f}}; return ret; }
-    static Point create(float x, float y, float z) { Point ret={{x,y,z}}; return ret; }
-    static Point create(XMVECTOR v) { Point ret; ret.v=v; return ret; }
+    static Point create() { Point ret; return ret; }
+    static Point create(float x, float y, float z) { Point ret={vec4(x,y,z,0.0f)}; return ret; }
+    static Point create(vec4 v) { Point ret={v}; return ret; }
 
-    XMVECTOR getPosition() const { return v; }
+    vec4 getPosition() const { return v; }
 };
 
 
 struct __declspec(align(16)) Sphere
 {
-    union {
-        struct {
-            float x, y, z, r;
-        };
-        XMVECTOR v;
-    };
+    vec4 v;
 
-    static Sphere create() { Sphere ret={{0.0f, 0.0f, 0.0f, 0.0f}}; return ret; }
-    static Sphere create(float x, float y, float z, float r) { Sphere ret={{x,y,z,r}}; return ret; }
-    static Sphere create(XMVECTOR v, float r) { Sphere ret; ret.v=v; ret.r=r; return ret; }
-    static Sphere create(const Point &p, float r) { Sphere ret; ret.v=p.v; ret.r=r; return ret; }
+    static Sphere create() { Sphere ret; return ret; }
+    static Sphere create(float x, float y, float z, float r) { Sphere ret={vec4(x, y, z, r)}; return ret; }
+    static Sphere create(vec4 v, float r) { Sphere ret={vec4(v.x, v.y, v.z, r)}; return ret; }
+    static Sphere create(const Point &p, float r) { Sphere ret={vec4(p.v.x, p.v.y, p.v.z, r)}; return ret; }
 
-    XMVECTOR getPosition() const { return v; }
-    float getRadius() const { return r; }
+    vec4 getPosition() const { return vec4(v.x, v.y, v.z, 0.0f); }
+    float getRadius() const { return v.w; }
 };
 
 
@@ -49,8 +40,8 @@ struct __declspec(align(16)) Segment
     static Segment create() { Segment ret={Point::create(), Point::create()}; return ret; }
     static Segment create(const Point &a, const Point &b) { Segment ret={a,b}; return ret; }
 
-    XMVECTOR getBeginPos() const { return begin_pos.v; }
-    XMVECTOR getEndPos() const { return end_pos.v; }
+    vec4 getBeginPos() const { return begin_pos.v; }
+    vec4 getEndPos() const { return end_pos.v; }
 };
 
 
@@ -62,23 +53,18 @@ struct __declspec(align(16)) Capsule
     static Capsule create() { Capsule ret={Sphere::create(), Point::create()}; return ret; }
     static Capsule create(const Point &a, const Point &b, float r) { Capsule ret={Sphere::create(a,r), b}; return ret; }
 
-    XMVECTOR getBeginPos() const { return begin_pos.v; }
-    XMVECTOR getEndPos() const { return end_pos.v; }
+    vec4 getBeginPos() const { return begin_pos.v; }
+    vec4 getEndPos() const { return end_pos.v; }
     float getRadius() {}
 };
 
 
 struct __declspec(align(16)) Plane
 {
-    union {
-        struct {
-            float nx, ny, nz, d;
-        };
-        XMVECTOR v;
-    };
+    vec4 v;
 
-    static Plane create() { Plane ret={0.0f, 0.0f, 0.0f, 0.0f}; return ret; }
-    static Plane create(XMVECTOR n, float d) { Plane ret; ret.v=n; ret.d=d; return ret; }
+    static Plane create() { Plane ret={vec4(0.0f, 0.0f, 0.0f, 0.0f)}; return ret; }
+    static Plane create(vec4 n, float d) { Plane ret; ret.v=n; ret.v.w=d; return ret; }
 };
 
 
@@ -101,23 +87,21 @@ struct __declspec(align(16)) AABB
 };
 
 
+
 struct __declspec(align(16)) OBB
 {
     AABB aabb;
-    XMMATRIX mat;
+    mat4 mat;
 
     static OBB create() {}
-    static OBB create(const Point &ur, const Point &bl, const XMMATRIX &mat) { OBB ret={AABB::create(ur,bl), mat}; return ret; }
-    static OBB create(const AABB &aabb, const XMMATRIX &mat) { OBB ret={aabb, mat}; return ret; }
+    static OBB create(const Point &ur, const Point &bl, const mat4 &mat) { OBB ret={AABB::create(ur,bl), mat}; return ret; }
+    static OBB create(const AABB &aabb, const mat4 &mat) { OBB ret={aabb, mat}; return ret; }
 };
 
 
 struct __declspec(align(16)) Frustum
 {
-    XMMATRIX m_mat;
-
-    static Frustum create() { Frustum ret={XMMatrixIdentity()}; return ret; }
-    static Frustum create(const XMMATRIX &mat) { Frustum ret={mat}; return ret; }
+    mat4 m_mat;
 };
 
 

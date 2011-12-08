@@ -36,7 +36,7 @@ AtomicRenderer::AtomicRenderer()
     m_rt_deferred   = atomicGetRenderTargetDeferred();
 
     m_renderer_cube = IST_NEW(PassGBuffer_Fraction) ();
-    m_renderer_sphere_light = IST_NEW(PassDeferred_PointLight) ();
+    m_renderer_sphere_light = IST_NEW(PassDeferred_PointLights) ();
     m_renderer_bloom = IST_NEW(PassPostprocess_Bloom) ();
 
     m_renderers[PASS_GBUFFER].push_back(m_renderer_cube);
@@ -91,7 +91,6 @@ void AtomicRenderer::draw()
         m_render_states.ScreenTexcoord = vec2(
             m_render_states.ScreenSize.x/float32(m_rt_deferred->getWidth()),
             m_render_states.ScreenSize.y/float32(m_rt_deferred->getHeight()));
-
         MapAndWrite(*ubo_renderstates, &m_render_states, sizeof(m_render_states));
     }
 
@@ -240,7 +239,52 @@ void PassGBuffer_Fraction::draw()
 
 
 
-PassDeferred_PointLight::PassDeferred_PointLight()
+
+PassDeferred_DirectionalLights::PassDeferred_DirectionalLights()
+{
+    m_shader        = atomicGetShader(SH_DIRECTIONALLIGHT);
+    m_va_sphere     = atomicGetVertexArray(VA_SCREEN_QUAD);
+    m_vbo_instance  = atomicGetVertexBufferObject(VBO_DIRECTIONALLIGHT_INSTANCE);
+    m_instances.reserve(ATOMIC_MAX_DIRECTIONAL_LIGHTS);
+}
+
+void PassDeferred_DirectionalLights::beforeDraw()
+{
+    m_instances.clear();
+}
+
+void PassDeferred_DirectionalLights::draw()
+{
+    const uint32 num_instances = m_instances.size();
+    MapAndWrite(*m_vbo_instance, &m_instances[0], sizeof(light_t)*num_instances);
+
+    const VertexArray::Descriptor descs[] = {
+        {GLSL_INSTANCE_POSITION,VertexArray::TYPE_FLOAT,4,  0, false, 1},
+        {GLSL_INSTANCE_COLOR,   VertexArray::TYPE_FLOAT,4, 16, false, 1},
+        {GLSL_INSTANCE_AMBIENT, VertexArray::TYPE_FLOAT,4, 32, false, 1},
+    };
+
+    m_shader->bind();
+    m_va_sphere->bind();
+    m_va_sphere->setAttributes(*m_vbo_instance, sizeof(vec4), descs, _countof(descs));
+    glDrawElementsInstanced(GL_QUADS, (16-1)*(32)*4, GL_UNSIGNED_INT, 0, num_instances);
+    m_va_sphere->unbind();
+    m_shader->unbind();
+
+}
+
+void PassDeferred_DirectionalLights::pushInstance( const DirectionalLight& v )
+{
+    if(m_instances.size()>=ATOMIC_MAX_DIRECTIONAL_LIGHTS) {
+        IST_PRINT("ATOMIC_MAX_DIRECTIONAL_LIGHTS exceeded.\n");
+        return;
+    }
+    m_instances.push_back(v);
+}
+
+
+
+PassDeferred_PointLights::PassDeferred_PointLights()
 {
     m_shader        = atomicGetShader(SH_POINTLIGHT);
     m_ibo_sphere    = atomicGetIndexBufferObject(IBO_SPHERE);
@@ -249,12 +293,12 @@ PassDeferred_PointLight::PassDeferred_PointLight()
     m_instances.reserve(1024);
 }
 
-void PassDeferred_PointLight::beforeDraw()
+void PassDeferred_PointLights::beforeDraw()
 {
     m_instances.clear();
 }
 
-void PassDeferred_PointLight::draw()
+void PassDeferred_PointLights::draw()
 {
     //const uint32 num_instances = m_instance_pos.size();
     //m_vbo_instance_pos->allocate(sizeof(XMVECTOR)*num_instances, VertexBufferObject::USAGE_STREAM, &m_instance_pos[0]);
@@ -289,7 +333,6 @@ PassPostprocess_Bloom::PassPostprocess_Bloom()
 , m_sh_vblur(NULL)
 , m_sh_composite(NULL)
 , m_ubo_states(NULL)
-, m_loc_state(0)
 {
     m_rt_deferred   = atomicGetRenderTargetDeferred();
     m_rt_gauss0     = atomicGetRenderTargetGauss(0);
@@ -302,7 +345,6 @@ PassPostprocess_Bloom::PassPostprocess_Bloom()
     m_sh_vblur      = atomicGetShader(SH_BLOOM_VBLUR);
     m_sh_composite  = atomicGetShader(SH_BLOOM_COMPOSITE);
     m_ubo_states    = atomicGetUniformBufferObject(UBO_BLOOM_STATES);
-    m_loc_state     = m_sh_luminance->getUniformBlockIndex("bloom_states");
 }
 
 void PassPostprocess_Bloom::beforeDraw()

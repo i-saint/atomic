@@ -39,10 +39,10 @@ void FractionSet::initialize()
             mes.num = 3000;
 
             ist::Sphere sphere;
-            sphere.x = xv[i];
-            sphere.y = yv[i];
-            sphere.z = 0.0f;
-            sphere.r = 1.2f;
+            sphere.v.x = xv[i];
+            sphere.v.y = yv[i];
+            sphere.v.z = 0.0f;
+            sphere.v.r = 1.2f;
             mes.assignData<ist::Sphere>(sphere);
             atomicPushMessage(MR_FRACTION, 0, mes);
         }
@@ -54,7 +54,7 @@ void FractionSet::initialize()
         h_sg.is_active = 1;
         h_sg.inner_radus = 0.25f;
         h_sg.range_radus = 5.12f;
-        h_sg.strength = 1.5f;
+        h_sg.strength = 1.0f;
         for(uint32 i=0; i<_countof(m_sgravity); ++i) {
             m_sgravity[i] = h_sg;
         }
@@ -112,10 +112,10 @@ void FractionSet::processMessage()
                 fd.id = ++m_idgen;
                 fd.lifetime = 0xFFFFFFFF;
                 fd.velocity = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
-                fd.position = make_float4(sphere.x, sphere.y, sphere.z, 0.0f);
+                fd.position = make_float4(sphere.v.x, sphere.v.y, sphere.v.z, 0.0f);
 
                 float4 r = make_float4(atomicGenRandFloat(),atomicGenRandFloat(),atomicGenRandFloat(), 0.0f);
-                r = (r - make_float4(0.5f)) * make_float4(2.0f) * make_float4(sphere.r);
+                r = (r - make_float4(0.5f)) * make_float4(2.0f) * make_float4(sphere.v.w);
                 fd.position += r;
                 fd.velocity = make_float4(atomicGenRandFloat(),atomicGenRandFloat(),atomicGenRandFloat(),0.0f) * make_float4(0.2f);
 
@@ -135,7 +135,7 @@ void FractionSet::processMessage()
 void FractionSet::draw() const
 {
     PassGBuffer_Fraction *cube = atomicGetCubeRenderer();
-    PassDeferred_PointLight *light = atomicGetSphereLightRenderer();
+    PassDeferred_PointLights *light = atomicGetSphereLightRenderer();
 
     //cube->pushFractionInstance(make_float4(0.0f));
     //light->pushInstance(make_float4(0.2f, 0.2f, 0.2f, 0.2f));

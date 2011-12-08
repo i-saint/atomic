@@ -33,3 +33,14 @@
 #elif defined(GLSL)
     #define gs_out in
 #endif
+
+
+float SmoothInterpolation2(float v)
+{
+    return v < 0.5 ? 2.0*v*v : -1.0+4.0*v-2*v*v;
+}
+
+float SmoothInterpolation(float v, int n)
+{
+    return v < 0.5 ? pow(2.0*v, n) : 1.0 - pow(2.0-2.0*v, n);
+}
