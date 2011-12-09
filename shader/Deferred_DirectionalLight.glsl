@@ -15,17 +15,12 @@ vs_out vec4 vs_LightColor;
 vs_out vec4 vs_LightAmbient;
 vs_out vec4 vs_VertexPositionMVP;
 #endif
-const float u_LightSize = 1.0;
-const float u_LightRange = u_LightSize*0.98;
-const float u_LightRange2 = u_LightRange*u_LightRange;
-const float u_RcpLightRange2 = 1.0/u_LightRange2;
 
 #if defined(GLSL_VS)
 
 void main()
 {
     vs_Texcoord = ia_VertexTexcoord0*u_RS.ScreenTexcoord;
-    vs_Texcoord.y *= u_RS.AspectRatio;
 
     vs_LightDirection   = ia_InstanceDirection;
     vs_LightColor       = ia_InstanceColor;
@@ -49,7 +44,7 @@ void main()
     float Shininess = NS.w;
     
     vec3 LightColor = vs_LightColor.rgb;
-    vec3 LightDir   = vs_LightDirection.xyz;
+    vec3 LightDir   = -vs_LightDirection.xyz;
 
     vec3 h          = normalize(EyeDir + LightDir);
     float nh        = max(dot(Normal, h), 0.0);

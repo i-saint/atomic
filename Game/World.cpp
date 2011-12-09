@@ -6,6 +6,7 @@
 #include "Game/Fraction.h"
 #include "Game/Bullet.h"
 #include "Game/World.h"
+#include "Graphics/Renderer.h"
 
 using namespace ist::graphics;
 
@@ -96,6 +97,12 @@ void World::update()
 void World::draw() const
 {
     m_fraction_set->draw();
+
+    DirectionalLight dl;
+    dl.direction = glm::normalize(vec4(1.0f, -1.0f, -0.5f, 0.0f));
+    dl.diffuse_color = vec4(0.3f, 0.3f, 0.3f, 1.0f);
+    dl.ambient_color = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+    atomicGetDirectionalLightRenderer()->pushInstance(dl);
 }
 
 void World::sync() const
@@ -111,6 +118,7 @@ void World::updateAsync()
     //mat4 rot = glm::rotate(mat4(), 0.05f, vec3(0.0f, 1.0f, 0.0f));
     //m_camera.setPosition(rot * m_camera.getPosition());
     m_camera.setAspect(atomicGetWindowAspectRatio());
+
 }
 
 } // namespace atomic

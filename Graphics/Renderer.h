@@ -17,6 +17,7 @@ public:
 
 
 class PassGBuffer_Fraction;
+class PassDeferred_DirectionalLights;
 class PassDeferred_PointLights;
 class PassPostprocess_Bloom;
 
@@ -24,16 +25,18 @@ class PassPostprocess_Bloom;
 class AtomicRenderer : public boost::noncopyable
 {
 private:
+    // shared resources
     VertexArray             *m_va_screenquad;
     AtomicShader            *m_sh_out;
-
     RenderTargetGBuffer     *m_rt_gbuffer;
     RenderTargetDeferred    *m_rt_deferred;
 
-    PassGBuffer_Fraction        *m_renderer_cube;
-    PassDeferred_PointLights *m_renderer_sphere_light;
-    PassPostprocess_Bloom   *m_renderer_bloom;
-    stl::vector<IRenderer*> m_renderers[PASS_END];
+    // internal resources
+    PassGBuffer_Fraction            *m_renderer_cube;
+    PassDeferred_DirectionalLights  *m_renderer_directional_light;
+    PassDeferred_PointLights        *m_renderer_sphere_light;
+    PassPostprocess_Bloom           *m_renderer_bloom;
+    stl::vector<IRenderer*>         m_renderers[PASS_END];
 
     Viewport        m_default_viewport;
     RenderStates    m_render_states;
@@ -59,15 +62,17 @@ public:
     void beforeDraw();  // メインスレッドから、描画処理の前に呼ばれる
     void draw();        // 以下描画スレッドから呼ばれる
 
-    PassGBuffer_Fraction* getCubeRenderer()                 { return m_renderer_cube; }
-    PassDeferred_PointLights* getSphereLightRenderer()   { return m_renderer_sphere_light; }
+    PassGBuffer_Fraction* getCubeRenderer()             { return m_renderer_cube; }
+    PassDeferred_DirectionalLights* getDirectionalLightRenderer() { return m_renderer_directional_light; }
+    PassDeferred_PointLights* getSphereLightRenderer()  { return m_renderer_sphere_light; }
     const Viewport* getDefaultViewport() const          { return &m_default_viewport; }
     RenderStates* getRenderStates()                     { return &m_render_states; }
 };
 
-#define atomicGetCubeRenderer()         AtomicRenderer::getInstance()->getCubeRenderer()
-#define atomicGetSphereLightRenderer()  AtomicRenderer::getInstance()->getSphereLightRenderer()
-#define atomicGetDefaultViewport()      AtomicRenderer::getInstance()->getDefaultViewport()
+#define atomicGetCubeRenderer()             AtomicRenderer::getInstance()->getCubeRenderer()
+#define atomicGetDirectionalLightRenderer() AtomicRenderer::getInstance()->getDirectionalLightRenderer()
+#define atomicGetSphereLightRenderer()      AtomicRenderer::getInstance()->getSphereLightRenderer()
+#define atomicGetDefaultViewport()          AtomicRenderer::getInstance()->getDefaultViewport()
 
 
 
@@ -96,7 +101,7 @@ private:
     typedef stl::vector<DirectionalLight> InstanceCont;
     InstanceCont        m_instances;
     AtomicShader        *m_shader;
-    VertexArray         *m_va_sphere;
+    VertexArray         *m_va_quad;
     VertexBufferObject  *m_vbo_instance;
 
 public:

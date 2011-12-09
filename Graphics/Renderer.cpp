@@ -35,11 +35,13 @@ AtomicRenderer::AtomicRenderer()
     m_rt_gbuffer    = atomicGetRenderTargetGBuffer();
     m_rt_deferred   = atomicGetRenderTargetDeferred();
 
-    m_renderer_cube = IST_NEW(PassGBuffer_Fraction) ();
-    m_renderer_sphere_light = IST_NEW(PassDeferred_PointLights) ();
-    m_renderer_bloom = IST_NEW(PassPostprocess_Bloom) ();
+    m_renderer_cube             = IST_NEW(PassGBuffer_Fraction)();
+    m_renderer_directional_light= IST_NEW(PassDeferred_DirectionalLights)();
+    m_renderer_sphere_light     = IST_NEW(PassDeferred_PointLights)();
+    m_renderer_bloom            = IST_NEW(PassPostprocess_Bloom)();
 
     m_renderers[PASS_GBUFFER].push_back(m_renderer_cube);
+    m_renderers[PASS_DEFERRED].push_back(m_renderer_directional_light);
     m_renderers[PASS_DEFERRED].push_back(m_renderer_sphere_light);
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_bloom);
 
@@ -50,6 +52,7 @@ AtomicRenderer::~AtomicRenderer()
 {
     IST_SAFE_DELETE(m_renderer_bloom);
     IST_SAFE_DELETE(m_renderer_sphere_light);
+    IST_SAFE_DELETE(m_renderer_directional_light);
     IST_SAFE_DELETE(m_renderer_cube);
 }
 
@@ -243,7 +246,7 @@ void PassGBuffer_Fraction::draw()
 PassDeferred_DirectionalLights::PassDeferred_DirectionalLights()
 {
     m_shader        = atomicGetShader(SH_DIRECTIONALLIGHT);
-    m_va_sphere     = atomicGetVertexArray(VA_SCREEN_QUAD);
+    m_va_quad       = atomicGetVertexArray(VA_SCREEN_QUAD);
     m_vbo_instance  = atomicGetVertexBufferObject(VBO_DIRECTIONALLIGHT_INSTANCE);
     m_instances.reserve(ATOMIC_MAX_DIRECTIONAL_LIGHTS);
 }
@@ -259,16 +262,16 @@ void PassDeferred_DirectionalLights::draw()
     MapAndWrite(*m_vbo_instance, &m_instances[0], sizeof(light_t)*num_instances);
 
     const VertexArray::Descriptor descs[] = {
-        {GLSL_INSTANCE_POSITION,VertexArray::TYPE_FLOAT,4,  0, false, 1},
-        {GLSL_INSTANCE_COLOR,   VertexArray::TYPE_FLOAT,4, 16, false, 1},
-        {GLSL_INSTANCE_AMBIENT, VertexArray::TYPE_FLOAT,4, 32, false, 1},
+        {GLSL_INSTANCE_DIRECTION,VertexArray::TYPE_FLOAT,4,  0, false, 1},
+        {GLSL_INSTANCE_COLOR,    VertexArray::TYPE_FLOAT,4, 16, false, 1},
+        {GLSL_INSTANCE_AMBIENT,  VertexArray::TYPE_FLOAT,4, 32, false, 1},
     };
 
     m_shader->bind();
-    m_va_sphere->bind();
-    m_va_sphere->setAttributes(*m_vbo_instance, sizeof(vec4), descs, _countof(descs));
-    glDrawElementsInstanced(GL_QUADS, (16-1)*(32)*4, GL_UNSIGNED_INT, 0, num_instances);
-    m_va_sphere->unbind();
+    m_va_quad->bind();
+    m_va_quad->setAttributes(*m_vbo_instance, sizeof(DirectionalLight), descs, _countof(descs));
+    glDrawArraysInstanced(GL_QUADS, 0, 4, num_instances);
+    m_va_quad->unbind();
     m_shader->unbind();
 
 }
