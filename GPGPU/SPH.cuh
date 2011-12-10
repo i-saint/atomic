@@ -10,25 +10,16 @@ extern "C" {
     const int SPH_GRID_DIV_Y = 1<<SPH_GRID_DIV_SHIFT_Y;
     const int SPH_GRID_DIV_Z = 1<<SPH_GRID_DIV_SHIFT_Z;
     const int SPH_GRID_DIV_3 = SPH_GRID_DIV_X*SPH_GRID_DIV_Y*SPH_GRID_DIV_Z;
-    const int SPH_MAX_PARTICLE_NUM = 65536*2;
-    //const int SPH_MAX_PARTICLE_NUM = 65536;
+    //const int SPH_MAX_PARTICLE_NUM = 65536*2;
+    const int SPH_MAX_PARTICLE_NUM = 65536;
     const int SPH_MAX_LIGHT_NUM = 16;
     const int SPH_MAX_SPHERICAL_GRAVITY_NUM = 1;
+    const int SPH_THREAD_BLOCK_X = 256;
 
-    struct SPHParam
+
+    struct SPHGPUStates
     {
-        float4 grid_dim;
-        float4 grid_dim_rcp;
-        float4 grid_pos;
-        float smooth_len;
-        float pressure_stiffness;
-        float rest_density;
-        float particle_mass;
-        float viscosity;
-        float density_coef;
-        float grad_pressure_coef;
-        float lap_viscosity_coef;
-        float wall_stiffness;
+        int num_particles;
     };
 
     struct SPHParticle
@@ -72,17 +63,16 @@ extern "C" {
 
     void SPHInitialize();
     void SPHFinalize();
-
-    void SPHUpdateGrid();
-    void SPHComputeDensity();
-    void SPHComputeForce();
-    void SPHIntegrate();
+    void SPHUpdate();
 
     void SPHInitializeInstanceBuffers(int vbo_fraction, int vbo_lightpos);
     void SPHFinalizeInstanceBuffers();
     void SPHCopyInstances();
 
     void SPHUpdateSphericalGravityData(SPHSphericalGravity (&sgravity)[ SPH_MAX_SPHERICAL_GRAVITY_NUM ]);
+
+    void SPHSpawnParticles(const SPHParticle* spawn, int num_pawn);
+    void SPHSpawnSolidParticles(const SPHParticle* spawn, int num_pawn);
 
 } // extern "C"
 

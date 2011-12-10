@@ -2,7 +2,7 @@
 #include "../Base/Assert.h"
 #include "../Base/TaskScheduler.h"
 #include "../Sound.h"
-#include "Application.h"
+#include "../Window.h"
 
 namespace ist
 {
@@ -60,6 +60,25 @@ LRESULT CALLBACK WndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lPara
         return 0;
 
 
+    case WM_SIZE:
+        {
+            WM_WindowSize wm;
+            wm.type = WindowMessage::MES_WINDOW_SIZE;
+            wm.window_size.x = LOWORD(lParam);
+            wm.window_size.y = HIWORD(lParam);
+            app->handleWindowMessage(wm);
+        }
+        return 0;
+
+    case WM_MOVE:
+        {
+            WM_WindowMove wm;
+            wm.type = WindowMessage::MES_WINDOW_MOVE;
+            wm.window_pos.x = LOWORD(lParam);
+            wm.window_pos.y = HIWORD(lParam);
+            app->handleWindowMessage(wm);
+        }
+        return 0;
 
     case WM_CREATE:
         {
@@ -73,7 +92,7 @@ LRESULT CALLBACK WndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lPara
             wm.type = WindowMessage::MES_CLOSE;
             app->handleWindowMessage(wm);
 
-            ::SendMessage(hwnd, WM_DESTROY, 0, 0);
+            return ::DefWindowProc(hwnd, message, wParam, lParam);
         }
         return 0;
 
@@ -139,7 +158,7 @@ bool Application::initialize(size_t x, size_t y, size_t width, size_t height, co
     width = rect.right - rect.left;
     height = rect.bottom - rect.top;
 
-    WNDCLASSEXW wc;
+    WNDCLASSEX wc;
     wc.cbSize        = sizeof(wc);
     wc.style         = CS_HREDRAW | CS_VREDRAW;
     wc.lpfnWndProc   = &WndProc;
@@ -152,14 +171,14 @@ bool Application::initialize(size_t x, size_t y, size_t width, size_t height, co
     wc.lpszMenuName  = NULL;
     wc.lpszClassName = title;
     wc.hIconSm       = LoadIcon (NULL, IDI_APPLICATION);
-    if(::RegisterClassExW(&wc)==NULL) {
-        IST_PRINT("RegisterClassExW() failed");
+    if(::RegisterClassEx(&wc)==NULL) {
+        IST_PRINT("RegisterClassEx() failed");
         return false;
     }
 
-    m_hwnd = ::CreateWindowW(title, title, style, x,y, width,height, NULL, NULL, g_hinstance, NULL);
+    m_hwnd = ::CreateWindow(title, title, style, x,y, width,height, NULL, NULL, g_hinstance, NULL);
     if(m_hwnd==NULL) {
-        IST_PRINT("CreateWindowW() failed");
+        IST_PRINT("CreateWindow() failed");
         return false;
     }
 
@@ -185,7 +204,7 @@ bool Application::initialize(size_t x, size_t y, size_t width, size_t height, co
 
 
     // sound
-    //sound::IntializeSound();
+    sound::IntializeSound();
 
     return true;
 }
@@ -195,7 +214,7 @@ void Application::finalize()
 #ifdef IST_OPENCL
     if(m_cl_context) { delete m_cl_context; m_cl_context=NULL; }
 #endif // IST_OPENCL
-    //sound::FinalizeSound();
+    sound::FinalizeSound();
     if(m_hwnd) { ::CloseWindow(m_hwnd); m_hwnd=NULL; }
 }
 

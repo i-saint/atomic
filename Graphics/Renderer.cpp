@@ -356,6 +356,8 @@ void PassPostprocess_Bloom::beforeDraw()
 
 void PassPostprocess_Bloom::draw()
 {
+    if(!atomicGetConfig()->posteffect_bloom) { return; }
+
     Viewport vp(0,0, m_rt_gauss0->getWidth(),m_rt_gauss0->getHeight());
     vp.bind();
 

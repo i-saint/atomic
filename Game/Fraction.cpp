@@ -84,10 +84,7 @@ void FractionSet::updateAsync()
 
 void FractionSet::updateSPH()
 {
-    SPHUpdateGrid();
-    SPHComputeDensity();
-    SPHComputeForce();
-    SPHIntegrate();
+    SPHUpdate();
 
     float2 move = atomicGetInputs()->getMove()*0.01f;
     m_sgravity[0].position.x += move.x;

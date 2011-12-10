@@ -7,6 +7,8 @@
 #include "Game/World.h"
 #include "Sound/AtomicSound.h"
 
+#define ATOMIC_CONFIG_FILE_PATH "atomic.conf"
+
 namespace atomic {
 
 
@@ -147,8 +149,54 @@ void AtomicRenderingThread::operator()()
 
 
 
-AtomicApplication *g_appinst = NULL;
 
+
+AtomicConfig::AtomicConfig()
+{
+    window_pos      = ivec2(0, 0);
+    window_size     = ivec2(1024, 768);
+    fullscreen      = false;
+    posteffect_antialias    = true;
+    posteffect_bloom        = true;
+    posteffect_motionblur   = true;
+
+}
+
+bool AtomicConfig::readFromFile( const char* filepath )
+{
+    if(FILE *f=fopen(filepath, "r")) {
+        char buf[256];
+        while(fgets(buf, 256, f)) {
+            ivec2 tmp;
+            if(sscanf(buf, "window_pos = %d, %d", &tmp.x, &tmp.y)==2)   { window_pos.x=tmp.x; window_pos.y=tmp.y; }
+            if(sscanf(buf, "window_size = %d, %d", &tmp.x, &tmp.y)==2)  { window_size.x=tmp.x; window_size.y=tmp.y; }
+            if(sscanf(buf, "posteffect_antialias = %d", &tmp.x)==1)     { posteffect_antialias=(tmp.x!=0); }
+            if(sscanf(buf, "posteffect_bloom = %d", &tmp.x)==1)         { posteffect_bloom=(tmp.x!=0); }
+            if(sscanf(buf, "posteffect_motionblur = %d", &tmp.x)==1)    { posteffect_motionblur=(tmp.x!=0); }
+        }
+        fclose(f);
+        return true;
+    }
+    return false;
+}
+
+bool AtomicConfig::writeToFile( const char* filepath )
+{
+    if(FILE *f=fopen(filepath, "w")) {
+        fprintf(f, "window_pos = %d, %d\n", window_pos.x, window_pos.y);
+        fprintf(f, "window_size = %d, %d\n", window_size.x, window_size.y);
+        fprintf(f, "fullscreen = %d\n", fullscreen);
+        fprintf(f, "posteffect_antialias = %d\n", posteffect_antialias);
+        fprintf(f, "posteffect_bloom = %d\n", posteffect_bloom);
+        fprintf(f, "posteffect_motionblur = %d\n", posteffect_motionblur);
+        fclose(f);
+        return true;
+    }
+    return false;
+}
+
+
+AtomicApplication *g_appinst = NULL;
 
 AtomicApplication* AtomicApplication::getInstance() { return g_appinst; }
 
@@ -158,10 +206,9 @@ AtomicApplication::AtomicApplication()
     , m_renderng_thread(NULL)
     , m_sound_thread(NULL)
 {
-    if(g_appinst) {
-        IST_ASSERT("already initialized");
-    }
+    if(g_appinst) { IST_ASSERT("already initialized"); }
     g_appinst = this;
+
 }
 
 AtomicApplication::~AtomicApplication()
@@ -169,9 +216,13 @@ AtomicApplication::~AtomicApplication()
     if(g_appinst==this) { g_appinst=NULL; }
 }
 
-bool AtomicApplication::initialize(size_t x, size_t y, size_t width, size_t height, const wchar_t *title, bool fullscreen)
+bool AtomicApplication::initialize()
 {
-    if(!super::initialize(x,y, width, height, title, fullscreen))
+    m_config.readFromFile(ATOMIC_CONFIG_FILE_PATH);
+
+    ivec2 wpos = m_config.window_pos;
+    ivec2 wsize = m_config.window_size;
+    if(!super::initialize(wpos.x,wpos.y, wsize.x,wsize.y, L"atomic", m_config.fullscreen))
     {
         return false;
     }
@@ -200,6 +251,8 @@ void AtomicApplication::finalize()
 
     TaskScheduler::finalizeSingleton();
     super::finalize();
+
+    m_config.writeToFile(ATOMIC_CONFIG_FILE_PATH);
 }
 
 void AtomicApplication::mainLoop()
@@ -247,11 +300,26 @@ int AtomicApplication::handleWindowMessage(const ist::WindowMessage& wm)
 
     case ist::WindowMessage::MES_KEYBOARD:
         {
-            ist::WM_Keyboard m = (ist::WM_Keyboard&)wm;
+            const ist::WM_Keyboard& m = static_cast<const ist::WM_Keyboard&>(wm);
             if(m.action==ist::WM_Keyboard::ACT_KEYUP && m.key==ist::WM_Keyboard::KEY_ESCAPE) {
                 m_request_exit = true;
             }
         }
+        return 0;
+
+    case ist::WindowMessage::MES_WINDOW_SIZE:
+        {
+            const ist::WM_WindowSize& m = static_cast<const ist::WM_WindowSize&>(wm);
+            m_config.window_size = m.window_size;
+        }
+        return 0;
+
+    case ist::WindowMessage::MES_WINDOW_MOVE:
+        {
+            const ist::WM_WindowMove& m = static_cast<const ist::WM_WindowMove&>(wm);
+            m_config.window_pos = m.window_pos;
+        }
+        return 0;
     }
 
     return 0;

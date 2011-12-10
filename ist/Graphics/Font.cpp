@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include <wingdi.h>
-#include "../Window/Application.h"
+#include "../Window.h"
 #include "Font.h"
 
 

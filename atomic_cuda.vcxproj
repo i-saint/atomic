@@ -136,7 +136,10 @@
     <None Include="GPGPU\SPH_internal.cuh" />
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="GPGPU\SPH.cu" />
+    <CudaCompile Include="GPGPU\SPH.cu">
+      <Emulation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</Emulation>
+    </CudaCompile>
+    <CudaCompile Include="GPGPU\SPH_interface.cu" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A8F5B4BE-0942-4A93-BBFE-0716BEAC2551}</ProjectGuid>
@@ -146,13 +149,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">

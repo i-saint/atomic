@@ -382,5 +382,8 @@
     <CudaCompile Include="GPGPU\SPH.cu">
       <Filter>GPGPU</Filter>
     </CudaCompile>
+    <CudaCompile Include="GPGPU\SPH_interface.cu">
+      <Filter>GPGPU</Filter>
+    </CudaCompile>
   </ItemGroup>
 </Project>

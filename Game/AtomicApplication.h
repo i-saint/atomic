@@ -7,6 +7,20 @@ class AtomicGame;
 class AtomicRenderingThread;
 class AtomicSoundThread;
 
+struct AtomicConfig
+{
+    ivec2 window_pos;
+    ivec2 window_size;
+    bool fullscreen;
+    bool posteffect_bloom;
+    bool posteffect_motionblur;
+    bool posteffect_antialias;
+
+    AtomicConfig();
+    bool readFromFile(const char* filepath);
+    bool writeToFile(const char* filepath);
+};
+
 struct AtomicInputState
 {
 private:
@@ -31,11 +45,12 @@ class AtomicApplication : public ist::Application
 {
 typedef ist::Application super;
 private:
-    AtomicGame *m_game;
-    AtomicRenderingThread *m_renderng_thread;
-    AtomicSoundThread *m_sound_thread;
+    AtomicGame              *m_game;
+    AtomicRenderingThread   *m_renderng_thread;
+    AtomicSoundThread       *m_sound_thread;
 
-    AtomicInputState m_inputs;
+    AtomicConfig            m_config;
+    AtomicInputState        m_inputs;
     bool m_request_exit;
 
 public:
@@ -44,7 +59,7 @@ public:
 public:
     AtomicApplication();
     ~AtomicApplication();
-    virtual bool initialize(size_t x, size_t y, size_t width, size_t height, const wchar_t *title, bool fullscreen=false);
+    virtual bool initialize();
     virtual void finalize();
 
     virtual void mainLoop();
@@ -59,6 +74,7 @@ public:
 
     AtomicGame* getGame() { return m_game; }
     AtomicInputState* getInputs() { return &m_inputs; }
+    AtomicConfig* getConfig() { return &m_config; }
 
     float32 getAverageFPS() const;
 };
@@ -70,6 +86,7 @@ public:
 #define atomicWaitForDrawComplete()     atomicGetApplication()->waitForDrawComplete()
 #define atomicKickDraw()                atomicGetApplication()->kickDraw()
 
+#define atomicGetConfig()               atomicGetApplication()->getConfig()
 #define atomicGetWindowWidth()          atomicGetApplication()->getWindowWidth()
 #define atomicGetWindowHeight()         atomicGetApplication()->getWindowHeight()
 #define atomicGetWindowAspectRatio()    (float(atomicGetWindowWidth())/float(atomicGetWindowHeight()))

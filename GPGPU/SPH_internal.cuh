@@ -57,4 +57,6 @@ public:
     }
 };
 
+
+
 #endif // __atomic_SPH_internal_cuh__

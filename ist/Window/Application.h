@@ -15,7 +15,8 @@ struct WindowMessage
         MES_KEYBOARD,
         MES_MOUSE,
         MES_JOYSTICK,
-        MES_RESIZE,
+        MES_WINDOW_SIZE,
+        MES_WINDOW_MOVE,
         MES_FOCUS,
     };
 
@@ -34,6 +35,16 @@ struct WM_Active : public WindowMessage
         ST_DEACTIVATED,
     };
     short state;
+};
+
+struct WM_WindowSize : public WindowMessage
+{
+    ivec2 window_size;
+};
+
+struct WM_WindowMove : public WindowMessage
+{
+    ivec2 window_pos;
 };
 
 
