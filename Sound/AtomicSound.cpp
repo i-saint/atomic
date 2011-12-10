@@ -21,7 +21,7 @@ namespace atomic {
 
     void AtomicSoundThread::run()
     {
-        //m_thread.reset(new boost::thread(boost::ref(*this)));
+        m_thread.reset(new boost::thread(boost::ref(*this)));
     }
 
     void AtomicSoundThread::operator()()

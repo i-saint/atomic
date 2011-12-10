@@ -19,9 +19,12 @@
 #ifdef IST_SOUND_ENABLE_OGGVORBIS
     #include <vorbis/vorbisfile.h>
     #include "Sound/OggVorbis.h"
-    #pragma comment(lib, "libogg_static.lib")
-    #pragma comment(lib, "libvorbis_static.lib")
-    #pragma comment(lib, "libvorbisfile_static.lib")
+    #pragma comment(lib, "libogg.lib")
+    #pragma comment(lib, "libvorbis.lib")
+    #pragma comment(lib, "libvorbisfile.lib")
+    //#pragma comment(lib, "libogg_static.lib")
+    //#pragma comment(lib, "libvorbis_static.lib")
+    //#pragma comment(lib, "libvorbisfile_static.lib")
 #endif
 #pragma comment(lib, "OpenAL32.lib")
 //#pragma comment(lib, "EFX-Util.lib")
