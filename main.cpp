@@ -8,8 +8,8 @@ int istmain(int argc, char* argv[])
     atomic::AtomicApplication app;
     if(app.initialize()) {
         app.mainLoop();
-        app.finalize();
     }
+    app.finalize();
 
 #ifdef _DEBUG
     _CrtDumpMemoryLeaks();

@@ -65,6 +65,7 @@ public:
     virtual void mainLoop();
     virtual void updateInput();
     virtual int handleWindowMessage(const ist::WindowMessage& wm);
+    void handleError(ERROR_CODE e);
 
     void waitForDrawComplete();
     void kickDraw();

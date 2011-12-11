@@ -1,0 +1,11 @@
+- CUDA Toolkit をインストール
+- GPU Computing SDK をインストール
+
+・boost
+- インストーラを利用してインストール
+- 環境変数 BOOST にインストールパスを設定
+
+・cygwin
+- 最小構成 + ruby をインストール
+- 環境変数 CYGWIN_ROOT にインストールディレクトリを指定
+

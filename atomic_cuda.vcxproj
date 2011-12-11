@@ -19,6 +19,7 @@
     <ClCompile Include="Game\Force_Gravity.cpp" />
     <ClCompile Include="Game\Fraction.cpp" />
     <ClCompile Include="Game\Message.cpp" />
+    <ClCompile Include="Game\Text.cpp" />
     <ClCompile Include="Game\VFX.cpp" />
     <ClCompile Include="Game\World.cpp" />
     <ClCompile Include="Graphics\CreateModelData.cpp" />
@@ -66,6 +67,7 @@
     <ClInclude Include="Game\Force_Gravity.h" />
     <ClInclude Include="Game\Fraction.h" />
     <ClInclude Include="Game\Message.h" />
+    <ClInclude Include="Game\Text.h" />
     <ClInclude Include="Game\VFX.h" />
     <ClInclude Include="Game\World.h" />
     <ClInclude Include="GPGPU\SPH.cuh" />
@@ -169,13 +171,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>external/lib;$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(BOOST);$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
+    <LibraryPath>external\lib;$(BOOST)\lib;$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>external/lib;$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(BOOST);$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
+    <LibraryPath>external\lib;$(BOOST)\lib;$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

@@ -2,6 +2,7 @@
 #include "types.h"
 #include "AtomicGame.h"
 #include "AtomicApplication.h"
+#include "Text.h"
 #include "Graphics/ResourceManager.h"
 #include "Graphics/Renderer.h"
 #include "Game/World.h"
@@ -112,15 +113,17 @@ void AtomicRenderingThread::operator()()
 {
     ist::SetThreadName("AtomicRenderingThread");
 
-    m_app->initializeDraw();
-    GraphicResourceManager::intializeInstance();
-    AtomicRenderer::initializeInstance();
-
+    bool initialized = m_app->initializeDraw();
+    if(initialized) {
+        GraphicResourceManager::intializeInstance();
+        AtomicRenderer::initializeInstance();
+    }
     {
         boost::unique_lock<boost::mutex> lock(m_mutex_wait_for_initialize);
         m_is_initialized = true;
         m_cond_wait_for_initialize.notify_all();
     }
+    if(!initialized) { goto APP_END; }
 
     {
         boost::unique_lock<boost::mutex> lock(m_mutex_wait_for_draw);
@@ -142,6 +145,8 @@ void AtomicRenderingThread::operator()()
 
     AtomicRenderer::finalizeInstance();
     GraphicResourceManager::finalizeInstance();
+
+APP_END:
     m_app->finalizeDraw();
     m_is_end = true;
     m_cond_wait_for_end.notify_all();
@@ -218,6 +223,7 @@ AtomicApplication::~AtomicApplication()
 
 bool AtomicApplication::initialize()
 {
+    InitializeText();
     m_config.readFromFile(ATOMIC_CONFIG_FILE_PATH);
 
     ivec2 wpos = m_config.window_pos;
@@ -233,6 +239,16 @@ bool AtomicApplication::initialize()
     m_renderng_thread->run();
     m_renderng_thread->waitForInitializeComplete();
 
+    {
+        ERROR_CODE e = getGraphicsError();
+        if(e!=ERR_NOERROR) {
+            handleError(e);
+            IST_SAFE_DELETE(m_renderng_thread);
+            return false;
+        }
+        // GLEW_VERSION_3_3
+    }
+
     m_sound_thread = IST_NEW16(AtomicSoundThread)();
     m_sound_thread->run();
 
@@ -243,8 +259,8 @@ bool AtomicApplication::initialize()
 
 void AtomicApplication::finalize()
 {
-    m_renderng_thread->stop();
-    m_sound_thread->requestStop();
+    if(m_renderng_thread) { m_renderng_thread->stop(); }
+    if(m_sound_thread) { m_sound_thread->requestStop(); }
     IST_SAFE_DELETE(m_game);
     IST_SAFE_DELETE(m_sound_thread);
     IST_SAFE_DELETE(m_renderng_thread);
@@ -253,6 +269,7 @@ void AtomicApplication::finalize()
     super::finalize();
 
     m_config.writeToFile(ATOMIC_CONFIG_FILE_PATH);
+    FinalizeText();
 }
 
 void AtomicApplication::mainLoop()
@@ -324,6 +341,22 @@ int AtomicApplication::handleWindowMessage(const ist::WindowMessage& wm)
 
     return 0;
 }
+
+void AtomicApplication::handleError(ERROR_CODE e)
+{
+    std::wstring mes;
+    switch(e) {
+    case ERR_CUDA_NO_DEVICE:
+        mes = GetText(TID_ERROR_CUDA_NO_DEVICE);
+        break;
+
+    case ERR_CUDA_INSUFFICIENT_DRIVER:
+        mes = GetText(TID_ERROR_CUDA_INSUFFICIENT_DRIVER);
+        break;
+    }
+    istShowMessageDialog(mes.c_str(), L"error", DLG_OK);
+}
+
 
 void AtomicApplication::waitForDrawComplete()
 {

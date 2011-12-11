@@ -117,6 +117,7 @@ Application::Application()
 : m_hwnd(NULL)
 , m_width(0)
 , m_height(0)
+, m_graphics_error(ERR_NOERROR)
 #ifdef IST_OPENGL
 , m_hdc(NULL)
 , m_hglrc(NULL)
@@ -327,10 +328,23 @@ bool Application::initializeDraw()
 
 
     // CUDA
-    int device_id = cutGetMaxGflopsDeviceId();
-    CUDA_SAFE_CALL( cudaSetDevice(device_id) );
-    CUDA_SAFE_CALL( cudaGLSetGLDevice(device_id) );
+    {
+        cudaError_t e;
+        int dev_count;
+        e = cudaGetDeviceCount(&dev_count);
+        if(e==cudaErrorNoDevice) {
+            m_graphics_error = ERR_CUDA_NO_DEVICE;
+            return false;
+        }
+        else if(e==cudaErrorInsufficientDriver) {
+            m_graphics_error = ERR_CUDA_INSUFFICIENT_DRIVER;
+            return false;
+        }
 
+        int device_id = cutGetMaxGflopsDeviceId();
+        CUDA_SAFE_CALL( cudaSetDevice(device_id) );
+        CUDA_SAFE_CALL( cudaGLSetGLDevice(device_id) );
+    }
     return true;
 }
 
@@ -391,6 +405,11 @@ void Application::translateMessage()
         ::TranslateMessage(&msg);
         ::DispatchMessage(&msg);
     }
+}
+
+int Application::showMessageDialog( const wchar_t* message, const wchar_t* caption, int dlgtype )
+{
+    return ::MessageBox(m_hwnd, message, caption, dlgtype);
 }
 
 } // namespace ist

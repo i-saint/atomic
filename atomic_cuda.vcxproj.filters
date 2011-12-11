@@ -158,6 +158,9 @@
     <ClCompile Include="ist\Graphics\Camera.cpp">
       <Filter>ist\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Text.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h">
@@ -368,6 +371,9 @@
     </ClInclude>
     <ClInclude Include="Graphics\Light.h">
       <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Text.h">
+      <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
