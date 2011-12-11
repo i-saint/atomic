@@ -1,7 +1,9 @@
 #include "stdafx.h"
 #include "ist/Base.h"
 #include "ist/Sound.h"
+#include "types.h"
 #include "AtomicSound.h"
+#include "../Game/AtomicApplication.h"
 
 namespace sound = ist::sound;
 
@@ -40,6 +42,9 @@ namespace atomic {
         else {
             return;
         }
+
+        sound::Listener listener;
+        listener.setGain(atomicGetConfig()->sound_volume);
 
         sound::StreamSourceSet source_set;
         {

@@ -8,6 +8,7 @@ namespace atomic {
         LANG_EN,
     };
     enum TEXT_ID {
+        TID_OPENGL330_IS_NOT_SUPPORTED,
         TID_ERROR_CUDA_NO_DEVICE,
         TID_ERROR_CUDA_INSUFFICIENT_DRIVER,
         TID_END,

@@ -3,8 +3,7 @@
 
 void glSwapBuffers();
 
-namespace ist
-{
+namespace ist {
 
 struct WindowMessage
 {
@@ -177,6 +176,22 @@ public:
 };
 
 
+struct DisplaySetting
+{
+private:
+    ivec2 m_resolution;
+    int m_color_bits;
+    int m_frequency;
+
+public:
+    DisplaySetting() : m_resolution(0,0), m_color_bits(0), m_frequency(0) {}
+    DisplaySetting(ivec2 res, int bits, int freq) : m_resolution(res), m_color_bits(bits), m_frequency(freq) {}
+
+    ivec2 getResolution() const { return m_resolution; }
+    int getColorBits() const    { return m_color_bits; }
+    int getFrequency() const    { return m_frequency; }
+};
+
 
 class Application
 {
@@ -216,6 +231,7 @@ public:
         ERR_CHANGEDISPLAYSETTINGS_FAILED,
         ERR_OPENAL_OPENDEVICE_FAILED,
         ERR_OPENAL_CREATECONTEXT_FAILED,
+        ERR_OPENGL_330_IS_NOT_SUPPORTED,
         ERR_OPENGL_INITIALIZATION_FAILED,
         ERR_DIRECT3D11_INITIALIZATION_FAILED,
         ERR_CUDA_NO_DEVICE,
@@ -259,7 +275,7 @@ public:
     Application();
     virtual ~Application();
 
-    virtual bool initialize(size_t x, size_t y, size_t width, size_t height, const wchar_t *title, bool fullscreen=false);
+    virtual bool initialize(ivec2 wpos, ivec2 wsize, const wchar_t *title, bool fullscreen=false);
     virtual void finalize();
 
     virtual bool initializeDraw();
@@ -279,6 +295,9 @@ public:
     const MouseState& getMouseState() const         { return m_mouse_state; }
     const JoyState& getJoyState(int i=0) const      { return m_joy_state[i]; }
     ERROR_CODE getGraphicsError() const             { return m_graphics_error; }
+
+    DisplaySetting getCurrentDisplaySetting() const;
+    void getAvalableDisplaySettings(DisplaySetting*& settings, int& num_settings) const;
 
 #ifdef IST_OPENCL
     cl::Context* getCLContext() { return m_cl_context; }

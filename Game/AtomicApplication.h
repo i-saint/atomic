@@ -11,6 +11,7 @@ struct AtomicConfig
 {
     ivec2 window_pos;
     ivec2 window_size;
+    float32 sound_volume; 
     bool fullscreen;
     bool posteffect_bloom;
     bool posteffect_motionblur;

@@ -161,6 +161,7 @@ AtomicConfig::AtomicConfig()
     window_pos      = ivec2(0, 0);
     window_size     = ivec2(1024, 768);
     fullscreen      = false;
+    sound_volume    = 0.5;
     posteffect_antialias    = true;
     posteffect_bloom        = true;
     posteffect_motionblur   = true;
@@ -172,12 +173,14 @@ bool AtomicConfig::readFromFile( const char* filepath )
     if(FILE *f=fopen(filepath, "r")) {
         char buf[256];
         while(fgets(buf, 256, f)) {
-            ivec2 tmp;
-            if(sscanf(buf, "window_pos = %d, %d", &tmp.x, &tmp.y)==2)   { window_pos.x=tmp.x; window_pos.y=tmp.y; }
-            if(sscanf(buf, "window_size = %d, %d", &tmp.x, &tmp.y)==2)  { window_size.x=tmp.x; window_size.y=tmp.y; }
-            if(sscanf(buf, "posteffect_antialias = %d", &tmp.x)==1)     { posteffect_antialias=(tmp.x!=0); }
-            if(sscanf(buf, "posteffect_bloom = %d", &tmp.x)==1)         { posteffect_bloom=(tmp.x!=0); }
-            if(sscanf(buf, "posteffect_motionblur = %d", &tmp.x)==1)    { posteffect_motionblur=(tmp.x!=0); }
+            ivec2 itmp;
+            vec2 ftmp;
+            if(sscanf(buf, "window_pos = %d, %d", &itmp.x, &itmp.y)==2) { window_pos.x=itmp.x; window_pos.y=itmp.y; }
+            if(sscanf(buf, "window_size = %d, %d", &itmp.x, &itmp.y)==2){ window_size.x=itmp.x; window_size.y=itmp.y; }
+            if(sscanf(buf, "sound_volume = %f", &ftmp.x)==1)            { sound_volume=ftmp.x; }
+            if(sscanf(buf, "posteffect_antialias = %d", &itmp.x)==1)    { posteffect_antialias=(itmp.x!=0); }
+            if(sscanf(buf, "posteffect_bloom = %d", &itmp.x)==1)        { posteffect_bloom=(itmp.x!=0); }
+            if(sscanf(buf, "posteffect_motionblur = %d", &itmp.x)==1)   { posteffect_motionblur=(itmp.x!=0); }
         }
         fclose(f);
         return true;
@@ -191,6 +194,7 @@ bool AtomicConfig::writeToFile( const char* filepath )
         fprintf(f, "window_pos = %d, %d\n", window_pos.x, window_pos.y);
         fprintf(f, "window_size = %d, %d\n", window_size.x, window_size.y);
         fprintf(f, "fullscreen = %d\n", fullscreen);
+        fprintf(f, "sound_volume = %f\n", sound_volume);
         fprintf(f, "posteffect_antialias = %d\n", posteffect_antialias);
         fprintf(f, "posteffect_bloom = %d\n", posteffect_bloom);
         fprintf(f, "posteffect_motionblur = %d\n", posteffect_motionblur);
@@ -225,10 +229,17 @@ bool AtomicApplication::initialize()
 {
     InitializeText();
     m_config.readFromFile(ATOMIC_CONFIG_FILE_PATH);
+#ifndef ATOMIC_ENABLE_DEBUG_FEATURE
+    {
+        ist::DisplaySetting ds = getCurrentDisplaySetting();
+        if(m_config.window_pos.x >= ds.getResolution().x) { m_config.window_pos.x = 0; }
+        if(m_config.window_pos.y >= ds.getResolution().y) { m_config.window_pos.y = 0; }
+    }
+#endif // ATOMIC_ENABLE_DEBUG_FEATURE
 
     ivec2 wpos = m_config.window_pos;
     ivec2 wsize = m_config.window_size;
-    if(!super::initialize(wpos.x,wpos.y, wsize.x,wsize.y, L"atomic", m_config.fullscreen))
+    if(!super::initialize(wpos, wsize, L"atomic", m_config.fullscreen))
     {
         return false;
     }
@@ -241,12 +252,12 @@ bool AtomicApplication::initialize()
 
     {
         ERROR_CODE e = getGraphicsError();
+        if(!GLEW_VERSION_3_3) { e=ERR_OPENGL_330_IS_NOT_SUPPORTED; }
         if(e!=ERR_NOERROR) {
             handleError(e);
             IST_SAFE_DELETE(m_renderng_thread);
             return false;
         }
-        // GLEW_VERSION_3_3
     }
 
     m_sound_thread = IST_NEW16(AtomicSoundThread)();
@@ -346,13 +357,9 @@ void AtomicApplication::handleError(ERROR_CODE e)
 {
     std::wstring mes;
     switch(e) {
-    case ERR_CUDA_NO_DEVICE:
-        mes = GetText(TID_ERROR_CUDA_NO_DEVICE);
-        break;
-
-    case ERR_CUDA_INSUFFICIENT_DRIVER:
-        mes = GetText(TID_ERROR_CUDA_INSUFFICIENT_DRIVER);
-        break;
+    case ERR_OPENGL_330_IS_NOT_SUPPORTED:   mes=GetText(TID_OPENGL330_IS_NOT_SUPPORTED); break;
+    case ERR_CUDA_NO_DEVICE:                mes=GetText(TID_ERROR_CUDA_NO_DEVICE); break;
+    case ERR_CUDA_INSUFFICIENT_DRIVER:      mes=GetText(TID_ERROR_CUDA_INSUFFICIENT_DRIVER); break;
     }
     istShowMessageDialog(mes.c_str(), L"error", DLG_OK);
 }

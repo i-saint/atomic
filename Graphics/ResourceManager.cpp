@@ -90,6 +90,9 @@ bool GraphicResourceManager::initialize()
     stl::fill_n(m_fbo, _countof(m_fbo), (FrameBufferObject*)NULL);
     stl::fill_n(m_shader, _countof(m_shader), (AtomicShader*)NULL);
 
+    //// どうも 2 の n 乗サイズのフレームバッファの方が若干描画早いっぽい。 
+    //uint32 framebuffer_width = atomicGetWindowWidth();
+    //uint32 framebuffer_height = atomicGetWindowHeight();
     uint32 framebuffer_width = CalcFrameBufferWidth();
     uint32 framebuffer_height = CalcFrameBufferHeight();
 

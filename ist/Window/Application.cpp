@@ -140,7 +140,7 @@ Application::~Application()
     if(g_the_app==this) { g_the_app=NULL; }
 }
 
-bool Application::initialize(size_t x, size_t y, size_t width, size_t height, const wchar_t *title, bool fullscreen)
+bool Application::initialize(ivec2 wpos, ivec2 wsize, const wchar_t *title, bool fullscreen)
 {
     if(g_the_app) {
         IST_PRINT("既にインスタンスが存在している");
@@ -148,16 +148,16 @@ bool Application::initialize(size_t x, size_t y, size_t width, size_t height, co
     }
     g_the_app = this;
 
-    m_width = width;
-    m_height = height;
+    m_width = wsize.x;
+    m_height = wsize.y;
     m_fullscreen = fullscreen;
     int style = fullscreen ? WS_POPUP : WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME ^ WS_MAXIMIZEBOX;
     int flag = WS_POPUP | WS_VISIBLE;
 
-    RECT rect = {0, 0, width, height};
+    RECT rect = {0, 0, wsize.x, wsize.y};
     ::AdjustWindowRect(&rect, style, FALSE);
-    width = rect.right - rect.left;
-    height = rect.bottom - rect.top;
+    wsize.x = rect.right - rect.left;
+    wsize.y = rect.bottom - rect.top;
 
     WNDCLASSEX wc;
     wc.cbSize        = sizeof(wc);
@@ -177,7 +177,7 @@ bool Application::initialize(size_t x, size_t y, size_t width, size_t height, co
         return false;
     }
 
-    m_hwnd = ::CreateWindow(title, title, style, x,y, width,height, NULL, NULL, g_hinstance, NULL);
+    m_hwnd = ::CreateWindow(title, title, style, wpos.x,wpos.y, wsize.x,wsize.y, NULL, NULL, g_hinstance, NULL);
     if(m_hwnd==NULL) {
         IST_PRINT("CreateWindow() failed");
         return false;
@@ -187,20 +187,20 @@ bool Application::initialize(size_t x, size_t y, size_t width, size_t height, co
     if(m_fullscreen) {
         devmode_sav.dmSize = sizeof(devmode_sav);
         devmode_sav.dmDriverExtra = 0;
-        devmode_sav.dmPelsWidth = width;
-        devmode_sav.dmPelsHeight = height;
+        devmode_sav.dmPelsWidth = wsize.x;
+        devmode_sav.dmPelsHeight = wsize.y;
         HDC hdc = GetDC(NULL);
         devmode_sav.dmBitsPerPel = GetDeviceCaps(hdc,BITSPIXEL);
         ReleaseDC(0,hdc);
         devmode_sav.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
 
-        ::SetWindowPos(m_hwnd,(HWND)-1, 0,0, width,height, SWP_SHOWWINDOW);
+        ::SetWindowPos(m_hwnd,(HWND)-1, 0,0, wsize.x,wsize.y, SWP_SHOWWINDOW);
         if(::ChangeDisplaySettings(&devmode_sav,CDS_FULLSCREEN)!=DISP_CHANGE_SUCCESSFUL) {
             return false;
         }
     }
     else {
-        ::SetWindowPos(m_hwnd,(HWND)-1, x,y, width,height, SWP_SHOWWINDOW);
+        ::SetWindowPos(m_hwnd,(HWND)-1, wpos.x,wpos.y, wsize.x,wsize.y, SWP_SHOWWINDOW);
     }
 
 
@@ -410,6 +410,29 @@ void Application::translateMessage()
 int Application::showMessageDialog( const wchar_t* message, const wchar_t* caption, int dlgtype )
 {
     return ::MessageBox(m_hwnd, message, caption, dlgtype);
+}
+
+DisplaySetting Application::getCurrentDisplaySetting() const
+{
+    DEVMODE mode;
+    if(::EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &mode)) {
+        return DisplaySetting(ivec2(mode.dmPelsWidth, mode.dmPelsHeight), mode.dmBitsPerPel, mode.dmDisplayFrequency);
+    }
+    return DisplaySetting();
+}
+
+void Application::getAvalableDisplaySettings( DisplaySetting*& settings, int& num_settings ) const
+{
+    static std::vector<DisplaySetting> dsv;
+    if(dsv.empty()) {
+        int i = 0;
+        DEVMODE mode;
+        while(::EnumDisplaySettings(NULL, i++, &mode)) {
+            dsv.push_back( DisplaySetting(ivec2(mode.dmPelsWidth, mode.dmPelsHeight), mode.dmBitsPerPel, mode.dmDisplayFrequency) );
+        }
+    }
+    settings = &dsv[0];
+    num_settings = dsv.size();
 }
 
 } // namespace ist

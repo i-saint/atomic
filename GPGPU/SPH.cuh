@@ -61,6 +61,19 @@ extern "C" {
         };
     };
 
+
+    struct SPHCharacterClassInfo
+    {
+        union {
+            struct {
+                int classid;
+                int num_particles;
+                float4 *particles;
+            };
+            float4 padding;
+        };
+    };
+
     void SPHInitialize();
     void SPHFinalize();
     void SPHUpdate();
