@@ -139,7 +139,6 @@
     <CudaCompile Include="GPGPU\SPH.cu">
       <Emulation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</Emulation>
     </CudaCompile>
-    <CudaCompile Include="GPGPU\SPH_interface.cu" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A8F5B4BE-0942-4A93-BBFE-0716BEAC2551}</ProjectGuid>

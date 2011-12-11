@@ -7,7 +7,6 @@ int istmain(int argc, char* argv[])
 {
     atomic::AtomicApplication app;
     if(app.initialize()) {
-    //if(app.initialize(window_x, 100, 640, 480, L"atomic", false)) {
         app.mainLoop();
         app.finalize();
     }
