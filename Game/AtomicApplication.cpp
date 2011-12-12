@@ -348,6 +348,17 @@ int AtomicApplication::handleWindowMessage(const ist::WindowMessage& wm)
             m_config.window_pos = m.window_pos;
         }
         return 0;
+
+    case ist::WindowMessage::MES_IME_RESULT:
+        {
+            const ist::WM_IME& m = static_cast<const ist::WM_IME&>(wm);
+            handleCommandLine(m.text, m.text_len);
+        }
+        return 0;
+
+    case ist::WindowMessage::MES_IME_BEGIN: IST_PRINT(L"MES_IME_BEGIN\n"); break;
+    case ist::WindowMessage::MES_IME_END: IST_PRINT(L"MES_IME_END\n"); break;
+    case ist::WindowMessage::MES_IME_CHAR: IST_PRINT(L"MES_IME_CHAR\n"); break;
     }
 
     return 0;
@@ -362,6 +373,11 @@ void AtomicApplication::handleError(ERROR_CODE e)
     case ERR_CUDA_INSUFFICIENT_DRIVER:      mes=GetText(TID_ERROR_CUDA_INSUFFICIENT_DRIVER); break;
     }
     istShowMessageDialog(mes.c_str(), L"error", DLG_OK);
+}
+
+void AtomicApplication::handleCommandLine( const wchar_t* command, size_t command_len )
+{
+    IST_PRINT(L"%s\n", command);
 }
 
 

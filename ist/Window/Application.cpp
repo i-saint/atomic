@@ -18,6 +18,10 @@ HDC g_hdc = NULL;
 LRESULT CALLBACK WndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lParam)
 {
     Application *app = g_the_app;
+
+    static HIMC himc;
+    static wchar_t imebuf[512];
+
     switch(message)
     {
     case WM_ACTIVATEAPP:
@@ -44,6 +48,76 @@ LRESULT CALLBACK WndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lPara
             app->handleWindowMessage(wm);
         }
         return 0;
+
+
+    case WM_IME_SETCONTEXT:
+        himc = ImmGetContext(app->getWindowHandle());
+        return ::DefWindowProc(hwnd, message, wParam, lParam);
+        break;
+
+    case WM_IME_CHAR:
+        return ::DefWindowProc(hwnd, message, wParam, lParam);
+        break;
+
+    case WM_IME_COMPOSITION:
+        if(lParam & GCS_RESULTSTR) {
+            WM_IME wm; wm.initialize();
+            wm.type = WindowMessage::MES_IME_RESULT;
+            wm.text_len = ::ImmGetCompositionString(himc, GCS_RESULTSTR, imebuf, _countof(imebuf)) / sizeof(wchar_t);
+            if(wm.text_len!=_countof(imebuf)) { imebuf[wm.text_len]=L'\0'; }
+            wm.text = imebuf;
+            app->handleWindowMessage(wm);
+        }
+        if(lParam & GCS_COMPSTR) {
+            WM_IME wm; wm.initialize();
+            wm.type = WindowMessage::MES_IME_CHAR;
+            wm.text_len = ::ImmGetCompositionString(himc, GCS_COMPSTR, imebuf, _countof(imebuf)) / sizeof(wchar_t);
+            if(wm.text_len!=_countof(imebuf)) { imebuf[wm.text_len]=L'\0'; }
+            wm.text = imebuf;
+            app->handleWindowMessage(wm);
+        }
+        if(lParam & GCS_CURSORPOS) {
+            WM_IME wm; wm.initialize();
+            wm.type = WindowMessage::MES_IME_CURSOR_MOVE;
+            wm.cursor_pos = ::ImmGetCompositionString(himc, GCS_CURSORPOS, imebuf, _countof(imebuf));
+            app->handleWindowMessage(wm);
+        }
+        return ::DefWindowProc(hwnd, message, wParam, lParam);
+        break;
+
+    case WM_IME_CONTROL:
+        return ::DefWindowProc(hwnd, message, wParam, lParam);
+        break;
+
+    case WM_IME_NOTIFY:
+        {
+            WM_IME wm; wm.initialize();
+            wm.type = WindowMessage::MES_IME_CHAR;
+            wm.text_len = ::ImmGetCompositionString(himc, GCS_COMPSTR, imebuf, _countof(imebuf));
+            wm.text = imebuf;
+            app->handleWindowMessage(wm);
+        }
+        return ::DefWindowProc(hwnd, message, wParam, lParam);
+        break;
+
+    case WM_IME_STARTCOMPOSITION:
+        {
+            WM_IME wm; wm.initialize();
+            wm.type = WindowMessage::MES_IME_BEGIN;
+            app->handleWindowMessage(wm);
+        }
+        return ::DefWindowProc(hwnd, message, wParam, lParam);
+        break;
+
+    case WM_IME_ENDCOMPOSITION:
+        {
+            WM_IME wm; wm.initialize();
+            wm.type = WindowMessage::MES_IME_END;
+            app->handleWindowMessage(wm);
+        }
+        return ::DefWindowProc(hwnd, message, wParam, lParam);
+        break;
+
 
     case WM_LBUTTONDOWN:    // fall through
     case WM_LBUTTONUP:      // 

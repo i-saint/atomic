@@ -67,6 +67,7 @@ public:
     virtual void updateInput();
     virtual int handleWindowMessage(const ist::WindowMessage& wm);
     void handleError(ERROR_CODE e);
+    void handleCommandLine(const wchar_t* command, size_t command_len);
 
     void waitForDrawComplete();
     void kickDraw();

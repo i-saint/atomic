@@ -23,12 +23,17 @@ namespace ist
     void SetPanicHandler(PanicHandler handler);
 
     void DebugPuts(const char* fmt);
+    void DebugPuts(const wchar_t* fmt);
 
     void DebugPrint(const char* file, int line, const char* fmt, ...);
     void DebugPrintV(const char* file, int line, const char* fmt, va_list vl);
+    void DebugPrint(const char* file, int line, const wchar_t* fmt, ...);
+    void DebugPrintV(const char* file, int line, const wchar_t* fmt, va_list vl);
 
     int DebugAssert(const char* file, int line, const char* fmt, ...);
     int DebugAssertV(const char* file, int line, const char* fmt, va_list vl);
+    int DebugAssert(const char* file, int line, const wchar_t* fmt, ...);
+    int DebugAssertV(const char* file, int line, const wchar_t* fmt, va_list vl);
 
 } // namespace ist
 
