@@ -29,6 +29,7 @@
     <ClCompile Include="Graphics\Shader.cpp" />
     <ClCompile Include="ist\Base\Allocator.cpp" />
     <ClCompile Include="ist\Base\Assert.cpp" />
+    <ClCompile Include="ist\Base\ClassInfo.cpp" />
     <ClCompile Include="ist\Base\FileLoader.cpp" />
     <ClCompile Include="ist\Base\TaskScheduler.cpp" />
     <ClCompile Include="ist\Graphics\BufferObject.cpp" />
@@ -82,9 +83,11 @@
     <ClInclude Include="ist\Base\Allocator.h" />
     <ClInclude Include="ist\Base\Assert.h" />
     <ClInclude Include="ist\Base\BinaryStream.h" />
+    <ClInclude Include="ist\Base\ClassInfo.h" />
     <ClInclude Include="ist\Base\FileLoader.h" />
     <ClInclude Include="ist\Base\New.h" />
     <ClInclude Include="ist\Base\TaskScheduler.h" />
+    <ClInclude Include="ist\Base\Variant.h" />
     <ClInclude Include="ist\Graphics.h" />
     <ClInclude Include="ist\GraphicsUtil.h" />
     <ClInclude Include="ist\Graphics\BufferObject.h" />

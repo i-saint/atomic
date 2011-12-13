@@ -16,6 +16,8 @@ namespace ist {
 
 #include "Base/Allocator.h"
 #include "Base/New.h"
+#include "Base/ClassInfo.h"
+#include "Base/Variant.h"
 #include "Base/Assert.h"
 #include "Base/BinaryStream.h"
 #include "Base/TaskScheduler.h"

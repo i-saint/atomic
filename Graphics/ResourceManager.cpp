@@ -10,29 +10,6 @@
 namespace atomic {
 
 
-void DrawScreen(vec2 min_pos, vec2 max_pos, vec2 min_tc, vec2 max_tc)
-{
-    glBegin(GL_QUADS);
-    glTexCoord2f(min_tc.x, min_tc.y);
-    glVertex2f(min_pos.x, min_pos.y);
-    glTexCoord2f(max_tc.x, min_tc.y);
-    glVertex2f(max_pos.x, min_pos.y);
-    glTexCoord2f(max_tc.x, max_tc.y);
-    glVertex2f(max_pos.x, max_pos.y);
-    glTexCoord2f(min_tc.x, max_tc.y);
-    glVertex2f(min_pos.x, max_pos.y);
-    glEnd();
-}
-
-void DrawScreen(vec2 min_tc, vec2 max_tc)
-{
-    DrawScreen(vec2(0.0f, 0.0f), vec2(1.0f, 1.0f), min_tc, max_tc);
-}
-
-void DrawScreen()
-{
-    DrawScreen(vec2(0.0f, 0.0f), vec2(1.0f, 1.0f), vec2(0.0f, 0.0f), vec2(1.0f, 1.0f));
-}
 
 
 uint32 CalcFrameBufferWidth()
@@ -60,7 +37,7 @@ GraphicResourceManager* GraphicResourceManager::s_inst = NULL;
 
 void GraphicResourceManager::intializeInstance()
 {
-    s_inst = IST_NEW(GraphicResourceManager) ();
+    s_inst = IST_NEW(GraphicResourceManager)();
     s_inst->initialize();
 }
 
@@ -103,19 +80,19 @@ bool GraphicResourceManager::initialize()
     }
     {
         for(uint32 i=0; i<_countof(m_tex2d); ++i) {
-            m_tex2d[i] = IST_NEW(Texture2D) ();
+            m_tex2d[i] = IST_NEW(Texture2D)();
             m_tex2d[i]->initialize();
         }
     }
     {
         for(uint32 i=0; i<_countof(m_vbo); ++i) {
-            m_vbo[i] = IST_NEW(VertexBufferObject) ();
+            m_vbo[i] = IST_NEW(VertexBufferObject)();
             m_vbo[i]->initialize();
         }
     }
     {
         for(uint32 i=0; i<_countof(m_ibo); ++i) {
-            m_ibo[i] = IST_NEW(IndexBufferObject) ();
+            m_ibo[i] = IST_NEW(IndexBufferObject)();
             m_ibo[i]->initialize();
         }
     }
@@ -136,7 +113,7 @@ bool GraphicResourceManager::initialize()
     }
     {
         for(uint32 i=0; i<_countof(m_ubo); ++i) {
-            m_ubo[i] = IST_NEW(UniformBufferObject) ();
+            m_ubo[i] = IST_NEW(UniformBufferObject)();
             m_ubo[i]->initialize();
         }
         m_ubo[UBO_RENDER_STATES]->allocate(sizeof(RenderStates), UniformBufferObject::USAGE_DYNAMIC);

@@ -1,13 +1,9 @@
-#ifndef __atomic_Graphics_ResourceManager_h__
-#define __atomic_Graphics_ResourceManager_h__
+#ifndef __atomic_Graphics_ResourceManager__
+#define __atomic_Graphics_ResourceManager__
 #include "Graphics/Shader.h"
 #include "Graphics/CreateModelData.h"
 
 namespace atomic {
-
-void DrawScreen(vec2 min_pos, vec2 max_pos, vec2 min_tc, vec2 max_tc);
-void DrawScreen(vec2 min_tc, vec2 max_tc);
-void DrawScreen();
 
 
 enum DRAW_PASS {
@@ -42,11 +38,11 @@ enum RT_RID {
 };
 
 enum GBUFFER {
-    GBUFFER_COLOR       = Texture2D::SLOT_0,
-    GBUFFER_GLOW        = Texture2D::SLOT_1,
-    GBUFFER_NORMAL      = Texture2D::SLOT_2,
-    GBUFFER_POSITION    = Texture2D::SLOT_3,
-    GBUFFER_DEPTH       = Texture2D::SLOT_4,
+    GBUFFER_COLOR   = 0,
+    GBUFFER_GLOW    = 1,
+    GBUFFER_NORMAL  = 2,
+    GBUFFER_POSITION= 3,
+    GBUFFER_DEPTH   = 4,
 };
 
 enum TEX2D_RID {
@@ -153,4 +149,4 @@ public:
 #define atomicGetShader(i)                  atomicGetResourceManager()->getShader(i)
 
 } // namespace atomic
-#endif // __atomic_Graphics_ResourceManager_h__
+#endif // __atomic_Graphics_ResourceManager__

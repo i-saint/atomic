@@ -164,6 +164,9 @@
     <ClCompile Include="Game\DebugConsole.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="ist\Base\ClassInfo.cpp">
+      <Filter>ist\Base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h">
@@ -386,6 +389,12 @@
     </ClInclude>
     <ClInclude Include="ist\Window\WindowMessage.h">
       <Filter>ist\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Base\Variant.h">
+      <Filter>ist\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Base\ClassInfo.h">
+      <Filter>ist\Base</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
