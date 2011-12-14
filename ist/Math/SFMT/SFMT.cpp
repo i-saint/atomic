@@ -13,7 +13,7 @@
 #include "stdafx.h"
 #include <string.h>
 #include <assert.h>
-
+#include "../../Math.h"
 
 namespace ist {
 
