@@ -24,6 +24,7 @@
     <ClCompile Include="Game\VFX.cpp" />
     <ClCompile Include="Game\World.cpp" />
     <ClCompile Include="Graphics\CreateModelData.cpp" />
+    <ClCompile Include="Graphics\ParticleSet.cpp" />
     <ClCompile Include="Graphics\Renderer.cpp" />
     <ClCompile Include="Graphics\ResourceManager.cpp" />
     <ClCompile Include="Graphics\Shader.cpp" />
@@ -39,6 +40,7 @@
     <ClCompile Include="ist\Graphics\GraphicsResource.cpp" />
     <ClCompile Include="ist\Graphics\GraphicsUtil.cpp" />
     <ClCompile Include="ist\Graphics\ShaderObject.cpp" />
+    <ClCompile Include="ist\Math\Constants.cpp" />
     <ClCompile Include="ist\Math\Linear.cpp" />
     <ClCompile Include="ist\Math\SFMT\SFMT.cpp" />
     <ClCompile Include="ist\Sound\Buffer.cpp" />
@@ -76,6 +78,7 @@
     <ClInclude Include="GPGPU\SPH.cuh" />
     <ClInclude Include="Graphics\CreateModelData.h" />
     <ClInclude Include="Graphics\Light.h" />
+    <ClInclude Include="Graphics\ParticleSet.h" />
     <ClInclude Include="Graphics\Renderer.h" />
     <ClInclude Include="Graphics\ResourceManager.h" />
     <ClInclude Include="Graphics\Shader.h" />
@@ -102,6 +105,7 @@
     <ClInclude Include="ist\Graphics\types.h" />
     <ClInclude Include="ist\ist.h" />
     <ClInclude Include="ist\Math.h" />
+    <ClInclude Include="ist\Math\Constants.h" />
     <ClInclude Include="ist\Math\Linear.h" />
     <ClInclude Include="ist\Math\SFMT\SFMT-alti.h" />
     <ClInclude Include="ist\Math\SFMT\SFMT-params.h" />

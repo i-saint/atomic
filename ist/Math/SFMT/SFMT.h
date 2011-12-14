@@ -129,6 +129,7 @@ typedef struct W128_T w128_t;
 
 #include "SFMT-params.h"
 
+namespace ist {
 
 class __declspec(align(16)) SFMT
 {
@@ -278,13 +279,15 @@ public:
     void initialize(uint32_t seed) { init_gen_rand(seed); }
     bool isInitialized() const { return m_initialized!=0; }
 
-    double genFloat64()  { return genrand_real1(); }
+    double genFloat64() { return genrand_real1(); }
     float genFloat32()  { return (float)genrand_real1(); }
-    uint32_t genInt32()      { return gen_rand32(); }
-    uint64_t genInt64()      { return gen_rand64(); }
+    uint32_t genInt32() { return gen_rand32(); }
+    uint64_t genInt64() { return gen_rand64(); }
     __m128 genVector2() { return _mm_set_ps(0.0f, 0.0f, genFloat32(), genFloat32()); }
     __m128 genVector3() { return _mm_set_ps(0.0f, genFloat32(), genFloat32(), genFloat32()); }
     __m128 genVector4() { return _mm_set_ps(genFloat32(), genFloat32(), genFloat32(), genFloat32()); }
 
 };
+
+} // namespace ist
 #endif

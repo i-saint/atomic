@@ -78,29 +78,27 @@ bool GraphicResourceManager::initialize()
         m_font = IST_NEW(SystemFont)();
         m_font->initialize();
     }
-    {
-        for(uint32 i=0; i<_countof(m_tex2d); ++i) {
-            m_tex2d[i] = IST_NEW(Texture2D)();
-            m_tex2d[i]->initialize();
-        }
+    for(uint32 i=0; i<_countof(m_tex2d); ++i) {
+        m_tex2d[i] = IST_NEW(Texture2D)();
+        m_tex2d[i]->initialize();
     }
-    {
-        for(uint32 i=0; i<_countof(m_vbo); ++i) {
-            m_vbo[i] = IST_NEW(VertexBufferObject)();
-            m_vbo[i]->initialize();
-        }
+    for(uint32 i=0; i<_countof(m_vbo); ++i) {
+        m_vbo[i] = IST_NEW(VertexBufferObject)();
+        m_vbo[i]->initialize();
     }
-    {
-        for(uint32 i=0; i<_countof(m_ibo); ++i) {
-            m_ibo[i] = IST_NEW(IndexBufferObject)();
-            m_ibo[i]->initialize();
-        }
+    for(uint32 i=0; i<_countof(m_ibo); ++i) {
+        m_ibo[i] = IST_NEW(IndexBufferObject)();
+        m_ibo[i]->initialize();
     }
+    for(uint32 i=0; i<_countof(m_va); ++i) {
+        m_va[i] = IST_NEW(VertexArray)();
+        m_va[i]->initialize();
+    }
+    for(uint32 i=0; i<_countof(m_pset); ++i) {
+        m_pset[i] = IST_NEW(ParticleSet)();
+    }
+
     {
-        for(uint32 i=0; i<_countof(m_va); ++i) {
-            m_va[i] = IST_NEW(VertexArray)();
-            m_va[i]->initialize();
-        }
 
         CreateScreenQuad(*m_va[VA_SCREEN_QUAD], *m_vbo[VBO_SCREEN_QUAD]);
         CreateBloomLuminanceQuads(*m_va[VA_BLOOM_LUMINANCE_QUADS], *m_vbo[VBO_BLOOM_LUMINANCE_QUADS]);
@@ -167,14 +165,15 @@ void GraphicResourceManager::finalize()
     SPHFinalizeInstanceBuffers();
     SPHFinalize();
 
-    if(m_font) { m_font->finalize(); IST_SAFE_DELETE(m_font); }
-    for(uint32 i=0; i<_countof(m_tex2d); ++i)   { if(m_tex2d[i]) { m_tex2d[i]->finalize(); IST_SAFE_DELETE( m_tex2d[i] ); } }
-    for(uint32 i=0; i<_countof(m_va); ++i)      { if(m_va[i]) { m_va[i]->finalize(); IST_SAFE_DELETE( m_va[i] ); } }
-    for(uint32 i=0; i<_countof(m_vbo); ++i)     { if(m_vbo[i]) { m_vbo[i]->finalize(); IST_SAFE_DELETE( m_vbo[i] ); } }
-    for(uint32 i=0; i<_countof(m_ibo); ++i)     { if(m_ibo[i]) { m_ibo[i]->finalize(); IST_SAFE_DELETE( m_ibo[i] ); } }
-    for(uint32 i=0; i<_countof(m_ubo); ++i)     { if(m_ubo[i]) { m_ubo[i]->finalize(); IST_SAFE_DELETE( m_ubo[i] ); } }
-    for(uint32 i=0; i<_countof(m_fbo); ++i)     { if(m_fbo[i]) { m_fbo[i]->finalize(); IST_SAFE_DELETE( m_fbo[i] ); } }
+    for(uint32 i=0; i<_countof(m_pset); ++i)    { IST_SAFE_DELETE(m_pset[i]); }
     for(uint32 i=0; i<_countof(m_shader); ++i)  { if(m_shader[i]) { m_shader[i]->finalize(); IST_SAFE_DELETE( m_shader[i] ); } }
+    for(uint32 i=0; i<_countof(m_fbo); ++i)     { if(m_fbo[i]) { m_fbo[i]->finalize(); IST_SAFE_DELETE( m_fbo[i] ); } }
+    for(uint32 i=0; i<_countof(m_ubo); ++i)     { if(m_ubo[i]) { m_ubo[i]->finalize(); IST_SAFE_DELETE( m_ubo[i] ); } }
+    for(uint32 i=0; i<_countof(m_ibo); ++i)     { if(m_ibo[i]) { m_ibo[i]->finalize(); IST_SAFE_DELETE( m_ibo[i] ); } }
+    for(uint32 i=0; i<_countof(m_vbo); ++i)     { if(m_vbo[i]) { m_vbo[i]->finalize(); IST_SAFE_DELETE( m_vbo[i] ); } }
+    for(uint32 i=0; i<_countof(m_va); ++i)      { if(m_va[i]) { m_va[i]->finalize(); IST_SAFE_DELETE( m_va[i] ); } }
+    for(uint32 i=0; i<_countof(m_tex2d); ++i)   { if(m_tex2d[i]) { m_tex2d[i]->finalize(); IST_SAFE_DELETE( m_tex2d[i] ); } }
+    if(m_font) { m_font->finalize(); IST_SAFE_DELETE(m_font); }
 }
 
 

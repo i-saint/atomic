@@ -5,7 +5,7 @@ extern "C" {
 
     const int SPH_GRID_DIV_SHIFT_X = 9; // 
     const int SPH_GRID_DIV_SHIFT_Y = 9; // 
-    const int SPH_GRID_DIV_SHIFT_Z = 3; // 
+    const int SPH_GRID_DIV_SHIFT_Z = 2; // 
     const int SPH_GRID_DIV_X = 1<<SPH_GRID_DIV_SHIFT_X;
     const int SPH_GRID_DIV_Y = 1<<SPH_GRID_DIV_SHIFT_Y;
     const int SPH_GRID_DIV_Z = 1<<SPH_GRID_DIV_SHIFT_Z;
@@ -28,6 +28,7 @@ extern "C" {
             struct {
                 int id;
                 int lifetime;
+                int owner_handle;
                 float density;
             };
             float4 padding;

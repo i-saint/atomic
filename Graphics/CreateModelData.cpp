@@ -2,6 +2,7 @@
 #include "ist/ist.h"
 #include "types.h"
 #include "Graphics/CreateModelData.h"
+#include "Graphics/ParticleSet.h"
 #include "shader/Semantics.glslh"
 #include <math.h>
 
@@ -248,6 +249,41 @@ void CreateCube( VertexArray& va, VertexBufferObject& vbo, float32 len )
 
     vbo.allocate(sizeof(v), VertexBufferObject::USAGE_STATIC, v);
     va.setAttributes(vbo, sizeof(vertex_t), descs, _countof(descs));
+}
+
+
+namespace {
+    const float32 g_particle_par_volume = 2000.0; // particles / (1.0*1.0*1.0)
+}
+
+void CreateCubeParticleSet( ParticleSet& ps, float32 len )
+{
+    SFMT random; random.initialize(17);
+    
+    vec4 pos = vec4(-len/2.0f, -len/2.0f, -len/2.0f, 1.0f);
+    uint32 num = static_cast<uint32>((len*len*len) * g_particle_par_volume);
+
+    ps.setCapacity(num);
+    vec4* particles = ps.getHostParticles();
+    for(uint32 i=0; i<num; ++i) {
+        particles[i] = pos + (vec4(random.genFloat32(), random.genFloat32(), random.genFloat32(), 0.0f) * len);
+    }
+    ps.copyHostToDevice();
+}
+
+void CreateSphereParticleSet( ParticleSet& ps, float32 radius )
+{
+    SFMT random; random.initialize(17);
+
+    vec4 pos = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    uint32 num = static_cast<uint32>((4.0f/3.0f) * ist::PI * (radius*radius*radius));
+
+    ps.setCapacity(num);
+    vec4* particles = ps.getHostParticles();
+    for(uint32 i=0; i<num; ++i) {
+        particles[i] = pos + (vec4(random.genFloat32(), random.genFloat32(), random.genFloat32(), 0.0f) * radius);
+    }
+    ps.copyHostToDevice();
 }
 
 } // namespace atomic

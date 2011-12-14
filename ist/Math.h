@@ -2,6 +2,7 @@
 #define __ist_Math__
 
 #include "Graphics/types.h"
+#include "Math/Constants.h"
 //#include "Math/SoA.h"
 #include "Math/Linear.h"
 #include "Math/SFMT/SFMT.h"

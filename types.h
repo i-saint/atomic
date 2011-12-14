@@ -35,6 +35,7 @@ typedef ist::bistream Deserializer;
 using ist::Task;
 using ist::TaskScheduler;
 using ist::SpinLock;
+using ist::SFMT;
 
 
 typedef unsigned int id_t;

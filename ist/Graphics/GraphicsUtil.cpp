@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "../Base/Assert.h"
-#include "../Math/SFMT/SFMT.h"
+#include "../Math.h"
 #include "GraphicsAssert.h"
 #include "ShaderObject.h"
 #include "GraphicsUtil.h"

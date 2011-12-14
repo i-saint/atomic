@@ -13,7 +13,10 @@
 #include "stdafx.h"
 #include <string.h>
 #include <assert.h>
-#include "SFMT.h"
+
+
+namespace ist {
+
 
 /*----------------
   STATIC FUNCTIONS
@@ -546,3 +549,5 @@ void SFMT::init_by_array(uint32_t *init_key, int key_length) {
     period_certification();
     m_initialized = 1;
 }
+
+} // namespace ist
