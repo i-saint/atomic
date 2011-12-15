@@ -35,14 +35,16 @@ AtomicRenderer::AtomicRenderer()
     m_rt_gbuffer    = atomicGetRenderTargetGBuffer();
     m_rt_deferred   = atomicGetRenderTargetDeferred();
 
-    m_renderer_cube             = IST_NEW(PassGBuffer_Fraction)();
-    m_renderer_directional_light= IST_NEW(PassDeferred_DirectionalLights)();
-    m_renderer_sphere_light     = IST_NEW(PassDeferred_PointLights)();
+    m_renderer_fluid            = IST_NEW(PassGBuffer_Fluid)();
+    m_renderer_pset             = IST_NEW(PassGBuffer_ParticleSet)();
+    m_renderer_dir_lights       = IST_NEW(PassShading_DirectionalLights)();
+    m_renderer_point_lights     = IST_NEW(PassShading_PointLights)();
     m_renderer_bloom            = IST_NEW(PassPostprocess_Bloom)();
 
-    m_renderers[PASS_GBUFFER].push_back(m_renderer_cube);
-    m_renderers[PASS_DEFERRED].push_back(m_renderer_directional_light);
-    m_renderers[PASS_DEFERRED].push_back(m_renderer_sphere_light);
+    m_renderers[PASS_GBUFFER].push_back(m_renderer_fluid);
+    m_renderers[PASS_GBUFFER].push_back(m_renderer_pset);
+    m_renderers[PASS_DEFERRED].push_back(m_renderer_dir_lights);
+    m_renderers[PASS_DEFERRED].push_back(m_renderer_point_lights);
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_bloom);
 
     m_default_viewport.setViewport(0, 0, atomicGetWindowWidth(), atomicGetWindowHeight());
@@ -51,9 +53,10 @@ AtomicRenderer::AtomicRenderer()
 AtomicRenderer::~AtomicRenderer()
 {
     IST_SAFE_DELETE(m_renderer_bloom);
-    IST_SAFE_DELETE(m_renderer_sphere_light);
-    IST_SAFE_DELETE(m_renderer_directional_light);
-    IST_SAFE_DELETE(m_renderer_cube);
+    IST_SAFE_DELETE(m_renderer_point_lights);
+    IST_SAFE_DELETE(m_renderer_dir_lights);
+    IST_SAFE_DELETE(m_renderer_pset);
+    IST_SAFE_DELETE(m_renderer_fluid);
 }
 
 void AtomicRenderer::beforeDraw()
@@ -208,18 +211,18 @@ void AtomicRenderer::pass_Output()
 
 
 
-PassGBuffer_Fraction::PassGBuffer_Fraction()
+PassGBuffer_Fluid::PassGBuffer_Fluid()
 {
     m_sh_gbuffer    = atomicGetShader(SH_GBUFFER);
     m_vbo_instance  = atomicGetVertexBufferObject(VBO_FRACTION_INSTANCE);
-    m_va_fraction   = atomicGetVertexArray(VA_FRACTION_CUBE);
+    m_va_cube       = atomicGetVertexArray(VA_FRACTION_CUBE);
 }
 
-void PassGBuffer_Fraction::beforeDraw()
+void PassGBuffer_Fluid::beforeDraw()
 {
 }
 
-void PassGBuffer_Fraction::draw()
+void PassGBuffer_Fluid::draw()
 {
     //const uint32 num_fractions = m_fraction.pos.size();
     //m_vbo_instance_pos->allocate(sizeof(XMVECTOR)*num_fractions, VertexBufferObject::USAGE_STREAM, &m_fraction.pos[0]);
@@ -233,17 +236,37 @@ void PassGBuffer_Fraction::draw()
     };
 
     m_sh_gbuffer->bind();
-    m_va_fraction->bind();
-    m_va_fraction->setAttributes(*m_vbo_instance, sizeof(SPHParticle), descs, _countof(descs));
+    m_va_cube->bind();
+    m_va_cube->setAttributes(*m_vbo_instance, sizeof(SPHParticle), descs, _countof(descs));
     glDrawArraysInstanced(GL_QUADS, 0, 24, num_fractions);
-    m_va_fraction->unbind();
+    m_va_cube->unbind();
     m_sh_gbuffer->unbind();
+}
+
+
+PassGBuffer_ParticleSet::PassGBuffer_ParticleSet()
+{
+    m_sh_gbuffer    = atomicGetShader(SH_GBUFFER);
+    m_vbo_instance  = atomicGetVertexBufferObject(VBO_FRACTION_INSTANCE);
+    m_va_cube       = atomicGetVertexArray(VA_FRACTION_CUBE);
+}
+
+void PassGBuffer_ParticleSet::beforeDraw()
+{
+    for(uint32 i=0; i<_countof(m_matrices); ++i) { m_matrices[i].clear(); }
+}
+
+void PassGBuffer_ParticleSet::draw()
+{
+    for(uint32 i=0; i<_countof(m_matrices); ++i) {
+
+    }
 }
 
 
 
 
-PassDeferred_DirectionalLights::PassDeferred_DirectionalLights()
+PassShading_DirectionalLights::PassShading_DirectionalLights()
 {
     m_shader        = atomicGetShader(SH_DIRECTIONALLIGHT);
     m_va_quad       = atomicGetVertexArray(VA_SCREEN_QUAD);
@@ -251,12 +274,12 @@ PassDeferred_DirectionalLights::PassDeferred_DirectionalLights()
     m_instances.reserve(ATOMIC_MAX_DIRECTIONAL_LIGHTS);
 }
 
-void PassDeferred_DirectionalLights::beforeDraw()
+void PassShading_DirectionalLights::beforeDraw()
 {
     m_instances.clear();
 }
 
-void PassDeferred_DirectionalLights::draw()
+void PassShading_DirectionalLights::draw()
 {
     const uint32 num_instances = m_instances.size();
     MapAndWrite(*m_vbo_instance, &m_instances[0], sizeof(light_t)*num_instances);
@@ -276,7 +299,7 @@ void PassDeferred_DirectionalLights::draw()
 
 }
 
-void PassDeferred_DirectionalLights::pushInstance( const DirectionalLight& v )
+void PassShading_DirectionalLights::pushInstance( const DirectionalLight& v )
 {
     if(m_instances.size()>=ATOMIC_MAX_DIRECTIONAL_LIGHTS) {
         IST_PRINT("ATOMIC_MAX_DIRECTIONAL_LIGHTS exceeded.\n");
@@ -287,7 +310,7 @@ void PassDeferred_DirectionalLights::pushInstance( const DirectionalLight& v )
 
 
 
-PassDeferred_PointLights::PassDeferred_PointLights()
+PassShading_PointLights::PassShading_PointLights()
 {
     m_shader        = atomicGetShader(SH_POINTLIGHT);
     m_ibo_sphere    = atomicGetIndexBufferObject(IBO_SPHERE);
@@ -296,12 +319,12 @@ PassDeferred_PointLights::PassDeferred_PointLights()
     m_instances.reserve(1024);
 }
 
-void PassDeferred_PointLights::beforeDraw()
+void PassShading_PointLights::beforeDraw()
 {
     m_instances.clear();
 }
 
-void PassDeferred_PointLights::draw()
+void PassShading_PointLights::draw()
 {
     //const uint32 num_instances = m_instance_pos.size();
     //m_vbo_instance_pos->allocate(sizeof(XMVECTOR)*num_instances, VertexBufferObject::USAGE_STREAM, &m_instance_pos[0]);
@@ -410,5 +433,6 @@ void PassPostprocess_Bloom::draw()
         m_sh_composite->unbind();
     }
 }
+
 
 } // namespace atomic

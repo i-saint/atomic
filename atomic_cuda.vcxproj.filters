@@ -167,11 +167,11 @@
     <ClCompile Include="ist\Base\ClassInfo.cpp">
       <Filter>ist\Base</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\ParticleSet.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="ist\Math\Constants.cpp">
       <Filter>ist\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\CudaBuffer.cpp">
+      <Filter>Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -402,11 +402,11 @@
     <ClInclude Include="ist\Base\ClassInfo.h">
       <Filter>ist\Base</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\ParticleSet.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="ist\Math\Constants.h">
       <Filter>ist\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\CudaBuffer.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

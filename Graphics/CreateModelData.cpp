@@ -2,7 +2,8 @@
 #include "ist/ist.h"
 #include "types.h"
 #include "Graphics/CreateModelData.h"
-#include "Graphics/ParticleSet.h"
+#include "Graphics/CudaBuffer.h"
+#include "GPGPU/SPH.cuh"
 #include "shader/Semantics.glslh"
 #include <math.h>
 
@@ -256,32 +257,63 @@ namespace {
     const float32 g_particle_par_volume = 2000.0; // particles / (1.0*1.0*1.0)
 }
 
-void CreateCubeParticleSet( ParticleSet& ps, float32 len )
+void CreateCubeParticleSet( CudaBuffer& ps, float32 len )
 {
-    SFMT random; random.initialize(17);
-    
-    vec4 pos = vec4(-len/2.0f, -len/2.0f, -len/2.0f, 1.0f);
-    uint32 num = static_cast<uint32>((len*len*len) * g_particle_par_volume);
+    SFMT random; random.initialize(3);
 
-    ps.setCapacity(num);
-    vec4* particles = ps.getHostParticles();
+    float32 half_len = len/2.0f;
+    float4 pos = make_float4(-half_len, -half_len, -half_len, half_len);
+    float32 volume = len*len*len;
+    uint32 num = static_cast<uint32>(volume * g_particle_par_volume);
+    uint32 buffer_size = sizeof(SPHRigidParticle)*num;
+
+    ps.setCapacity(buffer_size);
+    SPHRigidParticle* particles = (SPHRigidParticle*)ps.getHostBuffer();
+
+    const float4 planes[6] = {
+        make_float4( 1.0f, 0.0f, 0.0f,-half_len),
+        make_float4(-1.0f, 0.0f, 0.0f, half_len),
+        make_float4( 0.0f, 1.0f, 0.0f,-half_len),
+        make_float4( 0.0f,-1.0f, 0.0f, half_len),
+        make_float4( 0.0f, 0.0f, 1.0f,-half_len),
+        make_float4( 0.0f, 0.0f,-1.0f, half_len),
+    };
     for(uint32 i=0; i<num; ++i) {
-        particles[i] = pos + (vec4(random.genFloat32(), random.genFloat32(), random.genFloat32(), 0.0f) * len);
+        float4 rv = make_float4(random.genFloat32(),random.genFloat32(),random.genFloat32(),0.0f) * len;
+        particles[i].position = pos + rv;
+
+        float32 min_d = len*2.0f;
+        uint32 min_p = 0;
+        for(uint32 p=0; p<_countof(planes); ++p) {
+            float32 d = dot(rv, planes[p]);
+            if(d < min_d) {
+                min_d = d;
+                min_p = p;
+            }
+        }
+        particles[i].normal = planes[min_p] * (min_d / half_len);
+        particles[i].normal.w = 0.0f;
     }
     ps.copyHostToDevice();
 }
 
-void CreateSphereParticleSet( ParticleSet& ps, float32 radius )
+void CreateSphereParticleSet( CudaBuffer& ps, float32 radius )
 {
-    SFMT random; random.initialize(17);
+    SFMT random; random.initialize(5);
 
-    vec4 pos = vec4(0.0f, 0.0f, 0.0f, 1.0f);
-    uint32 num = static_cast<uint32>((4.0f/3.0f) * ist::PI * (radius*radius*radius));
+    float4 pos = make_float4(0.0f, 0.0f, 0.0f, 1.0f);
+    float4 half = make_float4(0.5f, 0.5f, 0.5f, 0.0f);
+    float32 volume = (4.0f/3.0f) * ist::PI * (radius*radius*radius);
+    uint32 num = static_cast<uint32>(volume * g_particle_par_volume);
+    uint32 buffer_size = sizeof(SPHRigidParticle)*num;
 
-    ps.setCapacity(num);
-    vec4* particles = ps.getHostParticles();
+    ps.setCapacity(buffer_size);
+    SPHRigidParticle* particles = (SPHRigidParticle*)ps.getHostBuffer();
     for(uint32 i=0; i<num; ++i) {
-        particles[i] = pos + (vec4(random.genFloat32(), random.genFloat32(), random.genFloat32(), 0.0f) * radius);
+        float4 rv = (make_float4(random.genFloat32(),random.genFloat32(),random.genFloat32(),0.0f)-half) * 2.0f * radius;
+        float32 len = ::length(rv);
+        particles[i].position = pos + rv;
+        particles[i].normal = rv / len;
     }
     ps.copyHostToDevice();
 }

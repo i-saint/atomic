@@ -2,7 +2,7 @@
 #define __atomic_Graphics_ResourceManager__
 #include "Graphics/Shader.h"
 #include "Graphics/CreateModelData.h"
-#include "Graphics/ParticleSet.h"
+#include "Graphics/CudaBuffer.h"
 
 namespace atomic {
 
@@ -89,10 +89,10 @@ enum UBO_RID {
     UBO_END,
 };
 
-enum PSET_RID {
-    PSET_CUBE,
-    PSET_SPHERE,
-    PSET_END,
+enum CB_RID {
+    CB_CUBE,
+    CB_SPHERE,
+    CB_END,
 };
 
 
@@ -115,7 +115,7 @@ private:
     UniformBufferObject *m_ubo[UBO_END];
     FrameBufferObject   *m_fbo[RT_END];
     AtomicShader        *m_shader[SH_END];
-    ParticleSet         *m_pset[PSET_END];
+    CudaBuffer          *m_cb[CB_END];
 
 private:
     static GraphicResourceManager* s_inst;
@@ -134,7 +134,7 @@ public:
     IndexBufferObject* getIndexBufferObject(IBO_RID i)      { return m_ibo[i]; }
     UniformBufferObject* getUniformBufferObject(UBO_RID i)  { return m_ubo[i]; }
     AtomicShader* getShader(SH_RID i)                       { return m_shader[i]; }
-    ParticleSet* getParticleSet(PSET_RID i)                 { return m_pset[i]; }
+    CudaBuffer* getCudaBuffer(CB_RID i)                     { return m_cb[i]; }
 
     void swapBuffers();
     RenderTargetGBuffer*    getRenderTargetGBuffer()        { return m_rt_gbuffer; }
@@ -156,7 +156,7 @@ public:
 #define atomicGetIndexBufferObject(i)       atomicGetResourceManager()->getIndexBufferObject(i)
 #define atomicGetUniformBufferObject(i)     atomicGetResourceManager()->getUniformBufferObject(i)
 #define atomicGetShader(i)                  atomicGetResourceManager()->getShader(i)
-#define atomicGetParticleSet(i)             atomicGetResourceManager()->getParticleSet(i)
+#define atomicGetParticleSet(i)             atomicGetResourceManager()->getCudaBuffer(i)
 
 } // namespace atomic
 #endif // __atomic_Graphics_ResourceManager__

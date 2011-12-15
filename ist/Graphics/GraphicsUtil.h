@@ -14,8 +14,8 @@ bool CreateTexture2DFromFile(Texture2D& tex, const char *filename);
 bool CreateTexture2DFromStream(Texture2D& tex, std::istream& st);
 
 // 乱数テクスチャ生成
-bool GenerateRandomTexture(Texture2D &tex, GLsizei width, GLsizei height, Texture2D::FORMAT format);
-bool GenerateRandomTexture(Texture2D &tex, GLsizei width, GLsizei height, Texture2D::FORMAT format, SFMT& random);
+bool GenerateRandomTexture(Texture2D &tex, GLsizei width, GLsizei height, IST_COLOR_FORMAT format);
+bool GenerateRandomTexture(Texture2D &tex, GLsizei width, GLsizei height, IST_COLOR_FORMAT format, SFMT& random);
 
 // ファイル/ストリームから各種シェーダ生成
 bool CreateVertexShaderFromFile(VertexShader& sh, const char *filename);
@@ -58,18 +58,6 @@ template<size_t NumColorBuffers>
 class ColorNBuffer : public FrameBufferObject
 {
 typedef FrameBufferObject super;
-public:
-    enum FORMAT
-    {
-        FMT_RGB_U8      = Texture2D::FMT_RGB_U8,
-        FMT_RGBA_U8     = Texture2D::FMT_RGBA_U8,
-        FMT_RGB_F16     = Texture2D::FMT_RGB_F16,
-        FMT_RGBA_F16    = Texture2D::FMT_RGBA_F16,
-        FMT_RGB_F32     = Texture2D::FMT_RGB_F32,
-        FMT_RGBA_F32    = Texture2D::FMT_RGBA_F32,
-        FMT_DEPTH_F32   = Texture2D::FMT_DEPTH_F32,
-    };
-
 private:
     Texture2D *m_owned[NumColorBuffers];
 
@@ -80,7 +68,7 @@ private:
 public:
     ColorNBuffer();
     ~ColorNBuffer();
-    bool initialize(GLsizei width, GLsizei height, FORMAT=FMT_RGBA_U8);
+    bool initialize(GLsizei width, GLsizei height, IST_COLOR_FORMAT);
 
     GLsizei getWidth() const { return m_width; }
     GLsizei getHeight() const { return m_height; }
@@ -137,18 +125,6 @@ template<size_t NumColorBuffers>
 class ColorNDepthBuffer : public FrameBufferObject
 {
 typedef FrameBufferObject super;
-public:
-    enum FORMAT
-    {
-        FMT_RGB_U8      = Texture2D::FMT_RGB_U8,
-        FMT_RGBA_U8     = Texture2D::FMT_RGBA_U8,
-        FMT_RGB_F16     = Texture2D::FMT_RGB_F16,
-        FMT_RGBA_F16    = Texture2D::FMT_RGBA_F16,
-        FMT_RGB_F32     = Texture2D::FMT_RGB_F32,
-        FMT_RGBA_F32    = Texture2D::FMT_RGBA_F32,
-        FMT_DEPTH_F32   = Texture2D::FMT_DEPTH_F32,
-    };
-
 private:
     Texture2D *m_owned[NumColorBuffers+1];
 
@@ -161,7 +137,7 @@ private:
 public:
     ColorNDepthBuffer();
     ~ColorNDepthBuffer();
-    bool initialize(GLsizei width, GLsizei height, FORMAT=FMT_RGBA_U8);
+    bool initialize(GLsizei width, GLsizei height, IST_COLOR_FORMAT format);
 
     GLsizei getWidth() const { return m_width; }
     GLsizei getHeight() const { return m_height; }

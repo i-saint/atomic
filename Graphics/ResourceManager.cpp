@@ -82,6 +82,10 @@ bool GraphicResourceManager::initialize()
         m_tex2d[i] = IST_NEW(Texture2D)();
         m_tex2d[i]->initialize();
     }
+    for(uint32 i=0; i<_countof(m_va); ++i) {
+        m_va[i] = IST_NEW(VertexArray)();
+        m_va[i]->initialize();
+    }
     for(uint32 i=0; i<_countof(m_vbo); ++i) {
         m_vbo[i] = IST_NEW(VertexBufferObject)();
         m_vbo[i]->initialize();
@@ -90,16 +94,15 @@ bool GraphicResourceManager::initialize()
         m_ibo[i] = IST_NEW(IndexBufferObject)();
         m_ibo[i]->initialize();
     }
-    for(uint32 i=0; i<_countof(m_va); ++i) {
-        m_va[i] = IST_NEW(VertexArray)();
-        m_va[i]->initialize();
+    for(uint32 i=0; i<_countof(m_ubo); ++i) {
+        m_ubo[i] = IST_NEW(UniformBufferObject)();
+        m_ubo[i]->initialize();
     }
-    for(uint32 i=0; i<_countof(m_pset); ++i) {
-        m_pset[i] = IST_NEW(ParticleSet)();
+    for(uint32 i=0; i<_countof(m_cb); ++i) {
+        m_cb[i] = IST_NEW(CudaBuffer)();
     }
 
     {
-
         CreateScreenQuad(*m_va[VA_SCREEN_QUAD], *m_vbo[VBO_SCREEN_QUAD]);
         CreateBloomLuminanceQuads(*m_va[VA_BLOOM_LUMINANCE_QUADS], *m_vbo[VBO_BLOOM_LUMINANCE_QUADS]);
         CreateBloomBlurQuads(*m_va[VA_BLOOM_BLUR_QUADS], *m_vbo[VBO_BLOOM_BLUR_QUADS]);
@@ -110,10 +113,6 @@ bool GraphicResourceManager::initialize()
         CreateSphere(*m_va[VA_UNIT_SPHERE], *m_vbo[VBO_UNIT_SPHERE], *m_ibo[IBO_SPHERE], 1.00f, 32,16);
     }
     {
-        for(uint32 i=0; i<_countof(m_ubo); ++i) {
-            m_ubo[i] = IST_NEW(UniformBufferObject)();
-            m_ubo[i]->initialize();
-        }
         m_ubo[UBO_RENDER_STATES]->allocate(sizeof(RenderStates), UniformBufferObject::USAGE_DYNAMIC);
     }
     {
@@ -129,26 +128,30 @@ bool GraphicResourceManager::initialize()
     }
     {
         // create textures
-        GenerateRandomTexture(*m_tex2d[TEX2D_RANDOM], 64, 64, Texture2D::FMT_RGB_U8);
+        GenerateRandomTexture(*m_tex2d[TEX2D_RANDOM], 64, 64, IST_RGB_U8);
     }
     {
         // create render targets
-        m_rt_gbuffer = IST_NEW(RenderTargetGBuffer) ();
-        m_rt_gbuffer->initialize(framebuffer_width, framebuffer_height, Color3DepthBuffer::FMT_RGBA_F32);
+        m_rt_gbuffer = IST_NEW(RenderTargetGBuffer)();
+        m_rt_gbuffer->initialize(framebuffer_width, framebuffer_height, IST_RGBA_F16);
 
-        m_rt_deferred = IST_NEW(RenderTargetDeferred) ();
+        m_rt_deferred = IST_NEW(RenderTargetDeferred)();
         m_rt_deferred->setDepthBuffer(m_rt_gbuffer->getDepthBuffer());
-        m_rt_deferred->initialize(framebuffer_width, framebuffer_height);
+        m_rt_deferred->initialize(framebuffer_width, framebuffer_height, IST_RGB_U8);
 
         for(uint32 i=0; i<_countof(m_rt_gauss); ++i) {
             m_rt_gauss[i] = IST_NEW(ColorBuffer) ();
-            m_rt_gauss[i]->initialize(512, 256, ColorBuffer::FMT_RGBA_U8);
+            m_rt_gauss[i]->initialize(512, 256, IST_RGBA_U8);
         }
 
         m_fbo[RT_GBUFFER] = m_rt_gbuffer;
         m_fbo[RT_DEFERRED] = m_rt_deferred;
         m_fbo[RT_GAUSS0] = m_rt_gauss[0];
         m_fbo[RT_GAUSS1] = m_rt_gauss[1];
+    }
+    {
+        CreateCubeParticleSet(*m_cb[CB_CUBE], 0.4f);
+        CreateSphereParticleSet(*m_cb[CB_SPHERE], 0.4f);
     }
 
     m_vbo[VBO_FRACTION_INSTANCE]->allocate(sizeof(SPHParticle)*SPH_MAX_PARTICLE_NUM, VertexBufferObject::USAGE_DYNAMIC);
@@ -165,7 +168,7 @@ void GraphicResourceManager::finalize()
     SPHFinalizeInstanceBuffers();
     SPHFinalize();
 
-    for(uint32 i=0; i<_countof(m_pset); ++i)    { IST_SAFE_DELETE(m_pset[i]); }
+    for(uint32 i=0; i<_countof(m_cb); ++i)    { IST_SAFE_DELETE(m_cb[i]); }
     for(uint32 i=0; i<_countof(m_shader); ++i)  { if(m_shader[i]) { m_shader[i]->finalize(); IST_SAFE_DELETE( m_shader[i] ); } }
     for(uint32 i=0; i<_countof(m_fbo); ++i)     { if(m_fbo[i]) { m_fbo[i]->finalize(); IST_SAFE_DELETE( m_fbo[i] ); } }
     for(uint32 i=0; i<_countof(m_ubo); ++i)     { if(m_ubo[i]) { m_ubo[i]->finalize(); IST_SAFE_DELETE( m_ubo[i] ); } }

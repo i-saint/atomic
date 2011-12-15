@@ -134,7 +134,7 @@ namespace atomic {
         void setRotation1(float32 v)    { m_rot1=v; }
         void setRotation2(float32 v)    { m_rot2=v; }
 
-        virtual mat4 computeMatrix()
+        mat4 computeMatrix()
         {
             mat4 mat;
             mat = glm::translate(mat, reinterpret_cast<const vec3&>(m_pos));
@@ -148,6 +148,7 @@ namespace atomic {
     class Enemy_Cube : public Enemy_Base, public Attr_DoubleAxisRotation
     {
     typedef Enemy_Base super;
+    typedef Attr_DoubleAxisRotation transform;
     private:
     public:
         virtual uint32 getClassID() const { return CID_ENEMY_CUBE; }
@@ -162,6 +163,7 @@ namespace atomic {
     class Enemy_Sphere : public Enemy_Base, public Attr_DoubleAxisRotation
     {
     typedef Enemy_Base super;
+    typedef Attr_DoubleAxisRotation transform;
     private:
     public:
         virtual uint32 getClassID() const { return CID_ENEMY_SPHERE; }

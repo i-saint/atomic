@@ -28,7 +28,6 @@ extern "C" {
             struct {
                 int id;
                 int lifetime;
-                int owner_handle;
                 float density;
             };
             float4 padding;
@@ -46,6 +45,18 @@ extern "C" {
             };
             float4 padding;
         };
+    };
+
+    struct SPHRigidParticle
+    {
+        union {
+            struct {
+                int owner_handle;
+            };
+            float4 padding;
+        };
+        float4 position;
+        float4 normal;
     };
 
     struct SPHSphericalGravity

@@ -16,9 +16,10 @@ public:
 };
 
 
-class PassGBuffer_Fraction;
-class PassDeferred_DirectionalLights;
-class PassDeferred_PointLights;
+class PassGBuffer_Fluid;
+class PassGBuffer_ParticleSet;
+class PassShading_DirectionalLights;
+class PassShading_PointLights;
 class PassPostprocess_Bloom;
 
 
@@ -32,9 +33,10 @@ private:
     RenderTargetDeferred    *m_rt_deferred;
 
     // internal resources
-    PassGBuffer_Fraction            *m_renderer_cube;
-    PassDeferred_DirectionalLights  *m_renderer_directional_light;
-    PassDeferred_PointLights        *m_renderer_sphere_light;
+    PassGBuffer_Fluid            *m_renderer_fluid;
+    PassGBuffer_ParticleSet         *m_renderer_pset;
+    PassShading_DirectionalLights  *m_renderer_dir_lights;
+    PassShading_PointLights        *m_renderer_point_lights;
     PassPostprocess_Bloom           *m_renderer_bloom;
     stl::vector<IRenderer*>         m_renderers[PASS_END];
 
@@ -62,39 +64,57 @@ public:
     void beforeDraw();  // メインスレッドから、描画処理の前に呼ばれる
     void draw();        // 以下描画スレッドから呼ばれる
 
-    PassGBuffer_Fraction* getCubeRenderer()             { return m_renderer_cube; }
-    PassDeferred_DirectionalLights* getDirectionalLightRenderer() { return m_renderer_directional_light; }
-    PassDeferred_PointLights* getSphereLightRenderer()  { return m_renderer_sphere_light; }
-    const Viewport* getDefaultViewport() const          { return &m_default_viewport; }
-    RenderStates* getRenderStates()                     { return &m_render_states; }
+    PassGBuffer_Fluid* getFluidRenderer()                   { return m_renderer_fluid; }
+    PassGBuffer_ParticleSet* getParticleSetRenderer()       { return m_renderer_pset; }
+    PassShading_DirectionalLights* getDirectionalLights()   { return m_renderer_dir_lights; }
+    PassShading_PointLights* getPointLights()               { return m_renderer_point_lights; }
+    const Viewport* getDefaultViewport() const              { return &m_default_viewport; }
+    RenderStates* getRenderStates()                         { return &m_render_states; }
 };
 
-#define atomicGetCubeRenderer()             AtomicRenderer::getInstance()->getCubeRenderer()
-#define atomicGetDirectionalLightRenderer() AtomicRenderer::getInstance()->getDirectionalLightRenderer()
-#define atomicGetSphereLightRenderer()      AtomicRenderer::getInstance()->getSphereLightRenderer()
-#define atomicGetDefaultViewport()          AtomicRenderer::getInstance()->getDefaultViewport()
+#define atomicGetFluidRenderer()        AtomicRenderer::getInstance()->getFluidRenderer()
+#define atomicGetParticleSetRenderer()  AtomicRenderer::getInstance()->getParticleSetRenderer()
+#define atomicGetDirectionalLights()    AtomicRenderer::getInstance()->getDirectionalLights()
+#define atomicGetPointLights()          AtomicRenderer::getInstance()->getPointLights()
+#define atomicGetDefaultViewport()      AtomicRenderer::getInstance()->getDefaultViewport()
 
 
 
 
 
 
-class PassGBuffer_Fraction : public IRenderer
+class PassGBuffer_Fluid : public IRenderer
 {
 private:
     AtomicShader        *m_sh_gbuffer;
-    VertexArray         *m_va_fraction;
+    VertexArray         *m_va_cube;
     VertexBufferObject  *m_vbo_instance;
 
 public:
-    PassGBuffer_Fraction();
+    PassGBuffer_Fluid();
     void beforeDraw();  // メインスレッドから、描画処理の前に呼ばれる
     void draw();    // 描画スレッドから呼ばれる
 };
 
+class PassGBuffer_ParticleSet : public IRenderer
+{
+private:
+    AtomicShader        *m_sh_gbuffer;
+    VertexArray         *m_va_cube;
+    VertexBufferObject  *m_vbo_instance;
+
+    stl::vector<mat4>   m_matrices[CB_END];
+
+public:
+    PassGBuffer_ParticleSet();
+    void beforeDraw();
+    void draw();
+
+    void addMatrix(CB_RID id, const mat4& v) { m_matrices[id].push_back(v); }
+};
 
 
-class PassDeferred_DirectionalLights : public IRenderer
+class PassShading_DirectionalLights : public IRenderer
 {
 private:
     typedef DirectionalLight light_t;
@@ -105,14 +125,14 @@ private:
     VertexBufferObject  *m_vbo_instance;
 
 public:
-    PassDeferred_DirectionalLights();
+    PassShading_DirectionalLights();
     void beforeDraw();
     void draw();
 
     void pushInstance(const DirectionalLight& v);
 };
 
-class PassDeferred_PointLights : public IRenderer
+class PassShading_PointLights : public IRenderer
 {
 public:
     typedef PointLight light_t;
@@ -130,7 +150,7 @@ private:
     VertexBufferObject  *m_vbo_instance;
 
 public:
-    PassDeferred_PointLights();
+    PassShading_PointLights();
     void beforeDraw();
     void draw();
 

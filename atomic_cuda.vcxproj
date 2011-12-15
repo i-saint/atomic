@@ -24,7 +24,7 @@
     <ClCompile Include="Game\VFX.cpp" />
     <ClCompile Include="Game\World.cpp" />
     <ClCompile Include="Graphics\CreateModelData.cpp" />
-    <ClCompile Include="Graphics\ParticleSet.cpp" />
+    <ClCompile Include="Graphics\CudaBuffer.cpp" />
     <ClCompile Include="Graphics\Renderer.cpp" />
     <ClCompile Include="Graphics\ResourceManager.cpp" />
     <ClCompile Include="Graphics\Shader.cpp" />
@@ -77,8 +77,8 @@
     <ClInclude Include="Game\World.h" />
     <ClInclude Include="GPGPU\SPH.cuh" />
     <ClInclude Include="Graphics\CreateModelData.h" />
+    <ClInclude Include="Graphics\CudaBuffer.h" />
     <ClInclude Include="Graphics\Light.h" />
-    <ClInclude Include="Graphics\ParticleSet.h" />
     <ClInclude Include="Graphics\Renderer.h" />
     <ClInclude Include="Graphics\ResourceManager.h" />
     <ClInclude Include="Graphics\Shader.h" />
