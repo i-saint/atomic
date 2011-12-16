@@ -37,8 +37,8 @@ AtomicRenderer::AtomicRenderer()
 
     m_renderer_fluid            = IST_NEW(PassGBuffer_Fluid)();
     m_renderer_pset             = IST_NEW(PassGBuffer_ParticleSet)();
-    m_renderer_dir_lights       = IST_NEW(PassShading_DirectionalLights)();
-    m_renderer_point_lights     = IST_NEW(PassShading_PointLights)();
+    m_renderer_dir_lights       = IST_NEW(PassDeferredShading_DirectionalLights)();
+    m_renderer_point_lights     = IST_NEW(PassDeferredShading_PointLights)();
     m_renderer_bloom            = IST_NEW(PassPostprocess_Bloom)();
 
     m_renderers[PASS_GBUFFER].push_back(m_renderer_fluid);
@@ -100,13 +100,13 @@ void AtomicRenderer::draw()
         MapAndWrite(*ubo_renderstates, &m_render_states, sizeof(m_render_states));
     }
 
-    pass_Shadow();
-    pass_GBuffer();
-    pass_Deferred();
-    pass_Forward();
-    pass_Postprocess();
-    pass_Output();
-    pass_UI();
+    passShadow();
+    passGBuffer();
+    passDeferredShading();
+    passForwardShading();
+    passPostprocess();
+    passHUD();
+    passOutput();
 
     //glFinish();
 
@@ -115,7 +115,7 @@ void AtomicRenderer::draw()
     glSwapBuffers();
 }
 
-void AtomicRenderer::pass_Shadow()
+void AtomicRenderer::passShadow()
 {
     glClear(GL_DEPTH_BUFFER_BIT);
     glFrontFace(GL_CW);
@@ -130,7 +130,7 @@ void AtomicRenderer::pass_Shadow()
     glFrontFace(GL_CCW);
 }
 
-void AtomicRenderer::pass_GBuffer()
+void AtomicRenderer::passGBuffer()
 {
     const PerspectiveCamera *camera = atomicGetCamera();
 
@@ -148,7 +148,7 @@ void AtomicRenderer::pass_GBuffer()
     m_rt_gbuffer->unbind();
 }
 
-void AtomicRenderer::pass_Deferred()
+void AtomicRenderer::passDeferredShading()
 {
     m_rt_deferred->bind();
     m_rt_gbuffer->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
@@ -172,7 +172,7 @@ void AtomicRenderer::pass_Deferred()
     m_rt_deferred->unbind();
 }
 
-void AtomicRenderer::pass_Forward()
+void AtomicRenderer::passForwardShading()
 {
     uint32 num_renderers = m_renderers[PASS_FORWARD].size();
     for(uint32 i=0; i<num_renderers; ++i) {
@@ -180,7 +180,7 @@ void AtomicRenderer::pass_Forward()
     }
 }
 
-void AtomicRenderer::pass_Postprocess()
+void AtomicRenderer::passPostprocess()
 {
     uint32 num_renderers = m_renderers[PASS_POSTPROCESS].size();
     for(uint32 i=0; i<num_renderers; ++i) {
@@ -188,25 +188,25 @@ void AtomicRenderer::pass_Postprocess()
     }
 }
 
-void AtomicRenderer::pass_UI()
+void AtomicRenderer::passHUD()
 {
     uint32 num_renderers = m_renderers[PASS_UI].size();
     for(uint32 i=0; i<num_renderers; ++i) {
         m_renderers[PASS_UI][i]->draw();
     }
-
-    char str_fps[64];
-    sprintf(str_fps, "FPS: %.0f", atomicGetApplication()->getAverageFPS());
-    atomicGetFont()->draw(0, 0, str_fps);
 }
 
-void AtomicRenderer::pass_Output()
+void AtomicRenderer::passOutput()
 {
     m_rt_deferred->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
     m_sh_out->bind();
     m_va_screenquad->bind();
     glDrawArrays(GL_QUADS, 0, 4);
     m_sh_out->unbind();
+
+    char str_fps[64];
+    sprintf(str_fps, "FPS: %.0f", atomicGetApplication()->getAverageFPS());
+    atomicGetFont()->draw(0, 0, str_fps);
 }
 
 
@@ -266,7 +266,7 @@ void PassGBuffer_ParticleSet::draw()
 
 
 
-PassShading_DirectionalLights::PassShading_DirectionalLights()
+PassDeferredShading_DirectionalLights::PassDeferredShading_DirectionalLights()
 {
     m_shader        = atomicGetShader(SH_DIRECTIONALLIGHT);
     m_va_quad       = atomicGetVertexArray(VA_SCREEN_QUAD);
@@ -274,12 +274,12 @@ PassShading_DirectionalLights::PassShading_DirectionalLights()
     m_instances.reserve(ATOMIC_MAX_DIRECTIONAL_LIGHTS);
 }
 
-void PassShading_DirectionalLights::beforeDraw()
+void PassDeferredShading_DirectionalLights::beforeDraw()
 {
     m_instances.clear();
 }
 
-void PassShading_DirectionalLights::draw()
+void PassDeferredShading_DirectionalLights::draw()
 {
     const uint32 num_instances = m_instances.size();
     MapAndWrite(*m_vbo_instance, &m_instances[0], sizeof(light_t)*num_instances);
@@ -299,7 +299,7 @@ void PassShading_DirectionalLights::draw()
 
 }
 
-void PassShading_DirectionalLights::pushInstance( const DirectionalLight& v )
+void PassDeferredShading_DirectionalLights::pushInstance( const DirectionalLight& v )
 {
     if(m_instances.size()>=ATOMIC_MAX_DIRECTIONAL_LIGHTS) {
         IST_PRINT("ATOMIC_MAX_DIRECTIONAL_LIGHTS exceeded.\n");
@@ -310,7 +310,7 @@ void PassShading_DirectionalLights::pushInstance( const DirectionalLight& v )
 
 
 
-PassShading_PointLights::PassShading_PointLights()
+PassDeferredShading_PointLights::PassDeferredShading_PointLights()
 {
     m_shader        = atomicGetShader(SH_POINTLIGHT);
     m_ibo_sphere    = atomicGetIndexBufferObject(IBO_SPHERE);
@@ -319,12 +319,12 @@ PassShading_PointLights::PassShading_PointLights()
     m_instances.reserve(1024);
 }
 
-void PassShading_PointLights::beforeDraw()
+void PassDeferredShading_PointLights::beforeDraw()
 {
     m_instances.clear();
 }
 
-void PassShading_PointLights::draw()
+void PassDeferredShading_PointLights::draw()
 {
     //const uint32 num_instances = m_instance_pos.size();
     //m_vbo_instance_pos->allocate(sizeof(XMVECTOR)*num_instances, VertexBufferObject::USAGE_STREAM, &m_instance_pos[0]);

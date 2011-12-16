@@ -192,7 +192,7 @@ Application::Application()
 , m_width(0)
 , m_height(0)
 , m_graphics_error(ERR_NOERROR)
-#ifdef IST_OPENGL
+#if defined(IST_OPENGL) && defined(WIN32)
 , m_hdc(NULL)
 , m_hglrc(NULL)
 #endif // IST_OPENGL
@@ -290,12 +290,15 @@ void Application::finalize()
     if(m_cl_context) { delete m_cl_context; m_cl_context=NULL; }
 #endif // IST_OPENCL
     sound::FinalizeSound();
-    if(m_hwnd) { ::CloseWindow(m_hwnd); m_hwnd=NULL; }
+    if(m_hwnd) {
+        ::CloseWindow(m_hwnd);
+        m_hwnd=NULL;
+    }
 }
 
 bool Application::initializeDraw()
 {
-#ifdef IST_OPENGL
+#if defined(IST_OPENGL) && defined(WIN32)
     m_hdc = ::GetDC(m_hwnd);
     g_hdc = m_hdc;
 
@@ -424,11 +427,15 @@ bool Application::initializeDraw()
 
 void Application::finalizeDraw()
 {
-#ifdef IST_OPENGL
-    if(m_hglrc) {
+#if defined(IST_OPENGL) && defined(WIN32)
+    if(m_hglrc!=NULL) {
         ::wglMakeCurrent(NULL, NULL);
         ::wglDeleteContext(m_hglrc);
         m_hglrc = NULL;
+    }
+    if(m_hdc!=NULL) {
+        ::ReleaseDC(m_hwnd, m_hdc);
+        m_hdc = NULL;
     }
 #endif // IST_OPENGL
 

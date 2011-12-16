@@ -152,6 +152,7 @@ bool GraphicResourceManager::initialize()
     {
         CreateCubeParticleSet(*m_cb[CB_CUBE], 0.4f);
         CreateSphereParticleSet(*m_cb[CB_SPHERE], 0.4f);
+        m_cb[CB_CHARACTER_MATRICES]->setCapacity(sizeof(mat4)*ATOMIC_MAX_CHARACTERS);
     }
 
     m_vbo[VBO_FRACTION_INSTANCE]->allocate(sizeof(SPHParticle)*SPH_MAX_PARTICLE_NUM, VertexBufferObject::USAGE_DYNAMIC);

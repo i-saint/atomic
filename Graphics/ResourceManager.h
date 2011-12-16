@@ -6,6 +6,8 @@
 
 namespace atomic {
 
+const uint32 ATOMIC_MAX_CHARACTERS = 1024;
+
 
 enum DRAW_PASS {
     PASS_SHADOW_DEPTH,
@@ -92,6 +94,7 @@ enum UBO_RID {
 enum CB_RID {
     CB_CUBE,
     CB_SPHERE,
+    CB_CHARACTER_MATRICES,
     CB_END,
 };
 

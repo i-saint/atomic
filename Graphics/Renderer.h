@@ -18,8 +18,8 @@ public:
 
 class PassGBuffer_Fluid;
 class PassGBuffer_ParticleSet;
-class PassShading_DirectionalLights;
-class PassShading_PointLights;
+class PassDeferredShading_DirectionalLights;
+class PassDeferredShading_PointLights;
 class PassPostprocess_Bloom;
 
 
@@ -35,8 +35,8 @@ private:
     // internal resources
     PassGBuffer_Fluid            *m_renderer_fluid;
     PassGBuffer_ParticleSet         *m_renderer_pset;
-    PassShading_DirectionalLights  *m_renderer_dir_lights;
-    PassShading_PointLights        *m_renderer_point_lights;
+    PassDeferredShading_DirectionalLights  *m_renderer_dir_lights;
+    PassDeferredShading_PointLights        *m_renderer_point_lights;
     PassPostprocess_Bloom           *m_renderer_bloom;
     stl::vector<IRenderer*>         m_renderers[PASS_END];
 
@@ -46,13 +46,13 @@ private:
 private:
     static AtomicRenderer *s_inst;
 
-    void pass_Shadow();
-    void pass_GBuffer();
-    void pass_Deferred();
-    void pass_Forward();
-    void pass_Postprocess();
-    void pass_UI();
-    void pass_Output();
+    void passShadow();
+    void passGBuffer();
+    void passDeferredShading();
+    void passForwardShading();
+    void passPostprocess();
+    void passHUD();
+    void passOutput();
 
 public:
     AtomicRenderer();
@@ -66,8 +66,8 @@ public:
 
     PassGBuffer_Fluid* getFluidRenderer()                   { return m_renderer_fluid; }
     PassGBuffer_ParticleSet* getParticleSetRenderer()       { return m_renderer_pset; }
-    PassShading_DirectionalLights* getDirectionalLights()   { return m_renderer_dir_lights; }
-    PassShading_PointLights* getPointLights()               { return m_renderer_point_lights; }
+    PassDeferredShading_DirectionalLights* getDirectionalLights()   { return m_renderer_dir_lights; }
+    PassDeferredShading_PointLights* getPointLights()               { return m_renderer_point_lights; }
     const Viewport* getDefaultViewport() const              { return &m_default_viewport; }
     RenderStates* getRenderStates()                         { return &m_render_states; }
 };
@@ -114,7 +114,7 @@ public:
 };
 
 
-class PassShading_DirectionalLights : public IRenderer
+class PassDeferredShading_DirectionalLights : public IRenderer
 {
 private:
     typedef DirectionalLight light_t;
@@ -125,14 +125,14 @@ private:
     VertexBufferObject  *m_vbo_instance;
 
 public:
-    PassShading_DirectionalLights();
+    PassDeferredShading_DirectionalLights();
     void beforeDraw();
     void draw();
 
     void pushInstance(const DirectionalLight& v);
 };
 
-class PassShading_PointLights : public IRenderer
+class PassDeferredShading_PointLights : public IRenderer
 {
 public:
     typedef PointLight light_t;
@@ -150,7 +150,7 @@ private:
     VertexBufferObject  *m_vbo_instance;
 
 public:
-    PassShading_PointLights();
+    PassDeferredShading_PointLights();
     void beforeDraw();
     void draw();
 

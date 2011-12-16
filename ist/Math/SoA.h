@@ -1,100 +1,66 @@
 #include <windows.h>
-#include <xnamath.h>
+#include "../Base.h"
 
 #define SSE_SHUFFLE(w,x,y,z) _MM_SHUFFLE(z,y,x,w)
 
 
+namespace ist {
 
-union __declspec(align(16)) SOAVECTOR2
+struct __declspec(align(16)) soavec2
 {
-    struct {
-        XMVECTOR x;
-        XMVECTOR y;
-    };
-    XMVECTOR v[2];
+    simdvec4 v[2];
+
+    __forceinline soavec2() {}
+    __forceinline soavec2(const simdvec4 *_v) { v[0]=_v[0]; v[1]=_v[1]; }
+    __forceinline soavec2(const simdvec4 &_x, const simdvec4 &_y) { v[0]=_x; v[1]=_y; }
+
+    __forceinline simdvec4 x() const { return v[0]; }
+    __forceinline simdvec4 y() const { return v[1]; }
+
+    __forceinline void x(const simdvec4 &_v) { v[0]=_v; }
+    __forceinline void y(const simdvec4 &_v) { v[1]=_v; }
 };
 
-union __declspec(align(16)) SOAVECTOR3
+struct __declspec(align(16)) soavec3
 {
-    struct {
-        XMVECTOR x;
-        XMVECTOR y;
-        XMVECTOR z;
-    };
-    XMVECTOR v[3];
+    simdvec4 v[3];
+
+    __forceinline soavec3() {}
+    __forceinline soavec3(const simdvec4 *_v) { v[0]=_v[0]; v[1]=_v[1]; v[2]=_v[2]; }
+    __forceinline soavec3(const simdvec4 &_x, const simdvec4 &_y, const simdvec4 &_z) { v[0]=_x; v[1]=_y; v[2]=_z; }
+
+    __forceinline simdvec4 x() const { return v[0]; }
+    __forceinline simdvec4 y() const { return v[1]; }
+    __forceinline simdvec4 z() const { return v[2]; }
+
+    __forceinline void x(const simdvec4 &_v) { v[0]=_v; }
+    __forceinline void y(const simdvec4 &_v) { v[1]=_v; }
+    __forceinline void z(const simdvec4 &_v) { v[2]=_v; }
 };
 
-union __declspec(align(16)) SOAVECTOR4
+struct __declspec(align(16)) soavec4
 {
-    struct {
-        XMVECTOR x;
-        XMVECTOR y;
-        XMVECTOR z;
-        XMVECTOR w;
-    };
-    XMVECTOR v[4];
+    simdvec4 v[4];
+
+    __forceinline soavec4() {}
+    __forceinline soavec4(const simdvec4 *_v) { v[0]=_v[0]; v[1]=_v[1]; v[2]=_v[2]; v[3]=_v[3]; }
+    __forceinline soavec4(const simdvec4 &_x, const simdvec4 &_y, const simdvec4 &_z, const simdvec4 &_w) { v[0]=_x; v[1]=_y; v[2]=_z; v[3]=_w; }
+    __forceinline soavec4(const soavec3 &_xyz, const simdvec4 &_w) { v[0]=_xyz.v[0]; v[1]=_xyz.v[1]; v[2]=_xyz.v[2]; v[3]=_w; }
+
+    __forceinline simdvec4 x() const { return v[0]; }
+    __forceinline simdvec4 y() const { return v[1]; }
+    __forceinline simdvec4 z() const { return v[2]; }
+    __forceinline simdvec4 w() const { return v[3]; }
+    __forceinline soavec3 xyz() const { return soavec3(v[0], v[1], v[2]); }
+
+    __forceinline void x(const simdvec4 &_v) { v[0]=_v; }
+    __forceinline void y(const simdvec4 &_v) { v[1]=_v; }
+    __forceinline void z(const simdvec4 &_v) { v[2]=_v; }
+    __forceinline void w(const simdvec4 &_v) { v[3]=_v; }
+    __forceinline void xyz(const soavec3 &_v) { v[0]=_v.v[0]; v[1]=_v.v[1]; v[2]=_v.v[2]; }
 };
 
 
-
-///////////////////////////////////////////////////////////////
-// SoA Set
-///////////////////////////////////////////////////////////////
-
-__forceinline SOAVECTOR2 SOAVectorSet2(const XMVECTOR *v)
-{
-    SOAVECTOR2 r;
-    r.x = v[0];
-    r.y = v[1];
-    return r;
-}
-
-__forceinline SOAVECTOR2 SOAVectorSet2(const XMVECTOR v0, const XMVECTOR v1)
-{
-    SOAVECTOR2 r;
-    r.x = v0;
-    r.y = v1;
-    return r;
-}
-
-__forceinline SOAVECTOR3 SOAVectorSet3(const XMVECTOR *v)
-{
-    SOAVECTOR3 r;
-    r.x = v[0];
-    r.y = v[1];
-    r.z = v[2];
-    return r;
-}
-
-__forceinline SOAVECTOR3 SOAVectorSet3(const XMVECTOR v0, const XMVECTOR v1, const XMVECTOR v2)
-{
-    SOAVECTOR3 r;
-    r.x = v0;
-    r.y = v1;
-    r.z = v2;
-    return r;
-}
-
-__forceinline SOAVECTOR4 SOAVectorSet4(const XMVECTOR *v)
-{
-    SOAVECTOR4 r;
-    r.x = v[0];
-    r.y = v[1];
-    r.z = v[2];
-    r.w = v[3];
-    return r;
-}
-
-// アライメント指定オブジェクトが 4 引数以上の場合、VC の都合で参照で渡さないといけない…
-__forceinline SOAVECTOR4 SOAVectorSet4(const XMVECTOR& v0, const XMVECTOR& v1, const XMVECTOR& v2, const XMVECTOR& v3)
-{
-    SOAVECTOR4 r;
-    r.x = v0;
-    r.y = v1;
-    r.z = v2;
-    r.w = v3;
-    return r;
-}
 
 
 ///////////////////////////////////////////////////////////////
@@ -102,166 +68,153 @@ __forceinline SOAVECTOR4 SOAVectorSet4(const XMVECTOR& v0, const XMVECTOR& v1, c
 ///////////////////////////////////////////////////////////////
 
 // 2 要素 SoA ベクトルへ
-__forceinline SOAVECTOR2 SOAVectorTranspose2(const XMVECTOR v0)
+__forceinline soavec2 soa_transpose2(const simdvec4 &v0)
 {
-    SOAVECTOR2 r;
-    XMVECTOR zero = _mm_set_ps1(0.0f);
-    XMVECTOR r1 = _mm_unpacklo_ps(v0, zero);
-    XMVECTOR r2 = zero;
-    r.x = _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(0,1,0,1));
-    r.y = _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(2,3,2,3));
-    return r;
+    __m128 zero = _mm_set_ps1(0.0f);
+    __m128 r1 = _mm_unpacklo_ps(v0.Data, zero);
+    __m128 r2 = zero;
+    return soavec2(
+        _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(0,1,0,1)),
+        _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(2,3,2,3)) );
 }
 
-__forceinline SOAVECTOR2 SOAVectorTranspose2(const XMVECTOR v0, const XMVECTOR v1)
+__forceinline soavec2 soa_transpose2(const simdvec4 &v0, const simdvec4 &v1)
 {
-    SOAVECTOR2 r;
-    XMVECTOR zero = _mm_set_ps1(0.0f);
-    XMVECTOR r1 = _mm_unpacklo_ps(v0, v1);
-    XMVECTOR r2 = zero;
-    r.x = _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(0,1,0,1));
-    r.y = _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(2,3,2,3));
-    return r;
+    __m128 zero = _mm_set_ps1(0.0f);
+    __m128 r1 = _mm_unpacklo_ps(v0.Data, v1.Data);
+    __m128 r2 = zero;
+    return soavec2(
+        _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(0,1,0,1)),
+        _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(2,3,2,3)) );
 }
 
-__forceinline SOAVECTOR2 SOAVectorTranspose2(const XMVECTOR v0, const XMVECTOR v1, const XMVECTOR v2)
+__forceinline soavec2 soa_transpose2(const simdvec4 &v0, const simdvec4 &v1, const simdvec4 &v2)
 {
-    SOAVECTOR2 r;
-    XMVECTOR zero = _mm_set_ps1(0.0f);
-    XMVECTOR r1 = _mm_unpacklo_ps(v0, v1);
-    XMVECTOR r2 = _mm_unpacklo_ps(v2, zero);
-    r.x = _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(0,1,0,1));
-    r.y = _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(2,3,2,3));
-    return r;
+    __m128 zero = _mm_set_ps1(0.0f);
+    __m128 r1 = _mm_unpacklo_ps(v0.Data, v1.Data);
+    __m128 r2 = _mm_unpacklo_ps(v2.Data, zero);
+    return soavec2(
+        _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(0,1,0,1)),
+        _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(2,3,2,3)) );
 }
 
-__forceinline SOAVECTOR2 SOAVectorTranspose2(const XMVECTOR& v0, const XMVECTOR& v1, const XMVECTOR& v2, const XMVECTOR& v3)
+__forceinline soavec2 soa_transpose2(const simdvec4 &v0, const simdvec4 &v1, const simdvec4 &v2, const simdvec4 &v3)
 {
-    SOAVECTOR2 r;
-    XMVECTOR r1 = _mm_unpacklo_ps(v0, v1);
-    XMVECTOR r2 = _mm_unpacklo_ps(v2, v3);
-    r.x = _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(0,1,0,1));
-    r.y = _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(2,3,2,3));
-    return r;
-}
-
-
-__forceinline SOAVECTOR3 SOAVectorTranspose3(const XMVECTOR v0)
-{
-    SOAVECTOR3 r;
-    XMVECTOR zero = _mm_set_ps1(0.0f);
-    XMVECTOR r1 = _mm_unpacklo_ps(v0, zero);
-    XMVECTOR r2 = zero;
-    XMVECTOR r3 = _mm_unpackhi_ps(v0, zero);
-    XMVECTOR r4 = zero;
-    r.x = _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(0,1,0,1));
-    r.y = _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(2,3,2,3));
-    r.z = _mm_shuffle_ps(r3, r4, SSE_SHUFFLE(0,1,0,1));
-    return r;
+    __m128 r1 = _mm_unpacklo_ps(v0.Data, v1.Data);
+    __m128 r2 = _mm_unpacklo_ps(v2.Data, v3.Data);
+    return soavec2(
+        _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(0,1,0,1)),
+        _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(2,3,2,3)) );
 }
 
 
 // 3 要素 SoA ベクトルへ
-__forceinline SOAVECTOR3 SOAVectorTranspose3(const XMVECTOR v0, const XMVECTOR v1)
+__forceinline soavec3 soa_transpose3(const simdvec4 &v0)
 {
-    SOAVECTOR3 r;
-    XMVECTOR zero = _mm_set_ps1(0.0f);
-    XMVECTOR r1 = _mm_unpacklo_ps(v0, v1);
-    XMVECTOR r2 = zero;
-    XMVECTOR r3 = _mm_unpackhi_ps(v0, v1);
-    XMVECTOR r4 = zero;
-    r.x = _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(0,1,0,1));
-    r.y = _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(2,3,2,3));
-    r.z = _mm_shuffle_ps(r3, r4, SSE_SHUFFLE(0,1,0,1));
-    return r;
+    __m128 zero = _mm_set_ps1(0.0f);
+    __m128 r1 = _mm_unpacklo_ps(v0.Data, zero);
+    __m128 r2 = zero;
+    __m128 r3 = _mm_unpackhi_ps(v0.Data, zero);
+    __m128 r4 = zero;
+    return soavec3(
+        _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(0,1,0,1)),
+        _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(2,3,2,3)),
+        _mm_shuffle_ps(r3, r4, SSE_SHUFFLE(0,1,0,1)) );
 }
 
-__forceinline SOAVECTOR3 SOAVectorTranspose3(const XMVECTOR v0, const XMVECTOR v1, const XMVECTOR v2)
+__forceinline soavec3 soa_transpose3(const simdvec4 &v0, const simdvec4 &v1)
 {
-    SOAVECTOR3 r;
-    XMVECTOR zero = _mm_set_ps1(0.0f);
-    XMVECTOR r1 = _mm_unpacklo_ps(v0, v1);
-    XMVECTOR r2 = _mm_unpacklo_ps(v2, zero);
-    XMVECTOR r3 = _mm_unpackhi_ps(v0, v1);
-    XMVECTOR r4 = _mm_unpackhi_ps(v2, zero);
-    r.x = _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(0,1,0,1));
-    r.y = _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(2,3,2,3));
-    r.z = _mm_shuffle_ps(r3, r4, SSE_SHUFFLE(0,1,0,1));
-    return r;
+    __m128 zero = _mm_set_ps1(0.0f);
+    __m128 r1 = _mm_unpacklo_ps(v0.Data, v1.Data);
+    __m128 r2 = zero;
+    __m128 r3 = _mm_unpackhi_ps(v0.Data, v1.Data);
+    __m128 r4 = zero;
+    return soavec3(
+        _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(0,1,0,1)),
+        _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(2,3,2,3)),
+        _mm_shuffle_ps(r3, r4, SSE_SHUFFLE(0,1,0,1)) );
 }
 
-__forceinline SOAVECTOR3 SOAVectorTranspose3(const XMVECTOR& v0, const XMVECTOR& v1, const XMVECTOR& v2, const XMVECTOR& v3)
+__forceinline soavec3 soa_transpose3(const simdvec4 &v0, const simdvec4 &v1, const simdvec4 &v2)
 {
-    SOAVECTOR3 r;
-    XMVECTOR r1 = _mm_unpacklo_ps(v0, v1);
-    XMVECTOR r2 = _mm_unpacklo_ps(v2, v3);
-    XMVECTOR r3 = _mm_unpackhi_ps(v0, v1);
-    XMVECTOR r4 = _mm_unpackhi_ps(v2, v3);
-    r.x = _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(0,1,0,1));
-    r.y = _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(2,3,2,3));
-    r.z = _mm_shuffle_ps(r3, r4, SSE_SHUFFLE(0,1,0,1));
-    return r;
+    __m128 zero = _mm_set_ps1(0.0f);
+    __m128 r1 = _mm_unpacklo_ps(v0.Data, v1.Data);
+    __m128 r2 = _mm_unpacklo_ps(v2.Data, zero);
+    __m128 r3 = _mm_unpackhi_ps(v0.Data, v1.Data);
+    __m128 r4 = _mm_unpackhi_ps(v2.Data, zero);
+    return soavec3(
+        _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(0,1,0,1)),
+        _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(2,3,2,3)),
+        _mm_shuffle_ps(r3, r4, SSE_SHUFFLE(0,1,0,1)) );
+}
+
+__forceinline soavec3 soa_transpose3(const simdvec4 &v0, const simdvec4 &v1, const simdvec4 &v2, const simdvec4 &v3)
+{
+    __m128 r1 = _mm_unpacklo_ps(v0.Data, v1.Data);
+    __m128 r2 = _mm_unpacklo_ps(v2.Data, v3.Data);
+    __m128 r3 = _mm_unpackhi_ps(v0.Data, v1.Data);
+    __m128 r4 = _mm_unpackhi_ps(v2.Data, v3.Data);
+    return soavec3(
+        _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(0,1,0,1)),
+        _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(2,3,2,3)),
+        _mm_shuffle_ps(r3, r4, SSE_SHUFFLE(0,1,0,1)) );
 }
 
 
 // 4 要素 SoA ベクトルへ
-__forceinline SOAVECTOR4 SOAVectorTranspose4(const XMVECTOR v0)
+__forceinline soavec4 soa_transpose4(const simdvec4 &v0)
 {
-    SOAVECTOR4 r;
-    XMVECTOR zero = _mm_set_ps1(0.0f);
-    XMVECTOR r1 = _mm_unpacklo_ps(v0, zero);
-    XMVECTOR r2 = zero;
-    XMVECTOR r3 = _mm_unpackhi_ps(v0, zero);
-    XMVECTOR r4 = zero;
-    r.x = _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(0,1,0,1));
-    r.y = _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(2,3,2,3));
-    r.z = _mm_shuffle_ps(r3, r4, SSE_SHUFFLE(0,1,0,1));
-    r.w = _mm_shuffle_ps(r3, r4, SSE_SHUFFLE(2,3,2,3));
-    return r;
+    __m128 zero = _mm_set_ps1(0.0f);
+    __m128 r1 = _mm_unpacklo_ps(v0.Data, zero);
+    __m128 r2 = zero;
+    __m128 r3 = _mm_unpackhi_ps(v0.Data, zero);
+    __m128 r4 = zero;
+    return soavec4(
+        _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(0,1,0,1)),
+        _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(2,3,2,3)),
+        _mm_shuffle_ps(r3, r4, SSE_SHUFFLE(0,1,0,1)),
+        _mm_shuffle_ps(r3, r4, SSE_SHUFFLE(2,3,2,3)) );
 }
 
-__forceinline SOAVECTOR4 SOAVectorTranspose4(const XMVECTOR v0, const XMVECTOR v1)
+__forceinline soavec4 soa_transpose4(const simdvec4 &v0, const simdvec4 &v1)
 {
-    SOAVECTOR4 r;
-    XMVECTOR zero = _mm_set_ps1(0.0f);
-    XMVECTOR r1 = _mm_unpacklo_ps(v0, v1);
-    XMVECTOR r2 = zero;
-    XMVECTOR r3 = _mm_unpackhi_ps(v0, v1);
-    XMVECTOR r4 = zero;
-    r.x = _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(0,1,0,1));
-    r.y = _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(2,3,2,3));
-    r.z = _mm_shuffle_ps(r3, r4, SSE_SHUFFLE(0,1,0,1));
-    r.w = _mm_shuffle_ps(r3, r4, SSE_SHUFFLE(2,3,2,3));
-    return r;
+    __m128 zero = _mm_set_ps1(0.0f);
+    __m128 r1 = _mm_unpacklo_ps(v0.Data, v1.Data);
+    __m128 r2 = zero;
+    __m128 r3 = _mm_unpackhi_ps(v0.Data, v1.Data);
+    __m128 r4 = zero;
+    return soavec4(
+        _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(0,1,0,1)),
+        _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(2,3,2,3)),
+        _mm_shuffle_ps(r3, r4, SSE_SHUFFLE(0,1,0,1)),
+        _mm_shuffle_ps(r3, r4, SSE_SHUFFLE(2,3,2,3)) );
 }
 
-__forceinline SOAVECTOR4 SOAVectorTranspose4(const XMVECTOR v0, const XMVECTOR v1, const XMVECTOR v2)
+__forceinline soavec4 soa_transpose4(const simdvec4 &v0, const simdvec4 &v1, const simdvec4 &v2)
 {
-    SOAVECTOR4 r;
-    XMVECTOR zero = _mm_set_ps1(0.0f);
-    XMVECTOR r1 = _mm_unpacklo_ps(v0, v1);
-    XMVECTOR r2 = _mm_unpacklo_ps(v2, zero);
-    XMVECTOR r3 = _mm_unpackhi_ps(v0, v1);
-    XMVECTOR r4 = _mm_unpackhi_ps(v2, zero);
-    r.x = _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(0,1,0,1));
-    r.y = _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(2,3,2,3));
-    r.z = _mm_shuffle_ps(r3, r4, SSE_SHUFFLE(0,1,0,1));
-    r.w = _mm_shuffle_ps(r3, r4, SSE_SHUFFLE(2,3,2,3));
-    return r;
+    __m128 zero = _mm_set_ps1(0.0f);
+    __m128 r1 = _mm_unpacklo_ps(v0.Data, v1.Data);
+    __m128 r2 = _mm_unpacklo_ps(v2.Data, zero);
+    __m128 r3 = _mm_unpackhi_ps(v0.Data, v1.Data);
+    __m128 r4 = _mm_unpackhi_ps(v2.Data, zero);
+    return soavec4(
+        _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(0,1,0,1)),
+        _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(2,3,2,3)),
+        _mm_shuffle_ps(r3, r4, SSE_SHUFFLE(0,1,0,1)),
+        _mm_shuffle_ps(r3, r4, SSE_SHUFFLE(2,3,2,3)) );
 }
 
-__forceinline SOAVECTOR4 SOAVectorTranspose4(const XMVECTOR& v0, const XMVECTOR& v1, const XMVECTOR& v2, const XMVECTOR& v3)
+__forceinline soavec4 soa_transpose4(const simdvec4 &v0, const simdvec4 &v1, const simdvec4 &v2, const simdvec4 &v3)
 {
-    SOAVECTOR4 r;
-    XMVECTOR r1 = _mm_unpacklo_ps(v0, v1);
-    XMVECTOR r2 = _mm_unpacklo_ps(v2, v3);
-    XMVECTOR r3 = _mm_unpackhi_ps(v0, v1);
-    XMVECTOR r4 = _mm_unpackhi_ps(v2, v3);
-    r.x = _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(0,1,0,1));
-    r.y = _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(2,3,2,3));
-    r.z = _mm_shuffle_ps(r3, r4, SSE_SHUFFLE(0,1,0,1));
-    r.w = _mm_shuffle_ps(r3, r4, SSE_SHUFFLE(2,3,2,3));
-    return r;
+    __m128 r1 = _mm_unpacklo_ps(v0.Data, v1.Data);
+    __m128 r2 = _mm_unpacklo_ps(v2.Data, v3.Data);
+    __m128 r3 = _mm_unpackhi_ps(v0.Data, v1.Data);
+    __m128 r4 = _mm_unpackhi_ps(v2.Data, v3.Data);
+    return soavec4(
+        _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(0,1,0,1)),
+        _mm_shuffle_ps(r1, r2, SSE_SHUFFLE(2,3,2,3)),
+        _mm_shuffle_ps(r3, r4, SSE_SHUFFLE(0,1,0,1)),
+        _mm_shuffle_ps(r3, r4, SSE_SHUFFLE(2,3,2,3)) );
 }
 
 
@@ -272,34 +225,35 @@ __forceinline SOAVECTOR4 SOAVectorTranspose4(const XMVECTOR& v0, const XMVECTOR&
 // コピー渡しの方が望ましいはずですが、なんか Debug 版だとアドレスが 16 の倍数じゃなくなってクラッシュすることがあるので参照渡しにしています。
 // 最適化有効時はちゃんとインライン化されてるので速度面ではたぶん大丈夫。
 template<class T, class U>
-__forceinline SOAVECTOR2 SOAVectorAdd2(const T &a, const U &b)
+__forceinline soavec2 soa_add2(const T &a, const U &b)
 {
-    SOAVECTOR2 r;
-    r.x = XMVectorAdd(a.x, b.x);
-    r.y = XMVectorAdd(a.y, b.y);
-    return r;
+    return soavec2(
+        a.v[0] + b.v[0],
+        a.v[1] + b.v[1] );
 }
 
 template<class T, class U>
-__forceinline SOAVECTOR3 SOAVectorAdd3(const T &a, const U &b)
+__forceinline soavec3 soa_add3(const T &a, const U &b)
 {
-    SOAVECTOR3 r;
-    r.x = XMVectorAdd(a.x, b.x);
-    r.y = XMVectorAdd(a.y, b.y);
-    r.z = XMVectorAdd(a.z, b.z);
-    return r;
+    return soavec3(
+        a.v[0] + b.v[0],
+        a.v[1] + b.v[1],
+        a.v[2] + b.v[2]);
 }
 
 template<class T, class U>
-__forceinline SOAVECTOR4 SOAVectorAdd4(const T &a, const U &b)
+__forceinline soavec4 soa_add4(const T &a, const U &b)
 {
-    SOAVECTOR4 r;
-    r.x = XMVectorAdd(a.x, b.x);
-    r.y = XMVectorAdd(a.y, b.y);
-    r.z = XMVectorAdd(a.z, b.z);
-    r.w = XMVectorAdd(a.w, b.w);
-    return r;
+    return soavec4(
+        a.v[0] + b.v[0],
+        a.v[1] + b.v[1],
+        a.v[2] + b.v[2],
+        a.v[3] + b.v[3]);
 }
+
+__forceinline soavec2 operator+(const soavec2 &a, const soavec2 &b) { return soa_add2(a, b); }
+__forceinline soavec3 operator+(const soavec3 &a, const soavec3 &b) { return soa_add3(a, b); }
+__forceinline soavec4 operator+(const soavec4 &a, const soavec4 &b) { return soa_add4(a, b); }
 
 
 ///////////////////////////////////////////////////////////////
@@ -307,34 +261,35 @@ __forceinline SOAVECTOR4 SOAVectorAdd4(const T &a, const U &b)
 ///////////////////////////////////////////////////////////////
 
 template<class T, class U>
-__forceinline SOAVECTOR2 SOAVectorSubtract2(const T& a, const U& b)
+__forceinline soavec2 soa_sub2(const T& a, const U& b)
 {
-    SOAVECTOR2 r;
-    r.x = XMVectorSubtract(a.x, b.x);
-    r.y = XMVectorSubtract(a.y, b.y);
-    return r;
+    return soavec2(
+        a.v[0] - b.v[0],
+        a.v[1] - b.v[1] );
 }
 
 template<class T, class U>
-__forceinline SOAVECTOR3 SOAVectorSubtract3(const T& a, const U& b)
+__forceinline soavec3 soa_sub3(const T& a, const U& b)
 {
-    SOAVECTOR3 r;
-    r.x = XMVectorSubtract(a.x, b.x);
-    r.y = XMVectorSubtract(a.y, b.y);
-    r.z = XMVectorSubtract(a.z, b.z);
-    return r;
+    return soavec3(
+        a.v[0] - b.v[0],
+        a.v[1] - b.v[1],
+        a.v[2] - b.v[2]);
 }
 
 template<class T, class U>
-__forceinline SOAVECTOR4 SOAVectorSubtract4(const T& a, const U& b)
+__forceinline soavec4 soa_sub4(const T& a, const U& b)
 {
-    SOAVECTOR4 r;
-    r.x = XMVectorSubtract(a.x, b.x);
-    r.y = XMVectorSubtract(a.y, b.y);
-    r.z = XMVectorSubtract(a.z, b.z);
-    r.w = XMVectorSubtract(a.w, b.w);
-    return r;
+    return soavec4(
+        a.v[0] - b.v[0],
+        a.v[1] - b.v[1],
+        a.v[2] - b.v[2],
+        a.v[3] - b.v[3]);
 }
+
+__forceinline soavec2 operator-(const soavec2 &a, const soavec2 &b) { return soa_sub2(a, b); }
+__forceinline soavec3 operator-(const soavec3 &a, const soavec3 &b) { return soa_sub3(a, b); }
+__forceinline soavec4 operator-(const soavec4 &a, const soavec4 &b) { return soa_sub4(a, b); }
 
 
 ///////////////////////////////////////////////////////////////
@@ -342,131 +297,138 @@ __forceinline SOAVECTOR4 SOAVectorSubtract4(const T& a, const U& b)
 ///////////////////////////////////////////////////////////////
 
 template<class T, class U>
-__forceinline SOAVECTOR2 SOAVectorMultiply2(const T &a, const U &b)
+__forceinline soavec2 soa_mul2(const T &a, const U &b)
 {
-    SOAVECTOR2 r;
-    r.x = XMVectorMultiply(a.x, b.x);
-    r.y = XMVectorMultiply(a.y, b.y);
-    return r;
+    return soavec2(
+        a.v[0] * b.v[0],
+        a.v[1] * b.v[1] );
 }
 
 template<class T, class U>
-__forceinline SOAVECTOR3 SOAVectorMultiply3(const T &a, const U &b)
+__forceinline soavec3 soa_mul3(const T &a, const U &b)
 {
-    SOAVECTOR3 r;
-    r.x = XMVectorMultiply(a.x, b.x);
-    r.y = XMVectorMultiply(a.y, b.y);
-    r.z = XMVectorMultiply(a.z, b.z);
-    return r;
+    return soavec3(
+        a.v[0] * b.v[0],
+        a.v[1] * b.v[1],
+        a.v[2] * b.v[2]);
 }
 
 template<class T, class U>
-__forceinline SOAVECTOR4 SOAVectorMultiply4(const T &a, const U &b)
+__forceinline soavec4 soa_mul4(const T &a, const U &b)
 {
-    SOAVECTOR4 r;
-    r.x = XMVectorMultiply(a.x, b.x);
-    r.y = XMVectorMultiply(a.y, b.y);
-    r.z = XMVectorMultiply(a.z, b.z);
-    r.w = XMVectorMultiply(a.w, b.w);
-    return r;
+    return soavec4(
+        a.v[0] * b.v[0],
+        a.v[1] * b.v[1],
+        a.v[2] * b.v[2],
+        a.v[3] * b.v[3]);
 }
+
+__forceinline soavec2 operator*(const soavec2 &a, const soavec2 &b) { return soa_mul2(a, b); }
+__forceinline soavec3 operator*(const soavec3 &a, const soavec3 &b) { return soa_mul3(a, b); }
+__forceinline soavec4 operator*(const soavec4 &a, const soavec4 &b) { return soa_mul4(a, b); }
+
 
 // template 関数の部分特殊化はできず、構造体用意して部分特殊化はさもうとすると
 // "__declspec(align('16')) の仮引数は配置されません"
-// が出るので、XMVECTOR を取るバージョンは別名にします…。
+// が出るので、simdvec4 を取るバージョンは別名にします…。
 template<class T>
-__forceinline SOAVECTOR2 SOAVectorMultiply2S(const T &a, const XMVECTOR b)
+__forceinline soavec2 soa_mul2s(const T &a, const simdvec4 &b)
 {
-    SOAVECTOR2 r;
-    r.x = XMVectorMultiply(a.x, b);
-    r.y = XMVectorMultiply(a.y, b);
-    return r;
+    return soavec2(
+        a.v[0] * b,
+        a.v[1] * b);
 }
 
 template<class T>
-__forceinline SOAVECTOR3 SOAVectorMultiply3S(const T &a, const XMVECTOR b)
+__forceinline soavec3 soa_mul3s(const T &a, const simdvec4 &b)
 {
-    SOAVECTOR3 r;
-    r.x = XMVectorMultiply(a.x, b);
-    r.y = XMVectorMultiply(a.y, b);
-    r.z = XMVectorMultiply(a.z, b);
-    return r;
+    return soavec3(
+        a.v[0] * b,
+        a.v[1] * b,
+        a.v[2] * b);
 }
 
 template<class T>
-__forceinline SOAVECTOR4 SOAVectorMultiply4S(const T &a, const XMVECTOR b)
+__forceinline soavec4 soa_mul4s(const T &a, const simdvec4 &b)
 {
-    SOAVECTOR4 r;
-    r.x = XMVectorMultiply(a.x, b);
-    r.y = XMVectorMultiply(a.y, b);
-    r.z = XMVectorMultiply(a.z, b);
-    r.w = XMVectorMultiply(a.w, b);
-    return r;
+    return soavec4(
+        a.v[0] * b,
+        a.v[1] * b,
+        a.v[2] * b,
+        a.v[3] * b);
 }
+
+__forceinline soavec2 operator*(const soavec2 &a, const simdvec4 &b) { return soa_mul2s(a, b); }
+__forceinline soavec3 operator*(const soavec3 &a, const simdvec4 &b) { return soa_mul3s(a, b); }
+__forceinline soavec4 operator*(const soavec4 &a, const simdvec4 &b) { return soa_mul4s(a, b); }
+
 
 ///////////////////////////////////////////////////////////////
 //  SoA Divide
 ///////////////////////////////////////////////////////////////
 
 template<class T, class U>
-__forceinline SOAVECTOR2 SOAVectorDivide2(const T &a, const U &b)
+__forceinline soavec2 soa_div2(const T &a, const U &b)
 {
-    SOAVECTOR2 r;
-    r.x = XMVectorDivide(a.x, b.x);
-    r.y = XMVectorDivide(a.y, b.y);
-    return r;
+    return soavec2(
+        a.v[0] / b.v[0],
+        a.v[1] / b.v[1] );
 }
 
 template<class T, class U>
-__forceinline SOAVECTOR3 SOAVectorDivide3(const T &a, const U &b)
+__forceinline soavec3 soa_div3(const T &a, const U &b)
 {
-    SOAVECTOR3 r;
-    r.x = XMVectorDivide(a.x, b.x);
-    r.y = XMVectorDivide(a.y, b.y);
-    r.z = XMVectorDivide(a.z, b.z);
-    return r;
+    return soavec3(
+        a.v[0] / b.v[0],
+        a.v[1] / b.v[1],
+        a.v[2] / b.v[2]);
 }
 
 template<class T, class U>
-__forceinline SOAVECTOR4 SOAVectorDivide4(const T &a, const U &b)
+__forceinline soavec4 soa_div4(const T &a, const U &b)
 {
-    SOAVECTOR4 r;
-    r.x = XMVectorDivide(a.x, b.x);
-    r.y = XMVectorDivide(a.y, b.y);
-    r.z = XMVectorDivide(a.z, b.z);
-    r.w = XMVectorDivide(a.w, b.w);
-    return r;
+    return soavec4(
+        a.v[0] / b.v[0],
+        a.v[1] / b.v[1],
+        a.v[2] / b.v[2],
+        a.v[3] / b.v[3]);
+}
+
+__forceinline soavec2 operator/(const soavec2 &a, const soavec2 &b) { return soa_div2(a, b); }
+__forceinline soavec3 operator/(const soavec3 &a, const soavec3 &b) { return soa_div3(a, b); }
+__forceinline soavec4 operator/(const soavec4 &a, const soavec4 &b) { return soa_div4(a, b); }
+
+
+template<class T>
+__forceinline soavec2 soa_div2s(const T &a, const simdvec4 &b)
+{
+    return soavec2(
+        a.v[0] / b,
+        a.v[1] / b);
 }
 
 template<class T>
-__forceinline SOAVECTOR2 SOAVectorDivide2S(const T &a, const XMVECTOR &b)
+__forceinline soavec3 soa_div3s(const T &a, const simdvec4 &b)
 {
-    SOAVECTOR2 r;
-    r.x = XMVectorDivide(a.x, b);
-    r.y = XMVectorDivide(a.y, b);
-    return r;
+    return soavec3(
+        a.v[0] / b,
+        a.v[1] / b,
+        a.v[2] / b);
 }
 
 template<class T>
-__forceinline SOAVECTOR3 SOAVectorDivide3S(const T &a, const XMVECTOR &b)
+__forceinline soavec4 soa_div4s(const T &a, const simdvec4 &b)
 {
-    SOAVECTOR3 r;
-    r.x = XMVectorDivide(a.x, b);
-    r.y = XMVectorDivide(a.y, b);
-    r.z = XMVectorDivide(a.z, b);
-    return r;
+    return soavec4(
+        a.v[0] / b,
+        a.v[1] / b,
+        a.v[2] / b,
+        a.v[3] / b);
 }
 
-template<class T>
-__forceinline SOAVECTOR4 SOAVectorDivide4S(const T &a, const XMVECTOR &b)
-{
-    SOAVECTOR4 r;
-    r.x = XMVectorDivide(a.x, b);
-    r.y = XMVectorDivide(a.y, b);
-    r.z = XMVectorDivide(a.z, b);
-    r.w = XMVectorDivide(a.w, b);
-    return r;
-}
+__forceinline soavec2 operator/(const soavec2 &a, const simdvec4 &b) { return soa_div2s(a, b); }
+__forceinline soavec3 operator/(const soavec3 &a, const simdvec4 &b) { return soa_div3s(a, b); }
+__forceinline soavec4 operator/(const soavec4 &a, const simdvec4 &b) { return soa_div4s(a, b); }
 
 
 ///////////////////////////////////////////////////////////////
@@ -474,64 +436,58 @@ __forceinline SOAVECTOR4 SOAVectorDivide4S(const T &a, const XMVECTOR &b)
 ///////////////////////////////////////////////////////////////
 
 template<class T>
-__forceinline SOAVECTOR2 SOAVectorSelect2(const T &a, const T &b, const T &s)
+__forceinline soavec2 soa_mix2(const T &a, const T &b, const T &s)
 {
-    SOAVECTOR2 r;
-    r.x = XMVectorSelect(a.x, b.x, s.x);
-    r.y = XMVectorSelect(a.y, b.y, s.y);
-    return r;
+    return soavec2(
+        glm::mix(a.x, b.x, s.x),
+        glm::mix(a.y, b.y, s.y));
 }
 
 template<class T>
-__forceinline SOAVECTOR3 SOAVectorSelect3(const T &a, const T &b, const T &s)
+__forceinline soavec3 soa_mix3(const T &a, const T &b, const T &s)
 {
-    SOAVECTOR3 r;
-    r.x = XMVectorSelect(a.x, b.x, s.x);
-    r.y = XMVectorSelect(a.y, b.y, s.y);
-    r.z = XMVectorSelect(a.z, b.z, s.z);
-    return r;
+    return soavec3(
+        glm::mix(a.x, b.x, s.x),
+        glm::mix(a.y, b.y, s.y),
+        glm::mix(a.z, b.z, s.z));
 }
 
 template<class T>
-__forceinline SOAVECTOR4 SOAVectorSelect4(const T &a, const T &b, const T &s)
+__forceinline soavec4 soa_mix4(const T &a, const T &b, const T &s)
 {
-    SOAVECTOR4 r;
-    r.x = XMVectorSelect(a.x, b.x, s.x);
-    r.y = XMVectorSelect(a.y, b.y, s.y);
-    r.z = XMVectorSelect(a.z, b.z, s.z);
-    r.w = XMVectorSelect(a.w, b.w, s.w);
-    return r;
+    return soavec4(
+        glm::mix(a.x, b.x, s.x),
+        glm::mix(a.y, b.y, s.y),
+        glm::mix(a.z, b.z, s.z),
+        glm::mix(a.w, b.w, s.w));
 }
 
 
 template<class T>
-__forceinline SOAVECTOR2 SOAVectorSelect2S(const T &a, const T &b, const XMVECTOR &s)
+__forceinline soavec2 soa_mix2s(const T &a, const T &b, const simdvec4 &s)
 {
-    SOAVECTOR2 r;
-    r.x = XMVectorSelect(a.x, b.x, s);
-    r.y = XMVectorSelect(a.y, b.y, s);
-    return r;
+    return soavec2(
+        glm::mix(a.x, b.x, s),
+        glm::mix(a.y, b.y, s));
 }
 
 template<class T>
-__forceinline SOAVECTOR3 SOAVectorSelect3S(const T &a, const T &b, const XMVECTOR &s)
+__forceinline soavec3 soa_mix3s(const T &a, const T &b, const simdvec4 &s)
 {
-    SOAVECTOR3 r;
-    r.x = XMVectorSelect(a.x, b.x, s);
-    r.y = XMVectorSelect(a.y, b.y, s);
-    r.z = XMVectorSelect(a.z, b.z, s);
-    return r;
+    return soavec3(
+        glm::mix(a.x, b.x, s),
+        glm::mix(a.y, b.y, s),
+        glm::mix(a.z, b.z, s));
 }
 
 template<class T>
-__forceinline SOAVECTOR4 SOAVectorSelect4S(const T &a, const T &b, const XMVECTOR &s)
+__forceinline soavec4 soa_mix4s(const T &a, const T &b, const simdvec4 &s)
 {
-    SOAVECTOR4 r;
-    r.x = XMVectorSelect(a.x, b.x, s);
-    r.y = XMVectorSelect(a.y, b.y, s);
-    r.z = XMVectorSelect(a.z, b.z, s);
-    r.w = XMVectorSelect(a.w, b.w, s);
-    return r;
+    return soavec4(
+        glm::mix(a.x, b.x, s),
+        glm::mix(a.y, b.y, s),
+        glm::mix(a.z, b.z, s),
+        glm::mix(a.w, b.w, s));
 }
 
 
@@ -540,24 +496,24 @@ __forceinline SOAVECTOR4 SOAVectorSelect4S(const T &a, const T &b, const XMVECTO
 ///////////////////////////////////////////////////////////////
 
 template<class T>
-__forceinline XMVECTOR SOAVectorLengthSquare2(const T &a)
+__forceinline simdvec4 soa_lensq2(const T &a)
 {
-    SOAVECTOR2 square = SOAVectorMultiply2<T, T>(a, a);
-    return XMVectorAdd(square.x, square.y);
+    soavec2 sq = soa_mul2<T, T>(a, a);
+    return sq.v[0] + sq.v[1];
 }
 
 template<class T>
-__forceinline XMVECTOR SOAVectorLengthSquare3(const T &a)
+__forceinline simdvec4 soa_lensq3(const T &a)
 {
-    SOAVECTOR3 square = SOAVectorMultiply3<T, T>(a, a);
-    return XMVectorAdd(XMVectorAdd(square.x, square.y), square.z);
+    soavec3 sq = soa_mul3<T, T>(a, a);
+    return sq.v[0] + sq.v[1] + sq.v[2];
 }
 
 template<class T>
-__forceinline XMVECTOR SOAVectorLengthSquare4(const T &a)
+__forceinline simdvec4 soa_lensq4(const T &a)
 {
-    SOAVECTOR4 square = SOAVectorMultiply4<T, T>(a, a);
-    return XMVectorAdd(XMVectorAdd(XMVectorAdd(square.x, square.y), square.z), square.w);
+    soavec4 sq = soa_mul4<T, T>(a, a);
+    return sq.v[0] + sq.v[1] + sq.v[2] + sq.v[3];
 }
 
 
@@ -566,21 +522,21 @@ __forceinline XMVECTOR SOAVectorLengthSquare4(const T &a)
 ///////////////////////////////////////////////////////////////
 
 template<class T>
-__forceinline XMVECTOR SOAVectorLength2(const T &a)
+__forceinline simdvec4 soa_length2(const T &a)
 {
-    return XMVectorSqrt(SOAVectorLengthSquare2<T>(a));
+    return glm::sqrt(soa_lensq2<T>(a));
 }
 
 template<class T>
-__forceinline XMVECTOR SOAVectorLength3(const T &a)
+__forceinline simdvec4 soa_length3(const T &a)
 {
-    return XMVectorSqrt(SOAVectorLengthSquare3<T>(a));
+    return glm::sqrt(soa_lensq3<T>(a));
 }
 
 template<class T>
-__forceinline XMVECTOR SOAVectorLength4(const T &a)
+__forceinline simdvec4 soa_length4(const T &a)
 {
-    return XMVectorSqrt(SOAVectorLengthSquare4<T>(a));
+    return glm::sqrt(soa_lensq4<T>(a));
 }
 
 
@@ -589,26 +545,22 @@ __forceinline XMVECTOR SOAVectorLength4(const T &a)
 ///////////////////////////////////////////////////////////////
 
 template<class T>
-__forceinline SOAVECTOR2 SOAVectorNormalize2(const T &a)
+__forceinline soavec2 soa_normalize2(const T &a)
 {
-    XMVECTOR len = SOAVectorLength2(a);
-    SOAVECTOR2 r = SOAVectorDivide2S(a, len);
-    return r;
+    return soa_div2s(a, soa_length2(a));
 }
 
 template<class T>
-__forceinline SOAVECTOR3 SOAVectorNormalize3(const T &a)
+__forceinline soavec3 soa_normalize3(const T &a)
 {
-    XMVECTOR len = SOAVectorLength3(a);
-    SOAVECTOR3 r = SOAVectorDivide3S(a, len);
-    return r;
+    return soa_div3s(a, soa_length3(a));
 }
 
 template<class T>
-__forceinline SOAVECTOR4 SOAVectorNormalize4(const T &a)
+__forceinline soavec4 soa_normalize4(const T &a)
 {
-    XMVECTOR len = SOAVectorLength4(a);
-    SOAVECTOR4 r = SOAVectorDivide4S(a, len);
-    return r;
+    return soa_div4s(a, soa_length4(a));
 }
 
+
+} // namespace ist

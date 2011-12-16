@@ -11,15 +11,20 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
+		Intel_SSA|Win32 = Intel_SSA|Win32
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{9EF1B96E-375A-46D3-9181-882E6EB3DA6A}.Debug|Win32.ActiveCfg = Debug|Win32
 		{9EF1B96E-375A-46D3-9181-882E6EB3DA6A}.Debug|Win32.Build.0 = Debug|Win32
+		{9EF1B96E-375A-46D3-9181-882E6EB3DA6A}.Intel_SSA|Win32.ActiveCfg = Intel_SSA|Win32
+		{9EF1B96E-375A-46D3-9181-882E6EB3DA6A}.Intel_SSA|Win32.Build.0 = Intel_SSA|Win32
 		{9EF1B96E-375A-46D3-9181-882E6EB3DA6A}.Release|Win32.ActiveCfg = Release|Win32
 		{9EF1B96E-375A-46D3-9181-882E6EB3DA6A}.Release|Win32.Build.0 = Release|Win32
 		{A8F5B4BE-0942-4A93-BBFE-0716BEAC2551}.Debug|Win32.ActiveCfg = Debug|Win32
 		{A8F5B4BE-0942-4A93-BBFE-0716BEAC2551}.Debug|Win32.Build.0 = Debug|Win32
+		{A8F5B4BE-0942-4A93-BBFE-0716BEAC2551}.Intel_SSA|Win32.ActiveCfg = Intel_SSA|Win32
+		{A8F5B4BE-0942-4A93-BBFE-0716BEAC2551}.Intel_SSA|Win32.Build.0 = Intel_SSA|Win32
 		{A8F5B4BE-0942-4A93-BBFE-0716BEAC2551}.Release|Win32.ActiveCfg = Release|Win32
 		{A8F5B4BE-0942-4A93-BBFE-0716BEAC2551}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
