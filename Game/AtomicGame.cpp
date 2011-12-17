@@ -27,12 +27,12 @@ AtomicGame::~AtomicGame()
 }
 
 
-void AtomicGame::update()
+void AtomicGame::update(float32 dt)
 {
     //MessageRouter *message_router = atomicGetMessageRouter(MR_SYSTEM);
     //message_router->unuseAll();
 
-    m_world->update();
+    m_world->update(dt);
 
     //message_router->route();
 }

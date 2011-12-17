@@ -4,9 +4,10 @@
 #include "AtomicApplication.h"
 #include "Game/Message.h"
 #include "Game/Fraction.h"
-#include "Game/Bullet.h"
+#include "Game/Entity.h"
 #include "Game/World.h"
 #include "Graphics/Renderer.h"
+#include "Character/Enemy.h"
 
 using namespace ist::graphics;
 
@@ -54,24 +55,24 @@ void Task_WorlUpdateAsync::exec()
 
 
 World::World()
-: m_fraction_set(NULL)
-, m_bullet_set(NULL)
+: m_entity_set(NULL)
+, m_fraction_set(NULL)
 , m_frame(0)
 {
     m_task_updateasync = IST_NEW(UpdateAsyncTask)(this);
 
+    m_entity_set = IST_NEW(EntitySet)();
     m_fraction_set = IST_NEW(FractionSet)();
-    m_bullet_set = IST_NEW(BulletSet)();
 }
 
 World::~World()
 {
     sync();
 
-    IST_SAFE_DELETE(m_task_updateasync);
-
     IST_SAFE_DELETE(m_fraction_set);
-    IST_SAFE_DELETE(m_bullet_set);
+    IST_SAFE_DELETE(m_entity_set);
+
+    IST_SAFE_DELETE(m_task_updateasync);
 }
 
 void World::initialize()
@@ -84,11 +85,17 @@ void World::initialize()
     m_fraction_set->initialize();
 }
 
-void World::update()
+void World::update(float32 dt)
 {
     ++m_frame;
 
+    //if(m_frame==1) {
+    //    m_entity_set->createEntity<Enemy_Cube>();
+    //    m_entity_set->createEntity<Enemy_Sphere>();
+    //}
+
     m_task_updateasync->kick();
+    m_entity_set->update(dt);
     m_fraction_set->update();
     // todo: add module
     sync();
@@ -96,6 +103,7 @@ void World::update()
 
 void World::draw() const
 {
+    m_entity_set->draw();
     m_fraction_set->draw();
 
     DirectionalLight dl;
@@ -107,6 +115,7 @@ void World::draw() const
 
 void World::sync() const
 {
+    m_entity_set->sync();
     m_fraction_set->sync();
 
     m_task_updateasync->join();

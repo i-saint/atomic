@@ -5,11 +5,8 @@
 
 namespace atomic {
 
-class CharacterSet;
-class BulletSet;
-class ForceSet;
+class EntitySet;
 class FractionSet;
-class VFXSet;
 
 class World;
 
@@ -20,8 +17,8 @@ private:
     typedef Task_UpdateAsync<World> UpdateAsyncTask;
     UpdateAsyncTask *m_task_updateasync;
 
+    EntitySet   *m_entity_set;
     FractionSet *m_fraction_set;
-    BulletSet *m_bullet_set;
 
     SFMT m_rand;
     PerspectiveCamera m_camera;
@@ -36,17 +33,17 @@ public:
     void serialize(Serializer& s) const;
     void deserialize(Deserializer& s);
 
-    void update();
+    void update(float32 dt);
     void draw() const;
     void sync() const;
     void updateAsync();
 
-    uint32 getFrame() const { return m_frame; }
-    PerspectiveCamera* getCamera() { return &m_camera; }
-    SFMT* getRandom() { return &m_rand; }
+    uint32 getFrame() const         { return m_frame; }
+    PerspectiveCamera* getCamera()  { return &m_camera; }
+    SFMT* getRandom()               { return &m_rand; }
 
-    FractionSet* getFractions() { return m_fraction_set; }
-
+    EntitySet*  getEntitySet()      { return m_entity_set; }
+    FractionSet* getFractionSet()   { return m_fraction_set; }
 };
 
 
@@ -58,7 +55,8 @@ public:
 #define atomicGenRandVector3()  atomicGetRandom()->genVector3()
 #define atomicGenRandVector4()  atomicGetRandom()->genVector4()
 
-#define atomicGetFractions()    atomicGetWorld()->getFractions()
+#define atomicGetEntitySet()    atomicGetWorld()->getEntitySet()
+#define atomicGetFractionSet()  atomicGetWorld()->getFractionSet()
 
 
 } // namespace atomic

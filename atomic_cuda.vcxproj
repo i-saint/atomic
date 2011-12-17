@@ -17,15 +17,13 @@
   <ItemGroup>
     <ClCompile Include="Game\AtomicApplication.cpp" />
     <ClCompile Include="Game\AtomicGame.cpp" />
-    <ClCompile Include="Game\Bullet.cpp" />
-    <ClCompile Include="Game\Character.cpp" />
+    <ClCompile Include="Game\Character\Enemy.cpp" />
+    <ClCompile Include="Game\Character\Player.cpp" />
     <ClCompile Include="Game\DebugConsole.cpp" />
-    <ClCompile Include="Game\Force.cpp" />
-    <ClCompile Include="Game\Force_Gravity.cpp" />
+    <ClCompile Include="Game\Entity.cpp" />
     <ClCompile Include="Game\Fraction.cpp" />
     <ClCompile Include="Game\Message.cpp" />
     <ClCompile Include="Game\Text.cpp" />
-    <ClCompile Include="Game\VFX.cpp" />
     <ClCompile Include="Game\World.cpp" />
     <ClCompile Include="Graphics\CreateModelData.cpp" />
     <ClCompile Include="Graphics\CudaBuffer.cpp" />
@@ -69,16 +67,15 @@
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h" />
     <ClInclude Include="Game\AtomicGame.h" />
-    <ClInclude Include="Game\Bullet.h" />
-    <ClInclude Include="Game\Bullet_Subset.h" />
-    <ClInclude Include="Game\Character.h" />
+    <ClInclude Include="Game\Character\Attributes.h" />
+    <ClInclude Include="Game\Character\Enemy.h" />
+    <ClInclude Include="Game\Character\Player.h" />
     <ClInclude Include="Game\DebugConsole.h" />
-    <ClInclude Include="Game\Force.h" />
-    <ClInclude Include="Game\Force_Gravity.h" />
+    <ClInclude Include="Game\Entity.h" />
+    <ClInclude Include="Game\EntityQuery.h" />
     <ClInclude Include="Game\Fraction.h" />
     <ClInclude Include="Game\Message.h" />
     <ClInclude Include="Game\Text.h" />
-    <ClInclude Include="Game\VFX.h" />
     <ClInclude Include="Game\World.h" />
     <ClInclude Include="GPGPU\SPH.cuh" />
     <ClInclude Include="Graphics\CreateModelData.h" />
@@ -95,6 +92,7 @@
     <ClInclude Include="ist\Base\FileLoader.h" />
     <ClInclude Include="ist\Base\New.h" />
     <ClInclude Include="ist\Base\TaskScheduler.h" />
+    <ClInclude Include="ist\Base\Types.h" />
     <ClInclude Include="ist\Base\Variant.h" />
     <ClInclude Include="ist\Graphics.h" />
     <ClInclude Include="ist\GraphicsUtil.h" />
@@ -107,7 +105,6 @@
     <ClInclude Include="ist\Graphics\GraphicsResource.h" />
     <ClInclude Include="ist\Graphics\GraphicsUtil.h" />
     <ClInclude Include="ist\Graphics\ShaderObject.h" />
-    <ClInclude Include="ist\Graphics\types.h" />
     <ClInclude Include="ist\ist.h" />
     <ClInclude Include="ist\Math.h" />
     <ClInclude Include="ist\Math\Constants.h" />
@@ -137,7 +134,6 @@
     <ClInclude Include="ist\Sound\SourceSet.h" />
     <ClInclude Include="ist\Sound\Stream.h" />
     <ClInclude Include="ist\Sound\System.h" />
-    <ClInclude Include="ist\Sound\types.h" />
     <ClInclude Include="ist\Window.h" />
     <ClInclude Include="ist\Window\Application.h" />
     <ClInclude Include="ist\Window\InputState.h" />
@@ -148,9 +144,6 @@
     <ClInclude Include="types.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Game\Force_Gravity.inl">
-      <FileType>Document</FileType>
-    </None>
     <None Include="GPGPU\SPH_internal.cuh" />
   </ItemGroup>
   <ItemGroup>

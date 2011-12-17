@@ -17,7 +17,7 @@ public:
     AtomicGame();
     ~AtomicGame();
 
-    void update();
+    void update(float32 dt);
     void draw();
 
     // •`‰æƒXƒŒƒbƒh‚©‚çŒÄ‚Î‚ê‚é

@@ -42,6 +42,7 @@ using ist::Task;
 using ist::TaskScheduler;
 using ist::SpinLock;
 using ist::SFMT;
+typedef ist::Variant16 variant;
 
 
 typedef unsigned int id_t;

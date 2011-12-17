@@ -26,17 +26,17 @@ public:
     void updateFractions(FractionData* beg, FractionData* end)
     {
         simdvec4 center1 = m_center;
-        simdvec4 gravity = _mm_set1_ps(m_gravity);
-        soavec34 center = SOAVectorSet3(center1, center1, center1);
+        simdvec4 gravity = simdvec4(m_gravity);
+        soavec34 center = soavec34(center1, center1, center1);
         for(; beg<end; beg+=4) {
-            soavec34 pos = SOAVectorTranspose3(beg[0].pos, beg[1].pos, beg[2].pos, beg[3].pos);
-            soavec34 dist = SOAVectorSubtract3(center, pos);
-            simdvec4 len = SOAVectorLength3(dist);
-            soavec34 dir = SOAVectorDivide3S(dist, len);
-            soavec34 vel = SOAVectorSet3(beg[0].vel, beg[1].vel, beg[2].vel, beg[3].vel);
-            vel = SOAVectorAdd3(vel, SOAVectorMultiply3S(dir, gravity));
+            soavec34 pos = ist::soa_transpose34(beg[0].pos, beg[1].pos, beg[2].pos, beg[3].pos);
+            soavec34 dist = center - pos;
+            simdvec4 len = ist::soa_length34(dist);
+            soavec34 dir = dist / len;
+            soavec34 vel = soavec34(beg[0].vel, beg[1].vel, beg[2].vel, beg[3].vel);
+            vel = (vel + (dir * gravity));
 
-            soavec34 velv = SOAVectorTranspose3(vel.x, vel.y, vel.z);
+            soavec34 velv = ist::soa_transpose34(vel.x, vel.y, vel.z);
             beg[0].vel = velv.sv[0];
             beg[1].vel = velv.sv[1];
             beg[2].vel = velv.sv[2];

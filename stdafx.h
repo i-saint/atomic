@@ -5,6 +5,7 @@
 
 #pragma once
 
+#pragma warning(disable: 4819)
 
 #define ATOMIC_ENABLE_DEBUG_FEATURE
 #define IST_OPENGL
