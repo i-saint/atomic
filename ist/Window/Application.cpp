@@ -195,7 +195,7 @@ Application::Application()
 #if defined(IST_OPENGL) && defined(WIN32)
 , m_hdc(NULL)
 , m_hglrc(NULL)
-#endif // IST_OPENGL
+#endif // defined(IST_OPENGL) && defined(WIN32)
 #ifdef IST_DIRECTX
 , m_dxswapchain(0)
 , m_dxdevice(0)
@@ -437,7 +437,7 @@ void Application::finalizeDraw()
         ::ReleaseDC(m_hwnd, m_hdc);
         m_hdc = NULL;
     }
-#endif // IST_OPENGL
+#endif // defined(IST_OPENGL) && defined(WIN32)
 
 #ifdef IST_DIRECTX
     if(m_dxswapchain)   { m_dxswapchain->Release(); m_dxswapchain=NULL; }

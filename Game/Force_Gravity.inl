@@ -27,20 +27,20 @@ public:
     {
         simdvec4 center1 = m_center;
         simdvec4 gravity = _mm_set1_ps(m_gravity);
-        soavec3 center = SOAVectorSet3(center1, center1, center1);
+        soavec34 center = SOAVectorSet3(center1, center1, center1);
         for(; beg<end; beg+=4) {
-            soavec3 pos = SOAVectorTranspose3(beg[0].pos, beg[1].pos, beg[2].pos, beg[3].pos);
-            soavec3 dist = SOAVectorSubtract3(center, pos);
+            soavec34 pos = SOAVectorTranspose3(beg[0].pos, beg[1].pos, beg[2].pos, beg[3].pos);
+            soavec34 dist = SOAVectorSubtract3(center, pos);
             simdvec4 len = SOAVectorLength3(dist);
-            soavec3 dir = SOAVectorDivide3S(dist, len);
-            soavec3 vel = SOAVectorSet3(beg[0].vel, beg[1].vel, beg[2].vel, beg[3].vel);
+            soavec34 dir = SOAVectorDivide3S(dist, len);
+            soavec34 vel = SOAVectorSet3(beg[0].vel, beg[1].vel, beg[2].vel, beg[3].vel);
             vel = SOAVectorAdd3(vel, SOAVectorMultiply3S(dir, gravity));
 
-            soavec3 velv = SOAVectorTranspose3(vel.x, vel.y, vel.z);
-            beg[0].vel = velv.v[0];
-            beg[1].vel = velv.v[1];
-            beg[2].vel = velv.v[2];
-            beg[3].vel = velv.v[3];
+            soavec34 velv = SOAVectorTranspose3(vel.x, vel.y, vel.z);
+            beg[0].vel = velv.sv[0];
+            beg[1].vel = velv.sv[1];
+            beg[2].vel = velv.sv[2];
+            beg[3].vel = velv.sv[3];
         }
     }
 };

@@ -28,6 +28,12 @@ using glm::ivec2;
 using glm::ivec3;
 using glm::ivec4;
 
+using ist::simdvec4;
+using ist::simdmat4;
+using ist::soavec24;
+using ist::soavec34;
+using ist::soavec44;
+
 typedef ist::bostream Serializer;
 typedef ist::bistream Deserializer;
 
