@@ -2,7 +2,7 @@
 #define __ist_Graphics__
 
 #include <glm/glm.hpp>
-#include "Graphics/types.h"
+#include "Base/Types.h"
 #include "Graphics/GraphicsAssert.h"
 #include "Graphics/GraphicsResource.h"
 #include "Graphics/BufferObject.h"

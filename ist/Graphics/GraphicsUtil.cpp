@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "../Base/Assert.h"
+#include "../Base.h"
 #include "../Math.h"
 #include "GraphicsAssert.h"
 #include "ShaderObject.h"

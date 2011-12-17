@@ -2,8 +2,10 @@
 #include "../Base.h"
 
 #define SSE_SHUFFLE(w,x,y,z) _MM_SHUFFLE(z,y,x,w)
-
 #define IST_FINLINE __forceinline
+
+//#define IST_ENABLE_SOAVECX8
+
 
 
 namespace ist {
@@ -15,39 +17,20 @@ struct simdvec_traits<simdvec4>
 {
     enum{ simd_elements = 4 };
 };
-//
-//template<>
-//struct soavec_traits<simdvec8>
-//{
-//    enum{ simd_elements = 4 };
-//};
-
-
-template<class simdvec> struct soavec2x;
-template<class simdvec> struct soavec3x;
-template<class simdvec> struct soavec4x;
-
-template<class simdvec> struct soavec_traits;
-
-template<class simdvec>
-struct soavec_traits< soavec2x<simdvec> >
+#ifdef IST_ENABLE_SOAVECX8
+template<>
+struct soavec_traits<simdvec8>
 {
-    enum{ soa_elements  = 2 };
-    enum{ simd_elements = simdvec_traits<simdvec>::simd_elements };
+    enum{ simd_elements = 8 };
 };
+#endif // IST_ENABLE_SOAVECX8
 
-template<class simdvec>
-struct soavec_traits< soavec3x<simdvec> >
-{
-    enum{ soa_elements  = 3 };
-    enum{ simd_elements = simdvec_traits<simdvec>::simd_elements };
-};
 
-template<class simdvec>
-struct soavec_traits< soavec4x<simdvec> >
+template<class soavec>
+struct soavec_traits
 {
-    enum{ soa_elements  = 4 };
-    enum{ simd_elements = simdvec_traits<simdvec>::simd_elements };
+    enum{ soa_elements  = soavec::soa_elements };
+    enum{ simd_elements = soavec::simd_elements };
 };
 
 
@@ -56,6 +39,10 @@ template<class simdvec>
 struct tsoavec2x
 {
     typedef simdvec simdvec_t;
+    enum{
+        soa_elements  = 2,
+        simd_elements = simdvec_traits<simdvec_t>::simd_elements,
+    };
 
     simdvec sv[2];
 
@@ -76,6 +63,10 @@ template<class simdvec>
 struct tsoavec3x
 {
     typedef simdvec simdvec_t;
+    enum{
+        soa_elements  = 3,
+        simd_elements = simdvec_traits<simdvec_t>::simd_elements,
+    };
 
     simdvec sv[3];
 
@@ -98,7 +89,11 @@ template<class simdvec>
 struct tsoavec4x
 {
     typedef simdvec simdvec_t;
-    typedef tsoavec3x<simdvec> soavec3x;
+    typedef tsoavec3x<simdvec_t> soavec3x;
+    enum{
+        soa_elements  = 4,
+        simd_elements = simdvec_traits<simdvec_t>::simd_elements,
+    };
 
     simdvec sv[4];
 
@@ -125,9 +120,11 @@ struct tsoavec4x
 typedef __declspec(align(16)) tsoavec2x<simdvec4> soavec24;
 typedef __declspec(align(16)) tsoavec3x<simdvec4> soavec34;
 typedef __declspec(align(16)) tsoavec4x<simdvec4> soavec44;
-//typedef __declspec(align(32)) tsoavec2x<simdvec8> soavec28;
-//typedef __declspec(align(32)) tsoavec3x<simdvec8> soavec38;
-//typedef __declspec(align(32)) tsoavec4x<simdvec8> soavec48;
+#ifdef IST_ENABLE_SOAVECX8
+typedef __declspec(align(32)) tsoavec2x<simdvec8> soavec28;
+typedef __declspec(align(32)) tsoavec3x<simdvec8> soavec38;
+typedef __declspec(align(32)) tsoavec4x<simdvec8> soavec48;
+#endif // IST_ENABLE_SOAVECX8
 
 
 namespace detail {
@@ -142,18 +139,25 @@ namespace detail {
         typedef soavec34 soavec3x;
         typedef soavec44 soavec4x;
     };
-
-    //// todo
-    //template<>
-    //struct soa_types<8>
-    //{
-    //    typedef simdvec8 simdvec;
-    //    typedef soavec28 soavec2x;
-    //    typedef soavec38 soavec3x;
-    //    typedef soavec48 soavec4x;
-    //};
+#ifdef IST_ENABLE_SOAVECX8
+    template<>
+    struct soa_types<8>
+    {
+        typedef simdvec8 simdvec;
+        typedef soavec28 soavec2x;
+        typedef soavec38 soavec3x;
+        typedef soavec48 soavec4x;
+    };
+#endif // IST_ENABLE_SOAVECX8
 
 } // namespace detail
+
+#define DECLARE_SOATYPES(T)                                         \
+    enum { simd_elements = T::simd_elements, };                     \
+    typedef typename soa_types<simd_elements>::simdvec simdvec;     \
+    typedef typename soa_types<simd_elements>::soavec2x soavec2x;   \
+    typedef typename soa_types<simd_elements>::soavec3x soavec3x;   \
+    typedef typename soa_types<simd_elements>::soavec4x soavec4x;
 
 
 
@@ -313,6 +317,10 @@ __forceinline soavec44 soa_transpose44(const simdvec4 &v0, const simdvec4 &v1, c
         _mm_shuffle_ps(r3, r4, SSE_SHUFFLE(2,3,2,3)) );
 }
 
+#ifdef IST_ENABLE_SOAVECX8
+// todo
+#endif // IST_ENABLE_SOAVECX8
+
 
 ///////////////////////////////////////////////////////////////
 //  SoA Add
@@ -320,13 +328,10 @@ __forceinline soavec44 soa_transpose44(const simdvec4 &v0, const simdvec4 &v1, c
 
 namespace detail {
 
-    template<class T, class U, size_t S>
+    template<class T, class U>
     struct soa_add
     {
-        typedef typename soa_types<S>::simdvec simdvec;
-        typedef typename soa_types<S>::soavec2x soavec2x;
-        typedef typename soa_types<S>::soavec3x soavec3x;
-        typedef typename soa_types<S>::soavec4x soavec4x;
+        DECLARE_SOATYPES(T)
 
         __forceinline static soavec2x op2(const T &a, const U &b)
         {
@@ -353,13 +358,10 @@ namespace detail {
         }
     };
 
-    template<class T, size_t S>
-    struct soa_add<T, typename soa_types<S>::simdvec, S>
+    template<class T>
+    struct soa_add<T, typename T::simdvec_t>
     {
-        typedef typename soa_types<S>::simdvec simdvec;
-        typedef typename soa_types<S>::soavec2x soavec2x;
-        typedef typename soa_types<S>::soavec3x soavec3x;
-        typedef typename soa_types<S>::soavec4x soavec4x;
+        DECLARE_SOATYPES(T)
 
         __forceinline static soavec2x op2(const T &a, const simdvec &b)
         {
@@ -388,15 +390,26 @@ namespace detail {
 
 } // namespace detail
 
-template<class T, class U> __forceinline soavec24 soa_add24(const T &a, const U &b) { return detail::soa_add<T, U, 4>::op2(a, b); }
-template<class T, class U> __forceinline soavec34 soa_add34(const T &a, const U &b) { return detail::soa_add<T, U, 4>::op3(a, b); }
-template<class T, class U> __forceinline soavec44 soa_add44(const T &a, const U &b) { return detail::soa_add<T, U, 4>::op4(a, b); }
+template<class T, class U> __forceinline soavec24 soa_add24(const T &a, const U &b) { return detail::soa_add<T, U>::op2(a, b); }
+template<class T, class U> __forceinline soavec34 soa_add34(const T &a, const U &b) { return detail::soa_add<T, U>::op3(a, b); }
+template<class T, class U> __forceinline soavec44 soa_add44(const T &a, const U &b) { return detail::soa_add<T, U>::op4(a, b); }
 __forceinline soavec24 operator+(const soavec24 &a, const soavec24 &b) { return soa_add24(a, b); }
 __forceinline soavec34 operator+(const soavec34 &a, const soavec34 &b) { return soa_add34(a, b); }
 __forceinline soavec44 operator+(const soavec44 &a, const soavec44 &b) { return soa_add44(a, b); }
 __forceinline soavec24 operator+(const soavec24 &a, const simdvec4 &b) { return soa_add24(a, b); }
 __forceinline soavec34 operator+(const soavec34 &a, const simdvec4 &b) { return soa_add34(a, b); }
 __forceinline soavec44 operator+(const soavec44 &a, const simdvec4 &b) { return soa_add44(a, b); }
+#ifdef IST_ENABLE_SOAVECX8
+template<class T, class U> __forceinline soavec28 soa_add28(const T &a, const U &b) { return detail::soa_add<T, U>::op2(a, b); }
+template<class T, class U> __forceinline soavec38 soa_add38(const T &a, const U &b) { return detail::soa_add<T, U>::op3(a, b); }
+template<class T, class U> __forceinline soavec48 soa_add48(const T &a, const U &b) { return detail::soa_add<T, U>::op4(a, b); }
+__forceinline soavec28 operator+(const soavec28 &a, const soavec28 &b) { return soa_add28(a, b); }
+__forceinline soavec38 operator+(const soavec38 &a, const soavec38 &b) { return soa_add38(a, b); }
+__forceinline soavec48 operator+(const soavec48 &a, const soavec48 &b) { return soa_add48(a, b); }
+__forceinline soavec28 operator+(const soavec28 &a, const simdvec8 &b) { return soa_add28(a, b); }
+__forceinline soavec38 operator+(const soavec38 &a, const simdvec8 &b) { return soa_add38(a, b); }
+__forceinline soavec48 operator+(const soavec48 &a, const simdvec8 &b) { return soa_add48(a, b); }
+#endif // IST_ENABLE_SOAVECX8
 
 
 ///////////////////////////////////////////////////////////////
@@ -405,13 +418,10 @@ __forceinline soavec44 operator+(const soavec44 &a, const simdvec4 &b) { return 
 
 namespace detail {
 
-    template<class T, class U, size_t S>
+    template<class T, class U>
     struct soa_sub
     {
-        typedef typename soa_types<S>::simdvec simdvec;
-        typedef typename soa_types<S>::soavec2x soavec2x;
-        typedef typename soa_types<S>::soavec3x soavec3x;
-        typedef typename soa_types<S>::soavec4x soavec4x;
+        DECLARE_SOATYPES(T)
 
         __forceinline static soavec2x op2(const T &a, const U &b)
         {
@@ -438,13 +448,10 @@ namespace detail {
         }
     };
 
-    template<class T, size_t S>
-    struct soa_sub<T, typename soa_types<S>::simdvec, S>
+    template<class T>
+    struct soa_sub<T, typename T::simdvec_t>
     {
-        typedef typename soa_types<S>::simdvec simdvec;
-        typedef typename soa_types<S>::soavec2x soavec2x;
-        typedef typename soa_types<S>::soavec3x soavec3x;
-        typedef typename soa_types<S>::soavec4x soavec4x;
+        DECLARE_SOATYPES(T)
 
         __forceinline static soavec2x op2(const T &a, const simdvec &b)
         {
@@ -473,15 +480,26 @@ namespace detail {
 
 } // namespace detail
 
-template<class T, class U> __forceinline soavec24 soa_sub24(const T &a, const U &b) { return detail::soa_sub<T, U, 4>::op2(a, b); }
-template<class T, class U> __forceinline soavec34 soa_sub34(const T &a, const U &b) { return detail::soa_sub<T, U, 4>::op3(a, b); }
-template<class T, class U> __forceinline soavec44 soa_sub44(const T &a, const U &b) { return detail::soa_sub<T, U, 4>::op4(a, b); }
+template<class T, class U> __forceinline soavec24 soa_sub24(const T &a, const U &b) { return detail::soa_sub<T, U>::op2(a, b); }
+template<class T, class U> __forceinline soavec34 soa_sub34(const T &a, const U &b) { return detail::soa_sub<T, U>::op3(a, b); }
+template<class T, class U> __forceinline soavec44 soa_sub44(const T &a, const U &b) { return detail::soa_sub<T, U>::op4(a, b); }
 __forceinline soavec24 operator-(const soavec24 &a, const soavec24 &b) { return soa_sub24(a, b); }
 __forceinline soavec34 operator-(const soavec34 &a, const soavec34 &b) { return soa_sub34(a, b); }
 __forceinline soavec44 operator-(const soavec44 &a, const soavec44 &b) { return soa_sub44(a, b); }
 __forceinline soavec24 operator-(const soavec24 &a, const simdvec4 &b) { return soa_sub24(a, b); }
 __forceinline soavec34 operator-(const soavec34 &a, const simdvec4 &b) { return soa_sub34(a, b); }
 __forceinline soavec44 operator-(const soavec44 &a, const simdvec4 &b) { return soa_sub44(a, b); }
+#ifdef IST_ENABLE_SOAVECX8
+template<class T, class U> __forceinline soavec28 soa_sub28(const T &a, const U &b) { return detail::soa_sub<T, U>::op2(a, b); }
+template<class T, class U> __forceinline soavec38 soa_sub38(const T &a, const U &b) { return detail::soa_sub<T, U>::op3(a, b); }
+template<class T, class U> __forceinline soavec48 soa_sub48(const T &a, const U &b) { return detail::soa_sub<T, U>::op4(a, b); }
+__forceinline soavec28 operator-(const soavec28 &a, const soavec28 &b) { return soa_sub28(a, b); }
+__forceinline soavec38 operator-(const soavec38 &a, const soavec38 &b) { return soa_sub38(a, b); }
+__forceinline soavec48 operator-(const soavec48 &a, const soavec48 &b) { return soa_sub48(a, b); }
+__forceinline soavec28 operator-(const soavec28 &a, const simdvec8 &b) { return soa_sub28(a, b); }
+__forceinline soavec38 operator-(const soavec38 &a, const simdvec8 &b) { return soa_sub38(a, b); }
+__forceinline soavec48 operator-(const soavec48 &a, const simdvec8 &b) { return soa_sub48(a, b); }
+#endif // IST_ENABLE_SOAVECX8
 
 
 
@@ -491,13 +509,10 @@ __forceinline soavec44 operator-(const soavec44 &a, const simdvec4 &b) { return 
 
 namespace detail {
 
-    template<class T, class U, size_t S>
+    template<class T, class U>
     struct soa_mul
     {
-        typedef typename soa_types<S>::simdvec simdvec;
-        typedef typename soa_types<S>::soavec2x soavec2x;
-        typedef typename soa_types<S>::soavec3x soavec3x;
-        typedef typename soa_types<S>::soavec4x soavec4x;
+        DECLARE_SOATYPES(T)
 
         __forceinline static soavec2x op2(const T &a, const U &b)
         {
@@ -524,13 +539,10 @@ namespace detail {
         }
     };
 
-    template<class T, size_t S>
-    struct soa_mul<T, typename soa_types<S>::simdvec, S>
+    template<class T>
+    struct soa_mul<T, typename T::simdvec_t>
     {
-        typedef typename soa_types<S>::simdvec simdvec;
-        typedef typename soa_types<S>::soavec2x soavec2x;
-        typedef typename soa_types<S>::soavec3x soavec3x;
-        typedef typename soa_types<S>::soavec4x soavec4x;
+        DECLARE_SOATYPES(T)
 
         __forceinline static soavec2x op2(const T &a, const simdvec &b)
         {
@@ -559,15 +571,26 @@ namespace detail {
 
 } // namespace detail
 
-template<class T, class U> __forceinline soavec24 soa_mul24(const T &a, const U &b) { return detail::soa_mul<T, U, 4>::op2(a, b); }
-template<class T, class U> __forceinline soavec34 soa_mul34(const T &a, const U &b) { return detail::soa_mul<T, U, 4>::op3(a, b); }
-template<class T, class U> __forceinline soavec44 soa_mul44(const T &a, const U &b) { return detail::soa_mul<T, U, 4>::op4(a, b); }
+template<class T, class U> __forceinline soavec24 soa_mul24(const T &a, const U &b) { return detail::soa_mul<T, U>::op2(a, b); }
+template<class T, class U> __forceinline soavec34 soa_mul34(const T &a, const U &b) { return detail::soa_mul<T, U>::op3(a, b); }
+template<class T, class U> __forceinline soavec44 soa_mul44(const T &a, const U &b) { return detail::soa_mul<T, U>::op4(a, b); }
 __forceinline soavec24 operator*(const soavec24 &a, const soavec24 &b) { return soa_mul24(a, b); }
 __forceinline soavec34 operator*(const soavec34 &a, const soavec34 &b) { return soa_mul34(a, b); }
 __forceinline soavec44 operator*(const soavec44 &a, const soavec44 &b) { return soa_mul44(a, b); }
 __forceinline soavec24 operator*(const soavec24 &a, const simdvec4 &b) { return soa_mul24(a, b); }
 __forceinline soavec34 operator*(const soavec34 &a, const simdvec4 &b) { return soa_mul34(a, b); }
 __forceinline soavec44 operator*(const soavec44 &a, const simdvec4 &b) { return soa_mul44(a, b); }
+#ifdef IST_ENABLE_SOAVECX8
+template<class T, class U> __forceinline soavec28 soa_mul28(const T &a, const U &b) { return detail::soa_mul<T, U>::op2(a, b); }
+template<class T, class U> __forceinline soavec38 soa_mul38(const T &a, const U &b) { return detail::soa_mul<T, U>::op3(a, b); }
+template<class T, class U> __forceinline soavec48 soa_mul48(const T &a, const U &b) { return detail::soa_mul<T, U>::op4(a, b); }
+__forceinline soavec28 operator*(const soavec28 &a, const soavec28 &b) { return soa_mul28(a, b); }
+__forceinline soavec38 operator*(const soavec38 &a, const soavec38 &b) { return soa_mul38(a, b); }
+__forceinline soavec48 operator*(const soavec48 &a, const soavec48 &b) { return soa_mul48(a, b); }
+__forceinline soavec28 operator*(const soavec28 &a, const simdvec8 &b) { return soa_mul28(a, b); }
+__forceinline soavec38 operator*(const soavec38 &a, const simdvec8 &b) { return soa_mul38(a, b); }
+__forceinline soavec48 operator*(const soavec48 &a, const simdvec8 &b) { return soa_mul48(a, b); }
+#endif // IST_ENABLE_SOAVECX8
 
 
 
@@ -577,13 +600,10 @@ __forceinline soavec44 operator*(const soavec44 &a, const simdvec4 &b) { return 
 
 namespace detail {
 
-    template<class T, class U, size_t S>
+    template<class T, class U>
     struct soa_div
     {
-        typedef typename soa_types<S>::simdvec simdvec;
-        typedef typename soa_types<S>::soavec2x soavec2x;
-        typedef typename soa_types<S>::soavec3x soavec3x;
-        typedef typename soa_types<S>::soavec4x soavec4x;
+        DECLARE_SOATYPES(T)
 
         __forceinline static soavec2x op2(const T &a, const U &b)
         {
@@ -610,13 +630,10 @@ namespace detail {
         }
     };
 
-    template<class T, size_t S>
-    struct soa_div<T, typename soa_types<S>::simdvec, S>
+    template<class T>
+    struct soa_div<T, typename T::simdvec_t>
     {
-        typedef typename soa_types<S>::simdvec simdvec;
-        typedef typename soa_types<S>::soavec2x soavec2x;
-        typedef typename soa_types<S>::soavec3x soavec3x;
-        typedef typename soa_types<S>::soavec4x soavec4x;
+        DECLARE_SOATYPES(T)
 
         __forceinline static soavec2x op2(const T &a, const simdvec &b)
         {
@@ -645,15 +662,26 @@ namespace detail {
 
 } // namespace detail
 
-template<class T, class U> __forceinline soavec24 soa_div24(const T &a, const U &b) { return detail::soa_div<T, U, 4>::op2(a, b); }
-template<class T, class U> __forceinline soavec34 soa_div34(const T &a, const U &b) { return detail::soa_div<T, U, 4>::op3(a, b); }
-template<class T, class U> __forceinline soavec44 soa_div44(const T &a, const U &b) { return detail::soa_div<T, U, 4>::op4(a, b); }
+template<class T, class U> __forceinline soavec24 soa_div24(const T &a, const U &b) { return detail::soa_div<T, U>::op2(a, b); }
+template<class T, class U> __forceinline soavec34 soa_div34(const T &a, const U &b) { return detail::soa_div<T, U>::op3(a, b); }
+template<class T, class U> __forceinline soavec44 soa_div44(const T &a, const U &b) { return detail::soa_div<T, U>::op4(a, b); }
 __forceinline soavec24 operator/(const soavec24 &a, const soavec24 &b) { return soa_div24(a, b); }
 __forceinline soavec34 operator/(const soavec34 &a, const soavec34 &b) { return soa_div34(a, b); }
 __forceinline soavec44 operator/(const soavec44 &a, const soavec44 &b) { return soa_div44(a, b); }
 __forceinline soavec24 operator/(const soavec24 &a, const simdvec4 &b) { return soa_div24(a, b); }
 __forceinline soavec34 operator/(const soavec34 &a, const simdvec4 &b) { return soa_div34(a, b); }
 __forceinline soavec44 operator/(const soavec44 &a, const simdvec4 &b) { return soa_div44(a, b); }
+#ifdef IST_ENABLE_SOAVECX8
+template<class T, class U> __forceinline soavec28 soa_div28(const T &a, const U &b) { return detail::soa_div<T, U>::op2(a, b); }
+template<class T, class U> __forceinline soavec38 soa_div38(const T &a, const U &b) { return detail::soa_div<T, U>::op3(a, b); }
+template<class T, class U> __forceinline soavec48 soa_div48(const T &a, const U &b) { return detail::soa_div<T, U>::op4(a, b); }
+__forceinline soavec28 operator/(const soavec28 &a, const soavec28 &b) { return soa_div28(a, b); }
+__forceinline soavec38 operator/(const soavec38 &a, const soavec38 &b) { return soa_div38(a, b); }
+__forceinline soavec48 operator/(const soavec48 &a, const soavec48 &b) { return soa_div48(a, b); }
+__forceinline soavec28 operator/(const soavec28 &a, const simdvec8 &b) { return soa_div28(a, b); }
+__forceinline soavec38 operator/(const soavec38 &a, const simdvec8 &b) { return soa_div38(a, b); }
+__forceinline soavec48 operator/(const soavec48 &a, const simdvec8 &b) { return soa_div48(a, b); }
+#endif // IST_ENABLE_SOAVECX8
 
 
 
@@ -663,13 +691,10 @@ __forceinline soavec44 operator/(const soavec44 &a, const simdvec4 &b) { return 
 
 namespace detail {
 
-    template<class T, class U, size_t S>
+    template<class T, class U>
     struct soa_mix
     {
-        typedef typename soa_types<S>::simdvec simdvec;
-        typedef typename soa_types<S>::soavec2x soavec2x;
-        typedef typename soa_types<S>::soavec3x soavec3x;
-        typedef typename soa_types<S>::soavec4x soavec4x;
+        DECLARE_SOATYPES(T)
 
         __forceinline static soavec2x op2(const T &a, const T &b, const U &s)
         {
@@ -696,13 +721,10 @@ namespace detail {
         }
     };
 
-    template<class T, size_t S>
-    struct soa_mix<T, typename soa_types<S>::simdvec, S>
+    template<class T>
+    struct soa_mix<T, typename T::simdvec_t>
     {
-        typedef typename soa_types<S>::simdvec simdvec;
-        typedef typename soa_types<S>::soavec2x soavec2x;
-        typedef typename soa_types<S>::soavec3x soavec3x;
-        typedef typename soa_types<S>::soavec4x soavec4x;
+        DECLARE_SOATYPES(T)
 
         __forceinline static soavec2x op2(const T &a, const T &b, const simdvec &s)
         {
@@ -731,9 +753,14 @@ namespace detail {
 
 } // namespace detail
 
-template<class T, class U> __forceinline soavec24 soa_mix24(const T &a, const T &b, const U &s) { return detail::soa_mix<T, U, 4>::op2(a, b, s); }
-template<class T, class U> __forceinline soavec34 soa_mix34(const T &a, const T &b, const U &s) { return detail::soa_mix<T, U, 4>::op3(a, b, s); }
-template<class T, class U> __forceinline soavec44 soa_mix44(const T &a, const T &b, const U &s) { return detail::soa_mix<T, U, 4>::op4(a, b, s); }
+template<class T, class U> __forceinline soavec24 soa_mix24(const T &a, const T &b, const U &s) { return detail::soa_mix<T, U>::op2(a, b, s); }
+template<class T, class U> __forceinline soavec34 soa_mix34(const T &a, const T &b, const U &s) { return detail::soa_mix<T, U>::op3(a, b, s); }
+template<class T, class U> __forceinline soavec44 soa_mix44(const T &a, const T &b, const U &s) { return detail::soa_mix<T, U>::op4(a, b, s); }
+#ifdef IST_ENABLE_SOAVECX8
+template<class T, class U> __forceinline soavec28 soa_mix28(const T &a, const T &b, const U &s) { return detail::soa_mix<T, U>::op2(a, b, s); }
+template<class T, class U> __forceinline soavec38 soa_mix38(const T &a, const T &b, const U &s) { return detail::soa_mix<T, U>::op3(a, b, s); }
+template<class T, class U> __forceinline soavec48 soa_mix48(const T &a, const T &b, const U &s) { return detail::soa_mix<T, U>::op4(a, b, s); }
+#endif // IST_ENABLE_SOAVECX8
 
 
 
@@ -743,13 +770,10 @@ template<class T, class U> __forceinline soavec44 soa_mix44(const T &a, const T 
 
 namespace detail {
 
-    template<class T, class U, size_t S>
+    template<class T, class U>
     struct soa_dot
     {
-        typedef typename soa_types<S>::simdvec simdvec;
-        typedef typename soa_types<S>::soavec2x soavec2x;
-        typedef typename soa_types<S>::soavec3x soavec3x;
-        typedef typename soa_types<S>::soavec4x soavec4x;
+        DECLARE_SOATYPES(T)
 
         __forceinline static soavec2x op2(const T &a, const U &b)
         {
@@ -772,18 +796,28 @@ namespace detail {
 
 } // namespace detail
 
-template<class T, class U> __forceinline simdvec4 soa_dot24(const T &a, const U &b) { return detail::soa_dot<T, U, 4>::op2(a, b); }
-template<class T, class U> __forceinline simdvec4 soa_dot44(const T &a, const U &b) { return detail::soa_dot<T, U, 4>::op4(a, b); }
-template<class T, class U> __forceinline simdvec4 soa_dot34(const T &a, const U &b) { return detail::soa_dot<T, U, 4>::op3(a, b); }
+template<class T, class U> __forceinline simdvec4 soa_dot24(const T &a, const U &b) { return detail::soa_dot<T, U>::op2(a, b); }
+template<class T, class U> __forceinline simdvec4 soa_dot44(const T &a, const U &b) { return detail::soa_dot<T, U>::op4(a, b); }
+template<class T, class U> __forceinline simdvec4 soa_dot34(const T &a, const U &b) { return detail::soa_dot<T, U>::op3(a, b); }
+#ifdef IST_ENABLE_SOAVECX8
+template<class T, class U> __forceinline simdvec8 soa_dot28(const T &a, const U &b) { return detail::soa_dot<T, U>::op2(a, b); }
+template<class T, class U> __forceinline simdvec8 soa_dot48(const T &a, const U &b) { return detail::soa_dot<T, U>::op4(a, b); }
+template<class T, class U> __forceinline simdvec8 soa_dot38(const T &a, const U &b) { return detail::soa_dot<T, U>::op3(a, b); }
+#endif // IST_ENABLE_SOAVECX8
 
 
 ///////////////////////////////////////////////////////////////
 //  SoA Length Square
 ///////////////////////////////////////////////////////////////
 
-template<class T> __forceinline simdvec4 soa_lensq24(const T &a) { return detail::soa_dot<T, T, 4>::op2(a, a); }
-template<class T> __forceinline simdvec4 soa_lensq34(const T &a) { return detail::soa_dot<T, T, 4>::op3(a, a); }
-template<class T> __forceinline simdvec4 soa_lensq44(const T &a) { return detail::soa_dot<T, T, 4>::op4(a, a); }
+template<class T> __forceinline simdvec4 soa_lensq24(const T &a) { return detail::soa_dot<T, T>::op2(a, a); }
+template<class T> __forceinline simdvec4 soa_lensq34(const T &a) { return detail::soa_dot<T, T>::op3(a, a); }
+template<class T> __forceinline simdvec4 soa_lensq44(const T &a) { return detail::soa_dot<T, T>::op4(a, a); }
+#ifdef IST_ENABLE_SOAVECX8
+template<class T> __forceinline simdvec8 soa_lensq28(const T &a) { return detail::soa_dot<T, T>::op2(a, a); }
+template<class T> __forceinline simdvec8 soa_lensq38(const T &a) { return detail::soa_dot<T, T>::op3(a, a); }
+template<class T> __forceinline simdvec8 soa_lensq48(const T &a) { return detail::soa_dot<T, T>::op4(a, a); }
+#endif // IST_ENABLE_SOAVECX8
 
 
 ///////////////////////////////////////////////////////////////
@@ -793,6 +827,11 @@ template<class T> __forceinline simdvec4 soa_lensq44(const T &a) { return detail
 template<class T> __forceinline simdvec4 soa_length24(const T &a) { return glm::sqrt(soa_lensq24<T>(a)); }
 template<class T> __forceinline simdvec4 soa_length34(const T &a) { return glm::sqrt(soa_lensq34<T>(a)); }
 template<class T> __forceinline simdvec4 soa_length44(const T &a) { return glm::sqrt(soa_lensq44<T>(a)); }
+#ifdef IST_ENABLE_SOAVECX8
+template<class T> __forceinline simdvec8 soa_length28(const T &a) { return glm::sqrt(soa_lensq28<T>(a)); }
+template<class T> __forceinline simdvec8 soa_length38(const T &a) { return glm::sqrt(soa_lensq38<T>(a)); }
+template<class T> __forceinline simdvec8 soa_length48(const T &a) { return glm::sqrt(soa_lensq48<T>(a)); }
+#endif // IST_ENABLE_SOAVECX8
 
 
 ///////////////////////////////////////////////////////////////
@@ -802,6 +841,13 @@ template<class T> __forceinline simdvec4 soa_length44(const T &a) { return glm::
 template<class T> __forceinline soavec24 soa_normalize24(const T &a) { return soa_div24<T>(a, soa_length24<T>(a)); }
 template<class T> __forceinline soavec34 soa_normalize34(const T &a) { return soa_div34<T>(a, soa_length34<T>(a)); }
 template<class T> __forceinline soavec44 soa_normalize44(const T &a) { return soa_div44<T>(a, soa_length44<T>(a)); }
+#ifdef IST_ENABLE_SOAVECX8
+template<class T> __forceinline soavec28 soa_normalize28(const T &a) { return soa_div28<T>(a, soa_length28<T>(a)); }
+template<class T> __forceinline soavec38 soa_normalize38(const T &a) { return soa_div38<T>(a, soa_length38<T>(a)); }
+template<class T> __forceinline soavec48 soa_normalize48(const T &a) { return soa_div48<T>(a, soa_length48<T>(a)); }
+#endif // IST_ENABLE_SOAVECX8
 
+
+#undef DECLARE_SOATYPES
 
 } // namespace ist

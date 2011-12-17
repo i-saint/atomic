@@ -9,6 +9,7 @@
 #include <deque>
 #include <boost/shared_ptr.hpp>
 
+#include "Base.h"
 #include "Sound/Buffer.h"
 #include "Sound/Stream.h"
 #include "Sound/Source.h"

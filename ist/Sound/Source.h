@@ -14,10 +14,10 @@ namespace sound {
     protected:
         int getI(ALenum param) const;
         float getF(ALenum param) const;
-        float4 get3F(ALenum param) const;
+        vec3 get3F(ALenum param) const;
         void setI(ALenum param, int v);
         void setF(ALenum param, float v);
-        void set3F(ALenum param, const float4& v);
+        void set3F(ALenum param, const vec3& v);
 
     public:
         enum STATE {
@@ -34,12 +34,12 @@ namespace sound {
         ALuint getHandle() const;
 
         float getGain() const;
-        float4 getPosition() const;
-        float4 getVelocity() const;
+        vec3 getPosition() const;
+        vec3 getVelocity() const;
 
         void setGain(float v);
-        void setPosition(const float4& v);
-        void setVelocity(const float4& v);
+        void setPosition(const vec3& v);
+        void setVelocity(const vec3& v);
 
         bool isInitial() const;
         bool isPlaying() const;

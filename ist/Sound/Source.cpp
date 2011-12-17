@@ -18,9 +18,9 @@ float Source::getF(ALenum param) const
     return r;
 }
 
-float4 Source::get3F(ALenum param) const
+vec3 Source::get3F(ALenum param) const
 {
-    float4 r;
+    vec3 r;
     alGetSourcefv(m_handle, param, (ALfloat*)&r);
     return r;
 }
@@ -35,7 +35,7 @@ void Source::setF(ALenum param, float v)
     alSourcef(m_handle, param, v);
 }
 
-void Source::set3F(ALenum param, const float4& v)
+void Source::set3F(ALenum param, const vec3& v)
 {
     alSourcefv(m_handle, param, (ALfloat*)&v);
 }
@@ -54,13 +54,13 @@ Source::~Source()
 ALuint Source::getHandle() const { return m_handle; }
 
 
-float Source::getGain() const       { return getF(AL_GAIN); }
-float4 Source::getPosition() const  { return get3F(AL_POSITION); }
-float4 Source::getVelocity() const  { return get3F(AL_VELOCITY); }
+float Source::getGain() const           { return getF(AL_GAIN); }
+vec3 Source::getPosition() const        { return get3F(AL_POSITION); }
+vec3 Source::getVelocity() const        { return get3F(AL_VELOCITY); }
 
-void Source::setGain(float v)               { setF(AL_GAIN, v); }
-void Source::setPosition(const float4& v)   { set3F(AL_POSITION, v); }
-void Source::setVelocity(const float4& v)   { set3F(AL_VELOCITY, v); }
+void Source::setGain(float v)           { setF(AL_GAIN, v); }
+void Source::setPosition(const vec3& v) { set3F(AL_POSITION, v); }
+void Source::setVelocity(const vec3& v) { set3F(AL_VELOCITY, v); }
 
 
 bool Source::isInitial() const { return getI(AL_SOURCE_STATE)==AL_INITIAL; }
