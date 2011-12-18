@@ -19,7 +19,7 @@ enum ENTITY_CALL
     ECALL_kill,
     ECALL_destroy,
     ECALL_setRefCount,
-    ECALL_addRef,
+    ECALL_addRefCount,
     ECALL_release,
     ECALL_setHealth,
     ECALL_setPosition,
