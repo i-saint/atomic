@@ -277,10 +277,6 @@ bool Application::initialize(ivec2 wpos, ivec2 wsize, const wchar_t *title, bool
         ::SetWindowPos(m_hwnd,(HWND)-1, wpos.x,wpos.y, wsize.x,wsize.y, SWP_SHOWWINDOW);
     }
 
-
-    // sound
-    sound::IntializeSound();
-
     return true;
 }
 
@@ -289,7 +285,6 @@ void Application::finalize()
 #ifdef IST_OPENCL
     if(m_cl_context) { delete m_cl_context; m_cl_context=NULL; }
 #endif // IST_OPENCL
-    sound::FinalizeSound();
     if(m_hwnd) {
         ::CloseWindow(m_hwnd);
         m_hwnd=NULL;

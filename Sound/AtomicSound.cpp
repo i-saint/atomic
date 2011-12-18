@@ -29,6 +29,9 @@ namespace atomic {
     void AtomicSoundThread::operator()()
     {
         ist::SetThreadName("AtomicSoundThread");
+
+        ist::sound::IntializeSound();
+
         std::string sound_data;
         const char filepath[] = "sound.ogg";
         if(FILE *f=fopen(filepath, "rb")) {
@@ -69,6 +72,8 @@ namespace atomic {
                 source_set.seek(0);
             }
         }
+
+        sound::FinalizeSound();
         IST_PRINT("sound thread end.\n");
     }
 
