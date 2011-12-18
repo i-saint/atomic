@@ -130,15 +130,20 @@ void AtomicRenderer::passGBuffer()
     const PerspectiveCamera *camera = atomicGetCamera();
 
     m_rt_gbuffer->bind();
-    glClearColor(0.0f,0.0f,0.0f,0.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(0.0f,0.0f,0.0f,1.0f);
+    glClearStencil(0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_STENCIL_TEST);
+    glStencilFunc(GL_ALWAYS, 1, ~0);
+    glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
 
     uint32 num_renderers = m_renderers[PASS_GBUFFER].size();
     for(uint32 i=0; i<num_renderers; ++i) {
         m_renderers[PASS_GBUFFER][i]->draw();
     }
 
+    glDisable(GL_STENCIL_TEST);
     glDisable(GL_DEPTH_TEST);
     m_rt_gbuffer->unbind();
 }
@@ -149,12 +154,15 @@ void AtomicRenderer::passDeferredShading()
     m_rt_gbuffer->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
     m_rt_gbuffer->getColorBuffer(1)->bind(GLSL_NORMAL_BUFFER);
     m_rt_gbuffer->getColorBuffer(2)->bind(GLSL_POSITION_BUFFER);
-    glClearColor(0.0f,0.0f,0.0f,1.0f);
+
     glClear(GL_COLOR_BUFFER_BIT);
     glEnable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_STENCIL_TEST);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     glDepthMask(GL_FALSE);
+    glStencilFunc(GL_EQUAL, 1, ~0);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
     uint32 num_renderers = m_renderers[PASS_DEFERRED].size();
     for(uint32 i=0; i<num_renderers; ++i) {
@@ -162,6 +170,7 @@ void AtomicRenderer::passDeferredShading()
     }
 
     glDepthMask(GL_TRUE);
+    glDisable(GL_STENCIL_TEST);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
     m_rt_deferred->unbind();

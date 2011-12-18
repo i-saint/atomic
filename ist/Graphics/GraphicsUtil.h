@@ -68,7 +68,8 @@ private:
 public:
     ColorNBuffer();
     ~ColorNBuffer();
-    bool initialize(GLsizei width, GLsizei height, IST_COLOR_FORMAT);
+    bool initialize(GLsizei width, GLsizei height, IST_COLOR_FORMAT color_format);
+    bool initialize(GLsizei width, GLsizei height, IST_COLOR_FORMAT (&color_format)[NumColorBuffers]);
 
     GLsizei getWidth() const { return m_width; }
     GLsizei getHeight() const { return m_height; }
@@ -106,7 +107,7 @@ private:
 public:
     DepthBuffer();
     ~DepthBuffer();
-    bool initialize(GLsizei width, GLsizei height);
+    bool initialize(GLsizei width, GLsizei height, IST_COLOR_FORMAT depth_format);
 
     GLsizei getWidth() const { return m_width; }
     GLsizei getHeight() const { return m_height; }
@@ -126,9 +127,9 @@ class ColorNDepthBuffer : public FrameBufferObject
 {
 typedef FrameBufferObject super;
 private:
-    Texture2D *m_owned[NumColorBuffers+1];
+    Texture2D *m_owned[NumColorBuffers+2];
 
-    Texture2D *m_depth;
+    Texture2D *m_depth_stencil;
     Texture2D *m_color[NumColorBuffers];
 
     GLsizei m_width;
@@ -137,18 +138,19 @@ private:
 public:
     ColorNDepthBuffer();
     ~ColorNDepthBuffer();
-    bool initialize(GLsizei width, GLsizei height, IST_COLOR_FORMAT format);
+    bool initialize(GLsizei width, GLsizei height, IST_COLOR_FORMAT color_format, IST_COLOR_FORMAT depth_format);
+    bool initialize(GLsizei width, GLsizei height, IST_COLOR_FORMAT (&color_format)[NumColorBuffers], IST_COLOR_FORMAT depth_format);
 
     GLsizei getWidth() const { return m_width; }
     GLsizei getHeight() const { return m_height; }
 
     GLsizei getColorBufferNum() const { return NumColorBuffers; }
-    Texture2D* getDepthBuffer() { return m_depth; }
+    Texture2D* getDepthStencilBuffer() { return m_depth_stencil; }
     Texture2D* getColorBuffer(size_t i) { return m_color[i]; }
 
     // initialize() の前に以下の関数で差し替えておくことで代用できる。
     // 設定しなかった場合内部的に作られる。デストラクタで破棄するのは内部的に作られたものだけ。
-    void setDepthBuffer(Texture2D* v) { m_depth=v; }
+    void setDepthStencilBuffer(Texture2D* v) { m_depth_stencil=v; }
     void setColorBuffer(size_t i, Texture2D* v) { m_color[i]=v; }
 };
 typedef ColorNDepthBuffer<1> ColorDepthBuffer;

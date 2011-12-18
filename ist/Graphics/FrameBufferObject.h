@@ -8,13 +8,22 @@ namespace graphics {
 
 enum IST_COLOR_FORMAT
 {
-    IST_RGB_U8,
-    IST_RGBA_U8,
-    IST_RGB_F16,
-    IST_RGBA_F16,
-    IST_RGB_F32,
-    IST_RGBA_F32,
-    IST_DEPTH_F32,
+    IST_UNKNOWN,
+    IST_R8U,
+    IST_R16F,
+    IST_R32F,
+    IST_RG8U,
+    IST_RG16F,
+    IST_RG32F,
+    IST_RGB8U,  // texture only
+    IST_RGB16F, // 
+    IST_RGB32F, // 
+    IST_RGBA8U,
+    IST_RGBA16F,
+    IST_RGBA32F,
+    IST_DEPTH32F,
+    IST_DEPTH24_STENCIL8,
+    IST_DEPTH32F_STENCIL8,
 };
 
 enum IST_RT_ATTACH
@@ -36,6 +45,7 @@ enum IST_RT_ATTACH
     IST_ATTACH_COLOR14  = GL_COLOR_ATTACHMENT14,
     IST_ATTACH_COLOR15  = GL_COLOR_ATTACHMENT15,
     IST_ATTACH_DEPTH    = GL_DEPTH_ATTACHMENT,
+    IST_ATTACH_STENCIL  = GL_STENCIL_ATTACHMENT,
 };
 
 enum IST_TEXTURE_SLOT
@@ -106,10 +116,6 @@ public:
 
 class FrameBufferObject : public GraphicsResource
 {
-public:
-    enum ATTACH
-    {
-    };
 private:
     GLuint m_handle;
     GLuint m_attaches; // 0bit-15bit –Ú‚ª‚»‚ê‚¼‚ê ATTACH_COLOR0-ATTACH_COLOR15 ‚É‘Î‰ž

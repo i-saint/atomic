@@ -66,6 +66,7 @@ bool GraphicResourceManager::initialize()
     stl::fill_n(m_ubo, _countof(m_ubo), (UniformBufferObject*)NULL);
     stl::fill_n(m_fbo, _countof(m_fbo), (FrameBufferObject*)NULL);
     stl::fill_n(m_shader, _countof(m_shader), (AtomicShader*)NULL);
+    stl::fill_n(m_cb, _countof(m_cb), (CudaBuffer*)NULL);
 
     //// どうも 2 の n 乗サイズのフレームバッファの方が若干描画早いっぽい。 
     //uint32 framebuffer_width = atomicGetWindowWidth();
@@ -128,20 +129,20 @@ bool GraphicResourceManager::initialize()
     }
     {
         // create textures
-        GenerateRandomTexture(*m_tex2d[TEX2D_RANDOM], 64, 64, IST_RGB_U8);
+        GenerateRandomTexture(*m_tex2d[TEX2D_RANDOM], 64, 64, IST_RGB8U);
     }
     {
         // create render targets
         m_rt_gbuffer = IST_NEW(RenderTargetGBuffer)();
-        m_rt_gbuffer->initialize(framebuffer_width, framebuffer_height, IST_RGBA_F16);
+        m_rt_gbuffer->initialize(framebuffer_width, framebuffer_height, IST_RGBA16F, IST_DEPTH24_STENCIL8);
 
         m_rt_deferred = IST_NEW(RenderTargetDeferred)();
-        m_rt_deferred->setDepthBuffer(m_rt_gbuffer->getDepthBuffer());
-        m_rt_deferred->initialize(framebuffer_width, framebuffer_height, IST_RGB_U8);
+        m_rt_deferred->setDepthStencilBuffer(m_rt_gbuffer->getDepthStencilBuffer());
+        m_rt_deferred->initialize(framebuffer_width, framebuffer_height, IST_RGBA8U, IST_DEPTH24_STENCIL8);
 
         for(uint32 i=0; i<_countof(m_rt_gauss); ++i) {
             m_rt_gauss[i] = IST_NEW(ColorBuffer) ();
-            m_rt_gauss[i]->initialize(512, 256, IST_RGBA_U8);
+            m_rt_gauss[i]->initialize(512, 256, IST_RGBA8U);
         }
 
         m_fbo[RT_GBUFFER] = m_rt_gbuffer;
@@ -169,7 +170,7 @@ void GraphicResourceManager::finalize()
     SPHFinalizeInstanceBuffers();
     SPHFinalize();
 
-    for(uint32 i=0; i<_countof(m_cb); ++i)    { IST_SAFE_DELETE(m_cb[i]); }
+    for(uint32 i=0; i<_countof(m_cb); ++i)      { IST_SAFE_DELETE(m_cb[i]); }
     for(uint32 i=0; i<_countof(m_shader); ++i)  { if(m_shader[i]) { m_shader[i]->finalize(); IST_SAFE_DELETE( m_shader[i] ); } }
     for(uint32 i=0; i<_countof(m_fbo); ++i)     { if(m_fbo[i]) { m_fbo[i]->finalize(); IST_SAFE_DELETE( m_fbo[i] ); } }
     for(uint32 i=0; i<_countof(m_ubo); ++i)     { if(m_ubo[i]) { m_ubo[i]->finalize(); IST_SAFE_DELETE( m_ubo[i] ); } }

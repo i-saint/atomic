@@ -37,21 +37,21 @@ bool GenerateRandomTexture(Texture2D &tex, GLsizei width, GLsizei height, IST_CO
 bool GenerateRandomTexture(Texture2D &tex, GLsizei width, GLsizei height, IST_COLOR_FORMAT format, SFMT& random)
 {
     std::string buffer;
-    if(format==IST_RGB_U8) {
+    if(format==IST_RGB8U) {
         int data_size = width*height*3;
         buffer.resize(data_size);
         for(int i=0; i<data_size; ++i) {
             buffer[i] = random.genInt32();
         }
     }
-    else if(format==IST_RGBA_U8) {
+    else if(format==IST_RGBA8U) {
         int data_size = width*height*4;
         buffer.resize(data_size);
         for(int i=0; i<data_size; ++i) {
             buffer[i] = random.genInt32();
         }
     }
-    else if(format==IST_RGB_F32) {
+    else if(format==IST_RGB32F) {
         int data_size = width*height*sizeof(float)*3;
         buffer.resize(data_size);
         float *w = (float*)&buffer[0];
@@ -59,7 +59,7 @@ bool GenerateRandomTexture(Texture2D &tex, GLsizei width, GLsizei height, IST_CO
             w[i] = random.genFloat32();
         }
     }
-    else if(format==IST_RGBA_F32) {
+    else if(format==IST_RGBA32F) {
         int data_size = width*height*sizeof(float)*4;
         buffer.resize(data_size);
         float *w = (float*)&buffer[0];
@@ -135,7 +135,15 @@ ColorNBuffer<NumColorBuffers>::~ColorNBuffer()
 }
 
 template<size_t NumColorBuffers>
-bool ColorNBuffer<NumColorBuffers>::initialize(GLsizei width, GLsizei height, IST_COLOR_FORMAT fmt)
+bool ColorNBuffer<NumColorBuffers>::initialize(GLsizei width, GLsizei height, IST_COLOR_FORMAT color_format)
+{
+    IST_COLOR_FORMAT color_formats[NumColorBuffers];
+    std::fill_n(color_formats, NumColorBuffers, color_format);
+    return initialize(width, height, color_formats);
+}
+
+template<size_t NumColorBuffers>
+bool ColorNBuffer<NumColorBuffers>::initialize(GLsizei width, GLsizei height, IST_COLOR_FORMAT (&color_format)[NumColorBuffers])
 {
     super::initialize();
 
@@ -146,7 +154,7 @@ bool ColorNBuffer<NumColorBuffers>::initialize(GLsizei width, GLsizei height, IS
     for(size_t i=0; i<NumColorBuffers; ++i) {
         if(!m_color[i]) {
             Texture2D *color = new Texture2D();
-            color->initialize(width, height, fmt);
+            color->initialize(width, height, color_format[i]);
             color->bind();
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -185,7 +193,7 @@ DepthBuffer::~DepthBuffer()
     delete m_owned;
 }
 
-bool DepthBuffer::initialize(GLsizei width, GLsizei height)
+bool DepthBuffer::initialize(GLsizei width, GLsizei height, IST_COLOR_FORMAT depth_format)
 {
     super::initialize();
 
@@ -194,7 +202,7 @@ bool DepthBuffer::initialize(GLsizei width, GLsizei height)
 
     if(!m_depth) {
         Texture2D *depth = new Texture2D();
-        depth->initialize(width, height, IST_DEPTH_F32);
+        depth->initialize(width, height, depth_format);
         depth->bind();
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -221,9 +229,9 @@ template<size_t NumColorBuffers>
 ColorNDepthBuffer<NumColorBuffers>::ColorNDepthBuffer()
 : m_width(0)
 , m_height(0)
+, m_depth_stencil(NULL)
 {
     std::fill_n(m_owned, _countof(m_owned), (Texture2D*)NULL);
-    m_depth = NULL;
     std::fill_n(m_color, _countof(m_color), (Texture2D*)NULL);
 }
 
@@ -236,7 +244,15 @@ ColorNDepthBuffer<NumColorBuffers>::~ColorNDepthBuffer()
 }
 
 template<size_t NumColorBuffers>
-bool ColorNDepthBuffer<NumColorBuffers>::initialize(GLsizei width, GLsizei height, IST_COLOR_FORMAT fmt)
+bool ColorNDepthBuffer<NumColorBuffers>::initialize(GLsizei width, GLsizei height, IST_COLOR_FORMAT color_format, IST_COLOR_FORMAT depth_format)
+{
+    IST_COLOR_FORMAT color_formats[NumColorBuffers];
+    std::fill_n(color_formats, NumColorBuffers, color_format);
+    return initialize(width, height, color_formats, depth_format);
+}
+
+template<size_t NumColorBuffers>
+bool ColorNDepthBuffer<NumColorBuffers>::initialize(GLsizei width, GLsizei height, IST_COLOR_FORMAT (&color_format)[NumColorBuffers], IST_COLOR_FORMAT depth_format)
 {
     super::initialize();
 
@@ -245,9 +261,9 @@ bool ColorNDepthBuffer<NumColorBuffers>::initialize(GLsizei width, GLsizei heigh
 
     int num_owned = 0;
     {
-        if(!m_depth) {
+        if(!m_depth_stencil) {
             Texture2D *depth = new Texture2D();
-            depth->initialize(width, height, IST_DEPTH_F32);
+            depth->initialize(width, height, depth_format);
             depth->bind();
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -255,14 +271,17 @@ bool ColorNDepthBuffer<NumColorBuffers>::initialize(GLsizei width, GLsizei heigh
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
             depth->unbind();
             m_owned[num_owned++] = depth;
-            m_depth = depth;
+            m_depth_stencil = depth;
         }
-        attachTexture(*m_depth, IST_ATTACH_DEPTH);
+        attachTexture(*m_depth_stencil, IST_ATTACH_DEPTH);
+        if(depth_format==IST_DEPTH24_STENCIL8 || depth_format==IST_DEPTH32F_STENCIL8) {
+            attachTexture(*m_depth_stencil, IST_ATTACH_STENCIL);
+        }
     }
     for(size_t i=0; i<NumColorBuffers; ++i) {
         if(!m_color[i]) {
             Texture2D *color = new Texture2D();
-            color->initialize(width, height, fmt);
+            color->initialize(width, height, color_format[i]);
             color->bind();
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

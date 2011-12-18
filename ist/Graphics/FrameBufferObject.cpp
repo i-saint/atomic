@@ -43,44 +43,21 @@ bool Texture2D::allocate(GLsizei width, GLsizei height, IST_COLOR_FORMAT fmt, vo
     GLint type = 0;
     switch(fmt)
     {
-    case IST_RGB_U8:
-        internal_format = GL_RGB8;
-        format = GL_RGB;
-        type = GL_UNSIGNED_BYTE;
-        break;
-    case IST_RGBA_U8:
-        internal_format = GL_RGBA8;
-        format = GL_RGBA;
-        type = GL_UNSIGNED_BYTE;
-        break;
-
-    case IST_RGB_F16:
-        internal_format = GL_RGB16F;
-        format = GL_RGB;
-        type = GL_FLOAT;
-        break;
-    case IST_RGBA_F16:
-        internal_format = GL_RGBA16F;
-        format = GL_RGBA;
-        type = GL_FLOAT;
-        break;
-
-    case IST_RGB_F32:
-        internal_format = GL_RGB32F;
-        format = GL_RGB;
-        type = GL_FLOAT;
-        break;
-    case IST_RGBA_F32:
-        internal_format = GL_RGBA32F;
-        format = GL_RGBA;
-        type = GL_FLOAT;
-        break;
-
-    case IST_DEPTH_F32:
-        internal_format = GL_DEPTH_COMPONENT;
-        format = GL_DEPTH_COMPONENT;
-        type = GL_FLOAT;
-        break;
+    case IST_R8U:       internal_format=GL_R8;      format=GL_RED;  type=GL_UNSIGNED_BYTE;  break;
+    case IST_R16F:      internal_format=GL_R16F;    format=GL_RED;  type=GL_FLOAT;          break;
+    case IST_R32F:      internal_format=GL_R32F;    format=GL_RED;  type=GL_FLOAT;          break;
+    case IST_RG8U:      internal_format=GL_RG8;     format=GL_RG;   type=GL_UNSIGNED_BYTE;  break;
+    case IST_RG16F:     internal_format=GL_RG16F;   format=GL_RG;   type=GL_FLOAT;          break;
+    case IST_RG32F:     internal_format=GL_RG32F;   format=GL_RG;   type=GL_FLOAT;          break;
+    case IST_RGB8U:     internal_format=GL_RGB8;    format=GL_RGB;  type=GL_UNSIGNED_BYTE;  break;
+    case IST_RGB16F:    internal_format=GL_RGB16F;  format=GL_RGB;  type=GL_FLOAT;          break;
+    case IST_RGB32F:    internal_format=GL_RGB32F;  format=GL_RGB;  type=GL_FLOAT;          break;
+    case IST_RGBA8U:    internal_format=GL_RGBA8;   format=GL_RGBA; type=GL_UNSIGNED_BYTE;  break;
+    case IST_RGBA16F:   internal_format=GL_RGBA16F; format=GL_RGBA; type=GL_FLOAT;          break;
+    case IST_RGBA32F:   internal_format=GL_RGBA32F; format=GL_RGBA; type=GL_FLOAT;          break;
+    case IST_DEPTH32F:  internal_format=GL_DEPTH_COMPONENT; format=GL_DEPTH_COMPONENT; type=GL_FLOAT; break;
+    case IST_DEPTH24_STENCIL8:    internal_format=GL_DEPTH24_STENCIL8;  format=GL_DEPTH_STENCIL; type=GL_UNSIGNED_INT_24_8; break;
+    case IST_DEPTH32F_STENCIL8:   internal_format=GL_DEPTH32F_STENCIL8; format=GL_DEPTH_STENCIL; type=GL_FLOAT_32_UNSIGNED_INT_24_8_REV; break;
     default:
         IST_ASSERT("unknown format: %d", fmt);
         return false;
@@ -156,19 +133,21 @@ bool RenderBuffer::allocate(GLsizei width, GLsizei height, IST_COLOR_FORMAT fmt)
     GLint internal_format = 0;
     switch(fmt)
     {
-    case IST_RGB_U8:
-    case IST_RGB_F16:
-    case IST_RGB_F32:
-        internal_format = GL_RGB;
-        break;
-    case IST_RGBA_U8:
-    case IST_RGBA_F16:
-    case IST_RGBA_F32:
-        internal_format = GL_RGBA;
-        break;
-    case IST_DEPTH_F32:
-        internal_format = GL_DEPTH_COMPONENT32;
-        break;
+    case IST_R8U:       internal_format=GL_R8; break;
+    case IST_R16F:      internal_format=GL_R16F; break;
+    case IST_R32F:      internal_format=GL_R32F; break;
+    case IST_RG8U:      internal_format=GL_RG8; break;
+    case IST_RG16F:     internal_format=GL_RG16F; break;
+    case IST_RG32F:     internal_format=GL_RG32F; break;
+    case IST_RGB8U:     // fall through
+    case IST_RGB16F:    // 
+    case IST_RGB32F:    IST_ASSERT("render buffer can't use RGB format."); break;
+    case IST_RGBA8U:    internal_format=GL_RGBA8; break;
+    case IST_RGBA16F:   internal_format=GL_RGBA16F; break;
+    case IST_RGBA32F:   internal_format=GL_RGBA32F; break;
+    case IST_DEPTH32F:  internal_format=GL_DEPTH_COMPONENT32; break;
+    case IST_DEPTH24_STENCIL8:    internal_format=GL_DEPTH24_STENCIL8; break;
+    case IST_DEPTH32F_STENCIL8:   internal_format=GL_DEPTH32F_STENCIL8; break;
     default:
         IST_ASSERT("unknown format: %d", fmt);
         return false;
