@@ -45,7 +45,7 @@ using ist::SFMT;
 typedef ist::Variant16 variant;
 
 
-typedef unsigned int id_t;
+typedef uint32 EntityHandle;
 
 
 

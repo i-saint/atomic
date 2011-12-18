@@ -28,26 +28,6 @@ FractionSet::~FractionSet()
 
 void FractionSet::initialize()
 {
-    static bool s_init = false;
-    if(!s_init) {
-        s_init = true;
-        float32 xv[4] = {2.5f, -2.5f, 0.0f, 0.0f};
-        float32 yv[4] = {0.0f, 0.0f, 2.5f, -2.5f};
-        for(uint32 i=0; i<4; ++i) {
-            Message_GenerateFraction mes;
-            mes.gen_type = Message_GenerateFraction::GEN_SPHERE;
-            mes.num = 3000;
-
-            ist::Sphere sphere;
-            sphere.v.x = xv[i];
-            sphere.v.y = yv[i];
-            sphere.v.z = 0.0f;
-            sphere.v.r = 1.2f;
-            mes.assignData<ist::Sphere>(sphere);
-            atomicPushMessage(MR_FRACTION, 0, mes);
-        }
-    }
-
     {
         SPHSphericalGravity h_sg;
         h_sg.position = make_float4(0.0f);
@@ -86,7 +66,7 @@ void FractionSet::updateSPH()
 {
     SPHUpdate();
 
-    float2 move = atomicGetInputs()->getMove()*0.01f;
+    vec2 move = atomicGetInputs()->getMove()*0.01f;
     m_sgravity[0].position.x += move.x;
     m_sgravity[0].position.y += move.y;
     SPHUpdateSphericalGravityData(m_sgravity);
@@ -99,32 +79,6 @@ void FractionSet::updateSPH()
 
 void FractionSet::processMessage()
 {
-    MessageIterator<Message_GenerateFraction> mes_gf_iter;
-    while(mes_gf_iter.hasNext()) {
-        const Message_GenerateFraction& mes = mes_gf_iter.iterate();
-        for(uint32 n=0; n<mes.num; ++n) {
-            if(mes.gen_type==Message_GenerateFraction::GEN_SPHERE) {
-                ist::Sphere& sphere = (ist::Sphere&)(*mes.shape_data);
-                SPHParticle fd;
-                fd.id = ++m_idgen;
-                fd.lifetime = 0xFFFFFFFF;
-                fd.velocity = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
-                fd.position = make_float4(sphere.v.x, sphere.v.y, sphere.v.z, 0.0f);
-
-                float4 r = make_float4(atomicGenRandFloat(),atomicGenRandFloat(),atomicGenRandFloat(), 0.0f);
-                r = (r - make_float4(0.5f)) * make_float4(2.0f) * make_float4(sphere.v.w);
-                fd.position += r;
-                fd.velocity = make_float4(atomicGenRandFloat(),atomicGenRandFloat(),atomicGenRandFloat(),0.0f) * make_float4(0.2f);
-
-                m_spawn.push_back(fd);
-            }
-            else if(mes.gen_type==Message_GenerateFraction::GEN_BOX) {
-                IST_ASSERT("Message_GenerateFraction::GEN_BOX is not implemented yet");
-            }
-        }
-    }
-
-    //const uint32 num_data = m_data.size();
 }
 
 

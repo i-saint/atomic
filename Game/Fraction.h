@@ -18,7 +18,6 @@ class FractionSet : boost::noncopyable
 {
 private:
     typedef Task_UpdateAsync<FractionSet> AsyncUpdateTask;
-    typedef stl::vector<Message_GenerateFraction, FrameAllocator> GenMessageCont;
 
     AsyncUpdateTask                     *m_task_asyncupdate;
     SPHParticle                         m_particles[SPH_MAX_PARTICLE_NUM];
