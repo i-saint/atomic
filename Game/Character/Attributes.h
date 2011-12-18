@@ -2,6 +2,39 @@
 #define __atomic_Game_Character_Attributes__
 namespace atomic {
 
+    class Attr_RefCount
+    {
+    private:
+        uint32 m_ref_count;
+
+    protected:
+        void setRefCount(uint32 v) { m_ref_count=v; }
+
+    public:
+        Attr_RefCount() : m_ref_count(1) {}
+        uint32 getRefCount() const { return m_ref_count; }
+        void addRefCount() { ++m_ref_count; }
+        void release() { --m_ref_count; }
+
+        bool call(uint32 call_id, const variant &v)
+        {
+            switch(call_id) {
+                DEFINE_ECALL1(setRefCount, uint32);
+                DEFINE_ECALL0(addRefCount);
+                DEFINE_ECALL0(release);
+            }
+            return false;
+        }
+
+        bool query(uint32 query_id, variant &v) const
+        {
+            switch(query_id) {
+                DEFINE_EQUERY(getRefCount);
+            }
+            return false;
+        }
+    };
+
     class Attr_Translate
     {
     private:
@@ -17,6 +50,22 @@ namespace atomic {
             mat4 mat;
             mat = glm::translate(mat, reinterpret_cast<const vec3&>(m_pos));
             return mat;
+        }
+
+        bool call(uint32 call_id, const variant &v)
+        {
+            switch(call_id) {
+                DEFINE_ECALL1(setPosition, vec4);
+            }
+            return false;
+        }
+
+        bool query(uint32 query_id, variant &v) const
+        {
+            switch(query_id) {
+                DEFINE_EQUERY(getPosition);
+            }
+            return false;
         }
     };
 
@@ -48,6 +97,28 @@ namespace atomic {
             mat = glm::rotate(mat, m_rot, reinterpret_cast<const vec3&>(m_axis));
             mat = glm::scale(mat, reinterpret_cast<const vec3&>(m_scale));
             return mat;
+        }
+
+        bool call(uint32 call_id, const variant &v)
+        {
+            switch(call_id) {
+                DEFINE_ECALL1(setPosition, vec4);
+                DEFINE_ECALL1(setScale, vec4);
+                DEFINE_ECALL1(setAxis, vec4);
+                DEFINE_ECALL1(setRotation, float32);
+            }
+            return false;
+        }
+
+        bool query(uint32 query_id, variant &v) const
+        {
+            switch(query_id) {
+                DEFINE_EQUERY(getPosition);
+                DEFINE_EQUERY(getScale);
+                DEFINE_EQUERY(getAxis);
+                DEFINE_EQUERY(getRotation);
+            }
+            return false;
         }
     };
 
@@ -86,6 +157,32 @@ namespace atomic {
             mat = glm::rotate(mat, m_rot1, reinterpret_cast<const vec3&>(m_axis1));
             mat = glm::scale(mat, reinterpret_cast<const vec3&>(m_scale));
             return mat;
+        }
+
+        bool call(uint32 call_id, const variant &v)
+        {
+            switch(call_id) {
+                DEFINE_ECALL1(setPosition, vec4);
+                DEFINE_ECALL1(setScale, vec4);
+                DEFINE_ECALL1(setAxis1, vec4);
+                DEFINE_ECALL1(setAxis2, vec4);
+                DEFINE_ECALL1(setRotation1, float32);
+                DEFINE_ECALL1(setRotation2, float32);
+            }
+            return false;
+        }
+
+        bool query(uint32 query_id, variant &v) const
+        {
+            switch(query_id) {
+                DEFINE_EQUERY(getPosition);
+                DEFINE_EQUERY(getScale);
+                DEFINE_EQUERY(getAxis1);
+                DEFINE_EQUERY(getAxis2);
+                DEFINE_EQUERY(getRotation1);
+                DEFINE_EQUERY(getRotation2);
+            }
+            return false;
         }
     };
 

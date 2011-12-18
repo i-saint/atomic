@@ -2,7 +2,6 @@
 #include "types.h"
 #include "Game/AtomicGame.h"
 #include "Graphics/ResourceManager.h"
-#include "Game/Entity.h"
 #include "Enemy.h"
 
 namespace atomic {
@@ -13,11 +12,10 @@ class Enemy_Base : public IEntity
 private:
     mat4        m_transform;
     IRoutine    *m_routine;
-    uint32      m_handle;
     float32     m_health;
 
 public:
-    Enemy_Base() : m_transform(), m_routine(NULL), m_handle(0), m_health(1.0f) {}
+    Enemy_Base() : m_transform(), m_routine(NULL), m_health(1.0f) {}
 
     float32     getHealth() const   { return m_health; }
     const mat4& getTransform() const{ return m_transform; }
@@ -55,6 +53,16 @@ public:
     {
 
     }
+
+    bool call(uint32 call_id, const variant &v)
+    {
+        return super::call(call_id, v) || transform::call(call_id, v);
+    }
+
+    bool query(uint32 query_id, variant &v) const
+    {
+        return super::query(query_id, v) || transform::query(query_id, v);
+    }
 };
 
 class Enemy_Sphere : public Enemy_Base, public Attr_DoubleAxisRotation
@@ -72,6 +80,16 @@ public:
     virtual void draw()
     {
 
+    }
+
+    bool call(uint32 call_id, const variant &v)
+    {
+        return super::call(call_id, v) || transform::call(call_id, v);
+    }
+
+    bool query(uint32 query_id, variant &v) const
+    {
+        return super::query(query_id, v) || transform::query(query_id, v);
     }
 };
 

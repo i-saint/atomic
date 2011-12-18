@@ -399,6 +399,7 @@
     <ClInclude Include="Game\EntityQuery.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="features.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GPGPU\SPH_internal.cuh">

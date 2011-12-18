@@ -95,10 +95,11 @@ namespace atomic {
     private:
         EntityHandle m_ehandle;
 
+        bool isValidHandle(EntityHandle h);
         void setHandle(uint32 h) { m_ehandle=h; }
 
     public:
-        // コンストラクタではメンバ変数初期化以外の処理を行なってはいけない。それ以外は initialize() で行う。
+        // コンストラクタではメンバ変数初期化以外の処理を行なってはいけない。他は initialize() で行う。
         // (ID がコンストラクタの後に決まるため、子オブジェクトの処理順などを適切に行うにはこうする必要がある)
         IEntity() : m_ehandle(0) {}
         virtual ~IEntity() {}

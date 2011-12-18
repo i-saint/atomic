@@ -4,6 +4,12 @@
 #include "Graphics/ResourceManager.h"
 #include "Entity.h"
 
+#ifdef __atomic_EnableStrictHandleCheck__
+    #define atomicStrictHandleCheck(h) if(!isValidHandle(h)) { IST_ASSERT("invalid entity handle\n"); }
+#else
+    #define atomicStrictHandleCheck(h)
+#endif
+
 namespace atomic {
 
 
@@ -104,12 +110,10 @@ void EntitySet::draw()
 IEntity* EntitySet::getEntity( EntityHandle h )
 {
     if(h==0) { return NULL; }
-    EntityCont &entities = m_entities[EntityGetCategory(h)][EntityGetClass(h)];
-    uint32 index = EntityGetID(h);
-    if(index>=entities.size()) {
-        IST_ASSERT("EntitySet::getEntity() index exceeded\n");
-    }
-    return entities[index];
+    uint32 cid = EntityGetCategory(h);
+    uint32 sid = EntityGetClass(h);
+    uint32 iid = EntityGetID(h);
+    return m_entities[cid][sid][iid];
 }
 
 void EntitySet::deleteEntity( EntityHandle h )

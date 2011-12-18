@@ -1,6 +1,8 @@
 #ifndef __atomic_Game_Character_Enemy__
 #define __atomic_Game_Character_Enemy__
 
+#include "Game/Entity.h"
+#include "Game/EntityQuery.h"
 #include "Attributes.h"
 
 namespace atomic {

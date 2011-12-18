@@ -14,29 +14,43 @@ namespace ist {
         template<class T>
         TVariant(const T& v)
         {
-            BOOST_STATIC_ASSERT(sizeof(T)<=Size);
-            new(m_buf) T(v);
+            operator=<T>(v);
+        }
+
+        template<class T, size_t S>
+        TVariant(const T (&v)[S])
+        {
+            operator=<T, S>(v);
         }
 
         template<class T>
-        T& operator=(const T& v)
+        TVariant& operator=(const T& v)
         {
             BOOST_STATIC_ASSERT(sizeof(T)<=Size);
-            new(m_buf) T(v);
+            cast<T>() = v;
+            return *this;
+        }
+
+        template<class T, size_t S>
+        TVariant& operator=(const T (&v)[S])
+        {
+            BOOST_STATIC_ASSERT(sizeof(v)<=Size);
+            std::copy(v, v+S, reinterpret_cast<T*>(m_buf));
+            return *this;
         }
 
         template<class T>
         T& cast()
         {
             BOOST_STATIC_ASSERT(sizeof(T)<=Size);
-            return *static_cast<T*>(m_buf);
+            return *reinterpret_cast<T*>(m_buf);
         }
 
         template<class T>
         const T& cast() const
         {
             BOOST_STATIC_ASSERT(sizeof(T)<=Size);
-            return *static_cast<const T*>(m_buf);
+            return *reinterpret_cast<const T*>(m_buf);
         }
     };
 

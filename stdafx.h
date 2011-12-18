@@ -79,3 +79,4 @@ namespace stl = eastl;
 #include <crtdbg.h>
 #endif // _DEBUG
 
+#include "features.h"
