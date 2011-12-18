@@ -26,9 +26,9 @@ template<> struct ClassInfo<classname>                      \
     static const char* getClassName() { return #classname; }\
     static size_t getSize() { return sizeof(classname); }   \
     static void* construct() { return new classname(); }    \
-    static void* destruct(void *p) { delete p; }            \
+    static void destruct(void *p) { delete p; }             \
     static void* constructPlacement(void *p) { return new(p) classname(); }                     \
-    static void* destructPlacement(void *p)  { call_destructor(static_cast<classname*>(p)); }   \
+    static void destructPlacement(void *p)  { call_destructor(static_cast<classname*>(p)); }    \
 };                                                          \
 int ClassInfo<classname>::s_classid=g_classidgen++;         \
 }

@@ -106,7 +106,7 @@ public:
 
 private:
     void *m_memory;
-    void *m_unused[];
+    void **m_unused;
     size_t m_used;
 
     size_t m_size_element;

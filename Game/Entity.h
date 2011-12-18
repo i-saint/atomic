@@ -11,7 +11,7 @@ template<> struct EntityTraits<class_name>                      \
     CLASS_ID = class_id,                                        \
     };                                                          \
 };                                                              \
-template<> class_name* EntitySet::createEntity<class_name>()    \
+template<> IEntity* EntitySet::createEntity<class_name>()    \
 {                                                               \
     class_name *t = IST_NEW(class_name)();                      \
     typedef EntityTraits<class_name> traits;                    \
@@ -115,7 +115,7 @@ public:
     virtual bool query(uint32 query_id, variant &v) const { return false; }
 };
 
-class EntitySet
+class EntitySet : boost::noncopyable
 {
 public:
     typedef stl::vector<EntityHandle> HandleCont;
@@ -139,7 +139,7 @@ public:
 
     IEntity* getEntity(EntityHandle h);
     void deleteEntity(EntityHandle h);
-    template<class T> T* createEntity();
+    template<class T> IEntity* createEntity();
 };
 
 

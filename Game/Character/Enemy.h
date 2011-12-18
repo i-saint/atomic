@@ -16,8 +16,13 @@ namespace atomic {
     class IRoutine
     {
     public:
-        virtual void update(float32 dt);
-        virtual void updateAsync(float32 dt);
+        virtual ~IRoutine() {}
+        virtual void update(float32 dt)=0;
+        virtual void updateAsync(float32 dt)=0;
+        virtual void draw() {}
+
+        virtual bool call(uint32 call_id, const variant &v) { return false; }
+        virtual bool query(uint32 query_id, variant &v) const { return false; }
     };
 
 

@@ -21,12 +21,13 @@ OggVorbisFileStream::~OggVorbisFileStream()
 
 bool OggVorbisFileStream::openStream(const char* filepath)
 {
+    int e = 0;
     m_file = fopen(filepath, "rb");
     if(!m_file) {
         IST_PRINT("OggVorbisStream::OggVorbisStream(): file not found %s\n", filepath);
         goto LABEL_ERROR;
     }
-    int e = ov_open(m_file, &m_ov, 0,0);
+    e = ov_open(m_file, &m_ov, 0,0);
     if(e!=0) {
         IST_PRINT("OggVorbisStream::OggVorbisStream(): not vorbis file %s\n", filepath);
         goto LABEL_ERROR;

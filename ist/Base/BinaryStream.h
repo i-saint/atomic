@@ -39,24 +39,24 @@ public:
 } // namespace ist
 
 
-inline ist::bostream& operator<<(ist::bostream &s, char &v)                 { s.write(&v, sizeof(v)); }
-inline ist::bostream& operator<<(ist::bostream &s, unsigned char &v)        { s.write(&v, sizeof(v)); }
-inline ist::bostream& operator<<(ist::bostream &s, wchar_t &v)              { s.write(&v, sizeof(v)); }
-inline ist::bostream& operator<<(ist::bostream &s, short &v)                { s.write(&v, sizeof(v)); }
-inline ist::bostream& operator<<(ist::bostream &s, unsigned short &v)       { s.write(&v, sizeof(v)); }
-inline ist::bostream& operator<<(ist::bostream &s, int &v)                  { s.write(&v, sizeof(v)); }
-inline ist::bostream& operator<<(ist::bostream &s, unsigned int &v)         { s.write(&v, sizeof(v)); }
-inline ist::bostream& operator<<(ist::bostream &s, long long &v)            { s.write(&v, sizeof(v)); }
-inline ist::bostream& operator<<(ist::bostream &s, unsigned long long &v)   { s.write(&v, sizeof(v)); }
+inline ist::bostream& operator<<(ist::bostream &s, char &v)                 { s.write(&v, sizeof(v)); return s; }
+inline ist::bostream& operator<<(ist::bostream &s, unsigned char &v)        { s.write(&v, sizeof(v)); return s; }
+inline ist::bostream& operator<<(ist::bostream &s, wchar_t &v)              { s.write(&v, sizeof(v)); return s; }
+inline ist::bostream& operator<<(ist::bostream &s, short &v)                { s.write(&v, sizeof(v)); return s; }
+inline ist::bostream& operator<<(ist::bostream &s, unsigned short &v)       { s.write(&v, sizeof(v)); return s; }
+inline ist::bostream& operator<<(ist::bostream &s, int &v)                  { s.write(&v, sizeof(v)); return s; }
+inline ist::bostream& operator<<(ist::bostream &s, unsigned int &v)         { s.write(&v, sizeof(v)); return s; }
+inline ist::bostream& operator<<(ist::bostream &s, long long &v)            { s.write(&v, sizeof(v)); return s; }
+inline ist::bostream& operator<<(ist::bostream &s, unsigned long long &v)   { s.write(&v, sizeof(v)); return s; }
 
-inline ist::bistream& operator>>(ist::bistream &s, char &v)                 { s.read(&v, sizeof(v)); }
-inline ist::bistream& operator>>(ist::bistream &s, unsigned char &v)        { s.read(&v, sizeof(v)); }
-inline ist::bistream& operator>>(ist::bistream &s, wchar_t &v)              { s.read(&v, sizeof(v)); }
-inline ist::bistream& operator>>(ist::bistream &s, short &v)                { s.read(&v, sizeof(v)); }
-inline ist::bistream& operator>>(ist::bistream &s, unsigned short &v)       { s.read(&v, sizeof(v)); }
-inline ist::bistream& operator>>(ist::bistream &s, int &v)                  { s.read(&v, sizeof(v)); }
-inline ist::bistream& operator>>(ist::bistream &s, unsigned int &v)         { s.read(&v, sizeof(v)); }
-inline ist::bistream& operator>>(ist::bistream &s, long long &v)            { s.read(&v, sizeof(v)); }
-inline ist::bistream& operator>>(ist::bistream &s, unsigned long long &v)   { s.read(&v, sizeof(v)); }
+inline ist::bistream& operator>>(ist::bistream &s, char &v)                 { s.read(&v, sizeof(v)); return s; }
+inline ist::bistream& operator>>(ist::bistream &s, unsigned char &v)        { s.read(&v, sizeof(v)); return s; }
+inline ist::bistream& operator>>(ist::bistream &s, wchar_t &v)              { s.read(&v, sizeof(v)); return s; }
+inline ist::bistream& operator>>(ist::bistream &s, short &v)                { s.read(&v, sizeof(v)); return s; }
+inline ist::bistream& operator>>(ist::bistream &s, unsigned short &v)       { s.read(&v, sizeof(v)); return s; }
+inline ist::bistream& operator>>(ist::bistream &s, int &v)                  { s.read(&v, sizeof(v)); return s; }
+inline ist::bistream& operator>>(ist::bistream &s, unsigned int &v)         { s.read(&v, sizeof(v)); return s; }
+inline ist::bistream& operator>>(ist::bistream &s, long long &v)            { s.read(&v, sizeof(v)); return s; }
+inline ist::bistream& operator>>(ist::bistream &s, unsigned long long &v)   { s.read(&v, sizeof(v)); return s; }
 
 #endif // __ist_BinaryStream__

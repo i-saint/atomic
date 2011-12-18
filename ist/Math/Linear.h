@@ -55,7 +55,7 @@ struct __declspec(align(16)) Capsule
 
     vec4 getBeginPos() const { return begin_pos.v; }
     vec4 getEndPos() const { return end_pos.v; }
-    float getRadius() {}
+    float getRadius() { return begin_pos.getRadius(); }
 };
 
 
@@ -93,7 +93,7 @@ struct __declspec(align(16)) OBB
     AABB aabb;
     mat4 mat;
 
-    static OBB create() {}
+    static OBB create() { OBB ret={AABB::create(), mat4()}; return ret; }
     static OBB create(const Point &ur, const Point &bl, const mat4 &mat) { OBB ret={AABB::create(ur,bl), mat}; return ret; }
     static OBB create(const AABB &aabb, const mat4 &mat) { OBB ret={aabb, mat}; return ret; }
 };

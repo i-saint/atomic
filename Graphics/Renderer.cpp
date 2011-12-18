@@ -80,11 +80,6 @@ void AtomicRenderer::draw()
 
     glLoadIdentity();
     {
-        PerformanceCounter counter;
-        SPHCopyInstances();
-        //IST_PRINT("SPHCopyInstances() took %f ms.\n", counter.getElapsedMillisecond());
-    }
-    {
         PerspectiveCamera *camera = atomicGetCamera();
         UniformBufferObject *ubo_renderstates = atomicGetUniformBufferObject(UBO_RENDER_STATES);
         camera->updateMatrix();
@@ -224,6 +219,8 @@ void PassGBuffer_Fluid::beforeDraw()
 
 void PassGBuffer_Fluid::draw()
 {
+    SPHCopyInstances();
+
     //const uint32 num_fractions = m_fraction.pos.size();
     //m_vbo_instance_pos->allocate(sizeof(XMVECTOR)*num_fractions, VertexBufferObject::USAGE_STREAM, &m_fraction.pos[0]);
 
@@ -258,6 +255,8 @@ void PassGBuffer_ParticleSet::beforeDraw()
 
 void PassGBuffer_ParticleSet::draw()
 {
+    //SPHCopyCharacterParticles();
+
     for(uint32 i=0; i<_countof(m_matrices); ++i) {
 
     }

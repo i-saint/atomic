@@ -90,11 +90,11 @@ void World::update(float32 dt)
     ++m_frame;
 
     if(m_frame==1) {
-        IEntity *e =  (IEntity*)m_entity_set->createEntity<Enemy_Cube>();
+        IEntity *e =  m_entity_set->createEntity<Enemy_Cube>();
         e->call(ECALL_setPosition, vec4(0.5f, 0.0f, 0.0f, 1.0f));
     }
     else if(m_frame==300) {
-        IEntity *e =  (IEntity*)m_entity_set->createEntity<Enemy_Sphere>();
+        IEntity *e =  m_entity_set->createEntity<Enemy_Sphere>();
         e->call(ECALL_setPosition, vec4(-0.5f, 0.0f, 0.0f, 1.0f));
     }
 
