@@ -88,7 +88,8 @@
     <None Include="shader\Common.glslh" />
     <None Include="shader\Deferred_DirectionalLight.glsl" />
     <None Include="shader\Deferred_PointLight.glsl" />
-    <None Include="shader\GBuffer_Cube.glsl" />
+    <None Include="shader\GBuffer_Fluid.glsl" />
+    <None Include="shader\GBuffer_Rigid.glsl" />
     <None Include="shader\Out.glsl" />
     <None Include="shader\RenderStates.glslh" />
     <None Include="shader\Semantics.glslh" />

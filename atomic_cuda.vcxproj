@@ -83,6 +83,7 @@
     <ClInclude Include="Graphics\CudaBuffer.h" />
     <ClInclude Include="Graphics\Light.h" />
     <ClInclude Include="Graphics\Renderer.h" />
+    <ClInclude Include="Graphics\ResourceID.h" />
     <ClInclude Include="Graphics\ResourceManager.h" />
     <ClInclude Include="Graphics\Shader.h" />
     <ClInclude Include="ist\Base.h" />

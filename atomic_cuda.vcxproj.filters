@@ -400,6 +400,9 @@
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="features.h" />
+    <ClInclude Include="Graphics\ResourceID.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="GPGPU\SPH_internal.cuh">

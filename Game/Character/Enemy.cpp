@@ -55,7 +55,7 @@ public:
 
     virtual void draw()
     {
-        atomicGetFractionSet()->addMatrix(CB_CUBE, getHandle(), getTransform());
+        atomicGetFractionSet()->addMatrix(CB_CLASS_CUBE, getHandle(), getTransform());
     }
 
     bool call(uint32 call_id, const variant &v)
@@ -83,7 +83,7 @@ public:
 
     virtual void draw()
     {
-        atomicGetFractionSet()->addMatrix(CB_SPHERE, getHandle(), getTransform());
+        atomicGetFractionSet()->addMatrix(CB_CLASS_SPHERE, getHandle(), getTransform());
     }
 
     bool call(uint32 call_id, const variant &v)

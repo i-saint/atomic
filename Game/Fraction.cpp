@@ -86,7 +86,7 @@ void FractionSet::processMessage()
 
 void FractionSet::draw() const
 {
-    PassGBuffer_Fluid *cube = atomicGetFluidRenderer();
+    PassGBuffer_SPH *cube = atomicGetSPHRenderer();
     PassDeferredShading_PointLights *light = atomicGetPointLights();
 
     //cube->pushFractionInstance(make_float4(0.0f));

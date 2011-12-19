@@ -16,7 +16,7 @@ public:
 };
 
 
-class PassGBuffer_Fluid;
+class PassGBuffer_SPH;
 class PassGBuffer_ParticleSet;
 class PassDeferredShading_DirectionalLights;
 class PassDeferredShading_PointLights;
@@ -33,12 +33,11 @@ private:
     RenderTargetDeferred    *m_rt_deferred;
 
     // internal resources
-    PassGBuffer_Fluid            *m_renderer_fluid;
-    PassGBuffer_ParticleSet         *m_renderer_pset;
-    PassDeferredShading_DirectionalLights  *m_renderer_dir_lights;
-    PassDeferredShading_PointLights        *m_renderer_point_lights;
-    PassPostprocess_Bloom           *m_renderer_bloom;
-    stl::vector<IRenderer*>         m_renderers[PASS_END];
+    PassGBuffer_SPH                         *m_renderer_sph;
+    PassDeferredShading_DirectionalLights   *m_renderer_dir_lights;
+    PassDeferredShading_PointLights         *m_renderer_point_lights;
+    PassPostprocess_Bloom                   *m_renderer_bloom;
+    stl::vector<IRenderer*>                 m_renderers[PASS_END];
 
     Viewport        m_default_viewport;
     RenderStates    m_render_states;
@@ -64,17 +63,15 @@ public:
     void beforeDraw();  // メインスレッドから、描画処理の前に呼ばれる
     void draw();        // 以下描画スレッドから呼ばれる
 
-    PassGBuffer_Fluid* getFluidRenderer()                   { return m_renderer_fluid; }
-    PassGBuffer_ParticleSet* getParticleSetRenderer()       { return m_renderer_pset; }
+    PassGBuffer_SPH* getSPHRenderer()                               { return m_renderer_sph; }
     PassDeferredShading_DirectionalLights* getDirectionalLights()   { return m_renderer_dir_lights; }
     PassDeferredShading_PointLights* getPointLights()               { return m_renderer_point_lights; }
-    const Viewport* getDefaultViewport() const              { return &m_default_viewport; }
-    RenderStates* getRenderStates()                         { return &m_render_states; }
+    const Viewport* getDefaultViewport() const                      { return &m_default_viewport; }
+    RenderStates* getRenderStates()                                 { return &m_render_states; }
 };
 
 #define atomicGetRenderer()             AtomicRenderer::getInstance()
-#define atomicGetFluidRenderer()        atomicGetRenderer()->getFluidRenderer()
-#define atomicGetParticleSetRenderer()  atomicGetRenderer()->getParticleSetRenderer()
+#define atomicGetSPHRenderer()          atomicGetRenderer()->getSPHRenderer()
 #define atomicGetDirectionalLights()    atomicGetRenderer()->getDirectionalLights()
 #define atomicGetPointLights()          atomicGetRenderer()->getPointLights()
 #define atomicGetDefaultViewport()      atomicGetRenderer()->getDefaultViewport()
@@ -84,30 +81,19 @@ public:
 
 
 
-class PassGBuffer_Fluid : public IRenderer
+class PassGBuffer_SPH : public IRenderer
 {
 private:
-    AtomicShader        *m_sh_gbuffer;
     VertexArray         *m_va_cube;
-    VertexBufferObject  *m_vbo_instance;
+    AtomicShader        *m_sh_fluid;
+    AtomicShader        *m_sh_rigid;
+    VertexBufferObject  *m_vbo_fluid;
+    VertexBufferObject  *m_vbo_rigid;
 
 public:
-    PassGBuffer_Fluid();
+    PassGBuffer_SPH();
     void beforeDraw();  // メインスレッドから、描画処理の前に呼ばれる
     void draw();    // 描画スレッドから呼ばれる
-};
-
-class PassGBuffer_ParticleSet : public IRenderer
-{
-private:
-    AtomicShader        *m_sh_gbuffer;
-    VertexArray         *m_va_cube;
-    VertexBufferObject  *m_vbo_instance;
-
-public:
-    PassGBuffer_ParticleSet();
-    void beforeDraw();
-    void draw();
 };
 
 

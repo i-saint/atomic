@@ -122,6 +122,7 @@ extern "C" {
     void SPHInitializeInstanceBuffers(int vbo_fluid, int vbo_rigids, int vbo_lightpos);
     void SPHFinalizeInstanceBuffers();
     void SPHCopyToGL();
+    void SPHCopyCharacterInstancesToDevice(const SPHCharacterInstance *c, size_t num);
     void SPHCopyDamageMessageToHost(SPHDamageMessage *dst);
 
     void SPHUpdateSphericalGravityData(SPHSphericalGravity (&sgravity)[ SPH_MAX_SPHERICAL_GRAVITY_NUM ]);

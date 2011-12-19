@@ -118,7 +118,8 @@ bool GraphicResourceManager::initialize()
     }
     {
         // create shaders
-        m_shader[SH_GBUFFER]            = CreateAtomicShader(g_GBuffer_Cube_glsl);
+        m_shader[SH_GBUFFER_FLUID]      = CreateAtomicShader(g_GBuffer_Fluid_glsl);
+        m_shader[SH_GBUFFER_RIGID]      = CreateAtomicShader(g_GBuffer_Rigid_glsl);
         m_shader[SH_POINTLIGHT]         = CreateAtomicShader(g_Deferred_PointLight_glsl);
         m_shader[SH_DIRECTIONALLIGHT]   = CreateAtomicShader(g_Deferred_DirectionalLight_glsl);
         m_shader[SH_BLOOM_LUMINANCE]    = CreateAtomicShader(g_Bloom_Luminance_glsl);
@@ -151,9 +152,9 @@ bool GraphicResourceManager::initialize()
         m_fbo[RT_GAUSS1] = m_rt_gauss[1];
     }
     {
-        CreateCubeParticleSet(*m_cb[CB_CUBE], 0.4f);
-        CreateSphereParticleSet(*m_cb[CB_SPHERE], 0.4f);
-        m_cb[CB_CHARACTER_MATRICES]->setCapacity(sizeof(mat4)*ATOMIC_MAX_CHARACTERS);
+        CreateCubeParticleSet(*m_cb[CB_CLASS_CUBE], 0.4f);
+        CreateSphereParticleSet(*m_cb[CB_CLASS_SPHERE], 0.4f);
+        m_cb[CB_CHARACTER_INSTANCE]->setCapacity(sizeof(mat4)*ATOMIC_MAX_CHARACTERS);
     }
 
     m_vbo[VBO_FLUID_PARTICLES]->allocate(sizeof(SPHFluidParticle)*SPH_MAX_FLUID_PARTICLES, VertexBufferObject::USAGE_DYNAMIC);

@@ -14,6 +14,7 @@
 
 #include "SPH.cuh"
 #include "SPH_internal.cuh"
+#include "../Graphics/ResourceID.h"
 
 typedef unsigned int uint;
 
@@ -407,7 +408,6 @@ __global__ void GIntegrate(ParticleSet ps)
 
         acceleration += min(distance-inner_radius, 0.0f) * d_params.wall_stiffness * dir;
         acceleration += min(outer_radius-distance, 0.0f) * -d_params.wall_stiffness * dir;
-
         acceleration += gravity;
     }
 
@@ -491,6 +491,10 @@ void SPHCopyToGL()
     h_fluid_gl.unmapBuffer();
     h_rigids_gl.unmapBuffer();
     h_light_gl.unmapBuffer();
+}
+
+void SPHCopyCharacterInstancesToDevice(const SPHCharacterInstance *c, size_t num)
+{
 }
 
 void SPHCopyDamageMessageToHost(SPHDamageMessage *dst)

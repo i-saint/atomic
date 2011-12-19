@@ -22,9 +22,6 @@
     <None Include="shader\Deferred_PointLight.glsl">
       <Filter>shader</Filter>
     </None>
-    <None Include="shader\GBuffer_Cube.glsl">
-      <Filter>shader</Filter>
-    </None>
     <None Include="shader\Out.glsl">
       <Filter>shader</Filter>
     </None>
@@ -44,6 +41,12 @@
       <Filter>shader</Filter>
     </None>
     <None Include="shader\Deferred_DirectionalLight.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\GBuffer_Rigid.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\GBuffer_Fluid.glsl">
       <Filter>shader</Filter>
     </None>
   </ItemGroup>

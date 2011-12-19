@@ -35,14 +35,12 @@ AtomicRenderer::AtomicRenderer()
     m_rt_gbuffer    = atomicGetRenderTargetGBuffer();
     m_rt_deferred   = atomicGetRenderTargetDeferred();
 
-    m_renderer_fluid            = IST_NEW(PassGBuffer_Fluid)();
-    m_renderer_pset             = IST_NEW(PassGBuffer_ParticleSet)();
-    m_renderer_dir_lights       = IST_NEW(PassDeferredShading_DirectionalLights)();
-    m_renderer_point_lights     = IST_NEW(PassDeferredShading_PointLights)();
-    m_renderer_bloom            = IST_NEW(PassPostprocess_Bloom)();
+    m_renderer_sph          = IST_NEW(PassGBuffer_SPH)();
+    m_renderer_dir_lights   = IST_NEW(PassDeferredShading_DirectionalLights)();
+    m_renderer_point_lights = IST_NEW(PassDeferredShading_PointLights)();
+    m_renderer_bloom        = IST_NEW(PassPostprocess_Bloom)();
 
-    m_renderers[PASS_GBUFFER].push_back(m_renderer_fluid);
-    m_renderers[PASS_GBUFFER].push_back(m_renderer_pset);
+    m_renderers[PASS_GBUFFER].push_back(m_renderer_sph);
     m_renderers[PASS_DEFERRED].push_back(m_renderer_dir_lights);
     m_renderers[PASS_DEFERRED].push_back(m_renderer_point_lights);
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_bloom);
@@ -55,8 +53,7 @@ AtomicRenderer::~AtomicRenderer()
     IST_SAFE_DELETE(m_renderer_bloom);
     IST_SAFE_DELETE(m_renderer_point_lights);
     IST_SAFE_DELETE(m_renderer_dir_lights);
-    IST_SAFE_DELETE(m_renderer_pset);
-    IST_SAFE_DELETE(m_renderer_fluid);
+    IST_SAFE_DELETE(m_renderer_sph);
 }
 
 void AtomicRenderer::beforeDraw()
@@ -215,55 +212,56 @@ void AtomicRenderer::passOutput()
 
 
 
-PassGBuffer_Fluid::PassGBuffer_Fluid()
+PassGBuffer_SPH::PassGBuffer_SPH()
 {
-    m_sh_gbuffer    = atomicGetShader(SH_GBUFFER);
-    m_vbo_instance  = atomicGetVertexBufferObject(VBO_FLUID_PARTICLES);
     m_va_cube       = atomicGetVertexArray(VA_FRACTION_CUBE);
+    m_sh_fluid      = atomicGetShader(SH_GBUFFER_FLUID);
+    m_sh_rigid      = atomicGetShader(SH_GBUFFER_FLUID);
+    m_vbo_fluid     = atomicGetVertexBufferObject(VBO_FLUID_PARTICLES);
+    m_vbo_rigid     = atomicGetVertexBufferObject(VBO_RIGID_PARTICLES);
 }
 
-void PassGBuffer_Fluid::beforeDraw()
+void PassGBuffer_SPH::beforeDraw()
 {
 }
 
-void PassGBuffer_Fluid::draw()
+void PassGBuffer_SPH::draw()
 {
     SPHCopyToGL();
 
-    //const uint32 num_fractions = m_fraction.pos.size();
-    //m_vbo_instance_pos->allocate(sizeof(XMVECTOR)*num_fractions, VertexBufferObject::USAGE_STREAM, &m_fraction.pos[0]);
+    // fluid particle
+    {
+        const uint32 num_particles = SPH_MAX_FLUID_PARTICLES;
+        const VertexArray::Descriptor descs[] = {
+            {GLSL_INSTANCE_PARAM,    VertexArray::TYPE_FLOAT,4,  0, false, 1},
+            {GLSL_INSTANCE_POSITION, VertexArray::TYPE_FLOAT,4, 16, false, 1},
+            {GLSL_INSTANCE_VELOCITY, VertexArray::TYPE_FLOAT,4, 32, false, 1},
+        };
 
-    const uint32 num_fractions = SPH_MAX_FLUID_PARTICLES;
+        m_sh_fluid->bind();
+        m_va_cube->bind();
+        m_va_cube->setAttributes(*m_vbo_fluid, sizeof(SPHFluidParticle), descs, _countof(descs));
+        glDrawArraysInstanced(GL_QUADS, 0, 24, num_particles);
+        m_va_cube->unbind();
+        m_sh_fluid->unbind();
+    }
 
-    const VertexArray::Descriptor descs[] = {
-        {GLSL_INSTANCE_PARAM,    VertexArray::TYPE_FLOAT,4,  0, false, 1},
-        {GLSL_INSTANCE_POSITION, VertexArray::TYPE_FLOAT,4, 16, false, 1},
-        {GLSL_INSTANCE_VELOCITY, VertexArray::TYPE_FLOAT,4, 32, false, 1},
-    };
+    //// rigid particle
+    //{
+    //    const uint32 num_particles = SPH_MAX_FLUID_PARTICLES;
+    //    const VertexArray::Descriptor descs[] = {
+    //        {GLSL_INSTANCE_PARAM,    VertexArray::TYPE_FLOAT,4,  0, false, 1},
+    //        {GLSL_INSTANCE_POSITION, VertexArray::TYPE_FLOAT,4, 16, false, 1},
+    //        {GLSL_INSTANCE_NORMAL,   VertexArray::TYPE_FLOAT,4, 32, false, 1},
+    //    };
 
-    m_sh_gbuffer->bind();
-    m_va_cube->bind();
-    m_va_cube->setAttributes(*m_vbo_instance, sizeof(SPHFluidParticle), descs, _countof(descs));
-    glDrawArraysInstanced(GL_QUADS, 0, 24, num_fractions);
-    m_va_cube->unbind();
-    m_sh_gbuffer->unbind();
-}
-
-
-PassGBuffer_ParticleSet::PassGBuffer_ParticleSet()
-{
-    m_sh_gbuffer    = atomicGetShader(SH_GBUFFER);
-    m_vbo_instance  = atomicGetVertexBufferObject(VBO_FLUID_PARTICLES);
-    m_va_cube       = atomicGetVertexArray(VA_FRACTION_CUBE);
-}
-
-void PassGBuffer_ParticleSet::beforeDraw()
-{
-}
-
-void PassGBuffer_ParticleSet::draw()
-{
-    //SPHCopyCharacterParticlesToGL();
+    //    m_sh_rigid->bind();
+    //    m_va_cube->bind();
+    //    m_va_cube->setAttributes(*m_vbo_fluid, sizeof(SPHRigidParticle), descs, _countof(descs));
+    //    glDrawArraysInstanced(GL_QUADS, 0, 24, num_particles);
+    //    m_va_cube->unbind();
+    //    m_sh_rigid->unbind();
+    //}
 }
 
 
