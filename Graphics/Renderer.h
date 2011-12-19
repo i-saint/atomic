@@ -72,11 +72,12 @@ public:
     RenderStates* getRenderStates()                         { return &m_render_states; }
 };
 
-#define atomicGetFluidRenderer()        AtomicRenderer::getInstance()->getFluidRenderer()
-#define atomicGetParticleSetRenderer()  AtomicRenderer::getInstance()->getParticleSetRenderer()
-#define atomicGetDirectionalLights()    AtomicRenderer::getInstance()->getDirectionalLights()
-#define atomicGetPointLights()          AtomicRenderer::getInstance()->getPointLights()
-#define atomicGetDefaultViewport()      AtomicRenderer::getInstance()->getDefaultViewport()
+#define atomicGetRenderer()             AtomicRenderer::getInstance()
+#define atomicGetFluidRenderer()        atomicGetRenderer()->getFluidRenderer()
+#define atomicGetParticleSetRenderer()  atomicGetRenderer()->getParticleSetRenderer()
+#define atomicGetDirectionalLights()    atomicGetRenderer()->getDirectionalLights()
+#define atomicGetPointLights()          atomicGetRenderer()->getPointLights()
+#define atomicGetDefaultViewport()      atomicGetRenderer()->getDefaultViewport()
 
 
 
@@ -103,14 +104,10 @@ private:
     VertexArray         *m_va_cube;
     VertexBufferObject  *m_vbo_instance;
 
-    stl::vector<mat4>   m_matrices[CB_END];
-
 public:
     PassGBuffer_ParticleSet();
     void beforeDraw();
     void draw();
-
-    void addMatrix(CB_RID id, const mat4& v) { m_matrices[id].push_back(v); }
 };
 
 

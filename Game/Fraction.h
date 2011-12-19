@@ -3,6 +3,7 @@
 
 #include "GPGPU/SPH.cuh"
 #include "Task.h"
+#include "Graphics/ResourceManager.h"
 
 namespace atomic {
 
@@ -19,11 +20,12 @@ class FractionSet : boost::noncopyable
 private:
     typedef Task_UpdateAsync<FractionSet> AsyncUpdateTask;
 
-    AsyncUpdateTask                     *m_task_asyncupdate;
-    SPHParticle                         m_particles[SPH_MAX_PARTICLE_NUM];
-    SPHSphericalGravity                 m_sgravity[ SPH_MAX_SPHERICAL_GRAVITY_NUM ];
-    thrust::host_vector<SPHParticle>    m_spawn;
-    uint32          m_idgen;
+    AsyncUpdateTask                         *m_task_asyncupdate;
+    SPHFluidParticle                        m_particles[SPH_MAX_FLUID_PARTICLES];
+    SPHSphericalGravity                     m_sgravity[ SPH_MAX_SPHERICAL_GRAVITY_NUM ];
+    thrust::host_vector<SPHFluidParticle>   m_spawn;
+
+    stl::vector<SPHCharacterInstance>   m_matrices[CB_END];
 
 public:
     FractionSet();
@@ -38,7 +40,15 @@ public:
     void sync() const;
     void updateAsync();
 
-    const SPHParticle* getFraction(uint32 i) const { return &m_particles[i]; }
+    const SPHFluidParticle* getFraction(uint32 i) const { return &m_particles[i]; }
+
+    void addMatrix(CB_RID id, EntityHandle h, const mat4& m)
+    {
+        SPHCharacterInstance tmp;
+        tmp.handle = h;
+        tmp.transform = m;
+        m_matrices[id].push_back( tmp );
+    }
 
 public:
     void updateSPH();

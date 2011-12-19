@@ -1,8 +1,11 @@
 #include "stdafx.h"
 #include "types.h"
-#include "Game/AtomicGame.h"
 #include "Graphics/ResourceManager.h"
 #include "Graphics/Renderer.h"
+#include "Game/AtomicApplication.h"
+#include "Game/AtomicGame.h"
+#include "Game/World.h"
+#include "Game/Fraction.h"
 #include "Enemy.h"
 
 namespace atomic {
@@ -52,7 +55,7 @@ public:
 
     virtual void draw()
     {
-        atomicGetParticleSetRenderer()->addMatrix(CB_CUBE, getTransform());
+        atomicGetFractionSet()->addMatrix(CB_CUBE, getHandle(), getTransform());
     }
 
     bool call(uint32 call_id, const variant &v)
@@ -80,7 +83,7 @@ public:
 
     virtual void draw()
     {
-        atomicGetParticleSetRenderer()->addMatrix(CB_SPHERE, getTransform());
+        atomicGetFractionSet()->addMatrix(CB_SPHERE, getHandle(), getTransform());
     }
 
     bool call(uint32 call_id, const variant &v)

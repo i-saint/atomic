@@ -98,10 +98,10 @@ void World::update(float32 dt)
         e->call(ECALL_setPosition, vec4(-0.5f, 0.0f, 0.0f, 1.0f));
     }
 
-    m_task_updateasync->kick();
     m_entity_set->update(dt);
     m_fraction_set->update();
-    // todo: add module
+
+    m_task_updateasync->kick();
     sync();
 }
 

@@ -12,12 +12,8 @@
 
 #define _SCL_SECURE_NO_WARNINGS
 
-#define GLM_FORCE_INLINE    // glm ‚ÌƒCƒ“ƒ‰ƒCƒ“‰»‚Æ SSE ‰»
-#define GLM_FORCE_SSE2      //
-#define GLM_GTX_simd_vec4   //
-#define GLM_GTX_simd_mat4   //
-
-#define GLEW_STATIC // glew ‚Í static link ‚·‚é
+#include <windows.h>
+#undef ERROR
 
 #include <stdio.h>
 #include <GL/glew.h>
@@ -37,7 +33,6 @@
 
 #include <thrust/host_vector.h>
 
-#include <windows.h>
 #include <mmsystem.h>
 #include <stdlib.h>
 #include <xmmintrin.h>

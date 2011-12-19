@@ -1,3 +1,5 @@
+#define GLM_FORCE_CUDA
+
 #include <GL/glew.h>
 #include <cuda.h>
 #include <cudaGL.h>
@@ -42,8 +44,8 @@ struct GridParam
 struct ParticleSet
 {
     GridParam           *params;
-    SPHParticle         *particles;
-    SPHParticleForce    *forces;
+    SPHFluidParticle         *particles;
+    SPHFluidParticleForce    *forces;
     uint                *hashes;
     uint2               *grid;
     SPHGPUStates        *states;
@@ -145,9 +147,9 @@ __global__ void GClearParticles(ParticleSet ps)
 void SPHInitialize()
 {
     CUDA_SAFE_CALL( cudaMalloc(&h_particles.params,     sizeof(GridParam)) );
-    CUDA_SAFE_CALL( cudaMalloc(&h_particles.particles,  sizeof(SPHParticle)*SPH_MAX_PARTICLE_NUM) );
-    CUDA_SAFE_CALL( cudaMalloc(&h_particles.forces,     sizeof(SPHParticleForce)*SPH_MAX_PARTICLE_NUM) );
-    CUDA_SAFE_CALL( cudaMalloc(&h_particles.hashes,     sizeof(uint)*SPH_MAX_PARTICLE_NUM) );
+    CUDA_SAFE_CALL( cudaMalloc(&h_particles.particles,  sizeof(SPHFluidParticle)*SPH_MAX_FLUID_PARTICLES) );
+    CUDA_SAFE_CALL( cudaMalloc(&h_particles.forces,     sizeof(SPHFluidParticleForce)*SPH_MAX_FLUID_PARTICLES) );
+    CUDA_SAFE_CALL( cudaMalloc(&h_particles.hashes,     sizeof(uint)*SPH_MAX_FLUID_PARTICLES) );
     CUDA_SAFE_CALL( cudaMalloc(&h_particles.grid,       sizeof(uint2)*SPH_GRID_DIV_3) );
     CUDA_SAFE_CALL( cudaMalloc(&h_particles.states,     sizeof(SPHGPUStates)) );
 
@@ -182,7 +184,7 @@ void SPHInitialize()
     }
 
     dim3 dimBlock( SPH_THREAD_BLOCK_X );
-    dim3 dimGrid( SPH_MAX_PARTICLE_NUM / SPH_THREAD_BLOCK_X );
+    dim3 dimGrid( SPH_MAX_FLUID_PARTICLES / SPH_THREAD_BLOCK_X );
     GClearParticles<<<dimGrid, dimBlock>>>(h_particles);
 }
 
@@ -216,8 +218,8 @@ __global__ void GZeroClearGrid(ParticleSet ps)
 __global__ void GUpdateGrid(ParticleSet ps)
 {
     const unsigned int G_ID = GetThreadId();
-    unsigned int G_ID_PREV = (G_ID == 0)? SPH_MAX_PARTICLE_NUM : G_ID; G_ID_PREV--;
-    unsigned int G_ID_NEXT = G_ID + 1; if (G_ID_NEXT == SPH_MAX_PARTICLE_NUM) { G_ID_NEXT = 0; }
+    unsigned int G_ID_PREV = (G_ID == 0)? SPH_MAX_FLUID_PARTICLES : G_ID; G_ID_PREV--;
+    unsigned int G_ID_NEXT = G_ID + 1; if (G_ID_NEXT == SPH_MAX_FLUID_PARTICLES) { G_ID_NEXT = 0; }
     
     unsigned int cell = ps.hashes[G_ID];
     unsigned int cell_prev = ps.hashes[G_ID_PREV];
@@ -238,18 +240,18 @@ __global__ void GUpdateGrid(ParticleSet ps)
 void SPHUpdateGrid()
 {
     dim3 dimBlock( SPH_THREAD_BLOCK_X );
-    dim3 dimGrid_par_particle( SPH_MAX_PARTICLE_NUM / SPH_THREAD_BLOCK_X );
+    dim3 dimGrid_par_particle( SPH_MAX_FLUID_PARTICLES / SPH_THREAD_BLOCK_X );
     dim3 dimGrid_par_grid( SPH_GRID_DIV_3 / SPH_THREAD_BLOCK_X );
 
     GUpdateHash<<<dimGrid_par_particle, dimBlock>>>(h_particles);
 
     // thrust::sort_by_key 用にデバイス側のポインタを取得
-    // *直接 thrust::sort_by_key(d_hashes, d_hashes+SPH_MAX_PARTICLE_NUM, d_particles) とかやると、
+    // *直接 thrust::sort_by_key(d_hashes, d_hashes+SPH_MAX_FLUID_PARTICLES, d_particles) とかやると、
     //  コンパイルエラーにはならないけど意図した結果にならない (host 側用の関数が呼ばれる)
     thrust::device_ptr<uint> dphashes(h_particles.hashes);
-    thrust::device_ptr<SPHParticle> dpparticles(h_particles.particles);
+    thrust::device_ptr<SPHFluidParticle> dpparticles(h_particles.particles);
 
-    thrust::sort_by_key(dphashes, dphashes+SPH_MAX_PARTICLE_NUM, dpparticles);
+    thrust::sort_by_key(dphashes, dphashes+SPH_MAX_FLUID_PARTICLES, dpparticles);
     GZeroClearGrid<<<dimGrid_par_grid, dimBlock>>>(h_particles);
     GUpdateGrid<<<dimGrid_par_particle, dimBlock>>>(h_particles);
 }
@@ -294,7 +296,7 @@ __global__ void GComputeDensity(ParticleSet ps)
 void SPHComputeDensity()
 {
     dim3 dimBlock( SPH_THREAD_BLOCK_X );
-    dim3 dimGrid( SPH_MAX_PARTICLE_NUM / SPH_THREAD_BLOCK_X );
+    dim3 dimGrid( SPH_MAX_FLUID_PARTICLES / SPH_THREAD_BLOCK_X );
 
     GComputeDensity<<<dimGrid, dimBlock>>>(h_particles);
 }
@@ -355,7 +357,7 @@ __global__ void GComputeForce(ParticleSet ps)
 void SPHComputeForce()
 {
     dim3 dimBlock( SPH_THREAD_BLOCK_X );
-    dim3 dimGrid( SPH_MAX_PARTICLE_NUM / SPH_THREAD_BLOCK_X );
+    dim3 dimGrid( SPH_MAX_FLUID_PARTICLES / SPH_THREAD_BLOCK_X );
 
     GComputeForce<<<dimGrid, dimBlock>>>(h_particles);
 }
@@ -429,7 +431,7 @@ __global__ void GIntegrate(ParticleSet ps)
 void SPHIntegrate()
 {
     dim3 dimBlock( SPH_THREAD_BLOCK_X );
-    dim3 dimGrid( SPH_MAX_PARTICLE_NUM / SPH_THREAD_BLOCK_X );
+    dim3 dimGrid( SPH_MAX_FLUID_PARTICLES / SPH_THREAD_BLOCK_X );
 
     GIntegrate<<<dimGrid, dimBlock>>>(h_particles);
 }
@@ -443,13 +445,13 @@ void SPHUpdate()
 }
 
 
-__global__ void GCopyInstances(SPHParticle *d_fractions, float4 *d_lights, ParticleSet ps)
+__global__ void GCopyInstances(SPHFluidParticle *d_fractions, float4 *d_lights, ParticleSet ps)
 {
     const unsigned int P_ID = GetThreadId();
     int pid = ps.particles[P_ID].id;
     d_fractions[P_ID] = ps.particles[P_ID];
 
-    int light_cycle = SPH_MAX_PARTICLE_NUM/SPH_MAX_LIGHT_NUM;
+    int light_cycle = SPH_MAX_FLUID_PARTICLES/SPH_MAX_LIGHT_NUM;
     if(pid % light_cycle==0) {
         d_lights[pid/light_cycle] = ps.particles[P_ID].position;
     }
@@ -458,32 +460,41 @@ __global__ void GCopyInstances(SPHParticle *d_fractions, float4 *d_lights, Parti
 
 
 
-DeviceBufferObject h_instance_pos;
-DeviceBufferObject h_light_pos;
+DeviceBufferObject h_fluid_gl;
+DeviceBufferObject h_rigids_gl;
+DeviceBufferObject h_light_gl;
 
-void SPHInitializeInstanceBuffers(int vbo_fraction, int vbo_lightpos)
+void SPHInitializeInstanceBuffers(int vbo_fluid, int vbo_rigids, int vbo_lightpos)
 {
-    h_instance_pos.registerBuffer(vbo_fraction, cudaGraphicsMapFlagsWriteDiscard);
-    h_light_pos.registerBuffer(vbo_lightpos, cudaGraphicsMapFlagsWriteDiscard);
+    h_fluid_gl.registerBuffer(vbo_fluid, cudaGraphicsMapFlagsWriteDiscard);
+    h_rigids_gl.registerBuffer(vbo_rigids, cudaGraphicsMapFlagsWriteDiscard);
+    h_light_gl.registerBuffer(vbo_lightpos, cudaGraphicsMapFlagsWriteDiscard);
 }
 
 void SPHFinalizeInstanceBuffers()
 {
-    h_instance_pos.unregisterBuffer();
-    h_light_pos.unregisterBuffer();
+    h_light_gl.unregisterBuffer();
+    h_rigids_gl.unregisterBuffer();
+    h_fluid_gl.unregisterBuffer();
 }
 
-void SPHCopyInstances()
+void SPHCopyToGL()
 {
-    SPHParticle *d_fractions = (SPHParticle*)h_instance_pos.mapBuffer();
-    float4 *d_lights = (float4*)h_light_pos.mapBuffer();
+    SPHFluidParticle *d_fluid = (SPHFluidParticle*)h_fluid_gl.mapBuffer();
+    SPHRigidParticle *d_rigid = (SPHRigidParticle*)h_rigids_gl.mapBuffer();
+    float4 *d_lights = (float4*)h_light_gl.mapBuffer();
 
     dim3 dimBlock( SPH_THREAD_BLOCK_X );
-    dim3 dimGrid( SPH_MAX_PARTICLE_NUM / SPH_THREAD_BLOCK_X );
-    GCopyInstances<<<dimGrid, dimBlock>>>(d_fractions, d_lights, h_particles);
+    dim3 dimGrid( SPH_MAX_FLUID_PARTICLES / SPH_THREAD_BLOCK_X );
+    GCopyInstances<<<dimGrid, dimBlock>>>(d_fluid, d_lights, h_particles);
 
-    h_instance_pos.unmapBuffer();
-    h_light_pos.unmapBuffer();
+    h_fluid_gl.unmapBuffer();
+    h_rigids_gl.unmapBuffer();
+    h_light_gl.unmapBuffer();
+}
+
+void SPHCopyDamageMessageToHost(SPHDamageMessage *dst)
+{
 }
 
 

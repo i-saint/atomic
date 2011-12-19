@@ -194,9 +194,9 @@ void AtomicRenderer::passPostprocess()
 
 void AtomicRenderer::passHUD()
 {
-    uint32 num_renderers = m_renderers[PASS_UI].size();
+    uint32 num_renderers = m_renderers[PASS_HUD].size();
     for(uint32 i=0; i<num_renderers; ++i) {
-        m_renderers[PASS_UI][i]->draw();
+        m_renderers[PASS_HUD][i]->draw();
     }
 }
 
@@ -218,7 +218,7 @@ void AtomicRenderer::passOutput()
 PassGBuffer_Fluid::PassGBuffer_Fluid()
 {
     m_sh_gbuffer    = atomicGetShader(SH_GBUFFER);
-    m_vbo_instance  = atomicGetVertexBufferObject(VBO_FRACTION_INSTANCE);
+    m_vbo_instance  = atomicGetVertexBufferObject(VBO_FLUID_PARTICLES);
     m_va_cube       = atomicGetVertexArray(VA_FRACTION_CUBE);
 }
 
@@ -228,12 +228,12 @@ void PassGBuffer_Fluid::beforeDraw()
 
 void PassGBuffer_Fluid::draw()
 {
-    SPHCopyInstances();
+    SPHCopyToGL();
 
     //const uint32 num_fractions = m_fraction.pos.size();
     //m_vbo_instance_pos->allocate(sizeof(XMVECTOR)*num_fractions, VertexBufferObject::USAGE_STREAM, &m_fraction.pos[0]);
 
-    const uint32 num_fractions = SPH_MAX_PARTICLE_NUM;
+    const uint32 num_fractions = SPH_MAX_FLUID_PARTICLES;
 
     const VertexArray::Descriptor descs[] = {
         {GLSL_INSTANCE_PARAM,    VertexArray::TYPE_FLOAT,4,  0, false, 1},
@@ -243,7 +243,7 @@ void PassGBuffer_Fluid::draw()
 
     m_sh_gbuffer->bind();
     m_va_cube->bind();
-    m_va_cube->setAttributes(*m_vbo_instance, sizeof(SPHParticle), descs, _countof(descs));
+    m_va_cube->setAttributes(*m_vbo_instance, sizeof(SPHFluidParticle), descs, _countof(descs));
     glDrawArraysInstanced(GL_QUADS, 0, 24, num_fractions);
     m_va_cube->unbind();
     m_sh_gbuffer->unbind();
@@ -253,22 +253,17 @@ void PassGBuffer_Fluid::draw()
 PassGBuffer_ParticleSet::PassGBuffer_ParticleSet()
 {
     m_sh_gbuffer    = atomicGetShader(SH_GBUFFER);
-    m_vbo_instance  = atomicGetVertexBufferObject(VBO_FRACTION_INSTANCE);
+    m_vbo_instance  = atomicGetVertexBufferObject(VBO_FLUID_PARTICLES);
     m_va_cube       = atomicGetVertexArray(VA_FRACTION_CUBE);
 }
 
 void PassGBuffer_ParticleSet::beforeDraw()
 {
-    for(uint32 i=0; i<_countof(m_matrices); ++i) { m_matrices[i].clear(); }
 }
 
 void PassGBuffer_ParticleSet::draw()
 {
-    //SPHCopyCharacterParticles();
-
-    for(uint32 i=0; i<_countof(m_matrices); ++i) {
-
-    }
+    //SPHCopyCharacterParticlesToGL();
 }
 
 
@@ -278,7 +273,7 @@ PassDeferredShading_DirectionalLights::PassDeferredShading_DirectionalLights()
 {
     m_shader        = atomicGetShader(SH_DIRECTIONALLIGHT);
     m_va_quad       = atomicGetVertexArray(VA_SCREEN_QUAD);
-    m_vbo_instance  = atomicGetVertexBufferObject(VBO_DIRECTIONALLIGHT_INSTANCE);
+    m_vbo_instance  = atomicGetVertexBufferObject(VBO_DIRECTIONALLIGHT_INSTANCES);
     m_instances.reserve(ATOMIC_MAX_DIRECTIONAL_LIGHTS);
 }
 
@@ -323,7 +318,7 @@ PassDeferredShading_PointLights::PassDeferredShading_PointLights()
     m_shader        = atomicGetShader(SH_POINTLIGHT);
     m_ibo_sphere    = atomicGetIndexBufferObject(IBO_SPHERE);
     m_va_sphere     = atomicGetVertexArray(VA_UNIT_SPHERE);
-    m_vbo_instance  = atomicGetVertexBufferObject(VBO_POINTLIGHT_INSTANCE);
+    m_vbo_instance  = atomicGetVertexBufferObject(VBO_POINTLIGHT_INSTANCES);
     m_instances.reserve(1024);
 }
 

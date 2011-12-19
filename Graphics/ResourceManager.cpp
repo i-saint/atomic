@@ -156,11 +156,15 @@ bool GraphicResourceManager::initialize()
         m_cb[CB_CHARACTER_MATRICES]->setCapacity(sizeof(mat4)*ATOMIC_MAX_CHARACTERS);
     }
 
-    m_vbo[VBO_FRACTION_INSTANCE]->allocate(sizeof(SPHParticle)*SPH_MAX_PARTICLE_NUM, VertexBufferObject::USAGE_DYNAMIC);
-    m_vbo[VBO_DIRECTIONALLIGHT_INSTANCE]->allocate(sizeof(DirectionalLight)*ATOMIC_MAX_DIRECTIONAL_LIGHTS, VertexBufferObject::USAGE_DYNAMIC);
-    m_vbo[VBO_POINTLIGHT_INSTANCE]->allocate(sizeof(PointLight)*ATOMIC_MAX_POINT_LIGHTS, VertexBufferObject::USAGE_DYNAMIC);
+    m_vbo[VBO_FLUID_PARTICLES]->allocate(sizeof(SPHFluidParticle)*SPH_MAX_FLUID_PARTICLES, VertexBufferObject::USAGE_DYNAMIC);
+    m_vbo[VBO_RIGID_PARTICLES]->allocate(sizeof(SPHRigidParticle)*SPH_MAX_RIGID_PARTICLES, VertexBufferObject::USAGE_DYNAMIC);
+    m_vbo[VBO_DIRECTIONALLIGHT_INSTANCES]->allocate(sizeof(DirectionalLight)*ATOMIC_MAX_DIRECTIONAL_LIGHTS, VertexBufferObject::USAGE_DYNAMIC);
+    m_vbo[VBO_POINTLIGHT_INSTANCES]->allocate(sizeof(PointLight)*ATOMIC_MAX_POINT_LIGHTS, VertexBufferObject::USAGE_DYNAMIC);
     SPHInitialize();
-    SPHInitializeInstanceBuffers(m_vbo[VBO_FRACTION_INSTANCE]->getHandle(), m_vbo[VBO_POINTLIGHT_INSTANCE]->getHandle());
+    SPHInitializeInstanceBuffers(
+        m_vbo[VBO_FLUID_PARTICLES]->getHandle(),
+        m_vbo[VBO_RIGID_PARTICLES]->getHandle(),
+        m_vbo[VBO_POINTLIGHT_INSTANCES]->getHandle());
 
     return true;
 }

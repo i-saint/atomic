@@ -1,7 +1,15 @@
 #ifndef __atomic_SPH_cuh__
 #define __atomic_SPH_cuh__
 
+#include <cmath>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 extern "C" {
+
+    typedef unsigned int uint;
+    typedef uint EntityHandle;
+
 
     const int SPH_GRID_DIV_SHIFT_X = 9; // 
     const int SPH_GRID_DIV_SHIFT_Y = 9; // 
@@ -10,25 +18,23 @@ extern "C" {
     const int SPH_GRID_DIV_Y = 1<<SPH_GRID_DIV_SHIFT_Y;
     const int SPH_GRID_DIV_Z = 1<<SPH_GRID_DIV_SHIFT_Z;
     const int SPH_GRID_DIV_3 = SPH_GRID_DIV_X*SPH_GRID_DIV_Y*SPH_GRID_DIV_Z;
-    //const int SPH_MAX_PARTICLE_NUM = 65536*2;
-    const int SPH_MAX_PARTICLE_NUM = 65536;
+    //const int SPH_MAX_FLUID_PARTICLES = 65536*2;
+    const int SPH_MAX_FLUID_PARTICLES = 65536;
+    const int SPH_MAX_RIGID_PARTICLES = 65536;
     const int SPH_MAX_LIGHT_NUM = 16;
     const int SPH_MAX_SPHERICAL_GRAVITY_NUM = 1;
     const int SPH_THREAD_BLOCK_X = 256;
 
 
-    struct SPHGPUStates
-    {
-        int num_particles;
-    };
 
-    struct SPHParticle
+    struct SPHFluidParticle
     {
         union {
             struct {
                 int id;
                 int lifetime;
                 float density;
+                EntityHandle owner;
             };
             float4 padding;
         };
@@ -36,7 +42,7 @@ extern "C" {
         float4 velocity;
     };
 
-    struct SPHParticleForce
+    struct SPHFluidParticleForce
     {
         float4 acceleration;
         union {
@@ -74,7 +80,7 @@ extern "C" {
     };
 
 
-    struct SPHCharacterClassInfo
+    struct SPHCharacterClass
     {
         union {
             struct {
@@ -86,18 +92,42 @@ extern "C" {
         };
     };
 
+    struct SPHCharacterInstance
+    {
+        union {
+            struct {
+                EntityHandle handle;
+            };
+            float4 padding;
+        };
+        glm::mat4 transform;
+    };
+    
+    struct SPHGPUStates
+    {
+        int num_particles;
+    };
+
+    struct SPHDamageMessage
+    {
+        EntityHandle to;
+        float damage;
+    };
+
+
     void SPHInitialize();
     void SPHFinalize();
     void SPHUpdate();
 
-    void SPHInitializeInstanceBuffers(int vbo_fraction, int vbo_lightpos);
+    void SPHInitializeInstanceBuffers(int vbo_fluid, int vbo_rigids, int vbo_lightpos);
     void SPHFinalizeInstanceBuffers();
-    void SPHCopyInstances();
+    void SPHCopyToGL();
+    void SPHCopyDamageMessageToHost(SPHDamageMessage *dst);
 
     void SPHUpdateSphericalGravityData(SPHSphericalGravity (&sgravity)[ SPH_MAX_SPHERICAL_GRAVITY_NUM ]);
 
-    void SPHSpawnParticles(const SPHParticle* spawn, int num_pawn);
-    void SPHSpawnSolidParticles(const SPHParticle* spawn, int num_pawn);
+    void SPHSpawnParticles(const SPHFluidParticle* spawn, int num_pawn);
+    void SPHSpawnSolidParticles(const SPHFluidParticle* spawn, int num_pawn);
 
 } // extern "C"
 

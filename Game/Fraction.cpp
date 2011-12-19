@@ -14,7 +14,6 @@ namespace atomic {
 
 
 FractionSet::FractionSet()
-: m_idgen(0)
 {
     m_task_asyncupdate = IST_NEW(AsyncUpdateTask)(this);
 }
@@ -46,6 +45,8 @@ void FractionSet::initialize()
 void FractionSet::update()
 {
     m_task_asyncupdate->kick();
+
+    for(uint32 i=0; i<_countof(m_matrices); ++i) { m_matrices[i].clear(); }
 
     //updateAsync();
 }
@@ -96,7 +97,7 @@ void FractionSet::draw() const
         //cube->pushFractionInstance(m_particles[i].position);
     }
     for(uint32 i=0; i<num_data; ++i) {
-        if(m_particles[i].id % (SPH_MAX_PARTICLE_NUM>>6)==0) {
+        if(m_particles[i].id % (SPH_MAX_FLUID_PARTICLES>>6)==0) {
             //light->pushInstance(m_particles[i].position);
         }
     }
