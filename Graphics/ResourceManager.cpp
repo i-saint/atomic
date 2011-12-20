@@ -152,8 +152,11 @@ bool GraphicResourceManager::initialize()
         m_fbo[RT_GAUSS1] = m_rt_gauss[1];
     }
     {
-        CreateCubeParticleSet(*m_cb[CB_CLASS_CUBE], 0.4f);
-        CreateSphereParticleSet(*m_cb[CB_CLASS_SPHERE], 0.4f);
+        SPHCharacterClass sphcc[CB_END];
+        CreateCubeParticleSet(*m_cb[CB_CLASS_CUBE], sphcc[CB_CLASS_CUBE], 0.4f);
+        CreateSphereParticleSet(*m_cb[CB_CLASS_SPHERE], sphcc[CB_CLASS_SPHERE], 0.4f);
+        cudaMemcpyToSymbol("d_cclass", sphcc, sizeof(sphcc));
+
         m_cb[CB_CHARACTER_INSTANCE]->setCapacity(sizeof(mat4)*ATOMIC_MAX_CHARACTERS);
     }
 

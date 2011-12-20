@@ -65,12 +65,15 @@ void FractionSet::updateAsync()
 
 void FractionSet::updateSPH()
 {
-    SPHUpdate();
+    // todo: copy character data to device
+
 
     vec2 move = atomicGetInputs()->getMove()*0.01f;
     m_sgravity[0].position.x += move.x;
     m_sgravity[0].position.y += move.y;
     SPHUpdateSphericalGravityData(m_sgravity);
+
+    SPHUpdate();
 
     //PerformanceCounter counter;
     //CUDA_SAFE_CALL( cudaMemcpyFromSymbol(m_particles, "d_particles", sizeof(m_particles), 0, cudaMemcpyDeviceToHost ) );
@@ -82,25 +85,8 @@ void FractionSet::processMessage()
 {
 }
 
-
-
 void FractionSet::draw() const
 {
-    PassGBuffer_SPH *cube = atomicGetSPHRenderer();
-    PassDeferredShading_PointLights *light = atomicGetPointLights();
-
-    //cube->pushFractionInstance(make_float4(0.0f));
-    //light->pushInstance(make_float4(0.2f, 0.2f, 0.2f, 0.2f));
-
-    size_t num_data = _countof(m_particles);
-    for(uint32 i=0; i<num_data; ++i) {
-        //cube->pushFractionInstance(m_particles[i].position);
-    }
-    for(uint32 i=0; i<num_data; ++i) {
-        if(m_particles[i].id % (SPH_MAX_FLUID_PARTICLES>>6)==0) {
-            //light->pushInstance(m_particles[i].position);
-        }
-    }
 }
 
 

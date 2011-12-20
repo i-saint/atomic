@@ -16,41 +16,22 @@
 #include "SPH_internal.cuh"
 #include "../Graphics/ResourceID.h"
 
-typedef unsigned int uint;
 
 
-struct SPHParam
-{
-    float smooth_len;
-    float pressure_stiffness;
-    float rest_density;
-    float particle_mass;
-    float viscosity;
-    float density_coef;
-    float grad_pressure_coef;
-    float lap_viscosity_coef;
-    float wall_stiffness;
-};
 __constant__ SPHParam d_params;
+__device__ SPHCharacterClass d_cclass[atomic::CB_END];
+__device__ SPHSphericalGravity d_sgravity[ SPH_MAX_SPHERICAL_GRAVITY_NUM ];
 
 
 
-struct GridParam
+struct SPHParticleSet
 {
-    float4 grid_dim;
-    float4 grid_dim_rcp;
-    float4 grid_pos;
-};
-
-struct ParticleSet
-{
-    GridParam           *params;
-    SPHFluidParticle         *particles;
-    SPHFluidParticleForce    *forces;
-    uint                *hashes;
-    uint2               *grid;
-    SPHGPUStates        *states;
-
+    SPHGridParam            *params;
+    SPHFluidParticle        *particles;
+    SPHFluidParticleForce   *forces;
+    SPHHash                 *hashes;
+    SPHGridData             *grid;
+    SPHGPUStates            *states;
 
     __device__ int3 GridCalculateCell(float4 pos)
     {
@@ -109,15 +90,12 @@ struct ParticleSet
     }
 };
 
-
-struct ForceSet
+struct SPHForceSet
 {
     SPHSphericalGravity *sgravities;
 };
 
-__device__ SPHSphericalGravity d_sgravity[ SPH_MAX_SPHERICAL_GRAVITY_NUM ];
-
-ParticleSet h_particles;
+SPHParticleSet h_fluid;
 
 
 
@@ -127,7 +105,7 @@ __device__ int GetThreadId()
 }
 
 
-__global__ void GClearParticles(ParticleSet ps)
+__global__ void GClearParticles(SPHParticleSet ps)
 {
     const float spacing = 0.009f;
     int i = GetThreadId();
@@ -147,12 +125,12 @@ __global__ void GClearParticles(ParticleSet ps)
 
 void SPHInitialize()
 {
-    CUDA_SAFE_CALL( cudaMalloc(&h_particles.params,     sizeof(GridParam)) );
-    CUDA_SAFE_CALL( cudaMalloc(&h_particles.particles,  sizeof(SPHFluidParticle)*SPH_MAX_FLUID_PARTICLES) );
-    CUDA_SAFE_CALL( cudaMalloc(&h_particles.forces,     sizeof(SPHFluidParticleForce)*SPH_MAX_FLUID_PARTICLES) );
-    CUDA_SAFE_CALL( cudaMalloc(&h_particles.hashes,     sizeof(uint)*SPH_MAX_FLUID_PARTICLES) );
-    CUDA_SAFE_CALL( cudaMalloc(&h_particles.grid,       sizeof(uint2)*SPH_GRID_DIV_3) );
-    CUDA_SAFE_CALL( cudaMalloc(&h_particles.states,     sizeof(SPHGPUStates)) );
+    CUDA_SAFE_CALL( cudaMalloc(&h_fluid.params,     sizeof(SPHGridParam)) );
+    CUDA_SAFE_CALL( cudaMalloc(&h_fluid.particles,  sizeof(SPHFluidParticle)*SPH_MAX_FLUID_PARTICLES) );
+    CUDA_SAFE_CALL( cudaMalloc(&h_fluid.forces,     sizeof(SPHFluidParticleForce)*SPH_MAX_FLUID_PARTICLES) );
+    CUDA_SAFE_CALL( cudaMalloc(&h_fluid.hashes,     sizeof(SPHHash)*SPH_MAX_FLUID_PARTICLES) );
+    CUDA_SAFE_CALL( cudaMalloc(&h_fluid.grid,       sizeof(SPHGridData)*SPH_GRID_DIV_3) );
+    CUDA_SAFE_CALL( cudaMalloc(&h_fluid.states,     sizeof(SPHGPUStates)) );
 
     {
         SPHParam sph_params;
@@ -167,12 +145,12 @@ void SPHInitialize()
         sph_params.wall_stiffness      = 3000.0f;
         CUDA_SAFE_CALL( cudaMemcpyToSymbol("d_params", &sph_params, sizeof(sph_params)) );
 
-        GridParam grid_params;
+        SPHGridParam grid_params;
         const float grid_len = 5.12f;
         grid_params.grid_dim = make_float4(grid_len, grid_len, sph_params.smooth_len*SPH_GRID_DIV_Z, 0.0f);
         grid_params.grid_dim_rcp = make_float4(1.0f) / (grid_params.grid_dim / make_float4(SPH_GRID_DIV_X, SPH_GRID_DIV_Y, SPH_GRID_DIV_Z, 1.0));
         grid_params.grid_pos = make_float4(-grid_len/2.0f, -grid_len/2.0f, 0.0f, 0.0f);
-        CUDA_SAFE_CALL( cudaMemcpy(h_particles.params, &grid_params, sizeof(grid_params), cudaMemcpyHostToDevice) );
+        CUDA_SAFE_CALL( cudaMemcpy(h_fluid.params, &grid_params, sizeof(grid_params), cudaMemcpyHostToDevice) );
     }
     {
         SPHSphericalGravity h_sg;
@@ -186,22 +164,22 @@ void SPHInitialize()
 
     dim3 dimBlock( SPH_THREAD_BLOCK_X );
     dim3 dimGrid( SPH_MAX_FLUID_PARTICLES / SPH_THREAD_BLOCK_X );
-    GClearParticles<<<dimGrid, dimBlock>>>(h_particles);
+    GClearParticles<<<dimGrid, dimBlock>>>(h_fluid);
 }
 
 void SPHFinalize()
 {
-    CUDA_SAFE_CALL( cudaFree(h_particles.states) );
-    CUDA_SAFE_CALL( cudaFree(h_particles.params) );
-    CUDA_SAFE_CALL( cudaFree(h_particles.particles) );
-    CUDA_SAFE_CALL( cudaFree(h_particles.forces) );
-    CUDA_SAFE_CALL( cudaFree(h_particles.hashes) );
-    CUDA_SAFE_CALL( cudaFree(h_particles.grid) );
+    CUDA_SAFE_CALL( cudaFree(h_fluid.states) );
+    CUDA_SAFE_CALL( cudaFree(h_fluid.params) );
+    CUDA_SAFE_CALL( cudaFree(h_fluid.particles) );
+    CUDA_SAFE_CALL( cudaFree(h_fluid.forces) );
+    CUDA_SAFE_CALL( cudaFree(h_fluid.hashes) );
+    CUDA_SAFE_CALL( cudaFree(h_fluid.grid) );
 }
 
 
 
-__global__ void GUpdateHash(ParticleSet ps)
+__global__ void GUpdateHash(SPHParticleSet ps)
 {
     const int i = GetThreadId();
 
@@ -209,22 +187,22 @@ __global__ void GUpdateHash(ParticleSet ps)
     ps.hashes[i] = hash;
 }
 
-__global__ void GZeroClearGrid(ParticleSet ps)
+__global__ void GZeroClearGrid(SPHParticleSet ps)
 {
     const int i = GetThreadId();
 
     ps.grid[i].x = ps.grid[i].y = 0;
 }
 
-__global__ void GUpdateGrid(ParticleSet ps)
+__global__ void GUpdateGrid(SPHParticleSet ps)
 {
-    const unsigned int G_ID = GetThreadId();
-    unsigned int G_ID_PREV = (G_ID == 0)? SPH_MAX_FLUID_PARTICLES : G_ID; G_ID_PREV--;
-    unsigned int G_ID_NEXT = G_ID + 1; if (G_ID_NEXT == SPH_MAX_FLUID_PARTICLES) { G_ID_NEXT = 0; }
+    const uint G_ID = GetThreadId();
+    uint G_ID_PREV = (G_ID == 0)? SPH_MAX_FLUID_PARTICLES : G_ID; G_ID_PREV--;
+    uint G_ID_NEXT = G_ID + 1; if (G_ID_NEXT == SPH_MAX_FLUID_PARTICLES) { G_ID_NEXT = 0; }
     
-    unsigned int cell = ps.hashes[G_ID];
-    unsigned int cell_prev = ps.hashes[G_ID_PREV];
-    unsigned int cell_next = ps.hashes[G_ID_NEXT];
+    uint cell = ps.hashes[G_ID];
+    uint cell_prev = ps.hashes[G_ID_PREV];
+    uint cell_next = ps.hashes[G_ID_NEXT];
     if (cell != cell_prev)
     {
         // I'm the start of a cell
@@ -244,45 +222,45 @@ void SPHUpdateGrid()
     dim3 dimGrid_par_particle( SPH_MAX_FLUID_PARTICLES / SPH_THREAD_BLOCK_X );
     dim3 dimGrid_par_grid( SPH_GRID_DIV_3 / SPH_THREAD_BLOCK_X );
 
-    GUpdateHash<<<dimGrid_par_particle, dimBlock>>>(h_particles);
+    GUpdateHash<<<dimGrid_par_particle, dimBlock>>>(h_fluid);
 
     // thrust::sort_by_key 用にデバイス側のポインタを取得
     // *直接 thrust::sort_by_key(d_hashes, d_hashes+SPH_MAX_FLUID_PARTICLES, d_particles) とかやると、
     //  コンパイルエラーにはならないけど意図した結果にならない (host 側用の関数が呼ばれる)
-    thrust::device_ptr<uint> dphashes(h_particles.hashes);
-    thrust::device_ptr<SPHFluidParticle> dpparticles(h_particles.particles);
+    thrust::device_ptr<SPHHash> dphashes(h_fluid.hashes);
+    thrust::device_ptr<SPHFluidParticle> dpparticles(h_fluid.particles);
 
     thrust::sort_by_key(dphashes, dphashes+SPH_MAX_FLUID_PARTICLES, dpparticles);
-    GZeroClearGrid<<<dimGrid_par_grid, dimBlock>>>(h_particles);
-    GUpdateGrid<<<dimGrid_par_particle, dimBlock>>>(h_particles);
+    GZeroClearGrid<<<dimGrid_par_grid, dimBlock>>>(h_fluid);
+    GUpdateGrid<<<dimGrid_par_particle, dimBlock>>>(h_fluid);
 }
 
 
 
-__global__ void GComputeDensity(ParticleSet ps)
+__global__ void GComputeDensity(SPHParticleSet ps)
 {
-    const unsigned int P_ID = GetThreadId();
+    const uint P_ID = GetThreadId();
     const float h_sq = d_params.smooth_len * d_params.smooth_len;
     float4 P_position = ps.particles[P_ID].position;
 
     float density = 0.0f;
 
     int3 G_XYZ = ps.GridCalculateCell( P_position );
-    for (int Z = max(G_XYZ.z - 1, 0) ; Z <= min(G_XYZ.z + 1, SPH_GRID_DIV_Z-1) ; Z++)
+    for(int Z = max(G_XYZ.z - 1, 0) ; Z <= min(G_XYZ.z + 1, SPH_GRID_DIV_Z-1) ; Z++)
     {
-        for (int Y = max(G_XYZ.y - 1, 0) ; Y <= min(G_XYZ.y + 1, SPH_GRID_DIV_Y-1) ; Y++)
+        for(int Y = max(G_XYZ.y - 1, 0) ; Y <= min(G_XYZ.y + 1, SPH_GRID_DIV_Y-1) ; Y++)
         {
-            for (int X = max(G_XYZ.x - 1, 0) ; X <= min(G_XYZ.x + 1, SPH_GRID_DIV_X-1) ; X++)
+            for(int X = max(G_XYZ.x - 1, 0) ; X <= min(G_XYZ.x + 1, SPH_GRID_DIV_X-1) ; X++)
             {
-                uint G_CELL = ps.GridConstuctKey(make_int3(X, Y, Z));
-                uint2 G_START_END = ps.grid[G_CELL];
-                for (unsigned int N_ID = G_START_END.x ; N_ID < G_START_END.y ; N_ID++)
+                SPHHash G_CELL = ps.GridConstuctKey(make_int3(X, Y, Z));
+                SPHGridData G_START_END = ps.grid[G_CELL];
+                for(uint N_ID = G_START_END.x ; N_ID < G_START_END.y ; N_ID++)
                 {
                     float4 N_position = ps.particles[N_ID].position;
                 
                     float4 diff = N_position - P_position;
                     float r_sq = dot(diff, diff);
-                    if (r_sq < h_sq)
+                    if(r_sq < h_sq)
                     {
                         density += ps.CalculateDensity(r_sq);
                     }
@@ -299,15 +277,15 @@ void SPHComputeDensity()
     dim3 dimBlock( SPH_THREAD_BLOCK_X );
     dim3 dimGrid( SPH_MAX_FLUID_PARTICLES / SPH_THREAD_BLOCK_X );
 
-    GComputeDensity<<<dimGrid, dimBlock>>>(h_particles);
+    GComputeDensity<<<dimGrid, dimBlock>>>(h_fluid);
 }
 
 
 
 
-__global__ void GComputeForce(ParticleSet ps)
+__global__ void GComputeForce(SPHParticleSet ps)
 {
-    const unsigned int P_ID = GetThreadId();
+    const uint P_ID = GetThreadId();
     
     float4 P_position = ps.particles[P_ID].position;
     float4 P_velocity = ps.particles[P_ID].velocity;
@@ -320,21 +298,21 @@ __global__ void GComputeForce(ParticleSet ps)
 
     // Calculate the acceleration based on all neighbors
     int3 G_XYZ = ps.GridCalculateCell( P_position );
-    for (int Z = max(G_XYZ.z - 1, 0) ; Z <= min(G_XYZ.z + 1, SPH_GRID_DIV_Z-1) ; Z++)
+    for(int Z = max(G_XYZ.z - 1, 0) ; Z <= min(G_XYZ.z + 1, SPH_GRID_DIV_Z-1) ; Z++)
     {
-        for (int Y = max(G_XYZ.y - 1, 0) ; Y <= min(G_XYZ.y + 1, SPH_GRID_DIV_Y-1) ; Y++)
+        for(int Y = max(G_XYZ.y - 1, 0) ; Y <= min(G_XYZ.y + 1, SPH_GRID_DIV_Y-1) ; Y++)
         {
-            for (int X = max(G_XYZ.x - 1, 0) ; X <= min(G_XYZ.x + 1, SPH_GRID_DIV_X-1) ; X++)
+            for(int X = max(G_XYZ.x - 1, 0) ; X <= min(G_XYZ.x + 1, SPH_GRID_DIV_X-1) ; X++)
             {
-                uint G_CELL = ps.GridConstuctKey(make_int3(X, Y, Z));
-                uint2 G_START_END = ps.grid[G_CELL];
-                for (unsigned int N_ID = G_START_END.x ; N_ID < G_START_END.y ; N_ID++)
+                SPHHash G_CELL = ps.GridConstuctKey(make_int3(X, Y, Z));
+                SPHGridData G_START_END = ps.grid[G_CELL];
+                for(uint N_ID = G_START_END.x ; N_ID < G_START_END.y ; N_ID++)
                 {
                     float4 N_position = ps.particles[N_ID].position;
 
                     float4 diff = N_position - P_position;
                     float r_sq = dot(diff, diff);
-                    if (r_sq < h_sq && P_ID != N_ID)
+                    if(r_sq < h_sq && P_ID != N_ID)
                     {
                         float4 N_velocity = ps.particles[N_ID].velocity;
                         float N_density = ps.forces[N_ID].density;
@@ -360,14 +338,14 @@ void SPHComputeForce()
     dim3 dimBlock( SPH_THREAD_BLOCK_X );
     dim3 dimGrid( SPH_MAX_FLUID_PARTICLES / SPH_THREAD_BLOCK_X );
 
-    GComputeForce<<<dimGrid, dimBlock>>>(h_particles);
+    GComputeForce<<<dimGrid, dimBlock>>>(h_fluid);
 }
 
 
 
-__global__ void GIntegrate(ParticleSet ps)
+__global__ void GIntegrate(SPHParticleSet ps)
 {
-    const unsigned int P_ID = GetThreadId();
+    const uint P_ID = GetThreadId();
 
     float4 position = ps.particles[P_ID].position;
     float4 velocity = ps.particles[P_ID].velocity;
@@ -380,7 +358,7 @@ __global__ void GIntegrate(ParticleSet ps)
     //    make_float3( 0.0f,-1.0f, 2.56f),
     //};
     //// Apply the forces from the map walls
-    //for(unsigned int i = 0 ; i < 4 ; i++)
+    //for(uint i = 0 ; i < 4 ; i++)
     //{
     //    float dist = dot(make_float3(position.x, position.y, 1.0f), planes[i]);
     //    acceleration += min(dist, 0.0f) * -d_param.wall_stiffness * make_float4(planes[i].x, planes[i].y, 0.0f, 0.0f);
@@ -433,7 +411,7 @@ void SPHIntegrate()
     dim3 dimBlock( SPH_THREAD_BLOCK_X );
     dim3 dimGrid( SPH_MAX_FLUID_PARTICLES / SPH_THREAD_BLOCK_X );
 
-    GIntegrate<<<dimGrid, dimBlock>>>(h_particles);
+    GIntegrate<<<dimGrid, dimBlock>>>(h_fluid);
 }
 
 void SPHUpdate()
@@ -445,9 +423,9 @@ void SPHUpdate()
 }
 
 
-__global__ void GCopyInstances(SPHFluidParticle *d_fractions, float4 *d_lights, ParticleSet ps)
+__global__ void GCopyInstances(SPHFluidParticle *d_fractions, float4 *d_lights, SPHParticleSet ps)
 {
-    const unsigned int P_ID = GetThreadId();
+    const uint P_ID = GetThreadId();
     int pid = ps.particles[P_ID].id;
     d_fractions[P_ID] = ps.particles[P_ID];
 
@@ -486,7 +464,7 @@ void SPHCopyToGL()
 
     dim3 dimBlock( SPH_THREAD_BLOCK_X );
     dim3 dimGrid( SPH_MAX_FLUID_PARTICLES / SPH_THREAD_BLOCK_X );
-    GCopyInstances<<<dimGrid, dimBlock>>>(d_fluid, d_lights, h_particles);
+    GCopyInstances<<<dimGrid, dimBlock>>>(d_fluid, d_lights, h_fluid);
 
     h_fluid_gl.unmapBuffer();
     h_rigids_gl.unmapBuffer();

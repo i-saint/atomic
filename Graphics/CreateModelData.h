@@ -1,5 +1,8 @@
-#ifndef __atomic_Graphics_CreateModelData_h__
-#define __atomic_Graphics_CreateModelData_h__
+#ifndef __atomic_Graphics_CreateModelData__
+#define __atomic_Graphics_CreateModelData__
+
+#include "GPGPU/SPH.cuh"
+
 namespace atomic {
 
     class CudaBuffer;
@@ -11,8 +14,8 @@ namespace atomic {
     void CreateBloomCompositeQuad(VertexArray& va, VertexBufferObject& vbo);
     void CreateCube(VertexArray& va, VertexBufferObject& vbo, float32 len);
 
-    void CreateCubeParticleSet(CudaBuffer& ps, float32 len);
-    void CreateSphereParticleSet(CudaBuffer& ps, float32 radius);
+    bool CreateCubeParticleSet(CudaBuffer& ps, SPHCharacterClass &sphcc, float32 len);
+    bool CreateSphereParticleSet(CudaBuffer& ps, SPHCharacterClass &sphcc, float32 radius);
 
 } // namespace atomic
 #endif // __atomic_Graphics_ModelData_h__

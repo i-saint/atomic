@@ -257,7 +257,7 @@ namespace {
     const float32 g_particle_par_volume = 2000.0; // particles / (1.0*1.0*1.0)
 }
 
-void CreateCubeParticleSet( CudaBuffer& ps, float32 len )
+bool CreateCubeParticleSet( CudaBuffer& ps, SPHCharacterClass &sphcc, float32 len )
 {
     SFMT random; random.initialize(3);
 
@@ -291,13 +291,18 @@ void CreateCubeParticleSet( CudaBuffer& ps, float32 len )
                 min_p = p;
             }
         }
+        particles[i].owner_handle = 0;
         particles[i].normal = planes[min_p] * (min_d / half_len);
         particles[i].normal.w = 0.0f;
     }
     ps.copyHostToDevice();
+
+    sphcc.num_particles = num;
+    sphcc.particles = (SPHRigidParticle*)ps.getDeviceBuffer();
+    return true;
 }
 
-void CreateSphereParticleSet( CudaBuffer& ps, float32 radius )
+bool CreateSphereParticleSet( CudaBuffer& ps, SPHCharacterClass &sphcc, float32 radius )
 {
     SFMT random; random.initialize(5);
 
@@ -312,10 +317,15 @@ void CreateSphereParticleSet( CudaBuffer& ps, float32 radius )
     for(uint32 i=0; i<num; ++i) {
         float4 rv = (make_float4(random.genFloat32(),random.genFloat32(),random.genFloat32(),0.0f)-half) * 2.0f * radius;
         float32 len = ::length(rv);
+        particles[i].owner_handle = 0;
         particles[i].position = pos + rv;
         particles[i].normal = rv / len;
     }
     ps.copyHostToDevice();
+
+    sphcc.num_particles = num;
+    sphcc.particles = (SPHRigidParticle*)ps.getDeviceBuffer();
+    return true;
 }
 
 } // namespace atomic
