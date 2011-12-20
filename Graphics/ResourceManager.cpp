@@ -4,7 +4,6 @@
 #include "Game/AtomicApplication.h"
 #include "Graphics/ResourceManager.h"
 #include "Graphics/Light.h"
-#include "GPGPU/SPH.cuh"
 #include "shader/glsl_source.h"
 
 namespace atomic {
@@ -152,10 +151,9 @@ bool GraphicResourceManager::initialize()
         m_fbo[RT_GAUSS1] = m_rt_gauss[1];
     }
     {
-        SPHCharacterClass sphcc[CB_END];
-        CreateCubeParticleSet(*m_cb[CB_CLASS_CUBE], sphcc[CB_CLASS_CUBE], 0.4f);
-        CreateSphereParticleSet(*m_cb[CB_CLASS_SPHERE], sphcc[CB_CLASS_SPHERE], 0.4f);
-        cudaMemcpyToSymbol("d_cclass", sphcc, sizeof(sphcc));
+        CreateCubeParticleSet(*m_cb[CB_CLASS_CUBE], m_sphcc[CB_CLASS_CUBE], 0.4f);
+        CreateSphereParticleSet(*m_cb[CB_CLASS_SPHERE], m_sphcc[CB_CLASS_SPHERE], 0.4f);
+        SPHCopyClassInfo(m_sphcc);
 
         m_cb[CB_CHARACTER_INSTANCE]->setCapacity(sizeof(mat4)*ATOMIC_MAX_CHARACTERS);
     }

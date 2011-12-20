@@ -4,6 +4,9 @@
 #include <cmath>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <thrust/host_vector.h>
+#include <thrust/device_vector.h>
+#include "../Graphics/ResourceID.h"
 
 extern "C" {
 
@@ -121,8 +124,9 @@ void SPHUpdate();
 
 void SPHInitializeInstanceBuffers(int vbo_fluid, int vbo_rigids, int vbo_lightpos);
 void SPHFinalizeInstanceBuffers();
+void SPHCopyClassInfo(SPHCharacterClass (&sphcc)[atomic::CB_END]);
 void SPHCopyToGL();
-void SPHCopyCharacterInstancesToDevice(const SPHCharacterInstance *c, size_t num);
+void SPHCopyCharacterInstancesToDevice(const thrust::host_vector<SPHCharacterInstance> (&instances)[atomic::CB_END]);
 void SPHCopyDamageMessageToHost(SPHDamageMessage *dst);
 
 void SPHUpdateSphericalGravityData(SPHSphericalGravity (&sgravity)[ SPH_MAX_SPHERICAL_GRAVITY_NUM ]);

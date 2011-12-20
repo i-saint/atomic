@@ -31,6 +31,7 @@ namespace atomic {
         ist::SetThreadName("AtomicSoundThread");
 
         ist::sound::IntializeSound();
+        //boost::thread::sleep(boost::get_system_time() + boost::posix_time::milliseconds(1000));
 
         std::string sound_data;
         const char filepath[] = "sound.ogg";

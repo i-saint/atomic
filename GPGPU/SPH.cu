@@ -24,7 +24,7 @@ __device__ SPHSphericalGravity d_sgravity[ SPH_MAX_SPHERICAL_GRAVITY_NUM ];
 
 
 
-struct SPHParticleSet
+struct SPHFluidParticleSet
 {
     SPHGridParam            *params;
     SPHFluidParticle        *particles;
@@ -90,12 +90,40 @@ struct SPHParticleSet
     }
 };
 
+struct SPHRigidParticleSet
+{
+    SPHGridParam            *params;
+    SPHRigidParticle        *particles;
+    SPHHash                 *hashes;
+    SPHGridData             *grid;
+    SPHGPUStates            *states;
+
+    __device__ int3 GridCalculateCell(float4 pos)
+    {
+        float4 c = (pos-params->grid_pos)*params->grid_dim_rcp;
+        int3 uc = make_int3(c.x, c.y, c.z);
+        return clamp(uc, make_int3(0), make_int3(SPH_GRID_DIV_X-1, SPH_GRID_DIV_Y-1, SPH_GRID_DIV_Z-1));
+    }
+
+    __device__ uint GridCalculateHash(float4 pos)
+    {
+        return GridConstuctKey( GridCalculateCell(pos) );
+    }
+
+    __device__ uint GridConstuctKey(int3 v)
+    {
+        return v.x | (v.y<<SPH_GRID_DIV_SHIFT_X) | (v.z<<(SPH_GRID_DIV_SHIFT_X+SPH_GRID_DIV_SHIFT_Y));
+    }
+};
+
 struct SPHForceSet
 {
     SPHSphericalGravity *sgravities;
 };
 
-SPHParticleSet h_fluid;
+
+SPHFluidParticleSet h_fluid;
+SPHRigidParticleSet h_rigid;
 
 
 
@@ -105,7 +133,7 @@ __device__ int GetThreadId()
 }
 
 
-__global__ void GClearParticles(SPHParticleSet ps)
+__global__ void GClearParticles(SPHFluidParticleSet ps)
 {
     const float spacing = 0.009f;
     int i = GetThreadId();
@@ -131,6 +159,12 @@ void SPHInitialize()
     CUDA_SAFE_CALL( cudaMalloc(&h_fluid.hashes,     sizeof(SPHHash)*SPH_MAX_FLUID_PARTICLES) );
     CUDA_SAFE_CALL( cudaMalloc(&h_fluid.grid,       sizeof(SPHGridData)*SPH_GRID_DIV_3) );
     CUDA_SAFE_CALL( cudaMalloc(&h_fluid.states,     sizeof(SPHGPUStates)) );
+
+    CUDA_SAFE_CALL( cudaMalloc(&h_rigid.params,     sizeof(SPHGridParam)) );
+    CUDA_SAFE_CALL( cudaMalloc(&h_rigid.particles,  sizeof(SPHRigidParticle)*SPH_MAX_FLUID_PARTICLES) );
+    CUDA_SAFE_CALL( cudaMalloc(&h_rigid.hashes,     sizeof(SPHHash)*SPH_MAX_FLUID_PARTICLES) );
+    CUDA_SAFE_CALL( cudaMalloc(&h_rigid.grid,       sizeof(SPHGridData)*SPH_GRID_DIV_3) );
+    CUDA_SAFE_CALL( cudaMalloc(&h_rigid.states,     sizeof(SPHGPUStates)) );
 
     {
         SPHParam sph_params;
@@ -169,17 +203,23 @@ void SPHInitialize()
 
 void SPHFinalize()
 {
+    CUDA_SAFE_CALL( cudaFree(h_rigid.states) );
+    CUDA_SAFE_CALL( cudaFree(h_rigid.grid) );
+    CUDA_SAFE_CALL( cudaFree(h_rigid.hashes) );
+    CUDA_SAFE_CALL( cudaFree(h_rigid.particles) );
+    CUDA_SAFE_CALL( cudaFree(h_rigid.params) );
+
     CUDA_SAFE_CALL( cudaFree(h_fluid.states) );
-    CUDA_SAFE_CALL( cudaFree(h_fluid.params) );
-    CUDA_SAFE_CALL( cudaFree(h_fluid.particles) );
-    CUDA_SAFE_CALL( cudaFree(h_fluid.forces) );
-    CUDA_SAFE_CALL( cudaFree(h_fluid.hashes) );
     CUDA_SAFE_CALL( cudaFree(h_fluid.grid) );
+    CUDA_SAFE_CALL( cudaFree(h_fluid.hashes) );
+    CUDA_SAFE_CALL( cudaFree(h_fluid.forces) );
+    CUDA_SAFE_CALL( cudaFree(h_fluid.particles) );
+    CUDA_SAFE_CALL( cudaFree(h_fluid.params) );
 }
 
 
 
-__global__ void GUpdateHash(SPHParticleSet ps)
+__global__ void GUpdateHash(SPHFluidParticleSet ps)
 {
     const int i = GetThreadId();
 
@@ -187,14 +227,14 @@ __global__ void GUpdateHash(SPHParticleSet ps)
     ps.hashes[i] = hash;
 }
 
-__global__ void GZeroClearGrid(SPHParticleSet ps)
+__global__ void GZeroClearGrid(SPHFluidParticleSet ps)
 {
     const int i = GetThreadId();
 
     ps.grid[i].x = ps.grid[i].y = 0;
 }
 
-__global__ void GUpdateGrid(SPHParticleSet ps)
+__global__ void GUpdateGrid(SPHFluidParticleSet ps)
 {
     const uint G_ID = GetThreadId();
     uint G_ID_PREV = (G_ID == 0)? SPH_MAX_FLUID_PARTICLES : G_ID; G_ID_PREV--;
@@ -237,7 +277,7 @@ void SPHUpdateGrid()
 
 
 
-__global__ void GComputeDensity(SPHParticleSet ps)
+__global__ void GComputeDensity(SPHFluidParticleSet ps)
 {
     const uint P_ID = GetThreadId();
     const float h_sq = d_params.smooth_len * d_params.smooth_len;
@@ -283,7 +323,7 @@ void SPHComputeDensity()
 
 
 
-__global__ void GComputeForce(SPHParticleSet ps)
+__global__ void GComputeForce(SPHFluidParticleSet ps)
 {
     const uint P_ID = GetThreadId();
     
@@ -343,7 +383,7 @@ void SPHComputeForce()
 
 
 
-__global__ void GIntegrate(SPHParticleSet ps)
+__global__ void GIntegrate(SPHFluidParticleSet ps)
 {
     const uint P_ID = GetThreadId();
 
@@ -423,7 +463,7 @@ void SPHUpdate()
 }
 
 
-__global__ void GCopyInstances(SPHFluidParticle *d_fractions, float4 *d_lights, SPHParticleSet ps)
+__global__ void GCopyInstances(SPHFluidParticle *d_fractions, float4 *d_lights, SPHFluidParticleSet ps)
 {
     const uint P_ID = GetThreadId();
     int pid = ps.particles[P_ID].id;
@@ -441,6 +481,7 @@ __global__ void GCopyInstances(SPHFluidParticle *d_fractions, float4 *d_lights, 
 DeviceBufferObject h_fluid_gl;
 DeviceBufferObject h_rigids_gl;
 DeviceBufferObject h_light_gl;
+SPHCharacterClass h_sphcc[atomic::CB_END];
 
 void SPHInitializeInstanceBuffers(int vbo_fluid, int vbo_rigids, int vbo_lightpos)
 {
@@ -454,6 +495,12 @@ void SPHFinalizeInstanceBuffers()
     h_light_gl.unregisterBuffer();
     h_rigids_gl.unregisterBuffer();
     h_fluid_gl.unregisterBuffer();
+}
+
+void SPHCopyClassInfo(SPHCharacterClass (&sphcc)[atomic::CB_END])
+{
+    thrust::copy(sphcc, sphcc+atomic::CB_END, h_sphcc);
+    cudaMemcpyToSymbol("d_cclass", sphcc, sizeof(sphcc));
 }
 
 void SPHCopyToGL()
@@ -471,8 +518,12 @@ void SPHCopyToGL()
     h_light_gl.unmapBuffer();
 }
 
-void SPHCopyCharacterInstancesToDevice(const SPHCharacterInstance *c, size_t num)
+void SPHCopyCharacterInstancesToDevice(const thrust::host_vector<SPHCharacterInstance> (&instances)[atomic::CB_END])
 {
+    uint num = 0;
+    for(int i=0; i<atomic::CB_END; ++i) {
+        num += h_sphcc[i].num_particles * instances[i].size();
+    }
 }
 
 void SPHCopyDamageMessageToHost(SPHDamageMessage *dst)

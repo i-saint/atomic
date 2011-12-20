@@ -25,7 +25,7 @@ private:
     SPHSphericalGravity                     m_sgravity[ SPH_MAX_SPHERICAL_GRAVITY_NUM ];
     thrust::host_vector<SPHFluidParticle>   m_spawn;
 
-    stl::vector<SPHCharacterInstance>   m_matrices[CB_END];
+    thrust::host_vector<SPHCharacterInstance>   m_matrices[CB_END];
 
 public:
     FractionSet();
