@@ -19,7 +19,6 @@
 
 
 __constant__ SPHParam d_params;
-__device__ SPHRigidClass d_rigid_class[atomic::CB_END];
 
 struct SPHGravitySet
 {
@@ -132,7 +131,10 @@ SPHGravitySet h_gravities;
 
 __device__ int GetThreadId()
 {
-    return blockDim.x * blockIdx.x + threadIdx.x;
+    int threadsPerBlock  = blockDim.x * blockDim.y;
+    int threadNumInBlock = threadIdx.x + blockDim.x * threadIdx.y;
+    int blockNumInGrid   = blockIdx.x  + gridDim.x  * blockIdx.y;
+    return blockNumInGrid * threadsPerBlock + threadNumInBlock;
 }
 
 
@@ -226,269 +228,266 @@ void SPHFinalize()
 
 
 
-__global__ void GUpdateHash(SPHFluidParticleSet ps)
+struct _UpdateHash
 {
-    const int i = GetThreadId();
+    SPHFluidParticleSet fps;
+    _UpdateHash(SPHFluidParticleSet v) : fps(v) {}
 
-    uint hash = ps.GridCalculateHash(ps.particles[i].position);
-    ps.hashes[i] = hash;
-}
+    __device__ void operator()(int i)
+    {
+        fps.hashes[i] = fps.GridCalculateHash(fps.particles[i].position);
+    }
+};
 
-__global__ void GZeroClearGrid(SPHFluidParticleSet ps)
+struct _GridClear
 {
-    const int i = GetThreadId();
+    SPHFluidParticleSet fps;
+    _GridClear(SPHFluidParticleSet v) : fps(v) {}
 
-    ps.grid[i].x = ps.grid[i].y = 0;
-}
+    __device__ void operator()(int i)
+    {
+        fps.grid[i].x = fps.grid[i].y = 0;
+    }
+};
 
-__global__ void GUpdateGrid(SPHFluidParticleSet ps)
+struct _GridUpdate
 {
-    const uint G_ID = GetThreadId();
-    uint G_ID_PREV = (G_ID == 0)? SPH_MAX_FLUID_PARTICLES : G_ID; G_ID_PREV--;
-    uint G_ID_NEXT = G_ID + 1; if (G_ID_NEXT == SPH_MAX_FLUID_PARTICLES) { G_ID_NEXT = 0; }
+    SPHFluidParticleSet fps;
+    _GridUpdate(SPHFluidParticleSet v) : fps(v) {}
+
+    __device__ void operator()(int i)
+    {
+        const uint G_ID = i;
+        uint G_ID_PREV = (G_ID == 0)? SPH_MAX_FLUID_PARTICLES : G_ID; G_ID_PREV--;
+        uint G_ID_NEXT = G_ID + 1; if (G_ID_NEXT == SPH_MAX_FLUID_PARTICLES) { G_ID_NEXT = 0; }
     
-    uint cell = ps.hashes[G_ID];
-    uint cell_prev = ps.hashes[G_ID_PREV];
-    uint cell_next = ps.hashes[G_ID_NEXT];
-    if (cell != cell_prev)
-    {
-        // I'm the start of a cell
-        ps.grid[cell].x = G_ID;
-    }
-    if (cell != cell_next)
-    {
-        // I'm the end of a cell
-        ps.grid[cell].y = G_ID + 1;
-    }
-}
-
-
-void SPHUpdateGrid()
-{
-    dim3 dimBlock( SPH_THREAD_BLOCK_X );
-    dim3 dimGrid_par_particle( SPH_MAX_FLUID_PARTICLES / SPH_THREAD_BLOCK_X );
-    dim3 dimGrid_par_grid( SPH_GRID_DIV_3 / SPH_THREAD_BLOCK_X );
-
-    GUpdateHash<<<dimGrid_par_particle, dimBlock>>>(h_fluid);
-
-    // thrust::sort_by_key 用にデバイス側のポインタを取得
-    // *直接 thrust::sort_by_key(d_hashes, d_hashes+SPH_MAX_FLUID_PARTICLES, d_particles) とかやると、
-    //  コンパイルエラーにはならないけど意図した結果にならない (host 側用の関数が呼ばれる)
-    thrust::device_ptr<SPHHash> dphashes(h_fluid.hashes);
-    thrust::device_ptr<SPHFluidParticle> dpparticles(h_fluid.particles);
-
-    thrust::sort_by_key(dphashes, dphashes+SPH_MAX_FLUID_PARTICLES, dpparticles);
-    GZeroClearGrid<<<dimGrid_par_grid, dimBlock>>>(h_fluid);
-    GUpdateGrid<<<dimGrid_par_particle, dimBlock>>>(h_fluid);
-}
-
-
-
-__global__ void GComputeDensity(SPHFluidParticleSet ps)
-{
-    const uint P_ID = GetThreadId();
-    const float h_sq = d_params.smooth_len * d_params.smooth_len;
-    float4 P_position = ps.particles[P_ID].position;
-
-    float density = 0.0f;
-
-    int3 G_XYZ = ps.GridCalculateCell( P_position );
-    for(int Z = max(G_XYZ.z - 1, 0) ; Z <= min(G_XYZ.z + 1, SPH_GRID_DIV_Z-1) ; Z++)
-    {
-        for(int Y = max(G_XYZ.y - 1, 0) ; Y <= min(G_XYZ.y + 1, SPH_GRID_DIV_Y-1) ; Y++)
+        uint cell = fps.hashes[G_ID];
+        uint cell_prev = fps.hashes[G_ID_PREV];
+        uint cell_next = fps.hashes[G_ID_NEXT];
+        if (cell != cell_prev)
         {
-            for(int X = max(G_XYZ.x - 1, 0) ; X <= min(G_XYZ.x + 1, SPH_GRID_DIV_X-1) ; X++)
+            // I'm the start of a cell
+            fps.grid[cell].x = G_ID;
+        }
+        if (cell != cell_next)
+        {
+            // I'm the end of a cell
+            fps.grid[cell].y = G_ID + 1;
+        }
+    }
+};
+
+struct _ComputeDensity
+{
+    SPHFluidParticleSet fps;
+    _ComputeDensity(SPHFluidParticleSet v) : fps(v) {}
+
+    __device__ void operator()(int i)
+    {
+        const uint P_ID = i;
+        const float h_sq = d_params.smooth_len * d_params.smooth_len;
+        float4 P_position = fps.particles[P_ID].position;
+
+        float density = 0.0f;
+
+        int3 G_XYZ = fps.GridCalculateCell( P_position );
+        for(int Z = max(G_XYZ.z - 1, 0) ; Z <= min(G_XYZ.z + 1, SPH_GRID_DIV_Z-1) ; Z++)
+        {
+            for(int Y = max(G_XYZ.y - 1, 0) ; Y <= min(G_XYZ.y + 1, SPH_GRID_DIV_Y-1) ; Y++)
             {
-                SPHHash G_CELL = ps.GridConstuctKey(make_int3(X, Y, Z));
-                SPHGridData G_START_END = ps.grid[G_CELL];
-                for(uint N_ID = G_START_END.x ; N_ID < G_START_END.y ; N_ID++)
+                for(int X = max(G_XYZ.x - 1, 0) ; X <= min(G_XYZ.x + 1, SPH_GRID_DIV_X-1) ; X++)
                 {
-                    float4 N_position = ps.particles[N_ID].position;
+                    SPHHash G_CELL = fps.GridConstuctKey(make_int3(X, Y, Z));
+                    SPHGridData G_START_END = fps.grid[G_CELL];
+                    for(uint N_ID = G_START_END.x ; N_ID < G_START_END.y ; N_ID++)
+                    {
+                        float4 N_position = fps.particles[N_ID].position;
                 
-                    float4 diff = N_position - P_position;
-                    float r_sq = dot(diff, diff);
-                    if(r_sq < h_sq)
-                    {
-                        density += ps.CalculateDensity(r_sq);
+                        float4 diff = N_position - P_position;
+                        float r_sq = dot(diff, diff);
+                        if(r_sq < h_sq)
+                        {
+                            density += fps.CalculateDensity(r_sq);
+                        }
                     }
                 }
             }
         }
+
+        fps.forces[P_ID].density = density;
     }
+};
 
-    ps.forces[P_ID].density = density;
-}
-
-void SPHComputeDensity()
+struct _ComputeForce
 {
-    dim3 dimBlock( SPH_THREAD_BLOCK_X );
-    dim3 dimGrid( SPH_MAX_FLUID_PARTICLES / SPH_THREAD_BLOCK_X );
+    SPHFluidParticleSet fps;
+    _ComputeForce(SPHFluidParticleSet v) : fps(v) {}
 
-    GComputeDensity<<<dimGrid, dimBlock>>>(h_fluid);
-}
-
-
-
-
-__global__ void GComputeForce(SPHFluidParticleSet ps)
-{
-    const uint P_ID = GetThreadId();
-    
-    float4 P_position = ps.particles[P_ID].position;
-    float4 P_velocity = ps.particles[P_ID].velocity;
-    float P_density = ps.forces[P_ID].density;
-    float P_pressure = ps.CalculatePressure(P_density);
-    
-    const float h_sq = d_params.smooth_len * d_params.smooth_len;
-    
-    float4 acceleration = make_float4(0);
-
-    // Calculate the acceleration based on all neighbors
-    int3 G_XYZ = ps.GridCalculateCell( P_position );
-    for(int Z = max(G_XYZ.z - 1, 0) ; Z <= min(G_XYZ.z + 1, SPH_GRID_DIV_Z-1) ; Z++)
+    __device__ void operator()(int i)
     {
-        for(int Y = max(G_XYZ.y - 1, 0) ; Y <= min(G_XYZ.y + 1, SPH_GRID_DIV_Y-1) ; Y++)
+        const uint P_ID = i;
+    
+        float4 P_position = fps.particles[P_ID].position;
+        float4 P_velocity = fps.particles[P_ID].velocity;
+        float P_density = fps.forces[P_ID].density;
+        float P_pressure = fps.CalculatePressure(P_density);
+    
+        const float h_sq = d_params.smooth_len * d_params.smooth_len;
+    
+        float4 acceleration = make_float4(0);
+
+        // Calculate the acceleration based on all neighbors
+        int3 G_XYZ = fps.GridCalculateCell( P_position );
+        for(int Z = max(G_XYZ.z - 1, 0) ; Z <= min(G_XYZ.z + 1, SPH_GRID_DIV_Z-1) ; Z++)
         {
-            for(int X = max(G_XYZ.x - 1, 0) ; X <= min(G_XYZ.x + 1, SPH_GRID_DIV_X-1) ; X++)
+            for(int Y = max(G_XYZ.y - 1, 0) ; Y <= min(G_XYZ.y + 1, SPH_GRID_DIV_Y-1) ; Y++)
             {
-                SPHHash G_CELL = ps.GridConstuctKey(make_int3(X, Y, Z));
-                SPHGridData G_START_END = ps.grid[G_CELL];
-                for(uint N_ID = G_START_END.x ; N_ID < G_START_END.y ; N_ID++)
+                for(int X = max(G_XYZ.x - 1, 0) ; X <= min(G_XYZ.x + 1, SPH_GRID_DIV_X-1) ; X++)
                 {
-                    float4 N_position = ps.particles[N_ID].position;
-
-                    float4 diff = N_position - P_position;
-                    float r_sq = dot(diff, diff);
-                    if(r_sq < h_sq && P_ID != N_ID)
+                    SPHHash G_CELL = fps.GridConstuctKey(make_int3(X, Y, Z));
+                    SPHGridData G_START_END = fps.grid[G_CELL];
+                    for(uint N_ID = G_START_END.x ; N_ID < G_START_END.y ; N_ID++)
                     {
-                        float4 N_velocity = ps.particles[N_ID].velocity;
-                        float N_density = ps.forces[N_ID].density;
-                        float N_pressure = ps.CalculatePressure(N_density);
-                        float r = sqrt(r_sq);
+                        float4 N_position = fps.particles[N_ID].position;
 
-                        // Pressure Term
-                        acceleration += ps.CalculateGradPressure(r, P_pressure, N_pressure, N_density, diff);
+                        float4 diff = N_position - P_position;
+                        float r_sq = dot(diff, diff);
+                        if(r_sq < h_sq && P_ID != N_ID)
+                        {
+                            float4 N_velocity = fps.particles[N_ID].velocity;
+                            float N_density = fps.forces[N_ID].density;
+                            float N_pressure = fps.CalculatePressure(N_density);
+                            float r = sqrt(r_sq);
+
+                            // Pressure Term
+                            acceleration += fps.CalculateGradPressure(r, P_pressure, N_pressure, N_density, diff);
             
-                        // Viscosity Term
-                        acceleration += ps.CalculateLapVelocity(r, P_velocity, N_velocity, N_density);
+                            // Viscosity Term
+                            acceleration += fps.CalculateLapVelocity(r, P_velocity, N_velocity, N_density);
+                        }
                     }
                 }
             }
         }
+
+        fps.forces[P_ID].acceleration = acceleration / P_density;
     }
+};
 
-    ps.forces[P_ID].acceleration = acceleration / P_density;
-}
-
-void SPHComputeForce()
+struct _Integrate
 {
-    dim3 dimBlock( SPH_THREAD_BLOCK_X );
-    dim3 dimGrid( SPH_MAX_FLUID_PARTICLES / SPH_THREAD_BLOCK_X );
+    SPHFluidParticleSet fps;
+    SPHGravitySet gs;
+    _Integrate(SPHFluidParticleSet v, SPHGravitySet g) : fps(v), gs(g) {}
 
-    GComputeForce<<<dimGrid, dimBlock>>>(h_fluid);
-}
+    __device__ void operator()(int i)
+    {
+        const uint P_ID = i;
 
+        float4 position = fps.particles[P_ID].position;
+        float4 velocity = fps.particles[P_ID].velocity;
+        float4 acceleration = fps.forces[P_ID].acceleration;
 
+        //const float3 planes[4] = {
+        //    make_float3( 1.0f, 0.0f, 0),
+        //    make_float3( 0.0f, 1.0f, 0),
+        //    make_float3(-1.0f, 0.0f, 2.56f),
+        //    make_float3( 0.0f,-1.0f, 2.56f),
+        //};
+        //// Apply the forces from the map walls
+        //for(uint i = 0 ; i < 4 ; i++)
+        //{
+        //    float dist = dot(make_float3(position.x, position.y, 1.0f), planes[i]);
+        //    acceleration += min(dist, 0.0f) * -d_param.wall_stiffness * make_float4(planes[i].x, planes[i].y, 0.0f, 0.0f);
+        //}
+        //float4 gravity = make_float4(0.0f, -0.5f, 0.0f, 0.0f);
 
-__global__ void GIntegrate(SPHFluidParticleSet ps, SPHGravitySet gs)
-{
-    const uint P_ID = GetThreadId();
-
-    float4 position = ps.particles[P_ID].position;
-    float4 velocity = ps.particles[P_ID].velocity;
-    float4 acceleration = ps.forces[P_ID].acceleration;
-
-    //const float3 planes[4] = {
-    //    make_float3( 1.0f, 0.0f, 0),
-    //    make_float3( 0.0f, 1.0f, 0),
-    //    make_float3(-1.0f, 0.0f, 2.56f),
-    //    make_float3( 0.0f,-1.0f, 2.56f),
-    //};
-    //// Apply the forces from the map walls
-    //for(uint i = 0 ; i < 4 ; i++)
-    //{
-    //    float dist = dot(make_float3(position.x, position.y, 1.0f), planes[i]);
-    //    acceleration += min(dist, 0.0f) * -d_param.wall_stiffness * make_float4(planes[i].x, planes[i].y, 0.0f, 0.0f);
-    //}
-    //float4 gravity = make_float4(0.0f, -0.5f, 0.0f, 0.0f);
-
-    acceleration += min(position.z, 0.0f) * -d_params.wall_stiffness * make_float4(0.0f, 0.0f, 0.5f, 0.0f);
-    acceleration += make_float4(0.0f, 0.0f, -5.0f, 0.0f);
+        acceleration += min(position.z, 0.0f) * -d_params.wall_stiffness * make_float4(0.0f, 0.0f, 0.5f, 0.0f);
+        acceleration += make_float4(0.0f, 0.0f, -5.0f, 0.0f);
 
 
-    // Apply gravity
-    for(int i=0; i<SPH_MAX_SPHERICAL_GRAVITY_NUM; ++i) {
-        if(!gs.sgravity[i].is_active) { continue; }
+        // Apply gravity
+        for(int i=0; i<SPH_MAX_SPHERICAL_GRAVITY_NUM; ++i) {
+            if(!gs.sgravity[i].is_active) { continue; }
 
-        const float4 center = gs.sgravity[i].position;
-        const float gravity_strength = gs.sgravity[i].strength;
-        const float inner_radius = gs.sgravity[i].inner_radus;
-        const float outer_radius = gs.sgravity[i].range_radus;
+            const float4 center = gs.sgravity[i].position;
+            const float gravity_strength = gs.sgravity[i].strength;
+            const float inner_radius = gs.sgravity[i].inner_radus;
+            const float outer_radius = gs.sgravity[i].range_radus;
 
-        float4 diff = center-position;
-        diff.w = 0.0f;
-        float distance = length(diff);
-        float4 dir = diff/distance;
-        float4 gravity = dir * gravity_strength;
+            float4 diff = center-position;
+            diff.w = 0.0f;
+            float distance = length(diff);
+            float4 dir = diff/distance;
+            float4 gravity = dir * gravity_strength;
 
-        acceleration += min(distance-inner_radius, 0.0f) * d_params.wall_stiffness * dir;
-        acceleration += min(outer_radius-distance, 0.0f) * -d_params.wall_stiffness * dir;
-        acceleration += gravity;
+            acceleration += min(distance-inner_radius, 0.0f) * d_params.wall_stiffness * dir;
+            acceleration += min(outer_radius-distance, 0.0f) * -d_params.wall_stiffness * dir;
+            acceleration += gravity;
+        }
+
+        //const float timestep = 1.0f/60.f;
+        const float timestep = 0.01f;
+
+        // Integrate
+        velocity += timestep * acceleration;
+        velocity *= make_float4(0.999);
+        if(dot(velocity, velocity) > 1.0f) { velocity *= make_float4(0.98); }
+        //velocity.z *= 0.0f;
+        position += timestep * velocity;
+        //position.z *= 0.0f;
+
+        // Update
+        fps.particles[P_ID].density = fps.forces[P_ID].density;
+        fps.particles[P_ID].position = position;
+        fps.particles[P_ID].velocity = velocity;
     }
-
-    //const float timestep = 1.0f/60.f;
-    const float timestep = 0.01f;
-
-    // Integrate
-    velocity += timestep * acceleration;
-    velocity *= make_float4(0.999);
-    if(dot(velocity, velocity) > 1.0f) { velocity *= make_float4(0.98); }
-    //velocity.z *= 0.0f;
-    position += timestep * velocity;
-    //position.z *= 0.0f;
-
-    // Update
-    ps.particles[P_ID].density = ps.forces[P_ID].density;
-    ps.particles[P_ID].position = position;
-    ps.particles[P_ID].velocity = velocity;
-}
-
-void SPHIntegrate()
-{
-    dim3 dimBlock( SPH_THREAD_BLOCK_X );
-    dim3 dimGrid( SPH_MAX_FLUID_PARTICLES / SPH_THREAD_BLOCK_X );
-
-    GIntegrate<<<dimGrid, dimBlock>>>(h_fluid, h_gravities);
-}
+};
 
 void SPHUpdateFluid()
 {
-    SPHUpdateGrid();
-    SPHComputeDensity();
-    SPHComputeForce();
-    SPHIntegrate();
+    thrust::device_ptr<SPHFluidParticle>    dpparticles(h_fluid.particles);
+    thrust::device_ptr<SPHHash>             dphashes(h_fluid.hashes);
+
+    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(SPH_MAX_FLUID_PARTICLES), _UpdateHash(h_fluid) );
+    thrust::sort_by_key(dphashes, dphashes+SPH_MAX_FLUID_PARTICLES, dpparticles);
+    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(SPH_GRID_DIV_3), _GridClear(h_fluid));
+    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(SPH_MAX_FLUID_PARTICLES), _GridUpdate(h_fluid));
+
+    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(SPH_MAX_FLUID_PARTICLES), _ComputeDensity(h_fluid));
+    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(SPH_MAX_FLUID_PARTICLES), _ComputeForce(h_fluid));
+    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(SPH_MAX_FLUID_PARTICLES), _Integrate(h_fluid, h_gravities));
 }
 
 
-__global__ void GCopyInstances(SPHFluidParticle *d_fractions, float4 *d_lights, SPHFluidParticleSet ps)
+
+struct SPHRigidUpdateInfo
 {
-    const uint P_ID = GetThreadId();
-    int pid = ps.particles[P_ID].id;
-    d_fractions[P_ID] = ps.particles[P_ID];
+    int cindex;
+    int pindex;
+    int classid;
+    EntityHandle owner_handle;
+};
 
-    int light_cycle = SPH_MAX_FLUID_PARTICLES/SPH_MAX_LIGHT_NUM;
-    if(pid % light_cycle==0) {
-        d_lights[pid/light_cycle] = ps.particles[P_ID].position;
-    }
-}
-
+template<class T, class U>
+__device__ __host__ T& vector_cast(U& v) { return reinterpret_cast<T&>(v); }
 
 
+struct SPHRigidSet
+{
+    SPHRigidClass *rigid_class;
+};
 
 DeviceBufferObject h_fluid_gl;
 DeviceBufferObject h_rigids_gl;
 DeviceBufferObject h_light_gl;
 SPHRigidClass h_rigid_class[atomic::CB_END];
+thrust::host_vector<SPHRigidUpdateInfo>     h_rigid_ui;
+thrust::device_vector<SPHRigidClass>        d_rigid_class;
+thrust::device_vector<SPHRigidInstance>     d_rigid_inst;
+thrust::device_vector<SPHRigidParticle>     d_rigid_p;
+thrust::device_vector<SPHRigidUpdateInfo>   d_rigid_ui;
+
 
 void SPHInitializeGLBuffers(int vbo_fluid, int vbo_rigids, int vbo_lightpos)
 {
@@ -506,65 +505,84 @@ void SPHFinalizeGLBuffers()
 
 void SPHCopyRigidClassInfo(SPHRigidClass (&sphcc)[atomic::CB_END])
 {
+    d_rigid_class.resize(atomic::CB_END);
     thrust::copy(sphcc, sphcc+atomic::CB_END, h_rigid_class);
-    cudaMemcpyToSymbol("d_rigid_class", sphcc, sizeof(sphcc));
+    thrust::copy(sphcc, sphcc+atomic::CB_END, d_rigid_class.begin());
+
+    d_rigid_inst.reserve(1024);
+    d_rigid_p.reserve(SPH_MAX_RIGID_PARTICLES);
+    d_rigid_ui.reserve(SPH_MAX_RIGID_PARTICLES);
 }
+
+
+struct _CopyFluid
+{
+    SPHFluidParticleSet fps;
+    SPHFluidParticle    *gl_partcle;
+    float4              *gl_lights;
+
+    _CopyFluid(SPHFluidParticleSet f, SPHFluidParticle *glp, float4 *gll)
+        : fps(f), gl_partcle(glp), gl_lights(gll) {}
+
+    __device__ void operator()(int i)
+    {
+        const uint P_ID = i;
+        int pid = fps.particles[P_ID].id;
+        gl_partcle[P_ID] = fps.particles[P_ID];
+
+        int light_cycle = SPH_MAX_FLUID_PARTICLES/SPH_MAX_LIGHT_NUM;
+        if(pid % light_cycle==0) {
+            gl_lights[pid/light_cycle] = fps.particles[P_ID].position;
+        }
+    }
+};
 
 void SPHCopyToGL()
 {
-    SPHFluidParticle *d_fluid = (SPHFluidParticle*)h_fluid_gl.mapBuffer();
-    SPHRigidParticle *d_rigid = (SPHRigidParticle*)h_rigids_gl.mapBuffer();
-    float4 *d_lights = (float4*)h_light_gl.mapBuffer();
+    SPHFluidParticle *gl_fluid = (SPHFluidParticle*)h_fluid_gl.mapBuffer();
+    SPHRigidParticle *gl_rigid = (SPHRigidParticle*)h_rigids_gl.mapBuffer();
+    float4 *gl_lights = (float4*)h_light_gl.mapBuffer();
 
-    dim3 dimBlock( SPH_THREAD_BLOCK_X );
-    dim3 dimGrid( SPH_MAX_FLUID_PARTICLES / SPH_THREAD_BLOCK_X );
-    GCopyInstances<<<dimGrid, dimBlock>>>(d_fluid, d_lights, h_fluid);
+    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(SPH_MAX_FLUID_PARTICLES),
+        _CopyFluid(h_fluid, gl_fluid, gl_lights));
+
+    thrust::copy(d_rigid_p.begin(), d_rigid_p.end(), thrust::device_ptr<SPHRigidParticle>(gl_rigid));
 
     h_fluid_gl.unmapBuffer();
     h_rigids_gl.unmapBuffer();
     h_light_gl.unmapBuffer();
 }
 
-struct SPHRigidUpdateInfo
+
+
+struct _UpdateRigid
 {
-    int cindex;
-    int pindex;
-    int classid;
-    EntityHandle owner_handle;
-};
+    SPHRigidUpdateInfo  *rigid_ui;
+    SPHRigidClass       *rigid_class;
+    SPHRigidInstance    *rigid_inst;
+    SPHRigidParticle    *rigid_p;
 
-template<class T, class U>
-__device__ __host__ T& vector_cast(U& v) { return reinterpret_cast<T&>(v); }
+    _UpdateRigid(SPHRigidUpdateInfo *rui, SPHRigidClass *rc, SPHRigidInstance *rin, SPHRigidParticle *rp)
+        : rigid_ui(rui), rigid_class(rc), rigid_inst(rin), rigid_p(rp) {}
 
-struct SPHRigidUpdater
-{
-    SPHRigidClass       *sphcc;
-    SPHRigidInstance    *sphci;
-
-    template <typename Tuple>
-    __device__ void operator()(Tuple t)
+    __device__ void operator()(int i)
     {
-        SPHRigidUpdateInfo  &rui = thrust::get<0>(t);
-        SPHRigidParticle    &rp = thrust::get<1>(t);
-        SPHRigidClass       &cc = sphcc[rui.classid];
-        SPHRigidInstance    &ins = sphci[rui.cindex];
+        SPHRigidUpdateInfo  &rui    = rigid_ui[i];
+        SPHRigidClass       &rc     = rigid_class[rui.classid];
+        SPHRigidInstance    &rin    = rigid_inst[rui.cindex];
+        SPHRigidParticle    &rp     = rc.particles[rui.pindex];
         rp.owner_handle = rui.owner_handle;
-        rp.position     = vector_cast<float4&>(ins.transform * vector_cast<vec4>(cc.particles[rui.pindex].position));
-        rp.normal       = vector_cast<float4&>(ins.transform * vector_cast<vec4>(cc.particles[rui.pindex].normal));
+        rp.position     = vector_cast<float4&>(rin.transform * vector_cast<vec4>(rc.particles[rui.pindex].position));
+        rp.normal       = vector_cast<float4&>(rin.transform * vector_cast<vec4>(rc.particles[rui.pindex].normal));
     }
 };
 
 void SPHUpdateRigids(const thrust::host_vector<SPHRigidInstance> &rigids)
 {
-    thrust::device_vector<SPHRigidInstance>     d_rigid_inst;
-    thrust::device_vector<SPHRigidParticle>     d_rigid_p;
-    thrust::device_vector<SPHRigidUpdateInfo>   d_rigid_ui;
-    thrust::host_vector<SPHRigidUpdateInfo>     h_rigid_ui;
-
     d_rigid_inst.resize(rigids.size());
     thrust::copy(rigids.begin(), rigids.end(), d_rigid_inst.begin());
 
-    uint total = 0;
+    int total = 0;
     for(uint ii=0; ii<rigids.size(); ++ii) {
         int classid = rigids[ii].classid;
         total += h_rigid_class[classid].num_particles;
@@ -573,7 +591,7 @@ void SPHUpdateRigids(const thrust::host_vector<SPHRigidInstance> &rigids)
     d_rigid_ui.resize(total);
     h_rigid_ui.resize(total);
 
-    uint n = 0;
+    int n = 0;
     for(uint ii=0; ii<rigids.size(); ++ii) {
         int classid = rigids[ii].classid;
         SPHRigidClass &cc = h_rigid_class[classid];
@@ -586,13 +604,9 @@ void SPHUpdateRigids(const thrust::host_vector<SPHRigidInstance> &rigids)
         n += cc.num_particles;
     }
 
-    SPHRigidUpdater updator;
-    updator.sphcc = h_rigid_class;
-    updator.sphci = d_rigid_inst.data().get();
     thrust::copy(h_rigid_ui.begin(), h_rigid_ui.end(), d_rigid_ui.begin());
-    thrust::for_each(thrust::make_zip_iterator(thrust::make_tuple(d_rigid_ui.begin(), d_rigid_p.begin())),
-                     thrust::make_zip_iterator(thrust::make_tuple(d_rigid_ui.end(),   d_rigid_p.end()  )),
-                     updator);
+    thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(total),
+        _UpdateRigid(d_rigid_ui.data().get(), d_rigid_class.data().get(), d_rigid_inst.data().get(), d_rigid_p.data().get()) );
 }
 
 

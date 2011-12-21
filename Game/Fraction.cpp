@@ -65,20 +65,13 @@ void FractionSet::updateAsync()
 
 void FractionSet::updateSPH()
 {
-    // todo: copy character data to device
-
-
     vec2 move = atomicGetInputs()->getMove()*0.01f;
     m_sgravity[0].position.x += move.x;
     m_sgravity[0].position.y += move.y;
 
     SPHUpdateGravity(m_sgravity);
-    SPHUpdateRigids(m_rigids);
+    //SPHUpdateRigids(m_rigids);
     SPHUpdateFluid();
-
-    //PerformanceCounter counter;
-    //CUDA_SAFE_CALL( cudaMemcpyFromSymbol(m_particles, "d_particles", sizeof(m_particles), 0, cudaMemcpyDeviceToHost ) );
-    //IST_PRINT("copying d_particles took %f ms.\n", counter.getElapsedMillisecond());
 }
 
 
