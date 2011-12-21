@@ -20,9 +20,11 @@
 
 __constant__ SPHParam d_params;
 __device__ SPHCharacterClass d_cclass[atomic::CB_END];
-__device__ SPHSphericalGravity d_sgravity[ SPH_MAX_SPHERICAL_GRAVITY_NUM ];
 
-
+struct SPHGravitySet
+{
+    SPHSphericalGravity *sgravity;
+};
 
 struct SPHFluidParticleSet
 {
@@ -124,6 +126,7 @@ struct SPHForceSet
 
 SPHFluidParticleSet h_fluid;
 SPHRigidParticleSet h_rigid;
+SPHGravitySet h_gravities;
 
 
 
@@ -166,6 +169,8 @@ void SPHInitialize()
     CUDA_SAFE_CALL( cudaMalloc(&h_rigid.grid,       sizeof(SPHGridData)*SPH_GRID_DIV_3) );
     CUDA_SAFE_CALL( cudaMalloc(&h_rigid.states,     sizeof(SPHGPUStates)) );
 
+    CUDA_SAFE_CALL( cudaMalloc(&h_gravities.sgravity, sizeof(SPHSphericalGravity)*SPH_MAX_SPHERICAL_GRAVITY_NUM) );
+
     {
         SPHParam sph_params;
         sph_params.smooth_len          = 0.02f;
@@ -193,7 +198,7 @@ void SPHInitialize()
         h_sg.inner_radus = 0.5f;
         h_sg.range_radus = 5.12f;
         h_sg.strength = 0.5f;
-        CUDA_SAFE_CALL( cudaMemcpyToSymbol("d_sgravity", &h_sg, sizeof(h_sg)) );
+        cudaMemcpy(h_gravities.sgravity, &h_sg, sizeof(h_sg), cudaMemcpyHostToDevice );
     }
 
     dim3 dimBlock( SPH_THREAD_BLOCK_X );
@@ -203,6 +208,8 @@ void SPHInitialize()
 
 void SPHFinalize()
 {
+    CUDA_SAFE_CALL( cudaFree(h_gravities.sgravity) );
+
     CUDA_SAFE_CALL( cudaFree(h_rigid.states) );
     CUDA_SAFE_CALL( cudaFree(h_rigid.grid) );
     CUDA_SAFE_CALL( cudaFree(h_rigid.hashes) );
@@ -383,7 +390,7 @@ void SPHComputeForce()
 
 
 
-__global__ void GIntegrate(SPHFluidParticleSet ps)
+__global__ void GIntegrate(SPHFluidParticleSet ps, SPHGravitySet gs)
 {
     const uint P_ID = GetThreadId();
 
@@ -411,12 +418,12 @@ __global__ void GIntegrate(SPHFluidParticleSet ps)
 
     // Apply gravity
     for(int i=0; i<SPH_MAX_SPHERICAL_GRAVITY_NUM; ++i) {
-        if(!d_sgravity[i].is_active) { continue; }
+        if(!gs.sgravity[i].is_active) { continue; }
 
-        const float4 center = d_sgravity[i].position;
-        const float gravity_strength = d_sgravity[i].strength;
-        const float inner_radius = d_sgravity[i].inner_radus;
-        const float outer_radius = d_sgravity[i].range_radus;
+        const float4 center = gs.sgravity[i].position;
+        const float gravity_strength = gs.sgravity[i].strength;
+        const float inner_radius = gs.sgravity[i].inner_radus;
+        const float outer_radius = gs.sgravity[i].range_radus;
 
         float4 diff = center-position;
         diff.w = 0.0f;
@@ -451,10 +458,10 @@ void SPHIntegrate()
     dim3 dimBlock( SPH_THREAD_BLOCK_X );
     dim3 dimGrid( SPH_MAX_FLUID_PARTICLES / SPH_THREAD_BLOCK_X );
 
-    GIntegrate<<<dimGrid, dimBlock>>>(h_fluid);
+    GIntegrate<<<dimGrid, dimBlock>>>(h_fluid, h_gravities);
 }
 
-void SPHUpdate()
+void SPHUpdateFluid()
 {
     SPHUpdateGrid();
     SPHComputeDensity();
@@ -518,20 +525,89 @@ void SPHCopyToGL()
     h_light_gl.unmapBuffer();
 }
 
-void SPHCopyCharacterInstancesToDevice(const thrust::host_vector<SPHCharacterInstance> (&instances)[atomic::CB_END])
+struct SPHRigidUpdateInfo
 {
-    uint num = 0;
-    for(int i=0; i<atomic::CB_END; ++i) {
-        num += h_sphcc[i].num_particles * instances[i].size();
+    int cindex;
+    int pindex;
+    int classid;
+    EntityHandle owner_handle;
+};
+
+template<class T, class U>
+__device__ __host__ T& vector_cast(U& v) { return reinterpret_cast<T&>(v); }
+
+struct SPHRigidUpdater
+{
+    SPHCharacterClass       *sphcc;
+    SPHCharacterInstance    *sphci;
+
+    template <typename Tuple>
+    __device__ void operator()(Tuple t)
+    {
+        SPHRigidUpdateInfo      &rui = thrust::get<0>(t);
+        SPHRigidParticle        &rp = thrust::get<1>(t);
+        SPHCharacterClass       &cc = sphcc[rui.classid];
+        SPHCharacterInstance    &ins = sphci[rui.cindex];
+        rp.owner_handle = rui.owner_handle;
+        rp.position     = vector_cast<float4&>(ins.transform * vector_cast<vec4>(cc.particles[rui.pindex].position));
+        rp.normal       = vector_cast<float4&>(ins.transform * vector_cast<vec4>(cc.particles[rui.pindex].normal));
     }
+};
+
+void SPHUpdateRigids(const thrust::host_vector<SPHCharacterInstance> &rigids)
+{
+    thrust::device_vector<SPHCharacterInstance> d_instances;
+    thrust::device_vector<SPHRigidParticle>     d_rigid;
+    thrust::device_vector<SPHRigidUpdateInfo>   d_rui;
+    thrust::host_vector<SPHRigidUpdateInfo>     h_rui;
+
+    d_instances.resize(rigids.size());
+    thrust::copy(rigids.begin(), rigids.end(), d_instances.begin());
+
+    uint total = 0;
+    for(uint ii=0; ii<rigids.size(); ++ii) {
+        int classid = rigids[ii].classid;
+        total += h_sphcc[classid].num_particles;
+    }
+    d_rigid.resize(total);
+    d_rui.resize(total);
+    h_rui.resize(total);
+
+    uint n = 0;
+    for(uint ii=0; ii<rigids.size(); ++ii) {
+        int classid = rigids[ii].classid;
+        SPHCharacterClass &cc = h_sphcc[classid];
+        for(uint pi=0; pi<cc.num_particles; ++pi) {
+            h_rui[n+pi].cindex = ii;
+            h_rui[n+pi].pindex = pi;
+            h_rui[n+pi].classid = classid;
+            h_rui[n+pi].owner_handle = rigids[ii].handle;
+        }
+        n += cc.num_particles;
+    }
+
+    SPHRigidUpdater updator;
+    updator.sphcc = h_sphcc;
+    updator.sphci = d_instances.data().get();
+    thrust::copy(h_rui.begin(), h_rui.end(), d_rui.begin());
+    thrust::for_each(thrust::make_zip_iterator(thrust::make_tuple(d_rui.begin(), d_rigid.begin())),
+                     thrust::make_zip_iterator(thrust::make_tuple(d_rui.end(),   d_rigid.end()  )),
+                     updator);
 }
+
+
+void SPHUpdateGravity(SPHSphericalGravity (&sgravity)[ SPH_MAX_SPHERICAL_GRAVITY_NUM ])
+{
+    cudaMemcpy(h_gravities.sgravity, sgravity, sizeof(sgravity), cudaMemcpyHostToDevice );
+}
+
 
 void SPHCopyDamageMessageToHost(SPHDamageMessage *dst)
 {
 }
 
 
-void SPHUpdateSphericalGravityData(SPHSphericalGravity (&sgravity)[ SPH_MAX_SPHERICAL_GRAVITY_NUM ])
+void SPHSpawnFluidParticles(const thrust::host_vector<SPHCharacterInstance> &rigids)
 {
-    CUDA_SAFE_CALL( cudaMemcpyToSymbol("d_sgravity", sgravity, sizeof(sgravity)) );
 }
+

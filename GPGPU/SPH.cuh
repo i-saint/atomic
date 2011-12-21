@@ -14,6 +14,8 @@ typedef unsigned int uint;
 typedef uint EntityHandle;
 typedef uint SPHHash;
 typedef uint2 SPHGridData;
+typedef glm::vec4 vec4;
+typedef glm::mat4 mat4;
 
 
 const int SPH_GRID_DIV_SHIFT_X = 9; // 
@@ -100,6 +102,7 @@ struct SPHCharacterInstance
     union {
         struct {
             EntityHandle handle;
+            int classid;
         };
         float4 padding;
     };
@@ -120,19 +123,18 @@ struct SPHDamageMessage
 
 void SPHInitialize();
 void SPHFinalize();
-void SPHUpdate();
+void SPHUpdateFluid();
+void SPHUpdateRigids(const thrust::host_vector<SPHCharacterInstance> &rigids);
 
 void SPHInitializeInstanceBuffers(int vbo_fluid, int vbo_rigids, int vbo_lightpos);
 void SPHFinalizeInstanceBuffers();
 void SPHCopyClassInfo(SPHCharacterClass (&sphcc)[atomic::CB_END]);
 void SPHCopyToGL();
-void SPHCopyCharacterInstancesToDevice(const thrust::host_vector<SPHCharacterInstance> (&instances)[atomic::CB_END]);
 void SPHCopyDamageMessageToHost(SPHDamageMessage *dst);
 
-void SPHUpdateSphericalGravityData(SPHSphericalGravity (&sgravity)[ SPH_MAX_SPHERICAL_GRAVITY_NUM ]);
+void SPHUpdateGravity(SPHSphericalGravity (&sgravity)[ SPH_MAX_SPHERICAL_GRAVITY_NUM ]);
 
-void SPHSpawnParticles(const SPHFluidParticle* spawn, int num_pawn);
-void SPHSpawnSolidParticles(const SPHFluidParticle* spawn, int num_pawn);
+void SPHSpawnFluidParticles(const thrust::host_vector<SPHCharacterInstance> &rigids);
 
 
 } // extern "C"

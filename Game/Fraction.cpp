@@ -46,7 +46,7 @@ void FractionSet::update()
 {
     m_task_asyncupdate->kick();
 
-    for(uint32 i=0; i<_countof(m_matrices); ++i) { m_matrices[i].clear(); }
+    m_rigids.clear();
 
     //updateAsync();
 }
@@ -71,9 +71,10 @@ void FractionSet::updateSPH()
     vec2 move = atomicGetInputs()->getMove()*0.01f;
     m_sgravity[0].position.x += move.x;
     m_sgravity[0].position.y += move.y;
-    SPHUpdateSphericalGravityData(m_sgravity);
 
-    SPHUpdate();
+    SPHUpdateGravity(m_sgravity);
+    SPHUpdateRigids(m_rigids);
+    SPHUpdateFluid();
 
     //PerformanceCounter counter;
     //CUDA_SAFE_CALL( cudaMemcpyFromSymbol(m_particles, "d_particles", sizeof(m_particles), 0, cudaMemcpyDeviceToHost ) );

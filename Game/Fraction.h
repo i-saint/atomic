@@ -25,7 +25,7 @@ private:
     SPHSphericalGravity                     m_sgravity[ SPH_MAX_SPHERICAL_GRAVITY_NUM ];
     thrust::host_vector<SPHFluidParticle>   m_spawn;
 
-    thrust::host_vector<SPHCharacterInstance>   m_matrices[CB_END];
+    thrust::host_vector<SPHCharacterInstance>   m_rigids;
 
 public:
     FractionSet();
@@ -42,12 +42,13 @@ public:
 
     const SPHFluidParticle* getFraction(uint32 i) const { return &m_particles[i]; }
 
-    void addMatrix(CB_RID id, EntityHandle h, const mat4& m)
+    void addMatrix(CB_RID cid, EntityHandle h, const mat4& m)
     {
         SPHCharacterInstance tmp;
+        tmp.classid = cid;
         tmp.handle = h;
         tmp.transform = m;
-        m_matrices[id].push_back( tmp );
+        m_rigids.push_back( tmp );
     }
 
 public:
