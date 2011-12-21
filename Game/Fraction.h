@@ -23,9 +23,8 @@ private:
     AsyncUpdateTask                         *m_task_asyncupdate;
     SPHFluidParticle                        m_particles[SPH_MAX_FLUID_PARTICLES];
     SPHSphericalGravity                     m_sgravity[ SPH_MAX_SPHERICAL_GRAVITY_NUM ];
-    thrust::host_vector<SPHFluidParticle>   m_spawn;
 
-    thrust::host_vector<SPHCharacterInstance>   m_rigids;
+    thrust::host_vector<SPHRigidInstance>   m_rigids;
 
 public:
     FractionSet();
@@ -44,7 +43,7 @@ public:
 
     void addMatrix(CB_RID cid, EntityHandle h, const mat4& m)
     {
-        SPHCharacterInstance tmp;
+        SPHRigidInstance tmp;
         tmp.classid = cid;
         tmp.handle = h;
         tmp.transform = m;

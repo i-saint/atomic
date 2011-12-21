@@ -86,7 +86,7 @@ struct SPHSphericalGravity
 };
 
 
-struct SPHCharacterClass
+struct SPHRigidClass
 {
     union {
         struct {
@@ -97,7 +97,7 @@ struct SPHCharacterClass
     };
 };
 
-struct SPHCharacterInstance
+struct SPHRigidInstance
 {
     union {
         struct {
@@ -124,17 +124,17 @@ struct SPHDamageMessage
 void SPHInitialize();
 void SPHFinalize();
 void SPHUpdateFluid();
-void SPHUpdateRigids(const thrust::host_vector<SPHCharacterInstance> &rigids);
+void SPHUpdateRigids(const thrust::host_vector<SPHRigidInstance> &rigids);
 
-void SPHInitializeInstanceBuffers(int vbo_fluid, int vbo_rigids, int vbo_lightpos);
-void SPHFinalizeInstanceBuffers();
-void SPHCopyClassInfo(SPHCharacterClass (&sphcc)[atomic::CB_END]);
+void SPHInitializeGLBuffers(int vbo_fluid, int vbo_rigids, int vbo_lightpos);
+void SPHFinalizeGLBuffers();
+void SPHCopyRigidClassInfo(SPHRigidClass (&sphcc)[atomic::CB_END]);
 void SPHCopyToGL();
 void SPHCopyDamageMessageToHost(SPHDamageMessage *dst);
 
 void SPHUpdateGravity(SPHSphericalGravity (&sgravity)[ SPH_MAX_SPHERICAL_GRAVITY_NUM ]);
 
-void SPHSpawnFluidParticles(const thrust::host_vector<SPHCharacterInstance> &rigids);
+void SPHSpawnFluidParticles(const thrust::host_vector<SPHRigidInstance> &rigids);
 
 
 } // extern "C"

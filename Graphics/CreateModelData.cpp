@@ -257,7 +257,7 @@ namespace {
     const float32 g_particle_par_volume = 2000.0; // particles / (1.0*1.0*1.0)
 }
 
-bool CreateCubeParticleSet( CudaBuffer& ps, SPHCharacterClass &sphcc, float32 len )
+bool CreateCubeParticleSet( CudaBuffer& ps, SPHRigidClass &sphcc, float32 len )
 {
     SFMT random; random.initialize(3);
 
@@ -302,7 +302,7 @@ bool CreateCubeParticleSet( CudaBuffer& ps, SPHCharacterClass &sphcc, float32 le
     return true;
 }
 
-bool CreateSphereParticleSet( CudaBuffer& ps, SPHCharacterClass &sphcc, float32 radius )
+bool CreateSphereParticleSet( CudaBuffer& ps, SPHRigidClass &sphcc, float32 radius )
 {
     SFMT random; random.initialize(5);
 

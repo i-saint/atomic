@@ -14,8 +14,8 @@ namespace atomic {
     void CreateBloomCompositeQuad(VertexArray& va, VertexBufferObject& vbo);
     void CreateCube(VertexArray& va, VertexBufferObject& vbo, float32 len);
 
-    bool CreateCubeParticleSet(CudaBuffer& ps, SPHCharacterClass &sphcc, float32 len);
-    bool CreateSphereParticleSet(CudaBuffer& ps, SPHCharacterClass &sphcc, float32 radius);
+    bool CreateCubeParticleSet(CudaBuffer& ps, SPHRigidClass &sphcc, float32 len);
+    bool CreateSphereParticleSet(CudaBuffer& ps, SPHRigidClass &sphcc, float32 radius);
 
 } // namespace atomic
 #endif // __atomic_Graphics_ModelData_h__

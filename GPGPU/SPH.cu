@@ -19,7 +19,7 @@
 
 
 __constant__ SPHParam d_params;
-__device__ SPHCharacterClass d_cclass[atomic::CB_END];
+__device__ SPHRigidClass d_rigid_class[atomic::CB_END];
 
 struct SPHGravitySet
 {
@@ -488,26 +488,26 @@ __global__ void GCopyInstances(SPHFluidParticle *d_fractions, float4 *d_lights, 
 DeviceBufferObject h_fluid_gl;
 DeviceBufferObject h_rigids_gl;
 DeviceBufferObject h_light_gl;
-SPHCharacterClass h_sphcc[atomic::CB_END];
+SPHRigidClass h_rigid_class[atomic::CB_END];
 
-void SPHInitializeInstanceBuffers(int vbo_fluid, int vbo_rigids, int vbo_lightpos)
+void SPHInitializeGLBuffers(int vbo_fluid, int vbo_rigids, int vbo_lightpos)
 {
     h_fluid_gl.registerBuffer(vbo_fluid, cudaGraphicsMapFlagsWriteDiscard);
     h_rigids_gl.registerBuffer(vbo_rigids, cudaGraphicsMapFlagsWriteDiscard);
     h_light_gl.registerBuffer(vbo_lightpos, cudaGraphicsMapFlagsWriteDiscard);
 }
 
-void SPHFinalizeInstanceBuffers()
+void SPHFinalizeGLBuffers()
 {
     h_light_gl.unregisterBuffer();
     h_rigids_gl.unregisterBuffer();
     h_fluid_gl.unregisterBuffer();
 }
 
-void SPHCopyClassInfo(SPHCharacterClass (&sphcc)[atomic::CB_END])
+void SPHCopyRigidClassInfo(SPHRigidClass (&sphcc)[atomic::CB_END])
 {
-    thrust::copy(sphcc, sphcc+atomic::CB_END, h_sphcc);
-    cudaMemcpyToSymbol("d_cclass", sphcc, sizeof(sphcc));
+    thrust::copy(sphcc, sphcc+atomic::CB_END, h_rigid_class);
+    cudaMemcpyToSymbol("d_rigid_class", sphcc, sizeof(sphcc));
 }
 
 void SPHCopyToGL()
@@ -538,60 +538,60 @@ __device__ __host__ T& vector_cast(U& v) { return reinterpret_cast<T&>(v); }
 
 struct SPHRigidUpdater
 {
-    SPHCharacterClass       *sphcc;
-    SPHCharacterInstance    *sphci;
+    SPHRigidClass       *sphcc;
+    SPHRigidInstance    *sphci;
 
     template <typename Tuple>
     __device__ void operator()(Tuple t)
     {
-        SPHRigidUpdateInfo      &rui = thrust::get<0>(t);
-        SPHRigidParticle        &rp = thrust::get<1>(t);
-        SPHCharacterClass       &cc = sphcc[rui.classid];
-        SPHCharacterInstance    &ins = sphci[rui.cindex];
+        SPHRigidUpdateInfo  &rui = thrust::get<0>(t);
+        SPHRigidParticle    &rp = thrust::get<1>(t);
+        SPHRigidClass       &cc = sphcc[rui.classid];
+        SPHRigidInstance    &ins = sphci[rui.cindex];
         rp.owner_handle = rui.owner_handle;
         rp.position     = vector_cast<float4&>(ins.transform * vector_cast<vec4>(cc.particles[rui.pindex].position));
         rp.normal       = vector_cast<float4&>(ins.transform * vector_cast<vec4>(cc.particles[rui.pindex].normal));
     }
 };
 
-void SPHUpdateRigids(const thrust::host_vector<SPHCharacterInstance> &rigids)
+void SPHUpdateRigids(const thrust::host_vector<SPHRigidInstance> &rigids)
 {
-    thrust::device_vector<SPHCharacterInstance> d_instances;
-    thrust::device_vector<SPHRigidParticle>     d_rigid;
-    thrust::device_vector<SPHRigidUpdateInfo>   d_rui;
-    thrust::host_vector<SPHRigidUpdateInfo>     h_rui;
+    thrust::device_vector<SPHRigidInstance>     d_rigid_inst;
+    thrust::device_vector<SPHRigidParticle>     d_rigid_p;
+    thrust::device_vector<SPHRigidUpdateInfo>   d_rigid_ui;
+    thrust::host_vector<SPHRigidUpdateInfo>     h_rigid_ui;
 
-    d_instances.resize(rigids.size());
-    thrust::copy(rigids.begin(), rigids.end(), d_instances.begin());
+    d_rigid_inst.resize(rigids.size());
+    thrust::copy(rigids.begin(), rigids.end(), d_rigid_inst.begin());
 
     uint total = 0;
     for(uint ii=0; ii<rigids.size(); ++ii) {
         int classid = rigids[ii].classid;
-        total += h_sphcc[classid].num_particles;
+        total += h_rigid_class[classid].num_particles;
     }
-    d_rigid.resize(total);
-    d_rui.resize(total);
-    h_rui.resize(total);
+    d_rigid_p.resize(total);
+    d_rigid_ui.resize(total);
+    h_rigid_ui.resize(total);
 
     uint n = 0;
     for(uint ii=0; ii<rigids.size(); ++ii) {
         int classid = rigids[ii].classid;
-        SPHCharacterClass &cc = h_sphcc[classid];
+        SPHRigidClass &cc = h_rigid_class[classid];
         for(uint pi=0; pi<cc.num_particles; ++pi) {
-            h_rui[n+pi].cindex = ii;
-            h_rui[n+pi].pindex = pi;
-            h_rui[n+pi].classid = classid;
-            h_rui[n+pi].owner_handle = rigids[ii].handle;
+            h_rigid_ui[n+pi].cindex = ii;
+            h_rigid_ui[n+pi].pindex = pi;
+            h_rigid_ui[n+pi].classid = classid;
+            h_rigid_ui[n+pi].owner_handle = rigids[ii].handle;
         }
         n += cc.num_particles;
     }
 
     SPHRigidUpdater updator;
-    updator.sphcc = h_sphcc;
-    updator.sphci = d_instances.data().get();
-    thrust::copy(h_rui.begin(), h_rui.end(), d_rui.begin());
-    thrust::for_each(thrust::make_zip_iterator(thrust::make_tuple(d_rui.begin(), d_rigid.begin())),
-                     thrust::make_zip_iterator(thrust::make_tuple(d_rui.end(),   d_rigid.end()  )),
+    updator.sphcc = h_rigid_class;
+    updator.sphci = d_rigid_inst.data().get();
+    thrust::copy(h_rigid_ui.begin(), h_rigid_ui.end(), d_rigid_ui.begin());
+    thrust::for_each(thrust::make_zip_iterator(thrust::make_tuple(d_rigid_ui.begin(), d_rigid_p.begin())),
+                     thrust::make_zip_iterator(thrust::make_tuple(d_rigid_ui.end(),   d_rigid_p.end()  )),
                      updator);
 }
 
@@ -607,7 +607,7 @@ void SPHCopyDamageMessageToHost(SPHDamageMessage *dst)
 }
 
 
-void SPHSpawnFluidParticles(const thrust::host_vector<SPHCharacterInstance> &rigids)
+void SPHSpawnFluidParticles(const thrust::host_vector<SPHRigidInstance> &rigids)
 {
 }
 

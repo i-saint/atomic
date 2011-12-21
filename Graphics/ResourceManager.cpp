@@ -153,7 +153,7 @@ bool GraphicResourceManager::initialize()
     {
         CreateCubeParticleSet(*m_cb[CB_CLASS_CUBE], m_sphcc[CB_CLASS_CUBE], 0.4f);
         CreateSphereParticleSet(*m_cb[CB_CLASS_SPHERE], m_sphcc[CB_CLASS_SPHERE], 0.4f);
-        SPHCopyClassInfo(m_sphcc);
+        SPHCopyRigidClassInfo(m_sphcc);
 
         m_cb[CB_CHARACTER_INSTANCE]->setCapacity(sizeof(mat4)*ATOMIC_MAX_CHARACTERS);
     }
@@ -163,7 +163,7 @@ bool GraphicResourceManager::initialize()
     m_vbo[VBO_DIRECTIONALLIGHT_INSTANCES]->allocate(sizeof(DirectionalLight)*ATOMIC_MAX_DIRECTIONAL_LIGHTS, VertexBufferObject::USAGE_DYNAMIC);
     m_vbo[VBO_POINTLIGHT_INSTANCES]->allocate(sizeof(PointLight)*ATOMIC_MAX_POINT_LIGHTS, VertexBufferObject::USAGE_DYNAMIC);
     SPHInitialize();
-    SPHInitializeInstanceBuffers(
+    SPHInitializeGLBuffers(
         m_vbo[VBO_FLUID_PARTICLES]->getHandle(),
         m_vbo[VBO_RIGID_PARTICLES]->getHandle(),
         m_vbo[VBO_POINTLIGHT_INSTANCES]->getHandle());
@@ -173,7 +173,7 @@ bool GraphicResourceManager::initialize()
 
 void GraphicResourceManager::finalize()
 {
-    SPHFinalizeInstanceBuffers();
+    SPHFinalizeGLBuffers();
     SPHFinalize();
 
     for(uint32 i=0; i<_countof(m_cb); ++i)      { IST_SAFE_DELETE(m_cb[i]); }
