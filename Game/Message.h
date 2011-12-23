@@ -4,7 +4,7 @@
 namespace atomic {
 
 
-struct __declspec(align(16)) CallMessage
+struct CallInfo
 {
     EntityHandle from;
     EntityHandle to;
@@ -13,12 +13,20 @@ struct __declspec(align(16)) CallMessage
     variant argument;
 };
 
+struct DamageMessage
+{
+    EntityHandle from;
+    EntityHandle to;
+    float32 damage;
+    int32 attribute;
+};
+
 
 
 class MessageRouter : boost::noncopyable
 {
 public:
-    typedef stl::vector<CallMessage>    MessageBlock;
+    typedef stl::vector<CallInfo>    MessageBlock;
     typedef stl::vector<MessageBlock*>  MessageBlockCont;
 
 private:
@@ -59,7 +67,7 @@ private:
 public:
     MessageIterator();
     bool hasNext();
-    const CallMessage& iterate();
+    const CallInfo& iterate();
 };
 
 } // namespace atomic

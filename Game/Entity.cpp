@@ -90,21 +90,6 @@ void EntitySet::update( float32 dt )
 
 void EntitySet::sync()
 {
-
-}
-
-void EntitySet::draw()
-{
-    for(uint32 i=0; i<ECID_END; ++i) {
-        for(uint32 j=0; j<ESID_MAX; ++j) {
-            EntityCont &entities = m_entities[i][j];
-            uint32 s = entities.size();
-            for(uint32 k=0; k<s; ++k) {
-                IEntity *entity = entities[k];
-                if(entity) { entity->draw(); }
-            }
-        }
-    }
 }
 
 IEntity* EntitySet::getEntity( EntityHandle h )

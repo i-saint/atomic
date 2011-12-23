@@ -21,6 +21,7 @@ enum ENTITY_CALL
     ECALL_setRefCount,
     ECALL_addRefCount,
     ECALL_release,
+    ECALL_onDamage,
     ECALL_setHealth,
     ECALL_setPosition,
     ECALL_setScale,

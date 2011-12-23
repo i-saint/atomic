@@ -107,7 +107,6 @@ void World::update(float32 dt)
 
 void World::draw() const
 {
-    m_entity_set->draw();
     m_fraction_set->draw();
 
     DirectionalLight dl;

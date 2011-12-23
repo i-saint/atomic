@@ -41,7 +41,7 @@ public:
 
     const SPHFluidParticle* getFraction(uint32 i) const { return &m_particles[i]; }
 
-    void addMatrix(CB_RID cid, EntityHandle h, const mat4& m)
+    void addRigid(CB_RID cid, EntityHandle h, const mat4& m)
     {
         SPHRigidInstance tmp;
         tmp.classid = cid;

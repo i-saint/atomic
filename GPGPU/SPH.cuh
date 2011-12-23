@@ -18,14 +18,22 @@ typedef glm::vec4 vec4;
 typedef glm::mat4 mat4;
 
 
-const int SPH_GRID_DIV_SHIFT_X = 9; // 
-const int SPH_GRID_DIV_SHIFT_Y = 9; // 
-const int SPH_GRID_DIV_SHIFT_Z = 2; // 
-const int SPH_GRID_DIV_X = 1<<SPH_GRID_DIV_SHIFT_X;
-const int SPH_GRID_DIV_Y = 1<<SPH_GRID_DIV_SHIFT_Y;
-const int SPH_GRID_DIV_Z = 1<<SPH_GRID_DIV_SHIFT_Z;
-const int SPH_GRID_DIV_3 = SPH_GRID_DIV_X*SPH_GRID_DIV_Y*SPH_GRID_DIV_Z;
-//const int SPH_MAX_FLUID_PARTICLES = 65536*2;
+const int SPH_FLUID_GRID_DIV_SHIFT_X = 9; // 
+const int SPH_FLUID_GRID_DIV_SHIFT_Y = 9; // 
+const int SPH_FLUID_GRID_DIV_SHIFT_Z = 2; // 
+const int SPH_FLUID_GRID_DIV_X = 1<<SPH_FLUID_GRID_DIV_SHIFT_X;
+const int SPH_FLUID_GRID_DIV_Y = 1<<SPH_FLUID_GRID_DIV_SHIFT_Y;
+const int SPH_FLUID_GRID_DIV_Z = 1<<SPH_FLUID_GRID_DIV_SHIFT_Z;
+const int SPH_FLUID_GRID_DIV_3 = SPH_FLUID_GRID_DIV_X*SPH_FLUID_GRID_DIV_Y*SPH_FLUID_GRID_DIV_Z;
+
+const int SPH_RIGID_GRID_DIV_SHIFT_X = 8; // 
+const int SPH_RIGID_GRID_DIV_SHIFT_Y = 8; // 
+const int SPH_RIGID_GRID_DIV_SHIFT_Z = 2; // 
+const int SPH_RIGID_GRID_DIV_X = 1<<SPH_RIGID_GRID_DIV_SHIFT_X;
+const int SPH_RIGID_GRID_DIV_Y = 1<<SPH_RIGID_GRID_DIV_SHIFT_Y;
+const int SPH_RIGID_GRID_DIV_Z = 1<<SPH_RIGID_GRID_DIV_SHIFT_Z;
+const int SPH_RIGID_GRID_DIV_3 = SPH_RIGID_GRID_DIV_X*SPH_RIGID_GRID_DIV_Y*SPH_RIGID_GRID_DIV_Z;
+
 const int SPH_MAX_FLUID_PARTICLES = 65536;
 const int SPH_MAX_RIGID_PARTICLES = 65536;
 const int SPH_MAX_LIGHT_NUM = 16;
@@ -38,7 +46,7 @@ struct SPHFluidParticle
     union {
         struct {
             int id;
-            int lifetime;
+            int alive;
             float density;
             EntityHandle owner;
         };

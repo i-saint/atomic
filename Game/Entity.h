@@ -104,12 +104,11 @@ public:
     IEntity() : m_ehandle(0) {}
     virtual ~IEntity() {}
     uint32      getHandle() const   { return m_ehandle; }
-
     virtual void initialize() {}
     virtual void finalize() {}
+
     virtual void update(float32 dt)=0;
     virtual void updateAsync(float32 dt)=0;
-    virtual void draw()=0;
 
     virtual bool call(uint32 call_id, const variant &v) { return false; }
     virtual bool query(uint32 query_id, variant &v) const { return false; }
@@ -135,7 +134,6 @@ public:
 
     void update(float32 dt);
     void sync();
-    void draw();
 
     IEntity* getEntity(EntityHandle h);
     void deleteEntity(EntityHandle h);

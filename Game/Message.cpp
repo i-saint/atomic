@@ -90,7 +90,7 @@ bool atomic::MessageIterator::hasNext()
     return false;
 }
 
-const CallMessage& atomic::MessageIterator::iterate()
+const CallInfo& atomic::MessageIterator::iterate()
 {
     return (*m_current_block)[m_message_index++];
 }

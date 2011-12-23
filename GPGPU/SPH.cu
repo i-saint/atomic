@@ -20,12 +20,7 @@
 
 __constant__ SPHParam d_params;
 
-struct SPHGravitySet
-{
-    SPHSphericalGravity *sgravity;
-};
-
-struct SPHFluidParticleSet
+struct DeviceFluidDataSet
 {
     SPHGridParam            *params;
     SPHFluidParticle        *particles;
@@ -38,7 +33,7 @@ struct SPHFluidParticleSet
     {
         float4 c = (pos-params->grid_pos)*params->grid_dim_rcp;
         int3 uc = make_int3(c.x, c.y, c.z);
-        return clamp(uc, make_int3(0), make_int3(SPH_GRID_DIV_X-1, SPH_GRID_DIV_Y-1, SPH_GRID_DIV_Z-1));
+        return clamp(uc, make_int3(0), make_int3(SPH_FLUID_GRID_DIV_X-1, SPH_FLUID_GRID_DIV_Y-1, SPH_FLUID_GRID_DIV_Z-1));
     }
 
     __device__ uint GridCalculateHash(float4 pos)
@@ -48,7 +43,7 @@ struct SPHFluidParticleSet
 
     __device__ uint GridConstuctKey(int3 v)
     {
-        return v.x | (v.y<<SPH_GRID_DIV_SHIFT_X) | (v.z<<(SPH_GRID_DIV_SHIFT_X+SPH_GRID_DIV_SHIFT_Y));
+        return v.x | (v.y<<SPH_FLUID_GRID_DIV_SHIFT_X) | (v.z<<(SPH_FLUID_GRID_DIV_SHIFT_X+SPH_FLUID_GRID_DIV_SHIFT_Y));
     }
 
 
@@ -89,9 +84,127 @@ struct SPHFluidParticleSet
         // g_fDensityCoef = fParticleMass * 315.0f / (64.0f * PI * fSmoothlen^9)
         return d_params.density_coef * (h_sq - r_sq) * (h_sq - r_sq) * (h_sq - r_sq);
     }
+
+
+
+    __device__ void updateHash(int i)
+    {
+        hashes[i] = GridCalculateHash(particles[i].position);
+    }
+
+    __device__ void clearGrid(int i)
+    {
+        grid[i].x = grid[i].y = 0;
+    }
+
+    __device__ void updateGrid(int i)
+    {
+        const uint G_ID = i;
+        uint G_ID_PREV = (G_ID == 0)? SPH_MAX_FLUID_PARTICLES : G_ID; G_ID_PREV--;
+        uint G_ID_NEXT = G_ID + 1; if (G_ID_NEXT == SPH_MAX_FLUID_PARTICLES) { G_ID_NEXT = 0; }
+    
+        uint cell = hashes[G_ID];
+        uint cell_prev = hashes[G_ID_PREV];
+        uint cell_next = hashes[G_ID_NEXT];
+        if (cell != cell_prev)
+        {
+            // I'm the start of a cell
+            grid[cell].x = G_ID;
+        }
+        if (cell != cell_next)
+        {
+            // I'm the end of a cell
+            grid[cell].y = G_ID + 1;
+        }
+    }
+
+    __device__ void computeDensity(int i)
+    {
+        const uint P_ID = i;
+        const float h_sq = d_params.smooth_len * d_params.smooth_len;
+        float4 P_position = particles[P_ID].position;
+
+        float density = 0.0f;
+
+        int3 G_XYZ = GridCalculateCell( P_position );
+        for(int Z = max(G_XYZ.z - 1, 0) ; Z <= min(G_XYZ.z + 1, SPH_FLUID_GRID_DIV_Z-1) ; Z++)
+        {
+            for(int Y = max(G_XYZ.y - 1, 0) ; Y <= min(G_XYZ.y + 1, SPH_FLUID_GRID_DIV_Y-1) ; Y++)
+            {
+                for(int X = max(G_XYZ.x - 1, 0) ; X <= min(G_XYZ.x + 1, SPH_FLUID_GRID_DIV_X-1) ; X++)
+                {
+                    SPHHash G_CELL = GridConstuctKey(make_int3(X, Y, Z));
+                    SPHGridData G_START_END = grid[G_CELL];
+                    for(uint N_ID = G_START_END.x ; N_ID < G_START_END.y ; N_ID++)
+                    {
+                        float4 N_position = particles[N_ID].position;
+                
+                        float4 diff = N_position - P_position;
+                        float r_sq = dot(diff, diff);
+                        if(r_sq < h_sq)
+                        {
+                            density += CalculateDensity(r_sq);
+                        }
+                    }
+                }
+            }
+        }
+
+        forces[P_ID].density = density;
+    }
+
+    __device__ void computeForce(int i)
+    {
+        const uint P_ID = i;
+    
+        float4 P_position = particles[P_ID].position;
+        float4 P_velocity = particles[P_ID].velocity;
+        float P_density = forces[P_ID].density;
+        float P_pressure = CalculatePressure(P_density);
+    
+        const float h_sq = d_params.smooth_len * d_params.smooth_len;
+    
+        float4 acceleration = make_float4(0);
+
+        // Calculate the acceleration based on all neighbors
+        int3 G_XYZ = GridCalculateCell( P_position );
+        for(int Z = max(G_XYZ.z - 1, 0) ; Z <= min(G_XYZ.z + 1, SPH_FLUID_GRID_DIV_Z-1) ; Z++)
+        {
+            for(int Y = max(G_XYZ.y - 1, 0) ; Y <= min(G_XYZ.y + 1, SPH_FLUID_GRID_DIV_Y-1) ; Y++)
+            {
+                for(int X = max(G_XYZ.x - 1, 0) ; X <= min(G_XYZ.x + 1, SPH_FLUID_GRID_DIV_X-1) ; X++)
+                {
+                    SPHHash G_CELL = GridConstuctKey(make_int3(X, Y, Z));
+                    SPHGridData G_START_END = grid[G_CELL];
+                    for(uint N_ID = G_START_END.x ; N_ID < G_START_END.y ; N_ID++)
+                    {
+                        float4 N_position = particles[N_ID].position;
+
+                        float4 diff = N_position - P_position;
+                        float r_sq = dot(diff, diff);
+                        if(r_sq < h_sq && P_ID != N_ID)
+                        {
+                            float4 N_velocity = particles[N_ID].velocity;
+                            float N_density = forces[N_ID].density;
+                            float N_pressure = CalculatePressure(N_density);
+                            float r = sqrt(r_sq);
+
+                            // Pressure Term
+                            acceleration += CalculateGradPressure(r, P_pressure, N_pressure, N_density, diff);
+            
+                            // Viscosity Term
+                            acceleration += CalculateLapVelocity(r, P_velocity, N_velocity, N_density);
+                        }
+                    }
+                }
+            }
+        }
+
+        forces[P_ID].acceleration = acceleration / P_density;
+    }
 };
 
-struct SPHRigidParticleSet
+struct DeviceRigidDataSet
 {
     SPHGridParam            *params;
     SPHRigidParticle        *particles;
@@ -103,7 +216,7 @@ struct SPHRigidParticleSet
     {
         float4 c = (pos-params->grid_pos)*params->grid_dim_rcp;
         int3 uc = make_int3(c.x, c.y, c.z);
-        return clamp(uc, make_int3(0), make_int3(SPH_GRID_DIV_X-1, SPH_GRID_DIV_Y-1, SPH_GRID_DIV_Z-1));
+        return clamp(uc, make_int3(0), make_int3(SPH_RIGID_GRID_DIV_X-1, SPH_RIGID_GRID_DIV_Y-1, SPH_RIGID_GRID_DIV_Z-1));
     }
 
     __device__ uint GridCalculateHash(float4 pos)
@@ -113,19 +226,117 @@ struct SPHRigidParticleSet
 
     __device__ uint GridConstuctKey(int3 v)
     {
-        return v.x | (v.y<<SPH_GRID_DIV_SHIFT_X) | (v.z<<(SPH_GRID_DIV_SHIFT_X+SPH_GRID_DIV_SHIFT_Y));
+        return v.x | (v.y<<SPH_RIGID_GRID_DIV_SHIFT_X) | (v.z<<(SPH_RIGID_GRID_DIV_SHIFT_X+SPH_RIGID_GRID_DIV_SHIFT_Y));
     }
 };
 
-struct SPHForceSet
+struct DeviceForceDataSet
 {
-    SPHSphericalGravity *sgravities;
+    SPHSphericalGravity *sgravity;
 };
 
 
-SPHFluidParticleSet h_fluid;
-SPHRigidParticleSet h_rigid;
-SPHGravitySet h_gravities;
+
+struct FluidDataSet
+{
+    thrust::device_vector<SPHGridParam>            params;
+    thrust::device_vector<SPHGPUStates>            states;
+    thrust::device_vector<SPHFluidParticle>        particles;
+    thrust::device_vector<SPHFluidParticleForce>   forces;
+    thrust::device_vector<SPHHash>                 hashes;
+    thrust::device_vector<SPHGridData>             grid;
+
+    FluidDataSet()
+    {
+        particles.reserve(SPH_MAX_FLUID_PARTICLES);
+        forces.reserve(SPH_MAX_FLUID_PARTICLES);
+        hashes.reserve(SPH_MAX_FLUID_PARTICLES);
+
+        params.resize(1);
+        states.resize(1);
+        grid.resize(SPH_FLUID_GRID_DIV_3);
+        particles.resize(SPH_MAX_FLUID_PARTICLES);
+        forces.resize(SPH_MAX_FLUID_PARTICLES);
+        hashes.resize(SPH_MAX_FLUID_PARTICLES);
+    }
+    
+    void resizeParticles(size_t n)
+    {
+        particles.resize(n);
+        forces.resize(n);
+        hashes.resize(n);
+    }
+
+    DeviceFluidDataSet getDeviceData()
+    {
+        DeviceFluidDataSet ddata;
+        ddata.params    = params.data().get();
+        ddata.states    = states.data().get();
+        ddata.particles = particles.data().get();
+        ddata.forces    = forces.data().get();
+        ddata.hashes    = hashes.data().get();
+        ddata.grid      = grid.data().get();
+        return ddata;
+    }
+};
+
+struct RigidDataSet
+{
+    thrust::device_vector<SPHGridParam>     params;
+    thrust::device_vector<SPHGPUStates>     states;
+    thrust::device_vector<SPHRigidParticle> particles;
+    thrust::device_vector<SPHHash>          hashes;
+    thrust::device_vector<SPHGridData>      grid;
+
+    RigidDataSet()
+    {
+        particles.reserve(SPH_MAX_RIGID_PARTICLES);
+        hashes.reserve(SPH_MAX_RIGID_PARTICLES);
+        params.resize(1);
+        states.resize(1);
+
+        grid.resize(SPH_RIGID_GRID_DIV_3);
+    }
+
+    void resizeParticles(size_t n)
+    {
+        particles.resize(n);
+        hashes.resize(n);
+    }
+
+    DeviceRigidDataSet getDeviceData()
+    {
+        DeviceRigidDataSet ddata;
+        ddata.params    = params.data().get();
+        ddata.states    = states.data().get();
+        ddata.particles = particles.data().get();
+        ddata.hashes    = hashes.data().get();
+        ddata.grid      = grid.data().get();
+        return ddata;
+    }
+};
+
+struct ForceDataSet
+{
+    thrust::device_vector<SPHSphericalGravity> sgravities;
+
+    ForceDataSet()
+    {
+        sgravities.reserve(SPH_MAX_SPHERICAL_GRAVITY_NUM);
+        sgravities.resize(1);
+    }
+
+    DeviceForceDataSet getDeviceData()
+    {
+        DeviceForceDataSet ddata;
+        ddata.sgravity  = sgravities.data().get();
+        return ddata;
+    }
+};
+
+FluidDataSet *h_fluid = NULL;
+RigidDataSet *h_rigid = NULL;
+ForceDataSet *h_forces = NULL;
 
 
 
@@ -138,12 +349,12 @@ __device__ int GetThreadId()
 }
 
 
-__global__ void GClearParticles(SPHFluidParticleSet ps)
+__global__ void GClearParticles(DeviceFluidDataSet ps)
 {
     const float spacing = 0.009f;
     int i = GetThreadId();
     ps.particles[i].id = i;
-    ps.particles[i].lifetime = 0xffffffff;
+    ps.particles[i].alive = 0xffffffff;
     uint w = 128;
     ps.particles[i].position = make_float4(
         spacing*(i%w) - (spacing*w*0.5f),
@@ -158,20 +369,9 @@ __global__ void GClearParticles(SPHFluidParticleSet ps)
 
 void SPHInitialize()
 {
-    CUDA_SAFE_CALL( cudaMalloc(&h_fluid.params,     sizeof(SPHGridParam)) );
-    CUDA_SAFE_CALL( cudaMalloc(&h_fluid.particles,  sizeof(SPHFluidParticle)*SPH_MAX_FLUID_PARTICLES) );
-    CUDA_SAFE_CALL( cudaMalloc(&h_fluid.forces,     sizeof(SPHFluidParticleForce)*SPH_MAX_FLUID_PARTICLES) );
-    CUDA_SAFE_CALL( cudaMalloc(&h_fluid.hashes,     sizeof(SPHHash)*SPH_MAX_FLUID_PARTICLES) );
-    CUDA_SAFE_CALL( cudaMalloc(&h_fluid.grid,       sizeof(SPHGridData)*SPH_GRID_DIV_3) );
-    CUDA_SAFE_CALL( cudaMalloc(&h_fluid.states,     sizeof(SPHGPUStates)) );
-
-    CUDA_SAFE_CALL( cudaMalloc(&h_rigid.params,     sizeof(SPHGridParam)) );
-    CUDA_SAFE_CALL( cudaMalloc(&h_rigid.particles,  sizeof(SPHRigidParticle)*SPH_MAX_FLUID_PARTICLES) );
-    CUDA_SAFE_CALL( cudaMalloc(&h_rigid.hashes,     sizeof(SPHHash)*SPH_MAX_FLUID_PARTICLES) );
-    CUDA_SAFE_CALL( cudaMalloc(&h_rigid.grid,       sizeof(SPHGridData)*SPH_GRID_DIV_3) );
-    CUDA_SAFE_CALL( cudaMalloc(&h_rigid.states,     sizeof(SPHGPUStates)) );
-
-    CUDA_SAFE_CALL( cudaMalloc(&h_gravities.sgravity, sizeof(SPHSphericalGravity)*SPH_MAX_SPHERICAL_GRAVITY_NUM) );
+    h_fluid = new FluidDataSet();
+    h_rigid = new RigidDataSet();
+    h_forces = new ForceDataSet();
 
     {
         SPHParam sph_params;
@@ -188,10 +388,10 @@ void SPHInitialize()
 
         SPHGridParam grid_params;
         const float grid_len = 5.12f;
-        grid_params.grid_dim = make_float4(grid_len, grid_len, sph_params.smooth_len*SPH_GRID_DIV_Z, 0.0f);
-        grid_params.grid_dim_rcp = make_float4(1.0f) / (grid_params.grid_dim / make_float4(SPH_GRID_DIV_X, SPH_GRID_DIV_Y, SPH_GRID_DIV_Z, 1.0));
+        grid_params.grid_dim = make_float4(grid_len, grid_len, sph_params.smooth_len*SPH_FLUID_GRID_DIV_Z, 0.0f);
+        grid_params.grid_dim_rcp = make_float4(1.0f) / (grid_params.grid_dim / make_float4(SPH_FLUID_GRID_DIV_X, SPH_FLUID_GRID_DIV_Y, SPH_FLUID_GRID_DIV_Z, 1.0));
         grid_params.grid_pos = make_float4(-grid_len/2.0f, -grid_len/2.0f, 0.0f, 0.0f);
-        CUDA_SAFE_CALL( cudaMemcpy(h_fluid.params, &grid_params, sizeof(grid_params), cudaMemcpyHostToDevice) );
+        h_fluid->params[0] = grid_params;
     }
     {
         SPHSphericalGravity h_sg;
@@ -200,193 +400,71 @@ void SPHInitialize()
         h_sg.inner_radus = 0.5f;
         h_sg.range_radus = 5.12f;
         h_sg.strength = 0.5f;
-        cudaMemcpy(h_gravities.sgravity, &h_sg, sizeof(h_sg), cudaMemcpyHostToDevice );
+        h_forces->sgravities[0] = h_sg;
     }
 
     dim3 dimBlock( SPH_THREAD_BLOCK_X );
     dim3 dimGrid( SPH_MAX_FLUID_PARTICLES / SPH_THREAD_BLOCK_X );
-    GClearParticles<<<dimGrid, dimBlock>>>(h_fluid);
+    GClearParticles<<<dimGrid, dimBlock>>>(h_fluid->getDeviceData());
 }
 
 void SPHFinalize()
 {
-    CUDA_SAFE_CALL( cudaFree(h_gravities.sgravity) );
-
-    CUDA_SAFE_CALL( cudaFree(h_rigid.states) );
-    CUDA_SAFE_CALL( cudaFree(h_rigid.grid) );
-    CUDA_SAFE_CALL( cudaFree(h_rigid.hashes) );
-    CUDA_SAFE_CALL( cudaFree(h_rigid.particles) );
-    CUDA_SAFE_CALL( cudaFree(h_rigid.params) );
-
-    CUDA_SAFE_CALL( cudaFree(h_fluid.states) );
-    CUDA_SAFE_CALL( cudaFree(h_fluid.grid) );
-    CUDA_SAFE_CALL( cudaFree(h_fluid.hashes) );
-    CUDA_SAFE_CALL( cudaFree(h_fluid.forces) );
-    CUDA_SAFE_CALL( cudaFree(h_fluid.particles) );
-    CUDA_SAFE_CALL( cudaFree(h_fluid.params) );
+    delete h_forces;h_forces=NULL;
+    delete h_rigid; h_rigid=NULL;
+    delete h_fluid; h_fluid=NULL;
 }
 
 
 
 struct _UpdateHash
 {
-    SPHFluidParticleSet fps;
-    _UpdateHash(SPHFluidParticleSet v) : fps(v) {}
-
-    __device__ void operator()(int i)
-    {
-        fps.hashes[i] = fps.GridCalculateHash(fps.particles[i].position);
-    }
+    DeviceFluidDataSet dfd;
+    _UpdateHash(DeviceFluidDataSet v) : dfd(v) {}
+    __device__ void operator()(int i) { dfd.updateHash(i); }
 };
 
 struct _GridClear
 {
-    SPHFluidParticleSet fps;
-    _GridClear(SPHFluidParticleSet v) : fps(v) {}
-
-    __device__ void operator()(int i)
-    {
-        fps.grid[i].x = fps.grid[i].y = 0;
-    }
+    DeviceFluidDataSet dfd;
+    _GridClear(DeviceFluidDataSet v) : dfd(v) {}
+    __device__ void operator()(int i) { dfd.clearGrid(i); }
 };
 
 struct _GridUpdate
 {
-    SPHFluidParticleSet fps;
-    _GridUpdate(SPHFluidParticleSet v) : fps(v) {}
-
-    __device__ void operator()(int i)
-    {
-        const uint G_ID = i;
-        uint G_ID_PREV = (G_ID == 0)? SPH_MAX_FLUID_PARTICLES : G_ID; G_ID_PREV--;
-        uint G_ID_NEXT = G_ID + 1; if (G_ID_NEXT == SPH_MAX_FLUID_PARTICLES) { G_ID_NEXT = 0; }
-    
-        uint cell = fps.hashes[G_ID];
-        uint cell_prev = fps.hashes[G_ID_PREV];
-        uint cell_next = fps.hashes[G_ID_NEXT];
-        if (cell != cell_prev)
-        {
-            // I'm the start of a cell
-            fps.grid[cell].x = G_ID;
-        }
-        if (cell != cell_next)
-        {
-            // I'm the end of a cell
-            fps.grid[cell].y = G_ID + 1;
-        }
-    }
+    DeviceFluidDataSet dfd;
+    _GridUpdate(DeviceFluidDataSet v) : dfd(v) {}
+    __device__ void operator()(int i) { dfd.updateGrid(i); }
 };
 
 struct _ComputeDensity
 {
-    SPHFluidParticleSet fps;
-    _ComputeDensity(SPHFluidParticleSet v) : fps(v) {}
-
-    __device__ void operator()(int i)
-    {
-        const uint P_ID = i;
-        const float h_sq = d_params.smooth_len * d_params.smooth_len;
-        float4 P_position = fps.particles[P_ID].position;
-
-        float density = 0.0f;
-
-        int3 G_XYZ = fps.GridCalculateCell( P_position );
-        for(int Z = max(G_XYZ.z - 1, 0) ; Z <= min(G_XYZ.z + 1, SPH_GRID_DIV_Z-1) ; Z++)
-        {
-            for(int Y = max(G_XYZ.y - 1, 0) ; Y <= min(G_XYZ.y + 1, SPH_GRID_DIV_Y-1) ; Y++)
-            {
-                for(int X = max(G_XYZ.x - 1, 0) ; X <= min(G_XYZ.x + 1, SPH_GRID_DIV_X-1) ; X++)
-                {
-                    SPHHash G_CELL = fps.GridConstuctKey(make_int3(X, Y, Z));
-                    SPHGridData G_START_END = fps.grid[G_CELL];
-                    for(uint N_ID = G_START_END.x ; N_ID < G_START_END.y ; N_ID++)
-                    {
-                        float4 N_position = fps.particles[N_ID].position;
-                
-                        float4 diff = N_position - P_position;
-                        float r_sq = dot(diff, diff);
-                        if(r_sq < h_sq)
-                        {
-                            density += fps.CalculateDensity(r_sq);
-                        }
-                    }
-                }
-            }
-        }
-
-        fps.forces[P_ID].density = density;
-    }
+    DeviceFluidDataSet dfd;
+    _ComputeDensity(DeviceFluidDataSet v) : dfd(v) {}
+    __device__ void operator()(int i) { dfd.computeDensity(i); }
 };
 
 struct _ComputeForce
 {
-    SPHFluidParticleSet fps;
-    _ComputeForce(SPHFluidParticleSet v) : fps(v) {}
-
-    __device__ void operator()(int i)
-    {
-        const uint P_ID = i;
-    
-        float4 P_position = fps.particles[P_ID].position;
-        float4 P_velocity = fps.particles[P_ID].velocity;
-        float P_density = fps.forces[P_ID].density;
-        float P_pressure = fps.CalculatePressure(P_density);
-    
-        const float h_sq = d_params.smooth_len * d_params.smooth_len;
-    
-        float4 acceleration = make_float4(0);
-
-        // Calculate the acceleration based on all neighbors
-        int3 G_XYZ = fps.GridCalculateCell( P_position );
-        for(int Z = max(G_XYZ.z - 1, 0) ; Z <= min(G_XYZ.z + 1, SPH_GRID_DIV_Z-1) ; Z++)
-        {
-            for(int Y = max(G_XYZ.y - 1, 0) ; Y <= min(G_XYZ.y + 1, SPH_GRID_DIV_Y-1) ; Y++)
-            {
-                for(int X = max(G_XYZ.x - 1, 0) ; X <= min(G_XYZ.x + 1, SPH_GRID_DIV_X-1) ; X++)
-                {
-                    SPHHash G_CELL = fps.GridConstuctKey(make_int3(X, Y, Z));
-                    SPHGridData G_START_END = fps.grid[G_CELL];
-                    for(uint N_ID = G_START_END.x ; N_ID < G_START_END.y ; N_ID++)
-                    {
-                        float4 N_position = fps.particles[N_ID].position;
-
-                        float4 diff = N_position - P_position;
-                        float r_sq = dot(diff, diff);
-                        if(r_sq < h_sq && P_ID != N_ID)
-                        {
-                            float4 N_velocity = fps.particles[N_ID].velocity;
-                            float N_density = fps.forces[N_ID].density;
-                            float N_pressure = fps.CalculatePressure(N_density);
-                            float r = sqrt(r_sq);
-
-                            // Pressure Term
-                            acceleration += fps.CalculateGradPressure(r, P_pressure, N_pressure, N_density, diff);
-            
-                            // Viscosity Term
-                            acceleration += fps.CalculateLapVelocity(r, P_velocity, N_velocity, N_density);
-                        }
-                    }
-                }
-            }
-        }
-
-        fps.forces[P_ID].acceleration = acceleration / P_density;
-    }
+    DeviceFluidDataSet dfd;
+    _ComputeForce(DeviceFluidDataSet v) : dfd(v) {}
+    __device__ void operator()(int i) { dfd.computeForce(i); }
 };
 
 struct _Integrate
 {
-    SPHFluidParticleSet fps;
-    SPHGravitySet gs;
-    _Integrate(SPHFluidParticleSet v, SPHGravitySet g) : fps(v), gs(g) {}
+    DeviceFluidDataSet dfd;
+    DeviceForceDataSet gs;
+    _Integrate(DeviceFluidDataSet v, DeviceForceDataSet g) : dfd(v), gs(g) {}
 
     __device__ void operator()(int i)
     {
         const uint P_ID = i;
 
-        float4 position = fps.particles[P_ID].position;
-        float4 velocity = fps.particles[P_ID].velocity;
-        float4 acceleration = fps.forces[P_ID].acceleration;
+        float4 position = dfd.particles[P_ID].position;
+        float4 velocity = dfd.particles[P_ID].velocity;
+        float4 acceleration = dfd.forces[P_ID].acceleration;
 
         //const float3 planes[4] = {
         //    make_float3( 1.0f, 0.0f, 0),
@@ -438,25 +516,26 @@ struct _Integrate
         //position.z *= 0.0f;
 
         // Update
-        fps.particles[P_ID].density = fps.forces[P_ID].density;
-        fps.particles[P_ID].position = position;
-        fps.particles[P_ID].velocity = velocity;
+        dfd.particles[P_ID].density = dfd.forces[P_ID].density;
+        dfd.particles[P_ID].position = position;
+        dfd.particles[P_ID].velocity = velocity;
     }
 };
 
 void SPHUpdateFluid()
 {
-    thrust::device_ptr<SPHFluidParticle>    dpparticles(h_fluid.particles);
-    thrust::device_ptr<SPHHash>             dphashes(h_fluid.hashes);
+    DeviceFluidDataSet dfd = h_fluid->getDeviceData();
+    DeviceForceDataSet dgd = h_forces->getDeviceData();
 
-    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(SPH_MAX_FLUID_PARTICLES), _UpdateHash(h_fluid) );
-    thrust::sort_by_key(dphashes, dphashes+SPH_MAX_FLUID_PARTICLES, dpparticles);
-    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(SPH_GRID_DIV_3), _GridClear(h_fluid));
-    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(SPH_MAX_FLUID_PARTICLES), _GridUpdate(h_fluid));
+    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(SPH_MAX_FLUID_PARTICLES), _UpdateHash(dfd) );
+    thrust::sort_by_key(h_fluid->hashes.begin(), h_fluid->hashes.end(), h_fluid->particles.begin());
+    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(SPH_FLUID_GRID_DIV_3), _GridClear(dfd));
+    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(SPH_MAX_FLUID_PARTICLES), _GridUpdate(dfd));
 
-    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(SPH_MAX_FLUID_PARTICLES), _ComputeDensity(h_fluid));
-    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(SPH_MAX_FLUID_PARTICLES), _ComputeForce(h_fluid));
-    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(SPH_MAX_FLUID_PARTICLES), _Integrate(h_fluid, h_gravities));
+    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(SPH_MAX_FLUID_PARTICLES), _ComputeDensity(dfd));
+    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(SPH_MAX_FLUID_PARTICLES), _ComputeForce(dfd));
+    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(SPH_MAX_FLUID_PARTICLES), _Integrate(dfd, dgd));
+    //h_fluid->particles.erase(h_fluid->particles.begin(), h_fluid->particles.end(), );
 }
 
 
@@ -517,22 +596,22 @@ void SPHCopyRigidClassInfo(SPHRigidClass (&sphcc)[atomic::CB_END])
 
 struct _CopyFluid
 {
-    SPHFluidParticleSet fps;
+    DeviceFluidDataSet  dfd;
     SPHFluidParticle    *gl_partcle;
     float4              *gl_lights;
 
-    _CopyFluid(SPHFluidParticleSet f, SPHFluidParticle *glp, float4 *gll)
-        : fps(f), gl_partcle(glp), gl_lights(gll) {}
+    _CopyFluid(DeviceFluidDataSet f, SPHFluidParticle *glp, float4 *gll)
+        : dfd(f), gl_partcle(glp), gl_lights(gll) {}
 
     __device__ void operator()(int i)
     {
         const uint P_ID = i;
-        int pid = fps.particles[P_ID].id;
-        gl_partcle[P_ID] = fps.particles[P_ID];
+        int pid = dfd.particles[P_ID].id;
+        gl_partcle[P_ID] = dfd.particles[P_ID];
 
         int light_cycle = SPH_MAX_FLUID_PARTICLES/SPH_MAX_LIGHT_NUM;
         if(pid % light_cycle==0) {
-            gl_lights[pid/light_cycle] = fps.particles[P_ID].position;
+            gl_lights[pid/light_cycle] = dfd.particles[P_ID].position;
         }
     }
 };
@@ -543,8 +622,8 @@ void SPHCopyToGL()
     SPHRigidParticle *gl_rigid = (SPHRigidParticle*)h_rigids_gl.mapBuffer();
     float4 *gl_lights = (float4*)h_light_gl.mapBuffer();
 
-    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(SPH_MAX_FLUID_PARTICLES),
-        _CopyFluid(h_fluid, gl_fluid, gl_lights));
+    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator((int)h_fluid->particles.size()),
+        _CopyFluid(h_fluid->getDeviceData(), gl_fluid, gl_lights));
 
     thrust::copy(d_rigid_p.begin(), d_rigid_p.end(), thrust::device_ptr<SPHRigidParticle>(gl_rigid));
 
@@ -612,7 +691,7 @@ void SPHUpdateRigids(const thrust::host_vector<SPHRigidInstance> &rigids)
 
 void SPHUpdateGravity(SPHSphericalGravity (&sgravity)[ SPH_MAX_SPHERICAL_GRAVITY_NUM ])
 {
-    cudaMemcpy(h_gravities.sgravity, sgravity, sizeof(sgravity), cudaMemcpyHostToDevice );
+    thrust::copy(sgravity, sgravity+SPH_MAX_SPHERICAL_GRAVITY_NUM, h_forces->sgravities.begin());
 }
 
 
