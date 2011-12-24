@@ -47,12 +47,7 @@ void SPHManager::update(float32 dt)
 {
 }
 
-void SPHManager::updateAsync(float32 dt)
-{
-    updateSPH();
-}
-
-void SPHManager::updateSPH()
+void SPHManager::asyncupdate(float32 dt)
 {
     vec2 move = atomicGetInputs()->getMove()*0.01f;
     m_sgravity[0].position.x += move.x;

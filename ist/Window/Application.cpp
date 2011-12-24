@@ -1,6 +1,5 @@
 #include "stdafx.h"
-#include "../Base/Assert.h"
-#include "../Base/TaskScheduler.h"
+#include "../Base.h"
 #include "../Sound.h"
 #include "../Window.h"
 

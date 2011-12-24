@@ -69,8 +69,10 @@ private:
 
 public:
     Task();
-    virtual ~Task();
+    virtual ~Task();    // デストラクタで join() はしないので注意。
     bool isFinished() const;
+    void kick();
+    void join();
 
     virtual void exec()=0;
 };

@@ -18,6 +18,8 @@ public:
     ~AtomicGame();
 
     void update(float32 dt);
+    void asyncupdateBegin(float32 dt);
+    void asyncupdateEnd();
     void draw();
 
     // •`‰æƒXƒŒƒbƒh‚©‚çŒÄ‚Î‚ê‚é

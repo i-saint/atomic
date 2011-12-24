@@ -288,12 +288,14 @@ void AtomicApplication::mainLoop()
     while(!m_request_exit)
     {
         translateMessage();
-        updateInput();
 
         PerformanceCounter pc;
         float dt = 0.0f;
         if(m_game) {
             m_game->update(dt);
+            m_game->asyncupdateBegin(dt);
+            updateInput();
+            m_game->asyncupdateEnd();
             m_game->draw();
             dt = pc.getElapsedMillisecond();
             pc.reset();

@@ -57,27 +57,13 @@ void SetThreadName(const char *name)
 
 
 
-Task::Task()
-: m_finished(true)
-{}
-
-Task::~Task()
-{}
-
-void Task::beforeExec()
-{
-    m_finished = false;
-}
-
-void Task::afterExec()
-{
-    m_finished = true;
-}
-
-bool Task::isFinished() const
-{
-    return m_finished;
-}
+Task::Task() : m_finished(true) {}
+Task::~Task() {}
+void Task::beforeExec()         { m_finished = false; }
+void Task::afterExec()          { m_finished = true; }
+bool Task::isFinished() const   { return m_finished; }
+void Task::kick()               { TaskScheduler::push(this); }
+void Task::join()               { TaskScheduler::waitFor(this); }
 
 
 namespace impl

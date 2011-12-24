@@ -28,6 +28,7 @@ RigidDataSet *h_rigid = NULL;
 ForceDataSet *h_forces = NULL;
 
 sphStates h_states;
+thrust::host_vector<sphFluidParticle>       h_fluid_append;
 thrust::host_vector<sphRigidClass>          h_rigid_class;
 thrust::host_vector<sphRigidUpdateInfo>     h_rigid_ui;
 
@@ -52,6 +53,8 @@ __global__ void GClearParticles(DeviceFluidDataSet ps)
 
     ps.forces[i].density = 0.0f;
     ps.forces[i].acceleration = make_float4(0.0f);
+    ps.dead[i] = 0;
+    ps.damages[i].to = 0;
 }
 
 void SPHInitialize()
@@ -62,15 +65,16 @@ void SPHInitialize()
 
     {
         sphParam sph_params;
-        sph_params.smooth_len          = 0.02f;
-        sph_params.pressure_stiffness  = 200.0f;
-        sph_params.rest_density        = 1000.0f;
-        sph_params.particle_mass       = 0.001f;
-        sph_params.viscosity           = 0.1f;
-        sph_params.density_coef        = sph_params.particle_mass * 315.0f / (64.0f * CUDART_PI_F * pow(sph_params.smooth_len, 9));
-        sph_params.grad_pressure_coef  = sph_params.particle_mass * -45.0f / (CUDART_PI_F * pow(sph_params.smooth_len, 6));
-        sph_params.lap_viscosity_coef  = sph_params.particle_mass * sph_params.viscosity * 45.0f / (CUDART_PI_F * pow(sph_params.smooth_len, 6));
-        sph_params.wall_stiffness      = 3000.0f;
+        sph_params.smooth_len           = 0.02f;
+        sph_params.pressure_stiffness   = 200.0f;
+        sph_params.rest_density         = 1000.0f;
+        sph_params.particle_mass        = 0.001f;
+        sph_params.viscosity            = 0.1f;
+        sph_params.density_coef         = sph_params.particle_mass * 315.0f / (64.0f * CUDART_PI_F * pow(sph_params.smooth_len, 9));
+        sph_params.grad_pressure_coef   = sph_params.particle_mass * -45.0f / (CUDART_PI_F * pow(sph_params.smooth_len, 6));
+        sph_params.lap_viscosity_coef   = sph_params.particle_mass * sph_params.viscosity * 45.0f / (CUDART_PI_F * pow(sph_params.smooth_len, 6));
+        sph_params.wall_stiffness       = 3000.0f;
+        sph_params.rigid_stiffness      = 10.0f;
         CUDA_SAFE_CALL( cudaMemcpyToSymbol("d_params", &sph_params, sizeof(sph_params)) );
 
         sphGridParam grid_params;
@@ -191,7 +195,7 @@ void SPHUpdateFluid()
     thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(num_particles), _FluidComputeDensity(dfd));
     thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(num_particles), _FluidComputeForce(dfd));
     thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(num_particles), _FluidIntegrate(dfd, drd, dgd));
-    thrust::sort_by_key(h_fluid->hashes.begin(), h_fluid->hashes.end(), h_fluid->particles.begin());
+    thrust::sort_by_key(h_fluid->dead.begin(), h_fluid->dead.end(), h_fluid->particles.begin());
     thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(num_particles), _FluidCountAlives(dfd));
 
     const sphStates &stat = h_fluid->states[0];

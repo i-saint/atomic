@@ -148,9 +148,10 @@ void AtomicRenderer::passGBuffer()
 void AtomicRenderer::passDeferredShading()
 {
     m_rt_deferred->bind();
-    m_rt_gbuffer->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
-    m_rt_gbuffer->getColorBuffer(1)->bind(GLSL_NORMAL_BUFFER);
-    m_rt_gbuffer->getColorBuffer(2)->bind(GLSL_POSITION_BUFFER);
+    m_rt_gbuffer->getColorBuffer(GBUFFER_COLOR)->bind(GLSL_COLOR_BUFFER);
+    m_rt_gbuffer->getColorBuffer(GBUFFER_NORMAL)->bind(GLSL_NORMAL_BUFFER);
+    m_rt_gbuffer->getColorBuffer(GBUFFER_POSITION)->bind(GLSL_POSITION_BUFFER);
+    m_rt_gbuffer->getColorBuffer(GBUFFER_GLOW)->bind(GLSL_GLOW_BUFFER);
 
     glClear(GL_COLOR_BUFFER_BIT);
     glEnable(GL_BLEND);
@@ -393,7 +394,7 @@ void PassPostprocess_Bloom::draw()
         m_sh_luminance->bind();
         m_rt_gauss0->bind();
         m_rt_deferred->getColorBuffer(GBUFFER_COLOR)->bind(GLSL_COLOR_BUFFER);
-        //m_rt_gbuffer->getColorBuffer(GBUFFER_GLOW)->bind(GLSL_COLOR_BUFFER);
+        m_rt_gbuffer->getColorBuffer(GBUFFER_GLOW)->bind(GLSL_GLOW_BUFFER);
         m_va_luminance->bind();
         glDrawArrays(GL_QUADS, 0, 16);
         m_rt_gauss0->unbind();

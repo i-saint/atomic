@@ -88,7 +88,7 @@ void EntitySet::update( float32 dt )
     // todo updateAsync()
 }
 
-void EntitySet::updateAsync(float32 dt)
+void EntitySet::asyncupdate(float32 dt)
 {
     // todo: blocknize
     for(uint32 i=0; i<ECID_END; ++i) {

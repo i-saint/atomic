@@ -6,8 +6,6 @@ class AtomicTask : public Task
 {
 public:
     ~AtomicTask() { join(); }
-    void join() { TaskScheduler::waitFor(this); }
-    void kick() { TaskScheduler::push(this); }
 };
 
 template<class T>
@@ -20,7 +18,7 @@ private:
 public:
     Task_UpdateAsync(T *v) : m_target(v), m_dt(0.0f) {}
     void setArg(float32 v) { m_dt=v; }
-    void exec() { m_target->updateAsync(m_dt); }
+    void exec() { m_target->asyncupdate(m_dt); }
 };
 
 } // namespace atomic

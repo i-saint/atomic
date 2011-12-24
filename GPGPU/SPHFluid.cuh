@@ -5,6 +5,8 @@ struct DeviceFluidDataSet
     sphFluidParticle    *particles;
     sphFluidForce       *forces;
     sphHash             *hashes;
+    sphDeadFlag         *dead;
+    sphDamageMessage    *damages;
     sphGridData         *grid;
     sphStates           *states;
 
@@ -181,7 +183,7 @@ struct DeviceFluidDataSet
         const uint G_ID = i;
         uint G_ID_NEXT = G_ID + 1; if (G_ID_NEXT == SPH_MAX_FLUID_PARTICLES) { G_ID_NEXT--; }
 
-        if (hashes[G_ID] != hashes[G_ID_NEXT]) {
+        if(dead[G_ID] != dead[G_ID_NEXT]) {
             states[0].fluid_num_particles = G_ID + 1;
         }
     }
@@ -189,20 +191,20 @@ struct DeviceFluidDataSet
 
 struct FluidDataSet
 {
-    thrust::device_vector<sphGridParam>             params;
-    thrust::device_vector<sphStates>                states;
-    thrust::device_vector<sphFluidParticle>         particles;
+    thrust::device_vector<sphGridParam>     params;
+    thrust::device_vector<sphStates>        states;
+    thrust::device_vector<sphFluidParticle> particles;
     thrust::device_vector<sphFluidForce>    forces;
-    thrust::device_vector<sphHash>                  hashes;
-    thrust::device_vector<sphGridData>              grid;
+    thrust::device_vector<sphHash>          hashes;
+    thrust::device_vector<sphDeadFlag>      dead;
+    thrust::device_vector<sphDamageMessage> damages;
+    thrust::device_vector<sphGridData>      grid;
 
     FluidDataSet()
     {
         params.resize(1);
         states.resize(1);
-        particles.resize(SPH_MAX_FLUID_PARTICLES);
-        forces.resize(SPH_MAX_FLUID_PARTICLES);
-        hashes.resize(SPH_MAX_FLUID_PARTICLES);
+        resizeParticles(SPH_MAX_FLUID_PARTICLES);
         grid.resize(SPH_FLUID_GRID_DIV_3);
     }
     
@@ -211,6 +213,8 @@ struct FluidDataSet
         particles.resize(n);
         forces.resize(n);
         hashes.resize(n);
+        dead.resize(n);
+        damages.resize(n);
     }
 
     DeviceFluidDataSet getDeviceData()
@@ -221,6 +225,8 @@ struct FluidDataSet
         ddata.particles = particles.data().get();
         ddata.forces    = forces.data().get();
         ddata.hashes    = hashes.data().get();
+        ddata.dead      = dead.data().get();
+        ddata.damages   = damages.data().get();
         ddata.grid      = grid.data().get();
         return ddata;
     }
@@ -286,8 +292,7 @@ struct _FluidIntegrate
         float4 velocity = dfd.particles[P_ID].velocity;
         float4 acceleration = dfd.forces[P_ID].acceleration;
         int dead = 0;
-        dfd.hashes[P_ID] = 0;
-
+        dfd.damages[P_ID].to = 0;
 
         const float h_sq = d_params.smooth_len * d_params.smooth_len;
         int3 G_XYZ = drd.GridCalculateCell( position );
@@ -304,9 +309,11 @@ struct _FluidIntegrate
                         drd.particles[N_ID].padding.y = 1.0;
                         if(r_sq < h_sq) {
                             float4 dir = drd.particles[N_ID].normal;
-                            float s = dir.w;
+                            float s = dir.w * 0.8f + 0.2f;
                             dir.w = 0.0f;
-                            acceleration += d_params.wall_stiffness * 0.005f * dir;
+                            acceleration += d_params.rigid_stiffness / s * dir;
+                            dfd.damages[P_ID].to = drd.particles[N_ID].owner_handle;
+                            dfd.damages[P_ID].density = dfd.forces[P_ID].density;
                             //dead = 1;
                         }
                     }
@@ -370,7 +377,7 @@ struct _FluidIntegrate
         dfd.particles[P_ID].velocity = velocity;
 
         if(dead) {
-            dfd.hashes[P_ID] = 1;
+            dfd.dead[P_ID] = 1;
         }
         else {
             dfd.states[0].fluid_alive_any = 1;

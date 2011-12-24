@@ -100,7 +100,11 @@ public:
     virtual void mainLoop()=0;
     virtual int handleWindowMessage(const WindowMessage& wm)=0;
 
+    // 入力情報の更新は時間がかかることに注意。(おそらく GPU リソースのようにロックが入るのだと思われる)
+    // また、初期化したスレッドからでないと正常に更新できない？ようで、非同期に更新する際は、
+    // ワーカースレッドにタスクを割り振った後メインスレッドから更新、のようなややこしい手順が必要。
     virtual void updateInput();
+
     virtual void translateMessage();
 
     int showMessageDialog(const wchar_t* message, const wchar_t* caption, int dlgtype=DLG_OK);

@@ -52,24 +52,6 @@ void World::initialize()
 }
 
 
-void World::kickAsyncUpdate(float32 dt)
-{
-    m_task_update_world->setArg(dt);
-    m_task_update_entity->setArg(dt);
-    m_task_update_sph->setArg(dt);
-
-    m_task_update_world->kick();
-    m_task_update_entity->kick();
-    m_task_update_sph->kick();
-}
-
-void World::joinAsyncUpdate()
-{
-    m_task_update_sph->join();
-    m_task_update_entity->join();
-    m_task_update_world->join();
-}
-
 inline vec4 GenRotateAxis()
 {
     vec4 axis( atomicGenRandFloat(), atomicGenRandFloat(), atomicGenRandFloat(), 0.0f );
@@ -88,16 +70,16 @@ void World::update(float32 dt)
             e->call(ECALL_setPosition, vec4(0.5f, 0.0f, 0.0f, 1.0f));
             e->call(ECALL_setAxis1, GenRotateAxis());
             e->call(ECALL_setAxis2, GenRotateAxis());
-            e->call(ECALL_setRotateSpeed1, 0.1f);
-            e->call(ECALL_setRotateSpeed2, 0.1f);
+            e->call(ECALL_setRotateSpeed1, 0.2f);
+            e->call(ECALL_setRotateSpeed2, 0.2f);
         }
         {
             IEntity *e =  m_entity_set->createEntity<Enemy_Sphere>();
             e->call(ECALL_setPosition, vec4(-0.5f, 0.0f, 0.0f, 1.0f));
             e->call(ECALL_setAxis1, GenRotateAxis());
             e->call(ECALL_setAxis2, GenRotateAxis());
-            e->call(ECALL_setRotateSpeed1, 0.1f);
-            e->call(ECALL_setRotateSpeed2, 0.1f);
+            e->call(ECALL_setRotateSpeed1, 0.2f);
+            e->call(ECALL_setRotateSpeed2, 0.2f);
         }
     }
 
@@ -105,12 +87,27 @@ void World::update(float32 dt)
 
     m_entity_set->update(dt);
     m_sph->update(dt);
-
-    kickAsyncUpdate(dt);
-    joinAsyncUpdate();
 }
 
-void World::updateAsync(float32 dt)
+void World::asyncupdateBegin(float32 dt)
+{
+    m_task_update_world->setArg(dt);
+    m_task_update_entity->setArg(dt);
+    m_task_update_sph->setArg(dt);
+
+    m_task_update_world->kick();
+    m_task_update_entity->kick();
+    m_task_update_sph->kick();
+}
+
+void World::asyncupdateEnd()
+{
+    m_task_update_sph->join();
+    m_task_update_entity->join();
+    m_task_update_world->join();
+}
+
+void World::asyncupdate(float32 dt)
 {
     //mat4 rot = glm::rotate(mat4(), 0.05f, vec3(0.0f, 1.0f, 0.0f));
     //m_camera.setPosition(rot * m_camera.getPosition());

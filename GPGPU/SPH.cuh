@@ -14,6 +14,7 @@ typedef unsigned int uint;
 typedef uint EntityHandle;
 typedef uint sphHash;
 typedef uint2 sphGridData;
+typedef int sphDeadFlag;
 typedef glm::vec4 vec4;
 typedef glm::mat4 mat4;
 
@@ -130,7 +131,7 @@ struct sphStates
 struct sphDamageMessage
 {
     EntityHandle to;
-    float damage;
+    float density;
 };
 
 

@@ -26,10 +26,6 @@ private:
 
     uint32 m_frame;
 
-private:
-    void kickAsyncUpdate(float32 dt);
-    void joinAsyncUpdate();
-
 public:
     World();
     ~World();
@@ -39,7 +35,9 @@ public:
     void deserialize(Deserializer& s);
 
     void update(float32 dt);
-    void updateAsync(float32 dt);
+    void asyncupdate(float32 dt);
+    void asyncupdateBegin(float32 dt);
+    void asyncupdateEnd();
     void draw() const;
 
     uint32 getFrame() const         { return m_frame; }

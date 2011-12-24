@@ -29,12 +29,17 @@ AtomicGame::~AtomicGame()
 
 void AtomicGame::update(float32 dt)
 {
-    //MessageRouter *message_router = atomicGetMessageRouter(MR_SYSTEM);
-    //message_router->unuseAll();
-
     m_world->update(dt);
+}
 
-    //message_router->route();
+void AtomicGame::asyncupdateBegin(float32 dt)
+{
+    m_world->asyncupdateBegin(dt);
+}
+
+void AtomicGame::asyncupdateEnd()
+{
+    m_world->asyncupdateEnd();
 }
 
 
