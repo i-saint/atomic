@@ -1,12 +1,12 @@
 
 struct DeviceFluidDataSet
 {
-    sphGridParam            *params;
-    sphFluidParticle        *particles;
-    sphFluidParticleForce   *forces;
-    sphHash                 *hashes;
-    sphGridData             *grid;
-    sphStates               *states;
+    sphGridParam        *params;
+    sphFluidParticle    *particles;
+    sphFluidForce       *forces;
+    sphHash             *hashes;
+    sphGridData         *grid;
+    sphStates           *states;
 
     __device__ int3 GridCalculateCell(float4 pos)
     {
@@ -140,29 +140,23 @@ struct DeviceFluidDataSet
         float4 P_velocity = particles[P_ID].velocity;
         float P_density = forces[P_ID].density;
         float P_pressure = CalculatePressure(P_density);
-    
+
         const float h_sq = d_params.smooth_len * d_params.smooth_len;
-    
+
         float4 acceleration = make_float4(0);
 
         // Calculate the acceleration based on all neighbors
         int3 G_XYZ = GridCalculateCell( P_position );
-        for(int Z = max(G_XYZ.z - 1, 0) ; Z <= min(G_XYZ.z + 1, SPH_FLUID_GRID_DIV_Z-1) ; Z++)
-        {
-            for(int Y = max(G_XYZ.y - 1, 0) ; Y <= min(G_XYZ.y + 1, SPH_FLUID_GRID_DIV_Y-1) ; Y++)
-            {
-                for(int X = max(G_XYZ.x - 1, 0) ; X <= min(G_XYZ.x + 1, SPH_FLUID_GRID_DIV_X-1) ; X++)
-                {
+        for(int Z = max(G_XYZ.z - 1, 0) ; Z <= min(G_XYZ.z + 1, SPH_FLUID_GRID_DIV_Z-1) ; Z++) {
+            for(int Y = max(G_XYZ.y - 1, 0) ; Y <= min(G_XYZ.y + 1, SPH_FLUID_GRID_DIV_Y-1) ; Y++) {
+                for(int X = max(G_XYZ.x - 1, 0) ; X <= min(G_XYZ.x + 1, SPH_FLUID_GRID_DIV_X-1) ; X++) {
                     sphHash G_CELL = GridConstuctKey(make_int3(X, Y, Z));
                     sphGridData G_START_END = grid[G_CELL];
-                    for(uint N_ID = G_START_END.x ; N_ID < G_START_END.y ; N_ID++)
-                    {
+                    for(uint N_ID = G_START_END.x ; N_ID < G_START_END.y ; N_ID++) {
                         float4 N_position = particles[N_ID].position;
-
                         float4 diff = N_position - P_position;
                         float r_sq = dot(diff, diff);
-                        if(r_sq < h_sq && P_ID != N_ID)
-                        {
+                        if(r_sq < h_sq && P_ID != N_ID) {
                             float4 N_velocity = particles[N_ID].velocity;
                             float N_density = forces[N_ID].density;
                             float N_pressure = CalculatePressure(N_density);
@@ -188,7 +182,7 @@ struct DeviceFluidDataSet
         uint G_ID_NEXT = G_ID + 1; if (G_ID_NEXT == SPH_MAX_FLUID_PARTICLES) { G_ID_NEXT--; }
 
         if (hashes[G_ID] != hashes[G_ID_NEXT]) {
-            states[0].num_fluid_particles = G_ID + 1;
+            states[0].fluid_num_particles = G_ID + 1;
         }
     }
 };
@@ -198,7 +192,7 @@ struct FluidDataSet
     thrust::device_vector<sphGridParam>             params;
     thrust::device_vector<sphStates>                states;
     thrust::device_vector<sphFluidParticle>         particles;
-    thrust::device_vector<sphFluidParticleForce>    forces;
+    thrust::device_vector<sphFluidForce>    forces;
     thrust::device_vector<sphHash>                  hashes;
     thrust::device_vector<sphGridData>              grid;
 
@@ -232,6 +226,8 @@ struct FluidDataSet
     }
 };
 
+
+
 struct _FluidUpdateHash
 {
     DeviceFluidDataSet dfd;
@@ -239,17 +235,17 @@ struct _FluidUpdateHash
     __device__ void operator()(int i) { dfd.updateHash(i); }
 };
 
-struct _FluidGridClear
+struct _FluidClearGrid
 {
     DeviceFluidDataSet dfd;
-    _FluidGridClear(const DeviceFluidDataSet& v) : dfd(v) {}
+    _FluidClearGrid(const DeviceFluidDataSet& v) : dfd(v) {}
     __device__ void operator()(int i) { dfd.clearGrid(i); }
 };
 
-struct _FluidGridUpdate
+struct _FluidUpdateGrid
 {
     DeviceFluidDataSet dfd;
-    _FluidGridUpdate(const DeviceFluidDataSet& v) : dfd(v) {}
+    _FluidUpdateGrid(const DeviceFluidDataSet& v) : dfd(v) {}
     __device__ void operator()(int i) { dfd.updateGrid(i); }
 };
 
@@ -272,4 +268,134 @@ struct _FluidCountAlives
     DeviceFluidDataSet dfd;
     _FluidCountAlives(const DeviceFluidDataSet& v) : dfd(v) {}
     __device__ void operator()(int i) { dfd.countAlives(i); }
+};
+
+
+struct _FluidIntegrate
+{
+    DeviceFluidDataSet dfd;
+    DeviceRigidDataSet drd;
+    DeviceForceDataSet dgd;
+    _FluidIntegrate(const DeviceFluidDataSet &f, const DeviceRigidDataSet &r, const DeviceForceDataSet &g) : dfd(f), drd(r), dgd(g) {}
+
+    __device__ void operator()(int i)
+    {
+        const uint P_ID = i;
+
+        float4 position = dfd.particles[P_ID].position;
+        float4 velocity = dfd.particles[P_ID].velocity;
+        float4 acceleration = dfd.forces[P_ID].acceleration;
+        int dead = 0;
+        dfd.hashes[P_ID] = 0;
+
+
+        const float h_sq = d_params.smooth_len * d_params.smooth_len;
+        int3 G_XYZ = drd.GridCalculateCell( position );
+        for(int Z = max(G_XYZ.z - 1, 0) ; Z <= min(G_XYZ.z + 1, SPH_RIGID_GRID_DIV_Z-1) ; Z++) {
+            for(int Y = max(G_XYZ.y - 1, 0) ; Y <= min(G_XYZ.y + 1, SPH_RIGID_GRID_DIV_Y-1) ; Y++) {
+                for(int X = max(G_XYZ.x - 1, 0) ; X <= min(G_XYZ.x + 1, SPH_RIGID_GRID_DIV_X-1) ; X++) {
+                    sphHash G_CELL = drd.GridConstuctKey(make_int3(X, Y, Z));
+                    sphGridData G_START_END = drd.grid[G_CELL];
+                    for(uint N_ID = G_START_END.x ; N_ID < G_START_END.y ; N_ID++) {
+                        float4 N_position = drd.particles[N_ID].position;
+                        float4 diff = N_position - position;
+                        diff.w = 0.0f;
+                        float r_sq = dot(diff, diff);
+                        drd.particles[N_ID].padding.y = 1.0;
+                        if(r_sq < h_sq) {
+                            float4 dir = drd.particles[N_ID].normal;
+                            float s = dir.w;
+                            dir.w = 0.0f;
+                            acceleration += d_params.wall_stiffness * 0.005f * dir;
+                            //dead = 1;
+                        }
+                    }
+                }
+            }
+        }
+
+        //const float3 planes[4] = {
+        //    make_float3( 1.0f, 0.0f, 0),
+        //    make_float3( 0.0f, 1.0f, 0),
+        //    make_float3(-1.0f, 0.0f, 2.56f),
+        //    make_float3( 0.0f,-1.0f, 2.56f),
+        //};
+        //// Apply the forces from the map walls
+        //for(uint i = 0 ; i < 4 ; i++)
+        //{
+        //    float dist = dot(make_float3(position.x, position.y, 1.0f), planes[i]);
+        //    acceleration += min(dist, 0.0f) * -d_param.wall_stiffness * make_float4(planes[i].x, planes[i].y, 0.0f, 0.0f);
+        //}
+        //float4 gravity = make_float4(0.0f, -0.5f, 0.0f, 0.0f);
+
+        acceleration += min(position.z, 0.0f) * -d_params.wall_stiffness * make_float4(0.0f, 0.0f, 0.5f, 0.0f);
+        acceleration += make_float4(0.0f, 0.0f, -5.0f, 0.0f);
+
+
+        // Apply gravity
+        for(int i=0; i<SPH_MAX_SPHERICAL_GRAVITY_NUM; ++i) {
+            const float4 center = dgd.sgravity[i].position;
+            const float gravity_strength = dgd.sgravity[i].strength;
+            const float inner_radius = dgd.sgravity[i].inner_radus;
+            const float outer_radius = dgd.sgravity[i].range_radus;
+
+            float4 diff = center-position;
+            diff.w = 0.0f;
+            float distance = length(diff);
+            float4 dir = diff/distance;
+            float4 gravity = dir * gravity_strength;
+
+            acceleration += min(distance-inner_radius, 0.0f) * d_params.wall_stiffness * dir;
+            acceleration += min(outer_radius-distance, 0.0f) * -d_params.wall_stiffness * dir;
+            acceleration += gravity;
+
+            //// kill
+            //if(distance-inner_radius < 0.0f) { dead = 1; }
+        }
+
+        //const float timestep = 1.0f/60.f;
+        const float timestep = 0.01f;
+
+        // Integrate
+        velocity += timestep * acceleration;
+        velocity *= make_float4(0.999);
+        if(dot(velocity, velocity) > 1.0f) { velocity *= make_float4(0.98); }
+        //velocity.z *= 0.0f;
+        position += timestep * velocity;
+        //position.z *= 0.0f;
+
+        // Update
+        dfd.particles[P_ID].density = dfd.forces[P_ID].density;
+        dfd.particles[P_ID].position = position;
+        dfd.particles[P_ID].velocity = velocity;
+
+        if(dead) {
+            dfd.hashes[P_ID] = 1;
+        }
+        else {
+            dfd.states[0].fluid_alive_any = 1;
+       }
+    }
+};
+
+struct _FluidCopyToGL
+{
+    DeviceFluidDataSet  dfd;
+    sphFluidParticle    *gl_partcle;
+    float4              *gl_lights;
+
+    _FluidCopyToGL(DeviceFluidDataSet f, sphFluidParticle *glp, float4 *gll)
+        : dfd(f), gl_partcle(glp), gl_lights(gll) {}
+
+    __device__ void operator()(int i)
+    {
+        const uint P_ID = i;
+        int pid = dfd.particles[P_ID].id;
+        gl_partcle[P_ID] = dfd.particles[P_ID];
+
+        int light_cycle = SPH_MAX_FLUID_PARTICLES/SPH_MAX_LIGHT_NUM;
+        if(pid % light_cycle==0) {
+            gl_lights[pid/light_cycle] = dfd.particles[P_ID].position;
+        }
+    }
 };

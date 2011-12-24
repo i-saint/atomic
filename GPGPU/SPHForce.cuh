@@ -2,13 +2,13 @@
 
 struct DeviceForceDataSet
 {
-    sphSphericalGravity *sgravity;
+    sphForcePointGravity *sgravity;
 };
 
 
 struct ForceDataSet
 {
-    thrust::device_vector<sphSphericalGravity> sgravities;
+    thrust::device_vector<sphForcePointGravity> sgravities;
 
     ForceDataSet()
     {

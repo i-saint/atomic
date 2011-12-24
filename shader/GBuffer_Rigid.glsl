@@ -23,11 +23,12 @@ void main()
     vec4 vert = ia_VertexPosition+fractionPos;
     vert.w = 1.0;
 
-    float dif = length(ia_InstanceNormal.xyz);
+    float dif = ia_InstanceNormal.w;
     float dif2 = dif*dif;
     float dif3 = dif2*dif;
     float ndif = 1.0-dif;
     vs_GlowIntensity = ndif;
+    //vs_GlowIntensity = ia_InstanceParam.y;
     vs_VertexPosition = vec4(vert.xyz, 1.0);
     vs_VertexNormal = vec4(ia_VertexNormal, 120.0);
     vs_VertexColor = vec4(0.6*dif3, 0.6*dif3, 0.6*dif3, 1.0);

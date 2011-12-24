@@ -294,8 +294,8 @@ bool CreateCubeParticleSet( CudaBuffer& ps, sphRigidClass &sphcc, float32 len )
                 max_p = p;
             }
         }
-        particles[i].normal = planes[max_p] * (max_d / half_len);
-        particles[i].normal.w = 0.0f;
+        particles[i].normal = planes[max_p];
+        particles[i].normal.w = max_d / half_len;
     }
     ps.copyHostToDevice();
 
@@ -320,9 +320,10 @@ bool CreateSphereParticleSet( CudaBuffer& ps, sphRigidClass &sphcc, float32 radi
         float l = random.genFloat32()*radius;
         float4 pos = dir*l;
         particles[i].owner_handle = 0;
-        particles[i].position = pos;
+        particles[i].position   = pos;
         particles[i].position.w = 1.0f;
-        particles[i].normal = pos / radius;
+        particles[i].normal     = dir;
+        particles[i].normal.w   = l / radius;
     }
     ps.copyHostToDevice();
 

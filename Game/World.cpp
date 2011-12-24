@@ -83,20 +83,22 @@ void World::update(float32 dt)
     ++m_frame;
 
     if(m_frame==1) {
-        IEntity *e =  m_entity_set->createEntity<Enemy_Cube>();
-        e->call(ECALL_setPosition, vec4(0.5f, 0.0f, 0.0f, 1.0f));
-        e->call(ECALL_setAxis1, GenRotateAxis());
-        e->call(ECALL_setAxis2, GenRotateAxis());
-        e->call(ECALL_setRotateSpeed1, 0.1f);
-        e->call(ECALL_setRotateSpeed2, 0.1f);
-    }
-    else if(m_frame==300) {
-        IEntity *e =  m_entity_set->createEntity<Enemy_Sphere>();
-        e->call(ECALL_setPosition, vec4(-0.5f, 0.0f, 0.0f, 1.0f));
-        e->call(ECALL_setAxis1, GenRotateAxis());
-        e->call(ECALL_setAxis2, GenRotateAxis());
-        e->call(ECALL_setRotateSpeed1, 0.1f);
-        e->call(ECALL_setRotateSpeed2, 0.1f);
+        {
+            IEntity *e =  m_entity_set->createEntity<Enemy_Cube>();
+            e->call(ECALL_setPosition, vec4(0.5f, 0.0f, 0.0f, 1.0f));
+            e->call(ECALL_setAxis1, GenRotateAxis());
+            e->call(ECALL_setAxis2, GenRotateAxis());
+            e->call(ECALL_setRotateSpeed1, 0.1f);
+            e->call(ECALL_setRotateSpeed2, 0.1f);
+        }
+        {
+            IEntity *e =  m_entity_set->createEntity<Enemy_Sphere>();
+            e->call(ECALL_setPosition, vec4(-0.5f, 0.0f, 0.0f, 1.0f));
+            e->call(ECALL_setAxis1, GenRotateAxis());
+            e->call(ECALL_setAxis2, GenRotateAxis());
+            e->call(ECALL_setRotateSpeed1, 0.1f);
+            e->call(ECALL_setRotateSpeed2, 0.1f);
+        }
     }
 
     m_sph->updateBegin(dt);

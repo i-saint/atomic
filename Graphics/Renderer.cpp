@@ -233,7 +233,7 @@ void PassGBuffer_SPH::draw()
 
     // fluid particle
     {
-        const uint32 num_particles = sphs.num_fluid_particles;
+        const uint32 num_particles = sphs.fluid_num_particles;
         const VertexArray::Descriptor descs[] = {
             {GLSL_INSTANCE_PARAM,    VertexArray::TYPE_FLOAT,4,  0, false, 1},
             {GLSL_INSTANCE_POSITION, VertexArray::TYPE_FLOAT,4, 16, false, 1},
@@ -250,7 +250,7 @@ void PassGBuffer_SPH::draw()
 
     // rigid particle
     {
-        const uint32 num_particles = sphs.num_rigid_particles;
+        const uint32 num_particles = sphs.rigid_num_particles;
         const VertexArray::Descriptor descs[] = {
             {GLSL_INSTANCE_PARAM,    VertexArray::TYPE_FLOAT,4,  0, false, 1},
             {GLSL_INSTANCE_POSITION, VertexArray::TYPE_FLOAT,4, 16, false, 1},

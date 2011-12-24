@@ -18,7 +18,7 @@ class Task_FractionUpdateAsync;
 class SPHManager : boost::noncopyable
 {
 private:
-    sphSphericalGravity                     m_sgravity[ SPH_MAX_SPHERICAL_GRAVITY_NUM ];
+    sphForcePointGravity                     m_sgravity[ SPH_MAX_SPHERICAL_GRAVITY_NUM ];
 
     thrust::host_vector<sphRigidInstance>   m_rigids;
 

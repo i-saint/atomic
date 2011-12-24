@@ -25,9 +25,8 @@ SPHManager::~SPHManager()
 void SPHManager::initialize()
 {
     {
-        sphSphericalGravity h_sg;
+        sphForcePointGravity h_sg;
         h_sg.position = make_float4(0.0f);
-        h_sg.is_active = 1;
         h_sg.inner_radus = 0.25f;
         h_sg.range_radus = 5.12f;
         h_sg.strength = 1.0f;

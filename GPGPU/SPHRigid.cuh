@@ -27,6 +27,38 @@ struct DeviceRigidDataSet
         return v.x | (v.y<<SPH_RIGID_GRID_DIV_SHIFT_X) | (v.z<<(SPH_RIGID_GRID_DIV_SHIFT_X+SPH_RIGID_GRID_DIV_SHIFT_Y));
     }
 
+
+    __device__ void updateHash(int i)
+    {
+        hashes[i] = GridCalculateHash(particles[i].position);
+    }
+
+    __device__ void clearGrid(int i)
+    {
+        grid[i].x = grid[i].y = 0;
+    }
+
+    __device__ void updateGrid(int i)
+    {
+        const uint G_ID = i;
+        uint G_ID_PREV = (G_ID == 0)? SPH_MAX_RIGID_PARTICLES : G_ID; G_ID_PREV--;
+        uint G_ID_NEXT = G_ID + 1; if (G_ID_NEXT == SPH_MAX_RIGID_PARTICLES) { G_ID_NEXT = 0; }
+    
+        uint cell = hashes[G_ID];
+        uint cell_prev = hashes[G_ID_PREV];
+        uint cell_next = hashes[G_ID_NEXT];
+        if (cell != cell_prev)
+        {
+            // I'm the start of a cell
+            grid[cell].x = G_ID;
+        }
+        if (cell != cell_next)
+        {
+            // I'm the end of a cell
+            grid[cell].y = G_ID + 1;
+        }
+    }
+
     __device__ void updateRigids(int i)
     {
         sphRigidUpdateInfo  &rui    = updateinfo[i];
@@ -36,6 +68,8 @@ struct DeviceRigidDataSet
         particles[i].owner_handle   = rui.owner_handle;
         particles[i].position       = vector_cast<float4&>(rin.transform * vector_cast<vec4>(rp.position));
         particles[i].normal         = vector_cast<float4&>(rin.transform * vector_cast<vec4>(rp.normal));
+        particles[i].padding.y      = 0.0f;
+        particles[i].padding.z      = 0.0f;
     }
 };
 
@@ -86,6 +120,30 @@ struct RigidDataSet
 struct _RigidUpdate
 {
     DeviceRigidDataSet drd;
-    _RigidUpdate(const DeviceRigidDataSet& v) : drd(v) {}
-    __device__ void operator()(int i) { drd.updateRigids(i); }
+    _RigidUpdate(const DeviceRigidDataSet &v) : drd(v) {}
+    __device__ void operator()(int i)
+    {
+        drd.updateRigids(i);
+    }
+};
+
+struct _RigidUpdateHash
+{
+    DeviceRigidDataSet drd;
+    _RigidUpdateHash(const DeviceRigidDataSet &v) : drd(v) {}
+    __device__ void operator()(int i) { drd.updateHash(i); }
+};
+
+struct _RigidClearGrid
+{
+    DeviceRigidDataSet drd;
+    _RigidClearGrid(const DeviceRigidDataSet &v) : drd(v) {}
+    __device__ void operator()(int i) { drd.clearGrid(i); }
+};
+
+struct _RigidUpdateGrid
+{
+    DeviceRigidDataSet drd;
+    _RigidUpdateGrid(const DeviceRigidDataSet  &v) : drd(v) {}
+    __device__ void operator()(int i) { drd.updateGrid(i); }
 };
