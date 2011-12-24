@@ -59,7 +59,7 @@ public:
 
 
 
-struct SPHParam
+struct sphParam
 {
     float smooth_len;
     float pressure_stiffness;
@@ -73,7 +73,7 @@ struct SPHParam
 };
 
 
-struct SPHGridParam
+struct sphGridParam
 {
     float4 grid_dim;
     float4 grid_dim_rcp;

@@ -145,21 +145,21 @@ bool GraphicResourceManager::initialize()
             m_rt_gauss[i]->initialize(512, 256, IST_RGBA8U);
         }
 
-        m_fbo[RT_GBUFFER] = m_rt_gbuffer;
-        m_fbo[RT_DEFERRED] = m_rt_deferred;
-        m_fbo[RT_GAUSS0] = m_rt_gauss[0];
-        m_fbo[RT_GAUSS1] = m_rt_gauss[1];
+        m_fbo[RT_GBUFFER]   = m_rt_gbuffer;
+        m_fbo[RT_DEFERRED]  = m_rt_deferred;
+        m_fbo[RT_GAUSS0]    = m_rt_gauss[0];
+        m_fbo[RT_GAUSS1]    = m_rt_gauss[1];
     }
     {
         CreateCubeParticleSet(*m_cb[CB_CLASS_CUBE], m_sphcc[CB_CLASS_CUBE], 0.4f);
-        CreateSphereParticleSet(*m_cb[CB_CLASS_SPHERE], m_sphcc[CB_CLASS_SPHERE], 0.4f);
+        CreateSphereParticleSet(*m_cb[CB_CLASS_SPHERE], m_sphcc[CB_CLASS_SPHERE], 0.25f);
         SPHCopyRigidClassInfo(m_sphcc);
 
         m_cb[CB_CHARACTER_INSTANCE]->setCapacity(sizeof(mat4)*ATOMIC_MAX_CHARACTERS);
     }
 
-    m_vbo[VBO_FLUID_PARTICLES]->allocate(sizeof(SPHFluidParticle)*SPH_MAX_FLUID_PARTICLES, VertexBufferObject::USAGE_DYNAMIC);
-    m_vbo[VBO_RIGID_PARTICLES]->allocate(sizeof(SPHRigidParticle)*SPH_MAX_RIGID_PARTICLES, VertexBufferObject::USAGE_DYNAMIC);
+    m_vbo[VBO_FLUID_PARTICLES]->allocate(sizeof(sphFluidParticle)*SPH_MAX_FLUID_PARTICLES, VertexBufferObject::USAGE_DYNAMIC);
+    m_vbo[VBO_RIGID_PARTICLES]->allocate(sizeof(sphRigidParticle)*SPH_MAX_RIGID_PARTICLES, VertexBufferObject::USAGE_DYNAMIC);
     m_vbo[VBO_DIRECTIONALLIGHT_INSTANCES]->allocate(sizeof(DirectionalLight)*ATOMIC_MAX_DIRECTIONAL_LIGHTS, VertexBufferObject::USAGE_DYNAMIC);
     m_vbo[VBO_POINTLIGHT_INSTANCES]->allocate(sizeof(PointLight)*ATOMIC_MAX_POINT_LIGHTS, VertexBufferObject::USAGE_DYNAMIC);
     SPHInitialize();

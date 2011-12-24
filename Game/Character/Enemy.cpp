@@ -5,7 +5,7 @@
 #include "Game/AtomicApplication.h"
 #include "Game/AtomicGame.h"
 #include "Game/World.h"
-#include "Game/Fraction.h"
+#include "Game/SPHManager.h"
 #include "Game/Message.h"
 #include "Enemy.h"
 
@@ -63,23 +63,21 @@ public:
 };
 
 
-class Enemy_Cube : public Enemy_Base, public Attr_DoubleAxisRotation
+class Enemy_Cube
+    : public Enemy_Base
+    , public TAttr_RotateSpeed<Attr_DoubleAxisRotation>
 {
 typedef Enemy_Base super;
-typedef Attr_DoubleAxisRotation transform;
+typedef TAttr_RotateSpeed<Attr_DoubleAxisRotation> transform;
 private:
 
 public:
     virtual void update(float32 dt)
     {
         super::update(dt);
+        transform::update(dt);
         setTransform(computeMatrix());
         atomicGetFractionSet()->addRigid(CB_CLASS_CUBE, getHandle(), getTransform());
-    }
-
-    virtual void updateAsync(float32 dt)
-    {
-        super::updateAsync(dt);
     }
 
     bool call(uint32 call_id, const variant &v)
@@ -93,16 +91,19 @@ public:
     }
 };
 
-class Enemy_Sphere : public Enemy_Base, public Attr_DoubleAxisRotation
+class Enemy_Sphere
+    : public Enemy_Base
+    , public TAttr_RotateSpeed<Attr_DoubleAxisRotation>
 {
 typedef Enemy_Base super;
-typedef Attr_DoubleAxisRotation transform;
+typedef TAttr_RotateSpeed<Attr_DoubleAxisRotation> transform;
 private:
 
 public:
     virtual void update(float32 dt)
     {
         super::update(dt);
+        transform::update(dt);
         setTransform(computeMatrix());
         atomicGetFractionSet()->addRigid(CB_CLASS_SPHERE, getHandle(), getTransform());
     }

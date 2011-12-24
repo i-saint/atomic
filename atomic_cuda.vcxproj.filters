@@ -48,9 +48,6 @@
     <ClCompile Include="Game\AtomicGame.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Fraction.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
     <ClCompile Include="Game\Message.cpp">
       <Filter>Game</Filter>
     </ClCompile>
@@ -170,15 +167,15 @@
     <ClCompile Include="Game\Entity.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="Game\SPHManager.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h">
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="Game\AtomicGame.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\Fraction.h">
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="Game\Message.h">
@@ -402,6 +399,12 @@
     <ClInclude Include="features.h" />
     <ClInclude Include="Graphics\ResourceID.h">
       <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Task.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\SPHManager.h">
+      <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

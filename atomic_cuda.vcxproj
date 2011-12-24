@@ -21,8 +21,8 @@
     <ClCompile Include="Game\Character\Player.cpp" />
     <ClCompile Include="Game\DebugConsole.cpp" />
     <ClCompile Include="Game\Entity.cpp" />
-    <ClCompile Include="Game\Fraction.cpp" />
     <ClCompile Include="Game\Message.cpp" />
+    <ClCompile Include="Game\SPHManager.cpp" />
     <ClCompile Include="Game\Text.cpp" />
     <ClCompile Include="Game\World.cpp" />
     <ClCompile Include="Graphics\CreateModelData.cpp" />
@@ -74,8 +74,9 @@
     <ClInclude Include="Game\DebugConsole.h" />
     <ClInclude Include="Game\Entity.h" />
     <ClInclude Include="Game\EntityQuery.h" />
-    <ClInclude Include="Game\Fraction.h" />
     <ClInclude Include="Game\Message.h" />
+    <ClInclude Include="Game\SPHManager.h" />
+    <ClInclude Include="Game\Task.h" />
     <ClInclude Include="Game\Text.h" />
     <ClInclude Include="Game\World.h" />
     <ClInclude Include="GPGPU\SPH.cuh" />
@@ -203,6 +204,7 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(BOOST);$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
     <LibraryPath>external\lib;$(BOOST)\lib;$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -223,6 +225,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <CudaCompile>
       <Include>$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;%(Include)</Include>
+      <GPUDebugInfo>true</GPUDebugInfo>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Intel_SSA|Win32'">

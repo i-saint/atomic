@@ -6,29 +6,26 @@
 #include "Game/Message.h"
 #include "Game/AtomicGame.h"
 #include "Game/World.h"
-#include "Game/Fraction.h"
+#include "Game/SPHManager.h"
 
 namespace atomic {
 
 
 
 
-FractionSet::FractionSet()
+SPHManager::SPHManager()
 {
-    m_task_asyncupdate = IST_NEW(AsyncUpdateTask)(this);
 }
 
-FractionSet::~FractionSet()
+SPHManager::~SPHManager()
 {
-    sync();
-    IST_SAFE_DELETE(m_task_asyncupdate);
 }
 
 
-void FractionSet::initialize()
+void SPHManager::initialize()
 {
     {
-        SPHSphericalGravity h_sg;
+        sphSphericalGravity h_sg;
         h_sg.position = make_float4(0.0f);
         h_sg.is_active = 1;
         h_sg.inner_radus = 0.25f;
@@ -42,44 +39,41 @@ void FractionSet::initialize()
 }
 
 
-void FractionSet::update()
+void SPHManager::updateBegin( float32 dt )
 {
-    m_task_asyncupdate->kick();
-
     m_rigids.clear();
-
-    //updateAsync();
 }
 
-void FractionSet::sync() const
+void SPHManager::update(float32 dt)
 {
-    m_task_asyncupdate->join();
 }
 
-
-void FractionSet::updateAsync()
+void SPHManager::updateAsync(float32 dt)
 {
-    processMessage();
     updateSPH();
 }
 
-void FractionSet::updateSPH()
+void SPHManager::updateSPH()
 {
     vec2 move = atomicGetInputs()->getMove()*0.01f;
     m_sgravity[0].position.x += move.x;
     m_sgravity[0].position.y += move.y;
 
     SPHUpdateGravity(m_sgravity);
-    //SPHUpdateRigids(m_rigids);
+    SPHUpdateRigids(m_rigids);
     SPHUpdateFluid();
 }
 
-
-void FractionSet::processMessage()
+void SPHManager::addRigid(CB_RID cid, EntityHandle h, const mat4& m)
 {
+    sphRigidInstance tmp;
+    tmp.classid = cid;
+    tmp.handle = h;
+    tmp.transform = m;
+    m_rigids.push_back( tmp );
 }
 
-void FractionSet::draw() const
+void SPHManager::draw() const
 {
 }
 

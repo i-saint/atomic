@@ -133,7 +133,7 @@ public:
     ~EntitySet();
 
     void update(float32 dt);
-    void sync();
+    void updateAsync(float32 dt);
 
     IEntity* getEntity(EntityHandle h);
     void deleteEntity(EntityHandle h);

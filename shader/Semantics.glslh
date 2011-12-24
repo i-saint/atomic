@@ -17,9 +17,9 @@
 
 // textures
 #define GLSL_COLOR_BUFFER       0
-#define GLSL_DEPTH_BUFFER       1
-#define GLSL_NORMAL_BUFFER      2
-#define GLSL_POSITION_BUFFER    3
+#define GLSL_NORMAL_BUFFER      1
+#define GLSL_POSITION_BUFFER    2
+#define GLSL_GLOW_BUFFER        3
 #define GLSL_RANDOM_BUFFER      4
 
 // uniform blocks

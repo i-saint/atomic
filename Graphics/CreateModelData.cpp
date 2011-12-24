@@ -254,77 +254,80 @@ void CreateCube( VertexArray& va, VertexBufferObject& vbo, float32 len )
 
 
 namespace {
-    const float32 g_particle_par_volume = 2000.0; // particles / (1.0*1.0*1.0)
+    const float32 g_particle_par_volume = 30000.0; // particles / (1.0*1.0*1.0)
 }
 
-bool CreateCubeParticleSet( CudaBuffer& ps, SPHRigidClass &sphcc, float32 len )
+bool CreateCubeParticleSet( CudaBuffer& ps, sphRigidClass &sphcc, float32 len )
 {
     SFMT random; random.initialize(3);
 
     float32 half_len = len/2.0f;
-    float4 pos = make_float4(-half_len, -half_len, -half_len, half_len);
+    float4 pos = make_float4(-half_len, -half_len, -half_len, 0.0f);
     float32 volume = len*len*len;
     uint32 num = static_cast<uint32>(volume * g_particle_par_volume);
-    uint32 buffer_size = sizeof(SPHRigidParticle)*num;
+    uint32 buffer_size = sizeof(sphRigidParticle)*num;
 
     ps.setCapacity(buffer_size);
-    SPHRigidParticle* particles = (SPHRigidParticle*)ps.getHostBuffer();
+    sphRigidParticle* particles = (sphRigidParticle*)ps.getHostBuffer();
 
     const float4 planes[6] = {
-        make_float4( 1.0f, 0.0f, 0.0f,-half_len),
-        make_float4(-1.0f, 0.0f, 0.0f, half_len),
-        make_float4( 0.0f, 1.0f, 0.0f,-half_len),
-        make_float4( 0.0f,-1.0f, 0.0f, half_len),
-        make_float4( 0.0f, 0.0f, 1.0f,-half_len),
-        make_float4( 0.0f, 0.0f,-1.0f, half_len),
+        make_float4( 1.0f, 0.0f, 0.0f, 0.0f),
+        make_float4(-1.0f, 0.0f, 0.0f, 0.0f),
+        make_float4( 0.0f, 1.0f, 0.0f, 0.0f),
+        make_float4( 0.0f,-1.0f, 0.0f, 0.0f),
+        make_float4( 0.0f, 0.0f, 1.0f, 0.0f),
+        make_float4( 0.0f, 0.0f,-1.0f, 0.0f),
     };
     for(uint32 i=0; i<num; ++i) {
         float4 rv = make_float4(random.genFloat32(),random.genFloat32(),random.genFloat32(),0.0f) * len;
-        particles[i].position = pos + rv;
+        float4 ppos = pos + rv;
+        particles[i].owner_handle = 0;
+        particles[i].position = ppos;
+        particles[i].position.w = 1.0f;
 
-        float32 min_d = len*2.0f;
-        uint32 min_p = 0;
+        float32 max_d = 0.0f;
+        uint32 max_p = 0;
         for(uint32 p=0; p<_countof(planes); ++p) {
-            float32 d = dot(rv, planes[p]);
-            if(d < min_d) {
-                min_d = d;
-                min_p = p;
+            float32 d = dot(ppos, planes[p]);
+            if(d > max_d) {
+                max_d = d;
+                max_p = p;
             }
         }
-        particles[i].owner_handle = 0;
-        particles[i].normal = planes[min_p] * (min_d / half_len);
+        particles[i].normal = planes[max_p] * (max_d / half_len);
         particles[i].normal.w = 0.0f;
     }
     ps.copyHostToDevice();
 
     sphcc.num_particles = num;
-    sphcc.particles = (SPHRigidParticle*)ps.getDeviceBuffer();
+    sphcc.particles = (sphRigidParticle*)ps.getDeviceBuffer();
     return true;
 }
 
-bool CreateSphereParticleSet( CudaBuffer& ps, SPHRigidClass &sphcc, float32 radius )
+bool CreateSphereParticleSet( CudaBuffer& ps, sphRigidClass &sphcc, float32 radius )
 {
     SFMT random; random.initialize(5);
 
-    float4 pos = make_float4(0.0f, 0.0f, 0.0f, 1.0f);
     float4 half = make_float4(0.5f, 0.5f, 0.5f, 0.0f);
     float32 volume = (4.0f/3.0f) * ist::PI * (radius*radius*radius);
     uint32 num = static_cast<uint32>(volume * g_particle_par_volume);
-    uint32 buffer_size = sizeof(SPHRigidParticle)*num;
+    uint32 buffer_size = sizeof(sphRigidParticle)*num;
 
     ps.setCapacity(buffer_size);
-    SPHRigidParticle* particles = (SPHRigidParticle*)ps.getHostBuffer();
+    sphRigidParticle* particles = (sphRigidParticle*)ps.getHostBuffer();
     for(uint32 i=0; i<num; ++i) {
-        float4 rv = (make_float4(random.genFloat32(),random.genFloat32(),random.genFloat32(),0.0f)-half) * 2.0f * radius;
-        float32 len = ::length(rv);
+        float4 dir = normalize(make_float4(random.genFloat32(),random.genFloat32(),random.genFloat32(),0.0f)-half);
+        float l = random.genFloat32()*radius;
+        float4 pos = dir*l;
         particles[i].owner_handle = 0;
-        particles[i].position = pos + rv;
-        particles[i].normal = rv / len;
+        particles[i].position = pos;
+        particles[i].position.w = 1.0f;
+        particles[i].normal = pos / radius;
     }
     ps.copyHostToDevice();
 
     sphcc.num_particles = num;
-    sphcc.particles = (SPHRigidParticle*)ps.getDeviceBuffer();
+    sphcc.particles = (sphRigidParticle*)ps.getDeviceBuffer();
     return true;
 }
 

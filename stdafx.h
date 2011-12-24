@@ -42,6 +42,8 @@
 #include <boost/thread.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/static_assert.hpp>
+#include <boost/mem_fn.hpp>
+#include <boost/function.hpp>
 #include <EASTL/algorithm.h>
 #include <EASTL/sort.h>
 #include <EASTL/vector.h>

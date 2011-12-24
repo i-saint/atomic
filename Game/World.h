@@ -6,7 +6,7 @@
 namespace atomic {
 
 class EntitySet;
-class FractionSet;
+class SPHManager;
 
 class World;
 
@@ -14,16 +14,21 @@ class World;
 class World : boost::noncopyable
 {
 private:
-    typedef Task_UpdateAsync<World> UpdateAsyncTask;
-    UpdateAsyncTask *m_task_updateasync;
-
     EntitySet   *m_entity_set;
-    FractionSet *m_fraction_set;
+    SPHManager  *m_sph;
+
+    Task_UpdateAsync<World>         *m_task_update_world;
+    Task_UpdateAsync<SPHManager>    *m_task_update_sph;
+    Task_UpdateAsync<EntitySet>     *m_task_update_entity;
 
     SFMT m_rand;
     PerspectiveCamera m_camera;
 
     uint32 m_frame;
+
+private:
+    void kickAsyncUpdate(float32 dt);
+    void joinAsyncUpdate();
 
 public:
     World();
@@ -34,16 +39,15 @@ public:
     void deserialize(Deserializer& s);
 
     void update(float32 dt);
+    void updateAsync(float32 dt);
     void draw() const;
-    void sync() const;
-    void updateAsync();
 
     uint32 getFrame() const         { return m_frame; }
     PerspectiveCamera* getCamera()  { return &m_camera; }
     SFMT* getRandom()               { return &m_rand; }
 
     EntitySet*  getEntitySet()      { return m_entity_set; }
-    FractionSet* getFractionSet()   { return m_fraction_set; }
+    SPHManager* getFractionSet()   { return m_sph; }
 };
 
 

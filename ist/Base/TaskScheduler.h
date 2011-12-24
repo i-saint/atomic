@@ -173,6 +173,21 @@ public:
     }
 };
 
+template<class Functor>
+class FunctionalTask : public Task
+{
+private:
+    Functor m_func;
+
+public:
+    FunctionalTask(const Functor& v) : m_func(v) {}
+
+    void exec()
+    {
+        m_func();
+    }
+};
+
 
 } // namespace ist
 #endif // __ist_TaskScheduler__ 

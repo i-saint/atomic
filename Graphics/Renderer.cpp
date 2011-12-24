@@ -216,7 +216,7 @@ PassGBuffer_SPH::PassGBuffer_SPH()
 {
     m_va_cube       = atomicGetVertexArray(VA_FRACTION_CUBE);
     m_sh_fluid      = atomicGetShader(SH_GBUFFER_FLUID);
-    m_sh_rigid      = atomicGetShader(SH_GBUFFER_FLUID);
+    m_sh_rigid      = atomicGetShader(SH_GBUFFER_RIGID);
     m_vbo_fluid     = atomicGetVertexBufferObject(VBO_FLUID_PARTICLES);
     m_vbo_rigid     = atomicGetVertexBufferObject(VBO_RIGID_PARTICLES);
 }
@@ -229,9 +229,11 @@ void PassGBuffer_SPH::draw()
 {
     SPHCopyToGL();
 
+    const sphStates& sphs = SPHGetStates();
+
     // fluid particle
     {
-        const uint32 num_particles = SPH_MAX_FLUID_PARTICLES;
+        const uint32 num_particles = sphs.num_fluid_particles;
         const VertexArray::Descriptor descs[] = {
             {GLSL_INSTANCE_PARAM,    VertexArray::TYPE_FLOAT,4,  0, false, 1},
             {GLSL_INSTANCE_POSITION, VertexArray::TYPE_FLOAT,4, 16, false, 1},
@@ -240,28 +242,28 @@ void PassGBuffer_SPH::draw()
 
         m_sh_fluid->bind();
         m_va_cube->bind();
-        m_va_cube->setAttributes(*m_vbo_fluid, sizeof(SPHFluidParticle), descs, _countof(descs));
+        m_va_cube->setAttributes(*m_vbo_fluid, sizeof(sphFluidParticle), descs, _countof(descs));
         glDrawArraysInstanced(GL_QUADS, 0, 24, num_particles);
         m_va_cube->unbind();
         m_sh_fluid->unbind();
     }
 
-    //// rigid particle
-    //{
-    //    const uint32 num_particles = SPH_MAX_FLUID_PARTICLES;
-    //    const VertexArray::Descriptor descs[] = {
-    //        {GLSL_INSTANCE_PARAM,    VertexArray::TYPE_FLOAT,4,  0, false, 1},
-    //        {GLSL_INSTANCE_POSITION, VertexArray::TYPE_FLOAT,4, 16, false, 1},
-    //        {GLSL_INSTANCE_NORMAL,   VertexArray::TYPE_FLOAT,4, 32, false, 1},
-    //    };
+    // rigid particle
+    {
+        const uint32 num_particles = sphs.num_rigid_particles;
+        const VertexArray::Descriptor descs[] = {
+            {GLSL_INSTANCE_PARAM,    VertexArray::TYPE_FLOAT,4,  0, false, 1},
+            {GLSL_INSTANCE_POSITION, VertexArray::TYPE_FLOAT,4, 16, false, 1},
+            {GLSL_INSTANCE_NORMAL,   VertexArray::TYPE_FLOAT,4, 32, false, 1},
+        };
 
-    //    m_sh_rigid->bind();
-    //    m_va_cube->bind();
-    //    m_va_cube->setAttributes(*m_vbo_fluid, sizeof(SPHRigidParticle), descs, _countof(descs));
-    //    glDrawArraysInstanced(GL_QUADS, 0, 24, num_particles);
-    //    m_va_cube->unbind();
-    //    m_sh_rigid->unbind();
-    //}
+        m_sh_rigid->bind();
+        m_va_cube->bind();
+        m_va_cube->setAttributes(*m_vbo_rigid, sizeof(sphRigidParticle), descs, _countof(descs));
+        glDrawArraysInstanced(GL_QUADS, 0, 24, num_particles);
+        m_va_cube->unbind();
+        m_sh_rigid->unbind();
+    }
 }
 
 
@@ -361,6 +363,7 @@ PassPostprocess_Bloom::PassPostprocess_Bloom()
 , m_sh_composite(NULL)
 , m_ubo_states(NULL)
 {
+    m_rt_gbuffer    = atomicGetRenderTargetGBuffer();
     m_rt_deferred   = atomicGetRenderTargetDeferred();
     m_rt_gauss0     = atomicGetRenderTargetGauss(0);
     m_rt_gauss1     = atomicGetRenderTargetGauss(1);
@@ -389,7 +392,8 @@ void PassPostprocess_Bloom::draw()
     {
         m_sh_luminance->bind();
         m_rt_gauss0->bind();
-        m_rt_deferred->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
+        m_rt_deferred->getColorBuffer(GBUFFER_COLOR)->bind(GLSL_COLOR_BUFFER);
+        //m_rt_gbuffer->getColorBuffer(GBUFFER_GLOW)->bind(GLSL_COLOR_BUFFER);
         m_va_luminance->bind();
         glDrawArrays(GL_QUADS, 0, 16);
         m_rt_gauss0->unbind();
@@ -400,7 +404,7 @@ void PassPostprocess_Bloom::draw()
     {
         m_sh_hblur->bind();
         m_rt_gauss1->bind();
-        m_rt_gauss0->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
+        m_rt_gauss0->getColorBuffer(GBUFFER_COLOR)->bind(GLSL_COLOR_BUFFER);
         m_va_blur->bind();
         glDrawArrays(GL_QUADS, 0, 16);
         m_rt_gauss1->unbind();
@@ -411,7 +415,7 @@ void PassPostprocess_Bloom::draw()
     {
         m_sh_vblur->bind();
         m_rt_gauss0->bind();
-        m_rt_gauss1->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
+        m_rt_gauss1->getColorBuffer(GBUFFER_COLOR)->bind(GLSL_COLOR_BUFFER);
         m_va_blur->bind();
         glDrawArrays(GL_QUADS, 0, 16);
         m_rt_gauss0->unbind();
@@ -423,7 +427,7 @@ void PassPostprocess_Bloom::draw()
     {
         m_sh_composite->bind();
         m_rt_deferred->bind();
-        m_rt_gauss0->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
+        m_rt_gauss0->getColorBuffer(GBUFFER_COLOR)->bind(GLSL_COLOR_BUFFER);
         m_va_composite->bind();
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE);

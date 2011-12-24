@@ -41,7 +41,7 @@ const int SPH_MAX_SPHERICAL_GRAVITY_NUM = 1;
 const int SPH_THREAD_BLOCK_X = 256;
 
 
-struct SPHFluidParticle
+struct sphFluidParticle
 {
     union {
         struct {
@@ -56,7 +56,7 @@ struct SPHFluidParticle
     float4 velocity;
 };
 
-struct SPHFluidParticleForce
+struct sphFluidParticleForce
 {
     float4 acceleration;
     union {
@@ -67,7 +67,7 @@ struct SPHFluidParticleForce
     };
 };
 
-struct SPHRigidParticle
+struct sphRigidParticle
 {
     union {
         struct {
@@ -79,7 +79,7 @@ struct SPHRigidParticle
     float4 normal;
 };
 
-struct SPHSphericalGravity
+struct sphSphericalGravity
 {
     float4 position;
     union {
@@ -94,18 +94,18 @@ struct SPHSphericalGravity
 };
 
 
-struct SPHRigidClass
+struct sphRigidClass
 {
     union {
         struct {
             int num_particles;
-            SPHRigidParticle *particles;
+            sphRigidParticle *particles;
         };
         float4 padding;
     };
 };
 
-struct SPHRigidInstance
+struct sphRigidInstance
 {
     union {
         struct {
@@ -117,12 +117,13 @@ struct SPHRigidInstance
     glm::mat4 transform;
 };
     
-struct SPHGPUStates
+struct sphStates
 {
-    int num_particles;
+    int num_fluid_particles;
+    int num_rigid_particles;
 };
 
-struct SPHDamageMessage
+struct sphDamageMessage
 {
     EntityHandle to;
     float damage;
@@ -132,17 +133,16 @@ struct SPHDamageMessage
 void SPHInitialize();
 void SPHFinalize();
 void SPHUpdateFluid();
-void SPHUpdateRigids(const thrust::host_vector<SPHRigidInstance> &rigids);
+void SPHUpdateRigids(const thrust::host_vector<sphRigidInstance> &rigids);
 
 void SPHInitializeGLBuffers(int vbo_fluid, int vbo_rigids, int vbo_lightpos);
 void SPHFinalizeGLBuffers();
-void SPHCopyRigidClassInfo(SPHRigidClass (&sphcc)[atomic::CB_END]);
+void SPHCopyRigidClassInfo(sphRigidClass (&sphcc)[atomic::CB_END]);
 void SPHCopyToGL();
-void SPHCopyDamageMessageToHost(SPHDamageMessage *dst);
+void SPHCopyDamageMessageToHost(sphDamageMessage *dst);
+void SPHUpdateGravity(sphSphericalGravity (&sgravity)[ SPH_MAX_SPHERICAL_GRAVITY_NUM ]);
 
-void SPHUpdateGravity(SPHSphericalGravity (&sgravity)[ SPH_MAX_SPHERICAL_GRAVITY_NUM ]);
-
-void SPHSpawnFluidParticles(const thrust::host_vector<SPHRigidInstance> &rigids);
+sphStates& SPHGetStates();
 
 
 } // extern "C"

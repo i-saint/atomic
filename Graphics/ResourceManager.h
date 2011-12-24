@@ -21,14 +21,13 @@ enum DRAW_PASS {
 
 enum GBUFFER {
     GBUFFER_COLOR   = 0,
-    GBUFFER_GLOW    = 1,
-    GBUFFER_NORMAL  = 2,
-    GBUFFER_POSITION= 3,
-    GBUFFER_DEPTH   = 4,
+    GBUFFER_NORMAL  = 1,
+    GBUFFER_POSITION= 2,
+    GBUFFER_GLOW    = 3,
 };
 
 
-typedef Color3DepthBuffer RenderTargetGBuffer;
+typedef Color4DepthBuffer RenderTargetGBuffer;
 typedef ColorDepthBuffer RenderTargetDeferred;
 typedef ColorBuffer RenderTargetGauss;
 
@@ -48,7 +47,7 @@ private:
     FrameBufferObject   *m_fbo[RT_END];
     AtomicShader        *m_shader[SH_END];
     CudaBuffer          *m_cb[CB_END];
-    SPHRigidClass   m_sphcc[CB_END];
+    sphRigidClass   m_sphcc[CB_END];
 
 private:
     static GraphicResourceManager* s_inst;
@@ -68,7 +67,7 @@ public:
     UniformBufferObject* getUniformBufferObject(UBO_RID i)  { return m_ubo[i]; }
     AtomicShader* getShader(SH_RID i)                       { return m_shader[i]; }
     CudaBuffer* getCudaBuffer(CB_RID i)                     { return m_cb[i]; }
-    SPHRigidClass* getSPHRigidClass(CB_RID i)       { return &m_sphcc[i]; }
+    sphRigidClass* getsphRigidClass(CB_RID i)       { return &m_sphcc[i]; }
 
     void swapBuffers();
     RenderTargetGBuffer*    getRenderTargetGBuffer()        { return m_rt_gbuffer; }
@@ -91,7 +90,7 @@ public:
 #define atomicGetUniformBufferObject(i)     atomicGetResourceManager()->getUniformBufferObject(i)
 #define atomicGetShader(i)                  atomicGetResourceManager()->getShader(i)
 #define atomicGetCudaBuffer(i)              atomicGetResourceManager()->getCudaBuffer(i)
-#define atomicGetSPHRigidClass(i)       atomicGetResourceManager()->getSPHRigidClass(i)
+#define atomicGetsphRigidClass(i)       atomicGetResourceManager()->getsphRigidClass(i)
 
 } // namespace atomic
 #endif // __atomic_Graphics_ResourceManager__

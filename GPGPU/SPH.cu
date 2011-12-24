@@ -18,16 +18,16 @@
 
 
 
-__constant__ SPHParam d_params;
+__constant__ sphParam d_params;
 
 struct DeviceFluidDataSet
 {
-    SPHGridParam            *params;
-    SPHFluidParticle        *particles;
-    SPHFluidParticleForce   *forces;
+    sphGridParam            *params;
+    sphFluidParticle        *particles;
+    sphFluidParticleForce   *forces;
     SPHHash                 *hashes;
     SPHGridData             *grid;
-    SPHGPUStates            *states;
+    sphStates               *states;
 
     __device__ int3 GridCalculateCell(float4 pos)
     {
@@ -191,7 +191,7 @@ struct DeviceFluidDataSet
 
                             // Pressure Term
                             acceleration += CalculateGradPressure(r, P_pressure, N_pressure, N_density, diff);
-            
+
                             // Viscosity Term
                             acceleration += CalculateLapVelocity(r, P_velocity, N_velocity, N_density);
                         }
@@ -202,15 +202,25 @@ struct DeviceFluidDataSet
 
         forces[P_ID].acceleration = acceleration / P_density;
     }
+
+    __device__ void countAlives(int i)
+    {
+        const uint G_ID = i;
+        uint G_ID_NEXT = G_ID + 1; if (G_ID_NEXT == SPH_MAX_FLUID_PARTICLES) { G_ID_NEXT--; }
+
+        if (hashes[G_ID] != hashes[G_ID_NEXT]) {
+            states[0].num_fluid_particles = G_ID + 1;
+        }
+    }
 };
 
 struct DeviceRigidDataSet
 {
-    SPHGridParam            *params;
-    SPHRigidParticle        *particles;
+    sphGridParam            *params;
+    sphRigidParticle        *particles;
     SPHHash                 *hashes;
     SPHGridData             *grid;
-    SPHGPUStates            *states;
+    sphStates            *states;
 
     __device__ int3 GridCalculateCell(float4 pos)
     {
@@ -232,32 +242,28 @@ struct DeviceRigidDataSet
 
 struct DeviceForceDataSet
 {
-    SPHSphericalGravity *sgravity;
+    sphSphericalGravity *sgravity;
 };
 
 
 
 struct FluidDataSet
 {
-    thrust::device_vector<SPHGridParam>            params;
-    thrust::device_vector<SPHGPUStates>            states;
-    thrust::device_vector<SPHFluidParticle>        particles;
-    thrust::device_vector<SPHFluidParticleForce>   forces;
+    thrust::device_vector<sphGridParam>            params;
+    thrust::device_vector<sphStates>            states;
+    thrust::device_vector<sphFluidParticle>        particles;
+    thrust::device_vector<sphFluidParticleForce>   forces;
     thrust::device_vector<SPHHash>                 hashes;
     thrust::device_vector<SPHGridData>             grid;
 
     FluidDataSet()
     {
-        particles.reserve(SPH_MAX_FLUID_PARTICLES);
-        forces.reserve(SPH_MAX_FLUID_PARTICLES);
-        hashes.reserve(SPH_MAX_FLUID_PARTICLES);
-
         params.resize(1);
         states.resize(1);
-        grid.resize(SPH_FLUID_GRID_DIV_3);
         particles.resize(SPH_MAX_FLUID_PARTICLES);
         forces.resize(SPH_MAX_FLUID_PARTICLES);
         hashes.resize(SPH_MAX_FLUID_PARTICLES);
+        grid.resize(SPH_FLUID_GRID_DIV_3);
     }
     
     void resizeParticles(size_t n)
@@ -282,19 +288,18 @@ struct FluidDataSet
 
 struct RigidDataSet
 {
-    thrust::device_vector<SPHGridParam>     params;
-    thrust::device_vector<SPHGPUStates>     states;
-    thrust::device_vector<SPHRigidParticle> particles;
+    thrust::device_vector<sphGridParam>     params;
+    thrust::device_vector<sphStates>     states;
+    thrust::device_vector<sphRigidParticle> particles;
     thrust::device_vector<SPHHash>          hashes;
     thrust::device_vector<SPHGridData>      grid;
 
     RigidDataSet()
     {
-        particles.reserve(SPH_MAX_RIGID_PARTICLES);
-        hashes.reserve(SPH_MAX_RIGID_PARTICLES);
         params.resize(1);
         states.resize(1);
-
+        particles.reserve(SPH_MAX_RIGID_PARTICLES);
+        hashes.reserve(SPH_MAX_RIGID_PARTICLES);
         grid.resize(SPH_RIGID_GRID_DIV_3);
     }
 
@@ -318,7 +323,7 @@ struct RigidDataSet
 
 struct ForceDataSet
 {
-    thrust::device_vector<SPHSphericalGravity> sgravities;
+    thrust::device_vector<sphSphericalGravity> sgravities;
 
     ForceDataSet()
     {
@@ -337,6 +342,7 @@ struct ForceDataSet
 FluidDataSet *h_fluid = NULL;
 RigidDataSet *h_rigid = NULL;
 ForceDataSet *h_forces = NULL;
+sphStates h_states;
 
 
 
@@ -374,7 +380,7 @@ void SPHInitialize()
     h_forces = new ForceDataSet();
 
     {
-        SPHParam sph_params;
+        sphParam sph_params;
         sph_params.smooth_len          = 0.02f;
         sph_params.pressure_stiffness  = 200.0f;
         sph_params.rest_density        = 1000.0f;
@@ -386,15 +392,20 @@ void SPHInitialize()
         sph_params.wall_stiffness      = 3000.0f;
         CUDA_SAFE_CALL( cudaMemcpyToSymbol("d_params", &sph_params, sizeof(sph_params)) );
 
-        SPHGridParam grid_params;
+        sphGridParam grid_params;
         const float grid_len = 5.12f;
         grid_params.grid_dim = make_float4(grid_len, grid_len, sph_params.smooth_len*SPH_FLUID_GRID_DIV_Z, 0.0f);
         grid_params.grid_dim_rcp = make_float4(1.0f) / (grid_params.grid_dim / make_float4(SPH_FLUID_GRID_DIV_X, SPH_FLUID_GRID_DIV_Y, SPH_FLUID_GRID_DIV_Z, 1.0));
         grid_params.grid_pos = make_float4(-grid_len/2.0f, -grid_len/2.0f, 0.0f, 0.0f);
         h_fluid->params[0] = grid_params;
+
+        sphStates stat;
+        stat.num_fluid_particles = SPH_MAX_FLUID_PARTICLES;
+        stat.num_rigid_particles = 0;
+        h_fluid->states[0] = stat;
     }
     {
-        SPHSphericalGravity h_sg;
+        sphSphericalGravity h_sg;
         h_sg.position = make_float4(0.0f);
         h_sg.is_active = 1;
         h_sg.inner_radus = 0.5f;
@@ -452,6 +463,13 @@ struct _ComputeForce
     __device__ void operator()(int i) { dfd.computeForce(i); }
 };
 
+struct _CountAlives
+{
+    DeviceFluidDataSet dfd;
+    _CountAlives(DeviceFluidDataSet v) : dfd(v) {}
+    __device__ void operator()(int i) { dfd.countAlives(i); }
+};
+
 struct _Integrate
 {
     DeviceFluidDataSet dfd;
@@ -465,6 +483,7 @@ struct _Integrate
         float4 position = dfd.particles[P_ID].position;
         float4 velocity = dfd.particles[P_ID].velocity;
         float4 acceleration = dfd.forces[P_ID].acceleration;
+        dfd.hashes[P_ID] = 0;
 
         //const float3 planes[4] = {
         //    make_float3( 1.0f, 0.0f, 0),
@@ -502,6 +521,9 @@ struct _Integrate
             acceleration += min(distance-inner_radius, 0.0f) * d_params.wall_stiffness * dir;
             acceleration += min(outer_radius-distance, 0.0f) * -d_params.wall_stiffness * dir;
             acceleration += gravity;
+
+            //// kill
+            //if(distance-inner_radius < 0.0f) { dfd.hashes[P_ID] = 1; }
         }
 
         //const float timestep = 1.0f/60.f;
@@ -526,16 +548,26 @@ void SPHUpdateFluid()
 {
     DeviceFluidDataSet dfd = h_fluid->getDeviceData();
     DeviceForceDataSet dgd = h_forces->getDeviceData();
+    int num_particles = (int)h_fluid->particles.size();
 
-    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(SPH_MAX_FLUID_PARTICLES), _UpdateHash(dfd) );
+    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(num_particles), _UpdateHash(dfd) );
     thrust::sort_by_key(h_fluid->hashes.begin(), h_fluid->hashes.end(), h_fluid->particles.begin());
     thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(SPH_FLUID_GRID_DIV_3), _GridClear(dfd));
-    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(SPH_MAX_FLUID_PARTICLES), _GridUpdate(dfd));
+    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(num_particles), _GridUpdate(dfd));
 
-    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(SPH_MAX_FLUID_PARTICLES), _ComputeDensity(dfd));
-    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(SPH_MAX_FLUID_PARTICLES), _ComputeForce(dfd));
-    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(SPH_MAX_FLUID_PARTICLES), _Integrate(dfd, dgd));
-    //h_fluid->particles.erase(h_fluid->particles.begin(), h_fluid->particles.end(), );
+    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(num_particles), _ComputeDensity(dfd));
+    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(num_particles), _ComputeForce(dfd));
+    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(num_particles), _Integrate(dfd, dgd));
+    thrust::sort_by_key(h_fluid->hashes.begin(), h_fluid->hashes.end(), h_fluid->particles.begin());
+    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(num_particles), _CountAlives(dfd));
+
+    const sphStates &stat = h_fluid->states[0];
+    h_states.num_fluid_particles = stat.num_fluid_particles;
+    if(h_states.num_fluid_particles==1) {
+        h_states.num_fluid_particles = h_fluid->hashes[0]==1 ? 1 : 0;
+        h_fluid->states[0] = h_states;
+    }
+    h_fluid->resizeParticles(stat.num_fluid_particles);
 }
 
 
@@ -554,17 +586,17 @@ __device__ __host__ T& vector_cast(U& v) { return reinterpret_cast<T&>(v); }
 
 struct SPHRigidSet
 {
-    SPHRigidClass *rigid_class;
+    sphRigidClass *rigid_class;
 };
 
 DeviceBufferObject h_fluid_gl;
 DeviceBufferObject h_rigids_gl;
 DeviceBufferObject h_light_gl;
-SPHRigidClass h_rigid_class[atomic::CB_END];
+thrust::host_vector<sphRigidClass>          h_rigid_class;
 thrust::host_vector<SPHRigidUpdateInfo>     h_rigid_ui;
-thrust::device_vector<SPHRigidClass>        d_rigid_class;
-thrust::device_vector<SPHRigidInstance>     d_rigid_inst;
-thrust::device_vector<SPHRigidParticle>     d_rigid_p;
+thrust::device_vector<sphRigidClass>        d_rigid_class;
+thrust::device_vector<sphRigidInstance>     d_rigid_inst;
+thrust::device_vector<sphRigidParticle>     d_rigid_p;
 thrust::device_vector<SPHRigidUpdateInfo>   d_rigid_ui;
 
 
@@ -582,13 +614,13 @@ void SPHFinalizeGLBuffers()
     h_fluid_gl.unregisterBuffer();
 }
 
-void SPHCopyRigidClassInfo(SPHRigidClass (&sphcc)[atomic::CB_END])
+void SPHCopyRigidClassInfo(sphRigidClass (&sphcc)[atomic::CB_END])
 {
-    d_rigid_class.resize(atomic::CB_END);
-    thrust::copy(sphcc, sphcc+atomic::CB_END, h_rigid_class);
-    thrust::copy(sphcc, sphcc+atomic::CB_END, d_rigid_class.begin());
+    h_rigid_class.resize(atomic::CB_END);
+    thrust::copy(sphcc, sphcc+atomic::CB_END, h_rigid_class.begin());
+    d_rigid_class = h_rigid_class;
 
-    d_rigid_inst.reserve(1024);
+    d_rigid_inst.reserve(atomic::ATOMIC_MAX_CHARACTERS);
     d_rigid_p.reserve(SPH_MAX_RIGID_PARTICLES);
     d_rigid_ui.reserve(SPH_MAX_RIGID_PARTICLES);
 }
@@ -597,10 +629,10 @@ void SPHCopyRigidClassInfo(SPHRigidClass (&sphcc)[atomic::CB_END])
 struct _CopyFluid
 {
     DeviceFluidDataSet  dfd;
-    SPHFluidParticle    *gl_partcle;
+    sphFluidParticle    *gl_partcle;
     float4              *gl_lights;
 
-    _CopyFluid(DeviceFluidDataSet f, SPHFluidParticle *glp, float4 *gll)
+    _CopyFluid(DeviceFluidDataSet f, sphFluidParticle *glp, float4 *gll)
         : dfd(f), gl_partcle(glp), gl_lights(gll) {}
 
     __device__ void operator()(int i)
@@ -618,14 +650,14 @@ struct _CopyFluid
 
 void SPHCopyToGL()
 {
-    SPHFluidParticle *gl_fluid = (SPHFluidParticle*)h_fluid_gl.mapBuffer();
-    SPHRigidParticle *gl_rigid = (SPHRigidParticle*)h_rigids_gl.mapBuffer();
+    sphFluidParticle *gl_fluid = (sphFluidParticle*)h_fluid_gl.mapBuffer();
+    sphRigidParticle *gl_rigid = (sphRigidParticle*)h_rigids_gl.mapBuffer();
     float4 *gl_lights = (float4*)h_light_gl.mapBuffer();
 
     thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator((int)h_fluid->particles.size()),
         _CopyFluid(h_fluid->getDeviceData(), gl_fluid, gl_lights));
 
-    thrust::copy(d_rigid_p.begin(), d_rigid_p.end(), thrust::device_ptr<SPHRigidParticle>(gl_rigid));
+    thrust::copy(d_rigid_p.begin(), d_rigid_p.end(), thrust::device_ptr<sphRigidParticle>(gl_rigid));
 
     h_fluid_gl.unmapBuffer();
     h_rigids_gl.unmapBuffer();
@@ -637,29 +669,28 @@ void SPHCopyToGL()
 struct _UpdateRigid
 {
     SPHRigidUpdateInfo  *rigid_ui;
-    SPHRigidClass       *rigid_class;
-    SPHRigidInstance    *rigid_inst;
-    SPHRigidParticle    *rigid_p;
+    sphRigidClass       *rigid_class;
+    sphRigidInstance    *rigid_inst;
+    sphRigidParticle    *rigid_p;
 
-    _UpdateRigid(SPHRigidUpdateInfo *rui, SPHRigidClass *rc, SPHRigidInstance *rin, SPHRigidParticle *rp)
+    _UpdateRigid(SPHRigidUpdateInfo *rui, sphRigidClass *rc, sphRigidInstance *rin, sphRigidParticle *rp)
         : rigid_ui(rui), rigid_class(rc), rigid_inst(rin), rigid_p(rp) {}
 
     __device__ void operator()(int i)
     {
         SPHRigidUpdateInfo  &rui    = rigid_ui[i];
-        SPHRigidClass       &rc     = rigid_class[rui.classid];
-        SPHRigidInstance    &rin    = rigid_inst[rui.cindex];
-        SPHRigidParticle    &rp     = rc.particles[rui.pindex];
-        rp.owner_handle = rui.owner_handle;
-        rp.position     = vector_cast<float4&>(rin.transform * vector_cast<vec4>(rc.particles[rui.pindex].position));
-        rp.normal       = vector_cast<float4&>(rin.transform * vector_cast<vec4>(rc.particles[rui.pindex].normal));
+        sphRigidClass       &rc     = rigid_class[rui.classid];
+        sphRigidInstance    &rin    = rigid_inst[rui.cindex];
+        sphRigidParticle    &rp     = rc.particles[rui.pindex];
+        rigid_p[i].owner_handle = rui.owner_handle;
+        rigid_p[i].position     = vector_cast<float4&>(rin.transform * vector_cast<vec4>(rp.position));
+        rigid_p[i].normal       = vector_cast<float4&>(rin.transform * vector_cast<vec4>(rp.normal));
     }
 };
 
-void SPHUpdateRigids(const thrust::host_vector<SPHRigidInstance> &rigids)
+void SPHUpdateRigids(const thrust::host_vector<sphRigidInstance> &rigids)
 {
-    d_rigid_inst.resize(rigids.size());
-    thrust::copy(rigids.begin(), rigids.end(), d_rigid_inst.begin());
+    d_rigid_inst = rigids;
 
     int total = 0;
     for(uint ii=0; ii<rigids.size(); ++ii) {
@@ -667,13 +698,13 @@ void SPHUpdateRigids(const thrust::host_vector<SPHRigidInstance> &rigids)
         total += h_rigid_class[classid].num_particles;
     }
     d_rigid_p.resize(total);
-    d_rigid_ui.resize(total);
-    h_rigid_ui.resize(total);
+    h_states.num_rigid_particles = total;
 
     int n = 0;
+    h_rigid_ui.resize(total);
     for(uint ii=0; ii<rigids.size(); ++ii) {
         int classid = rigids[ii].classid;
-        SPHRigidClass &cc = h_rigid_class[classid];
+        sphRigidClass &cc = h_rigid_class[classid];
         for(uint pi=0; pi<cc.num_particles; ++pi) {
             h_rigid_ui[n+pi].cindex = ii;
             h_rigid_ui[n+pi].pindex = pi;
@@ -682,25 +713,27 @@ void SPHUpdateRigids(const thrust::host_vector<SPHRigidInstance> &rigids)
         }
         n += cc.num_particles;
     }
+    d_rigid_ui = h_rigid_ui;
 
-    thrust::copy(h_rigid_ui.begin(), h_rigid_ui.end(), d_rigid_ui.begin());
     thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(total),
         _UpdateRigid(d_rigid_ui.data().get(), d_rigid_class.data().get(), d_rigid_inst.data().get(), d_rigid_p.data().get()) );
 }
 
 
-void SPHUpdateGravity(SPHSphericalGravity (&sgravity)[ SPH_MAX_SPHERICAL_GRAVITY_NUM ])
+void SPHUpdateGravity(sphSphericalGravity (&sgravity)[ SPH_MAX_SPHERICAL_GRAVITY_NUM ])
 {
     thrust::copy(sgravity, sgravity+SPH_MAX_SPHERICAL_GRAVITY_NUM, h_forces->sgravities.begin());
 }
 
 
-void SPHCopyDamageMessageToHost(SPHDamageMessage *dst)
+void SPHCopyDamageMessageToHost(sphDamageMessage *dst)
 {
 }
 
 
-void SPHSpawnFluidParticles(const thrust::host_vector<SPHRigidInstance> &rigids)
+
+sphStates& SPHGetStates()
 {
+    return h_states;
 }
 

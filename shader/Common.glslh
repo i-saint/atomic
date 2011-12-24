@@ -9,9 +9,9 @@
     };
 #ifdef GLSL_PS
     uniform sampler2D u_ColorBuffer;
-    uniform sampler2D u_DepthBuffer;
     uniform sampler2D u_NormalBuffer;
     uniform sampler2D u_PositionBuffer;
+    uniform sampler2D u_GlowBuffer;
     uniform sampler2D u_RandomBuffer;
 #else
 #endif

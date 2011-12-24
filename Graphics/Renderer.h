@@ -156,6 +156,7 @@ public:
 class PassPostprocess_Bloom : public IRenderer
 {
 private:
+    RenderTargetGBuffer     *m_rt_gbuffer;
     RenderTargetDeferred    *m_rt_deferred;
     RenderTargetGauss       *m_rt_gauss0;
     RenderTargetGauss       *m_rt_gauss1;

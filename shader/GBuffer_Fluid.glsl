@@ -30,14 +30,14 @@ void main()
 
 #elif defined(GLSL_PS)
 
-ps_out(0) vec4 ps_VertexColor;
+ps_out(0) vec4 ps_FlagColor;
 ps_out(1) vec4 ps_FragNormal;
 ps_out(2) vec4 ps_FragPosition;
 
 void main()
 {
-    ps_VertexColor = vs_VertexColor;
-    ps_FragNormal = vs_VertexNormal;
+    ps_FlagColor    = vs_VertexColor;
+    ps_FragNormal   = vs_VertexNormal;
     ps_FragPosition = vs_VertexPosition;
 }
 
