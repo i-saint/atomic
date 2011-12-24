@@ -411,6 +411,15 @@
     <None Include="GPGPU\SPH_internal.cuh">
       <Filter>GPGPU</Filter>
     </None>
+    <None Include="GPGPU\SPHRigid.cuh">
+      <Filter>GPGPU</Filter>
+    </None>
+    <None Include="GPGPU\SPHFluid.cuh">
+      <Filter>GPGPU</Filter>
+    </None>
+    <None Include="GPGPU\SPHForce.cuh">
+      <Filter>GPGPU</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="GPGPU\SPH.cu">

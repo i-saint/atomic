@@ -91,5 +91,14 @@ struct sphRigidUpdateInfo
 template<class T, class U>
 __device__ __host__ T& vector_cast(U& v) { return reinterpret_cast<T&>(v); }
 
+__device__ int GetThreadId()
+{
+    int threadsPerBlock  = blockDim.x * blockDim.y;
+    int threadNumInBlock = threadIdx.x + blockDim.x * threadIdx.y;
+    int blockNumInGrid   = blockIdx.x  + gridDim.x  * blockIdx.y;
+    return blockNumInGrid * threadsPerBlock + threadNumInBlock;
+}
+
+
 
 #endif // __atomic_SPH_internal_cuh__

@@ -147,6 +147,9 @@
     <ClInclude Include="types.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="GPGPU\SPHFluid.cuh" />
+    <None Include="GPGPU\SPHForce.cuh" />
+    <None Include="GPGPU\SPHRigid.cuh" />
     <None Include="GPGPU\SPH_internal.cuh" />
   </ItemGroup>
   <ItemGroup>
