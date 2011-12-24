@@ -12,8 +12,8 @@ extern "C" {
 
 typedef unsigned int uint;
 typedef uint EntityHandle;
-typedef uint SPHHash;
-typedef uint2 SPHGridData;
+typedef uint sphHash;
+typedef uint2 sphGridData;
 typedef glm::vec4 vec4;
 typedef glm::mat4 mat4;
 

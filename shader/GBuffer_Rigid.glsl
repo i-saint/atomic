@@ -44,6 +44,7 @@ ps_out(3) vec4 ps_FragGlow;
 void main()
 {
     ps_FlagColor    = vs_VertexColor;
+    ps_FlagColor.r += vs_GlowIntensity;
     ps_FragNormal   = vs_VertexNormal;
     ps_FragPosition = vs_VertexPosition;
     ps_FragGlow     = vec4(vs_GlowIntensity, 0.0f, 0.0f, 1.0);

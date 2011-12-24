@@ -150,13 +150,6 @@ bool GraphicResourceManager::initialize()
         m_fbo[RT_GAUSS0]    = m_rt_gauss[0];
         m_fbo[RT_GAUSS1]    = m_rt_gauss[1];
     }
-    {
-        CreateCubeParticleSet(*m_cb[CB_CLASS_CUBE], m_sphcc[CB_CLASS_CUBE], 0.4f);
-        CreateSphereParticleSet(*m_cb[CB_CLASS_SPHERE], m_sphcc[CB_CLASS_SPHERE], 0.25f);
-        SPHCopyRigidClassInfo(m_sphcc);
-
-        m_cb[CB_CHARACTER_INSTANCE]->setCapacity(sizeof(mat4)*ATOMIC_MAX_CHARACTERS);
-    }
 
     m_vbo[VBO_FLUID_PARTICLES]->allocate(sizeof(sphFluidParticle)*SPH_MAX_FLUID_PARTICLES, VertexBufferObject::USAGE_DYNAMIC);
     m_vbo[VBO_RIGID_PARTICLES]->allocate(sizeof(sphRigidParticle)*SPH_MAX_RIGID_PARTICLES, VertexBufferObject::USAGE_DYNAMIC);
@@ -167,6 +160,13 @@ bool GraphicResourceManager::initialize()
         m_vbo[VBO_FLUID_PARTICLES]->getHandle(),
         m_vbo[VBO_RIGID_PARTICLES]->getHandle(),
         m_vbo[VBO_POINTLIGHT_INSTANCES]->getHandle());
+    {
+        CreateCubeParticleSet(*m_cb[CB_CLASS_CUBE], m_sphcc[CB_CLASS_CUBE], 0.4f);
+        CreateSphereParticleSet(*m_cb[CB_CLASS_SPHERE], m_sphcc[CB_CLASS_SPHERE], 0.25f);
+        SPHCopyRigidClassInfo(m_sphcc);
+
+        m_cb[CB_CHARACTER_INSTANCE]->setCapacity(sizeof(mat4)*ATOMIC_MAX_CHARACTERS);
+    }
 
     return true;
 }

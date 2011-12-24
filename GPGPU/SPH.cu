@@ -25,8 +25,8 @@ struct DeviceFluidDataSet
     sphGridParam            *params;
     sphFluidParticle        *particles;
     sphFluidParticleForce   *forces;
-    SPHHash                 *hashes;
-    SPHGridData             *grid;
+    sphHash                 *hashes;
+    sphGridData             *grid;
     sphStates               *states;
 
     __device__ int3 GridCalculateCell(float4 pos)
@@ -133,8 +133,8 @@ struct DeviceFluidDataSet
             {
                 for(int X = max(G_XYZ.x - 1, 0) ; X <= min(G_XYZ.x + 1, SPH_FLUID_GRID_DIV_X-1) ; X++)
                 {
-                    SPHHash G_CELL = GridConstuctKey(make_int3(X, Y, Z));
-                    SPHGridData G_START_END = grid[G_CELL];
+                    sphHash G_CELL = GridConstuctKey(make_int3(X, Y, Z));
+                    sphGridData G_START_END = grid[G_CELL];
                     for(uint N_ID = G_START_END.x ; N_ID < G_START_END.y ; N_ID++)
                     {
                         float4 N_position = particles[N_ID].position;
@@ -174,8 +174,8 @@ struct DeviceFluidDataSet
             {
                 for(int X = max(G_XYZ.x - 1, 0) ; X <= min(G_XYZ.x + 1, SPH_FLUID_GRID_DIV_X-1) ; X++)
                 {
-                    SPHHash G_CELL = GridConstuctKey(make_int3(X, Y, Z));
-                    SPHGridData G_START_END = grid[G_CELL];
+                    sphHash G_CELL = GridConstuctKey(make_int3(X, Y, Z));
+                    sphGridData G_START_END = grid[G_CELL];
                     for(uint N_ID = G_START_END.x ; N_ID < G_START_END.y ; N_ID++)
                     {
                         float4 N_position = particles[N_ID].position;
@@ -217,10 +217,13 @@ struct DeviceFluidDataSet
 struct DeviceRigidDataSet
 {
     sphGridParam            *params;
+    sphStates               *states;
+    sphRigidClass           *classinfo;
+    sphRigidInstance        *instances;
     sphRigidParticle        *particles;
-    SPHHash                 *hashes;
-    SPHGridData             *grid;
-    sphStates            *states;
+    sphRigidUpdateInfo      *updateinfo;
+    sphHash                 *hashes;
+    sphGridData             *grid;
 
     __device__ int3 GridCalculateCell(float4 pos)
     {
@@ -238,6 +241,17 @@ struct DeviceRigidDataSet
     {
         return v.x | (v.y<<SPH_RIGID_GRID_DIV_SHIFT_X) | (v.z<<(SPH_RIGID_GRID_DIV_SHIFT_X+SPH_RIGID_GRID_DIV_SHIFT_Y));
     }
+
+    __device__ void updateRigids(int i)
+    {
+        sphRigidUpdateInfo  &rui    = updateinfo[i];
+        sphRigidClass       &rc     = classinfo[rui.classid];
+        sphRigidInstance    &rin    = instances[rui.cindex];
+        sphRigidParticle    &rp     = rc.particles[rui.pindex];
+        particles[i].owner_handle   = rui.owner_handle;
+        particles[i].position       = vector_cast<float4&>(rin.transform * vector_cast<vec4>(rp.position));
+        particles[i].normal         = vector_cast<float4&>(rin.transform * vector_cast<vec4>(rp.normal));
+    }
 };
 
 struct DeviceForceDataSet
@@ -249,12 +263,12 @@ struct DeviceForceDataSet
 
 struct FluidDataSet
 {
-    thrust::device_vector<sphGridParam>            params;
-    thrust::device_vector<sphStates>            states;
-    thrust::device_vector<sphFluidParticle>        particles;
-    thrust::device_vector<sphFluidParticleForce>   forces;
-    thrust::device_vector<SPHHash>                 hashes;
-    thrust::device_vector<SPHGridData>             grid;
+    thrust::device_vector<sphGridParam>             params;
+    thrust::device_vector<sphStates>                states;
+    thrust::device_vector<sphFluidParticle>         particles;
+    thrust::device_vector<sphFluidParticleForce>    forces;
+    thrust::device_vector<sphHash>                  hashes;
+    thrust::device_vector<sphGridData>              grid;
 
     FluidDataSet()
     {
@@ -286,19 +300,26 @@ struct FluidDataSet
     }
 };
 
+
 struct RigidDataSet
 {
-    thrust::device_vector<sphGridParam>     params;
-    thrust::device_vector<sphStates>     states;
-    thrust::device_vector<sphRigidParticle> particles;
-    thrust::device_vector<SPHHash>          hashes;
-    thrust::device_vector<SPHGridData>      grid;
+    thrust::device_vector<sphGridParam>         params;
+    thrust::device_vector<sphStates>            states;
+    thrust::device_vector<sphRigidClass>        classinfo;
+    thrust::device_vector<sphRigidInstance>     instances;
+    thrust::device_vector<sphRigidParticle>     particles;
+    thrust::device_vector<sphRigidUpdateInfo>   updateinfo;
+    thrust::device_vector<sphHash>              hashes;
+    thrust::device_vector<sphGridData>          grid;
 
     RigidDataSet()
     {
         params.resize(1);
         states.resize(1);
+        classinfo.resize(atomic::CB_END);
+        instances.reserve(atomic::ATOMIC_MAX_CHARACTERS);
         particles.reserve(SPH_MAX_RIGID_PARTICLES);
+        updateinfo.reserve(SPH_MAX_RIGID_PARTICLES);
         hashes.reserve(SPH_MAX_RIGID_PARTICLES);
         grid.resize(SPH_RIGID_GRID_DIV_3);
     }
@@ -314,7 +335,10 @@ struct RigidDataSet
         DeviceRigidDataSet ddata;
         ddata.params    = params.data().get();
         ddata.states    = states.data().get();
+        ddata.classinfo = classinfo.data().get();
+        ddata.instances = instances.data().get();
         ddata.particles = particles.data().get();
+        ddata.updateinfo= updateinfo.data().get();
         ddata.hashes    = hashes.data().get();
         ddata.grid      = grid.data().get();
         return ddata;
@@ -431,50 +455,50 @@ void SPHFinalize()
 struct _UpdateHash
 {
     DeviceFluidDataSet dfd;
-    _UpdateHash(DeviceFluidDataSet v) : dfd(v) {}
+    _UpdateHash(const DeviceFluidDataSet& v) : dfd(v) {}
     __device__ void operator()(int i) { dfd.updateHash(i); }
 };
 
 struct _GridClear
 {
     DeviceFluidDataSet dfd;
-    _GridClear(DeviceFluidDataSet v) : dfd(v) {}
+    _GridClear(const DeviceFluidDataSet& v) : dfd(v) {}
     __device__ void operator()(int i) { dfd.clearGrid(i); }
 };
 
 struct _GridUpdate
 {
     DeviceFluidDataSet dfd;
-    _GridUpdate(DeviceFluidDataSet v) : dfd(v) {}
+    _GridUpdate(const DeviceFluidDataSet& v) : dfd(v) {}
     __device__ void operator()(int i) { dfd.updateGrid(i); }
 };
 
 struct _ComputeDensity
 {
     DeviceFluidDataSet dfd;
-    _ComputeDensity(DeviceFluidDataSet v) : dfd(v) {}
+    _ComputeDensity(const DeviceFluidDataSet& v) : dfd(v) {}
     __device__ void operator()(int i) { dfd.computeDensity(i); }
 };
 
 struct _ComputeForce
 {
     DeviceFluidDataSet dfd;
-    _ComputeForce(DeviceFluidDataSet v) : dfd(v) {}
+    _ComputeForce(const DeviceFluidDataSet& v) : dfd(v) {}
     __device__ void operator()(int i) { dfd.computeForce(i); }
 };
 
 struct _CountAlives
 {
     DeviceFluidDataSet dfd;
-    _CountAlives(DeviceFluidDataSet v) : dfd(v) {}
+    _CountAlives(const DeviceFluidDataSet& v) : dfd(v) {}
     __device__ void operator()(int i) { dfd.countAlives(i); }
 };
 
 struct _Integrate
 {
     DeviceFluidDataSet dfd;
-    DeviceForceDataSet gs;
-    _Integrate(DeviceFluidDataSet v, DeviceForceDataSet g) : dfd(v), gs(g) {}
+    DeviceForceDataSet dgd;
+    _Integrate(const DeviceFluidDataSet &v, const DeviceForceDataSet &g) : dfd(v), dgd(g) {}
 
     __device__ void operator()(int i)
     {
@@ -505,12 +529,12 @@ struct _Integrate
 
         // Apply gravity
         for(int i=0; i<SPH_MAX_SPHERICAL_GRAVITY_NUM; ++i) {
-            if(!gs.sgravity[i].is_active) { continue; }
+            if(!dgd.sgravity[i].is_active) { continue; }
 
-            const float4 center = gs.sgravity[i].position;
-            const float gravity_strength = gs.sgravity[i].strength;
-            const float inner_radius = gs.sgravity[i].inner_radus;
-            const float outer_radius = gs.sgravity[i].range_radus;
+            const float4 center = dgd.sgravity[i].position;
+            const float gravity_strength = dgd.sgravity[i].strength;
+            const float inner_radius = dgd.sgravity[i].inner_radus;
+            const float outer_radius = dgd.sgravity[i].range_radus;
 
             float4 diff = center-position;
             diff.w = 0.0f;
@@ -572,32 +596,12 @@ void SPHUpdateFluid()
 
 
 
-struct SPHRigidUpdateInfo
-{
-    int cindex;
-    int pindex;
-    int classid;
-    EntityHandle owner_handle;
-};
-
-template<class T, class U>
-__device__ __host__ T& vector_cast(U& v) { return reinterpret_cast<T&>(v); }
-
-
-struct SPHRigidSet
-{
-    sphRigidClass *rigid_class;
-};
 
 DeviceBufferObject h_fluid_gl;
 DeviceBufferObject h_rigids_gl;
 DeviceBufferObject h_light_gl;
 thrust::host_vector<sphRigidClass>          h_rigid_class;
-thrust::host_vector<SPHRigidUpdateInfo>     h_rigid_ui;
-thrust::device_vector<sphRigidClass>        d_rigid_class;
-thrust::device_vector<sphRigidInstance>     d_rigid_inst;
-thrust::device_vector<sphRigidParticle>     d_rigid_p;
-thrust::device_vector<SPHRigidUpdateInfo>   d_rigid_ui;
+thrust::host_vector<sphRigidUpdateInfo>     h_rigid_ui;
 
 
 void SPHInitializeGLBuffers(int vbo_fluid, int vbo_rigids, int vbo_lightpos)
@@ -618,11 +622,7 @@ void SPHCopyRigidClassInfo(sphRigidClass (&sphcc)[atomic::CB_END])
 {
     h_rigid_class.resize(atomic::CB_END);
     thrust::copy(sphcc, sphcc+atomic::CB_END, h_rigid_class.begin());
-    d_rigid_class = h_rigid_class;
-
-    d_rigid_inst.reserve(atomic::ATOMIC_MAX_CHARACTERS);
-    d_rigid_p.reserve(SPH_MAX_RIGID_PARTICLES);
-    d_rigid_ui.reserve(SPH_MAX_RIGID_PARTICLES);
+    h_rigid->classinfo = h_rigid_class;
 }
 
 
@@ -657,7 +657,8 @@ void SPHCopyToGL()
     thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator((int)h_fluid->particles.size()),
         _CopyFluid(h_fluid->getDeviceData(), gl_fluid, gl_lights));
 
-    thrust::copy(d_rigid_p.begin(), d_rigid_p.end(), thrust::device_ptr<sphRigidParticle>(gl_rigid));
+    //thrust::copy(d_rigid_p.begin(), d_rigid_p.end(), thrust::device_ptr<sphFluidParticle>(gl_fluid));
+    thrust::copy(h_rigid->particles.begin(), h_rigid->particles.end(), thrust::device_ptr<sphRigidParticle>(gl_rigid));
 
     h_fluid_gl.unmapBuffer();
     h_rigids_gl.unmapBuffer();
@@ -668,36 +669,21 @@ void SPHCopyToGL()
 
 struct _UpdateRigid
 {
-    SPHRigidUpdateInfo  *rigid_ui;
-    sphRigidClass       *rigid_class;
-    sphRigidInstance    *rigid_inst;
-    sphRigidParticle    *rigid_p;
-
-    _UpdateRigid(SPHRigidUpdateInfo *rui, sphRigidClass *rc, sphRigidInstance *rin, sphRigidParticle *rp)
-        : rigid_ui(rui), rigid_class(rc), rigid_inst(rin), rigid_p(rp) {}
-
-    __device__ void operator()(int i)
-    {
-        SPHRigidUpdateInfo  &rui    = rigid_ui[i];
-        sphRigidClass       &rc     = rigid_class[rui.classid];
-        sphRigidInstance    &rin    = rigid_inst[rui.cindex];
-        sphRigidParticle    &rp     = rc.particles[rui.pindex];
-        rigid_p[i].owner_handle = rui.owner_handle;
-        rigid_p[i].position     = vector_cast<float4&>(rin.transform * vector_cast<vec4>(rp.position));
-        rigid_p[i].normal       = vector_cast<float4&>(rin.transform * vector_cast<vec4>(rp.normal));
-    }
+    DeviceRigidDataSet drd;
+    _UpdateRigid(const DeviceRigidDataSet& v) : drd(v) {}
+    __device__ void operator()(int i) { drd.updateRigids(i); }
 };
 
 void SPHUpdateRigids(const thrust::host_vector<sphRigidInstance> &rigids)
 {
-    d_rigid_inst = rigids;
+    h_rigid->instances = rigids;
 
     int total = 0;
     for(uint ii=0; ii<rigids.size(); ++ii) {
         int classid = rigids[ii].classid;
         total += h_rigid_class[classid].num_particles;
     }
-    d_rigid_p.resize(total);
+    h_rigid->particles.resize(total);
     h_states.num_rigid_particles = total;
 
     int n = 0;
@@ -713,10 +699,9 @@ void SPHUpdateRigids(const thrust::host_vector<sphRigidInstance> &rigids)
         }
         n += cc.num_particles;
     }
-    d_rigid_ui = h_rigid_ui;
+    h_rigid->updateinfo = h_rigid_ui;
 
-    thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(total),
-        _UpdateRigid(d_rigid_ui.data().get(), d_rigid_class.data().get(), d_rigid_inst.data().get(), d_rigid_p.data().get()) );
+    thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(total), _UpdateRigid(h_rigid->getDeviceData()) );
 }
 
 

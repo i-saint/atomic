@@ -80,4 +80,16 @@ struct sphGridParam
     float4 grid_pos;
 };
 
+struct sphRigidUpdateInfo
+{
+    int cindex;
+    int pindex;
+    int classid;
+    EntityHandle owner_handle;
+};
+
+template<class T, class U>
+__device__ __host__ T& vector_cast(U& v) { return reinterpret_cast<T&>(v); }
+
+
 #endif // __atomic_SPH_internal_cuh__

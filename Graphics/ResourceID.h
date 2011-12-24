@@ -2,7 +2,7 @@
 #define __atomic_Graphics_ResourceID__
 namespace atomic {
 
-const size_t ATOMIC_MAX_CHARACTERS = 1024;
+const size_t ATOMIC_MAX_CHARACTERS = 256;
 
 enum SH_RID {
     SH_GBUFFER_FLUID,
