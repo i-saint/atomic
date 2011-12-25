@@ -14,75 +14,38 @@
 namespace atomic {
 
 
-class Enemy_Base : public IEntity
-{
-private:
-    mat4        m_transform;
-    IRoutine    *m_routine;
-    float32     m_health;
-
-public:
-    Enemy_Base() : m_transform(), m_routine(NULL), m_health(1.0f) {}
-
-    float32     getHealth() const   { return m_health; }
-    const mat4& getTransform() const{ return m_transform; }
-    IRoutine*   getRoutine()        { return m_routine; }
-
-    void setHealth(float32 v)        { m_health=v; }
-    void setTransform(const mat4& v){ m_transform=v; }
-    void setRoutine(IRoutine *v)    { m_routine=v; }
-
-    virtual void update(float32 dt)
-    {
-        if(m_routine) { m_routine->update(dt); }
-    }
-
-    virtual void updateAsync(float32 dt)
-    {
-        if(m_routine) { m_routine->updateAsync(dt); }
-    }
-
-    virtual bool call(uint32 call_id, const variant &v)
-    {
-        switch(call_id) {
-            DEFINE_ECALL1(setHealth, float32);
-        }
-        return false;
-    }
-
-    virtual bool query(uint32 query_id, variant &v) const
-    {
-        switch(query_id) {
-            DEFINE_EQUERY(getHealth);
-        }
-        return false;
-    }
-
-    virtual void onDamage(const DamageMessage &m)
-    {
-
-    }
-};
-
 
 class Enemy_Cube
-    : public Enemy_Base
+    : public Breakable
     , public TAttr_RotateSpeed<Attr_DoubleAxisRotation>
 {
-typedef Enemy_Base super;
+typedef Breakable super;
 typedef TAttr_RotateSpeed<Attr_DoubleAxisRotation> transform;
 private:
     sphRigidBox m_rigid;
 
 public:
+    Enemy_Cube()
+    {
+        setHealth(2000.0f);
+    }
+
     virtual void update(float32 dt)
     {
-        CB_RID cclass = CB_CLASS_CUBE;
+        CB_RID cclass = CB_CLASS_CUBE_MEDIUM;
         super::update(dt);
         transform::update(dt);
         setTransform(computeMatrix());
         CreateRigidBox(m_rigid, getHandle(), getTransform(), (const vec4&)SPHGetRigidClass(cclass)->box_size * getScale());
-        atomicGetFractionSet()->addRigidBox(cclass, getHandle(), getTransform(), m_rigid);
+        atomicGetSPHManager()->addRigidBox(cclass, getHandle(), getTransform(), m_rigid);
+    }
+
+    virtual void draw()
+    {
+        PointLight light;
+        light.position  = getPosition() + vec4(0.0f, 0.0f, 0.1f, 1.0f);
+        light.color     = vec4(1.0f, 0.1f, 0.2f, 1.0f);
+        atomicGetPointLights()->addInstance(light);
     }
 
     bool call(uint32 call_id, const variant &v)
@@ -97,23 +60,36 @@ public:
 };
 
 class Enemy_Sphere
-    : public Enemy_Base
+    : public Breakable
     , public TAttr_RotateSpeed<Attr_DoubleAxisRotation>
 {
-typedef Enemy_Base super;
+typedef Breakable super;
 typedef TAttr_RotateSpeed<Attr_DoubleAxisRotation> transform;
 private:
     sphRigidSphere m_rigid;
 
 public:
+    Enemy_Sphere()
+    {
+        setHealth(1000.0f);
+    }
+
     virtual void update(float32 dt)
     {
-        CB_RID cclass = CB_CLASS_SPHERE;
+        CB_RID cclass = CB_CLASS_SPHERE_LARGE;
         super::update(dt);
         transform::update(dt);
         setTransform(computeMatrix());
         CreateRigidSphere(m_rigid, getHandle(), getPosition(), SPHGetRigidClass(cclass)->sphere_radius*getScale().x);
-        atomicGetFractionSet()->addRigidSphere(cclass, getHandle(), getTransform(), m_rigid);
+        atomicGetSPHManager()->addRigidSphere(cclass, getHandle(), getTransform(), m_rigid);
+    }
+
+    virtual void draw()
+    {
+        PointLight light;
+        light.position  = getPosition() + vec4(0.0f, 0.0f, 0.1f, 1.0f);
+        light.color     = vec4(1.0f, 0.1f, 0.2f, 1.0f);
+        atomicGetPointLights()->addInstance(light);
     }
 
     bool call(uint32 call_id, const variant &v)
@@ -124,6 +100,24 @@ public:
     bool query(uint32 query_id, variant &v) const
     {
         return super::query(query_id, v) || transform::query(query_id, v);
+    }
+};
+
+
+class Routine_ChasePlayerRough : public IRoutine
+{
+private:
+    vec4 m_objective;
+    int32 m_count;
+
+public:
+    Routine_ChasePlayerRough() : m_count(0)
+    {
+    }
+
+    void update(float32 dt)
+    {
+
     }
 };
 

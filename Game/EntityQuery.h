@@ -11,6 +11,7 @@
 #define DEFINE_EQUERY(funcname)    \
     case EQUERY_##funcname: v=funcname(); return true;
 
+#define atomicCall(entity, funcname, ...) entity->call(ECALL_##funcname, __VA_ARGS__)
 
 namespace atomic {
 

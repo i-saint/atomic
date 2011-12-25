@@ -40,7 +40,7 @@ public:
 
     void addRigidSphere(CB_RID cid, EntityHandle h, const mat4 &m, const sphRigidSphere &s);
     void addRigidBox(CB_RID cid, EntityHandle h, const mat4 &m, const sphRigidBox &s);
-    void addPointGravity();
+    void addPointGravity(const sphForcePointGravity &v);
 };
 
 

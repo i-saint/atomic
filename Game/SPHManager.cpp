@@ -24,15 +24,6 @@ SPHManager::~SPHManager()
 
 void SPHManager::initialize()
 {
-    {
-        sphForcePointGravity pg;
-        pg.position = make_float4(0.0f);
-        pg.inner_radus = 0.25f;
-        pg.range_radus = 5.12f;
-        pg.strength = 1.0f;
-        m_pgravity.resize(1);
-        m_pgravity[0] = pg;
-    }
 }
 
 
@@ -41,18 +32,17 @@ void SPHManager::updateBegin( float32 dt )
     m_rigids.clear();
     m_spheres.clear();
     m_boxes.clear();
+
+    m_pgravity.clear();
 }
 
 void SPHManager::update(float32 dt)
 {
+    const thrust::host_vector<sphFluidMessage> &message = SPHGetFluidMessage();
 }
 
 void SPHManager::asyncupdate(float32 dt)
 {
-    vec2 move = atomicGetInputs()->getMove()*0.01f;
-    m_pgravity[0].position.x += move.x;
-    m_pgravity[0].position.y += move.y;
-
     SPHUpdateGravity(m_pgravity);
     SPHUpdateRigids(m_rigids, m_spheres, m_boxes);
     SPHUpdateFluid();
@@ -77,6 +67,11 @@ void SPHManager::addRigidBox(CB_RID cid, EntityHandle h, const mat4 &m, const sp
 {
     addRigidInstance(cid, h, m);
     m_boxes.push_back(s);
+}
+
+void SPHManager::addPointGravity(const sphForcePointGravity &v)
+{
+    m_pgravity.push_back(v);
 }
 
 void SPHManager::draw() const

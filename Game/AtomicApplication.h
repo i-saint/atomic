@@ -26,20 +26,22 @@ struct AtomicInputState
 {
 private:
     vec2 m_move;
-    int32 m_buttons;
+    int32 m_buttons[2];
 
 public:
     AtomicInputState()
     {
         m_move = vec2(0.0f);
-        m_buttons = 0;
+        m_buttons[0] = 0;
     }
 
     vec2 getMove() const { return m_move; }
-    int32 getButtons() const { return m_buttons; }
+    bool isButtonPressed(int b) const   { return (m_buttons[0] & (1<<b)) !=0; }
+    bool isButtonTriggered(int b) const { return isButtonPressed(b) && ((m_buttons[1] & (1<<b))==0); }
+    int32 getButtons() const { return m_buttons[0]; }
 
     void setMove(vec2 v) { m_move=v; }
-    void setButtons(int32 v) { m_buttons=v; }
+    void setButtons(int32 v) { m_buttons[1]=m_buttons[0]; m_buttons[0]=v; }
 };
 
 class AtomicApplication : public ist::Application

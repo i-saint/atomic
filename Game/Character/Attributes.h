@@ -35,9 +35,10 @@ namespace atomic {
         }
     };
 
+
     class Attr_Translate
     {
-    private:
+    protected:
         vec4 m_pos;
 
     public:
@@ -69,10 +70,10 @@ namespace atomic {
         }
     };
 
-    class Attr_Transform
+    class Attr_Transform : public Attr_Translate
     {
+    typedef Attr_Translate super;
     private:
-        vec4 m_pos;
         vec4 m_scale;
         vec4 m_axis;
         float32 m_rot;
@@ -80,12 +81,10 @@ namespace atomic {
     public:
         Attr_Transform() : m_rot(0.0f) {}
 
-        const vec4& getPosition() const { return m_pos; }
         const vec4& getScale() const    { return m_scale; }
         const vec4& getAxis() const     { return m_axis; }
         float32 getRotate() const     { return m_rot; }
 
-        void setPosition(const vec4& v) { m_pos=v; }
         void setScale(const vec4& v)    { m_scale=v; }
         void setAxis(const vec4& v)     { m_axis=v; }
         void setRotate(float32 v)     { m_rot=v; }
@@ -102,33 +101,31 @@ namespace atomic {
         bool call(uint32 call_id, const variant &v)
         {
             switch(call_id) {
-                DEFINE_ECALL1(setPosition, vec4);
                 DEFINE_ECALL1(setScale, vec4);
                 DEFINE_ECALL1(setAxis, vec4);
                 DEFINE_ECALL1(setRotate, float32);
+                default: return super::call(call_id, v);
             }
-            return false;
         }
 
         bool query(uint32 query_id, variant &v) const
         {
             switch(query_id) {
-                DEFINE_EQUERY(getPosition);
                 DEFINE_EQUERY(getScale);
                 DEFINE_EQUERY(getAxis);
                 DEFINE_EQUERY(getRotate);
+                default: return super::query(query_id, v);
             }
-            return false;
         }
 
         void update(float32 dt) {}
         void updateAsync(float32 dt) {}
     };
 
-    class Attr_DoubleAxisRotation
+    class Attr_DoubleAxisRotation : public Attr_Translate
     {
+    typedef Attr_Translate super;
     private:
-        vec4 m_pos;
         vec4 m_scale;
         vec4 m_axis1;
         vec4 m_axis2;
@@ -142,14 +139,12 @@ namespace atomic {
             , m_axis2(0.0f, 1.0f, 0.0f, 0.0f)
             , m_rot1(0.0f), m_rot2(0.0f) {}
 
-        const vec4& getPosition() const { return m_pos; }
         const vec4& getScale() const    { return m_scale; }
         const vec4& getAxis1() const    { return m_axis1; }
         const vec4& getAxis2() const    { return m_axis2; }
         float32 getRotate1() const    { return m_rot1; }
         float32 getRotate2() const    { return m_rot2; }
 
-        void setPosition(const vec4& v) { m_pos=v; }
         void setScale(const vec4& v)    { m_scale=v; }
         void setAxis1(const vec4& v)    { m_axis1=v; }
         void setAxis2(const vec4& v)    { m_axis2=v; }
@@ -169,27 +164,25 @@ namespace atomic {
         bool call(uint32 call_id, const variant &v)
         {
             switch(call_id) {
-                DEFINE_ECALL1(setPosition, vec4);
                 DEFINE_ECALL1(setScale, vec4);
                 DEFINE_ECALL1(setAxis1, vec4);
                 DEFINE_ECALL1(setAxis2, vec4);
                 DEFINE_ECALL1(setRotate1, float32);
                 DEFINE_ECALL1(setRotate2, float32);
+                default: return super::call(call_id, v);
             }
-            return false;
         }
 
         bool query(uint32 query_id, variant &v) const
         {
             switch(query_id) {
-                DEFINE_EQUERY(getPosition);
                 DEFINE_EQUERY(getScale);
                 DEFINE_EQUERY(getAxis1);
                 DEFINE_EQUERY(getAxis2);
                 DEFINE_EQUERY(getRotate1);
                 DEFINE_EQUERY(getRotate2);
+                default: return super::query(query_id, v);
             }
-            return false;
         }
 
         void update(float32 dt) {}
@@ -216,10 +209,10 @@ namespace atomic {
         bool call(uint32 call_id, const variant &v)
         {
             switch(call_id) {
-                DEFINE_ECALL1(setRotateSpeed1, float32);
-                DEFINE_ECALL1(setRotateSpeed2, float32);
+            DEFINE_ECALL1(setRotateSpeed1, float32);
+            DEFINE_ECALL1(setRotateSpeed2, float32);
+            default: return super::call(call_id, v);
             }
-            return super::call(call_id, v);
         }
 
         bool query(uint32 query_id, variant &v) const
@@ -227,8 +220,8 @@ namespace atomic {
             switch(query_id) {
                 DEFINE_EQUERY(getRotateSpeed1);
                 DEFINE_EQUERY(getRotateSpeed2);
+                default: return super::query(query_id, v);
             }
-            return super::query(query_id, v);
         }
 
         void update(float32 dt)

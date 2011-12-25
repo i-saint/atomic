@@ -8,7 +8,8 @@
 #include "Game/Entity.h"
 #include "Game/World.h"
 #include "Graphics/Renderer.h"
-#include "Character/Enemy.h"
+#include "EntityQuery.h"
+#include "EntityClass.h"
 #include "Util.h"
 
 using namespace ist::graphics;
@@ -58,22 +59,7 @@ void World::update(float32 dt)
     ++m_frame;
 
     if(m_frame==1) {
-        {
-            IEntity *e =  m_entity_set->createEntity<Enemy_Cube>();
-            e->call(ECALL_setPosition, vec4(0.5f, 0.0f, 0.0f, 1.0f));
-            e->call(ECALL_setAxis1, GenRotateAxis());
-            e->call(ECALL_setAxis2, GenRotateAxis());
-            e->call(ECALL_setRotateSpeed1, 0.4f);
-            e->call(ECALL_setRotateSpeed2, 0.4f);
-        }
-        {
-            IEntity *e =  m_entity_set->createEntity<Enemy_Sphere>();
-            e->call(ECALL_setPosition, vec4(-0.5f, 0.0f, 0.0f, 1.0f));
-            e->call(ECALL_setAxis1, GenRotateAxis());
-            e->call(ECALL_setAxis2, GenRotateAxis());
-            e->call(ECALL_setRotateSpeed1, 0.4f);
-            e->call(ECALL_setRotateSpeed2, 0.4f);
-        }
+        m_entity_set->createEntity<Level_Test>();
     }
 
     m_sph->updateBegin(dt);
@@ -110,12 +96,13 @@ void World::asyncupdate(float32 dt)
 void World::draw() const
 {
     m_sph->draw();
+    m_entity_set->draw();
 
     DirectionalLight dl;
     dl.direction = glm::normalize(vec4(1.0f, -1.0f, -0.5f, 0.0f));
     dl.diffuse_color = vec4(0.3f, 0.3f, 0.3f, 1.0f);
     dl.ambient_color = vec4(0.0f, 0.0f, 0.0f, 0.0f);
-    atomicGetDirectionalLights()->pushInstance(dl);
+    atomicGetDirectionalLights()->addInstance(dl);
 }
 
 

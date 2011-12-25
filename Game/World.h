@@ -58,7 +58,7 @@ public:
 #define atomicGenRandVector4()  atomicGetRandom()->genVector4()
 
 #define atomicGetEntitySet()    atomicGetWorld()->getEntitySet()
-#define atomicGetFractionSet()  atomicGetWorld()->getFractionSet()
+#define atomicGetSPHManager()  atomicGetWorld()->getFractionSet()
 
 
 } // namespace atomic
