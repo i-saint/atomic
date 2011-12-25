@@ -25,15 +25,13 @@ SPHManager::~SPHManager()
 void SPHManager::initialize()
 {
     {
-        sphForcePointGravity h_sg;
-        h_sg.position = make_float4(0.0f);
-        h_sg.inner_radus = 0.25f;
-        h_sg.range_radus = 5.12f;
-        h_sg.strength = 1.0f;
-        for(uint32 i=0; i<_countof(m_sgravity); ++i) {
-            m_sgravity[i] = h_sg;
-        }
-
+        sphForcePointGravity pg;
+        pg.position = make_float4(0.0f);
+        pg.inner_radus = 0.25f;
+        pg.range_radus = 5.12f;
+        pg.strength = 1.0f;
+        m_pgravity.resize(1);
+        m_pgravity[0] = pg;
     }
 }
 
@@ -41,6 +39,8 @@ void SPHManager::initialize()
 void SPHManager::updateBegin( float32 dt )
 {
     m_rigids.clear();
+    m_spheres.clear();
+    m_boxes.clear();
 }
 
 void SPHManager::update(float32 dt)
@@ -50,21 +50,33 @@ void SPHManager::update(float32 dt)
 void SPHManager::asyncupdate(float32 dt)
 {
     vec2 move = atomicGetInputs()->getMove()*0.01f;
-    m_sgravity[0].position.x += move.x;
-    m_sgravity[0].position.y += move.y;
+    m_pgravity[0].position.x += move.x;
+    m_pgravity[0].position.y += move.y;
 
-    SPHUpdateGravity(m_sgravity);
-    SPHUpdateRigids(m_rigids);
+    SPHUpdateGravity(m_pgravity);
+    SPHUpdateRigids(m_rigids, m_spheres, m_boxes);
     SPHUpdateFluid();
 }
 
-void SPHManager::addRigid(CB_RID cid, EntityHandle h, const mat4& m)
+void SPHManager::addRigidInstance(CB_RID cid, EntityHandle h, const mat4 &m)
 {
     sphRigidInstance tmp;
     tmp.classid = cid;
     tmp.handle = h;
     tmp.transform = m;
     m_rigids.push_back( tmp );
+}
+
+void SPHManager::addRigidSphere(CB_RID cid, EntityHandle h, const mat4 &m, const sphRigidSphere &s)
+{
+    addRigidInstance(cid, h, m);
+    m_spheres.push_back(s);
+}
+
+void SPHManager::addRigidBox(CB_RID cid, EntityHandle h, const mat4 &m, const sphRigidBox &s)
+{
+    addRigidInstance(cid, h, m);
+    m_boxes.push_back(s);
 }
 
 void SPHManager::draw() const

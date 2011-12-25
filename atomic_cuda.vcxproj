@@ -63,6 +63,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Intel_SSA|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="features.h" />
@@ -145,6 +146,7 @@
     <ClInclude Include="Sound\AtomicSound.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="types.h" />
+    <ClInclude Include="Util.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GPGPU\SPHFluid.cuh" />

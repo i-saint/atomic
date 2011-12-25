@@ -257,11 +257,11 @@ namespace {
     const float32 g_particle_par_volume = 30000.0; // particles / (1.0*1.0*1.0)
 }
 
-bool CreateCubeParticleSet( CudaBuffer& ps, sphRigidClass &sphcc, float32 len )
+bool CreateCubeParticleSet( CudaBuffer& ps, sphRigidClass &sphcc, float32 half_len )
 {
     SFMT random; random.initialize(3);
 
-    float32 half_len = len/2.0f;
+    float32 len = half_len*2.0f;
     float4 pos = make_float4(-half_len, -half_len, -half_len, 0.0f);
     float32 volume = len*len*len;
     uint32 num = static_cast<uint32>(volume * g_particle_par_volume);
@@ -299,6 +299,8 @@ bool CreateCubeParticleSet( CudaBuffer& ps, sphRigidClass &sphcc, float32 len )
     }
     ps.copyHostToDevice();
 
+    sphcc.shape = SPH_RIGID_BOX;
+    sphcc.box_size = make_float4(half_len, half_len, half_len, 0.0f);
     sphcc.num_particles = num;
     sphcc.particles = (sphRigidParticle*)ps.getDeviceBuffer();
     return true;
@@ -327,6 +329,8 @@ bool CreateSphereParticleSet( CudaBuffer& ps, sphRigidClass &sphcc, float32 radi
     }
     ps.copyHostToDevice();
 
+    sphcc.shape = SPH_RIGID_SPHERE;
+    sphcc.sphere_radius = radius;
     sphcc.num_particles = num;
     sphcc.particles = (sphRigidParticle*)ps.getDeviceBuffer();
     return true;

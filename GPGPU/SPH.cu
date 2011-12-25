@@ -74,7 +74,7 @@ void SPHInitialize()
         sph_params.grad_pressure_coef   = sph_params.particle_mass * -45.0f / (CUDART_PI_F * pow(sph_params.smooth_len, 6));
         sph_params.lap_viscosity_coef   = sph_params.particle_mass * sph_params.viscosity * 45.0f / (CUDART_PI_F * pow(sph_params.smooth_len, 6));
         sph_params.wall_stiffness       = 3000.0f;
-        sph_params.rigid_stiffness      = 10.0f;
+        sph_params.rigid_stiffness      = 200.0f;
         CUDA_SAFE_CALL( cudaMemcpyToSymbol("d_params", &sph_params, sizeof(sph_params)) );
 
         sphGridParam grid_params;
@@ -128,18 +128,29 @@ void SPHFinalizeGLBuffers()
     h_fluid_gl.unregisterBuffer();
 }
 
-void SPHCopyRigidClassInfo(sphRigidClass (&sphcc)[atomic::CB_END])
+void SPHSetRigidClass(sphRigidClass (&sphcc)[atomic::CB_END])
 {
     h_rigid_class.resize(atomic::CB_END);
     thrust::copy(sphcc, sphcc+atomic::CB_END, h_rigid_class.begin());
     h_rigid->classinfo = h_rigid_class;
 }
 
+const sphRigidClass* SPHGetRigidClass(int cid)
+{
+    return &h_rigid_class[cid];
+}
 
 
-void SPHUpdateRigids(const thrust::host_vector<sphRigidInstance> &rigids)
+
+void SPHUpdateRigids(
+    const thrust::host_vector<sphRigidInstance> &rigids,
+    const thrust::host_vector<sphRigidSphere> &spheres,
+    const thrust::host_vector<sphRigidBox> &boxes
+    )
 {
     h_rigid->instances = rigids;
+    h_rigid->spheres = spheres;
+    h_rigid->boxes = boxes;
 
     int total = 0;
     for(uint ii=0; ii<rigids.size(); ++ii) {
@@ -166,17 +177,12 @@ void SPHUpdateRigids(const thrust::host_vector<sphRigidInstance> &rigids)
 
     DeviceRigidDataSet drd = h_rigid->getDeviceData();
     thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(total), _RigidUpdate(drd) );
-
-    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(total), _RigidUpdateHash(drd) );
-    thrust::sort_by_key(h_rigid->hashes.begin(), h_rigid->hashes.end(), h_rigid->particles.begin());
-    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(SPH_RIGID_GRID_DIV_3), _RigidClearGrid(drd));
-    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(total), _RigidUpdateGrid(drd));
 }
 
 
-void SPHUpdateGravity(sphForcePointGravity (&sgravity)[ SPH_MAX_SPHERICAL_GRAVITY_NUM ])
+void SPHUpdateGravity(const thrust::host_vector<sphForcePointGravity> &pgravity)
 {
-    thrust::copy(sgravity, sgravity+SPH_MAX_SPHERICAL_GRAVITY_NUM, h_forces->sgravities.begin());
+    h_forces->sgravities = pgravity;
 }
 
 

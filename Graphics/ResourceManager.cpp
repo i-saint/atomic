@@ -161,9 +161,9 @@ bool GraphicResourceManager::initialize()
         m_vbo[VBO_RIGID_PARTICLES]->getHandle(),
         m_vbo[VBO_POINTLIGHT_INSTANCES]->getHandle());
     {
-        CreateCubeParticleSet(*m_cb[CB_CLASS_CUBE], m_sphcc[CB_CLASS_CUBE], 0.4f);
+        CreateCubeParticleSet(*m_cb[CB_CLASS_CUBE], m_sphcc[CB_CLASS_CUBE], 0.2f);
         CreateSphereParticleSet(*m_cb[CB_CLASS_SPHERE], m_sphcc[CB_CLASS_SPHERE], 0.25f);
-        SPHCopyRigidClassInfo(m_sphcc);
+        SPHSetRigidClass(m_sphcc);
 
         m_cb[CB_CHARACTER_INSTANCE]->setCapacity(sizeof(mat4)*ATOMIC_MAX_CHARACTERS);
     }

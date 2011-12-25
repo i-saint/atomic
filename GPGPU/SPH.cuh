@@ -44,14 +44,32 @@ const int SPH_THREAD_BLOCK_X = 256;
 
 struct sphRigidParticle;
 
+enum SPH_RIGID_SHAPE {
+    SPH_RIGID_UNKNOWN,
+    SPH_RIGID_SPHERE,
+    SPH_RIGID_BOX,
+    SPH_RIGID_BEAM,
+    SPH_RIGID_END,
+};
+
 struct sphRigidClass
 {
     union {
         struct {
+            int shape;
             int num_particles;
             sphRigidParticle *particles;
         };
-        float4 padding;
+        float4 padding1;
+    };
+    union {
+        struct {
+            float sphere_radius;
+        };
+        struct {
+            float4 box_size;
+        };
+        float4 padding2;
     };
 };
 
@@ -77,6 +95,36 @@ struct sphRigidParticle
     };
     float4 position;
     float4 normal;
+};
+
+struct sphBoundingBox
+{
+    float4 ur;
+    float4 bl;
+};
+struct sphRigidSphere
+{
+    union {
+        struct {
+            int owner_handle;
+        };
+        float4 padding;
+    };
+    float4 pos_r;
+    sphBoundingBox bb;
+};
+
+struct sphRigidBox
+{
+    union {
+        struct {
+            int owner_handle;
+        };
+        float4 padding;
+    };
+    float4 position;
+    float4 planes[6];
+    sphBoundingBox bb;
 };
 
 
@@ -138,14 +186,19 @@ struct sphDamageMessage
 void SPHInitialize();
 void SPHFinalize();
 void SPHUpdateFluid();
-void SPHUpdateRigids(const thrust::host_vector<sphRigidInstance> &rigids);
+void SPHUpdateRigids(
+    const thrust::host_vector<sphRigidInstance> &rigids,
+    const thrust::host_vector<sphRigidSphere> &spheres,
+    const thrust::host_vector<sphRigidBox> &boxes
+    );
 
 void SPHInitializeGLBuffers(int vbo_fluid, int vbo_rigids, int vbo_lightpos);
 void SPHFinalizeGLBuffers();
-void SPHCopyRigidClassInfo(sphRigidClass (&sphcc)[atomic::CB_END]);
+void SPHSetRigidClass(sphRigidClass (&sphcc)[atomic::CB_END]);
+const sphRigidClass* SPHGetRigidClass(int cid);
 void SPHCopyToGL();
 void SPHCopyDamageMessageToHost(sphDamageMessage *dst);
-void SPHUpdateGravity(sphForcePointGravity (&sgravity)[ SPH_MAX_SPHERICAL_GRAVITY_NUM ]);
+void SPHUpdateGravity(const thrust::host_vector<sphForcePointGravity> &pgravity);
 
 sphStates& SPHGetStates();
 

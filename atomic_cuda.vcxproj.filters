@@ -170,6 +170,7 @@
     <ClCompile Include="Game\SPHManager.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h">
@@ -406,6 +407,7 @@
     <ClInclude Include="Game\SPHManager.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="Util.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GPGPU\SPH_internal.cuh">

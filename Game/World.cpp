@@ -9,6 +9,7 @@
 #include "Game/World.h"
 #include "Graphics/Renderer.h"
 #include "Character/Enemy.h"
+#include "Util.h"
 
 using namespace ist::graphics;
 
@@ -52,14 +53,6 @@ void World::initialize()
 }
 
 
-inline vec4 GenRotateAxis()
-{
-    vec4 axis( atomicGenRandFloat(), atomicGenRandFloat(), atomicGenRandFloat(), 0.0f );
-    axis -= vec4(0.5f, 0.5f, 0.5f, 0.0f);
-    axis *= 2.0f;
-    return glm::normalize(axis);
-}
-
 void World::update(float32 dt)
 {
     ++m_frame;
@@ -70,16 +63,16 @@ void World::update(float32 dt)
             e->call(ECALL_setPosition, vec4(0.5f, 0.0f, 0.0f, 1.0f));
             e->call(ECALL_setAxis1, GenRotateAxis());
             e->call(ECALL_setAxis2, GenRotateAxis());
-            e->call(ECALL_setRotateSpeed1, 0.2f);
-            e->call(ECALL_setRotateSpeed2, 0.2f);
+            e->call(ECALL_setRotateSpeed1, 0.4f);
+            e->call(ECALL_setRotateSpeed2, 0.4f);
         }
         {
             IEntity *e =  m_entity_set->createEntity<Enemy_Sphere>();
             e->call(ECALL_setPosition, vec4(-0.5f, 0.0f, 0.0f, 1.0f));
             e->call(ECALL_setAxis1, GenRotateAxis());
             e->call(ECALL_setAxis2, GenRotateAxis());
-            e->call(ECALL_setRotateSpeed1, 0.2f);
-            e->call(ECALL_setRotateSpeed2, 0.2f);
+            e->call(ECALL_setRotateSpeed1, 0.4f);
+            e->call(ECALL_setRotateSpeed2, 0.4f);
         }
     }
 

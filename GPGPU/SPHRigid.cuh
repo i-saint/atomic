@@ -7,8 +7,11 @@ struct DeviceRigidDataSet
     sphRigidInstance        *instances;
     sphRigidParticle        *particles;
     sphRigidUpdateInfo      *updateinfo;
-    sphHash                 *hashes;
-    sphGridData             *grid;
+
+    sphRigidSphere  *spheres;
+    sphRigidBox     *boxes;
+    int             num_spheres;
+    int             num_boxes;
 
     __device__ int3 GridCalculateCell(float4 pos)
     {
@@ -27,37 +30,6 @@ struct DeviceRigidDataSet
         return v.x | (v.y<<SPH_RIGID_GRID_DIV_SHIFT_X) | (v.z<<(SPH_RIGID_GRID_DIV_SHIFT_X+SPH_RIGID_GRID_DIV_SHIFT_Y));
     }
 
-
-    __device__ void updateHash(int i)
-    {
-        hashes[i] = GridCalculateHash(particles[i].position);
-    }
-
-    __device__ void clearGrid(int i)
-    {
-        grid[i].x = grid[i].y = 0;
-    }
-
-    __device__ void updateGrid(int i)
-    {
-        const uint G_ID = i;
-        uint G_ID_PREV = (G_ID == 0)? SPH_MAX_RIGID_PARTICLES : G_ID; G_ID_PREV--;
-        uint G_ID_NEXT = G_ID + 1; if (G_ID_NEXT == SPH_MAX_RIGID_PARTICLES) { G_ID_NEXT = 0; }
-    
-        uint cell = hashes[G_ID];
-        uint cell_prev = hashes[G_ID_PREV];
-        uint cell_next = hashes[G_ID_NEXT];
-        if (cell != cell_prev)
-        {
-            // I'm the start of a cell
-            grid[cell].x = G_ID;
-        }
-        if (cell != cell_next)
-        {
-            // I'm the end of a cell
-            grid[cell].y = G_ID + 1;
-        }
-    }
 
     __device__ void updateRigids(int i)
     {
@@ -81,8 +53,9 @@ struct RigidDataSet
     thrust::device_vector<sphRigidInstance>     instances;
     thrust::device_vector<sphRigidParticle>     particles;
     thrust::device_vector<sphRigidUpdateInfo>   updateinfo;
-    thrust::device_vector<sphHash>              hashes;
-    thrust::device_vector<sphGridData>          grid;
+
+    thrust::device_vector<sphRigidSphere>       spheres;
+    thrust::device_vector<sphRigidBox>          boxes;
 
     RigidDataSet()
     {
@@ -92,14 +65,14 @@ struct RigidDataSet
         instances.reserve(atomic::ATOMIC_MAX_CHARACTERS);
         particles.reserve(SPH_MAX_RIGID_PARTICLES);
         updateinfo.reserve(SPH_MAX_RIGID_PARTICLES);
-        hashes.reserve(SPH_MAX_RIGID_PARTICLES);
-        grid.resize(SPH_RIGID_GRID_DIV_3);
+
+        spheres.reserve(atomic::ATOMIC_MAX_CHARACTERS);
+        boxes.reserve(atomic::ATOMIC_MAX_CHARACTERS);
     }
 
     void resizeParticles(size_t n)
     {
         particles.resize(n);
-        hashes.resize(n);
     }
 
     DeviceRigidDataSet getDeviceData()
@@ -111,8 +84,11 @@ struct RigidDataSet
         ddata.instances = instances.data().get();
         ddata.particles = particles.data().get();
         ddata.updateinfo= updateinfo.data().get();
-        ddata.hashes    = hashes.data().get();
-        ddata.grid      = grid.data().get();
+
+        ddata.spheres       = spheres.data().get();
+        ddata.boxes         = boxes.data().get();
+        ddata.num_spheres   = spheres.size();
+        ddata.num_boxes     = boxes.size();
         return ddata;
     }
 };
@@ -125,25 +101,4 @@ struct _RigidUpdate
     {
         drd.updateRigids(i);
     }
-};
-
-struct _RigidUpdateHash
-{
-    DeviceRigidDataSet drd;
-    _RigidUpdateHash(const DeviceRigidDataSet &v) : drd(v) {}
-    __device__ void operator()(int i) { drd.updateHash(i); }
-};
-
-struct _RigidClearGrid
-{
-    DeviceRigidDataSet drd;
-    _RigidClearGrid(const DeviceRigidDataSet &v) : drd(v) {}
-    __device__ void operator()(int i) { drd.clearGrid(i); }
-};
-
-struct _RigidUpdateGrid
-{
-    DeviceRigidDataSet drd;
-    _RigidUpdateGrid(const DeviceRigidDataSet  &v) : drd(v) {}
-    __device__ void operator()(int i) { drd.updateGrid(i); }
 };

@@ -292,31 +292,54 @@ struct _FluidIntegrate
         float4 velocity = dfd.particles[P_ID].velocity;
         float4 acceleration = dfd.forces[P_ID].acceleration;
         int dead = 0;
+        position.w = 1.0f;
         dfd.damages[P_ID].to = 0;
 
-        const float h_sq = d_params.smooth_len * d_params.smooth_len;
-        int3 G_XYZ = drd.GridCalculateCell( position );
-        for(int Z = max(G_XYZ.z - 1, 0) ; Z <= min(G_XYZ.z + 1, SPH_RIGID_GRID_DIV_Z-1) ; Z++) {
-            for(int Y = max(G_XYZ.y - 1, 0) ; Y <= min(G_XYZ.y + 1, SPH_RIGID_GRID_DIV_Y-1) ; Y++) {
-                for(int X = max(G_XYZ.x - 1, 0) ; X <= min(G_XYZ.x + 1, SPH_RIGID_GRID_DIV_X-1) ; X++) {
-                    sphHash G_CELL = drd.GridConstuctKey(make_int3(X, Y, Z));
-                    sphGridData G_START_END = drd.grid[G_CELL];
-                    for(uint N_ID = G_START_END.x ; N_ID < G_START_END.y ; N_ID++) {
-                        float4 N_position = drd.particles[N_ID].position;
-                        float4 diff = N_position - position;
-                        diff.w = 0.0f;
-                        float r_sq = dot(diff, diff);
-                        drd.particles[N_ID].padding.y = 1.0;
-                        if(r_sq < h_sq) {
-                            float4 dir = drd.particles[N_ID].normal;
-                            float s = dir.w * 0.8f + 0.2f;
-                            dir.w = 0.0f;
-                            acceleration += d_params.rigid_stiffness / s * dir;
-                            dfd.damages[P_ID].to = drd.particles[N_ID].owner_handle;
-                            dfd.damages[P_ID].density = dfd.forces[P_ID].density;
-                            //dead = 1;
+        for(int i=0; i<drd.num_spheres; ++i) {
+            const sphRigidSphere &collision = drd.spheres[i];
+            if( position.x >= collision.bb.bl.x && position.x <= collision.bb.ur.x &&
+                position.y >= collision.bb.bl.y && position.y <= collision.bb.ur.y &&
+                position.z >= collision.bb.bl.z && position.z <= collision.bb.ur.z )
+            {
+                float r = collision.pos_r.w;
+                float r_sq = r*r;
+                float4 diff = position - collision.pos_r;
+                diff.w = 0.0f;
+                float d_sq = dot(diff, diff);
+                if(d_sq < r_sq) {
+                    float d = sqrt(d_sq);
+                    float4 dir = diff / d;
+                    acceleration += (d-r) * -d_params.rigid_stiffness * dir;
+                    dfd.damages[P_ID].to = collision.owner_handle;
+                    dfd.damages[P_ID].density = dfd.forces[P_ID].density;
+                }
+            }
+        }
+        for(int i=0; i<drd.num_boxes; ++i) {
+            const sphRigidBox &collision = drd.boxes[i];
+            if( position.x >= collision.bb.bl.x && position.x <= collision.bb.ur.x &&
+                position.y >= collision.bb.bl.y && position.y <= collision.bb.ur.y &&
+                position.z >= collision.bb.bl.z && position.z <= collision.bb.ur.z )
+            {
+                int inside = 0;
+                int closest_index = 0;
+                float closest_dinstance = -9999.0f;
+                for(int p=0; p<6; ++p) {
+                    float d = dot(position-collision.position, collision.planes[p]);
+                    if(d <= 0.0f) {
+                        ++inside;
+                        if(d > closest_dinstance) {
+                            closest_dinstance = d;
+                            closest_index = p;
                         }
                     }
+                }
+                if(inside==6) {
+                    float4 dir = collision.planes[closest_index];
+                    dir.w = 0.0f;
+                    acceleration += closest_dinstance * -d_params.rigid_stiffness * dir;
+                    dfd.damages[P_ID].to = collision.owner_handle;
+                    dfd.damages[P_ID].density = dfd.forces[P_ID].density;
                 }
             }
         }

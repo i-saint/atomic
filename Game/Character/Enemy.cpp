@@ -8,6 +8,8 @@
 #include "Game/SPHManager.h"
 #include "Game/Message.h"
 #include "Enemy.h"
+#include "GPGPU/SPH.cuh"
+#include "Util.h"
 
 namespace atomic {
 
@@ -70,14 +72,17 @@ class Enemy_Cube
 typedef Enemy_Base super;
 typedef TAttr_RotateSpeed<Attr_DoubleAxisRotation> transform;
 private:
+    sphRigidBox m_rigid;
 
 public:
     virtual void update(float32 dt)
     {
+        CB_RID cclass = CB_CLASS_CUBE;
         super::update(dt);
         transform::update(dt);
         setTransform(computeMatrix());
-        atomicGetFractionSet()->addRigid(CB_CLASS_CUBE, getHandle(), getTransform());
+        CreateRigidBox(m_rigid, getHandle(), getTransform(), (const vec4&)SPHGetRigidClass(cclass)->box_size * getScale());
+        atomicGetFractionSet()->addRigidBox(cclass, getHandle(), getTransform(), m_rigid);
     }
 
     bool call(uint32 call_id, const variant &v)
@@ -98,14 +103,17 @@ class Enemy_Sphere
 typedef Enemy_Base super;
 typedef TAttr_RotateSpeed<Attr_DoubleAxisRotation> transform;
 private:
+    sphRigidSphere m_rigid;
 
 public:
     virtual void update(float32 dt)
     {
+        CB_RID cclass = CB_CLASS_SPHERE;
         super::update(dt);
         transform::update(dt);
         setTransform(computeMatrix());
-        atomicGetFractionSet()->addRigid(CB_CLASS_SPHERE, getHandle(), getTransform());
+        CreateRigidSphere(m_rigid, getHandle(), getPosition(), SPHGetRigidClass(cclass)->sphere_radius*getScale().x);
+        atomicGetFractionSet()->addRigidSphere(cclass, getHandle(), getTransform(), m_rigid);
     }
 
     bool call(uint32 call_id, const variant &v)
