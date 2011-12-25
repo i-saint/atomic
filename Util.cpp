@@ -18,12 +18,11 @@ vec4 GenRotateAxis()
 
 void CreateRigidSphere(sphRigidSphere &o, EntityHandle h, const vec4& pos, float32 r)
 {
+    o.shape = SPH_RIGID_SPHERE;
     o.owner_handle = h;
     o.pos_r = make_float4(pos.x, pos.y, pos.z, r);
     o.bb.ur = o.pos_r + make_float4( r, r, r, 0.0f);
     o.bb.bl = o.pos_r + make_float4(-r,-r,-r, 0.0f);
-    //IST_PRINT("sphere bb max: %.2f, %.2f, %.2f\n", o.bb.ur.x, o.bb.ur.y, o.bb.ur.z);
-    //IST_PRINT("sphere bb min: %.2f, %.2f, %.2f\n", o.bb.bl.x, o.bb.bl.y, o.bb.bl.z);
 }
 
 void CreateRigidBox(sphRigidBox &o, EntityHandle h, const mat4& t, const vec4 &size)
@@ -47,6 +46,7 @@ void CreateRigidBox(sphRigidBox &o, EntityHandle h, const mat4& t, const vec4 &s
         -size.z,
     };
 
+    o.shape = SPH_RIGID_BOX;
     o.owner_handle = h;
     o.position = (float4&)(pos);
     o.position.w = 0.0f;
@@ -57,8 +57,6 @@ void CreateRigidBox(sphRigidBox &o, EntityHandle h, const mat4& t, const vec4 &s
     }
     o.bb.ur = (float4&)(pos + vec4( r, r, r, 0.0f));
     o.bb.bl = (float4&)(pos + vec4(-r,-r,-r, 0.0f));
-    //IST_PRINT("box bb max: %.2f, %.2f, %.2f\n", o.bb.ur.x, o.bb.ur.y, o.bb.ur.z);
-    //IST_PRINT("box bb min: %.2f, %.2f, %.2f\n", o.bb.bl.x, o.bb.bl.y, o.bb.bl.z);
 }
 
 } // namespace atomic

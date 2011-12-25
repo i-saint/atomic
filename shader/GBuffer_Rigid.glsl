@@ -4,15 +4,16 @@
 #ifdef GLSL_VS
 ia_out(GLSL_POSITION)           vec4 ia_VertexPosition;
 ia_out(GLSL_NORMAL)             vec3 ia_VertexNormal;
-ia_out(GLSL_INSTANCE_PARAM)     vec4 ia_InstanceParam;
 ia_out(GLSL_INSTANCE_POSITION)  vec4 ia_InstancePosition;
 ia_out(GLSL_INSTANCE_NORMAL)    vec4 ia_InstanceNormal;
+ia_out(GLSL_INSTANCE_COLOR)     vec4 ia_InstanceColor;
+ia_out(GLSL_INSTANCE_GLOW)      vec4 ia_InstanceGlow;
 #endif
 #if defined(GLSL_VS) || defined(GLSL_PS)
 vs_out vec4 vs_VertexPosition;
 vs_out vec4 vs_VertexNormal;        // w = shininess
 vs_out vec4 vs_VertexColor;         // w = fresnel
-vs_out float vs_GlowIntensity;
+vs_out vec4 vs_Glow;
 #endif
 
 #if defined(GLSL_VS)
@@ -27,8 +28,7 @@ void main()
     float dif2 = dif*dif;
     float dif3 = dif2*dif;
     float ndif = 1.0-dif;
-    vs_GlowIntensity = ndif;
-    //vs_GlowIntensity = ia_InstanceParam.y;
+    vs_Glow = ia_InstanceGlow * ndif;
     vs_VertexPosition = vec4(vert.xyz, 1.0);
     vs_VertexNormal = vec4(ia_VertexNormal, 120.0);
     vs_VertexColor = vec4(0.6*dif3, 0.6*dif3, 0.6*dif3, 1.0);
@@ -45,10 +45,10 @@ ps_out(3) vec4 ps_FragGlow;
 void main()
 {
     ps_FlagColor    = vs_VertexColor;
-    ps_FlagColor.r += vs_GlowIntensity;
+    ps_FlagColor   += vs_Glow;
     ps_FragNormal   = vs_VertexNormal;
     ps_FragPosition = vs_VertexPosition;
-    ps_FragGlow     = vec4(vs_GlowIntensity, 0.0f, 0.0f, 1.0);
+    ps_FragGlow     = vec4(vs_Glow.rgb, 1.0);
 }
 
 #endif

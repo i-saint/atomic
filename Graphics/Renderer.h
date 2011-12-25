@@ -79,8 +79,6 @@ public:
 
 
 
-
-
 class PassGBuffer_SPH : public IRenderer
 {
 private:
@@ -90,10 +88,19 @@ private:
     VertexBufferObject  *m_vbo_fluid;
     VertexBufferObject  *m_vbo_rigid;
 
+    stl::vector<Task*>          m_tasks;
+    stl::vector<PSetInstance>   m_rinstances;
+    stl::vector<PSetParticle>   m_rparticles;
+
+    void resizeTasks(uint32 n);
+
 public:
     PassGBuffer_SPH();
+    ~PassGBuffer_SPH();
     void beforeDraw();  // メインスレッドから、描画処理の前に呼ばれる
     void draw();    // 描画スレッドから呼ばれる
+
+    void addRigidInstance(PSET_RID psid, const mat4 &t, const vec4 &diffuse, const vec4 &glow);
 };
 
 
@@ -112,20 +119,15 @@ public:
     void beforeDraw();
     void draw();
 
-    void pushInstance(const DirectionalLight& v);
+    void addInstance(const DirectionalLight& v);
 };
 
 class PassDeferredShading_PointLights : public IRenderer
 {
 public:
-    typedef PointLight light_t;
-    struct Light
-    {
-        vec4 position;
-    };
 
 private:
-    typedef stl::vector<Light> InstanceCont;
+    typedef stl::vector<PointLight> InstanceCont;
     InstanceCont        m_instances;
     AtomicShader        *m_shader;
     IndexBufferObject   *m_ibo_sphere;
@@ -137,7 +139,7 @@ public:
     void beforeDraw();
     void draw();
 
-    void pushInstance(const Light& v) { m_instances.push_back(v); }
+    void addInstance(const PointLight& v) { m_instances.push_back(v); }
 };
 
 //

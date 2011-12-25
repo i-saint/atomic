@@ -171,6 +171,12 @@
       <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="Util.cpp" />
+    <ClCompile Include="Game\Character\Routine.cpp">
+      <Filter>Game\Character</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Character\Level.cpp">
+      <Filter>Game\Character</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h">
@@ -408,6 +414,24 @@
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="Util.h" />
+    <ClInclude Include="Game\EntityClass.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Character\RoutineClass.h">
+      <Filter>Game\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Character\Routine.h">
+      <Filter>Game\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Character\Level.h">
+      <Filter>Game\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Rigid.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ParticleSet.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="GPGPU\SPH_internal.cuh">

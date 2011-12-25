@@ -1,8 +1,9 @@
 #include "stdafx.h"
 #include "ist/ist.h"
 #include "types.h"
+#include "Graphics/ResourceID.h"
+#include "Graphics/ParticleSet.h"
 #include "Graphics/CreateModelData.h"
-#include "Graphics/CudaBuffer.h"
 #include "GPGPU/SPH.cuh"
 #include "shader/Semantics.glslh"
 #include <math.h>
@@ -257,38 +258,35 @@ namespace {
     const float32 g_particle_par_volume = 30000.0; // particles / (1.0*1.0*1.0)
 }
 
-bool CreateCubeParticleSet( CudaBuffer& ps, sphRigidClass &sphcc, float32 half_len )
+bool CreateCubeParticleSet( ParticleSet &pset, RigidInfo &ri, float32 half_len )
 {
     SFMT random; random.initialize(3);
 
     float32 len = half_len*2.0f;
-    float4 pos = make_float4(-half_len, -half_len, -half_len, 0.0f);
+    vec4 pos = vec4(-half_len, -half_len, -half_len, 0.0f);
     float32 volume = len*len*len;
     uint32 num = static_cast<uint32>(volume * g_particle_par_volume);
-    uint32 buffer_size = sizeof(sphRigidParticle)*num;
+    stl::vector<PSetParticle> particles;
+    particles.resize(num);
 
-    ps.setCapacity(buffer_size);
-    sphRigidParticle* particles = (sphRigidParticle*)ps.getHostBuffer();
-
-    const float4 planes[6] = {
-        make_float4( 1.0f, 0.0f, 0.0f, 0.0f),
-        make_float4(-1.0f, 0.0f, 0.0f, 0.0f),
-        make_float4( 0.0f, 1.0f, 0.0f, 0.0f),
-        make_float4( 0.0f,-1.0f, 0.0f, 0.0f),
-        make_float4( 0.0f, 0.0f, 1.0f, 0.0f),
-        make_float4( 0.0f, 0.0f,-1.0f, 0.0f),
+    const vec4 planes[6] = {
+        vec4( 1.0f, 0.0f, 0.0f, 0.0f),
+        vec4(-1.0f, 0.0f, 0.0f, 0.0f),
+        vec4( 0.0f, 1.0f, 0.0f, 0.0f),
+        vec4( 0.0f,-1.0f, 0.0f, 0.0f),
+        vec4( 0.0f, 0.0f, 1.0f, 0.0f),
+        vec4( 0.0f, 0.0f,-1.0f, 0.0f),
     };
     for(uint32 i=0; i<num; ++i) {
-        float4 rv = make_float4(random.genFloat32(),random.genFloat32(),random.genFloat32(),0.0f) * len;
-        float4 ppos = pos + rv;
-        particles[i].owner_handle = 0;
+        vec4 rv = vec4(random.genFloat32(),random.genFloat32(),random.genFloat32(),0.0f) * len;
+        vec4 ppos = pos + rv;
         particles[i].position = ppos;
         particles[i].position.w = 1.0f;
 
         float32 max_d = 0.0f;
         uint32 max_p = 0;
         for(uint32 p=0; p<_countof(planes); ++p) {
-            float32 d = dot(ppos, planes[p]);
+            float32 d = glm::dot(ppos, planes[p]);
             if(d > max_d) {
                 max_d = d;
                 max_p = p;
@@ -297,42 +295,34 @@ bool CreateCubeParticleSet( CudaBuffer& ps, sphRigidClass &sphcc, float32 half_l
         particles[i].normal = planes[max_p];
         particles[i].normal.w = max_d / half_len;
     }
-    ps.copyHostToDevice();
 
-    sphcc.shape = SPH_RIGID_BOX;
-    sphcc.box_size = make_float4(half_len, half_len, half_len, 0.0f);
-    sphcc.num_particles = num;
-    sphcc.particles = (sphRigidParticle*)ps.getDeviceBuffer();
+    pset.setData(particles);
+    ri.box_size = make_float4(half_len, half_len, half_len, 0.0f);
     return true;
 }
 
-bool CreateSphereParticleSet( CudaBuffer& ps, sphRigidClass &sphcc, float32 radius )
+bool CreateSphereParticleSet( ParticleSet &pset, RigidInfo &ri, float32 radius )
 {
     SFMT random; random.initialize(5);
 
-    float4 half = make_float4(0.5f, 0.5f, 0.5f, 0.0f);
+    vec4 half = vec4(0.5f, 0.5f, 0.5f, 0.0f);
     float32 volume = (4.0f/3.0f) * ist::PI * (radius*radius*radius);
     uint32 num = static_cast<uint32>(volume * g_particle_par_volume);
-    uint32 buffer_size = sizeof(sphRigidParticle)*num;
+    stl::vector<PSetParticle> particles;
+    particles.resize(num);
 
-    ps.setCapacity(buffer_size);
-    sphRigidParticle* particles = (sphRigidParticle*)ps.getHostBuffer();
     for(uint32 i=0; i<num; ++i) {
-        float4 dir = normalize(make_float4(random.genFloat32(),random.genFloat32(),random.genFloat32(),0.0f)-half);
+        vec4 dir = glm::normalize(vec4(random.genFloat32(),random.genFloat32(),random.genFloat32(),0.0f)-half);
         float l = random.genFloat32()*radius;
-        float4 pos = dir*l;
-        particles[i].owner_handle = 0;
+        vec4 pos = dir*l;
         particles[i].position   = pos;
         particles[i].position.w = 1.0f;
         particles[i].normal     = dir;
         particles[i].normal.w   = l / radius;
     }
-    ps.copyHostToDevice();
 
-    sphcc.shape = SPH_RIGID_SPHERE;
-    sphcc.sphere_radius = radius;
-    sphcc.num_particles = num;
-    sphcc.particles = (sphRigidParticle*)ps.getDeviceBuffer();
+    pset.setData(particles);
+    ri.sphere_radius = radius;
     return true;
 }
 

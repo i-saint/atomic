@@ -18,7 +18,9 @@
     <ClCompile Include="Game\AtomicApplication.cpp" />
     <ClCompile Include="Game\AtomicGame.cpp" />
     <ClCompile Include="Game\Character\Enemy.cpp" />
+    <ClCompile Include="Game\Character\Level.cpp" />
     <ClCompile Include="Game\Character\Player.cpp" />
+    <ClCompile Include="Game\Character\Routine.cpp" />
     <ClCompile Include="Game\DebugConsole.cpp" />
     <ClCompile Include="Game\Entity.cpp" />
     <ClCompile Include="Game\Message.cpp" />
@@ -71,11 +73,16 @@
     <ClInclude Include="Game\AtomicGame.h" />
     <ClInclude Include="Game\Character\Attributes.h" />
     <ClInclude Include="Game\Character\Enemy.h" />
+    <ClInclude Include="Game\Character\Level.h" />
     <ClInclude Include="Game\Character\Player.h" />
+    <ClInclude Include="Game\Character\Routine.h" />
+    <ClInclude Include="Game\Character\RoutineClass.h" />
     <ClInclude Include="Game\DebugConsole.h" />
     <ClInclude Include="Game\Entity.h" />
+    <ClInclude Include="Game\EntityClass.h" />
     <ClInclude Include="Game\EntityQuery.h" />
     <ClInclude Include="Game\Message.h" />
+    <ClInclude Include="Game\Rigid.h" />
     <ClInclude Include="Game\SPHManager.h" />
     <ClInclude Include="Game\Task.h" />
     <ClInclude Include="Game\Text.h" />
@@ -84,6 +91,7 @@
     <ClInclude Include="Graphics\CreateModelData.h" />
     <ClInclude Include="Graphics\CudaBuffer.h" />
     <ClInclude Include="Graphics\Light.h" />
+    <ClInclude Include="Graphics\ParticleSet.h" />
     <ClInclude Include="Graphics\Renderer.h" />
     <ClInclude Include="Graphics\ResourceID.h" />
     <ClInclude Include="Graphics\ResourceManager.h" />

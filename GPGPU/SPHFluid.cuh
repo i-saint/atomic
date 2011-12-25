@@ -6,7 +6,7 @@ struct DeviceFluidDataSet
     sphFluidForce       *forces;
     sphHash             *hashes;
     sphDeadFlag         *dead;
-    sphDamageMessage    *damages;
+    sphFluidMessage     *message;
     sphGridData         *grid;
     sphStates           *states;
 
@@ -197,7 +197,7 @@ struct FluidDataSet
     thrust::device_vector<sphFluidForce>    forces;
     thrust::device_vector<sphHash>          hashes;
     thrust::device_vector<sphDeadFlag>      dead;
-    thrust::device_vector<sphDamageMessage> damages;
+    thrust::device_vector<sphFluidMessage>  message;
     thrust::device_vector<sphGridData>      grid;
 
     FluidDataSet()
@@ -214,7 +214,7 @@ struct FluidDataSet
         forces.resize(n);
         hashes.resize(n);
         dead.resize(n);
-        damages.resize(n);
+        message.resize(n);
     }
 
     DeviceFluidDataSet getDeviceData()
@@ -226,7 +226,7 @@ struct FluidDataSet
         ddata.forces    = forces.data().get();
         ddata.hashes    = hashes.data().get();
         ddata.dead      = dead.data().get();
-        ddata.damages   = damages.data().get();
+        ddata.message   = message.data().get();
         ddata.grid      = grid.data().get();
         return ddata;
     }
@@ -293,7 +293,7 @@ struct _FluidIntegrate
         float4 acceleration = dfd.forces[P_ID].acceleration;
         int dead = 0;
         position.w = 1.0f;
-        dfd.damages[P_ID].to = 0;
+        dfd.message[P_ID].to = 0;
 
         for(int i=0; i<drd.num_spheres; ++i) {
             const sphRigidSphere &collision = drd.spheres[i];
@@ -309,9 +309,9 @@ struct _FluidIntegrate
                 if(d_sq < r_sq) {
                     float d = sqrt(d_sq);
                     float4 dir = diff / d;
-                    acceleration += (d-r) * -d_params.rigid_stiffness * dir;
-                    dfd.damages[P_ID].to = collision.owner_handle;
-                    dfd.damages[P_ID].density = dfd.forces[P_ID].density;
+                    acceleration += (d-r) * -d_params.wall_stiffness * dir;
+                    dfd.message[P_ID].to = collision.owner_handle;
+                    dfd.message[P_ID].density = dfd.forces[P_ID].density;
                 }
             }
         }
@@ -337,37 +337,38 @@ struct _FluidIntegrate
                 if(inside==6) {
                     float4 dir = collision.planes[closest_index];
                     dir.w = 0.0f;
-                    acceleration += closest_dinstance * -d_params.rigid_stiffness * dir;
-                    dfd.damages[P_ID].to = collision.owner_handle;
-                    dfd.damages[P_ID].density = dfd.forces[P_ID].density;
+                    acceleration += closest_dinstance * -d_params.wall_stiffness * dir;
+                    dfd.message[P_ID].to = collision.owner_handle;
+                    dfd.message[P_ID].density = dfd.forces[P_ID].density;
                 }
             }
         }
 
-        //const float3 planes[4] = {
-        //    make_float3( 1.0f, 0.0f, 0),
-        //    make_float3( 0.0f, 1.0f, 0),
-        //    make_float3(-1.0f, 0.0f, 2.56f),
-        //    make_float3( 0.0f,-1.0f, 2.56f),
-        //};
-        //// Apply the forces from the map walls
-        //for(uint i = 0 ; i < 4 ; i++)
-        //{
-        //    float dist = dot(make_float3(position.x, position.y, 1.0f), planes[i]);
-        //    acceleration += min(dist, 0.0f) * -d_param.wall_stiffness * make_float4(planes[i].x, planes[i].y, 0.0f, 0.0f);
-        //}
-        //float4 gravity = make_float4(0.0f, -0.5f, 0.0f, 0.0f);
+        {
+            const sphGridParam &g = dfd.params[0];
+            float4 bl = g.grid_pos;
+            float4 ur = g.grid_dim + g.grid_pos;
+            const float4 planes[4] = {
+                make_float4(-1.0f, 0.0f, 0.0f,  ur.x),
+                make_float4( 1.0f, 0.0f, 0.0f, -bl.x),
+                make_float4( 0.0f,-1.0f, 0.0f,  ur.y),
+                make_float4( 0.0f, 1.0f, 0.0f, -bl.y),
+            };
+            // Apply the forces from the map walls
+            for(uint i=0 ; i<4 ; i++) {
+                float dist = dot(make_float4(position.x, position.y, 0.0f, 1.0f), planes[i]);
+                acceleration += min(dist, 0.0f) * -d_params.wall_stiffness * make_float4(planes[i].x, planes[i].y, 0.0f, 0.0f);
+            }
+            acceleration += min(position.z, 0.0f) * -d_params.wall_stiffness * make_float4(0.0f, 0.0f, 1.0f, 0.0f);
+        }
 
-        acceleration += min(position.z, 0.0f) * -d_params.wall_stiffness * make_float4(0.0f, 0.0f, 0.5f, 0.0f);
         acceleration += make_float4(0.0f, 0.0f, -5.0f, 0.0f);
 
 
         // Apply gravity
-        for(int i=0; i<SPH_MAX_SPHERICAL_GRAVITY_NUM; ++i) {
-            const float4 center = dgd.sgravity[i].position;
-            const float gravity_strength = dgd.sgravity[i].strength;
-            const float inner_radius = dgd.sgravity[i].inner_radus;
-            const float outer_radius = dgd.sgravity[i].range_radus;
+        for(int i=0; i<dgd.num_point_gravity; ++i) {
+            const float4 center = dgd.point_gravity[i].position;
+            const float gravity_strength = dgd.point_gravity[i].strength;
 
             float4 diff = center-position;
             diff.w = 0.0f;
@@ -375,12 +376,7 @@ struct _FluidIntegrate
             float4 dir = diff/distance;
             float4 gravity = dir * gravity_strength;
 
-            acceleration += min(distance-inner_radius, 0.0f) * d_params.wall_stiffness * dir;
-            acceleration += min(outer_radius-distance, 0.0f) * -d_params.wall_stiffness * dir;
             acceleration += gravity;
-
-            //// kill
-            //if(distance-inner_radius < 0.0f) { dead = 1; }
         }
 
         //const float timestep = 1.0f/60.f;
@@ -405,27 +401,5 @@ struct _FluidIntegrate
         else {
             dfd.states[0].fluid_alive_any = 1;
        }
-    }
-};
-
-struct _FluidCopyToGL
-{
-    DeviceFluidDataSet  dfd;
-    sphFluidParticle    *gl_partcle;
-    float4              *gl_lights;
-
-    _FluidCopyToGL(DeviceFluidDataSet f, sphFluidParticle *glp, float4 *gll)
-        : dfd(f), gl_partcle(glp), gl_lights(gll) {}
-
-    __device__ void operator()(int i)
-    {
-        const uint P_ID = i;
-        int pid = dfd.particles[P_ID].id;
-        gl_partcle[P_ID] = dfd.particles[P_ID];
-
-        int light_cycle = SPH_MAX_FLUID_PARTICLES/SPH_MAX_LIGHT_NUM;
-        if(pid % light_cycle==0) {
-            gl_lights[pid/light_cycle] = dfd.particles[P_ID].position;
-        }
     }
 };

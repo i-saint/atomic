@@ -21,6 +21,8 @@ class Player
 typedef Breakable super;
 typedef TAttr_RotateSpeed<Attr_DoubleAxisRotation> transform;
 private:
+    static const PSET_RID rigid_class = PSET_CUBE_SMALL;
+
     sphRigidSphere m_rigid;
     float32 m_dash;
     int32 m_cooldown;
@@ -53,20 +55,25 @@ public:
         }
 
 
-        CB_RID cclass = CB_CLASS_SPHERE_MEDIUM;
         super::update(dt);
         transform::update(dt);
+
         setTransform(computeMatrix());
-        CreateRigidSphere(m_rigid, getHandle(), getPosition(), SPHGetRigidClass(cclass)->sphere_radius*getScale().x);
-        atomicGetSPHManager()->addRigidSphere(cclass, getHandle(), getTransform(), m_rigid);
+        CreateRigidSphere(m_rigid, getHandle(), getPosition(), atomicGetRigidInfo(rigid_class)->sphere_radius*getScale().x);
+        atomicGetSPHManager()->addRigidSphere(m_rigid);
     }
 
     virtual void draw()
     {
-        PointLight light;
-        light.position  = getPosition() + vec4(0.0f, 0.0f, 0.3f, 0.0f);
-        light.color     = vec4(0.1f, 0.2f, 1.0f, 1.0f);
-        atomicGetPointLights()->addInstance(light);
+        {
+            PointLight light;
+            light.position  = getPosition() + vec4(0.0f, 0.0f, 0.3f, 0.0f);
+            light.color     = vec4(0.1f, 0.2f, 1.0f, 1.0f);
+            atomicGetPointLights()->addInstance(light);
+        }
+        {
+            atomicGetSPHRenderer()->addRigidInstance(rigid_class, getTransform(), vec4(0.6f, 0.6f, 0.6f, 1.0f), vec4(0.2f, 0.0f, 1.0f, 1.0f));
+        }
     }
 
     bool call(uint32 call_id, const variant &v)

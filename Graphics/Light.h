@@ -17,12 +17,15 @@ struct PointLight
 {
     vec4 position;
     vec4 color;
-    vec4 direction;
-    float min_range;
-    float max_range;
-    float padding[2];
+    union {
+        struct {
+            float min_range;
+            float max_range;
+        };
+        float4 padding;
+    };
 };
-BOOST_STATIC_ASSERT(sizeof(PointLight)==sizeof(vec4)*4);
+BOOST_STATIC_ASSERT(sizeof(PointLight)==sizeof(vec4)*3);
 
 } // namespace atomic
 #endif // __atomic_Graphics_Light__

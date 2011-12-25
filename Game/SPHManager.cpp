@@ -29,7 +29,6 @@ void SPHManager::initialize()
 
 void SPHManager::updateBegin( float32 dt )
 {
-    m_rigids.clear();
     m_spheres.clear();
     m_boxes.clear();
 
@@ -44,28 +43,17 @@ void SPHManager::update(float32 dt)
 void SPHManager::asyncupdate(float32 dt)
 {
     SPHUpdateGravity(m_pgravity);
-    SPHUpdateRigids(m_rigids, m_spheres, m_boxes);
+    SPHUpdateRigids(m_spheres, m_boxes);
     SPHUpdateFluid();
 }
 
-void SPHManager::addRigidInstance(CB_RID cid, EntityHandle h, const mat4 &m)
+void SPHManager::addRigidSphere(const sphRigidSphere &s)
 {
-    sphRigidInstance tmp;
-    tmp.classid = cid;
-    tmp.handle = h;
-    tmp.transform = m;
-    m_rigids.push_back( tmp );
-}
-
-void SPHManager::addRigidSphere(CB_RID cid, EntityHandle h, const mat4 &m, const sphRigidSphere &s)
-{
-    addRigidInstance(cid, h, m);
     m_spheres.push_back(s);
 }
 
-void SPHManager::addRigidBox(CB_RID cid, EntityHandle h, const mat4 &m, const sphRigidBox &s)
+void SPHManager::addRigidBox(const sphRigidBox &s)
 {
-    addRigidInstance(cid, h, m);
     m_boxes.push_back(s);
 }
 

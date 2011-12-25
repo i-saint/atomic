@@ -18,12 +18,9 @@ class Task_FractionUpdateAsync;
 class SPHManager : boost::noncopyable
 {
 private:
-    thrust::host_vector<sphRigidInstance>   m_rigids;
     thrust::host_vector<sphRigidSphere>     m_spheres;
     thrust::host_vector<sphRigidBox>        m_boxes;
     thrust::host_vector<sphForcePointGravity>   m_pgravity;
-
-    void addRigidInstance(CB_RID cid, EntityHandle h, const mat4 &m);
 
 public:
     SPHManager();
@@ -38,8 +35,8 @@ public:
     void asyncupdate(float32 dt);
     void draw() const;
 
-    void addRigidSphere(CB_RID cid, EntityHandle h, const mat4 &m, const sphRigidSphere &s);
-    void addRigidBox(CB_RID cid, EntityHandle h, const mat4 &m, const sphRigidBox &s);
+    void addRigidSphere(const sphRigidSphere &s);
+    void addRigidBox(const sphRigidBox &s);
     void addPointGravity(const sphForcePointGravity &v);
 };
 

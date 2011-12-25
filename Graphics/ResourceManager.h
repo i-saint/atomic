@@ -1,9 +1,11 @@
 #ifndef __atomic_Graphics_ResourceManager__
 #define __atomic_Graphics_ResourceManager__
+
 #include "Graphics/Shader.h"
-#include "Graphics/CreateModelData.h"
 #include "Graphics/CudaBuffer.h"
+#include "Graphics/ParticleSet.h"
 #include "Graphics/ResourceID.h"
+#include "Graphics/CreateModelData.h"
 #include "GPGPU/SPH.cuh"
 
 namespace atomic {
@@ -46,8 +48,8 @@ private:
     UniformBufferObject *m_ubo[UBO_END];
     FrameBufferObject   *m_fbo[RT_END];
     AtomicShader        *m_shader[SH_END];
-    CudaBuffer          *m_cb[CB_END];
-    sphRigidClass   m_sphcc[CB_END];
+    ParticleSet         m_pset[PSET_END];
+    RigidInfo           m_rinfo[PSET_END];
 
 private:
     static GraphicResourceManager* s_inst;
@@ -66,8 +68,8 @@ public:
     IndexBufferObject* getIndexBufferObject(IBO_RID i)      { return m_ibo[i]; }
     UniformBufferObject* getUniformBufferObject(UBO_RID i)  { return m_ubo[i]; }
     AtomicShader* getShader(SH_RID i)                       { return m_shader[i]; }
-    CudaBuffer* getCudaBuffer(CB_RID i)                     { return m_cb[i]; }
-    sphRigidClass* getsphRigidClass(CB_RID i)       { return &m_sphcc[i]; }
+    ParticleSet* getParticleSet(PSET_RID i)                 { return &m_pset[i]; }
+    RigidInfo* getRigidInfo(PSET_RID i)                     { return &m_rinfo[i]; }
 
     void swapBuffers();
     RenderTargetGBuffer*    getRenderTargetGBuffer()        { return m_rt_gbuffer; }
@@ -89,8 +91,8 @@ public:
 #define atomicGetIndexBufferObject(i)       atomicGetResourceManager()->getIndexBufferObject(i)
 #define atomicGetUniformBufferObject(i)     atomicGetResourceManager()->getUniformBufferObject(i)
 #define atomicGetShader(i)                  atomicGetResourceManager()->getShader(i)
-#define atomicGetCudaBuffer(i)              atomicGetResourceManager()->getCudaBuffer(i)
-#define atomicGetsphRigidClass(i)       atomicGetResourceManager()->getsphRigidClass(i)
+#define atomicGetParticleSet(i)             atomicGetResourceManager()->getParticleSet(i)
+#define atomicGetRigidInfo(i)               atomicGetResourceManager()->getRigidInfo(i)
 
 } // namespace atomic
 #endif // __atomic_Graphics_ResourceManager__

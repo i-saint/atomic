@@ -22,6 +22,7 @@ class Enemy_Cube
 typedef Breakable super;
 typedef TAttr_RotateSpeed<Attr_DoubleAxisRotation> transform;
 private:
+    static const PSET_RID rigid_class = PSET_CUBE_MEDIUM;
     sphRigidBox m_rigid;
 
 public:
@@ -32,20 +33,25 @@ public:
 
     virtual void update(float32 dt)
     {
-        CB_RID cclass = CB_CLASS_CUBE_MEDIUM;
         super::update(dt);
         transform::update(dt);
+
         setTransform(computeMatrix());
-        CreateRigidBox(m_rigid, getHandle(), getTransform(), (const vec4&)SPHGetRigidClass(cclass)->box_size * getScale());
-        atomicGetSPHManager()->addRigidBox(cclass, getHandle(), getTransform(), m_rigid);
+        CreateRigidBox(m_rigid, getHandle(), getTransform(), (vec4&)atomicGetRigidInfo(rigid_class)->box_size * getScale());
+        atomicGetSPHManager()->addRigidBox(m_rigid);
     }
 
     virtual void draw()
     {
-        PointLight light;
-        light.position  = getPosition() + vec4(0.0f, 0.0f, 0.1f, 1.0f);
-        light.color     = vec4(1.0f, 0.1f, 0.2f, 1.0f);
-        atomicGetPointLights()->addInstance(light);
+        {
+            PointLight light;
+            light.position  = getPosition() + vec4(0.0f, 0.0f, 0.1f, 1.0f);
+            light.color     = vec4(1.0f, 0.1f, 0.2f, 1.0f);
+            atomicGetPointLights()->addInstance(light);
+        }
+        {
+            atomicGetSPHRenderer()->addRigidInstance(rigid_class, getTransform(), vec4(0.6f, 0.6f, 0.6f, 1.0f), vec4(1.0f, 0.0f, 0.2f, 1.0f));
+        }
     }
 
     bool call(uint32 call_id, const variant &v)
@@ -66,6 +72,7 @@ class Enemy_Sphere
 typedef Breakable super;
 typedef TAttr_RotateSpeed<Attr_DoubleAxisRotation> transform;
 private:
+    static const PSET_RID rigid_class = PSET_SPHERE_LARGE;
     sphRigidSphere m_rigid;
 
 public:
@@ -76,20 +83,25 @@ public:
 
     virtual void update(float32 dt)
     {
-        CB_RID cclass = CB_CLASS_SPHERE_LARGE;
         super::update(dt);
         transform::update(dt);
+
         setTransform(computeMatrix());
-        CreateRigidSphere(m_rigid, getHandle(), getPosition(), SPHGetRigidClass(cclass)->sphere_radius*getScale().x);
-        atomicGetSPHManager()->addRigidSphere(cclass, getHandle(), getTransform(), m_rigid);
+        CreateRigidSphere(m_rigid, getHandle(), getPosition(), atomicGetRigidInfo(rigid_class)->sphere_radius*getScale().x);
+        atomicGetSPHManager()->addRigidSphere(m_rigid);
     }
 
     virtual void draw()
     {
-        PointLight light;
-        light.position  = getPosition() + vec4(0.0f, 0.0f, 0.1f, 1.0f);
-        light.color     = vec4(1.0f, 0.1f, 0.2f, 1.0f);
-        atomicGetPointLights()->addInstance(light);
+        {
+            PointLight light;
+            light.position  = getPosition() + vec4(0.0f, 0.0f, 0.1f, 1.0f);
+            light.color     = vec4(1.0f, 0.1f, 0.2f, 1.0f);
+            atomicGetPointLights()->addInstance(light);
+        }
+        {
+            atomicGetSPHRenderer()->addRigidInstance(rigid_class, getTransform(), vec4(0.6f, 0.6f, 0.6f, 1.0f), vec4(1.0f, 0.0f, 0.2f, 1.0f));
+        }
     }
 
     bool call(uint32 call_id, const variant &v)

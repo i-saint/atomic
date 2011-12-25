@@ -6,6 +6,7 @@
 namespace atomic {
 
     class CudaBuffer;
+    class ParticleSet;
 
     void CreateSphere(VertexArray& va, VertexBufferObject& vbo, IndexBufferObject& ibo, float32 radius, uint32 div_xz, uint32 div_y);
     void CreateScreenQuad(VertexArray& va, VertexBufferObject& vbo);
@@ -14,8 +15,8 @@ namespace atomic {
     void CreateBloomCompositeQuad(VertexArray& va, VertexBufferObject& vbo);
     void CreateCube(VertexArray& va, VertexBufferObject& vbo, float32 len);
 
-    bool CreateCubeParticleSet(CudaBuffer& ps, sphRigidClass &sphcc, float32 half_len);
-    bool CreateSphereParticleSet(CudaBuffer& ps, sphRigidClass &sphcc, float32 radius);
+    bool CreateCubeParticleSet(ParticleSet &pset, RigidInfo &ri, float32 half_len);
+    bool CreateSphereParticleSet(ParticleSet &pset, RigidInfo &ri, float32 radius);
 
 } // namespace atomic
 #endif // __atomic_Graphics_ModelData_h__

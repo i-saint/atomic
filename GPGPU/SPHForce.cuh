@@ -2,24 +2,25 @@
 
 struct DeviceForceDataSet
 {
-    sphForcePointGravity *sgravity;
+    sphForcePointGravity    *point_gravity;
+    int                     num_point_gravity;
 };
 
 
 struct ForceDataSet
 {
-    thrust::device_vector<sphForcePointGravity> sgravities;
+    thrust::device_vector<sphForcePointGravity> point_gravity;
 
     ForceDataSet()
     {
-        sgravities.reserve(SPH_MAX_SPHERICAL_GRAVITY_NUM);
-        sgravities.resize(1);
+        point_gravity.reserve(SPH_MAX_POINT_GRAVITY_NUM);
     }
 
     DeviceForceDataSet getDeviceData()
     {
         DeviceForceDataSet ddata;
-        ddata.sgravity  = sgravities.data().get();
+        ddata.point_gravity     = point_gravity.data().get();
+        ddata.num_point_gravity = point_gravity.size();
         return ddata;
     }
 };

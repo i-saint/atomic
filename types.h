@@ -2,10 +2,10 @@
 #define __atomic_Types__
 
 #include "ist/ist.h"
-using namespace ist::graphics;
 
-namespace atomic
-{
+namespace atomic {
+
+using namespace ist::graphics;
 
 typedef char                int8;
 typedef short               int16;

@@ -6,6 +6,7 @@ ia_out(GLSL_POSITION)           vec4 ia_VertexPosition;
 ia_out(GLSL_NORMAL)             vec4 ia_VertexNormal;
 ia_out(GLSL_INSTANCE_POSITION)  vec4 ia_InstancePosition;
 ia_out(GLSL_INSTANCE_COLOR)     vec4 ia_InstanceColor;
+ia_out(GLSL_INSTANCE_PARAM)     vec4 ia_InstanceParam;
 #endif
 #if defined(GLSL_VS) || defined(GLSL_PS)
 vs_out vec4 vs_LightPosition;
@@ -20,14 +21,12 @@ const float u_RcpLightRange = 1.0/u_LightRange;
 
 void main()
 {
-    vs_LightPosition = ia_InstancePosition*1.1;
-    vs_LightPosition.z *= 3.0;
-    vs_LightPosition.z += 0.1;
+    vs_LightPosition = ia_InstancePosition;
     vs_LightPosition.w = 0.0;
 
     vec4 scaled_position = ia_VertexPosition * vec4(u_LightSize, u_LightSize, u_LightSize, 1.0);
 
-    vs_LightColor = vec4(0.1, 0.1, 0.2, 0.1)+normalize(vs_LightPosition)*0.7;
+    vs_LightColor = ia_InstanceColor;
     vs_VertexPositionMVP = u_RS.ModelViewProjectionMatrix * (scaled_position+vs_LightPosition);
     gl_Position = vs_VertexPositionMVP;
 }

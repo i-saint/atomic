@@ -1,5 +1,5 @@
-#ifndef __atomic_Graphics_ParticleSet__
-#define __atomic_Graphics_ParticleSet__
+#ifndef __atomic_Graphics_CudaBuffer__
+#define __atomic_Graphics_CudaBuffer__
 namespace atomic {
 
     class CudaBuffer
@@ -23,4 +23,4 @@ namespace atomic {
     };
 
 } // namespace atomic
-#endif // __atomic_Graphics_ParticleSet__
+#endif // __atomic_Graphics_CudaBuffer__

@@ -70,7 +70,6 @@ struct sphParam
     float grad_pressure_coef;
     float lap_viscosity_coef;
     float wall_stiffness;
-    float rigid_stiffness;
 };
 
 

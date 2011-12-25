@@ -8,9 +8,6 @@
 
 namespace atomic {
 
-
-
-
 uint32 CalcFrameBufferWidth()
 {
     uint32 r = 256;
@@ -65,7 +62,6 @@ bool GraphicResourceManager::initialize()
     stl::fill_n(m_ubo, _countof(m_ubo), (UniformBufferObject*)NULL);
     stl::fill_n(m_fbo, _countof(m_fbo), (FrameBufferObject*)NULL);
     stl::fill_n(m_shader, _countof(m_shader), (AtomicShader*)NULL);
-    stl::fill_n(m_cb, _countof(m_cb), (CudaBuffer*)NULL);
 
     //// どうも 2 の n 乗サイズのフレームバッファの方が若干描画早いっぽい。 
     //uint32 framebuffer_width = atomicGetWindowWidth();
@@ -97,9 +93,6 @@ bool GraphicResourceManager::initialize()
     for(uint32 i=0; i<_countof(m_ubo); ++i) {
         m_ubo[i] = IST_NEW(UniformBufferObject)();
         m_ubo[i]->initialize();
-    }
-    for(uint32 i=0; i<_countof(m_cb); ++i) {
-        m_cb[i] = IST_NEW(CudaBuffer)();
     }
 
     {
@@ -152,20 +145,18 @@ bool GraphicResourceManager::initialize()
     }
 
     m_vbo[VBO_FLUID_PARTICLES]->allocate(sizeof(sphFluidParticle)*SPH_MAX_FLUID_PARTICLES, VertexBufferObject::USAGE_DYNAMIC);
-    m_vbo[VBO_RIGID_PARTICLES]->allocate(sizeof(sphRigidParticle)*SPH_MAX_RIGID_PARTICLES, VertexBufferObject::USAGE_DYNAMIC);
+    m_vbo[VBO_RIGID_PARTICLES]->allocate(sizeof(PSetParticle)*SPH_MAX_RIGID_PARTICLES, VertexBufferObject::USAGE_DYNAMIC);
     m_vbo[VBO_DIRECTIONALLIGHT_INSTANCES]->allocate(sizeof(DirectionalLight)*ATOMIC_MAX_DIRECTIONAL_LIGHTS, VertexBufferObject::USAGE_DYNAMIC);
     m_vbo[VBO_POINTLIGHT_INSTANCES]->allocate(sizeof(PointLight)*ATOMIC_MAX_POINT_LIGHTS, VertexBufferObject::USAGE_DYNAMIC);
     SPHInitialize();
-    SPHInitializeGLBuffers(
-        m_vbo[VBO_FLUID_PARTICLES]->getHandle(),
-        m_vbo[VBO_RIGID_PARTICLES]->getHandle(),
-        m_vbo[VBO_POINTLIGHT_INSTANCES]->getHandle());
+    SPHInitializeGLBuffers( m_vbo[VBO_FLUID_PARTICLES]->getHandle() );
     {
-        CreateCubeParticleSet(*m_cb[CB_CLASS_CUBE], m_sphcc[CB_CLASS_CUBE], 0.2f);
-        CreateSphereParticleSet(*m_cb[CB_CLASS_SPHERE], m_sphcc[CB_CLASS_SPHERE], 0.25f);
-        SPHSetRigidClass(m_sphcc);
-
-        m_cb[CB_CHARACTER_INSTANCE]->setCapacity(sizeof(mat4)*ATOMIC_MAX_CHARACTERS);
+        CreateCubeParticleSet(m_pset[PSET_CUBE_SMALL],  m_rinfo[PSET_CUBE_SMALL],  0.1f);
+        CreateCubeParticleSet(m_pset[PSET_CUBE_MEDIUM], m_rinfo[PSET_CUBE_MEDIUM], 0.2f);
+        CreateCubeParticleSet(m_pset[PSET_CUBE_LARGE],  m_rinfo[PSET_CUBE_LARGE],  0.4f);
+        CreateSphereParticleSet(m_pset[PSET_SPHERE_SMALL],  m_rinfo[PSET_SPHERE_SMALL],  0.125f);
+        CreateSphereParticleSet(m_pset[PSET_SPHERE_MEDIUM], m_rinfo[PSET_SPHERE_MEDIUM], 0.25f);
+        CreateSphereParticleSet(m_pset[PSET_SPHERE_LARGE],  m_rinfo[PSET_SPHERE_LARGE],  0.5f);
     }
 
     return true;
@@ -176,7 +167,6 @@ void GraphicResourceManager::finalize()
     SPHFinalizeGLBuffers();
     SPHFinalize();
 
-    for(uint32 i=0; i<_countof(m_cb); ++i)      { IST_SAFE_DELETE(m_cb[i]); }
     for(uint32 i=0; i<_countof(m_shader); ++i)  { if(m_shader[i]) { m_shader[i]->finalize(); IST_SAFE_DELETE( m_shader[i] ); } }
     for(uint32 i=0; i<_countof(m_fbo); ++i)     { if(m_fbo[i]) { m_fbo[i]->finalize(); IST_SAFE_DELETE( m_fbo[i] ); } }
     for(uint32 i=0; i<_countof(m_ubo); ++i)     { if(m_ubo[i]) { m_ubo[i]->finalize(); IST_SAFE_DELETE( m_ubo[i] ); } }

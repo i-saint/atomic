@@ -6,6 +6,7 @@
 #include "Game/World.h"
 #include "GPGPU/SPH.cuh"
 #include "Renderer.h"
+#include "Util.h"
 
 namespace atomic {
 
@@ -212,6 +213,36 @@ void AtomicRenderer::passOutput()
 }
 
 
+class UpdateRigidParticle : public AtomicTask
+{
+private:
+    const PSetInstance *m_rinst;
+    PSetParticle *m_particles;
+
+public:
+    void setup(const PSetInstance &ri, PSetParticle *p)
+    {
+        m_rinst = &ri;
+        m_particles = p;
+    }
+
+    void exec()
+    {
+        const ParticleSet *rc = atomicGetParticleSet(m_rinst->psid);
+        uint32 num_particles            = rc->getNumParticles();
+        const PSetParticle *particles   = rc->getParticleData();
+        simdmat4 t(m_rinst->transform);
+        for(uint32 i=0; i<num_particles; ++i) {
+            simdvec4 p((vec4&)particles[i].position);
+            simdvec4 n((vec4&)particles[i].normal);
+            m_particles[i].position = glm::vec4_cast(simd_mul(t, p));
+            m_particles[i].normal   = glm::vec4_cast(simd_mul(t, n));
+            m_particles[i].diffuse  = m_rinst->diffuse;
+            m_particles[i].glow     = m_rinst->glow;
+        }
+    }
+};
+
 
 PassGBuffer_SPH::PassGBuffer_SPH()
 {
@@ -222,15 +253,42 @@ PassGBuffer_SPH::PassGBuffer_SPH()
     m_vbo_rigid     = atomicGetVertexBufferObject(VBO_RIGID_PARTICLES);
 }
 
+PassGBuffer_SPH::~PassGBuffer_SPH()
+{
+    for(uint32 i=0; i<m_tasks.size(); ++i) {
+        IST_DELETE(m_tasks[i]);
+    }
+    m_tasks.clear();
+}
+
 void PassGBuffer_SPH::beforeDraw()
 {
+    m_rinstances.clear();
+    m_rparticles.clear();
 }
 
 void PassGBuffer_SPH::draw()
 {
+    // update rigid particle
+    uint32 num_rigid_particles = 0;
+    uint32 num_rigids = m_rinstances.size();
+    {
+        resizeTasks(num_rigids);
+        for(uint32 i=0; i<num_rigids; ++i) {
+            num_rigid_particles += atomicGetParticleSet(m_rinstances[i].psid)->getNumParticles();
+        }
+        m_rparticles.resize(num_rigid_particles);
+        size_t n = 0;
+        for(uint32 i=0; i<num_rigids; ++i) {
+            static_cast<UpdateRigidParticle*>(m_tasks[i])->setup(m_rinstances[i], &m_rparticles[n]);
+            m_tasks[i]->kick();
+            n += atomicGetParticleSet(m_rinstances[i].psid)->getNumParticles();
+        }
+    }
+    // copy fluid particles (CUDA -> GL)
     SPHCopyToGL();
-
     const sphStates& sphs = SPHGetStates();
+
 
     // fluid particle
     {
@@ -240,7 +298,6 @@ void PassGBuffer_SPH::draw()
             {GLSL_INSTANCE_POSITION, VertexArray::TYPE_FLOAT,4, 16, false, 1},
             {GLSL_INSTANCE_VELOCITY, VertexArray::TYPE_FLOAT,4, 32, false, 1},
         };
-
         m_sh_fluid->bind();
         m_va_cube->bind();
         m_va_cube->setAttributes(*m_vbo_fluid, sizeof(sphFluidParticle), descs, _countof(descs));
@@ -251,20 +308,42 @@ void PassGBuffer_SPH::draw()
 
     // rigid particle
     {
-        const uint32 num_particles = sphs.rigid_num_particles;
+        for(size_t i=0; i<num_rigids; ++i) {
+            m_tasks[i]->join();
+        }
+        MapAndWrite(*m_vbo_rigid, &m_rparticles[0], sizeof(PSetParticle)*num_rigid_particles);
+    }
+    {
         const VertexArray::Descriptor descs[] = {
-            {GLSL_INSTANCE_PARAM,    VertexArray::TYPE_FLOAT,4,  0, false, 1},
-            {GLSL_INSTANCE_POSITION, VertexArray::TYPE_FLOAT,4, 16, false, 1},
-            {GLSL_INSTANCE_NORMAL,   VertexArray::TYPE_FLOAT,4, 32, false, 1},
+            {GLSL_INSTANCE_POSITION, VertexArray::TYPE_FLOAT,4,  0, false, 1},
+            {GLSL_INSTANCE_NORMAL,   VertexArray::TYPE_FLOAT,4, 16, false, 1},
+            {GLSL_INSTANCE_COLOR,    VertexArray::TYPE_FLOAT,4, 32, false, 1},
+            {GLSL_INSTANCE_GLOW,     VertexArray::TYPE_FLOAT,4, 48, false, 1},
         };
-
         m_sh_rigid->bind();
         m_va_cube->bind();
-        m_va_cube->setAttributes(*m_vbo_rigid, sizeof(sphRigidParticle), descs, _countof(descs));
-        glDrawArraysInstanced(GL_QUADS, 0, 24, num_particles);
+        m_va_cube->setAttributes(*m_vbo_rigid, sizeof(PSetParticle), descs, _countof(descs));
+        glDrawArraysInstanced(GL_QUADS, 0, 24, num_rigid_particles);
         m_va_cube->unbind();
         m_sh_rigid->unbind();
     }
+}
+
+void PassGBuffer_SPH::resizeTasks( uint32 n )
+{
+    while(m_tasks.size() < n) {
+        m_tasks.push_back( IST_NEW(UpdateRigidParticle)() );
+    }
+}
+
+void PassGBuffer_SPH::addRigidInstance( PSET_RID psid, const mat4 &t, const vec4 &diffuse, const vec4 &glow )
+{
+    PSetInstance tmp;
+    tmp.psid = psid;
+    tmp.transform = t;
+    tmp.diffuse = diffuse;
+    tmp.glow = glow;
+    m_rinstances.push_back(tmp);
 }
 
 
@@ -293,7 +372,6 @@ void PassDeferredShading_DirectionalLights::draw()
         {GLSL_INSTANCE_COLOR,    VertexArray::TYPE_FLOAT,4, 16, false, 1},
         {GLSL_INSTANCE_AMBIENT,  VertexArray::TYPE_FLOAT,4, 32, false, 1},
     };
-
     m_shader->bind();
     m_va_quad->bind();
     m_va_quad->setAttributes(*m_vbo_instance, sizeof(DirectionalLight), descs, _countof(descs));
@@ -303,12 +381,8 @@ void PassDeferredShading_DirectionalLights::draw()
 
 }
 
-void PassDeferredShading_DirectionalLights::pushInstance( const DirectionalLight& v )
+void PassDeferredShading_DirectionalLights::addInstance( const DirectionalLight& v )
 {
-    if(m_instances.size()>=ATOMIC_MAX_DIRECTIONAL_LIGHTS) {
-        IST_PRINT("ATOMIC_MAX_DIRECTIONAL_LIGHTS exceeded.\n");
-        return;
-    }
     m_instances.push_back(v);
 }
 
@@ -330,19 +404,18 @@ void PassDeferredShading_PointLights::beforeDraw()
 
 void PassDeferredShading_PointLights::draw()
 {
-    //const uint32 num_instances = m_instance_pos.size();
-    //m_vbo_instance_pos->allocate(sizeof(XMVECTOR)*num_instances, VertexBufferObject::USAGE_STREAM, &m_instance_pos[0]);
+    const uint32 num_instances = m_instances.size();
+    MapAndWrite(*m_vbo_instance, &m_instances[0], sizeof(PointLight)*num_instances);
 
-    const uint32 num_instances = SPH_MAX_LIGHT_NUM;
-
-    //m_vbo_instance->allocate(sizeof(Light)*m_instances.size(), VertexBufferObject::USAGE_DYNAMIC, &m_instances[0]);
     const VertexArray::Descriptor descs[] = {
-        {GLSL_INSTANCE_POSITION, VertexArray::TYPE_FLOAT,4, 0, false, 1},
+        {GLSL_INSTANCE_POSITION,VertexArray::TYPE_FLOAT,4, 0, false, 1},
+        {GLSL_INSTANCE_COLOR,   VertexArray::TYPE_FLOAT,4,16, false, 1},
+        {GLSL_INSTANCE_PARAM,   VertexArray::TYPE_FLOAT,4,32, false, 1},
     };
 
     m_shader->bind();
     m_va_sphere->bind();
-    m_va_sphere->setAttributes(*m_vbo_instance, sizeof(vec4), descs, _countof(descs));
+    m_va_sphere->setAttributes(*m_vbo_instance, sizeof(PointLight), descs, _countof(descs));
     m_ibo_sphere->bind();
     glDrawElementsInstanced(GL_QUADS, (16-1)*(32)*4, GL_UNSIGNED_INT, 0, num_instances);
     m_ibo_sphere->unbind();
