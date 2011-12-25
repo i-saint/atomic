@@ -235,8 +235,8 @@ public:
         for(uint32 i=0; i<num_particles; ++i) {
             simdvec4 p((vec4&)particles[i].position);
             simdvec4 n((vec4&)particles[i].normal);
-            m_particles[i].position = glm::vec4_cast(simd_mul(t, p));
-            m_particles[i].normal   = glm::vec4_cast(simd_mul(t, n));
+            m_particles[i].position = glm::vec4_cast(t * p);
+            m_particles[i].normal   = glm::vec4_cast(t * n);
             m_particles[i].diffuse  = m_rinst->diffuse;
             m_particles[i].glow     = m_rinst->glow;
         }
