@@ -12,6 +12,7 @@
     case EQUERY_##funcname: v=funcname(); return true;
 
 #define atomicCall(entity, funcname, ...) entity->call(ECALL_##funcname, __VA_ARGS__)
+#define atomicQuery(entity, funcname, ...) entity->query(EQUERY_##funcname, __VA_ARGS__)
 
 namespace atomic {
 
@@ -23,6 +24,7 @@ enum ENTITY_CALL
     ECALL_addRefCount,
     ECALL_release,
     ECALL_onDamage,
+    ECALL_damage,
     ECALL_setHealth,
     ECALL_setPosition,
     ECALL_setScale,

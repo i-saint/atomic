@@ -29,6 +29,7 @@ namespace atomic {
 
     class Breakable : public IEntity
     {
+    typedef IEntity super;
     private:
         mat4        m_transform;
         IRoutine    *m_routine;
@@ -55,12 +56,32 @@ namespace atomic {
             if(m_routine) { m_routine->asyncupdate(dt); }
         }
 
+        virtual void onDamage(const DamageMessage &m)
+        {
+        }
+
+        virtual void damage(float32 d)
+        {
+            if(m_health > 0.0f) {
+                m_health -= d;
+                if(m_health <= 0.0f) {
+                    destroy();
+                }
+            }
+        }
+
+        virtual void destroy()
+        {
+            atomicGetEntitySet()->deleteEntity(getHandle());
+        }
+
         virtual bool call(uint32 call_id, const variant &v)
         {
             switch(call_id) {
-                DEFINE_ECALL1(setHealth, float32);
+            DEFINE_ECALL1(setHealth, float32);
+            DEFINE_ECALL1(damage, float32);
+            default: return super::call(call_id, v);
             }
-            return false;
         }
 
         virtual bool query(uint32 query_id, variant &v) const
@@ -69,10 +90,6 @@ namespace atomic {
                 DEFINE_EQUERY(getHealth);
             }
             return false;
-        }
-
-        virtual void onDamage(const DamageMessage &m)
-        {
         }
     };
 

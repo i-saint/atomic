@@ -31,6 +31,8 @@ World::World()
     m_task_update_world = IST_NEW(Task_UpdateAsync<World>)(this);
     m_task_update_entity= IST_NEW(Task_UpdateAsync<EntitySet>)(m_entity_set);
     m_task_update_sph   = IST_NEW(Task_UpdateAsync<SPHManager>)(m_sph);
+
+    m_camera.setAspect(atomicGetWindowAspectRatio());
 }
 
 World::~World()
@@ -88,9 +90,6 @@ void World::asyncupdateEnd()
 
 void World::asyncupdate(float32 dt)
 {
-    //mat4 rot = glm::rotate(mat4(), 0.05f, vec3(0.0f, 1.0f, 0.0f));
-    //m_camera.setPosition(rot * m_camera.getPosition());
-    m_camera.setAspect(atomicGetWindowAspectRatio());
 }
 
 void World::draw() const

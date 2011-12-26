@@ -210,6 +210,8 @@ void AtomicRenderer::passOutput()
     char str_fps[64];
     sprintf(str_fps, "FPS: %.0f", atomicGetApplication()->getAverageFPS());
     atomicGetFont()->draw(0, 0, str_fps);
+    sprintf(str_fps, "Particles: %d", SPHGetStates().fluid_num_particles);
+    atomicGetFont()->draw(0, 20, str_fps);
 }
 
 

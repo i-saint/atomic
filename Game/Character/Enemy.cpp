@@ -22,7 +22,7 @@ class Enemy_Cube
 typedef Breakable super;
 typedef TAttr_RotateSpeed<Attr_DoubleAxisRotation> transform;
 private:
-    static const PSET_RID rigid_class = PSET_CUBE_MEDIUM;
+    static const PSET_RID pset_id = PSET_CUBE_MEDIUM;
     sphRigidBox m_rigid;
 
 public:
@@ -37,7 +37,7 @@ public:
         transform::update(dt);
 
         setTransform(computeMatrix());
-        CreateRigidBox(m_rigid, getHandle(), getTransform(), (vec4&)atomicGetRigidInfo(rigid_class)->box_size * getScale());
+        CreateRigidBox(m_rigid, getHandle(), getTransform(), (vec4&)atomicGetRigidInfo(pset_id)->box_size * getScale());
         atomicGetSPHManager()->addRigidBox(m_rigid);
     }
 
@@ -50,8 +50,14 @@ public:
             atomicGetPointLights()->addInstance(light);
         }
         {
-            atomicGetSPHRenderer()->addRigidInstance(rigid_class, getTransform(), vec4(0.6f, 0.6f, 0.6f, 1.0f), vec4(1.0f, 0.0f, 0.2f, 1.0f));
+            atomicGetSPHRenderer()->addRigidInstance(pset_id, getTransform(), vec4(0.6f, 0.6f, 0.6f, 1.0f), vec4(1.0f, 0.0f, 0.2f, 1.0f));
         }
+    }
+
+    virtual void destroy()
+    {
+        atomicGetSPHManager()->addFluidParticles(pset_id, getTransform());
+        super::destroy();
     }
 
     bool call(uint32 call_id, const variant &v)
@@ -72,7 +78,7 @@ class Enemy_Sphere
 typedef Breakable super;
 typedef TAttr_RotateSpeed<Attr_DoubleAxisRotation> transform;
 private:
-    static const PSET_RID rigid_class = PSET_SPHERE_LARGE;
+    static const PSET_RID pset_id = PSET_SPHERE_LARGE;
     sphRigidSphere m_rigid;
 
 public:
@@ -87,7 +93,7 @@ public:
         transform::update(dt);
 
         setTransform(computeMatrix());
-        CreateRigidSphere(m_rigid, getHandle(), getPosition(), atomicGetRigidInfo(rigid_class)->sphere_radius*getScale().x);
+        CreateRigidSphere(m_rigid, getHandle(), getPosition(), atomicGetRigidInfo(pset_id)->sphere_radius*getScale().x);
         atomicGetSPHManager()->addRigidSphere(m_rigid);
     }
 
@@ -100,8 +106,14 @@ public:
             atomicGetPointLights()->addInstance(light);
         }
         {
-            atomicGetSPHRenderer()->addRigidInstance(rigid_class, getTransform(), vec4(0.6f, 0.6f, 0.6f, 1.0f), vec4(1.0f, 0.0f, 0.2f, 1.0f));
+            atomicGetSPHRenderer()->addRigidInstance(pset_id, getTransform(), vec4(0.6f, 0.6f, 0.6f, 1.0f), vec4(1.0f, 0.0f, 0.2f, 1.0f));
         }
+    }
+
+    virtual void destroy()
+    {
+        atomicGetSPHManager()->addFluidParticles(pset_id, getTransform());
+        super::destroy();
     }
 
     bool call(uint32 call_id, const variant &v)

@@ -131,19 +131,21 @@ struct sphFluidMessage
 
 void SPHInitialize();
 void SPHFinalize();
-void SPHUpdateFluid();
 void SPHUpdateRigids(
     const thrust::host_vector<sphRigidSphere> &spheres,
     const thrust::host_vector<sphRigidBox> &boxes
     );
+void SPHUpdateForce(
+    const thrust::host_vector<sphForcePointGravity> &pgravity
+    );
+void SPHAddFluid(const thrust::host_vector<sphFluidParticle> &particles);
+void SPHUpdateFluid();
 
 void SPHInitializeGLBuffers(int vbo_fluid);
 void SPHFinalizeGLBuffers();
 void SPHCopyToGL();
-void SPHCopyDamageMessageToHost(sphFluidMessage *dst);
-void SPHUpdateGravity(const thrust::host_vector<sphForcePointGravity> &pgravity);
 
-sphStates& SPHGetStates();
+const sphStates& SPHGetStates();
 const thrust::host_vector<sphFluidMessage>& SPHGetFluidMessage();
 
 

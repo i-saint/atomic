@@ -81,7 +81,7 @@ struct DeviceFluidDataSet
     __device__ void updateGrid(int i)
     {
         const uint G_ID = i;
-        uint G_ID_PREV = (G_ID == 0)? SPH_MAX_FLUID_PARTICLES : G_ID; G_ID_PREV--;
+        uint G_ID_PREV = (G_ID == 0)? states[0].fluid_num_particles : G_ID; G_ID_PREV--;
         uint G_ID_NEXT = G_ID + 1; if (G_ID_NEXT == SPH_MAX_FLUID_PARTICLES) { G_ID_NEXT = 0; }
     
         uint cell = hashes[G_ID];
@@ -204,8 +204,13 @@ struct FluidDataSet
     {
         params.resize(1);
         states.resize(1);
-        resizeParticles(SPH_MAX_FLUID_PARTICLES);
         grid.resize(SPH_FLUID_GRID_DIV_3);
+
+        particles.reserve(SPH_MAX_FLUID_PARTICLES);
+        forces.reserve(SPH_MAX_FLUID_PARTICLES);
+        hashes.reserve(SPH_MAX_FLUID_PARTICLES);
+        dead.reserve(SPH_MAX_FLUID_PARTICLES);
+        message.reserve(SPH_MAX_FLUID_PARTICLES);
     }
     
     void resizeParticles(size_t n)
@@ -385,6 +390,15 @@ struct _FluidIntegrate
         // Integrate
         velocity += timestep * acceleration;
         velocity *= make_float4(0.999);
+        {
+            float d = dot(velocity, velocity);
+            if(d > 1.0f) {
+                velocity *= 0.985f;
+                if(d > 25.0f) {
+                    velocity = velocity / sqrt(d) * 5.0f;
+                }
+            }
+        }
         if(dot(velocity, velocity) > 1.0f) { velocity *= make_float4(0.98); }
         //velocity.z *= 0.0f;
         position += timestep * velocity;
@@ -399,6 +413,7 @@ struct _FluidIntegrate
             dfd.dead[P_ID] = 1;
         }
         else {
+            dfd.dead[P_ID] = 0;
             dfd.states[0].fluid_alive_any = 1;
        }
     }

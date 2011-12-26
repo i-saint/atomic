@@ -96,7 +96,10 @@ void EntitySet::asyncupdate(float32 dt)
             EntityCont &entities = m_entities[i][j];
             uint32 s = entities.size();
             for(uint32 k=0; k<s; ++k) {
-                entities[k]->asyncupdate(dt);
+                IEntity *entity = entities[k];
+                if(entity) {
+                    entity->asyncupdate(dt);
+                }
             }
         }
     }
@@ -122,6 +125,10 @@ IEntity* EntitySet::getEntity( EntityHandle h )
     uint32 cid = EntityGetCategory(h);
     uint32 sid = EntityGetClass(h);
     uint32 iid = EntityGetID(h);
+
+    if(iid >= m_entities[cid][sid].size()) {
+        return NULL;
+    }
     return m_entities[cid][sid][iid];
 }
 

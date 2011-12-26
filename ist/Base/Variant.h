@@ -11,6 +11,8 @@ namespace ist {
         char m_buf[Size];
 
     public:
+        TVariant() {}
+
         template<class T>
         TVariant(const T& v)
         {

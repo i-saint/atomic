@@ -76,6 +76,10 @@ public:
         }
     }
 
+    virtual void destroy()
+    {
+    }
+
     bool call(uint32 call_id, const variant &v)
     {
         return super::call(call_id, v) || transform::call(call_id, v);
