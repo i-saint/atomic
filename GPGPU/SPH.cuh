@@ -117,15 +117,18 @@ struct sphForcePointGravity
 struct sphStates
 {
     int fluid_num_particles;
-    int rigid_num_particles;
     int fluid_alive_any;
-    int rigid_alive_any;
 };
 
 struct sphFluidMessage
 {
-    EntityHandle to;
-    float density;
+    union {
+        float4 velocity;
+        struct {
+            float3 velocity3;
+            EntityHandle to;
+        };
+    };
 };
 
 

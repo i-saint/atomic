@@ -72,7 +72,8 @@ public:
             atomicGetPointLights()->addInstance(light);
         }
         {
-            atomicGetSPHRenderer()->addRigidInstance(rigid_class, getTransform(), vec4(0.6f, 0.6f, 0.6f, 1.0f), vec4(0.2f, 0.0f, 1.0f, 1.0f));
+            atomicGetSPHRenderer()->addRigidInstance(rigid_class, getTransform(),
+                vec4(0.6f, 0.6f, 0.6f, 1.0f), vec4(0.2f, 0.0f, 1.0f, 1.0f), vec4());
         }
     }
 

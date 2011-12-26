@@ -87,9 +87,7 @@ void SPHInitialize()
         h_fluid->params[0] = grid_params;
 
         h_states.fluid_num_particles = SPH_MAX_FLUID_PARTICLES/2;
-        h_states.rigid_num_particles = 0;
         h_states.fluid_alive_any = 0;
-        h_states.rigid_alive_any = 0;
         h_fluid->states[0] = h_states;
     }
 

@@ -316,7 +316,7 @@ struct _FluidIntegrate
                     float4 dir = diff / d;
                     acceleration += (d-r) * -d_params.wall_stiffness * dir;
                     dfd.message[P_ID].to = collision.owner_handle;
-                    dfd.message[P_ID].density = dfd.forces[P_ID].density;
+                    dfd.message[P_ID].velocity3 = make_float3(velocity);
                 }
             }
         }
@@ -344,7 +344,7 @@ struct _FluidIntegrate
                     dir.w = 0.0f;
                     acceleration += closest_dinstance * -d_params.wall_stiffness * dir;
                     dfd.message[P_ID].to = collision.owner_handle;
-                    dfd.message[P_ID].density = dfd.forces[P_ID].density;
+                    dfd.message[P_ID].velocity3 = make_float3(velocity);
                 }
             }
         }
@@ -367,7 +367,7 @@ struct _FluidIntegrate
             acceleration += min(position.z, 0.0f) * -d_params.wall_stiffness * make_float4(0.0f, 0.0f, 1.0f, 0.0f);
         }
 
-        acceleration += make_float4(0.0f, 0.0f, -5.0f, 0.0f);
+        acceleration += make_float4(0.0f, 0.0f, -8.0f, 0.0f);
 
 
         // Apply gravity

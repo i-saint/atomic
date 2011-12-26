@@ -215,6 +215,7 @@ void AtomicRenderer::passOutput()
 }
 
 
+
 class UpdateRigidParticle : public AtomicTask
 {
 private:
@@ -241,6 +242,7 @@ public:
             m_particles[i].normal   = glm::vec4_cast(t * n);
             m_particles[i].diffuse  = m_rinst->diffuse;
             m_particles[i].glow     = m_rinst->glow;
+            m_particles[i].flash    = m_rinst->flash;
         }
     }
 };
@@ -321,6 +323,7 @@ void PassGBuffer_SPH::draw()
             {GLSL_INSTANCE_NORMAL,   VertexArray::TYPE_FLOAT,4, 16, false, 1},
             {GLSL_INSTANCE_COLOR,    VertexArray::TYPE_FLOAT,4, 32, false, 1},
             {GLSL_INSTANCE_GLOW,     VertexArray::TYPE_FLOAT,4, 48, false, 1},
+            {GLSL_INSTANCE_PARAM,    VertexArray::TYPE_FLOAT,4, 64, false, 1},
         };
         m_sh_rigid->bind();
         m_va_cube->bind();
@@ -338,13 +341,14 @@ void PassGBuffer_SPH::resizeTasks( uint32 n )
     }
 }
 
-void PassGBuffer_SPH::addRigidInstance( PSET_RID psid, const mat4 &t, const vec4 &diffuse, const vec4 &glow )
+void PassGBuffer_SPH::addRigidInstance( PSET_RID psid, const mat4 &t, const vec4 &diffuse, const vec4 &glow, const vec4 &flash )
 {
     PSetInstance tmp;
-    tmp.psid = psid;
-    tmp.transform = t;
-    tmp.diffuse = diffuse;
-    tmp.glow = glow;
+    tmp.psid        = psid;
+    tmp.transform   = t;
+    tmp.diffuse     = diffuse;
+    tmp.glow        = glow;
+    tmp.flash       = flash;
     m_rinstances.push_back(tmp);
 }
 

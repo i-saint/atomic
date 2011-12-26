@@ -50,7 +50,8 @@ public:
             atomicGetPointLights()->addInstance(light);
         }
         {
-            atomicGetSPHRenderer()->addRigidInstance(pset_id, getTransform(), vec4(0.6f, 0.6f, 0.6f, 1.0f), vec4(1.0f, 0.0f, 0.2f, 1.0f));
+            atomicGetSPHRenderer()->addRigidInstance(pset_id, getTransform(),
+                vec4(0.6f, 0.6f, 0.6f, 1.0f), vec4(1.0f, 0.0f, 0.2f, 1.0f), getFlashColor());
         }
     }
 
@@ -106,7 +107,8 @@ public:
             atomicGetPointLights()->addInstance(light);
         }
         {
-            atomicGetSPHRenderer()->addRigidInstance(pset_id, getTransform(), vec4(0.6f, 0.6f, 0.6f, 1.0f), vec4(1.0f, 0.0f, 0.2f, 1.0f));
+            atomicGetSPHRenderer()->addRigidInstance(pset_id, getTransform(),
+                vec4(0.6f, 0.6f, 0.6f, 1.0f), vec4(1.0f, 0.0f, 0.2f, 1.0f), getFlashColor());
         }
     }
 

@@ -11,6 +11,7 @@ struct PSetParticle
     vec4 normal;
     vec4 diffuse;
     vec4 glow;
+    vec4 flash;
 };
 
 class ParticleSet
@@ -45,6 +46,7 @@ struct PSetInstance
     mat4 transform;
     vec4 diffuse;
     vec4 glow;
+    vec4 flash;
     union {
         struct {
             PSET_RID psid;
