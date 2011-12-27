@@ -177,6 +177,9 @@
     <ClCompile Include="Game\Character\Level.cpp">
       <Filter>Game\Character</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Collision.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h">
@@ -426,11 +429,11 @@
     <ClInclude Include="Game\Character\Level.h">
       <Filter>Game\Character</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Rigid.h">
-      <Filter>Game</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\ParticleSet.h">
       <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Collision.h">
+      <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

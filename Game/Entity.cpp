@@ -52,6 +52,10 @@ EntitySet::~EntitySet()
     m_all.clear();
 }
 
+void EntitySet::updateBegin(float32 dt)
+{
+}
+
 void EntitySet::update( float32 dt )
 {
     // update
@@ -86,6 +90,10 @@ void EntitySet::update( float32 dt )
 
 
     // todo updateAsync()
+}
+
+void EntitySet::updateEnd()
+{
 }
 
 void EntitySet::asyncupdate(float32 dt)

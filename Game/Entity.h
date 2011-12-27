@@ -75,7 +75,9 @@ public:
     EntitySet();
     ~EntitySet();
 
+    void updateBegin(float32 dt);
     void update(float32 dt);
+    void updateEnd();
     void asyncupdate(float32 dt);
     void draw();
     IEntity* getEntity(EntityHandle h);

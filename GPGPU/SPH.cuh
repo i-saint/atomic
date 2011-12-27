@@ -12,6 +12,7 @@ extern "C" {
 
 typedef unsigned int uint;
 typedef uint EntityHandle;
+typedef uint CollisionHandle;
 typedef uint sphHash;
 typedef uint2 sphGridData;
 typedef int sphDeadFlag;
@@ -38,6 +39,7 @@ struct sphRigidParticle;
 
 enum SPH_RIGID_SHAPE {
     SPH_RIGID_UNKNOWN,
+    SPH_RIGID_PLANE,
     SPH_RIGID_SPHERE,
     SPH_RIGID_BOX,
     SPH_RIGID_BEAM,
@@ -54,21 +56,23 @@ struct sphRigidCollision
 {
     union {
         struct {
-            int shape; // SPH_RIGID_SHAPE
-            int owner_handle;
+            SPH_RIGID_SHAPE shape; // SPH_RIGID_SHAPE
+            CollisionHandle chandle;
+            EntityHandle ghandle;
         };
         float4 padding;
     };
-    sphBoundingBox bb;
 };
 
 struct sphRigidSphere : public sphRigidCollision
 {
+    sphBoundingBox bb;
     float4 pos_r;
 };
 
 struct sphRigidBox : public sphRigidCollision
 {
+    sphBoundingBox bb;
     float4 position;
     float4 planes[6];
 };

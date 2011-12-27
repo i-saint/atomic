@@ -6,20 +6,21 @@
 namespace atomic {
 
 class EntitySet;
+class CollisionSet;
 class SPHManager;
-
-class World;
 
 
 class World : boost::noncopyable
 {
 private:
-    EntitySet   *m_entity_set;
-    SPHManager  *m_sph;
+    EntitySet       *m_entity_set;
+    CollisionSet    *m_collision_set;
+    SPHManager      *m_sph;
 
     Task_UpdateAsync<World>         *m_task_update_world;
-    Task_UpdateAsync<SPHManager>    *m_task_update_sph;
     Task_UpdateAsync<EntitySet>     *m_task_update_entity;
+    Task_UpdateAsync<CollisionSet>  *m_task_update_collision;
+    Task_UpdateAsync<SPHManager>    *m_task_update_sph;
 
     SFMT m_rand;
     PerspectiveCamera m_camera;
