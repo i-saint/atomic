@@ -8,12 +8,30 @@
 
 namespace atomic {
 
-vec4 GenRotateAxis()
+vec4 GenRandomVector2()
+{
+    vec4 axis( atomicGenRandFloat(), atomicGenRandFloat(), 0.0f, 0.0f );
+    axis -= vec4(0.5f, 0.5f, 0.0f, 0.0f);
+    axis *= 2.0f;
+    return axis;
+}
+
+vec4 GenRandomVector3()
 {
     vec4 axis( atomicGenRandFloat(), atomicGenRandFloat(), atomicGenRandFloat(), 0.0f );
     axis -= vec4(0.5f, 0.5f, 0.5f, 0.0f);
     axis *= 2.0f;
-    return glm::normalize(axis);
+    return axis;
+}
+
+vec4 GenRandomUnitVector2()
+{
+    return glm::normalize(GenRandomVector2());
+}
+
+vec4 GenRandomUnitVector3()
+{
+    return glm::normalize(GenRandomVector3());
 }
 
 void CreateRigidSphere(sphRigidSphere &o, EntityHandle h, const vec4& pos, float32 r)

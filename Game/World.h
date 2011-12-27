@@ -59,6 +59,7 @@ public:
 
 #define atomicGetEntitySet()    atomicGetWorld()->getEntitySet()
 #define atomicGetEntity(id)     atomicGetEntitySet()->getEntity(id)
+#define atomicCreateEntity(n)   atomicGetEntitySet()->createEntity<n>()
 
 #define atomicGetSPHManager()   atomicGetWorld()->getFractionSet()
 

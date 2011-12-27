@@ -25,6 +25,9 @@ enum ENTITY_CALL
     ECALL_release,
     ECALL_onDamage,
     ECALL_damage,
+    ECALL_setDiffuseColor,
+    ECALL_setGlowColor,
+    ECALL_setModel,
     ECALL_setHealth,
     ECALL_setPosition,
     ECALL_setScale,
@@ -45,6 +48,9 @@ enum ENTITY_CALL
 enum ENTITY_QUERY
 {
     EQUERY_getRefCount,
+    EQUERY_getDiffuseColor,
+    EQUERY_getGlowColor,
+    EQUERY_getModel,
     EQUERY_getHealth,
     EQUERY_getPosition,
     EQUERY_getScale,

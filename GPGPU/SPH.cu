@@ -42,8 +42,6 @@ struct _ClearParticles
     __device__ void operator()(int i)
     {
         const float spacing = 0.009f;
-        dfd.particles[i].id = i;
-        dfd.particles[i].alive = 0xffffffff;
         uint w = 128;
         dfd.particles[i].position = make_float4(
             spacing*(i%w) - (spacing*w*0.5f),
@@ -52,6 +50,7 @@ struct _ClearParticles
             0.0f);
         dfd.particles[i].velocity = make_float4(0.0f);
         dfd.particles[i].density = 0.0f;
+        dfd.particles[i].energy = 50.0f;
 
         //dfd.forces[i].density = 0.0f;
         //dfd.forces[i].acceleration = make_float4(0.0f);
@@ -86,7 +85,7 @@ void SPHInitialize()
         grid_params.grid_pos = make_float4(-grid_len/2.0f, -grid_len/2.0f, 0.0f, 0.0f);
         h_fluid->params[0] = grid_params;
 
-        h_states.fluid_num_particles = SPH_MAX_FLUID_PARTICLES/2;
+        h_states.fluid_num_particles = 30000;
         h_states.fluid_alive_any = 0;
         h_fluid->states[0] = h_states;
     }

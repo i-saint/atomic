@@ -41,7 +41,8 @@ public:
             simdvec4 n((vec4&)particles[i].normal);
             m_fluid[i].position = (float4&)glm::vec4_cast(t * p);
             m_fluid[i].velocity = make_float4(0.0f);
-            m_fluid[i].density = 0.0f;
+            m_fluid[i].energy   = 100.0f;
+            m_fluid[i].density  = 0.0f;
         }
     }
 

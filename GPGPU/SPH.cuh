@@ -27,8 +27,8 @@ const int SPH_FLUID_GRID_DIV_Y = 1<<SPH_FLUID_GRID_DIV_SHIFT_Y;
 const int SPH_FLUID_GRID_DIV_Z = 1<<SPH_FLUID_GRID_DIV_SHIFT_Z;
 const int SPH_FLUID_GRID_DIV_3 = SPH_FLUID_GRID_DIV_X*SPH_FLUID_GRID_DIV_Y*SPH_FLUID_GRID_DIV_Z;
 
-const int SPH_MAX_FLUID_PARTICLES = 65536;
-const int SPH_MAX_RIGID_PARTICLES = 65536;
+const int SPH_MAX_FLUID_PARTICLES = 65536 * 4;
+const int SPH_MAX_RIGID_PARTICLES = 65536 * 4;
 const int SPH_MAX_LIGHT_NUM = 16;
 const int SPH_MAX_POINT_GRAVITY_NUM = 1;
 const int SPH_THREAD_BLOCK_X = 256;
@@ -78,8 +78,7 @@ struct sphFluidParticle
 {
     union {
         struct {
-            int id;
-            int alive;
+            float energy;
             float density;
             EntityHandle owner;
         };

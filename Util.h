@@ -6,7 +6,10 @@ struct sphRigidBox;
 
 namespace atomic {
 
-    vec4 GenRotateAxis();
+    vec4 GenRandomVector2();
+    vec4 GenRandomVector3();
+    vec4 GenRandomUnitVector2();
+    vec4 GenRandomUnitVector3();
     void CreateRigidSphere(sphRigidSphere &o, EntityHandle h, const vec4& pos, float32 r);
     void CreateRigidBox(sphRigidBox &o, EntityHandle h, const mat4& t, const vec4 &size);
 

@@ -45,9 +45,9 @@ void AtomicGame::asyncupdateEnd()
 
 void AtomicGame::draw()
 {
-    atomicWaitForDrawComplete();
     // todo: フレームスキップ処理
     atomicKickDraw();
+    atomicWaitForDrawComplete();
 }
 
 void AtomicGame::drawCallback()

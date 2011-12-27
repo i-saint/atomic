@@ -24,6 +24,22 @@ public:
     {
     }
 
+    IEntity* createRandomEnemy()
+    {
+        IEntity *e = NULL;
+        switch(atomicGetRandom()->genInt32() % 2) {
+        case 0: e = atomicCreateEntity(Enemy_CubeBasic);  atomicCall(e, setModel, PSET_CUBE_MEDIUM); break;
+        case 1: e = atomicCreateEntity(Enemy_SphereBasic);atomicCall(e, setModel, PSET_SPHERE_MEDIUM);  break;
+        }
+        
+        atomicCall(e, setPosition, GenRandomVector2() * 2.56f);
+        atomicCall(e, setAxis1, GenRandomUnitVector3());
+        atomicCall(e, setAxis2, GenRandomUnitVector3());
+        atomicCall(e, setRotateSpeed1, 0.4f);
+        atomicCall(e, setRotateSpeed2, 0.4f);
+        return e;
+    }
+
     void update(float32 dt)
     {
         ++m_frame;
@@ -31,25 +47,31 @@ public:
 
         if(m_frame==1) {
             {
-                IEntity *e =  atomicGetEntitySet()->createEntity<Player>();
+                IEntity *e =  atomicCreateEntity(Player);
                 atomicCall(e, setPosition, vec4(0.0f, 0.0f, 0.0f, 1.0f));
             }
             {
-                IEntity *e =  atomicGetEntitySet()->createEntity<Enemy_Cube>();
+                IEntity *e =  atomicCreateEntity(Enemy_CubeBasic);
+                atomicCall(e, setModel, PSET_CUBE_MEDIUM);
                 atomicCall(e, setPosition, vec4(0.5f, 0.0f, 0.0f, 1.0f));
-                atomicCall(e, setAxis1, GenRotateAxis());
-                atomicCall(e, setAxis2, GenRotateAxis());
+                atomicCall(e, setAxis1, GenRandomUnitVector3());
+                atomicCall(e, setAxis2, GenRandomUnitVector3());
                 atomicCall(e, setRotateSpeed1, 0.4f);
                 atomicCall(e, setRotateSpeed2, 0.4f);
             }
             {
-                IEntity *e =  atomicGetEntitySet()->createEntity<Enemy_Sphere>();
+                IEntity *e =  atomicCreateEntity(Enemy_SphereBasic);
+                atomicCall(e, setModel, PSET_SPHERE_MEDIUM);
                 atomicCall(e, setPosition, vec4(-0.5f, 0.0f, 0.0f, 1.0f));
-                atomicCall(e, setAxis1, GenRotateAxis());
-                atomicCall(e, setAxis2, GenRotateAxis());
+                atomicCall(e, setAxis1, GenRandomUnitVector3());
+                atomicCall(e, setAxis2, GenRandomUnitVector3());
                 atomicCall(e, setRotateSpeed1, 0.4f);
                 atomicCall(e, setRotateSpeed2, 0.4f);
             }
+        }
+
+        if(m_frame % 300 == 0) {
+            IEntity *e = createRandomEnemy();
         }
     }
 

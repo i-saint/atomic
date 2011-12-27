@@ -70,8 +70,8 @@ namespace atomic {
 
     class Player;
 
-    class Enemy_Cube;
-    class Enemy_Sphere;
+    class Enemy_CubeBasic;
+    class Enemy_SphereBasic;
 
     class Bullet_Player;
     class Bullet_Enemy;

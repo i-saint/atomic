@@ -55,9 +55,13 @@ namespace atomic {
 
         virtual void update(float32 dt)
         {
-            if(m_routine) { m_routine->update(dt); }
-
             ++m_past_frame;
+            if(m_routine) { m_routine->update(dt); }
+            updateDamageFlash();
+        }
+
+        void updateDamageFlash()
+        {
             m_flash_color = vec4();
             if(m_past_frame % 4 < 2) {
                 const float32 threthold1 = 0.05f;
