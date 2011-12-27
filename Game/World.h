@@ -60,6 +60,7 @@ public:
 #define atomicGetEntitySet()    atomicGetWorld()->getEntitySet()
 #define atomicGetEntity(id)     atomicGetEntitySet()->getEntity(id)
 #define atomicCreateEntity(n)   atomicGetEntitySet()->createEntity<n>()
+#define atomicDeleteEntity(o)   atomicGetEntitySet()->deleteEntity(o)
 
 #define atomicGetSPHManager()   atomicGetWorld()->getFractionSet()
 

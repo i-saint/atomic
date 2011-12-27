@@ -38,11 +38,11 @@ public:
     void asyncupdate(float32 dt);
     void draw() const;
 
-    void addRigidSphere(const sphRigidSphere &s);
-    void addRigidBox(const sphRigidBox &s);
-    void addPointGravity(const sphForcePointGravity &v);
-    void addFluidParticles(const sphFluidParticle *particles, uint32 num);
-    void addFluidParticles(PSET_RID psid, const mat4 &t);
+    void addRigid(const sphRigidSphere &s);
+    void addRigid(const sphRigidBox &s);
+    void addForce(const sphForcePointGravity &v);
+    void addFluid(const sphFluidParticle *particles, uint32 num);
+    void addFluid(PSET_RID psid, const mat4 &t);
 };
 
 

@@ -34,7 +34,7 @@ void main()
     vs_Flash = ia_InstanceFlash;
     vs_VertexPosition = vec4(vert.xyz, 1.0);
     vs_VertexNormal = vec4(ia_VertexNormal, 120.0);
-    vs_VertexColor = vec4(0.6*dif3, 0.6*dif3, 0.6*dif3, 1.0);
+    vs_VertexColor = vec4(ia_InstanceColor.rgb*dif3, 1.0);
     gl_Position = u_RS.ModelViewProjectionMatrix * vert;
 }
 

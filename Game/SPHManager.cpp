@@ -105,17 +105,17 @@ void SPHManager::asyncupdate(float32 dt)
     SPHUpdateFluid();
 }
 
-void SPHManager::addRigidSphere(const sphRigidSphere &s)
+void SPHManager::addRigid(const sphRigidSphere &s)
 {
     m_spheres.push_back(s);
 }
 
-void SPHManager::addRigidBox(const sphRigidBox &s)
+void SPHManager::addRigid(const sphRigidBox &s)
 {
     m_boxes.push_back(s);
 }
 
-void SPHManager::addPointGravity(const sphForcePointGravity &v)
+void SPHManager::addForce(const sphForcePointGravity &v)
 {
     m_pgravity.push_back(v);
 }
@@ -124,12 +124,12 @@ void SPHManager::draw() const
 {
 }
 
-void SPHManager::addFluidParticles( const sphFluidParticle *particles, uint32 num )
+void SPHManager::addFluid( const sphFluidParticle *particles, uint32 num )
 {
     m_fluid.insert(m_fluid.end(), particles, particles+num);
 }
 
-void SPHManager::addFluidParticles(PSET_RID psid, const mat4 &t)
+void SPHManager::addFluid(PSET_RID psid, const mat4 &t)
 {
     while(m_fluid_tasks.size()<=m_current_fluid_task) {
         m_fluid_tasks.push_back( IST_NEW(ComputeFluidParticle)() );

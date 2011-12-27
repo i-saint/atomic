@@ -347,6 +347,7 @@ struct _FluidIntegrate
             }
         }
 
+        dfd.particles[P_ID].energy -= 0.005f;
         if(dfd.message[P_ID].to!=0) {
             float3 vel3 = make_float3(velocity);
             float vl = length(vel3);

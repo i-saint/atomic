@@ -51,7 +51,7 @@ public:
             sphForcePointGravity pg;
             pg.position = (float4&)pos;
             pg.strength = 1.0f;
-            atomicGetSPHManager()->addPointGravity(pg);
+            atomicGetSPHManager()->addForce(pg);
         }
 
 
@@ -60,14 +60,14 @@ public:
 
         setTransform(computeMatrix());
         CreateRigidSphere(m_rigid, getHandle(), getPosition(), atomicGetRigidInfo(rigid_class)->sphere_radius*getScale().x);
-        atomicGetSPHManager()->addRigidSphere(m_rigid);
+        atomicGetSPHManager()->addRigid(m_rigid);
     }
 
     virtual void draw()
     {
         {
             PointLight light;
-            light.position  = getPosition() + vec4(0.0f, 0.0f, 0.3f, 0.0f);
+            light.position  = getPosition() + vec4(0.0f, 0.0f, 0.5f, 0.0f);
             light.color     = vec4(0.1f, 0.2f, 1.0f, 1.0f);
             atomicGetPointLights()->addInstance(light);
         }

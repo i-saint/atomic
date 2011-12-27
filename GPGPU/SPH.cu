@@ -50,7 +50,7 @@ struct _ClearParticles
             0.0f);
         dfd.particles[i].velocity = make_float4(0.0f);
         dfd.particles[i].density = 0.0f;
-        dfd.particles[i].energy = 50.0f;
+        dfd.particles[i].energy = 100.0f;
 
         //dfd.forces[i].density = 0.0f;
         //dfd.forces[i].acceleration = make_float4(0.0f);
