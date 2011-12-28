@@ -1,5 +1,9 @@
 #ifndef __atomic_Game_Character_Attributes__
 #define __atomic_Game_Character_Attributes__
+
+#include "Util.h"
+#include "Game/Collision.h"
+
 namespace atomic {
 
     class Attr_RefCount
@@ -232,6 +236,131 @@ namespace atomic {
 
         void updateAsync(float32 dt) {}
     };
+
+
+
+
+    class Attr_ParticleSet
+    {
+    private:
+        vec4 m_diffuse_color;
+        vec4 m_glow_color;
+        PSET_RID m_psetid;
+
+    public:
+        Attr_ParticleSet() : m_psetid(PSET_CUBE_SMALL)
+        {}
+
+        void setDiffuseColor(const vec4 &v) { m_diffuse_color=v; }
+        void setGlowColor(const vec4 &v)    { m_glow_color=v; }
+        void setModel(PSET_RID v)           { m_psetid=v; }
+        const vec4& getDiffuseColor() const { return m_diffuse_color; }
+        const vec4& getGlowColor() const    { return m_glow_color; }
+        PSET_RID getModel() const           { return m_psetid; }
+
+        bool call(uint32 call_id, const variant &v)
+        {
+            switch(call_id) {
+                DEFINE_ECALL1(setDiffuseColor, vec4);
+                DEFINE_ECALL1(setGlowColor, vec4);
+                DEFINE_ECALL1(setModel, PSET_RID);
+            }
+            return false;
+        }
+
+        bool query(uint32 query_id, variant &v) const
+        {
+            switch(query_id) {
+                DEFINE_EQUERY(getDiffuseColor);
+                DEFINE_EQUERY(getGlowColor);
+                DEFINE_EQUERY(getModel);
+            }
+            return false;
+        }
+    };
+
+
+    class Attr_CubeCollision
+    {
+    private:
+        CollisionBox *m_collision;
+
+    public:
+        Attr_CubeCollision() : m_collision(NULL)
+        {
+        }
+
+        ~Attr_CubeCollision()
+        {
+            finalizeCollision();
+        }
+
+        void initializeCollision(EntityHandle h)
+        {
+            if(!m_collision) {
+                m_collision = atomicCreateCollision(CollisionBox);
+                m_collision->setGObjHandle(h);
+            }
+        }
+
+        void finalizeCollision()
+        {
+            if(m_collision) {
+                atomicDeleteCollision(m_collision);
+                m_collision = NULL;
+            }
+        }
+
+        void updateCollision(PSET_RID psid, const mat4 &t, float32 scale)
+        {
+            if(m_collision) {
+                vec4 box_size = (vec4&)atomicGetRigidInfo(psid)->box_size * scale;
+                UpdateCollisionBox(*m_collision, t, box_size);
+            }
+        }
+    };
+
+    class Attr_SphereCollision
+    {
+    private:
+        CollisionSphere *m_collision;
+
+    public:
+        Attr_SphereCollision() : m_collision(NULL)
+        {
+        }
+
+        ~Attr_SphereCollision()
+        {
+            finalizeCollision();
+        }
+
+        void initializeCollision(EntityHandle h)
+        {
+            if(!m_collision) {
+                m_collision = atomicCreateCollision(CollisionSphere);
+                m_collision->setGObjHandle(h);
+            }
+        }
+
+        void finalizeCollision()
+        {
+            if(m_collision) {
+                atomicDeleteCollision(m_collision);
+                m_collision = NULL;
+            }
+        }
+
+        void updateCollision(PSET_RID psid, const mat4 &t, float32 scale)
+        {
+            if(m_collision) {
+                vec4 pos = t * vec4(0.0f, 0.0f, 0.0f, 1.0f);
+                float radius = atomicGetRigidInfo(psid)->sphere_radius * scale;
+                UpdateCollisionSphere(*m_collision, pos, radius);
+            }
+        }
+    };
+
 
 } // namespace atomic
 #endif // __atomic_Game_Character_Attributes__

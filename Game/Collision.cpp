@@ -1,6 +1,10 @@
 #include "stdafx.h"
 #include "types.h"
 #include "Task.h"
+#include "Game/AtomicApplication.h"
+#include "Game/AtomicGame.h"
+#include "Game/World.h"
+#include "Game/SPHManager.h"
 #include "Collision.h"
 
 namespace atomic {
@@ -9,10 +13,11 @@ class CollisionTask : public Task
 {
 private:
     typedef stl::vector<CollisionEntity*>::iterator CollisionIterator;
-    CollisionSet                *m_manager;
-    stl::vector<CollisionMessage>   m_messages;
-    CollisionIterator               m_begin;
-    CollisionIterator               m_end;
+    typedef stl::vector<CollisionMessage> MessageCont;
+    CollisionSet        *m_manager;
+    MessageCont         m_messages;
+    CollisionIterator   m_begin;
+    CollisionIterator   m_end;
 
 public:
     CollisionTask(CollisionSet *m) : m_manager(m) {}
@@ -21,6 +26,8 @@ public:
     void exec()
     {
         for(CollisionIterator i=m_begin; i!=m_end; ++i) {
+            CollisionEntity *ce = *i;
+            if(!ce) { continue; }
 
         }
     }
@@ -30,7 +37,9 @@ public:
 
 CollisionSet::CollisionSet()
 {
-
+    m_tasks.reserve(32);
+    m_entities.reserve(1024);
+    m_vacant.reserve(1024);
 }
 
 CollisionSet::~CollisionSet()
@@ -39,6 +48,7 @@ CollisionSet::~CollisionSet()
     for(uint32 i=0; i<m_entities.size(); ++i)   { IST_DELETE(m_entities[i]); }
     m_tasks.clear();
     m_entities.clear();
+    m_vacant.clear();
 }
 
 void CollisionSet::updateBegin(float32 dt)
@@ -52,57 +62,65 @@ void CollisionSet::update(float32 dt)
 
 void CollisionSet::updateEnd()
 {
-    m_sph_spheres.clear();
-    m_sph_boxes.clear();
-
     uint32 num = m_entities.size();
     for(uint32 i=0; i<num; ++i) {
         const CollisionEntity *ce = m_entities[i];
+        if(!ce) { continue; }
+
         switch(ce->getShape()) {
         case CS_PLANE:  break;
-        case CS_SPHERE: m_sph_spheres.push_back(reinterpret_cast<const sphRigidSphere&>(*ce)); break;
-        case CS_BOX:    m_sph_boxes.push_back(reinterpret_cast<const sphRigidBox&>(*ce)); break;
+        case CS_SPHERE: atomicGetSPHManager()->addRigid(reinterpret_cast<const sphRigidSphere&>(*ce)); break;
+        case CS_BOX:    atomicGetSPHManager()->addRigid(reinterpret_cast<const sphRigidBox&>(*ce)); break;
         }
     }
 }
 
 void CollisionSet::asyncupdate(float32 dt)
 {
-    m_entities.erase(std::remove(m_entities.begin(), m_entities.end(), (CollisionEntity*)NULL), m_entities.end());
 }
 
 void CollisionSet::addEntity(CollisionEntity *e)
 {
+    CollisionHandle h = 0;
+    if(!m_vacant.empty()) {
+        h = m_vacant.back();
+        m_vacant.pop_back();
+        m_entities[h] = e;
+    }
+    else {
+        h = (CollisionHandle)m_entities.size();
+        m_entities.push_back(e);
+    }
+    e->SetCollisionHandle(h);
 
 }
 
 template<> CollisionPlane* CollisionSet::createEntity<CollisionPlane>()
 {
-    CollisionPlane *p = IST_NEW(CollisionPlane)();
-    p->SetCollisionHandle((CollisionHandle)m_entities.size());
-    m_entities.push_back(p);
-    return p;
+    CollisionPlane *e = IST_NEW(CollisionPlane)();
+    addEntity(e);
+    return e;
 }
 
 template<> CollisionSphere* CollisionSet::createEntity<CollisionSphere>()
 {
-    CollisionSphere *p = IST_NEW(CollisionSphere)();
-    p->SetCollisionHandle((CollisionHandle)m_entities.size());
-    m_entities.push_back(p);
-    return p;
+    CollisionSphere *e = IST_NEW(CollisionSphere)();
+    addEntity(e);
+    return e;
 }
 
 template<> CollisionBox* CollisionSet::createEntity<CollisionBox>()
 {
-    CollisionBox *p = IST_NEW(CollisionBox)();
-    p->SetCollisionHandle((CollisionHandle)m_entities.size());
-    m_entities.push_back(p);
-    return p;
+    CollisionBox *e = IST_NEW(CollisionBox)();
+    addEntity(e);
+    return e;
 }
 
-void CollisionSet::deleteEntity(CollisionHandle h)
+void CollisionSet::deleteEntity(CollisionEntity *e)
 {
+    CollisionHandle h = e->getCollisionHandle();
     IST_SAFE_DELETE(m_entities[h]);
+    m_vacant.push_back(h);
 }
 
 

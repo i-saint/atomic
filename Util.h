@@ -1,17 +1,18 @@
 #ifndef __atomic_Util__
 #define __atomic_Util__
 
-struct sphRigidSphere;
-struct sphRigidBox;
 
 namespace atomic {
+
+    struct CollisionSphere;
+    struct CollisionBox;
 
     vec4 GenRandomVector2();
     vec4 GenRandomVector3();
     vec4 GenRandomUnitVector2();
     vec4 GenRandomUnitVector3();
-    void CreateRigidSphere(sphRigidSphere &o, EntityHandle h, const vec4& pos, float32 r);
-    void CreateRigidBox(sphRigidBox &o, EntityHandle h, const mat4& t, const vec4 &size);
+    void UpdateCollisionSphere(CollisionSphere &o, const vec4& pos, float32 r);
+    void UpdateCollisionBox(CollisionBox &o, const mat4& t, const vec4 &size);
 
 } // namespace atomic
 

@@ -1,14 +1,15 @@
 #include "stdafx.h"
 #include "types.h"
+#include "Util.h"
 #include "Graphics/ResourceManager.h"
 #include "Graphics/Renderer.h"
 #include "Game/AtomicApplication.h"
 #include "Game/AtomicGame.h"
 #include "Game/World.h"
 #include "Game/SPHManager.h"
+#include "Game/Collision.h"
 #include "Game/Message.h"
 #include "GPGPU/SPH.cuh"
-#include "Util.h"
 #include "Enemy.h"
 
 namespace atomic {
@@ -17,19 +18,26 @@ namespace atomic {
 class Player
     : public Breakable
     , public TAttr_RotateSpeed<Attr_DoubleAxisRotation>
+    , public Attr_SphereCollision
 {
 typedef Breakable super;
 typedef TAttr_RotateSpeed<Attr_DoubleAxisRotation> transform;
+typedef Attr_SphereCollision collision;
 private:
-    static const PSET_RID rigid_class = PSET_CUBE_SMALL;
+    static const PSET_RID pset_id = PSET_CUBE_SMALL;
 
-    sphRigidSphere m_rigid;
     float32 m_dash;
     int32 m_cooldown;
 
 public:
     Player() : m_cooldown(0), m_dash(0.0f)
     {
+    }
+
+    virtual void initialize()
+    {
+        super::initialize();
+        initializeCollision(getHandle());
     }
 
     virtual void update(float32 dt)
@@ -59,8 +67,7 @@ public:
         transform::update(dt);
 
         setTransform(computeMatrix());
-        CreateRigidSphere(m_rigid, getHandle(), getPosition(), atomicGetRigidInfo(rigid_class)->sphere_radius*getScale().x);
-        atomicGetSPHManager()->addRigid(m_rigid);
+        collision::updateCollision(pset_id, getTransform(), 1.0f);
     }
 
     virtual void draw()
@@ -72,7 +79,7 @@ public:
             atomicGetPointLights()->addInstance(light);
         }
         {
-            atomicGetSPHRenderer()->addRigidInstance(rigid_class, getTransform(),
+            atomicGetSPHRenderer()->addPSetInstance(pset_id, getTransform(),
                 vec4(0.6f, 0.6f, 0.6f, 1.0f), vec4(0.2f, 0.0f, 1.0f, 1.0f), vec4());
         }
     }

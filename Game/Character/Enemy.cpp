@@ -1,87 +1,18 @@
 #include "stdafx.h"
 #include "types.h"
+#include "Util.h"
 #include "Graphics/ResourceManager.h"
 #include "Graphics/Renderer.h"
 #include "Game/AtomicApplication.h"
 #include "Game/AtomicGame.h"
 #include "Game/World.h"
 #include "Game/SPHManager.h"
+#include "Game/Collision.h"
 #include "Game/Message.h"
 #include "Enemy.h"
 #include "GPGPU/SPH.cuh"
-#include "Util.h"
 
 namespace atomic {
-
-class Attr_ParticleSet
-{
-private:
-    vec4 m_diffuse_color;
-    vec4 m_glow_color;
-    PSET_RID m_psetid;
-
-public:
-    Attr_ParticleSet() : m_psetid(PSET_CUBE_SMALL)
-    {}
-
-    void setDiffuseColor(const vec4 &v) { m_diffuse_color=v; }
-    void setGlowColor(const vec4 &v)    { m_glow_color=v; }
-    void setModel(PSET_RID v)           { m_psetid=v; }
-    const vec4& getDiffuseColor() const { return m_diffuse_color; }
-    const vec4& getGlowColor() const    { return m_glow_color; }
-    PSET_RID getModel() const           { return m_psetid; }
-
-    bool call(uint32 call_id, const variant &v)
-    {
-        switch(call_id) {
-            DEFINE_ECALL1(setDiffuseColor, vec4);
-            DEFINE_ECALL1(setGlowColor, vec4);
-            DEFINE_ECALL1(setModel, PSET_RID);
-        }
-        return false;
-    }
-
-    bool query(uint32 query_id, variant &v) const
-    {
-        switch(query_id) {
-            DEFINE_EQUERY(getDiffuseColor);
-            DEFINE_EQUERY(getGlowColor);
-            DEFINE_EQUERY(getModel);
-        }
-        return false;
-    }
-};
-
-
-class Attr_CubeCollision
-{
-private:
-    sphRigidBox m_rigid;
-
-public:
-    void updateCollision(PSET_RID psid, EntityHandle h, const mat4 &t, float32 scale)
-    {
-        vec4 box_size = (vec4&)atomicGetRigidInfo(psid)->box_size * scale;
-        CreateRigidBox(m_rigid, h, t, box_size);
-        atomicGetSPHManager()->addRigid(m_rigid);
-    }
-};
-
-class Attr_SphereCollision
-{
-private:
-    sphRigidSphere m_rigid;
-
-public:
-    void updateCollision(PSET_RID psid, EntityHandle h, const mat4 &t, float32 scale)
-    {
-        vec4 pos = t * vec4(0.0f, 0.0f, 0.0f, 1.0f);
-        float32 radius = atomicGetRigidInfo(psid)->sphere_radius * scale;
-        CreateRigidSphere(m_rigid, h, pos, radius);
-        atomicGetSPHManager()->addRigid(m_rigid);
-    }
-};
-
 
 template<class CollisonType>
 class Enemy_Test
@@ -109,10 +40,16 @@ private:
 public:
     Enemy_Test() : m_state(ST_FADEIN), m_st_frame(0)
     {
+    }
+
+    virtual void initialize()
+    {
+        super::initialize();
         setModel(PSET_CUBE_MEDIUM);
         setDiffuseColor(vec4(0.6f, 0.6f, 0.6f, 1.0f));
         setGlowColor(vec4(1.0f, 0.0f, 0.2f, 1.0f));
         setHealth(100.0f);
+        collision::initializeCollision(getHandle());
     }
 
     void setState(STATE s) { m_state=s; m_st_frame=0; }
@@ -134,7 +71,7 @@ public:
             }
         }
         if(getState()!=ST_FADEOUT) {
-            collision::updateCollision(getModel(), getHandle(), getTransform(), rigid_scale);
+            collision::updateCollision(getModel(), getTransform(), rigid_scale);
         }
         if(getState()==ST_FADEOUT) {
             if(m_st_frame==FADEOUT_TIME) {
@@ -166,13 +103,14 @@ public:
             atomicGetPointLights()->addInstance(l);
         }
         if(m_state!=ST_FADEOUT) {
-            atomicGetSPHRenderer()->addRigidInstance(getModel(), getTransform(), diffuse, glow, getFlashColor());
+            atomicGetSPHRenderer()->addPSetInstance(getModel(), getTransform(), diffuse, glow, getFlashColor());
         }
     }
 
     virtual void destroy()
     {
         atomicGetSPHManager()->addFluid(getModel(), getTransform());
+        collision::finalizeCollision();
         setState(ST_FADEOUT);
     }
 

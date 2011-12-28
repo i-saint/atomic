@@ -13,8 +13,8 @@ class SPHManager;
 class World : boost::noncopyable
 {
 private:
-    EntitySet       *m_entity_set;
     CollisionSet    *m_collision_set;
+    EntitySet       *m_entity_set;
     SPHManager      *m_sph;
 
     Task_UpdateAsync<World>         *m_task_update_world;
@@ -45,8 +45,9 @@ public:
     PerspectiveCamera* getCamera()  { return &m_camera; }
     SFMT* getRandom()               { return &m_rand; }
 
-    EntitySet*  getEntitySet()      { return m_entity_set; }
-    SPHManager* getFractionSet()   { return m_sph; }
+    EntitySet*      getEntitySet()      { return m_entity_set; }
+    CollisionSet*   getCollisionSet()   { return m_collision_set; }
+    SPHManager*     getFractionSet()    { return m_sph; }
 };
 
 
@@ -62,6 +63,10 @@ public:
 #define atomicGetEntity(id)     atomicGetEntitySet()->getEntity(id)
 #define atomicCreateEntity(n)   atomicGetEntitySet()->createEntity<n>()
 #define atomicDeleteEntity(o)   atomicGetEntitySet()->deleteEntity(o)
+
+#define atomicGetCollisionSet()     atomicGetWorld()->getCollisionSet()
+#define atomicCreateCollision(n)    atomicGetCollisionSet()->createEntity<n>();
+#define atomicDeleteCollision(o)    atomicGetCollisionSet()->deleteEntity(o);
 
 #define atomicGetSPHManager()   atomicGetWorld()->getFractionSet()
 

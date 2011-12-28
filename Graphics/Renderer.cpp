@@ -341,7 +341,7 @@ void PassGBuffer_SPH::resizeTasks( uint32 n )
     }
 }
 
-void PassGBuffer_SPH::addRigidInstance( PSET_RID psid, const mat4 &t, const vec4 &diffuse, const vec4 &glow, const vec4 &flash )
+void PassGBuffer_SPH::addPSetInstance( PSET_RID psid, const mat4 &t, const vec4 &diffuse, const vec4 &glow, const vec4 &flash )
 {
     PSetInstance tmp;
     tmp.psid        = psid;

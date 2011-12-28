@@ -102,10 +102,13 @@ class CollisionSet : boost::noncopyable
 {
 friend class CollisionTask;
 private:
-    stl::vector<CollisionTask*>     m_tasks;
-    stl::vector<CollisionEntity*>   m_entities;
-    thrust::host_vector<sphRigidSphere> m_sph_spheres;
-    thrust::host_vector<sphRigidBox>    m_sph_boxes;
+    typedef stl::vector<CollisionTask*>     TaskCont;
+    typedef stl::vector<CollisionHandle>    HandleCont;
+    typedef stl::vector<CollisionEntity*>   EntityCont;
+
+    TaskCont    m_tasks;
+    EntityCont  m_entities;
+    HandleCont  m_vacant;
 
     void addEntity(CollisionEntity *e);
 
@@ -119,7 +122,7 @@ public:
     void asyncupdate(float32 dt);
 
     template<class T> T* createEntity();
-    void deleteEntity(CollisionHandle h);
+    void deleteEntity(CollisionEntity *e);
 };
 
 

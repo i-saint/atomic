@@ -27,13 +27,13 @@ World::World()
 , m_sph(NULL)
 , m_frame(0)
 {
-    m_entity_set    = IST_NEW(EntitySet)();
     m_collision_set = IST_NEW(CollisionSet)();
+    m_entity_set    = IST_NEW(EntitySet)();
     m_sph           = IST_NEW(SPHManager)();
 
     m_task_update_world     = IST_NEW(Task_UpdateAsync<World>)(this);
-    m_task_update_entity    = IST_NEW(Task_UpdateAsync<EntitySet>)(m_entity_set);
     m_task_update_collision = IST_NEW(Task_UpdateAsync<CollisionSet>)(m_collision_set);
+    m_task_update_entity    = IST_NEW(Task_UpdateAsync<EntitySet>)(m_entity_set);
     m_task_update_sph       = IST_NEW(Task_UpdateAsync<SPHManager>)(m_sph);
 
     m_camera.setAspect(atomicGetWindowAspectRatio());
@@ -42,13 +42,13 @@ World::World()
 World::~World()
 {
     IST_SAFE_DELETE(m_task_update_sph);
-    IST_SAFE_DELETE(m_task_update_collision);
     IST_SAFE_DELETE(m_task_update_entity);
+    IST_SAFE_DELETE(m_task_update_collision);
     IST_SAFE_DELETE(m_task_update_world);
 
     IST_SAFE_DELETE(m_sph);
-    IST_SAFE_DELETE(m_collision_set);
     IST_SAFE_DELETE(m_entity_set);
+    IST_SAFE_DELETE(m_collision_set);
 }
 
 void World::initialize()
