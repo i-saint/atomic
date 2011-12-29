@@ -328,8 +328,9 @@ struct _FluidIntegrate
                 int inside = 0;
                 int closest_index = 0;
                 float closest_dinstance = -9999.0f;
+                float4 ppos = position-collision.position;
                 for(int p=0; p<6; ++p) {
-                    float d = dot(position-collision.position, collision.planes[p]);
+                    float d = dot(ppos, collision.planes[p]);
                     if(d <= 0.0f) {
                         ++inside;
                         if(d > closest_dinstance) {

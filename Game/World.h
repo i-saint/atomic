@@ -24,6 +24,7 @@ private:
 
     SFMT m_rand;
     PerspectiveCamera m_camera;
+    vec4 m_field_size;
 
     uint32 m_frame;
 
@@ -41,9 +42,12 @@ public:
     void asyncupdateEnd();
     void draw() const;
 
-    uint32 getFrame() const         { return m_frame; }
     PerspectiveCamera* getCamera()  { return &m_camera; }
     SFMT* getRandom()               { return &m_rand; }
+    const vec4& getFieldSize() const{ return m_field_size; }
+    uint32 getFrame() const         { return m_frame; }
+
+    void setFieldSize(const vec4 &v)    { m_field_size=v; }
 
     EntitySet*      getEntitySet()      { return m_entity_set; }
     CollisionSet*   getCollisionSet()   { return m_collision_set; }
@@ -67,6 +71,7 @@ public:
 #define atomicGetCollisionSet()     atomicGetWorld()->getCollisionSet()
 #define atomicCreateCollision(n)    atomicGetCollisionSet()->createEntity<n>();
 #define atomicDeleteCollision(o)    atomicGetCollisionSet()->deleteEntity(o);
+#define atomicGetCollision(h)       atomicGetCollisionSet()->getCollision(h)
 
 #define atomicGetSPHManager()   atomicGetWorld()->getFractionSet()
 

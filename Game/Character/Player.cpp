@@ -24,13 +24,13 @@ typedef Breakable super;
 typedef TAttr_RotateSpeed<Attr_DoubleAxisRotation> transform;
 typedef Attr_SphereCollision collision;
 private:
-    static const PSET_RID pset_id = PSET_CUBE_SMALL;
+    static const PSET_RID pset_id = PSET_SPHERE_SMALL;
 
-    float32 m_dash;
+    vec4 m_boost;
     int32 m_cooldown;
 
 public:
-    Player() : m_cooldown(0), m_dash(0.0f)
+    Player() : m_cooldown(0)
     {
     }
 
@@ -43,17 +43,20 @@ public:
     virtual void update(float32 dt)
     {
         m_cooldown = std::max<int32>(0, m_cooldown-1);
-        m_dash = std::max<float32>(0.0f, m_dash-0.04f);
+
+        vec4 move = vec4(atomicGetInputs()->getMove()*0.01f, 0.0f, 0.0f);
         if(m_cooldown==0 && atomicGetInputs()->isButtonTriggered(1)) {
-            m_dash = 2.0f;
+            m_boost += move * 2.0f;
             m_cooldown = 20;
         }
 
         vec4 pos = getPosition();
-        vec2 move = atomicGetInputs()->getMove()*0.01f * (m_dash+1.0f);
-        pos.x += move.x;
-        pos.y += move.y;
+        pos += move;
+        pos += m_boost;
+        pos.z = 0.0f;
         setPosition(pos);
+
+        m_boost *= 0.96f;
 
         {
             sphForcePointGravity pg;
@@ -86,6 +89,14 @@ public:
 
     virtual void destroy()
     {
+    }
+
+    virtual void eventCollide(const CollideMessage *m)
+    {
+        vec4 v = m->direction * m->direction.w * 0.5f;
+        m_boost += v;
+        m_boost.z = 0.0f;
+        m_boost.w = 0.0f;
     }
 
     bool call(uint32 call_id, const variant &v)

@@ -70,13 +70,13 @@ void World::update(float32 dt)
         m_entity_set->createEntity<Level_Test>();
     }
 
-    m_entity_set->updateBegin(dt);
     m_collision_set->updateBegin(dt);
     m_sph->updateBegin(dt);
+    m_entity_set->updateBegin(dt);
 
-    m_entity_set->update(dt);
     m_collision_set->update(dt);
     m_sph->update(dt);
+    m_entity_set->update(dt);
 
     m_collision_set->updateEnd();
 }
@@ -84,20 +84,21 @@ void World::update(float32 dt)
 void World::asyncupdateBegin(float32 dt)
 {
     m_task_update_world->setArg(dt);
-    m_task_update_entity->setArg(dt);
+    m_task_update_collision->setArg(dt);
     m_task_update_sph->setArg(dt);
+    m_task_update_entity->setArg(dt);
 
     m_task_update_world->kick();
-    m_task_update_entity->kick();
     m_task_update_collision->kick();
     m_task_update_sph->kick();
+    m_task_update_entity->kick();
 }
 
 void World::asyncupdateEnd()
 {
+    m_task_update_entity->join();
     m_task_update_sph->join();
     m_task_update_collision->join();
-    m_task_update_entity->join();
     m_task_update_world->join();
 }
 

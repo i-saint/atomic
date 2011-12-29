@@ -27,9 +27,10 @@ namespace atomic {
     };
 
 
-    class Breakable : public IEntity
+    class Breakable : public IEntity, public Attr_MessageHandler
     {
     typedef IEntity super;
+    typedef Attr_MessageHandler mhandler;
     private:
         mat4        m_transform;
         vec4        m_flash_color;
@@ -85,10 +86,6 @@ namespace atomic {
             if(m_routine) { m_routine->asyncupdate(dt); }
         }
 
-        virtual void onDamage(const DamageMessage &m)
-        {
-        }
-
         virtual void damage(float32 d)
         {
             if(m_health > 0.0f) {
@@ -110,7 +107,7 @@ namespace atomic {
             switch(call_id) {
             DEFINE_ECALL1(setHealth, float32);
             DEFINE_ECALL1(damage, float32);
-            default: return super::call(call_id, v);
+            default: return super::call(call_id, v) || mhandler::call(call_id, v);
             }
         }
 

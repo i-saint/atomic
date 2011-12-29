@@ -8,15 +8,13 @@ namespace sound {
 
 bool IntializeSound()
 {
-    g_device = alcOpenDevice(0);
-    IST_PRINT("alcOpenDevice() succeeded\n");
+    g_device = alcOpenDevice(NULL);
     if(!g_device) {
         IST_PRINT("alcOpenDevice() failed");
         return false;
     }
 
     g_context = alcCreateContext(g_device, 0);
-    IST_PRINT("alcCreateContext() succeeded\n");
     if(!g_context) {
         alcCloseDevice(g_device); g_device=NULL;
         return false;
@@ -24,7 +22,6 @@ bool IntializeSound()
     }
 
     alcMakeContextCurrent(g_context);
-    IST_PRINT("alcMakeContextCurrent() succeeded\n");
     return true;
 }
 

@@ -6,6 +6,7 @@
 #include "Game/AtomicGame.h"
 #include "Game/World.h"
 #include "Game/SPHManager.h"
+#include "Game/Collision.h"
 #include "Game/Message.h"
 #include "GPGPU/SPH.cuh"
 #include "Util.h"
@@ -16,12 +17,43 @@ namespace atomic {
 
 class Level_Test : public IEntity
 {
+typedef IEntity super;
 private:
     int m_frame;
+    CollisionHandle m_planes[4];
 
 public:
     Level_Test() : m_frame(0)
     {
+    }
+
+    void initialize()
+    {
+        super::initialize();
+
+        const vec4 field_size = vec4(2.56f);
+        atomicGetWorld()->setFieldSize(field_size);
+
+        vec4 planes[] = {
+            vec4(-1.0f, 0.0f, 0.0f, field_size.x),
+            vec4( 1.0f, 0.0f, 0.0f, field_size.x),
+            vec4( 0.0f,-1.0f, 0.0f, field_size.y),
+            vec4( 0.0f, 1.0f, 0.0f, field_size.y),
+        };
+        for(uint32 i=0; i<_countof(planes); ++i) {
+            CollisionPlane *p = atomicCreateCollision(CollisionPlane);
+            p->setGObjHandle(getHandle());
+            p->plane = planes[i];
+            m_planes[i] = p->getCollisionHandle();
+        }
+    }
+
+    void finalize()
+    {
+        for(uint32 i=0; i<4; ++i) {
+            atomicDeleteCollision(m_planes[i]);
+        }
+        super::finalize();
     }
 
     IEntity* createRandomEnemy()
@@ -33,6 +65,7 @@ public:
         }
         
         atomicCall(e, setPosition, GenRandomVector2() * 2.56f);
+        atomicCall(e, setHealth, 75.0f);
         atomicCall(e, setAxis1, GenRandomUnitVector3());
         atomicCall(e, setAxis2, GenRandomUnitVector3());
         atomicCall(e, setRotateSpeed1, 0.4f);

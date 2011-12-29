@@ -13,11 +13,33 @@ enum COLLISION_SHAPE {
     CS_BEAM,
     CS_END,
 };
+enum COLLISION_FLAG {
+    CF_RECEIVER     = 1 << 0,
+    CF_SENDER       = 1 << 1,
+    CF_AFFECT_SPH   = 1 << 2,
+};
 
 struct BoundingBox
 {
     vec4 ur;
     vec4 bl;
+
+    void adjust() {
+        if(ur.x < bl.x) { stl::swap<float32>(ur.x, bl.x); }
+        if(ur.y < bl.y) { stl::swap<float32>(ur.y, bl.y); }
+        if(ur.z < bl.z) { stl::swap<float32>(ur.z, bl.z); }
+    }
+    float32 getXLength() const { return ur.x-bl.x; }
+    float32 getYLength() const { return ur.y-bl.y; }
+    float32 getZLength() const { return ur.z-bl.z; }
+    vec4 getUXUYUZ() const { return vec4(ur.x, ur.y, ur.z, 0.0f); }
+    vec4 getBXUYUZ() const { return vec4(bl.x, ur.y, ur.z, 0.0f); }
+    vec4 getUXBYUZ() const { return vec4(ur.x, bl.y, ur.z, 0.0f); }
+    vec4 getUXUYBZ() const { return vec4(ur.x, ur.y, bl.z, 0.0f); }
+    vec4 getBXBYUZ() const { return vec4(bl.x, bl.y, ur.z, 0.0f); }
+    vec4 getBXUYBZ() const { return vec4(bl.x, ur.y, bl.z, 0.0f); }
+    vec4 getUXBYBZ() const { return vec4(ur.x, bl.y, bl.z, 0.0f); }
+    vec4 getBXBYBZ() const { return vec4(bl.x, bl.y, bl.z, 0.0f); }
 };
 
 class CollisionSet;
@@ -34,7 +56,8 @@ private:
         struct {
             COLLISION_SHAPE m_shape;
             CollisionHandle m_col_handle;
-            EntityHandle m_gobj_handle;
+            EntityHandle    m_gobj_handle;
+            int32           m_flags; // FLAG
         };
         float4 padding;
     };
@@ -45,12 +68,14 @@ protected:
     void setShape(COLLISION_SHAPE v) { m_shape=v; }
 
 public:
-    CollisionEntity() : m_shape(CS_UNKNOWN), m_col_handle(0), m_gobj_handle(0) {}
-    COLLISION_SHAPE getShape() const { return m_shape; }
-    CollisionHandle getCollisionHandle() const { return m_col_handle; }
-    EntityHandle    getGameHandle() const { return m_gobj_handle; }
+    CollisionEntity() : m_shape(CS_UNKNOWN), m_col_handle(0), m_gobj_handle(0), m_flags(CF_RECEIVER|CF_SENDER|CF_AFFECT_SPH) {}
+    COLLISION_SHAPE getShape() const            { return m_shape; }
+    CollisionHandle getCollisionHandle() const  { return m_col_handle; }
+    EntityHandle    getGObjHandle() const       { return m_gobj_handle; }
+    int32           getFlags() const            { return m_flags; }
 
-    void setGObjHandle(EntityHandle v) { m_gobj_handle=v; }
+    void setGObjHandle(EntityHandle v)  { m_gobj_handle=v; }
+    void setFlags(int32 v)              { m_flags=v; }
 };
 
 struct CollisionPlane : public CollisionEntity
@@ -82,12 +107,12 @@ public:
 };
 
 
-struct CollisionMessage
+struct CollideMessage
 {
     union {
         struct {
-            int from; // SPH_RIGID_SHAPE
-            int to;
+            EntityHandle from;
+            EntityHandle to;
         };
         float4 padding;
     };
@@ -95,22 +120,26 @@ struct CollisionMessage
 };
 
 
-class CollisionTask;
+class CollideTask;
 
 // åªèÛëçìñÇËï˚éÆÅc
 class CollisionSet : boost::noncopyable
 {
-friend class CollisionTask;
+friend class CollideTask;
 private:
-    typedef stl::vector<CollisionTask*>     TaskCont;
+    typedef stl::vector<CollideTask*>       TaskCont;
     typedef stl::vector<CollisionHandle>    HandleCont;
     typedef stl::vector<CollisionEntity*>   EntityCont;
+    typedef stl::vector<CollideMessage>     MessageCont;
 
     TaskCont    m_tasks;
     EntityCont  m_entities;
     HandleCont  m_vacant;
+    uint32      m_active_tasks;
 
     void addEntity(CollisionEntity *e);
+    uint32 collide(CollisionEntity *e, MessageCont &m);
+    void resizeTasks(uint32 n);
 
 public:
     CollisionSet();
@@ -121,7 +150,9 @@ public:
     void updateEnd();
     void asyncupdate(float32 dt);
 
+    CollisionEntity* getEntity(CollisionHandle h);
     template<class T> T* createEntity();
+    void deleteEntity(CollisionHandle e);
     void deleteEntity(CollisionEntity *e);
 };
 

@@ -362,5 +362,34 @@ namespace atomic {
     };
 
 
+    struct FluidMessage;
+    struct CollideMessage;
+    struct DamageMessage;
+    struct DestroyMessage;
+    struct KillMessage;
+
+    class Attr_MessageHandler
+    {
+    public:
+        virtual void eventCollide(const CollideMessage *m)  {}
+        virtual void eventFluid(const FluidMessage *m)      {}
+        virtual void eventDamage(const DamageMessage *m)    {}
+        virtual void eventDestroy(const DestroyMessage *m)  {}
+        virtual void eventKill(const KillMessage *m)        {}
+
+        bool call(uint32 call_id, const variant &v)
+        {
+            switch(call_id) {
+                DEFINE_ECALL1(eventCollide, const CollideMessage*);
+                DEFINE_ECALL1(eventFluid,   const FluidMessage*);
+                DEFINE_ECALL1(eventDamage,  const DamageMessage*);
+                DEFINE_ECALL1(eventDestroy, const DestroyMessage*);
+                DEFINE_ECALL1(eventKill,    const KillMessage*);
+            }
+            return false;
+        }
+    };
+
+
 } // namespace atomic
 #endif // __atomic_Game_Character_Attributes__
