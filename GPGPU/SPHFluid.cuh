@@ -359,24 +359,14 @@ struct _FluidIntegrate
             }
         }
 
-        {
-            const sphGridParam &g = dfd.params[0];
-            float4 bl = g.grid_pos;
-            float4 ur = g.grid_dim + g.grid_pos;
-            const float4 planes[4] = {
-                make_float4(-1.0f, 0.0f, 0.0f,  ur.x),
-                make_float4( 1.0f, 0.0f, 0.0f, -bl.x),
-                make_float4( 0.0f,-1.0f, 0.0f,  ur.y),
-                make_float4( 0.0f, 1.0f, 0.0f, -bl.y),
-            };
-            // Apply the forces from the map walls
-            for(uint i=0 ; i<4 ; i++) {
-                float dist = dot(make_float4(position.x, position.y, 0.0f, 1.0f), planes[i]);
-                acceleration += min(dist, 0.0f) * -d_params.wall_stiffness * make_float4(planes[i].x, planes[i].y, 0.0f, 0.0f);
-            }
-            acceleration += min(position.z, 0.0f) * -d_params.wall_stiffness * make_float4(0.0f, 0.0f, 1.0f, 0.0f);
+        for(int i=0; i<drd.num_planes; ++i) {
+            float4 plane = drd.planes[i].plane;
+            float dist = dot(make_float4(position.x, position.y, position.z, 1.0f), plane);
+            acceleration += min(dist, 0.0f) * -d_params.wall_stiffness * make_float4(plane.x, plane.y, plane.z, 0.0f);
         }
-
+        // z bound
+        acceleration += min(position.z, 0.0f) * -d_params.wall_stiffness * make_float4(0.0f, 0.0f, 1.0f, 0.0f);
+        // z gravity
         acceleration += make_float4(0.0f, 0.0f, -8.0f, 0.0f);
 
 

@@ -32,14 +32,14 @@ struct BoundingBox
     float32 getXLength() const { return ur.x-bl.x; }
     float32 getYLength() const { return ur.y-bl.y; }
     float32 getZLength() const { return ur.z-bl.z; }
-    vec4 getUXUYUZ() const { return vec4(ur.x, ur.y, ur.z, 0.0f); }
-    vec4 getBXUYUZ() const { return vec4(bl.x, ur.y, ur.z, 0.0f); }
-    vec4 getUXBYUZ() const { return vec4(ur.x, bl.y, ur.z, 0.0f); }
-    vec4 getUXUYBZ() const { return vec4(ur.x, ur.y, bl.z, 0.0f); }
-    vec4 getBXBYUZ() const { return vec4(bl.x, bl.y, ur.z, 0.0f); }
-    vec4 getBXUYBZ() const { return vec4(bl.x, ur.y, bl.z, 0.0f); }
-    vec4 getUXBYBZ() const { return vec4(ur.x, bl.y, bl.z, 0.0f); }
-    vec4 getBXBYBZ() const { return vec4(bl.x, bl.y, bl.z, 0.0f); }
+    vec4 getUUU() const { return vec4(ur.x, ur.y, ur.z, 0.0f); }
+    vec4 getBUU() const { return vec4(bl.x, ur.y, ur.z, 0.0f); }
+    vec4 getUBU() const { return vec4(ur.x, bl.y, ur.z, 0.0f); }
+    vec4 getUUB() const { return vec4(ur.x, ur.y, bl.z, 0.0f); }
+    vec4 getBBU() const { return vec4(bl.x, bl.y, ur.z, 0.0f); }
+    vec4 getBUB() const { return vec4(bl.x, ur.y, bl.z, 0.0f); }
+    vec4 getUBB() const { return vec4(ur.x, bl.y, bl.z, 0.0f); }
+    vec4 getBBB() const { return vec4(bl.x, bl.y, bl.z, 0.0f); }
 };
 
 class CollisionSet;

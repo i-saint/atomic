@@ -115,10 +115,12 @@ void SPHFinalizeGLBuffers()
 
 
 void SPHUpdateRigids(
+    const thrust::host_vector<sphRigidPlane> &planes,
     const thrust::host_vector<sphRigidSphere> &spheres,
     const thrust::host_vector<sphRigidBox> &boxes
     )
 {
+    h_rigid->planes = planes;
     h_rigid->spheres = spheres;
     h_rigid->boxes = boxes;
 }

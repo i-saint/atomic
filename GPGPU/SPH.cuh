@@ -64,6 +64,11 @@ struct sphRigidCollision
     };
 };
 
+struct sphRigidPlane : public sphRigidCollision
+{
+    float4 plane;
+};
+
 struct sphRigidSphere : public sphRigidCollision
 {
     sphBoundingBox bb;
@@ -138,6 +143,7 @@ struct sphFluidMessage
 void SPHInitialize();
 void SPHFinalize();
 void SPHUpdateRigids(
+    const thrust::host_vector<sphRigidPlane> &planes,
     const thrust::host_vector<sphRigidSphere> &spheres,
     const thrust::host_vector<sphRigidBox> &boxes
     );

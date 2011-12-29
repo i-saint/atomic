@@ -93,7 +93,7 @@ public:
 
     virtual void eventCollide(const CollideMessage *m)
     {
-        vec4 v = m->direction * m->direction.w * 0.5f;
+        vec4 v = m->direction * m->direction.w * 0.2f;
         m_boost += v;
         m_boost.z = 0.0f;
         m_boost.w = 0.0f;

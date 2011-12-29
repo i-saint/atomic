@@ -72,6 +72,7 @@ void SPHManager::initialize()
 
 void SPHManager::updateBegin( float32 dt )
 {
+    m_planes.clear();
     m_spheres.clear();
     m_boxes.clear();
 
@@ -101,25 +102,15 @@ void SPHManager::asyncupdate(float32 dt)
         m_fluid.insert(m_fluid.end(), fluid.begin(), fluid.end());
     }
     SPHUpdateForce(m_pgravity);
-    SPHUpdateRigids(m_spheres, m_boxes);
+    SPHUpdateRigids(m_planes, m_spheres, m_boxes);
     SPHAddFluid(m_fluid);
     SPHUpdateFluid();
 }
 
-void SPHManager::addRigid(const sphRigidSphere &s)
-{
-    m_spheres.push_back(s);
-}
-
-void SPHManager::addRigid(const sphRigidBox &s)
-{
-    m_boxes.push_back(s);
-}
-
-void SPHManager::addForce(const sphForcePointGravity &v)
-{
-    m_pgravity.push_back(v);
-}
+void SPHManager::addRigid(const sphRigidPlane &s)   { m_planes.push_back(s); }
+void SPHManager::addRigid(const sphRigidSphere &s)  { m_spheres.push_back(s); }
+void SPHManager::addRigid(const sphRigidBox &s)     { m_boxes.push_back(s); }
+void SPHManager::addForce(const sphForcePointGravity &v) { m_pgravity.push_back(v); }
 
 void SPHManager::draw() const
 {

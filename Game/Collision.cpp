@@ -11,138 +11,156 @@
 
 namespace atomic {
 
-
-namespace {
-
-    bool _Collide(CollisionPlane *sender, CollisionPlane *receiver, CollideMessage &m)
-    {
-        float32 d = glm::dot(vec3(sender->plane), vec3(receiver->plane));
-        if(std::abs(d) < 1.0f) {
-            m.direction = vec4(vec3(sender->plane), 0.0f);
-            return true;
-        }
-        return false;
-    }
-
-    bool _Collide(CollisionPlane *sender, CollisionSphere *receiver, CollideMessage &m)
-    {
-        vec3 spos = vec3(receiver->pos_r);
-        float32 radius = receiver->pos_r.w;
-        float32 d = glm::dot(vec4(spos, 1.0f), sender->plane) - radius;
-        if(d <= 0.0f) {
-            m.direction = vec4(vec3(sender->plane), -d);
-            return true;
-        }
-        return false;
-    }
-
-    bool _Collide(CollisionPlane *sender, CollisionBox *receiver, CollideMessage &m)
-    {
-        return false;
-    }
-
-
-    bool _Collide(CollisionSphere *sender, CollisionPlane *receiver, CollideMessage &m)
-    {
-        if(_Collide(receiver, sender, m)) {
-            //m.direction *= vec4(-1.0f, -1.0f, -1.0f, 1.0f);
-            return true;
-        }
-        return false;
-    }
-
-    bool _Collide(CollisionSphere *sender, CollisionSphere *receiver, CollideMessage &m)
-    {
-        vec3 diff = vec3(sender->pos_r) - vec3(receiver->pos_r);
-        float32 d = glm::dot(diff, diff);
-        float32 r = sender->pos_r.w + receiver->pos_r.w;
-        float32 r2 = r*r;
-        if(d <= r2) {
-            float32 len = std::sqrt(d);
-            vec3 n = diff / len * -1.0f;
-            m.direction = vec4(n, r-len);
-            return true;
-        }
-        return false;
-    }
-
-    bool _Collide(CollisionSphere *sender, CollisionBox *receiver, CollideMessage &m)
-    {
-        return false;
-    }
-
-
-    bool _Collide(CollisionBox *sender, CollisionPlane *receiver, CollideMessage &m)
-    {
-        return false;
-    }
-
-    bool _Collide(CollisionBox *sender, CollisionSphere *receiver, CollideMessage &m)
-    {
-        vec4 pos = receiver->pos_r - sender->position;
-        pos.w = 1.0f;
-
-        int inside = 0;
-        int closest_index = 0;
-        float closest_dinstance = -9999.0f;
-        for(int p=0; p<6; ++p) {
-            vec4 plane = sender->planes[p];
-            float32 radius = receiver->pos_r.w;
-            float d = glm::dot(pos, plane) - radius;
-            if(d <= 0.0f) {
-                ++inside;
-                if(d > closest_dinstance) {
-                    closest_dinstance = d;
-                    closest_index = p;
-                }
-            }
-        }
-        if(inside==6) {
-            vec4 dir = sender->planes[closest_index];
-            dir.w = -closest_dinstance;
-            m.direction = dir;
-            return true;
-        }
-        return false;
-    }
-
-    bool _Collide(CollisionBox *sender, CollisionBox *receiver, CollideMessage &m)
-    {
-        return false;
-    }
-
-
-    bool Collide(CollisionEntity *sender, CollisionEntity *receiver, CollideMessage &m)
-    {
-        switch(sender->getShape()) {
-        case CS_PLANE:
-            switch(receiver->getShape()) {
-            case CS_PLANE:  return _Collide(static_cast<CollisionPlane*>(sender), static_cast<CollisionPlane*>(receiver), m);
-            case CS_SPHERE: return _Collide(static_cast<CollisionPlane*>(sender), static_cast<CollisionSphere*>(receiver), m);
-            case CS_BOX:    return _Collide(static_cast<CollisionPlane*>(sender), static_cast<CollisionBox*>(receiver), m);
-            }
-            break;
-
-        case CS_SPHERE:
-            switch(receiver->getShape()) {
-            case CS_PLANE:  return _Collide(static_cast<CollisionSphere*>(sender), static_cast<CollisionPlane*>(receiver), m);
-            case CS_SPHERE: return _Collide(static_cast<CollisionSphere*>(sender), static_cast<CollisionSphere*>(receiver), m);
-            case CS_BOX:    return _Collide(static_cast<CollisionSphere*>(sender), static_cast<CollisionBox*>(receiver), m);
-            }
-            break;
-
-        case CS_BOX:
-            switch(receiver->getShape()) {
-            case CS_PLANE:  return _Collide(static_cast<CollisionBox*>(sender), static_cast<CollisionPlane*>(receiver), m);
-            case CS_SPHERE: return _Collide(static_cast<CollisionBox*>(sender), static_cast<CollisionSphere*>(receiver), m);
-            case CS_BOX:    return _Collide(static_cast<CollisionBox*>(sender), static_cast<CollisionBox*>(receiver), m);
-            }
-            break;
-        }
-        return false;
-    }
-
+inline bool BoundingBoxIntersect(const BoundingBox &bb1, const vec4 &pos)
+{
+    return 
+        pos.x <= bb1.ur.x && pos.x >= bb1.bl.x &&
+        pos.y <= bb1.ur.y && pos.y >= bb1.bl.y &&
+        pos.z <= bb1.ur.z && pos.z >= bb1.bl.z;
 }
+
+inline bool BoundingBoxIntersect(const BoundingBox &bb1, const BoundingBox &bb2)
+{
+    float32 rabx = std::abs(bb1.ur.x + bb1.bl.x - bb2.ur.x - bb2.bl.x);
+    float32 raby = std::abs(bb1.ur.y + bb1.bl.y - bb2.ur.y - bb2.bl.y);
+    float32 rabz = std::abs(bb1.ur.z + bb1.bl.z - bb2.ur.z - bb2.bl.z);
+    float32 raxPrbx = bb1.ur.x - bb1.bl.x + bb2.ur.x - bb2.bl.x;
+    float32 rayPrby = bb1.ur.y - bb1.bl.y + bb2.ur.y - bb2.bl.y;
+    float32 rayPrbz = bb1.ur.z - bb1.bl.z + bb2.ur.z - bb2.bl.z;
+    return (rabx <= raxPrbx && raby <= rayPrby && rabz <= rayPrbz);
+}
+
+
+bool _Collide(CollisionPlane *sender, CollisionPlane *receiver, CollideMessage &m)
+{
+    float32 d = glm::dot(vec3(sender->plane), vec3(receiver->plane));
+    if(std::abs(d) < 1.0f) {
+        m.direction = vec4(vec3(sender->plane), 0.0f);
+        return true;
+    }
+    return false;
+}
+
+bool _Collide(CollisionPlane *sender, CollisionSphere *receiver, CollideMessage &m)
+{
+    vec3 spos = vec3(receiver->pos_r);
+    float32 radius = receiver->pos_r.w;
+    float32 d = glm::dot(vec4(spos, 1.0f), sender->plane) - radius;
+    if(d <= 0.0f) {
+        m.direction = vec4(vec3(sender->plane), -d);
+        return true;
+    }
+    return false;
+}
+
+bool _Collide(CollisionPlane *sender, CollisionBox *receiver, CollideMessage &m)
+{
+    return false;
+}
+
+
+bool _Collide(CollisionSphere *sender, CollisionPlane *receiver, CollideMessage &m)
+{
+    if(_Collide(receiver, sender, m)) {
+        //m.direction *= vec4(-1.0f, -1.0f, -1.0f, 1.0f);
+        return true;
+    }
+    return false;
+}
+
+bool _Collide(CollisionSphere *sender, CollisionSphere *receiver, CollideMessage &m)
+{
+    float32 r = sender->pos_r.w + receiver->pos_r.w;
+    float32 r2 = r*r;
+    vec3 diff = vec3(sender->pos_r) - vec3(receiver->pos_r);
+    float32 d = glm::dot(diff, diff);
+    if(d <= r2) {
+        float32 len = std::sqrt(d);
+        vec3 n = diff / len * -1.0f;
+        m.direction = vec4(n, r-len);
+        return true;
+    }
+    return false;
+}
+
+bool _Collide(CollisionSphere *sender, CollisionBox *receiver, CollideMessage &m)
+{
+    return false;
+}
+
+
+bool _Collide(CollisionBox *sender, CollisionPlane *receiver, CollideMessage &m)
+{
+    return false;
+}
+
+bool _Collide(CollisionBox *sender, CollisionSphere *receiver, CollideMessage &m)
+{
+    if(!BoundingBoxIntersect(sender->bb, receiver->bb)) { return false; }
+
+    vec4 pos = receiver->pos_r - sender->position;
+    pos.w = 1.0f;
+
+    int inside = 0;
+    int closest_index = 0;
+    float closest_dinstance = -9999.0f;
+    for(int p=0; p<6; ++p) {
+        vec4 plane = sender->planes[p];
+        float32 radius = receiver->pos_r.w;
+        float d = glm::dot(pos, plane) - radius;
+        if(d <= 0.0f) {
+            ++inside;
+            if(d > closest_dinstance) {
+                closest_dinstance = d;
+                closest_index = p;
+            }
+        }
+    }
+    if(inside==6) {
+        vec4 dir = sender->planes[closest_index];
+        dir.w = -closest_dinstance;
+        m.direction = dir;
+        return true;
+    }
+    return false;
+}
+
+bool _Collide(CollisionBox *sender, CollisionBox *receiver, CollideMessage &m)
+{
+    return false;
+}
+
+
+bool Collide(CollisionEntity *sender, CollisionEntity *receiver, CollideMessage &m)
+{
+    switch(sender->getShape()) {
+    case CS_PLANE:
+        switch(receiver->getShape()) {
+        case CS_PLANE:  return _Collide(static_cast<CollisionPlane*>(sender), static_cast<CollisionPlane*>(receiver), m);
+        case CS_SPHERE: return _Collide(static_cast<CollisionPlane*>(sender), static_cast<CollisionSphere*>(receiver), m);
+        case CS_BOX:    return _Collide(static_cast<CollisionPlane*>(sender), static_cast<CollisionBox*>(receiver), m);
+        }
+        break;
+
+    case CS_SPHERE:
+        switch(receiver->getShape()) {
+        case CS_PLANE:  return _Collide(static_cast<CollisionSphere*>(sender), static_cast<CollisionPlane*>(receiver), m);
+        case CS_SPHERE: return _Collide(static_cast<CollisionSphere*>(sender), static_cast<CollisionSphere*>(receiver), m);
+        case CS_BOX:    return _Collide(static_cast<CollisionSphere*>(sender), static_cast<CollisionBox*>(receiver), m);
+        }
+        break;
+
+    case CS_BOX:
+        switch(receiver->getShape()) {
+        case CS_PLANE:  return _Collide(static_cast<CollisionBox*>(sender), static_cast<CollisionPlane*>(receiver), m);
+        case CS_SPHERE: return _Collide(static_cast<CollisionBox*>(sender), static_cast<CollisionSphere*>(receiver), m);
+        case CS_BOX:    return _Collide(static_cast<CollisionBox*>(sender), static_cast<CollisionBox*>(receiver), m);
+        }
+        break;
+    }
+    return false;
+}
+
 
 
 class CollideTask : public Task
@@ -169,26 +187,6 @@ public:
 
     MessageCont& getMessages() { return m_messages; }
 };
-
-
-inline bool BoundingBoxIntersect(const BoundingBox &bb1, const vec4 &pos)
-{
-    return 
-        pos.x <= bb1.ur.x && pos.x >= bb1.bl.x &&
-        pos.y <= bb1.ur.y && pos.y >= bb1.bl.y &&
-        pos.z <= bb1.ur.z && pos.z >= bb1.bl.z;
-}
-
-inline bool BoundingBoxIntersect(const BoundingBox &bb1, const BoundingBox &bb2)
-{
-    float32 rabx = std::abs(bb1.ur.x + bb1.bl.x - bb2.ur.x - bb2.bl.x);
-    float32 raby = std::abs(bb1.ur.y + bb1.bl.y - bb2.ur.y - bb2.bl.y);
-    float32 rabz = std::abs(bb1.ur.z + bb1.bl.z - bb2.ur.z - bb2.bl.z);
-    float32 raxPrbx = bb1.bl.x - bb1.ur.x + bb2.bl.x - bb2.ur.x;
-    float32 rayPrby = bb1.ur.y - bb1.bl.y + bb2.ur.y - bb2.bl.y;
-    float32 rayPrbz = bb1.ur.z - bb1.bl.z + bb2.ur.z - bb2.bl.z;
-    return (rabx <= raxPrbx && raby <= rayPrby && rabz <= rayPrbz);
-}
 
 
 uint32 CollisionSet::collide(CollisionEntity *sender, MessageCont &m)
@@ -253,11 +251,11 @@ void CollisionSet::updateEnd()
     uint32 num = m_entities.size();
     for(uint32 i=0; i<num; ++i) {
         const CollisionEntity *ce = m_entities[i];
-        if(!ce) { continue; }
+        if(!ce || (ce->getFlags() & CF_AFFECT_SPH)==0) { continue; }
 
         // SPH 側の剛体情報とメモリレイアウト同じにしてるので強引に突っ込む
         switch(ce->getShape()) {
-        case CS_PLANE:  break;
+        case CS_PLANE:  atomicGetSPHManager()->addRigid(reinterpret_cast<const sphRigidPlane&>(*ce)); break;
         case CS_SPHERE: atomicGetSPHManager()->addRigid(reinterpret_cast<const sphRigidSphere&>(*ce)); break;
         case CS_BOX:    atomicGetSPHManager()->addRigid(reinterpret_cast<const sphRigidBox&>(*ce)); break;
         }
