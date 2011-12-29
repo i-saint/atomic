@@ -5,7 +5,7 @@ namespace atomic {
 
 class AtomicGame;
 class AtomicRenderingThread;
-class AtomicSoundThread;
+class SoundThread;
 
 struct AtomicConfig
 {
@@ -49,7 +49,6 @@ typedef ist::Application super;
 private:
     AtomicGame              *m_game;
     AtomicRenderingThread   *m_renderng_thread;
-    AtomicSoundThread       *m_sound_thread;
 
     AtomicConfig            m_config;
     AtomicInputState        m_inputs;

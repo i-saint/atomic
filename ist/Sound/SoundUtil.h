@@ -4,11 +4,11 @@
 namespace ist {
 namespace sound {
 
-BufferPtr CreateBufferFromWaveFile(const char* filepath);
-BufferPtr CreateBufferFromOggFile(const char* filepath);
+bool CreateBufferFromWaveFile(const char *filepath, Buffer *buf);
+bool CreateBufferFromOggFile(const char *filepath, Buffer *buf);
 
-StreamPtr CreateStreamFromWaveFile(const char* filepath);
-StreamPtr CreateStreamFromOggFile(const char* filepath);
+Stream* CreateStreamFromWaveFile(const char* filepath);
+Stream* CreateStreamFromOggFile(const char* filepath);
 
 } // namespace sound
 } // namespace ist

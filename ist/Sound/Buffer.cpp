@@ -23,12 +23,6 @@ Buffer::Buffer()
     initialize();
 }
 
-Buffer::Buffer(const std::string& filename)
-{
-    initialize();
-    loadFromFile(filename);
-}
-
 Buffer::~Buffer()
 {
     alDeleteBuffers(1, &m_handle);
@@ -45,18 +39,6 @@ int Buffer::getFrequency() const { return getI(AL_FREQUENCY); }
 void Buffer::copy(char *data, size_t size, ALenum format, int samplerate)
 {
     alBufferData(m_handle, format, data, size, samplerate);
-}
-
-/// .wavÇ©.oggÇéÊÇËçûÇﬁ 
-bool Buffer::loadFromFile(const std::string& filename)
-{
-    //StreamPtr s(createStream(filename));
-    //if(s) {
-    //    std::vector<char>& tmp = s->readByte(s->size());
-    //    copy(&tmp[0], tmp.size(), s->getALFormat(), s->getSampleRate());
-    //    return true;
-    //}
-    return false;
 }
 
 } // namespace sound

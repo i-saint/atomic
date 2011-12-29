@@ -35,7 +35,7 @@ void Listener::setF(ALenum param, float v)
     alListenerf(param, v);
 }
 
-void Listener::set3F(ALenum param, const float4& v)
+void Listener::set3F(ALenum param, const vec3& v)
 {
     alListenerfv(param, (ALfloat*)&v);
 }
@@ -49,8 +49,8 @@ float4 Listener::getPosition() const { return get3F(AL_POSITION); }
 float4 Listener::getVelocity() const { return get3F(AL_VELOCITY); }
 
 void Listener::setGain(float v) { setF(AL_GAIN, v); }
-void Listener::setPosition(const float4& v) { set3F(AL_POSITION, v); }
-void Listener::setVelocity(const float4& v) { set3F(AL_VELOCITY, v); }
+void Listener::setPosition(const vec3 &v) { set3F(AL_POSITION, v); }
+void Listener::setVelocity(const vec3 &v) { set3F(AL_VELOCITY, v); }
 
 
 } // namespace sound

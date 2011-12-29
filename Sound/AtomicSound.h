@@ -1,21 +1,52 @@
+#ifndef __atomic_Sound_AtomicSound__
+#define __atomic_Sound_AtomicSound__
+
+#include "SoundResourceID.h"
+
 namespace atomic {
 
-    class AtomicSoundThread
-    {
-    private:
-        boost::scoped_ptr<boost::thread> m_thread;
-        bool m_stop_request;
+class SoundThread;
 
-    public:
-        AtomicSoundThread();
-        ~AtomicSoundThread();
+class AtomicSound
+{
+private:
+    static AtomicSound  *s_instance;
 
-        void run();
-        void requestStop() { m_stop_request=true; }
+    SoundThread         *m_sound_thread;
 
-    public:
-        void operator()();
-    };
+    AtomicSound();
 
+public:
+    ~AtomicSound();
+    static bool initializeInstance();
+    static void finalizeInstance();
+    static AtomicSound* getInstance();
+
+    void setListenerPosition(const vec4 &pos);
+
+    void playSE(SE_CHANNEL channel, SE_RID se, const vec4 &pos, bool _override);
+    void haltSE(SE_CHANNEL channel);
+    bool isSEPlaying(SE_CHANNEL channel);
+
+    // 
+    void playBGM(BGM_CHANNEL channel, BGM_RID bgm);
+    void fadeBGM(BGM_CHANNEL channel, uint32 ms);
+    void haltBGM(BGM_CHANNEL channel);
+    void isBGMPlaying(BGM_CHANNEL channel);
+};
+
+
+#define atomicGetSound()                            AtomicSound::getInstance()
+
+#define atomicSetListenerPosition(pos)              atomicGetSound()->setListenerPosition(pos)
+#define atomicPlaySE(channel, se, pos, _override)   atomicGetSound()->playSE(channel, se, pos, _override)
+#define atomicHaltSE(channel)                       atomicGetSound()->haltSE(channel)
+#define atomicIsSEPlaying(channel)                  atomicGetSound()->isSEPlaying(channel)
+
+#define atomicPlayBGM(channel, bgm)                 atomicGetSound()->playBGM(channel, bgm)
+#define atomicFadeBGM(channel, ms)                  atomicGetSound()->fadeBGM(channel, ms)
+#define atomicHaltBGM(channel)                      atomicGetSound()->haltBGM(channel)
+#define atomicIsBGMPlaying(channel)                 atomicGetSound()->isBGMPlaying(channel)
 
 } //namespace atomic
+#endif // __atomic_Sound_AtomicSound__

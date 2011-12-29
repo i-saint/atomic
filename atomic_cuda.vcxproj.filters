@@ -438,6 +438,9 @@
     <ClInclude Include="Game\Entity\RoutineClass.h">
       <Filter>Game\Entity</Filter>
     </ClInclude>
+    <ClInclude Include="Sound\SoundResourceID.h">
+      <Filter>Sound</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="GPGPU\SPH_internal.cuh">

@@ -32,7 +32,6 @@ namespace sound {
         /// require_sampleƒTƒ“ƒvƒ‹•ª“Ç‚İ‚Ş 
         CharCont& readSample(size_t require_sample);
     };
-    typedef boost::shared_ptr<Stream> StreamPtr;
 
 
 

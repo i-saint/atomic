@@ -210,7 +210,6 @@ AtomicApplication::AtomicApplication()
     : m_request_exit(false)
     , m_game(NULL)
     , m_renderng_thread(NULL)
-    , m_sound_thread(NULL)
 {
     if(g_appinst) { IST_ASSERT("already initialized"); }
     g_appinst = this;
@@ -226,6 +225,7 @@ bool AtomicApplication::initialize()
 {
     InitializeText();
     m_config.readFromFile(ATOMIC_CONFIG_FILE_PATH);
+
 #ifndef ATOMIC_ENABLE_DEBUG_FEATURE
     {
         ist::DisplaySetting ds = getCurrentDisplaySetting();
@@ -237,6 +237,7 @@ bool AtomicApplication::initialize()
     if(m_config.window_pos.y >= 2048) { m_config.window_pos.y = 0; }
 #endif // ATOMIC_ENABLE_DEBUG_FEATURE
     if(m_config.window_size.x < 320 || m_config.window_size.x < 240) { m_config.window_size = ivec2(1024, 768); }
+
 
     ivec2 wpos = m_config.window_pos;
     ivec2 wsize = m_config.window_size;
@@ -261,8 +262,8 @@ bool AtomicApplication::initialize()
         }
     }
 
-    m_sound_thread = IST_NEW16(AtomicSoundThread)();
-    m_sound_thread->run();
+    AtomicSound::initializeInstance();
+
 
     m_game = IST_NEW16(AtomicGame)();
 
@@ -271,10 +272,10 @@ bool AtomicApplication::initialize()
 
 void AtomicApplication::finalize()
 {
+    AtomicSound::finalizeInstance();
+
     if(m_renderng_thread) { m_renderng_thread->stop(); }
-    if(m_sound_thread) { m_sound_thread->requestStop(); }
     IST_SAFE_DELETE(m_game);
-    IST_SAFE_DELETE(m_sound_thread);
     IST_SAFE_DELETE(m_renderng_thread);
 
     TaskScheduler::finalizeSingleton();

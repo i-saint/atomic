@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "types.h"
+#include "Sound/AtomicSound.h"
 #include "Graphics/ResourceManager.h"
 #include "Graphics/Renderer.h"
 #include "Game/AtomicApplication.h"
@@ -124,6 +125,8 @@ public:
                 tpos2.z = tpos.z;
                 pcam->setPosition(cpos2);
                 pcam->setTarget(tpos2);
+
+                atomicSetListenerPosition(cpos2);
             }
         }
     }

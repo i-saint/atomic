@@ -14,11 +14,11 @@ bool IntializeSound()
         return false;
     }
 
-    g_context = alcCreateContext(g_device, 0);
+    g_context = alcCreateContext(g_device, NULL);
     if(!g_context) {
         alcCloseDevice(g_device); g_device=NULL;
-        return false;
         IST_PRINT("alcCreateContext() failed");
+        return false;
     }
 
     alcMakeContextCurrent(g_context);
@@ -27,6 +27,7 @@ bool IntializeSound()
 
 void FinalizeSound()
 {
+    alcMakeContextCurrent(0);
     alcDestroyContext(g_context);
     alcCloseDevice(g_device);
 }

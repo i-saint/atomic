@@ -7,9 +7,7 @@ namespace sound {
     class Source
     {
     private:
-        typedef std::deque<BufferPtr> BufferQueue;
         ALuint m_handle;
-        BufferQueue m_queue;
 
     protected:
         int getI(ALenum param) const;
@@ -31,15 +29,24 @@ namespace sound {
         Source();
         virtual ~Source();
 
-        ALuint getHandle() const;
+        ALuint getHandle() const    { return m_handle; }
 
-        float getGain() const;
-        vec3 getPosition() const;
-        vec3 getVelocity() const;
+        int getBuffersQueued() const                { return getI(AL_BUFFERS_QUEUED); }
+        bool getLooping(bool v) const               { return getI(AL_LOOPING)==AL_TRUE; }
+        float getGain() const                       { return getF(AL_GAIN); }
+        float getRefferenceDistance(float v) const  { return getF(AL_REFERENCE_DISTANCE); }
+        float getMaxDistance(float v) const         { return getF(AL_MAX_DISTANCE); }
+        float getRolloffFactor(float v) const       { return getF(AL_ROLLOFF_FACTOR); }
+        vec3 getPosition() const                    { return get3F(AL_POSITION); }
+        vec3 getVelocity() const                    { return get3F(AL_VELOCITY); }
 
-        void setGain(float v);
-        void setPosition(const vec3& v);
-        void setVelocity(const vec3& v);
+        void setGain(float v)               { setF(AL_GAIN, v); }
+        void setLooping(bool v)             { setI(AL_LOOPING, v); }
+        void setRefferenceDistance(float v) { setF(AL_REFERENCE_DISTANCE, v); }
+        void setMaxDistance(float v)        { setF(AL_MAX_DISTANCE, v); }
+        void setRolloffFactor(float v)      { setF(AL_ROLLOFF_FACTOR, v); }
+        void setPosition(const vec3& v)     { set3F(AL_POSITION, v); }
+        void setVelocity(const vec3& v)     { set3F(AL_VELOCITY, v); }
 
         bool isInitial() const;
         bool isPlaying() const;
@@ -52,10 +59,9 @@ namespace sound {
         void stop();
         void rewind();
 
-        BufferPtr unqueue();
-        void queue(BufferPtr buf);
-
-        virtual void update();
+        bool unqueue();
+        void queue(Buffer *buf);
+        void clearQueue();
     };
     typedef boost::shared_ptr<Source> SourcePtr;
 

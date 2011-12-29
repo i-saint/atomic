@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "types.h"
 #include "Util.h"
+#include "Sound/AtomicSound.h"
 #include "Graphics/ResourceManager.h"
 #include "Graphics/Renderer.h"
 #include "Game/AtomicApplication.h"
@@ -73,6 +74,9 @@ public:
             collision::updateCollision(getModel(), getTransform(), rigid_scale);
         }
         if(getState()==ST_FADEOUT) {
+            if(m_st_frame==2) { // 1 フレームコリジョンを残してパーティクルを爆散させる
+                collision::finalizeCollision();
+            }
             if(m_st_frame==FADEOUT_TIME) {
                 atomicDeleteEntity(getHandle());
             }
@@ -119,8 +123,9 @@ public:
     virtual void destroy()
     {
         atomicGetSPHManager()->addFluid(getModel(), getTransform());
-        collision::finalizeCollision();
         setState(ST_FADEOUT);
+
+        atomicPlaySE(SE_CHANNEL3, SE_EXPLOSION3, getPosition(), true);
     }
 
     bool call(uint32 call_id, const variant &v)

@@ -154,6 +154,7 @@
     <ClInclude Include="ist\Window\WindowMessage.h" />
     <ClInclude Include="shader\glsl_source.h" />
     <ClInclude Include="Sound\AtomicSound.h" />
+    <ClInclude Include="Sound\SoundResourceID.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="Util.h" />

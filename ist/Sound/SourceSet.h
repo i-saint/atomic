@@ -12,19 +12,28 @@ namespace sound {
 
     private:
         static const int s_num_buffers = 4;
-        StreamPtr m_stream;
+        Stream *m_stream; // shared
+        Buffer *m_internal_buffers[s_num_buffers];  // internal
+        int m_buffer_index;
 
     public:
-        StreamSource(StreamPtr ptr) : m_stream(ptr)
+        StreamSource() : m_stream(NULL), m_buffer_index(0)
         {
-            fillBuffer();
+            for(size_t i=0; i<_countof(m_internal_buffers); ++i) {
+                m_internal_buffers[i] = new Buffer();
+            }
         }
 
-        void setStream(StreamPtr ptr)
+        virtual ~StreamSource()
         {
-            m_stream = ptr;
-            fillBuffer();
+            for(size_t i=0; i<_countof(m_internal_buffers); ++i) {
+                delete m_internal_buffers[i];
+            }
         }
+
+        void setStream(Stream *ptr) { m_stream=ptr; fillBuffer(); }
+
+        Stream* getStream() { return m_stream; }
 
         size_t size() { return m_stream->size(); }
         size_t tell() { return m_stream->tell(); }
@@ -33,11 +42,10 @@ namespace sound {
 
         void fillBuffer()
         {
-            for(int i=0; i<s_num_buffers; ++i) {
-                if(eof()) {
-                    break;
-                }
-                BufferPtr buf(new Buffer());
+            for(int i=0; i<_countof(m_internal_buffers); ++i) {
+                if(eof()) { break; }
+
+                Buffer *buf = m_internal_buffers[i];
                 char_cont& tmp = m_stream->readMillisec(250);
                 buf->copy(&tmp[0], tmp.size(), m_stream->getALFormat(), m_stream->getSampleRate());
                 queue(buf);
@@ -48,17 +56,18 @@ namespace sound {
         {
             int processed = getProcessed();
             for(int i=0; i<processed; ++i) {
-                if(eof()) {
-                    return;
-                }
+                if(eof()) { return; }
+
                 char_cont& tmp = m_stream->readMillisec(250);
-                BufferPtr buf = unqueue();
+                unqueue();
+                Buffer *buf = m_internal_buffers[m_buffer_index];
                 buf->copy(&tmp[0], tmp.size(), m_stream->getALFormat(), m_stream->getSampleRate());
                 queue(buf);
+
+                m_buffer_index = (m_buffer_index+1) % s_num_buffers;
             }
         }
     };
-    typedef boost::shared_ptr<StreamSource> StreamSourcePtr;
 
 
     template<class SourceType>

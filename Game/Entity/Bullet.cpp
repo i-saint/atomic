@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "types.h"
 #include "Util.h"
+#include "Sound/AtomicSound.h"
 #include "Graphics/ResourceManager.h"
 #include "Graphics/Renderer.h"
 #include "Game/AtomicApplication.h"
@@ -99,6 +100,7 @@ public:
 
         atomicGetSPHManager()->addFluid(getModel(), m_transform);
         atomicDeleteEntity(getHandle());
+        atomicPlaySE(SE_CHANNEL2, SE_EXPLOSION2, getPosition(), true);
     }
 
     virtual bool call(uint32 call_id, const variant &v)

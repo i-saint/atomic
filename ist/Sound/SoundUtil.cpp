@@ -6,52 +6,50 @@
 namespace ist {
 namespace sound {
 
-BufferPtr CreateBufferFromWaveFile(const char* filepath)
+bool CreateBufferFromWaveFile(const char* filepath, Buffer *buf)
 {
-    StreamPtr s = CreateStreamFromWaveFile(filepath);
+    Stream *s = CreateStreamFromWaveFile(filepath);
     if(s) {
         std::vector<char>& tmp = s->readByte(s->size());
-        BufferPtr ret(new Buffer());
-        ret->copy(&tmp[0], tmp.size(), s->getALFormat(), s->getSampleRate());
-        return ret;
+        buf->copy(&tmp[0], tmp.size(), s->getALFormat(), s->getSampleRate());
+        delete s;
+        return true;
     }
-    return BufferPtr();
+    return false;
 }
 
-BufferPtr CreateBufferFromOggFile(const char* filepath)
+bool CreateBufferFromOggFile(const char* filepath, Buffer *buf)
 {
 #ifdef IST_SOUND_ENABLE_OGGVORBIS
-    StreamPtr s = CreateStreamFromOggFile(filepath);
+    Stream *s = CreateStreamFromOggFile(filepath);
     if(s) {
         std::vector<char>& tmp = s->readByte(s->size());
-        BufferPtr ret(new Buffer());
-        ret->copy(&tmp[0], tmp.size(), s->getALFormat(), s->getSampleRate());
-        return ret;
+        buf->copy(&tmp[0], tmp.size(), s->getALFormat(), s->getSampleRate());
+        delete s;
+        return true;
     }
 #endif
-    return BufferPtr();
+    return false;
 }
 
-StreamPtr CreateStreamFromWaveFile(const char* filepath)
+Stream* CreateStreamFromWaveFile(const char* filepath)
 {
     WaveStream *stream = new WaveStream();
-    StreamPtr ret(stream);
     if(stream->openStream(filepath)) {
-        return ret;
+        return stream;
     }
-    return StreamPtr();
+    return NULL;
 }
 
-StreamPtr CreateStreamFromOggFile(const char* filepath)
+Stream* CreateStreamFromOggFile(const char* filepath)
 {
 #ifdef IST_SOUND_ENABLE_OGGVORBIS
     OggVorbisFileStream *stream = new OggVorbisFileStream();
-    StreamPtr ret(stream);
     if(stream->openStream(filepath)) {
-        return ret;
+        return stream;
     }
 #endif
-    return StreamPtr();
+    return NULL;
 }
 
 } // namespace sound

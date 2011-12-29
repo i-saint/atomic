@@ -51,17 +51,6 @@ Source::~Source()
     alDeleteSources(1, &m_handle);
 }
 
-ALuint Source::getHandle() const { return m_handle; }
-
-
-float Source::getGain() const           { return getF(AL_GAIN); }
-vec3 Source::getPosition() const        { return get3F(AL_POSITION); }
-vec3 Source::getVelocity() const        { return get3F(AL_VELOCITY); }
-
-void Source::setGain(float v)           { setF(AL_GAIN, v); }
-void Source::setPosition(const vec3& v) { set3F(AL_POSITION, v); }
-void Source::setVelocity(const vec3& v) { set3F(AL_VELOCITY, v); }
-
 
 bool Source::isInitial() const { return getI(AL_SOURCE_STATE)==AL_INITIAL; }
 bool Source::isPlaying() const { return getI(AL_SOURCE_STATE)==AL_PLAYING; }
@@ -75,26 +64,23 @@ void Source::stop()   { alSourceStop(m_handle); }
 void Source::rewind() { alSourceRewind(m_handle); }
 
 
-BufferPtr Source::unqueue()
+bool Source::unqueue()
 {
-    if(m_queue.empty()) {
-        return BufferPtr();
-    }
     ALuint buf = 0;
     alSourceUnqueueBuffers(m_handle, 1, &buf);
-    BufferPtr front = m_queue.front();
-    m_queue.pop_front();
-    return front;
+    return buf!=0;
 }
 
-void Source::queue(BufferPtr buf)
+void Source::queue(Buffer *buf)
 {
-    m_queue.push_back(buf);
     ALuint h = buf->getHandle();
     alSourceQueueBuffers(m_handle, 1, &h);
 }
 
-void Source::update() {}
+void Source::clearQueue()
+{
+    setI(AL_BUFFER, AL_NONE);
+}
 
 
 } // namespace sound
