@@ -10,7 +10,6 @@
 #include "Game/Collision.h"
 #include "Game/Message.h"
 #include "Enemy.h"
-#include "GPGPU/SPH.cuh"
 
 namespace atomic {
 
@@ -78,6 +77,15 @@ public:
                 atomicDeleteEntity(getHandle());
             }
         }
+
+        if(getState()==ST_ACTIVE) {
+            if(m_st_frame % 300 == 0) {
+                const vec4 &pos = getPosition();
+                vec4 player_pos = GetNearestPlayerPosition(pos);
+                vec2 vel = glm::normalize(vec2(player_pos)-vec2(pos)) * 0.01f;
+                ShootSimpleBullet(getHandle(), pos, vec4(vel, 0.0f, 0.0f));
+            }
+        }
     }
 
     virtual void draw()
@@ -98,8 +106,9 @@ public:
 
         {
             PointLight l;
-            l.position  = getPosition() + vec4(0.0f, 0.0f, 0.2f, 1.0f);
-            l.color     = light;
+            l.setPosition(getPosition() + vec4(0.0f, 0.0f, 0.2f, 1.0f));
+            l.setColor(light);
+            l.setRadius(1.0f);
             atomicGetPointLights()->addInstance(l);
         }
         if(m_state!=ST_FADEOUT) {

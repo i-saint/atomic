@@ -12,10 +12,9 @@ ia_out(GLSL_INSTANCE_PARAM)     vec4 ia_InstanceParam;
 vs_out vec4 vs_LightPosition;
 vs_out vec4 vs_LightColor;
 vs_out vec4 vs_VertexPositionMVP;
+vs_out float vs_LightRange;
+vs_out float vs_RcpLightRange;
 #endif
-const float u_LightSize     = 1.0;
-const float u_LightRange    = u_LightSize*0.98;
-const float u_RcpLightRange = 1.0/u_LightRange;
 
 #if defined(GLSL_VS)
 
@@ -23,8 +22,10 @@ void main()
 {
     vs_LightPosition = ia_InstancePosition;
     vs_LightPosition.w = 0.0;
+    vs_LightRange = ia_InstanceParam.x;
+    vs_RcpLightRange = ia_InstanceParam.y;
 
-    vec4 scaled_position = ia_VertexPosition * vec4(u_LightSize, u_LightSize, u_LightSize, 1.0);
+    vec4 scaled_position = ia_VertexPosition * vec4(vs_LightRange, vs_LightRange, vs_LightRange, 1.0);
 
     vs_LightColor = ia_InstanceColor;
     vs_VertexPositionMVP = u_RS.ModelViewProjectionMatrix * (scaled_position+vs_LightPosition);
@@ -56,7 +57,7 @@ void main()
     float LightDist     = sqrt(LightDist2);
     vec3  LightDir      = LightDiff / LightDist;
 
-    float LightAttenuation  = max(u_LightRange-LightDist, 0.0)*u_RcpLightRange * 1.5;
+    float LightAttenuation  = max(vs_LightRange-LightDist, 0.0)*vs_RcpLightRange * 1.5;
 
     vec3 h          = normalize(EyeDir + LightDir);
     float nh        = max(dot(Normal, h), 0.0);

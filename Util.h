@@ -14,6 +14,9 @@ namespace atomic {
     void UpdateCollisionSphere(CollisionSphere &o, const vec4& pos, float32 r);
     void UpdateCollisionBox(CollisionBox &o, const mat4& t, const vec4 &size);
 
+    vec4 GetNearestPlayerPosition(const vec4 &pos);
+    void ShootSimpleBullet(EntityHandle owner, const vec4 &pos, const vec4 &vel);
+
 } // namespace atomic
 
 namespace glm {

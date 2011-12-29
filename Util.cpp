@@ -4,7 +4,9 @@
 #include "Game/AtomicGame.h"
 #include "Game/World.h"
 #include "Game/Collision.h"
-#include "GPGPU/SPH.cuh"
+#include "Game/Entity.h"
+#include "Game/EntityClass.h"
+#include "Game/EntityQuery.h"
 #include "Util.h"
 
 namespace atomic {
@@ -72,6 +74,26 @@ void UpdateCollisionBox(CollisionBox &o, const mat4& t, const vec4 &size)
     }
     o.bb.ur = pos + vec4( r, r, r, 0.0f);
     o.bb.bl = pos + vec4(-r,-r,-r, 0.0f);
+}
+
+
+vec4 GetNearestPlayerPosition(const vec4 &pos)
+{
+    if(IEntity *player = atomicGetEntity( EntityCreateHandle(ECID_PLAYER, ESID_PLAYER, 0) )) {
+        variant v;
+        if(atomicQuery(player, getPosition, v)) {
+            return v.cast<vec4>();
+        }
+    }
+    return vec4();
+}
+
+void ShootSimpleBullet(EntityHandle owner, const vec4 &pos, const vec4 &vel)
+{
+    IEntity *e = atomicCreateEntity(Bullet_Simple);
+    atomicCall(e, setOwner, owner);
+    atomicCall(e, setPosition, pos);
+    atomicCall(e, setVelocity, vel);
 }
 
 } // namespace atomic

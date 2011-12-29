@@ -50,7 +50,7 @@ namespace atomic {
         const vec4& getFlashColor() const   { return m_flash_color; }
         int         getPastFrame() const    { return m_past_frame; }
 
-        void setHealth(float32 v)        { m_health=v; }
+        void setHealth(float32 v)       { m_health=v; }
         void setTransform(const mat4& v){ m_transform=v; }
         void setRoutine(IRoutine *v)    { m_routine=v; }
 

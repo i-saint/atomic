@@ -283,7 +283,7 @@ namespace atomic {
     class Attr_CubeCollision
     {
     private:
-        CollisionBox *m_collision;
+        CollisionHandle m_collision;
 
     public:
         Attr_CubeCollision() : m_collision(NULL)
@@ -295,27 +295,35 @@ namespace atomic {
             finalizeCollision();
         }
 
+        void setCollisionFlag(int32 v)
+        {
+            if(CollisionEntity *ce=atomicGetCollision(m_collision)) {
+                ce->setFlags(v);
+            }
+        }
+
         void initializeCollision(EntityHandle h)
         {
-            if(!m_collision) {
-                m_collision = atomicCreateCollision(CollisionBox);
-                m_collision->setGObjHandle(h);
+            if(m_collision==0) {
+                CollisionBox *ce = atomicCreateCollision(CollisionBox);
+                ce->setGObjHandle(h);
+                m_collision = ce->getCollisionHandle();
             }
         }
 
         void finalizeCollision()
         {
-            if(m_collision) {
+            if(m_collision!=0) {
                 atomicDeleteCollision(m_collision);
-                m_collision = NULL;
+                m_collision = 0;
             }
         }
 
         void updateCollision(PSET_RID psid, const mat4 &t, float32 scale)
         {
-            if(m_collision) {
+            if(m_collision!=0) {
                 vec4 box_size = (vec4&)atomicGetRigidInfo(psid)->box_size * scale;
-                UpdateCollisionBox(*m_collision, t, box_size);
+                UpdateCollisionBox(*static_cast<CollisionBox*>(atomicGetCollision(m_collision)), t, box_size);
             }
         }
     };
@@ -323,10 +331,10 @@ namespace atomic {
     class Attr_SphereCollision
     {
     private:
-        CollisionSphere *m_collision;
+        CollisionHandle m_collision;
 
     public:
-        Attr_SphereCollision() : m_collision(NULL)
+        Attr_SphereCollision() : m_collision(0)
         {
         }
 
@@ -335,28 +343,36 @@ namespace atomic {
             finalizeCollision();
         }
 
+        void setCollisionFlag(int32 v)
+        {
+            if(CollisionEntity *ce=atomicGetCollision(m_collision)) {
+                ce->setFlags(v);
+            }
+        }
+
         void initializeCollision(EntityHandle h)
         {
-            if(!m_collision) {
-                m_collision = atomicCreateCollision(CollisionSphere);
-                m_collision->setGObjHandle(h);
+            if(m_collision==0) {
+                CollisionSphere *ce = atomicCreateCollision(CollisionSphere);
+                ce->setGObjHandle(h);
+                m_collision = ce->getCollisionHandle();
             }
         }
 
         void finalizeCollision()
         {
-            if(m_collision) {
+            if(m_collision!=0) {
                 atomicDeleteCollision(m_collision);
-                m_collision = NULL;
+                m_collision = 0;
             }
         }
 
         void updateCollision(PSET_RID psid, const mat4 &t, float32 scale)
         {
-            if(m_collision) {
+            if(m_collision!=0) {
                 vec4 pos = t * vec4(0.0f, 0.0f, 0.0f, 1.0f);
                 float radius = atomicGetRigidInfo(psid)->sphere_radius * scale;
-                UpdateCollisionSphere(*m_collision, pos, radius);
+                UpdateCollisionSphere(*static_cast<CollisionSphere*>(atomicGetCollision(m_collision)), pos, radius);
             }
         }
     };

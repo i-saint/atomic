@@ -37,8 +37,8 @@
     <Filter Include="ist\Sound">
       <UniqueIdentifier>{f4927df5-d398-443e-9b8e-1365e12cb98f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game\Character">
-      <UniqueIdentifier>{c1dc813c-e337-4ab1-b6ce-f735b08c757f}</UniqueIdentifier>
+    <Filter Include="Game\Entity">
+      <UniqueIdentifier>{1f1a3bf3-079c-4653-90b2-5e697bd4f0df}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -158,12 +158,6 @@
     <ClCompile Include="Graphics\CudaBuffer.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Character\Enemy.cpp">
-      <Filter>Game\Character</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Character\Player.cpp">
-      <Filter>Game\Character</Filter>
-    </ClCompile>
     <ClCompile Include="Game\Entity.cpp">
       <Filter>Game</Filter>
     </ClCompile>
@@ -171,14 +165,23 @@
       <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="Util.cpp" />
-    <ClCompile Include="Game\Character\Routine.cpp">
-      <Filter>Game\Character</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Character\Level.cpp">
-      <Filter>Game\Character</Filter>
-    </ClCompile>
     <ClCompile Include="Game\Collision.cpp">
       <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Entity\Enemy.cpp">
+      <Filter>Game\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Entity\Level.cpp">
+      <Filter>Game\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Entity\Player.cpp">
+      <Filter>Game\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Entity\Routine.cpp">
+      <Filter>Game\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Entity\Bullet.cpp">
+      <Filter>Game\Entity</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -391,17 +394,8 @@
     <ClInclude Include="ist\Base\Types.h">
       <Filter>ist\Base</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Character\Enemy.h">
-      <Filter>Game\Character</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\Character\Player.h">
-      <Filter>Game\Character</Filter>
-    </ClInclude>
     <ClInclude Include="Game\Entity.h">
       <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\Character\Attributes.h">
-      <Filter>Game\Character</Filter>
     </ClInclude>
     <ClInclude Include="Game\EntityQuery.h">
       <Filter>Game</Filter>
@@ -420,20 +414,29 @@
     <ClInclude Include="Game\EntityClass.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Character\RoutineClass.h">
-      <Filter>Game\Character</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\Character\Routine.h">
-      <Filter>Game\Character</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\Character\Level.h">
-      <Filter>Game\Character</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\ParticleSet.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Game\Collision.h">
       <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Entity\Attributes.h">
+      <Filter>Game\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Entity\Enemy.h">
+      <Filter>Game\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Entity\Level.h">
+      <Filter>Game\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Entity\Player.h">
+      <Filter>Game\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Entity\Routine.h">
+      <Filter>Game\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Entity\RoutineClass.h">
+      <Filter>Game\Entity</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

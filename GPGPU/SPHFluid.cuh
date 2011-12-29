@@ -392,11 +392,8 @@ struct _FluidIntegrate
         velocity *= make_float4(0.999);
         {
             float d = dot(velocity, velocity);
-            if(d > 1.0f) {
-                velocity *= 0.99f;
-                if(d > 16.0f) {
-                    velocity = velocity / sqrt(d) * 4.0f;
-                }
+            if(d > 16.0f) {
+                velocity = velocity / sqrt(d) * 4.0f;
             }
         }
         if(dot(velocity, velocity) > 1.0f) { velocity *= make_float4(0.98); }

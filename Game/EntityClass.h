@@ -37,7 +37,7 @@ namespace atomic {
 
     enum ENTITY_BULLET_CLASS_ID
     {
-        ESID_BULLET,
+        ESID_BULLET_SIMPLE,
         ESID_BULLET_END,
     };
 
@@ -73,8 +73,7 @@ namespace atomic {
     class Enemy_CubeBasic;
     class Enemy_SphereBasic;
 
-    class Bullet_Player;
-    class Bullet_Enemy;
+    class Bullet_Simple;
 
     class Level_Test;
 

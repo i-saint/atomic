@@ -18,16 +18,16 @@ namespace atomic {
 class Player
     : public Breakable
     , public TAttr_RotateSpeed<Attr_DoubleAxisRotation>
-    , public Attr_SphereCollision
 {
 typedef Breakable super;
 typedef TAttr_RotateSpeed<Attr_DoubleAxisRotation> transform;
-typedef Attr_SphereCollision collision;
 private:
     static const PSET_RID pset_id = PSET_SPHERE_SMALL;
 
     vec4 m_boost;
     int32 m_cooldown;
+    Attr_SphereCollision m_collision;
+    Attr_SphereCollision m_barrier;
 
 public:
     Player() : m_cooldown(0)
@@ -37,7 +37,9 @@ public:
     virtual void initialize()
     {
         super::initialize();
-        initializeCollision(getHandle());
+        m_collision.initializeCollision(getHandle());
+        m_barrier.initializeCollision(0);
+        m_barrier.setCollisionFlag(CF_AFFECT_SPH);
     }
 
     virtual void update(float32 dt)
@@ -47,7 +49,7 @@ public:
         vec4 move = vec4(atomicGetInputs()->getMove()*0.01f, 0.0f, 0.0f);
         if(m_cooldown==0 && atomicGetInputs()->isButtonTriggered(1)) {
             m_boost += move * 2.0f;
-            m_cooldown = 20;
+            m_cooldown = 10;
         }
 
         vec4 pos = getPosition();
@@ -61,7 +63,7 @@ public:
         {
             sphForcePointGravity pg;
             pg.position = (float4&)pos;
-            pg.strength = 1.0f;
+            pg.strength = 2.0f;
             atomicGetSPHManager()->addForce(pg);
         }
 
@@ -70,16 +72,18 @@ public:
         transform::update(dt);
 
         setTransform(computeMatrix());
-        collision::updateCollision(pset_id, getTransform(), 1.0f);
+        m_collision.updateCollision(pset_id, getTransform(), 0.5f);
+        m_barrier.updateCollision(pset_id, getTransform(), 3.0f);
     }
 
     virtual void draw()
     {
         {
-            PointLight light;
-            light.position  = getPosition() + vec4(0.0f, 0.0f, 0.5f, 0.0f);
-            light.color     = vec4(0.1f, 0.2f, 1.0f, 1.0f);
-            atomicGetPointLights()->addInstance(light);
+            PointLight l;
+            l.setPosition(getPosition()+vec4(0.0f, 0.0f, 0.3f, 0.0f));
+            l.setColor(vec4(0.1f, 0.2f, 1.0f, 1.0f));
+            l.setRadius(1.0f);
+            atomicGetPointLights()->addInstance(l);
         }
         {
             atomicGetSPHRenderer()->addPSetInstance(pset_id, getTransform(),

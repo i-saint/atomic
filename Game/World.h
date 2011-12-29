@@ -69,9 +69,9 @@ public:
 #define atomicDeleteEntity(o)   atomicGetEntitySet()->deleteEntity(o)
 
 #define atomicGetCollisionSet()     atomicGetWorld()->getCollisionSet()
-#define atomicCreateCollision(n)    atomicGetCollisionSet()->createEntity<n>();
-#define atomicDeleteCollision(o)    atomicGetCollisionSet()->deleteEntity(o);
-#define atomicGetCollision(h)       atomicGetCollisionSet()->getCollision(h)
+#define atomicCreateCollision(n)    atomicGetCollisionSet()->createEntity<n>()
+#define atomicDeleteCollision(o)    atomicGetCollisionSet()->deleteEntity(o)
+#define atomicGetCollision(h)       atomicGetCollisionSet()->getEntity(h)
 
 #define atomicGetSPHManager()   atomicGetWorld()->getFractionSet()
 
