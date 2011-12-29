@@ -39,11 +39,13 @@ AtomicRenderer::AtomicRenderer()
     m_renderer_sph          = IST_NEW(PassGBuffer_SPH)();
     m_renderer_dir_lights   = IST_NEW(PassDeferredShading_DirectionalLights)();
     m_renderer_point_lights = IST_NEW(PassDeferredShading_PointLights)();
+    m_renderer_fxaa         = IST_NEW(PassPostprocess_FXAA)();
     m_renderer_bloom        = IST_NEW(PassPostprocess_Bloom)();
 
     m_renderers[PASS_GBUFFER].push_back(m_renderer_sph);
     m_renderers[PASS_DEFERRED].push_back(m_renderer_dir_lights);
     m_renderers[PASS_DEFERRED].push_back(m_renderer_point_lights);
+    m_renderers[PASS_POSTPROCESS].push_back(m_renderer_fxaa);
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_bloom);
 
     m_default_viewport.setViewport(0, 0, atomicGetWindowWidth(), atomicGetWindowHeight());
@@ -428,6 +430,58 @@ void PassDeferredShading_PointLights::draw()
     m_va_sphere->unbind();
     m_shader->unbind();
 }
+
+
+
+PassPostprocess_FXAA::PassPostprocess_FXAA()
+{
+    m_rt_deferred   = atomicGetRenderTargetDeferred();
+    m_rt_RGBL       = atomicGetRenderTargetPostProcess();
+    m_sh_FXAA_luma  = atomicGetShader(SH_FXAA_LUMA);
+    m_sh_FXAA       = atomicGetShader(SH_FXAA);
+    m_va_quad       = atomicGetVertexArray(VA_SCREEN_QUAD);
+
+    m_loc_fxaa_param = m_sh_FXAA->getUniformBlockIndex("fxaa_params");
+}
+
+void PassPostprocess_FXAA::beforeDraw()
+{
+}
+
+void PassPostprocess_FXAA::draw()
+{
+    if(!atomicGetConfig()->posteffect_antialias) { return; }
+
+    UniformBufferObject *ubo_fxaa = atomicGetUniformBufferObject(UBO_FXAA_PARAMS);
+    m_fxaaparams.fxaaQualityRcpFrame        = vec2(1.0f, 1.0f) / vec2((float32)atomicGetWindowWidth(), (float32)atomicGetWindowHeight());
+    m_fxaaparams.fxaaQualitySubpix          = 0.75f;
+    m_fxaaparams.fxaaQualityEdgeThreshold   = 0.166f;
+    m_fxaaparams.fxaaQualityEdgeThresholdMin= 0.0833f;
+    MapAndWrite(*ubo_fxaa, &m_fxaaparams, sizeof(m_fxaaparams));
+
+    // ‹P“x’Šo
+    {
+        m_sh_FXAA_luma->bind();
+        m_rt_RGBL->bind();
+        m_rt_deferred->getColorBuffer(GBUFFER_COLOR)->bind(GLSL_COLOR_BUFFER);
+        m_va_quad->bind();
+        glDrawArrays(GL_QUADS, 0, 16);
+        m_rt_RGBL->unbind();
+        m_sh_FXAA_luma->unbind();
+    }
+    // FXAA
+    {
+        m_sh_FXAA->bind();
+        m_sh_FXAA->setUniformBlock(m_loc_fxaa_param, GLSL_FXAA_BINDING, ubo_fxaa->getHandle());
+        m_rt_deferred->bind();
+        m_rt_RGBL->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
+        m_va_quad->bind();
+        glDrawArrays(GL_QUADS, 0, 16);
+        m_rt_deferred->unbind();
+        m_sh_FXAA_luma->unbind();
+    }
+}
+
 
 
 PassPostprocess_Bloom::PassPostprocess_Bloom()

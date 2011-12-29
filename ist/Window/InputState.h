@@ -2,22 +2,37 @@
 #define __ist_Application_InputState__
 namespace ist {
 
+enum KEY {
+    KEY_RIGHT   = VK_RIGHT,
+    KEY_LEFT    = VK_LEFT,
+    KEY_UP      = VK_UP,
+    KEY_DOWN    = VK_DOWN,
+    KEY_ESCAPE  = VK_ESCAPE,
+    KEY_F1      = VK_F1,
+    KEY_F2      = VK_F2,
+    KEY_F3      = VK_F3,
+    KEY_F4      = VK_F4,
+    KEY_F5      = VK_F5,
+    KEY_F6      = VK_F6,
+    KEY_F7      = VK_F7,
+    KEY_F8      = VK_F8,
+    KEY_F9      = VK_F9,
+    KEY_F10     = VK_F10,
+    KEY_F11     = VK_F11,
+};
+
 
 class KeyboardState
 {
 private:
-    unsigned char   m_keystate[256];
+    unsigned char   m_keystate[2][256];
 
 public:
-    enum KEY
-    {
-        KEY_ESCAPE = VK_ESCAPE,
-    };
-
-    KeyboardState() { memset(this, 0, sizeof(*this)); }
-    unsigned char* getRawKeyState() { return m_keystate; }
-    bool isKeyPressed(int v) const { return (m_keystate[v] & 0x80)!=0; }
-
+    KeyboardState()     { memset(this, 0, sizeof(*this)); }
+    void copyToBack()   { memcpy(m_keystate[1], m_keystate[0], 256); }
+    unsigned char* getRawKeyState() { return m_keystate[0]; }
+    bool isKeyPressed(int v) const { return (m_keystate[0][v] & 0x80)!=0; }
+    bool isKeyTriggered(int v) const { return (m_keystate[0][v] & 0x80)!=0 && (m_keystate[1][v] & 0x80)==0; }
 };
 
 class MouseState

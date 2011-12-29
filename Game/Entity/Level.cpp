@@ -118,8 +118,8 @@ public:
                 vec4 player_pos = v.cast<vec4>();
                 vec4 cpos = pcam->getPosition();
                 vec4 tpos = pcam->getTarget();
-                vec4 cpos2 = cpos + (player_pos-cpos)*0.02f;
-                vec4 tpos2 = tpos + (player_pos-tpos)*0.02f;
+                vec4 cpos2 = cpos + (player_pos-cpos)*0.03f;
+                vec4 tpos2 = tpos + (player_pos-tpos)*0.03f;
                 cpos2.z = cpos.z;
                 tpos2.z = tpos.z;
                 pcam->setPosition(cpos2);

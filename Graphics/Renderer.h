@@ -20,6 +20,7 @@ class PassGBuffer_SPH;
 class PassGBuffer_ParticleSet;
 class PassDeferredShading_DirectionalLights;
 class PassDeferredShading_PointLights;
+class PassPostprocess_FXAA;
 class PassPostprocess_Bloom;
 
 
@@ -36,6 +37,7 @@ private:
     PassGBuffer_SPH                         *m_renderer_sph;
     PassDeferredShading_DirectionalLights   *m_renderer_dir_lights;
     PassDeferredShading_PointLights         *m_renderer_point_lights;
+    PassPostprocess_FXAA                    *m_renderer_fxaa;
     PassPostprocess_Bloom                   *m_renderer_bloom;
     stl::vector<IRenderer*>                 m_renderers[PASS_END];
 
@@ -142,26 +144,31 @@ public:
     void addInstance(const PointLight& v) { m_instances.push_back(v); }
 };
 
-//
-//class PassPostprocess_FXAA : public Renderer
-//{
-//private:
-//    ColorBuffer *m_rt_RGBL;
-//    ShaderFXAA *m_sh_FXAA;
-//
-//public:
-//    PassPostprocess_FXAA();
-//    void beforeDraw();
-//    void draw();
-//};
+
+class PassPostprocess_FXAA : public IRenderer
+{
+private:
+    RenderTargetDeferred    *m_rt_deferred;
+    ColorBuffer             *m_rt_RGBL;
+    AtomicShader            *m_sh_FXAA_luma;
+    AtomicShader            *m_sh_FXAA;
+    VertexArray             *m_va_quad;
+    int32                   m_loc_fxaa_param;
+    FXAAParams              m_fxaaparams;
+
+public:
+    PassPostprocess_FXAA();
+    void beforeDraw();
+    void draw();
+};
 
 class PassPostprocess_Bloom : public IRenderer
 {
 private:
     RenderTargetGBuffer     *m_rt_gbuffer;
     RenderTargetDeferred    *m_rt_deferred;
-    RenderTargetGauss       *m_rt_gauss0;
-    RenderTargetGauss       *m_rt_gauss1;
+    ColorBuffer             *m_rt_gauss0;
+    ColorBuffer             *m_rt_gauss1;
     VertexArray             *m_va_luminance;
     VertexArray             *m_va_blur;
     VertexArray             *m_va_composite;

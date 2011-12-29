@@ -21,6 +21,27 @@ struct
 };
 
 
+struct
+#ifndef GLSL
+    __declspec(align(16))
+#endif // GLSL
+    FXAAParams
+{
+    vec4 fxaaConsolePosPos;
+    vec4 fxaaConsoleRcpFrameOpt;
+    vec4 fxaaConsoleRcpFrameOpt2;
+    vec4 fxaaConsole360RcpFrameOpt2;
+    vec4 fxaaConsole360ConstDir;
+    vec2 fxaaQualityRcpFrame;
+    float fxaaQualitySubpix;
+    float fxaaQualityEdgeThreshold;
+    float fxaaQualityEdgeThresholdMin;
+    float fxaaConsoleEdgeSharpness;
+    float fxaaConsoleEdgeThreshold;
+    float fxaaConsoleEdgeThresholdMin;
+};
+
+
 #ifndef GLSL
 } // namespace atomic
 #endif // GLSL

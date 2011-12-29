@@ -88,12 +88,17 @@
     <None Include="shader\Common.glslh" />
     <None Include="shader\Deferred_DirectionalLight.glsl" />
     <None Include="shader\Deferred_PointLight.glsl" />
+    <None Include="shader\FXAA.glsl" />
+    <None Include="shader\FXAA_luma.glsl" />
     <None Include="shader\GBuffer_Fluid.glsl" />
     <None Include="shader\GBuffer_Rigid.glsl" />
     <None Include="shader\Out.glsl" />
     <None Include="shader\RenderStates.glslh" />
     <None Include="shader\Semantics.glslh" />
     <None Include="shader\shader.rb" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="shader\Fxaa3_11.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

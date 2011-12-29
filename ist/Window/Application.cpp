@@ -443,6 +443,7 @@ void Application::finalizeDraw()
 void Application::updateInput()
 {
     // keyboard
+    m_keyboard_state.copyToBack();
     ::GetKeyboardState( m_keyboard_state.getRawKeyState() );
 
     // mouse

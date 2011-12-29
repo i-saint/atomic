@@ -107,6 +107,7 @@ bool GraphicResourceManager::initialize()
     }
     {
         m_ubo[UBO_RENDER_STATES]->allocate(sizeof(RenderStates), UniformBufferObject::USAGE_DYNAMIC);
+        m_ubo[UBO_FXAA_PARAMS]->allocate(sizeof(FXAAParams), UniformBufferObject::USAGE_DYNAMIC);
     }
     {
         // create shaders
@@ -114,6 +115,8 @@ bool GraphicResourceManager::initialize()
         m_shader[SH_GBUFFER_RIGID]      = CreateAtomicShader(g_GBuffer_Rigid_glsl);
         m_shader[SH_POINTLIGHT]         = CreateAtomicShader(g_Deferred_PointLight_glsl);
         m_shader[SH_DIRECTIONALLIGHT]   = CreateAtomicShader(g_Deferred_DirectionalLight_glsl);
+        m_shader[SH_FXAA_LUMA]          = CreateAtomicShader(g_FXAA_luma_glsl);
+        m_shader[SH_FXAA]               = CreateAtomicShader(g_FXAA_glsl);
         m_shader[SH_BLOOM_LUMINANCE]    = CreateAtomicShader(g_Bloom_Luminance_glsl);
         m_shader[SH_BLOOM_HBLUR]        = CreateAtomicShader(g_Bloom_HBlur_glsl);
         m_shader[SH_BLOOM_VBLUR]        = CreateAtomicShader(g_Bloom_VBlur_glsl);
@@ -134,9 +137,12 @@ bool GraphicResourceManager::initialize()
         m_rt_deferred->initialize(framebuffer_width, framebuffer_height, IST_RGBA8U, IST_DEPTH24_STENCIL8);
 
         for(uint32 i=0; i<_countof(m_rt_gauss); ++i) {
-            m_rt_gauss[i] = IST_NEW(ColorBuffer) ();
+            m_rt_gauss[i] = IST_NEW(ColorBuffer)();
             m_rt_gauss[i]->initialize(512, 256, IST_RGBA8U);
         }
+
+        m_rt_postprocess = IST_NEW(ColorBuffer)();
+        m_rt_postprocess->initialize(framebuffer_width, framebuffer_height, IST_RGBA8U);
 
         m_fbo[RT_GBUFFER]   = m_rt_gbuffer;
         m_fbo[RT_DEFERRED]  = m_rt_deferred;

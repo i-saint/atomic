@@ -49,5 +49,16 @@
     <None Include="shader\GBuffer_Fluid.glsl">
       <Filter>shader</Filter>
     </None>
+    <None Include="shader\FXAA.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\FXAA_luma.glsl">
+      <Filter>shader</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="shader\Fxaa3_11.h">
+      <Filter>shader</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

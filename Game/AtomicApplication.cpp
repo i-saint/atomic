@@ -164,7 +164,6 @@ AtomicConfig::AtomicConfig()
     sound_volume    = 0.5;
     posteffect_antialias    = true;
     posteffect_bloom        = true;
-    posteffect_motionblur   = true;
 
 }
 
@@ -180,7 +179,6 @@ bool AtomicConfig::readFromFile( const char* filepath )
             if(sscanf(buf, "sound_volume = %f", &ftmp.x)==1)            { sound_volume=ftmp.x; }
             if(sscanf(buf, "posteffect_antialias = %d", &itmp.x)==1)    { posteffect_antialias=(itmp.x!=0); }
             if(sscanf(buf, "posteffect_bloom = %d", &itmp.x)==1)        { posteffect_bloom=(itmp.x!=0); }
-            if(sscanf(buf, "posteffect_motionblur = %d", &itmp.x)==1)   { posteffect_motionblur=(itmp.x!=0); }
         }
         fclose(f);
         return true;
@@ -197,7 +195,6 @@ bool AtomicConfig::writeToFile( const char* filepath )
         fprintf(f, "sound_volume = %f\n", sound_volume);
         fprintf(f, "posteffect_antialias = %d\n", posteffect_antialias);
         fprintf(f, "posteffect_bloom = %d\n", posteffect_bloom);
-        fprintf(f, "posteffect_motionblur = %d\n", posteffect_motionblur);
         fclose(f);
         return true;
     }
@@ -235,7 +232,11 @@ bool AtomicApplication::initialize()
         if(m_config.window_pos.x >= ds.getResolution().x) { m_config.window_pos.x = 0; }
         if(m_config.window_pos.y >= ds.getResolution().y) { m_config.window_pos.y = 0; }
     }
+#else
+    if(m_config.window_pos.x >= 2048) { m_config.window_pos.x = 0; }
+    if(m_config.window_pos.y >= 2048) { m_config.window_pos.y = 0; }
 #endif // ATOMIC_ENABLE_DEBUG_FEATURE
+    if(m_config.window_size.x < 320 || m_config.window_size.x < 240) { m_config.window_size = ivec2(1024, 768); }
 
     ivec2 wpos = m_config.window_pos;
     ivec2 wsize = m_config.window_size;
@@ -309,10 +310,17 @@ void AtomicApplication::updateInput()
 
     vec2 move = vec2(0.0f);
     int buttons = getJoyState().getButtons();
-    if(getKeyboardState().isKeyPressed(VK_RIGHT))   { move.x = 1.0f; }
-    if(getKeyboardState().isKeyPressed(VK_LEFT))    { move.x =-1.0f; }
-    if(getKeyboardState().isKeyPressed(VK_UP))      { move.y = 1.0f; }
-    if(getKeyboardState().isKeyPressed(VK_DOWN))    { move.y =-1.0f; }
+    if(getKeyboardState().isKeyPressed(ist::KEY_RIGHT))   { move.x = 1.0f; }
+    if(getKeyboardState().isKeyPressed(ist::KEY_LEFT))    { move.x =-1.0f; }
+    if(getKeyboardState().isKeyPressed(ist::KEY_UP))      { move.y = 1.0f; }
+    if(getKeyboardState().isKeyPressed(ist::KEY_DOWN))    { move.y =-1.0f; }
+    if(getKeyboardState().isKeyTriggered(ist::KEY_F1)) {
+        m_config.posteffect_antialias = !m_config.posteffect_antialias;
+    }
+    if(getKeyboardState().isKeyTriggered(ist::KEY_F2)) {
+        m_config.posteffect_bloom = !m_config.posteffect_bloom;
+    }
+    
     {
         vec2 jpos = vec2((float)getJoyState().getX(), -(float)getJoyState().getY());
         jpos /= 32768.0f;

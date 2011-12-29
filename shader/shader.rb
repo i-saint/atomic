@@ -21,7 +21,7 @@ def sh_preprocess(src)
   end
 
   src.each_line do |l|
-    out += l.gsub(/^ +/, "").gsub(/[\r\n]/, "")+"\\n"
+    out += l.gsub(/^ +/, "").gsub(/[\r\n]/, "").gsub(/"/, "\\\1")+"\\n"
   end
   out
 end

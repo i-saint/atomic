@@ -31,7 +31,6 @@ enum GBUFFER {
 
 typedef Color4DepthBuffer RenderTargetGBuffer;
 typedef ColorDepthBuffer RenderTargetDeferred;
-typedef ColorBuffer RenderTargetGauss;
 
 class GraphicResourceManager : boost::noncopyable
 {
@@ -39,6 +38,7 @@ private:
     RenderTargetGBuffer     *m_rt_gbuffer;
     RenderTargetDeferred    *m_rt_deferred;
     ColorBuffer             *m_rt_gauss[2];
+    ColorBuffer             *m_rt_postprocess;
 
     SystemFont          *m_font;
     Texture2D           *m_tex2d[TEX2D_END];
@@ -74,7 +74,8 @@ public:
     void swapBuffers();
     RenderTargetGBuffer*    getRenderTargetGBuffer()        { return m_rt_gbuffer; }
     RenderTargetDeferred*   getRenderTargetDeferred()       { return m_rt_deferred; }
-    RenderTargetGauss*      getRenderTargetGauss(uint32 i)  { return m_rt_gauss[i]; }
+    ColorBuffer*            getRenderTargetGauss(uint32 i)  { return m_rt_gauss[i]; }
+    ColorBuffer*            getRenderTargetPostProcess()    { return m_rt_postprocess; }
 };
 
 
@@ -83,6 +84,7 @@ public:
 #define atomicGetRenderTargetGBuffer()      atomicGetResourceManager()->getRenderTargetGBuffer()
 #define atomicGetRenderTargetDeferred()     atomicGetResourceManager()->getRenderTargetDeferred()
 #define atomicGetRenderTargetGauss(i)       atomicGetResourceManager()->getRenderTargetGauss(i)
+#define atomicGetRenderTargetPostProcess()  atomicGetResourceManager()->getRenderTargetPostProcess()
 
 #define atomicGetFont()                     atomicGetResourceManager()->getFont()
 #define atomicGetTexture2D(i)               atomicGetResourceManager()->getTexture2D(i)

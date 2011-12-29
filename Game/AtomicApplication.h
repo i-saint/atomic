@@ -1,5 +1,5 @@
-#ifndef __atomic_AtomicApplication_h__
-#define __atomic_AtomicApplication_h__
+#ifndef __atomic_Game_AtomicApplication__
+#define __atomic_Game_AtomicApplication__
 namespace atomic {
 
 
@@ -14,7 +14,6 @@ struct AtomicConfig
     float32 sound_volume; 
     bool fullscreen;
     bool posteffect_bloom;
-    bool posteffect_motionblur;
     bool posteffect_antialias;
 
     AtomicConfig();
@@ -98,4 +97,4 @@ public:
 #define atomicGetWindowAspectRatio()    (float(atomicGetWindowWidth())/float(atomicGetWindowHeight()))
 
 } // namespace atomic
-#endif __atomic_AtomicApplication_h__
+#endif __atomic_Game_AtomicApplication__

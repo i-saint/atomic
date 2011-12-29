@@ -1,5 +1,5 @@
-#ifndef __atomic_AtomicGame_h__
-#define __atomic_AtomicGame_h__
+#ifndef __atomic_Game_AtomicGame__
+#define __atomic_Game_AtomicGame__
 namespace atomic {
 
 class World;
@@ -7,9 +7,6 @@ class AtomicRenderer;
 
 class AtomicGame
 {
-public:
-    static const uint32 MAX_WORLDS = 3;
-
 private:
     World *m_world;
 
@@ -33,4 +30,4 @@ public:
 
 
 } // namespace atomic
-#endif __atomic_AtomicGame_h__
+#endif __atomic_Game_AtomicGame__

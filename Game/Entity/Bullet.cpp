@@ -52,7 +52,7 @@ public:
 
         setModel(PSET_SPHERE_SMALL);
         setDiffuseColor(vec4(0.6f, 0.6f, 0.6f, 1.0f));
-        setGlowColor(vec4(1.0f, 0.1f, 0.7f, 1.0f));
+        setGlowColor(vec4(1.0f, 0.7f, 0.1f, 1.0f));
         setAxis1(GenRandomUnitVector3());
         setAxis2(GenRandomUnitVector3());
         setRotateSpeed1(1.5f);
