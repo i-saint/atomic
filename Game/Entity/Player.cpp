@@ -44,6 +44,11 @@ public:
         m_barrier.initializeCollision(0);
         m_barrier.setCollisionFlag(CF_AFFECT_SPH);
 
+        setAxis1(GenRandomUnitVector3());
+        setAxis2(GenRandomUnitVector3());
+        setRotateSpeed1(1.4f);
+        setRotateSpeed2(1.4f);
+
         for(uint32 i=0; i<_countof(m_lightpos); ++i) {
             m_lightpos[i] = GenRandomVector3() * 1.0f;
             m_lightpos[i].z = std::abs(m_lightpos[i].z);

@@ -11,9 +11,6 @@
 #define DEFINE_EQUERY(funcname)    \
     case EQUERY_##funcname: v=funcname(); return true;
 
-#define atomicCall(entity, funcname, ...) entity->call(ECALL_##funcname, __VA_ARGS__)
-#define atomicQuery(entity, funcname, ...) entity->query(EQUERY_##funcname, __VA_ARGS__)
-
 namespace atomic {
 
 enum ENTITY_CALL
@@ -33,6 +30,7 @@ enum ENTITY_CALL
     ECALL_setGlowColor,
     ECALL_setModel,
     ECALL_setHealth,
+    ECALL_setRoutine,
     ECALL_setOwner,
     ECALL_setVelocity,
     ECALL_setPower,
@@ -76,6 +74,21 @@ enum ENTITY_QUERY
 
     EQUERY_END,
 };
+
+
+class IEntity;
+template<class T>
+inline T _atomicQuery(IEntity *e, ENTITY_QUERY qid)
+{
+    variant v;
+    if(!e->query(qid, v)) {
+        istPrint("query failed. entity: 0x%x query: %d\n", e->getHandle(), qid);
+    }
+    return v.cast<T>();
+}
+
+#define atomicCall(entity, funcname, ...) entity->call(ECALL_##funcname, __VA_ARGS__)
+#define atomicQuery(entity, funcname, T) _atomicQuery<T>(entity, EQUERY_##funcname)
 
 } // namespace atomic
 #endif // __atomic_Game_EntityQuery__

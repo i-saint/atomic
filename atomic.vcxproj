@@ -89,7 +89,6 @@
     <ClInclude Include="Game\Entity\Enemy.h" />
     <ClInclude Include="Game\Entity\Level.h" />
     <ClInclude Include="Game\Entity\Routine.h" />
-    <ClInclude Include="Game\Entity\RoutineClass.h" />
     <ClInclude Include="Game\Input.h" />
     <ClInclude Include="Game\Message.h" />
     <ClInclude Include="Game\SPHManager.h" />

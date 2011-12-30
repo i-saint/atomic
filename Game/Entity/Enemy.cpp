@@ -10,9 +10,11 @@
 #include "Game/SPHManager.h"
 #include "Game/Collision.h"
 #include "Game/Message.h"
+#include "Routine.h"
 #include "Enemy.h"
 
 namespace atomic {
+
 
 template<class CollisonType>
 class Enemy_Test
@@ -92,6 +94,22 @@ public:
         }
     }
 
+    virtual void updateRoutine(float32 dt)
+    {
+        if(getState()==ST_ACTIVE) {
+            IRoutine *routine = getRoutine();
+            if(routine) { routine->update(dt); }
+        }
+    }
+
+    virtual void asyncupdateRoutine(float32 dt)
+    {
+        if(getState()==ST_ACTIVE) {
+            IRoutine *routine = getRoutine();
+            if(routine) { routine->asyncupdate(dt); }
+        }
+    }
+
     virtual void draw()
     {
         vec4 diffuse = getDiffuseColor();
@@ -122,9 +140,9 @@ public:
 
     virtual void destroy()
     {
-        atomicGetSPHManager()->addFluid(getModel(), getTransform());
         setState(ST_FADEOUT);
-
+        setRoutine(ROUTINE_NULL);
+        atomicGetSPHManager()->addFluid(getModel(), getTransform());
         atomicPlaySE(SE_CHANNEL3, SE_EXPLOSION3, getPosition(), true);
     }
 

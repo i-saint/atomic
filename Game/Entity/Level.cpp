@@ -12,6 +12,7 @@
 #include "GPGPU/SPH.cuh"
 #include "Util.h"
 #include "Enemy.h"
+#include "Routine.h"
 
 namespace atomic {
 
@@ -67,7 +68,20 @@ public:
 
     IEntity* putSmallEnemy()
     {
+        IEntity *e = NULL;
+        switch(atomicGetRandom()->genInt32() % 2) {
+        case 0: e = atomicCreateEntity(Enemy_CubeBasic);  atomicCall(e, setModel, PSET_CUBE_SMALL); break;
+        case 1: e = atomicCreateEntity(Enemy_SphereBasic);atomicCall(e, setModel, PSET_SPHERE_SMALL);  break;
+        }
 
+        atomicCall(e, setPosition, GenRandomVector2() * 2.56f);
+        atomicCall(e, setHealth, 10.0f);
+        atomicCall(e, setAxis1, GenRandomUnitVector3());
+        atomicCall(e, setAxis2, GenRandomUnitVector3());
+        atomicCall(e, setRotateSpeed1, 0.4f);
+        atomicCall(e, setRotateSpeed2, 0.4f);
+        atomicCall(e, setRoutine, ROUTINE_HOMING_PLAYER);
+        return e;
     }
 
     IEntity* putMediumEnemy()
@@ -117,7 +131,10 @@ public:
             }
         }
 
-        if(m_frame % 300 == 0) {
+        if(m_frame % 100 == 0) {
+            IEntity *e = putSmallEnemy();
+        }
+        if(m_frame % 400 == 0) {
             IEntity *e = putMediumEnemy();
         }
     }
@@ -126,20 +143,17 @@ public:
     {
         PerspectiveCamera *pcam = atomicGetCamera();
         if(IEntity *player = atomicGetEntity( EntityCreateHandle(ECID_PLAYER, ESID_PLAYER, 0) )) {
-            variant v;
-            if(atomicQuery(player, getPosition, v)) {
-                vec4 player_pos = v.cast<vec4>();
-                vec4 cpos = pcam->getPosition();
-                vec4 tpos = pcam->getTarget();
-                vec4 cpos2 = cpos + (player_pos-cpos)*0.03f;
-                vec4 tpos2 = tpos + (player_pos-tpos)*0.03f;
-                cpos2.z = cpos.z;
-                tpos2.z = tpos.z;
-                pcam->setPosition(cpos2);
-                pcam->setTarget(tpos2);
+            vec4 player_pos = atomicQuery(player, getPosition, vec4);
+            vec4 cpos = pcam->getPosition();
+            vec4 tpos = pcam->getTarget();
+            vec4 cpos2 = cpos + (player_pos-cpos)*0.03f;
+            vec4 tpos2 = tpos + (player_pos-tpos)*0.03f;
+            cpos2.z = cpos.z;
+            tpos2.z = tpos.z;
+            pcam->setPosition(cpos2);
+            pcam->setTarget(tpos2);
 
-                atomicSetListenerPosition(cpos2);
-            }
+            atomicSetListenerPosition(cpos2);
         }
     }
 };

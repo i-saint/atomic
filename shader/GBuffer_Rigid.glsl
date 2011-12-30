@@ -30,7 +30,7 @@ void main()
     float dif2 = dif*dif;
     float dif3 = dif2*dif;
     float ndif = 1.0-dif;
-    vs_Glow = ia_InstanceGlow * ndif;
+    vs_Glow = ia_InstanceGlow * (ndif*ndif);
     vs_Flash = ia_InstanceFlash;
     vs_VertexPosition = vec4(vert.xyz, 1.0);
     vs_VertexNormal = vec4(ia_VertexNormal, 120.0);

@@ -435,9 +435,6 @@
     <ClInclude Include="Game\Entity\Routine.h">
       <Filter>Game\Entity</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Entity\RoutineClass.h">
-      <Filter>Game\Entity</Filter>
-    </ClInclude>
     <ClInclude Include="Sound\SoundResourceID.h">
       <Filter>Sound</Filter>
     </ClInclude>
