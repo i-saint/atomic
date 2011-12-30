@@ -38,9 +38,12 @@ private:
     static const int FADEOUT_TIME = 60;
     STATE m_state;
     int32 m_st_frame;
+    SE_CHANNEL m_explosion_channel;
+    SE_RID m_explosion_se;
 
 public:
     Enemy_Test() : m_state(ST_FADEIN), m_st_frame(0)
+        , m_explosion_channel(SE_CHANNEL3), m_explosion_se(SE_EXPLOSION3)
     {
     }
 
@@ -56,6 +59,9 @@ public:
 
     void setState(STATE s) { m_state=s; m_st_frame=0; }
     STATE getState() const { return m_state; }
+
+    void setExplosionSE(SE_RID v)           { m_explosion_se=v; }
+    void setExplosionChannel(SE_CHANNEL v)  { m_explosion_channel=v; }
 
     virtual void update(float32 dt)
     {
@@ -134,12 +140,16 @@ public:
         setState(ST_FADEOUT);
         setRoutine(ROUTINE_NULL);
         atomicGetSPHManager()->addFluid(getModel(), getTransform());
-        atomicPlaySE(SE_CHANNEL3, SE_EXPLOSION3, getPosition(), true);
+        atomicPlaySE(SE_CHANNEL3, m_explosion_se, getPosition(), true);
     }
 
     virtual bool call(uint32 call_id, const variant &v)
     {
-        return super::call(call_id, v) || transform::call(call_id, v) || model::call(call_id, v);
+        switch(call_id) {
+        DEFINE_ECALL1(setExplosionSE, SE_RID);
+        DEFINE_ECALL1(setExplosionChannel, SE_CHANNEL);
+        default: return super::call(call_id, v) || transform::call(call_id, v) || model::call(call_id, v);
+        }
     }
 
     virtual bool query(uint32 query_id, variant &v) const

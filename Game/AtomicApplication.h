@@ -16,6 +16,7 @@ struct AtomicConfig
     bool vsync;
     bool posteffect_bloom;
     bool posteffect_antialias;
+    bool show_text;
     bool sound_enable;
     float32 bgm_volume;
     float32 se_volume;

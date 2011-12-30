@@ -163,8 +163,9 @@ AtomicConfig::AtomicConfig()
     window_size         = ivec2(1024, 768);
     fullscreen          = false;
     vsync               = true;
-    posteffect_antialias= true;
     posteffect_bloom    = true;
+    posteffect_antialias= true;
+    show_text           = true;
     sound_enable        = true;
     bgm_volume          = 0.5;
     se_volume           = 0.5;
@@ -184,8 +185,9 @@ bool AtomicConfig::readFromFile( const char* filepath )
         if(sscanf(buf, "window_size = %d, %d", &itmp.x, &itmp.y)==2){ window_size.x=itmp.x; window_size.y=itmp.y; }
         if(sscanf(buf, "fullscreen = %d", &itmp.x)==1)              { fullscreen=itmp.x!=0; }
         if(sscanf(buf, "vsync = %d", &itmp.x)==1)                   { vsync=itmp.x!=0; }
-        if(sscanf(buf, "posteffect_antialias = %d", &itmp.x)==1)    { posteffect_antialias=(itmp.x!=0); }
         if(sscanf(buf, "posteffect_bloom = %d", &itmp.x)==1)        { posteffect_bloom=(itmp.x!=0); }
+        if(sscanf(buf, "posteffect_antialias = %d", &itmp.x)==1)    { posteffect_antialias=(itmp.x!=0); }
+        if(sscanf(buf, "show_text = %d", &itmp.x)==1)               { show_text=(itmp.x!=0); }
         if(sscanf(buf, "sound_enable = %f", &itmp.x)==1)            { sound_enable=(itmp.x!=0); }
         if(sscanf(buf, "bgm_volume = %f", &ftmp.x)==1)              { bgm_volume=ftmp.x; }
         if(sscanf(buf, "se_volume = %f", &ftmp.x)==1)               { se_volume=ftmp.x; }
@@ -203,8 +205,9 @@ bool AtomicConfig::writeToFile( const char* filepath )
     fprintf(f, "window_size = %d, %d\n",        window_size.x, window_size.y);
     fprintf(f, "fullscreen = %d\n",             fullscreen);
     fprintf(f, "vsync = %d\n",                  vsync);
-    fprintf(f, "posteffect_antialias = %d\n",   posteffect_antialias);
     fprintf(f, "posteffect_bloom = %d\n",       posteffect_bloom);
+    fprintf(f, "posteffect_antialias = %d\n",   posteffect_antialias);
+    fprintf(f, "show_text = %d\n",              show_text);
     fprintf(f, "sound_enable = %d\n",           sound_enable);
     fprintf(f, "bgm_volume = %f\n",             bgm_volume);
     fprintf(f, "se_volume = %f\n",              se_volume);

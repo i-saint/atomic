@@ -84,6 +84,14 @@ void AtomicGame::draw()
 void AtomicGame::drawCallback()
 {
     AtomicRenderer::getInstance()->beforeDraw();
+    if(m_input_server->getClassID()==IInputServer::IS_REPLAY) {
+        uint32 wheight = atomicGetWindowHeight();
+        uint32 len = static_cast<InputServerReplay*>(m_input_server)->getReplayLength();
+        uint32 pos = static_cast<InputServerReplay*>(m_input_server)->getReplayPosition();
+        char buf[128];
+        sprintf_s(buf, _countof(buf), "Replay %d / %d", pos, len);
+        atomicGetSystemTextRenderer()->addText(ivec2(5, wheight-20), buf);
+    }
     if(m_world) {
         m_world->draw();
     }

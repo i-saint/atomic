@@ -642,6 +642,8 @@ void SystemTextRenderer::beforeDraw()
 
 void SystemTextRenderer::draw()
 {
+    if(!atomicGetConfig()->show_text) { return; }
+
     for(uint32 i=0; i<m_texts.size(); ++i) {
         const Text &t = m_texts[i];
         atomicGetFont()->draw(t.pos.x, t.pos.y, t.text);

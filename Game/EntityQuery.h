@@ -45,7 +45,8 @@ enum ENTITY_CALL
     ECALL_setRotateSpeed,
     ECALL_setRotateSpeed1 = ECALL_setRotateSpeed,
     ECALL_setRotateSpeed2,
-    ECALL_addEventListener,
+    ECALL_setExplosionSE,
+    ECALL_setExplosionChannel,
 
     ECALL_END,
 };

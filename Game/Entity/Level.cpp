@@ -106,6 +106,8 @@ public:
         atomicCall(e, setRotateSpeed1, 0.4f);
         atomicCall(e, setRotateSpeed2, 0.4f);
         atomicCall(e, setRoutine, ROUTINE_SHOOT);
+        atomicCall(e, setExplosionSE, SE_EXPLOSION4);
+        atomicCall(e, setExplosionChannel, SE_CHANNEL4);
         m_medium_enemies.push_back(e->getHandle());
         return e;
     }
@@ -124,6 +126,8 @@ public:
         atomicCall(e, setRotateSpeed1, 0.2f);
         atomicCall(e, setRotateSpeed2, 0.2f);
         atomicCall(e, setRoutine, ROUTINE_SHOOT);
+        atomicCall(e, setExplosionSE, SE_EXPLOSION5);
+        atomicCall(e, setExplosionChannel, SE_CHANNEL5);
         m_large_enemies.push_back(e->getHandle());
         return e;
     }
