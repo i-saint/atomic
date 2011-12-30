@@ -45,7 +45,7 @@ public:
         m_barrier.initializeCollision(0);
         m_barrier.setCollisionFlag(CF_AFFECT_SPH);
 
-        setHealth(5.0f);
+        setHealth(500.0f);
         setAxis1(GenRandomUnitVector3());
         setAxis2(GenRandomUnitVector3());
         setRotateSpeed1(1.4f);
