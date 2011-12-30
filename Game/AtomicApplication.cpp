@@ -221,7 +221,7 @@ AtomicApplication::~AtomicApplication()
     if(g_appinst==this) { g_appinst=NULL; }
 }
 
-bool AtomicApplication::initialize()
+bool AtomicApplication::initialize(int argc, char *argv[])
 {
     InitializeText();
     m_config.readFromFile(ATOMIC_CONFIG_FILE_PATH);
@@ -266,12 +266,17 @@ bool AtomicApplication::initialize()
 
 
     m_game = IST_NEW16(AtomicGame)();
+    if(argc > 1) {
+        m_game->readReplayFromFile(argv[1]);
+    }
 
     return true;
 }
 
 void AtomicApplication::finalize()
 {
+    m_config.writeToFile(ATOMIC_CONFIG_FILE_PATH);
+
     AtomicSound::finalizeInstance();
 
     if(m_renderng_thread) { m_renderng_thread->stop(); }
@@ -281,7 +286,6 @@ void AtomicApplication::finalize()
     TaskScheduler::finalizeSingleton();
     super::finalize();
 
-    m_config.writeToFile(ATOMIC_CONFIG_FILE_PATH);
     FinalizeText();
 }
 
@@ -321,12 +325,13 @@ void AtomicApplication::updateInput()
     if(getKeyboardState().isKeyTriggered(ist::KEY_F2)) {
         m_config.posteffect_bloom = !m_config.posteffect_bloom;
     }
-    
+
     {
         vec2 jpos = vec2((float)getJoyState().getX(), -(float)getJoyState().getY());
         jpos /= 32768.0f;
         if(glm::length(jpos)>0.4f) { move=jpos; }
     }
+    m_inputs.copyToBack();
     m_inputs.setMove(move);
     m_inputs.setButtons(buttons);
 }
@@ -344,7 +349,7 @@ int AtomicApplication::handleWindowMessage(const ist::WindowMessage& wm)
     case ist::WindowMessage::MES_KEYBOARD:
         {
             const ist::WM_Keyboard& m = static_cast<const ist::WM_Keyboard&>(wm);
-            if(m.action==ist::WM_Keyboard::ACT_KEYUP && m.key==ist::WM_Keyboard::KEY_ESCAPE) {
+            if(m.action==ist::WM_Keyboard::ACT_KEYUP && m.key==ist::KEY_ESCAPE) {
                 m_request_exit = true;
             }
         }

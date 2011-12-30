@@ -20,6 +20,7 @@ struct SoundRequest
         REQ_BGM_FADE,
         REQ_BGM_HALT,
     };
+
     REQ_TYPE    type;
     union {
         struct {
@@ -191,7 +192,6 @@ void SoundThread::processSERequests()
             {
                 sound::Source *src = m_se_sources[req.se.ch];
                 if(src->isInitial() || req.se.force) {
-                    src->rewind();
                     src->clearQueue();
                     src->setPosition((vec3&)(req.se.pos));
                     src->queue(m_se_data[req.se.rid]);

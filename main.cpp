@@ -6,7 +6,7 @@
 int istmain(int argc, char* argv[])
 {
     atomic::AtomicApplication app;
-    if(app.initialize()) {
+    if(app.initialize(argc, argv)) {
         app.mainLoop();
     }
     app.finalize();

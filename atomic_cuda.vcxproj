@@ -25,6 +25,7 @@
     <ClCompile Include="Game\Entity\Level.cpp" />
     <ClCompile Include="Game\Entity\Player.cpp" />
     <ClCompile Include="Game\Entity\Routine.cpp" />
+    <ClCompile Include="Game\Input.cpp" />
     <ClCompile Include="Game\Message.cpp" />
     <ClCompile Include="Game\SPHManager.cpp" />
     <ClCompile Include="Game\Text.cpp" />
@@ -84,6 +85,7 @@
     <ClInclude Include="Game\Entity\Player.h" />
     <ClInclude Include="Game\Entity\Routine.h" />
     <ClInclude Include="Game\Entity\RoutineClass.h" />
+    <ClInclude Include="Game\Input.h" />
     <ClInclude Include="Game\Message.h" />
     <ClInclude Include="Game\SPHManager.h" />
     <ClInclude Include="Game\Task.h" />

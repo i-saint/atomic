@@ -1,8 +1,6 @@
 #ifndef __ist_Sound__
 #define __ist_Sound__
 
-#define IST_SOUND_ENABLE_OGGVORBIS
-
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <vector>
@@ -17,7 +15,7 @@
 #include "Sound/Listener.h"
 #include "Sound/SoundUtil.h"
 #include "Sound/System.h"
-#ifdef IST_SOUND_ENABLE_OGGVORBIS
+#ifdef __ist_with_oggvorbis__
     #include <vorbis/vorbisfile.h>
     #include "Sound/OggVorbis.h"
     #pragma comment(lib, "libogg.lib")

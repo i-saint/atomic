@@ -38,8 +38,8 @@ public:
 
 #define atomicGetSound()                            AtomicSound::getInstance()
 
-#define atomicSetListenerPosition(pos)              atomicGetSound()->setListenerPosition(pos)
-#define atomicPlaySE(channel, se, pos, _override)   atomicGetSound()->playSE(channel, se, pos, _override)
+#define atomicSetListenerPosition(move)              atomicGetSound()->setListenerPosition(move)
+#define atomicPlaySE(channel, se, move, _override)   atomicGetSound()->playSE(channel, se, move, _override)
 #define atomicHaltSE(channel)                       atomicGetSound()->haltSE(channel)
 #define atomicIsSEPlaying(channel)                  atomicGetSound()->isSEPlaying(channel)
 

@@ -20,7 +20,7 @@ bool CreateBufferFromWaveFile(const char* filepath, Buffer *buf)
 
 bool CreateBufferFromOggFile(const char* filepath, Buffer *buf)
 {
-#ifdef IST_SOUND_ENABLE_OGGVORBIS
+#ifdef __ist_with_oggvorbis__
     Stream *s = CreateStreamFromOggFile(filepath);
     if(s) {
         std::vector<char>& tmp = s->readByte(s->size());
@@ -43,7 +43,7 @@ Stream* CreateStreamFromWaveFile(const char* filepath)
 
 Stream* CreateStreamFromOggFile(const char* filepath)
 {
-#ifdef IST_SOUND_ENABLE_OGGVORBIS
+#ifdef __ist_with_oggvorbis__
     OggVorbisFileStream *stream = new OggVorbisFileStream();
     if(stream->openStream(filepath)) {
         return stream;

@@ -2,7 +2,7 @@
 #include "../Sound.h"
 #include "../Base.h"
 
-#ifdef IST_SOUND_ENABLE_OGGVORBIS
+#ifdef __ist_with_oggvorbis__
 
 namespace ist {
 namespace sound {

@@ -17,6 +17,8 @@ namespace atomic {
     vec4 GetNearestPlayerPosition(const vec4 &pos);
     void ShootSimpleBullet(EntityHandle owner, const vec4 &pos, const vec4 &vel);
 
+    void CreateDateString(char *buf, uint32 len);
+
 } // namespace atomic
 
 namespace glm {

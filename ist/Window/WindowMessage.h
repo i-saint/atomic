@@ -60,10 +60,6 @@ struct WM_Keyboard : public WindowMessage
         ACT_KEYDOWN,
         ACT_CHAR,
     };
-    enum KEY
-    {
-        KEY_ESCAPE = VK_ESCAPE,
-    };
 
     short action;
     short key;

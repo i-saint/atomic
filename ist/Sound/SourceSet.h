@@ -54,7 +54,7 @@ namespace sound {
 
         void update()
         {
-            int processed = getProcessed();
+            int processed = getNumProcessedBuffers();
             for(int i=0; i<processed; ++i) {
                 if(eof()) { return; }
 

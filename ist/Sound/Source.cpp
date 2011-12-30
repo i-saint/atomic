@@ -51,17 +51,37 @@ Source::~Source()
     alDeleteSources(1, &m_handle);
 }
 
+ALuint Source::getHandle() const    { return m_handle; }
 
-bool Source::isInitial() const { return getI(AL_SOURCE_STATE)==AL_INITIAL; }
-bool Source::isPlaying() const { return getI(AL_SOURCE_STATE)==AL_PLAYING; }
-bool Source::isPaused() const  { return getI(AL_SOURCE_STATE)==AL_PAUSED; }
-bool Source::isStopped() const { return getI(AL_SOURCE_STATE)==AL_STOPPED; }
-int Source::getProcessed() const { return getI(AL_BUFFERS_PROCESSED); }
+bool Source::isLooping(bool v) const                { return getI(AL_LOOPING)==AL_TRUE; }
+float Source::getGain() const                       { return getF(AL_GAIN); }
+float Source::getRefferenceDistance(float v) const  { return getF(AL_REFERENCE_DISTANCE); }
+float Source::getRolloffFactor(float v) const       { return getF(AL_ROLLOFF_FACTOR); }
+float Source::getMaxDistance(float v) const         { return getF(AL_MAX_DISTANCE); }
+float Source::getPitch() const                      { return getF(AL_PITCH); }
+vec3 Source::getPosition() const                    { return get3F(AL_POSITION); }
+vec3 Source::getVelocity() const                    { return get3F(AL_VELOCITY); }
+int Source::getNumQueuedBuffers() const             { return getI(AL_BUFFERS_QUEUED); }
+int Source::getNumProcessedBuffers() const          { return getI(AL_BUFFERS_PROCESSED); }
 
-void Source::play()   { alSourcePlay(m_handle); }
-void Source::pause()  { alSourcePause(m_handle); }
-void Source::stop()   { alSourceStop(m_handle); }
-void Source::rewind() { alSourceRewind(m_handle); }
+void Source::setLooping(bool v)             { setI(AL_LOOPING, v); }
+void Source::setGain(float v)               { setF(AL_GAIN, v); }
+void Source::setRefferenceDistance(float v) { setF(AL_REFERENCE_DISTANCE, v); }
+void Source::setRolloffFactor(float v)      { setF(AL_ROLLOFF_FACTOR, v); }
+void Source::setMaxDistance(float v)        { setF(AL_MAX_DISTANCE, v); }
+void Source::setPitch(float v)              { setF(AL_PITCH, v); }
+void Source::setPosition(const vec3& v)     { set3F(AL_POSITION, v); }
+void Source::setVelocity(const vec3& v)     { set3F(AL_VELOCITY, v); }
+
+bool Source::isInitial() const  { return getI(AL_SOURCE_STATE)==AL_INITIAL; }
+bool Source::isPlaying() const  { return getI(AL_SOURCE_STATE)==AL_PLAYING; }
+bool Source::isPaused() const   { return getI(AL_SOURCE_STATE)==AL_PAUSED; }
+bool Source::isStopped() const  { return getI(AL_SOURCE_STATE)==AL_STOPPED; }
+
+void Source::play()     { alSourcePlay(m_handle); }
+void Source::pause()    { alSourcePause(m_handle); }
+void Source::stop()     { alSourceStop(m_handle); }
+void Source::rewind()   { alSourceRewind(m_handle); }
 
 
 bool Source::unqueue()
@@ -79,6 +99,7 @@ void Source::queue(Buffer *buf)
 
 void Source::clearQueue()
 {
+    rewind();
     setI(AL_BUFFER, AL_NONE);
 }
 

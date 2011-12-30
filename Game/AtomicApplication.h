@@ -1,7 +1,8 @@
 #ifndef __atomic_Game_AtomicApplication__
 #define __atomic_Game_AtomicApplication__
-namespace atomic {
+#include "Input.h"
 
+namespace atomic {
 
 class AtomicGame;
 class AtomicRenderingThread;
@@ -21,27 +22,6 @@ struct AtomicConfig
     bool writeToFile(const char* filepath);
 };
 
-struct AtomicInputState
-{
-private:
-    vec2 m_move;
-    int32 m_buttons[2];
-
-public:
-    AtomicInputState()
-    {
-        m_move = vec2(0.0f);
-        m_buttons[0] = 0;
-    }
-
-    vec2 getMove() const { return m_move; }
-    bool isButtonPressed(int b) const   { return (m_buttons[0] & (1<<b)) !=0; }
-    bool isButtonTriggered(int b) const { return isButtonPressed(b) && ((m_buttons[1] & (1<<b))==0); }
-    int32 getButtons() const { return m_buttons[0]; }
-
-    void setMove(vec2 v) { m_move=v; }
-    void setButtons(int32 v) { m_buttons[1]=m_buttons[0]; m_buttons[0]=v; }
-};
 
 class AtomicApplication : public ist::Application
 {
@@ -49,9 +29,10 @@ typedef ist::Application super;
 private:
     AtomicGame              *m_game;
     AtomicRenderingThread   *m_renderng_thread;
+    InputState        m_inputs;
 
     AtomicConfig            m_config;
-    AtomicInputState        m_inputs;
+
     bool m_request_exit;
 
 public:
@@ -60,7 +41,7 @@ public:
 public:
     AtomicApplication();
     ~AtomicApplication();
-    virtual bool initialize();
+    virtual bool initialize(int argc, char *argv[]);
     virtual void finalize();
 
     virtual void mainLoop();
@@ -76,9 +57,9 @@ public:
     // •`‰æƒXƒŒƒbƒh‚©‚çŒÄ‚Î‚ê‚é
     void drawCallback();
 
-    AtomicGame* getGame() { return m_game; }
-    AtomicInputState* getInputs() { return &m_inputs; }
-    AtomicConfig* getConfig() { return &m_config; }
+    AtomicGame* getGame()                           { return m_game; }
+    const InputState* getSystemInputs() const { return &m_inputs; }
+    AtomicConfig* getConfig()                       { return &m_config; }
 
     float32 getAverageFPS() const;
 };
@@ -86,7 +67,7 @@ public:
 
 #define atomicGetApplication()          AtomicApplication::getInstance()
 #define atomicGetGame()                 atomicGetApplication()->getGame()
-#define atomicGetInputs()               atomicGetApplication()->getInputs()
+#define atomicGetSystemInputs()         atomicGetApplication()->getSystemInputs()
 #define atomicWaitForDrawComplete()     atomicGetApplication()->waitForDrawComplete()
 #define atomicKickDraw()                atomicGetApplication()->kickDraw()
 

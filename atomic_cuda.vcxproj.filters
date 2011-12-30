@@ -183,6 +183,9 @@
     <ClCompile Include="Game\Entity\Bullet.cpp">
       <Filter>Game\Entity</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Input.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h">
@@ -440,6 +443,9 @@
     </ClInclude>
     <ClInclude Include="Sound\SoundResourceID.h">
       <Filter>Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Input.h">
+      <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
