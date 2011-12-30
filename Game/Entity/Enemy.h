@@ -110,6 +110,8 @@ namespace atomic {
 
         virtual bool call(uint32 call_id, const variant &v)
         {
+            if(m_routine && m_routine->call(call_id, v)) { return true; }
+
             switch(call_id) {
             DEFINE_ECALL1(setHealth, float32);
             DEFINE_ECALL1(setRoutine, ROUTINE_CLASSID);
@@ -120,6 +122,8 @@ namespace atomic {
 
         virtual bool query(uint32 query_id, variant &v) const
         {
+            if(m_routine && m_routine->query(query_id, v)) { return true; }
+
             switch(query_id) {
                 DEFINE_EQUERY(getHealth);
             }

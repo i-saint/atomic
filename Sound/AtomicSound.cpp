@@ -285,7 +285,7 @@ void AtomicSound::haltSE(SE_CHANNEL channel)
 bool AtomicSound::isSEPlaying(SE_CHANNEL channel)
 {
     if(!m_sound_thread) { return false; }
-
+    // todo
 }
 
 
@@ -325,7 +325,7 @@ void AtomicSound::haltBGM(BGM_CHANNEL channel)
 bool AtomicSound::isBGMPlaying(BGM_CHANNEL channel)
 {
     if(!m_sound_thread) { return false; }
-
+    // todo
 }
 
 

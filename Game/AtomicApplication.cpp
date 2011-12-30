@@ -326,11 +326,22 @@ void AtomicApplication::updateInput()
 
     vec2 move = vec2(0.0f);
     int buttons = getJoyState().getButtons();
-    if(getKeyboardState().isKeyPressed(ist::KEY_RIGHT))   { move.x = 1.0f; }
-    if(getKeyboardState().isKeyPressed(ist::KEY_LEFT))    { move.x =-1.0f; }
-    if(getKeyboardState().isKeyPressed(ist::KEY_UP))      { move.y = 1.0f; }
-    if(getKeyboardState().isKeyPressed(ist::KEY_DOWN))    { move.y =-1.0f; }
-    if(getKeyboardState().isKeyTriggered(ist::KEY_F1)) {
+
+    const ist::MouseState &mouse = getMouseState();
+    if((mouse.getButtonState() & ist::MouseState::BU_LEFT)!=0)  { buttons = buttons |= 1<<0; }
+    if((mouse.getButtonState() & ist::MouseState::BU_RIGHT)!=0) { buttons = buttons |= 1<<1; }
+    if((mouse.getButtonState() & ist::MouseState::BU_MIDDLE)!=0){ buttons = buttons |= 1<<2; }
+
+    const ist::KeyboardState &kb = getKeyboardState();
+    if(kb.isKeyPressed('Z')){ buttons = buttons |= 1<<0; }
+    if(kb.isKeyPressed('X')){ buttons = buttons |= 1<<1; }
+    if(kb.isKeyPressed('C')){ buttons = buttons |= 1<<2; }
+    if(kb.isKeyPressed('V')){ buttons = buttons |= 1<<3; }
+    if(kb.isKeyPressed(ist::KEY_RIGHT)  || kb.isKeyPressed('D')){ move.x = 1.0f; }
+    if(kb.isKeyPressed(ist::KEY_LEFT)   || kb.isKeyPressed('A')){ move.x =-1.0f; }
+    if(kb.isKeyPressed(ist::KEY_UP)     || kb.isKeyPressed('W')){ move.y = 1.0f; }
+    if(kb.isKeyPressed(ist::KEY_DOWN)   || kb.isKeyPressed('S')){ move.y =-1.0f; }
+    if(kb.isKeyTriggered(ist::KEY_F1)) {
         m_config.posteffect_antialias = !m_config.posteffect_antialias;
     }
     if(getKeyboardState().isKeyTriggered(ist::KEY_F2)) {

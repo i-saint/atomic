@@ -24,7 +24,7 @@ typedef TAttr_RotateSpeed<Attr_DoubleAxisRotation> transform;
 private:
     static const PSET_RID pset_id = PSET_SPHERE_SMALL;
 
-    vec4 m_boost;
+    vec4 m_vel;
     int32 m_cooldown;
     Attr_SphereCollision m_collision;
     Attr_SphereCollision m_barrier;
@@ -60,18 +60,18 @@ public:
         m_cooldown = std::max<int32>(0, m_cooldown-1);
 
         vec4 move = vec4(atomicGetIngameInputs()->getMove()*0.01f, 0.0f, 0.0f);
-        if(m_cooldown==0 && atomicGetIngameInputs()->isButtonTriggered(1)) {
-            m_boost += move * 2.0f;
+        if(m_cooldown==0 && atomicGetIngameInputs()->isButtonTriggered(0)) {
+            m_vel += move * 2.0f;
             m_cooldown = 10;
         }
 
         vec4 pos = getPosition();
         pos += move;
-        pos += m_boost;
+        pos += m_vel;
         pos.z = 0.0f;
         setPosition(pos);
 
-        m_boost *= 0.96f;
+        m_vel *= 0.96f;
 
         {
             sphForcePointGravity pg;
@@ -143,9 +143,9 @@ public:
     virtual void eventCollide(const CollideMessage *m)
     {
         vec4 v = m->direction * m->direction.w * 0.2f;
-        m_boost += v;
-        m_boost.z = 0.0f;
-        m_boost.w = 0.0f;
+        m_vel += v;
+        m_vel.z = 0.0f;
+        m_vel.w = 0.0f;
     }
 
     bool call(uint32 call_id, const variant &v)

@@ -48,11 +48,14 @@ AtomicRenderer::AtomicRenderer()
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_fxaa);
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_bloom);
 
+    m_stext = istNew(SystemTextRenderer)();
+
     m_default_viewport.setViewport(0, 0, atomicGetWindowWidth(), atomicGetWindowHeight());
 }
 
 AtomicRenderer::~AtomicRenderer()
 {
+    istSafeDelete(m_stext);
     istSafeDelete(m_renderer_bloom);
     istSafeDelete(m_renderer_point_lights);
     istSafeDelete(m_renderer_dir_lights);
@@ -67,6 +70,7 @@ void AtomicRenderer::beforeDraw()
             m_renderers[i][j]->beforeDraw();
         }
     }
+    m_stext->beforeDraw();
 }
 
 
@@ -209,11 +213,12 @@ void AtomicRenderer::passOutput()
     glDrawArrays(GL_QUADS, 0, 4);
     m_sh_out->unbind();
 
-    char str_fps[64];
-    sprintf(str_fps, "FPS: %.0f", atomicGetApplication()->getAverageFPS());
-    atomicGetFont()->draw(0, 0, str_fps);
-    sprintf(str_fps, "Particles: %d", SPHGetStates().fluid_num_particles);
-    atomicGetFont()->draw(0, 20, str_fps);
+    char buf[64];
+    sprintf(buf, "FPS: %.0f", atomicGetApplication()->getAverageFPS());
+    m_stext->addText(ivec2(0, 0), buf);
+    sprintf(buf, "Particles: %d", SPHGetStates().fluid_num_particles);
+    m_stext->addText(ivec2(0, 20), buf);
+    m_stext->draw();
 }
 
 
@@ -573,5 +578,32 @@ void PassPostprocess_Bloom::draw()
     }
 }
 
+
+
+SystemTextRenderer::SystemTextRenderer()
+{
+    m_texts.reserve(128);
+}
+
+void SystemTextRenderer::beforeDraw()
+{
+    m_texts.clear();
+}
+
+void SystemTextRenderer::draw()
+{
+    for(uint32 i=0; i<m_texts.size(); ++i) {
+        const Text &t = m_texts[i];
+        atomicGetFont()->draw(t.pos.x, t.pos.y, t.text);
+    }
+}
+
+void SystemTextRenderer::addText(const ivec2 &pos, const char *text)
+{
+    Text tmp;
+    strncpy(tmp.text, text, _countof(tmp.text));
+    tmp.pos = pos;
+    m_texts.push_back(tmp);
+}
 
 } // namespace atomic

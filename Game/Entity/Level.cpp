@@ -69,18 +69,16 @@ public:
     IEntity* putSmallEnemy()
     {
         IEntity *e = NULL;
-        switch(atomicGetRandom()->genInt32() % 2) {
-        case 0: e = atomicCreateEntity(Enemy_CubeBasic);  atomicCall(e, setModel, PSET_CUBE_SMALL); break;
-        case 1: e = atomicCreateEntity(Enemy_SphereBasic);atomicCall(e, setModel, PSET_SPHERE_SMALL);  break;
-        }
-
-        atomicCall(e, setPosition, GenRandomVector2() * 2.56f);
-        atomicCall(e, setHealth, 10.0f);
+        e = atomicCreateEntity(Enemy_SphereBasic);
+        atomicCall(e, setModel, PSET_SPHERE_SMALL);
+        atomicCall(e, setPosition, GenRandomVector2() * 2.2f);
+        atomicCall(e, setHealth, 15.0f);
         atomicCall(e, setAxis1, GenRandomUnitVector3());
         atomicCall(e, setAxis2, GenRandomUnitVector3());
-        atomicCall(e, setRotateSpeed1, 0.4f);
-        atomicCall(e, setRotateSpeed2, 0.4f);
+        atomicCall(e, setRotateSpeed1, 2.4f);
+        atomicCall(e, setRotateSpeed2, 2.4f);
         atomicCall(e, setRoutine, ROUTINE_HOMING_PLAYER);
+        m_small_enemies.push_back(e->getHandle());
         return e;
     }
 
@@ -91,13 +89,32 @@ public:
         case 0: e = atomicCreateEntity(Enemy_CubeBasic);  atomicCall(e, setModel, PSET_CUBE_MEDIUM); break;
         case 1: e = atomicCreateEntity(Enemy_SphereBasic);atomicCall(e, setModel, PSET_SPHERE_MEDIUM);  break;
         }
-        
-        atomicCall(e, setPosition, GenRandomVector2() * 2.56f);
-        atomicCall(e, setHealth, 75.0f);
+        atomicCall(e, setPosition, GenRandomVector2() * 2.1f);
+        atomicCall(e, setHealth, 100.0f);
         atomicCall(e, setAxis1, GenRandomUnitVector3());
         atomicCall(e, setAxis2, GenRandomUnitVector3());
         atomicCall(e, setRotateSpeed1, 0.4f);
         atomicCall(e, setRotateSpeed2, 0.4f);
+        atomicCall(e, setRoutine, ROUTINE_SHOOT);
+        m_medium_enemies.push_back(e->getHandle());
+        return e;
+    }
+
+    IEntity* putLargeEnemy()
+    {
+        IEntity *e = NULL;
+        switch(atomicGetRandom()->genInt32() % 2) {
+        case 0: e = atomicCreateEntity(Enemy_CubeBasic);  atomicCall(e, setModel, PSET_CUBE_LARGE); break;
+        case 1: e = atomicCreateEntity(Enemy_SphereBasic);atomicCall(e, setModel, PSET_SPHERE_LARGE);  break;
+        }
+        atomicCall(e, setPosition, GenRandomVector2() * 1.5f);
+        atomicCall(e, setHealth, 2000.0f);
+        atomicCall(e, setAxis1, GenRandomUnitVector3());
+        atomicCall(e, setAxis2, GenRandomUnitVector3());
+        atomicCall(e, setRotateSpeed1, 0.2f);
+        atomicCall(e, setRotateSpeed2, 0.2f);
+        atomicCall(e, setRoutine, ROUTINE_SHOOT);
+        m_large_enemies.push_back(e->getHandle());
         return e;
     }
 
@@ -106,36 +123,15 @@ public:
         ++m_frame;
         updateCamera();
 
-        if(m_frame==1) {
-            {
-                IEntity *e =  atomicCreateEntity(Player);
-                atomicCall(e, setPosition, vec4(0.0f, 0.0f, 0.0f, 1.0f));
-            }
-            {
-                IEntity *e =  atomicCreateEntity(Enemy_CubeBasic);
-                atomicCall(e, setModel, PSET_CUBE_MEDIUM);
-                atomicCall(e, setPosition, vec4(0.5f, 0.0f, 0.0f, 1.0f));
-                atomicCall(e, setAxis1, GenRandomUnitVector3());
-                atomicCall(e, setAxis2, GenRandomUnitVector3());
-                atomicCall(e, setRotateSpeed1, 0.4f);
-                atomicCall(e, setRotateSpeed2, 0.4f);
-            }
-            {
-                IEntity *e =  atomicCreateEntity(Enemy_SphereBasic);
-                atomicCall(e, setModel, PSET_SPHERE_MEDIUM);
-                atomicCall(e, setPosition, vec4(-0.5f, 0.0f, 0.0f, 1.0f));
-                atomicCall(e, setAxis1, GenRandomUnitVector3());
-                atomicCall(e, setAxis2, GenRandomUnitVector3());
-                atomicCall(e, setRotateSpeed1, 0.4f);
-                atomicCall(e, setRotateSpeed2, 0.4f);
-            }
-        }
-
-        if(m_frame % 100 == 0) {
-            IEntity *e = putSmallEnemy();
-        }
-        if(m_frame % 400 == 0) {
-            IEntity *e = putMediumEnemy();
+        switch(m_level) {
+        case 0: level0(); break;
+        case 1: level1(); break;
+        case 2: level2(); break;
+        case 3: level3(); break;
+        case 4: level4(); break;
+        case 5: level5(); break;
+        case 6: level6(); break;
+        default: m_level=1; break;
         }
     }
 
@@ -154,6 +150,136 @@ public:
             pcam->setTarget(tpos2);
 
             atomicSetListenerPosition(cpos2);
+        }
+    }
+
+
+    bool isAllDead(stl::vector<EntityHandle> &ev)
+    {
+        for(uint32 i=0; i<ev.size(); ++i) {
+            if(atomicGetEntity(ev[i])) { return false; }
+        }
+        return true;
+    }
+
+    bool isAllDead()
+    {
+        return isAllDead(m_small_enemies) && isAllDead(m_medium_enemies) && isAllDead(m_large_enemies);
+    }
+
+    void goNextLevel()
+    {
+        ++m_level;
+        m_frame = 0;
+        m_small_enemies.clear();
+        m_medium_enemies.clear();
+        m_large_enemies.clear();
+    }
+
+    void level0()
+    {
+        {
+            IEntity *e = atomicCreateEntity(Player);
+            atomicCall(e, setPosition, vec4(0.0f, 0.0f, 0.0f, 1.0f));
+        }
+        goNextLevel();
+    }
+
+    void level1()
+    {
+        if(m_frame < 1200) {
+            if(m_frame % 50 == 0) {
+                IEntity *e = putSmallEnemy();
+                m_small_enemies.push_back(e->getHandle());
+            }
+        }
+        else if(isAllDead()) {
+            goNextLevel();
+        }
+    }
+
+    void level2()
+    {
+        if(m_frame < 1200) {
+            if(m_frame % 60 == 0) {
+                IEntity *e = putSmallEnemy();
+                m_small_enemies.push_back(e->getHandle());
+            }
+            if(m_frame % 200 == 0) {
+                IEntity *e = putMediumEnemy();
+                m_medium_enemies.push_back(e->getHandle());
+            }
+        }
+        else if(isAllDead()) {
+            goNextLevel();
+        }
+    }
+
+    void level3()
+    {
+        if(m_frame < 1200) {
+            if(m_frame % 30 == 0) {
+                IEntity *e = putSmallEnemy();
+                m_small_enemies.push_back(e->getHandle());
+            }
+            if(m_frame % 220 == 0) {
+                IEntity *e = putMediumEnemy();
+                m_medium_enemies.push_back(e->getHandle());
+            }
+        }
+        else if(isAllDead()) {
+            goNextLevel();
+        }
+    }
+
+    void level4()
+    {
+        if(m_frame < 1200) {
+            if(m_frame % 20 == 0) {
+                IEntity *e = putSmallEnemy();
+                m_small_enemies.push_back(e->getHandle());
+            }
+            if(m_frame % 150 == 0) {
+                IEntity *e = putMediumEnemy();
+                m_medium_enemies.push_back(e->getHandle());
+            }
+        }
+        else if(isAllDead()) {
+            goNextLevel();
+        }
+    }
+
+    void level5()
+    {
+        if(m_frame < 1200) {
+            if(m_frame % 15 == 0) {
+                IEntity *e = putSmallEnemy();
+                m_small_enemies.push_back(e->getHandle());
+            }
+            if(m_frame % 100 == 0) {
+                IEntity *e = putMediumEnemy();
+                m_medium_enemies.push_back(e->getHandle());
+            }
+        }
+        else if(isAllDead()) {
+            goNextLevel();
+        }
+    }
+
+    void level6()
+    {
+        if(m_frame < 1200) {
+            if(m_frame % 500 == 0) {
+                IEntity *e = putLargeEnemy();
+                m_small_enemies.push_back(e->getHandle());
+            }
+            if(m_frame % 50 == 0) {
+                IEntity *e = putSmallEnemy();
+                m_small_enemies.push_back(e->getHandle());
+            }
+        }
+        else if(isAllDead()) {
+            goNextLevel();
         }
     }
 };

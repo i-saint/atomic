@@ -83,15 +83,6 @@ public:
                 atomicDeleteEntity(getHandle());
             }
         }
-
-        if(getState()==ST_ACTIVE) {
-            if(m_st_frame % 300 == 0) {
-                const vec4 &pos = getPosition();
-                vec4 player_pos = GetNearestPlayerPosition(pos);
-                vec2 vel = glm::normalize(vec2(player_pos)-vec2(pos)) * 0.01f;
-                ShootSimpleBullet(getHandle(), pos, vec4(vel, 0.0f, 0.0f));
-            }
-        }
     }
 
     virtual void updateRoutine(float32 dt)
@@ -146,12 +137,12 @@ public:
         atomicPlaySE(SE_CHANNEL3, SE_EXPLOSION3, getPosition(), true);
     }
 
-    bool call(uint32 call_id, const variant &v)
+    virtual bool call(uint32 call_id, const variant &v)
     {
         return super::call(call_id, v) || transform::call(call_id, v) || model::call(call_id, v);
     }
 
-    bool query(uint32 query_id, variant &v) const
+    virtual bool query(uint32 query_id, variant &v) const
     {
         return super::query(query_id, v) || transform::query(query_id, v) || model::query(query_id, v);
     }

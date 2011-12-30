@@ -1,7 +1,13 @@
 #include "stdafx.h"
 #include "types.h"
+#include "Graphics/ResourceManager.h"
+#include "Game/AtomicApplication.h"
+#include "Game/AtomicGame.h"
+#include "Game/World.h"
+#include "Game/Collision.h"
 #include "Game/Entity.h"
 #include "Game/EntityQuery.h"
+#include "Game/Entity/Attributes.h"
 #include "Routine.h"
 #include "Util.h"
 
@@ -36,26 +42,46 @@ namespace atomic {
             }
         }
     };
+    atomicImplementRoutine(Routine_Shoot, ROUTINE_SHOOT);
 
-    class Routine_HomingPlayer : public IRoutine
+
+    class Routine_HomingPlayer : public IRoutine, public Attr_MessageHandler
     {
+    typedef Attr_MessageHandler mhandler;
     private:
         vec4 m_vel;
 
     public:
         Routine_HomingPlayer() {}
 
-        void asyncupdate(float32 dt)
+        void update(float32 dt)
         {
             IEntity *e = getEntity();
             vec4 pos = atomicQuery(getEntity(), getPosition, vec4);
             vec4 player_pos = GetNearestPlayerPosition(pos);
 
             m_vel *= 0.98f;
-            m_vel += glm::normalize(player_pos-pos) * 0.0001f;
+            m_vel += glm::normalize(player_pos-pos) * 0.0002f;
             pos += m_vel;
 
             atomicCall(e, setPosition, pos);
+        }
+
+        virtual void eventCollide(const CollideMessage *m)
+        {
+            vec4 v = m->direction * m->direction.w * 0.1f;
+            m_vel += v;
+            m_vel.z = 0.0f;
+            m_vel.w = 0.0f;
+
+            float32 len = glm::length(m_vel);
+            const float32 max_speed = 0.02f;
+            if(len > max_speed) { m_vel = m_vel / len * max_speed; }
+        }
+
+        virtual bool call(uint32 call_id, const variant &v)
+        {
+            return mhandler::call(call_id, v);
         }
     };
     atomicImplementRoutine(Routine_HomingPlayer, ROUTINE_HOMING_PLAYER);

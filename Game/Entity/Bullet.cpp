@@ -35,7 +35,7 @@ private:
     int32           m_lifetime;
 
 public:
-    Bullet_Simple() : m_owner(0), m_power(1.0f), m_lifetime(600) {}
+    Bullet_Simple() : m_owner(0), m_power(30.0f), m_lifetime(600) {}
 
     const mat4& getTransform() const{ return m_transform; }
     EntityHandle getOwner() const   { return m_owner; }
@@ -98,6 +98,9 @@ public:
     {
         if(m->from == getOwner()) { return; }
 
+        if(IEntity *e=atomicGetEntity(m->from)) {
+            atomicCall(e, damage, m_power);
+        }
         atomicGetSPHManager()->addFluid(getModel(), m_transform);
         atomicDeleteEntity(getHandle());
         atomicPlaySE(SE_CHANNEL2, SE_EXPLOSION2, getPosition(), true);

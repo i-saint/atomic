@@ -22,6 +22,7 @@ class PassDeferredShading_DirectionalLights;
 class PassDeferredShading_PointLights;
 class PassPostprocess_FXAA;
 class PassPostprocess_Bloom;
+class SystemTextRenderer;
 
 
 class AtomicRenderer : public boost::noncopyable
@@ -40,6 +41,8 @@ private:
     PassPostprocess_FXAA                    *m_renderer_fxaa;
     PassPostprocess_Bloom                   *m_renderer_bloom;
     stl::vector<IRenderer*>                 m_renderers[PASS_END];
+
+    SystemTextRenderer                      *m_stext;
 
     Viewport        m_default_viewport;
     RenderStates    m_render_states;
@@ -65,19 +68,21 @@ public:
     void beforeDraw();  // メインスレッドから、描画処理の前に呼ばれる
     void draw();        // 以下描画スレッドから呼ばれる
 
+    const Viewport* getDefaultViewport() const                      { return &m_default_viewport; }
+    RenderStates* getRenderStates()                                 { return &m_render_states; }
     PassGBuffer_SPH* getSPHRenderer()                               { return m_renderer_sph; }
     PassDeferredShading_DirectionalLights* getDirectionalLights()   { return m_renderer_dir_lights; }
     PassDeferredShading_PointLights* getPointLights()               { return m_renderer_point_lights; }
-    const Viewport* getDefaultViewport() const                      { return &m_default_viewport; }
-    RenderStates* getRenderStates()                                 { return &m_render_states; }
+    SystemTextRenderer* getSystemTextRenderer()                     { return m_stext; }
 };
 
 #define atomicGetRenderer()             AtomicRenderer::getInstance()
+#define atomicGetRenderStates()         atomicGetRenderer()->getRenderStates()
+#define atomicGetDefaultViewport()      atomicGetRenderer()->getDefaultViewport()
 #define atomicGetSPHRenderer()          atomicGetRenderer()->getSPHRenderer()
 #define atomicGetDirectionalLights()    atomicGetRenderer()->getDirectionalLights()
 #define atomicGetPointLights()          atomicGetRenderer()->getPointLights()
-#define atomicGetDefaultViewport()      atomicGetRenderer()->getDefaultViewport()
-
+#define atomicGetSystemTextRenderer()   atomicGetRenderer()->getSystemTextRenderer()
 
 
 
@@ -182,6 +187,24 @@ public:
     PassPostprocess_Bloom();
     void beforeDraw();
     void draw();
+};
+
+
+class SystemTextRenderer : public IRenderer
+{
+private:
+    struct Text {
+        char text[128];
+        ivec2 pos;
+    };
+    stl::vector<Text> m_texts;
+
+public:
+    SystemTextRenderer();
+    void beforeDraw();
+    void draw();
+
+    void addText(const ivec2 &pos, const char *text);
 };
 
 } // namespace atomic
