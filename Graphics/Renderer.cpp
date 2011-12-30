@@ -41,12 +41,14 @@ AtomicRenderer::AtomicRenderer()
     m_renderer_point_lights = istNew(PassDeferredShading_PointLights)();
     m_renderer_fxaa         = istNew(PassPostprocess_FXAA)();
     m_renderer_bloom        = istNew(PassPostprocess_Bloom)();
+    m_renderer_fade         = istNew(PassPostprocess_Fade)();
 
     m_renderers[PASS_GBUFFER].push_back(m_renderer_sph);
     m_renderers[PASS_DEFERRED].push_back(m_renderer_dir_lights);
     m_renderers[PASS_DEFERRED].push_back(m_renderer_point_lights);
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_fxaa);
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_bloom);
+    m_renderers[PASS_POSTPROCESS].push_back(m_renderer_fade);
 
     m_stext = istNew(SystemTextRenderer)();
 
@@ -215,9 +217,9 @@ void AtomicRenderer::passOutput()
 
     char buf[64];
     sprintf(buf, "FPS: %.0f", atomicGetApplication()->getAverageFPS());
-    m_stext->addText(ivec2(0, 0), buf);
+    m_stext->addText(ivec2(5, 0), buf);
     sprintf(buf, "Particles: %d", SPHGetStates().fluid_num_particles);
-    m_stext->addText(ivec2(0, 20), buf);
+    m_stext->addText(ivec2(5, 20), buf);
     m_stext->draw();
 }
 
@@ -513,7 +515,7 @@ PassPostprocess_Bloom::PassPostprocess_Bloom()
     m_sh_hblur      = atomicGetShader(SH_BLOOM_HBLUR);
     m_sh_vblur      = atomicGetShader(SH_BLOOM_VBLUR);
     m_sh_composite  = atomicGetShader(SH_BLOOM_COMPOSITE);
-    m_ubo_states    = atomicGetUniformBufferObject(UBO_BLOOM_STATES);
+    m_ubo_states    = atomicGetUniformBufferObject(UBO_BLOOM_PARAMS);
 }
 
 void PassPostprocess_Bloom::beforeDraw()
@@ -576,6 +578,54 @@ void PassPostprocess_Bloom::draw()
         m_rt_deferred->unbind();
         m_sh_composite->unbind();
     }
+}
+
+
+PassPostprocess_Fade::PassPostprocess_Fade()
+{
+    m_rt_deferred   = atomicGetRenderTargetDeferred();
+    m_sh_fade       = atomicGetShader(SH_FADE);
+    m_va_quad       = atomicGetVertexArray(VA_SCREEN_QUAD);
+    m_ubo_fade      = atomicGetUniformBufferObject(UBO_FADE_PARAMS);
+
+    m_loc_fade_param = m_sh_fade->getUniformBlockIndex("fade_params");
+}
+
+void PassPostprocess_Fade::beforeDraw()
+{
+    uint32 frame = atomicGetFrame();
+    if(frame > m_end_frame) { return; }
+
+    vec4 diff = m_end_color-m_begin_color;
+    uint32 f = m_end_frame-m_begin_frame;
+    float32 l = float32(frame-m_begin_frame)/f;
+    m_params.color = m_begin_color + diff*l;
+}
+
+void PassPostprocess_Fade::draw()
+{
+    if(m_params.color.a==0.0f) { return; }
+
+    MapAndWrite(*m_ubo_fade, &m_params, sizeof(m_params));
+
+    m_sh_fade->bind();
+    m_sh_fade->setUniformBlock(m_loc_fade_param, GLSL_FADE_BINDING, m_ubo_fade->getHandle());
+    m_rt_deferred->bind();
+    m_va_quad->bind();
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDrawArrays(GL_QUADS, 0, 4);
+    glDisable(GL_BLEND);
+    m_rt_deferred->unbind();
+    m_sh_fade->unbind();
+}
+
+void PassPostprocess_Fade::setFade(const vec4 &v, uint32 frame)
+{
+    m_begin_color = m_params.color;
+    m_end_color = v;
+    m_begin_frame = atomicGetFrame();
+    m_end_frame = m_begin_frame+frame;
 }
 
 

@@ -55,6 +55,9 @@
     <None Include="shader\FXAA_luma.glsl">
       <Filter>shader</Filter>
     </None>
+    <None Include="shader\Fade.glsl">
+      <Filter>shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shader\Fxaa3_11.h">

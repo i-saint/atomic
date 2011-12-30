@@ -35,7 +35,7 @@ private:
     int32           m_lifetime;
 
 public:
-    Bullet_Simple() : m_owner(0), m_power(30.0f), m_lifetime(600) {}
+    Bullet_Simple() : m_owner(0), m_power(50.0f), m_lifetime(600) {}
 
     const mat4& getTransform() const{ return m_transform; }
     EntityHandle getOwner() const   { return m_owner; }

@@ -109,6 +109,7 @@
     <None Include="shader\Common.glslh" />
     <None Include="shader\Deferred_DirectionalLight.glsl" />
     <None Include="shader\Deferred_PointLight.glsl" />
+    <None Include="shader\Fade.glsl" />
     <None Include="shader\FXAA.glsl" />
     <None Include="shader\FXAA_luma.glsl" />
     <None Include="shader\GBuffer_Fluid.glsl" />

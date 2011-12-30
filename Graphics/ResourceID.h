@@ -17,6 +17,7 @@ enum SH_RID {
     SH_BLOOM_COMPOSITE,
     SH_NORMAL_HBLUR,
     SH_NORMAL_VBLUR,
+    SH_FADE,
     SH_OUTPUT,
     SH_END,
 };
@@ -69,7 +70,8 @@ enum IBO_RID {
 enum UBO_RID {
     UBO_RENDER_STATES,
     UBO_FXAA_PARAMS,
-    UBO_BLOOM_STATES,
+    UBO_FADE_PARAMS,
+    UBO_BLOOM_PARAMS,
     UBO_END,
 };
 

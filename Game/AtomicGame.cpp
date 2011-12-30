@@ -21,6 +21,9 @@ AtomicGame::AtomicGame()
 
     m_world = istNew(World)();
     m_world->initialize();
+
+    // ¡‰ñ‚ÍŒÅ’è’l‚Å‰Šú‰»
+    m_rand.initialize(0);
 }
 
 AtomicGame::~AtomicGame()

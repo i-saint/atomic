@@ -61,6 +61,7 @@ public:
     // •`‰æƒXƒŒƒbƒh‚©‚çŒÄ‚Î‚ê‚é
     void drawCallback();
 
+    void requestExit()                          { m_request_exit=true; }
     AtomicGame* getGame()                       { return m_game; }
     const InputState* getSystemInputs() const   { return &m_inputs; }
     AtomicConfig* getConfig()                   { return &m_config; }

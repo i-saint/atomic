@@ -2,7 +2,8 @@
 #include "features.h"
 #include "types.h"
 #include "Input.h"
-#include <fstream>
+#include "AtomicApplication.h"
+#include "AtomicGame.h"
 
 namespace atomic {
 
@@ -16,6 +17,7 @@ struct RawInputHeader
         struct {
             char magic[8];
             uint32 version;
+            uint32 random_seed;
             uint32 num_data;
         };
         uint32 reserved[16];
@@ -73,6 +75,7 @@ bool InputServerLocal::writeToFile(const char *path)
     RawInputHeader header;
     header.initialize();
     header.num_data = m_data.size();
+    header.random_seed = atomicGetRandom()->getSeed();
     gzf.write((char*)&header, sizeof(header));
     gzf.write((char*)&m_data[0], sizeof(RawInputData)*m_data.size());
     return true;
@@ -105,6 +108,8 @@ bool InputServerReplay::readFromFile(const char *path)
     RawInputHeader header;
     gzf.read((char*)&header, sizeof(header));
     if(!header.isValid()) { return false; }
+
+    atomicGetRandom()->initialize(header.random_seed);
 
     m_data.resize(header.num_data);
     gzf.read((char*)&m_data[0], sizeof(RawInputData)*m_data.size());

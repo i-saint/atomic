@@ -25,3 +25,4 @@
 // uniform blocks
 #define GLSL_RENDERSTATE_BINDING    0
 #define GLSL_FXAA_BINDING           1
+#define GLSL_FADE_BINDING           2

@@ -41,6 +41,15 @@ struct
     float fxaaConsoleEdgeThresholdMin;
 };
 
+struct
+#ifndef GLSL
+    __declspec(align(16))
+#endif // GLSL
+    FadeParams
+{
+    vec4 color;
+};
+
 
 #ifndef GLSL
 } // namespace atomic

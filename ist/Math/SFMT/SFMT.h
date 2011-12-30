@@ -154,6 +154,8 @@ private:
     /** a parity check vector which certificate the period of 2^{MEXP} */
     uint32_t m_parity[4];
 
+    uint32_t m_seed;
+
 
 private:
     void gen_rand_all(void);
@@ -276,8 +278,9 @@ public:
         return *this;
     }
 
-    void initialize(uint32_t seed) { init_gen_rand(seed); }
+    void initialize(uint32_t seed) { m_seed=seed; init_gen_rand(seed); }
     bool isInitialized() const { return m_initialized!=0; }
+    uint32_t getSeed() const { return m_seed; }
 
     double genFloat64() { return genrand_real1(); }
     float genFloat32()  { return (float)genrand_real1(); }

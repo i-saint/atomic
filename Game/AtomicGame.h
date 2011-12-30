@@ -10,8 +10,9 @@ class AtomicRenderer;
 class AtomicGame
 {
 private:
-    IInputServer  *m_input_server;
-    World               *m_world;
+    IInputServer    *m_input_server;
+    World           *m_world;
+    SFMT            m_rand;
 
 public:
     AtomicGame();
@@ -27,12 +28,14 @@ public:
     // •`‰æƒXƒŒƒbƒh‚©‚çŒÄ‚Î‚ê‚é
     void drawCallback();
 
-    World* getWorld() { return m_world; }
     const InputState* getIngameInputs() const { return m_input_server->getInput(); }
+    World* getWorld()   { return m_world; }
+    SFMT* getRandom()   { return &m_rand; }
 };
 
 #define atomicGetWorld()            atomicGetGame()->getWorld()
 #define atomicGetIngameInputs()     atomicGetGame()->getIngameInputs()
+#define atomicGetRandom()           atomicGetGame()->getRandom()
 
 
 } // namespace atomic

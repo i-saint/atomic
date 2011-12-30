@@ -21,18 +21,26 @@ class Level_Test : public IEntity
 {
 typedef IEntity super;
 private:
+    enum STATE {
+        ST_BEGIN,
+        ST_NORMAL,
+        ST_GAME_OVER,
+    };
+
     int m_frame;
     CollisionHandle m_planes[4];
 
+    EntityHandle m_player;
     stl::vector<EntityHandle> m_small_enemies;
     stl::vector<EntityHandle> m_medium_enemies;
     stl::vector<EntityHandle> m_large_enemies;
 
-    int32 m_killcount;
     int32 m_level;
+    int32 m_loop;
+    STATE m_state;
 
 public:
-    Level_Test() : m_frame(0), m_killcount(0), m_level(0)
+    Level_Test() : m_frame(0), m_player(0), m_level(0), m_loop(0), m_state(ST_BEGIN)
     {
     }
 
@@ -66,13 +74,15 @@ public:
         super::finalize();
     }
 
+    float32 getLoopBoost() const { return 1.0f+(0.2f * m_loop); }
+
     IEntity* putSmallEnemy()
     {
         IEntity *e = NULL;
         e = atomicCreateEntity(Enemy_SphereBasic);
         atomicCall(e, setModel, PSET_SPHERE_SMALL);
         atomicCall(e, setPosition, GenRandomVector2() * 2.2f);
-        atomicCall(e, setHealth, 15.0f);
+        atomicCall(e, setHealth, 15.0f * getLoopBoost());
         atomicCall(e, setAxis1, GenRandomUnitVector3());
         atomicCall(e, setAxis2, GenRandomUnitVector3());
         atomicCall(e, setRotateSpeed1, 2.4f);
@@ -90,7 +100,7 @@ public:
         case 1: e = atomicCreateEntity(Enemy_SphereBasic);atomicCall(e, setModel, PSET_SPHERE_MEDIUM);  break;
         }
         atomicCall(e, setPosition, GenRandomVector2() * 2.1f);
-        atomicCall(e, setHealth, 100.0f);
+        atomicCall(e, setHealth, 100.0f * getLoopBoost());
         atomicCall(e, setAxis1, GenRandomUnitVector3());
         atomicCall(e, setAxis2, GenRandomUnitVector3());
         atomicCall(e, setRotateSpeed1, 0.4f);
@@ -108,7 +118,7 @@ public:
         case 1: e = atomicCreateEntity(Enemy_SphereBasic);atomicCall(e, setModel, PSET_SPHERE_LARGE);  break;
         }
         atomicCall(e, setPosition, GenRandomVector2() * 1.5f);
-        atomicCall(e, setHealth, 2000.0f);
+        atomicCall(e, setHealth, 1800.0f * getLoopBoost());
         atomicCall(e, setAxis1, GenRandomUnitVector3());
         atomicCall(e, setAxis2, GenRandomUnitVector3());
         atomicCall(e, setRotateSpeed1, 0.2f);
@@ -123,15 +133,31 @@ public:
         ++m_frame;
         updateCamera();
 
-        switch(m_level) {
-        case 0: level0(); break;
-        case 1: level1(); break;
-        case 2: level2(); break;
-        case 3: level3(); break;
-        case 4: level4(); break;
-        case 5: level5(); break;
-        case 6: level6(); break;
-        default: m_level=1; break;
+        if(m_state==ST_BEGIN) {
+            level0();
+            m_state = ST_NORMAL;
+            m_frame = 0;
+        }
+        else if(m_state==ST_NORMAL) {
+            switch(m_level) {
+            case 1: level1(); break;
+            case 2: level2(); break;
+            case 3: level3(); break;
+            case 4: level4(); break;
+            case 5: level5(); break;
+            case 6: level6(); break;
+            default: ++m_loop; m_level=1; break;
+            }
+            if(m_level > 0 && !isPlayerAlive()) {
+                m_frame = 0;
+                m_state = ST_GAME_OVER;
+                atomicGetFader()->setFade(vec4(0.0f, 0.0f, 0.0f, 1.0f), 300);
+            }
+        }
+        else if(m_state==ST_GAME_OVER) {
+            if(m_frame > 300) {
+                atomicGetApplication()->requestExit();
+            }
         }
     }
 
@@ -151,6 +177,14 @@ public:
 
             atomicSetListenerPosition(cpos2);
         }
+    }
+
+    bool isPlayerAlive()
+    {
+        if(!atomicGetEntity(m_player)) {
+            return false;
+        }
+        return true;
     }
 
 
@@ -180,7 +214,12 @@ public:
     {
         {
             IEntity *e = atomicCreateEntity(Player);
+            m_player = e->getHandle();
             atomicCall(e, setPosition, vec4(0.0f, 0.0f, 0.0f, 1.0f));
+        }
+        {
+            atomicGetFader()->setColor(vec4(0.0f, 0.0f, 0.0f, 1.0f));
+            atomicGetFader()->setFade(vec4(0.0f, 0.0f, 0.0f, 0.0f), 60);
         }
         goNextLevel();
     }
@@ -281,6 +320,18 @@ public:
         else if(isAllDead()) {
             goNextLevel();
         }
+    }
+
+    void draw()
+    {
+        float32 health = 0.0f;
+        if(IEntity *e = atomicGetEntity(m_player)) {
+            health = atomicQuery(e, getHealth, float32);
+        }
+
+        char buf[64];
+        sprintf_s(buf, _countof(buf), "life: %.0f", health);
+        atomicGetSystemTextRenderer()->addText(ivec2(5, 40), buf);
     }
 };
 

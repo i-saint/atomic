@@ -22,7 +22,6 @@ private:
     Task_UpdateAsync<CollisionSet>  *m_task_update_collision;
     Task_UpdateAsync<SPHManager>    *m_task_update_sph;
 
-    SFMT m_rand;
     PerspectiveCamera m_camera;
     vec4 m_field_size;
 
@@ -43,7 +42,6 @@ public:
     void draw() const;
 
     PerspectiveCamera* getCamera()  { return &m_camera; }
-    SFMT* getRandom()               { return &m_rand; }
     const vec4& getFieldSize() const{ return m_field_size; }
     uint32 getFrame() const         { return m_frame; }
 
@@ -57,7 +55,6 @@ public:
 
 #define atomicGetFrame()        atomicGetWorld()->getFrame()
 #define atomicGetCamera()       atomicGetWorld()->getCamera()
-#define atomicGetRandom()       atomicGetWorld()->getRandom()
 #define atomicGenRandFloat()    atomicGetRandom()->genFloat32()
 #define atomicGenRandVector2()  atomicGetRandom()->genVector2()
 #define atomicGenRandVector3()  atomicGetRandom()->genVector3()

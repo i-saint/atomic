@@ -108,6 +108,7 @@ bool GraphicResourceManager::initialize()
     {
         m_ubo[UBO_RENDER_STATES]->allocate(sizeof(RenderStates), UniformBufferObject::USAGE_DYNAMIC);
         m_ubo[UBO_FXAA_PARAMS]->allocate(sizeof(FXAAParams), UniformBufferObject::USAGE_DYNAMIC);
+        m_ubo[UBO_FADE_PARAMS]->allocate(sizeof(FadeParams), UniformBufferObject::USAGE_DYNAMIC);
     }
     {
         // create shaders
@@ -121,6 +122,7 @@ bool GraphicResourceManager::initialize()
         m_shader[SH_BLOOM_HBLUR]        = CreateAtomicShader(g_Bloom_HBlur_glsl);
         m_shader[SH_BLOOM_VBLUR]        = CreateAtomicShader(g_Bloom_VBlur_glsl);
         m_shader[SH_BLOOM_COMPOSITE]    = CreateAtomicShader(g_Bloom_Composite_glsl);
+        m_shader[SH_FADE]               = CreateAtomicShader(g_Fade_glsl);
         m_shader[SH_OUTPUT]             = CreateAtomicShader(g_Out_glsl);
     }
     {

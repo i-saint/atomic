@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "types.h"
 #include "Util.h"
+#include "Sound/AtomicSound.h"
 #include "Graphics/ResourceManager.h"
 #include "Graphics/Renderer.h"
 #include "Game/AtomicApplication.h"
@@ -44,6 +45,7 @@ public:
         m_barrier.initializeCollision(0);
         m_barrier.setCollisionFlag(CF_AFFECT_SPH);
 
+        setHealth(5.0f);
         setAxis1(GenRandomUnitVector3());
         setAxis2(GenRandomUnitVector3());
         setRotateSpeed1(1.4f);
@@ -138,6 +140,9 @@ public:
 
     virtual void destroy()
     {
+        atomicGetSPHManager()->addFluid(pset_id, getTransform());
+        atomicPlaySE(SE_CHANNEL5, SE_EXPLOSION5, getPosition(), true);
+        super::destroy();
     }
 
     virtual void eventCollide(const CollideMessage *m)
@@ -146,6 +151,8 @@ public:
         m_vel += v;
         m_vel.z = 0.0f;
         m_vel.w = 0.0f;
+
+        damage(m->direction.w * 50.0f);
     }
 
     bool call(uint32 call_id, const variant &v)

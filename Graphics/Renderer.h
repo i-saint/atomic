@@ -22,6 +22,7 @@ class PassDeferredShading_DirectionalLights;
 class PassDeferredShading_PointLights;
 class PassPostprocess_FXAA;
 class PassPostprocess_Bloom;
+class PassPostprocess_Fade;
 class SystemTextRenderer;
 
 
@@ -40,6 +41,7 @@ private:
     PassDeferredShading_PointLights         *m_renderer_point_lights;
     PassPostprocess_FXAA                    *m_renderer_fxaa;
     PassPostprocess_Bloom                   *m_renderer_bloom;
+    PassPostprocess_Fade                    *m_renderer_fade;
     stl::vector<IRenderer*>                 m_renderers[PASS_END];
 
     SystemTextRenderer                      *m_stext;
@@ -73,6 +75,7 @@ public:
     PassGBuffer_SPH* getSPHRenderer()                               { return m_renderer_sph; }
     PassDeferredShading_DirectionalLights* getDirectionalLights()   { return m_renderer_dir_lights; }
     PassDeferredShading_PointLights* getPointLights()               { return m_renderer_point_lights; }
+    PassPostprocess_Fade* getFader()                                { return m_renderer_fade; }
     SystemTextRenderer* getSystemTextRenderer()                     { return m_stext; }
 };
 
@@ -82,6 +85,7 @@ public:
 #define atomicGetSPHRenderer()          atomicGetRenderer()->getSPHRenderer()
 #define atomicGetDirectionalLights()    atomicGetRenderer()->getDirectionalLights()
 #define atomicGetPointLights()          atomicGetRenderer()->getPointLights()
+#define atomicGetFader()                atomicGetRenderer()->getFader()
 #define atomicGetSystemTextRenderer()   atomicGetRenderer()->getSystemTextRenderer()
 
 
@@ -187,6 +191,30 @@ public:
     PassPostprocess_Bloom();
     void beforeDraw();
     void draw();
+};
+
+class PassPostprocess_Fade : public IRenderer
+{
+private:
+    RenderTargetDeferred    *m_rt_deferred;
+    AtomicShader            *m_sh_fade;
+    UniformBufferObject     *m_ubo_fade;
+    VertexArray             *m_va_quad;
+    int32       m_loc_fade_param;
+    FadeParams  m_params;
+
+    vec4 m_begin_color;
+    vec4 m_end_color;
+    uint32 m_begin_frame;
+    uint32 m_end_frame;
+
+public:
+    PassPostprocess_Fade();
+    void beforeDraw();
+    void draw();
+
+    void setColor(const vec4 &v) { m_params.color=v; }
+    void setFade(const vec4 &v, uint32 frame);
 };
 
 
