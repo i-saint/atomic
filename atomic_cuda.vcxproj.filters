@@ -263,9 +263,6 @@
     <ClInclude Include="ist\Graphics\FrameBufferObject.h">
       <Filter>ist\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="ist\Graphics\GraphicsAssert.h">
-      <Filter>ist\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="ist\Graphics\GraphicsResource.h">
       <Filter>ist\Graphics</Filter>
     </ClInclude>
@@ -446,6 +443,9 @@
     </ClInclude>
     <ClInclude Include="Game\Input.h">
       <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Graphics\GraphicsAssert.h">
+      <Filter>ist\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

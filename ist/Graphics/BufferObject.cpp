@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "GraphicsAssert.h"
 #include "BufferObject.h"
 #include "../Base.h"
 
@@ -25,7 +24,6 @@ template<GLuint BufferType>
 bool BufferObject<BufferType>::initialize()
 {
     glGenBuffers(1, &m_handle);
-    CheckGLError();
     return true;
 }
 
@@ -34,7 +32,6 @@ void BufferObject<BufferType>::finalize()
 {
     if(m_handle!=0) {
         glDeleteBuffers(1, &m_handle);
-        CheckGLError();
     }
     m_handle = 0;
 }
@@ -84,7 +81,7 @@ void* BufferObject<BufferType>::map(MAP_MODE mode)
 {
     glBindBuffer(BufferType, m_handle);
     void *r = glMapBuffer(BufferType, mode);
-    if(r==NULL) { IST_ASSERT("BufferObject::map() failed\n"); }
+    if(r==NULL) { istAssert("BufferObject::map() failed\n"); }
     glBindBuffer(BufferType, 0);
     return r;
 }

@@ -59,7 +59,7 @@ SPHManager::SPHManager()
 SPHManager::~SPHManager()
 {
     for(uint32 i=0; i<m_fluid_tasks.size(); ++i) {
-        IST_DELETE(m_fluid_tasks[i]);
+        istDelete(m_fluid_tasks[i]);
     }
     m_fluid_tasks.clear();
 }
@@ -124,7 +124,7 @@ void SPHManager::addFluid( const sphFluidParticle *particles, uint32 num )
 void SPHManager::addFluid(PSET_RID psid, const mat4 &t)
 {
     while(m_fluid_tasks.size()<=m_current_fluid_task) {
-        m_fluid_tasks.push_back( IST_NEW(ComputeFluidParticle)() );
+        m_fluid_tasks.push_back( istNew(ComputeFluidParticle)() );
     }
     ComputeFluidParticle *task = static_cast<ComputeFluidParticle*>(m_fluid_tasks[m_current_fluid_task++]);
     task->setup(psid, t);

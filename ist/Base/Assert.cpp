@@ -6,6 +6,8 @@
     #include <windows.h>
 #endif // _WIN32
 
+#ifdef __ist_enable_assert__
+
 namespace ist {
 
 
@@ -148,3 +150,5 @@ int DebugAssertV(const char* file, int line, const wchar_t* fmt, va_list vl)
 
 
 } // namespace ist
+
+#endif // __ist_enable_assert__

@@ -3,7 +3,6 @@
 
 #include <glm/glm.hpp>
 #include "Base/Types.h"
-#include "Graphics/GraphicsAssert.h"
 #include "Graphics/GraphicsResource.h"
 #include "Graphics/BufferObject.h"
 #include "Graphics/ShaderObject.h"

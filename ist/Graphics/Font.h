@@ -9,9 +9,9 @@ namespace graphics {
 class SystemFont : GraphicsResource
 {
 private:
-#ifdef WIN32
+#ifdef _WIN32
     HDC m_hdc;
-#endif // WIN32
+#endif // _WIN32
     int m_window_height;
     int m_font_height;
 

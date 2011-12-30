@@ -17,9 +17,9 @@ AtomicGame::AtomicGame()
 {
     MessageRouter::initializeInstance();
 
-    m_input_server = IST_NEW(InputServerLocal)();
+    m_input_server = istNew(InputServerLocal)();
 
-    m_world = IST_NEW(World)();
+    m_world = istNew(World)();
     m_world->initialize();
 }
 
@@ -34,22 +34,22 @@ AtomicGame::~AtomicGame()
         static_cast<InputServerLocal*>(m_input_server)->writeToFile(path);
     }
 
-    IST_SAFE_DELETE(m_world);
-    IST_SAFE_DELETE(m_input_server);
+    istSafeDelete(m_world);
+    istSafeDelete(m_input_server);
 
     MessageRouter::finalizeInstance();
 }
 
 bool AtomicGame::readReplayFromFile(const char *path)
 {
-    InputServerReplay *ris = IST_NEW(InputServerReplay)();
+    InputServerReplay *ris = istNew(InputServerReplay)();
     if(ris->readFromFile(path)) {
-        IST_DELETE(m_input_server);
+        istDelete(m_input_server);
         m_input_server = ris;
         return true;
     }
 
-    IST_DELETE(ris);
+    istDelete(ris);
     return false;
 }
 

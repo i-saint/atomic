@@ -5,10 +5,16 @@
 #define __atomic_version_string__ "0.01"
 #define __atomic_replay_version__ 1
 
-#define __atomic_EnableDebugConsole__
-#define __atomic_EnableStrictHandleCheck__
 
+#define __ist_with_OpenGL__
 #define __ist_with_zlib__
 #define __ist_with_oggvorbis__
+
+#ifdef _MASTER
+#else // _MASTER
+    #define __ist_enable_assert__
+    #define __atomic_enable_debug_console__
+    #define __atomic_enable_debug_strict_handle_check__
+#endif // _MASTER
 
 #endif //__atomic_features__

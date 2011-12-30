@@ -135,6 +135,6 @@ public:
 };
 
 } // namespace ist
-#endif // IST_ENABLE_ZLIB
+#endif // __ist_with_zlib__
 
 #endif // __ist_BinaryStream__

@@ -4,8 +4,8 @@
 #include "Graphics/ResourceManager.h"
 #include "Entity.h"
 
-#ifdef __atomic_EnableStrictHandleCheck__
-    #define atomicStrictHandleCheck(h) if(!isValidHandle(h)) { IST_ASSERT("invalid entity handle\n"); }
+#ifdef __atomic_enable_strict_handle_check__
+    #define atomicStrictHandleCheck(h) if(!isValidHandle(h)) { istAssert("invalid entity handle\n"); }
 #else
     #define atomicStrictHandleCheck(h)
 #endif
@@ -43,7 +43,7 @@ EntitySet::~EntitySet()
             EntityCont &entities = m_entities[i][j];
             uint32 s = entities.size();
             for(uint32 k=0; k<s; ++k) {
-                IST_SAFE_DELETE(entities[k]);
+                istSafeDelete(entities[k]);
             }
             entities.clear();
             m_vacant[i][j].clear();
@@ -148,7 +148,7 @@ void EntitySet::deleteEntity( EntityHandle h )
     EntityCont &entities = m_entities[cid][sid];
     HandleCont &vacants = m_vacant[cid][sid];
     entities[iid]->finalize();
-    IST_SAFE_DELETE(entities[iid]);
+    istSafeDelete(entities[iid]);
     vacants.push_back(h);
 }
 

@@ -6,7 +6,7 @@
 
 namespace ist {
 namespace graphics {
-#ifdef WIN32
+#ifdef _WIN32
 
     static const int g_list_base = 0;
 
@@ -55,7 +55,7 @@ void SystemFont::draw(int x, int y, const wchar_t *text)
     glWindowPos2i(x, m_window_height-m_font_height-y);
     glCallLists (len, GL_UNSIGNED_SHORT, text);
 }
-#endif // WIN32
+#endif // _WIN32
 
 } // namespace graphics
 } // namespace ist

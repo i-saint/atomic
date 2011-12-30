@@ -9,9 +9,9 @@ namespace ist
 Application *g_the_app = NULL;
 HINSTANCE g_hinstance = NULL;
 
-#ifdef IST_OPENGL
+#ifdef __ist_with_OpenGL__
 HDC g_hdc = NULL;
-#endif // IST_OPENGL
+#endif // __ist_with_OpenGL__
 
 
 LRESULT CALLBACK WndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lParam)
@@ -191,19 +191,19 @@ Application::Application()
 , m_width(0)
 , m_height(0)
 , m_graphics_error(ERR_NOERROR)
-#if defined(IST_OPENGL) && defined(WIN32)
+#if defined(__ist_with_OpenGL__) && defined(_WIN32)
 , m_hdc(NULL)
 , m_hglrc(NULL)
-#endif // defined(IST_OPENGL) && defined(WIN32)
-#ifdef IST_DIRECTX
+#endif // defined(__ist_with_opengl__) && defined(_WIN32)
+#ifdef __ist_with_Direct3D11__
 , m_dxswapchain(0)
 , m_dxdevice(0)
 , m_dxcontext(0)
-#endif // IST_DIRECTX
-#ifdef IST_OPENCL
+#endif // __ist_with_Direct3D11__
+#ifdef __ist_with_OpenCL__
 , m_cl_context(NULL)
 , m_cl_queue(NULL)
-#endif // IST_OPENCL
+#endif // __ist_with_OpenCL__
 {
 }
 
@@ -216,7 +216,7 @@ Application::~Application()
 bool Application::initialize(ivec2 wpos, ivec2 wsize, const wchar_t *title, bool fullscreen)
 {
     if(g_the_app) {
-        IST_PRINT("既にインスタンスが存在している");
+        istPrint("既にインスタンスが存在している");
         return false;
     }
     g_the_app = this;
@@ -246,13 +246,13 @@ bool Application::initialize(ivec2 wpos, ivec2 wsize, const wchar_t *title, bool
     wc.lpszClassName = title;
     wc.hIconSm       = LoadIcon (NULL, IDI_APPLICATION);
     if(::RegisterClassEx(&wc)==NULL) {
-        IST_PRINT("RegisterClassEx() failed");
+        istPrint("RegisterClassEx() failed");
         return false;
     }
 
     m_hwnd = ::CreateWindow(title, title, style, wpos.x,wpos.y, wsize.x,wsize.y, NULL, NULL, g_hinstance, NULL);
     if(m_hwnd==NULL) {
-        IST_PRINT("CreateWindow() failed");
+        istPrint("CreateWindow() failed");
         return false;
     }
 
@@ -281,9 +281,9 @@ bool Application::initialize(ivec2 wpos, ivec2 wsize, const wchar_t *title, bool
 
 void Application::finalize()
 {
-#ifdef IST_OPENCL
+#ifdef __ist_with_OpenCL__
     if(m_cl_context) { delete m_cl_context; m_cl_context=NULL; }
-#endif // IST_OPENCL
+#endif // __ist_with_OpenCL__
     if(m_hwnd) {
         ::CloseWindow(m_hwnd);
         m_hwnd=NULL;
@@ -292,7 +292,7 @@ void Application::finalize()
 
 bool Application::initializeDraw()
 {
-#if defined(IST_OPENGL) && defined(WIN32)
+#if defined(__ist_with_OpenGL__) && defined(_WIN32)
     m_hdc = ::GetDC(m_hwnd);
     g_hdc = m_hdc;
 
@@ -321,22 +321,21 @@ bool Application::initializeDraw()
     if(((pixelformat = ::ChoosePixelFormat(m_hdc, &pfd)) == 0)
         || ((::SetPixelFormat(m_hdc, pixelformat, &pfd) == FALSE))
         || (!(m_hglrc=::wglCreateContext(m_hdc)))) {
-            IST_PRINT("OpenGL initialization failed");
+            istPrint("OpenGL initialization failed");
     }
     wglMakeCurrent(m_hdc, m_hglrc);
     glewInit();
     {
         const GLubyte *version = glGetString(GL_VERSION);
         const GLubyte *vendor = glGetString(GL_VENDOR);
-        IST_PRINT("OpenGL version: %s, vendor: %s\n", version, vendor);
+        istPrint("OpenGL version: %s, vendor: %s\n", version, vendor);
     }
 
     //::ShowCursor(false);
 
-    wglSwapIntervalEXT(GL_FALSE);
-#endif // IST_OPENGL
+#endif // __ist_with_OpenGL__
 
-#ifdef IST_DIRECTX
+#ifdef __ist_with_Direct3D11__
     // create a struct to hold information about the swap chain
     DXGI_SWAP_CHAIN_DESC scd;
     // clear out the struct for use
@@ -364,16 +363,16 @@ bool Application::initializeDraw()
         &m_dxdevice,
         NULL,
         &m_dxcontext);
-#endif // IST_DIRECTX
+#endif // __ist_with_Direct3D11__
 
-#ifdef IST_OPENCL
+#ifdef __ist_with_OpenCL__
     // initialize OpenCL
     {
         cl_int err;
         std::vector< cl::Platform > platforms;
         cl::Platform::get(&platforms);
         if(platforms.empty()) {
-            IST_PRINT("OpenCL initialization failed");
+            istPrint("OpenCL initialization failed");
             return false;
         }
 
@@ -381,21 +380,21 @@ bool Application::initializeDraw()
         std::string vendor;
         platforms[0].getInfo((cl_platform_info)CL_PLATFORM_VERSION, &version);
         platforms[0].getInfo((cl_platform_info)CL_PLATFORM_VENDOR, &vendor);
-        IST_PRINT("OpenCL version: %s, vendor: %s\n", version.c_str(), vendor.c_str());
+        istPrint("OpenCL version: %s, vendor: %s\n", version.c_str(), vendor.c_str());
  
         cl_context_properties cprops[3] =  {CL_CONTEXT_PLATFORM, (cl_context_properties)(platforms[0])(), 0};
 
         m_cl_context = new cl::Context(CL_DEVICE_TYPE_DEFAULT,  cprops, NULL, NULL, &err);
         if(err != CL_SUCCESS) {
-            IST_PRINT("OpenCL create context failed. error code: 0x%08x\n", err);
+            istPrint("OpenCL create context failed. error code: 0x%08x\n", err);
         }
         std::vector<cl::Device> cl_devices = m_cl_context->getInfo<CL_CONTEXT_DEVICES>();
         m_cl_queue = new cl::CommandQueue(*m_cl_context, cl_devices[0], 0, &err);
         if(err != CL_SUCCESS) {
-            IST_PRINT("OpenCL create command queue failed. error code: 0x%08x\n", err);
+            istPrint("OpenCL create command queue failed. error code: 0x%08x\n", err);
         }
     }
-#endif // IST_OPENCL
+#endif // __ist_with_OpenCL__
 
 
     // CUDA
@@ -421,7 +420,7 @@ bool Application::initializeDraw()
 
 void Application::finalizeDraw()
 {
-#if defined(IST_OPENGL) && defined(WIN32)
+#if defined(__ist_with_OpenGL__) && defined(_WIN32)
     if(m_hglrc!=NULL) {
         ::wglMakeCurrent(NULL, NULL);
         ::wglDeleteContext(m_hglrc);
@@ -431,13 +430,13 @@ void Application::finalizeDraw()
         ::ReleaseDC(m_hwnd, m_hdc);
         m_hdc = NULL;
     }
-#endif // defined(IST_OPENGL) && defined(WIN32)
+#endif // defined(IST_OPENGL) && defined(_WIN32)
 
-#ifdef IST_DIRECTX
+#ifdef __ist_with_Direct3D11__
     if(m_dxswapchain)   { m_dxswapchain->Release(); m_dxswapchain=NULL; }
     if(m_dxdevice)      { m_dxdevice->Release();    m_dxdevice=NULL;    }
     if(m_dxcontext)     { m_dxcontext->Release();   m_dxcontext=NULL;   }
-#endif // IST_DIRECTX
+#endif // __ist_with_Direct3D11__
 }
 
 void Application::updateInput()
@@ -515,9 +514,9 @@ void Application::getAvalableDisplaySettings( DisplaySetting*& settings, int& nu
 
 void glSwapBuffers()
 {
-#ifdef IST_OPENGL
+#ifdef __ist_with_OpenGL__
     ::SwapBuffers(ist::g_hdc);
-#endif // IST_OPENGL
+#endif // __ist_with_OpenGL__
 }
 
 

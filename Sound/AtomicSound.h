@@ -32,7 +32,7 @@ public:
     void playBGM(BGM_CHANNEL channel, BGM_RID bgm);
     void fadeBGM(BGM_CHANNEL channel, uint32 ms);
     void haltBGM(BGM_CHANNEL channel);
-    void isBGMPlaying(BGM_CHANNEL channel);
+    bool isBGMPlaying(BGM_CHANNEL channel);
 };
 
 

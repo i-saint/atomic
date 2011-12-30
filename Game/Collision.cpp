@@ -222,8 +222,8 @@ CollisionSet::CollisionSet()
 
 CollisionSet::~CollisionSet()
 {
-    for(uint32 i=0; i<m_tasks.size(); ++i)      { IST_DELETE(m_tasks[i]); }
-    for(uint32 i=0; i<m_entities.size(); ++i)   { IST_DELETE(m_entities[i]); }
+    for(uint32 i=0; i<m_tasks.size(); ++i)      { istDelete(m_tasks[i]); }
+    for(uint32 i=0; i<m_entities.size(); ++i)   { istDelete(m_entities[i]); }
     m_tasks.clear();
     m_entities.clear();
     m_vacant.clear();
@@ -265,7 +265,7 @@ void CollisionSet::updateEnd()
 void CollisionSet::resizeTasks(uint32 n)
 {
     while(m_tasks.size() < n) {
-        m_tasks.push_back(IST_NEW(CollideTask)(this));
+        m_tasks.push_back(istNew(CollideTask)(this));
     }
 }
 
@@ -307,28 +307,28 @@ CollisionEntity* CollisionSet::getEntity(CollisionHandle h)
 
 template<> CollisionPlane* CollisionSet::createEntity<CollisionPlane>()
 {
-    CollisionPlane *e = IST_NEW(CollisionPlane)();
+    CollisionPlane *e = istNew(CollisionPlane)();
     addEntity(e);
     return e;
 }
 
 template<> CollisionSphere* CollisionSet::createEntity<CollisionSphere>()
 {
-    CollisionSphere *e = IST_NEW(CollisionSphere)();
+    CollisionSphere *e = istNew(CollisionSphere)();
     addEntity(e);
     return e;
 }
 
 template<> CollisionBox* CollisionSet::createEntity<CollisionBox>()
 {
-    CollisionBox *e = IST_NEW(CollisionBox)();
+    CollisionBox *e = istNew(CollisionBox)();
     addEntity(e);
     return e;
 }
 
 void CollisionSet::deleteEntity(CollisionHandle h)
 {
-    IST_SAFE_DELETE(m_entities[h]);
+    istSafeDelete(m_entities[h]);
     m_vacant.push_back(h);
 }
 

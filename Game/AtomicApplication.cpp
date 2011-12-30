@@ -115,6 +115,7 @@ void AtomicRenderingThread::operator()()
 
     bool initialized = m_app->initializeDraw();
     if(initialized) {
+        wglSwapIntervalEXT(atomicGetConfig()->vsync);
         GraphicResourceManager::intializeInstance();
         AtomicRenderer::initializeInstance();
     }
@@ -158,13 +159,15 @@ APP_END:
 
 AtomicConfig::AtomicConfig()
 {
-    window_pos      = ivec2(0, 0);
-    window_size     = ivec2(1024, 768);
-    fullscreen      = false;
-    sound_volume    = 0.5;
-    posteffect_antialias    = true;
-    posteffect_bloom        = true;
-
+    window_pos          = ivec2(0, 0);
+    window_size         = ivec2(1024, 768);
+    fullscreen          = false;
+    vsync               = true;
+    posteffect_antialias= true;
+    posteffect_bloom    = true;
+    sound_enable        = true;
+    bgm_volume          = 0.5;
+    se_volume           = 0.5;
 }
 
 bool AtomicConfig::readFromFile( const char* filepath )
@@ -176,9 +179,13 @@ bool AtomicConfig::readFromFile( const char* filepath )
             vec2 ftmp;
             if(sscanf(buf, "window_pos = %d, %d", &itmp.x, &itmp.y)==2) { window_pos.x=itmp.x; window_pos.y=itmp.y; }
             if(sscanf(buf, "window_size = %d, %d", &itmp.x, &itmp.y)==2){ window_size.x=itmp.x; window_size.y=itmp.y; }
-            if(sscanf(buf, "sound_volume = %f", &ftmp.x)==1)            { sound_volume=ftmp.x; }
+            if(sscanf(buf, "fullscreen = %d", &itmp.x)==1)              { fullscreen=itmp.x!=0; }
+            if(sscanf(buf, "vsync = %d", &itmp.x)==1)                   { vsync=itmp.x!=0; }
             if(sscanf(buf, "posteffect_antialias = %d", &itmp.x)==1)    { posteffect_antialias=(itmp.x!=0); }
             if(sscanf(buf, "posteffect_bloom = %d", &itmp.x)==1)        { posteffect_bloom=(itmp.x!=0); }
+            if(sscanf(buf, "sound_enable = %f", &itmp.x)==1)            { sound_enable=(itmp.x!=0); }
+            if(sscanf(buf, "bgm_volume = %f", &ftmp.x)==1)              { bgm_volume=ftmp.x; }
+            if(sscanf(buf, "se_volume = %f", &ftmp.x)==1)               { se_volume=ftmp.x; }
         }
         fclose(f);
         return true;
@@ -189,12 +196,15 @@ bool AtomicConfig::readFromFile( const char* filepath )
 bool AtomicConfig::writeToFile( const char* filepath )
 {
     if(FILE *f=fopen(filepath, "w")) {
-        fprintf(f, "window_pos = %d, %d\n", window_pos.x, window_pos.y);
-        fprintf(f, "window_size = %d, %d\n", window_size.x, window_size.y);
-        fprintf(f, "fullscreen = %d\n", fullscreen);
-        fprintf(f, "sound_volume = %f\n", sound_volume);
-        fprintf(f, "posteffect_antialias = %d\n", posteffect_antialias);
-        fprintf(f, "posteffect_bloom = %d\n", posteffect_bloom);
+        fprintf(f, "window_pos = %d, %d\n",         window_pos.x, window_pos.y);
+        fprintf(f, "window_size = %d, %d\n",        window_size.x, window_size.y);
+        fprintf(f, "fullscreen = %d\n",             fullscreen);
+        fprintf(f, "vsync = %d\n",                  vsync);
+        fprintf(f, "posteffect_antialias = %d\n",   posteffect_antialias);
+        fprintf(f, "posteffect_bloom = %d\n",       posteffect_bloom);
+        fprintf(f, "sound_enable = %d\n",           sound_enable);
+        fprintf(f, "bgm_volume = %f\n",             bgm_volume);
+        fprintf(f, "se_volume = %f\n",              se_volume);
         fclose(f);
         return true;
     }
@@ -211,7 +221,7 @@ AtomicApplication::AtomicApplication()
     , m_game(NULL)
     , m_renderng_thread(NULL)
 {
-    if(g_appinst) { IST_ASSERT("already initialized"); }
+    if(g_appinst) { istAssert("already initialized"); }
     g_appinst = this;
 
 }
@@ -226,7 +236,7 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     InitializeText();
     m_config.readFromFile(ATOMIC_CONFIG_FILE_PATH);
 
-#ifndef ATOMIC_ENABLE_DEBUG_FEATURE
+#ifndef _MASTER
     {
         ist::DisplaySetting ds = getCurrentDisplaySetting();
         if(m_config.window_pos.x >= ds.getResolution().x) { m_config.window_pos.x = 0; }
@@ -235,7 +245,7 @@ bool AtomicApplication::initialize(int argc, char *argv[])
 #else
     if(m_config.window_pos.x >= 2048) { m_config.window_pos.x = 0; }
     if(m_config.window_pos.y >= 2048) { m_config.window_pos.y = 0; }
-#endif // ATOMIC_ENABLE_DEBUG_FEATURE
+#endif // _MASTER
     if(m_config.window_size.x < 320 || m_config.window_size.x < 240) { m_config.window_size = ivec2(1024, 768); }
 
 
@@ -248,7 +258,7 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     TaskScheduler::initializeSingleton();
     //TaskScheduler::initializeSingleton(11);
 
-    m_renderng_thread = IST_NEW16(AtomicRenderingThread)(this);
+    m_renderng_thread = istNew(AtomicRenderingThread)(this);
     m_renderng_thread->run();
     m_renderng_thread->waitForInitializeComplete();
 
@@ -257,7 +267,7 @@ bool AtomicApplication::initialize(int argc, char *argv[])
         if(!GLEW_VERSION_3_3) { e=ERR_OPENGL_330_IS_NOT_SUPPORTED; }
         if(e!=ERR_NOERROR) {
             handleError(e);
-            IST_SAFE_DELETE(m_renderng_thread);
+            istSafeDelete(m_renderng_thread);
             return false;
         }
     }
@@ -265,7 +275,7 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     AtomicSound::initializeInstance();
 
 
-    m_game = IST_NEW16(AtomicGame)();
+    m_game = istNew(AtomicGame)();
     if(argc > 1) {
         m_game->readReplayFromFile(argv[1]);
     }
@@ -280,8 +290,8 @@ void AtomicApplication::finalize()
     AtomicSound::finalizeInstance();
 
     if(m_renderng_thread) { m_renderng_thread->stop(); }
-    IST_SAFE_DELETE(m_game);
-    IST_SAFE_DELETE(m_renderng_thread);
+    istSafeDelete(m_game);
+    istSafeDelete(m_renderng_thread);
 
     TaskScheduler::finalizeSingleton();
     super::finalize();
@@ -376,9 +386,9 @@ int AtomicApplication::handleWindowMessage(const ist::WindowMessage& wm)
         }
         return 0;
 
-    case ist::WindowMessage::MES_IME_BEGIN: IST_PRINT(L"MES_IME_BEGIN\n"); break;
-    case ist::WindowMessage::MES_IME_END: IST_PRINT(L"MES_IME_END\n"); break;
-    case ist::WindowMessage::MES_IME_CHAR: IST_PRINT(L"MES_IME_CHAR\n"); break;
+    case ist::WindowMessage::MES_IME_BEGIN: istPrint(L"MES_IME_BEGIN\n"); break;
+    case ist::WindowMessage::MES_IME_END: istPrint(L"MES_IME_END\n"); break;
+    case ist::WindowMessage::MES_IME_CHAR: istPrint(L"MES_IME_CHAR\n"); break;
     }
 
     return 0;
@@ -397,7 +407,7 @@ void AtomicApplication::handleError(ERROR_CODE e)
 
 void AtomicApplication::handleCommandLine( const wchar_t* command, size_t command_len )
 {
-    IST_PRINT(L"%s\n", command);
+    istPrint(L"%s\n", command);
 }
 
 

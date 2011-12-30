@@ -10,14 +10,14 @@ bool IntializeSound()
 {
     g_device = alcOpenDevice(NULL);
     if(!g_device) {
-        IST_PRINT("alcOpenDevice() failed");
+        istPrint("alcOpenDevice() failed");
         return false;
     }
 
     g_context = alcCreateContext(g_device, NULL);
     if(!g_context) {
         alcCloseDevice(g_device); g_device=NULL;
-        IST_PRINT("alcCreateContext() failed");
+        istPrint("alcCreateContext() failed");
         return false;
     }
 

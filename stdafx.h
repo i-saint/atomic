@@ -7,9 +7,6 @@
 
 #pragma warning(disable: 4819)
 
-#define ATOMIC_ENABLE_DEBUG_FEATURE
-#define IST_OPENGL
-
 #define _SCL_SECURE_NO_WARNINGS
 
 #include <windows.h>
@@ -58,7 +55,7 @@ namespace stl = eastl;
 #include <windows.h>
 #include <windowsx.h>
 
-#ifdef IST_DIRECTX
+#ifdef __ist_with_Direct3D11__
     #include <D3D11.h>
     #include <D3DX11.h>
     #include <D3DX10.h>

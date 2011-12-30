@@ -68,21 +68,21 @@ private:
     size_t m_width, m_height;
     ERROR_CODE m_graphics_error;
 
-#if defined(IST_OPENGL) && defined(WIN32)
+#if defined(__ist_with_OpenGL__) && defined(_WIN32)
     HDC         m_hdc;
     HGLRC       m_hglrc;
-#endif // IST_OPENGL WIN32
+#endif // __ist_with_opengl__ _WIN32
 
-#ifdef IST_DIRECTX
+#ifdef __ist_with_Direct3D11__
     IDXGISwapChain      *m_dxswapchain;
     ID3D11Device        *m_dxdevice;
     ID3D11DeviceContext *m_dxcontext;
-#endif // IST_DIRECTX
+#endif // __ist_with_Direct3D11__
 
-#ifdef IST_OPENCL
+#ifdef __ist_with_OpenCL__
     cl::Context *m_cl_context;
     cl::CommandQueue *m_cl_queue;
-#endif // IST_OPENCL
+#endif // __ist_with_OpenCL__
 
 
 public:
@@ -119,17 +119,17 @@ public:
     DisplaySetting getCurrentDisplaySetting() const;
     void getAvalableDisplaySettings(DisplaySetting*& settings, int& num_settings) const;
 
-#ifdef WIN32
+#ifdef _WIN32
     HWND getWindowHandle() const { return m_hwnd; }
-#endif // WIN32
-#ifdef IST_OPENCL
+#endif // _WIN32
+#ifdef __ist_with_OpenCL__
     cl::Context* getCLContext() { return m_cl_context; }
     cl::CommandQueue* getCLCommandQueue() { return m_cl_queue; }
-#endif // IST_OPENCL
-#if defined(IST_OPENGL) && defined(WIN32)
+#endif // __ist_with_OpenCL__
+#if defined(__ist_with_OpenGL__) && defined(WIN32)
     HDC     getHDC() const { return m_hdc; }
     HGLRC   getHGLRC() const { return m_hglrc; }
-#endif // IST_OPENGL WIN32
+#endif // __ist_with_opengl__ _WIN32
 };
 
 } // namespace ist

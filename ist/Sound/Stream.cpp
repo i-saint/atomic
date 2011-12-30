@@ -72,23 +72,23 @@ bool WaveStream::openStream(const char* filepath)
 
     fread(&m_riff, sizeof(riff_header), 1, m_file);
     if(strncmp(m_riff.riff, "RIFF", 4)!=0) {
-        IST_PRINT("WaveStream::WaveStream(): not RIFF file %s\n", filepath);
+        istPrint("WaveStream::WaveStream(): not RIFF file %s\n", filepath);
         goto LABEL_ERROR;
     }
     if(strncmp(m_riff.wave, "WAVE", 4)!=0){
-        IST_PRINT("WaveStream::WaveStream(): not WAVE file %s\n", filepath);
+        istPrint("WaveStream::WaveStream(): not WAVE file %s\n", filepath);
         goto LABEL_ERROR;
     }
 
     fread(&m_format, sizeof(format_header), 1, m_file);
     if(strncmp(m_format.fmt, "fmt ", 4)!=0){
-        IST_PRINT("WaveStream::WaveStream(): fmt not found %s\n", filepath);
+        istPrint("WaveStream::WaveStream(): fmt not found %s\n", filepath);
         goto LABEL_ERROR;
     }
 
     fread(&m_data, sizeof(data_header), 1, m_file);
     if(strncmp(m_data.data, "data", 4)!=0){
-        IST_PRINT("WaveStream::WaveStream(): data not found %s\n", filepath);
+        istPrint("WaveStream::WaveStream(): data not found %s\n", filepath);
         goto LABEL_ERROR;
     }
 

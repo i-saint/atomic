@@ -1,6 +1,8 @@
 #ifndef __ist_Sound_OggVorbis__
 #define __ist_Sound_OggVorbis__
 
+#ifdef __ist_with_oggvorbis__
+
 namespace ist {
 namespace sound {
 
@@ -71,4 +73,5 @@ public:
 } // namespace sound
 } // namespace ist
 
-#endif //__ist_Sound_OggVorbis__
+#endif // __ist_with_oggvorbis__
+#endif // __ist_Sound_OggVorbis__

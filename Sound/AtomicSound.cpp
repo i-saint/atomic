@@ -98,19 +98,23 @@ SoundThread::~SoundThread()
 
 void SoundThread::initialize()
 {
-    m_listener = IST_NEW(sound::Listener)();
-    m_bgm_source = IST_NEW(sound::StreamSource)();
-    for(uint32 i=0; i<_countof(m_se_sources); ++i)  { m_se_sources[i]=IST_NEW(sound::Source)(); }
-    for(uint32 i=0; i<_countof(m_se_data); ++i)     { m_se_data[i]=IST_NEW(sound::Buffer)(); }
+    m_listener = istNew(sound::Listener)();
+    m_bgm_source = istNew(sound::StreamSource)();
+    for(uint32 i=0; i<_countof(m_se_sources); ++i)  { m_se_sources[i]=istNew(sound::Source)(); }
+    for(uint32 i=0; i<_countof(m_se_data); ++i)     { m_se_data[i]=istNew(sound::Buffer)(); }
 
     {
-        sound::OggVorbisFileStream *ovfs = IST_NEW(sound::OggVorbisFileStream)();
+        sound::OggVorbisFileStream *ovfs = istNew(sound::OggVorbisFileStream)();
         ovfs->openStream("Resources/bgm1.ogg");
         m_stream = ovfs;
+    }
+    {
+        m_bgm_source->setGain(atomicGetConfig()->bgm_volume);
     }
     for(uint32 i=0; i<_countof(m_se_sources); ++i) {
         m_se_sources[i]->setRefferenceDistance(4.0f);
         m_se_sources[i]->setMaxDistance(12.0f);
+        m_se_sources[i]->setGain(atomicGetConfig()->se_volume);
     }
     {
         CreateBufferFromWaveFile("Resources/explosion1.wav", m_se_data[SE_EXPLOSION1]);
@@ -120,18 +124,16 @@ void SoundThread::initialize()
         CreateBufferFromWaveFile("Resources/explosion5.wav", m_se_data[SE_EXPLOSION5]);
         CreateBufferFromWaveFile("Resources/explosion6.wav", m_se_data[SE_EXPLOSION6]);
     }
-
-    m_listener->setGain(atomicGetConfig()->sound_volume);
 }
 
 void SoundThread::finalize()
 {
-    IST_DELETE(m_stream);
+    istDelete(m_stream);
 
-    for(uint32 i=0; i<_countof(m_se_data); ++i)     { IST_SAFE_DELETE(m_se_data[i]); }
-    for(uint32 i=0; i<_countof(m_se_sources); ++i)  { IST_SAFE_DELETE(m_se_sources[i]); }
-    IST_SAFE_DELETE(m_bgm_source);
-    IST_SAFE_DELETE(m_listener);
+    for(uint32 i=0; i<_countof(m_se_data); ++i)     { istSafeDelete(m_se_data[i]); }
+    for(uint32 i=0; i<_countof(m_se_sources); ++i)  { istSafeDelete(m_se_sources[i]); }
+    istSafeDelete(m_bgm_source);
+    istSafeDelete(m_listener);
 }
 
 
@@ -170,7 +172,7 @@ void SoundThread::operator()()
 
     finalize();
     sound::FinalizeSound();
-    IST_PRINT("sound thread end.\n");
+    istPrint("sound thread end.\n");
 }
 
 void SoundThread::processSERequests()
@@ -217,7 +219,7 @@ AtomicSound* AtomicSound::s_instance = NULL;
 bool AtomicSound::initializeInstance()
 {
     if(!s_instance) {
-        s_instance = IST_NEW(AtomicSound)();
+        s_instance = istNew(AtomicSound)();
         return true;
     }
     return false;
@@ -226,7 +228,7 @@ bool AtomicSound::initializeInstance()
 void AtomicSound::finalizeInstance()
 {
     if(s_instance) {
-        IST_SAFE_DELETE(s_instance);
+        istSafeDelete(s_instance);
     }
 }
 
@@ -234,18 +236,23 @@ AtomicSound* AtomicSound::getInstance() { return s_instance; }
 
 
 AtomicSound::AtomicSound()
+    : m_sound_thread(NULL)
 {
-    m_sound_thread  = IST_NEW(SoundThread)();
-    m_sound_thread->run();
+    if(atomicGetConfig()->sound_enable) {
+        m_sound_thread  = istNew(SoundThread)();
+        m_sound_thread->run();
+    }
 }
 
 AtomicSound::~AtomicSound()
 {
-    IST_SAFE_DELETE(m_sound_thread);
+    istSafeDelete(m_sound_thread);
 }
 
 void AtomicSound::setListenerPosition(const vec4 &pos)
 {
+    if(!m_sound_thread) { return; }
+
     SoundRequest req;
     req.type    = SoundRequest::REQ_LISTENER_POS;
     (vec4&)(req.listener.pos) = pos;
@@ -254,6 +261,8 @@ void AtomicSound::setListenerPosition(const vec4 &pos)
 
 void AtomicSound::playSE(SE_CHANNEL channel, SE_RID se, const vec4 &pos, bool _override)
 {
+    if(!m_sound_thread) { return; }
+
     SoundRequest req;
     req.type    = SoundRequest::REQ_SE_PLAY;
     req.se.ch   = channel;
@@ -265,6 +274,8 @@ void AtomicSound::playSE(SE_CHANNEL channel, SE_RID se, const vec4 &pos, bool _o
 
 void AtomicSound::haltSE(SE_CHANNEL channel)
 {
+    if(!m_sound_thread) { return; }
+
     SoundRequest req;
     req.type    = SoundRequest::REQ_SE_HALT;
     req.se.ch   = channel;
@@ -273,6 +284,7 @@ void AtomicSound::haltSE(SE_CHANNEL channel)
 
 bool AtomicSound::isSEPlaying(SE_CHANNEL channel)
 {
+    if(!m_sound_thread) { return false; }
 
 }
 
@@ -280,6 +292,8 @@ bool AtomicSound::isSEPlaying(SE_CHANNEL channel)
 
 void AtomicSound::playBGM(BGM_CHANNEL channel, BGM_RID bgm)
 {
+    if(!m_sound_thread) { return; }
+
     SoundRequest req;
     req.type    = SoundRequest::REQ_BGM_PLAY;
     req.bgm.ch   = channel;
@@ -289,6 +303,8 @@ void AtomicSound::playBGM(BGM_CHANNEL channel, BGM_RID bgm)
 
 void AtomicSound::fadeBGM(BGM_CHANNEL channel, uint32 ms)
 {
+    if(!m_sound_thread) { return; }
+
     SoundRequest req;
     req.type    = SoundRequest::REQ_BGM_FADE;
     req.bgm.ch  = channel;
@@ -298,14 +314,18 @@ void AtomicSound::fadeBGM(BGM_CHANNEL channel, uint32 ms)
 
 void AtomicSound::haltBGM(BGM_CHANNEL channel)
 {
+    if(!m_sound_thread) { return; }
+
     SoundRequest req;
     req.type    = SoundRequest::REQ_BGM_HALT;
     req.bgm.ch  = channel;
     m_sound_thread->addRequest(req);
 }
 
-void AtomicSound::isBGMPlaying(BGM_CHANNEL channel)
+bool AtomicSound::isBGMPlaying(BGM_CHANNEL channel)
 {
+    if(!m_sound_thread) { return false; }
+
 }
 
 

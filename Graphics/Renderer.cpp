@@ -16,16 +16,16 @@ AtomicRenderer* AtomicRenderer::s_inst = NULL;
 void AtomicRenderer::initializeInstance()
 {
     if(!s_inst) {
-        s_inst = IST_NEW(AtomicRenderer) ();
+        s_inst = istNew(AtomicRenderer) ();
     }
     else {
-        IST_ASSERT("already initialized");
+        istAssert("already initialized");
     }
 }
 
 void AtomicRenderer::finalizeInstance()
 {
-    IST_SAFE_DELETE(s_inst);
+    istSafeDelete(s_inst);
 }
 
 AtomicRenderer::AtomicRenderer()
@@ -36,11 +36,11 @@ AtomicRenderer::AtomicRenderer()
     m_rt_gbuffer    = atomicGetRenderTargetGBuffer();
     m_rt_deferred   = atomicGetRenderTargetDeferred();
 
-    m_renderer_sph          = IST_NEW(PassGBuffer_SPH)();
-    m_renderer_dir_lights   = IST_NEW(PassDeferredShading_DirectionalLights)();
-    m_renderer_point_lights = IST_NEW(PassDeferredShading_PointLights)();
-    m_renderer_fxaa         = IST_NEW(PassPostprocess_FXAA)();
-    m_renderer_bloom        = IST_NEW(PassPostprocess_Bloom)();
+    m_renderer_sph          = istNew(PassGBuffer_SPH)();
+    m_renderer_dir_lights   = istNew(PassDeferredShading_DirectionalLights)();
+    m_renderer_point_lights = istNew(PassDeferredShading_PointLights)();
+    m_renderer_fxaa         = istNew(PassPostprocess_FXAA)();
+    m_renderer_bloom        = istNew(PassPostprocess_Bloom)();
 
     m_renderers[PASS_GBUFFER].push_back(m_renderer_sph);
     m_renderers[PASS_DEFERRED].push_back(m_renderer_dir_lights);
@@ -53,10 +53,10 @@ AtomicRenderer::AtomicRenderer()
 
 AtomicRenderer::~AtomicRenderer()
 {
-    IST_SAFE_DELETE(m_renderer_bloom);
-    IST_SAFE_DELETE(m_renderer_point_lights);
-    IST_SAFE_DELETE(m_renderer_dir_lights);
-    IST_SAFE_DELETE(m_renderer_sph);
+    istSafeDelete(m_renderer_bloom);
+    istSafeDelete(m_renderer_point_lights);
+    istSafeDelete(m_renderer_dir_lights);
+    istSafeDelete(m_renderer_sph);
 }
 
 void AtomicRenderer::beforeDraw()
@@ -262,7 +262,7 @@ PassGBuffer_SPH::PassGBuffer_SPH()
 PassGBuffer_SPH::~PassGBuffer_SPH()
 {
     for(uint32 i=0; i<m_tasks.size(); ++i) {
-        IST_DELETE(m_tasks[i]);
+        istDelete(m_tasks[i]);
     }
     m_tasks.clear();
 }
@@ -339,7 +339,7 @@ void PassGBuffer_SPH::draw()
 void PassGBuffer_SPH::resizeTasks( uint32 n )
 {
     while(m_tasks.size() < n) {
-        m_tasks.push_back( IST_NEW(UpdateRigidParticle)() );
+        m_tasks.push_back( istNew(UpdateRigidParticle)() );
     }
 }
 

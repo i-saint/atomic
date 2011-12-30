@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "../Base.h"
 #include "../Math.h"
-#include "GraphicsAssert.h"
 #include "ShaderObject.h"
 #include "GraphicsUtil.h"
 #include <string>
@@ -15,7 +14,7 @@ bool CreateTexture2DFromFile(Texture2D& tex, const char *filename)
 {
     std::ifstream  st(filename, std::ios::binary);
     if(st.fail()) {
-        IST_ASSERT("file not found %s", filename);
+        istAssert("file not found %s", filename);
         return false;
     }
     return CreateTexture2DFromStream(tex, st);
@@ -23,7 +22,7 @@ bool CreateTexture2DFromFile(Texture2D& tex, const char *filename)
 
 bool CreateTexture2DFromStream(Texture2D& tex, std::istream& st)
 {
-    IST_ASSERT("not implemented");
+    istAssert("not implemented");
     return false;
 }
 
@@ -68,7 +67,7 @@ bool GenerateRandomTexture(Texture2D &tex, GLsizei width, GLsizei height, IST_CO
         }
     }
     else {
-        IST_ASSERT("–¢ŽÀ‘•");
+        istAssert("–¢ŽÀ‘•");
     }
 
     bool ret =  tex.initialize(width, height, format, &buffer[0]);
@@ -81,7 +80,7 @@ inline bool CreateShaderFromFile(ShaderType& sh, const char *filename)
 {
     std::ifstream  st(filename, std::ios::binary);
     if(st.fail()) {
-        IST_ASSERT("file not found %s", filename);
+        istAssert("file not found %s", filename);
         return false;
     }
     return CreateShaderFromStream<ShaderType>(sh, st);

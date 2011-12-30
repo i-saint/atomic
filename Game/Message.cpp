@@ -12,12 +12,12 @@ MessageRouter* MessageRouter::s_instance;
 
 void MessageRouter::initializeInstance()
 {
-    s_instance = IST_NEW(MessageRouter)();
+    s_instance = istNew(MessageRouter)();
 }
 
 void MessageRouter::finalizeInstance()
 {
-    IST_SAFE_DELETE(s_instance);
+    istSafeDelete(s_instance);
 }
 
 MessageRouter* MessageRouter::getInstance()
@@ -42,7 +42,7 @@ uint32 MessageRouter::getMessageBlockNum() const
 void MessageRouter::resizeMessageBlock(uint32 num)
 {
     while(m_blocks.size() < num) {
-        m_blocks.push_back(IST_NEW(MessageBlock)());
+        m_blocks.push_back(istNew(MessageBlock)());
     }
 }
 

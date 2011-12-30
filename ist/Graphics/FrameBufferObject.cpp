@@ -59,7 +59,7 @@ bool Texture2D::allocate(GLsizei width, GLsizei height, IST_COLOR_FORMAT fmt, vo
     case IST_DEPTH24_STENCIL8:    internal_format=GL_DEPTH24_STENCIL8;  format=GL_DEPTH_STENCIL; type=GL_UNSIGNED_INT_24_8; break;
     case IST_DEPTH32F_STENCIL8:   internal_format=GL_DEPTH32F_STENCIL8; format=GL_DEPTH_STENCIL; type=GL_FLOAT_32_UNSIGNED_INT_24_8_REV; break;
     default:
-        IST_ASSERT("unknown format: %d", fmt);
+        istAssert("unknown format: %d", fmt);
         return false;
     }
 
@@ -141,7 +141,7 @@ bool RenderBuffer::allocate(GLsizei width, GLsizei height, IST_COLOR_FORMAT fmt)
     case IST_RG32F:     internal_format=GL_RG32F; break;
     case IST_RGB8U:     // fall through
     case IST_RGB16F:    // 
-    case IST_RGB32F:    IST_ASSERT("render buffer can't use RGB format."); break;
+    case IST_RGB32F:    istAssert("render buffer can't use RGB format."); break;
     case IST_RGBA8U:    internal_format=GL_RGBA8; break;
     case IST_RGBA16F:   internal_format=GL_RGBA16F; break;
     case IST_RGBA32F:   internal_format=GL_RGBA32F; break;
@@ -149,7 +149,7 @@ bool RenderBuffer::allocate(GLsizei width, GLsizei height, IST_COLOR_FORMAT fmt)
     case IST_DEPTH24_STENCIL8:    internal_format=GL_DEPTH24_STENCIL8; break;
     case IST_DEPTH32F_STENCIL8:   internal_format=GL_DEPTH32F_STENCIL8; break;
     default:
-        IST_ASSERT("unknown format: %d", fmt);
+        istAssert("unknown format: %d", fmt);
         return false;
     }
 

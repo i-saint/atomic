@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#ifdef WIN32
+#ifdef _WIN32
     #include <windows.h>
 #endif
 #include <EASTL/algorithm.h>
@@ -10,7 +10,7 @@
 namespace ist {
 
 
-#ifdef WIN32
+#ifdef _WIN32
 const DWORD MS_VC_EXCEPTION=0x406D1388;
 
 #pragma pack(push,8)
@@ -208,7 +208,7 @@ TaskThread::TaskThread(int processor)
 , m_processor(processor)
 {
     m_thread.reset(new boost::thread(boost::ref(*this)));
-#ifdef WIN32
+#ifdef _WIN32
     ::SetThreadAffinityMask(m_thread->native_handle(), 1<<processor);
 #endif
 }
@@ -273,7 +273,7 @@ TaskScheduler* TaskScheduler::s_instance = NULL;
 void TaskScheduler::initializeSingleton(size_t num_thread)
 {
     if(!s_instance) {
-        s_instance = IST_NEW(TaskScheduler)();
+        s_instance = istNew(TaskScheduler)();
         s_instance->initialize(num_thread);
     }
 }
@@ -282,7 +282,7 @@ void TaskScheduler:: finalizeSingleton()
 {
     if(s_instance) {
         s_instance->finalize();
-        IST_SAFE_DELETE(s_instance);
+        istSafeDelete(s_instance);
         s_instance = NULL;
     }
 }
@@ -306,7 +306,7 @@ void TaskScheduler::initialize(size_t num_thread)
     m_task_queue.reset(new impl::TaskQueue());
 
     int processors = boost::thread::hardware_concurrency();
-#ifdef WIN32
+#ifdef _WIN32
     SYSTEM_INFO info;
     GetSystemInfo(&info);
     processors = info.dwNumberOfProcessors;

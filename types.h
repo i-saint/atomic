@@ -103,7 +103,7 @@ public:
 
     void print()
     {
-        IST_PRINT("%dfps (avg. %.2fms)\n", m_prev_fps, m_avg_fps);
+        istPrint("%dfps (avg. %.2fms)\n", m_prev_fps, m_avg_fps);
     }
 };
 

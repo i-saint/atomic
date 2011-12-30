@@ -1,12 +1,11 @@
 #ifndef __ist_Assert__
 #define __ist_Assert__
 
+#ifdef __ist_enable_assert__
 
-#ifndef IST_DISABLE_ASSERT
-
-#define IST_PUTS(str) ist::DebugPuts(str)
-#define IST_PRINT(...) ist::DebugPrint(__FILE__, __LINE__, __VA_ARGS__)
-#define IST_ASSERT(...)\
+#define istPuts(str) ist::DebugPuts(str)
+#define istPrint(...) ist::DebugPrint(__FILE__, __LINE__, __VA_ARGS__)
+#define istAssert(...)\
     {\
         static int s_enable=1;\
         if(s_enable) {\
@@ -37,11 +36,12 @@ namespace ist
 
 } // namespace ist
 
+#else // __ist_enable_assert__
 
-#else // IST_DISABLE_ASSERT
-#define IST_PUTS(str)
-#define IST_PRINT(...)
-#define IST_ASSERT(...)
-#endif // IST_DISABLE_ASSERT
+#define istPuts(str)
+#define istPrint(...)
+#define istAssert(...)
+
+#endif // __ist_enable_assert__
 
 #endif // __ist_Assert__

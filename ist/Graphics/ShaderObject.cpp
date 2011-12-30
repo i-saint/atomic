@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "../Base/Assert.h"
-#include "GraphicsAssert.h"
 #include "ShaderObject.h"
 
 namespace ist {
@@ -63,8 +62,8 @@ bool ist::graphics::ShaderObject<ShaderType>::compile( const char *src, int leng
             int l;
             GLchar *info_log = new GLchar[length];
             glGetShaderInfoLog(m_handle, length, &l, info_log);
-            IST_PUTS(info_log);
-            IST_ASSERT("compile failed.");
+            istPuts(info_log);
+            istAssert("compile failed.");
             delete[] info_log;
         }
         return false;
@@ -107,7 +106,6 @@ bool ProgramObject::initialize()
     finalize();
 
     m_handle = glCreateProgram();
-    CheckGLError();
     return true;
 }
 
@@ -119,27 +117,16 @@ void ProgramObject::finalize()
 
 bool ProgramObject::link( VertexShader *vsh, FragmentShader *fsh, GeometryShader *gsh )
 {
-    if(vsh) {
-        glAttachShader(m_handle, vsh->getHandle());
-        CheckGLError();
-    }
-    if(fsh) {
-        glAttachShader(m_handle, fsh->getHandle());
-        CheckGLError();
-    }
-    if(gsh) {
-        glAttachShader(m_handle, gsh->getHandle());
-        CheckGLError();
-    }
+    if(vsh) { glAttachShader(m_handle, vsh->getHandle()); }
+    if(fsh) { glAttachShader(m_handle, fsh->getHandle()); }
+    if(gsh) { glAttachShader(m_handle, gsh->getHandle()); }
 
     // link
     glLinkProgram(m_handle);
-    CheckGLError();
 
     // get errors
     GLint result;
     glGetProgramiv(m_handle, GL_LINK_STATUS, &result);
-    CheckGLError();
     if(result==GL_FALSE) {
         int length;
         glGetProgramiv(m_handle, GL_INFO_LOG_LENGTH, &length);
@@ -147,8 +134,8 @@ bool ProgramObject::link( VertexShader *vsh, FragmentShader *fsh, GeometryShader
             int l;
             GLchar *info_log = new GLchar[length];
             glGetProgramInfoLog(m_handle, length, &l, info_log);
-            IST_PUTS(info_log);
-            IST_ASSERT("compile failed.");
+            istPuts(info_log);
+            istAssert("compile failed.");
             delete[] info_log;
         }
         return false;
@@ -161,7 +148,6 @@ bool ProgramObject::link( VertexShader *vsh, FragmentShader *fsh, GeometryShader
 void ProgramObject::bind()
 {
     glUseProgram(m_handle);
-    CheckGLError();
 }
 
 void ProgramObject::unbind()
@@ -174,7 +160,7 @@ GLint ProgramObject::getUniformLocation(const char *name) const
 {
     GLint ul = glGetUniformLocation(m_handle, name);
     if(ul == -1) {
-        IST_PRINT("no such uniform named %s\n", name);
+        istPrint("no such uniform named %s\n", name);
     }
     return ul;
 }
@@ -183,7 +169,7 @@ GLint ProgramObject::getAttribLocation(const char *name) const
 {
     GLint al = glGetAttribLocation(m_handle, name);
     if(al == -1) {
-        IST_PRINT("no such attribute named %s\n", name);
+        istPrint("no such attribute named %s\n", name);
     }
     return al;
 }
@@ -192,7 +178,7 @@ GLint ProgramObject::getUniformBlockIndex(const char *name) const
 {
     GLint ul = glGetUniformBlockIndex(m_handle, name);
     if(ul == -1) {
-        IST_PRINT("no such uniform block named %s\n", name);
+        istPrint("no such uniform block named %s\n", name);
     }
     else {
         //GLint block_size = 0;

@@ -33,19 +33,19 @@ GraphicResourceManager* GraphicResourceManager::s_inst = NULL;
 
 void GraphicResourceManager::intializeInstance()
 {
-    s_inst = IST_NEW(GraphicResourceManager)();
+    s_inst = istNew(GraphicResourceManager)();
     s_inst->initialize();
 }
 
 void GraphicResourceManager::finalizeInstance()
 {
     s_inst->finalize();
-    IST_SAFE_DELETE(s_inst);
+    istSafeDelete(s_inst);
 }
 
 inline AtomicShader* CreateAtomicShader(const char* source)
 {
-    AtomicShader *sh = IST_NEW(AtomicShader)();
+    AtomicShader *sh = istNew(AtomicShader)();
     sh->initialize();
     sh->loadFromMemory(source);
     return sh;
@@ -71,27 +71,27 @@ bool GraphicResourceManager::initialize()
 
     // initialize opengl resources
     {
-        m_font = IST_NEW(SystemFont)();
+        m_font = istNew(SystemFont)();
         m_font->initialize();
     }
     for(uint32 i=0; i<_countof(m_tex2d); ++i) {
-        m_tex2d[i] = IST_NEW(Texture2D)();
+        m_tex2d[i] = istNew(Texture2D)();
         m_tex2d[i]->initialize();
     }
     for(uint32 i=0; i<_countof(m_va); ++i) {
-        m_va[i] = IST_NEW(VertexArray)();
+        m_va[i] = istNew(VertexArray)();
         m_va[i]->initialize();
     }
     for(uint32 i=0; i<_countof(m_vbo); ++i) {
-        m_vbo[i] = IST_NEW(VertexBufferObject)();
+        m_vbo[i] = istNew(VertexBufferObject)();
         m_vbo[i]->initialize();
     }
     for(uint32 i=0; i<_countof(m_ibo); ++i) {
-        m_ibo[i] = IST_NEW(IndexBufferObject)();
+        m_ibo[i] = istNew(IndexBufferObject)();
         m_ibo[i]->initialize();
     }
     for(uint32 i=0; i<_countof(m_ubo); ++i) {
-        m_ubo[i] = IST_NEW(UniformBufferObject)();
+        m_ubo[i] = istNew(UniformBufferObject)();
         m_ubo[i]->initialize();
     }
 
@@ -129,19 +129,19 @@ bool GraphicResourceManager::initialize()
     }
     {
         // create render targets
-        m_rt_gbuffer = IST_NEW(RenderTargetGBuffer)();
+        m_rt_gbuffer = istNew(RenderTargetGBuffer)();
         m_rt_gbuffer->initialize(framebuffer_width, framebuffer_height, IST_RGBA16F, IST_DEPTH24_STENCIL8);
 
-        m_rt_deferred = IST_NEW(RenderTargetDeferred)();
+        m_rt_deferred = istNew(RenderTargetDeferred)();
         m_rt_deferred->setDepthStencilBuffer(m_rt_gbuffer->getDepthStencilBuffer());
         m_rt_deferred->initialize(framebuffer_width, framebuffer_height, IST_RGBA8U, IST_DEPTH24_STENCIL8);
 
         for(uint32 i=0; i<_countof(m_rt_gauss); ++i) {
-            m_rt_gauss[i] = IST_NEW(ColorBuffer)();
+            m_rt_gauss[i] = istNew(ColorBuffer)();
             m_rt_gauss[i]->initialize(512, 256, IST_RGBA8U);
         }
 
-        m_rt_postprocess = IST_NEW(ColorBuffer)();
+        m_rt_postprocess = istNew(ColorBuffer)();
         m_rt_postprocess->initialize(framebuffer_width, framebuffer_height, IST_RGBA8U);
 
         m_fbo[RT_GBUFFER]   = m_rt_gbuffer;
@@ -173,14 +173,14 @@ void GraphicResourceManager::finalize()
     SPHFinalizeGLBuffers();
     SPHFinalize();
 
-    for(uint32 i=0; i<_countof(m_shader); ++i)  { if(m_shader[i]) { m_shader[i]->finalize(); IST_SAFE_DELETE( m_shader[i] ); } }
-    for(uint32 i=0; i<_countof(m_fbo); ++i)     { if(m_fbo[i]) { m_fbo[i]->finalize(); IST_SAFE_DELETE( m_fbo[i] ); } }
-    for(uint32 i=0; i<_countof(m_ubo); ++i)     { if(m_ubo[i]) { m_ubo[i]->finalize(); IST_SAFE_DELETE( m_ubo[i] ); } }
-    for(uint32 i=0; i<_countof(m_ibo); ++i)     { if(m_ibo[i]) { m_ibo[i]->finalize(); IST_SAFE_DELETE( m_ibo[i] ); } }
-    for(uint32 i=0; i<_countof(m_vbo); ++i)     { if(m_vbo[i]) { m_vbo[i]->finalize(); IST_SAFE_DELETE( m_vbo[i] ); } }
-    for(uint32 i=0; i<_countof(m_va); ++i)      { if(m_va[i]) { m_va[i]->finalize(); IST_SAFE_DELETE( m_va[i] ); } }
-    for(uint32 i=0; i<_countof(m_tex2d); ++i)   { if(m_tex2d[i]) { m_tex2d[i]->finalize(); IST_SAFE_DELETE( m_tex2d[i] ); } }
-    if(m_font) { m_font->finalize(); IST_SAFE_DELETE(m_font); }
+    for(uint32 i=0; i<_countof(m_shader); ++i)  { if(m_shader[i]) { m_shader[i]->finalize(); istSafeDelete( m_shader[i] ); } }
+    for(uint32 i=0; i<_countof(m_fbo); ++i)     { if(m_fbo[i]) { m_fbo[i]->finalize(); istSafeDelete( m_fbo[i] ); } }
+    for(uint32 i=0; i<_countof(m_ubo); ++i)     { if(m_ubo[i]) { m_ubo[i]->finalize(); istSafeDelete( m_ubo[i] ); } }
+    for(uint32 i=0; i<_countof(m_ibo); ++i)     { if(m_ibo[i]) { m_ibo[i]->finalize(); istSafeDelete( m_ibo[i] ); } }
+    for(uint32 i=0; i<_countof(m_vbo); ++i)     { if(m_vbo[i]) { m_vbo[i]->finalize(); istSafeDelete( m_vbo[i] ); } }
+    for(uint32 i=0; i<_countof(m_va); ++i)      { if(m_va[i]) { m_va[i]->finalize(); istSafeDelete( m_va[i] ); } }
+    for(uint32 i=0; i<_countof(m_tex2d); ++i)   { if(m_tex2d[i]) { m_tex2d[i]->finalize(); istSafeDelete( m_tex2d[i] ); } }
+    if(m_font) { m_font->finalize(); istSafeDelete(m_font); }
 }
 
 

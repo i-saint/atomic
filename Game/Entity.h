@@ -14,7 +14,7 @@ template<> struct EntityTraits<class_name>                      \
 };                                                              \
 template<> IEntity* EntitySet::createEntity<class_name>()    \
 {                                                               \
-    class_name *t = IST_NEW(class_name)();                      \
+    class_name *t = istNew(class_name)();                      \
     typedef EntityTraits<class_name> traits;                    \
     addEntity(traits::CATEGORY_ID, traits::CLASS_ID, t);        \
     return t;                                                   \

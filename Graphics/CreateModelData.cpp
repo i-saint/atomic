@@ -23,8 +23,8 @@ void CreateSphere(
     };
     const uint32 vertex_size = sizeof(vertex_t)*div_y*div_xz;
     const uint32 index_size = sizeof(uint32)*(div_y-1)*(div_xz)*4;
-    vertex_t *vert = (vertex_t*)IST_ALIGNED_MALLOC(vertex_size, 16);
-    uint32 *index = (uint32*)IST_ALIGNED_MALLOC(index_size, 16);
+    vertex_t *vert = (vertex_t*)istAlignedMalloc(vertex_size, 16);
+    uint32 *index = (uint32*)istAlignedMalloc(index_size, 16);
 
     for(uint32 yi=0; yi<div_y; ++yi) {
         float ang = glm::radians(180.0f/(div_y-1)*yi-90.0f);
@@ -61,8 +61,8 @@ void CreateSphere(
     ibo.allocate(index_size, IndexBufferObject::USAGE_STATIC, index);
     va.setAttributes(vbo, sizeof(vertex_t), descs, _countof(descs));
 
-    IST_FREE(index);
-    IST_FREE(vert);
+    istFree(index);
+    istFree(vert);
 }
 
 void CreateScreenQuad( VertexArray& va, VertexBufferObject& vbo )

@@ -1,12 +1,10 @@
 #ifndef __ist_Graphic_Assert__
 #define __ist_Graphic_Assert__
 
-//#define IST_ENABLE_GRAPHICS_ASSERT
-
-#ifdef IST_ENABLE_GRAPHICS_ASSERT
+#ifdef __ist_enable_graphics_assert__
     #include "../Base/Assert.h"
 
-    #define CheckGLError() \
+    #define istCheckGLError() \
     {\
         int e = glGetError();\
         if(e!=GL_NO_ERROR) {\
@@ -14,8 +12,7 @@
         }\
     }
 #else
-    #define CheckGLError()
-#endif
+    #define istCheckGLError()
+#endif // __ist_enable_graphics_assert__
 
 #endif // __ist_Graphic_Assert__
-
