@@ -32,7 +32,7 @@ typedef ist::Application super;
 private:
     AtomicGame              *m_game;
     AtomicRenderingThread   *m_renderng_thread;
-    InputState        m_inputs;
+    InputState              m_inputs;
 
     AtomicConfig            m_config;
 
@@ -60,9 +60,9 @@ public:
     // •`‰æƒXƒŒƒbƒh‚©‚çŒÄ‚Î‚ê‚é
     void drawCallback();
 
-    AtomicGame* getGame()                           { return m_game; }
-    const InputState* getSystemInputs() const { return &m_inputs; }
-    AtomicConfig* getConfig()                       { return &m_config; }
+    AtomicGame* getGame()                       { return m_game; }
+    const InputState* getSystemInputs() const   { return &m_inputs; }
+    AtomicConfig* getConfig()                   { return &m_config; }
 
     float32 getAverageFPS() const;
 };
