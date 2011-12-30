@@ -29,6 +29,9 @@ private:
     Attr_SphereCollision m_collision;
     Attr_SphereCollision m_barrier;
 
+    vec4 m_lightpos[1];
+    vec4 m_lightvel[1];
+
 public:
     Player() : m_cooldown(0)
     {
@@ -40,6 +43,11 @@ public:
         m_collision.initializeCollision(getHandle());
         m_barrier.initializeCollision(0);
         m_barrier.setCollisionFlag(CF_AFFECT_SPH);
+
+        for(uint32 i=0; i<_countof(m_lightpos); ++i) {
+            m_lightpos[i] = GenRandomVector3() * 1.0f;
+            m_lightpos[i].z = std::abs(m_lightpos[i].z);
+        }
     }
 
     virtual void update(float32 dt)
@@ -76,6 +84,30 @@ public:
         m_barrier.updateCollision(pset_id, getTransform(), 3.0f);
     }
 
+    void asyncupdate(float32 dt)
+    {
+        super::asyncupdate(dt);
+        updateLights();
+    }
+
+    void updateLights()
+    {
+        vec4 diff[4] = {
+            vec4( 0.0f, 0.0f, 0.0f, 0.0f),
+            vec4(-0.4f, 0.4f, 0.0f, 0.0f),
+            vec4(-0.4f,-0.4f, 0.0f, 0.0f),
+            vec4( 0.4f,-0.4f, 0.0f, 0.0f),
+        };
+        for(uint32 i=0; i<_countof(m_lightpos); ++i) {
+            vec4 &pos = m_lightpos[i];
+            vec4 &vel = m_lightvel[i];
+            vel *= 0.985f;
+            vel += glm::normalize(getPosition()+diff[i]-pos) * 0.005f;
+            pos += vel;
+            pos.z = 0.5f;
+        }
+    }
+
     virtual void draw()
     {
         {
@@ -83,6 +115,14 @@ public:
             l.setPosition(getPosition()+vec4(0.0f, 0.0f, 0.3f, 0.0f));
             l.setColor(vec4(0.1f, 0.2f, 1.0f, 1.0f));
             l.setRadius(1.0f);
+            atomicGetPointLights()->addInstance(l);
+        }
+        for(uint32 i=0; i<_countof(m_lightpos); ++i) {
+            vec4 &pos = m_lightpos[i];
+            PointLight l;
+            l.setPosition(pos);
+            l.setColor(vec4(0.3f, 0.6f, 0.6f, 1.0f) + vec4(sinf(pos.x), sinf(pos.y), cosf(pos.x+pos.y), 0.0f)*0.1f);
+            l.setRadius(1.2f);
             atomicGetPointLights()->addInstance(l);
         }
         {

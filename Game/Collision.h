@@ -126,19 +126,19 @@ class CollideTask;
 class CollisionSet : boost::noncopyable
 {
 friend class CollideTask;
-private:
+public:
     typedef stl::vector<CollideTask*>       TaskCont;
     typedef stl::vector<CollisionHandle>    HandleCont;
     typedef stl::vector<CollisionEntity*>   EntityCont;
     typedef stl::vector<CollideMessage>     MessageCont;
 
+private:
     TaskCont    m_tasks;
     EntityCont  m_entities;
     HandleCont  m_vacant;
     uint32      m_active_tasks;
 
     void addEntity(CollisionEntity *e);
-    uint32 collide(CollisionEntity *e, MessageCont &m);
     void resizeTasks(uint32 n);
 
 public:
@@ -154,6 +154,8 @@ public:
     template<class T> T* createEntity();
     void deleteEntity(CollisionHandle e);
     void deleteEntity(CollisionEntity *e);
+
+    uint32 collide(CollisionEntity *e, MessageCont &m);
 };
 
 

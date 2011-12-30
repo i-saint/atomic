@@ -168,47 +168,48 @@ AtomicConfig::AtomicConfig()
     sound_enable        = true;
     bgm_volume          = 0.5;
     se_volume           = 0.5;
+    language            = LANG_JP;
 }
 
 bool AtomicConfig::readFromFile( const char* filepath )
 {
-    if(FILE *f=fopen(filepath, "r")) {
-        char buf[256];
-        while(fgets(buf, 256, f)) {
-            ivec2 itmp;
-            vec2 ftmp;
-            if(sscanf(buf, "window_pos = %d, %d", &itmp.x, &itmp.y)==2) { window_pos.x=itmp.x; window_pos.y=itmp.y; }
-            if(sscanf(buf, "window_size = %d, %d", &itmp.x, &itmp.y)==2){ window_size.x=itmp.x; window_size.y=itmp.y; }
-            if(sscanf(buf, "fullscreen = %d", &itmp.x)==1)              { fullscreen=itmp.x!=0; }
-            if(sscanf(buf, "vsync = %d", &itmp.x)==1)                   { vsync=itmp.x!=0; }
-            if(sscanf(buf, "posteffect_antialias = %d", &itmp.x)==1)    { posteffect_antialias=(itmp.x!=0); }
-            if(sscanf(buf, "posteffect_bloom = %d", &itmp.x)==1)        { posteffect_bloom=(itmp.x!=0); }
-            if(sscanf(buf, "sound_enable = %f", &itmp.x)==1)            { sound_enable=(itmp.x!=0); }
-            if(sscanf(buf, "bgm_volume = %f", &ftmp.x)==1)              { bgm_volume=ftmp.x; }
-            if(sscanf(buf, "se_volume = %f", &ftmp.x)==1)               { se_volume=ftmp.x; }
-        }
-        fclose(f);
-        return true;
+    FILE *f = fopen(filepath, "r");
+    if(!f) { return false; }
+
+    char buf[256];
+    ivec2 itmp;
+    vec2 ftmp;
+    while(fgets(buf, 256, f)) {
+        if(sscanf(buf, "window_pos = %d, %d", &itmp.x, &itmp.y)==2) { window_pos.x=itmp.x; window_pos.y=itmp.y; }
+        if(sscanf(buf, "window_size = %d, %d", &itmp.x, &itmp.y)==2){ window_size.x=itmp.x; window_size.y=itmp.y; }
+        if(sscanf(buf, "fullscreen = %d", &itmp.x)==1)              { fullscreen=itmp.x!=0; }
+        if(sscanf(buf, "vsync = %d", &itmp.x)==1)                   { vsync=itmp.x!=0; }
+        if(sscanf(buf, "posteffect_antialias = %d", &itmp.x)==1)    { posteffect_antialias=(itmp.x!=0); }
+        if(sscanf(buf, "posteffect_bloom = %d", &itmp.x)==1)        { posteffect_bloom=(itmp.x!=0); }
+        if(sscanf(buf, "sound_enable = %f", &itmp.x)==1)            { sound_enable=(itmp.x!=0); }
+        if(sscanf(buf, "bgm_volume = %f", &ftmp.x)==1)              { bgm_volume=ftmp.x; }
+        if(sscanf(buf, "se_volume = %f", &ftmp.x)==1)               { se_volume=ftmp.x; }
     }
-    return false;
+    fclose(f);
+    return true;
 }
 
 bool AtomicConfig::writeToFile( const char* filepath )
 {
-    if(FILE *f=fopen(filepath, "w")) {
-        fprintf(f, "window_pos = %d, %d\n",         window_pos.x, window_pos.y);
-        fprintf(f, "window_size = %d, %d\n",        window_size.x, window_size.y);
-        fprintf(f, "fullscreen = %d\n",             fullscreen);
-        fprintf(f, "vsync = %d\n",                  vsync);
-        fprintf(f, "posteffect_antialias = %d\n",   posteffect_antialias);
-        fprintf(f, "posteffect_bloom = %d\n",       posteffect_bloom);
-        fprintf(f, "sound_enable = %d\n",           sound_enable);
-        fprintf(f, "bgm_volume = %f\n",             bgm_volume);
-        fprintf(f, "se_volume = %f\n",              se_volume);
-        fclose(f);
-        return true;
-    }
-    return false;
+    FILE *f = fopen(filepath, "w");
+    if(!f) { return false; }
+
+    fprintf(f, "window_pos = %d, %d\n",         window_pos.x, window_pos.y);
+    fprintf(f, "window_size = %d, %d\n",        window_size.x, window_size.y);
+    fprintf(f, "fullscreen = %d\n",             fullscreen);
+    fprintf(f, "vsync = %d\n",                  vsync);
+    fprintf(f, "posteffect_antialias = %d\n",   posteffect_antialias);
+    fprintf(f, "posteffect_bloom = %d\n",       posteffect_bloom);
+    fprintf(f, "sound_enable = %d\n",           sound_enable);
+    fprintf(f, "bgm_volume = %f\n",             bgm_volume);
+    fprintf(f, "se_volume = %f\n",              se_volume);
+    fclose(f);
+    return true;
 }
 
 

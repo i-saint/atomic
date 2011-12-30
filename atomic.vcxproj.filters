@@ -186,6 +186,9 @@
     <ClCompile Include="Game\Input.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="Game\VFX.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h">
@@ -429,9 +432,6 @@
     <ClInclude Include="Game\Entity\Level.h">
       <Filter>Game\Entity</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Entity\Player.h">
-      <Filter>Game\Entity</Filter>
-    </ClInclude>
     <ClInclude Include="Game\Entity\Routine.h">
       <Filter>Game\Entity</Filter>
     </ClInclude>
@@ -446,6 +446,9 @@
     </ClInclude>
     <ClInclude Include="ist\Graphics\GraphicsAssert.h">
       <Filter>ist\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\VFX.h">
+      <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

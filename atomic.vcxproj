@@ -33,6 +33,7 @@
     <ClCompile Include="Game\Message.cpp" />
     <ClCompile Include="Game\SPHManager.cpp" />
     <ClCompile Include="Game\Text.cpp" />
+    <ClCompile Include="Game\VFX.cpp" />
     <ClCompile Include="Game\World.cpp" />
     <ClCompile Include="Graphics\CreateModelData.cpp" />
     <ClCompile Include="Graphics\CudaBuffer.cpp" />
@@ -87,7 +88,6 @@
     <ClInclude Include="Game\Entity\Attributes.h" />
     <ClInclude Include="Game\Entity\Enemy.h" />
     <ClInclude Include="Game\Entity\Level.h" />
-    <ClInclude Include="Game\Entity\Player.h" />
     <ClInclude Include="Game\Entity\Routine.h" />
     <ClInclude Include="Game\Entity\RoutineClass.h" />
     <ClInclude Include="Game\Input.h" />
@@ -95,6 +95,7 @@
     <ClInclude Include="Game\SPHManager.h" />
     <ClInclude Include="Game\Task.h" />
     <ClInclude Include="Game\Text.h" />
+    <ClInclude Include="Game\VFX.h" />
     <ClInclude Include="Game\World.h" />
     <ClInclude Include="GPGPU\SPH.cuh" />
     <ClInclude Include="Graphics\CreateModelData.h" />

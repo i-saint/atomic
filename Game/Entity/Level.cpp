@@ -23,8 +23,15 @@ private:
     int m_frame;
     CollisionHandle m_planes[4];
 
+    stl::vector<EntityHandle> m_small_enemies;
+    stl::vector<EntityHandle> m_medium_enemies;
+    stl::vector<EntityHandle> m_large_enemies;
+
+    int32 m_killcount;
+    int32 m_level;
+
 public:
-    Level_Test() : m_frame(0)
+    Level_Test() : m_frame(0), m_killcount(0), m_level(0)
     {
     }
 
@@ -58,7 +65,12 @@ public:
         super::finalize();
     }
 
-    IEntity* createRandomEnemy()
+    IEntity* putSmallEnemy()
+    {
+
+    }
+
+    IEntity* putMediumEnemy()
     {
         IEntity *e = NULL;
         switch(atomicGetRandom()->genInt32() % 2) {
@@ -106,7 +118,7 @@ public:
         }
 
         if(m_frame % 300 == 0) {
-            IEntity *e = createRandomEnemy();
+            IEntity *e = putMediumEnemy();
         }
     }
 

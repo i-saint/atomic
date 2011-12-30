@@ -19,6 +19,7 @@ struct AtomicConfig
     bool sound_enable;
     float32 bgm_volume;
     float32 se_volume;
+    int language;
 
     AtomicConfig();
     bool readFromFile(const char* filepath);
