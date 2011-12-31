@@ -1,13 +1,13 @@
-#ifndef __ist_Graphics_Util__
-#define __ist_Graphics_Util__
+#ifndef __ist_i3d_Util__
+#define __ist_i3d_Util__
 
-#include "ShaderObject.h"
-#include "FrameBufferObject.h"
+#include "i3dShader.h"
+#include "i3dRenderTarget.h"
 
 class SFMT;
 
 namespace ist {
-namespace graphics {
+namespace i3d {
 
 // 画像ファイル/ストリームからテクスチャ生成
 bool CreateTexture2DFromFile(Texture2D& tex, const char *filename);
@@ -55,9 +55,9 @@ bool MapAndRead(BufferObjectType& bo, void *data, size_t data_size)
 /// カラーテクスチャだけの FBO 
 /// ポストエフェクトなどに 
 template<size_t NumColorBuffers>
-class ColorNBuffer : public FrameBufferObject
+class ColorNBuffer : public RenderTarget
 {
-typedef FrameBufferObject super;
+typedef RenderTarget super;
 private:
     Texture2D *m_owned[NumColorBuffers];
 
@@ -94,9 +94,9 @@ typedef ColorNBuffer<8> Color8Buffer;
 
 /// デプステクスチャだけの FBO 
 /// 影バッファなどに 
-class DepthBuffer : public FrameBufferObject
+class DepthBuffer : public RenderTarget
 {
-typedef FrameBufferObject super;
+typedef RenderTarget super;
 private:
     Texture2D *m_owned;
 
@@ -123,9 +123,9 @@ public:
 
 /// カラーテクスチャとデプスレンダーバッファをbindしたFBO 
 template<size_t NumColorBuffers>
-class ColorNDepthBuffer : public FrameBufferObject
+class ColorNDepthBuffer : public RenderTarget
 {
-typedef FrameBufferObject super;
+typedef RenderTarget super;
 private:
     Texture2D *m_owned[NumColorBuffers+2];
 
@@ -164,6 +164,6 @@ typedef ColorNDepthBuffer<8> Color8DepthBuffer;
 
 
 
-} // namespace graphics
+} // namespace i3d
 } // namespace ist
-#endif // __ist_Graphics_Util__
+#endif // __ist_i3d_Util__

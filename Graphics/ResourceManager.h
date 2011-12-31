@@ -46,7 +46,7 @@ private:
     VertexBufferObject  *m_vbo[VBO_END];
     IndexBufferObject   *m_ibo[IBO_END];
     UniformBufferObject *m_ubo[UBO_END];
-    FrameBufferObject   *m_fbo[RT_END];
+    RenderTarget   *m_fbo[RT_END];
     AtomicShader        *m_shader[SH_END];
     ParticleSet         m_pset[PSET_END];
     RigidInfo           m_rinfo[PSET_END];

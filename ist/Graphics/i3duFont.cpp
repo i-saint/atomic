@@ -1,11 +1,11 @@
 #include "stdafx.h"
 #include <wingdi.h>
 #include "../Window.h"
-#include "Font.h"
+#include "i3duFont.h"
 
 
 namespace ist {
-namespace graphics {
+namespace i3d {
 #ifdef _WIN32
 
     static const int g_list_base = 0;
@@ -57,5 +57,5 @@ void SystemFont::draw(int x, int y, const wchar_t *text)
 }
 #endif // _WIN32
 
-} // namespace graphics
+} // namespace i3d
 } // namespace ist

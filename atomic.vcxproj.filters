@@ -81,15 +81,6 @@
     <ClCompile Include="ist\Base\TaskScheduler.cpp">
       <Filter>ist\Base</Filter>
     </ClCompile>
-    <ClCompile Include="ist\Graphics\FrameBufferObject.cpp">
-      <Filter>ist\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Graphics\GraphicsResource.cpp">
-      <Filter>ist\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Graphics\ShaderObject.cpp">
-      <Filter>ist\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="ist\Math\Linear.cpp">
       <Filter>ist\Math</Filter>
     </ClCompile>
@@ -128,20 +119,8 @@
     <ClCompile Include="ist\Sound\SoundUtil.cpp">
       <Filter>ist\Sound</Filter>
     </ClCompile>
-    <ClCompile Include="ist\Graphics\GraphicsUtil.cpp">
-      <Filter>ist\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Sound\AtomicSound.cpp">
       <Filter>Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Graphics\Font.cpp">
-      <Filter>ist\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Graphics\BufferObject.cpp">
-      <Filter>ist\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Graphics\Camera.cpp">
-      <Filter>ist\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Game\Text.cpp">
       <Filter>Game</Filter>
@@ -188,6 +167,30 @@
     </ClCompile>
     <ClCompile Include="Game\VFX.cpp">
       <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Graphics\i3dAssert.cpp">
+      <Filter>ist\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Graphics\i3dResource.cpp">
+      <Filter>ist\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Graphics\i3dUtil.cpp">
+      <Filter>ist\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Graphics\i3dRenderTarget.cpp">
+      <Filter>ist\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Graphics\i3dShader.cpp">
+      <Filter>ist\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Graphics\i3dBuffer.cpp">
+      <Filter>ist\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Graphics\i3duCamera.cpp">
+      <Filter>ist\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Graphics\i3duFont.cpp">
+      <Filter>ist\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -253,24 +256,6 @@
     </ClInclude>
     <ClInclude Include="ist\Base\TaskScheduler.h">
       <Filter>ist\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Graphics\BufferObject.h">
-      <Filter>ist\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Graphics\Camera.h">
-      <Filter>ist\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Graphics\DrawCommand.h">
-      <Filter>ist\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Graphics\FrameBufferObject.h">
-      <Filter>ist\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Graphics\GraphicsResource.h">
-      <Filter>ist\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Graphics\ShaderObject.h">
-      <Filter>ist\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="ist\Math\Linear.h">
       <Filter>ist\Math</Filter>
@@ -358,14 +343,8 @@
     <ClInclude Include="ist\Sound\SoundUtil.h">
       <Filter>ist\Sound</Filter>
     </ClInclude>
-    <ClInclude Include="ist\Graphics\GraphicsUtil.h">
-      <Filter>ist\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Sound\AtomicSound.h">
       <Filter>Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Graphics\Font.h">
-      <Filter>ist\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Light.h">
       <Filter>Graphics</Filter>
@@ -441,11 +420,38 @@
     <ClInclude Include="Game\Input.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="ist\Graphics\GraphicsAssert.h">
-      <Filter>ist\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Game\VFX.h">
       <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Graphics\i3dAssert.h">
+      <Filter>ist\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Graphics\i3dDevice.h">
+      <Filter>ist\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Graphics\i3dDeviceContext.h">
+      <Filter>ist\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Graphics\i3dResource.h">
+      <Filter>ist\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Graphics\i3dUtil.h">
+      <Filter>ist\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Graphics\i3dRenderTarget.h">
+      <Filter>ist\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Graphics\i3dShader.h">
+      <Filter>ist\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Graphics\i3dBuffer.h">
+      <Filter>ist\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Graphics\i3duCamera.h">
+      <Filter>ist\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Graphics\i3duFont.h">
+      <Filter>ist\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

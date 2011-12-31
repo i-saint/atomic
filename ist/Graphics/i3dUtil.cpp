@@ -1,14 +1,14 @@
 #include "stdafx.h"
 #include "../Base.h"
 #include "../Math.h"
-#include "ShaderObject.h"
-#include "GraphicsUtil.h"
+#include "i3dShader.h"
+#include "i3dUtil.h"
 #include <string>
 #include <sstream>
 #include <fstream>
 
 namespace ist {
-namespace graphics {
+namespace i3d {
 
 bool CreateTexture2DFromFile(Texture2D& tex, const char *filename)
 {
@@ -305,5 +305,5 @@ template ColorNDepthBuffer<8>;
 
 
 
-} // namespace graphics
+} // namespace i3d
 } // namespace ist

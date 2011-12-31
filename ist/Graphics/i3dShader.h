@@ -1,14 +1,13 @@
-#ifndef __ist_Graphics_ShaderObject__
-#define __ist_Graphics_ShaderObject__
+#ifndef __ist_i3d_Shader__
+#define __ist_i3d_Shader__
 
-#include "types.h"
-#include "GraphicsResource.h"
+#include "i3dResource.h"
 
 namespace ist {
-namespace graphics {
+namespace i3d {
 
 template<size_t ShaderType>
-class ShaderObject : public GraphicsResource
+class ShaderObject : public DeviceResource
 {
 public:
     enum {
@@ -33,7 +32,7 @@ typedef ShaderObject<GL_VERTEX_SHADER> VertexShader;
 typedef ShaderObject<GL_FRAGMENT_SHADER> FragmentShader;
 typedef ShaderObject<GL_GEOMETRY_SHADER> GeometryShader;
 
-class ProgramObject : public GraphicsResource
+class ProgramObject : public DeviceResource
 {
 private:
     GLuint m_handle;
@@ -106,6 +105,6 @@ public:
 };
 
 
-} // namespace graphics
+} // namespace i3d
 } // namespace ist
-#endif // __ist_Graphics_ShaderObject__
+#endif // __ist_i3d_Shader__

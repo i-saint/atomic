@@ -1,13 +1,13 @@
-#ifndef __ist_Graphics_BufferObject__
-#define __ist_Graphics_BufferObject__
+#ifndef __ist_i3d_Buffer__
+#define __ist_i3d_Buffer__
 
-#include "GraphicsResource.h"
+#include "i3dResource.h"
 
 namespace ist {
-namespace graphics {
+namespace i3d {
 
 template<GLuint BufferType>
-class BufferObject : public GraphicsResource
+class Buffer : public DeviceResource
 {
 public:
     enum {
@@ -30,8 +30,8 @@ protected:
     GLuint m_capacity;
 
 public:
-    BufferObject();
-    ~BufferObject();
+    Buffer();
+    ~Buffer();
 
     bool initialize();
     void finalize();
@@ -49,12 +49,12 @@ public:
     GLuint getHandle() const { return m_handle; }
 };
 
-typedef BufferObject<GL_ARRAY_BUFFER>           VertexBufferObject;
-typedef BufferObject<GL_ELEMENT_ARRAY_BUFFER>   IndexBufferObject;
-typedef BufferObject<GL_PIXEL_PACK_BUFFER>      PixelPackBufferObject;
-typedef BufferObject<GL_PIXEL_UNPACK_BUFFER>    PixelUnpackBufferObject;
+typedef Buffer<GL_ARRAY_BUFFER>           VertexBufferObject;
+typedef Buffer<GL_ELEMENT_ARRAY_BUFFER>   IndexBufferObject;
+typedef Buffer<GL_PIXEL_PACK_BUFFER>      PixelPackBufferObject;
+typedef Buffer<GL_PIXEL_UNPACK_BUFFER>    PixelUnpackBufferObject;
 
-class UniformBufferObject : public BufferObject<GL_UNIFORM_BUFFER>
+class UniformBufferObject : public Buffer<GL_UNIFORM_BUFFER>
 {
 public:
     void bindBase(GLuint index) const;
@@ -62,7 +62,7 @@ public:
 };
 
 
-class VertexArray : public GraphicsResource
+class VertexArray : public DeviceResource
 {
 public:
     enum TYPE {
@@ -104,7 +104,7 @@ public:
     void setAttributes(VertexBufferObject& vbo, size_t stride, const Descriptor *descs, size_t num_descs);
 };
 
-} // namespace graphics
+} // namespace i3d
 } // namespace ist
-#endif // __ist_Graphics_BufferObject__
+#endif // __ist_i3d_Buffer__
 

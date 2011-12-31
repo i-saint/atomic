@@ -5,7 +5,7 @@
 
 namespace atomic {
 
-using namespace ist::graphics;
+using namespace ist::i3d;
 
 typedef char                int8;
 typedef short               int16;

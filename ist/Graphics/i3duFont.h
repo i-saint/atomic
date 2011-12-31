@@ -1,12 +1,12 @@
-#ifndef __ist_Graphics_Font__
-#define __ist_Graphics_Font__
+#ifndef __ist_i3du_Font__
+#define __ist_i3du_Font__
 
-#include "GraphicsResource.h"
+#include "i3dResource.h"
 
 namespace ist {
-namespace graphics {
+namespace i3d {
 
-class SystemFont : GraphicsResource
+class SystemFont : DeviceResource
 {
 private:
 #ifdef _WIN32
@@ -28,6 +28,6 @@ public:
     int getFontHeight() const { return m_font_height; }
 };
 
-} // namespace graphics
+} // namespace i3d
 } // namespace ist
-#endif __ist_Graphics_Font__
+#endif __ist_i3du_Font__

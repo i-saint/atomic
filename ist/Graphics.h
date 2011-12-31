@@ -1,12 +1,12 @@
-#ifndef __ist_Graphics__
-#define __ist_Graphics__
+#ifndef __ist_i3d__
+#define __ist_i3d__
 
 #include <glm/glm.hpp>
 #include "Base/Types.h"
-#include "Graphics/GraphicsResource.h"
-#include "Graphics/BufferObject.h"
-#include "Graphics/ShaderObject.h"
-#include "Graphics/Camera.h"
-#include "Graphics/Font.h"
+#include "Graphics/i3dResource.h"
+#include "Graphics/i3dDevice.h"
+#include "Graphics/i3dDeviceContext.h"
+#include "Graphics/i3dBuffer.h"
+#include "Graphics/i3dShader.h"
 
-#endif // __ist_Graphics__
+#endif // __ist_i3d__

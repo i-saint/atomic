@@ -1,9 +1,9 @@
 #include "stdafx.h"
-#include "../Base/Assert.h"
-#include "FrameBufferObject.h"
+#include "../Base.h"
+#include "i3dRenderTarget.h"
 
 namespace ist {
-namespace graphics {
+namespace i3d {
 
 Texture2D::Texture2D()
 : m_handle(0)
@@ -177,24 +177,24 @@ GLsizei RenderBuffer::getHeight() const { return m_height; }
 
 
 
-FrameBufferObject::FrameBufferObject()
+RenderTarget::RenderTarget()
 : m_handle(0)
 , m_attaches(0)
 {
 }
 
-FrameBufferObject::~FrameBufferObject()
+RenderTarget::~RenderTarget()
 {
     finalize();
 }
 
-bool FrameBufferObject::initialize()
+bool RenderTarget::initialize()
 {
     glGenFramebuffers(1, &m_handle);
     return true;
 }
 
-void FrameBufferObject::finalize()
+void RenderTarget::finalize()
 {
     if(m_handle!=0) {
         glDeleteFramebuffers(1, &m_handle);
@@ -202,7 +202,7 @@ void FrameBufferObject::finalize()
     m_handle = 0;
 }
 
-bool FrameBufferObject::attachRenderBuffer(RenderBuffer& rb, IST_RT_ATTACH attach)
+bool RenderTarget::attachRenderBuffer(RenderBuffer& rb, IST_RT_ATTACH attach)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, m_handle);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, attach, GL_RENDERBUFFER, rb.getHandle());
@@ -214,7 +214,7 @@ bool FrameBufferObject::attachRenderBuffer(RenderBuffer& rb, IST_RT_ATTACH attac
     return true;
 }
 
-bool FrameBufferObject::attachTexture(Texture2D& tex, IST_RT_ATTACH attach, GLint level)
+bool RenderTarget::attachTexture(Texture2D& tex, IST_RT_ATTACH attach, GLint level)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, m_handle);
     glFramebufferTexture2D(GL_FRAMEBUFFER, attach, GL_TEXTURE_2D, tex.getHandle(), level);
@@ -226,7 +226,7 @@ bool FrameBufferObject::attachTexture(Texture2D& tex, IST_RT_ATTACH attach, GLin
     return true;
 }
 
-void FrameBufferObject::bind() const
+void RenderTarget::bind() const
 {
     glBindFramebuffer(GL_FRAMEBUFFER, m_handle);
 
@@ -240,12 +240,12 @@ void FrameBufferObject::bind() const
     glDrawBuffers(num_attaches, attaches);
 }
 
-void FrameBufferObject::unbind() const
+void RenderTarget::unbind() const
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-} // namespace graphics
+} // namespace i3d
 } // namespace ist
 
 

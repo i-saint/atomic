@@ -60,7 +60,7 @@ bool GraphicResourceManager::initialize()
     stl::fill_n(m_vbo, _countof(m_vbo), (VertexBufferObject*)NULL);
     stl::fill_n(m_ibo, _countof(m_ibo), (IndexBufferObject*)NULL);
     stl::fill_n(m_ubo, _countof(m_ubo), (UniformBufferObject*)NULL);
-    stl::fill_n(m_fbo, _countof(m_fbo), (FrameBufferObject*)NULL);
+    stl::fill_n(m_fbo, _countof(m_fbo), (RenderTarget*)NULL);
     stl::fill_n(m_shader, _countof(m_shader), (AtomicShader*)NULL);
 
     //// どうも 2 の n 乗サイズのフレームバッファの方が若干描画早いっぽい。 

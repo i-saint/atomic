@@ -1,10 +1,10 @@
-#ifndef __ist_Graphics_FrameBufferObject__
-#define __ist_Graphics_FrameBufferObject__
+#ifndef __ist_i3d_RenderTarget__
+#define __ist_i3d_RenderTarget__
 
-#include "GraphicsResource.h"
+#include "i3dResource.h"
 
 namespace ist {
-namespace graphics {
+namespace i3d {
 
 enum IST_COLOR_FORMAT
 {
@@ -61,7 +61,7 @@ enum IST_TEXTURE_SLOT
 };
 
 
-class Texture2D : public GraphicsResource
+class Texture2D : public DeviceResource
 {
 private:
     GLuint m_handle;
@@ -89,7 +89,7 @@ public:
 
 
 
-class RenderBuffer : public GraphicsResource
+class RenderBuffer : public DeviceResource
 {
 private:
     GLuint m_handle;
@@ -114,15 +114,15 @@ public:
 };
 
 
-class FrameBufferObject : public GraphicsResource
+class RenderTarget : public DeviceResource
 {
 private:
     GLuint m_handle;
     GLuint m_attaches; // 0bit-15bit –Ú‚ª‚»‚ê‚¼‚ê ATTACH_COLOR0-ATTACH_COLOR15 ‚É‘Î‰ž
 
 public:
-    FrameBufferObject();
-    ~FrameBufferObject();
+    RenderTarget();
+    ~RenderTarget();
 
     bool initialize();
     void finalize();
@@ -136,6 +136,6 @@ public:
 };
 
 
-} // graphics
-} // ist
-#endif // __ist_Graphics_FrameBufferObject__
+} // namespace graphics
+} // namespace ist
+#endif // __ist_i3d_RenderTarget__

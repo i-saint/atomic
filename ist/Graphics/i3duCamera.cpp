@@ -1,9 +1,10 @@
 #include "stdafx.h"
-#include "../Graphics.h"
+#include "../Base.h"
+#include "i3duCamera.h"
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace ist {
-namespace graphics {
+namespace i3d {
 
 
 bool Viewport::bind() const
@@ -65,5 +66,5 @@ bool PerspectiveCamera::bind() const
 }
 
 
-} // namespace graphics
+} // namespace i3d
 } // namespace ist

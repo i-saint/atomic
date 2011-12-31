@@ -13,7 +13,7 @@
 #include "EntityClass.h"
 #include "Util.h"
 
-using namespace ist::graphics;
+using namespace ist::i3d;
 
 
 namespace atomic {

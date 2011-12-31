@@ -1,9 +1,9 @@
 #include "stdafx.h"
-#include "../Base/Assert.h"
-#include "ShaderObject.h"
+#include "../Base.h"
+#include "i3dShader.h"
 
 namespace ist {
-namespace graphics {
+namespace i3d {
 
 template<size_t ShaderType>
 ShaderObject<ShaderType>::ShaderObject()
@@ -27,13 +27,13 @@ bool ShaderObject<ShaderType>::initialize()
 }
 
 template<size_t ShaderType>
-bool ist::graphics::ShaderObject<ShaderType>::initialize( const char *src, int length )
+bool ist::i3d::ShaderObject<ShaderType>::initialize( const char *src, int length )
 {
     return initialize() && compile(src, length);
 }
 
 template<size_t ShaderType>
-bool ist::graphics::ShaderObject<ShaderType>::compile( const char *src, int length )
+bool ist::i3d::ShaderObject<ShaderType>::compile( const char *src, int length )
 {
     // set shader source
     {
@@ -244,5 +244,5 @@ void ProgramObject::setSubroutineV(GLsizei count, GLuint *indices) { glUniformSu
 void ProgramObject::setSubroutineG(GLsizei count, GLuint *indices) { glUniformSubroutinesuiv(GL_GEOMETRY_SHADER, count, indices); }
 void ProgramObject::setSubroutineF(GLsizei count, GLuint *indices) { glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, count, indices); }
 
-} // namespace graphics
+} // namespace i3d
 } // namespace ist

@@ -1,12 +1,12 @@
 #include "stdafx.h"
-#include "BufferObject.h"
 #include "../Base.h"
+#include "i3dBuffer.h"
 
 namespace ist {
-namespace graphics {
+namespace i3d {
 
 template<GLuint BufferType>
-BufferObject<BufferType>::BufferObject()
+Buffer<BufferType>::Buffer()
 : m_handle(0)
 , m_size(0)
 , m_capacity(0)
@@ -14,21 +14,21 @@ BufferObject<BufferType>::BufferObject()
 }
 
 template<GLuint BufferType>
-BufferObject<BufferType>::~BufferObject()
+Buffer<BufferType>::~Buffer()
 {
     finalize();
 }
 
 
 template<GLuint BufferType>
-bool BufferObject<BufferType>::initialize()
+bool Buffer<BufferType>::initialize()
 {
     glGenBuffers(1, &m_handle);
     return true;
 }
 
 template<GLuint BufferType>
-void BufferObject<BufferType>::finalize()
+void Buffer<BufferType>::finalize()
 {
     if(m_handle!=0) {
         glDeleteBuffers(1, &m_handle);
@@ -37,7 +37,7 @@ void BufferObject<BufferType>::finalize()
 }
 
 template<GLuint BufferType>
-void BufferObject<BufferType>::allocate(GLuint size, USAGE usage, void *data)
+void Buffer<BufferType>::allocate(GLuint size, USAGE usage, void *data)
 {
     m_size = size;
     if(size==0) {
@@ -59,25 +59,25 @@ void BufferObject<BufferType>::allocate(GLuint size, USAGE usage, void *data)
 }
 
 template<GLuint BufferType>
-GLuint BufferObject<BufferType>::size() const
+GLuint Buffer<BufferType>::size() const
 {
     return m_size;
 }
 
 template<GLuint BufferType>
-void BufferObject<BufferType>::bind() const
+void Buffer<BufferType>::bind() const
 {
     glBindBuffer(BufferType, m_handle);
 }
 
 template<GLuint BufferType>
-void BufferObject<BufferType>::unbind() const
+void Buffer<BufferType>::unbind() const
 {
     glBindBuffer(BufferType, 0);
 }
 
 template<GLuint BufferType>
-void* BufferObject<BufferType>::map(MAP_MODE mode)
+void* Buffer<BufferType>::map(MAP_MODE mode)
 {
     glBindBuffer(BufferType, m_handle);
     void *r = glMapBuffer(BufferType, mode);
@@ -87,18 +87,18 @@ void* BufferObject<BufferType>::map(MAP_MODE mode)
 }
 
 template<GLuint BufferType>
-void BufferObject<BufferType>::unmap()
+void Buffer<BufferType>::unmap()
 {
     glBindBuffer(BufferType, m_handle);
     glUnmapBuffer(BufferType);
     glBindBuffer(BufferType, 0);
 }
 
-template BufferObject<GL_ARRAY_BUFFER>;
-template BufferObject<GL_ELEMENT_ARRAY_BUFFER>;
-template BufferObject<GL_PIXEL_PACK_BUFFER>;
-template BufferObject<GL_PIXEL_UNPACK_BUFFER>;
-template BufferObject<GL_UNIFORM_BUFFER>;
+template Buffer<GL_ARRAY_BUFFER>;
+template Buffer<GL_ELEMENT_ARRAY_BUFFER>;
+template Buffer<GL_PIXEL_PACK_BUFFER>;
+template Buffer<GL_PIXEL_UNPACK_BUFFER>;
+template Buffer<GL_UNIFORM_BUFFER>;
 
 
 void UniformBufferObject::bindBase(GLuint index) const
@@ -177,5 +177,5 @@ void VertexArray::setAttributes( VertexBufferObject& vbo, size_t stride, const D
 }
 
 
-} // namespace graphics
+} // namespace i3d
 } // namespace ist

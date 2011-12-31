@@ -1,8 +1,8 @@
-#ifndef __ist_Graphic_Camera__
-#define __ist_Graphic_Camera__
+#ifndef __ist_i3du_Camera__
+#define __ist_i3du_Camera__
 
 namespace ist {
-namespace graphics {
+namespace i3d {
 
 
 class Viewport
@@ -155,6 +155,6 @@ public:
 };
 
 
-} // namespace graphics
+} // namespace i3d
 } // namespace ist
-#endif //__ist_Graphic_Camera__
+#endif //__ist_i3du_Camera__
