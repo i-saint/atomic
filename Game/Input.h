@@ -12,7 +12,7 @@ public:
     InputState()
     {
         m_move = vec2(0.0f);
-        m_buttons[0] = 0;
+        std::fill_n(m_buttons, _countof(m_buttons), 0);
     }
 
     vec2 getMove() const                { return m_move; }

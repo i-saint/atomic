@@ -123,7 +123,7 @@ namespace atomic {
         }
 
         void update(float32 dt) {}
-        void updateAsync(float32 dt) {}
+        void asyncupdate(float32 dt) {}
     };
 
     class Attr_DoubleAxisRotation : public Attr_Translate
@@ -190,7 +190,7 @@ namespace atomic {
         }
 
         void update(float32 dt) {}
-        void updateAsync(float32 dt) {}
+        void asyncupdate(float32 dt) {}
     };
 
     template<class T>
@@ -234,7 +234,7 @@ namespace atomic {
             this->setRotate2(this->getRotate2()+getRotateSpeed2());
         }
 
-        void updateAsync(float32 dt) {}
+        void asyncupdate(float32 dt) {}
     };
 
 

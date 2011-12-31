@@ -8,7 +8,7 @@
 namespace atomic {
 
 namespace  {
-    const char magick_string[8] = "atomic\x00";
+    const char magic_string[8] = "atomic\x00";
 }
 
 struct RawInputHeader
@@ -30,13 +30,13 @@ struct RawInputHeader
 void RawInputHeader::initialize()
 {
     memset(this, 0, sizeof(*this));
-    memcpy(magic, magick_string, sizeof(magic));
+    memcpy(magic, magic_string, sizeof(magic));
     version = __atomic_replay_version__;
 }
 
 bool RawInputHeader::isValid()
 {
-    if( memcmp(magic, magick_string, sizeof(magic))==0 &&
+    if( memcmp(magic, magic_string, sizeof(magic))==0 &&
         version==__atomic_replay_version__)
     {
         return true;
@@ -59,7 +59,9 @@ void InputServerLocal::update(const InputState &is)
     rd.buttons = is.getButtons();
     m_data.push_back(rd);
 
-    m_is = is;
+    m_is.copyToBack();
+    m_is.setMove(rd.move);
+    m_is.setButtons(rd.buttons);
 }
 
 const InputState* InputServerLocal::getInput() const
@@ -102,7 +104,8 @@ const InputState* InputServerReplay::getInput() const
 
 bool InputServerReplay::readFromFile(const char *path)
 {
-    ist::gzbiostream gzf(path, "rb");
+    ist::gzbiostream gzf;
+    gzf.open(path, "rb");
     if(!gzf.isOpened()) { return false; }
 
     RawInputHeader header;
