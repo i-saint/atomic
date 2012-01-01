@@ -88,56 +88,77 @@ void Device::deleteResource( ResourceHandle v )
 VertexBuffer* Device::createVertexBuffer()
 {
     VertexBuffer *r = istNew(VertexBuffer)();
-    m_resources.push_back(r);
+    addResource(r);
     return r;
 }
 
 IndexBuffer* Device::createIndexBuffer()
 {
     IndexBuffer *r = istNew(IndexBuffer)();
-    m_resources.push_back(r);
+    addResource(r);
     return r;
 }
 
 UniformBuffer* Device::createUniformBuffer()
 {
     UniformBuffer *r = istNew(UniformBuffer)();
-    m_resources.push_back(r);
+    addResource(r);
     return r;
 }
 
 PixelBuffer* Device::createPixelBuffer()
 {
     PixelBuffer *r = istNew(PixelBuffer)();
-    m_resources.push_back(r);
+    addResource(r);
     return r;
 }
 
 VertexArray* Device::createVertexArray()
 {
     VertexArray *r = istNew(VertexArray)();
-    m_resources.push_back(r);
+    addResource(r);
     return r;
 }
 
 VertexShader* Device::createVertexShader()
 {
     VertexShader *r = istNew(VertexShader)();
-    m_resources.push_back(r);
+    addResource(r);
     return r;
 }
 
 PixelShader* Device::createPixelShader()
 {
     PixelShader *r = istNew(PixelShader)();
-    m_resources.push_back(r);
+    addResource(r);
     return r;
 }
 
 GeometryShader* Device::createGeometryShader()
 {
     GeometryShader *r = istNew(GeometryShader)();
-    m_resources.push_back(r);
+    addResource(r);
+    return r;
+}
+
+ShaderProgram* Device::createShaderProgram()
+{
+    ShaderProgram *r = istNew(ShaderProgram)();
+    addResource(r);
+    return r;
+}
+
+Texture2D* Device::createTexture2D()
+{
+    Texture2D *r = istNew(Texture2D)();
+    addResource(r);
+    return r;
+}
+
+RenderTarget* Device::createRenderTarget()
+{
+    RenderTarget *r = istNew(RenderTarget)();
+    addResource(r);
     return r;
 }
 

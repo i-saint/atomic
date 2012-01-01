@@ -5,7 +5,6 @@
 namespace atomic {
 
 class AtomicGame;
-class AtomicRenderingThread;
 class SoundThread;
 
 struct AtomicConfig
@@ -33,7 +32,6 @@ class AtomicApplication : public ist::Application
 typedef ist::Application super;
 private:
     AtomicGame              *m_game;
-    AtomicRenderingThread   *m_renderng_thread;
     InputState              m_inputs;
 
     AtomicConfig            m_config;
@@ -56,9 +54,6 @@ public:
     void handleError(ATOMIC_ERROR e);
     void handleCommandLine(const wchar_t* command, size_t command_len);
 
-    void waitForDrawComplete();
-    void kickDraw();
-
     // •`‰æƒXƒŒƒbƒh‚©‚çŒÄ‚Î‚ê‚é
     void drawCallback();
 
@@ -66,16 +61,12 @@ public:
     AtomicGame* getGame()                       { return m_game; }
     const InputState* getSystemInputs() const   { return &m_inputs; }
     AtomicConfig* getConfig()                   { return &m_config; }
-
-    float32 getAverageFPS() const;
 };
 
 
 #define atomicGetApplication()          AtomicApplication::getInstance()
 #define atomicGetGame()                 atomicGetApplication()->getGame()
 #define atomicGetSystemInputs()         atomicGetApplication()->getSystemInputs()
-#define atomicWaitForDrawComplete()     atomicGetApplication()->waitForDrawComplete()
-#define atomicKickDraw()                atomicGetApplication()->kickDraw()
 
 #define atomicGetConfig()               atomicGetApplication()->getConfig()
 #define atomicGetWindowWidth()          atomicGetApplication()->getWindowWidth()

@@ -10,29 +10,16 @@ Buffer<BufferType>::Buffer()
 : m_size(0)
 , m_capacity(0)
 {
+    glGenBuffers(1, &m_handle);
 }
 
 template<GLuint BufferType>
 Buffer<BufferType>::~Buffer()
 {
-    finalize();
-}
-
-
-template<GLuint BufferType>
-bool Buffer<BufferType>::initialize()
-{
-    glGenBuffers(1, &m_handle);
-    return true;
-}
-
-template<GLuint BufferType>
-void Buffer<BufferType>::finalize()
-{
     if(m_handle!=0) {
         glDeleteBuffers(1, &m_handle);
+        m_handle = 0;
     }
-    m_handle = 0;
 }
 
 template<GLuint BufferType>
@@ -113,25 +100,15 @@ void UniformBuffer::bindRange(GLuint index, GLintptr offset, GLsizeiptr size) co
 
 VertexArray::VertexArray()
 {
+    glGenVertexArrays(1, &m_handle);
 }
 
 VertexArray::~VertexArray()
 {
-    finalize();
-}
-
-bool VertexArray::initialize()
-{
-    glGenVertexArrays(1, &m_handle);
-    return true;
-}
-
-void VertexArray::finalize()
-{
     if(m_handle!=0) {
         glDeleteVertexArrays(1, &m_handle);
+        m_handle = 0;
     }
-    m_handle = 0;
 }
 
 void VertexArray::bind() const

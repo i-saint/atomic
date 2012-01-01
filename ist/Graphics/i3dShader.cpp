@@ -8,27 +8,16 @@ namespace i3d {
 template<size_t ShaderType>
 ShaderObject<ShaderType>::ShaderObject()
 {
+    m_handle = glCreateShader(ShaderType);
 }
 
 template<size_t ShaderType>
 ShaderObject<ShaderType>::~ShaderObject()
 {
-    finalize();
-}
-
-template<size_t ShaderType>
-bool ShaderObject<ShaderType>::initialize()
-{
-    finalize();
-
-    m_handle = glCreateShader(ShaderType);
-    return true;
-}
-
-template<size_t ShaderType>
-bool ShaderObject<ShaderType>::initialize( const char *src, int length )
-{
-    return initialize() && compile(src, length);
+    if(m_handle!=0) {
+        glDeleteShader(m_handle);
+        m_handle = 0;
+    }
 }
 
 template<size_t ShaderType>
@@ -71,12 +60,6 @@ bool ShaderObject<ShaderType>::compile( const char *src, int length )
     return true;
 }
 
-template<size_t ShaderType>
-void ShaderObject<ShaderType>::finalize()
-{
-    if(m_handle!=0) { glDeleteShader(m_handle); m_handle=0; }
-}
-
 template ShaderObject<GL_VERTEX_SHADER>;
 template ShaderObject<GL_FRAGMENT_SHADER>;
 template ShaderObject<GL_GEOMETRY_SHADER>;
@@ -85,26 +68,15 @@ template ShaderObject<GL_GEOMETRY_SHADER>;
 
 ShaderProgram::ShaderProgram()
 {
+    m_handle = glCreateProgram();
 }
 
 ShaderProgram::~ShaderProgram()
 {
-    finalize();
-}
-
-
-bool ShaderProgram::initialize()
-{
-    finalize();
-
-    m_handle = glCreateProgram();
-    return true;
-}
-
-void ShaderProgram::finalize()
-{
-    if(m_handle!=0) { glDeleteProgram(m_handle); m_handle=0; }
-    
+    if(m_handle!=0) {
+        glDeleteProgram(m_handle);
+        m_handle = 0;
+    }
 }
 
 bool ShaderProgram::link( VertexShader *vsh, PixelShader *fsh, GeometryShader *gsh )

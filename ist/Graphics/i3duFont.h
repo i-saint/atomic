@@ -16,11 +16,10 @@ private:
     int m_font_height;
 
 public:
-    SystemFont();
+#ifdef _WIN32
+    SystemFont(HDC m_hdc);
+#endif // _WIN32
     ~SystemFont();
-
-    bool initialize();
-    void finalize();
 
     void draw(int x, int y, const char *text);
     void draw(int x, int y, const wchar_t *text);

@@ -2,6 +2,7 @@
 #include "types.h"
 #include "AtomicApplication.h"
 #include "AtomicGame.h"
+#include "Graphics/AtomicRenderingSystem.h"
 #include "Graphics/ResourceManager.h"
 #include "Graphics/Renderer.h"
 #include "Game/Message.h"
@@ -78,7 +79,7 @@ void AtomicGame::draw()
 {
     // todo: フレームスキップ処理
     atomicKickDraw();
-    atomicWaitForDrawComplete();
+    atomicWaitForDrawCallbackComplete();
 }
 
 void AtomicGame::drawCallback()

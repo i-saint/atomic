@@ -21,24 +21,35 @@ void SetThreadName(uint32_t thread_id, const char *name);
 void SetThreadName(const char *name);
 
 
-class SpinLock
+class SpinMutex
 {
+public:
+    class Lock
+    {
+    private:
+        SpinMutex &m_mutex;
+
+    public:
+        Lock(SpinMutex &m) : m_mutex(m) { m_mutex.lock(); }
+        ~Lock() { m_mutex.unlock(); }
+    };
+
 private:
-    int m_lock;
+    volatile LONG m_lock;
 
 public:
-    SpinLock() : m_lock(0) { }
+    SpinMutex() : m_lock(0) { }
 
     void lock()
     {
-        while(::InterlockedCompareExchange((volatile LONG*)&m_lock, 1, 0) != 0) {
+        while(::InterlockedCompareExchange(&m_lock, 1, 0) != 0) {
             ::Sleep(0);
         }
     }
 
     void unlock()
     {
-        ::InterlockedExchange((volatile LONG*)&m_lock, 0);
+        ::InterlockedExchange(&m_lock, 0);
     }
 };
 

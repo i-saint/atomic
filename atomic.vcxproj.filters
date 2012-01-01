@@ -198,6 +198,9 @@
     <ClCompile Include="ist\Graphics\i3dDeviceContext.cpp">
       <Filter>ist\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\AtomicRenderingSystem.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h">
@@ -461,6 +464,9 @@
     </ClInclude>
     <ClInclude Include="ist\Graphics\i3dDeviceResource.h">
       <Filter>ist\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\AtomicRenderingSystem.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

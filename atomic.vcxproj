@@ -35,6 +35,7 @@
     <ClCompile Include="Game\Text.cpp" />
     <ClCompile Include="Game\VFX.cpp" />
     <ClCompile Include="Game\World.cpp" />
+    <ClCompile Include="Graphics\AtomicRenderingSystem.cpp" />
     <ClCompile Include="Graphics\CreateModelData.cpp" />
     <ClCompile Include="Graphics\CudaBuffer.cpp" />
     <ClCompile Include="Graphics\Renderer.cpp" />
@@ -100,6 +101,7 @@
     <ClInclude Include="Game\VFX.h" />
     <ClInclude Include="Game\World.h" />
     <ClInclude Include="GPGPU\SPH.cuh" />
+    <ClInclude Include="Graphics\AtomicRenderingSystem.h" />
     <ClInclude Include="Graphics\CreateModelData.h" />
     <ClInclude Include="Graphics\CudaBuffer.h" />
     <ClInclude Include="Graphics\Light.h" />
@@ -269,7 +271,11 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <CudaCompile>
       <Include>$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;%(Include)</Include>
-      <GPUDebugInfo>true</GPUDebugInfo>
+      <GPUDebugInfo>false</GPUDebugInfo>
+      <Optimization>O3</Optimization>
+      <HostDebugInfo>false</HostDebugInfo>
+      <FastMath>true</FastMath>
+      <Runtime>MDd</Runtime>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Intel_SSA|Win32'">

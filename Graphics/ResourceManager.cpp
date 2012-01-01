@@ -2,6 +2,7 @@
 #include "ist/ist.h"
 #include "types.h"
 #include "Game/AtomicApplication.h"
+#include "Graphics/AtomicRenderingSystem.h"
 #include "Graphics/ResourceManager.h"
 #include "Graphics/Light.h"
 #include "shader/glsl_source.h"
@@ -46,7 +47,6 @@ void GraphicResourceManager::finalizeInstance()
 inline AtomicShader* CreateAtomicShader(const char* source)
 {
     AtomicShader *sh = istNew(AtomicShader)();
-    sh->initialize();
     sh->loadFromMemory(source);
     return sh;
 }
@@ -60,39 +60,34 @@ bool GraphicResourceManager::initialize()
     stl::fill_n(m_vbo, _countof(m_vbo), (VertexBuffer*)NULL);
     stl::fill_n(m_ibo, _countof(m_ibo), (IndexBuffer*)NULL);
     stl::fill_n(m_ubo, _countof(m_ubo), (UniformBuffer*)NULL);
-    stl::fill_n(m_fbo, _countof(m_fbo), (RenderTarget*)NULL);
+    stl::fill_n(m_rt, _countof(m_rt), (RenderTarget*)NULL);
     stl::fill_n(m_shader, _countof(m_shader), (AtomicShader*)NULL);
 
     //// どうも 2 の n 乗サイズのフレームバッファの方が若干描画早いっぽい。 
     //uint32 framebuffer_width = atomicGetWindowWidth();
     //uint32 framebuffer_height = atomicGetWindowHeight();
-    uint32 framebuffer_width = CalcFrameBufferWidth();
-    uint32 framebuffer_height = CalcFrameBufferHeight();
+    uint32 rt_width = CalcFrameBufferWidth();
+    uint32 rt_height = CalcFrameBufferHeight();
 
     // initialize opengl resources
+    i3d::Device *dev = atomicGetGraphicsDevice();
     {
-        m_font = istNew(SystemFont)();
-        m_font->initialize();
+        m_font = istNew(SystemFont)(dev->getHDC());
     }
     for(uint32 i=0; i<_countof(m_tex2d); ++i) {
-        m_tex2d[i] = istNew(Texture2D)();
-        m_tex2d[i]->initialize();
+        m_tex2d[i] = dev->createTexture2D();
     }
     for(uint32 i=0; i<_countof(m_va); ++i) {
-        m_va[i] = istNew(VertexArray)();
-        m_va[i]->initialize();
+        m_va[i] = dev->createVertexArray();
     }
     for(uint32 i=0; i<_countof(m_vbo); ++i) {
-        m_vbo[i] = istNew(VertexBuffer)();
-        m_vbo[i]->initialize();
+        m_vbo[i] = dev->createVertexBuffer();
     }
     for(uint32 i=0; i<_countof(m_ibo); ++i) {
-        m_ibo[i] = istNew(IndexBuffer)();
-        m_ibo[i]->initialize();
+        m_ibo[i] = dev->createIndexBuffer();
     }
     for(uint32 i=0; i<_countof(m_ubo); ++i) {
-        m_ubo[i] = istNew(UniformBuffer)();
-        m_ubo[i]->initialize();
+        m_ubo[i] = dev->createUniformBuffer();
     }
 
     {
@@ -131,25 +126,12 @@ bool GraphicResourceManager::initialize()
     }
     {
         // create render targets
-        m_rt_gbuffer = istNew(RenderTargetGBuffer)();
-        m_rt_gbuffer->initialize(framebuffer_width, framebuffer_height, I3D_RGBA16F, I3D_DEPTH24_STENCIL8);
-
-        m_rt_deferred = istNew(RenderTargetDeferred)();
-        m_rt_deferred->setDepthStencilBuffer(m_rt_gbuffer->getDepthStencilBuffer());
-        m_rt_deferred->initialize(framebuffer_width, framebuffer_height, I3D_RGBA8U, I3D_DEPTH24_STENCIL8);
-
-        for(uint32 i=0; i<_countof(m_rt_gauss); ++i) {
-            m_rt_gauss[i] = istNew(ColorBuffer)();
-            m_rt_gauss[i]->initialize(512, 256, I3D_RGBA8U);
-        }
-
-        m_rt_postprocess = istNew(ColorBuffer)();
-        m_rt_postprocess->initialize(framebuffer_width, framebuffer_height, I3D_RGBA8U);
-
-        m_fbo[RT_GBUFFER]   = m_rt_gbuffer;
-        m_fbo[RT_DEFERRED]  = m_rt_deferred;
-        m_fbo[RT_GAUSS0]    = m_rt_gauss[0];
-        m_fbo[RT_GAUSS1]    = m_rt_gauss[1];
+        m_rt[RT_GBUFFER]       = i3d::CreateRenderTarget(dev, 4, rt_width, rt_height, I3D_RGBA16F, I3D_DEPTH24_STENCIL8);
+        m_rt[RT_DEFERRED]      = i3d::CreateRenderTarget(dev, 1, rt_width, rt_height, I3D_RGBA8U);
+        m_rt[RT_DEFERRED]->setDepthStencilBuffer(m_rt[RT_GBUFFER]->getDepthStencilBuffer());
+        m_rt[RT_GAUSS0]        = i3d::CreateRenderTarget(dev, 1, 512, 256, I3D_RGBA8U);
+        m_rt[RT_GAUSS1]        = i3d::CreateRenderTarget(dev, 1, 512, 256, I3D_RGBA8U);
+        m_rt[RT_POSTPROCESS]   = i3d::CreateRenderTarget(dev, 1, rt_width, rt_height, I3D_RGBA8U);
     }
 
     m_vbo[VBO_FLUID_PARTICLES]->allocate(sizeof(sphFluidParticle)*SPH_MAX_FLUID_PARTICLES, I3D_USAGE_DYNAMIC);
@@ -175,14 +157,14 @@ void GraphicResourceManager::finalize()
     SPHFinalizeGLBuffers();
     SPHFinalize();
 
-    for(uint32 i=0; i<_countof(m_shader); ++i)  { if(m_shader[i]) { m_shader[i]->finalize(); istSafeDelete( m_shader[i] ); } }
-    for(uint32 i=0; i<_countof(m_fbo); ++i)     { if(m_fbo[i]) { m_fbo[i]->finalize(); istSafeDelete( m_fbo[i] ); } }
-    for(uint32 i=0; i<_countof(m_ubo); ++i)     { if(m_ubo[i]) { m_ubo[i]->finalize(); istSafeDelete( m_ubo[i] ); } }
-    for(uint32 i=0; i<_countof(m_ibo); ++i)     { if(m_ibo[i]) { m_ibo[i]->finalize(); istSafeDelete( m_ibo[i] ); } }
-    for(uint32 i=0; i<_countof(m_vbo); ++i)     { if(m_vbo[i]) { m_vbo[i]->finalize(); istSafeDelete( m_vbo[i] ); } }
-    for(uint32 i=0; i<_countof(m_va); ++i)      { if(m_va[i]) { m_va[i]->finalize(); istSafeDelete( m_va[i] ); } }
-    for(uint32 i=0; i<_countof(m_tex2d); ++i)   { if(m_tex2d[i]) { m_tex2d[i]->finalize(); istSafeDelete( m_tex2d[i] ); } }
-    if(m_font) { m_font->finalize(); istSafeDelete(m_font); }
+    for(uint32 i=0; i<_countof(m_shader); ++i)  { if(m_shader[i]) { atomicSafeRelease( m_shader[i] ); } }
+    for(uint32 i=0; i<_countof(m_rt); ++i)     { if(m_rt[i]) { atomicSafeRelease( m_rt[i] ); } }
+    for(uint32 i=0; i<_countof(m_ubo); ++i)     { if(m_ubo[i]) { atomicSafeRelease( m_ubo[i] ); } }
+    for(uint32 i=0; i<_countof(m_ibo); ++i)     { if(m_ibo[i]) { atomicSafeRelease( m_ibo[i] ); } }
+    for(uint32 i=0; i<_countof(m_vbo); ++i)     { if(m_vbo[i]) { atomicSafeRelease( m_vbo[i] ); } }
+    for(uint32 i=0; i<_countof(m_va); ++i)      { if(m_va[i]) { atomicSafeRelease( m_va[i] ); } }
+    for(uint32 i=0; i<_countof(m_tex2d); ++i)   { if(m_tex2d[i]) { atomicSafeRelease( m_tex2d[i] ); } }
+    istSafeDelete(m_font);
 }
 
 

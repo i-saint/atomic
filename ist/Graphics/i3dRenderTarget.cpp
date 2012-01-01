@@ -9,30 +9,15 @@ Texture2D::Texture2D()
 : m_width(0)
 , m_height(0)
 {
+    glGenTextures(1, &m_handle);
 }
 
 Texture2D::~Texture2D()
 {
-    finalize();
-}
-
-bool Texture2D::initialize()
-{
-    glGenTextures(1, &m_handle);
-    return true;
-}
-
-bool Texture2D::initialize(GLsizei width, GLsizei height, I3D_COLOR_FORMAT fmt, void *data)
-{
-    return initialize() && allocate(width, height, fmt, data);
-}
-
-void Texture2D::finalize()
-{
     if(m_handle!=0) {
         glDeleteTextures(1, &m_handle);
+        m_handle = 0;
     }
-    m_handle = 0;
 }
 
 bool Texture2D::allocate(GLsizei width, GLsizei height, I3D_COLOR_FORMAT fmt, void *data)
@@ -99,30 +84,15 @@ RenderBuffer::RenderBuffer()
 : m_width(0)
 , m_height(0)
 {
+    glGenRenderbuffers(1, &m_handle);
 }
 
 RenderBuffer::~RenderBuffer()
 {
-    finalize();
-}
-
-bool RenderBuffer::initialize()
-{
-    glGenRenderbuffers(1, &m_handle);
-    return true;
-}
-
-bool RenderBuffer::initialize(GLsizei width, GLsizei height, I3D_COLOR_FORMAT fmt)
-{
-    return initialize() && allocate(width, height, fmt);
-}
-
-void RenderBuffer::finalize()
-{
     if(m_handle!=0) {
         glDeleteRenderbuffers(1, &m_handle);
+        m_handle = 0;
     }
-    m_handle = 0;
 }
 
 bool RenderBuffer::allocate(GLsizei width, GLsizei height, I3D_COLOR_FORMAT fmt)
@@ -174,71 +144,154 @@ GLsizei RenderBuffer::getHeight() const { return m_height; }
 
 
 RenderTarget::RenderTarget()
-: m_attaches(0)
+    : m_num_color_buffers(0), m_depthstencil(NULL)
 {
+    glGenFramebuffers(1, &m_handle);
+
+    std::fill_n(m_color_buffers, _countof(m_color_buffers), (Texture2D*)NULL);
 }
 
 RenderTarget::~RenderTarget()
 {
-    finalize();
-}
-
-bool RenderTarget::initialize()
-{
-    glGenFramebuffers(1, &m_handle);
-    return true;
-}
-
-void RenderTarget::finalize()
-{
+    releaseBuffers();
     if(m_handle!=0) {
         glDeleteFramebuffers(1, &m_handle);
+        m_handle = 0;
     }
-    m_handle = 0;
 }
 
-bool RenderTarget::attachRenderBuffer(RenderBuffer& rb, I3D_RT_ATTACH attach)
+void RenderTarget::releaseBuffers()
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, m_handle);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, attach, GL_RENDERBUFFER, rb.getHandle());
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    if(attach!=I3D_ATTACH_DEPTH) {
-        m_attaches |= 1<<(attach-I3D_ATTACH_COLOR0);
+    istSafeRelease(m_depthstencil);
+    for(uint32 i=0; i<m_num_color_buffers; ++i) {
+        istSafeRelease(m_color_buffers[i]);
     }
+}
+
+
+bool RenderTarget::setRenderBuffers(Texture2D **rb, uint32 num, Texture2D *depthstencil)
+{
+    if(num>=MAX_RENDER_BUFFERS) {
+        istPrint("number of render targets must be less than %d\n", MAX_RENDER_BUFFERS);
+        return false;
+    }
+
+    // 現バッファと rb, depthstencil が同じ物を指してる可能性があるため、先に参照カウンタ増加
+    for(uint32 i=0; i<num; ++i) { istSafeAddRef(rb[i]); }
+    istSafeAddRef(depthstencil);
+
+    // 現バッファの参照カウンタ減少
+    releaseBuffers();
+
+    m_num_color_buffers = num;
+    std::copy(rb, rb+num, m_color_buffers);
+    m_depthstencil = depthstencil;
+
+    glBindFramebuffer(GL_FRAMEBUFFER, m_handle);
+    for(uint32 i=0; i<num; ++i) {
+        if(rb[i]) {
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+i, GL_TEXTURE_2D, rb[i]->getHandle(), 0);
+        }
+    }
+    if(depthstencil) {
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthstencil->getHandle(), 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, depthstencil->getHandle(), 0);
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     return true;
 }
 
-bool RenderTarget::attachTexture(Texture2D& tex, I3D_RT_ATTACH attach, GLint level)
+bool RenderTarget::getRenderBuffers(Texture2D **rb, uint32 &num, Texture2D *&depthstencil)
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, m_handle);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, attach, GL_TEXTURE_2D, tex.getHandle(), level);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    if(attach!=I3D_ATTACH_DEPTH) {
-        m_attaches |= 1<<(attach-I3D_ATTACH_COLOR0);
+    if(num < m_num_color_buffers) {
+        return false;
     }
-    return true;
+
+    num = m_num_color_buffers;
+    std::copy(m_color_buffers, m_color_buffers+m_num_color_buffers, rb);
+    depthstencil = m_depthstencil;
+}
+
+void RenderTarget::setNumColorBuffers(uint32 v)
+{
+    m_num_color_buffers = v;
+}
+
+void RenderTarget::setColorBuffer(uint32 i, Texture2D *rb)
+{
+    istSafeAddRef(rb);
+    istSafeRelease(m_color_buffers[i]);
+
+    if(rb) {
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+i, GL_TEXTURE_2D, rb->getHandle(), 0);
+    }
+    m_color_buffers[i] = rb;
+}
+
+void RenderTarget::setDepthStencilBuffer(Texture2D *rb)
+{
+    istSafeAddRef(rb);
+    istSafeRelease(m_depthstencil);
+
+    m_depthstencil = rb;
+    if(m_depthstencil) {
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depthstencil->getHandle(), 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_depthstencil->getHandle(), 0);
+    }
+}
+
+uint32 RenderTarget::getNumColorBuffers() const
+{
+    return m_num_color_buffers;
+}
+
+Texture2D* RenderTarget::getColorBuffer(uint32 i)
+{
+    if(i >= m_num_color_buffers) { return NULL; }
+    return m_color_buffers[i];
+}
+
+Texture2D* RenderTarget::getDepthStencilBuffer()
+{
+    return m_depthstencil;
 }
 
 void RenderTarget::bind() const
 {
+    static const GLuint attaches[16] = {
+        GL_COLOR_ATTACHMENT0,
+        GL_COLOR_ATTACHMENT1,
+        GL_COLOR_ATTACHMENT2,
+        GL_COLOR_ATTACHMENT3,
+        GL_COLOR_ATTACHMENT4,
+        GL_COLOR_ATTACHMENT5,
+        GL_COLOR_ATTACHMENT6,
+        GL_COLOR_ATTACHMENT7,
+        GL_COLOR_ATTACHMENT8,
+        GL_COLOR_ATTACHMENT9,
+        GL_COLOR_ATTACHMENT10,
+        GL_COLOR_ATTACHMENT11,
+        GL_COLOR_ATTACHMENT12,
+        GL_COLOR_ATTACHMENT13,
+        GL_COLOR_ATTACHMENT14,
+        GL_COLOR_ATTACHMENT15,
+    };
     glBindFramebuffer(GL_FRAMEBUFFER, m_handle);
-
-    GLint num_attaches = 0;
-    GLuint attaches[16];
-    for(int i=0; i<_countof(attaches); ++i) {
-        if((m_attaches & (1<<i)) != 0) {
-            attaches[num_attaches++] = I3D_ATTACH_COLOR0+i;
-        }
-    }
-    glDrawBuffers(num_attaches, attaches);
+    glDrawBuffers(m_num_color_buffers, attaches);
 }
 
 void RenderTarget::unbind() const
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
+//
+//bool RenderTarget::attachRenderBuffer(RenderBuffer& rb, I3D_RT_ATTACH attach)
+//{
+//    glBindFramebuffer(GL_FRAMEBUFFER, m_handle);
+//    glFramebufferRenderbuffer(GL_FRAMEBUFFER, attach, GL_RENDERBUFFER, rb.getHandle());
+//    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//    return true;
+//}
 
 } // namespace i3d
 } // namespace ist

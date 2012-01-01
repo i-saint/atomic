@@ -56,9 +56,6 @@ public:
 #define atomicGetFrame()        atomicGetWorld()->getFrame()
 #define atomicGetCamera()       atomicGetWorld()->getCamera()
 #define atomicGenRandFloat()    atomicGetRandom()->genFloat32()
-#define atomicGenRandVector2()  atomicGetRandom()->genVector2()
-#define atomicGenRandVector3()  atomicGetRandom()->genVector3()
-#define atomicGenRandVector4()  atomicGetRandom()->genVector4()
 
 #define atomicGetEntitySet()    atomicGetWorld()->getEntitySet()
 #define atomicGetEntity(id)     atomicGetEntitySet()->getEntity(id)

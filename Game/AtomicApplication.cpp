@@ -3,166 +3,13 @@
 #include "AtomicGame.h"
 #include "AtomicApplication.h"
 #include "Text.h"
-#include "Graphics/ResourceManager.h"
-#include "Graphics/Renderer.h"
+#include "Graphics/AtomicRenderingSystem.h"
 #include "Game/World.h"
 #include "Sound/AtomicSound.h"
 
 #define ATOMIC_CONFIG_FILE_PATH "atomic.conf"
 
 namespace atomic {
-
-
-class AtomicRenderingThread
-{
-private:
-    AtomicApplication *m_app;
-    i3d::Device *m_device;
-    ATOMIC_ERROR m_error;
-
-    boost::scoped_ptr<boost::thread> m_thread;
-    boost::condition_variable m_cond_wait_for_initialize;
-    boost::condition_variable m_cond_wait_for_draw;
-    boost::condition_variable m_cond_wait_for_complete;
-    boost::condition_variable m_cond_wait_for_end;
-    boost::mutex m_mutex_wait_for_initialize;
-    boost::mutex m_mutex_wait_for_draw;
-    boost::mutex m_mutex_wait_for_complete;
-    boost::mutex m_mutex_wait_for_end;
-    bool m_stop_flag;
-    bool m_is_initialized;
-    bool m_is_ready_to_draw;
-    bool m_is_draw_complete;
-    bool m_is_end;
-    PerformanceCounter m_fps_counter;
-
-public:
-    AtomicRenderingThread(AtomicApplication *app);
-    ~AtomicRenderingThread();
-    void requestStop();
-    void operator()();
-
-    void run();
-    void stop();
-    void waitForInitializeComplete();
-    void waitForDrawComplete();
-    void kick();
-
-    ATOMIC_ERROR getError() const { return m_error; }
-    float32 getAverageFPS() const { return m_fps_counter.getAverageFPS(); }
-};
-
-AtomicRenderingThread::AtomicRenderingThread(AtomicApplication *app)
-: m_app(app)
-, m_device(NULL)
-, m_error(ATERR_NOERROR)
-, m_stop_flag(false)
-, m_is_initialized(false)
-, m_is_ready_to_draw(false)
-, m_is_draw_complete(true)
-, m_is_end(false)
-{
-}
-
-AtomicRenderingThread::~AtomicRenderingThread()
-{
-    if(m_thread) {
-        m_thread->join();
-    }
-}
-
-void AtomicRenderingThread::run()
-{
-    m_thread.reset(new boost::thread(boost::ref(*this)));
-}
-
-void AtomicRenderingThread::stop()
-{
-    m_stop_flag = true;
-    kick();
-
-    boost::unique_lock<boost::mutex> lock(m_mutex_wait_for_end);
-    while(!m_is_end) {
-        m_cond_wait_for_end.wait(lock);
-    }
-}
-
-void AtomicRenderingThread::waitForInitializeComplete()
-{
-    boost::unique_lock<boost::mutex> lock(m_mutex_wait_for_initialize);
-    while(!m_is_initialized) {
-        m_cond_wait_for_initialize.wait(lock);
-    }
-}
-
-void AtomicRenderingThread::waitForDrawComplete()
-{
-    boost::unique_lock<boost::mutex> lock(m_mutex_wait_for_complete);
-    while(!m_is_draw_complete) {
-        m_cond_wait_for_complete.wait(lock);
-    }
-}
-
-void AtomicRenderingThread::kick()
-{
-    waitForDrawComplete();
-    {
-        boost::unique_lock<boost::mutex> lock(m_mutex_wait_for_draw);
-        m_is_ready_to_draw = true;
-        m_is_draw_complete = false;
-        m_cond_wait_for_draw.notify_all();
-    }
-}
-
-
-void AtomicRenderingThread::operator()()
-{
-    ist::SetThreadName("AtomicRenderingThread");
-
-    m_device = istNew(i3d::Device)(m_app->getWindowHandle());
-    {
-        if(!GLEW_VERSION_3_3) {
-            m_error = ATERR_OPENGL_330_IS_NOT_SUPPORTED;
-            goto finalize_section;
-        }
-
-        wglSwapIntervalEXT(atomicGetConfig()->vsync);
-        GraphicResourceManager::intializeInstance();
-        AtomicRenderer::initializeInstance();
-    }
-    {
-        boost::unique_lock<boost::mutex> lock(m_mutex_wait_for_initialize);
-        m_is_initialized = true;
-        m_cond_wait_for_initialize.notify_all();
-    }
-
-    {
-        boost::unique_lock<boost::mutex> lock(m_mutex_wait_for_draw);
-        while(!m_stop_flag) {
-            while(!m_is_ready_to_draw) {
-                m_cond_wait_for_draw.wait(lock);
-            }
-            m_is_ready_to_draw = false;
-            atomicGetApplication()->drawCallback();
-            m_device->swapBuffers();
-            {
-                boost::unique_lock<boost::mutex> lock(m_mutex_wait_for_complete);
-                m_is_draw_complete = true;
-                m_cond_wait_for_complete.notify_all();
-            }
-
-            m_fps_counter.count();
-        }
-    }
-
-    AtomicRenderer::finalizeInstance();
-    GraphicResourceManager::finalizeInstance();
-
-finalize_section:
-    istSafeDelete(m_device);
-    m_is_end = true;
-    m_cond_wait_for_end.notify_all();
-}
 
 
 
@@ -234,7 +81,6 @@ AtomicApplication* AtomicApplication::getInstance() { return g_appinst; }
 AtomicApplication::AtomicApplication()
     : m_request_exit(false)
     , m_game(NULL)
-    , m_renderng_thread(NULL)
 {
     if(g_appinst) { istAssert("already initialized"); }
     g_appinst = this;
@@ -295,17 +141,7 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     }
 
     // start rendering thread
-    {
-        m_renderng_thread = istNew(AtomicRenderingThread)(this);
-        m_renderng_thread->run();
-        m_renderng_thread->waitForInitializeComplete();
-
-        if(!GLEW_VERSION_3_3) {
-            handleError(ATERR_OPENGL_330_IS_NOT_SUPPORTED);
-            istSafeDelete(m_renderng_thread);
-           return false;
-        }
-    }
+    AtomicRenderingSystem::initializeInstance();
 
     // initialize sound
     AtomicSound::initializeInstance();
@@ -324,11 +160,10 @@ void AtomicApplication::finalize()
 {
     m_config.writeToFile(ATOMIC_CONFIG_FILE_PATH);
 
+    AtomicRenderingSystem::finalizeInstance();
     AtomicSound::finalizeInstance();
 
-    if(m_renderng_thread) { m_renderng_thread->stop(); }
     istSafeDelete(m_game);
-    istSafeDelete(m_renderng_thread);
 
     TaskScheduler::finalizeSingleton();
     super::finalize();
@@ -459,25 +294,9 @@ void AtomicApplication::handleCommandLine( const wchar_t* command, size_t comman
 }
 
 
-void AtomicApplication::waitForDrawComplete()
-{
-    m_renderng_thread->waitForDrawComplete();
-}
-
-void AtomicApplication::kickDraw()
-{
-    m_renderng_thread->kick();
-}
-
 void AtomicApplication::drawCallback()
 {
     m_game->drawCallback();
-}
-
-atomic::float32 AtomicApplication::getAverageFPS() const
-{
-    if(m_renderng_thread) { return m_renderng_thread->getAverageFPS(); }
-    return 0.0f;
 }
 
 

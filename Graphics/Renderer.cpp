@@ -5,6 +5,7 @@
 #include "Game/World.h"
 #include "Game/World.h"
 #include "GPGPU/SPH.cuh"
+#include "AtomicRenderingSystem.h"
 #include "Renderer.h"
 #include "Util.h"
 
@@ -33,9 +34,10 @@ AtomicRenderer::AtomicRenderer()
     m_va_screenquad = atomicGetVertexArray(VA_SCREEN_QUAD);
     m_sh_out        = atomicGetShader(SH_OUTPUT);
 
-    m_rt_gbuffer    = atomicGetRenderTargetGBuffer();
-    m_rt_deferred   = atomicGetRenderTargetDeferred();
+    m_rt_gbuffer    = atomicGetRenderTarget(RT_GBUFFER);
+    m_rt_deferred   = atomicGetRenderTarget(RT_DEFERRED);
 
+    // 追加の際はデストラクタでの消去処理も忘れずに
     m_renderer_sph          = istNew(PassGBuffer_SPH)();
     m_renderer_dir_lights   = istNew(PassDeferredShading_DirectionalLights)();
     m_renderer_point_lights = istNew(PassDeferredShading_PointLights)();
@@ -58,7 +60,9 @@ AtomicRenderer::AtomicRenderer()
 AtomicRenderer::~AtomicRenderer()
 {
     istSafeDelete(m_stext);
+    istSafeDelete(m_renderer_fade);
     istSafeDelete(m_renderer_bloom);
+    istSafeDelete(m_renderer_fxaa);
     istSafeDelete(m_renderer_point_lights);
     istSafeDelete(m_renderer_dir_lights);
     istSafeDelete(m_renderer_sph);
@@ -96,8 +100,8 @@ void AtomicRenderer::draw()
         m_render_states.AspectRatio     = atomicGetWindowAspectRatio();
         m_render_states.RcpAspectRatio  = 1.0f / m_render_states.AspectRatio;
         m_render_states.ScreenTexcoord = vec2(
-            m_render_states.ScreenSize.x/float32(m_rt_deferred->getWidth()),
-            m_render_states.ScreenSize.y/float32(m_rt_deferred->getHeight()));
+            m_render_states.ScreenSize.x/float32(m_rt_deferred->getColorBuffer(0)->getWidth()),
+            m_render_states.ScreenSize.y/float32(m_rt_deferred->getColorBuffer(0)->getHeight()));
         MapAndWrite(*ubo_renderstates, &m_render_states, sizeof(m_render_states));
     }
 
@@ -214,7 +218,7 @@ void AtomicRenderer::passOutput()
     m_sh_out->unbind();
 
     char buf[64];
-    sprintf(buf, "FPS: %.0f", atomicGetApplication()->getAverageFPS());
+    sprintf(buf, "FPS: %.0f", atomicGetRenderingSystem()->getAverageFPS());
     m_stext->addText(ivec2(5, 0), buf);
     sprintf(buf, "Particles: %d", SPHGetStates().fluid_num_particles);
     m_stext->addText(ivec2(5, 20), buf);
@@ -440,8 +444,8 @@ void PassDeferredShading_PointLights::draw()
 
 PassPostprocess_FXAA::PassPostprocess_FXAA()
 {
-    m_rt_deferred   = atomicGetRenderTargetDeferred();
-    m_rt_RGBL       = atomicGetRenderTargetPostProcess();
+    m_rt_deferred   = atomicGetRenderTarget(RT_DEFERRED);
+    m_rt_RGBL       = atomicGetRenderTarget(RT_POSTPROCESS);
     m_sh_FXAA_luma  = atomicGetShader(SH_FXAA_LUMA);
     m_sh_FXAA       = atomicGetShader(SH_FXAA);
     m_va_quad       = atomicGetVertexArray(VA_SCREEN_QUAD);
@@ -457,7 +461,7 @@ void PassPostprocess_FXAA::draw()
 {
     if(!atomicGetConfig()->posteffect_antialias) { return; }
 
-    UniformBuffer *ubo_fxaa            = atomicGetUniformBufferObject(UBO_FXAA_PARAMS);
+    UniformBuffer *ubo_fxaa                 = atomicGetUniformBufferObject(UBO_FXAA_PARAMS);
     m_fxaaparams.fxaaQualityRcpFrame        = vec2(1.0f, 1.0f) / vec2((float32)atomicGetWindowWidth(), (float32)atomicGetWindowHeight());
     m_fxaaparams.fxaaQualitySubpix          = 0.75f;
     m_fxaaparams.fxaaQualityEdgeThreshold   = 0.166f;
@@ -502,10 +506,10 @@ PassPostprocess_Bloom::PassPostprocess_Bloom()
 , m_sh_composite(NULL)
 , m_ubo_states(NULL)
 {
-    m_rt_gbuffer    = atomicGetRenderTargetGBuffer();
-    m_rt_deferred   = atomicGetRenderTargetDeferred();
-    m_rt_gauss0     = atomicGetRenderTargetGauss(0);
-    m_rt_gauss1     = atomicGetRenderTargetGauss(1);
+    m_rt_gbuffer    = atomicGetRenderTarget(RT_GBUFFER);
+    m_rt_deferred   = atomicGetRenderTarget(RT_DEFERRED);
+    m_rt_gauss0     = atomicGetRenderTarget(RT_GAUSS0);
+    m_rt_gauss1     = atomicGetRenderTarget(RT_GAUSS1);
     m_va_luminance  = atomicGetVertexArray(VA_BLOOM_LUMINANCE_QUADS);
     m_va_blur       = atomicGetVertexArray(VA_BLOOM_BLUR_QUADS);
     m_va_composite  = atomicGetVertexArray(VA_BLOOM_COMPOSITE_QUAD);
@@ -524,7 +528,7 @@ void PassPostprocess_Bloom::draw()
 {
     if(!atomicGetConfig()->posteffect_bloom) { return; }
 
-    Viewport vp(0,0, m_rt_gauss0->getWidth(),m_rt_gauss0->getHeight());
+    Viewport vp(0,0, m_rt_gauss0->getColorBuffer(0)->getWidth(),m_rt_gauss0->getColorBuffer(0)->getHeight());
     vp.bind();
 
     // 輝度抽出
@@ -581,7 +585,7 @@ void PassPostprocess_Bloom::draw()
 
 PassPostprocess_Fade::PassPostprocess_Fade()
 {
-    m_rt_deferred   = atomicGetRenderTargetDeferred();
+    m_rt_deferred   = atomicGetRenderTarget(RT_DEFERRED);
     m_sh_fade       = atomicGetShader(SH_FADE);
     m_va_quad       = atomicGetVertexArray(VA_SCREEN_QUAD);
     m_ubo_fade      = atomicGetUniformBufferObject(UBO_FADE_PARAMS);

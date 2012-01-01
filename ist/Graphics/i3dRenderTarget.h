@@ -15,13 +15,11 @@ private:
     GLsizei m_width;
     GLsizei m_height;
 
-public:
+private:
     Texture2D();
     ~Texture2D();
 
-    bool initialize();
-    bool initialize(GLsizei width, GLsizei height, I3D_COLOR_FORMAT format, void *data=NULL);
-    void finalize();
+public:
     bool allocate(GLsizei width, GLsizei height, I3D_COLOR_FORMAT format, void *data=NULL);
 
     void bind() const;
@@ -37,17 +35,15 @@ public:
 
 class RenderBuffer : public DeviceResource
 {
+I3D_DECLARE_DEVICE_RESOURCE()
 private:
     GLsizei m_width;
     GLsizei m_height;
 
-public:
     RenderBuffer();
     ~RenderBuffer();
 
-    bool initialize();
-    bool initialize(GLsizei width, GLsizei height, I3D_COLOR_FORMAT format);
-    void finalize();
+public:
     bool allocate(GLsizei width, GLsizei height, I3D_COLOR_FORMAT format);
 
     void bind() const;
@@ -60,20 +56,34 @@ public:
 
 class RenderTarget : public DeviceResource
 {
-private:
-    GLuint m_attaches; // 0bit-15bit –Ú‚ª‚»‚ê‚¼‚ê ATTACH_COLOR0-ATTACH_COLOR15 ‚É‘Î‰ž
-
+I3D_DECLARE_DEVICE_RESOURCE()
 public:
+    static const int32 MAX_RENDER_BUFFERS = 16;
+
+private:
+    Texture2D *m_color_buffers[MAX_RENDER_BUFFERS];
+    Texture2D *m_depthstencil;
+    uint32 m_num_color_buffers;
+
     RenderTarget();
     ~RenderTarget();
 
-    bool initialize();
-    void finalize();
+    void releaseBuffers();
 
-    bool attachRenderBuffer(RenderBuffer& tex, I3D_RT_ATTACH attach);
-    bool attachTexture(Texture2D& rb, I3D_RT_ATTACH attach, GLint level=0);
+public:
+    bool setRenderBuffers(Texture2D **rb, uint32 num, Texture2D *depthstencil);
+    bool getRenderBuffers(Texture2D **rb, uint32 &num, Texture2D *&depthstencil);
+    void setNumColorBuffers(uint32 v);
+    void setColorBuffer(uint32 i, Texture2D *rb);
+    void setDepthStencilBuffer(Texture2D *rb);
+    uint32 getNumColorBuffers() const;
+    Texture2D* getColorBuffer(uint32 i);
+    Texture2D* getDepthStencilBuffer();
     void bind() const;
     void unbind() const;
+
+    // RenderBuffer ‚ÍŽg‚í‚È‚¢ & DirectX ‚É‘Š“–‹@”\‚È‚¢‚Ì‚Å”ñ‘Î‰ž‚Å
+    //bool attachRenderBuffer(RenderBuffer& tex, I3D_RT_ATTACH attach);
 };
 
 

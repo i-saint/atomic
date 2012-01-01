@@ -38,7 +38,7 @@ typedef ist::bistream Deserializer;
 
 using ist::Task;
 using ist::TaskScheduler;
-using ist::SpinLock;
+using ist::SpinMutex;
 using ist::SFMT;
 typedef ist::Variant16 variant;
 
@@ -118,6 +118,8 @@ public:
     }
 };
 
-
 } // namespace atomic
+
+#define atomicSafeRelease(Obj) if(Obj){Obj->release();Obj=NULL;}
+
 #endif // __atomic_Types__

@@ -58,6 +58,7 @@ int32 DeviceResource::release()
     if(--m_reference_count==0) {
         m_owner_device->deleteResource(getDeviceResourceHandle());
     }
+    return m_reference_count;
 }
 
 GLuint DeviceResource::getHandle() const

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "../Base.h"
 #include "../Math.h"
+#include "i3dDevice.h"
 #include "i3dShader.h"
 #include "i3dUtil.h"
 #include <string>
@@ -70,7 +71,7 @@ bool GenerateRandomTexture(Texture2D &tex, GLsizei width, GLsizei height, I3D_CO
         istAssert("–¢ŽÀ‘•");
     }
 
-    bool ret =  tex.initialize(width, height, format, &buffer[0]);
+    bool ret =  tex.allocate(width, height, format, &buffer[0]);
     return ret;
 }
 
@@ -105,204 +106,81 @@ inline bool CreateShaderFromString(ShaderType& sh, const char* source)
 
 bool CreateVertexShaderFromFile(VertexShader& sh, const char *filename)     { return CreateShaderFromFile<VertexShader>(sh, filename); }
 bool CreateGeometryShaderFromFile(GeometryShader& sh, const char *filename) { return CreateShaderFromFile<GeometryShader>(sh, filename); }
-bool CreateFragmentShaderFromFile(PixelShader& sh, const char *filename) { return CreateShaderFromFile<PixelShader>(sh, filename); }
+bool CreateFragmentShaderFromFile(PixelShader& sh, const char *filename)    { return CreateShaderFromFile<PixelShader>(sh, filename); }
 bool CreateVertexShaderFromStream(VertexShader& sh, std::istream& st)       { return CreateShaderFromStream<VertexShader>(sh, st); }
 bool CreateGeometryShaderFromStream(GeometryShader& sh, std::istream& st)   { return CreateShaderFromStream<GeometryShader>(sh, st); }
-bool CreateFragmentShaderFromStream(PixelShader& sh, std::istream& st)   { return CreateShaderFromStream<PixelShader>(sh, st); }
+bool CreateFragmentShaderFromStream(PixelShader& sh, std::istream& st)      { return CreateShaderFromStream<PixelShader>(sh, st); }
 bool CreateVertexShaderFromString(VertexShader& sh, const char* source)     { return CreateShaderFromString<VertexShader>(sh, source); }
 bool CreateGeometryShaderFromString(GeometryShader& sh, const char* source) { return CreateShaderFromString<GeometryShader>(sh, source); }
-bool CreateFragmentShaderFromString(PixelShader& sh, const char* source) { return CreateShaderFromString<PixelShader>(sh, source); }
+bool CreateFragmentShaderFromString(PixelShader& sh, const char* source)    { return CreateShaderFromString<PixelShader>(sh, source); }
 
 
 
-
-template<size_t NumColorBuffers>
-ColorNBuffer<NumColorBuffers>::ColorNBuffer()
-: m_width(0)
-, m_height(0)
+Texture2D* CreateRenderBufferTexture(Device *dev, uint32 width, uint32 height, I3D_COLOR_FORMAT color_format)
 {
-    std::fill_n(m_owned, _countof(m_owned), (Texture2D*)NULL);
-    std::fill_n(m_color, _countof(m_color), (Texture2D*)NULL);
+    Texture2D *r = dev->createTexture2D();
+    r->allocate(width, height, color_format);
+    r->bind();
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    r->unbind();
+    return r;
 }
 
-template<size_t NumColorBuffers>
-ColorNBuffer<NumColorBuffers>::~ColorNBuffer()
+RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, uint32 width, uint32 height,
+    I3D_COLOR_FORMAT color_format)
 {
-    for(size_t i=0; i<_countof(m_owned); ++i) {
-        delete m_owned[i];
+    I3D_COLOR_FORMAT color_formats[RenderTarget::MAX_RENDER_BUFFERS];
+    std::fill_n(color_formats, num_color_buffers, color_format);
+    return CreateRenderTarget(dev, num_color_buffers, width, height, color_formats);
+}
+
+RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, uint32 width, uint32 height,
+    I3D_COLOR_FORMAT *color_formats)
+{
+    Texture2D *rb[RenderTarget::MAX_RENDER_BUFFERS];
+    RenderTarget *rt = dev->createRenderTarget();
+    for(uint32 i=0; i<num_color_buffers; ++i) {
+        rb[i] = CreateRenderBufferTexture(dev, width, height, color_formats[i]);
     }
-}
-
-template<size_t NumColorBuffers>
-bool ColorNBuffer<NumColorBuffers>::initialize(GLsizei width, GLsizei height, I3D_COLOR_FORMAT color_format)
-{
-    I3D_COLOR_FORMAT color_formats[NumColorBuffers];
-    std::fill_n(color_formats, NumColorBuffers, color_format);
-    return initialize(width, height, color_formats);
-}
-
-template<size_t NumColorBuffers>
-bool ColorNBuffer<NumColorBuffers>::initialize(GLsizei width, GLsizei height, I3D_COLOR_FORMAT (&color_format)[NumColorBuffers])
-{
-    super::initialize();
-
-    m_width = width;
-    m_height = height;
-
-    int num_owned = 0;
-    for(size_t i=0; i<NumColorBuffers; ++i) {
-        if(!m_color[i]) {
-            Texture2D *color = new Texture2D();
-            color->initialize(width, height, color_format[i]);
-            color->bind();
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            color->unbind();
-            m_owned[num_owned++] = color;
-            m_color[i] = color;
-        }
-        attachTexture(*m_color[i], I3D_RT_ATTACH(I3D_ATTACH_COLOR0+i));
+    rt->setRenderBuffers(rb, num_color_buffers, NULL);
+    for(uint32 i=0; i<num_color_buffers; ++i) {
+        rb[i]->release();
     }
-    return true;
-}
-template ColorNBuffer<1>;
-template ColorNBuffer<2>;
-template ColorNBuffer<3>;
-template ColorNBuffer<4>;
-template ColorNBuffer<5>;
-template ColorNBuffer<6>;
-template ColorNBuffer<7>;
-template ColorNBuffer<8>;
-
-
-
-
-DepthBuffer::DepthBuffer()
-: m_width(0)
-, m_height(0)
-{
-    m_owned = NULL;
-    m_depth = NULL;
+    return rt;
 }
 
-DepthBuffer::~DepthBuffer()
+RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, uint32 width, uint32 height,
+    I3D_COLOR_FORMAT color_format, I3D_COLOR_FORMAT depthstencil_format)
 {
-    delete m_owned;
+    I3D_COLOR_FORMAT color_formats[RenderTarget::MAX_RENDER_BUFFERS];
+    std::fill_n(color_formats, num_color_buffers, color_format);
+    return CreateRenderTarget(dev, num_color_buffers, width, height, color_formats, depthstencil_format);
 }
 
-bool DepthBuffer::initialize(GLsizei width, GLsizei height, I3D_COLOR_FORMAT depth_format)
+RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, uint32 width, uint32 height,
+    I3D_COLOR_FORMAT *color_formats, I3D_COLOR_FORMAT depthstencil_format)
 {
-    super::initialize();
-
-    m_width = width;
-    m_height = height;
-
-    if(!m_depth) {
-        Texture2D *depth = new Texture2D();
-        depth->initialize(width, height, depth_format);
-        depth->bind();
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        depth->unbind();
-        m_owned = depth;
-        m_depth = depth;
+    Texture2D *rb[RenderTarget::MAX_RENDER_BUFFERS];
+    Texture2D *ds;
+    RenderTarget *rt = dev->createRenderTarget();
+    for(uint32 i=0; i<num_color_buffers; ++i) {
+        rb[i] = CreateRenderBufferTexture(dev, width, height, color_formats[i]);
     }
-    attachTexture(*m_depth, I3D_ATTACH_DEPTH);
-
-    bind();
-    glDrawBuffer(GL_NONE);
-    glReadBuffer(GL_NONE);
-    unbind();
-
-    return true;
-}
-
-
-
-
-template<size_t NumColorBuffers>
-ColorNDepthBuffer<NumColorBuffers>::ColorNDepthBuffer()
-: m_width(0)
-, m_height(0)
-, m_depth_stencil(NULL)
-{
-    std::fill_n(m_owned, _countof(m_owned), (Texture2D*)NULL);
-    std::fill_n(m_color, _countof(m_color), (Texture2D*)NULL);
-}
-
-template<size_t NumColorBuffers>
-ColorNDepthBuffer<NumColorBuffers>::~ColorNDepthBuffer()
-{
-    for(size_t i=0; i<_countof(m_owned); ++i) {
-        delete m_owned[i];
-    }
-}
-
-template<size_t NumColorBuffers>
-bool ColorNDepthBuffer<NumColorBuffers>::initialize(GLsizei width, GLsizei height, I3D_COLOR_FORMAT color_format, I3D_COLOR_FORMAT depth_format)
-{
-    I3D_COLOR_FORMAT color_formats[NumColorBuffers];
-    std::fill_n(color_formats, NumColorBuffers, color_format);
-    return initialize(width, height, color_formats, depth_format);
-}
-
-template<size_t NumColorBuffers>
-bool ColorNDepthBuffer<NumColorBuffers>::initialize(GLsizei width, GLsizei height, I3D_COLOR_FORMAT (&color_format)[NumColorBuffers], I3D_COLOR_FORMAT depth_format)
-{
-    super::initialize();
-
-    m_width = width;
-    m_height = height;
-
-    int num_owned = 0;
     {
-        if(!m_depth_stencil) {
-            Texture2D *depth = new Texture2D();
-            depth->initialize(width, height, depth_format);
-            depth->bind();
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            depth->unbind();
-            m_owned[num_owned++] = depth;
-            m_depth_stencil = depth;
-        }
-        attachTexture(*m_depth_stencil, I3D_ATTACH_DEPTH);
-        if(depth_format==I3D_DEPTH24_STENCIL8 || depth_format==I3D_DEPTH32F_STENCIL8) {
-            attachTexture(*m_depth_stencil, I3D_ATTACH_STENCIL);
-        }
+        ds = CreateRenderBufferTexture(dev, width, height, depthstencil_format);
     }
-    for(size_t i=0; i<NumColorBuffers; ++i) {
-        if(!m_color[i]) {
-            Texture2D *color = new Texture2D();
-            color->initialize(width, height, color_format[i]);
-            color->bind();
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            color->unbind();
-            m_owned[num_owned++] = color;
-            m_color[i] = color;
-        }
-        attachTexture(*m_color[i], I3D_RT_ATTACH(I3D_ATTACH_COLOR0+i));
+    rt->setRenderBuffers(rb, num_color_buffers, ds);
+    for(uint32 i=0; i<num_color_buffers; ++i) {
+        rb[i]->release();
     }
-    return true;
+    {
+        ds->release();
+    }
+    return rt;
 }
-template ColorNDepthBuffer<1>;
-template ColorNDepthBuffer<2>;
-template ColorNDepthBuffer<3>;
-template ColorNDepthBuffer<4>;
-template ColorNDepthBuffer<5>;
-template ColorNDepthBuffer<6>;
-template ColorNDepthBuffer<7>;
-template ColorNDepthBuffer<8>;
-
 
 
 } // namespace i3d

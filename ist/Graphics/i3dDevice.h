@@ -32,13 +32,25 @@ public:
     IndexBuffer*    createIndexBuffer();
     UniformBuffer*  createUniformBuffer();
     PixelBuffer*    createPixelBuffer();
+
     VertexArray*    createVertexArray();
+
     VertexShader*   createVertexShader();
     PixelShader*    createPixelShader();
     GeometryShader* createGeometryShader();
+    ShaderProgram*  createShaderProgram();
+
+    Texture2D*      createTexture2D();
+    RenderTarget*   createRenderTarget();
+
     void deleteResource(ResourceHandle v);
 
     void swapBuffers();
+
+#ifdef _WIN32
+    HDC getHDC() { return m_hdc; }
+    HGLRC getHGLRC() { return m_hglrc; }
+#endif // _WIN32
 };
 
 } // namespace i3d

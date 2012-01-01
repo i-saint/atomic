@@ -8,22 +8,13 @@ namespace ist {
 namespace i3d {
 #ifdef _WIN32
 
-    static const int g_list_base = 0;
+static const int g_list_base = 0;
 
-SystemFont::SystemFont()
-    : m_hdc(NULL)
+SystemFont::SystemFont(HDC m_hdc)
+    : m_hdc(m_hdc)
     , m_window_height(0)
     , m_font_height(0)
 {
-}
-
-SystemFont::~SystemFont()
-{
-}
-
-bool SystemFont::initialize()
-{
-    m_hdc = ::GetDC(istGetAplication()->getWindowHandle());
     SelectObject(m_hdc, GetStockObject(SYSTEM_FONT));
     wglUseFontBitmapsW( m_hdc, 0, 256*32, g_list_base );
 
@@ -31,11 +22,9 @@ bool SystemFont::initialize()
     GetTextMetrics(m_hdc, &metric);
     m_font_height = metric.tmHeight;
     m_window_height = istGetAplication()->getWindowHeight();
-
-    return true;
 }
 
-void SystemFont::finalize()
+SystemFont::~SystemFont()
 {
     m_hdc = NULL;
     m_window_height = 0;

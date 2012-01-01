@@ -27,6 +27,7 @@ enum RT_RID {
     RT_DEFERRED,
     RT_GAUSS0,
     RT_GAUSS1,
+    RT_POSTPROCESS,
     RT_END,
 };
 

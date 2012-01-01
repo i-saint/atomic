@@ -6,23 +6,26 @@
 
 namespace atomic {
 
-class AtomicShader : public ShaderProgram
+class AtomicShader
 {
 typedef ShaderProgram super;
 protected:
-    //ProgramObject   m_program;
-    VertexShader   m_vsh;
-    PixelShader    m_fsh;
+    ShaderProgram   *m_shader;
+    VertexShader    *m_vs;
+    PixelShader     *m_ps;
     int32 m_loc_renderstates;
-    int32 m_rs_binding;
 
 public:
     AtomicShader();
-    bool initialize();
-    void finalize();
-    virtual bool loadFromMemory(const char* src);
+    ~AtomicShader();
+    void release();
 
+    bool loadFromMemory(const char* src);
+
+    GLint getUniformBlockIndex(const char *name) const;
+    void setUniformBlock(GLuint uniformBlockIndex, GLuint uniformBindingIndex, GLuint uniformBufferHandle);
     void bind();
+    void unbind();
 };
 
 

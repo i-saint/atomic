@@ -54,8 +54,8 @@ public:
         setModel(PSET_SPHERE_SMALL);
         setDiffuseColor(vec4(0.6f, 0.6f, 0.6f, 1.0f));
         setGlowColor(vec4(1.0f, 0.7f, 0.1f, 1.0f));
-        setAxis1(GenRandomUnitVector3());
-        setAxis2(GenRandomUnitVector3());
+        //setAxis1(GenRandomUnitVector3());
+        //setAxis2(GenRandomUnitVector3());
         setRotateSpeed1(1.5f);
         setRotateSpeed2(1.5f);
     }
@@ -102,8 +102,8 @@ public:
             atomicCall(e, damage, m_power);
         }
         atomicGetSPHManager()->addFluid(getModel(), m_transform);
-        atomicDeleteEntity(getHandle());
         atomicPlaySE(SE_CHANNEL2, SE_EXPLOSION2, getPosition(), true);
+        atomicDeleteEntity(getHandle());
     }
 
     virtual bool call(uint32 call_id, const variant &v)

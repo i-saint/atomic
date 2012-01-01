@@ -52,115 +52,17 @@ bool MapAndRead(BufferObjectType& bo, void *data, size_t data_size)
 
 
 
-/// カラーテクスチャだけの FBO 
-/// ポストエフェクトなどに 
-template<size_t NumColorBuffers>
-class ColorNBuffer : public RenderTarget
-{
-typedef RenderTarget super;
-private:
-    Texture2D *m_owned[NumColorBuffers];
+RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, uint32 width, uint32 height,
+    I3D_COLOR_FORMAT color_format);
 
-    Texture2D *m_color[NumColorBuffers];
-    GLsizei m_width;
-    GLsizei m_height;
+RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, uint32 width, uint32 height,
+    I3D_COLOR_FORMAT *color_formats);
 
-public:
-    ColorNBuffer();
-    ~ColorNBuffer();
-    bool initialize(GLsizei width, GLsizei height, I3D_COLOR_FORMAT color_format);
-    bool initialize(GLsizei width, GLsizei height, I3D_COLOR_FORMAT (&color_format)[NumColorBuffers]);
+RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, uint32 width, uint32 height,
+    I3D_COLOR_FORMAT color_format, I3D_COLOR_FORMAT depthstencil_format);
 
-    GLsizei getWidth() const { return m_width; }
-    GLsizei getHeight() const { return m_height; }
-
-    GLsizei getColorBufferNum() const { return NumColorBuffers; }
-    Texture2D* getColorBuffer(size_t i) { return m_color[i]; }
-
-    // initialize() の前に以下の関数で差し替えておくことで代用できる。
-    // 設定しなかった場合内部的に作られる。デストラクタで破棄するのは内部的に作られたものだけ。
-    void setColorBuffer(size_t i, Texture2D* v) { m_color[i]=v; }
-};
-typedef ColorNBuffer<1> ColorBuffer;
-typedef ColorNBuffer<2> Color2Buffer;
-typedef ColorNBuffer<3> Color3Buffer;
-typedef ColorNBuffer<4> Color4Buffer;
-typedef ColorNBuffer<5> Color5Buffer;
-typedef ColorNBuffer<6> Color6Buffer;
-typedef ColorNBuffer<7> Color7Buffer;
-typedef ColorNBuffer<8> Color8Buffer;
-
-
-
-/// デプステクスチャだけの FBO 
-/// 影バッファなどに 
-class DepthBuffer : public RenderTarget
-{
-typedef RenderTarget super;
-private:
-    Texture2D *m_owned;
-
-    Texture2D *m_depth;
-    GLsizei m_width;
-    GLsizei m_height;
-
-public:
-    DepthBuffer();
-    ~DepthBuffer();
-    bool initialize(GLsizei width, GLsizei height, I3D_COLOR_FORMAT depth_format);
-
-    GLsizei getWidth() const { return m_width; }
-    GLsizei getHeight() const { return m_height; }
-
-    Texture2D* getDepthBuffer() { return m_depth; }
-
-    // initialize() の前に以下の関数で差し替えておくことで代用できる。
-    // 設定しなかった場合内部的に作られる。デストラクタで破棄するのは内部的に作られたものだけ。
-    void setDepthBuffer(Texture2D* v) { m_depth=v; }
-};
-
-
-
-/// カラーテクスチャとデプスレンダーバッファをbindしたFBO 
-template<size_t NumColorBuffers>
-class ColorNDepthBuffer : public RenderTarget
-{
-typedef RenderTarget super;
-private:
-    Texture2D *m_owned[NumColorBuffers+2];
-
-    Texture2D *m_depth_stencil;
-    Texture2D *m_color[NumColorBuffers];
-
-    GLsizei m_width;
-    GLsizei m_height;
-
-public:
-    ColorNDepthBuffer();
-    ~ColorNDepthBuffer();
-    bool initialize(GLsizei width, GLsizei height, I3D_COLOR_FORMAT color_format, I3D_COLOR_FORMAT depth_format);
-    bool initialize(GLsizei width, GLsizei height, I3D_COLOR_FORMAT (&color_format)[NumColorBuffers], I3D_COLOR_FORMAT depth_format);
-
-    GLsizei getWidth() const { return m_width; }
-    GLsizei getHeight() const { return m_height; }
-
-    GLsizei getColorBufferNum() const { return NumColorBuffers; }
-    Texture2D* getDepthStencilBuffer() { return m_depth_stencil; }
-    Texture2D* getColorBuffer(size_t i) { return m_color[i]; }
-
-    // initialize() の前に以下の関数で差し替えておくことで代用できる。
-    // 設定しなかった場合内部的に作られる。デストラクタで破棄するのは内部的に作られたものだけ。
-    void setDepthStencilBuffer(Texture2D* v) { m_depth_stencil=v; }
-    void setColorBuffer(size_t i, Texture2D* v) { m_color[i]=v; }
-};
-typedef ColorNDepthBuffer<1> ColorDepthBuffer;
-typedef ColorNDepthBuffer<2> Color2DepthBuffer;
-typedef ColorNDepthBuffer<3> Color3DepthBuffer;
-typedef ColorNDepthBuffer<4> Color4DepthBuffer;
-typedef ColorNDepthBuffer<5> Color5DepthBuffer;
-typedef ColorNDepthBuffer<6> Color6DepthBuffer;
-typedef ColorNDepthBuffer<7> Color7DepthBuffer;
-typedef ColorNDepthBuffer<8> Color8DepthBuffer;
+RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, uint32 width, uint32 height,
+    I3D_COLOR_FORMAT *color_formats, I3D_COLOR_FORMAT depthstencil_format);
 
 
 

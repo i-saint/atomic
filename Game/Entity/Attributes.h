@@ -140,7 +140,7 @@ namespace atomic {
         Attr_DoubleAxisRotation()
             : m_scale(1.0f, 1.0f, 1.0f, 0.0f)
             , m_axis1(0.0f, 1.0f, 0.0f, 0.0f)
-            , m_axis2(0.0f, 1.0f, 0.0f, 0.0f)
+            , m_axis2(0.0f, 0.0f, 1.0f, 0.0f)
             , m_rot1(0.0f), m_rot2(0.0f) {}
 
         const vec4& getScale() const    { return m_scale; }

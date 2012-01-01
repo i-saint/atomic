@@ -10,17 +10,15 @@ namespace i3d {
 template<GLuint BufferType>
 class Buffer : public DeviceResource
 {
+I3D_DECLARE_DEVICE_RESOURCE();
 protected:
     GLuint m_size;
     GLuint m_capacity;
 
-public:
     Buffer();
     ~Buffer();
 
-    bool initialize();
-    void finalize();
-
+public:
     // data は NULL でもよく、その場合メモリ確保だけが行われる。
     void allocate(GLuint size, I3D_USAGE usage, void *data=NULL);
 
@@ -60,12 +58,12 @@ public:
 
 class VertexArray : public DeviceResource
 {
-public:
+I3D_DECLARE_DEVICE_RESOURCE();
+private:
     VertexArray();
     ~VertexArray();
-    bool initialize();
-    void finalize();
 
+public:
     void bind() const;
     void unbind() const;
 

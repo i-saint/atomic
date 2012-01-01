@@ -9,13 +9,12 @@ namespace i3d {
 template<size_t ShaderType>
 class ShaderObject : public DeviceResource
 {
-public:
+I3D_DECLARE_DEVICE_RESOURCE();
+protected:
     ShaderObject();
     ~ShaderObject();
 
-    bool initialize();
-    bool initialize(const char *src, int length);
-    void finalize();
+public:
     bool  compile(const char *src, int length);
 };
 
@@ -34,17 +33,15 @@ class GeometryShader : public ShaderObject<GL_GEOMETRY_SHADER>
 
 class ShaderProgram : public DeviceResource
 {
-public:
+I3D_DECLARE_DEVICE_RESOURCE();
+private:
     ShaderProgram();
     ~ShaderProgram();
 
-    bool initialize();
-    void finalize();
-
+public:
     bool link(VertexShader *vsh, PixelShader *fsh, GeometryShader *gsh=NULL);
     void bind();
     void unbind();
-
 
     GLint getUniformLocation(const char *name) const;
     GLint getAttribLocation(const char *name) const;

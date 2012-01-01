@@ -44,11 +44,11 @@ struct SoundRequest
 class SoundThread
 {
 private:
-    boost::scoped_ptr<boost::thread> m_thread;
+    boost::thread *m_thread;
     bool m_initialization_complete;
     bool m_stop_request;
 
-    SpinLock                    m_se_lock;
+    SpinMutex                   m_se_lock;
     stl::vector<SoundRequest>   m_requests;
     stl::vector<SoundRequest>   m_reqests2;
 
@@ -79,12 +79,15 @@ public:
 };
 
 SoundThread::SoundThread()
-    : m_initialization_complete(false)
+    : m_thread(NULL)
+    , m_initialization_complete(false)
     , m_stop_request(false)
 {
     m_listener = NULL;
     m_bgm_source = NULL;
+    m_stream = NULL;
     std::fill_n(m_se_sources, _countof(m_se_sources), (sound::Source*)NULL);
+    std::fill_n(m_se_data, _countof(m_se_data), (sound::Buffer*)NULL);
 
     m_requests.reserve(64);
     m_reqests2.reserve(64);
@@ -93,7 +96,10 @@ SoundThread::SoundThread()
 SoundThread::~SoundThread()
 {
     requestStop();
-    if(m_thread) { m_thread->join(); }
+    if(m_thread) {
+        m_thread->join();
+        istSafeDelete(m_thread);
+    }
 }
 
 void SoundThread::initialize()
@@ -147,7 +153,7 @@ void SoundThread::addRequest(const SoundRequest & v)
 
 void SoundThread::run()
 {
-    m_thread.reset(new boost::thread(boost::ref(*this)));
+    m_thread = istNew(boost::thread(boost::ref(*this)));
 }
 
 void SoundThread::operator()()

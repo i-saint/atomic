@@ -15,3 +15,6 @@ inline T* call_destructor(T* p)
 #define istAlignedMalloc(Size, Align)   stl::get_default_allocator(NULL)->allocate(Size, Align, 0)
 #define istFree(Obj)                    stl::get_default_allocator(NULL)->deallocate(Obj, 0)
 #define istSafeFree(Obj)                if(Obj){stl::get_default_allocator(NULL)->deallocate(Obj, 0); Obj=NULL;}
+
+#define istSafeRelease(Obj)             if(Obj){Obj->release();Obj=NULL;}
+#define istSafeAddRef(Obj)              if(Obj){Obj->addRef();}
