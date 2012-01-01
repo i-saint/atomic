@@ -6,13 +6,13 @@
 
 namespace atomic {
 
-class AtomicShader : public ProgramObject
+class AtomicShader : public ShaderProgram
 {
-typedef ProgramObject super;
+typedef ShaderProgram super;
 protected:
     //ProgramObject   m_program;
-    VertexShader    m_vsh;
-    FragmentShader  m_fsh;
+    VertexShader   m_vsh;
+    PixelShader    m_fsh;
     int32 m_loc_renderstates;
     int32 m_rs_binding;
 

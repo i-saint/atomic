@@ -47,8 +47,10 @@
     <ClCompile Include="ist\Base\TaskScheduler.cpp" />
     <ClCompile Include="ist\Graphics\i3dAssert.cpp" />
     <ClCompile Include="ist\Graphics\i3dBuffer.cpp" />
+    <ClCompile Include="ist\Graphics\i3dDevice.cpp" />
+    <ClCompile Include="ist\Graphics\i3dDeviceContext.cpp" />
+    <ClCompile Include="ist\Graphics\i3dDeviceResource.cpp" />
     <ClCompile Include="ist\Graphics\i3dRenderTarget.cpp" />
-    <ClCompile Include="ist\Graphics\i3dResource.cpp" />
     <ClCompile Include="ist\Graphics\i3dShader.cpp" />
     <ClCompile Include="ist\Graphics\i3duCamera.cpp" />
     <ClCompile Include="ist\Graphics\i3duFont.cpp" />
@@ -120,11 +122,13 @@
     <ClInclude Include="ist\GraphicsUtil.h" />
     <ClInclude Include="ist\Graphics\i3dAssert.h" />
     <ClInclude Include="ist\Graphics\i3dBuffer.h" />
+    <ClInclude Include="ist\Graphics\i3dConstants.h" />
     <ClInclude Include="ist\Graphics\i3dDevice.h" />
     <ClInclude Include="ist\Graphics\i3dDeviceContext.h" />
+    <ClInclude Include="ist\Graphics\i3dDeviceResource.h" />
     <ClInclude Include="ist\Graphics\i3dRenderTarget.h" />
-    <ClInclude Include="ist\Graphics\i3dResource.h" />
     <ClInclude Include="ist\Graphics\i3dShader.h" />
+    <ClInclude Include="ist\Graphics\i3dTypes.h" />
     <ClInclude Include="ist\Graphics\i3duCamera.h" />
     <ClInclude Include="ist\Graphics\i3duFont.h" />
     <ClInclude Include="ist\Graphics\i3dUtil.h" />

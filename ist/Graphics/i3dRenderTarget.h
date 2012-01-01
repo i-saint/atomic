@@ -1,68 +1,16 @@
 #ifndef __ist_i3d_RenderTarget__
 #define __ist_i3d_RenderTarget__
 
-#include "i3dResource.h"
+#include "i3dTypes.h"
+#include "i3dDeviceResource.h"
 
 namespace ist {
 namespace i3d {
 
-enum IST_COLOR_FORMAT
-{
-    IST_UNKNOWN,
-    IST_R8U,
-    IST_R16F,
-    IST_R32F,
-    IST_RG8U,
-    IST_RG16F,
-    IST_RG32F,
-    IST_RGB8U,  // texture only
-    IST_RGB16F, // 
-    IST_RGB32F, // 
-    IST_RGBA8U,
-    IST_RGBA16F,
-    IST_RGBA32F,
-    IST_DEPTH32F,
-    IST_DEPTH24_STENCIL8,
-    IST_DEPTH32F_STENCIL8,
-};
-
-enum IST_RT_ATTACH
-{
-    IST_ATTACH_COLOR0   = GL_COLOR_ATTACHMENT0,
-    IST_ATTACH_COLOR1   = GL_COLOR_ATTACHMENT1,
-    IST_ATTACH_COLOR2   = GL_COLOR_ATTACHMENT2,
-    IST_ATTACH_COLOR3   = GL_COLOR_ATTACHMENT3,
-    IST_ATTACH_COLOR4   = GL_COLOR_ATTACHMENT4,
-    IST_ATTACH_COLOR5   = GL_COLOR_ATTACHMENT5,
-    IST_ATTACH_COLOR6   = GL_COLOR_ATTACHMENT6,
-    IST_ATTACH_COLOR7   = GL_COLOR_ATTACHMENT7,
-    IST_ATTACH_COLOR8   = GL_COLOR_ATTACHMENT8,
-    IST_ATTACH_COLOR9   = GL_COLOR_ATTACHMENT9,
-    IST_ATTACH_COLOR10  = GL_COLOR_ATTACHMENT10,
-    IST_ATTACH_COLOR11  = GL_COLOR_ATTACHMENT11,
-    IST_ATTACH_COLOR12  = GL_COLOR_ATTACHMENT12,
-    IST_ATTACH_COLOR13  = GL_COLOR_ATTACHMENT13,
-    IST_ATTACH_COLOR14  = GL_COLOR_ATTACHMENT14,
-    IST_ATTACH_COLOR15  = GL_COLOR_ATTACHMENT15,
-    IST_ATTACH_DEPTH    = GL_DEPTH_ATTACHMENT,
-    IST_ATTACH_STENCIL  = GL_STENCIL_ATTACHMENT,
-};
-
-enum IST_TEXTURE_SLOT
-{
-    IST_TEX_SLOT_0,
-    IST_TEX_SLOT_1,
-    IST_TEX_SLOT_2,
-    IST_TEX_SLOT_3,
-    IST_TEX_SLOT_4,
-    IST_TEX_SLOT_5,
-    IST_TEX_SLOT_6,
-    IST_TEX_SLOT_7,
-};
-
 
 class Texture2D : public DeviceResource
 {
+I3D_DECLARE_DEVICE_RESOURCE()
 private:
     GLuint m_handle;
     GLsizei m_width;
@@ -73,9 +21,9 @@ public:
     ~Texture2D();
 
     bool initialize();
-    bool initialize(GLsizei width, GLsizei height, IST_COLOR_FORMAT format, void *data=NULL);
+    bool initialize(GLsizei width, GLsizei height, I3D_COLOR_FORMAT format, void *data=NULL);
     void finalize();
-    bool allocate(GLsizei width, GLsizei height, IST_COLOR_FORMAT format, void *data=NULL);
+    bool allocate(GLsizei width, GLsizei height, I3D_COLOR_FORMAT format, void *data=NULL);
 
     void bind() const;
     void unbind() const;
@@ -101,9 +49,9 @@ public:
     ~RenderBuffer();
 
     bool initialize();
-    bool initialize(GLsizei width, GLsizei height, IST_COLOR_FORMAT format);
+    bool initialize(GLsizei width, GLsizei height, I3D_COLOR_FORMAT format);
     void finalize();
-    bool allocate(GLsizei width, GLsizei height, IST_COLOR_FORMAT format);
+    bool allocate(GLsizei width, GLsizei height, I3D_COLOR_FORMAT format);
 
     void bind() const;
     void unbind() const;
@@ -127,8 +75,8 @@ public:
     bool initialize();
     void finalize();
 
-    bool attachRenderBuffer(RenderBuffer& tex, IST_RT_ATTACH attach);
-    bool attachTexture(Texture2D& rb, IST_RT_ATTACH attach, GLint level=0);
+    bool attachRenderBuffer(RenderBuffer& tex, I3D_RT_ATTACH attach);
+    bool attachTexture(Texture2D& rb, I3D_RT_ATTACH attach, GLint level=0);
     void bind() const;
     void unbind() const;
 

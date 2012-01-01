@@ -27,13 +27,13 @@ bool ShaderObject<ShaderType>::initialize()
 }
 
 template<size_t ShaderType>
-bool ist::i3d::ShaderObject<ShaderType>::initialize( const char *src, int length )
+bool ShaderObject<ShaderType>::initialize( const char *src, int length )
 {
     return initialize() && compile(src, length);
 }
 
 template<size_t ShaderType>
-bool ist::i3d::ShaderObject<ShaderType>::compile( const char *src, int length )
+bool ShaderObject<ShaderType>::compile( const char *src, int length )
 {
     // set shader source
     {
@@ -90,18 +90,18 @@ template ShaderObject<GL_GEOMETRY_SHADER>;
 
 
 
-ProgramObject::ProgramObject()
+ShaderProgram::ShaderProgram()
     : m_handle(0)
 {
 }
 
-ProgramObject::~ProgramObject()
+ShaderProgram::~ShaderProgram()
 {
     finalize();
 }
 
 
-bool ProgramObject::initialize()
+bool ShaderProgram::initialize()
 {
     finalize();
 
@@ -109,13 +109,13 @@ bool ProgramObject::initialize()
     return true;
 }
 
-void ProgramObject::finalize()
+void ShaderProgram::finalize()
 {
     if(m_handle!=0) { glDeleteProgram(m_handle); m_handle=0; }
     
 }
 
-bool ProgramObject::link( VertexShader *vsh, FragmentShader *fsh, GeometryShader *gsh )
+bool ShaderProgram::link( VertexShader *vsh, PixelShader *fsh, GeometryShader *gsh )
 {
     if(vsh) { glAttachShader(m_handle, vsh->getHandle()); }
     if(fsh) { glAttachShader(m_handle, fsh->getHandle()); }
@@ -145,18 +145,18 @@ bool ProgramObject::link( VertexShader *vsh, FragmentShader *fsh, GeometryShader
 }
 
 
-void ProgramObject::bind()
+void ShaderProgram::bind()
 {
     glUseProgram(m_handle);
 }
 
-void ProgramObject::unbind()
+void ShaderProgram::unbind()
 {
     glUseProgram(0);
 }
 
 
-GLint ProgramObject::getUniformLocation(const char *name) const
+GLint ShaderProgram::getUniformLocation(const char *name) const
 {
     GLint ul = glGetUniformLocation(m_handle, name);
     if(ul == -1) {
@@ -165,7 +165,7 @@ GLint ProgramObject::getUniformLocation(const char *name) const
     return ul;
 }
 
-GLint ProgramObject::getAttribLocation(const char *name) const
+GLint ShaderProgram::getAttribLocation(const char *name) const
 {
     GLint al = glGetAttribLocation(m_handle, name);
     if(al == -1) {
@@ -174,7 +174,7 @@ GLint ProgramObject::getAttribLocation(const char *name) const
     return al;
 }
 
-GLint ProgramObject::getUniformBlockIndex(const char *name) const
+GLint ShaderProgram::getUniformBlockIndex(const char *name) const
 {
     GLint ul = glGetUniformBlockIndex(m_handle, name);
     if(ul == -1) {
@@ -188,7 +188,7 @@ GLint ProgramObject::getUniformBlockIndex(const char *name) const
     return ul;
 }
 
-void ProgramObject::setUniformBlock(GLuint uniformBlockIndex, GLuint uniformBindingIndex, GLuint uniformBufferHandle)
+void ShaderProgram::setUniformBlock(GLuint uniformBlockIndex, GLuint uniformBindingIndex, GLuint uniformBufferHandle)
 {
     glBindBufferBase(GL_UNIFORM_BUFFER, uniformBindingIndex, uniformBufferHandle);
     glUniformBlockBinding(m_handle, uniformBlockIndex, uniformBindingIndex);
@@ -196,53 +196,53 @@ void ProgramObject::setUniformBlock(GLuint uniformBlockIndex, GLuint uniformBind
 
 // uniform variable
 // int
-void ProgramObject::setUniform1i(GLint al, GLint v) { glUniform1i(al, v); }
-void ProgramObject::setUniform2i(GLint al, const ivec2& v) { glUniform2i(al, v.x, v.y); }
-void ProgramObject::setUniform3i(GLint al, const ivec3& v) { glUniform3i(al, v.x, v.y, v.z); }
-void ProgramObject::setUniform4i(GLint al, const ivec4& v) { glUniform4i(al, v.x, v.y, v.z, v.w); }
+void ShaderProgram::setUniform1i(GLint al, GLint v) { glUniform1i(al, v); }
+void ShaderProgram::setUniform2i(GLint al, const ivec2& v) { glUniform2i(al, v.x, v.y); }
+void ShaderProgram::setUniform3i(GLint al, const ivec3& v) { glUniform3i(al, v.x, v.y, v.z); }
+void ShaderProgram::setUniform4i(GLint al, const ivec4& v) { glUniform4i(al, v.x, v.y, v.z, v.w); }
 
 // float
-void ProgramObject::setUniform1f(GLint al, GLfloat v0) { glUniform1f(al, v0); }
-void ProgramObject::setUniform2f(GLint al, const vec2& v) { glUniform2f(al, v.x, v.y); }
-void ProgramObject::setUniform3f(GLint al, const vec3& v) { glUniform3f(al, v.x, v.y, v.z); }
-void ProgramObject::setUniform4f(GLint al, const vec4& v) { glUniform4f(al, v.x, v.y, v.z, v.w); }
+void ShaderProgram::setUniform1f(GLint al, GLfloat v0) { glUniform1f(al, v0); }
+void ShaderProgram::setUniform2f(GLint al, const vec2& v) { glUniform2f(al, v.x, v.y); }
+void ShaderProgram::setUniform3f(GLint al, const vec3& v) { glUniform3f(al, v.x, v.y, v.z); }
+void ShaderProgram::setUniform4f(GLint al, const vec4& v) { glUniform4f(al, v.x, v.y, v.z, v.w); }
 
 // int array
-void ProgramObject::setUniform1iv(GLint al, GLuint count, const GLint *v) { glUniform1iv(al, count, v); }
-void ProgramObject::setUniform2iv(GLint al, GLuint count, const GLint *v) { glUniform2iv(al, count, v); }
-void ProgramObject::setUniform3iv(GLint al, GLuint count, const GLint *v) { glUniform3iv(al, count, v); }
-void ProgramObject::setUniform4iv(GLint al, GLuint count, const GLint *v) { glUniform4iv(al, count, v); }
+void ShaderProgram::setUniform1iv(GLint al, GLuint count, const GLint *v) { glUniform1iv(al, count, v); }
+void ShaderProgram::setUniform2iv(GLint al, GLuint count, const GLint *v) { glUniform2iv(al, count, v); }
+void ShaderProgram::setUniform3iv(GLint al, GLuint count, const GLint *v) { glUniform3iv(al, count, v); }
+void ShaderProgram::setUniform4iv(GLint al, GLuint count, const GLint *v) { glUniform4iv(al, count, v); }
 
 // float array
-void ProgramObject::setUniform1fv(GLint al, GLuint count, const GLfloat *v) { glUniform1fv(al, count, v); }
-void ProgramObject::setUniform2fv(GLint al, GLuint count, const GLfloat *v) { glUniform2fv(al, count, v); }
-void ProgramObject::setUniform3fv(GLint al, GLuint count, const GLfloat *v) { glUniform3fv(al, count, v); }
-void ProgramObject::setUniform4fv(GLint al, GLuint count, const GLfloat *v) { glUniform4fv(al, count, v); }
+void ShaderProgram::setUniform1fv(GLint al, GLuint count, const GLfloat *v) { glUniform1fv(al, count, v); }
+void ShaderProgram::setUniform2fv(GLint al, GLuint count, const GLfloat *v) { glUniform2fv(al, count, v); }
+void ShaderProgram::setUniform3fv(GLint al, GLuint count, const GLfloat *v) { glUniform3fv(al, count, v); }
+void ShaderProgram::setUniform4fv(GLint al, GLuint count, const GLfloat *v) { glUniform4fv(al, count, v); }
 
 // matrix
-void ProgramObject::setUniformMatrix2fv(GLint al, GLuint count, GLboolean transpose, const GLfloat *v) { glUniformMatrix2fv(al, count, transpose, v); }
-void ProgramObject::setUniformMatrix3fv(GLint al, GLuint count, GLboolean transpose, const GLfloat *v) { glUniformMatrix3fv(al, count, transpose, v); }
-void ProgramObject::setUniformMatrix4fv(GLint al, GLuint count, GLboolean transpose, const GLfloat *v) { glUniformMatrix4fv(al, count, transpose, v); }
+void ShaderProgram::setUniformMatrix2fv(GLint al, GLuint count, GLboolean transpose, const GLfloat *v) { glUniformMatrix2fv(al, count, transpose, v); }
+void ShaderProgram::setUniformMatrix3fv(GLint al, GLuint count, GLboolean transpose, const GLfloat *v) { glUniformMatrix3fv(al, count, transpose, v); }
+void ShaderProgram::setUniformMatrix4fv(GLint al, GLuint count, GLboolean transpose, const GLfloat *v) { glUniformMatrix4fv(al, count, transpose, v); }
 
 // attribute variable
 // float
-void ProgramObject::setVertexAttrib1f(GLint al, GLfloat v0) { glVertexAttrib1f(al, v0); }
-void ProgramObject::setVertexAttrib2f(GLint al, GLfloat v0, GLfloat v1) { glVertexAttrib2f(al, v0, v1); }
-void ProgramObject::setVertexAttrib3f(GLint al, GLfloat v0, GLfloat v1, GLfloat v2) { glVertexAttrib3f(al, v0, v1, v2); }
-void ProgramObject::setVertexAttrib4f(GLint al, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3) { glVertexAttrib4f(al, v0, v1, v2, v3); }
+void ShaderProgram::setVertexAttrib1f(GLint al, GLfloat v0) { glVertexAttrib1f(al, v0); }
+void ShaderProgram::setVertexAttrib2f(GLint al, GLfloat v0, GLfloat v1) { glVertexAttrib2f(al, v0, v1); }
+void ShaderProgram::setVertexAttrib3f(GLint al, GLfloat v0, GLfloat v1, GLfloat v2) { glVertexAttrib3f(al, v0, v1, v2); }
+void ShaderProgram::setVertexAttrib4f(GLint al, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3) { glVertexAttrib4f(al, v0, v1, v2, v3); }
 
 // float array
-void ProgramObject::setVertexAttrib1fv(GLint al, const GLfloat *v) { glVertexAttrib1fv(al, v); }
-void ProgramObject::setVertexAttrib2fv(GLint al, const GLfloat *v) { glVertexAttrib2fv(al, v); }
-void ProgramObject::setVertexAttrib3fv(GLint al, const GLfloat *v) { glVertexAttrib3fv(al, v); }
-void ProgramObject::setVertexAttrib4fv(GLint al, const GLfloat *v) { glVertexAttrib4fv(al, v); }
+void ShaderProgram::setVertexAttrib1fv(GLint al, const GLfloat *v) { glVertexAttrib1fv(al, v); }
+void ShaderProgram::setVertexAttrib2fv(GLint al, const GLfloat *v) { glVertexAttrib2fv(al, v); }
+void ShaderProgram::setVertexAttrib3fv(GLint al, const GLfloat *v) { glVertexAttrib3fv(al, v); }
+void ShaderProgram::setVertexAttrib4fv(GLint al, const GLfloat *v) { glVertexAttrib4fv(al, v); }
 
-GLuint ProgramObject::getSubroutineIndexV(const char *name) { return glGetSubroutineIndex(m_handle, GL_VERTEX_SHADER, name); }
-GLuint ProgramObject::getSubroutineIndexG(const char *name) { return glGetSubroutineIndex(m_handle, GL_GEOMETRY_SHADER, name); }
-GLuint ProgramObject::getSubroutineIndexF(const char *name) { return glGetSubroutineIndex(m_handle, GL_FRAGMENT_SHADER, name); }
-void ProgramObject::setSubroutineV(GLsizei count, GLuint *indices) { glUniformSubroutinesuiv(GL_VERTEX_SHADER, count, indices); }
-void ProgramObject::setSubroutineG(GLsizei count, GLuint *indices) { glUniformSubroutinesuiv(GL_GEOMETRY_SHADER, count, indices); }
-void ProgramObject::setSubroutineF(GLsizei count, GLuint *indices) { glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, count, indices); }
+GLuint ShaderProgram::getSubroutineIndexV(const char *name) { return glGetSubroutineIndex(m_handle, GL_VERTEX_SHADER, name); }
+GLuint ShaderProgram::getSubroutineIndexG(const char *name) { return glGetSubroutineIndex(m_handle, GL_GEOMETRY_SHADER, name); }
+GLuint ShaderProgram::getSubroutineIndexF(const char *name) { return glGetSubroutineIndex(m_handle, GL_FRAGMENT_SHADER, name); }
+void ShaderProgram::setSubroutineV(GLsizei count, GLuint *indices) { glUniformSubroutinesuiv(GL_VERTEX_SHADER, count, indices); }
+void ShaderProgram::setSubroutineG(GLsizei count, GLuint *indices) { glUniformSubroutinesuiv(GL_GEOMETRY_SHADER, count, indices); }
+void ShaderProgram::setSubroutineF(GLsizei count, GLuint *indices) { glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, count, indices); }
 
 } // namespace i3d
 } // namespace ist

@@ -13,7 +13,7 @@ namespace atomic {
 
 
 void CreateSphere(
-    VertexArray& va, VertexBufferObject& vbo, IndexBufferObject& ibo,
+    VertexArray& va, VertexBuffer& vbo, IndexBuffer& ibo,
     float32 radius, uint32 div_xz, uint32 div_y)
 {
     struct __declspec(align(16)) vertex_t
@@ -53,19 +53,19 @@ void CreateSphere(
         }
     }
 
-    VertexArray::Descriptor descs[] = {
-        {GLSL_POSITION, VertexArray::TYPE_FLOAT,4,  0, false, 0},
-        {GLSL_NORMAL,   VertexArray::TYPE_FLOAT,4, 16, false, 0},
+    VertexDescriptor descs[] = {
+        {GLSL_POSITION, I3D_FLOAT,4,  0, false, 0},
+        {GLSL_NORMAL,   I3D_FLOAT,4, 16, false, 0},
     };
-    vbo.allocate(vertex_size, VertexBufferObject::USAGE_STATIC, vert);
-    ibo.allocate(index_size, IndexBufferObject::USAGE_STATIC, index);
+    vbo.allocate(vertex_size, I3D_USAGE_STATIC, vert);
+    ibo.allocate(index_size, I3D_USAGE_STATIC, index);
     va.setAttributes(vbo, sizeof(vertex_t), descs, _countof(descs));
 
     istFree(index);
     istFree(vert);
 }
 
-void CreateScreenQuad( VertexArray& va, VertexBufferObject& vbo )
+void CreateScreenQuad( VertexArray& va, VertexBuffer& vbo )
 {
     struct __declspec(align(16)) vertex_t
     {
@@ -77,16 +77,16 @@ void CreateScreenQuad( VertexArray& va, VertexBufferObject& vbo )
         {vec2(-1.0f,-1.0f), vec2(0.0, 0.0)},
         {vec2( 1.0f,-1.0f), vec2(1.0, 0.0)},
     };
-    vbo.allocate(sizeof(v), VertexBufferObject::USAGE_STATIC, v);
+    vbo.allocate(sizeof(v), I3D_USAGE_STATIC, v);
 
-    VertexArray::Descriptor descs[] = {
-        {GLSL_POSITION,  VertexArray::TYPE_FLOAT,2, 0, false, 0},
-        {GLSL_TEXCOORD0, VertexArray::TYPE_FLOAT,2, 8, false, 0},
+    VertexDescriptor descs[] = {
+        {GLSL_POSITION,  I3D_FLOAT,2, 0, false, 0},
+        {GLSL_TEXCOORD0, I3D_FLOAT,2, 8, false, 0},
     };
     va.setAttributes(vbo, sizeof(vertex_t), descs, _countof(descs));
 }
 
-void CreateBloomLuminanceQuads( VertexArray& va, VertexBufferObject& vbo )
+void CreateBloomLuminanceQuads( VertexArray& va, VertexBuffer& vbo )
 {
     struct __declspec(align(16)) vertex_t
     {
@@ -113,16 +113,16 @@ void CreateBloomLuminanceQuads( VertexArray& va, VertexBufferObject& vbo )
         {vec2(0.75, -1.0 ), vec2(0.0, 0.0)},
         {vec2(0.875,-1.0 ), vec2(1.0, 0.0)},
     };
-    vbo.allocate(sizeof(v), VertexBufferObject::USAGE_STATIC, v);
+    vbo.allocate(sizeof(v), I3D_USAGE_STATIC, v);
 
-    VertexArray::Descriptor descs[] = {
-        {GLSL_POSITION,  VertexArray::TYPE_FLOAT,2, 0, false, 0},
-        {GLSL_TEXCOORD0, VertexArray::TYPE_FLOAT,2, 8, false, 0},
+    VertexDescriptor descs[] = {
+        {GLSL_POSITION,  I3D_FLOAT,2, 0, false, 0},
+        {GLSL_TEXCOORD0, I3D_FLOAT,2, 8, false, 0},
     };
     va.setAttributes(vbo, sizeof(vertex_t), descs, _countof(descs));
 }
 
-void CreateBloomBlurQuads( VertexArray& va, VertexBufferObject& vbo )
+void CreateBloomBlurQuads( VertexArray& va, VertexBuffer& vbo )
 {
     const vec2 tp[4] = {vec2(0.0, 0.0), vec2(0.5,  0.0), vec2(0.75,  0.0 ), vec2(0.875,  0.0)};
     const vec2 ts[4] = {vec2(0.5, 1.0), vec2(0.25, 0.5), vec2(0.125, 0.25), vec2(0.0625, 0.125)};
@@ -155,18 +155,18 @@ void CreateBloomBlurQuads( VertexArray& va, VertexBufferObject& vbo )
         {vec2(0.875,-1.0 ), tp[3]+vec2(ts[3].x,0.0),tp[3], tp[3]+ts[3]},
     };
 
-    VertexArray::Descriptor descs[] = {
-        {GLSL_POSITION,  VertexArray::TYPE_FLOAT,2, 0, false, 0},
-        {GLSL_TEXCOORD0, VertexArray::TYPE_FLOAT,2, 8, false, 0},
-        {GLSL_TEXCOORD1, VertexArray::TYPE_FLOAT,2,16, false, 0},
-        {GLSL_TEXCOORD2, VertexArray::TYPE_FLOAT,2,24, false, 0},
+    VertexDescriptor descs[] = {
+        {GLSL_POSITION,  I3D_FLOAT,2, 0, false, 0},
+        {GLSL_TEXCOORD0, I3D_FLOAT,2, 8, false, 0},
+        {GLSL_TEXCOORD1, I3D_FLOAT,2,16, false, 0},
+        {GLSL_TEXCOORD2, I3D_FLOAT,2,24, false, 0},
     };
 
-    vbo.allocate(sizeof(v), VertexBufferObject::USAGE_STATIC, v);
+    vbo.allocate(sizeof(v), I3D_USAGE_STATIC, v);
     va.setAttributes(vbo, sizeof(vertex_t), descs, _countof(descs));
 }
 
-void CreateBloomCompositeQuad( VertexArray& va, VertexBufferObject& vbo )
+void CreateBloomCompositeQuad( VertexArray& va, VertexBuffer& vbo )
 {
     const vec2 tp[4] = {vec2(0.0, 0.0), vec2(0.5,  0.0), vec2(0.75,  0.0 ), vec2(0.875,  0.0)};
     const vec2 ts[4] = {vec2(0.5, 1.0), vec2(0.25, 0.5), vec2(0.125, 0.25), vec2(0.0625, 0.125)};
@@ -182,19 +182,19 @@ void CreateBloomCompositeQuad( VertexArray& va, VertexBufferObject& vbo )
         {vec2( 1.0,-1.0), {tp[0]+vec2(ts[0].x,0.0), tp[1]+vec2(ts[1].x,0.0), tp[2]+vec2(ts[2].x,0.0), tp[3]+vec2(ts[3].x,0.0)}},
     };
 
-    VertexArray::Descriptor descs[] = {
-        {GLSL_POSITION,  VertexArray::TYPE_FLOAT,2, 0, false, 0},
-        {GLSL_TEXCOORD0, VertexArray::TYPE_FLOAT,2, 8, false, 0},
-        {GLSL_TEXCOORD1, VertexArray::TYPE_FLOAT,2,16, false, 0},
-        {GLSL_TEXCOORD2, VertexArray::TYPE_FLOAT,2,24, false, 0},
-        {GLSL_TEXCOORD3, VertexArray::TYPE_FLOAT,2,32, false, 0},
+    VertexDescriptor descs[] = {
+        {GLSL_POSITION,  I3D_FLOAT,2, 0, false, 0},
+        {GLSL_TEXCOORD0, I3D_FLOAT,2, 8, false, 0},
+        {GLSL_TEXCOORD1, I3D_FLOAT,2,16, false, 0},
+        {GLSL_TEXCOORD2, I3D_FLOAT,2,24, false, 0},
+        {GLSL_TEXCOORD3, I3D_FLOAT,2,32, false, 0},
     };
 
-    vbo.allocate(sizeof(v), VertexBufferObject::USAGE_STATIC, v);
+    vbo.allocate(sizeof(v), I3D_USAGE_STATIC, v);
     va.setAttributes(vbo, sizeof(vertex_t), descs, _countof(descs));
 }
 
-void CreateCube( VertexArray& va, VertexBufferObject& vbo, float32 len )
+void CreateCube( VertexArray& va, VertexBuffer& vbo, float32 len )
 {
     const float32 half_len = len/2.0f;
     const vec3 ur = vec3( half_len, half_len, half_len);
@@ -244,12 +244,12 @@ void CreateCube( VertexArray& va, VertexBufferObject& vbo, float32 len )
         {vec4(bl[0], ur[1], bl[2], 1.0f), n[5]},
     };
 
-    VertexArray::Descriptor descs[] = {
-        {GLSL_POSITION, VertexArray::TYPE_FLOAT,4, 0, false, 0},
-        {GLSL_NORMAL,   VertexArray::TYPE_FLOAT,4,16, false, 0},
+    VertexDescriptor descs[] = {
+        {GLSL_POSITION, I3D_FLOAT,4, 0, false, 0},
+        {GLSL_NORMAL,   I3D_FLOAT,4,16, false, 0},
     };
 
-    vbo.allocate(sizeof(v), VertexBufferObject::USAGE_STATIC, v);
+    vbo.allocate(sizeof(v), I3D_USAGE_STATIC, v);
     va.setAttributes(vbo, sizeof(vertex_t), descs, _countof(descs));
 }
 

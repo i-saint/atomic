@@ -37,7 +37,7 @@ void Buffer<BufferType>::finalize()
 }
 
 template<GLuint BufferType>
-void Buffer<BufferType>::allocate(GLuint size, USAGE usage, void *data)
+void Buffer<BufferType>::allocate(GLuint size, I3D_USAGE usage, void *data)
 {
     m_size = size;
     if(size==0) {
@@ -77,7 +77,7 @@ void Buffer<BufferType>::unbind() const
 }
 
 template<GLuint BufferType>
-void* Buffer<BufferType>::map(MAP_MODE mode)
+void* Buffer<BufferType>::map(I3D_MAP_MODE mode)
 {
     glBindBuffer(BufferType, m_handle);
     void *r = glMapBuffer(BufferType, mode);
@@ -101,12 +101,12 @@ template Buffer<GL_PIXEL_UNPACK_BUFFER>;
 template Buffer<GL_UNIFORM_BUFFER>;
 
 
-void UniformBufferObject::bindBase(GLuint index) const
+void UniformBuffer::bindBase(GLuint index) const
 {
     glBindBufferBase(GL_UNIFORM_BUFFER, index, getHandle());
 }
 
-void UniformBufferObject::bindRange(GLuint index, GLintptr offset, GLsizeiptr size) const
+void UniformBuffer::bindRange(GLuint index, GLintptr offset, GLsizeiptr size) const
 {
     glBindBufferRange(GL_UNIFORM_BUFFER, index, getHandle(), offset, size);
 }
@@ -146,7 +146,7 @@ void VertexArray::unbind() const
     glBindVertexArray(0);
 }
 
-void VertexArray::setAttribute(GLuint i, GLint num_elements, VertexBufferObject &vbo)
+void VertexArray::setAttribute(GLuint i, GLint num_elements, VertexBuffer &vbo)
 {
     glBindVertexArray(m_handle);
     glEnableVertexAttribArray(i);
@@ -154,7 +154,7 @@ void VertexArray::setAttribute(GLuint i, GLint num_elements, VertexBufferObject 
     glVertexAttribPointer(i, num_elements, GL_FLOAT, GL_FALSE, 0, NULL);
 }
 
-void VertexArray::setInstanceAttribute(GLuint i, GLint num_elements, VertexBufferObject &vbo)
+void VertexArray::setInstanceAttribute(GLuint i, GLint num_elements, VertexBuffer &vbo)
 {
     glBindVertexArray(m_handle);
     glEnableVertexAttribArray(i);
@@ -163,12 +163,12 @@ void VertexArray::setInstanceAttribute(GLuint i, GLint num_elements, VertexBuffe
     glVertexAttribDivisor(i, 1);
 }
 
-void VertexArray::setAttributes( VertexBufferObject& vbo, size_t stride, const Descriptor *descs, size_t num_descs )
+void VertexArray::setAttributes( VertexBuffer& vbo, size_t stride, const VertexDescriptor *descs, size_t num_descs )
 {
     glBindVertexArray(m_handle);
     vbo.bind();
     for(size_t i=0; i<num_descs; ++i) {
-        const Descriptor& desc = descs[i];
+        const VertexDescriptor& desc = descs[i];
         glEnableVertexAttribArray(desc.location);
         glVertexAttribPointer(desc.location, desc.num_elements, desc.type, desc.normalize, stride, (GLvoid*)desc.offset);
         glVertexAttribDivisor(desc.location, desc.divisor);

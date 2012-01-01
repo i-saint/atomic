@@ -3,7 +3,8 @@
 
 #include <glm/glm.hpp>
 #include "Base/Types.h"
-#include "Graphics/i3dResource.h"
+#include "Graphics/i3dTypes.h"
+#include "Graphics/i3dDeviceResource.h"
 #include "Graphics/i3dDevice.h"
 #include "Graphics/i3dDeviceContext.h"
 #include "Graphics/i3dBuffer.h"

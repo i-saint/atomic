@@ -32,6 +32,7 @@ public:
     void lock()
     {
         while(::InterlockedCompareExchange((volatile LONG*)&m_lock, 1, 0) != 0) {
+            ::Sleep(0);
         }
     }
 

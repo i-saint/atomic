@@ -23,7 +23,7 @@ bool Texture2D::initialize()
     return true;
 }
 
-bool Texture2D::initialize(GLsizei width, GLsizei height, IST_COLOR_FORMAT fmt, void *data)
+bool Texture2D::initialize(GLsizei width, GLsizei height, I3D_COLOR_FORMAT fmt, void *data)
 {
     return initialize() && allocate(width, height, fmt, data);
 }
@@ -36,28 +36,28 @@ void Texture2D::finalize()
     m_handle = 0;
 }
 
-bool Texture2D::allocate(GLsizei width, GLsizei height, IST_COLOR_FORMAT fmt, void *data)
+bool Texture2D::allocate(GLsizei width, GLsizei height, I3D_COLOR_FORMAT fmt, void *data)
 {
     GLint internal_format = 0;
     GLint format = 0;
     GLint type = 0;
     switch(fmt)
     {
-    case IST_R8U:       internal_format=GL_R8;      format=GL_RED;  type=GL_UNSIGNED_BYTE;  break;
-    case IST_R16F:      internal_format=GL_R16F;    format=GL_RED;  type=GL_FLOAT;          break;
-    case IST_R32F:      internal_format=GL_R32F;    format=GL_RED;  type=GL_FLOAT;          break;
-    case IST_RG8U:      internal_format=GL_RG8;     format=GL_RG;   type=GL_UNSIGNED_BYTE;  break;
-    case IST_RG16F:     internal_format=GL_RG16F;   format=GL_RG;   type=GL_FLOAT;          break;
-    case IST_RG32F:     internal_format=GL_RG32F;   format=GL_RG;   type=GL_FLOAT;          break;
-    case IST_RGB8U:     internal_format=GL_RGB8;    format=GL_RGB;  type=GL_UNSIGNED_BYTE;  break;
-    case IST_RGB16F:    internal_format=GL_RGB16F;  format=GL_RGB;  type=GL_FLOAT;          break;
-    case IST_RGB32F:    internal_format=GL_RGB32F;  format=GL_RGB;  type=GL_FLOAT;          break;
-    case IST_RGBA8U:    internal_format=GL_RGBA8;   format=GL_RGBA; type=GL_UNSIGNED_BYTE;  break;
-    case IST_RGBA16F:   internal_format=GL_RGBA16F; format=GL_RGBA; type=GL_FLOAT;          break;
-    case IST_RGBA32F:   internal_format=GL_RGBA32F; format=GL_RGBA; type=GL_FLOAT;          break;
-    case IST_DEPTH32F:  internal_format=GL_DEPTH_COMPONENT; format=GL_DEPTH_COMPONENT; type=GL_FLOAT; break;
-    case IST_DEPTH24_STENCIL8:    internal_format=GL_DEPTH24_STENCIL8;  format=GL_DEPTH_STENCIL; type=GL_UNSIGNED_INT_24_8; break;
-    case IST_DEPTH32F_STENCIL8:   internal_format=GL_DEPTH32F_STENCIL8; format=GL_DEPTH_STENCIL; type=GL_FLOAT_32_UNSIGNED_INT_24_8_REV; break;
+    case I3D_R8U:       internal_format=GL_R8;      format=GL_RED;  type=GL_UNSIGNED_BYTE;  break;
+    case I3D_R16F:      internal_format=GL_R16F;    format=GL_RED;  type=GL_FLOAT;          break;
+    case I3D_R32F:      internal_format=GL_R32F;    format=GL_RED;  type=GL_FLOAT;          break;
+    case I3D_RG8U:      internal_format=GL_RG8;     format=GL_RG;   type=GL_UNSIGNED_BYTE;  break;
+    case I3D_RG16F:     internal_format=GL_RG16F;   format=GL_RG;   type=GL_FLOAT;          break;
+    case I3D_RG32F:     internal_format=GL_RG32F;   format=GL_RG;   type=GL_FLOAT;          break;
+    case I3D_RGB8U:     internal_format=GL_RGB8;    format=GL_RGB;  type=GL_UNSIGNED_BYTE;  break;
+    case I3D_RGB16F:    internal_format=GL_RGB16F;  format=GL_RGB;  type=GL_FLOAT;          break;
+    case I3D_RGB32F:    internal_format=GL_RGB32F;  format=GL_RGB;  type=GL_FLOAT;          break;
+    case I3D_RGBA8U:    internal_format=GL_RGBA8;   format=GL_RGBA; type=GL_UNSIGNED_BYTE;  break;
+    case I3D_RGBA16F:   internal_format=GL_RGBA16F; format=GL_RGBA; type=GL_FLOAT;          break;
+    case I3D_RGBA32F:   internal_format=GL_RGBA32F; format=GL_RGBA; type=GL_FLOAT;          break;
+    case I3D_DEPTH32F:  internal_format=GL_DEPTH_COMPONENT; format=GL_DEPTH_COMPONENT; type=GL_FLOAT; break;
+    case I3D_DEPTH24_STENCIL8:    internal_format=GL_DEPTH24_STENCIL8;  format=GL_DEPTH_STENCIL; type=GL_UNSIGNED_INT_24_8; break;
+    case I3D_DEPTH32F_STENCIL8:   internal_format=GL_DEPTH32F_STENCIL8; format=GL_DEPTH_STENCIL; type=GL_FLOAT_32_UNSIGNED_INT_24_8_REV; break;
     default:
         istAssert("unknown format: %d", fmt);
         return false;
@@ -115,7 +115,7 @@ bool RenderBuffer::initialize()
     return true;
 }
 
-bool RenderBuffer::initialize(GLsizei width, GLsizei height, IST_COLOR_FORMAT fmt)
+bool RenderBuffer::initialize(GLsizei width, GLsizei height, I3D_COLOR_FORMAT fmt)
 {
     return initialize() && allocate(width, height, fmt);
 }
@@ -128,26 +128,26 @@ void RenderBuffer::finalize()
     m_handle = 0;
 }
 
-bool RenderBuffer::allocate(GLsizei width, GLsizei height, IST_COLOR_FORMAT fmt)
+bool RenderBuffer::allocate(GLsizei width, GLsizei height, I3D_COLOR_FORMAT fmt)
 {
     GLint internal_format = 0;
     switch(fmt)
     {
-    case IST_R8U:       internal_format=GL_R8; break;
-    case IST_R16F:      internal_format=GL_R16F; break;
-    case IST_R32F:      internal_format=GL_R32F; break;
-    case IST_RG8U:      internal_format=GL_RG8; break;
-    case IST_RG16F:     internal_format=GL_RG16F; break;
-    case IST_RG32F:     internal_format=GL_RG32F; break;
-    case IST_RGB8U:     // fall through
-    case IST_RGB16F:    // 
-    case IST_RGB32F:    istAssert("render buffer can't use RGB format."); break;
-    case IST_RGBA8U:    internal_format=GL_RGBA8; break;
-    case IST_RGBA16F:   internal_format=GL_RGBA16F; break;
-    case IST_RGBA32F:   internal_format=GL_RGBA32F; break;
-    case IST_DEPTH32F:  internal_format=GL_DEPTH_COMPONENT32; break;
-    case IST_DEPTH24_STENCIL8:    internal_format=GL_DEPTH24_STENCIL8; break;
-    case IST_DEPTH32F_STENCIL8:   internal_format=GL_DEPTH32F_STENCIL8; break;
+    case I3D_R8U:       internal_format=GL_R8; break;
+    case I3D_R16F:      internal_format=GL_R16F; break;
+    case I3D_R32F:      internal_format=GL_R32F; break;
+    case I3D_RG8U:      internal_format=GL_RG8; break;
+    case I3D_RG16F:     internal_format=GL_RG16F; break;
+    case I3D_RG32F:     internal_format=GL_RG32F; break;
+    case I3D_RGB8U:     // fall through
+    case I3D_RGB16F:    // 
+    case I3D_RGB32F:    istAssert("render buffer can't use RGB format."); break;
+    case I3D_RGBA8U:    internal_format=GL_RGBA8; break;
+    case I3D_RGBA16F:   internal_format=GL_RGBA16F; break;
+    case I3D_RGBA32F:   internal_format=GL_RGBA32F; break;
+    case I3D_DEPTH32F:  internal_format=GL_DEPTH_COMPONENT32; break;
+    case I3D_DEPTH24_STENCIL8:    internal_format=GL_DEPTH24_STENCIL8; break;
+    case I3D_DEPTH32F_STENCIL8:   internal_format=GL_DEPTH32F_STENCIL8; break;
     default:
         istAssert("unknown format: %d", fmt);
         return false;
@@ -202,26 +202,26 @@ void RenderTarget::finalize()
     m_handle = 0;
 }
 
-bool RenderTarget::attachRenderBuffer(RenderBuffer& rb, IST_RT_ATTACH attach)
+bool RenderTarget::attachRenderBuffer(RenderBuffer& rb, I3D_RT_ATTACH attach)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, m_handle);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, attach, GL_RENDERBUFFER, rb.getHandle());
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    if(attach!=IST_ATTACH_DEPTH) {
-        m_attaches |= 1<<(attach-IST_ATTACH_COLOR0);
+    if(attach!=I3D_ATTACH_DEPTH) {
+        m_attaches |= 1<<(attach-I3D_ATTACH_COLOR0);
     }
     return true;
 }
 
-bool RenderTarget::attachTexture(Texture2D& tex, IST_RT_ATTACH attach, GLint level)
+bool RenderTarget::attachTexture(Texture2D& tex, I3D_RT_ATTACH attach, GLint level)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, m_handle);
     glFramebufferTexture2D(GL_FRAMEBUFFER, attach, GL_TEXTURE_2D, tex.getHandle(), level);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    if(attach!=IST_ATTACH_DEPTH) {
-        m_attaches |= 1<<(attach-IST_ATTACH_COLOR0);
+    if(attach!=I3D_ATTACH_DEPTH) {
+        m_attaches |= 1<<(attach-I3D_ATTACH_COLOR0);
     }
     return true;
 }
@@ -234,7 +234,7 @@ void RenderTarget::bind() const
     GLuint attaches[16];
     for(int i=0; i<_countof(attaches); ++i) {
         if((m_attaches & (1<<i)) != 0) {
-            attaches[num_attaches++] = IST_ATTACH_COLOR0+i;
+            attaches[num_attaches++] = I3D_ATTACH_COLOR0+i;
         }
     }
     glDrawBuffers(num_attaches, attaches);

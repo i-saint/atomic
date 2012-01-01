@@ -9,10 +9,6 @@ namespace ist
 Application *g_the_app = NULL;
 HINSTANCE g_hinstance = NULL;
 
-#ifdef __ist_with_OpenGL__
-HDC g_hdc = NULL;
-#endif // __ist_with_OpenGL__
-
 
 LRESULT CALLBACK WndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lParam)
 {
@@ -190,20 +186,6 @@ Application::Application()
 : m_hwnd(NULL)
 , m_width(0)
 , m_height(0)
-, m_graphics_error(ERR_NOERROR)
-#if defined(__ist_with_OpenGL__) && defined(_WIN32)
-, m_hdc(NULL)
-, m_hglrc(NULL)
-#endif // defined(__ist_with_opengl__) && defined(_WIN32)
-#ifdef __ist_with_Direct3D11__
-, m_dxswapchain(0)
-, m_dxdevice(0)
-, m_dxcontext(0)
-#endif // __ist_with_Direct3D11__
-#ifdef __ist_with_OpenCL__
-, m_cl_context(NULL)
-, m_cl_queue(NULL)
-#endif // __ist_with_OpenCL__
 {
 }
 
@@ -281,163 +263,12 @@ bool Application::initialize(ivec2 wpos, ivec2 wsize, const wchar_t *title, bool
 
 void Application::finalize()
 {
-#ifdef __ist_with_OpenCL__
-    if(m_cl_context) { delete m_cl_context; m_cl_context=NULL; }
-#endif // __ist_with_OpenCL__
     if(m_hwnd) {
         ::CloseWindow(m_hwnd);
         m_hwnd=NULL;
     }
 }
 
-bool Application::initializeDraw()
-{
-#if defined(__ist_with_OpenGL__) && defined(_WIN32)
-    m_hdc = ::GetDC(m_hwnd);
-    g_hdc = m_hdc;
-
-    int pixelformat;
-    static PIXELFORMATDESCRIPTOR pfd = {
-        sizeof(PIXELFORMATDESCRIPTOR),    //この構造体のサイズ
-        1,                  //OpenGLバージョン
-        PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,       //ダブルバッファ使用可能
-        PFD_TYPE_RGBA,      //RGBAカラー
-        32,                 //色数
-        0, 0,               //RGBAのビットとシフト設定        
-        0, 0,                //G
-        0, 0,                //B
-        0, 0,                //A
-        0,                  //アキュムレーションバッファ
-        0, 0, 0, 0,         //RGBAアキュムレーションバッファ
-        32,                 //Zバッファ    
-        0,                  //ステンシルバッファ
-        0,                  //使用しない
-        PFD_MAIN_PLANE,     //レイヤータイプ
-        0,                  //予約
-        0, 0, 0             //レイヤーマスクの設定・未使用
-    };
-
-    // glew 用の仮のコンテキスト生成
-    if(((pixelformat = ::ChoosePixelFormat(m_hdc, &pfd)) == 0)
-        || ((::SetPixelFormat(m_hdc, pixelformat, &pfd) == FALSE))
-        || (!(m_hglrc=::wglCreateContext(m_hdc)))) {
-            istPrint("OpenGL initialization failed");
-    }
-    wglMakeCurrent(m_hdc, m_hglrc);
-    glewInit();
-    {
-        const GLubyte *version = glGetString(GL_VERSION);
-        const GLubyte *vendor = glGetString(GL_VENDOR);
-        istPrint("OpenGL version: %s, vendor: %s\n", version, vendor);
-    }
-
-    //::ShowCursor(false);
-
-#endif // __ist_with_OpenGL__
-
-#ifdef __ist_with_Direct3D11__
-    // create a struct to hold information about the swap chain
-    DXGI_SWAP_CHAIN_DESC scd;
-    // clear out the struct for use
-    ZeroMemory(&scd, sizeof(scd));
-
-    // fill the swap chain description struct
-    scd.BufferCount = 1;                                    // one back buffer
-    scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;     // use 32-bit color
-    scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;      // how swap chain is to be used
-    scd.OutputWindow = m_hwnd;                              // the window to be used
-    scd.SampleDesc.Count = 4;                               // how many multisamples
-    scd.Windowed = m_fullscreen ? FALSE : TRUE;             // windowed/full-screen mode
-
-    // create a device, device context and swap chain using the information in the scd struct
-    D3D11CreateDeviceAndSwapChain(
-        NULL,
-        D3D_DRIVER_TYPE_HARDWARE,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        D3D11_SDK_VERSION,
-        &scd,
-        &m_dxswapchain,
-        &m_dxdevice,
-        NULL,
-        &m_dxcontext);
-#endif // __ist_with_Direct3D11__
-
-#ifdef __ist_with_OpenCL__
-    // initialize OpenCL
-    {
-        cl_int err;
-        std::vector< cl::Platform > platforms;
-        cl::Platform::get(&platforms);
-        if(platforms.empty()) {
-            istPrint("OpenCL initialization failed");
-            return false;
-        }
-
-        std::string version;
-        std::string vendor;
-        platforms[0].getInfo((cl_platform_info)CL_PLATFORM_VERSION, &version);
-        platforms[0].getInfo((cl_platform_info)CL_PLATFORM_VENDOR, &vendor);
-        istPrint("OpenCL version: %s, vendor: %s\n", version.c_str(), vendor.c_str());
- 
-        cl_context_properties cprops[3] =  {CL_CONTEXT_PLATFORM, (cl_context_properties)(platforms[0])(), 0};
-
-        m_cl_context = new cl::Context(CL_DEVICE_TYPE_DEFAULT,  cprops, NULL, NULL, &err);
-        if(err != CL_SUCCESS) {
-            istPrint("OpenCL create context failed. error code: 0x%08x\n", err);
-        }
-        std::vector<cl::Device> cl_devices = m_cl_context->getInfo<CL_CONTEXT_DEVICES>();
-        m_cl_queue = new cl::CommandQueue(*m_cl_context, cl_devices[0], 0, &err);
-        if(err != CL_SUCCESS) {
-            istPrint("OpenCL create command queue failed. error code: 0x%08x\n", err);
-        }
-    }
-#endif // __ist_with_OpenCL__
-
-
-    // CUDA
-    {
-        cudaError_t e;
-        int dev_count;
-        e = cudaGetDeviceCount(&dev_count);
-        if(e==cudaErrorNoDevice) {
-            m_graphics_error = ERR_CUDA_NO_DEVICE;
-            return false;
-        }
-        else if(e==cudaErrorInsufficientDriver) {
-            m_graphics_error = ERR_CUDA_INSUFFICIENT_DRIVER;
-            return false;
-        }
-
-        int device_id = cutGetMaxGflopsDeviceId();
-        CUDA_SAFE_CALL( cudaSetDevice(device_id) );
-        CUDA_SAFE_CALL( cudaGLSetGLDevice(device_id) );
-    }
-    return true;
-}
-
-void Application::finalizeDraw()
-{
-#if defined(__ist_with_OpenGL__) && defined(_WIN32)
-    if(m_hglrc!=NULL) {
-        ::wglMakeCurrent(NULL, NULL);
-        ::wglDeleteContext(m_hglrc);
-        m_hglrc = NULL;
-    }
-    if(m_hdc!=NULL) {
-        ::ReleaseDC(m_hwnd, m_hdc);
-        m_hdc = NULL;
-    }
-#endif // defined(IST_OPENGL) && defined(_WIN32)
-
-#ifdef __ist_with_Direct3D11__
-    if(m_dxswapchain)   { m_dxswapchain->Release(); m_dxswapchain=NULL; }
-    if(m_dxdevice)      { m_dxdevice->Release();    m_dxdevice=NULL;    }
-    if(m_dxcontext)     { m_dxcontext->Release();   m_dxcontext=NULL;   }
-#endif // __ist_with_Direct3D11__
-}
 
 void Application::updateInput()
 {
@@ -511,13 +342,6 @@ void Application::getAvalableDisplaySettings( DisplaySetting*& settings, int& nu
 }
 
 } // namespace ist
-
-void glSwapBuffers()
-{
-#ifdef __ist_with_OpenGL__
-    ::SwapBuffers(ist::g_hdc);
-#endif // __ist_with_OpenGL__
-}
 
 
 

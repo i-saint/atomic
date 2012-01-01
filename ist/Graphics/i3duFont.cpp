@@ -23,7 +23,7 @@ SystemFont::~SystemFont()
 
 bool SystemFont::initialize()
 {
-    m_hdc = istGetAplication()->getHDC();
+    m_hdc = ::GetDC(istGetAplication()->getWindowHandle());
     SelectObject(m_hdc, GetStockObject(SYSTEM_FONT));
     wglUseFontBitmapsW( m_hdc, 0, 256*32, g_list_base );
 

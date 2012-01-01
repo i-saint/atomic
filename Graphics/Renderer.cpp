@@ -86,8 +86,8 @@ void AtomicRenderer::draw()
 
     glLoadIdentity();
     {
-        PerspectiveCamera *camera = atomicGetCamera();
-        UniformBufferObject *ubo_renderstates = atomicGetUniformBufferObject(UBO_RENDER_STATES);
+        PerspectiveCamera *camera      = atomicGetCamera();
+        UniformBuffer *ubo_renderstates= atomicGetUniformBufferObject(UBO_RENDER_STATES);
         camera->updateMatrix();
         m_render_states.ModelViewProjectionMatrix = camera->getModelViewProjectionMatrix();
         m_render_states.CameraPosition  = camera->getPosition();
@@ -112,8 +112,6 @@ void AtomicRenderer::draw()
     //glFinish();
 
     timer.count();
-
-    glSwapBuffers();
 }
 
 void AtomicRenderer::passShadow()
@@ -306,10 +304,10 @@ void PassGBuffer_SPH::draw()
     // fluid particle
     {
         const uint32 num_particles = sphs.fluid_num_particles;
-        const VertexArray::Descriptor descs[] = {
-            {GLSL_INSTANCE_PARAM,    VertexArray::TYPE_FLOAT,4,  0, false, 1},
-            {GLSL_INSTANCE_POSITION, VertexArray::TYPE_FLOAT,4, 16, false, 1},
-            {GLSL_INSTANCE_VELOCITY, VertexArray::TYPE_FLOAT,4, 32, false, 1},
+        const VertexDescriptor descs[] = {
+            {GLSL_INSTANCE_PARAM,    I3D_FLOAT,4,  0, false, 1},
+            {GLSL_INSTANCE_POSITION, I3D_FLOAT,4, 16, false, 1},
+            {GLSL_INSTANCE_VELOCITY, I3D_FLOAT,4, 32, false, 1},
         };
         m_sh_fluid->bind();
         m_va_cube->bind();
@@ -327,12 +325,12 @@ void PassGBuffer_SPH::draw()
         MapAndWrite(*m_vbo_rigid, &m_rparticles[0], sizeof(PSetParticle)*num_rigid_particles);
     }
     {
-        const VertexArray::Descriptor descs[] = {
-            {GLSL_INSTANCE_POSITION, VertexArray::TYPE_FLOAT,4,  0, false, 1},
-            {GLSL_INSTANCE_NORMAL,   VertexArray::TYPE_FLOAT,4, 16, false, 1},
-            {GLSL_INSTANCE_COLOR,    VertexArray::TYPE_FLOAT,4, 32, false, 1},
-            {GLSL_INSTANCE_GLOW,     VertexArray::TYPE_FLOAT,4, 48, false, 1},
-            {GLSL_INSTANCE_PARAM,    VertexArray::TYPE_FLOAT,4, 64, false, 1},
+        const VertexDescriptor descs[] = {
+            {GLSL_INSTANCE_POSITION, I3D_FLOAT,4,  0, false, 1},
+            {GLSL_INSTANCE_NORMAL,   I3D_FLOAT,4, 16, false, 1},
+            {GLSL_INSTANCE_COLOR,    I3D_FLOAT,4, 32, false, 1},
+            {GLSL_INSTANCE_GLOW,     I3D_FLOAT,4, 48, false, 1},
+            {GLSL_INSTANCE_PARAM,    I3D_FLOAT,4, 64, false, 1},
         };
         m_sh_rigid->bind();
         m_va_cube->bind();
@@ -382,10 +380,10 @@ void PassDeferredShading_DirectionalLights::draw()
     const uint32 num_instances = m_instances.size();
     MapAndWrite(*m_vbo_instance, &m_instances[0], sizeof(light_t)*num_instances);
 
-    const VertexArray::Descriptor descs[] = {
-        {GLSL_INSTANCE_DIRECTION,VertexArray::TYPE_FLOAT,4,  0, false, 1},
-        {GLSL_INSTANCE_COLOR,    VertexArray::TYPE_FLOAT,4, 16, false, 1},
-        {GLSL_INSTANCE_AMBIENT,  VertexArray::TYPE_FLOAT,4, 32, false, 1},
+    const VertexDescriptor descs[] = {
+        {GLSL_INSTANCE_DIRECTION,I3D_FLOAT,4,  0, false, 1},
+        {GLSL_INSTANCE_COLOR,    I3D_FLOAT,4, 16, false, 1},
+        {GLSL_INSTANCE_AMBIENT,  I3D_FLOAT,4, 32, false, 1},
     };
     m_shader->bind();
     m_va_quad->bind();
@@ -422,10 +420,10 @@ void PassDeferredShading_PointLights::draw()
     const uint32 num_instances = m_instances.size();
     MapAndWrite(*m_vbo_instance, &m_instances[0], sizeof(PointLight)*num_instances);
 
-    const VertexArray::Descriptor descs[] = {
-        {GLSL_INSTANCE_POSITION,VertexArray::TYPE_FLOAT,4, 0, false, 1},
-        {GLSL_INSTANCE_COLOR,   VertexArray::TYPE_FLOAT,4,16, false, 1},
-        {GLSL_INSTANCE_PARAM,   VertexArray::TYPE_FLOAT,4,32, false, 1},
+    const VertexDescriptor descs[] = {
+        {GLSL_INSTANCE_POSITION,I3D_FLOAT,4, 0, false, 1},
+        {GLSL_INSTANCE_COLOR,   I3D_FLOAT,4,16, false, 1},
+        {GLSL_INSTANCE_PARAM,   I3D_FLOAT,4,32, false, 1},
     };
 
     m_shader->bind();
@@ -459,7 +457,7 @@ void PassPostprocess_FXAA::draw()
 {
     if(!atomicGetConfig()->posteffect_antialias) { return; }
 
-    UniformBufferObject *ubo_fxaa = atomicGetUniformBufferObject(UBO_FXAA_PARAMS);
+    UniformBuffer *ubo_fxaa            = atomicGetUniformBufferObject(UBO_FXAA_PARAMS);
     m_fxaaparams.fxaaQualityRcpFrame        = vec2(1.0f, 1.0f) / vec2((float32)atomicGetWindowWidth(), (float32)atomicGetWindowHeight());
     m_fxaaparams.fxaaQualitySubpix          = 0.75f;
     m_fxaaparams.fxaaQualityEdgeThreshold   = 0.166f;

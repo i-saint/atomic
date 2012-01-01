@@ -41,9 +41,9 @@ public:
     void asyncupdateEnd();
     void draw() const;
 
-    PerspectiveCamera* getCamera()  { return &m_camera; }
-    const vec4& getFieldSize() const{ return m_field_size; }
-    uint32 getFrame() const         { return m_frame; }
+    PerspectiveCamera* getCamera() { return &m_camera; }
+    const vec4& getFieldSize() const    { return m_field_size; }
+    uint32 getFrame() const             { return m_frame; }
 
     void setFieldSize(const vec4 &v)    { m_field_size=v; }
 

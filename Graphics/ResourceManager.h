@@ -37,17 +37,17 @@ class GraphicResourceManager : boost::noncopyable
 private:
     RenderTargetGBuffer     *m_rt_gbuffer;
     RenderTargetDeferred    *m_rt_deferred;
-    ColorBuffer             *m_rt_gauss[2];
-    ColorBuffer             *m_rt_postprocess;
+    ColorBuffer        *m_rt_gauss[2];
+    ColorBuffer        *m_rt_postprocess;
 
-    SystemFont          *m_font;
-    Texture2D           *m_tex2d[TEX2D_END];
-    VertexArray         *m_va[VA_END];
-    VertexBufferObject  *m_vbo[VBO_END];
-    IndexBufferObject   *m_ibo[IBO_END];
-    UniformBufferObject *m_ubo[UBO_END];
+    SystemFont     *m_font;
+    Texture2D      *m_tex2d[TEX2D_END];
+    VertexArray    *m_va[VA_END];
+    VertexBuffer   *m_vbo[VBO_END];
+    IndexBuffer    *m_ibo[IBO_END];
+    UniformBuffer  *m_ubo[UBO_END];
     RenderTarget   *m_fbo[RT_END];
-    AtomicShader        *m_shader[SH_END];
+    AtomicShader   *m_shader[SH_END];
     ParticleSet         m_pset[PSET_END];
     RigidInfo           m_rinfo[PSET_END];
 
@@ -61,21 +61,21 @@ public:
     static void intializeInstance();
     static void finalizeInstance();
 
-    SystemFont* getFont() { return m_font; }
-    Texture2D* getTexture2D(TEX2D_RID i)                    { return m_tex2d[i]; }
-    VertexArray* getVertexArray(VA_RID i)                   { return m_va[i]; }
-    VertexBufferObject* getVertexBufferObject(VBO_RID i)    { return m_vbo[i]; }
-    IndexBufferObject* getIndexBufferObject(IBO_RID i)      { return m_ibo[i]; }
-    UniformBufferObject* getUniformBufferObject(UBO_RID i)  { return m_ubo[i]; }
-    AtomicShader* getShader(SH_RID i)                       { return m_shader[i]; }
-    ParticleSet* getParticleSet(PSET_RID i)                 { return &m_pset[i]; }
-    RigidInfo* getRigidInfo(PSET_RID i)                     { return &m_rinfo[i]; }
+    SystemFont*    getFont()                           { return m_font; }
+    Texture2D*     getTexture2D(TEX2D_RID i)           { return m_tex2d[i]; }
+    VertexArray*   getVertexArray(VA_RID i)            { return m_va[i]; }
+    VertexBuffer*  getVertexBufferObject(VBO_RID i)    { return m_vbo[i]; }
+    IndexBuffer*   getIndexBufferObject(IBO_RID i)     { return m_ibo[i]; }
+    UniformBuffer* getUniformBufferObject(UBO_RID i)   { return m_ubo[i]; }
+    AtomicShader*       getShader(SH_RID i)                 { return m_shader[i]; }
+    ParticleSet*        getParticleSet(PSET_RID i)          { return &m_pset[i]; }
+    RigidInfo*          getRigidInfo(PSET_RID i)            { return &m_rinfo[i]; }
 
     void swapBuffers();
     RenderTargetGBuffer*    getRenderTargetGBuffer()        { return m_rt_gbuffer; }
     RenderTargetDeferred*   getRenderTargetDeferred()       { return m_rt_deferred; }
-    ColorBuffer*            getRenderTargetGauss(uint32 i)  { return m_rt_gauss[i]; }
-    ColorBuffer*            getRenderTargetPostProcess()    { return m_rt_postprocess; }
+    ColorBuffer*       getRenderTargetGauss(uint32 i)  { return m_rt_gauss[i]; }
+    ColorBuffer*       getRenderTargetPostProcess()    { return m_rt_postprocess; }
 };
 
 

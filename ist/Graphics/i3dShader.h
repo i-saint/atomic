@@ -1,7 +1,7 @@
 #ifndef __ist_i3d_Shader__
 #define __ist_i3d_Shader__
 
-#include "i3dResource.h"
+#include "i3dDeviceResource.h"
 
 namespace ist {
 namespace i3d {
@@ -29,24 +29,23 @@ public:
 };
 
 typedef ShaderObject<GL_VERTEX_SHADER> VertexShader;
-typedef ShaderObject<GL_FRAGMENT_SHADER> FragmentShader;
+typedef ShaderObject<GL_FRAGMENT_SHADER> PixelShader;
 typedef ShaderObject<GL_GEOMETRY_SHADER> GeometryShader;
 
-class ProgramObject : public DeviceResource
+
+class ShaderProgram : public DeviceResource
 {
 private:
     GLuint m_handle;
 
-private:
-
 public:
-    ProgramObject();
-    ~ProgramObject();
+    ShaderProgram();
+    ~ShaderProgram();
 
     bool initialize();
     void finalize();
 
-    bool link(VertexShader *vsh, FragmentShader *fsh, GeometryShader *gsh=NULL);
+    bool link(VertexShader *vsh, PixelShader *fsh, GeometryShader *gsh=NULL);
     void bind();
     void unbind();
 

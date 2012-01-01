@@ -26,31 +26,31 @@ bool CreateTexture2DFromStream(Texture2D& tex, std::istream& st)
     return false;
 }
 
-bool GenerateRandomTexture(Texture2D &tex, GLsizei width, GLsizei height, IST_COLOR_FORMAT format)
+bool GenerateRandomTexture(Texture2D &tex, GLsizei width, GLsizei height, I3D_COLOR_FORMAT format)
 {
     static SFMT random;
     if(!random.isInitialized()) { random.initialize((uint32_t)::time(0)); }
     return GenerateRandomTexture(tex, width, height, format, random);
 }
 
-bool GenerateRandomTexture(Texture2D &tex, GLsizei width, GLsizei height, IST_COLOR_FORMAT format, SFMT& random)
+bool GenerateRandomTexture(Texture2D &tex, GLsizei width, GLsizei height, I3D_COLOR_FORMAT format, SFMT& random)
 {
     std::string buffer;
-    if(format==IST_RGB8U) {
+    if(format==I3D_RGB8U) {
         int data_size = width*height*3;
         buffer.resize(data_size);
         for(int i=0; i<data_size; ++i) {
             buffer[i] = random.genInt32();
         }
     }
-    else if(format==IST_RGBA8U) {
+    else if(format==I3D_RGBA8U) {
         int data_size = width*height*4;
         buffer.resize(data_size);
         for(int i=0; i<data_size; ++i) {
             buffer[i] = random.genInt32();
         }
     }
-    else if(format==IST_RGB32F) {
+    else if(format==I3D_RGB32F) {
         int data_size = width*height*sizeof(float)*3;
         buffer.resize(data_size);
         float *w = (float*)&buffer[0];
@@ -58,7 +58,7 @@ bool GenerateRandomTexture(Texture2D &tex, GLsizei width, GLsizei height, IST_CO
             w[i] = random.genFloat32();
         }
     }
-    else if(format==IST_RGBA32F) {
+    else if(format==I3D_RGBA32F) {
         int data_size = width*height*sizeof(float)*4;
         buffer.resize(data_size);
         float *w = (float*)&buffer[0];
@@ -105,13 +105,13 @@ inline bool CreateShaderFromString(ShaderType& sh, const char* source)
 
 bool CreateVertexShaderFromFile(VertexShader& sh, const char *filename)     { return CreateShaderFromFile<VertexShader>(sh, filename); }
 bool CreateGeometryShaderFromFile(GeometryShader& sh, const char *filename) { return CreateShaderFromFile<GeometryShader>(sh, filename); }
-bool CreateFragmentShaderFromFile(FragmentShader& sh, const char *filename) { return CreateShaderFromFile<FragmentShader>(sh, filename); }
+bool CreateFragmentShaderFromFile(PixelShader& sh, const char *filename) { return CreateShaderFromFile<PixelShader>(sh, filename); }
 bool CreateVertexShaderFromStream(VertexShader& sh, std::istream& st)       { return CreateShaderFromStream<VertexShader>(sh, st); }
 bool CreateGeometryShaderFromStream(GeometryShader& sh, std::istream& st)   { return CreateShaderFromStream<GeometryShader>(sh, st); }
-bool CreateFragmentShaderFromStream(FragmentShader& sh, std::istream& st)   { return CreateShaderFromStream<FragmentShader>(sh, st); }
+bool CreateFragmentShaderFromStream(PixelShader& sh, std::istream& st)   { return CreateShaderFromStream<PixelShader>(sh, st); }
 bool CreateVertexShaderFromString(VertexShader& sh, const char* source)     { return CreateShaderFromString<VertexShader>(sh, source); }
 bool CreateGeometryShaderFromString(GeometryShader& sh, const char* source) { return CreateShaderFromString<GeometryShader>(sh, source); }
-bool CreateFragmentShaderFromString(FragmentShader& sh, const char* source) { return CreateShaderFromString<FragmentShader>(sh, source); }
+bool CreateFragmentShaderFromString(PixelShader& sh, const char* source) { return CreateShaderFromString<PixelShader>(sh, source); }
 
 
 
@@ -134,15 +134,15 @@ ColorNBuffer<NumColorBuffers>::~ColorNBuffer()
 }
 
 template<size_t NumColorBuffers>
-bool ColorNBuffer<NumColorBuffers>::initialize(GLsizei width, GLsizei height, IST_COLOR_FORMAT color_format)
+bool ColorNBuffer<NumColorBuffers>::initialize(GLsizei width, GLsizei height, I3D_COLOR_FORMAT color_format)
 {
-    IST_COLOR_FORMAT color_formats[NumColorBuffers];
+    I3D_COLOR_FORMAT color_formats[NumColorBuffers];
     std::fill_n(color_formats, NumColorBuffers, color_format);
     return initialize(width, height, color_formats);
 }
 
 template<size_t NumColorBuffers>
-bool ColorNBuffer<NumColorBuffers>::initialize(GLsizei width, GLsizei height, IST_COLOR_FORMAT (&color_format)[NumColorBuffers])
+bool ColorNBuffer<NumColorBuffers>::initialize(GLsizei width, GLsizei height, I3D_COLOR_FORMAT (&color_format)[NumColorBuffers])
 {
     super::initialize();
 
@@ -163,7 +163,7 @@ bool ColorNBuffer<NumColorBuffers>::initialize(GLsizei width, GLsizei height, IS
             m_owned[num_owned++] = color;
             m_color[i] = color;
         }
-        attachTexture(*m_color[i], IST_RT_ATTACH(IST_ATTACH_COLOR0+i));
+        attachTexture(*m_color[i], I3D_RT_ATTACH(I3D_ATTACH_COLOR0+i));
     }
     return true;
 }
@@ -192,7 +192,7 @@ DepthBuffer::~DepthBuffer()
     delete m_owned;
 }
 
-bool DepthBuffer::initialize(GLsizei width, GLsizei height, IST_COLOR_FORMAT depth_format)
+bool DepthBuffer::initialize(GLsizei width, GLsizei height, I3D_COLOR_FORMAT depth_format)
 {
     super::initialize();
 
@@ -211,7 +211,7 @@ bool DepthBuffer::initialize(GLsizei width, GLsizei height, IST_COLOR_FORMAT dep
         m_owned = depth;
         m_depth = depth;
     }
-    attachTexture(*m_depth, IST_ATTACH_DEPTH);
+    attachTexture(*m_depth, I3D_ATTACH_DEPTH);
 
     bind();
     glDrawBuffer(GL_NONE);
@@ -243,15 +243,15 @@ ColorNDepthBuffer<NumColorBuffers>::~ColorNDepthBuffer()
 }
 
 template<size_t NumColorBuffers>
-bool ColorNDepthBuffer<NumColorBuffers>::initialize(GLsizei width, GLsizei height, IST_COLOR_FORMAT color_format, IST_COLOR_FORMAT depth_format)
+bool ColorNDepthBuffer<NumColorBuffers>::initialize(GLsizei width, GLsizei height, I3D_COLOR_FORMAT color_format, I3D_COLOR_FORMAT depth_format)
 {
-    IST_COLOR_FORMAT color_formats[NumColorBuffers];
+    I3D_COLOR_FORMAT color_formats[NumColorBuffers];
     std::fill_n(color_formats, NumColorBuffers, color_format);
     return initialize(width, height, color_formats, depth_format);
 }
 
 template<size_t NumColorBuffers>
-bool ColorNDepthBuffer<NumColorBuffers>::initialize(GLsizei width, GLsizei height, IST_COLOR_FORMAT (&color_format)[NumColorBuffers], IST_COLOR_FORMAT depth_format)
+bool ColorNDepthBuffer<NumColorBuffers>::initialize(GLsizei width, GLsizei height, I3D_COLOR_FORMAT (&color_format)[NumColorBuffers], I3D_COLOR_FORMAT depth_format)
 {
     super::initialize();
 
@@ -272,9 +272,9 @@ bool ColorNDepthBuffer<NumColorBuffers>::initialize(GLsizei width, GLsizei heigh
             m_owned[num_owned++] = depth;
             m_depth_stencil = depth;
         }
-        attachTexture(*m_depth_stencil, IST_ATTACH_DEPTH);
-        if(depth_format==IST_DEPTH24_STENCIL8 || depth_format==IST_DEPTH32F_STENCIL8) {
-            attachTexture(*m_depth_stencil, IST_ATTACH_STENCIL);
+        attachTexture(*m_depth_stencil, I3D_ATTACH_DEPTH);
+        if(depth_format==I3D_DEPTH24_STENCIL8 || depth_format==I3D_DEPTH32F_STENCIL8) {
+            attachTexture(*m_depth_stencil, I3D_ATTACH_STENCIL);
         }
     }
     for(size_t i=0; i<NumColorBuffers; ++i) {
@@ -290,7 +290,7 @@ bool ColorNDepthBuffer<NumColorBuffers>::initialize(GLsizei width, GLsizei heigh
             m_owned[num_owned++] = color;
             m_color[i] = color;
         }
-        attachTexture(*m_color[i], IST_RT_ATTACH(IST_ATTACH_COLOR0+i));
+        attachTexture(*m_color[i], I3D_RT_ATTACH(I3D_ATTACH_COLOR0+i));
     }
     return true;
 }

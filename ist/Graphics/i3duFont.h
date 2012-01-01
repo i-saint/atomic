@@ -1,7 +1,7 @@
 #ifndef __ist_i3du_Font__
 #define __ist_i3du_Font__
 
-#include "i3dResource.h"
+#include "i3dDeviceResource.h"
 
 namespace ist {
 namespace i3d {

@@ -57,9 +57,9 @@ bool GraphicResourceManager::initialize()
     m_font = NULL;
     stl::fill_n(m_tex2d, _countof(m_tex2d), (Texture2D*)NULL);
     stl::fill_n(m_va, _countof(m_va), (VertexArray*)NULL);
-    stl::fill_n(m_vbo, _countof(m_vbo), (VertexBufferObject*)NULL);
-    stl::fill_n(m_ibo, _countof(m_ibo), (IndexBufferObject*)NULL);
-    stl::fill_n(m_ubo, _countof(m_ubo), (UniformBufferObject*)NULL);
+    stl::fill_n(m_vbo, _countof(m_vbo), (VertexBuffer*)NULL);
+    stl::fill_n(m_ibo, _countof(m_ibo), (IndexBuffer*)NULL);
+    stl::fill_n(m_ubo, _countof(m_ubo), (UniformBuffer*)NULL);
     stl::fill_n(m_fbo, _countof(m_fbo), (RenderTarget*)NULL);
     stl::fill_n(m_shader, _countof(m_shader), (AtomicShader*)NULL);
 
@@ -83,15 +83,15 @@ bool GraphicResourceManager::initialize()
         m_va[i]->initialize();
     }
     for(uint32 i=0; i<_countof(m_vbo); ++i) {
-        m_vbo[i] = istNew(VertexBufferObject)();
+        m_vbo[i] = istNew(VertexBuffer)();
         m_vbo[i]->initialize();
     }
     for(uint32 i=0; i<_countof(m_ibo); ++i) {
-        m_ibo[i] = istNew(IndexBufferObject)();
+        m_ibo[i] = istNew(IndexBuffer)();
         m_ibo[i]->initialize();
     }
     for(uint32 i=0; i<_countof(m_ubo); ++i) {
-        m_ubo[i] = istNew(UniformBufferObject)();
+        m_ubo[i] = istNew(UniformBuffer)();
         m_ubo[i]->initialize();
     }
 
@@ -106,9 +106,9 @@ bool GraphicResourceManager::initialize()
         CreateSphere(*m_va[VA_UNIT_SPHERE], *m_vbo[VBO_UNIT_SPHERE], *m_ibo[IBO_SPHERE], 1.00f, 32,16);
     }
     {
-        m_ubo[UBO_RENDER_STATES]->allocate(sizeof(RenderStates), UniformBufferObject::USAGE_DYNAMIC);
-        m_ubo[UBO_FXAA_PARAMS]->allocate(sizeof(FXAAParams), UniformBufferObject::USAGE_DYNAMIC);
-        m_ubo[UBO_FADE_PARAMS]->allocate(sizeof(FadeParams), UniformBufferObject::USAGE_DYNAMIC);
+        m_ubo[UBO_RENDER_STATES]->allocate(sizeof(RenderStates), I3D_USAGE_DYNAMIC);
+        m_ubo[UBO_FXAA_PARAMS]->allocate(sizeof(FXAAParams), I3D_USAGE_DYNAMIC);
+        m_ubo[UBO_FADE_PARAMS]->allocate(sizeof(FadeParams), I3D_USAGE_DYNAMIC);
     }
     {
         // create shaders
@@ -127,24 +127,24 @@ bool GraphicResourceManager::initialize()
     }
     {
         // create textures
-        GenerateRandomTexture(*m_tex2d[TEX2D_RANDOM], 64, 64, IST_RGB8U);
+        GenerateRandomTexture(*m_tex2d[TEX2D_RANDOM], 64, 64, I3D_RGB8U);
     }
     {
         // create render targets
         m_rt_gbuffer = istNew(RenderTargetGBuffer)();
-        m_rt_gbuffer->initialize(framebuffer_width, framebuffer_height, IST_RGBA16F, IST_DEPTH24_STENCIL8);
+        m_rt_gbuffer->initialize(framebuffer_width, framebuffer_height, I3D_RGBA16F, I3D_DEPTH24_STENCIL8);
 
         m_rt_deferred = istNew(RenderTargetDeferred)();
         m_rt_deferred->setDepthStencilBuffer(m_rt_gbuffer->getDepthStencilBuffer());
-        m_rt_deferred->initialize(framebuffer_width, framebuffer_height, IST_RGBA8U, IST_DEPTH24_STENCIL8);
+        m_rt_deferred->initialize(framebuffer_width, framebuffer_height, I3D_RGBA8U, I3D_DEPTH24_STENCIL8);
 
         for(uint32 i=0; i<_countof(m_rt_gauss); ++i) {
             m_rt_gauss[i] = istNew(ColorBuffer)();
-            m_rt_gauss[i]->initialize(512, 256, IST_RGBA8U);
+            m_rt_gauss[i]->initialize(512, 256, I3D_RGBA8U);
         }
 
         m_rt_postprocess = istNew(ColorBuffer)();
-        m_rt_postprocess->initialize(framebuffer_width, framebuffer_height, IST_RGBA8U);
+        m_rt_postprocess->initialize(framebuffer_width, framebuffer_height, I3D_RGBA8U);
 
         m_fbo[RT_GBUFFER]   = m_rt_gbuffer;
         m_fbo[RT_DEFERRED]  = m_rt_deferred;
@@ -152,10 +152,10 @@ bool GraphicResourceManager::initialize()
         m_fbo[RT_GAUSS1]    = m_rt_gauss[1];
     }
 
-    m_vbo[VBO_FLUID_PARTICLES]->allocate(sizeof(sphFluidParticle)*SPH_MAX_FLUID_PARTICLES, VertexBufferObject::USAGE_DYNAMIC);
-    m_vbo[VBO_RIGID_PARTICLES]->allocate(sizeof(PSetParticle)*SPH_MAX_RIGID_PARTICLES, VertexBufferObject::USAGE_DYNAMIC);
-    m_vbo[VBO_DIRECTIONALLIGHT_INSTANCES]->allocate(sizeof(DirectionalLight)*ATOMIC_MAX_DIRECTIONAL_LIGHTS, VertexBufferObject::USAGE_DYNAMIC);
-    m_vbo[VBO_POINTLIGHT_INSTANCES]->allocate(sizeof(PointLight)*ATOMIC_MAX_POINT_LIGHTS, VertexBufferObject::USAGE_DYNAMIC);
+    m_vbo[VBO_FLUID_PARTICLES]->allocate(sizeof(sphFluidParticle)*SPH_MAX_FLUID_PARTICLES, I3D_USAGE_DYNAMIC);
+    m_vbo[VBO_RIGID_PARTICLES]->allocate(sizeof(PSetParticle)*SPH_MAX_RIGID_PARTICLES, I3D_USAGE_DYNAMIC);
+    m_vbo[VBO_DIRECTIONALLIGHT_INSTANCES]->allocate(sizeof(DirectionalLight)*ATOMIC_MAX_DIRECTIONAL_LIGHTS, I3D_USAGE_DYNAMIC);
+    m_vbo[VBO_POINTLIGHT_INSTANCES]->allocate(sizeof(PointLight)*ATOMIC_MAX_POINT_LIGHTS, I3D_USAGE_DYNAMIC);
     SPHInitialize();
     SPHInitializeGLBuffers( m_vbo[VBO_FLUID_PARTICLES]->getHandle() );
     {

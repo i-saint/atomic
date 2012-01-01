@@ -30,7 +30,7 @@ class AtomicRenderer : public boost::noncopyable
 {
 private:
     // shared resources
-    VertexArray             *m_va_screenquad;
+    VertexArray        *m_va_screenquad;
     AtomicShader            *m_sh_out;
     RenderTargetGBuffer     *m_rt_gbuffer;
     RenderTargetDeferred    *m_rt_deferred;
@@ -46,7 +46,7 @@ private:
 
     SystemTextRenderer                      *m_stext;
 
-    Viewport        m_default_viewport;
+    Viewport   m_default_viewport;
     RenderStates    m_render_states;
 
 private:
@@ -70,7 +70,7 @@ public:
     void beforeDraw();  // メインスレッドから、描画処理の前に呼ばれる
     void draw();        // 以下描画スレッドから呼ばれる
 
-    const Viewport* getDefaultViewport() const                      { return &m_default_viewport; }
+    const Viewport* getDefaultViewport() const                 { return &m_default_viewport; }
     RenderStates* getRenderStates()                                 { return &m_render_states; }
     PassGBuffer_SPH* getSPHRenderer()                               { return m_renderer_sph; }
     PassDeferredShading_DirectionalLights* getDirectionalLights()   { return m_renderer_dir_lights; }
@@ -93,11 +93,11 @@ public:
 class PassGBuffer_SPH : public IRenderer
 {
 private:
-    VertexArray         *m_va_cube;
+    VertexArray    *m_va_cube;
+    VertexBuffer   *m_vbo_fluid;
+    VertexBuffer   *m_vbo_rigid;
     AtomicShader        *m_sh_fluid;
     AtomicShader        *m_sh_rigid;
-    VertexBufferObject  *m_vbo_fluid;
-    VertexBufferObject  *m_vbo_rigid;
 
     stl::vector<Task*>          m_tasks;
     stl::vector<PSetInstance>   m_rinstances;
@@ -121,9 +121,9 @@ private:
     typedef DirectionalLight light_t;
     typedef stl::vector<DirectionalLight> InstanceCont;
     InstanceCont        m_instances;
+    VertexArray    *m_va_quad;
+    VertexBuffer   *m_vbo_instance;
     AtomicShader        *m_shader;
-    VertexArray         *m_va_quad;
-    VertexBufferObject  *m_vbo_instance;
 
 public:
     PassDeferredShading_DirectionalLights();
@@ -141,9 +141,9 @@ private:
     typedef stl::vector<PointLight> InstanceCont;
     InstanceCont        m_instances;
     AtomicShader        *m_shader;
-    IndexBufferObject   *m_ibo_sphere;
-    VertexArray         *m_va_sphere;
-    VertexBufferObject  *m_vbo_instance;
+    IndexBuffer    *m_ibo_sphere;
+    VertexArray    *m_va_sphere;
+    VertexBuffer   *m_vbo_instance;
 
 public:
     PassDeferredShading_PointLights();
@@ -158,10 +158,10 @@ class PassPostprocess_FXAA : public IRenderer
 {
 private:
     RenderTargetDeferred    *m_rt_deferred;
-    ColorBuffer             *m_rt_RGBL;
+    ColorBuffer        *m_rt_RGBL;
+    VertexArray        *m_va_quad;
     AtomicShader            *m_sh_FXAA_luma;
     AtomicShader            *m_sh_FXAA;
-    VertexArray             *m_va_quad;
     int32                   m_loc_fxaa_param;
     FXAAParams              m_fxaaparams;
 
@@ -176,16 +176,16 @@ class PassPostprocess_Bloom : public IRenderer
 private:
     RenderTargetGBuffer     *m_rt_gbuffer;
     RenderTargetDeferred    *m_rt_deferred;
-    ColorBuffer             *m_rt_gauss0;
-    ColorBuffer             *m_rt_gauss1;
-    VertexArray             *m_va_luminance;
-    VertexArray             *m_va_blur;
-    VertexArray             *m_va_composite;
+    ColorBuffer        *m_rt_gauss0;
+    ColorBuffer        *m_rt_gauss1;
+    VertexArray        *m_va_luminance;
+    VertexArray        *m_va_blur;
+    VertexArray        *m_va_composite;
+    UniformBuffer      *m_ubo_states;
     AtomicShader            *m_sh_luminance;
     AtomicShader            *m_sh_hblur;
     AtomicShader            *m_sh_vblur;
     AtomicShader            *m_sh_composite;
-    UniformBufferObject     *m_ubo_states;
 
 public:
     PassPostprocess_Bloom();
@@ -198,8 +198,8 @@ class PassPostprocess_Fade : public IRenderer
 private:
     RenderTargetDeferred    *m_rt_deferred;
     AtomicShader            *m_sh_fade;
-    UniformBufferObject     *m_ubo_fade;
-    VertexArray             *m_va_quad;
+    UniformBuffer      *m_ubo_fade;
+    VertexArray        *m_va_quad;
     int32       m_loc_fade_param;
     FadeParams  m_params;
 

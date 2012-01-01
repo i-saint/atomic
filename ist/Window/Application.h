@@ -4,7 +4,6 @@
 #include "WindowMessage.h"
 #include "InputState.h"
 
-void glSwapBuffers();
 
 namespace ist {
 
@@ -41,18 +40,6 @@ public:
         DLGRET_TRYAGAIN = 10,
         DLGRET_CONTINUE = 11,
     };
-    enum ERROR_CODE {
-        ERR_NOERROR,
-        ERR_CREATEWINDOW_FAILED,
-        ERR_CHANGEDISPLAYSETTINGS_FAILED,
-        ERR_OPENAL_OPENDEVICE_FAILED,
-        ERR_OPENAL_CREATECONTEXT_FAILED,
-        ERR_OPENGL_330_IS_NOT_SUPPORTED,
-        ERR_OPENGL_INITIALIZATION_FAILED,
-        ERR_DIRECT3D11_INITIALIZATION_FAILED,
-        ERR_CUDA_NO_DEVICE,
-        ERR_CUDA_INSUFFICIENT_DRIVER,
-    };
 
 private:
     static const int MAX_JOYSTICK_NUM = 4;
@@ -66,24 +53,6 @@ private:
     JoyState        m_joy_state[MAX_JOYSTICK_NUM];
 
     size_t m_width, m_height;
-    ERROR_CODE m_graphics_error;
-
-#if defined(__ist_with_OpenGL__) && defined(_WIN32)
-    HDC         m_hdc;
-    HGLRC       m_hglrc;
-#endif // __ist_with_opengl__ _WIN32
-
-#ifdef __ist_with_Direct3D11__
-    IDXGISwapChain      *m_dxswapchain;
-    ID3D11Device        *m_dxdevice;
-    ID3D11DeviceContext *m_dxcontext;
-#endif // __ist_with_Direct3D11__
-
-#ifdef __ist_with_OpenCL__
-    cl::Context *m_cl_context;
-    cl::CommandQueue *m_cl_queue;
-#endif // __ist_with_OpenCL__
-
 
 public:
     static Application* getInstance();
@@ -93,9 +62,6 @@ public:
 
     virtual bool initialize(ivec2 wpos, ivec2 wsize, const wchar_t *title, bool fullscreen=false);
     virtual void finalize();
-
-    virtual bool initializeDraw();
-    virtual void finalizeDraw();
 
     virtual void mainLoop()=0;
     virtual int handleWindowMessage(const WindowMessage& wm)=0;
@@ -114,7 +80,6 @@ public:
     const KeyboardState& getKeyboardState() const   { return m_keyboard_state; }
     const MouseState& getMouseState() const         { return m_mouse_state; }
     const JoyState& getJoyState(int i=0) const      { return m_joy_state[i]; }
-    ERROR_CODE getGraphicsError() const             { return m_graphics_error; }
 
     DisplaySetting getCurrentDisplaySetting() const;
     void getAvalableDisplaySettings(DisplaySetting*& settings, int& num_settings) const;
@@ -122,14 +87,6 @@ public:
 #ifdef _WIN32
     HWND getWindowHandle() const { return m_hwnd; }
 #endif // _WIN32
-#ifdef __ist_with_OpenCL__
-    cl::Context* getCLContext() { return m_cl_context; }
-    cl::CommandQueue* getCLCommandQueue() { return m_cl_queue; }
-#endif // __ist_with_OpenCL__
-#if defined(__ist_with_OpenGL__) && defined(WIN32)
-    HDC     getHDC() const { return m_hdc; }
-    HGLRC   getHGLRC() const { return m_hglrc; }
-#endif // __ist_with_opengl__ _WIN32
 };
 
 } // namespace ist

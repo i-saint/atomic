@@ -171,9 +171,6 @@
     <ClCompile Include="ist\Graphics\i3dAssert.cpp">
       <Filter>ist\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="ist\Graphics\i3dResource.cpp">
-      <Filter>ist\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="ist\Graphics\i3dUtil.cpp">
       <Filter>ist\Graphics</Filter>
     </ClCompile>
@@ -190,6 +187,15 @@
       <Filter>ist\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="ist\Graphics\i3duFont.cpp">
+      <Filter>ist\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Graphics\i3dDevice.cpp">
+      <Filter>ist\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Graphics\i3dDeviceResource.cpp">
+      <Filter>ist\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Graphics\i3dDeviceContext.cpp">
       <Filter>ist\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
@@ -432,9 +438,6 @@
     <ClInclude Include="ist\Graphics\i3dDeviceContext.h">
       <Filter>ist\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="ist\Graphics\i3dResource.h">
-      <Filter>ist\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="ist\Graphics\i3dUtil.h">
       <Filter>ist\Graphics</Filter>
     </ClInclude>
@@ -451,6 +454,15 @@
       <Filter>ist\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="ist\Graphics\i3duFont.h">
+      <Filter>ist\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Graphics\i3dConstants.h">
+      <Filter>ist\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Graphics\i3dTypes.h">
+      <Filter>ist\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Graphics\i3dDeviceResource.h">
       <Filter>ist\Graphics</Filter>
     </ClInclude>
   </ItemGroup>

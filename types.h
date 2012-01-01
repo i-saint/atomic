@@ -5,8 +5,6 @@
 
 namespace atomic {
 
-using namespace ist::i3d;
-
 typedef char                int8;
 typedef short               int16;
 typedef int                 int32;
@@ -44,14 +42,27 @@ using ist::SpinLock;
 using ist::SFMT;
 typedef ist::Variant16 variant;
 
+namespace i3d = ist::i3d;
+using namespace ist::i3d;
 
 typedef uint32 EntityHandle;
 
-
-
-
 typedef stl::allocator PermanentAllocator;
 typedef stl::allocator FrameAllocator;
+
+
+enum ATOMIC_ERROR {
+    ATERR_NOERROR,
+    ATERR_CREATEWINDOW_FAILED,
+    ATERR_CHANGEDISPLAYSETTINGS_FAILED,
+    ATERR_OPENAL_OPENDEVICE_FAILED,
+    ATERR_OPENAL_CREATECONTEXT_FAILED,
+    ATERR_OPENGL_330_IS_NOT_SUPPORTED,
+    ATERR_OPENGL_INITIALIZATION_FAILED,
+    ATERR_CUDA_NO_DEVICE,
+    ATERR_CUDA_INSUFFICIENT_DRIVER,
+};
+
 
 
 class PerformanceCounter

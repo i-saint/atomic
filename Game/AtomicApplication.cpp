@@ -17,6 +17,9 @@ class AtomicRenderingThread
 {
 private:
     AtomicApplication *m_app;
+    i3d::Device *m_device;
+    ATOMIC_ERROR m_error;
+
     boost::scoped_ptr<boost::thread> m_thread;
     boost::condition_variable m_cond_wait_for_initialize;
     boost::condition_variable m_cond_wait_for_draw;
@@ -45,11 +48,14 @@ public:
     void waitForDrawComplete();
     void kick();
 
+    ATOMIC_ERROR getError() const { return m_error; }
     float32 getAverageFPS() const { return m_fps_counter.getAverageFPS(); }
 };
 
 AtomicRenderingThread::AtomicRenderingThread(AtomicApplication *app)
 : m_app(app)
+, m_device(NULL)
+, m_error(ATERR_NOERROR)
 , m_stop_flag(false)
 , m_is_initialized(false)
 , m_is_ready_to_draw(false)
@@ -113,8 +119,13 @@ void AtomicRenderingThread::operator()()
 {
     ist::SetThreadName("AtomicRenderingThread");
 
-    bool initialized = m_app->initializeDraw();
-    if(initialized) {
+    m_device = istNew(i3d::Device)(m_app->getWindowHandle());
+    {
+        if(!GLEW_VERSION_3_3) {
+            m_error = ATERR_OPENGL_330_IS_NOT_SUPPORTED;
+            goto finalize_section;
+        }
+
         wglSwapIntervalEXT(atomicGetConfig()->vsync);
         GraphicResourceManager::intializeInstance();
         AtomicRenderer::initializeInstance();
@@ -124,7 +135,6 @@ void AtomicRenderingThread::operator()()
         m_is_initialized = true;
         m_cond_wait_for_initialize.notify_all();
     }
-    if(!initialized) { goto APP_END; }
 
     {
         boost::unique_lock<boost::mutex> lock(m_mutex_wait_for_draw);
@@ -134,6 +144,7 @@ void AtomicRenderingThread::operator()()
             }
             m_is_ready_to_draw = false;
             atomicGetApplication()->drawCallback();
+            m_device->swapBuffers();
             {
                 boost::unique_lock<boost::mutex> lock(m_mutex_wait_for_complete);
                 m_is_draw_complete = true;
@@ -147,8 +158,8 @@ void AtomicRenderingThread::operator()()
     AtomicRenderer::finalizeInstance();
     GraphicResourceManager::finalizeInstance();
 
-APP_END:
-    m_app->finalizeDraw();
+finalize_section:
+    istSafeDelete(m_device);
     m_is_end = true;
     m_cond_wait_for_end.notify_all();
 }
@@ -238,8 +249,9 @@ AtomicApplication::~AtomicApplication()
 bool AtomicApplication::initialize(int argc, char *argv[])
 {
     InitializeText();
-    m_config.readFromFile(ATOMIC_CONFIG_FILE_PATH);
 
+
+    m_config.readFromFile(ATOMIC_CONFIG_FILE_PATH);
 #ifndef _MASTER
     {
         ist::DisplaySetting ds = getCurrentDisplaySetting();
@@ -253,6 +265,7 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     if(m_config.window_size.x < 320 || m_config.window_size.x < 240) { m_config.window_size = ivec2(1024, 768); }
 
 
+    // create window
     ivec2 wpos = m_config.window_pos;
     ivec2 wsize = m_config.window_size;
     if(!super::initialize(wpos, wsize, L"atomic", m_config.fullscreen))
@@ -260,25 +273,45 @@ bool AtomicApplication::initialize(int argc, char *argv[])
         return false;
     }
     TaskScheduler::initializeSingleton();
-    //TaskScheduler::initializeSingleton(11);
 
-    m_renderng_thread = istNew(AtomicRenderingThread)(this);
-    m_renderng_thread->run();
-    m_renderng_thread->waitForInitializeComplete();
 
+    // initialize CUDA
     {
-        ERROR_CODE e = getGraphicsError();
-        if(!GLEW_VERSION_3_3) { e=ERR_OPENGL_330_IS_NOT_SUPPORTED; }
-        if(e!=ERR_NOERROR) {
-            handleError(e);
-            istSafeDelete(m_renderng_thread);
+        cudaError_t e;
+        int dev_count;
+        e = cudaGetDeviceCount(&dev_count);
+        if(e==cudaErrorNoDevice) {
+            handleError(ATERR_CUDA_NO_DEVICE);
             return false;
+        }
+        else if(e==cudaErrorInsufficientDriver) {
+            handleError(ATERR_CUDA_INSUFFICIENT_DRIVER);
+            return false;
+        }
+
+        int device_id = cutGetMaxGflopsDeviceId();
+        CUDA_SAFE_CALL( cudaSetDevice(device_id) );
+        CUDA_SAFE_CALL( cudaGLSetGLDevice(device_id) );
+    }
+
+    // start rendering thread
+    {
+        m_renderng_thread = istNew(AtomicRenderingThread)(this);
+        m_renderng_thread->run();
+        m_renderng_thread->waitForInitializeComplete();
+
+        if(!GLEW_VERSION_3_3) {
+            handleError(ATERR_OPENGL_330_IS_NOT_SUPPORTED);
+            istSafeDelete(m_renderng_thread);
+           return false;
         }
     }
 
+    // initialize sound
     AtomicSound::initializeInstance();
 
 
+    // create game
     m_game = istNew(AtomicGame)();
     if(argc > 1) {
         m_game->readReplayFromFile(argv[1]);
@@ -409,13 +442,13 @@ int AtomicApplication::handleWindowMessage(const ist::WindowMessage& wm)
     return 0;
 }
 
-void AtomicApplication::handleError(ERROR_CODE e)
+void AtomicApplication::handleError(ATOMIC_ERROR e)
 {
     std::wstring mes;
     switch(e) {
-    case ERR_OPENGL_330_IS_NOT_SUPPORTED:   mes=GetText(TID_OPENGL330_IS_NOT_SUPPORTED); break;
-    case ERR_CUDA_NO_DEVICE:                mes=GetText(TID_ERROR_CUDA_NO_DEVICE); break;
-    case ERR_CUDA_INSUFFICIENT_DRIVER:      mes=GetText(TID_ERROR_CUDA_INSUFFICIENT_DRIVER); break;
+    case ATERR_OPENGL_330_IS_NOT_SUPPORTED:   mes=GetText(TID_OPENGL330_IS_NOT_SUPPORTED); break;
+    case ATERR_CUDA_NO_DEVICE:                mes=GetText(TID_ERROR_CUDA_NO_DEVICE); break;
+    case ATERR_CUDA_INSUFFICIENT_DRIVER:      mes=GetText(TID_ERROR_CUDA_INSUFFICIENT_DRIVER); break;
     }
     istShowMessageDialog(mes.c_str(), L"error", DLG_OK);
 }
