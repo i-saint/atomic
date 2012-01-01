@@ -75,7 +75,7 @@ namespace atomic {
             m_vel.w = 0.0f;
 
             float32 len = glm::length(m_vel);
-            const float32 max_speed = 0.02f;
+            const float32 max_speed = 0.01f;
             if(len > max_speed) { m_vel = m_vel / len * max_speed; }
         }
 

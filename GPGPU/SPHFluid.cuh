@@ -5,7 +5,6 @@ struct DeviceFluidDataSet
     sphFluidParticle    *particles;
     sphFluidForce       *forces;
     sphHash             *hashes;
-    sphDeadFlag         *dead;
     sphFluidMessage     *message;
     sphGridData         *grid;
     sphStates           *states;
@@ -70,7 +69,17 @@ struct DeviceFluidDataSet
 
     __device__ void updateHash(int i)
     {
-        hashes[i] = GridCalculateHash(particles[i].position);
+        uint h = GridCalculateHash(particles[i].position);
+
+        // ハッシュの最上位ビットに死亡フラグを仕込む
+        if(particles[i].energy <= 0.0f) {
+            h |= 0x70000000;
+        }
+        else {
+            // 全部死亡/全部生存の区別をつけるための生存者いますよフラグ
+            states->fluid_alive_any = 1;
+        }
+        hashes[i] = h;
     }
 
     __device__ void clearGrid(int i)
@@ -87,15 +96,23 @@ struct DeviceFluidDataSet
         uint cell = hashes[G_ID];
         uint cell_prev = hashes[G_ID_PREV];
         uint cell_next = hashes[G_ID_NEXT];
-        if (cell != cell_prev)
-        {
-            // I'm the start of a cell
-            grid[cell].x = G_ID;
+        if(cell < 0x70000000) {
+            if (cell != cell_prev)
+            {
+                // I'm the start of a cell
+                grid[cell].x = G_ID;
+            }
+            if (cell != cell_next)
+            {
+                // I'm the end of a cell
+                grid[cell].y = G_ID + 1;
+            }
         }
-        if (cell != cell_next)
-        {
-            // I'm the end of a cell
-            grid[cell].y = G_ID + 1;
+
+        uint dead = cell & 0x70000000;
+        uint dead_next = cell_next & 0x70000000;
+        if(dead != dead_next) {
+            states->fluid_num_particles = G_ID + 1;
         }
     }
 
@@ -108,16 +125,12 @@ struct DeviceFluidDataSet
         float density = 0.0f;
 
         int3 G_XYZ = GridCalculateCell( P_position );
-        for(int Z = max(G_XYZ.z - 1, 0) ; Z <= min(G_XYZ.z + 1, SPH_FLUID_GRID_DIV_Z-1) ; Z++)
-        {
-            for(int Y = max(G_XYZ.y - 1, 0) ; Y <= min(G_XYZ.y + 1, SPH_FLUID_GRID_DIV_Y-1) ; Y++)
-            {
-                for(int X = max(G_XYZ.x - 1, 0) ; X <= min(G_XYZ.x + 1, SPH_FLUID_GRID_DIV_X-1) ; X++)
-                {
+        for(int Z = max(G_XYZ.z - 1, 0) ; Z <= min(G_XYZ.z + 1, SPH_FLUID_GRID_DIV_Z-1) ; Z++) {
+            for(int Y = max(G_XYZ.y - 1, 0) ; Y <= min(G_XYZ.y + 1, SPH_FLUID_GRID_DIV_Y-1) ; Y++) {
+                for(int X = max(G_XYZ.x - 1, 0) ; X <= min(G_XYZ.x + 1, SPH_FLUID_GRID_DIV_X-1) ; X++) {
                     sphHash G_CELL = GridConstuctKey(make_int3(X, Y, Z));
                     sphGridData G_START_END = grid[G_CELL];
-                    for(uint N_ID = G_START_END.x ; N_ID < G_START_END.y ; N_ID++)
-                    {
+                    for(uint N_ID = G_START_END.x ; N_ID < G_START_END.y ; N_ID++) {
                         float4 N_position = particles[N_ID].position;
                 
                         float4 diff = N_position - P_position;
@@ -132,6 +145,7 @@ struct DeviceFluidDataSet
         }
 
         forces[P_ID].density = density;
+        particles[P_ID].density = density; // こちらはレンダリング用
     }
 
     __device__ void computeForce(int i)
@@ -177,16 +191,6 @@ struct DeviceFluidDataSet
 
         forces[P_ID].acceleration = acceleration / P_density;
     }
-
-    __device__ void countAlives(int i)
-    {
-        const uint G_ID = i;
-        uint G_ID_NEXT = G_ID + 1; if (G_ID_NEXT == SPH_MAX_FLUID_PARTICLES) { G_ID_NEXT--; }
-
-        if(dead[G_ID] != dead[G_ID_NEXT]) {
-            states[0].fluid_num_particles = G_ID + 1;
-        }
-    }
 };
 
 struct FluidDataSet
@@ -196,7 +200,6 @@ struct FluidDataSet
     thrust::device_vector<sphFluidParticle> particles;
     thrust::device_vector<sphFluidForce>    forces;
     thrust::device_vector<sphHash>          hashes;
-    thrust::device_vector<sphDeadFlag>      dead;
     thrust::device_vector<sphFluidMessage>  message;
     thrust::device_vector<sphGridData>      grid;
 
@@ -209,7 +212,6 @@ struct FluidDataSet
         particles.reserve(SPH_MAX_FLUID_PARTICLES);
         forces.reserve(SPH_MAX_FLUID_PARTICLES);
         hashes.reserve(SPH_MAX_FLUID_PARTICLES);
-        dead.reserve(SPH_MAX_FLUID_PARTICLES);
         message.reserve(SPH_MAX_FLUID_PARTICLES);
     }
     
@@ -218,7 +220,6 @@ struct FluidDataSet
         particles.resize(n);
         forces.resize(n);
         hashes.resize(n);
-        dead.resize(n);
         message.resize(n);
     }
 
@@ -230,7 +231,6 @@ struct FluidDataSet
         ddata.particles = particles.data().get();
         ddata.forces    = forces.data().get();
         ddata.hashes    = hashes.data().get();
-        ddata.dead      = dead.data().get();
         ddata.message   = message.data().get();
         ddata.grid      = grid.data().get();
         return ddata;
@@ -274,13 +274,6 @@ struct _FluidComputeForce
     __device__ void operator()(int i) { dfd.computeForce(i); }
 };
 
-struct _FluidCountAlives
-{
-    DeviceFluidDataSet dfd;
-    _FluidCountAlives(const DeviceFluidDataSet& v) : dfd(v) {}
-    __device__ void operator()(int i) { dfd.countAlives(i); }
-};
-
 
 struct _FluidIntegrate
 {
@@ -296,7 +289,6 @@ struct _FluidIntegrate
         float4 position = dfd.particles[P_ID].position;
         float4 velocity = dfd.particles[P_ID].velocity;
         float4 acceleration = dfd.forces[P_ID].acceleration;
-        int dead = 0;
         position.w = 1.0f;
         dfd.message[P_ID].to = 0;
 
@@ -354,9 +346,6 @@ struct _FluidIntegrate
             float vl = length(vel3);
             dfd.message[P_ID].velocity3 = vel3;
             dfd.particles[P_ID].energy -= vl;
-            if( dfd.particles[P_ID].energy <= 0.0f) {
-                dead = 1;
-            }
         }
 
         for(int i=0; i<drd.num_planes; ++i) {
@@ -402,16 +391,7 @@ struct _FluidIntegrate
         //position.z *= 0.0f;
 
         // Update
-        dfd.particles[P_ID].density = dfd.forces[P_ID].density;
         dfd.particles[P_ID].position = position;
         dfd.particles[P_ID].velocity = velocity;
-
-        if(dead) {
-            dfd.dead[P_ID] = 1;
-        }
-        else {
-            dfd.dead[P_ID] = 0;
-            dfd.states[0].fluid_alive_any = 1;
-       }
     }
 };

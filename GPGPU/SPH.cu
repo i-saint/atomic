@@ -51,10 +51,6 @@ struct _ClearParticles
         dfd.particles[i].velocity = make_float4(0.0f);
         dfd.particles[i].density = 0.0f;
         dfd.particles[i].energy = 100.0f;
-
-        //dfd.forces[i].density = 0.0f;
-        //dfd.forces[i].acceleration = make_float4(0.0f);
-        dfd.dead[i] = 0;
         dfd.message[i].to = 0;
     }
 };
@@ -158,10 +154,8 @@ void SPHUpdateFluid()
     thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(num_particles), _FluidComputeForce(dfd));
     thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(num_particles), _FluidIntegrate(dfd, drd, dgd));
     h_fluid_message = h_fluid->message;
-    thrust::sort_by_key(h_fluid->dead.begin(), h_fluid->dead.end(), h_fluid->particles.begin());
-    thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(num_particles), _FluidCountAlives(dfd));
 
-    const sphStates &stat = h_fluid->states[0];
+    sphStates stat = h_fluid->states[0];
     h_states.fluid_num_particles = stat.fluid_alive_any==0 ? 0 : stat.fluid_num_particles;
     h_states.fluid_alive_any = 0;
     h_fluid->states[0] = h_states;

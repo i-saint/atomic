@@ -98,16 +98,8 @@ bool AtomicApplication::initialize(int argc, char *argv[])
 
 
     m_config.readFromFile(ATOMIC_CONFIG_FILE_PATH);
-#ifndef _MASTER
-    {
-        ist::DisplaySetting ds = getCurrentDisplaySetting();
-        if(m_config.window_pos.x >= ds.getResolution().x) { m_config.window_pos.x = 0; }
-        if(m_config.window_pos.y >= ds.getResolution().y) { m_config.window_pos.y = 0; }
-    }
-#else
-    if(m_config.window_pos.x >= 2048) { m_config.window_pos.x = 0; }
-    if(m_config.window_pos.y >= 2048) { m_config.window_pos.y = 0; }
-#endif // _MASTER
+    if(m_config.window_pos.x >= 30000) { m_config.window_pos.x = 0; }
+    if(m_config.window_pos.y >= 30000) { m_config.window_pos.y = 0; }
     if(m_config.window_size.x < 320 || m_config.window_size.x < 240) { m_config.window_size = ivec2(1024, 768); }
 
 

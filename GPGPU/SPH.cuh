@@ -15,7 +15,6 @@ typedef uint EntityHandle;
 typedef uint CollisionHandle;
 typedef uint sphHash;
 typedef uint2 sphGridData;
-typedef int sphDeadFlag;
 typedef glm::vec4 vec4;
 typedef glm::mat4 mat4;
 
