@@ -122,7 +122,6 @@
     <ClInclude Include="ist\GraphicsUtil.h" />
     <ClInclude Include="ist\Graphics\i3dAssert.h" />
     <ClInclude Include="ist\Graphics\i3dBuffer.h" />
-    <ClInclude Include="ist\Graphics\i3dConstants.h" />
     <ClInclude Include="ist\Graphics\i3dDevice.h" />
     <ClInclude Include="ist\Graphics\i3dDeviceContext.h" />
     <ClInclude Include="ist\Graphics\i3dDeviceResource.h" />

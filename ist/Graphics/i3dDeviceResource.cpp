@@ -12,6 +12,7 @@ DeviceResource::DeviceResource()
     : m_owner_device(NULL)
     , m_dr_handle(0)
     , m_reference_count(1)
+    , m_handle(0)
 {
 
 }
@@ -57,6 +58,11 @@ int32 DeviceResource::release()
     if(--m_reference_count==0) {
         m_owner_device->deleteResource(getDeviceResourceHandle());
     }
+}
+
+GLuint DeviceResource::getHandle() const
+{
+    return m_handle;
 }
 
 } // namespace i3d

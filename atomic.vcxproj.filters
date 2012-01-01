@@ -456,9 +456,6 @@
     <ClInclude Include="ist\Graphics\i3duFont.h">
       <Filter>ist\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="ist\Graphics\i3dConstants.h">
-      <Filter>ist\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="ist\Graphics\i3dTypes.h">
       <Filter>ist\Graphics</Filter>
     </ClInclude>

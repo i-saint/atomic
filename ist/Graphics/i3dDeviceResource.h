@@ -16,6 +16,9 @@ private:
     ResourceHandle m_dr_handle;
     int32 m_reference_count;
 
+protected:
+    GLuint m_handle;
+
 private:
     // non copyable
     DeviceResource(const DeviceResource&);
@@ -33,6 +36,8 @@ public:
     int32 getRef() const;
     int32 addRef();
     int32 release();
+
+    GLuint getHandle() const;
 };
 
 } // namespace i3d

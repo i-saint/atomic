@@ -12,7 +12,6 @@ class Texture2D : public DeviceResource
 {
 I3D_DECLARE_DEVICE_RESOURCE()
 private:
-    GLuint m_handle;
     GLsizei m_width;
     GLsizei m_height;
 
@@ -30,7 +29,6 @@ public:
     void bind(int slot) const;  // slot: preferred to IST_TEXTURE_SLOT
     void unbind(int slot) const;// slot: preferred to IST_TEXTURE_SLOT
 
-    GLuint getHandle() const;
     GLsizei getWidth() const;
     GLsizei getHeight() const;
 };
@@ -40,7 +38,6 @@ public:
 class RenderBuffer : public DeviceResource
 {
 private:
-    GLuint m_handle;
     GLsizei m_width;
     GLsizei m_height;
 
@@ -56,7 +53,6 @@ public:
     void bind() const;
     void unbind() const;
 
-    GLuint getHandle() const;
     GLsizei getWidth() const;
     GLsizei getHeight() const;
 };
@@ -65,7 +61,6 @@ public:
 class RenderTarget : public DeviceResource
 {
 private:
-    GLuint m_handle;
     GLuint m_attaches; // 0bit-15bit –Ú‚ª‚»‚ê‚¼‚ê ATTACH_COLOR0-ATTACH_COLOR15 ‚É‘Î‰ž
 
 public:
@@ -79,8 +74,6 @@ public:
     bool attachTexture(Texture2D& rb, I3D_RT_ATTACH attach, GLint level=0);
     void bind() const;
     void unbind() const;
-
-    GLuint getHandle() const { return m_handle; }
 };
 
 

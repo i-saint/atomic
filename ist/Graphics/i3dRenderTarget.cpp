@@ -6,8 +6,7 @@ namespace ist {
 namespace i3d {
 
 Texture2D::Texture2D()
-: m_handle(0)
-, m_width(0)
+: m_width(0)
 , m_height(0)
 {
 }
@@ -91,15 +90,13 @@ void Texture2D::unbind(int slot) const
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-GLuint Texture2D::getHandle() const { return m_handle; }
 GLsizei Texture2D::getWidth() const { return m_width; }
 GLsizei Texture2D::getHeight() const { return m_height; }
 
 
 
 RenderBuffer::RenderBuffer()
-: m_handle(0)
-, m_width(0)
+: m_width(0)
 , m_height(0)
 {
 }
@@ -171,15 +168,13 @@ void RenderBuffer::unbind() const
     glBindRenderbuffer( GL_RENDERBUFFER, 0 );
 }
 
-GLuint RenderBuffer::getHandle() const { return m_handle; }
 GLsizei RenderBuffer::getWidth() const { return m_width; }
 GLsizei RenderBuffer::getHeight() const { return m_height; }
 
 
 
 RenderTarget::RenderTarget()
-: m_handle(0)
-, m_attaches(0)
+: m_attaches(0)
 {
 }
 

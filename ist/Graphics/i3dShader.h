@@ -10,13 +10,6 @@ template<size_t ShaderType>
 class ShaderObject : public DeviceResource
 {
 public:
-    enum {
-        SHADER_TYPE = ShaderType,
-    };
-private:
-    GLuint m_handle;
-
-public:
     ShaderObject();
     ~ShaderObject();
 
@@ -24,20 +17,23 @@ public:
     bool initialize(const char *src, int length);
     void finalize();
     bool  compile(const char *src, int length);
-
-    GLuint getHandle() const;
 };
 
-typedef ShaderObject<GL_VERTEX_SHADER> VertexShader;
-typedef ShaderObject<GL_FRAGMENT_SHADER> PixelShader;
-typedef ShaderObject<GL_GEOMETRY_SHADER> GeometryShader;
+class VertexShader : public ShaderObject<GL_VERTEX_SHADER>
+{
+};
+
+class PixelShader : public ShaderObject<GL_FRAGMENT_SHADER>
+{
+};
+
+class GeometryShader : public ShaderObject<GL_GEOMETRY_SHADER>
+{
+};
 
 
 class ShaderProgram : public DeviceResource
 {
-private:
-    GLuint m_handle;
-
 public:
     ShaderProgram();
     ~ShaderProgram();

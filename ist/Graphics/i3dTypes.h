@@ -113,6 +113,21 @@ typedef uint32 ResourceHandle;
 class Device;
 class DeviceContext;
 class DeviceResource;
+class VertexBuffer;
+class IndexBuffer;
+class PixelBuffer;
+class PixelUnpackBuffer;
+class UniformBuffer;
+class VertexArray;
+class Texture1D;
+class Texture2D;
+class Texture3D;
+class RenderBuffer;
+class RenderTarget;
+class VertexShader;
+class PixelShader;
+class GeometryShader;
+class ShaderProgtam;
 
 } // namespace i3d
 } // namespace ist

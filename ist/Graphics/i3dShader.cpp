@@ -7,7 +7,6 @@ namespace i3d {
 
 template<size_t ShaderType>
 ShaderObject<ShaderType>::ShaderObject()
-  : m_handle(0)
 {
 }
 
@@ -22,7 +21,7 @@ bool ShaderObject<ShaderType>::initialize()
 {
     finalize();
 
-    m_handle = glCreateShader(SHADER_TYPE);
+    m_handle = glCreateShader(ShaderType);
     return true;
 }
 
@@ -78,12 +77,6 @@ void ShaderObject<ShaderType>::finalize()
     if(m_handle!=0) { glDeleteShader(m_handle); m_handle=0; }
 }
 
-template<size_t ShaderType>
-GLuint ShaderObject<ShaderType>::getHandle() const
-{
-    return m_handle;
-}
-
 template ShaderObject<GL_VERTEX_SHADER>;
 template ShaderObject<GL_FRAGMENT_SHADER>;
 template ShaderObject<GL_GEOMETRY_SHADER>;
@@ -91,7 +84,6 @@ template ShaderObject<GL_GEOMETRY_SHADER>;
 
 
 ShaderProgram::ShaderProgram()
-    : m_handle(0)
 {
 }
 
@@ -183,7 +175,7 @@ GLint ShaderProgram::getUniformBlockIndex(const char *name) const
     else {
         //GLint block_size = 0;
         //glGetActiveUniformBlockiv(m_handle, ul, GL_UNIFORM_BLOCK_DATA_SIZE, &block_size);
-        //IST_PRINT("size of %s: %d\n", name, block_size);
+        //istPrint("size of %s: %d\n", name, block_size);
     }
     return ul;
 }

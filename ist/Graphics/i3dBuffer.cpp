@@ -7,8 +7,7 @@ namespace i3d {
 
 template<GLuint BufferType>
 Buffer<BufferType>::Buffer()
-: m_handle(0)
-, m_size(0)
+: m_size(0)
 , m_capacity(0)
 {
 }
@@ -113,7 +112,6 @@ void UniformBuffer::bindRange(GLuint index, GLintptr offset, GLsizeiptr size) co
 
 
 VertexArray::VertexArray()
-: m_handle(0)
 {
 }
 

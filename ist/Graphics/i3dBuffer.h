@@ -11,7 +11,6 @@ template<GLuint BufferType>
 class Buffer : public DeviceResource
 {
 protected:
-    GLuint m_handle;
     GLuint m_size;
     GLuint m_capacity;
 
@@ -32,13 +31,24 @@ public:
     void unmap();
 
     GLuint size() const;
-    GLuint getHandle() const { return m_handle; }
 };
 
-typedef Buffer<GL_ARRAY_BUFFER>           VertexBuffer;
-typedef Buffer<GL_ELEMENT_ARRAY_BUFFER>   IndexBuffer;
-typedef Buffer<GL_PIXEL_PACK_BUFFER>      PixelBuffer;
-typedef Buffer<GL_PIXEL_UNPACK_BUFFER>    PixelUnpackBuffer;
+
+class VertexBuffer : public Buffer<GL_ARRAY_BUFFER>
+{
+};
+
+class IndexBuffer : public Buffer<GL_ELEMENT_ARRAY_BUFFER>
+{
+};
+
+class PixelBuffer : public Buffer<GL_PIXEL_PACK_BUFFER>
+{
+};
+
+class PixelUnpackBuffer : public Buffer<GL_PIXEL_UNPACK_BUFFER>
+{
+};
 
 class UniformBuffer : public Buffer<GL_UNIFORM_BUFFER>
 {
@@ -50,9 +60,6 @@ public:
 
 class VertexArray : public DeviceResource
 {
-private:
-    GLuint m_handle;
-
 public:
     VertexArray();
     ~VertexArray();
