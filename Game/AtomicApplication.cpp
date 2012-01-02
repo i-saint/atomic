@@ -22,7 +22,7 @@ AtomicConfig::AtomicConfig()
     fullscreen          = false;
     vsync               = true;
     posteffect_bloom    = true;
-    posteffect_antialias= true;
+    posteffect_antialias= false;
     show_text           = true;
     sound_enable        = true;
     bgm_volume          = 0.5;
