@@ -38,32 +38,32 @@ bool GenerateRandomTexture(Texture2D &tex, const uvec2 &size, I3D_COLOR_FORMAT f
 {
     std::string buffer;
     if(format==I3D_RGB8U) {
-        int data_size = size.x*size.y*3;
+        uint32 data_size = size.x*size.y*3;
         buffer.resize(data_size);
-        for(int i=0; i<data_size; ++i) {
+        for(uint32 i=0; i<data_size; ++i) {
             buffer[i] = random.genInt32();
         }
     }
     else if(format==I3D_RGBA8U) {
-        int data_size = size.x*size.y*4;
+        uint32 data_size = size.x*size.y*4;
         buffer.resize(data_size);
-        for(int i=0; i<data_size; ++i) {
+        for(uint32 i=0; i<data_size; ++i) {
             buffer[i] = random.genInt32();
         }
     }
     else if(format==I3D_RGB32F) {
-        int data_size = size.x*size.y*sizeof(float)*3;
+        uint32 data_size = size.x*size.y*sizeof(float)*3;
         buffer.resize(data_size);
-        float *w = (float*)&buffer[0];
-        for(int i=0; i<size.x*size.y*3; ++i) {
+        float32 *w = (float*)&buffer[0];
+        for(uint32 i=0; i<size.x*size.y*3; ++i) {
             w[i] = random.genFloat32();
         }
     }
     else if(format==I3D_RGBA32F) {
-        int data_size = size.x*size.y*sizeof(float)*4;
+        uint32 data_size = size.x*size.y*sizeof(float)*4;
         buffer.resize(data_size);
-        float *w = (float*)&buffer[0];
-        for(int i=0; i<size.x*size.y*4; ++i) {
+        float32 *w = (float*)&buffer[0];
+        for(uint32 i=0; i<size.x*size.y*4; ++i) {
             w[i] = random.genFloat32();
         }
     }

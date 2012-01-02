@@ -89,6 +89,7 @@ public:
         atomicCall(e, setRotateSpeed1, 2.4f);
         atomicCall(e, setRotateSpeed2, 2.4f);
         atomicCall(e, setRoutine, ROUTINE_HOMING_PLAYER);
+        atomicCall(e, setLightRadius, 0.5f);
         m_small_enemies.push_back(e->getHandle());
         return e;
     }
@@ -107,6 +108,7 @@ public:
         atomicCall(e, setRotateSpeed1, 0.4f);
         atomicCall(e, setRotateSpeed2, 0.4f);
         atomicCall(e, setRoutine, ROUTINE_SHOOT);
+        atomicCall(e, setLightRadius, 0.8f);
         atomicCall(e, setExplosionSE, SE_EXPLOSION4);
         atomicCall(e, setExplosionChannel, SE_CHANNEL4);
         m_medium_enemies.push_back(e->getHandle());
@@ -127,6 +129,7 @@ public:
         atomicCall(e, setRotateSpeed1, 0.2f);
         atomicCall(e, setRotateSpeed2, 0.2f);
         atomicCall(e, setRoutine, ROUTINE_SHOOT);
+        atomicCall(e, setLightRadius, 1.2f);
         atomicCall(e, setExplosionSE, SE_EXPLOSION5);
         atomicCall(e, setExplosionChannel, SE_CHANNEL5);
         m_large_enemies.push_back(e->getHandle());

@@ -38,11 +38,12 @@ private:
     static const int FADEOUT_TIME = 60;
     STATE m_state;
     int32 m_st_frame;
+    float32 m_light_radius;
     SE_CHANNEL m_explosion_channel;
     SE_RID m_explosion_se;
 
 public:
-    Enemy_Test() : m_state(ST_FADEIN), m_st_frame(0)
+    Enemy_Test() : m_state(ST_FADEIN), m_st_frame(0), m_light_radius(0.5f)
         , m_explosion_channel(SE_CHANNEL3), m_explosion_se(SE_EXPLOSION3)
     {
     }
@@ -60,6 +61,7 @@ public:
     void setState(STATE s) { m_state=s; m_st_frame=0; }
     STATE getState() const { return m_state; }
 
+    void setLightRadius(float32 v)          { m_light_radius=v; }
     void setExplosionSE(SE_RID v)           { m_explosion_se=v; }
     void setExplosionChannel(SE_CHANNEL v)  { m_explosion_channel=v; }
 
@@ -127,7 +129,7 @@ public:
             PointLight l;
             l.setPosition(getPosition() + vec4(0.0f, 0.0f, 0.2f, 1.0f));
             l.setColor(light);
-            l.setRadius(1.0f);
+            l.setRadius(m_light_radius);
             atomicGetPointLights()->addInstance(l);
         }
         if(m_state!=ST_FADEOUT) {
@@ -146,6 +148,7 @@ public:
     virtual bool call(uint32 call_id, const variant &v)
     {
         switch(call_id) {
+        DEFINE_ECALL1(setLightRadius, float32);
         DEFINE_ECALL1(setExplosionSE, SE_RID);
         DEFINE_ECALL1(setExplosionChannel, SE_CHANNEL);
         default: return super::call(call_id, v) || transform::call(call_id, v) || model::call(call_id, v);
