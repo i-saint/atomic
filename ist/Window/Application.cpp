@@ -184,8 +184,6 @@ Application* Application::getInstance()
 
 Application::Application()
 : m_hwnd(NULL)
-, m_width(0)
-, m_height(0)
 {
 }
 
@@ -203,8 +201,7 @@ bool Application::initialize(ivec2 wpos, ivec2 wsize, const wchar_t *title, bool
     }
     g_the_app = this;
 
-    m_width = wsize.x;
-    m_height = wsize.y;
+    m_window_size = wsize;
     m_fullscreen = fullscreen;
     int style = fullscreen ? WS_POPUP : WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME ^ WS_MAXIMIZEBOX;
     int flag = WS_POPUP | WS_VISIBLE;

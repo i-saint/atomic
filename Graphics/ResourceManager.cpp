@@ -9,23 +9,12 @@
 
 namespace atomic {
 
-uint32 CalcFrameBufferWidth()
+uvec2 CalcFrameBufferSize()
 {
-    uint32 r = 256;
-    uint32 window_width = atomicGetWindowWidth();
-    while(r < window_width) {
-        r *= 2;
-    }
-    return r;
-}
-
-uint32 CalcFrameBufferHeight()
-{
-    uint32 r = 256;
-    uint32 window_height = atomicGetWindowHeight();
-    while(r < window_height) {
-        r *= 2;
-    }
+    uvec2 r = uvec2(128);
+    uvec2 wsize = atomicGetWindowSize();
+    while(r.x < wsize.x) { r.x *= 2; }
+    while(r.y < wsize.y) { r.y *= 2; }
     return r;
 }
 
@@ -66,8 +55,7 @@ bool GraphicResourceManager::initialize()
     //// どうも 2 の n 乗サイズのフレームバッファの方が若干描画早いっぽい。 
     //uint32 framebuffer_width = atomicGetWindowWidth();
     //uint32 framebuffer_height = atomicGetWindowHeight();
-    uint32 rt_width = CalcFrameBufferWidth();
-    uint32 rt_height = CalcFrameBufferHeight();
+    uvec2 rt_size = CalcFrameBufferSize();
 
     // initialize opengl resources
     i3d::Device *dev = atomicGetGraphicsDevice();
@@ -122,16 +110,16 @@ bool GraphicResourceManager::initialize()
     }
     {
         // create textures
-        GenerateRandomTexture(*m_tex2d[TEX2D_RANDOM], 64, 64, I3D_RGB8U);
+        GenerateRandomTexture(*m_tex2d[TEX2D_RANDOM], uvec2(64, 64), I3D_RGB8U);
     }
     {
         // create render targets
-        m_rt[RT_GBUFFER]       = i3d::CreateRenderTarget(dev, 4, rt_width, rt_height, I3D_RGBA16F, I3D_DEPTH24_STENCIL8);
-        m_rt[RT_DEFERRED]      = i3d::CreateRenderTarget(dev, 1, rt_width, rt_height, I3D_RGBA8U);
+        m_rt[RT_GBUFFER]       = i3d::CreateRenderTarget(dev, 4, rt_size, I3D_RGBA16F, I3D_DEPTH24_STENCIL8);
+        m_rt[RT_DEFERRED]      = i3d::CreateRenderTarget(dev, 1, rt_size, I3D_RGBA8U);
         m_rt[RT_DEFERRED]->setDepthStencilBuffer(m_rt[RT_GBUFFER]->getDepthStencilBuffer());
-        m_rt[RT_GAUSS0]        = i3d::CreateRenderTarget(dev, 1, 512, 256, I3D_RGBA8U);
-        m_rt[RT_GAUSS1]        = i3d::CreateRenderTarget(dev, 1, 512, 256, I3D_RGBA8U);
-        m_rt[RT_POSTPROCESS]   = i3d::CreateRenderTarget(dev, 1, rt_width, rt_height, I3D_RGBA8U);
+        m_rt[RT_GAUSS0]        = i3d::CreateRenderTarget(dev, 1, uvec2(512, 256), I3D_RGBA8U);
+        m_rt[RT_GAUSS1]        = i3d::CreateRenderTarget(dev, 1, uvec2(512, 256), I3D_RGBA8U);
+        m_rt[RT_POSTPROCESS]   = i3d::CreateRenderTarget(dev, 1, rt_size, I3D_RGBA8U);
     }
 
     m_vbo[VBO_FLUID_PARTICLES]->allocate(sizeof(sphFluidParticle)*SPH_MAX_FLUID_PARTICLES, I3D_USAGE_DYNAMIC);

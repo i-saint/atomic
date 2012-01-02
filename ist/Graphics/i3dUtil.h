@@ -14,8 +14,8 @@ bool CreateTexture2DFromFile(Texture2D& tex, const char *filename);
 bool CreateTexture2DFromStream(Texture2D& tex, std::istream& st);
 
 // 乱数テクスチャ生成
-bool GenerateRandomTexture(Texture2D &tex, GLsizei width, GLsizei height, I3D_COLOR_FORMAT format);
-bool GenerateRandomTexture(Texture2D &tex, GLsizei width, GLsizei height, I3D_COLOR_FORMAT format, SFMT& random);
+bool GenerateRandomTexture(Texture2D &tex, const uvec2 &size, I3D_COLOR_FORMAT format);
+bool GenerateRandomTexture(Texture2D &tex, const uvec2 &size, I3D_COLOR_FORMAT format, SFMT& random);
 
 // ファイル/ストリームから各種シェーダ生成
 bool CreateVertexShaderFromFile(VertexShader& sh, const char *filename);
@@ -52,16 +52,16 @@ bool MapAndRead(BufferObjectType& bo, void *data, size_t data_size)
 
 
 
-RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, uint32 width, uint32 height,
+RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
     I3D_COLOR_FORMAT color_format);
 
-RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, uint32 width, uint32 height,
+RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
     I3D_COLOR_FORMAT *color_formats);
 
-RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, uint32 width, uint32 height,
+RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
     I3D_COLOR_FORMAT color_format, I3D_COLOR_FORMAT depthstencil_format);
 
-RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, uint32 width, uint32 height,
+RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
     I3D_COLOR_FORMAT *color_formats, I3D_COLOR_FORMAT depthstencil_format);
 
 

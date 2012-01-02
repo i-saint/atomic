@@ -201,6 +201,18 @@
     <ClCompile Include="ist\Sound\isdDeviceResource.cpp">
       <Filter>ist\Sound</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Renderer_DeferredShading.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Renderer_ForwardShading.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Renderer_GBuffer.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Renderer_Postprocess.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h">
@@ -470,6 +482,18 @@
     </ClInclude>
     <ClInclude Include="ist\Sound\isdUtil.h">
       <Filter>ist\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Renderer_DeferredShading.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Renderer_ForwardShading.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Renderer_GBuffer.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Renderer_Postprocess.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -36,7 +36,8 @@ World::World()
     m_task_update_entity    = istNew(Task_UpdateAsync<EntitySet>)(m_entity_set);
     m_task_update_sph       = istNew(Task_UpdateAsync<SPHManager>)(m_sph);
 
-    m_camera.setAspect(atomicGetWindowAspectRatio());
+    const uvec2 &wsize = atomicGetWindowSize();
+    m_camera.setAspect((float32)wsize.x/(float32)wsize.y);
 }
 
 World::~World()

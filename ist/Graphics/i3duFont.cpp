@@ -21,7 +21,7 @@ SystemFont::SystemFont(HDC m_hdc)
     TEXTMETRIC metric;
     GetTextMetrics(m_hdc, &metric);
     m_font_height = metric.tmHeight;
-    m_window_height = istGetAplication()->getWindowHeight();
+    m_window_height = istGetAplication()->getWindowSize().y;
 }
 
 SystemFont::~SystemFont()

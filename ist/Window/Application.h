@@ -52,7 +52,7 @@ private:
     MouseState      m_mouse_state;
     JoyState        m_joy_state[MAX_JOYSTICK_NUM];
 
-    size_t m_width, m_height;
+    uvec2   m_window_size;
 
 public:
     static Application* getInstance();
@@ -75,8 +75,7 @@ public:
 
     int showMessageDialog(const wchar_t* message, const wchar_t* caption, int dlgtype=DLG_OK);
 
-    size_t getWindowWidth() const   { return m_width; }
-    size_t getWindowHeight() const  { return m_height; }
+    const uvec2& getWindowSize() const              { return m_window_size; }
     const KeyboardState& getKeyboardState() const   { return m_keyboard_state; }
     const MouseState& getMouseState() const         { return m_mouse_state; }
     const JoyState& getJoyState(int i=0) const      { return m_joy_state[i]; }

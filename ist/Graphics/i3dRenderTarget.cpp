@@ -6,8 +6,6 @@ namespace ist {
 namespace i3d {
 
 Texture2D::Texture2D()
-: m_width(0)
-, m_height(0)
 {
     glGenTextures(1, &m_handle);
 }
@@ -20,7 +18,7 @@ Texture2D::~Texture2D()
     }
 }
 
-bool Texture2D::allocate(GLsizei width, GLsizei height, I3D_COLOR_FORMAT fmt, void *data)
+bool Texture2D::allocate(const uvec2 &size, I3D_COLOR_FORMAT fmt, void *data)
 {
     GLint internal_format = 0;
     GLint format = 0;
@@ -47,10 +45,9 @@ bool Texture2D::allocate(GLsizei width, GLsizei height, I3D_COLOR_FORMAT fmt, vo
         return false;
     }
 
-    m_width = width;
-    m_height = height;
+    m_size = size;
     glBindTexture( GL_TEXTURE_2D, m_handle );
-    glTexImage2D( GL_TEXTURE_2D, 0, internal_format, width, height, 0, format, type, data );
+    glTexImage2D( GL_TEXTURE_2D, 0, internal_format, m_size.x, m_size.y, 0, format, type, data );
     glBindTexture( GL_TEXTURE_2D, 0 );
     return true;
 }
@@ -75,14 +72,11 @@ void Texture2D::unbind(int slot) const
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-GLsizei Texture2D::getWidth() const { return m_width; }
-GLsizei Texture2D::getHeight() const { return m_height; }
+const uvec2& Texture2D::getSize() const { return m_size; }
 
 
 
 RenderBuffer::RenderBuffer()
-: m_width(0)
-, m_height(0)
 {
     glGenRenderbuffers(1, &m_handle);
 }
@@ -95,7 +89,7 @@ RenderBuffer::~RenderBuffer()
     }
 }
 
-bool RenderBuffer::allocate(GLsizei width, GLsizei height, I3D_COLOR_FORMAT fmt)
+bool RenderBuffer::allocate(const uvec2 &size, I3D_COLOR_FORMAT fmt)
 {
     GLint internal_format = 0;
     switch(fmt)
@@ -120,10 +114,9 @@ bool RenderBuffer::allocate(GLsizei width, GLsizei height, I3D_COLOR_FORMAT fmt)
         return false;
     }
 
-    m_width = width;
-    m_height = height;
+    m_size = size;
     glBindRenderbuffer( GL_RENDERBUFFER, m_handle );
-    glRenderbufferStorage( GL_RENDERBUFFER, internal_format, width, height );
+    glRenderbufferStorage( GL_RENDERBUFFER, internal_format, m_size.x, m_size.y );
     glBindRenderbuffer( GL_RENDERBUFFER, 0 );
     return true;
 }
@@ -138,8 +131,7 @@ void RenderBuffer::unbind() const
     glBindRenderbuffer( GL_RENDERBUFFER, 0 );
 }
 
-GLsizei RenderBuffer::getWidth() const { return m_width; }
-GLsizei RenderBuffer::getHeight() const { return m_height; }
+const uvec2& RenderBuffer::getSize() const { return m_size; }
 
 
 
@@ -189,13 +181,13 @@ bool RenderTarget::setRenderBuffers(Texture2D **rb, uint32 num, Texture2D *depth
 
     glBindFramebuffer(GL_FRAMEBUFFER, m_handle);
     for(uint32 i=0; i<num; ++i) {
-        if(rb[i]) {
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+i, GL_TEXTURE_2D, rb[i]->getHandle(), 0);
-        }
+        GLuint h = rb[i] ? rb[i]->getHandle() : 0;
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+i, GL_TEXTURE_2D, h, 0);
     }
-    if(depthstencil) {
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthstencil->getHandle(), 0);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, depthstencil->getHandle(), 0);
+    {
+        GLuint h = depthstencil ? depthstencil->getHandle() : 0;
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, h, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, h, 0);
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     return true;
@@ -222,8 +214,9 @@ void RenderTarget::setColorBuffer(uint32 i, Texture2D *rb)
     istSafeAddRef(rb);
     istSafeRelease(m_color_buffers[i]);
 
-    if(rb) {
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+i, GL_TEXTURE_2D, rb->getHandle(), 0);
+    {
+        GLuint h = rb ? rb->getHandle() : 0;
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+i, GL_TEXTURE_2D, h, 0);
     }
     m_color_buffers[i] = rb;
 }
@@ -233,11 +226,12 @@ void RenderTarget::setDepthStencilBuffer(Texture2D *rb)
     istSafeAddRef(rb);
     istSafeRelease(m_depthstencil);
 
-    m_depthstencil = rb;
-    if(m_depthstencil) {
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depthstencil->getHandle(), 0);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_depthstencil->getHandle(), 0);
+    {
+        GLuint h = rb ? rb->getHandle() : 0;
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, h, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, h, 0);
     }
+    m_depthstencil = rb;
 }
 
 uint32 RenderTarget::getNumColorBuffers() const

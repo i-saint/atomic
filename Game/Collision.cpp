@@ -8,6 +8,7 @@
 #include "Game/EntityQuery.h"
 #include "Game/SPHManager.h"
 #include "Collision.h"
+#include "GPGPU/SPH.cuh"
 
 namespace atomic {
 

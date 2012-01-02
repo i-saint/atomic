@@ -1,5 +1,5 @@
-#ifndef __atomic_Graphics_Renderer_h__
-#define __atomic_Graphics_Renderer_h__
+#ifndef __atomic_Graphics_Renderer__
+#define __atomic_Graphics_Renderer__
 
 #include "ResourceManager.h"
 #include "Light.h"
@@ -90,134 +90,6 @@ public:
 
 
 
-class PassGBuffer_SPH : public IRenderer
-{
-private:
-    VertexArray     *m_va_cube;
-    VertexBuffer    *m_vbo_fluid;
-    VertexBuffer    *m_vbo_rigid;
-    AtomicShader    *m_sh_fluid;
-    AtomicShader    *m_sh_rigid;
-
-    stl::vector<Task*>          m_tasks;
-    stl::vector<PSetInstance>   m_rinstances;
-    stl::vector<PSetParticle>   m_rparticles;
-
-    void resizeTasks(uint32 n);
-
-public:
-    PassGBuffer_SPH();
-    ~PassGBuffer_SPH();
-    void beforeDraw();  // メインスレッドから、描画処理の前に呼ばれる
-    void draw();    // 描画スレッドから呼ばれる
-
-    void addPSetInstance(PSET_RID psid, const mat4 &t, const vec4 &diffuse, const vec4 &glow, const vec4 &flash);
-};
-
-
-class PassDeferredShading_DirectionalLights : public IRenderer
-{
-private:
-    typedef DirectionalLight light_t;
-    typedef stl::vector<DirectionalLight> InstanceCont;
-    InstanceCont    m_instances;
-    VertexArray     *m_va_quad;
-    VertexBuffer    *m_vbo_instance;
-    AtomicShader    *m_shader;
-
-public:
-    PassDeferredShading_DirectionalLights();
-    void beforeDraw();
-    void draw();
-
-    void addInstance(const DirectionalLight& v);
-};
-
-class PassDeferredShading_PointLights : public IRenderer
-{
-public:
-
-private:
-    typedef stl::vector<PointLight> InstanceCont;
-    InstanceCont    m_instances;
-    AtomicShader    *m_shader;
-    IndexBuffer     *m_ibo_sphere;
-    VertexArray     *m_va_sphere;
-    VertexBuffer    *m_vbo_instance;
-
-public:
-    PassDeferredShading_PointLights();
-    void beforeDraw();
-    void draw();
-
-    void addInstance(const PointLight& v) { m_instances.push_back(v); }
-};
-
-
-class PassPostprocess_FXAA : public IRenderer
-{
-private:
-    RenderTarget    *m_rt_deferred;
-    RenderTarget    *m_rt_RGBL;
-    VertexArray     *m_va_quad;
-    AtomicShader    *m_sh_FXAA_luma;
-    AtomicShader    *m_sh_FXAA;
-    int32           m_loc_fxaa_param;
-    FXAAParams      m_fxaaparams;
-
-public:
-    PassPostprocess_FXAA();
-    void beforeDraw();
-    void draw();
-};
-
-class PassPostprocess_Bloom : public IRenderer
-{
-private:
-    RenderTarget    *m_rt_gbuffer;
-    RenderTarget    *m_rt_deferred;
-    RenderTarget    *m_rt_gauss0;
-    RenderTarget    *m_rt_gauss1;
-    VertexArray     *m_va_luminance;
-    VertexArray     *m_va_blur;
-    VertexArray     *m_va_composite;
-    UniformBuffer   *m_ubo_states;
-    AtomicShader    *m_sh_luminance;
-    AtomicShader    *m_sh_hblur;
-    AtomicShader    *m_sh_vblur;
-    AtomicShader    *m_sh_composite;
-
-public:
-    PassPostprocess_Bloom();
-    void beforeDraw();
-    void draw();
-};
-
-class PassPostprocess_Fade : public IRenderer
-{
-private:
-    RenderTarget    *m_rt_deferred;
-    AtomicShader    *m_sh_fade;
-    UniformBuffer   *m_ubo_fade;
-    VertexArray     *m_va_quad;
-    int32       m_loc_fade_param;
-    FadeParams  m_params;
-
-    vec4 m_begin_color;
-    vec4 m_end_color;
-    uint32 m_begin_frame;
-    uint32 m_end_frame;
-
-public:
-    PassPostprocess_Fade();
-    void beforeDraw();
-    void draw();
-
-    void setColor(const vec4 &v) { m_params.color=v; }
-    void setFade(const vec4 &v, uint32 frame);
-};
-
-
 class SystemTextRenderer : public IRenderer
 {
 private:
@@ -236,4 +108,10 @@ public:
 };
 
 } // namespace atomic
-#endif // __atomic_Graphics_Renderer_h__
+
+#include "Renderer_GBuffer.h"
+#include "Renderer_DeferredShading.h"
+#include "Renderer_ForwardShading.h"
+#include "Renderer_Postprocess.h"
+
+#endif // __atomic_Graphics_Renderer__

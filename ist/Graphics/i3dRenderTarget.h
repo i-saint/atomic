@@ -12,23 +12,21 @@ class Texture2D : public DeviceResource
 {
 I3D_DECLARE_DEVICE_RESOURCE(Texture2D)
 private:
-    GLsizei m_width;
-    GLsizei m_height;
+    uvec2 m_size;
 
 private:
     Texture2D();
     ~Texture2D();
 
 public:
-    bool allocate(GLsizei width, GLsizei height, I3D_COLOR_FORMAT format, void *data=NULL);
+    bool allocate(const uvec2 &size, I3D_COLOR_FORMAT format, void *data=NULL);
 
     void bind() const;
     void unbind() const;
     void bind(int slot) const;  // slot: preferred to IST_TEXTURE_SLOT
     void unbind(int slot) const;// slot: preferred to IST_TEXTURE_SLOT
 
-    GLsizei getWidth() const;
-    GLsizei getHeight() const;
+    const uvec2& getSize() const;
 };
 
 
@@ -37,20 +35,18 @@ class RenderBuffer : public DeviceResource
 {
 I3D_DECLARE_DEVICE_RESOURCE(RenderBuffer)
 private:
-    GLsizei m_width;
-    GLsizei m_height;
+    uvec2 m_size;
 
     RenderBuffer();
     ~RenderBuffer();
 
 public:
-    bool allocate(GLsizei width, GLsizei height, I3D_COLOR_FORMAT format);
+    bool allocate(const uvec2 &size, I3D_COLOR_FORMAT format);
 
     void bind() const;
     void unbind() const;
 
-    GLsizei getWidth() const;
-    GLsizei getHeight() const;
+    const uvec2& getSize() const;
 };
 
 

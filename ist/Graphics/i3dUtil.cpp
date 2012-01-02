@@ -27,43 +27,43 @@ bool CreateTexture2DFromStream(Texture2D& tex, std::istream& st)
     return false;
 }
 
-bool GenerateRandomTexture(Texture2D &tex, GLsizei width, GLsizei height, I3D_COLOR_FORMAT format)
+bool GenerateRandomTexture(Texture2D &tex, const uvec2 &size, I3D_COLOR_FORMAT format)
 {
     static SFMT random;
     if(!random.isInitialized()) { random.initialize((uint32_t)::time(0)); }
-    return GenerateRandomTexture(tex, width, height, format, random);
+    return GenerateRandomTexture(tex, size, format, random);
 }
 
-bool GenerateRandomTexture(Texture2D &tex, GLsizei width, GLsizei height, I3D_COLOR_FORMAT format, SFMT& random)
+bool GenerateRandomTexture(Texture2D &tex, const uvec2 &size, I3D_COLOR_FORMAT format, SFMT& random)
 {
     std::string buffer;
     if(format==I3D_RGB8U) {
-        int data_size = width*height*3;
+        int data_size = size.x*size.y*3;
         buffer.resize(data_size);
         for(int i=0; i<data_size; ++i) {
             buffer[i] = random.genInt32();
         }
     }
     else if(format==I3D_RGBA8U) {
-        int data_size = width*height*4;
+        int data_size = size.x*size.y*4;
         buffer.resize(data_size);
         for(int i=0; i<data_size; ++i) {
             buffer[i] = random.genInt32();
         }
     }
     else if(format==I3D_RGB32F) {
-        int data_size = width*height*sizeof(float)*3;
+        int data_size = size.x*size.y*sizeof(float)*3;
         buffer.resize(data_size);
         float *w = (float*)&buffer[0];
-        for(int i=0; i<width*height*3; ++i) {
+        for(int i=0; i<size.x*size.y*3; ++i) {
             w[i] = random.genFloat32();
         }
     }
     else if(format==I3D_RGBA32F) {
-        int data_size = width*height*sizeof(float)*4;
+        int data_size = size.x*size.y*sizeof(float)*4;
         buffer.resize(data_size);
         float *w = (float*)&buffer[0];
-        for(int i=0; i<width*height*4; ++i) {
+        for(int i=0; i<size.x*size.y*4; ++i) {
             w[i] = random.genFloat32();
         }
     }
@@ -71,7 +71,7 @@ bool GenerateRandomTexture(Texture2D &tex, GLsizei width, GLsizei height, I3D_CO
         istAssert("–¢ŽÀ‘•");
     }
 
-    bool ret =  tex.allocate(width, height, format, &buffer[0]);
+    bool ret =  tex.allocate(size, format, &buffer[0]);
     return ret;
 }
 
@@ -116,10 +116,10 @@ bool CreateFragmentShaderFromString(PixelShader& sh, const char* source)    { re
 
 
 
-Texture2D* CreateRenderBufferTexture(Device *dev, uint32 width, uint32 height, I3D_COLOR_FORMAT color_format)
+Texture2D* CreateRenderBufferTexture(Device *dev, const uvec2 &size, I3D_COLOR_FORMAT color_format)
 {
     Texture2D *r = dev->createTexture2D();
-    r->allocate(width, height, color_format);
+    r->allocate(size, color_format);
     r->bind();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -129,21 +129,21 @@ Texture2D* CreateRenderBufferTexture(Device *dev, uint32 width, uint32 height, I
     return r;
 }
 
-RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, uint32 width, uint32 height,
+RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
     I3D_COLOR_FORMAT color_format)
 {
     I3D_COLOR_FORMAT color_formats[RenderTarget::MAX_RENDER_BUFFERS];
     std::fill_n(color_formats, num_color_buffers, color_format);
-    return CreateRenderTarget(dev, num_color_buffers, width, height, color_formats);
+    return CreateRenderTarget(dev, num_color_buffers, size, color_formats);
 }
 
-RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, uint32 width, uint32 height,
+RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
     I3D_COLOR_FORMAT *color_formats)
 {
     Texture2D *rb[RenderTarget::MAX_RENDER_BUFFERS];
     RenderTarget *rt = dev->createRenderTarget();
     for(uint32 i=0; i<num_color_buffers; ++i) {
-        rb[i] = CreateRenderBufferTexture(dev, width, height, color_formats[i]);
+        rb[i] = CreateRenderBufferTexture(dev, size, color_formats[i]);
     }
     rt->setRenderBuffers(rb, num_color_buffers, NULL);
     for(uint32 i=0; i<num_color_buffers; ++i) {
@@ -152,25 +152,25 @@ RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, uint32 w
     return rt;
 }
 
-RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, uint32 width, uint32 height,
+RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
     I3D_COLOR_FORMAT color_format, I3D_COLOR_FORMAT depthstencil_format)
 {
     I3D_COLOR_FORMAT color_formats[RenderTarget::MAX_RENDER_BUFFERS];
     std::fill_n(color_formats, num_color_buffers, color_format);
-    return CreateRenderTarget(dev, num_color_buffers, width, height, color_formats, depthstencil_format);
+    return CreateRenderTarget(dev, num_color_buffers, size, color_formats, depthstencil_format);
 }
 
-RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, uint32 width, uint32 height,
+RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
     I3D_COLOR_FORMAT *color_formats, I3D_COLOR_FORMAT depthstencil_format)
 {
     Texture2D *rb[RenderTarget::MAX_RENDER_BUFFERS];
     Texture2D *ds;
     RenderTarget *rt = dev->createRenderTarget();
     for(uint32 i=0; i<num_color_buffers; ++i) {
-        rb[i] = CreateRenderBufferTexture(dev, width, height, color_formats[i]);
+        rb[i] = CreateRenderBufferTexture(dev, size, color_formats[i]);
     }
     {
-        ds = CreateRenderBufferTexture(dev, width, height, depthstencil_format);
+        ds = CreateRenderBufferTexture(dev, size, depthstencil_format);
     }
     rt->setRenderBuffers(rb, num_color_buffers, ds);
     for(uint32 i=0; i<num_color_buffers; ++i) {

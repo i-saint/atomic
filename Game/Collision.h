@@ -1,7 +1,6 @@
 #ifndef __atomic_Game_Collision__
 #define __atomic_Game_Collision__
 
-#include "GPGPU/SPH.cuh"
 
 namespace atomic {
 
@@ -57,7 +56,7 @@ private:
             COLLISION_SHAPE m_shape;
             CollisionHandle m_col_handle;
             EntityHandle    m_gobj_handle;
-            int32           m_flags; // FLAG
+            int32           m_flags; // COLLISION_FLAG
         };
         float4 padding;
     };

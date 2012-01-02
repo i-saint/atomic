@@ -66,8 +66,8 @@ public:
 
     void setState(STATE v);
     STATE getState() const;
-    void waitForInitializeComplete();
-    void waitForDrawCallbackComplete();
+    void waitUntilInitializationComplete();
+    void waitUntilDrawCallbackComplete();
 
     void doRender();
 
@@ -100,7 +100,7 @@ void AtomicRenderingThread::run()
     m_thread = istNew( boost::thread(boost::ref(*this)) );
 }
 
-void AtomicRenderingThread::waitForInitializeComplete()
+void AtomicRenderingThread::waitUntilInitializationComplete()
 {
     for(;;) {
         STATE r = getState();
@@ -109,7 +109,7 @@ void AtomicRenderingThread::waitForInitializeComplete()
     }
 }
 
-void AtomicRenderingThread::waitForDrawCallbackComplete()
+void AtomicRenderingThread::waitUntilDrawCallbackComplete()
 {
     for(;;) {
         STATE r = getState();
@@ -203,7 +203,7 @@ bool AtomicRenderingSystem::initializeInstance()
 {
     if(!s_inst) {
         s_inst = istNew(AtomicRenderingSystem)();
-        s_inst->waitForInitializeComplete();
+        s_inst->waitUntilInitializationComplete();
         return true;
     }
     return false;
@@ -231,14 +231,14 @@ AtomicRenderingSystem::~AtomicRenderingSystem()
     istSafeDelete(m_render_thread);
 }
 
-void AtomicRenderingSystem::waitForInitializeComplete()
+void AtomicRenderingSystem::waitUntilInitializationComplete()
 {
-    m_render_thread->waitForInitializeComplete();
+    m_render_thread->waitUntilInitializationComplete();
 }
 
-void AtomicRenderingSystem::waitForDrawCallbackComplete()
+void AtomicRenderingSystem::waitUntilDrawCallbackComplete()
 {
-    m_render_thread->waitForDrawCallbackComplete();
+    m_render_thread->waitUntilDrawCallbackComplete();
 }
 
 void AtomicRenderingSystem::kickDraw()

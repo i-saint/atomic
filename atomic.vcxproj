@@ -39,6 +39,10 @@
     <ClCompile Include="Graphics\CreateModelData.cpp" />
     <ClCompile Include="Graphics\CudaBuffer.cpp" />
     <ClCompile Include="Graphics\Renderer.cpp" />
+    <ClCompile Include="Graphics\Renderer_DeferredShading.cpp" />
+    <ClCompile Include="Graphics\Renderer_ForwardShading.cpp" />
+    <ClCompile Include="Graphics\Renderer_GBuffer.cpp" />
+    <ClCompile Include="Graphics\Renderer_Postprocess.cpp" />
     <ClCompile Include="Graphics\ResourceManager.cpp" />
     <ClCompile Include="Graphics\Shader.cpp" />
     <ClCompile Include="ist\Base\Allocator.cpp" />
@@ -107,6 +111,10 @@
     <ClInclude Include="Graphics\Light.h" />
     <ClInclude Include="Graphics\ParticleSet.h" />
     <ClInclude Include="Graphics\Renderer.h" />
+    <ClInclude Include="Graphics\Renderer_DeferredShading.h" />
+    <ClInclude Include="Graphics\Renderer_ForwardShading.h" />
+    <ClInclude Include="Graphics\Renderer_GBuffer.h" />
+    <ClInclude Include="Graphics\Renderer_Postprocess.h" />
     <ClInclude Include="Graphics\ResourceID.h" />
     <ClInclude Include="Graphics\ResourceManager.h" />
     <ClInclude Include="Graphics\Shader.h" />

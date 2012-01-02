@@ -23,8 +23,8 @@ public:
     static void finalizeInstance();
     static AtomicRenderingSystem* getInstance();
 
-    void waitForInitializeComplete();
-    void waitForDrawCallbackComplete();
+    void waitUntilInitializationComplete();
+    void waitUntilDrawCallbackComplete();
     void kickDraw();
 
     float32 getAverageFPS() const;
@@ -37,7 +37,7 @@ public:
 } // namespace atomic
 
 #define atomicGetRenderingSystem()          AtomicRenderingSystem::getInstance()
-#define atomicWaitForDrawCallbackComplete() atomicGetRenderingSystem()->waitForDrawCallbackComplete()
+#define atomicWaitForDrawCallbackComplete() atomicGetRenderingSystem()->waitUntilDrawCallbackComplete()
 #define atomicKickDraw()                    atomicGetRenderingSystem()->kickDraw()
 #define atomicGetAverageFPS()               atomicGetRenderingSystem()->getAverageFPS()
 #define atomicGetGraphicsDevice()           atomicGetRenderingSystem()->getDevice()

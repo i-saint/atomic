@@ -8,28 +8,18 @@ namespace i3d {
 class Viewport
 {
 private:
-    int m_x;
-    int m_y;
-    size_t m_width;
-    size_t m_height;
+    ivec2 m_pos;
+    uvec2 m_size;
 
 public:
-    Viewport() : m_x(0), m_y(0), m_width(100), m_height(100) {}
-    Viewport(int x, int y, size_t w, size_t h) : m_x(x), m_y(y), m_width(w), m_height(h) {}
+    Viewport() : m_pos(0,0), m_size(100,100) {}
+    Viewport(const ivec2 pos, const uvec2 &size) : m_pos(pos), m_size(size) {}
 
-    int getX() const        { return m_x; }
-    int getY() const        { return m_y; }
-    size_t getWidth() const { return m_width; }
-    size_t getHeight() const{ return m_height; }
-    float getAspectRatio() const { return (float)m_width/(float)m_height; }
-
-    void setViewport(int x, int y, size_t w, size_t h)
-    {
-        m_x = x;
-        m_y = y;
-        m_width = w;
-        m_height = h;
-    }
+    const ivec2& getPosition() const{ return m_pos; }
+    const uvec2& getSize() const    { return m_size; }
+    float32 getAspectRatio() const  { return (float32)m_size.x/(float32)m_size.y; }
+    void setPosition(const ivec2 v) { m_pos=v; }
+    void setSize(const ivec2 v)     { m_size=v; }
 
     bool bind() const;
 };

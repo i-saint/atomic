@@ -10,8 +10,6 @@ namespace atomic {
 class FractionGrid;
 class Task_FractionUpdateAsync;
 class Task_FractionDraw;
-
-
 class Task_FractionUpdateAsync;
 
 
@@ -39,6 +37,7 @@ public:
     void asyncupdate(float32 dt);
     void draw() const;
 
+    // rigid/force は毎フレームクリアされるので、毎フレーム突っ込む必要がある
     void addRigid(const sphRigidPlane &s);
     void addRigid(const sphRigidSphere &s);
     void addRigid(const sphRigidBox &s);

@@ -69,9 +69,7 @@ public:
 #define atomicGetSystemInputs()         atomicGetApplication()->getSystemInputs()
 
 #define atomicGetConfig()               atomicGetApplication()->getConfig()
-#define atomicGetWindowWidth()          atomicGetApplication()->getWindowWidth()
-#define atomicGetWindowHeight()         atomicGetApplication()->getWindowHeight()
-#define atomicGetWindowAspectRatio()    (float(atomicGetWindowWidth())/float(atomicGetWindowHeight()))
+#define atomicGetWindowSize()           atomicGetApplication()->getWindowSize()
 
 } // namespace atomic
 #endif __atomic_Game_AtomicApplication__

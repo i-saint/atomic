@@ -9,9 +9,11 @@ namespace i3d {
 
 bool Viewport::bind() const
 {
-    glViewport(getX(), getY(), getWidth(), getHeight());
+    glViewport(m_pos.x, m_pos.y, m_size.x, m_size.y);
     return true;
 }
+
+
 
 void Camera::updateMatrix()
 {
