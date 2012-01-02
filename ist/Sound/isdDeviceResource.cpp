@@ -1,12 +1,10 @@
 #include "stdafx.h"
 #include "../Base.h"
-#include "i3dTypes.h"
-#include "i3dDeviceResource.h"
-#include "i3dDevice.h"
+#include "../Sound.h"
+#include "isdDeviceResource.h"
 
 namespace ist {
-namespace i3d {
-
+namespace isd {
 
 DeviceResource::DeviceResource()
     : m_owner_device(NULL)
@@ -64,5 +62,5 @@ GLuint DeviceResource::getHandle() const
     return m_handle;
 }
 
-} // namespace i3d
+} // namespace isd
 } // namespace ist

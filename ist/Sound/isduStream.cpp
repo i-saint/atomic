@@ -3,7 +3,7 @@
 #include "../Sound.h"
 
 namespace ist {
-namespace sound {
+namespace isd {
 
 Stream::~Stream() {}
 
@@ -34,14 +34,14 @@ ALenum Stream::getALFormat() const
     return (ALenum)0;
 }
 
-Stream::CharCont& Stream::readMillisec(size_t require_millisec)
+Stream::DataCont& Stream::readMillisec(size_t require_millisec)
 {
     size_t require_size = size_t(
         float(getSampleRate()*getChannels()*(getBitsPerSample()/8)) * float(require_millisec)/1000.0f);
     return readByte(require_size);
 }
 
-Stream::CharCont& Stream::readSample(size_t require_sample)
+Stream::DataCont& Stream::readSample(size_t require_sample)
 {
     size_t require_size = require_sample*getChannels()*(getBitsPerSample()/8);
     return readByte(require_size);
@@ -73,28 +73,28 @@ bool WaveStream::openStream(const char* filepath)
     fread(&m_riff, sizeof(riff_header), 1, m_file);
     if(strncmp(m_riff.riff, "RIFF", 4)!=0) {
         istPrint("WaveStream::WaveStream(): not RIFF file %s\n", filepath);
-        goto LABEL_ERROR;
+        goto section_error;
     }
     if(strncmp(m_riff.wave, "WAVE", 4)!=0){
         istPrint("WaveStream::WaveStream(): not WAVE file %s\n", filepath);
-        goto LABEL_ERROR;
+        goto section_error;
     }
 
     fread(&m_format, sizeof(format_header), 1, m_file);
     if(strncmp(m_format.fmt, "fmt ", 4)!=0){
         istPrint("WaveStream::WaveStream(): fmt not found %s\n", filepath);
-        goto LABEL_ERROR;
+        goto section_error;
     }
 
     fread(&m_data, sizeof(data_header), 1, m_file);
     if(strncmp(m_data.data, "data", 4)!=0){
         istPrint("WaveStream::WaveStream(): data not found %s\n", filepath);
-        goto LABEL_ERROR;
+        goto section_error;
     }
 
     return true;
 
-LABEL_ERROR:
+section_error:
     closeStream();
     return false;
 }
@@ -106,16 +106,16 @@ void WaveStream::closeStream()
 
 size_t WaveStream::getHeaderSize() const { return sizeof(riff_header)+sizeof(format_header)+sizeof(data_header); }
 
-size_t WaveStream::size() { return m_data.size; }
-size_t WaveStream::tell() { return ftell(m_file)-getHeaderSize(); }
+size_t WaveStream::size()       { return m_data.size; }
+size_t WaveStream::tell()       { return ftell(m_file)-getHeaderSize(); }
 void WaveStream::seek(size_t v) { fseek(m_file, getHeaderSize()+v, SEEK_SET); }
-bool WaveStream::eof() { return m_file==NULL || tell()==size(); }
+bool WaveStream::eof()          { return m_file==NULL || tell()==size(); }
 
-size_t WaveStream::getChannels() const { return m_format.channels; }
-size_t WaveStream::getSampleRate() const { return m_format.sample_rate; }
+size_t WaveStream::getChannels() const      { return m_format.channels; }
+size_t WaveStream::getSampleRate() const    { return m_format.sample_rate; }
 size_t WaveStream::getBitsPerSample() const { return m_format.bits_per_sample; }
 
-WaveStream::CharCont& WaveStream::readByte(size_t require_size)
+WaveStream::DataCont& WaveStream::readByte(size_t require_size)
 {
     m_tmp.clear();
     m_tmp.resize(std::min<size_t>(require_size, size()-tell()));
@@ -123,5 +123,5 @@ WaveStream::CharCont& WaveStream::readByte(size_t require_size)
     return m_tmp;
 }
 
-} // namespace sound
+} // namespace isd
 } // namespace ist

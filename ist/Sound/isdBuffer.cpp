@@ -2,7 +2,7 @@
 #include "../Sound.h"
 
 namespace ist {
-namespace sound {
+namespace isd {
 
 void Buffer::initialize()
 {
@@ -28,8 +28,6 @@ Buffer::~Buffer()
     alDeleteBuffers(1, &m_handle);
 }
 
-ALuint Buffer::getHandle() const { return m_handle; }
-
 int Buffer::getSize() const { return getI(AL_SIZE); }
 int Buffer::getBits() const { return getI(AL_BITS); }
 int Buffer::getChannels() const { return getI(AL_CHANNELS); }
@@ -41,5 +39,5 @@ void Buffer::copy(char *data, size_t size, ALenum format, int samplerate)
     alBufferData(m_handle, format, data, size, samplerate);
 }
 
-} // namespace sound
+} // namespace isd
 } // namespace ist

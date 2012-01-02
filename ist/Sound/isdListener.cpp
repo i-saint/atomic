@@ -2,7 +2,7 @@
 #include "../Sound.h"
 
 namespace ist {
-namespace sound {
+namespace isd {
 
 int Listener::getI(ALenum param) const
 {
@@ -53,5 +53,5 @@ void Listener::setPosition(const vec3 &v) { set3F(AL_POSITION, v); }
 void Listener::setVelocity(const vec3 &v) { set3F(AL_VELOCITY, v); }
 
 
-} // namespace sound
+} // namespace isd
 } // namespace ist

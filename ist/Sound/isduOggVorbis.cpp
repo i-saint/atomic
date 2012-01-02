@@ -5,7 +5,7 @@
 #ifdef __ist_with_oggvorbis__
 
 namespace ist {
-namespace sound {
+namespace isd {
 
 OggVorbisFileStream::OggVorbisFileStream()
 : m_file(NULL)
@@ -70,7 +70,7 @@ size_t OggVorbisFileStream::getChannels() const { return m_info->channels; }
 size_t OggVorbisFileStream::getSampleRate() const { return m_info->rate; }
 size_t OggVorbisFileStream::getBitsPerSample() const { return 16; }
 
-OggVorbisFileStream::CharCont& OggVorbisFileStream::readByte(size_t require_size)
+OggVorbisFileStream::DataCont& OggVorbisFileStream::readByte(size_t require_size)
 {
     require_size -= require_size % (getChannels()*2); // alignment 
     m_tmp.clear();
@@ -157,7 +157,7 @@ size_t OggVorbisMemoryStream::getChannels() const { return m_info->channels; }
 size_t OggVorbisMemoryStream::getSampleRate() const { return m_info->rate; }
 size_t OggVorbisMemoryStream::getBitsPerSample() const { return 16; }
 
-OggVorbisMemoryStream::CharCont& OggVorbisMemoryStream::readByte(size_t require_size)
+OggVorbisMemoryStream::DataCont& OggVorbisMemoryStream::readByte(size_t require_size)
 {
     require_size -= require_size % (getChannels()*2); // alignment 
     m_tmp.clear();
@@ -230,7 +230,7 @@ long OggVorbisMemoryStream::tell( void* stream )
     return static_cast<OggVorbisMemoryStream*>(stream)->m_position;
 }
 
-} // namespace sound
+} // namespace isd
 } // namespace ist
 
 #endif // IST_SOUND_ENABLE_OGGVORBIS

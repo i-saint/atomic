@@ -10,7 +10,7 @@ namespace i3d {
 
 class Texture2D : public DeviceResource
 {
-I3D_DECLARE_DEVICE_RESOURCE()
+I3D_DECLARE_DEVICE_RESOURCE(Texture2D)
 private:
     GLsizei m_width;
     GLsizei m_height;
@@ -35,7 +35,7 @@ public:
 
 class RenderBuffer : public DeviceResource
 {
-I3D_DECLARE_DEVICE_RESOURCE()
+I3D_DECLARE_DEVICE_RESOURCE(RenderBuffer)
 private:
     GLsizei m_width;
     GLsizei m_height;
@@ -56,7 +56,7 @@ public:
 
 class RenderTarget : public DeviceResource
 {
-I3D_DECLARE_DEVICE_RESOURCE()
+I3D_DECLARE_DEVICE_RESOURCE(RenderTarget)
 public:
     static const int32 MAX_RENDER_BUFFERS = 16;
 

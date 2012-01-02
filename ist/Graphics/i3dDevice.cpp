@@ -49,6 +49,10 @@ Device::Device(HWND hwnd) : m_hwnd(hwnd)
 
 Device::~Device()
 {
+    for(uint32 i=0; i<m_resources.size(); ++i) {
+        istSafeDelete(m_resources[i]);
+    }
+
     if(m_hglrc!=NULL) {
         ::wglMakeCurrent(NULL, NULL);
         ::wglDeleteContext(m_hglrc);

@@ -1,10 +1,10 @@
-#ifndef __ist_DeviceResource__
-#define __ist_DeviceResource__
+#ifndef __ist_isd_DeviceResource__
+#define __ist_isd_DeviceResource__
 
-#include "i3dTypes.h"
+#include "isdTypes.h"
 
 namespace ist {
-namespace i3d {
+namespace isd {
 
 class Device;
 
@@ -18,7 +18,7 @@ private:
     int32 m_reference_count;
 
 protected:
-    GLuint m_handle;
+    ALuint m_handle;
 
 private:
     // non copyable
@@ -39,9 +39,10 @@ public:
     int32 addRef();
     int32 release();
 
-    GLuint getHandle() const;
+    ALuint getHandle() const;
 };
 
-} // namespace i3d
+} // namespace isd
 } // namespace ist
-#endif // __ist_DeviceResource__
+
+#endif // __ist_isd_DeviceResource__

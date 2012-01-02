@@ -1,12 +1,15 @@
-#ifndef __ist_Sound_Listener__
-#define __ist_Sound_Listener__
+#ifndef __ist_isd_Listener__
+#define __ist_isd_Listener__
+
+#include "isdDeviceResource.h"
 
 namespace ist {
-namespace sound {
+namespace isd {
 
- 
-class Listener
+
+class Listener : public DeviceResource
 {
+ISD_DECLARE_DEVICE_RESOURCE(Listener);
 private:
 
 protected:
@@ -17,9 +20,10 @@ protected:
     void setF(ALenum param, float v);
     void set3F(ALenum param, const vec3& v);
 
-public:
     Listener();
     virtual ~Listener();
+
+public:
     float getGain() const;
     float4 getPosition() const;
     float4 getVelocity() const;
@@ -29,7 +33,7 @@ public:
     void setVelocity(const vec3& v);
 };
 
-} // namespace sound
+} // namespace isd
 } // namespace ist
 
-#endif // __ist_Sound_Listener__
+#endif // __ist_isd_Listener__

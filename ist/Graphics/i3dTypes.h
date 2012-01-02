@@ -1,6 +1,8 @@
 #ifndef __ist_i3d_Types__
 #define __ist_i3d_Types__
 
+#include "ist/Base/New.h"
+
 namespace ist {
 namespace i3d {
 
@@ -132,8 +134,9 @@ class ShaderProgtam;
 } // namespace i3d
 } // namespace ist
 
-#define I3D_DECLARE_DEVICE_RESOURCE() \
+#define I3D_DECLARE_DEVICE_RESOURCE(classname) \
 private:\
+    template<class T> friend T* ::call_destructor(T *v);\
     friend class Device;\
     friend class DeviceContext;
 

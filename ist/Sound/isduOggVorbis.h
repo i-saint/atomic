@@ -1,10 +1,10 @@
-#ifndef __ist_Sound_OggVorbis__
-#define __ist_Sound_OggVorbis__
+#ifndef __ist_isd_OggVorbis__
+#define __ist_isd_OggVorbis__
 
 #ifdef __ist_with_oggvorbis__
 
 namespace ist {
-namespace sound {
+namespace isd {
 
 
 class OggVorbisFileStream : public Stream
@@ -13,7 +13,7 @@ private:
     FILE *m_file;
     OggVorbis_File m_ov;
     vorbis_info *m_info;
-    CharCont m_tmp;
+    DataCont m_tmp;
 
 public:
     OggVorbisFileStream();
@@ -31,7 +31,7 @@ public:
     size_t getSampleRate() const;
     size_t getBitsPerSample() const;
 
-    CharCont& readByte(size_t require_size);
+    DataCont& readByte(size_t require_size);
 };
 
 class OggVorbisMemoryStream : public Stream
@@ -42,7 +42,7 @@ private:
     vorbis_info *m_info;
     size_t m_datasize;
     size_t m_position;
-    CharCont m_tmp;
+    DataCont m_tmp;
 
 public:
     OggVorbisMemoryStream();
@@ -60,7 +60,7 @@ public:
     size_t getSampleRate() const;
     size_t getBitsPerSample() const;
 
-    CharCont& readByte(size_t require_size);
+    DataCont& readByte(size_t require_size);
 
     // callbacks called by ogg vorbis
     static size_t read( void* buffer, size_t size, size_t maxCount, void* stream );
@@ -70,8 +70,8 @@ public:
 };
 
 
-} // namespace sound
+} // namespace isd
 } // namespace ist
 
 #endif // __ist_with_oggvorbis__
-#endif // __ist_Sound_OggVorbis__
+#endif // __ist_isd_OggVorbis__

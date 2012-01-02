@@ -92,33 +92,6 @@
     </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="ist\Sound\Listener.cpp">
-      <Filter>ist\Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Sound\Buffer.cpp">
-      <Filter>ist\Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Sound\OggVorbis.cpp">
-      <Filter>ist\Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Sound\Internal.cpp">
-      <Filter>ist\Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Sound\System.cpp">
-      <Filter>ist\Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Sound\Stream.cpp">
-      <Filter>ist\Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Sound\SourceSet.cpp">
-      <Filter>ist\Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Sound\Source.cpp">
-      <Filter>ist\Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Sound\SoundUtil.cpp">
-      <Filter>ist\Sound</Filter>
-    </ClCompile>
     <ClCompile Include="Sound\AtomicSound.cpp">
       <Filter>Sound</Filter>
     </ClCompile>
@@ -200,6 +173,33 @@
     </ClCompile>
     <ClCompile Include="Graphics\AtomicRenderingSystem.cpp">
       <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Sound\isdBuffer.cpp">
+      <Filter>ist\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Sound\isdDevice.cpp">
+      <Filter>ist\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Sound\isdListener.cpp">
+      <Filter>ist\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Sound\isdSource.cpp">
+      <Filter>ist\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Sound\isduOggVorbis.cpp">
+      <Filter>ist\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Sound\isduStream.cpp">
+      <Filter>ist\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Sound\isduStreamSource.cpp">
+      <Filter>ist\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Sound\isdUtil.cpp">
+      <Filter>ist\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Sound\isdDeviceResource.cpp">
+      <Filter>ist\Sound</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -325,33 +325,6 @@
     <ClInclude Include="ist\Sound.h">
       <Filter>ist</Filter>
     </ClInclude>
-    <ClInclude Include="ist\Sound\Buffer.h">
-      <Filter>ist\Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Sound\Listener.h">
-      <Filter>ist\Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Sound\OggVorbis.h">
-      <Filter>ist\Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Sound\Source.h">
-      <Filter>ist\Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Sound\SourceSet.h">
-      <Filter>ist\Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Sound\Stream.h">
-      <Filter>ist\Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Sound\Internal.h">
-      <Filter>ist\Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Sound\System.h">
-      <Filter>ist\Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Sound\SoundUtil.h">
-      <Filter>ist\Sound</Filter>
-    </ClInclude>
     <ClInclude Include="Sound\AtomicSound.h">
       <Filter>Sound</Filter>
     </ClInclude>
@@ -467,6 +440,36 @@
     </ClInclude>
     <ClInclude Include="Graphics\AtomicRenderingSystem.h">
       <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Sound\isdBuffer.h">
+      <Filter>ist\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Sound\isdDevice.h">
+      <Filter>ist\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Sound\isdDeviceResource.h">
+      <Filter>ist\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Sound\isdListener.h">
+      <Filter>ist\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Sound\isdSource.h">
+      <Filter>ist\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Sound\isdTypes.h">
+      <Filter>ist\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Sound\isduOggVorbis.h">
+      <Filter>ist\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Sound\isduStream.h">
+      <Filter>ist\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Sound\isduStreamSource.h">
+      <Filter>ist\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Sound\isdUtil.h">
+      <Filter>ist\Sound</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

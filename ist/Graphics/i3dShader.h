@@ -9,7 +9,7 @@ namespace i3d {
 template<size_t ShaderType>
 class ShaderObject : public DeviceResource
 {
-I3D_DECLARE_DEVICE_RESOURCE();
+I3D_DECLARE_DEVICE_RESOURCE(ShaderObject);
 protected:
     ShaderObject();
     ~ShaderObject();
@@ -20,20 +20,38 @@ public:
 
 class VertexShader : public ShaderObject<GL_VERTEX_SHADER>
 {
+I3D_DECLARE_DEVICE_RESOURCE(VertexShader);
+private:
+    VertexShader() {}
+    ~VertexShader() {}
+
+public:
 };
 
 class PixelShader : public ShaderObject<GL_FRAGMENT_SHADER>
 {
+I3D_DECLARE_DEVICE_RESOURCE(PixelShader);
+private:
+    PixelShader() {}
+    ~PixelShader() {}
+
+public:
 };
 
 class GeometryShader : public ShaderObject<GL_GEOMETRY_SHADER>
 {
+I3D_DECLARE_DEVICE_RESOURCE(GeometryShader);
+private:
+    GeometryShader() {}
+    ~GeometryShader() {}
+
+public:
 };
 
 
 class ShaderProgram : public DeviceResource
 {
-I3D_DECLARE_DEVICE_RESOURCE();
+I3D_DECLARE_DEVICE_RESOURCE(ShaderProgram);
 private:
     ShaderProgram();
     ~ShaderProgram();

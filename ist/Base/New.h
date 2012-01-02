@@ -1,3 +1,5 @@
+#ifndef __ist_Base_New__
+#define __ist_Base_New__
 
 template<class T>
 inline T* call_destructor(T* p)
@@ -18,3 +20,5 @@ inline T* call_destructor(T* p)
 
 #define istSafeRelease(Obj)             if(Obj){Obj->release();Obj=NULL;}
 #define istSafeAddRef(Obj)              if(Obj){Obj->addRef();}
+
+#endif // __ist_Base_New__

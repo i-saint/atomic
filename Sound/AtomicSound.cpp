@@ -5,7 +5,7 @@
 #include "AtomicSound.h"
 #include "../Game/AtomicApplication.h"
 
-namespace sound = ist::sound;
+namespace isd = ist::isd;
 
 namespace atomic {
 
@@ -45,6 +45,7 @@ class SoundThread
 {
 private:
     boost::thread *m_thread;
+    isd::Device *m_device;
     bool m_initialization_complete;
     bool m_stop_request;
 
@@ -52,12 +53,12 @@ private:
     stl::vector<SoundRequest>   m_requests;
     stl::vector<SoundRequest>   m_reqests2;
 
-    sound::Listener         *m_listener;
-    sound::StreamSource     *m_bgm_source;
-    sound::Source           *m_se_sources[SE_CHANNEL_END];
+    isd::Listener         *m_listener;
+    isd::StreamSource     *m_bgm_source;
+    isd::Source           *m_se_sources[SE_CHANNEL_END];
 
-    sound::Stream           *m_stream;
-    sound::Buffer           *m_se_data[SE_END];
+    isd::Stream           *m_stream;
+    isd::Buffer           *m_se_data[SE_END];
 
 public:
     SoundThread();
@@ -75,7 +76,7 @@ public:
 
 public:
     void operator()();
-    void processSERequests();
+    void processRequests();
 };
 
 SoundThread::SoundThread()
@@ -86,8 +87,8 @@ SoundThread::SoundThread()
     m_listener = NULL;
     m_bgm_source = NULL;
     m_stream = NULL;
-    std::fill_n(m_se_sources, _countof(m_se_sources), (sound::Source*)NULL);
-    std::fill_n(m_se_data, _countof(m_se_data), (sound::Buffer*)NULL);
+    std::fill_n(m_se_sources, _countof(m_se_sources), (isd::Source*)NULL);
+    std::fill_n(m_se_data, _countof(m_se_data), (isd::Buffer*)NULL);
 
     m_requests.reserve(64);
     m_reqests2.reserve(64);
@@ -104,13 +105,15 @@ SoundThread::~SoundThread()
 
 void SoundThread::initialize()
 {
-    m_listener = istNew(sound::Listener)();
-    m_bgm_source = istNew(sound::StreamSource)();
-    for(uint32 i=0; i<_countof(m_se_sources); ++i)  { m_se_sources[i]=istNew(sound::Source)(); }
-    for(uint32 i=0; i<_countof(m_se_data); ++i)     { m_se_data[i]=istNew(sound::Buffer)(); }
+    m_device = istNew(isd::Device)();
+
+    m_listener = m_device->createListener();
+    for(uint32 i=0; i<_countof(m_se_sources); ++i)  { m_se_sources[i] = m_device->createSource(); }
+    for(uint32 i=0; i<_countof(m_se_data); ++i)     { m_se_data[i] = m_device->createBuffer(); }
+    m_bgm_source = istNew(isd::StreamSource)(m_device);
 
     {
-        sound::OggVorbisFileStream *ovfs = istNew(sound::OggVorbisFileStream)();
+        isd::OggVorbisFileStream *ovfs = istNew(isd::OggVorbisFileStream)();
         ovfs->openStream("Resources/bgm1.ogg");
         m_stream = ovfs;
     }
@@ -136,10 +139,12 @@ void SoundThread::finalize()
 {
     istDelete(m_stream);
 
-    for(uint32 i=0; i<_countof(m_se_data); ++i)     { istSafeDelete(m_se_data[i]); }
-    for(uint32 i=0; i<_countof(m_se_sources); ++i)  { istSafeDelete(m_se_sources[i]); }
-    istSafeDelete(m_bgm_source);
-    istSafeDelete(m_listener);
+    for(uint32 i=0; i<_countof(m_se_data); ++i)     { istSafeRelease(m_se_data[i]); }
+    for(uint32 i=0; i<_countof(m_se_sources); ++i)  { istSafeRelease(m_se_sources[i]); }
+    istSafeRelease(m_bgm_source);
+    istSafeRelease(m_listener);
+
+    istSafeDelete(m_device);
 }
 
 
@@ -160,7 +165,6 @@ void SoundThread::operator()()
 {
     ist::SetThreadName("AtomicSoundThread");
 
-    ist::sound::IntializeSound();
     initialize();
     m_initialization_complete = true;
 
@@ -169,7 +173,7 @@ void SoundThread::operator()()
 
     while(!m_stop_request) {
         ::Sleep(1);
-        processSERequests();
+        processRequests();
         m_bgm_source->update();
         if(m_bgm_source->eof()) {
             m_bgm_source->seek(0);
@@ -177,11 +181,10 @@ void SoundThread::operator()()
     }
 
     finalize();
-    sound::FinalizeSound();
     istPrint("sound thread end.\n");
 }
 
-void SoundThread::processSERequests()
+void SoundThread::processRequests()
 {
     m_se_lock.lock();
     m_reqests2 = m_requests;
@@ -198,7 +201,7 @@ void SoundThread::processSERequests()
             break;
         case SoundRequest::REQ_SE_PLAY:
             {
-                sound::Source *src = m_se_sources[req.se.ch];
+                isd::Source *src = m_se_sources[req.se.ch];
                 if(src->isInitial() || req.se.force) {
                     src->clearQueue();
                     src->setPosition((vec3&)(req.se.pos));
@@ -209,7 +212,7 @@ void SoundThread::processSERequests()
             break;
         case SoundRequest::REQ_SE_HALT:
             {
-                sound::Source *src = m_se_sources[req.se.ch];
+                isd::Source *src = m_se_sources[req.se.ch];
                 src->stop();
             }
             break;

@@ -2,7 +2,7 @@
 #include "../Sound.h"
 
 namespace ist {
-namespace sound {
+namespace isd {
 
 int Source::getI(ALenum param) const
 {
@@ -41,7 +41,7 @@ void Source::set3F(ALenum param, const vec3& v)
 }
 
 
-Source::Source() : m_handle(0)
+Source::Source()
 {
     alGenSources(1, &m_handle);
 }
@@ -51,18 +51,16 @@ Source::~Source()
     alDeleteSources(1, &m_handle);
 }
 
-ALuint Source::getHandle() const    { return m_handle; }
-
-bool Source::isLooping(bool v) const                { return getI(AL_LOOPING)==AL_TRUE; }
-float Source::getGain() const                       { return getF(AL_GAIN); }
-float Source::getRefferenceDistance(float v) const  { return getF(AL_REFERENCE_DISTANCE); }
-float Source::getRolloffFactor(float v) const       { return getF(AL_ROLLOFF_FACTOR); }
-float Source::getMaxDistance(float v) const         { return getF(AL_MAX_DISTANCE); }
-float Source::getPitch() const                      { return getF(AL_PITCH); }
-vec3 Source::getPosition() const                    { return get3F(AL_POSITION); }
-vec3 Source::getVelocity() const                    { return get3F(AL_VELOCITY); }
-int Source::getNumQueuedBuffers() const             { return getI(AL_BUFFERS_QUEUED); }
-int Source::getNumProcessedBuffers() const          { return getI(AL_BUFFERS_PROCESSED); }
+bool Source::isLooping() const              { return getI(AL_LOOPING)==AL_TRUE; }
+float Source::getGain() const               { return getF(AL_GAIN); }
+float Source::getRefferenceDistance() const { return getF(AL_REFERENCE_DISTANCE); }
+float Source::getRolloffFactor() const      { return getF(AL_ROLLOFF_FACTOR); }
+float Source::getMaxDistance() const        { return getF(AL_MAX_DISTANCE); }
+float Source::getPitch() const              { return getF(AL_PITCH); }
+vec3 Source::getPosition() const            { return get3F(AL_POSITION); }
+vec3 Source::getVelocity() const            { return get3F(AL_VELOCITY); }
+int Source::getNumQueuedBuffers() const     { return getI(AL_BUFFERS_QUEUED); }
+int Source::getNumProcessedBuffers() const  { return getI(AL_BUFFERS_PROCESSED); }
 
 void Source::setLooping(bool v)             { setI(AL_LOOPING, v); }
 void Source::setGain(float v)               { setF(AL_GAIN, v); }
@@ -104,5 +102,5 @@ void Source::clearQueue()
 }
 
 
-} // namespace sound
+} // namespace isd
 } // namespace ist

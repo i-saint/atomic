@@ -8,16 +8,17 @@
 #include <boost/shared_ptr.hpp>
 
 #include "Base.h"
-#include "Sound/Buffer.h"
-#include "Sound/Stream.h"
-#include "Sound/Source.h"
-#include "Sound/SourceSet.h"
-#include "Sound/Listener.h"
-#include "Sound/SoundUtil.h"
-#include "Sound/System.h"
+#include "Sound/isdDeviceResource.h"
+#include "Sound/isdDevice.h"
+#include "Sound/isdBuffer.h"
+#include "Sound/isdSource.h"
+#include "Sound/isdListener.h"
+#include "Sound/isdUtil.h"
+#include "Sound/isduStream.h"
+#include "Sound/isduStreamSource.h"
 #ifdef __ist_with_oggvorbis__
     #include <vorbis/vorbisfile.h>
-    #include "Sound/OggVorbis.h"
+    #include "Sound/isduOggVorbis.h"
     #pragma comment(lib, "libogg.lib")
     #pragma comment(lib, "libvorbis.lib")
     #pragma comment(lib, "libvorbisfile.lib")

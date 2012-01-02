@@ -4,7 +4,7 @@
 #include "../Base.h"
 
 namespace ist {
-namespace sound {
+namespace isd {
 
 bool CreateBufferFromWaveFile(const char* filepath, Buffer *buf)
 {
@@ -52,5 +52,17 @@ Stream* CreateStreamFromOggFile(const char* filepath)
     return NULL;
 }
 
-} // namespace sound
+
+ReferenceCounter::ReferenceCounter() : m_reference_count(0) {}
+uint32 ReferenceCounter::getRef() const { return m_reference_count; }
+uint32 ReferenceCounter::addRef() { return ++m_reference_count; }
+uint32 ReferenceCounter::release()
+{
+    if(--m_reference_count==0) {
+        istDelete(this);
+    }
+    return m_reference_count;
+}
+
+} // namespace isd
 } // namespace ist
