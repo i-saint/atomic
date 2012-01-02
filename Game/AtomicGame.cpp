@@ -78,6 +78,16 @@ void AtomicGame::asyncupdateEnd()
 void AtomicGame::draw()
 {
     // todo: フレームスキップ処理
+
+    if(m_input_server->getClassID()==IInputServer::IS_REPLAY) {
+        static uint32 f;
+        const InputState *is = atomicGetSystemInputs();
+        ++f;
+        if(is->isButtonPressed(0) && f%2!=0) { return; }
+        if(is->isButtonPressed(1) && f%4!=0) { return; }
+        if(is->isButtonPressed(2) && f%8!=0) { return; }
+        if(is->isButtonPressed(3) && f%16!=0){ return; }
+    }
     atomicKickDraw();
     atomicWaitForDrawCallbackComplete();
 }

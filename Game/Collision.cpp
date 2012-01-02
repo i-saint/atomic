@@ -195,12 +195,12 @@ uint32 CollisionSet::collide(CollisionEntity *sender, MessageCont &m)
     if(!sender || (sender->getFlags() & CF_SENDER)==0 ) { return 0; }
 
     uint32 n = 0;
-    CollideMessage message;
     for(uint32 i=0; i<m_entities.size(); ++i) {
         if(CollisionEntity *receiver = m_entities[i]) {
             if((receiver->getFlags() & CF_RECEIVER) == 0 ) { continue; }
             if(receiver->getGObjHandle() == sender->getGObjHandle()) { continue; }
 
+            CollideMessage message;
             if(Collide(sender, receiver, message)) {
                 message.to = receiver->getGObjHandle();
                 message.from = sender->getGObjHandle();
@@ -214,7 +214,7 @@ uint32 CollisionSet::collide(CollisionEntity *sender, MessageCont &m)
 
 
 CollisionSet::CollisionSet()
-: m_active_tasks(0)
+    : m_active_tasks(0)
 {
     m_tasks.reserve(32);
     m_entities.reserve(1024);

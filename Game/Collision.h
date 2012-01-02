@@ -116,6 +116,8 @@ struct CollideMessage
         float4 padding;
     };
     vec4 direction; // w=‚ß‚è‚İ—Ê
+
+    CollideMessage() : from(0), to(0) {}
 };
 
 

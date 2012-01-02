@@ -16,9 +16,9 @@ namespace atomic {
 
     public:
         Attr_RefCount() : m_ref_count(1) {}
-        uint32 getRefCount() const { return m_ref_count; }
-        void addRefCount() { ++m_ref_count; }
-        void release() { --m_ref_count; }
+        uint32 getRefCount() const  { return m_ref_count; }
+        uint32 addRefCount()        { return ++m_ref_count; }
+        uint32 release()            { return --m_ref_count; }
 
         bool call(uint32 call_id, const variant &v)
         {
@@ -83,15 +83,19 @@ namespace atomic {
         float32 m_rot;
 
     public:
-        Attr_Transform() : m_rot(0.0f) {}
+        Attr_Transform()
+            : m_scale(1.0f, 1.0f, 1.0f, 0.0f)
+            , m_axis(0.0f, 0.0f, 1.0f, 0.0f)
+            , m_rot(0.0f)
+        {}
 
-        const vec4& getScale() const    { return m_scale; }
-        const vec4& getAxis() const     { return m_axis; }
-        float32 getRotate() const     { return m_rot; }
+        const vec4& getScale() const{ return m_scale; }
+        const vec4& getAxis() const { return m_axis; }
+        float32 getRotate() const   { return m_rot; }
 
-        void setScale(const vec4& v)    { m_scale=v; }
-        void setAxis(const vec4& v)     { m_axis=v; }
-        void setRotate(float32 v)     { m_rot=v; }
+        void setScale(const vec4& v){ m_scale=v; }
+        void setAxis(const vec4& v) { m_axis=v; }
+        void setRotate(float32 v)   { m_rot=v; }
 
         mat4 computeMatrix() const
         {
@@ -141,19 +145,20 @@ namespace atomic {
             : m_scale(1.0f, 1.0f, 1.0f, 0.0f)
             , m_axis1(0.0f, 1.0f, 0.0f, 0.0f)
             , m_axis2(0.0f, 0.0f, 1.0f, 0.0f)
-            , m_rot1(0.0f), m_rot2(0.0f) {}
+            , m_rot1(0.0f), m_rot2(0.0f)
+        {}
 
-        const vec4& getScale() const    { return m_scale; }
-        const vec4& getAxis1() const    { return m_axis1; }
-        const vec4& getAxis2() const    { return m_axis2; }
-        float32 getRotate1() const    { return m_rot1; }
-        float32 getRotate2() const    { return m_rot2; }
+        const vec4& getScale() const{ return m_scale; }
+        const vec4& getAxis1() const{ return m_axis1; }
+        const vec4& getAxis2() const{ return m_axis2; }
+        float32 getRotate1() const  { return m_rot1; }
+        float32 getRotate2() const  { return m_rot2; }
 
-        void setScale(const vec4& v)    { m_scale=v; }
-        void setAxis1(const vec4& v)    { m_axis1=v; }
-        void setAxis2(const vec4& v)    { m_axis2=v; }
-        void setRotate1(float32 v)    { m_rot1=v; }
-        void setRotate2(float32 v)    { m_rot2=v; }
+        void setScale(const vec4& v){ m_scale=v; }
+        void setAxis1(const vec4& v){ m_axis1=v; }
+        void setAxis2(const vec4& v){ m_axis2=v; }
+        void setRotate1(float32 v)  { m_rot1=v; }
+        void setRotate2(float32 v)  { m_rot2=v; }
 
         mat4 computeMatrix() const
         {
@@ -286,7 +291,7 @@ namespace atomic {
         CollisionHandle m_collision;
 
     public:
-        Attr_CubeCollision() : m_collision(NULL)
+        Attr_CubeCollision() : m_collision(0)
         {
         }
 

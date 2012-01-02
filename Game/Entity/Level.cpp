@@ -42,6 +42,7 @@ private:
 public:
     Level_Test() : m_frame(0), m_player(0), m_level(0), m_loop(0), m_state(ST_BEGIN)
     {
+        std::fill_n(m_planes, _countof(m_planes), 0);
     }
 
     void initialize()
@@ -68,7 +69,7 @@ public:
 
     void finalize()
     {
-        for(uint32 i=0; i<4; ++i) {
+        for(uint32 i=0; i<_countof(m_planes); ++i) {
             atomicDeleteCollision(m_planes[i]);
         }
         super::finalize();
