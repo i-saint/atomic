@@ -281,9 +281,9 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <CudaCompile>
       <Include>$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;%(Include)</Include>
       <GPUDebugInfo>false</GPUDebugInfo>
-      <Optimization>O3</Optimization>
+      <Optimization>Od</Optimization>
       <HostDebugInfo>false</HostDebugInfo>
-      <FastMath>true</FastMath>
+      <FastMath>false</FastMath>
       <Runtime>MDd</Runtime>
     </CudaCompile>
   </ItemDefinitionGroup>

@@ -202,6 +202,7 @@ bool RenderTarget::getRenderBuffers(Texture2D **rb, uint32 &num, Texture2D *&dep
     num = m_num_color_buffers;
     std::copy(m_color_buffers, m_color_buffers+m_num_color_buffers, rb);
     depthstencil = m_depthstencil;
+    return true;
 }
 
 void RenderTarget::setNumColorBuffers(uint32 v)

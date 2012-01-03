@@ -172,7 +172,7 @@ public:
     void updateCamera()
     {
         PerspectiveCamera *pcam = atomicGetCamera();
-        if(IEntity *player = atomicGetEntity( EntityCreateHandle(ECID_PLAYER, ESID_PLAYER, 0) )) {
+        if(IEntity *player = atomicGetEntity(m_player)) {
             vec4 player_pos = atomicQuery(player, getPosition, vec4);
             vec4 cpos       = pcam->getPosition();
             vec4 tpos       = pcam->getTarget();
