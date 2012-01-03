@@ -48,8 +48,8 @@ PassGBuffer_SPH::PassGBuffer_SPH()
     m_va_cube       = atomicGetVertexArray(VA_FRACTION_CUBE);
     m_sh_fluid      = atomicGetShader(SH_GBUFFER_FLUID);
     m_sh_rigid      = atomicGetShader(SH_GBUFFER_RIGID);
-    m_vbo_fluid     = atomicGetVertexBufferObject(VBO_FLUID_PARTICLES);
-    m_vbo_rigid     = atomicGetVertexBufferObject(VBO_RIGID_PARTICLES);
+    m_vbo_fluid     = atomicGetVertexBuffer(VBO_FLUID_PARTICLES);
+    m_vbo_rigid     = atomicGetVertexBuffer(VBO_RIGID_PARTICLES);
 }
 
 PassGBuffer_SPH::~PassGBuffer_SPH()

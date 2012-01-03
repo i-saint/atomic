@@ -66,7 +66,7 @@ void AtomicShader::setUniformBlock(GLuint uniformBlockIndex, GLuint uniformBindi
 void AtomicShader::bind()
 {
     m_shader->bind();
-    m_shader->setUniformBlock(m_loc_renderstates, GLSL_RENDERSTATE_BINDING, atomicGetUniformBufferObject(UBO_RENDER_STATES)->getHandle());
+    m_shader->setUniformBlock(m_loc_renderstates, GLSL_RENDERSTATE_BINDING, atomicGetUniformBuffer(UBO_RENDER_STATES)->getHandle());
 }
 
 void AtomicShader::unbind()

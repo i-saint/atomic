@@ -24,6 +24,7 @@ AtomicConfig::AtomicConfig()
     posteffect_bloom    = true;
     posteffect_antialias= false;
     show_text           = true;
+    show_distance_field = true;
     sound_enable        = true;
     bgm_volume          = 0.5;
     se_volume           = 0.5;

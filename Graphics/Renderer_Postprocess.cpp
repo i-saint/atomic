@@ -29,7 +29,7 @@ void PassPostprocess_FXAA::draw()
 {
     if(!atomicGetConfig()->posteffect_antialias) { return; }
 
-    UniformBuffer *ubo_fxaa                 = atomicGetUniformBufferObject(UBO_FXAA_PARAMS);
+    UniformBuffer *ubo_fxaa                 = atomicGetUniformBuffer(UBO_FXAA_PARAMS);
     m_fxaaparams.fxaaQualityRcpFrame        = vec2(1.0f, 1.0f) / vec2(atomicGetWindowSize());
     m_fxaaparams.fxaaQualitySubpix          = 0.75f;
     m_fxaaparams.fxaaQualityEdgeThreshold   = 0.166f;
@@ -85,7 +85,7 @@ PassPostprocess_Bloom::PassPostprocess_Bloom()
     m_sh_hblur      = atomicGetShader(SH_BLOOM_HBLUR);
     m_sh_vblur      = atomicGetShader(SH_BLOOM_VBLUR);
     m_sh_composite  = atomicGetShader(SH_BLOOM_COMPOSITE);
-    m_ubo_states    = atomicGetUniformBufferObject(UBO_BLOOM_PARAMS);
+    m_ubo_states    = atomicGetUniformBuffer(UBO_BLOOM_PARAMS);
 }
 
 void PassPostprocess_Bloom::beforeDraw()
@@ -156,7 +156,7 @@ PassPostprocess_Fade::PassPostprocess_Fade()
     m_rt_deferred   = atomicGetRenderTarget(RT_DEFERRED);
     m_sh_fade       = atomicGetShader(SH_FADE);
     m_va_quad       = atomicGetVertexArray(VA_SCREEN_QUAD);
-    m_ubo_fade      = atomicGetUniformBufferObject(UBO_FADE_PARAMS);
+    m_ubo_fade      = atomicGetUniformBuffer(UBO_FADE_PARAMS);
 
     m_loc_fade_param = m_sh_fade->getUniformBlockIndex("fade_params");
 }

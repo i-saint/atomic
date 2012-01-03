@@ -68,16 +68,16 @@ public:
 
 #define atomicGetResourceManager()   GraphicResourceManager::getInstance()
 
-#define atomicGetFont()                     atomicGetResourceManager()->getFont()
-#define atomicGetTexture2D(i)               atomicGetResourceManager()->getTexture2D(i)
-#define atomicGetVertexArray(i)             atomicGetResourceManager()->getVertexArray(i)
-#define atomicGetVertexBufferObject(i)      atomicGetResourceManager()->getVertexBufferObject(i)
-#define atomicGetIndexBufferObject(i)       atomicGetResourceManager()->getIndexBufferObject(i)
-#define atomicGetUniformBufferObject(i)     atomicGetResourceManager()->getUniformBufferObject(i)
-#define atomicGetShader(i)                  atomicGetResourceManager()->getShader(i)
-#define atomicGetRenderTarget(i)            atomicGetResourceManager()->getRenderTarget(i)
-#define atomicGetParticleSet(i)             atomicGetResourceManager()->getParticleSet(i)
-#define atomicGetRigidInfo(i)               atomicGetResourceManager()->getRigidInfo(i)
+#define atomicGetFont()             atomicGetResourceManager()->getFont()
+#define atomicGetTexture2D(i)       atomicGetResourceManager()->getTexture2D(i)
+#define atomicGetVertexArray(i)     atomicGetResourceManager()->getVertexArray(i)
+#define atomicGetVertexBuffer(i)    atomicGetResourceManager()->getVertexBufferObject(i)
+#define atomicGetIndexBuffer(i)     atomicGetResourceManager()->getIndexBufferObject(i)
+#define atomicGetUniformBuffer(i)   atomicGetResourceManager()->getUniformBufferObject(i)
+#define atomicGetShader(i)          atomicGetResourceManager()->getShader(i)
+#define atomicGetRenderTarget(i)    atomicGetResourceManager()->getRenderTarget(i)
+#define atomicGetParticleSet(i)     atomicGetResourceManager()->getParticleSet(i)
+#define atomicGetRigidInfo(i)       atomicGetResourceManager()->getRigidInfo(i)
 
 } // namespace atomic
 #endif // __atomic_Graphics_ResourceManager__

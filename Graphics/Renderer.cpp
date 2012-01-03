@@ -38,16 +38,18 @@ AtomicRenderer::AtomicRenderer()
     m_rt_deferred   = atomicGetRenderTarget(RT_DEFERRED);
 
     // 追加の際はデストラクタでの消去処理も忘れずに
-    m_renderer_sph          = istNew(PassGBuffer_SPH)();
-    m_renderer_dir_lights   = istNew(PassDeferredShading_DirectionalLights)();
-    m_renderer_point_lights = istNew(PassDeferredShading_PointLights)();
-    m_renderer_fxaa         = istNew(PassPostprocess_FXAA)();
-    m_renderer_bloom        = istNew(PassPostprocess_Bloom)();
-    m_renderer_fade         = istNew(PassPostprocess_Fade)();
+    m_renderer_sph              = istNew(PassGBuffer_SPH)();
+    m_renderer_dir_lights       = istNew(PassDeferredShading_DirectionalLights)();
+    m_renderer_point_lights     = istNew(PassDeferredShading_PointLights)();
+    m_renderer_fxaa             = istNew(PassPostprocess_FXAA)();
+    m_renderer_bloom            = istNew(PassPostprocess_Bloom)();
+    m_renderer_fade             = istNew(PassPostprocess_Fade)();
+    m_renderer_distance_field   = istNew(PassForwardShading_DistanceField)();
 
     m_renderers[PASS_GBUFFER].push_back(m_renderer_sph);
     m_renderers[PASS_DEFERRED].push_back(m_renderer_dir_lights);
     m_renderers[PASS_DEFERRED].push_back(m_renderer_point_lights);
+    m_renderers[PASS_FORWARD].push_back(m_renderer_distance_field);
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_fxaa);
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_bloom);
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_fade);
@@ -60,6 +62,7 @@ AtomicRenderer::AtomicRenderer()
 AtomicRenderer::~AtomicRenderer()
 {
     istSafeDelete(m_stext);
+    istSafeDelete(m_renderer_distance_field);
     istSafeDelete(m_renderer_fade);
     istSafeDelete(m_renderer_bloom);
     istSafeDelete(m_renderer_fxaa);
@@ -88,10 +91,9 @@ void AtomicRenderer::draw()
     glFrontFace(GL_CCW);
     glEnable(GL_CULL_FACE);
 
-    glLoadIdentity();
     {
         PerspectiveCamera *camera      = atomicGetCamera();
-        UniformBuffer *ubo_renderstates= atomicGetUniformBufferObject(UBO_RENDER_STATES);
+        UniformBuffer *ubo_renderstates= atomicGetUniformBuffer(UBO_RENDER_STATES);
         const uvec2 &wsize = atomicGetWindowSize();
         camera->updateMatrix();
         m_render_states.ModelViewProjectionMatrix = camera->getModelViewProjectionMatrix();
@@ -187,10 +189,19 @@ void AtomicRenderer::passDeferredShading()
 
 void AtomicRenderer::passForwardShading()
 {
+    m_rt_deferred->bind();
+    glEnable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     uint32 num_renderers = m_renderers[PASS_FORWARD].size();
     for(uint32 i=0; i<num_renderers; ++i) {
         m_renderers[PASS_FORWARD][i]->draw();
     }
+
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
+    m_rt_deferred->unbind();
 }
 
 void AtomicRenderer::passPostprocess()

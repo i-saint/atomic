@@ -87,6 +87,10 @@ bool GraphicResourceManager::initialize()
         CreateCube(*m_va[VA_UNIT_CUBE], *m_vbo[VBO_UNIT_CUBE], 1.0f);
         CreateCube(*m_va[VA_FRACTION_CUBE], *m_vbo[VBO_FRACTION_CUBE], 0.03f);
         CreateSphere(*m_va[VA_UNIT_SPHERE], *m_vbo[VBO_UNIT_SPHERE], *m_ibo[IBO_SPHERE], 1.00f, 32,16);
+
+        CreateFieldGridLines(*m_va[VA_FIELD_GRID], *m_vbo[VBO_FIELD_GRID]);
+        CreateDistanceFieldQuads(*m_va[VA_DISTANCE_FIELD],
+            *m_vbo[VBO_DISTANCE_FIELD_QUAD], *m_vbo[VBO_DISTANCE_FIELD_POS], *m_vbo[VBO_DISTANCE_FIELD_DIST]);
     }
     {
         m_ubo[UBO_RENDER_STATES]->allocate(sizeof(RenderStates), I3D_USAGE_DYNAMIC);
@@ -108,6 +112,9 @@ bool GraphicResourceManager::initialize()
         m_shader[SH_BLOOM_VBLUR]        = CreateAtomicShader(g_Bloom_VBlur_glsl);
         m_shader[SH_BLOOM_COMPOSITE]    = CreateAtomicShader(g_Bloom_Composite_glsl);
         m_shader[SH_FADE]               = CreateAtomicShader(g_Fade_glsl);
+        m_shader[SH_FILL]               = CreateAtomicShader(g_Fill_glsl);
+        m_shader[SH_FILL_INSTANCED]     = CreateAtomicShader(g_FillInstanced_glsl);
+        m_shader[SH_DISTANCE_FIELD]     = CreateAtomicShader(g_DistanceField_glsl);
         m_shader[SH_OUTPUT]             = CreateAtomicShader(g_Out_glsl);
     }
     {
@@ -148,7 +155,7 @@ void GraphicResourceManager::finalize()
     SPHFinalize();
 
     for(uint32 i=0; i<_countof(m_shader); ++i)  { if(m_shader[i]) { atomicSafeRelease( m_shader[i] ); } }
-    for(uint32 i=0; i<_countof(m_rt); ++i)     { if(m_rt[i]) { atomicSafeRelease( m_rt[i] ); } }
+    for(uint32 i=0; i<_countof(m_rt); ++i)      { if(m_rt[i]) { atomicSafeRelease( m_rt[i] ); } }
     for(uint32 i=0; i<_countof(m_ubo); ++i)     { if(m_ubo[i]) { atomicSafeRelease( m_ubo[i] ); } }
     for(uint32 i=0; i<_countof(m_ibo); ++i)     { if(m_ibo[i]) { atomicSafeRelease( m_ibo[i] ); } }
     for(uint32 i=0; i<_countof(m_vbo); ++i)     { if(m_vbo[i]) { atomicSafeRelease( m_vbo[i] ); } }

@@ -253,6 +253,111 @@ void CreateCube( VertexArray& va, VertexBuffer& vbo, float32 len )
     va.setAttributes(vbo, sizeof(vertex_t), descs, _countof(descs));
 }
 
+void CreateFieldGridLines( VertexArray& va, VertexBuffer& vbo )
+{
+    struct __declspec(align(16)) vertex_t
+    {
+        vec4 pos;
+        vec4 color;
+    };
+    stl::vector<vertex_t> vertices;
+
+    vec3 div    = vec3(SPH_DISTANCE_FIELD_DIV_X, SPH_DISTANCE_FIELD_DIV_Y, SPH_DISTANCE_FIELD_DIV_Z);
+    vec3 bl     = vec3(-2.56, -2.56, 0.0f);
+    vec3 size   = vec3(5.12);
+    vec3 cell   = size / div;
+    vertices.reserve((SPH_DISTANCE_FIELD_DIV_X+1) * (SPH_DISTANCE_FIELD_DIV_Y+1) * 2);
+
+    for(uint32 xi=0; xi<=div.x; ++xi) {
+        vertex_t t[2];
+        t[0].pos = vec4(bl + vec3(cell.x*xi,   0.0f, 0.0f), 1.0f);
+        t[1].pos = vec4(bl + vec3(cell.x*xi, size.y, 0.0f), 1.0f);
+        vertices.insert(vertices.end(), t, t+_countof(t));
+    }
+    for(uint32 yi=0; yi<=div.y; ++yi) {
+        vertex_t t[2];
+        t[0].pos = vec4(bl + vec3(  0.0f, cell.y*yi, 0.0f), 1.0f);
+        t[1].pos = vec4(bl + vec3(size.x, cell.y*yi, 0.0f), 1.0f);
+        vertices.insert(vertices.end(), t, t+_countof(t));
+   }
+
+    for(uint32 i=0; i<vertices.size(); ++i) {
+        vertices[i].color = vec4(0.25f, 0.5f, 1.0f, 0.1f);
+    }
+
+    VertexDescriptor descs[] = {
+        {GLSL_POSITION, I3D_FLOAT,4, 0, false, 0},
+        {GLSL_COLOR,    I3D_FLOAT,4,16, false, 0},
+    };
+    vbo.allocate(sizeof(vertex_t)*vertices.size(), I3D_USAGE_STATIC, &vertices[0]);
+    va.setAttributes(vbo, sizeof(vertex_t), descs, _countof(descs));
+}
+
+void CreateDistanceFieldQuads( VertexArray& va, VertexBuffer& quad_model, VertexBuffer& quad_pos, VertexBuffer& quad_dist )
+{
+    vec3 div    = vec3(SPH_DISTANCE_FIELD_DIV_X, SPH_DISTANCE_FIELD_DIV_Y, SPH_DISTANCE_FIELD_DIV_Z);
+    vec3 bl     = vec3(-2.56, -2.56, 0.0f);
+    vec3 size   = vec3(5.12);
+    vec3 cell   = size / div;
+
+    {
+        struct __declspec(align(16)) vertex_t
+        {
+            vec4 pos;
+        } vertices[4] = {
+            vec4(  0.0f,   0.0f, 0.0f, 1.0f),
+            vec4(cell.x,   0.0f, 0.0f, 1.0f),
+            vec4(cell.x, cell.y, 0.0f, 1.0f),
+            vec4(  0.0f, cell.y, 0.0f, 1.0f),
+        };
+        quad_model.allocate(sizeof(vertex_t)*_countof(vertices), I3D_USAGE_STATIC, vertices);
+
+        VertexDescriptor descs[] = {
+            {GLSL_POSITION, I3D_FLOAT,4, 0, false, 0},
+        };
+        va.setAttributes(quad_model, sizeof(vertex_t), descs, _countof(descs));
+    }
+
+    {
+        struct __declspec(align(16)) vertex_t
+        {
+            vec4 pos;
+        };
+        stl::vector<vertex_t> vertices;
+        vertices.reserve(SPH_DISTANCE_FIELD_DIV_X*SPH_DISTANCE_FIELD_DIV_Y);
+        for(uint32 yi=0; yi<div.y; ++yi) {
+            for(uint32 xi=0; xi<div.x; ++xi) {
+                vertex_t t = { vec4(bl+vec3(cell.x*xi, cell.y*yi, 0.0f), 0.0f) };
+                vertices.push_back(t);
+            }
+        }
+        quad_pos.allocate(sizeof(vertex_t)*vertices.size(), I3D_USAGE_STATIC, &vertices[0]);
+
+        VertexDescriptor descs[] = {
+            {GLSL_INSTANCE_POSITION, I3D_FLOAT,4, 0, false, 1},
+        };
+        va.setAttributes(quad_pos, sizeof(vertex_t), descs, _countof(descs));
+    }
+
+    {
+        SFMT random; random.initialize(3);
+
+        stl::vector<float> vertices;
+        vertices.resize(SPH_DISTANCE_FIELD_DIV_X*SPH_DISTANCE_FIELD_DIV_Y);
+        for(uint32 i=0; i<vertices.size(); ++i) {
+            //vertices[i] = random.genFloat32()*0.1f;
+            vertices[i] = 1.0f;
+        }
+        quad_dist.allocate(sizeof(float)*vertices.size(), I3D_USAGE_DYNAMIC, &vertices[0]);
+
+        VertexDescriptor descs[] = {
+            {GLSL_INSTANCE_PARAM, I3D_FLOAT,1, 0, false, 1},
+        };
+        va.setAttributes(quad_dist, sizeof(float), descs, _countof(descs));
+    }
+}
+
+
 
 namespace {
     const float32 g_particle_par_volume = 30000.0; // particles / (1.0*1.0*1.0)

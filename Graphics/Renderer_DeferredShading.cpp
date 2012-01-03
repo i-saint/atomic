@@ -15,7 +15,7 @@ PassDeferredShading_DirectionalLights::PassDeferredShading_DirectionalLights()
 {
     m_shader        = atomicGetShader(SH_DIRECTIONALLIGHT);
     m_va_quad       = atomicGetVertexArray(VA_SCREEN_QUAD);
-    m_vbo_instance  = atomicGetVertexBufferObject(VBO_DIRECTIONALLIGHT_INSTANCES);
+    m_vbo_instance  = atomicGetVertexBuffer(VBO_DIRECTIONALLIGHT_INSTANCES);
     m_instances.reserve(ATOMIC_MAX_DIRECTIONAL_LIGHTS);
 }
 
@@ -40,7 +40,6 @@ void PassDeferredShading_DirectionalLights::draw()
     glDrawArraysInstanced(GL_QUADS, 0, 4, num_instances);
     m_va_quad->unbind();
     m_shader->unbind();
-
 }
 
 void PassDeferredShading_DirectionalLights::addInstance( const DirectionalLight& v )
@@ -53,9 +52,9 @@ void PassDeferredShading_DirectionalLights::addInstance( const DirectionalLight&
 PassDeferredShading_PointLights::PassDeferredShading_PointLights()
 {
     m_shader        = atomicGetShader(SH_POINTLIGHT);
-    m_ibo_sphere    = atomicGetIndexBufferObject(IBO_SPHERE);
+    m_ibo_sphere    = atomicGetIndexBuffer(IBO_SPHERE);
     m_va_sphere     = atomicGetVertexArray(VA_UNIT_SPHERE);
-    m_vbo_instance  = atomicGetVertexBufferObject(VBO_POINTLIGHT_INSTANCES);
+    m_vbo_instance  = atomicGetVertexBuffer(VBO_POINTLIGHT_INSTANCES);
     m_instances.reserve(1024);
 }
 

@@ -58,6 +58,15 @@
     <None Include="shader\Fade.glsl">
       <Filter>shader</Filter>
     </None>
+    <None Include="shader\Fill.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\GBuffer_FluidSpherical.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\GBuffer_RigidSpherical.glsl">
+      <Filter>shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shader\Fxaa3_11.h">

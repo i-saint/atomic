@@ -1,10 +1,11 @@
 // vertex attributes
 #define GLSL_POSITION           0
 #define GLSL_NORMAL             1
-#define GLSL_TEXCOORD0          2
-#define GLSL_TEXCOORD1          3
-#define GLSL_TEXCOORD2          4
-#define GLSL_TEXCOORD3          5
+#define GLSL_COLOR              2
+#define GLSL_TEXCOORD0          3
+#define GLSL_TEXCOORD1          4
+#define GLSL_TEXCOORD2          5
+#define GLSL_TEXCOORD3          6
 
 #define GLSL_INSTANCE_POSITION  8
 #define GLSL_INSTANCE_NORMAL    9

@@ -25,6 +25,8 @@ class PassPostprocess_Bloom;
 class PassPostprocess_Fade;
 class SystemTextRenderer;
 
+class PassForwardShading_DistanceField; // for debug
+
 
 class AtomicRenderer : public boost::noncopyable
 {
@@ -42,6 +44,7 @@ private:
     PassPostprocess_FXAA                    *m_renderer_fxaa;
     PassPostprocess_Bloom                   *m_renderer_bloom;
     PassPostprocess_Fade                    *m_renderer_fade;
+    PassForwardShading_DistanceField        *m_renderer_distance_field;
     stl::vector<IRenderer*>                 m_renderers[PASS_END];
 
     SystemTextRenderer                      *m_stext;
