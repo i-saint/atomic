@@ -217,7 +217,9 @@ void RenderTarget::setColorBuffer(uint32 i, Texture2D *rb)
 
     {
         GLuint h = rb ? rb->getHandle() : 0;
+        glBindFramebuffer(GL_FRAMEBUFFER, m_handle);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+i, GL_TEXTURE_2D, h, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
     m_color_buffers[i] = rb;
 }
@@ -229,8 +231,10 @@ void RenderTarget::setDepthStencilBuffer(Texture2D *rb)
 
     {
         GLuint h = rb ? rb->getHandle() : 0;
+        glBindFramebuffer(GL_FRAMEBUFFER, m_handle);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, h, 0);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, h, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
     m_depthstencil = rb;
 }
