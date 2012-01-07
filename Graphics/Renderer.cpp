@@ -35,12 +35,14 @@ AtomicRenderer::AtomicRenderer()
     m_sh_out        = atomicGetShader(SH_OUTPUT);
 
     m_rt_gbuffer    = atomicGetRenderTarget(RT_GBUFFER);
-    m_rt_deferred   = atomicGetRenderTarget(RT_DEFERRED);
+    m_rt_out[0]     = atomicGetRenderTarget(RT_OUTPUT0);
+    m_rt_out[1]     = atomicGetRenderTarget(RT_OUTPUT1);
 
     // 追加の際はデストラクタでの消去処理も忘れずに
     m_renderer_sph              = istNew(PassGBuffer_SPH)();
     m_renderer_dir_lights       = istNew(PassDeferredShading_DirectionalLights)();
     m_renderer_point_lights     = istNew(PassDeferredShading_PointLights)();
+    m_renderer_microscopic      = istNew(PassPostprocess_Microscopic)();
     m_renderer_fxaa             = istNew(PassPostprocess_FXAA)();
     m_renderer_bloom            = istNew(PassPostprocess_Bloom)();
     m_renderer_fade             = istNew(PassPostprocess_Fade)();
@@ -51,6 +53,7 @@ AtomicRenderer::AtomicRenderer()
     m_renderers[PASS_DEFERRED].push_back(m_renderer_point_lights);
     m_renderers[PASS_FORWARD].push_back(m_renderer_distance_field);
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_fxaa);
+    m_renderers[PASS_POSTPROCESS].push_back(m_renderer_microscopic);
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_bloom);
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_fade);
 
@@ -66,6 +69,7 @@ AtomicRenderer::~AtomicRenderer()
     istSafeDelete(m_renderer_fade);
     istSafeDelete(m_renderer_bloom);
     istSafeDelete(m_renderer_fxaa);
+    istSafeDelete(m_renderer_microscopic);
     istSafeDelete(m_renderer_point_lights);
     istSafeDelete(m_renderer_dir_lights);
     istSafeDelete(m_renderer_sph);
@@ -102,8 +106,7 @@ void AtomicRenderer::draw()
         m_render_states.RcpScreenSize   = vec2(1.0f, 1.0f) / m_render_states.ScreenSize;
         m_render_states.AspectRatio     = (float32)wsize.x / (float32)wsize.y;
         m_render_states.RcpAspectRatio  = 1.0f / m_render_states.AspectRatio;
-        m_render_states.ScreenTexcoord = vec2(
-            m_render_states.ScreenSize/vec2(m_rt_deferred->getColorBuffer(0)->getSize()) );
+        m_render_states.ScreenTexcoord  = m_render_states.ScreenSize / vec2(m_rt_gbuffer->getColorBuffer(0)->getSize());
         MapAndWrite(*ubo_renderstates, &m_render_states, sizeof(m_render_states));
     }
 
@@ -160,7 +163,10 @@ void AtomicRenderer::passGBuffer()
 
 void AtomicRenderer::passDeferredShading()
 {
-    m_rt_deferred->bind();
+    RenderTarget *rt = atomicGetFrontRenderTarget();
+
+    rt->setDepthStencilBuffer(m_rt_gbuffer->getDepthStencilBuffer());
+    rt->bind();
     m_rt_gbuffer->getColorBuffer(GBUFFER_COLOR)->bind(GLSL_COLOR_BUFFER);
     m_rt_gbuffer->getColorBuffer(GBUFFER_NORMAL)->bind(GLSL_NORMAL_BUFFER);
     m_rt_gbuffer->getColorBuffer(GBUFFER_POSITION)->bind(GLSL_POSITION_BUFFER);
@@ -184,14 +190,20 @@ void AtomicRenderer::passDeferredShading()
     glDisable(GL_STENCIL_TEST);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
-    m_rt_deferred->unbind();
+
+    rt->unbind();
+    rt->setDepthStencilBuffer(NULL);
 }
 
 void AtomicRenderer::passForwardShading()
 {
-    m_rt_deferred->bind();
+    RenderTarget *rt = atomicGetFrontRenderTarget();
+    atomicSwapOutputRenderTarget();
+
+    rt->setDepthStencilBuffer(m_rt_gbuffer->getDepthStencilBuffer());
+    rt->bind();
     glEnable(GL_BLEND);
-    //glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     uint32 num_renderers = m_renderers[PASS_FORWARD].size();
@@ -201,7 +213,8 @@ void AtomicRenderer::passForwardShading()
 
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
-    m_rt_deferred->unbind();
+    rt->unbind();
+    rt->setDepthStencilBuffer(NULL);
 }
 
 void AtomicRenderer::passPostprocess()
@@ -222,7 +235,7 @@ void AtomicRenderer::passHUD()
 
 void AtomicRenderer::passOutput()
 {
-    m_rt_deferred->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
+    atomicGetBackRenderTarget()->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
     m_sh_out->bind();
     m_va_screenquad->bind();
     glDrawArrays(GL_QUADS, 0, 4);

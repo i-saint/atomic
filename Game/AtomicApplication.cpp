@@ -17,19 +17,20 @@ namespace atomic {
 
 AtomicConfig::AtomicConfig()
 {
-    window_pos          = ivec2(0, 0);
-    window_size         = ivec2(1024, 768);
-    fullscreen          = false;
-    vsync               = true;
-    posteffect_bloom    = true;
-    posteffect_antialias= false;
-    show_text           = true;
-    show_grid           = true;
-    show_distance       = false;
-    sound_enable        = true;
-    bgm_volume          = 0.5;
-    se_volume           = 0.5;
-    language            = LANG_JP;
+    window_pos              = ivec2(0, 0);
+    window_size             = ivec2(1024, 768);
+    fullscreen              = false;
+    vsync                   = true;
+    posteffect_microscopic  = false;
+    posteffect_bloom        = true;
+    posteffect_antialias    = false;
+    show_text               = true;
+    show_grid               = true;
+    show_distance           = false;
+    sound_enable            = true;
+    bgm_volume              = 0.5;
+    se_volume               = 0.5;
+    language                = LANG_JP;
 }
 
 bool AtomicConfig::readFromFile( const char* filepath )
@@ -45,6 +46,7 @@ bool AtomicConfig::readFromFile( const char* filepath )
         if(sscanf(buf, "window_size = %d, %d", &itmp.x, &itmp.y)==2){ window_size.x=itmp.x; window_size.y=itmp.y; }
         if(sscanf(buf, "fullscreen = %d", &itmp.x)==1)              { fullscreen=itmp.x!=0; }
         if(sscanf(buf, "vsync = %d", &itmp.x)==1)                   { vsync=itmp.x!=0; }
+        if(sscanf(buf, "posteffect_microscopic = %d", &itmp.x)==1)  { posteffect_microscopic=(itmp.x!=0); }
         if(sscanf(buf, "posteffect_bloom = %d", &itmp.x)==1)        { posteffect_bloom=(itmp.x!=0); }
         if(sscanf(buf, "posteffect_antialias = %d", &itmp.x)==1)    { posteffect_antialias=(itmp.x!=0); }
         if(sscanf(buf, "show_text = %d", &itmp.x)==1)               { show_text=(itmp.x!=0); }
@@ -67,6 +69,7 @@ bool AtomicConfig::writeToFile( const char* filepath )
     fprintf(f, "window_size = %d, %d\n",        window_size.x, window_size.y);
     fprintf(f, "fullscreen = %d\n",             fullscreen);
     fprintf(f, "vsync = %d\n",                  vsync);
+    fprintf(f, "posteffect_microscopic = %d\n", posteffect_microscopic);
     fprintf(f, "posteffect_bloom = %d\n",       posteffect_bloom);
     fprintf(f, "posteffect_antialias = %d\n",   posteffect_antialias);
     fprintf(f, "show_text = %d\n",              show_text);

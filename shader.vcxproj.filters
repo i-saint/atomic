@@ -73,6 +73,12 @@
     <None Include="shader\FillInstanced.glsl">
       <Filter>shader</Filter>
     </None>
+    <None Include="shader\GBuffer_FluidBlood.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\Postprocess_Microscopic.glsl">
+      <Filter>shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shader\Fxaa3_11.h">

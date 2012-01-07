@@ -99,12 +99,14 @@ bool GraphicResourceManager::initialize()
     }
     {
         // create shaders
-        m_shader[SH_GBUFFER_FLUID]      = CreateAtomicShader(g_GBuffer_Fluid_glsl);
-        m_shader[SH_GBUFFER_RIGID]      = CreateAtomicShader(g_GBuffer_Rigid_glsl);
+        m_shader[SH_GBUFFER_FLUID]      = CreateAtomicShader(g_GBuffer_FluidBlood_glsl);
+        //m_shader[SH_GBUFFER_FLUID]      = CreateAtomicShader(g_GBuffer_Fluid_glsl);
+        //m_shader[SH_GBUFFER_RIGID]      = CreateAtomicShader(g_GBuffer_Rigid_glsl);
         //m_shader[SH_GBUFFER_FLUID]      = CreateAtomicShader(g_GBuffer_FluidSpherical_glsl);
-        //m_shader[SH_GBUFFER_RIGID]      = CreateAtomicShader(g_GBuffer_RigidSpherical_glsl);
+        m_shader[SH_GBUFFER_RIGID]      = CreateAtomicShader(g_GBuffer_RigidSpherical_glsl);
         m_shader[SH_POINTLIGHT]         = CreateAtomicShader(g_Deferred_PointLight_glsl);
         m_shader[SH_DIRECTIONALLIGHT]   = CreateAtomicShader(g_Deferred_DirectionalLight_glsl);
+        m_shader[SH_MICROSCOPIC]        = CreateAtomicShader(g_Postprocess_Microscopic_glsl);
         m_shader[SH_FXAA_LUMA]          = CreateAtomicShader(g_FXAA_luma_glsl);
         m_shader[SH_FXAA]               = CreateAtomicShader(g_FXAA_glsl);
         m_shader[SH_BLOOM_LUMINANCE]    = CreateAtomicShader(g_Bloom_Luminance_glsl);
@@ -123,12 +125,11 @@ bool GraphicResourceManager::initialize()
     }
     {
         // create render targets
-        m_rt[RT_GBUFFER]       = i3d::CreateRenderTarget(dev, 4, rt_size, I3D_RGBA16F, I3D_DEPTH24_STENCIL8);
-        m_rt[RT_DEFERRED]      = i3d::CreateRenderTarget(dev, 1, rt_size, I3D_RGBA8U);
-        m_rt[RT_DEFERRED]->setDepthStencilBuffer(m_rt[RT_GBUFFER]->getDepthStencilBuffer());
-        m_rt[RT_GAUSS0]        = i3d::CreateRenderTarget(dev, 1, uvec2(512, 256), I3D_RGBA8U);
-        m_rt[RT_GAUSS1]        = i3d::CreateRenderTarget(dev, 1, uvec2(512, 256), I3D_RGBA8U);
-        m_rt[RT_POSTPROCESS]   = i3d::CreateRenderTarget(dev, 1, rt_size, I3D_RGBA8U);
+        m_rt[RT_GBUFFER]    = i3d::CreateRenderTarget(dev, 4, rt_size, I3D_RGBA16F, I3D_DEPTH24_STENCIL8);
+        m_rt[RT_GAUSS0]     = i3d::CreateRenderTarget(dev, 1, uvec2(512, 256), I3D_RGBA8U);
+        m_rt[RT_GAUSS1]     = i3d::CreateRenderTarget(dev, 1, uvec2(512, 256), I3D_RGBA8U);
+        m_rt[RT_OUTPUT0]    = i3d::CreateRenderTarget(dev, 1, rt_size, I3D_RGBA8U);
+        m_rt[RT_OUTPUT1]    = i3d::CreateRenderTarget(dev, 1, rt_size, I3D_RGBA8U);
     }
 
     m_vbo[VBO_FLUID_PARTICLES]->allocate(sizeof(sphFluidParticle)*SPH_MAX_FLUID_PARTICLES, I3D_USAGE_DYNAMIC);

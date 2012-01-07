@@ -2,12 +2,23 @@
 #define __atomic_Graphics_Renderer_Postprocess__
 namespace atomic {
 
+    
+class PassPostprocess_Microscopic : public IRenderer
+{
+private:
+    RenderTarget    *m_rt_gbuffer;
+    VertexArray     *m_va_quad;
+    AtomicShader    *m_sh;
+
+public:
+    PassPostprocess_Microscopic();
+    void beforeDraw();
+    void draw();
+};
 
 class PassPostprocess_FXAA : public IRenderer
 {
 private:
-    RenderTarget    *m_rt_deferred;
-    RenderTarget    *m_rt_RGBL;
     VertexArray     *m_va_quad;
     AtomicShader    *m_sh_FXAA_luma;
     AtomicShader    *m_sh_FXAA;
@@ -24,7 +35,6 @@ class PassPostprocess_Bloom : public IRenderer
 {
 private:
     RenderTarget    *m_rt_gbuffer;
-    RenderTarget    *m_rt_deferred;
     RenderTarget    *m_rt_gauss0;
     RenderTarget    *m_rt_gauss1;
     VertexArray     *m_va_luminance;
@@ -45,7 +55,6 @@ public:
 class PassPostprocess_Fade : public IRenderer
 {
 private:
-    RenderTarget    *m_rt_deferred;
     AtomicShader    *m_sh_fade;
     UniformBuffer   *m_ubo_fade;
     VertexArray     *m_va_quad;

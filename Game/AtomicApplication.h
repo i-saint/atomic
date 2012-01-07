@@ -13,6 +13,7 @@ struct AtomicConfig
     ivec2 window_size;
     bool fullscreen;
     bool vsync;
+    bool posteffect_microscopic;
     bool posteffect_bloom;
     bool posteffect_antialias;
     bool show_text;

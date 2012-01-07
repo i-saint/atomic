@@ -20,6 +20,7 @@ class PassGBuffer_SPH;
 class PassGBuffer_ParticleSet;
 class PassDeferredShading_DirectionalLights;
 class PassDeferredShading_PointLights;
+class PassPostprocess_Microscopic;
 class PassPostprocess_FXAA;
 class PassPostprocess_Bloom;
 class PassPostprocess_Fade;
@@ -35,7 +36,7 @@ private:
     VertexArray     *m_va_screenquad;
     AtomicShader    *m_sh_out;
     RenderTarget    *m_rt_gbuffer;
-    RenderTarget    *m_rt_deferred;
+    RenderTarget    *m_rt_out[2];
 
     // internal resources
     PassGBuffer_SPH                         *m_renderer_sph;
@@ -44,6 +45,7 @@ private:
     PassPostprocess_FXAA                    *m_renderer_fxaa;
     PassPostprocess_Bloom                   *m_renderer_bloom;
     PassPostprocess_Fade                    *m_renderer_fade;
+    PassPostprocess_Microscopic             *m_renderer_microscopic;
     PassForwardShading_DistanceField        *m_renderer_distance_field;
     stl::vector<IRenderer*>                 m_renderers[PASS_END];
 
@@ -80,6 +82,10 @@ public:
     PassDeferredShading_PointLights* getPointLights()               { return m_renderer_point_lights; }
     PassPostprocess_Fade* getFader()                                { return m_renderer_fade; }
     SystemTextRenderer* getSystemTextRenderer()                     { return m_stext; }
+
+    RenderTarget*   getFrontRenderTarget() { return m_rt_out[0]; }
+    RenderTarget*   getBackRenderTarget() { return m_rt_out[1]; }
+    void swapOutputRenderTarget()   { std::swap(m_rt_out[0], m_rt_out[1]); }
 };
 
 #define atomicGetRenderer()             AtomicRenderer::getInstance()
@@ -90,6 +96,10 @@ public:
 #define atomicGetPointLights()          atomicGetRenderer()->getPointLights()
 #define atomicGetFader()                atomicGetRenderer()->getFader()
 #define atomicGetSystemTextRenderer()   atomicGetRenderer()->getSystemTextRenderer()
+
+#define atomicGetFrontRenderTarget()    atomicGetRenderer()->getFrontRenderTarget()
+#define atomicGetBackRenderTarget()     atomicGetRenderer()->getBackRenderTarget()
+#define atomicSwapOutputRenderTarget()  atomicGetRenderer()->swapOutputRenderTarget()
 
 
 
