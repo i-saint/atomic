@@ -55,7 +55,7 @@ void main()
     vec3 Ambient    = vs_LightAmbient.rgb;
     vec4 Result = vec4(0.0, 0.0, 0.0, 1.0);
     Result.rgb += vs_LightColor.rgb * (Ambient + Albedo * Intensity);
-    Result.rgb += Result.rgb * Specular;
+    Result.rgb += vs_LightColor.rgb * Specular;
     Result.rgb += texture(u_GlowBuffer, coord).rgb;
 
     ps_FragColor = Result;
