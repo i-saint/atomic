@@ -8,6 +8,9 @@ struct DeviceFluidDataSet
     sphFluidMessage     *message;
     sphGridData         *grid;
     sphStates           *states;
+#ifdef __atomic_enable_distance_field__
+    EntityHandle        *df_entities;
+#endif // __atomic_enable_distance_field__
 
     __device__ int3 GridCalculateCell(float4 pos)
     {
@@ -191,6 +194,19 @@ struct DeviceFluidDataSet
 
         forces[P_ID].acceleration = acceleration / P_density;
     }
+
+#ifdef __atomic_enable_distance_field__
+    __device__ EntityHandle getDistanceFieldEntity(int3 coord)
+    {
+        const int3 ucoord_min = make_int3(0, 0, 0);
+        const int3 ucoord_max = make_int3(SPH_DISTANCE_FIELD_DIV_X-1, SPH_DISTANCE_FIELD_DIV_Y-1, SPH_DISTANCE_FIELD_DIV_Z-1);
+        coord = min(ucoord_max, max(ucoord_min, coord));
+        return df_entities[
+            (SPH_DISTANCE_FIELD_DIV_X * SPH_DISTANCE_FIELD_DIV_Y * coord.z) +
+            (SPH_DISTANCE_FIELD_DIV_X * coord.y) +
+            coord.x ];
+    }
+#endif // __atomic_enable_distance_field__
 };
 
 struct FluidDataSet
@@ -202,12 +218,18 @@ struct FluidDataSet
     thrust::device_vector<sphHash>          hashes;
     thrust::device_vector<sphFluidMessage>  message;
     thrust::device_vector<sphGridData>      grid;
+#ifdef __atomic_enable_distance_field__
+    thrust::device_vector<EntityHandle>     df_entities;
+#endif // __atomic_enable_distance_field__
 
     FluidDataSet()
     {
         params.resize(1);
         states.resize(1);
         grid.resize(SPH_FLUID_GRID_DIV_3);
+#ifdef __atomic_enable_distance_field__
+        df_entities.resize(SPH_DISTANCE_FIELD_DIV_3);
+#endif // __atomic_enable_distance_field__
 
         particles.reserve(SPH_MAX_FLUID_PARTICLES);
         forces.reserve(SPH_MAX_FLUID_PARTICLES);
@@ -226,13 +248,16 @@ struct FluidDataSet
     DeviceFluidDataSet getDeviceData()
     {
         DeviceFluidDataSet ddata;
-        ddata.params    = params.data().get();
-        ddata.states    = states.data().get();
-        ddata.particles = particles.data().get();
-        ddata.forces    = forces.data().get();
-        ddata.hashes    = hashes.data().get();
-        ddata.message   = message.data().get();
-        ddata.grid      = grid.data().get();
+        ddata.params        = params.data().get();
+        ddata.states        = states.data().get();
+        ddata.particles     = particles.data().get();
+        ddata.forces        = forces.data().get();
+        ddata.hashes        = hashes.data().get();
+        ddata.message       = message.data().get();
+        ddata.grid          = grid.data().get();
+#ifdef __atomic_enable_distance_field__
+        ddata.df_entities   = df_entities.data().get();
+#endif // __atomic_enable_distance_field__
         return ddata;
     }
 };
@@ -275,6 +300,14 @@ struct _FluidComputeForce
 };
 
 
+__device__ float3 GetDistanceFieldCoord(float4 pos)
+{
+    const float3 grid_pos = make_float3(-2.56f, -2.56f, 0.0f);
+    const float3 grid_size = make_float3(5.12f, 5.12f, 0.32f);
+    float3 coord = (make_float3(pos)-grid_pos) / grid_size;
+    return coord;
+}
+
 struct _FluidIntegrate
 {
     DeviceFluidDataSet dfd;
@@ -291,7 +324,28 @@ struct _FluidIntegrate
         float4 acceleration = dfd.forces[P_ID].acceleration;
         position.w = 1.0f;
         dfd.message[P_ID].to = 0;
+        dfd.particles[P_ID].energy -= 0.01f;
 
+#ifdef __atomic_enable_distance_field__
+        {
+            float3 coord = GetDistanceFieldCoord(position);
+            float4 df = tex3D(d_distance_field, coord.x, coord.y, coord.z);
+
+            if(df.w <= 0.0f) {
+                acceleration += df * (df.w * -d_params.wall_stiffness);
+                int3 ucoord = make_int3(
+                    coord.x * SPH_DISTANCE_FIELD_DIV_X,
+                    coord.y * SPH_DISTANCE_FIELD_DIV_Y,
+                    coord.z * SPH_DISTANCE_FIELD_DIV_Z);
+
+                float3 vel3 = make_float3(velocity);
+                float vl = length(vel3);
+                dfd.message[P_ID].velocity3 = vel3;
+                dfd.message[P_ID].to = dfd.getDistanceFieldEntity(ucoord);
+                dfd.particles[P_ID].energy -= vl;
+            }
+        }
+#else  // __atomic_enable_distance_field__
         for(int i=0; i<drd.num_spheres; ++i) {
             const sphRigidSphere &collision = drd.spheres[i];
             if( position.x >= collision.bb.bl.x && position.x <= collision.bb.ur.x &&
@@ -340,13 +394,13 @@ struct _FluidIntegrate
             }
         }
 
-        dfd.particles[P_ID].energy -= 0.005f;
         if(dfd.message[P_ID].to!=0) {
             float3 vel3 = make_float3(velocity);
             float vl = length(vel3);
             dfd.message[P_ID].velocity3 = vel3;
             dfd.particles[P_ID].energy -= vl;
         }
+#endif // __atomic_enable_distance_field__
 
         for(int i=0; i<drd.num_planes; ++i) {
             float4 plane = drd.planes[i].plane;
@@ -356,7 +410,7 @@ struct _FluidIntegrate
         // z bound
         acceleration += min(position.z, 0.0f) * -d_params.wall_stiffness * make_float4(0.0f, 0.0f, 1.0f, 0.0f);
         // z gravity
-        acceleration += make_float4(0.0f, 0.0f, -8.0f, 0.0f);
+        acceleration += make_float4(0.0f, 0.0f, -10.0f, 0.0f);
 
 
         // Apply gravity

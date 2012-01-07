@@ -3,6 +3,7 @@
 #include "Game/AtomicApplication.h"
 #include "Game/AtomicGame.h"
 #include "Game/World.h"
+#include "Game/Collision.h"
 #include "GPGPU/SPH.cuh"
 #include "AtomicRenderingSystem.h"
 #include "Renderer.h"
@@ -30,21 +31,24 @@ void PassForwardShading_DistanceField::beforeDraw()
 
 void PassForwardShading_DistanceField::draw()
 {
-    if(!atomicGetConfig()->show_distance_field) { return; }
-
-    {
-        m_sh_grid->bind();
-        m_va_grid->bind();
-        glDrawArrays(GL_LINES, 0, (SPH_DISTANCE_FIELD_DIV_X+1) * (SPH_DISTANCE_FIELD_DIV_Y+1) * 2);
-        m_va_grid->unbind();
-        m_sh_grid->unbind();
-    }
-    {
+#ifdef __atomic_enable_distance_field__
+    if(atomicGetConfig()->show_distance) {
+        MapAndWrite(*m_vbo_cell_dist, atomicGetCollisionSet()->getDistanceField()->getDistances(),
+            sizeof(vec4) * SPH_DISTANCE_FIELD_DIV_X * SPH_DISTANCE_FIELD_DIV_Y);
         m_sh_cell->bind();
         m_va_cell->bind();
         glDrawArraysInstanced(GL_QUADS, 0, 4, SPH_DISTANCE_FIELD_DIV_X * SPH_DISTANCE_FIELD_DIV_Y);
         m_va_cell->unbind();
         m_sh_cell->unbind();
+    }
+#endif // __atomic_enable_distance_field__
+
+    if(atomicGetConfig()->show_grid) {
+        m_sh_grid->bind();
+        m_va_grid->bind();
+        glDrawArrays(GL_LINES, 0, (SPH_DISTANCE_FIELD_DIV_X+1) * (SPH_DISTANCE_FIELD_DIV_Y+1) * 2);
+        m_va_grid->unbind();
+        m_sh_grid->unbind();
     }
 }
 

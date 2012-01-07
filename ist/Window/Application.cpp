@@ -255,6 +255,10 @@ bool Application::initialize(ivec2 wpos, ivec2 wsize, const wchar_t *title, bool
         ::SetWindowPos(m_hwnd,(HWND)-1, wpos.x,wpos.y, wsize.x,wsize.y, SWP_SHOWWINDOW);
     }
 
+    for(uint32 i=0; i<0; ++i) {
+
+    }
+
     return true;
 }
 
@@ -290,9 +294,8 @@ void Application::updateInput()
     }
 
     // joystick
-    size_t num_joysticks = stl::min<size_t>(::joyGetNumDevs(), MAX_JOYSTICK_NUM);
-    for(size_t i=0; i<num_joysticks; ++i) {
-        JOYINFOEX joyinfo;//ジョイスティック情報
+    for(size_t i=0; i<MAX_JOYSTICK_NUM; ++i) {
+        JOYINFOEX joyinfo;
         joyinfo.dwSize = sizeof(JOYINFOEX);
         joyinfo.dwFlags = JOY_RETURNALL;
         if(::joyGetPosEx(i, &joyinfo)==JOYERR_NOERROR){

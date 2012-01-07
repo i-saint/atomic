@@ -1,6 +1,7 @@
 #ifndef __atomic_Game_Collision__
 #define __atomic_Game_Collision__
 
+#include "GPGPU/SPH.cuh"
 
 namespace atomic {
 
@@ -93,6 +94,11 @@ public:
     vec4 pos_r; // w=radius
 
     CollisionSphere() { setShape(CS_SPHERE); }
+    void updateBoundingBox()
+    {
+        bb.ur = vec4(vec3(pos_r)+vec3(pos_r.w), 1.0f);
+        bb.bl = vec4(vec3(pos_r)-vec3(pos_r.w), 1.0f);
+    }
 };
 
 struct CollisionBox : public CollisionEntity
@@ -122,9 +128,43 @@ struct CollideMessage
 
 
 class CollideTask;
+class DistanceTask;
+
+
+
+class DistanceField
+{
+public:
+    static const ivec3 grid_div;
+    static const ivec3 block_size;
+    static const ivec3 block_num;
+    static const vec3 grid_size;
+    static const vec3 grid_pos;
+    static const vec3 cell_size;
+
+    static ivec3 getDistanceFieldCoord(const vec3 &pos);
+
+private:
+    typedef stl::vector<DistanceTask*>      TaskCont;
+    typedef stl::vector<CollisionEntity*>   EntityCont;
+
+    vec4            m_dist[SPH_DISTANCE_FIELD_DIV_Z*SPH_DISTANCE_FIELD_DIV_Y*SPH_DISTANCE_FIELD_DIV_X];
+    EntityHandle    m_handle[SPH_DISTANCE_FIELD_DIV_Z*SPH_DISTANCE_FIELD_DIV_Y*SPH_DISTANCE_FIELD_DIV_X];
+    TaskCont        m_tasks;
+
+public:
+    DistanceField();
+    ~DistanceField();
+
+    vec4* getDistances()            { return m_dist; }
+    CollisionHandle* getEntities()  { return m_handle; }
+    void updateBegin(EntityCont &v);
+    void updateEnd();
+};
+
 
 // åªèÛëçìñÇËï˚éÆÅc
-class CollisionSet : boost::noncopyable
+class CollisionSet : public boost::noncopyable
 {
 friend class CollideTask;
 public:
@@ -138,6 +178,10 @@ private:
     EntityCont  m_entities;
     HandleCont  m_vacant;
     uint32      m_active_tasks;
+#ifdef __atomic_enable_distance_field__
+    DistanceField *m_df[2];
+    uint32 m_df_current;
+#endif // __atomic_enable_distance_field__
 
     void addEntity(CollisionEntity *e);
     void resizeTasks(uint32 n);
@@ -157,6 +201,8 @@ public:
     void deleteEntity(CollisionEntity *e);
 
     uint32 collide(CollisionEntity *e, MessageCont &m);
+
+    DistanceField* getDistanceField();
 };
 
 

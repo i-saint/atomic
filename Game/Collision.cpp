@@ -32,7 +32,7 @@ inline bool BoundingBoxIntersect(const BoundingBox &bb1, const BoundingBox &bb2)
 }
 
 
-bool _Collide(CollisionPlane *sender, CollisionPlane *receiver, CollideMessage &m)
+bool _Collide(const CollisionPlane *sender, const CollisionPlane *receiver, CollideMessage &m)
 {
     float32 d = glm::dot(vec3(sender->plane), vec3(receiver->plane));
     if(std::abs(d) < 1.0f) {
@@ -42,7 +42,7 @@ bool _Collide(CollisionPlane *sender, CollisionPlane *receiver, CollideMessage &
     return false;
 }
 
-bool _Collide(CollisionPlane *sender, CollisionSphere *receiver, CollideMessage &m)
+bool _Collide(const CollisionPlane *sender, const CollisionSphere *receiver, CollideMessage &m)
 {
     vec3 spos = vec3(receiver->pos_r);
     float32 radius = receiver->pos_r.w;
@@ -54,13 +54,13 @@ bool _Collide(CollisionPlane *sender, CollisionSphere *receiver, CollideMessage 
     return false;
 }
 
-bool _Collide(CollisionPlane *sender, CollisionBox *receiver, CollideMessage &m)
+bool _Collide(const CollisionPlane *sender, const CollisionBox *receiver, CollideMessage &m)
 {
     return false;
 }
 
 
-bool _Collide(CollisionSphere *sender, CollisionPlane *receiver, CollideMessage &m)
+bool _Collide(const CollisionSphere *sender, const CollisionPlane *receiver, CollideMessage &m)
 {
     if(_Collide(receiver, sender, m)) {
         //m.direction *= vec4(-1.0f, -1.0f, -1.0f, 1.0f);
@@ -69,7 +69,7 @@ bool _Collide(CollisionSphere *sender, CollisionPlane *receiver, CollideMessage 
     return false;
 }
 
-bool _Collide(CollisionSphere *sender, CollisionSphere *receiver, CollideMessage &m)
+bool _Collide(const CollisionSphere *sender, const CollisionSphere *receiver, CollideMessage &m)
 {
     float32 r = sender->pos_r.w + receiver->pos_r.w;
     float32 r2 = r*r;
@@ -84,18 +84,13 @@ bool _Collide(CollisionSphere *sender, CollisionSphere *receiver, CollideMessage
     return false;
 }
 
-bool _Collide(CollisionSphere *sender, CollisionBox *receiver, CollideMessage &m)
+
+bool _Collide(const CollisionBox *sender, const CollisionPlane *receiver, CollideMessage &m)
 {
     return false;
 }
 
-
-bool _Collide(CollisionBox *sender, CollisionPlane *receiver, CollideMessage &m)
-{
-    return false;
-}
-
-bool _Collide(CollisionBox *sender, CollisionSphere *receiver, CollideMessage &m)
+bool _Collide(const CollisionBox *sender, const CollisionSphere *receiver, CollideMessage &m)
 {
     if(!BoundingBoxIntersect(sender->bb, receiver->bb)) { return false; }
 
@@ -126,40 +121,181 @@ bool _Collide(CollisionBox *sender, CollisionSphere *receiver, CollideMessage &m
     return false;
 }
 
-bool _Collide(CollisionBox *sender, CollisionBox *receiver, CollideMessage &m)
+bool _Collide(const CollisionSphere *sender, const CollisionBox *receiver, CollideMessage &m)
+{
+    if(_Collide(receiver, sender, m)) {
+        return true;
+    }
+    return false;
+}
+
+bool _Collide(const CollisionBox *sender, const CollisionBox *receiver, CollideMessage &m)
 {
     return false;
 }
 
 
-bool Collide(CollisionEntity *sender, CollisionEntity *receiver, CollideMessage &m)
+bool Collide(const CollisionEntity *sender, const CollisionEntity *receiver, CollideMessage &m)
 {
     switch(sender->getShape()) {
     case CS_PLANE:
         switch(receiver->getShape()) {
-        case CS_PLANE:  return _Collide(static_cast<CollisionPlane*>(sender), static_cast<CollisionPlane*>(receiver), m);
-        case CS_SPHERE: return _Collide(static_cast<CollisionPlane*>(sender), static_cast<CollisionSphere*>(receiver), m);
-        case CS_BOX:    return _Collide(static_cast<CollisionPlane*>(sender), static_cast<CollisionBox*>(receiver), m);
+        case CS_PLANE:  return _Collide(static_cast<const CollisionPlane*>(sender), static_cast<const CollisionPlane*>(receiver), m);
+        case CS_SPHERE: return _Collide(static_cast<const CollisionPlane*>(sender), static_cast<const CollisionSphere*>(receiver), m);
+        case CS_BOX:    return _Collide(static_cast<const CollisionPlane*>(sender), static_cast<const CollisionBox*>(receiver), m);
         }
         break;
 
     case CS_SPHERE:
         switch(receiver->getShape()) {
-        case CS_PLANE:  return _Collide(static_cast<CollisionSphere*>(sender), static_cast<CollisionPlane*>(receiver), m);
-        case CS_SPHERE: return _Collide(static_cast<CollisionSphere*>(sender), static_cast<CollisionSphere*>(receiver), m);
-        case CS_BOX:    return _Collide(static_cast<CollisionSphere*>(sender), static_cast<CollisionBox*>(receiver), m);
+        case CS_PLANE:  return _Collide(static_cast<const CollisionSphere*>(sender), static_cast<const CollisionPlane*>(receiver), m);
+        case CS_SPHERE: return _Collide(static_cast<const CollisionSphere*>(sender), static_cast<const CollisionSphere*>(receiver), m);
+        case CS_BOX:    return _Collide(static_cast<const CollisionSphere*>(sender), static_cast<const CollisionBox*>(receiver), m);
         }
         break;
 
     case CS_BOX:
         switch(receiver->getShape()) {
-        case CS_PLANE:  return _Collide(static_cast<CollisionBox*>(sender), static_cast<CollisionPlane*>(receiver), m);
-        case CS_SPHERE: return _Collide(static_cast<CollisionBox*>(sender), static_cast<CollisionSphere*>(receiver), m);
-        case CS_BOX:    return _Collide(static_cast<CollisionBox*>(sender), static_cast<CollisionBox*>(receiver), m);
+        case CS_PLANE:  return _Collide(static_cast<const CollisionBox*>(sender), static_cast<const CollisionPlane*>(receiver), m);
+        case CS_SPHERE: return _Collide(static_cast<const CollisionBox*>(sender), static_cast<const CollisionSphere*>(receiver), m);
+        case CS_BOX:    return _Collide(static_cast<const CollisionBox*>(sender), static_cast<const CollisionBox*>(receiver), m);
         }
         break;
     }
     return false;
+}
+
+
+
+
+const ivec3 DistanceField::grid_div  = ivec3(SPH_DISTANCE_FIELD_DIV_X, SPH_DISTANCE_FIELD_DIV_Y, SPH_DISTANCE_FIELD_DIV_Z);
+const ivec3 DistanceField::block_size= ivec3(16, 16, 8);
+const ivec3 DistanceField::block_num = grid_div/block_size;
+const vec3 DistanceField::grid_size  = vec3(5.12f, 5.12f, 0.32f);
+const vec3 DistanceField::grid_pos   = vec3(-2.56f, -2.56f, 0.0f);
+const vec3 DistanceField::cell_size  = grid_size/vec3(grid_div);
+
+atomic::ivec3 DistanceField::getDistanceFieldCoord( const vec3 &pos )
+{
+    ivec3 fc = ivec3((pos-grid_pos) / cell_size);
+    return glm::min(grid_div-ivec3(1,1,1), glm::max(ivec3(0,0,0), fc));
+}
+
+class DistanceTask : public Task
+{
+private:
+    typedef stl::vector<CollisionEntity*>   EntityCont;
+
+    ivec3               m_bl, m_ur;
+    DistanceField       *m_df;
+    EntityCont          *m_entities;
+
+public:
+    DistanceTask(DistanceField *df) : m_df(df) { setPriority(90); }
+    void setup(const ivec3 &bl, const ivec3 &ur, EntityCont &ec) { m_bl=bl; m_ur=ur; m_entities=&ec; }
+
+    void getOverlaped(const BoundingBox &bb, ivec3 &out_ubl, ivec3 &out_uur)
+    {
+        ivec3 ubl = DistanceField::getDistanceFieldCoord(vec3(bb.bl));
+        ivec3 uur = DistanceField::getDistanceFieldCoord(vec3(bb.ur)) + ivec3(1,1,1);
+        out_ubl = uvec3(std::max<int32>(ubl.x, out_ubl.x), std::max<int32>(ubl.y, out_ubl.y), std::max<int32>(ubl.z, out_ubl.z));
+        out_uur = uvec3(std::min<int32>(uur.x, out_uur.x), std::min<int32>(uur.y, out_uur.y), std::min<int32>(uur.z, out_uur.z));
+    }
+
+    void doCollide(const CollisionEntity *ce, const ivec3 &ubl, const ivec3 &uur)
+    {
+        vec4 *dist = m_df->getDistances();
+        EntityHandle *entities = m_df->getEntities();
+
+        for(int32 zi=ubl.z; zi<uur.z; ++zi) {
+            for(int32 yi=ubl.y; yi<uur.y; ++yi) {
+                for(int32 xi=ubl.x; xi<uur.x; ++xi) {
+                    int32 gi = DistanceField::grid_div.y*DistanceField::grid_div.x*zi + DistanceField::grid_div.x*yi + xi;
+                    vec3 center = DistanceField::grid_pos + DistanceField::cell_size*(vec3(xi, yi, zi)+vec3(0.5f));
+                    CollisionSphere s;
+                    s.pos_r = vec4(center, DistanceField::cell_size.x*0.5f);
+                    s.updateBoundingBox();
+                    CollideMessage m;
+                    if(Collide(ce, &s, m)) {
+                        dist[gi] = vec4(vec3(m.direction), -m.direction.w);
+                        entities[gi] = ce->getGObjHandle();
+                    }
+                }
+            }
+        }
+    }
+
+    void clearBlock()
+    {
+        vec4 *dist = m_df->getDistances();
+        EntityHandle *entities = m_df->getEntities();
+
+        for(int32 zi=m_bl.z; zi<m_ur.z; ++zi) {
+            for(int32 yi=m_bl.y; yi<m_ur.y; ++yi) {
+                for(int32 xi=m_bl.x; xi<m_ur.x; ++xi) {
+                    int32 gi = DistanceField::grid_div.y*DistanceField::grid_div.x*zi + DistanceField::grid_div.x*yi + xi;
+                    dist[gi] = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+                    entities[gi] = 0;
+                }
+            }
+        }
+    }
+
+    void exec()
+    {
+        clearBlock();
+        for(uint32 ci=0; ci<m_entities->size(); ++ci) {
+            const CollisionEntity *ce = (*m_entities)[ci];
+            if(!ce) { continue; }
+
+            ivec3 ubl = m_bl;
+            ivec3 uur = m_ur;
+            switch(ce->getShape()) {
+            case CS_BOX:
+                getOverlaped(static_cast<const CollisionBox*>(ce)->bb, ubl, uur);
+                doCollide(ce, ubl, uur);
+                break;
+
+            case CS_SPHERE:
+                getOverlaped(static_cast<const CollisionSphere*>(ce)->bb, ubl, uur);
+                doCollide(ce, ubl, uur);
+                break;
+            }
+            
+        }
+    }
+};
+
+
+DistanceField::DistanceField()
+{
+    std::fill_n(m_handle, _countof(m_handle), 0);
+    for(int32 i=0; i<block_num.x*block_num.y; ++i) {
+        m_tasks.push_back( istNew(DistanceTask)(this) );
+    }
+}
+
+DistanceField::~DistanceField()
+{
+    for(uint32 i=0; i<m_tasks.size(); ++i) { istDelete(m_tasks[i]); }
+}
+
+void DistanceField::updateBegin( EntityCont &v )
+{
+    for(int32 yi=0; yi<block_num.y; ++yi) {
+        for(int32 xi=0; xi<block_num.x; ++xi) {
+            const ivec3 bl = ivec3(block_size.x*xi, block_size.y*yi, 0);
+            const ivec3 ur = ivec3(block_size.x*(xi+1), block_size.y*(yi+1), SPH_DISTANCE_FIELD_DIV_Z);
+            DistanceTask *dt = m_tasks[block_num.x*yi + xi];
+            dt->setup(bl, ur, v);
+        }
+    }
+    TaskScheduler::addTask((Task**)&m_tasks[0], m_tasks.size());
+}
+
+void DistanceField::updateEnd()
+{
+    for(uint32 i=0; i<m_tasks.size(); ++i) { m_tasks[i]->join(); }
 }
 
 
@@ -219,12 +355,21 @@ CollisionSet::CollisionSet()
     m_tasks.reserve(32);
     m_entities.reserve(1024);
     m_vacant.reserve(1024);
+#ifdef __atomic_enable_distance_field__
+    for(uint32 i=0; i<_countof(m_df); ++i) {
+        m_df[i] = istNew(DistanceField)();
+    }
+    m_df_current = 0;
+#endif // __atomic_enable_distance_field__
 }
 
 CollisionSet::~CollisionSet()
 {
-    for(uint32 i=0; i<m_tasks.size(); ++i)      { istDelete(m_tasks[i]); }
-    for(uint32 i=0; i<m_entities.size(); ++i)   { istDelete(m_entities[i]); }
+#ifdef __atomic_enable_distance_field__
+    for(uint32 i=0; i<_countof(m_df); ++i)      { istSafeDelete(m_df[i]); }
+#endif // __atomic_enable_distance_field__
+    for(uint32 i=0; i<m_tasks.size(); ++i)      { istSafeDelete(m_tasks[i]); }
+    for(uint32 i=0; i<m_entities.size(); ++i)   { istSafeDelete(m_entities[i]); }
     m_tasks.clear();
     m_entities.clear();
     m_vacant.clear();
@@ -232,6 +377,9 @@ CollisionSet::~CollisionSet()
 
 void CollisionSet::updateBegin(float32 dt)
 {
+#ifdef __atomic_enable_distance_field__
+    m_df[(m_df_current+1) % _countof(m_df)]->updateEnd();
+#endif // __atomic_enable_distance_field__
 }
 
 void CollisionSet::update(float32 dt)
@@ -249,6 +397,11 @@ void CollisionSet::update(float32 dt)
 
 void CollisionSet::updateEnd()
 {
+#ifdef __atomic_enable_distance_field__
+    m_df[m_df_current]->updateBegin(m_entities);
+    m_df_current = (m_df_current+1) % _countof(m_df);
+#endif // __atomic_enable_distance_field__
+
     uint32 num = m_entities.size();
     for(uint32 i=0; i<num; ++i) {
         const CollisionEntity *ce = m_entities[i];
@@ -278,11 +431,9 @@ void CollisionSet::asyncupdate(float32 dt)
     resizeTasks(m_active_tasks);
     for(uint32 i=0; i<m_active_tasks; ++i) {
         m_tasks[i]->setup(m_entities.begin()+(block_size*i), m_entities.begin()+std::min<uint32>(block_size*(i+1), m_entities.size()));
-        m_tasks[i]->kick();
     }
-    for(uint32 i=0; i<m_active_tasks; ++i) {
-        m_tasks[i]->join();
-    }
+    TaskScheduler::addTask((Task**)&m_tasks[0], m_tasks.size());
+    TaskScheduler::waitFor((Task**)&m_tasks[0], m_tasks.size());
 }
 
 void CollisionSet::addEntity(CollisionEntity *e)
@@ -338,5 +489,12 @@ void CollisionSet::deleteEntity(CollisionEntity *e)
     deleteEntity(e->getCollisionHandle());
 }
 
+DistanceField* CollisionSet::getDistanceField()
+{
+#ifdef __atomic_enable_distance_field__
+    return m_df[m_df_current];
+#endif // __atomic_enable_distance_field__
+    return NULL;
+}
 
 } // namespace atomic

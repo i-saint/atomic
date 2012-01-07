@@ -2,7 +2,7 @@
 #ifdef _WIN32
     #include <windows.h>
 #endif
-#include <EASTL/algorithm.h>
+#include <algorithm>
 #include "TaskScheduler.h"
 #include "../Base.h"
 
@@ -57,37 +57,43 @@ void SetThreadName(const char *name)
 
 
 
-Task::Task() : m_finished(true) {}
+Task::Task() : m_finished(true), m_priority(100) {}
 Task::~Task() {}
 void Task::beforeExec()         { m_finished = false; }
 void Task::afterExec()          { m_finished = true; }
-bool Task::isFinished() const   { return m_finished; }
-void Task::kick()               { TaskScheduler::push(this); }
+
+void Task::kick()               { TaskScheduler::addTask(this); }
 void Task::join()               { TaskScheduler::waitFor(this); }
 
 
 namespace impl
 {
 
+struct greater_priority
+{
+    bool operator()(TaskPtr p1, TaskPtr p2) const
+    {
+        return p1->getPriority() > p2->getPriority();
+    }
+};
+
 
 class TaskQueue
 {
 private:
-    typedef eastl::list<TaskPtr> task_cont;
-    task_cont m_tasks;
+    typedef std::list<TaskPtr> Tasks;
+    Tasks m_tasks;
     boost::mutex m_suspender;
     boost::condition_variable m_cond;
     size_t m_num_idling_thread;
 
 public:
     TaskQueue();
-    bool empty();
+    bool isEmpty();
     size_t getNumIdlingThread() const;
 
-    void push_back(TaskPtr t);
-    void push_back(TaskPtr tasks[], size_t num);
-    void push_front(TaskPtr t);
-    void push_front(TaskPtr tasks[], size_t num);
+    void addTask(TaskPtr t);
+    void addTask(TaskPtr tasks[], size_t num);
 
     TaskPtr pop();
     TaskPtr waitForQueuingTask();
@@ -117,7 +123,7 @@ TaskQueue::TaskQueue()
 : m_num_idling_thread(0)
 {}
 
-bool TaskQueue::empty()
+bool TaskQueue::isEmpty()
 {
     boost::unique_lock<boost::mutex> lock(m_suspender);
     return m_tasks.empty();
@@ -128,12 +134,12 @@ size_t TaskQueue::getNumIdlingThread() const
     return m_num_idling_thread;
 }
 
-void TaskQueue::push_back(TaskPtr t)
+void TaskQueue::addTask(TaskPtr t)
 {
-    push_back(&t, 1);
+    addTask(&t, 1);
 }
 
-void TaskQueue::push_back(TaskPtr tasks[], size_t num)
+void TaskQueue::addTask(TaskPtr tasks[], size_t num)
 {
     if(num==0) { return; }
     {
@@ -142,27 +148,9 @@ void TaskQueue::push_back(TaskPtr tasks[], size_t num)
         {
             TaskPtr t = tasks[i];
             t->beforeExec();
-            m_tasks.push_back(t);
-        }
-        notify();
-    }
-}
 
-void TaskQueue::push_front(TaskPtr t)
-{
-    push_front(&t, 1);
-}
-
-void TaskQueue::push_front(TaskPtr tasks[], size_t num)
-{
-    if(num==0) { return; }
-    {
-        boost::lock_guard<boost::mutex> lock(m_suspender);
-        for(size_t i=0; i<num; ++i)
-        {
-            TaskPtr t = tasks[i];
-            t->beforeExec();
-            m_tasks.push_front(t);
+            Tasks::iterator pos = std::upper_bound(m_tasks.begin(), m_tasks.end(), t, greater_priority());
+            m_tasks.insert(pos, t);
         }
         notify();
     }
@@ -171,7 +159,7 @@ void TaskQueue::push_front(TaskPtr tasks[], size_t num)
 
 TaskPtr TaskQueue::pop()
 {
-    boost::unique_lock<boost::mutex> lock(m_suspender);
+    boost::lock_guard<boost::mutex> lock(m_suspender);
     TaskPtr t = NULL;
     if(!m_tasks.empty())
     {
@@ -270,7 +258,7 @@ bool TaskThread::processTask_NonBlock()
 
 TaskScheduler* TaskScheduler::s_instance = NULL;
 
-void TaskScheduler::initializeSingleton(size_t num_thread)
+void TaskScheduler::initializeInstance(size_t num_thread)
 {
     if(!s_instance) {
         s_instance = istNew(TaskScheduler)();
@@ -278,7 +266,7 @@ void TaskScheduler::initializeSingleton(size_t num_thread)
     }
 }
 
-void TaskScheduler:: finalizeSingleton()
+void TaskScheduler:: finalizeInstance()
 {
     if(s_instance) {
         s_instance->finalize();
@@ -412,7 +400,7 @@ void TaskScheduler::waitExclusive( TaskPtr tasks[], size_t num )
 void TaskScheduler::waitForAll()
 {
     // タスクキューが空になるのを待つ
-    while(!s_instance->m_task_queue->empty())
+    while(!s_instance->m_task_queue->isEmpty())
     {
         impl::TaskThread::processTask_NonBlock();
     }
@@ -424,24 +412,14 @@ void TaskScheduler::waitForAll()
 }
 
 
-void TaskScheduler::push(TaskPtr task)
+void TaskScheduler::addTask(TaskPtr task)
 {
-    s_instance->m_task_queue->push_back(task);
+    s_instance->m_task_queue->addTask(task);
 }
 
-void TaskScheduler::push(TaskPtr tasks[], size_t num)
+void TaskScheduler::addTask(TaskPtr tasks[], size_t num)
 {
-    s_instance->m_task_queue->push_back(tasks, num);
-}
-
-void TaskScheduler::push_front(TaskPtr task)
-{
-    s_instance->m_task_queue->push_front(task);
-}
-
-void TaskScheduler::push_front(TaskPtr tasks[], size_t num)
-{
-    s_instance->m_task_queue->push_front(tasks, num);
+    s_instance->m_task_queue->addTask(tasks, num);
 }
 
 

@@ -40,7 +40,7 @@ ps_out(3) vec4 ps_FragGlow;
 void main()
 {
     float density = vs_FluidParam.y;
-    float density_color = density/500.0;
+    float density_color = density/350.0;
     vec4 p = vec4(0.1) + vec4(density_color*0.25, density_color*0.5, density_color, 1.0)*0.9;
     ps_FlagColor    = vs_VertexColor * p;
     ps_FragNormal   = vs_VertexNormal;

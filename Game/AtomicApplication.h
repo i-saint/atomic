@@ -16,7 +16,8 @@ struct AtomicConfig
     bool posteffect_bloom;
     bool posteffect_antialias;
     bool show_text;
-    bool show_distance_field; // debug
+    bool show_grid;     // debug
+    bool show_distance; // debug
     bool sound_enable;
     float32 bgm_volume;
     float32 se_volume;

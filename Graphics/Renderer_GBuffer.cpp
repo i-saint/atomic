@@ -80,9 +80,9 @@ void PassGBuffer_SPH::draw()
         size_t n = 0;
         for(uint32 i=0; i<num_rigids; ++i) {
             static_cast<UpdateRigidParticle*>(m_tasks[i])->setup(m_rinstances[i], &m_rparticles[n]);
-            m_tasks[i]->kick();
             n += atomicGetParticleSet(m_rinstances[i].psid)->getNumParticles();
         }
+        TaskScheduler::addTask(&m_tasks[0], num_rigids);
     }
     // copy fluid particles (CUDA -> GL)
     SPHCopyToGL();
@@ -107,9 +107,7 @@ void PassGBuffer_SPH::draw()
 
     // rigid particle
     {
-        for(size_t i=0; i<num_rigids; ++i) {
-            m_tasks[i]->join();
-        }
+        TaskScheduler::waitFor(&m_tasks[0], num_rigids);
         MapAndWrite(*m_vbo_rigid, &m_rparticles[0], sizeof(PSetParticle)*num_rigid_particles);
     }
     {

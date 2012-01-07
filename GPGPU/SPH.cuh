@@ -7,6 +7,7 @@
 #include <thrust/host_vector.h>
 #include <thrust/device_vector.h>
 #include "../Graphics/ResourceID.h"
+#include "../features.h"
 
 extern "C" {
 
@@ -19,8 +20,8 @@ typedef glm::vec4 vec4;
 typedef glm::mat4 mat4;
 
 
-const int SPH_FLUID_GRID_DIV_SHIFT_X = 9; // 
-const int SPH_FLUID_GRID_DIV_SHIFT_Y = 9; // 
+const int SPH_FLUID_GRID_DIV_SHIFT_X = 8; // 
+const int SPH_FLUID_GRID_DIV_SHIFT_Y = 8; // 
 const int SPH_FLUID_GRID_DIV_SHIFT_Z = 2; // 
 const int SPH_FLUID_GRID_DIV_X = 1<<SPH_FLUID_GRID_DIV_SHIFT_X;
 const int SPH_FLUID_GRID_DIV_Y = 1<<SPH_FLUID_GRID_DIV_SHIFT_Y;
@@ -30,6 +31,7 @@ const int SPH_FLUID_GRID_DIV_3 = SPH_FLUID_GRID_DIV_X*SPH_FLUID_GRID_DIV_Y*SPH_F
 const int SPH_DISTANCE_FIELD_DIV_X = 128;
 const int SPH_DISTANCE_FIELD_DIV_Y = 128;
 const int SPH_DISTANCE_FIELD_DIV_Z = 8;
+const int SPH_DISTANCE_FIELD_DIV_3 = SPH_DISTANCE_FIELD_DIV_X*SPH_DISTANCE_FIELD_DIV_Y*SPH_DISTANCE_FIELD_DIV_Z;
 
 const int SPH_MAX_FLUID_PARTICLES = 65536 * 4;
 const int SPH_MAX_RIGID_PARTICLES = 65536 * 4;
@@ -48,6 +50,20 @@ enum SPH_RIGID_SHAPE {
     SPH_RIGID_BEAM,
     SPH_RIGID_END,
 };
+
+struct sphParams
+{
+    float smooth_len;
+    float pressure_stiffness;
+    float rest_density;
+    float particle_mass;
+    float viscosity;
+    float density_coef;
+    float grad_pressure_coef;
+    float lap_viscosity_coef;
+    float wall_stiffness;
+};
+
 
 struct sphBoundingBox
 {
@@ -143,8 +159,9 @@ struct sphFluidMessage
 };
 
 
-void SPHInitialize();
+void SPHInitialize(const sphParams &params);
 void SPHFinalize();
+void SPHUpdateDistanceField(const float4 *distances, const EntityHandle *entities);
 void SPHUpdateRigids(
     const thrust::host_vector<sphRigidPlane> &planes,
     const thrust::host_vector<sphRigidSphere> &spheres,

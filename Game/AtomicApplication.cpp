@@ -24,7 +24,8 @@ AtomicConfig::AtomicConfig()
     posteffect_bloom    = true;
     posteffect_antialias= false;
     show_text           = true;
-    show_distance_field = true;
+    show_grid           = true;
+    show_distance       = false;
     sound_enable        = true;
     bgm_volume          = 0.5;
     se_volume           = 0.5;
@@ -47,6 +48,8 @@ bool AtomicConfig::readFromFile( const char* filepath )
         if(sscanf(buf, "posteffect_bloom = %d", &itmp.x)==1)        { posteffect_bloom=(itmp.x!=0); }
         if(sscanf(buf, "posteffect_antialias = %d", &itmp.x)==1)    { posteffect_antialias=(itmp.x!=0); }
         if(sscanf(buf, "show_text = %d", &itmp.x)==1)               { show_text=(itmp.x!=0); }
+        if(sscanf(buf, "show_grid = %d", &itmp.x)==1)               { show_grid=(itmp.x!=0); }
+        if(sscanf(buf, "show_distance = %d", &itmp.x)==1)           { show_distance=(itmp.x!=0); }
         if(sscanf(buf, "sound_enable = %f", &itmp.x)==1)            { sound_enable=(itmp.x!=0); }
         if(sscanf(buf, "bgm_volume = %f", &ftmp.x)==1)              { bgm_volume=ftmp.x; }
         if(sscanf(buf, "se_volume = %f", &ftmp.x)==1)               { se_volume=ftmp.x; }
@@ -67,6 +70,8 @@ bool AtomicConfig::writeToFile( const char* filepath )
     fprintf(f, "posteffect_bloom = %d\n",       posteffect_bloom);
     fprintf(f, "posteffect_antialias = %d\n",   posteffect_antialias);
     fprintf(f, "show_text = %d\n",              show_text);
+    fprintf(f, "show_grid = %d\n",              show_grid);
+    fprintf(f, "show_distance = %d\n",          show_distance);
     fprintf(f, "sound_enable = %d\n",           sound_enable);
     fprintf(f, "bgm_volume = %f\n",             bgm_volume);
     fprintf(f, "se_volume = %f\n",              se_volume);
@@ -111,7 +116,7 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     {
         return false;
     }
-    TaskScheduler::initializeSingleton();
+    TaskScheduler::initializeInstance();
 
 
     // initialize CUDA
@@ -158,7 +163,7 @@ void AtomicApplication::finalize()
 
     istSafeDelete(m_game);
 
-    TaskScheduler::finalizeSingleton();
+    TaskScheduler::finalizeInstance();
     super::finalize();
 
     FinalizeText();

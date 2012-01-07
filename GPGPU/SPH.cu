@@ -16,7 +16,11 @@
 #include "SPH_internal.cuh"
 #include "../Graphics/ResourceID.h"
 
-__constant__ sphParam d_params;
+__constant__ sphParams d_params;
+#ifdef __atomic_enable_distance_field__
+texture<float4, 3> d_distance_field;
+cudaArray *d_distance_field_array;
+#endif // __atomic_enable_distance_field__
 
 #include "SPHRigid.cuh"
 #include "SPHForce.cuh"
@@ -55,23 +59,28 @@ struct _ClearParticles
     }
 };
 
-void SPHInitialize()
+void SPHInitialize(const sphParams &sph_params)
 {
     h_fluid = new FluidDataSet();
     h_rigid = new RigidDataSet();
     h_forces = new ForceDataSet();
 
     {
-        sphParam sph_params;
-        sph_params.smooth_len           = 0.02f;
-        sph_params.pressure_stiffness   = 200.0f;
-        sph_params.rest_density         = 1000.0f;
-        sph_params.particle_mass        = 0.001f;
-        sph_params.viscosity            = 0.1f;
-        sph_params.density_coef         = sph_params.particle_mass * 315.0f / (64.0f * CUDART_PI_F * pow(sph_params.smooth_len, 9));
-        sph_params.grad_pressure_coef   = sph_params.particle_mass * -45.0f / (CUDART_PI_F * pow(sph_params.smooth_len, 6));
-        sph_params.lap_viscosity_coef   = sph_params.particle_mass * sph_params.viscosity * 45.0f / (CUDART_PI_F * pow(sph_params.smooth_len, 6));
-        sph_params.wall_stiffness       = 3000.0f;
+#ifdef __atomic_enable_distance_field__
+        cudaChannelFormatDesc desc = cudaCreateChannelDesc<float4>();
+        cudaExtent extent = make_cudaExtent(SPH_DISTANCE_FIELD_DIV_X, SPH_DISTANCE_FIELD_DIV_Y, SPH_DISTANCE_FIELD_DIV_Z);
+
+        d_distance_field.addressMode[0] = cudaAddressModeClamp;
+        d_distance_field.addressMode[1] = cudaAddressModeClamp;
+        d_distance_field.addressMode[2] = cudaAddressModeClamp;
+        d_distance_field.filterMode     = cudaFilterModeLinear;
+        d_distance_field.normalized     = true;
+
+        CUDA_SAFE_CALL( cudaMalloc3DArray(&d_distance_field_array, &desc, extent) );
+        CUDA_SAFE_CALL( cudaBindTextureToArray(d_distance_field, d_distance_field_array, desc) );
+#endif __atomic_enable_distance_field__
+    }
+    {
         CUDA_SAFE_CALL( cudaMemcpyToSymbol("d_params", &sph_params, sizeof(sph_params)) );
 
         sphGridParam grid_params;
@@ -92,6 +101,10 @@ void SPHInitialize()
 
 void SPHFinalize()
 {
+#ifdef __atomic_enable_distance_field__
+        CUDA_SAFE_CALL( cudaUnbindTexture(d_distance_field) );
+        CUDA_SAFE_CALL( cudaFreeArray(d_distance_field_array) );
+#endif // __atomic_enable_distance_field__
     delete h_forces;h_forces=NULL;
     delete h_rigid; h_rigid=NULL;
     delete h_fluid; h_fluid=NULL;
@@ -109,6 +122,20 @@ void SPHFinalizeGLBuffers()
 }
 
 
+#ifdef __atomic_enable_distance_field__
+void SPHUpdateDistanceField(const float4 *distances, const EntityHandle *entities)
+{
+    cudaExtent extent = make_cudaExtent(SPH_DISTANCE_FIELD_DIV_X, SPH_DISTANCE_FIELD_DIV_Y, SPH_DISTANCE_FIELD_DIV_Z);
+    cudaMemcpy3DParms params = {0};
+    params.srcPtr   = make_cudaPitchedPtr((void*)distances, extent.width*sizeof(float4), extent.width, extent.height);
+    params.dstArray = d_distance_field_array;
+    params.extent   = extent;
+    params.kind     = cudaMemcpyHostToDevice;
+    CUDA_SAFE_CALL( cudaMemcpy3D(&params) );
+
+    thrust::copy(entities, entities+SPH_DISTANCE_FIELD_DIV_3, h_fluid->df_entities.begin());
+}
+#endif // __atomic_enable_distance_field__
 
 void SPHUpdateRigids(
     const thrust::host_vector<sphRigidPlane> &planes,

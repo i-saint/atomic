@@ -67,6 +67,12 @@
     <None Include="shader\GBuffer_RigidSpherical.glsl">
       <Filter>shader</Filter>
     </None>
+    <None Include="shader\DistanceField.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\FillInstanced.glsl">
+      <Filter>shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shader\Fxaa3_11.h">

@@ -59,19 +59,6 @@ public:
 
 
 
-struct sphParam
-{
-    float smooth_len;
-    float pressure_stiffness;
-    float rest_density;
-    float particle_mass;
-    float viscosity;
-    float density_coef;
-    float grad_pressure_coef;
-    float lap_viscosity_coef;
-    float wall_stiffness;
-};
-
 
 struct sphGridParam
 {

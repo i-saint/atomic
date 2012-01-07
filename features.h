@@ -17,4 +17,6 @@
     #define __atomic_enable_debug_strict_handle_check__
 #endif // _MASTER
 
+//#define __atomic_enable_distance_field__
+
 #endif //__atomic_features__

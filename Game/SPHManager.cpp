@@ -9,6 +9,7 @@
 #include "Game/EntityQuery.h"
 #include "Game/Entity.h"
 #include "Game/SPHManager.h"
+#include "Game/Collision.h"
 
 namespace atomic {
 
@@ -89,7 +90,7 @@ void SPHManager::update(float32 dt)
     for(uint32 i=0; i<n; ++i) {
         const sphFluidMessage &m = message[i];
         if(IEntity *e = atomicGetEntity(m.to)) {
-            atomicCall(e, damage, length(m.velocity3)*0.001f);
+            atomicCall(e, damage, length(m.velocity3)*0.002f);
         }
     }
 }
@@ -101,8 +102,13 @@ void SPHManager::asyncupdate(float32 dt)
         const thrust::host_vector<sphFluidParticle> &fluid = static_cast<ComputeFluidParticle*>(m_fluid_tasks[i])->getData();
         m_fluid.insert(m_fluid.end(), fluid.begin(), fluid.end());
     }
+    DistanceField *df = atomicGetCollisionSet()->getDistanceField();
+
     SPHUpdateForce(m_pgravity);
     SPHUpdateRigids(m_planes, m_spheres, m_boxes);
+#ifdef __atomic_enable_distance_field__
+    SPHUpdateDistanceField((float4*)df->getDistances(), df->getEntities());
+#endif // __atomic_enable_distance_field__
     SPHAddFluid(m_fluid);
     SPHUpdateFluid();
 }

@@ -191,7 +191,7 @@ void AtomicRenderer::passForwardShading()
 {
     m_rt_deferred->bind();
     glEnable(GL_BLEND);
-    glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_DEPTH_TEST);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     uint32 num_renderers = m_renderers[PASS_FORWARD].size();

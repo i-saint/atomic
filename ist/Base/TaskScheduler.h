@@ -66,7 +66,6 @@ namespace impl
 
 
 
-// todo: 優先順位
 class Task
 {
 friend class TaskScheduler;
@@ -74,6 +73,7 @@ friend class impl::TaskQueue;
 friend class impl::TaskThread;
 private:
     bool m_finished;
+    int m_priority;
 
 private:
     void beforeExec();
@@ -82,24 +82,16 @@ private:
 public:
     Task();
     virtual ~Task();    // デストラクタで join() はしないので注意。
-    bool isFinished() const;
+
+    bool isFinished() const { return m_finished; }
+    int getPriority() const { return m_priority; }
+    void setPriority(int v) { m_priority=v; }
+
     void kick();
     void join();
 
     virtual void exec()=0;
 };
-
-
-
-
-namespace impl
-{
-
-    class TaskQueue;
-    class TaskThread;
-
-
-} // namespace impl
 
 
 
@@ -123,9 +115,9 @@ public:
     ~TaskScheduler();
 
     /// num_thread: スレッド数。0 の場合 CPU の数に自動調整。 
-    static void initializeSingleton(size_t num_thread=0);
+    static void initializeInstance(size_t num_thread=0);
     /// 現在処理中のタスクの完了を待って破棄。(タスクキューが空になるのを待たない) 
-    static void finalizeSingleton();
+    static void finalizeInstance();
     static TaskScheduler* getInstance();
 
     /// 実行待ちタスクがあればそれを処理する。なければ偽を返す。 
@@ -142,10 +134,8 @@ public:
     static void waitForAll();
 
     /// タスクのスケジューリングを行う。 
-    static void push(TaskPtr task);
-    static void push(TaskPtr tasks[], size_t num);
-    static void push_front(TaskPtr task);
-    static void push_front(TaskPtr tasks[], size_t num);
+    static void addTask(TaskPtr task);
+    static void addTask(TaskPtr tasks[], size_t num);
 
     static size_t getThreadCount();
     static boost::thread::id getThreadId(size_t i);
@@ -181,9 +171,9 @@ public:
     void exec()
     {
         TaskScheduler& scheduler = *TaskScheduler::getInstance();
-        scheduler.push(&m_children[0], m_children.size());
+        scheduler.addTask(&m_children[0], m_children.size());
         scheduler.waitFor(&m_children[0], m_children.size());
-        scheduler.push(&m_chain[0], m_chain.size());
+        scheduler.addTask(&m_chain[0], m_chain.size());
     }
 };
 

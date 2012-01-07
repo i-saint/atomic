@@ -237,7 +237,9 @@ public:
         if(m_frame < 1200) {
             if(m_frame % 50 == 0) {
                 IEntity *e = putSmallEnemy();
-                m_small_enemies.push_back(e->getHandle());
+            }
+            if(m_frame==1) {
+                //IEntity *e = putLargeEnemy();
             }
         }
         else if(isAllDead()) {
@@ -250,11 +252,9 @@ public:
         if(m_frame < 1200) {
             if(m_frame % 60 == 0) {
                 IEntity *e = putSmallEnemy();
-                m_small_enemies.push_back(e->getHandle());
             }
             if(m_frame % 200 == 0) {
                 IEntity *e = putMediumEnemy();
-                m_medium_enemies.push_back(e->getHandle());
             }
         }
         else if(isAllDead()) {
@@ -267,11 +267,9 @@ public:
         if(m_frame < 1200) {
             if(m_frame % 30 == 0) {
                 IEntity *e = putSmallEnemy();
-                m_small_enemies.push_back(e->getHandle());
             }
             if(m_frame % 220 == 0) {
                 IEntity *e = putMediumEnemy();
-                m_medium_enemies.push_back(e->getHandle());
             }
         }
         else if(isAllDead()) {
@@ -284,11 +282,9 @@ public:
         if(m_frame < 1200) {
             if(m_frame % 20 == 0) {
                 IEntity *e = putSmallEnemy();
-                m_small_enemies.push_back(e->getHandle());
             }
             if(m_frame % 150 == 0) {
                 IEntity *e = putMediumEnemy();
-                m_medium_enemies.push_back(e->getHandle());
             }
         }
         else if(isAllDead()) {
@@ -301,11 +297,9 @@ public:
         if(m_frame < 1200) {
             if(m_frame % 15 == 0) {
                 IEntity *e = putSmallEnemy();
-                m_small_enemies.push_back(e->getHandle());
             }
             if(m_frame % 100 == 0) {
                 IEntity *e = putMediumEnemy();
-                m_medium_enemies.push_back(e->getHandle());
             }
         }
         else if(isAllDead()) {
@@ -318,11 +312,9 @@ public:
         if(m_frame < 1200) {
             if(m_frame % 500 == 0) {
                 IEntity *e = putLargeEnemy();
-                m_small_enemies.push_back(e->getHandle());
             }
             if(m_frame % 50 == 0) {
                 IEntity *e = putSmallEnemy();
-                m_small_enemies.push_back(e->getHandle());
             }
         }
         else if(isAllDead()) {

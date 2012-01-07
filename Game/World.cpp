@@ -20,7 +20,6 @@ namespace atomic {
 
 
 
-
 World::World()
 : m_entity_set(NULL)
 , m_collision_set(NULL)

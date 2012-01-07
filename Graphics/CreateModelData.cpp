@@ -340,20 +340,17 @@ void CreateDistanceFieldQuads( VertexArray& va, VertexBuffer& quad_model, Vertex
     }
 
     {
-        SFMT random; random.initialize(3);
-
-        stl::vector<float> vertices;
-        vertices.resize(SPH_DISTANCE_FIELD_DIV_X*SPH_DISTANCE_FIELD_DIV_Y);
+        stl::vector<vec4> vertices;
+        vertices.resize(SPH_DISTANCE_FIELD_DIV_Z*SPH_DISTANCE_FIELD_DIV_Y*SPH_DISTANCE_FIELD_DIV_X);
         for(uint32 i=0; i<vertices.size(); ++i) {
-            //vertices[i] = random.genFloat32()*0.1f;
-            vertices[i] = 1.0f;
+            vertices[i] = vec4(0.0f, 0.0f, 0.0f, 1.0f);
         }
-        quad_dist.allocate(sizeof(float)*vertices.size(), I3D_USAGE_DYNAMIC, &vertices[0]);
+        quad_dist.allocate(sizeof(vec4)*vertices.size(), I3D_USAGE_DYNAMIC, &vertices[0]);
 
         VertexDescriptor descs[] = {
-            {GLSL_INSTANCE_PARAM, I3D_FLOAT,1, 0, false, 1},
+            {GLSL_INSTANCE_PARAM, I3D_FLOAT,4, 0, false, 1},
         };
-        va.setAttributes(quad_dist, sizeof(float), descs, _countof(descs));
+        va.setAttributes(quad_dist, sizeof(vec4), descs, _countof(descs));
     }
 }
 

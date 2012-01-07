@@ -51,7 +51,7 @@ public:
 
 
 #define atomicGetMessageRouter()            MessageRouter::getInstance()
-#define atomicPushCallMessage(block, mes)   atomicGetMessageRouter()->getMessageBlock(block)->push_back(mes)
+#define atomicPushCallMessage(block, mes)   atomicGetMessageRouter()->getMessageBlock(block)->addTask(mes)
 
 
 class MessageIterator

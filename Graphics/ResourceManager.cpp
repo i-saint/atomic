@@ -135,8 +135,21 @@ bool GraphicResourceManager::initialize()
     m_vbo[VBO_RIGID_PARTICLES]->allocate(sizeof(PSetParticle)*SPH_MAX_RIGID_PARTICLES, I3D_USAGE_DYNAMIC);
     m_vbo[VBO_DIRECTIONALLIGHT_INSTANCES]->allocate(sizeof(DirectionalLight)*ATOMIC_MAX_DIRECTIONAL_LIGHTS, I3D_USAGE_DYNAMIC);
     m_vbo[VBO_POINTLIGHT_INSTANCES]->allocate(sizeof(PointLight)*ATOMIC_MAX_POINT_LIGHTS, I3D_USAGE_DYNAMIC);
-    SPHInitialize();
-    SPHInitializeGLBuffers( m_vbo[VBO_FLUID_PARTICLES]->getHandle() );
+
+    {
+        sphParams sph_params;
+        sph_params.smooth_len           = 0.02f;
+        sph_params.pressure_stiffness   = 50.0f;
+        sph_params.rest_density         = 500.0f;
+        sph_params.particle_mass        = 0.001f;
+        sph_params.viscosity            = 0.2f;
+        sph_params.density_coef         = sph_params.particle_mass * 315.0f / (64.0f * CUDART_PI_F * pow(sph_params.smooth_len, 9));
+        sph_params.grad_pressure_coef   = sph_params.particle_mass * -45.0f / (CUDART_PI_F * pow(sph_params.smooth_len, 6));
+        sph_params.lap_viscosity_coef   = sph_params.particle_mass * sph_params.viscosity * 45.0f / (CUDART_PI_F * pow(sph_params.smooth_len, 6));
+        sph_params.wall_stiffness       = 3000.0f;
+        SPHInitialize(sph_params);
+        SPHInitializeGLBuffers( m_vbo[VBO_FLUID_PARTICLES]->getHandle() );
+    }
     {
         CreateCubeParticleSet(m_pset[PSET_CUBE_SMALL],  m_rinfo[PSET_CUBE_SMALL],  0.1f);
         CreateCubeParticleSet(m_pset[PSET_CUBE_MEDIUM], m_rinfo[PSET_CUBE_MEDIUM], 0.2f);
