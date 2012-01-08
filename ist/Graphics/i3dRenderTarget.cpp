@@ -222,6 +222,12 @@ void RenderTarget::setColorBuffer(uint32 i, Texture2D *rb)
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
     m_color_buffers[i] = rb;
+
+    uint32 used = 0;
+    for(uint32 i=0; i<_countof(m_color_buffers); ++i) {
+        if(m_color_buffers[i]) { used = i+1; }
+    }
+    m_num_color_buffers = used;
 }
 
 void RenderTarget::setDepthStencilBuffer(Texture2D *rb)

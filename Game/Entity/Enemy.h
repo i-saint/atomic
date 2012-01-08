@@ -17,6 +17,7 @@ namespace atomic {
     typedef Attr_MessageHandler mhandler;
     private:
         mat4        m_transform;
+        mat4        m_itransform;
         vec4        m_flash_color;
         IRoutine    *m_routine;
         float32     m_health;
@@ -33,14 +34,15 @@ namespace atomic {
             istSafeDelete(m_routine);
         }
 
-        float32     getHealth() const       { return m_health; }
-        const mat4& getTransform() const    { return m_transform; }
-        IRoutine*   getRoutine()            { return m_routine; }
-        const vec4& getFlashColor() const   { return m_flash_color; }
-        int         getPastFrame() const    { return m_past_frame; }
+        float32     getHealth() const           { return m_health; }
+        const mat4& getTransform() const        { return m_transform; }
+        const mat4& getInverseTransform() const { return m_itransform; }
+        IRoutine*   getRoutine()                { return m_routine; }
+        const vec4& getFlashColor() const       { return m_flash_color; }
+        int         getPastFrame() const        { return m_past_frame; }
 
         void setHealth(float32 v)       { m_health=v; }
-        void setTransform(const mat4& v){ m_transform=v; }
+        void setTransform(const mat4& v){ m_transform=v; m_itransform=glm::inverse(m_transform); }
         void setRoutine(ROUTINE_CLASSID rcid)
         {
             istSafeDelete(m_routine);
@@ -105,12 +107,12 @@ namespace atomic {
 
         virtual void destroy()
         {
-            atomicGetEntitySet()->deleteEntity(getHandle());
+            atomicDeleteEntity(getHandle());
         }
 
         virtual bool call(uint32 call_id, const variant &v)
         {
-            if(m_routine && m_routine->call(call_id, v)) { return true; }
+            if(m_routine && m_routine->call(call_id, v)) { }
 
             switch(call_id) {
             DEFINE_ECALL1(setHealth, float32);

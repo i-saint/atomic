@@ -5,6 +5,24 @@
 
 namespace atomic {
 
+struct BloodstainParticle
+{
+    vec4 position;
+    union {
+        struct {
+            float32 lifetime; // 1.0-0.0
+        };
+        float4 params;
+    };
+};
+struct BloodstainParticle_IsDead
+{
+    bool operator()(const BloodstainParticle &bsp) const
+    {
+        return bsp.lifetime <= 0.0f;
+    }
+};
+
 struct PSetParticle
 {
     vec4 position;
@@ -13,6 +31,7 @@ struct PSetParticle
     vec4 glow;
     vec4 flash;
 };
+
 
 class ParticleSet
 {

@@ -12,9 +12,9 @@ ia_out(GLSL_INSTANCE_PARAM)     vec4 ia_InstanceFlash;
 #endif
 #if defined(GLSL_VS) || defined(GLSL_PS)
 vs_out vec4 vs_InstancePosition;
-vs_out vec4 vs_VertexPosition;
-vs_out vec4 vs_VertexNormal;        // w = shininess
-vs_out vec4 vs_VertexColor;         // w = fresnel
+vs_out vec4 vs_VertexPosition;      // w = affect bloodstain
+vs_out vec4 vs_VertexNormal;        // w = fresnel
+vs_out vec4 vs_VertexColor;         // w = shininess
 vs_out vec4 vs_Glow;
 vs_out vec4 vs_Flash;
 #endif
@@ -34,8 +34,8 @@ void main()
     vs_Glow = ia_InstanceGlow * (ndif*ndif);
     vs_Flash = ia_InstanceFlash;
     vs_VertexPosition = vec4(vert.xyz, 1.0);
-    vs_VertexNormal = vec4(ia_VertexNormal, 120.0);
-    vs_VertexColor = vec4(ia_InstanceColor.rgb*dif3, 1.0);
+    vs_VertexNormal = vec4(ia_VertexNormal, 0.04);
+    vs_VertexColor = vec4(ia_InstanceColor.rgb*dif3, ia_InstanceColor.a);
     vs_InstancePosition = ia_InstancePosition;
     gl_Position = u_RS.ModelViewProjectionMatrix * vert;
 }

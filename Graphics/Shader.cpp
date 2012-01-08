@@ -46,6 +46,7 @@ bool AtomicShader::loadFromMemory( const char* src )
     SetSampler("u_NormalBuffer",    GLSL_NORMAL_BUFFER);
     SetSampler("u_PositionBuffer",  GLSL_POSITION_BUFFER);
     SetSampler("u_GlowBuffer",      GLSL_GLOW_BUFFER);
+    SetSampler("u_BackBuffer",      GLSL_BACK_BUFFER);
     SetSampler("u_RandomBuffer",    GLSL_RANDOM_BUFFER);
     m_shader->unbind();
 #undef SetSampler

@@ -107,6 +107,7 @@
     <None Include="shader\Bloom_Luminance.glsl" />
     <None Include="shader\Bloom_VBlur.glsl" />
     <None Include="shader\Common.glslh" />
+    <None Include="shader\Deferred_Bloodstain.glsl" />
     <None Include="shader\Deferred_DirectionalLight.glsl" />
     <None Include="shader\Deferred_PointLight.glsl" />
     <None Include="shader\DistanceField.glsl" />

@@ -25,6 +25,7 @@ AtomicConfig::AtomicConfig()
     posteffect_bloom        = true;
     posteffect_antialias    = false;
     show_text               = true;
+    show_bloodstain         = false;
     show_grid               = true;
     show_distance           = false;
     sound_enable            = true;
@@ -50,6 +51,7 @@ bool AtomicConfig::readFromFile( const char* filepath )
         if(sscanf(buf, "posteffect_bloom = %d", &itmp.x)==1)        { posteffect_bloom=(itmp.x!=0); }
         if(sscanf(buf, "posteffect_antialias = %d", &itmp.x)==1)    { posteffect_antialias=(itmp.x!=0); }
         if(sscanf(buf, "show_text = %d", &itmp.x)==1)               { show_text=(itmp.x!=0); }
+        if(sscanf(buf, "show_bloodstain = %d", &itmp.x)==1)         { show_bloodstain=(itmp.x!=0); }
         if(sscanf(buf, "show_grid = %d", &itmp.x)==1)               { show_grid=(itmp.x!=0); }
         if(sscanf(buf, "show_distance = %d", &itmp.x)==1)           { show_distance=(itmp.x!=0); }
         if(sscanf(buf, "sound_enable = %f", &itmp.x)==1)            { sound_enable=(itmp.x!=0); }
@@ -73,6 +75,7 @@ bool AtomicConfig::writeToFile( const char* filepath )
     fprintf(f, "posteffect_bloom = %d\n",       posteffect_bloom);
     fprintf(f, "posteffect_antialias = %d\n",   posteffect_antialias);
     fprintf(f, "show_text = %d\n",              show_text);
+    fprintf(f, "show_bloodstain = %d\n",        show_bloodstain);
     fprintf(f, "show_grid = %d\n",              show_grid);
     fprintf(f, "show_distance = %d\n",          show_distance);
     fprintf(f, "sound_enable = %d\n",           sound_enable);

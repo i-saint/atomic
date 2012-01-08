@@ -156,6 +156,7 @@ struct sphFluidMessage
             EntityHandle to;
         };
     };
+    float4 position;
 };
 
 

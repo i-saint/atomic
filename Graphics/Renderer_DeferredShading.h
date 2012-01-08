@@ -3,6 +3,37 @@
 namespace atomic {
 
 
+class PassDeferredShading_Bloodstain : public IRenderer
+{
+public:
+    struct BloodstainParticleSet {
+        mat4 transform;
+        const BloodstainParticle *bsp_in;
+        uint32 num_bsp;
+    };
+
+private:
+    IndexBuffer     *m_ibo_sphere;
+    VertexArray     *m_va_sphere;
+    VertexBuffer    *m_vbo_bloodstain;
+    AtomicShader    *m_sh;
+
+    stl::vector<Task*>                  m_tasks;
+    stl::vector<BloodstainParticleSet>  m_instances;
+    stl::vector<BloodstainParticle>     m_particles;
+
+    void resizeTasks(uint32 n);
+
+public:
+    PassDeferredShading_Bloodstain();
+    ~PassDeferredShading_Bloodstain();
+    void beforeDraw();
+    void draw();
+
+    void addBloodstainParticles(const mat4 &t, const BloodstainParticle *bsp, uint32 num_bsp);
+};
+
+
 class PassDeferredShading_DirectionalLights : public IRenderer
 {
 private:

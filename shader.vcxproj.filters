@@ -79,6 +79,9 @@
     <None Include="shader\Postprocess_Microscopic.glsl">
       <Filter>shader</Filter>
     </None>
+    <None Include="shader\Deferred_Bloodstain.glsl">
+      <Filter>shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shader\Fxaa3_11.h">

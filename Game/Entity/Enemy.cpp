@@ -10,6 +10,7 @@
 #include "Game/SPHManager.h"
 #include "Game/Collision.h"
 #include "Game/Message.h"
+#include "GPGPU/SPH.cuh"
 #include "Routine.h"
 #include "Enemy.h"
 
@@ -22,11 +23,13 @@ class Enemy_Test
     , public TAttr_RotateSpeed<Attr_DoubleAxisRotation>
     , public Attr_ParticleSet
     , public CollisonType
+    , public Attr_Bloodstain
 {
 typedef Breakable super;
 typedef TAttr_RotateSpeed<Attr_DoubleAxisRotation> transform;
 typedef Attr_ParticleSet model;
 typedef CollisonType collision;
+typedef Attr_Bloodstain bloodstain;
 private:
     enum STATE {
         ST_FADEIN,
@@ -52,8 +55,8 @@ public:
     {
         super::initialize();
         setModel(PSET_CUBE_MEDIUM);
-        setDiffuseColor(vec4(0.6f, 0.6f, 0.6f, 1.0f));
-        setGlowColor(vec4(1.0f, 0.0f, 0.2f, 1.0f));
+        setDiffuseColor(vec4(0.6f, 0.6f, 0.6f, 50.0f));
+        setGlowColor(vec4(1.0f, 0.0f, 0.2f, 0.0f));
         setHealth(100.0f);
         collision::initializeCollision(getHandle());
     }
@@ -101,6 +104,12 @@ public:
         }
     }
 
+    virtual void asyncupdate(float32 dt)
+    {
+        super::asyncupdate(dt);
+        bloodstain::updateBloodstain();
+    }
+
     virtual void asyncupdateRoutine(float32 dt)
     {
         if(getState()==ST_ACTIVE) {
@@ -115,10 +124,12 @@ public:
         vec4 glow = getGlowColor();
         vec4 light = vec4(0.8f, 0.1f, 0.2f, 1.0f);
         if(getState()==ST_FADEIN) {
-            float32 s = (float32)m_st_frame / FADEIN_TIME;
-            diffuse *= std::min<float32>(s*2.0f, 1.0f);
-            glow    *= std::max<float32>(s*2.0f-1.0f, 0.0f);
-            light   *= s;
+            float32 s   = (float32)m_st_frame / FADEIN_TIME;
+            float shininess = diffuse.w;
+            diffuse     *= std::min<float32>(s*2.0f, 1.0f);
+            diffuse.w   = shininess;
+            glow        *= std::max<float32>(s*2.0f-1.0f, 0.0f);
+            light       *= s;
         }
         else if(getState()==ST_FADEOUT) {
             float32 s = 1.0f - ((float32)m_st_frame / FADEOUT_TIME);
@@ -134,6 +145,7 @@ public:
         }
         if(m_state!=ST_FADEOUT) {
             atomicGetSPHRenderer()->addPSetInstance(getModel(), getTransform(), diffuse, glow, getFlashColor());
+            atomicGetBloodstainRenderer()->addBloodstainParticles(getTransform(), getBloodStainParticles(), getNumBloodstainParticles());
         }
     }
 
@@ -144,6 +156,13 @@ public:
         atomicGetSPHManager()->addFluid(getModel(), getTransform());
         atomicPlaySE(SE_CHANNEL3, m_explosion_se, getPosition(), true);
     }
+
+    virtual void eventFluid(const sphFluidMessage *m)
+    {
+        addBloodstain(getInverseTransform() * (vec4&)m->position);
+        damage(length(m->velocity3)*0.002f);
+    }
+
 
     virtual bool call(uint32 call_id, const variant &v)
     {

@@ -52,8 +52,8 @@ public:
         setCollisionFlag(CF_RECEIVER | CF_AFFECT_SPH);
 
         setModel(PSET_SPHERE_SMALL);
-        setDiffuseColor(vec4(0.6f, 0.6f, 0.6f, 1.0f));
-        setGlowColor(vec4(1.0f, 0.7f, 0.1f, 1.0f));
+        setDiffuseColor(vec4(0.6f, 0.6f, 0.6f, 80.0f));
+        setGlowColor(vec4(1.0f, 0.7f, 0.1f, 0.0f));
         //setAxis1(GenRandomUnitVector3());
         //setAxis2(GenRandomUnitVector3());
         setRotateSpeed1(1.5f);

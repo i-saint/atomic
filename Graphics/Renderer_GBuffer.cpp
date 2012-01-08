@@ -45,7 +45,7 @@ public:
 
 PassGBuffer_SPH::PassGBuffer_SPH()
 {
-    m_va_cube       = atomicGetVertexArray(VA_FRACTION_CUBE);
+    m_va_cube       = atomicGetVertexArray(VA_FLUID_CUBE);
     m_sh_fluid      = atomicGetShader(SH_GBUFFER_FLUID);
     m_sh_rigid      = atomicGetShader(SH_GBUFFER_RIGID);
     m_vbo_fluid     = atomicGetVertexBuffer(VBO_FLUID_PARTICLES);
@@ -144,6 +144,8 @@ void PassGBuffer_SPH::addPSetInstance( PSET_RID psid, const mat4 &t, const vec4 
     tmp.flash       = flash;
     m_rinstances.push_back(tmp);
 }
+
+
 
 
 } // namespace atomic

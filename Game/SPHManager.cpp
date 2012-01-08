@@ -90,7 +90,7 @@ void SPHManager::update(float32 dt)
     for(uint32 i=0; i<n; ++i) {
         const sphFluidMessage &m = message[i];
         if(IEntity *e = atomicGetEntity(m.to)) {
-            atomicCall(e, damage, length(m.velocity3)*0.002f);
+            atomicCall(e, eventFluid, &m);
         }
     }
 }

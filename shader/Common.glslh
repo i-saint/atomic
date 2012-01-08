@@ -12,6 +12,7 @@
     uniform sampler2D u_NormalBuffer;
     uniform sampler2D u_PositionBuffer;
     uniform sampler2D u_GlowBuffer;
+    uniform sampler2D u_BackBuffer;
     uniform sampler2D u_RandomBuffer;
 #else
 #endif

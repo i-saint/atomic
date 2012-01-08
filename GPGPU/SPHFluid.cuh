@@ -397,6 +397,7 @@ struct _FluidIntegrate
         if(dfd.message[P_ID].to!=0) {
             float3 vel3 = make_float3(velocity);
             float vl = length(vel3);
+            dfd.message[P_ID].position = position;
             dfd.message[P_ID].velocity3 = vel3;
             dfd.particles[P_ID].energy -= vl;
         }

@@ -79,18 +79,25 @@ bool GraphicResourceManager::initialize()
     }
 
     {
-        CreateScreenQuad(*m_va[VA_SCREEN_QUAD], *m_vbo[VBO_SCREEN_QUAD]);
-        CreateBloomLuminanceQuads(*m_va[VA_BLOOM_LUMINANCE_QUADS], *m_vbo[VBO_BLOOM_LUMINANCE_QUADS]);
-        CreateBloomBlurQuads(*m_va[VA_BLOOM_BLUR_QUADS], *m_vbo[VBO_BLOOM_BLUR_QUADS]);
-        CreateBloomCompositeQuad(*m_va[VA_BLOOM_COMPOSITE_QUAD], *m_vbo[VBO_BLOOM_COMPOSITE_QUAD]);
+        CreateScreenQuad(m_va[VA_SCREEN_QUAD], m_vbo[VBO_SCREEN_QUAD]);
+        CreateBloomLuminanceQuads(m_va[VA_BLOOM_LUMINANCE_QUADS], m_vbo[VBO_BLOOM_LUMINANCE_QUADS]);
+        CreateBloomBlurQuads(m_va[VA_BLOOM_BLUR_QUADS], m_vbo[VBO_BLOOM_BLUR_QUADS]);
+        CreateBloomCompositeQuad(m_va[VA_BLOOM_COMPOSITE_QUAD], m_vbo[VBO_BLOOM_COMPOSITE_QUAD]);
 
-        CreateCube(*m_va[VA_UNIT_CUBE], *m_vbo[VBO_UNIT_CUBE], 1.0f);
-        CreateCube(*m_va[VA_FRACTION_CUBE], *m_vbo[VBO_FRACTION_CUBE], 0.03f);
-        CreateSphere(*m_va[VA_UNIT_SPHERE], *m_vbo[VBO_UNIT_SPHERE], *m_ibo[IBO_SPHERE], 1.00f, 32,16);
+        CreateCube(m_va[VA_UNIT_CUBE], m_vbo[VBO_UNIT_CUBE], 1.0f);
+        CreateCube(m_va[VA_FLUID_CUBE], m_vbo[VBO_FLUID_CUBE], 0.03f);
+        CreateSphere(m_va[VA_UNIT_SPHERE], m_vbo[VBO_UNIT_SPHERE], m_ibo[IBO_LIGHT_SPHERE], 1.00f, 32,16);
+        CreateSphere(m_va[VA_BLOOSTAIN_SPHERE], m_vbo[VBO_BLOODSTAIN_SPHERE], m_ibo[IBO_BLOODSTAIN_SPHERE], 0.075f, 8,8);
 
-        CreateFieldGridLines(*m_va[VA_FIELD_GRID], *m_vbo[VBO_FIELD_GRID]);
-        CreateDistanceFieldQuads(*m_va[VA_DISTANCE_FIELD],
-            *m_vbo[VBO_DISTANCE_FIELD_QUAD], *m_vbo[VBO_DISTANCE_FIELD_POS], *m_vbo[VBO_DISTANCE_FIELD_DIST]);
+        CreateFieldGridLines(m_va[VA_FIELD_GRID], m_vbo[VBO_FIELD_GRID]);
+        CreateDistanceFieldQuads(m_va[VA_DISTANCE_FIELD],
+            m_vbo[VBO_DISTANCE_FIELD_QUAD], m_vbo[VBO_DISTANCE_FIELD_POS], m_vbo[VBO_DISTANCE_FIELD_DIST]);
+
+        m_vbo[VBO_FLUID_PARTICLES]->allocate(sizeof(sphFluidParticle)*SPH_MAX_FLUID_PARTICLES, I3D_USAGE_DYNAMIC);
+        m_vbo[VBO_RIGID_PARTICLES]->allocate(sizeof(PSetParticle)*SPH_MAX_RIGID_PARTICLES, I3D_USAGE_DYNAMIC);
+        m_vbo[VBO_DIRECTIONALLIGHT_INSTANCES]->allocate(sizeof(DirectionalLight)*ATOMIC_MAX_DIRECTIONAL_LIGHTS, I3D_USAGE_DYNAMIC);
+        m_vbo[VBO_POINTLIGHT_INSTANCES]->allocate(sizeof(PointLight)*ATOMIC_MAX_POINT_LIGHTS, I3D_USAGE_DYNAMIC);
+        m_vbo[VBO_BLOODSTAIN_PARTICLES]->allocate(sizeof(BloodstainParticle)*SPH_MAX_FLUID_PARTICLES, I3D_USAGE_DYNAMIC);
     }
     {
         m_ubo[UBO_RENDER_STATES]->allocate(sizeof(RenderStates), I3D_USAGE_DYNAMIC);
@@ -99,11 +106,12 @@ bool GraphicResourceManager::initialize()
     }
     {
         // create shaders
-        m_shader[SH_GBUFFER_FLUID]      = CreateAtomicShader(g_GBuffer_FluidBlood_glsl);
         //m_shader[SH_GBUFFER_FLUID]      = CreateAtomicShader(g_GBuffer_Fluid_glsl);
         //m_shader[SH_GBUFFER_RIGID]      = CreateAtomicShader(g_GBuffer_Rigid_glsl);
+        m_shader[SH_GBUFFER_FLUID]      = CreateAtomicShader(g_GBuffer_FluidBlood_glsl);
         //m_shader[SH_GBUFFER_FLUID]      = CreateAtomicShader(g_GBuffer_FluidSpherical_glsl);
         m_shader[SH_GBUFFER_RIGID]      = CreateAtomicShader(g_GBuffer_RigidSpherical_glsl);
+        m_shader[SH_BLOODSTAIN]         = CreateAtomicShader(g_Deferred_Bloodstain_glsl);
         m_shader[SH_POINTLIGHT]         = CreateAtomicShader(g_Deferred_PointLight_glsl);
         m_shader[SH_DIRECTIONALLIGHT]   = CreateAtomicShader(g_Deferred_DirectionalLight_glsl);
         m_shader[SH_MICROSCOPIC]        = CreateAtomicShader(g_Postprocess_Microscopic_glsl);
@@ -130,12 +138,8 @@ bool GraphicResourceManager::initialize()
         m_rt[RT_GAUSS1]     = i3d::CreateRenderTarget(dev, 1, uvec2(512, 256), I3D_RGBA8U);
         m_rt[RT_OUTPUT0]    = i3d::CreateRenderTarget(dev, 1, rt_size, I3D_RGBA8U);
         m_rt[RT_OUTPUT1]    = i3d::CreateRenderTarget(dev, 1, rt_size, I3D_RGBA8U);
+        m_rt[RT_GENERIC]    = i3d::CreateRenderTarget(dev, 0, rt_size, I3D_RGBA8U);
     }
-
-    m_vbo[VBO_FLUID_PARTICLES]->allocate(sizeof(sphFluidParticle)*SPH_MAX_FLUID_PARTICLES, I3D_USAGE_DYNAMIC);
-    m_vbo[VBO_RIGID_PARTICLES]->allocate(sizeof(PSetParticle)*SPH_MAX_RIGID_PARTICLES, I3D_USAGE_DYNAMIC);
-    m_vbo[VBO_DIRECTIONALLIGHT_INSTANCES]->allocate(sizeof(DirectionalLight)*ATOMIC_MAX_DIRECTIONAL_LIGHTS, I3D_USAGE_DYNAMIC);
-    m_vbo[VBO_POINTLIGHT_INSTANCES]->allocate(sizeof(PointLight)*ATOMIC_MAX_POINT_LIGHTS, I3D_USAGE_DYNAMIC);
 
     {
         sphParams sph_params;

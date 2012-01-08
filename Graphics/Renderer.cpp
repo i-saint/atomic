@@ -40,6 +40,7 @@ AtomicRenderer::AtomicRenderer()
 
     // 追加の際はデストラクタでの消去処理も忘れずに
     m_renderer_sph              = istNew(PassGBuffer_SPH)();
+    m_renderer_bloodstain       = istNew(PassDeferredShading_Bloodstain)();
     m_renderer_dir_lights       = istNew(PassDeferredShading_DirectionalLights)();
     m_renderer_point_lights     = istNew(PassDeferredShading_PointLights)();
     m_renderer_microscopic      = istNew(PassPostprocess_Microscopic)();
@@ -49,6 +50,7 @@ AtomicRenderer::AtomicRenderer()
     m_renderer_distance_field   = istNew(PassForwardShading_DistanceField)();
 
     m_renderers[PASS_GBUFFER].push_back(m_renderer_sph);
+    m_renderers[PASS_DEFERRED].push_back(m_renderer_bloodstain);
     m_renderers[PASS_DEFERRED].push_back(m_renderer_dir_lights);
     m_renderers[PASS_DEFERRED].push_back(m_renderer_point_lights);
     m_renderers[PASS_FORWARD].push_back(m_renderer_distance_field);
@@ -72,6 +74,7 @@ AtomicRenderer::~AtomicRenderer()
     istSafeDelete(m_renderer_microscopic);
     istSafeDelete(m_renderer_point_lights);
     istSafeDelete(m_renderer_dir_lights);
+    istSafeDelete(m_renderer_bloodstain);
     istSafeDelete(m_renderer_sph);
 }
 
@@ -163,6 +166,7 @@ void AtomicRenderer::passGBuffer()
 
 void AtomicRenderer::passDeferredShading()
 {
+    RenderTarget *brt = atomicGetBackRenderTarget();
     RenderTarget *rt = atomicGetFrontRenderTarget();
 
     rt->setDepthStencilBuffer(m_rt_gbuffer->getDepthStencilBuffer());
@@ -171,6 +175,7 @@ void AtomicRenderer::passDeferredShading()
     m_rt_gbuffer->getColorBuffer(GBUFFER_NORMAL)->bind(GLSL_NORMAL_BUFFER);
     m_rt_gbuffer->getColorBuffer(GBUFFER_POSITION)->bind(GLSL_POSITION_BUFFER);
     m_rt_gbuffer->getColorBuffer(GBUFFER_GLOW)->bind(GLSL_GLOW_BUFFER);
+    brt->getColorBuffer(0)->bind(GLSL_BACK_BUFFER);
 
     glClear(GL_COLOR_BUFFER_BIT);
     glEnable(GL_BLEND);

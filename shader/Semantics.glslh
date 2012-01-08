@@ -21,7 +21,8 @@
 #define GLSL_NORMAL_BUFFER      1
 #define GLSL_POSITION_BUFFER    2
 #define GLSL_GLOW_BUFFER        3
-#define GLSL_RANDOM_BUFFER      4
+#define GLSL_BACK_BUFFER        4
+#define GLSL_RANDOM_BUFFER      5
 
 // uniform blocks
 #define GLSL_RENDERSTATE_BINDING    0

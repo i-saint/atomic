@@ -36,12 +36,15 @@ void main()
 {
     vec2 coord = vs_Texcoord;
 
+    vec4 AS         = texture(u_ColorBuffer, coord);
     vec4 NS         = texture(u_NormalBuffer, coord);
+    vec3 Albedo     = AS.rgb;
+    float Shininess = AS.a;
+    float Fresnel   = NS.a;
     vec3 Normal     = NS.xyz;
     vec3 FragPos    = texture(u_PositionBuffer, coord).xyz;
     vec3 EyePos     = u_RS.CameraPosition.xyz;
     vec3 EyeDir     = normalize(EyePos - FragPos);
-    float Shininess = NS.w;
     
     vec3 LightColor = vs_LightColor.rgb;
     vec3 LightDir   = -vs_LightDirection.xyz;
@@ -51,7 +54,6 @@ void main()
     float Specular  = pow(nh, Shininess);
     float Intensity = max(dot(Normal, LightDir), 0.0) * 1.5;
 
-    vec3 Albedo     = texture(u_ColorBuffer, coord).rgb;
     vec3 Ambient    = vs_LightAmbient.rgb;
     vec4 Result = vec4(0.0, 0.0, 0.0, 1.0);
     Result.rgb += vs_LightColor.rgb * (Ambient + Albedo * Intensity);

@@ -43,12 +43,15 @@ void main()
     coord.y = (1.0 + (vs_VertexPositionMVP.y/vs_VertexPositionMVP.w))*0.5;
     coord *= u_RS.ScreenTexcoord;
 
+    vec4 AS         = texture(u_ColorBuffer, coord);
     vec4 NS         = texture(u_NormalBuffer, coord);
+    vec3 Albedo     = AS.rgb;
+    float Shininess = AS.a;
+    float Fresnel   = NS.a;
     vec3 Normal     = NS.xyz;
     vec3 FragPos    = texture(u_PositionBuffer, coord).xyz;
     vec3 EyePos     = u_RS.CameraPosition.xyz;
     vec3 EyeDir     = normalize(EyePos - FragPos);
-    float Shininess = NS.w;
 
     vec3  LightColor    = vs_LightColor.rgb;
     vec3  LightPos      = vs_LightPosition.xyz;
@@ -64,12 +67,10 @@ void main()
     float Specular  = pow(nh, Shininess);
     float Intensity = max(dot(Normal, LightDir), 0.0);
 
-    vec3 Albedo     = texture(u_ColorBuffer, coord).rgb;
     vec3 Ambient    = normalize(FragPos)*0.05;
     vec4 Result = vec4(0.0, 0.0, 0.0, 1.0);
     Result.rgb += vs_LightColor.rgb * (Ambient + Albedo * Intensity) * LightAttenuation;
     Result.rgb += vs_LightColor.rgb * Specular * LightAttenuation;
-    //Result.b = 0.7;
 
     ps_FragColor = Result;
 }

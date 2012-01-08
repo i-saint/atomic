@@ -17,6 +17,7 @@ struct AtomicConfig
     bool posteffect_bloom;
     bool posteffect_antialias;
     bool show_text;
+    bool show_bloodstain;
     bool show_grid;     // debug
     bool show_distance; // debug
     bool sound_enable;

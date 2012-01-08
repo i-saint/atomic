@@ -21,12 +21,11 @@ private:
 public:
     PassGBuffer_SPH();
     ~PassGBuffer_SPH();
-    void beforeDraw();  // メインスレッドから、描画処理の前に呼ばれる
-    void draw();    // 描画スレッドから呼ばれる
+    void beforeDraw();
+    void draw();
 
     void addPSetInstance(PSET_RID psid, const mat4 &t, const vec4 &diffuse, const vec4 &glow, const vec4 &flash);
 };
-
 
 } // namespace atomic
 #endif // __atomic_Graphics_Renderer_GBuffer__
