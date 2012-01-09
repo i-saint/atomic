@@ -17,19 +17,18 @@
 namespace atomic {
 
 
-template<class CollisonType>
 class Enemy_Test
     : public Breakable
     , public TAttr_RotateSpeed<Attr_DoubleAxisRotation>
     , public Attr_ParticleSet
-    , public CollisonType
+    , public Attr_Collision
     , public Attr_Bloodstain
 {
 typedef Breakable super;
 typedef TAttr_RotateSpeed<Attr_DoubleAxisRotation> transform;
-typedef Attr_ParticleSet model;
-typedef CollisonType collision;
-typedef Attr_Bloodstain bloodstain;
+typedef Attr_ParticleSet    model;
+typedef Attr_Collision      collision;
+typedef Attr_Bloodstain     bloodstain;
 private:
     enum STATE {
         ST_FADEIN,
@@ -170,22 +169,14 @@ public:
         DEFINE_ECALL1(setLightRadius, float32);
         DEFINE_ECALL1(setExplosionSE, SE_RID);
         DEFINE_ECALL1(setExplosionChannel, SE_CHANNEL);
-        default: return super::call(call_id, v) || transform::call(call_id, v) || model::call(call_id, v);
+        default: return super::call(call_id, v) || transform::call(call_id, v) || model::call(call_id, v) || collision::call(call_id, v);
         }
     }
 
     virtual bool query(uint32 query_id, variant &v) const
     {
-        return super::query(query_id, v) || transform::query(query_id, v) || model::query(query_id, v);
+        return super::query(query_id, v) || transform::query(query_id, v) || model::query(query_id, v) || collision::query(query_id, v);
     }
-};
-
-class Enemy_CubeBasic : public Enemy_Test<Attr_CubeCollision>
-{
-};
-
-class Enemy_SphereBasic : public Enemy_Test<Attr_SphereCollision>
-{
 };
 
 
@@ -207,11 +198,9 @@ public:
 };
 
 
-atomicImplementEntity(Enemy_CubeBasic, ECID_ENEMY, ESID_ENEMY_CUBE);
-atomicImplementEntity(Enemy_SphereBasic, ECID_ENEMY, ESID_ENEMY_SPHERE);
+atomicImplementEntity(Enemy_Test, ECID_ENEMY, ESID_ENEMY_TEST);
 
 } // namespace atomic
 
 
-istImplementClassInfo(atomic::Enemy_CubeBasic);
-istImplementClassInfo(atomic::Enemy_SphereBasic);
+istImplementClassInfo(atomic::Enemy_Test);

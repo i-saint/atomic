@@ -27,8 +27,8 @@ private:
 
     vec4 m_vel;
     int32 m_cooldown;
-    Attr_SphereCollision m_collision;
-    Attr_SphereCollision m_barrier;
+    Attr_Collision m_collision;
+    Attr_Collision m_barrier;
 
     vec4 m_lightpos[1];
     vec4 m_lightvel[1];
@@ -42,7 +42,9 @@ public:
     {
         super::initialize();
         m_collision.initializeCollision(getHandle());
+        m_collision.setCollisionShape(CS_SPHERE);
         m_barrier.initializeCollision(0);
+        m_barrier.setCollisionShape(CS_SPHERE);
         m_barrier.setCollisionFlag(CF_AFFECT_SPH);
 
         setHealth(500.0f);

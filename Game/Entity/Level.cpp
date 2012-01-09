@@ -80,7 +80,8 @@ public:
     IEntity* putSmallEnemy()
     {
         IEntity *e = NULL;
-        e = atomicCreateEntity(Enemy_SphereBasic);
+        e = atomicCreateEntity(Enemy_Test);
+        atomicCall(e, setCollisionShape, CS_SPHERE);
         atomicCall(e, setModel, PSET_SPHERE_SMALL);
         atomicCall(e, setPosition, GenRandomVector2() * 2.2f);
         atomicCall(e, setHealth, 15.0f * getLoopBoost());
@@ -96,10 +97,10 @@ public:
 
     IEntity* putMediumEnemy()
     {
-        IEntity *e = NULL;
+        IEntity *e = atomicCreateEntity(Enemy_Test);
         switch(atomicGetRandom()->genInt32() % 2) {
-        case 0: e = atomicCreateEntity(Enemy_CubeBasic);  atomicCall(e, setModel, PSET_CUBE_MEDIUM); break;
-        case 1: e = atomicCreateEntity(Enemy_SphereBasic);atomicCall(e, setModel, PSET_SPHERE_MEDIUM);  break;
+        case 0: atomicCall(e, setModel, PSET_CUBE_MEDIUM);  atomicCall(e, setCollisionShape, CS_BOX); break;
+        case 1: atomicCall(e, setModel, PSET_SPHERE_MEDIUM);atomicCall(e, setCollisionShape, CS_SPHERE); break;
         }
         atomicCall(e, setPosition, GenRandomVector2() * 2.1f);
         atomicCall(e, setHealth, 100.0f * getLoopBoost());
@@ -117,17 +118,18 @@ public:
 
     IEntity* putLargeEnemy()
     {
-        IEntity *e = NULL;
+        IEntity *e = atomicCreateEntity(Enemy_Test);
+        //atomicCall(e, setModel, PSET_CUBE_LARGE); atomicCall(e, setCollisionShape, CS_BOX);
         switch(atomicGetRandom()->genInt32() % 2) {
-        case 0: e = atomicCreateEntity(Enemy_CubeBasic);  atomicCall(e, setModel, PSET_CUBE_LARGE); break;
-        case 1: e = atomicCreateEntity(Enemy_SphereBasic);atomicCall(e, setModel, PSET_SPHERE_LARGE);  break;
+        case 0: atomicCall(e, setModel, PSET_CUBE_LARGE);   atomicCall(e, setCollisionShape, CS_BOX); break;
+        case 1: atomicCall(e, setModel, PSET_SPHERE_LARGE); atomicCall(e, setCollisionShape, CS_SPHERE); break;
         }
         atomicCall(e, setPosition, GenRandomVector2() * 1.5f);
         atomicCall(e, setHealth, 1800.0f * getLoopBoost());
         atomicCall(e, setAxis1, GenRandomUnitVector3());
         atomicCall(e, setAxis2, GenRandomUnitVector3());
-        atomicCall(e, setRotateSpeed1, 0.2f);
-        atomicCall(e, setRotateSpeed2, 0.2f);
+        atomicCall(e, setRotateSpeed1, 0.1f);
+        atomicCall(e, setRotateSpeed2, 0.1f);
         atomicCall(e, setRoutine, ROUTINE_SHOOT);
         atomicCall(e, setLightRadius, 1.2f);
         atomicCall(e, setExplosionSE, SE_EXPLOSION5);

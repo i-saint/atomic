@@ -19,13 +19,13 @@ class Bullet_Simple
     : public IEntity
     , public TAttr_RotateSpeed<Attr_DoubleAxisRotation>
     , public Attr_ParticleSet
-    , public Attr_SphereCollision
+    , public Attr_Collision
     , public Attr_MessageHandler
 {
 typedef IEntity super;
 typedef TAttr_RotateSpeed<Attr_DoubleAxisRotation> transform;
 typedef Attr_ParticleSet model;
-typedef Attr_SphereCollision collision;
+typedef Attr_Collision collision;
 typedef Attr_MessageHandler mhandler;
 private:
     mat4            m_transform;
@@ -49,6 +49,7 @@ public:
     void initialize()
     {
         collision::initializeCollision(getHandle());
+        setCollisionShape(CS_SPHERE);
         setCollisionFlag(CF_RECEIVER | CF_AFFECT_SPH);
 
         setModel(PSET_SPHERE_SMALL);

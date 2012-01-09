@@ -23,8 +23,7 @@ namespace atomic {
 
     enum ENTITY_ENEMY_CLASS_ID
     {
-        ESID_ENEMY_CUBE,
-        ESID_ENEMY_SPHERE,
+        ESID_ENEMY_TEST,
         ESID_ENEMY_END,
     };
 
@@ -70,8 +69,7 @@ namespace atomic {
 
     class Player;
 
-    class Enemy_CubeBasic;
-    class Enemy_SphereBasic;
+    class Enemy_Test;
 
     class Bullet_Simple;
 

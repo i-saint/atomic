@@ -6,7 +6,7 @@
 namespace atomic {
 
 enum COLLISION_SHAPE {
-    CS_UNKNOWN,
+    CS_NULL,
     CS_PLANE,
     CS_SPHERE,
     CS_BOX,
@@ -68,7 +68,7 @@ protected:
     void setShape(COLLISION_SHAPE v) { m_shape=v; }
 
 public:
-    CollisionEntity() : m_shape(CS_UNKNOWN), m_col_handle(0), m_gobj_handle(0), m_flags(CF_RECEIVER|CF_SENDER|CF_AFFECT_SPH) {}
+    CollisionEntity() : m_shape(CS_NULL), m_col_handle(0), m_gobj_handle(0), m_flags(CF_RECEIVER|CF_SENDER|CF_AFFECT_SPH) {}
     COLLISION_SHAPE getShape() const            { return m_shape; }
     CollisionHandle getCollisionHandle() const  { return m_col_handle; }
     EntityHandle    getGObjHandle() const       { return m_gobj_handle; }

@@ -287,17 +287,18 @@ public:
 };
 
 
-class Attr_CubeCollision
+class Attr_Collision
 {
 private:
     CollisionHandle m_collision;
+    EntityHandle m_owner_handle;
 
 public:
-    Attr_CubeCollision() : m_collision(0)
+    Attr_Collision() : m_collision(0), m_owner_handle(0)
     {
     }
 
-    ~Attr_CubeCollision()
+    ~Attr_Collision()
     {
         finalizeCollision();
     }
@@ -311,11 +312,7 @@ public:
 
     void initializeCollision(EntityHandle h)
     {
-        if(m_collision==0) {
-            CollisionBox *ce = atomicCreateCollision(CollisionBox);
-            ce->setGObjHandle(h);
-            m_collision = ce->getCollisionHandle();
-        }
+        m_owner_handle = h;
     }
 
     void finalizeCollision()
@@ -326,63 +323,67 @@ public:
         }
     }
 
-    void updateCollision(PSET_RID psid, const mat4 &t, float32 scale)
-    {
-        if(m_collision!=0) {
-            vec4 box_size = (vec4&)atomicGetRigidInfo(psid)->box_size * scale;
-            UpdateCollisionBox(*static_cast<CollisionBox*>(atomicGetCollision(m_collision)), t, box_size);
-        }
-    }
-};
-
-class Attr_SphereCollision
-{
-private:
-    CollisionHandle m_collision;
-
-public:
-    Attr_SphereCollision() : m_collision(0)
-    {
-    }
-
-    ~Attr_SphereCollision()
+    void setCollisionShape(COLLISION_SHAPE cs)
     {
         finalizeCollision();
-    }
-
-    void setCollisionFlag(int32 v)
-    {
-        if(CollisionEntity *ce=atomicGetCollision(m_collision)) {
-            ce->setFlags(v);
-        }
-    }
-
-    void initializeCollision(EntityHandle h)
-    {
-        if(m_collision==0) {
-            CollisionSphere *ce = atomicCreateCollision(CollisionSphere);
-            ce->setGObjHandle(h);
-            m_collision = ce->getCollisionHandle();
-        }
-    }
-
-    void finalizeCollision()
-    {
-        if(m_collision!=0) {
-            atomicDeleteCollision(m_collision);
+        if(cs==CS_NULL) {
             m_collision = 0;
+            return;
         }
+
+        CollisionEntity *ce = NULL;
+        switch(cs) {
+        case CS_BOX:    ce = atomicCreateCollision(CollisionBox);   break;
+        case CS_SPHERE: ce = atomicCreateCollision(CollisionSphere);break;
+        default: istAssert("unknown collision shape\n"); return;
+        }
+        ce->setGObjHandle(m_owner_handle);
+        m_collision = ce->getCollisionHandle();
+    }
+
+    CollisionHandle getCollisionHandle() const
+    {
+        return m_collision;
     }
 
     void updateCollision(PSET_RID psid, const mat4 &t, float32 scale)
     {
-        if(m_collision!=0) {
-            vec4 pos = t * vec4(0.0f, 0.0f, 0.0f, 1.0f);
-            float radius = atomicGetRigidInfo(psid)->sphere_radius * scale;
-            UpdateCollisionSphere(*static_cast<CollisionSphere*>(atomicGetCollision(m_collision)), pos, radius);
+        if(CollisionEntity *ce = atomicGetCollision(m_collision)) {
+            switch(ce->getShape()) {
+            case CS_SPHERE:
+                {
+                    vec4 pos = t * vec4(0.0f, 0.0f, 0.0f, 1.0f);
+                    float radius = atomicGetRigidInfo(psid)->sphere_radius * scale;
+                    UpdateCollisionSphere(*static_cast<CollisionSphere*>(atomicGetCollision(m_collision)), pos, radius);
+                }
+                break;
+            case CS_BOX:
+                {
+                    vec4 box_size = (vec4&)atomicGetRigidInfo(psid)->box_size * scale;
+                    UpdateCollisionBox(*static_cast<CollisionBox*>(atomicGetCollision(m_collision)), t, box_size);
+                }
+                break;
+            }
         }
     }
+
+    bool call(uint32 call_id, const variant &v)
+    {
+        switch(call_id) {
+            DEFINE_ECALL1(setCollisionShape, COLLISION_SHAPE);
+         }
+        return false;
+    }
+
+    bool query(uint32 query_id, variant &v) const
+    {
+        switch(query_id) {
+            DEFINE_EQUERY(getCollisionHandle);
+        }
+        return false;
+    }
 };
+
 
 
 struct CollideMessage;
@@ -428,7 +429,7 @@ public:
     {
         if(!atomicGetConfig()->show_bloodstain) { return; }
 
-        if(++m_bloodstain_count % 64 == 0) {
+        if(++m_bloodstain_count % 128 == 0) {
             BloodstainParticle tmp;
             tmp.position = pos;
             tmp.lifetime = 1.0f;
@@ -441,7 +442,7 @@ public:
         uint32 n = m_bloodstain.size();
         for(uint32 i=0; i<n; ++i) {
             BloodstainParticle &bsp = m_bloodstain[i];
-            bsp.lifetime -= 0.0025f;
+            bsp.lifetime -= 0.002f;
         }
         m_bloodstain.erase(
             stl::remove_if(m_bloodstain.begin(), m_bloodstain.end(), BloodstainParticle_IsDead()),
