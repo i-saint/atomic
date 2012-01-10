@@ -58,6 +58,11 @@ bool AtomicGame::readReplayFromFile(const char *path)
 }
 
 
+void AtomicGame::frameBegin()
+{
+    m_world->frameBegin();
+}
+
 void AtomicGame::update(float32 dt)
 {
     m_input_server->update(*atomicGetSystemInputs());
@@ -92,6 +97,12 @@ void AtomicGame::draw()
     atomicWaitForDrawCallbackComplete();
 }
 
+void AtomicGame::frameEnd()
+{
+    m_world->frameEnd();
+}
+
+
 void AtomicGame::drawCallback()
 {
     AtomicRenderer::getInstance()->beforeDraw();
@@ -107,7 +118,6 @@ void AtomicGame::drawCallback()
         m_world->draw();
     }
     AtomicRenderer::getInstance()->draw();
-
 }
 
 

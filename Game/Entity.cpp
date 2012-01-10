@@ -52,7 +52,7 @@ EntitySet::~EntitySet()
     m_all.clear();
 }
 
-void EntitySet::updateBegin(float32 dt)
+void EntitySet::frameBegin()
 {
 }
 
@@ -92,10 +92,6 @@ void EntitySet::update( float32 dt )
     // todo updateAsync()
 }
 
-void EntitySet::updateEnd()
-{
-}
-
 void EntitySet::asyncupdate(float32 dt)
 {
     // todo: blocknize
@@ -126,6 +122,11 @@ void EntitySet::draw()
         }
     }
 }
+
+void EntitySet::frameEnd()
+{
+}
+
 
 IEntity* EntitySet::getEntity( EntityHandle h )
 {

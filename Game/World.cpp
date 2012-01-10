@@ -61,6 +61,13 @@ void World::initialize()
 }
 
 
+void World::frameBegin()
+{
+    m_collision_set->frameBegin();
+    m_sph->frameBegin();
+    m_entity_set->frameBegin();
+}
+
 void World::update(float32 dt)
 {
     ++m_frame;
@@ -69,15 +76,9 @@ void World::update(float32 dt)
         m_entity_set->createEntity<Level_Test>();
     }
 
-    m_collision_set->updateBegin(dt);
-    m_sph->updateBegin(dt);
-    m_entity_set->updateBegin(dt);
-
     m_collision_set->update(dt);
     m_sph->update(dt);
     m_entity_set->update(dt);
-
-    m_collision_set->updateEnd();
 }
 
 void World::asyncupdateBegin(float32 dt)
@@ -115,6 +116,13 @@ void World::draw() const
     dl.setDiffuse(vec4(0.3f, 0.3f, 0.3f, 1.0f));
     dl.setAmbient(vec4(0.0f, 0.0f, 0.0f, 0.0f));
     atomicGetDirectionalLights()->addInstance(dl);
+}
+
+void World::frameEnd()
+{
+    m_entity_set->frameEnd();
+    m_sph->frameEnd();
+    m_collision_set->frameEnd();
 }
 
 

@@ -32,10 +32,13 @@ public:
     void serialize(Serializer& s) const;
     void deserialize(Deserializer& s);
 
-    void updateBegin(float32 dt);
+    void frameBegin();
     void update(float32 dt);
     void asyncupdate(float32 dt);
     void draw() const;
+    void frameEnd();
+
+    void copyParticlesToGL();
 
     // rigid/force は毎フレームクリアされるので、毎フレーム突っ込む必要がある
     void addRigid(const sphRigidPlane &s);

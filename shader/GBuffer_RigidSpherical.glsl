@@ -49,10 +49,17 @@ ps_out(3) vec4 ps_FragGlow;
 
 void main()
 {
+    const float radius = 0.015f;
+    vec2 pos2 = vs_VertexPosition.xy - vs_InstancePosition.xy;
+    if(dot(pos2, pos2) > radius*radius) {
+        discard;
+    }
+    float z = sqrt(radius*radius - pos2.x*pos2.x - pos2.y*pos2.y);
+
     vec3 n = normalize(vs_VertexPosition.xyz - vs_InstancePosition.xyz);
     ps_FlagColor    = vs_VertexColor + vs_Glow;
     ps_FragNormal   = vec4(n, vs_VertexNormal.w);
-    ps_FragPosition = vs_VertexPosition;
+    ps_FragPosition = vs_InstancePosition + vec4(pos2, z, 0.0);
     ps_FragGlow     = vec4(vs_Glow.rgb + vs_Flash.rgb, 1.0);
 }
 

@@ -41,13 +41,20 @@ ps_out(3) vec4 ps_FragGlow;
 
 void main()
 {
+    const float radius = 0.015f;
+    vec2 pos2 = vs_VertexPosition.xy - vs_InstancePosition.xy;
+    if(dot(pos2, pos2) > radius*radius) {
+        discard;
+    }
+    float z = sqrt(radius*radius - pos2.x*pos2.x - pos2.y*pos2.y);
+
     vec3 n = normalize(vs_VertexPosition.xyz - vs_InstancePosition.xyz);
     float density = vs_FluidParam.y;
     float density_color = density/350.0;
     vec4 p = vec4(0.0) + vec4(0.6-density_color*0.275, density_color*0.0, density_color*0.05, 1.0)*1.0;
     ps_FlagColor    = vs_VertexColor * p;
     ps_FragNormal   = vec4(n, vs_VertexNormal.w);
-    ps_FragPosition = vec4(vs_VertexPosition.xyz, 0.0f);
+    ps_FragPosition = vs_InstancePosition + vec4(pos2, z, 0.0);
     ps_FragGlow     = ps_FlagColor * 0.4;
 }
 

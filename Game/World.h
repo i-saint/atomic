@@ -35,11 +35,13 @@ public:
     void serialize(Serializer& s) const;
     void deserialize(Deserializer& s);
 
+    void frameBegin();
     void update(float32 dt);
     void asyncupdate(float32 dt);
     void asyncupdateBegin(float32 dt);
     void asyncupdateEnd();
     void draw() const;
+    void frameEnd();
 
     PerspectiveCamera* getCamera() { return &m_camera; }
     const vec4& getFieldSize() const    { return m_field_size; }

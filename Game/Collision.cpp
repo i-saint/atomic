@@ -375,7 +375,7 @@ CollisionSet::~CollisionSet()
     m_vacant.clear();
 }
 
-void CollisionSet::updateBegin(float32 dt)
+void CollisionSet::frameBegin()
 {
 #ifdef __atomic_enable_distance_field__
     m_df[(m_df_current+1) % _countof(m_df)]->updateEnd();
@@ -391,27 +391,6 @@ void CollisionSet::update(float32 dt)
             if(IEntity *e = atomicGetEntity(messages[mi].to)) {
                 atomicCall(e, eventCollide, static_cast<const CollideMessage*>(&messages[mi]));
             }
-        }
-    }
-}
-
-void CollisionSet::updateEnd()
-{
-#ifdef __atomic_enable_distance_field__
-    m_df[m_df_current]->updateBegin(m_entities);
-    m_df_current = (m_df_current+1) % _countof(m_df);
-#endif // __atomic_enable_distance_field__
-
-    uint32 num = m_entities.size();
-    for(uint32 i=0; i<num; ++i) {
-        const CollisionEntity *ce = m_entities[i];
-        if(!ce || (ce->getFlags() & CF_AFFECT_SPH)==0) { continue; }
-
-        // SPH 側の剛体情報とメモリレイアウト同じにしてるので強引に突っ込む
-        switch(ce->getShape()) {
-        case CS_PLANE:  atomicGetSPHManager()->addRigid(reinterpret_cast<const sphRigidPlane&>(*ce)); break;
-        case CS_SPHERE: atomicGetSPHManager()->addRigid(reinterpret_cast<const sphRigidSphere&>(*ce)); break;
-        case CS_BOX:    atomicGetSPHManager()->addRigid(reinterpret_cast<const sphRigidBox&>(*ce)); break;
         }
     }
 }
@@ -434,6 +413,31 @@ void CollisionSet::asyncupdate(float32 dt)
     }
     TaskScheduler::addTask((Task**)&m_tasks[0], m_tasks.size());
     TaskScheduler::waitFor((Task**)&m_tasks[0], m_tasks.size());
+}
+
+void CollisionSet::frameEnd()
+{
+}
+
+void CollisionSet::copyRigitsToGPU()
+{
+#ifdef __atomic_enable_distance_field__
+    m_df[m_df_current]->updateBegin(m_entities);
+    m_df_current = (m_df_current+1) % _countof(m_df);
+#endif // __atomic_enable_distance_field__
+
+    uint32 num = m_entities.size();
+    for(uint32 i=0; i<num; ++i) {
+        const CollisionEntity *ce = m_entities[i];
+        if(!ce || (ce->getFlags() & CF_AFFECT_SPH)==0) { continue; }
+
+        // SPH 側の剛体情報とメモリレイアウト同じにしてるので強引に突っ込む
+        switch(ce->getShape()) {
+        case CS_PLANE:  atomicGetSPHManager()->addRigid(reinterpret_cast<const sphRigidPlane&>(*ce)); break;
+        case CS_SPHERE: atomicGetSPHManager()->addRigid(reinterpret_cast<const sphRigidSphere&>(*ce)); break;
+        case CS_BOX:    atomicGetSPHManager()->addRigid(reinterpret_cast<const sphRigidBox&>(*ce)); break;
+        }
+    }
 }
 
 void CollisionSet::addEntity(CollisionEntity *e)

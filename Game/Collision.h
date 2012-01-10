@@ -190,10 +190,12 @@ public:
     CollisionSet();
     ~CollisionSet();
 
-    void updateBegin(float32 dt);
+    void frameBegin();
     void update(float32 dt);
-    void updateEnd();
     void asyncupdate(float32 dt);
+    void frameEnd();
+
+    void copyRigitsToGPU();
 
     CollisionEntity* getEntity(CollisionHandle h);
     template<class T> T* createEntity();

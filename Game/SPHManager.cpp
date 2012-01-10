@@ -71,7 +71,7 @@ void SPHManager::initialize()
 }
 
 
-void SPHManager::updateBegin( float32 dt )
+void SPHManager::frameBegin()
 {
     m_planes.clear();
     m_spheres.clear();
@@ -97,6 +97,8 @@ void SPHManager::update(float32 dt)
 
 void SPHManager::asyncupdate(float32 dt)
 {
+    atomicGetCollisionSet()->copyRigitsToGPU();
+
     for(uint32 i=0; i<m_current_fluid_task; ++i) {
         m_fluid_tasks[i]->join();
         const thrust::host_vector<sphFluidParticle> &fluid = static_cast<ComputeFluidParticle*>(m_fluid_tasks[i])->getData();
@@ -121,6 +123,17 @@ void SPHManager::addForce(const sphForcePointGravity &v) { m_pgravity.push_back(
 void SPHManager::draw() const
 {
 }
+
+void SPHManager::frameEnd()
+{
+}
+
+
+void SPHManager::copyParticlesToGL()
+{
+    SPHCopyToGL();
+}
+
 
 void SPHManager::addFluid( const sphFluidParticle *particles, uint32 num )
 {

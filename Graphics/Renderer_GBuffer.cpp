@@ -3,6 +3,7 @@
 #include "Game/AtomicApplication.h"
 #include "Game/AtomicGame.h"
 #include "Game/World.h"
+#include "Game/SPHManager.h"
 #include "GPGPU/SPH.cuh"
 #include "AtomicRenderingSystem.h"
 #include "Renderer.h"
@@ -85,7 +86,7 @@ void PassGBuffer_SPH::draw()
         TaskScheduler::addTask(&m_tasks[0], num_rigids);
     }
     // copy fluid particles (CUDA -> GL)
-    SPHCopyToGL();
+    atomicGetSPHManager()->copyParticlesToGL();
     const sphStates& sphs = SPHGetStates();
 
 

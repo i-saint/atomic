@@ -184,11 +184,13 @@ void AtomicApplication::mainLoop()
         PerformanceCounter pc;
         float dt = 0.0f;
         if(m_game) {
+            m_game->frameBegin();
             m_game->update(dt);
             m_game->asyncupdateBegin(dt);
             updateInput();
             m_game->asyncupdateEnd();
             m_game->draw();
+            m_game->frameEnd();
             dt = pc.getElapsedMillisecond();
             pc.reset();
         }

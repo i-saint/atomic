@@ -20,10 +20,12 @@ public:
 
     bool readReplayFromFile(const char *path);
 
+    void frameBegin();
     void update(float32 dt);
     void asyncupdateBegin(float32 dt);
     void asyncupdateEnd();
     void draw();
+    void frameEnd();
 
     // •`‰æƒXƒŒƒbƒh‚©‚çŒÄ‚Î‚ê‚é
     void drawCallback();

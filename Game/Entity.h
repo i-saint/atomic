@@ -75,11 +75,13 @@ public:
     EntitySet();
     ~EntitySet();
 
-    void updateBegin(float32 dt);
+    void frameBegin();
     void update(float32 dt);
     void updateEnd();
     void asyncupdate(float32 dt);
     void draw();
+    void frameEnd();
+
     IEntity* getEntity(EntityHandle h);
     void deleteEntity(EntityHandle h);
     template<class T> IEntity* createEntity();

@@ -193,9 +193,8 @@ void CreateBloomCompositeQuad( VertexArray *va, VertexBuffer *vbo )
     if(vbo && va) { va->setAttributes(*vbo, sizeof(vertex_t), descs, _countof(descs)); }
 }
 
-void CreateCube( VertexArray *va, VertexBuffer *vbo, float32 len )
+void CreateCube( VertexArray *va, VertexBuffer *vbo, float32 half_len )
 {
-    const float32 half_len = len/2.0f;
     const vec3 ur = vec3( half_len, half_len, half_len);
     const vec3 bl = vec3(-half_len,-half_len,-half_len);
     const vec4 n[6] = {

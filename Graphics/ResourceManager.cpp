@@ -84,8 +84,8 @@ bool GraphicResourceManager::initialize()
         CreateBloomBlurQuads(m_va[VA_BLOOM_BLUR_QUADS], m_vbo[VBO_BLOOM_BLUR_QUADS]);
         CreateBloomCompositeQuad(m_va[VA_BLOOM_COMPOSITE_QUAD], m_vbo[VBO_BLOOM_COMPOSITE_QUAD]);
 
-        CreateCube(m_va[VA_UNIT_CUBE], m_vbo[VBO_UNIT_CUBE], 1.0f);
-        CreateCube(m_va[VA_FLUID_CUBE], m_vbo[VBO_FLUID_CUBE], 0.03f);
+        CreateCube(m_va[VA_UNIT_CUBE], m_vbo[VBO_UNIT_CUBE], 0.5f);
+        CreateCube(m_va[VA_FLUID_CUBE], m_vbo[VBO_FLUID_CUBE], 0.015f);
         CreateSphere(m_va[VA_UNIT_SPHERE], m_vbo[VBO_UNIT_SPHERE], m_ibo[IBO_LIGHT_SPHERE], 1.00f, 32,16);
         CreateSphere(m_va[VA_BLOOSTAIN_SPHERE], m_vbo[VBO_BLOODSTAIN_SPHERE], m_ibo[IBO_BLOODSTAIN_SPHERE], 0.075f, 8,8);
 
