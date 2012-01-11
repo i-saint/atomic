@@ -10,8 +10,6 @@
 #define _SCL_SECURE_NO_WARNINGS
 
 #include <windows.h>
-#undef ERROR
-
 #include <stdio.h>
 #include <GL/glew.h>
 #include <GL/wglew.h>

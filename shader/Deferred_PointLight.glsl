@@ -10,6 +10,7 @@ ia_out(GLSL_INSTANCE_PARAM)     vec4 ia_InstanceParam;
 #endif
 #if defined(GLSL_VS) || defined(GLSL_PS)
 vs_out vec4 vs_LightPosition;
+vs_out vec4 vs_LightPositionMVP;
 vs_out vec4 vs_LightColor;
 vs_out vec4 vs_VertexPositionMVP;
 vs_out float vs_LightRange;
@@ -21,14 +22,15 @@ vs_out float vs_RcpLightRange;
 void main()
 {
     vs_LightPosition = ia_InstancePosition;
-    vs_LightPosition.w = 0.0;
+    vs_LightPosition.w = 1.0;
     vs_LightRange = ia_InstanceParam.x;
     vs_RcpLightRange = ia_InstanceParam.y;
 
-    vec4 scaled_position = ia_VertexPosition * vec4(vs_LightRange, vs_LightRange, vs_LightRange, 1.0);
+    vec4 scaled_position = ia_VertexPosition * vec4(vs_LightRange, vs_LightRange, vs_LightRange, 0.0);
 
     vs_LightColor = ia_InstanceColor;
-    vs_VertexPositionMVP = u_RS.ModelViewProjectionMatrix * (scaled_position+vs_LightPosition);
+    vs_LightPositionMVP = u_RS.ModelViewProjectionMatrix * vs_LightPosition;
+    vs_VertexPositionMVP= u_RS.ModelViewProjectionMatrix * (scaled_position+vs_LightPosition);
     gl_Position = vs_VertexPositionMVP;
 }
 
@@ -43,13 +45,32 @@ void main()
     coord.y = (1.0 + (vs_VertexPositionMVP.y/vs_VertexPositionMVP.w))*0.5;
     coord *= u_RS.ScreenTexcoord;
 
+    vec3 FragPos    = texture(u_PositionBuffer, coord).xyz;
+
+    {
+        vec2 lcoord;
+        lcoord.x = (1.0 + (vs_LightPositionMVP.x/vs_LightPositionMVP.w))*0.5;
+        lcoord.y = (1.0 + (vs_LightPositionMVP.y/vs_LightPositionMVP.w))*0.5;
+        lcoord *= u_RS.ScreenTexcoord;
+
+        const int Div = 10;
+        vec2 D2 = (coord - lcoord) / Div;
+        vec3 D3 = (FragPos - vs_LightPosition.xyz) / Div;
+        for(int i=0; i<Div; ++i) {
+            vec4 RayPos = vs_LightPosition + vec4(D3*i, 0.0);
+            vec3 RayFragPos = texture(u_PositionBuffer, lcoord + (D2*i)).xyz;
+            if(RayPos.z < RayFragPos.z) {
+                discard;
+            }
+        }
+    }
+
     vec4 AS         = texture(u_ColorBuffer, coord);
     vec4 NS         = texture(u_NormalBuffer, coord);
     vec3 Albedo     = AS.rgb;
     float Shininess = AS.a;
     float Fresnel   = NS.a;
     vec3 Normal     = NS.xyz;
-    vec3 FragPos    = texture(u_PositionBuffer, coord).xyz;
     vec3 EyePos     = u_RS.CameraPosition.xyz;
     vec3 EyeDir     = normalize(EyePos - FragPos);
 
