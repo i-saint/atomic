@@ -8,6 +8,14 @@ namespace ist {
 namespace i3d {
 
 
+class Sampler : public DeviceResource
+{
+I3D_DECLARE_DEVICE_RESOURCE(Sampler)
+private:
+public:
+};
+
+
 class Texture2D : public DeviceResource
 {
 I3D_DECLARE_DEVICE_RESOURCE(Texture2D)
@@ -54,7 +62,7 @@ class RenderTarget : public DeviceResource
 {
 I3D_DECLARE_DEVICE_RESOURCE(RenderTarget)
 public:
-    static const int32 MAX_RENDER_BUFFERS = 16;
+    static const int32 MAX_RENDER_BUFFERS = 8;
 
 private:
     Texture2D *m_color_buffers[MAX_RENDER_BUFFERS];

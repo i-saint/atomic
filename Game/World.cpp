@@ -88,22 +88,31 @@ void World::asyncupdateBegin(float32 dt)
     m_task_update_sph->setArg(dt);
     m_task_update_entity->setArg(dt);
 
-    m_task_update_world->kick();
-    m_task_update_collision->kick();
-    m_task_update_sph->kick();
-    m_task_update_entity->kick();
+    Task *tasks[] = {
+        m_task_update_world,
+        m_task_update_collision,
+        m_task_update_sph,
+        m_task_update_entity,
+    };
+    TaskScheduler::addTask(tasks, _countof(tasks));
 }
 
 void World::asyncupdateEnd()
 {
-    m_task_update_entity->join();
-    m_task_update_sph->join();
-    m_task_update_collision->join();
-    m_task_update_world->join();
+    Task *tasks[] = {
+        m_task_update_world,
+        m_task_update_collision,
+        m_task_update_sph,
+        m_task_update_entity,
+    };
+    TaskScheduler::waitFor(tasks, _countof(tasks));
 }
 
 void World::asyncupdate(float32 dt)
 {
+    //mat4 rot = glm::rotate(mat4(), 0.05f, vec3(0.0f, 1.0f, 0.0f));
+    //m_camera.setPosition(rot * m_camera.getPosition());
+    //m_camera.setAspect(atomicGetWindowAspectRatio());
 }
 
 void World::draw() const

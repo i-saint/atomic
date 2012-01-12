@@ -22,6 +22,7 @@ private:
     thrust::host_vector<sphForcePointGravity>   m_pgravity;
     thrust::host_vector<sphFluidParticle>       m_fluid;
     stl::vector<Task*>  m_fluid_tasks;
+    Task*               m_asyncupdate_task;
     uint32              m_current_fluid_task;
 
 public:
@@ -39,6 +40,7 @@ public:
     void frameEnd();
 
     void copyParticlesToGL();
+    void taskAsyncupdate(float32 dt);
 
     // rigid/force は毎フレームクリアされるので、毎フレーム突っ込む必要がある
     void addRigid(const sphRigidPlane &s);

@@ -68,16 +68,24 @@ namespace atomic {
             if(m_past_frame % 4 < 2) {
                 const float32 threthold1 = 0.05f;
                 const float32 threthold2 = 1.0f;
+                const float32 threthold3 = 6.0f;
                 if(m_delta_damage < threthold1) {
                 }
                 else if(m_delta_damage < threthold2) {
                     float32 d = m_delta_damage - threthold1;
-                    m_flash_color = vec4(d/threthold2, d/threthold2, 0.0f, 0.0f) * 0.5f;
+                    float32 r = threthold2 - threthold1;
+                    m_flash_color = vec4(d/r, d/r, 0.0f, 0.0f);
+                }
+                else if(m_delta_damage < threthold3) {
+                    float32 d = m_delta_damage - threthold2;
+                    float32 r = threthold3 - threthold2;
+                    m_flash_color = vec4(1.0f, std::max<float32>(1.0f-d/r, 0.0f), 0.0f, 0.0f);
                 }
                 else {
-                    float32 d = m_delta_damage - threthold2;
-                    m_flash_color = vec4(1.0f, std::max<float32>(1.0f-d, 0.0f), 0.0f, 0.0f) * 0.5f;
+                    float32 d = m_delta_damage - threthold3;
+                    m_flash_color = vec4(1.0f, 0.0f, d*0.2f, 0.0f);
                 }
+                m_flash_color *= 0.25f;
             }
             m_delta_damage = 0.0f;
         }

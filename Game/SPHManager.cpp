@@ -51,10 +51,27 @@ public:
     const thrust::host_vector<sphFluidParticle>& getData() { return m_fluid; }
 };
 
+class SPHAsyncUpdateTask : public AtomicTask
+{
+private:
+    SPHManager *m_obj;
+    float32 m_arg;
+
+public:
+    SPHAsyncUpdateTask(SPHManager *v) : m_obj(v) {}
+    void setup(float32 v) { m_arg=v; }
+
+    void exec()
+    {
+        m_obj->taskAsyncupdate(m_arg);
+    }
+};
+
 
 SPHManager::SPHManager()
     : m_current_fluid_task(0)
 {
+    m_asyncupdate_task = istNew(SPHAsyncUpdateTask)(this);
 }
 
 SPHManager::~SPHManager()
@@ -63,6 +80,7 @@ SPHManager::~SPHManager()
         istDelete(m_fluid_tasks[i]);
     }
     m_fluid_tasks.clear();
+    istSafeDelete(m_asyncupdate_task);
 }
 
 
@@ -97,6 +115,33 @@ void SPHManager::update(float32 dt)
 
 void SPHManager::asyncupdate(float32 dt)
 {
+    static_cast<SPHAsyncUpdateTask*>(m_asyncupdate_task)->setup(dt);
+    TaskScheduler::addTask(m_asyncupdate_task);
+}
+
+void SPHManager::addRigid(const sphRigidPlane &s)   { m_planes.push_back(s); }
+void SPHManager::addRigid(const sphRigidSphere &s)  { m_spheres.push_back(s); }
+void SPHManager::addRigid(const sphRigidBox &s)     { m_boxes.push_back(s); }
+void SPHManager::addForce(const sphForcePointGravity &v) { m_pgravity.push_back(v); }
+
+void SPHManager::draw() const
+{
+}
+
+void SPHManager::frameEnd()
+{
+    TaskScheduler::waitFor(m_asyncupdate_task);
+}
+
+
+void SPHManager::copyParticlesToGL()
+{
+    TaskScheduler::waitFor(m_asyncupdate_task);
+    SPHCopyToGL();
+}
+
+void SPHManager::taskAsyncupdate( float32 dt )
+{
     atomicGetCollisionSet()->copyRigitsToGPU();
 
     for(uint32 i=0; i<m_current_fluid_task; ++i) {
@@ -113,25 +158,6 @@ void SPHManager::asyncupdate(float32 dt)
 #endif // __atomic_enable_distance_field__
     SPHAddFluid(m_fluid);
     SPHUpdateFluid();
-}
-
-void SPHManager::addRigid(const sphRigidPlane &s)   { m_planes.push_back(s); }
-void SPHManager::addRigid(const sphRigidSphere &s)  { m_spheres.push_back(s); }
-void SPHManager::addRigid(const sphRigidBox &s)     { m_boxes.push_back(s); }
-void SPHManager::addForce(const sphForcePointGravity &v) { m_pgravity.push_back(v); }
-
-void SPHManager::draw() const
-{
-}
-
-void SPHManager::frameEnd()
-{
-}
-
-
-void SPHManager::copyParticlesToGL()
-{
-    SPHCopyToGL();
 }
 
 
