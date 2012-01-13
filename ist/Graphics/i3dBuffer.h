@@ -96,10 +96,6 @@ public:
     void bind() const;
     void unbind() const;
 
-    // num_elements: 1,2,3,4
-    void setAttribute(GLuint index, GLint num_elements, VertexBuffer &vbo);
-    void setInstanceAttribute(GLuint i, GLint num_elements, VertexBuffer &vbo);
-
     void setAttributes(VertexBuffer& vbo, size_t stride, const VertexDescriptor *descs, size_t num_descs);
 };
 
