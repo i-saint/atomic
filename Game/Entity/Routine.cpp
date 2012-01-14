@@ -87,4 +87,45 @@ namespace atomic {
     atomicImplementRoutine(Routine_HomingPlayer, ROUTINE_HOMING_PLAYER);
 
 
+    class Routine_Pinball : public IRoutine, public Attr_MessageHandler
+    {
+        typedef Attr_MessageHandler mhandler;
+    private:
+        vec4 m_vel;
+
+    public:
+        Routine_Pinball() {}
+
+        void setVelocity(const vec4 &v) { m_vel=v; }
+
+        void update(float32 dt)
+        {
+            IEntity *e = getEntity();
+            vec4 pos = atomicQuery(getEntity(), getPosition, vec4);
+            pos += m_vel;
+            atomicCall(e, setPosition, pos);
+        }
+
+        virtual void eventCollide(const CollideMessage *m)
+        {
+            vec4 base_dir = m->direction;
+            vec4 dir = base_dir;
+            dir.z = dir.w = 0.0f;
+            dir = glm::normalize(dir);
+
+            if(glm::dot(dir, m_vel) < 0.0f) {
+                m_vel = glm::reflect(m_vel, dir);
+            }
+        }
+
+        virtual bool call(uint32 call_id, const variant &v)
+        {
+            switch(call_id) {
+            DEFINE_ECALL1(setVelocity, vec4);
+            default: return mhandler::call(call_id, v);
+            }
+        }
+    };
+    atomicImplementRoutine(Routine_Pinball, ROUTINE_PINBALL);
+
 } // namespace atomic

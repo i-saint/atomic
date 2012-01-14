@@ -154,7 +154,7 @@ public:
         m_vel.z = 0.0f;
         m_vel.w = 0.0f;
 
-        damage(m->direction.w * 50.0f);
+        damage(m->direction.w * 100.0f);
     }
 
     bool call(uint32 call_id, const variant &v)

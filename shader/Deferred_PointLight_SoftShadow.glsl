@@ -61,16 +61,21 @@ void main()
         lcoord.y = (1.0 + (vs_LightPositionMVP.y/vs_LightPositionMVP.w))*0.5;
         lcoord *= u_RS.ScreenTexcoord;
 
-        const int Div = 10;
+        const int Div = 50;
         vec2 D2 = (coord - lcoord) / Div;
         vec3 D3 = (FragPos - vs_LightPosition.xyz) / Div;
+        float LightAttenuationMax = LightAttenuation;
         for(int i=0; i<Div; ++i) {
             vec4 RayPos = vs_LightPosition + vec4(D3*i, 0.0);
             vec3 RayFragPos = texture(u_PositionBuffer, lcoord + (D2*i)).xyz;
             if(RayPos.z < RayFragPos.z) {
-                discard;
+                LightAttenuation -= 0.03;
+            }
+            else {
+                LightAttenuation = min(LightAttenuation+0.003, LightAttenuationMax);
             }
         }
+        if(LightAttenuation<=0.0) { discard; }
     }
 
     vec4 AS         = texture(u_ColorBuffer, coord);

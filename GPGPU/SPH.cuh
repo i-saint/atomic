@@ -162,6 +162,7 @@ struct sphFluidMessage
 
 void SPHInitialize(const sphParams &params);
 void SPHFinalize();
+void SPHPutParticles(int num);
 void SPHUpdateDistanceField(const float4 *distances, const EntityHandle *entities);
 void SPHUpdateRigids(
     const thrust::host_vector<sphRigidPlane> &planes,

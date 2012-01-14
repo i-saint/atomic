@@ -95,6 +95,25 @@ public:
         return e;
     }
 
+    IEntity* putPinballEnemy()
+    {
+        IEntity *e = NULL;
+        e = atomicCreateEntity(Enemy_Test);
+        atomicCall(e, setCollisionShape, CS_SPHERE);
+        atomicCall(e, setModel, PSET_SPHERE_SMALL);
+        atomicCall(e, setPosition, GenRandomVector2() * 2.2f);
+        atomicCall(e, setHealth, 15.0f * getLoopBoost());
+        atomicCall(e, setAxis1, GenRandomUnitVector3());
+        atomicCall(e, setAxis2, GenRandomUnitVector3());
+        atomicCall(e, setRotateSpeed1, 2.4f);
+        atomicCall(e, setRotateSpeed2, 2.4f);
+        atomicCall(e, setRoutine, ROUTINE_PINBALL);
+        atomicCall(e, setLightRadius, 0.65f);
+        atomicCall(e, setVelocity, GenRandomUnitVector2()*0.01f);
+        m_small_enemies.push_back(e->getHandle());
+        return e;
+    }
+
     IEntity* putMediumEnemy()
     {
         IEntity *e = atomicCreateEntity(Enemy_Test);
@@ -223,6 +242,7 @@ public:
     void level0()
     {
         {
+            SPHPutParticles(30000);
             IEntity *e = atomicCreateEntity(Player);
             m_player = e->getHandle();
             atomicCall(e, setPosition, vec4(0.0f, 0.0f, 0.0f, 1.0f));
@@ -238,6 +258,7 @@ public:
     {
         if(m_frame < 1200) {
             if(m_frame % 50 == 0) {
+                //IEntity *e = putPinballEnemy();
                 IEntity *e = putSmallEnemy();
             }
             if(m_frame==1) {

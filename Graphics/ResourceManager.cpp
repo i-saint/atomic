@@ -79,6 +79,7 @@ bool GraphicResourceManager::initialize()
     }
 
     {
+        CreateFloorQuad(m_va[VA_FLOOR_QUAD], m_vbo[VBO_FLOOR_QUAD], vec4(-2.56f, -2.56f, -0.15f, 0.0f), vec4(5.12f, 5.12f, 0.0f, 0.0f));
         CreateScreenQuad(m_va[VA_SCREEN_QUAD], m_vbo[VBO_SCREEN_QUAD]);
         CreateBloomLuminanceQuads(m_va[VA_BLOOM_LUMINANCE_QUADS], m_vbo[VBO_BLOOM_LUMINANCE_QUADS]);
         CreateBloomBlurQuads(m_va[VA_BLOOM_BLUR_QUADS], m_vbo[VBO_BLOOM_BLUR_QUADS]);
@@ -106,6 +107,7 @@ bool GraphicResourceManager::initialize()
     }
     {
         // create shaders
+        m_shader[SH_GBUFFER_FLOOR]      = CreateAtomicShader(g_GBuffer_Floor_glsl);
         //m_shader[SH_GBUFFER_FLUID]      = CreateAtomicShader(g_GBuffer_Fluid_glsl);
         //m_shader[SH_GBUFFER_RIGID]      = CreateAtomicShader(g_GBuffer_Rigid_glsl);
         m_shader[SH_GBUFFER_FLUID]      = CreateAtomicShader(g_GBuffer_FluidBlood_glsl);

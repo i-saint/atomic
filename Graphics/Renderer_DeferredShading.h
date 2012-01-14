@@ -40,9 +40,6 @@ private:
     typedef DirectionalLight light_t;
     typedef stl::vector<DirectionalLight> InstanceCont;
     InstanceCont    m_instances;
-    VertexArray     *m_va_quad;
-    VertexBuffer    *m_vbo_instance;
-    AtomicShader    *m_shader;
 
 public:
     PassDeferredShading_DirectionalLights();
@@ -59,10 +56,6 @@ public:
 private:
     typedef stl::vector<PointLight> InstanceCont;
     InstanceCont    m_instances;
-    AtomicShader    *m_shader;
-    IndexBuffer     *m_ibo_sphere;
-    VertexArray     *m_va_sphere;
-    VertexBuffer    *m_vbo_instance;
 
 public:
     PassDeferredShading_PointLights();

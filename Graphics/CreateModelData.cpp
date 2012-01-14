@@ -12,6 +12,32 @@
 namespace atomic {
 
 
+void CreateFloorQuad( VertexArray *va, VertexBuffer *vbo, vec4 pos, vec4 size )
+{
+    struct __declspec(align(16)) vertex_t
+    {
+        vec4 pos;
+        vec4 normal;
+        vec2 texcoord;
+    };
+
+    vertex_t vertices[4] = {
+        {vec4( size.x, size.y, size.z, 1.0f)+pos, vec4(0.0f, 0.0f, 1.0f, 0.0f), vec2(1.0f, 1.0f)},
+        {vec4(   0.0f, size.y, size.z, 1.0f)+pos, vec4(0.0f, 0.0f, 1.0f, 0.0f), vec2(0.0f, 1.0f)},
+        {vec4(   0.0f,   0.0f, size.z, 1.0f)+pos, vec4(0.0f, 0.0f, 1.0f, 0.0f), vec2(0.0f, 0.0f)},
+        {vec4( size.x,   0.0f, size.z, 1.0f)+pos, vec4(0.0f, 0.0f, 1.0f, 0.0f), vec2(1.0f, 0.0f)},
+    };
+
+    VertexDescriptor descs[] = {
+        {GLSL_POSITION, I3D_FLOAT,4,  0, false, 0},
+        {GLSL_NORMAL,   I3D_FLOAT,4, 16, false, 0},
+        {GLSL_TEXCOORD1,I3D_FLOAT,2, 32, false, 0},
+    };
+    if(vbo) { vbo->allocate(sizeof(vertex_t)*_countof(vertices), I3D_USAGE_STATIC, vertices); }
+    if(vbo && va) { va->setAttributes(*vbo, sizeof(vertex_t), descs, _countof(descs)); }
+}
+
+
 void CreateSphere(
     VertexArray *va, VertexBuffer *vbo, IndexBuffer *ibo,
     float32 radius, uint32 div_xz, uint32 div_y)

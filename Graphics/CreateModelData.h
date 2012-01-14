@@ -8,6 +8,7 @@ namespace atomic {
     class CudaBuffer;
     class ParticleSet;
 
+    void CreateFloorQuad(VertexArray *va, VertexBuffer *vbo, vec4 pos, vec4 size);
     void CreateSphere(VertexArray *va, VertexBuffer *vbo, IndexBuffer *ibo, float32 radius, uint32 div_xz, uint32 div_y);
     void CreateScreenQuad(VertexArray *va, VertexBuffer *vbo);
     void CreateBloomLuminanceQuads(VertexArray *va, VertexBuffer *vbo);

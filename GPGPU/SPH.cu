@@ -90,11 +90,17 @@ void SPHInitialize(const sphParams &sph_params)
         grid_params.grid_pos = make_float4(-grid_len/2.0f, -grid_len/2.0f, 0.0f, 0.0f);
         h_fluid->params[0] = grid_params;
 
-        h_states.fluid_num_particles = 30000;
+        h_states.fluid_num_particles = 0;
         h_states.fluid_alive_any = 0;
         h_fluid->states[0] = h_states;
     }
+}
 
+void SPHPutParticles(int num)
+{
+    h_states.fluid_num_particles = 30000;
+    h_states.fluid_alive_any = 0;
+    h_fluid->states[0] = h_states;
     h_fluid->resizeParticles(h_states.fluid_num_particles);
     thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(h_states.fluid_num_particles), _ClearParticles(h_fluid->getDeviceData()) );
 }
