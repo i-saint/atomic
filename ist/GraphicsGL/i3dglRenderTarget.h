@@ -19,11 +19,12 @@ public:
 class Texture2D : public DeviceResource
 {
 I3DGL_DECLARE_DEVICE_RESOURCE(Texture2D)
+typedef DeviceResource super;
 private:
     uvec2 m_size;
 
 private:
-    Texture2D();
+    Texture2D(Device *dev);
     ~Texture2D();
 
 public:
@@ -39,37 +40,16 @@ public:
 
 
 
-class RenderBuffer : public DeviceResource
-{
-I3DGL_DECLARE_DEVICE_RESOURCE(RenderBuffer)
-private:
-    uvec2 m_size;
-
-    RenderBuffer();
-    ~RenderBuffer();
-
-public:
-    bool allocate(const uvec2 &size, I3D_COLOR_FORMAT format);
-
-    void bind() const;
-    void unbind() const;
-
-    const uvec2& getSize() const;
-};
-
-
 class RenderTarget : public DeviceResource
 {
 I3DGL_DECLARE_DEVICE_RESOURCE(RenderTarget)
-public:
-    static const int32 MAX_RENDER_BUFFERS = 8;
-
+typedef DeviceResource super;
 private:
-    Texture2D *m_color_buffers[MAX_RENDER_BUFFERS];
+    Texture2D *m_color_buffers[I3D_MAX_RENDER_TARGETS];
     Texture2D *m_depthstencil;
     uint32 m_num_color_buffers;
 
-    RenderTarget();
+    RenderTarget(Device *dev);
     ~RenderTarget();
 
     void releaseBuffers();

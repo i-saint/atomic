@@ -35,9 +35,9 @@ private:
     SystemFont      *m_font;
     Texture2D       *m_tex2d[TEX2D_END];
     VertexArray     *m_va[VA_END];
-    VertexBuffer    *m_vbo[VBO_END];
-    IndexBuffer     *m_ibo[IBO_END];
-    UniformBuffer   *m_ubo[UBO_END];
+    Buffer          *m_vbo[VBO_END];
+    Buffer          *m_ibo[IBO_END];
+    Buffer          *m_ubo[UBO_END];
     RenderTarget    *m_rt[RT_END];
     AtomicShader    *m_shader[SH_END];
     ParticleSet     m_pset[PSET_END];
@@ -53,16 +53,16 @@ public:
     static void intializeInstance();
     static void finalizeInstance();
 
-    SystemFont*     getFont()                           { return m_font; }
-    Texture2D*      getTexture2D(TEX2D_RID i)           { return m_tex2d[i]; }
-    VertexArray*    getVertexArray(VA_RID i)            { return m_va[i]; }
-    VertexBuffer*   getVertexBufferObject(VBO_RID i)    { return m_vbo[i]; }
-    IndexBuffer*    getIndexBufferObject(IBO_RID i)     { return m_ibo[i]; }
-    UniformBuffer*  getUniformBufferObject(UBO_RID i)   { return m_ubo[i]; }
-    AtomicShader*   getShader(SH_RID i)                 { return m_shader[i]; }
-    RenderTarget*   getRenderTarget(RT_RID i)           { return m_rt[i]; }
-    ParticleSet*    getParticleSet(PSET_RID i)          { return &m_pset[i]; }
-    RigidInfo*      getRigidInfo(PSET_RID i)            { return &m_rinfo[i]; }
+    SystemFont*     getFont()                   { return m_font; }
+    Texture2D*      getTexture2D(TEX2D_RID i)   { return m_tex2d[i]; }
+    VertexArray*    getVertexArray(VA_RID i)    { return m_va[i]; }
+    Buffer*         getVertexBuffer(VBO_RID i)  { return m_vbo[i]; }
+    Buffer*         getIndexBuffer(IBO_RID i)   { return m_ibo[i]; }
+    Buffer*         getUniformBuffer(UBO_RID i) { return m_ubo[i]; }
+    AtomicShader*   getShader(SH_RID i)         { return m_shader[i]; }
+    RenderTarget*   getRenderTarget(RT_RID i)   { return m_rt[i]; }
+    ParticleSet*    getParticleSet(PSET_RID i)  { return &m_pset[i]; }
+    RigidInfo*      getRigidInfo(PSET_RID i)    { return &m_rinfo[i]; }
 };
 
 
@@ -71,9 +71,9 @@ public:
 #define atomicGetFont()             atomicGetResourceManager()->getFont()
 #define atomicGetTexture2D(i)       atomicGetResourceManager()->getTexture2D(i)
 #define atomicGetVertexArray(i)     atomicGetResourceManager()->getVertexArray(i)
-#define atomicGetVertexBuffer(i)    atomicGetResourceManager()->getVertexBufferObject(i)
-#define atomicGetIndexBuffer(i)     atomicGetResourceManager()->getIndexBufferObject(i)
-#define atomicGetUniformBuffer(i)   atomicGetResourceManager()->getUniformBufferObject(i)
+#define atomicGetVertexBuffer(i)    atomicGetResourceManager()->getVertexBuffer(i)
+#define atomicGetIndexBuffer(i)     atomicGetResourceManager()->getIndexBuffer(i)
+#define atomicGetUniformBuffer(i)   atomicGetResourceManager()->getUniformBuffer(i)
 #define atomicGetShader(i)          atomicGetResourceManager()->getShader(i)
 #define atomicGetRenderTarget(i)    atomicGetResourceManager()->getRenderTarget(i)
 #define atomicGetParticleSet(i)     atomicGetResourceManager()->getParticleSet(i)

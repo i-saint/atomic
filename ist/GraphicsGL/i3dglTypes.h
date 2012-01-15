@@ -63,11 +63,29 @@ enum I3D_TYPE
     I3D_USHORT  = GL_UNSIGNED_SHORT,
     I3D_INT     = GL_INT,
     I3D_UINT    = GL_UNSIGNED_INT,
+    I3D_HALF    = GL_HALF_FLOAT,
     I3D_FLOAT   = GL_FLOAT,
     I3D_DOUBLE  = GL_DOUBLE,
 };
 
-struct VertexDescriptor
+enum I3D_BUFFER_TYPE
+{
+    I3D_VERTEX_BUFFER       = GL_ARRAY_BUFFER,
+    I3D_INDEX_BUFFER        = GL_ELEMENT_ARRAY_BUFFER,
+    I3D_UNIFORM_BUFFER      = GL_UNIFORM_BUFFER,
+    I3D_PIXEL_PACK_BUFFER   = GL_PIXEL_PACK_BUFFER,
+    I3D_PIXEL_UNPACK_BUFFER = GL_PIXEL_UNPACK_BUFFER,
+};
+
+enum I3D_CONSTANTS
+{
+    I3D_MAX_RENDER_TARGETS = 8,
+    I3D_MAX_VERTEX_BUFFERS = 8,
+    I3D_MAX_VERTEX_DESCS = 16,
+};
+
+
+struct VertexDesc
 {
     GLuint location;
     I3D_TYPE type;
@@ -77,20 +95,31 @@ struct VertexDescriptor
     GLuint divisor; // 0: per vertex, other: per n instance
 };
 
+
+struct BufferDesc
+{
+    I3D_BUFFER_TYPE type;
+    I3D_USAGE usage;
+    uint32 size;
+    void *data;
+
+    // data は NULL でもよく、その場合メモリ確保だけが行われる。
+    BufferDesc() : type(I3D_VERTEX_BUFFER), usage(I3D_USAGE_DYNAMIC), size(0), data(NULL) {}
+    BufferDesc(I3D_BUFFER_TYPE t, I3D_USAGE u, uint32 s, void *d) : type(t), usage(u), size(s), data(d) {}
+};
+
+
+
 typedef uint32 ResourceHandle;
 class Device;
 class DeviceContext;
 class DeviceResource;
-class VertexBuffer;
-class IndexBuffer;
-class PixelBuffer;
-class PixelUnpackBuffer;
-class UniformBuffer;
+class Buffer;
 class VertexArray;
 class Texture1D;
 class Texture2D;
 class Texture3D;
-class RenderBuffer;
+typedef Texture2D RenderBuffer;
 class RenderTarget;
 class VertexShader;
 class PixelShader;

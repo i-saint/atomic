@@ -10,6 +10,7 @@
 //#define __ist_with_zlib__
 //#define __ist_with_oggvorbis__
 
+#pragma comment(lib, "ist.lib")
 
 #include "Base.h"
 #include "Math.h"

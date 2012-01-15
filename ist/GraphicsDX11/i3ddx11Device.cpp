@@ -3,7 +3,7 @@
 #include "../Window.h"
 #include <D3D11.h>
 #include <D3DX11.h>
-#include "../Graphics.h"
+#include "i3ddx11Device.h"
 
 namespace ist {
 namespace i3ddx11 {

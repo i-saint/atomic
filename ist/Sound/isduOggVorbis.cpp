@@ -1,8 +1,7 @@
 #include "stdafx.h"
-#include "../Sound.h"
 #include "../Base.h"
-
-#ifdef __ist_with_oggvorbis__
+#include "../Sound.h"
+#include "isduOggVorbis.h"
 
 namespace ist {
 namespace isd {
@@ -232,5 +231,3 @@ long OggVorbisMemoryStream::tell( void* stream )
 
 } // namespace isd
 } // namespace ist
-
-#endif // IST_SOUND_ENABLE_OGGVORBIS

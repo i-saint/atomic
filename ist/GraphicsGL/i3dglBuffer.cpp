@@ -5,16 +5,18 @@
 namespace ist {
 namespace i3dgl {
 
-template<GLuint BufferType>
-Buffer<BufferType>::Buffer()
-: m_size(0)
-, m_capacity(0)
+Buffer::Buffer(Device *dev, const BufferDesc &desc)
+: super(dev)
+, m_desc(desc)
 {
     glGenBuffers(1, &m_handle);
+
+    glBindBuffer(m_desc.type, m_handle);
+    glBufferData(m_desc.type, m_desc.size, m_desc.data, m_desc.usage);
+    glBindBuffer(m_desc.type, 0);
 }
 
-template<GLuint BufferType>
-Buffer<BufferType>::~Buffer()
+Buffer::~Buffer()
 {
     if(m_handle!=0) {
         glDeleteBuffers(1, &m_handle);
@@ -22,83 +24,36 @@ Buffer<BufferType>::~Buffer()
     }
 }
 
-template<GLuint BufferType>
-void Buffer<BufferType>::allocate(GLuint size, I3D_USAGE usage, void *data)
+void Buffer::bind() const
 {
-    m_size = size;
-    if(size==0) {
-        return;
-    }
-    else if(size > m_capacity) {
-        m_capacity = size;
-        glBindBuffer(BufferType, m_handle);
-        glBufferData(BufferType, size, data, usage);
-        glBindBuffer(BufferType, 0);
-    }
-    else if(data!=NULL) {
-        glBindBuffer(BufferType, m_handle);
-        void *p = glMapBuffer(BufferType, GL_WRITE_ONLY);
-        memcpy(p, data, size);
-        glUnmapBuffer(BufferType);
-        glBindBuffer(BufferType, 0);
-    }
+    glBindBuffer(m_desc.type, m_handle);
 }
 
-template<GLuint BufferType>
-GLuint Buffer<BufferType>::size() const
+void Buffer::unbind() const
 {
-    return m_size;
+    glBindBuffer(m_desc.type, 0);
 }
 
-template<GLuint BufferType>
-void Buffer<BufferType>::bind() const
+void* Buffer::map(I3D_MAP_MODE mode)
 {
-    glBindBuffer(BufferType, m_handle);
-}
-
-template<GLuint BufferType>
-void Buffer<BufferType>::unbind() const
-{
-    glBindBuffer(BufferType, 0);
-}
-
-template<GLuint BufferType>
-void* Buffer<BufferType>::map(I3D_MAP_MODE mode)
-{
-    glBindBuffer(BufferType, m_handle);
-    void *r = glMapBuffer(BufferType, mode);
+    glBindBuffer(m_desc.type, m_handle);
+    void *r = glMapBuffer(m_desc.type, mode);
     if(r==NULL) { istAssert("BufferObject::map() failed\n"); }
-    glBindBuffer(BufferType, 0);
+    glBindBuffer(m_desc.type, 0);
     return r;
 }
 
-template<GLuint BufferType>
-void Buffer<BufferType>::unmap()
+void Buffer::unmap()
 {
-    glBindBuffer(BufferType, m_handle);
-    glUnmapBuffer(BufferType);
-    glBindBuffer(BufferType, 0);
-}
-
-template Buffer<GL_ARRAY_BUFFER>;
-template Buffer<GL_ELEMENT_ARRAY_BUFFER>;
-template Buffer<GL_PIXEL_PACK_BUFFER>;
-template Buffer<GL_PIXEL_UNPACK_BUFFER>;
-template Buffer<GL_UNIFORM_BUFFER>;
-
-
-void UniformBuffer::bindBase(GLuint index) const
-{
-    glBindBufferBase(GL_UNIFORM_BUFFER, index, getHandle());
-}
-
-void UniformBuffer::bindRange(GLuint index, GLintptr offset, GLsizeiptr size) const
-{
-    glBindBufferRange(GL_UNIFORM_BUFFER, index, getHandle(), offset, size);
+    glBindBuffer(m_desc.type, m_handle);
+    glUnmapBuffer(m_desc.type);
+    glBindBuffer(m_desc.type, 0);
 }
 
 
-VertexArray::VertexArray()
+
+VertexArray::VertexArray(Device *dev)
+    : super(dev)
 {
     glGenVertexArrays(1, &m_handle);
 }
@@ -121,17 +76,17 @@ void VertexArray::unbind() const
     glBindVertexArray(0);
 }
 
-void VertexArray::setAttributes( VertexBuffer& vbo, size_t stride, const VertexDescriptor *descs, size_t num_descs )
+void VertexArray::setAttributes( Buffer& vb, size_t stride, const VertexDesc *descs, size_t num_descs )
 {
     glBindVertexArray(m_handle);
-    vbo.bind();
+    vb.bind();
     for(size_t i=0; i<num_descs; ++i) {
-        const VertexDescriptor& desc = descs[i];
+        const VertexDesc& desc = descs[i];
         glEnableVertexAttribArray(desc.location);
         glVertexAttribPointer(desc.location, desc.num_elements, desc.type, desc.normalize, stride, (GLvoid*)desc.offset);
         glVertexAttribDivisor(desc.location, desc.divisor);
     }
-    vbo.unbind();
+    vb.unbind();
 }
 
 

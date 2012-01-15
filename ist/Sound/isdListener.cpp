@@ -18,9 +18,9 @@ float Listener::getF(ALenum param) const
     return r;
 }
 
-float4 Listener::get3F(ALenum param) const
+vec3 Listener::get3F(ALenum param) const
 {
-    float4 r;
+    vec3 r;
     alGetListenerfv(param, (ALfloat*)&r);
     return r;
 }
@@ -45,8 +45,8 @@ Listener::Listener(){}
 Listener::~Listener() {}
 
 float Listener::getGain() const { return getF(AL_GAIN); }
-float4 Listener::getPosition() const { return get3F(AL_POSITION); }
-float4 Listener::getVelocity() const { return get3F(AL_VELOCITY); }
+vec3 Listener::getPosition() const { return get3F(AL_POSITION); }
+vec3 Listener::getVelocity() const { return get3F(AL_VELOCITY); }
 
 void Listener::setGain(float v) { setF(AL_GAIN, v); }
 void Listener::setPosition(const vec3 &v) { set3F(AL_POSITION, v); }

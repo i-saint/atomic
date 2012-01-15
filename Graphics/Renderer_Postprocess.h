@@ -40,7 +40,7 @@ private:
     VertexArray     *m_va_luminance;
     VertexArray     *m_va_blur;
     VertexArray     *m_va_composite;
-    UniformBuffer   *m_ubo_states;
+    Buffer          *m_ubo_states;
     AtomicShader    *m_sh_luminance;
     AtomicShader    *m_sh_hblur;
     AtomicShader    *m_sh_vblur;
@@ -56,7 +56,7 @@ class PassPostprocess_Fade : public IRenderer
 {
 private:
     AtomicShader    *m_sh_fade;
-    UniformBuffer   *m_ubo_fade;
+    Buffer          *m_ubo_fade;
     VertexArray     *m_va_quad;
     int32       m_loc_fade_param;
     FadeParams  m_params;

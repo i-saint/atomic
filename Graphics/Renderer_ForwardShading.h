@@ -10,8 +10,8 @@ private:
     AtomicShader    *m_sh_grid;
 
     VertexArray     *m_va_cell;
-    VertexBuffer    *m_vbo_cell_pos;
-    VertexBuffer    *m_vbo_cell_dist;
+    Buffer          *m_vbo_cell_pos;
+    Buffer          *m_vbo_cell_dist;
     AtomicShader    *m_sh_cell;
 
 public:

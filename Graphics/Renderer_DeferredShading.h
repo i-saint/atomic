@@ -13,9 +13,9 @@ public:
     };
 
 private:
-    IndexBuffer     *m_ibo_sphere;
+    Buffer          *m_ibo_sphere;
     VertexArray     *m_va_sphere;
-    VertexBuffer    *m_vbo_bloodstain;
+    Buffer          *m_vbo_bloodstain;
     AtomicShader    *m_sh;
 
     stl::vector<Task*>                  m_tasks;

@@ -99,9 +99,9 @@ void AtomicRenderer::draw()
     glEnable(GL_CULL_FACE);
 
     {
-        PerspectiveCamera *camera      = atomicGetCamera();
-        UniformBuffer *ubo_renderstates= atomicGetUniformBuffer(UBO_RENDER_STATES);
-        const uvec2 &wsize = atomicGetWindowSize();
+        PerspectiveCamera *camera   = atomicGetCamera();
+        Buffer *ubo_renderstates    = atomicGetUniformBuffer(UBO_RENDER_STATES);
+        const uvec2 &wsize          = atomicGetWindowSize();
         camera->updateMatrix();
         m_render_states.ModelViewProjectionMatrix = camera->getModelViewProjectionMatrix();
         m_render_states.CameraPosition  = camera->getPosition();

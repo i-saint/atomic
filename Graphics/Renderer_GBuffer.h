@@ -7,8 +7,8 @@ class PassGBuffer_SPH : public IRenderer
 {
 private:
     VertexArray     *m_va_cube;
-    VertexBuffer    *m_vbo_fluid;
-    VertexBuffer    *m_vbo_rigid;
+    Buffer          *m_vbo_fluid;
+    Buffer          *m_vbo_rigid;
     AtomicShader    *m_sh_fluid;
     AtomicShader    *m_sh_rigid;
 

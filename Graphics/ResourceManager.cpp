@@ -46,9 +46,9 @@ bool GraphicResourceManager::initialize()
     m_font = NULL;
     stl::fill_n(m_tex2d, _countof(m_tex2d), (Texture2D*)NULL);
     stl::fill_n(m_va, _countof(m_va), (VertexArray*)NULL);
-    stl::fill_n(m_vbo, _countof(m_vbo), (VertexBuffer*)NULL);
-    stl::fill_n(m_ibo, _countof(m_ibo), (IndexBuffer*)NULL);
-    stl::fill_n(m_ubo, _countof(m_ubo), (UniformBuffer*)NULL);
+    stl::fill_n(m_vbo, _countof(m_vbo), (Buffer*)NULL);
+    stl::fill_n(m_ibo, _countof(m_ibo), (Buffer*)NULL);
+    stl::fill_n(m_ubo, _countof(m_ubo), (Buffer*)NULL);
     stl::fill_n(m_rt, _countof(m_rt), (RenderTarget*)NULL);
     stl::fill_n(m_shader, _countof(m_shader), (AtomicShader*)NULL);
 
@@ -58,7 +58,7 @@ bool GraphicResourceManager::initialize()
     uvec2 rt_size = CalcFrameBufferSize();
 
     // initialize opengl resources
-    i3d::Device *dev = atomicGetGraphicsDevice();
+    i3d::Device *dev = atomicGetGLDevice();
     {
         m_font = istNew(SystemFont)(dev->getHDC());
     }
@@ -67,15 +67,6 @@ bool GraphicResourceManager::initialize()
     }
     for(uint32 i=0; i<_countof(m_va); ++i) {
         m_va[i] = dev->createVertexArray();
-    }
-    for(uint32 i=0; i<_countof(m_vbo); ++i) {
-        m_vbo[i] = dev->createVertexBuffer();
-    }
-    for(uint32 i=0; i<_countof(m_ibo); ++i) {
-        m_ibo[i] = dev->createIndexBuffer();
-    }
-    for(uint32 i=0; i<_countof(m_ubo); ++i) {
-        m_ubo[i] = dev->createUniformBuffer();
     }
 
     {
@@ -94,16 +85,16 @@ bool GraphicResourceManager::initialize()
         CreateDistanceFieldQuads(m_va[VA_DISTANCE_FIELD],
             m_vbo[VBO_DISTANCE_FIELD_QUAD], m_vbo[VBO_DISTANCE_FIELD_POS], m_vbo[VBO_DISTANCE_FIELD_DIST]);
 
-        m_vbo[VBO_FLUID_PARTICLES]->allocate(sizeof(sphFluidParticle)*SPH_MAX_FLUID_PARTICLES, I3D_USAGE_DYNAMIC);
-        m_vbo[VBO_RIGID_PARTICLES]->allocate(sizeof(PSetParticle)*SPH_MAX_RIGID_PARTICLES, I3D_USAGE_DYNAMIC);
-        m_vbo[VBO_DIRECTIONALLIGHT_INSTANCES]->allocate(sizeof(DirectionalLight)*ATOMIC_MAX_DIRECTIONAL_LIGHTS, I3D_USAGE_DYNAMIC);
-        m_vbo[VBO_POINTLIGHT_INSTANCES]->allocate(sizeof(PointLight)*ATOMIC_MAX_POINT_LIGHTS, I3D_USAGE_DYNAMIC);
-        m_vbo[VBO_BLOODSTAIN_PARTICLES]->allocate(sizeof(BloodstainParticle)*SPH_MAX_FLUID_PARTICLES, I3D_USAGE_DYNAMIC);
+        m_vbo[VBO_FLUID_PARTICLES] = CreateVertexBuffer(dev, sizeof(sphFluidParticle)*SPH_MAX_FLUID_PARTICLES, I3D_USAGE_DYNAMIC);
+        m_vbo[VBO_RIGID_PARTICLES] = CreateVertexBuffer(dev, sizeof(PSetParticle)*SPH_MAX_RIGID_PARTICLES, I3D_USAGE_DYNAMIC);
+        m_vbo[VBO_DIRECTIONALLIGHT_INSTANCES] = CreateVertexBuffer(dev, sizeof(DirectionalLight)*ATOMIC_MAX_DIRECTIONAL_LIGHTS, I3D_USAGE_DYNAMIC);
+        m_vbo[VBO_POINTLIGHT_INSTANCES] = CreateVertexBuffer(dev, sizeof(PointLight)*ATOMIC_MAX_POINT_LIGHTS, I3D_USAGE_DYNAMIC);
+        m_vbo[VBO_BLOODSTAIN_PARTICLES] = CreateVertexBuffer(dev, sizeof(BloodstainParticle)*SPH_MAX_FLUID_PARTICLES, I3D_USAGE_DYNAMIC);
     }
     {
-        m_ubo[UBO_RENDER_STATES]->allocate(sizeof(RenderStates), I3D_USAGE_DYNAMIC);
-        m_ubo[UBO_FXAA_PARAMS]->allocate(sizeof(FXAAParams), I3D_USAGE_DYNAMIC);
-        m_ubo[UBO_FADE_PARAMS]->allocate(sizeof(FadeParams), I3D_USAGE_DYNAMIC);
+        m_ubo[UBO_RENDER_STATES] = CreateUniformBuffer(dev, sizeof(RenderStates), I3D_USAGE_DYNAMIC);
+        m_ubo[UBO_FXAA_PARAMS] = CreateUniformBuffer(dev, sizeof(FXAAParams), I3D_USAGE_DYNAMIC);
+        m_ubo[UBO_FADE_PARAMS] = CreateUniformBuffer(dev, sizeof(FadeParams), I3D_USAGE_DYNAMIC);
     }
     {
         // create shaders

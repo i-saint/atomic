@@ -14,7 +14,7 @@ AtomicShader::AtomicShader()
 , m_ps(NULL)
 , m_loc_renderstates(0)
 {
-    i3d::Device *dev = atomicGetGraphicsDevice();
+    i3d::Device *dev = atomicGetGLDevice();
     m_shader = dev->createShaderProgram();
     m_vs = dev->createVertexShader();
     m_ps = dev->createPixelShader();

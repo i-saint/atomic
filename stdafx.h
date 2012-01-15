@@ -53,17 +53,6 @@ namespace stl = eastl;
 #include <windows.h>
 #include <windowsx.h>
 
-#ifdef __ist_with_Direct3D11__
-    #include <D3D11.h>
-    #include <D3DX11.h>
-    #include <D3DX10.h>
-
-    #pragma comment(lib, "d3d11.lib")
-    #pragma comment(lib, "d3dx11.lib")
-    #pragma comment(lib, "d3dx10.lib")
-#endif // IST_DIREXTX
-
-
 // leak check on Debug configuration
 #ifdef _DEBUG
 #define _CRTDBG_MAP_ALLOC

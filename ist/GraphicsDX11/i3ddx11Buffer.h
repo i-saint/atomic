@@ -21,16 +21,11 @@ public:
     // data は NULL でもよく、その場合メモリ確保だけが行われる。
     void allocate(GLuint size, I3D_USAGE usage, void *data=NULL);
 
-    void bind() const;
-    void unbind() const;
-
     void* map(I3D_MAP_MODE mode);
     void unmap();
 
     GLuint size() const;
 };
-
-
 
 } // namespace i3ddx11
 } // namespace ist

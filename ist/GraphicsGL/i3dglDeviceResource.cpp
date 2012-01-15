@@ -8,10 +8,43 @@ namespace ist {
 namespace i3dgl {
 
 
-DeviceResource::DeviceResource()
-    : m_owner_device(NULL)
+ReferenceCounter::ReferenceCounter()
+    : m_reference_count(1)
+{
+}
+
+ReferenceCounter::~ReferenceCounter()
+{
+}
+
+void ReferenceCounter::onZeroRef()
+{
+    istDelete(this);
+}
+
+int32 ReferenceCounter::getRef() const
+{
+    return m_reference_count;
+}
+
+int32 ReferenceCounter::addRef()
+{
+    return ++m_reference_count;
+}
+
+int32 ReferenceCounter::release()
+{
+    if(--m_reference_count==0) {
+        onZeroRef();
+    }
+    return m_reference_count;
+}
+
+
+
+DeviceResource::DeviceResource(Device *dev)
+    : m_owner_device(dev)
     , m_dr_handle(0)
-    , m_reference_count(1)
     , m_handle(0)
 {
 }
@@ -20,14 +53,14 @@ DeviceResource::~DeviceResource()
 {
 }
 
+void DeviceResource::onZeroRef()
+{
+    m_owner_device->deleteResource(getDeviceResourceHandle());
+}
+
 Device* DeviceResource::getOwnerDevice()
 {
     return m_owner_device;
-}
-
-void DeviceResource::setOwnerDevice( Device *v )
-{
-    m_owner_device = v;
 }
 
 ResourceHandle DeviceResource::getDeviceResourceHandle() const
@@ -38,25 +71,6 @@ ResourceHandle DeviceResource::getDeviceResourceHandle() const
 void DeviceResource::setDeviceResourceHandle(ResourceHandle v)
 {
     m_dr_handle = v;
-}
-
-
-int32 DeviceResource::getRef() const
-{
-    return m_reference_count;
-}
-
-int32 DeviceResource::addRef()
-{
-    return ++m_reference_count;
-}
-
-int32 DeviceResource::release()
-{
-    if(--m_reference_count==0) {
-        m_owner_device->deleteResource(getDeviceResourceHandle());
-    }
-    return m_reference_count;
 }
 
 GLuint DeviceResource::getHandle() const

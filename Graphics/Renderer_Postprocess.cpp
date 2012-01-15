@@ -59,7 +59,7 @@ void PassPostprocess_FXAA::draw()
 {
     if(!atomicGetConfig()->posteffect_antialias) { return; }
 
-    UniformBuffer *ubo_fxaa                 = atomicGetUniformBuffer(UBO_FXAA_PARAMS);
+    Buffer *ubo_fxaa                        = atomicGetUniformBuffer(UBO_FXAA_PARAMS);
     m_fxaaparams.fxaaQualityRcpFrame        = vec2(1.0f, 1.0f) / vec2(atomicGetWindowSize());
     m_fxaaparams.fxaaQualitySubpix          = 0.75f;
     m_fxaaparams.fxaaQualityEdgeThreshold   = 0.166f;

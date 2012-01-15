@@ -1,12 +1,19 @@
 #ifndef __ist_Base_New__
 #define __ist_Base_New__
 
-template<class T>
-inline T* call_destructor(T* p)
-{
-    p->~T();
-    return p;
-}
+template<class T> inline T* call_destructor(T* p) { p->~T(); return p; }
+void* istnew(size_t size);
+void istdelete(void* p);
+
+void* operator new[](size_t size);
+void operator delete[](void* p);
+
+
+#define istImplementNew()\
+    void* operator new[](size_t size) { return istnew(size); }
+
+#define istImplementDelete()\
+    void operator delete[](void* p) { istdelete(p); }
 
 #define istNew(Type)                    new(stl::get_default_allocator(NULL)->allocate(sizeof(Type)))Type
 #define istAlignedNew(Type, Align)      new(stl::get_default_allocator(NULL)->allocate(sizeof(Type), Align, 0))Type

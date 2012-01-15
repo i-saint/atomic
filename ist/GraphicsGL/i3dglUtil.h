@@ -65,6 +65,9 @@ RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uv
     I3D_COLOR_FORMAT *color_formats, I3D_COLOR_FORMAT depthstencil_format);
 
 
+Buffer* CreateVertexBuffer(Device *dev, uint32 size, I3D_USAGE usage, void *data=NULL);
+Buffer* CreateIndexBuffer(Device *dev, uint32 size, I3D_USAGE usage, void *data=NULL);
+Buffer* CreateUniformBuffer(Device *dev, uint32 size, I3D_USAGE usage, void *data=NULL);
 
 } // namespace i3d
 } // namespace ist

@@ -93,7 +93,7 @@ void PassGBuffer_SPH::draw()
     // fluid particle
     {
         const uint32 num_particles = sphs.fluid_num_particles;
-        const VertexDescriptor descs[] = {
+        const VertexDesc descs[] = {
             {GLSL_INSTANCE_PARAM,    I3D_FLOAT,4,  0, false, 1},
             {GLSL_INSTANCE_POSITION, I3D_FLOAT,4, 16, false, 1},
             {GLSL_INSTANCE_VELOCITY, I3D_FLOAT,4, 32, false, 1},
@@ -112,7 +112,7 @@ void PassGBuffer_SPH::draw()
         MapAndWrite(*m_vbo_rigid, &m_rparticles[0], sizeof(PSetParticle)*num_rigid_particles);
     }
     {
-        const VertexDescriptor descs[] = {
+        const VertexDesc descs[] = {
             {GLSL_INSTANCE_POSITION, I3D_FLOAT,4,  0, false, 1},
             {GLSL_INSTANCE_NORMAL,   I3D_FLOAT,4, 16, false, 1},
             {GLSL_INSTANCE_COLOR,    I3D_FLOAT,4, 32, false, 1},

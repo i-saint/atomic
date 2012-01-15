@@ -10,8 +10,9 @@ template<size_t ShaderType>
 class ShaderObject : public DeviceResource
 {
 I3DGL_DECLARE_DEVICE_RESOURCE(ShaderObject);
+typedef DeviceResource super;
 protected:
-    ShaderObject();
+    ShaderObject(Device *dev);
     ~ShaderObject();
 
 public:
@@ -21,8 +22,9 @@ public:
 class VertexShader : public ShaderObject<GL_VERTEX_SHADER>
 {
 I3DGL_DECLARE_DEVICE_RESOURCE(VertexShader);
+typedef ShaderObject<GL_VERTEX_SHADER> super;
 private:
-    VertexShader() {}
+    VertexShader(Device *dev) : super(dev) {}
     ~VertexShader() {}
 
 public:
@@ -31,8 +33,9 @@ public:
 class PixelShader : public ShaderObject<GL_FRAGMENT_SHADER>
 {
 I3DGL_DECLARE_DEVICE_RESOURCE(PixelShader);
+typedef ShaderObject<GL_FRAGMENT_SHADER> super;
 private:
-    PixelShader() {}
+    PixelShader(Device *dev) : super(dev) {}
     ~PixelShader() {}
 
 public:
@@ -41,8 +44,9 @@ public:
 class GeometryShader : public ShaderObject<GL_GEOMETRY_SHADER>
 {
 I3DGL_DECLARE_DEVICE_RESOURCE(GeometryShader);
+typedef ShaderObject<GL_GEOMETRY_SHADER> super;
 private:
-    GeometryShader() {}
+    GeometryShader(Device *dev) : super(dev) {}
     ~GeometryShader() {}
 
 public:
@@ -52,8 +56,9 @@ public:
 class ShaderProgram : public DeviceResource
 {
 I3DGL_DECLARE_DEVICE_RESOURCE(ShaderProgram);
+typedef DeviceResource super;
 private:
-    ShaderProgram();
+    ShaderProgram(Device *dev);
     ~ShaderProgram();
 
 public:

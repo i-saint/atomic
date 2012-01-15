@@ -6,7 +6,8 @@ namespace ist {
 namespace i3dgl {
 
 template<size_t ShaderType>
-ShaderObject<ShaderType>::ShaderObject()
+ShaderObject<ShaderType>::ShaderObject(Device *dev)
+    : super(dev)
 {
     m_handle = glCreateShader(ShaderType);
 }
@@ -66,7 +67,8 @@ template ShaderObject<GL_GEOMETRY_SHADER>;
 
 
 
-ShaderProgram::ShaderProgram()
+ShaderProgram::ShaderProgram(Device *dev)
+    : super(dev)
 {
     m_handle = glCreateProgram();
 }

@@ -5,7 +5,8 @@
 namespace ist {
 namespace i3dgl {
 
-Texture2D::Texture2D()
+Texture2D::Texture2D(Device *dev)
+    : super(dev)
 {
     glGenTextures(1, &m_handle);
 }
@@ -76,67 +77,11 @@ const uvec2& Texture2D::getSize() const { return m_size; }
 
 
 
-RenderBuffer::RenderBuffer()
-{
-    glGenRenderbuffers(1, &m_handle);
-}
 
-RenderBuffer::~RenderBuffer()
-{
-    if(m_handle!=0) {
-        glDeleteRenderbuffers(1, &m_handle);
-        m_handle = 0;
-    }
-}
-
-bool RenderBuffer::allocate(const uvec2 &size, I3D_COLOR_FORMAT fmt)
-{
-    GLint internal_format = 0;
-    switch(fmt)
-    {
-    case I3D_R8U:       internal_format=GL_R8; break;
-    case I3D_R16F:      internal_format=GL_R16F; break;
-    case I3D_R32F:      internal_format=GL_R32F; break;
-    case I3D_RG8U:      internal_format=GL_RG8; break;
-    case I3D_RG16F:     internal_format=GL_RG16F; break;
-    case I3D_RG32F:     internal_format=GL_RG32F; break;
-    case I3D_RGB8U:     // fall through
-    case I3D_RGB16F:    // 
-    case I3D_RGB32F:    istAssert("render buffer can't use RGB format."); break;
-    case I3D_RGBA8U:    internal_format=GL_RGBA8; break;
-    case I3D_RGBA16F:   internal_format=GL_RGBA16F; break;
-    case I3D_RGBA32F:   internal_format=GL_RGBA32F; break;
-    case I3D_DEPTH32F:  internal_format=GL_DEPTH_COMPONENT32; break;
-    case I3D_DEPTH24_STENCIL8:    internal_format=GL_DEPTH24_STENCIL8; break;
-    case I3D_DEPTH32F_STENCIL8:   internal_format=GL_DEPTH32F_STENCIL8; break;
-    default:
-        istAssert("unknown format: %d", fmt);
-        return false;
-    }
-
-    m_size = size;
-    glBindRenderbuffer( GL_RENDERBUFFER, m_handle );
-    glRenderbufferStorage( GL_RENDERBUFFER, internal_format, m_size.x, m_size.y );
-    glBindRenderbuffer( GL_RENDERBUFFER, 0 );
-    return true;
-}
-
-void RenderBuffer::bind() const
-{
-    glBindRenderbuffer(GL_RENDERBUFFER, m_handle);
-}
-
-void RenderBuffer::unbind() const
-{
-    glBindRenderbuffer( GL_RENDERBUFFER, 0 );
-}
-
-const uvec2& RenderBuffer::getSize() const { return m_size; }
-
-
-
-RenderTarget::RenderTarget()
-    : m_num_color_buffers(0), m_depthstencil(NULL)
+RenderTarget::RenderTarget(Device *dev)
+    : super(dev)
+    , m_num_color_buffers(0)
+    , m_depthstencil(NULL)
 {
     glGenFramebuffers(1, &m_handle);
 
@@ -163,8 +108,8 @@ void RenderTarget::releaseBuffers()
 
 bool RenderTarget::setRenderBuffers(Texture2D **rb, uint32 num, Texture2D *depthstencil)
 {
-    if(num>=MAX_RENDER_BUFFERS) {
-        istPrint("number of render targets must be less than %d\n", MAX_RENDER_BUFFERS);
+    if(num>=I3D_MAX_RENDER_TARGETS) {
+        istPrint("number of render targets must be less than %d\n", I3D_MAX_RENDER_TARGETS);
         return false;
     }
 

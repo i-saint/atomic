@@ -70,7 +70,6 @@ void Device::addResource( DeviceResource *v )
 {
     if(!v) { return; }
 
-    v->setOwnerDevice(this);
     if(!m_vacant.empty()) {
         ResourceHandle drh = m_vacant.back();
         m_vacant.pop_back();
@@ -89,79 +88,58 @@ void Device::deleteResource( ResourceHandle v )
     m_vacant.push_back(v);
 }
 
-VertexBuffer* Device::createVertexBuffer()
+Buffer* Device::createBuffer(const BufferDesc &desc)
 {
-    VertexBuffer *r = istNew(VertexBuffer)();
-    addResource(r);
-    return r;
-}
-
-IndexBuffer* Device::createIndexBuffer()
-{
-    IndexBuffer *r = istNew(IndexBuffer)();
-    addResource(r);
-    return r;
-}
-
-UniformBuffer* Device::createUniformBuffer()
-{
-    UniformBuffer *r = istNew(UniformBuffer)();
-    addResource(r);
-    return r;
-}
-
-PixelBuffer* Device::createPixelBuffer()
-{
-    PixelBuffer *r = istNew(PixelBuffer)();
+    Buffer *r = istNew(Buffer)(this, desc);
     addResource(r);
     return r;
 }
 
 VertexArray* Device::createVertexArray()
 {
-    VertexArray *r = istNew(VertexArray)();
+    VertexArray *r = istNew(VertexArray)(this);
     addResource(r);
     return r;
 }
 
 VertexShader* Device::createVertexShader()
 {
-    VertexShader *r = istNew(VertexShader)();
+    VertexShader *r = istNew(VertexShader)(this);
     addResource(r);
     return r;
 }
 
 PixelShader* Device::createPixelShader()
 {
-    PixelShader *r = istNew(PixelShader)();
+    PixelShader *r = istNew(PixelShader)(this);
     addResource(r);
     return r;
 }
 
 GeometryShader* Device::createGeometryShader()
 {
-    GeometryShader *r = istNew(GeometryShader)();
+    GeometryShader *r = istNew(GeometryShader)(this);
     addResource(r);
     return r;
 }
 
 ShaderProgram* Device::createShaderProgram()
 {
-    ShaderProgram *r = istNew(ShaderProgram)();
+    ShaderProgram *r = istNew(ShaderProgram)(this);
     addResource(r);
     return r;
 }
 
 Texture2D* Device::createTexture2D()
 {
-    Texture2D *r = istNew(Texture2D)();
+    Texture2D *r = istNew(Texture2D)(this);
     addResource(r);
     return r;
 }
 
 RenderTarget* Device::createRenderTarget()
 {
-    RenderTarget *r = istNew(RenderTarget)();
+    RenderTarget *r = istNew(RenderTarget)(this);
     addResource(r);
     return r;
 }

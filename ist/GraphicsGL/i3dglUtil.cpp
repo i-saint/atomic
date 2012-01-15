@@ -132,7 +132,7 @@ Texture2D* CreateRenderBufferTexture(Device *dev, const uvec2 &size, I3D_COLOR_F
 RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
     I3D_COLOR_FORMAT color_format)
 {
-    I3D_COLOR_FORMAT color_formats[RenderTarget::MAX_RENDER_BUFFERS];
+    I3D_COLOR_FORMAT color_formats[I3D_MAX_RENDER_TARGETS];
     std::fill_n(color_formats, num_color_buffers, color_format);
     return CreateRenderTarget(dev, num_color_buffers, size, color_formats);
 }
@@ -140,7 +140,7 @@ RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uv
 RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
     I3D_COLOR_FORMAT *color_formats)
 {
-    Texture2D *rb[RenderTarget::MAX_RENDER_BUFFERS];
+    Texture2D *rb[I3D_MAX_RENDER_TARGETS];
     RenderTarget *rt = dev->createRenderTarget();
     for(uint32 i=0; i<num_color_buffers; ++i) {
         rb[i] = CreateRenderBufferTexture(dev, size, color_formats[i]);
@@ -155,7 +155,7 @@ RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uv
 RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
     I3D_COLOR_FORMAT color_format, I3D_COLOR_FORMAT depthstencil_format)
 {
-    I3D_COLOR_FORMAT color_formats[RenderTarget::MAX_RENDER_BUFFERS];
+    I3D_COLOR_FORMAT color_formats[I3D_MAX_RENDER_TARGETS];
     std::fill_n(color_formats, num_color_buffers, color_format);
     return CreateRenderTarget(dev, num_color_buffers, size, color_formats, depthstencil_format);
 }
@@ -163,7 +163,7 @@ RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uv
 RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
     I3D_COLOR_FORMAT *color_formats, I3D_COLOR_FORMAT depthstencil_format)
 {
-    Texture2D *rb[RenderTarget::MAX_RENDER_BUFFERS];
+    Texture2D *rb[I3D_MAX_RENDER_TARGETS];
     Texture2D *ds;
     RenderTarget *rt = dev->createRenderTarget();
     for(uint32 i=0; i<num_color_buffers; ++i) {
@@ -180,6 +180,24 @@ RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uv
         ds->release();
     }
     return rt;
+}
+
+Buffer* CreateVertexBuffer( Device *dev, uint32 size, I3D_USAGE usage, void *data/*=NULL*/ )
+{
+    BufferDesc desc(I3D_VERTEX_BUFFER, usage, size, data);
+    return dev->createBuffer(desc);
+}
+
+Buffer* CreateIndexBuffer( Device *dev, uint32 size, I3D_USAGE usage, void *data/*=NULL*/ )
+{
+    BufferDesc desc(I3D_INDEX_BUFFER, usage, size, data);
+    return dev->createBuffer(desc);
+}
+
+Buffer* CreateUniformBuffer( Device *dev, uint32 size, I3D_USAGE usage, void *data/*=NULL*/ )
+{
+    BufferDesc desc(I3D_UNIFORM_BUFFER, usage, size, data);
+    return dev->createBuffer(desc);
 }
 
 

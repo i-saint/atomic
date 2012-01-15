@@ -6,7 +6,7 @@
 namespace ist {
 namespace i3dgl {
 
-class SystemFont : DeviceResource
+class SystemFont : public ReferenceCounter
 {
 private:
 #ifdef _WIN32

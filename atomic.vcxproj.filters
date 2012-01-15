@@ -7,21 +7,6 @@
     <Filter Include="Graphics">
       <UniqueIdentifier>{4befe200-1d0b-45fa-bf70-3fa44710a14a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ist">
-      <UniqueIdentifier>{c485548d-534f-4cba-a10f-492e8b842645}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ist\Window">
-      <UniqueIdentifier>{dc2cf0b7-23df-412b-987f-ae8daa20fb90}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ist\Base">
-      <UniqueIdentifier>{04f6313c-6079-47a6-b628-0a5180974495}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ist\Math">
-      <UniqueIdentifier>{01f0480f-e37f-403b-aedb-b9703bca9f42}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ist\Math\SFMT">
-      <UniqueIdentifier>{08652a54-0221-447e-a05e-cde60fa2503d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Shader">
       <UniqueIdentifier>{6def42b1-51b3-412a-bee1-1d0a462e2416}</UniqueIdentifier>
     </Filter>
@@ -31,17 +16,8 @@
     <Filter Include="GPGPU">
       <UniqueIdentifier>{52955f27-e438-4826-83dd-8b9437ee15cc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ist\Sound">
-      <UniqueIdentifier>{f4927df5-d398-443e-9b8e-1365e12cb98f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Game\Entity">
       <UniqueIdentifier>{1f1a3bf3-079c-4653-90b2-5e697bd4f0df}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ist\GraphicsDX11">
-      <UniqueIdentifier>{57e6d800-694a-4411-b3e2-c71bad13a4cc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ist\GraphicsGL">
-      <UniqueIdentifier>{c5df110d-ec2e-4a97-9def-f29171e50180}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -69,27 +45,6 @@
     <ClCompile Include="Graphics\Shader.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="ist\Window\Application.cpp">
-      <Filter>ist\Window</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Base\Allocator.cpp">
-      <Filter>ist\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Base\Assert.cpp">
-      <Filter>ist\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Base\FileLoader.cpp">
-      <Filter>ist\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Base\TaskScheduler.cpp">
-      <Filter>ist\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Math\Linear.cpp">
-      <Filter>ist\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Math\SFMT\SFMT.cpp">
-      <Filter>ist\Math\SFMT</Filter>
-    </ClCompile>
     <ClCompile Include="shader\glsl_source.cpp">
       <Filter>Shader</Filter>
     </ClCompile>
@@ -103,12 +58,6 @@
     </ClCompile>
     <ClCompile Include="Game\DebugConsole.cpp">
       <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Base\ClassInfo.cpp">
-      <Filter>ist\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Math\Constants.cpp">
-      <Filter>ist\Math</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\CudaBuffer.cpp">
       <Filter>Graphics</Filter>
@@ -147,33 +96,6 @@
     <ClCompile Include="Graphics\AtomicRenderingSystem.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="ist\Sound\isdBuffer.cpp">
-      <Filter>ist\Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Sound\isdDevice.cpp">
-      <Filter>ist\Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Sound\isdListener.cpp">
-      <Filter>ist\Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Sound\isdSource.cpp">
-      <Filter>ist\Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Sound\isduOggVorbis.cpp">
-      <Filter>ist\Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Sound\isduStream.cpp">
-      <Filter>ist\Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Sound\isduStreamSource.cpp">
-      <Filter>ist\Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Sound\isdUtil.cpp">
-      <Filter>ist\Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Sound\isdDeviceResource.cpp">
-      <Filter>ist\Sound</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\Renderer_DeferredShading.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
@@ -185,66 +107,6 @@
     </ClCompile>
     <ClCompile Include="Graphics\Renderer_Postprocess.cpp">
       <Filter>Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GraphicsDX11\i3ddx11Shader.cpp">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GraphicsDX11\i3dudx11Camera.cpp">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GraphicsDX11\i3dudx11Font.cpp">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GraphicsDX11\i3ddx11Assert.cpp">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GraphicsDX11\i3ddx11Buffer.cpp">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GraphicsDX11\i3ddx11Device.cpp">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GraphicsDX11\i3ddx11DeviceContext.cpp">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GraphicsDX11\i3ddx11DeviceResource.cpp">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GraphicsDX11\i3ddx11RenderTarget.cpp">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GraphicsGL\i3dglShader.cpp">
-      <Filter>ist\GraphicsGL</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GraphicsGL\i3dglUtil.cpp">
-      <Filter>ist\GraphicsGL</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GraphicsGL\i3duglCamera.cpp">
-      <Filter>ist\GraphicsGL</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GraphicsGL\i3duglFont.cpp">
-      <Filter>ist\GraphicsGL</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GraphicsGL\i3dglAssert.cpp">
-      <Filter>ist\GraphicsGL</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GraphicsGL\i3dglBuffer.cpp">
-      <Filter>ist\GraphicsGL</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GraphicsGL\i3dglDevice.cpp">
-      <Filter>ist\GraphicsGL</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GraphicsGL\i3dglDeviceContext.cpp">
-      <Filter>ist\GraphicsGL</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GraphicsGL\i3dglDeviceResource.cpp">
-      <Filter>ist\GraphicsGL</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GraphicsGL\i3dglRenderTarget.cpp">
-      <Filter>ist\GraphicsGL</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GraphicsDX11\i3ddx11Util.cpp">
-      <Filter>ist\GraphicsDX11</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -272,90 +134,6 @@
     <ClInclude Include="Graphics\Shader.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="ist\Base.h">
-      <Filter>ist</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsUtil.h">
-      <Filter>ist</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\ist.h">
-      <Filter>ist</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Math.h">
-      <Filter>ist</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Window.h">
-      <Filter>ist</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Window\Application.h">
-      <Filter>ist\Window</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Base\Allocator.h">
-      <Filter>ist\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Base\Assert.h">
-      <Filter>ist\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Base\BinaryStream.h">
-      <Filter>ist\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Base\FileLoader.h">
-      <Filter>ist\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Base\New.h">
-      <Filter>ist\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Base\TaskScheduler.h">
-      <Filter>ist\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Math\Linear.h">
-      <Filter>ist\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Math\SoA.h">
-      <Filter>ist\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Math\SFMT\SFMT-alti.h">
-      <Filter>ist\Math\SFMT</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Math\SFMT\SFMT-params.h">
-      <Filter>ist\Math\SFMT</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Math\SFMT\SFMT-params11213.h">
-      <Filter>ist\Math\SFMT</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Math\SFMT\SFMT-params1279.h">
-      <Filter>ist\Math\SFMT</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Math\SFMT\SFMT-params132049.h">
-      <Filter>ist\Math\SFMT</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Math\SFMT\SFMT-params19937.h">
-      <Filter>ist\Math\SFMT</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Math\SFMT\SFMT-params216091.h">
-      <Filter>ist\Math\SFMT</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Math\SFMT\SFMT-params2281.h">
-      <Filter>ist\Math\SFMT</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Math\SFMT\SFMT-params4253.h">
-      <Filter>ist\Math\SFMT</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Math\SFMT\SFMT-params44497.h">
-      <Filter>ist\Math\SFMT</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Math\SFMT\SFMT-params607.h">
-      <Filter>ist\Math\SFMT</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Math\SFMT\SFMT-params86243.h">
-      <Filter>ist\Math\SFMT</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Math\SFMT\SFMT-sse2.h">
-      <Filter>ist\Math\SFMT</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Math\SFMT\SFMT.h">
-      <Filter>ist\Math\SFMT</Filter>
-    </ClInclude>
     <ClInclude Include="shader\glsl_source.h">
       <Filter>Shader</Filter>
     </ClInclude>
@@ -363,9 +141,6 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="GPGPU\SPH.cuh">
       <Filter>GPGPU</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Sound.h">
-      <Filter>ist</Filter>
     </ClInclude>
     <ClInclude Include="Sound\AtomicSound.h">
       <Filter>Sound</Filter>
@@ -379,26 +154,8 @@
     <ClInclude Include="Game\DebugConsole.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="ist\Window\InputState.h">
-      <Filter>ist\Window</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Window\WindowMessage.h">
-      <Filter>ist\Window</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Base\Variant.h">
-      <Filter>ist\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Base\ClassInfo.h">
-      <Filter>ist\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Math\Constants.h">
-      <Filter>ist\Math</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\CudaBuffer.h">
       <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Base\Types.h">
-      <Filter>ist\Base</Filter>
     </ClInclude>
     <ClInclude Include="Game\Entity.h">
       <Filter>Game</Filter>
@@ -450,36 +207,6 @@
     <ClInclude Include="Graphics\AtomicRenderingSystem.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="ist\Sound\isdBuffer.h">
-      <Filter>ist\Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Sound\isdDevice.h">
-      <Filter>ist\Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Sound\isdDeviceResource.h">
-      <Filter>ist\Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Sound\isdListener.h">
-      <Filter>ist\Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Sound\isdSource.h">
-      <Filter>ist\Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Sound\isdTypes.h">
-      <Filter>ist\Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Sound\isduOggVorbis.h">
-      <Filter>ist\Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Sound\isduStream.h">
-      <Filter>ist\Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Sound\isduStreamSource.h">
-      <Filter>ist\Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Sound\isdUtil.h">
-      <Filter>ist\Sound</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\Renderer_DeferredShading.h">
       <Filter>Graphics</Filter>
     </ClInclude>
@@ -491,75 +218,6 @@
     </ClInclude>
     <ClInclude Include="Graphics\Renderer_Postprocess.h">
       <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Graphics.h">
-      <Filter>ist</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsDX11\i3ddx11Shader.h">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsDX11\i3ddx11Types.h">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsDX11\i3dudx11Camera.h">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsDX11\i3dudx11Font.h">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsDX11\i3ddx11Assert.h">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsDX11\i3ddx11Buffer.h">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsDX11\i3ddx11Device.h">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsDX11\i3ddx11DeviceContext.h">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsDX11\i3ddx11DeviceResource.h">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsDX11\i3ddx11RenderTarget.h">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsGL\i3dglRenderTarget.h">
-      <Filter>ist\GraphicsGL</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsGL\i3dglShader.h">
-      <Filter>ist\GraphicsGL</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsGL\i3dglTypes.h">
-      <Filter>ist\GraphicsGL</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsGL\i3dglUtil.h">
-      <Filter>ist\GraphicsGL</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsGL\i3duglCamera.h">
-      <Filter>ist\GraphicsGL</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsGL\i3duglFont.h">
-      <Filter>ist\GraphicsGL</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsGL\i3dglAssert.h">
-      <Filter>ist\GraphicsGL</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsGL\i3dglBuffer.h">
-      <Filter>ist\GraphicsGL</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsGL\i3dglDevice.h">
-      <Filter>ist\GraphicsGL</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsGL\i3dglDeviceContext.h">
-      <Filter>ist\GraphicsGL</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsGL\i3dglDeviceResource.h">
-      <Filter>ist\GraphicsGL</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsDX11\i3ddx11Util.h">
-      <Filter>ist\GraphicsDX11</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

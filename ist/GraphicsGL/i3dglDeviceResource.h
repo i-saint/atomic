@@ -8,37 +8,49 @@ namespace i3dgl {
 
 class Device;
 
-class DeviceResource
+class ReferenceCounter
+{
+private:
+    int32 m_reference_count;
+
+    // non copyable
+    ReferenceCounter(const ReferenceCounter&);
+    ReferenceCounter& operator=(const ReferenceCounter&);
+
+protected:
+    virtual void onZeroRef();
+
+public:
+    ReferenceCounter();
+    virtual ~ReferenceCounter();
+    int32 getRef() const;
+    int32 addRef();
+    int32 release();
+};
+
+
+class DeviceResource : public ReferenceCounter
 {
 template<class T> friend T* ::call_destructor(T*);
 friend class Device;
 private:
     Device *m_owner_device;
     ResourceHandle m_dr_handle;
-    int32 m_reference_count;
 
 protected:
     GLuint m_handle;
 
 private:
-    // non copyable
-    DeviceResource(const DeviceResource&);
-    DeviceResource& operator=(const DeviceResource&);
-
-    Device* getOwnerDevice();
-    void setOwnerDevice(Device *v);
     ResourceHandle getDeviceResourceHandle() const;
     void setDeviceResourceHandle(ResourceHandle v);
 
 protected:
-    DeviceResource();
+    DeviceResource(Device *dev);
     virtual ~DeviceResource();
+    virtual void onZeroRef();
+    Device* getOwnerDevice();
 
 public:
-    int32 getRef() const;
-    int32 addRef();
-    int32 release();
-
     GLuint getHandle() const;
 };
 

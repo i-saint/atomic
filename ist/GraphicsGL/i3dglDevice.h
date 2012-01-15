@@ -28,11 +28,7 @@ public:
 #endif // _WIN32
     ~Device();
 
-    VertexBuffer*   createVertexBuffer();
-    IndexBuffer*    createIndexBuffer();
-    UniformBuffer*  createUniformBuffer();
-    PixelBuffer*    createPixelBuffer();
-
+    Buffer*         createBuffer(const BufferDesc &desc);
     VertexArray*    createVertexArray();
 
     VertexShader*   createVertexShader();

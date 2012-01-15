@@ -12,22 +12,27 @@ namespace i3dgl {
 class DeviceContext
 {
 private:
-    RenderTarget    *m_rt;
-    VertexArray     *m_va;
-    VertexShader    *m_vs;
-    PixelShader     *m_ps;
-    GeometryShader  *m_gs;
+    Buffer          *m_vertex_buffers[I3D_MAX_VERTEX_BUFFERS];
+    Buffer          *m_index_buffer;
+    VertexArray     *m_vertex_array;
     I3D_TOPOLOGY    m_topology;
+
+    VertexShader    *m_vertex_shader;
+    PixelShader     *m_pixel_shader;
+
+    RenderTarget    *m_render_target;
 
 public:
     DeviceContext();
 
-    void setRenderTarget(RenderTarget *rt);
-    void setVertexArray(VertexArray *v);
-    void setIndexBuffer(IndexBuffer *v);
+    void setRenderTarget(Texture2D **rt, uint32 num, Texture2D *depthstencil);
+
+    void IAsetVertexBuffer(Buffer **vb, uint32 *strides, uint32 num);
+    void IAsetInputLayout();
+    void IAsetIndexBuffer(Buffer *v, I3D_TYPE format);
+
     void setVertexShader(VertexShader *v);
     void setPixelShader(PixelShader *v);
-    void setGeometryShader(GeometryShader *v);
 
     void draw(uint32 v_offset, uint32 v_num);
     void drawIndexed(uint32 v_offset, uint32 v_num);

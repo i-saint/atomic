@@ -1,0 +1,204 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ist\Base.h" />
+    <ClInclude Include="ist\Base\Allocator.h" />
+    <ClInclude Include="ist\Base\Assert.h" />
+    <ClInclude Include="ist\Base\BinaryStream.h" />
+    <ClInclude Include="ist\Base\ClassInfo.h" />
+    <ClInclude Include="ist\Base\FileLoader.h" />
+    <ClInclude Include="ist\Base\Half\eLut.h" />
+    <ClInclude Include="ist\Base\Half\half.h" />
+    <ClInclude Include="ist\Base\Half\halfFunction.h" />
+    <ClInclude Include="ist\Base\Half\halfLimits.h" />
+    <ClInclude Include="ist\Base\Half\toFloat.h" />
+    <ClInclude Include="ist\Base\New.h" />
+    <ClInclude Include="ist\Base\TaskScheduler.h" />
+    <ClInclude Include="ist\Base\Types.h" />
+    <ClInclude Include="ist\Base\Variant.h" />
+    <ClInclude Include="ist\Graphics.h" />
+    <ClInclude Include="ist\GraphicsDX11\i3ddx11Assert.h" />
+    <ClInclude Include="ist\GraphicsDX11\i3ddx11Buffer.h" />
+    <ClInclude Include="ist\GraphicsDX11\i3ddx11Device.h" />
+    <ClInclude Include="ist\GraphicsDX11\i3ddx11DeviceContext.h" />
+    <ClInclude Include="ist\GraphicsDX11\i3ddx11DeviceResource.h" />
+    <ClInclude Include="ist\GraphicsDX11\i3ddx11RenderTarget.h" />
+    <ClInclude Include="ist\GraphicsDX11\i3ddx11Shader.h" />
+    <ClInclude Include="ist\GraphicsDX11\i3ddx11Types.h" />
+    <ClInclude Include="ist\GraphicsDX11\i3ddx11Util.h" />
+    <ClInclude Include="ist\GraphicsDX11\i3dudx11Camera.h" />
+    <ClInclude Include="ist\GraphicsDX11\i3dudx11Font.h" />
+    <ClInclude Include="ist\GraphicsGL\i3dglAssert.h" />
+    <ClInclude Include="ist\GraphicsGL\i3dglBuffer.h" />
+    <ClInclude Include="ist\GraphicsGL\i3dglDevice.h" />
+    <ClInclude Include="ist\GraphicsGL\i3dglDeviceContext.h" />
+    <ClInclude Include="ist\GraphicsGL\i3dglDeviceResource.h" />
+    <ClInclude Include="ist\GraphicsGL\i3dglRenderTarget.h" />
+    <ClInclude Include="ist\GraphicsGL\i3dglShader.h" />
+    <ClInclude Include="ist\GraphicsGL\i3dglTypes.h" />
+    <ClInclude Include="ist\GraphicsGL\i3dglUtil.h" />
+    <ClInclude Include="ist\GraphicsGL\i3duglCamera.h" />
+    <ClInclude Include="ist\GraphicsGL\i3duglFont.h" />
+    <ClInclude Include="ist\GraphicsUtil.h" />
+    <ClInclude Include="ist\ist.h" />
+    <ClInclude Include="ist\Math.h" />
+    <ClInclude Include="ist\Math\Constants.h" />
+    <ClInclude Include="ist\Math\Linear.h" />
+    <ClInclude Include="ist\Math\SFMT\SFMT-alti.h" />
+    <ClInclude Include="ist\Math\SFMT\SFMT-params.h" />
+    <ClInclude Include="ist\Math\SFMT\SFMT-params11213.h" />
+    <ClInclude Include="ist\Math\SFMT\SFMT-params1279.h" />
+    <ClInclude Include="ist\Math\SFMT\SFMT-params132049.h" />
+    <ClInclude Include="ist\Math\SFMT\SFMT-params19937.h" />
+    <ClInclude Include="ist\Math\SFMT\SFMT-params216091.h" />
+    <ClInclude Include="ist\Math\SFMT\SFMT-params2281.h" />
+    <ClInclude Include="ist\Math\SFMT\SFMT-params4253.h" />
+    <ClInclude Include="ist\Math\SFMT\SFMT-params44497.h" />
+    <ClInclude Include="ist\Math\SFMT\SFMT-params607.h" />
+    <ClInclude Include="ist\Math\SFMT\SFMT-params86243.h" />
+    <ClInclude Include="ist\Math\SFMT\SFMT-sse2.h" />
+    <ClInclude Include="ist\Math\SFMT\SFMT.h" />
+    <ClInclude Include="ist\Math\SoA.h" />
+    <ClInclude Include="ist\Sound.h" />
+    <ClInclude Include="ist\Sound\isdBuffer.h" />
+    <ClInclude Include="ist\Sound\isdDevice.h" />
+    <ClInclude Include="ist\Sound\isdDeviceResource.h" />
+    <ClInclude Include="ist\Sound\isdListener.h" />
+    <ClInclude Include="ist\Sound\isdSource.h" />
+    <ClInclude Include="ist\Sound\isdTypes.h" />
+    <ClInclude Include="ist\Sound\isduOggVorbis.h" />
+    <ClInclude Include="ist\Sound\isduStream.h" />
+    <ClInclude Include="ist\Sound\isduStreamSource.h" />
+    <ClInclude Include="ist\Sound\isdUtil.h" />
+    <ClInclude Include="ist\stdafx.h" />
+    <ClInclude Include="ist\targetver.h" />
+    <ClInclude Include="ist\Window.h" />
+    <ClInclude Include="ist\Window\Application.h" />
+    <ClInclude Include="ist\Window\InputState.h" />
+    <ClInclude Include="ist\Window\WindowMessage.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ist\Base\Allocator.cpp" />
+    <ClCompile Include="ist\Base\Assert.cpp" />
+    <ClCompile Include="ist\Base\ClassInfo.cpp" />
+    <ClCompile Include="ist\Base\FileLoader.cpp" />
+    <ClCompile Include="ist\Base\Half\half.cpp" />
+    <ClCompile Include="ist\Base\New.cpp" />
+    <ClCompile Include="ist\Base\TaskScheduler.cpp" />
+    <ClCompile Include="ist\GraphicsDX11\i3ddx11Assert.cpp" />
+    <ClCompile Include="ist\GraphicsDX11\i3ddx11Buffer.cpp" />
+    <ClCompile Include="ist\GraphicsDX11\i3ddx11Device.cpp" />
+    <ClCompile Include="ist\GraphicsDX11\i3ddx11DeviceContext.cpp" />
+    <ClCompile Include="ist\GraphicsDX11\i3ddx11DeviceResource.cpp" />
+    <ClCompile Include="ist\GraphicsDX11\i3ddx11RenderTarget.cpp" />
+    <ClCompile Include="ist\GraphicsDX11\i3ddx11Shader.cpp" />
+    <ClCompile Include="ist\GraphicsDX11\i3ddx11Util.cpp" />
+    <ClCompile Include="ist\GraphicsDX11\i3dudx11Camera.cpp" />
+    <ClCompile Include="ist\GraphicsDX11\i3dudx11Font.cpp" />
+    <ClCompile Include="ist\GraphicsGL\i3dglAssert.cpp" />
+    <ClCompile Include="ist\GraphicsGL\i3dglBuffer.cpp" />
+    <ClCompile Include="ist\GraphicsGL\i3dglDevice.cpp" />
+    <ClCompile Include="ist\GraphicsGL\i3dglDeviceContext.cpp" />
+    <ClCompile Include="ist\GraphicsGL\i3dglDeviceResource.cpp" />
+    <ClCompile Include="ist\GraphicsGL\i3dglRenderTarget.cpp" />
+    <ClCompile Include="ist\GraphicsGL\i3dglShader.cpp" />
+    <ClCompile Include="ist\GraphicsGL\i3dglUtil.cpp" />
+    <ClCompile Include="ist\GraphicsGL\i3duglCamera.cpp" />
+    <ClCompile Include="ist\GraphicsGL\i3duglFont.cpp" />
+    <ClCompile Include="ist\Math\Constants.cpp" />
+    <ClCompile Include="ist\Math\Linear.cpp" />
+    <ClCompile Include="ist\Math\SFMT\SFMT.cpp" />
+    <ClCompile Include="ist\Sound\isdBuffer.cpp" />
+    <ClCompile Include="ist\Sound\isdDevice.cpp" />
+    <ClCompile Include="ist\Sound\isdDeviceResource.cpp" />
+    <ClCompile Include="ist\Sound\isdListener.cpp" />
+    <ClCompile Include="ist\Sound\isdSource.cpp" />
+    <ClCompile Include="ist\Sound\isduOggVorbis.cpp" />
+    <ClCompile Include="ist\Sound\isduStream.cpp" />
+    <ClCompile Include="ist\Sound\isduStreamSource.cpp" />
+    <ClCompile Include="ist\Sound\isdUtil.cpp" />
+    <ClCompile Include="ist\stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ist\Window\Application.cpp" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{8D4B1790-F166-4122-9CE6-8AF10214ED82}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>ist</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(BOOST_INCLUDE);$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
+    <LibraryPath>external\lib;$(BOOST_LIBRARY);$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <IntDir>$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)</OutDir>
+    <TargetName>$(ProjectName)</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>./;external;$(CUDA_INC_PATH);$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;$(NVSDKCOMPUTE_ROOT)/C/common/inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

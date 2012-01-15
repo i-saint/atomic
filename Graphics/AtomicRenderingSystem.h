@@ -40,7 +40,7 @@ public:
 #define atomicWaitForDrawCallbackComplete() atomicGetRenderingSystem()->waitUntilDrawCallbackComplete()
 #define atomicKickDraw()                    atomicGetRenderingSystem()->kickDraw()
 #define atomicGetAverageFPS()               atomicGetRenderingSystem()->getAverageFPS()
-#define atomicGetGraphicsDevice()           atomicGetRenderingSystem()->getDevice()
-#define atomicGetGraphicsDeviceContext()    atomicGetRenderingSystem()->getDeviceContext()
+#define atomicGetGLDevice()                 atomicGetRenderingSystem()->getDevice()
+#define atomicGetGLDeviceContext()          atomicGetRenderingSystem()->getDeviceContext()
 
 #endif // __atomic_Graphics_AtomicGraphics__

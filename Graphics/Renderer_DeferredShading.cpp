@@ -101,7 +101,7 @@ void PassDeferredShading_Bloodstain::draw()
     glDisable(GL_BLEND);
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    const VertexDescriptor descs[] = {
+    const VertexDesc descs[] = {
         {GLSL_INSTANCE_POSITION, I3D_FLOAT,4,  0, false, 1},
         {GLSL_INSTANCE_PARAM,    I3D_FLOAT,4, 16, false, 1},
     };
@@ -153,14 +153,14 @@ void PassDeferredShading_DirectionalLights::beforeDraw()
 
 void PassDeferredShading_DirectionalLights::draw()
 {
-    AtomicShader *shader        = atomicGetShader(SH_DIRECTIONALLIGHT);
-    VertexArray *va_quad        = atomicGetVertexArray(VA_SCREEN_QUAD);
-    VertexBuffer *vbo_instance  = atomicGetVertexBuffer(VBO_DIRECTIONALLIGHT_INSTANCES);
+    AtomicShader *shader    = atomicGetShader(SH_DIRECTIONALLIGHT);
+    VertexArray *va_quad    = atomicGetVertexArray(VA_SCREEN_QUAD);
+    Buffer *vbo_instance    = atomicGetVertexBuffer(VBO_DIRECTIONALLIGHT_INSTANCES);
 
     const uint32 num_instances = m_instances.size();
     MapAndWrite(*vbo_instance, &m_instances[0], sizeof(light_t)*num_instances);
 
-    const VertexDescriptor descs[] = {
+    const VertexDesc descs[] = {
         {GLSL_INSTANCE_DIRECTION,I3D_FLOAT,4,  0, false, 1},
         {GLSL_INSTANCE_COLOR,    I3D_FLOAT,4, 16, false, 1},
         {GLSL_INSTANCE_AMBIENT,  I3D_FLOAT,4, 32, false, 1},
@@ -192,15 +192,15 @@ void PassDeferredShading_PointLights::beforeDraw()
 
 void PassDeferredShading_PointLights::draw()
 {
-    AtomicShader *shader        = atomicGetShader(SH_POINTLIGHT);
-    IndexBuffer *ibo_sphere     = atomicGetIndexBuffer(IBO_LIGHT_SPHERE);
-    VertexArray *va_sphere      = atomicGetVertexArray(VA_UNIT_SPHERE);
-    VertexBuffer *vbo_instance  = atomicGetVertexBuffer(VBO_POINTLIGHT_INSTANCES);
+    AtomicShader *shader    = atomicGetShader(SH_POINTLIGHT);
+    Buffer *ibo_sphere      = atomicGetIndexBuffer(IBO_LIGHT_SPHERE);
+    VertexArray *va_sphere  = atomicGetVertexArray(VA_UNIT_SPHERE);
+    Buffer *vbo_instance    = atomicGetVertexBuffer(VBO_POINTLIGHT_INSTANCES);
 
     const uint32 num_instances = m_instances.size();
     MapAndWrite(*vbo_instance, &m_instances[0], sizeof(PointLight)*num_instances);
 
-    const VertexDescriptor descs[] = {
+    const VertexDesc descs[] = {
         {GLSL_INSTANCE_POSITION,I3D_FLOAT,4, 0, false, 1},
         {GLSL_INSTANCE_COLOR,   I3D_FLOAT,4,16, false, 1},
         {GLSL_INSTANCE_PARAM,   I3D_FLOAT,4,32, false, 1},

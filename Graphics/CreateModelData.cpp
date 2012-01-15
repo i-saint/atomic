@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ist/ist.h"
 #include "types.h"
+#include "Graphics/AtomicRenderingSystem.h"
 #include "Graphics/ResourceID.h"
 #include "Graphics/ParticleSet.h"
 #include "Graphics/CreateModelData.h"
@@ -12,7 +13,7 @@
 namespace atomic {
 
 
-void CreateFloorQuad( VertexArray *va, VertexBuffer *vbo, vec4 pos, vec4 size )
+void CreateFloorQuad( VertexArray *va, Buffer *&vbo, vec4 pos, vec4 size )
 {
     struct __declspec(align(16)) vertex_t
     {
@@ -28,18 +29,20 @@ void CreateFloorQuad( VertexArray *va, VertexBuffer *vbo, vec4 pos, vec4 size )
         {vec4( size.x,   0.0f, size.z, 1.0f)+pos, vec4(0.0f, 0.0f, 1.0f, 0.0f), vec2(1.0f, 0.0f)},
     };
 
-    VertexDescriptor descs[] = {
+    VertexDesc descs[] = {
         {GLSL_POSITION, I3D_FLOAT,4,  0, false, 0},
         {GLSL_NORMAL,   I3D_FLOAT,4, 16, false, 0},
         {GLSL_TEXCOORD1,I3D_FLOAT,2, 32, false, 0},
     };
-    if(vbo) { vbo->allocate(sizeof(vertex_t)*_countof(vertices), I3D_USAGE_STATIC, vertices); }
-    if(vbo && va) { va->setAttributes(*vbo, sizeof(vertex_t), descs, _countof(descs)); }
+
+    i3d::Device *dev = atomicGetGLDevice();
+    vbo = CreateVertexBuffer(dev, sizeof(vertex_t)*_countof(vertices), I3D_USAGE_STATIC, vertices);
+    va->setAttributes(*vbo, sizeof(vertex_t), descs, _countof(descs));
 }
 
 
 void CreateSphere(
-    VertexArray *va, VertexBuffer *vbo, IndexBuffer *ibo,
+    VertexArray *va, Buffer *&vbo, Buffer *&ibo,
     float32 radius, uint32 div_xz, uint32 div_y)
 {
     struct __declspec(align(16)) vertex_t
@@ -79,19 +82,21 @@ void CreateSphere(
         }
     }
 
-    VertexDescriptor descs[] = {
+    VertexDesc descs[] = {
         {GLSL_POSITION, I3D_FLOAT,4,  0, false, 0},
         {GLSL_NORMAL,   I3D_FLOAT,4, 16, false, 0},
     };
-    if(vbo) { vbo->allocate(vertex_size, I3D_USAGE_STATIC, vert); }
-    if(ibo) { ibo->allocate(index_size, I3D_USAGE_STATIC, index); }
-    if(vbo && va) { va->setAttributes(*vbo, sizeof(vertex_t), descs, _countof(descs)); }
+
+    i3d::Device *dev = atomicGetGLDevice();
+    vbo = CreateVertexBuffer(dev, vertex_size, I3D_USAGE_STATIC, vert);
+    ibo = CreateIndexBuffer(dev, index_size, I3D_USAGE_STATIC, index);
+    va->setAttributes(*vbo, sizeof(vertex_t), descs, _countof(descs));
 
     istFree(index);
     istFree(vert);
 }
 
-void CreateScreenQuad( VertexArray *va, VertexBuffer *vbo )
+void CreateScreenQuad( VertexArray *va, Buffer *&vbo )
 {
     struct __declspec(align(16)) vertex_t
     {
@@ -103,16 +108,17 @@ void CreateScreenQuad( VertexArray *va, VertexBuffer *vbo )
         {vec2(-1.0f,-1.0f), vec2(0.0, 0.0)},
         {vec2( 1.0f,-1.0f), vec2(1.0, 0.0)},
     };
-    VertexDescriptor descs[] = {
+    VertexDesc descs[] = {
         {GLSL_POSITION,  I3D_FLOAT,2, 0, false, 0},
         {GLSL_TEXCOORD0, I3D_FLOAT,2, 8, false, 0},
     };
 
-    if(vbo) { vbo->allocate(sizeof(v), I3D_USAGE_STATIC, v); }
-    if(vbo && va) { va->setAttributes(*vbo, sizeof(vertex_t), descs, _countof(descs)); }
+    i3d::Device *dev = atomicGetGLDevice();
+    vbo = CreateVertexBuffer(dev, sizeof(v), I3D_USAGE_STATIC, v);
+    va->setAttributes(*vbo, sizeof(vertex_t), descs, _countof(descs));
 }
 
-void CreateBloomLuminanceQuads( VertexArray *va, VertexBuffer *vbo )
+void CreateBloomLuminanceQuads( VertexArray *va, Buffer *&vbo )
 {
     struct __declspec(align(16)) vertex_t
     {
@@ -139,16 +145,17 @@ void CreateBloomLuminanceQuads( VertexArray *va, VertexBuffer *vbo )
         {vec2(0.75, -1.0 ), vec2(0.0, 0.0)},
         {vec2(0.875,-1.0 ), vec2(1.0, 0.0)},
     };
-    VertexDescriptor descs[] = {
+    VertexDesc descs[] = {
         {GLSL_POSITION,  I3D_FLOAT,2, 0, false, 0},
         {GLSL_TEXCOORD0, I3D_FLOAT,2, 8, false, 0},
     };
 
-    if(vbo) { vbo->allocate(sizeof(v), I3D_USAGE_STATIC, v); }
-    if(vbo && va) { va->setAttributes(*vbo, sizeof(vertex_t), descs, _countof(descs)); }
+    i3d::Device *dev = atomicGetGLDevice();
+    vbo = CreateVertexBuffer(dev, sizeof(v), I3D_USAGE_STATIC, v);
+    va->setAttributes(*vbo, sizeof(vertex_t), descs, _countof(descs));
 }
 
-void CreateBloomBlurQuads( VertexArray *va, VertexBuffer *vbo )
+void CreateBloomBlurQuads( VertexArray *va, Buffer *&vbo )
 {
     const vec2 tp[4] = {vec2(0.0, 0.0), vec2(0.5,  0.0), vec2(0.75,  0.0 ), vec2(0.875,  0.0)};
     const vec2 ts[4] = {vec2(0.5, 1.0), vec2(0.25, 0.5), vec2(0.125, 0.25), vec2(0.0625, 0.125)};
@@ -180,18 +187,19 @@ void CreateBloomBlurQuads( VertexArray *va, VertexBuffer *vbo )
         {vec2(0.75, -1.0 ), tp[3],                  tp[3], tp[3]+ts[3]},
         {vec2(0.875,-1.0 ), tp[3]+vec2(ts[3].x,0.0),tp[3], tp[3]+ts[3]},
     };
-    VertexDescriptor descs[] = {
+    VertexDesc descs[] = {
         {GLSL_POSITION,  I3D_FLOAT,2, 0, false, 0},
         {GLSL_TEXCOORD0, I3D_FLOAT,2, 8, false, 0},
         {GLSL_TEXCOORD1, I3D_FLOAT,2,16, false, 0},
         {GLSL_TEXCOORD2, I3D_FLOAT,2,24, false, 0},
     };
 
-    if(vbo) { vbo->allocate(sizeof(v), I3D_USAGE_STATIC, v); }
-    if(vbo && va) { va->setAttributes(*vbo, sizeof(vertex_t), descs, _countof(descs)); }
+    i3d::Device *dev = atomicGetGLDevice();
+    vbo = CreateVertexBuffer(dev, sizeof(v), I3D_USAGE_STATIC, v);
+    va->setAttributes(*vbo, sizeof(vertex_t), descs, _countof(descs));
 }
 
-void CreateBloomCompositeQuad( VertexArray *va, VertexBuffer *vbo )
+void CreateBloomCompositeQuad( VertexArray *va, Buffer *&vbo )
 {
     const vec2 tp[4] = {vec2(0.0, 0.0), vec2(0.5,  0.0), vec2(0.75,  0.0 ), vec2(0.875,  0.0)};
     const vec2 ts[4] = {vec2(0.5, 1.0), vec2(0.25, 0.5), vec2(0.125, 0.25), vec2(0.0625, 0.125)};
@@ -207,7 +215,7 @@ void CreateBloomCompositeQuad( VertexArray *va, VertexBuffer *vbo )
         {vec2( 1.0,-1.0), {tp[0]+vec2(ts[0].x,0.0), tp[1]+vec2(ts[1].x,0.0), tp[2]+vec2(ts[2].x,0.0), tp[3]+vec2(ts[3].x,0.0)}},
     };
 
-    VertexDescriptor descs[] = {
+    VertexDesc descs[] = {
         {GLSL_POSITION,  I3D_FLOAT,2, 0, false, 0},
         {GLSL_TEXCOORD0, I3D_FLOAT,2, 8, false, 0},
         {GLSL_TEXCOORD1, I3D_FLOAT,2,16, false, 0},
@@ -215,11 +223,12 @@ void CreateBloomCompositeQuad( VertexArray *va, VertexBuffer *vbo )
         {GLSL_TEXCOORD3, I3D_FLOAT,2,32, false, 0},
     };
 
-    if(vbo) { vbo->allocate(sizeof(v), I3D_USAGE_STATIC, v); }
-    if(vbo && va) { va->setAttributes(*vbo, sizeof(vertex_t), descs, _countof(descs)); }
+    i3d::Device *dev = atomicGetGLDevice();
+    vbo = CreateVertexBuffer(dev, sizeof(v), I3D_USAGE_STATIC, v);
+    va->setAttributes(*vbo, sizeof(vertex_t), descs, _countof(descs));
 }
 
-void CreateCube( VertexArray *va, VertexBuffer *vbo, float32 half_len )
+void CreateCube( VertexArray *va, Buffer *&vbo, float32 half_len )
 {
     const vec3 ur = vec3( half_len, half_len, half_len);
     const vec3 bl = vec3(-half_len,-half_len,-half_len);
@@ -268,16 +277,17 @@ void CreateCube( VertexArray *va, VertexBuffer *vbo, float32 half_len )
         {vec4(bl[0], ur[1], bl[2], 1.0f), n[5]},
     };
 
-    VertexDescriptor descs[] = {
+    VertexDesc descs[] = {
         {GLSL_POSITION, I3D_FLOAT,4, 0, false, 0},
         {GLSL_NORMAL,   I3D_FLOAT,4,16, false, 0},
     };
 
-    if(vbo) { vbo->allocate(sizeof(v), I3D_USAGE_STATIC, v); }
-    if(vbo && va) { va->setAttributes(*vbo, sizeof(vertex_t), descs, _countof(descs)); }
+    i3d::Device *dev = atomicGetGLDevice();
+    vbo = CreateVertexBuffer(dev, sizeof(v), I3D_USAGE_STATIC, v);
+    va->setAttributes(*vbo, sizeof(vertex_t), descs, _countof(descs));
 }
 
-void CreateFieldGridLines( VertexArray *va, VertexBuffer *vbo )
+void CreateFieldGridLines( VertexArray *va, Buffer *&vbo )
 {
     struct __declspec(align(16)) vertex_t
     {
@@ -309,16 +319,17 @@ void CreateFieldGridLines( VertexArray *va, VertexBuffer *vbo )
         vertices[i].color = vec4(0.25f, 0.5f, 1.0f, 0.1f);
     }
 
-    VertexDescriptor descs[] = {
+    VertexDesc descs[] = {
         {GLSL_POSITION, I3D_FLOAT,4, 0, false, 0},
         {GLSL_COLOR,    I3D_FLOAT,4,16, false, 0},
     };
 
-    if(vbo) { vbo->allocate(sizeof(vertex_t)*vertices.size(), I3D_USAGE_STATIC, &vertices[0]); }
-    if(vbo && va) { va->setAttributes(*vbo, sizeof(vertex_t), descs, _countof(descs)); }
+    i3d::Device *dev = atomicGetGLDevice();
+    vbo = CreateVertexBuffer(dev, sizeof(vertex_t)*vertices.size(), I3D_USAGE_STATIC, &vertices[0]);
+    va->setAttributes(*vbo, sizeof(vertex_t), descs, _countof(descs));
 }
 
-void CreateDistanceFieldQuads( VertexArray *va, VertexBuffer *quad_model, VertexBuffer *quad_pos, VertexBuffer *quad_dist )
+void CreateDistanceFieldQuads( VertexArray *va, Buffer *&quad_model, Buffer *&quad_pos, Buffer *&quad_dist )
 {
     vec3 div    = vec3(SPH_DISTANCE_FIELD_DIV_X, SPH_DISTANCE_FIELD_DIV_Y, SPH_DISTANCE_FIELD_DIV_Z);
     vec3 bl     = vec3(-2.56, -2.56, 0.0f);
@@ -335,11 +346,12 @@ void CreateDistanceFieldQuads( VertexArray *va, VertexBuffer *quad_model, Vertex
             vec4(cell.x, cell.y, 0.0f, 1.0f),
             vec4(  0.0f, cell.y, 0.0f, 1.0f),
         };
-        VertexDescriptor descs[] = {
+        VertexDesc descs[] = {
             {GLSL_POSITION, I3D_FLOAT,4, 0, false, 0},
         };
 
-        if(quad_model) { quad_model->allocate(sizeof(vertex_t)*_countof(vertices), I3D_USAGE_STATIC, vertices); }
+        i3d::Device *dev = atomicGetGLDevice();
+        quad_model = CreateVertexBuffer(dev, sizeof(vertex_t)*_countof(vertices), I3D_USAGE_STATIC, vertices);
         if(quad_model && va) { va->setAttributes(*quad_model, sizeof(vertex_t), descs, _countof(descs)); }
     }
 
@@ -356,12 +368,13 @@ void CreateDistanceFieldQuads( VertexArray *va, VertexBuffer *quad_model, Vertex
                 vertices.push_back(t);
             }
         }
-        VertexDescriptor descs[] = {
+        VertexDesc descs[] = {
             {GLSL_INSTANCE_POSITION, I3D_FLOAT,4, 0, false, 1},
         };
 
-        if(quad_pos) { quad_pos->allocate(sizeof(vertex_t)*vertices.size(), I3D_USAGE_STATIC, &vertices[0]); }
-        if(quad_pos && va) { va->setAttributes(*quad_pos, sizeof(vertex_t), descs, _countof(descs)); }
+        i3d::Device *dev = atomicGetGLDevice();
+        quad_pos = CreateVertexBuffer(dev, sizeof(vertex_t)*vertices.size(), I3D_USAGE_STATIC, &vertices[0]);
+        va->setAttributes(*quad_pos, sizeof(vertex_t), descs, _countof(descs));
     }
 
     {
@@ -370,12 +383,13 @@ void CreateDistanceFieldQuads( VertexArray *va, VertexBuffer *quad_model, Vertex
         for(uint32 i=0; i<vertices.size(); ++i) {
             vertices[i] = vec4(0.0f, 0.0f, 0.0f, 1.0f);
         }
-        VertexDescriptor descs[] = {
+        VertexDesc descs[] = {
             {GLSL_INSTANCE_PARAM, I3D_FLOAT,4, 0, false, 1},
         };
 
-        if(quad_dist) { quad_dist->allocate(sizeof(vec4)*vertices.size(), I3D_USAGE_DYNAMIC, &vertices[0]); }
-        if(quad_dist && va) { va->setAttributes(*quad_dist, sizeof(vec4), descs, _countof(descs)); }
+        i3d::Device *dev = atomicGetGLDevice();
+        quad_dist = CreateVertexBuffer(dev, sizeof(vec4)*vertices.size(), I3D_USAGE_DYNAMIC, &vertices[0]);
+        va->setAttributes(*quad_dist, sizeof(vec4), descs, _countof(descs));
     }
 }
 

@@ -1,7 +1,8 @@
 #ifndef __ist_isd_OggVorbis__
 #define __ist_isd_OggVorbis__
 
-#ifdef __ist_with_oggvorbis__
+#include <vorbis/vorbisfile.h>
+#include "isduOggVorbis.h"
 
 namespace ist {
 namespace isd {
@@ -73,5 +74,4 @@ public:
 } // namespace isd
 } // namespace ist
 
-#endif // __ist_with_oggvorbis__
 #endif // __ist_isd_OggVorbis__

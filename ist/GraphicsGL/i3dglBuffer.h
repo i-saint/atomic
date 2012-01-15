@@ -7,96 +7,40 @@
 namespace ist {
 namespace i3dgl {
 
-template<GLuint BufferType>
 class Buffer : public DeviceResource
 {
 I3DGL_DECLARE_DEVICE_RESOURCE(Buffer);
+typedef DeviceResource super;
 protected:
-    GLuint m_size;
-    GLuint m_capacity;
+    BufferDesc m_desc;
 
-    Buffer();
+    Buffer(Device *dev, const BufferDesc &desc);
     ~Buffer();
 
 public:
-    // data は NULL でもよく、その場合メモリ確保だけが行われる。
-    void allocate(GLuint size, I3D_USAGE usage, void *data=NULL);
-
     void bind() const;
     void unbind() const;
 
     void* map(I3D_MAP_MODE mode);
     void unmap();
 
-    GLuint size() const;
-};
-
-
-class VertexBuffer : public Buffer<GL_ARRAY_BUFFER>
-{
-I3DGL_DECLARE_DEVICE_RESOURCE(VertexBuffer);
-private:
-    VertexBuffer() {}
-    ~VertexBuffer() {}
-
-public:
-};
-
-class IndexBuffer : public Buffer<GL_ELEMENT_ARRAY_BUFFER>
-{
-I3DGL_DECLARE_DEVICE_RESOURCE(IndexBuffer);
-private:
-    IndexBuffer() {}
-    ~IndexBuffer() {}
-
-public:
-};
-
-class PixelBuffer : public Buffer<GL_PIXEL_PACK_BUFFER>
-{
-I3DGL_DECLARE_DEVICE_RESOURCE(PixelBuffer);
-private:
-    PixelBuffer() {}
-    ~PixelBuffer() {}
-
-public:
-};
-
-class PixelUnpackBuffer : public Buffer<GL_PIXEL_UNPACK_BUFFER>
-{
-I3DGL_DECLARE_DEVICE_RESOURCE(PixelUnpackBuffer);
-private:
-    PixelUnpackBuffer() {}
-    ~PixelUnpackBuffer() {}
-
-public:
-};
-
-class UniformBuffer : public Buffer<GL_UNIFORM_BUFFER>
-{
-I3DGL_DECLARE_DEVICE_RESOURCE(UniformBuffer);
-private:
-    UniformBuffer() {}
-    ~UniformBuffer() {}
-
-public:
-    void bindBase(GLuint index) const;
-    void bindRange(GLuint index, GLintptr offset, GLsizeiptr size) const;
+    const BufferDesc& getDesc() const { return m_desc; }
 };
 
 
 class VertexArray : public DeviceResource
 {
 I3DGL_DECLARE_DEVICE_RESOURCE(VertexArray);
+typedef DeviceResource super;
 private:
-    VertexArray();
+    VertexArray(Device *dev);
     ~VertexArray();
 
 public:
     void bind() const;
     void unbind() const;
 
-    void setAttributes(VertexBuffer& vbo, size_t stride, const VertexDescriptor *descs, size_t num_descs);
+    void setAttributes(Buffer& vbo, size_t stride, const VertexDesc *descs, size_t num_descs);
 };
 
 } // namespace i3d

@@ -8,15 +8,15 @@ namespace atomic {
     class CudaBuffer;
     class ParticleSet;
 
-    void CreateFloorQuad(VertexArray *va, VertexBuffer *vbo, vec4 pos, vec4 size);
-    void CreateSphere(VertexArray *va, VertexBuffer *vbo, IndexBuffer *ibo, float32 radius, uint32 div_xz, uint32 div_y);
-    void CreateScreenQuad(VertexArray *va, VertexBuffer *vbo);
-    void CreateBloomLuminanceQuads(VertexArray *va, VertexBuffer *vbo);
-    void CreateBloomBlurQuads(VertexArray *va, VertexBuffer *vbo);
-    void CreateBloomCompositeQuad(VertexArray *va, VertexBuffer *vbo);
-    void CreateCube(VertexArray *va, VertexBuffer *vbo, float32 len);
-    void CreateFieldGridLines(VertexArray *va, VertexBuffer *vbo);
-    void CreateDistanceFieldQuads(VertexArray *va, VertexBuffer *quad_model, VertexBuffer *quad_pos, VertexBuffer *quad_dist);
+    void CreateFloorQuad(VertexArray *va, Buffer *&vbo, vec4 pos, vec4 size);
+    void CreateSphere(VertexArray *va, Buffer *&vbo, Buffer *&ibo, float32 radius, uint32 div_xz, uint32 div_y);
+    void CreateScreenQuad(VertexArray *va, Buffer *&vbo);
+    void CreateBloomLuminanceQuads(VertexArray *va, Buffer *&vbo);
+    void CreateBloomBlurQuads(VertexArray *va, Buffer *&vbo);
+    void CreateBloomCompositeQuad(VertexArray *va, Buffer *&vbo);
+    void CreateCube(VertexArray *va, Buffer *&vbo, float32 len);
+    void CreateFieldGridLines(VertexArray *va, Buffer *&vbo);
+    void CreateDistanceFieldQuads(VertexArray *va, Buffer *&quad_model, Buffer *&quad_pos, Buffer *&quad_dist);
 
     bool CreateCubeParticleSet(ParticleSet &pset, RigidInfo &ri, float32 half_len);
     bool CreateSphereParticleSet(ParticleSet &pset, RigidInfo &ri, float32 radius);

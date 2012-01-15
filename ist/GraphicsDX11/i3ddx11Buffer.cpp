@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "../Base.h"
+#include <D3D11.h>
+#include <D3DX11.h>
 #include "i3ddx11Buffer.h"
 
 namespace ist {
@@ -23,14 +25,6 @@ void Buffer::allocate(GLuint size, I3D_USAGE usage, void *data)
 GLuint Buffer::size() const
 {
     return m_size;
-}
-
-void Buffer::bind() const
-{
-}
-
-void Buffer::unbind() const
-{
 }
 
 void* Buffer::map(I3D_MAP_MODE mode)

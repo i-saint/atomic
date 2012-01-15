@@ -20,6 +20,7 @@
 #include "GraphicsGL/i3duglFont.h"
 #endif // __ist_with_OpenGL__
 
+
 #ifdef __ist_with_DirectX11__
 #ifdef _DEBUG
 #pragma comment(lib, "d3d11.lib")
@@ -28,16 +29,14 @@
 #pragma comment(lib, "d3dx9d.lib")
 #pragma comment(lib, "dxerr.lib")
 #pragma comment(lib, "dxguid.lib")
-#else
+#else // _DEBUG
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3dx11.lib")
 #pragma comment(lib, "d3dx9.lib")
 #pragma comment(lib, "dxerr.lib")
 #pragma comment(lib, "dxguid.lib")
-#endif
-
-#include <GL/glew.h>
+#endif // _DEBUG
 #include <D3D11.h>
 #include <D3DX11.h>
 #include "GraphicsDX11/i3ddx11Types.h"
