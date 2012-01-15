@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/simd_vec4.hpp>
 #include <glm/gtx/simd_mat4.hpp>
+#include "Half/half.h"
 
 namespace ist {
 
