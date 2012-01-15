@@ -1,10 +1,10 @@
-#ifndef __ist_i3du_Font__
-#define __ist_i3du_Font__
+#ifndef __ist_i3dugl_Font__
+#define __ist_i3dugl_Font__
 
-#include "i3dDeviceResource.h"
+#include "i3dglDeviceResource.h"
 
 namespace ist {
-namespace i3d {
+namespace i3dgl {
 
 class SystemFont : DeviceResource
 {
@@ -29,4 +29,4 @@ public:
 
 } // namespace i3d
 } // namespace ist
-#endif __ist_i3du_Font__
+#endif __ist_i3dugl_Font__

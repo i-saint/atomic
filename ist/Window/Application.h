@@ -75,6 +75,7 @@ public:
 
     int showMessageDialog(const wchar_t* message, const wchar_t* caption, int dlgtype=DLG_OK);
 
+    bool isFullscreen() const { return m_fullscreen; }
     const uvec2& getWindowSize() const              { return m_window_size; }
     const KeyboardState& getKeyboardState() const   { return m_keyboard_state; }
     const MouseState& getMouseState() const         { return m_mouse_state; }

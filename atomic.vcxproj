@@ -50,16 +50,26 @@
     <ClCompile Include="ist\Base\ClassInfo.cpp" />
     <ClCompile Include="ist\Base\FileLoader.cpp" />
     <ClCompile Include="ist\Base\TaskScheduler.cpp" />
-    <ClCompile Include="ist\Graphics\i3dAssert.cpp" />
-    <ClCompile Include="ist\Graphics\i3dBuffer.cpp" />
-    <ClCompile Include="ist\Graphics\i3dDevice.cpp" />
-    <ClCompile Include="ist\Graphics\i3dDeviceContext.cpp" />
-    <ClCompile Include="ist\Graphics\i3dDeviceResource.cpp" />
-    <ClCompile Include="ist\Graphics\i3dRenderTarget.cpp" />
-    <ClCompile Include="ist\Graphics\i3dShader.cpp" />
-    <ClCompile Include="ist\Graphics\i3duCamera.cpp" />
-    <ClCompile Include="ist\Graphics\i3duFont.cpp" />
-    <ClCompile Include="ist\Graphics\i3dUtil.cpp" />
+    <ClCompile Include="ist\GraphicsDX11\i3ddx11Assert.cpp" />
+    <ClCompile Include="ist\GraphicsDX11\i3ddx11Buffer.cpp" />
+    <ClCompile Include="ist\GraphicsDX11\i3ddx11Device.cpp" />
+    <ClCompile Include="ist\GraphicsDX11\i3ddx11DeviceContext.cpp" />
+    <ClCompile Include="ist\GraphicsDX11\i3ddx11DeviceResource.cpp" />
+    <ClCompile Include="ist\GraphicsDX11\i3ddx11RenderTarget.cpp" />
+    <ClCompile Include="ist\GraphicsDX11\i3ddx11Shader.cpp" />
+    <ClCompile Include="ist\GraphicsDX11\i3dudx11Camera.cpp" />
+    <ClCompile Include="ist\GraphicsDX11\i3dudx11Font.cpp" />
+    <ClCompile Include="ist\GraphicsDX11\i3ddx11Util.cpp" />
+    <ClCompile Include="ist\GraphicsGL\i3dglAssert.cpp" />
+    <ClCompile Include="ist\GraphicsGL\i3dglBuffer.cpp" />
+    <ClCompile Include="ist\GraphicsGL\i3dglDevice.cpp" />
+    <ClCompile Include="ist\GraphicsGL\i3dglDeviceContext.cpp" />
+    <ClCompile Include="ist\GraphicsGL\i3dglDeviceResource.cpp" />
+    <ClCompile Include="ist\GraphicsGL\i3dglRenderTarget.cpp" />
+    <ClCompile Include="ist\GraphicsGL\i3dglShader.cpp" />
+    <ClCompile Include="ist\GraphicsGL\i3dglUtil.cpp" />
+    <ClCompile Include="ist\GraphicsGL\i3duglCamera.cpp" />
+    <ClCompile Include="ist\GraphicsGL\i3duglFont.cpp" />
     <ClCompile Include="ist\Math\Constants.cpp" />
     <ClCompile Include="ist\Math\Linear.cpp" />
     <ClCompile Include="ist\Math\SFMT\SFMT.cpp" />
@@ -129,18 +139,29 @@
     <ClInclude Include="ist\Base\Types.h" />
     <ClInclude Include="ist\Base\Variant.h" />
     <ClInclude Include="ist\Graphics.h" />
+    <ClInclude Include="ist\GraphicsDX11\i3ddx11Assert.h" />
+    <ClInclude Include="ist\GraphicsDX11\i3ddx11Buffer.h" />
+    <ClInclude Include="ist\GraphicsDX11\i3ddx11Device.h" />
+    <ClInclude Include="ist\GraphicsDX11\i3ddx11DeviceContext.h" />
+    <ClInclude Include="ist\GraphicsDX11\i3ddx11DeviceResource.h" />
+    <ClInclude Include="ist\GraphicsDX11\i3ddx11RenderTarget.h" />
+    <ClInclude Include="ist\GraphicsDX11\i3ddx11Shader.h" />
+    <ClInclude Include="ist\GraphicsDX11\i3ddx11Types.h" />
+    <ClInclude Include="ist\GraphicsDX11\i3dudx11Camera.h" />
+    <ClInclude Include="ist\GraphicsDX11\i3dudx11Font.h" />
+    <ClInclude Include="ist\GraphicsDX11\i3ddx11Util.h" />
+    <ClInclude Include="ist\GraphicsGL\i3dglAssert.h" />
+    <ClInclude Include="ist\GraphicsGL\i3dglBuffer.h" />
+    <ClInclude Include="ist\GraphicsGL\i3dglDevice.h" />
+    <ClInclude Include="ist\GraphicsGL\i3dglDeviceContext.h" />
+    <ClInclude Include="ist\GraphicsGL\i3dglDeviceResource.h" />
+    <ClInclude Include="ist\GraphicsGL\i3dglRenderTarget.h" />
+    <ClInclude Include="ist\GraphicsGL\i3dglShader.h" />
+    <ClInclude Include="ist\GraphicsGL\i3dglTypes.h" />
+    <ClInclude Include="ist\GraphicsGL\i3dglUtil.h" />
+    <ClInclude Include="ist\GraphicsGL\i3duglCamera.h" />
+    <ClInclude Include="ist\GraphicsGL\i3duglFont.h" />
     <ClInclude Include="ist\GraphicsUtil.h" />
-    <ClInclude Include="ist\Graphics\i3dAssert.h" />
-    <ClInclude Include="ist\Graphics\i3dBuffer.h" />
-    <ClInclude Include="ist\Graphics\i3dDevice.h" />
-    <ClInclude Include="ist\Graphics\i3dDeviceContext.h" />
-    <ClInclude Include="ist\Graphics\i3dDeviceResource.h" />
-    <ClInclude Include="ist\Graphics\i3dRenderTarget.h" />
-    <ClInclude Include="ist\Graphics\i3dShader.h" />
-    <ClInclude Include="ist\Graphics\i3dTypes.h" />
-    <ClInclude Include="ist\Graphics\i3duCamera.h" />
-    <ClInclude Include="ist\Graphics\i3duFont.h" />
-    <ClInclude Include="ist\Graphics\i3dUtil.h" />
     <ClInclude Include="ist\ist.h" />
     <ClInclude Include="ist\Math.h" />
     <ClInclude Include="ist\Math\Constants.h" />
@@ -271,7 +292,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>EASTLEAWebKit.lib;cuda.lib;glew32.lib;opengl32.lib;glu32.lib;imm32.lib;winmm.lib;cudart.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>EASTLEAWebKit.lib;cuda.lib;imm32.lib;winmm.lib;cudart.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(CUDA_PATH)/lib/Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -324,7 +345,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>EASTLEAWebKit.lib;cuda.lib;glew32.lib;opengl32.lib;glu32.lib;imm32.lib;winmm.lib;cudart.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>EASTLEAWebKit.lib;cuda.lib;imm32.lib;winmm.lib;cudart.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(BOOST)/lib;$(CUDA_PATH)/lib/Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
     </Link>
@@ -355,7 +376,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>EASTLEAWebKit.lib;cuda.lib;glew32.lib;opengl32.lib;glu32.lib;imm32.lib;winmm.lib;cudart.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>EASTLEAWebKit.lib;cuda.lib;imm32.lib;winmm.lib;cudart.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(BOOST)/lib;$(CUDA_PATH)/lib/Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
     </Link>

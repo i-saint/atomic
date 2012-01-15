@@ -1,10 +1,10 @@
-#ifndef __ist_DeviceResource__
-#define __ist_DeviceResource__
+#ifndef __ist_i3dgl_DeviceResource__
+#define __ist_i3dgl_DeviceResource__
 
-#include "i3dTypes.h"
+#include "i3dglTypes.h"
 
 namespace ist {
-namespace i3d {
+namespace i3dgl {
 
 class Device;
 
@@ -44,4 +44,4 @@ public:
 
 } // namespace i3d
 } // namespace ist
-#endif // __ist_DeviceResource__
+#endif // __ist_i3dgl_DeviceResource__

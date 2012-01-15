@@ -1,13 +1,13 @@
-#ifndef __ist_i3d_Device__
-#define __ist_i3d_Device__
+#ifndef __ist_i3dgl_Device__
+#define __ist_i3dgl_Device__
 
-#include "i3dBuffer.h"
-#include "i3dDeviceResource.h"
-#include "i3dRenderTarget.h"
-#include "i3dShader.h"
+#include "i3dglBuffer.h"
+#include "i3dglDeviceResource.h"
+#include "i3dglRenderTarget.h"
+#include "i3dglShader.h"
 
 namespace ist {
-namespace i3d {
+namespace i3dgl {
 
 class Device
 {
@@ -56,4 +56,4 @@ public:
 } // namespace i3d
 } // namespace ist
 
-#endif // __ist_i3d_Device__
+#endif // __ist_i3dgl_Device__

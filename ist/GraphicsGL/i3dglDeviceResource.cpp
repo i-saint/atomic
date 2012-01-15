@@ -1,11 +1,11 @@
 #include "stdafx.h"
 #include "../Base.h"
-#include "i3dTypes.h"
-#include "i3dDeviceResource.h"
-#include "i3dDevice.h"
+#include "i3dglTypes.h"
+#include "i3dglDeviceResource.h"
+#include "i3dglDevice.h"
 
 namespace ist {
-namespace i3d {
+namespace i3dgl {
 
 
 DeviceResource::DeviceResource()

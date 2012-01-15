@@ -7,6 +7,7 @@
 
 
 #define __ist_with_OpenGL__
+#define __ist_with_DirectX11__
 #define __ist_with_zlib__
 #define __ist_with_oggvorbis__
 

@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "../Base.h"
-#include "i3dRenderTarget.h"
+#include "i3dglRenderTarget.h"
 
 namespace ist {
-namespace i3d {
+namespace i3dgl {
 
 Texture2D::Texture2D()
 {

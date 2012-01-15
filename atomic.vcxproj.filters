@@ -16,9 +16,6 @@
     <Filter Include="ist\Base">
       <UniqueIdentifier>{04f6313c-6079-47a6-b628-0a5180974495}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ist\Graphics">
-      <UniqueIdentifier>{475cd075-b1e1-4d34-9438-d1352afa54d4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ist\Math">
       <UniqueIdentifier>{01f0480f-e37f-403b-aedb-b9703bca9f42}</UniqueIdentifier>
     </Filter>
@@ -39,6 +36,12 @@
     </Filter>
     <Filter Include="Game\Entity">
       <UniqueIdentifier>{1f1a3bf3-079c-4653-90b2-5e697bd4f0df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ist\GraphicsDX11">
+      <UniqueIdentifier>{57e6d800-694a-4411-b3e2-c71bad13a4cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ist\GraphicsGL">
+      <UniqueIdentifier>{c5df110d-ec2e-4a97-9def-f29171e50180}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -141,36 +144,6 @@
     <ClCompile Include="Game\VFX.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="ist\Graphics\i3dAssert.cpp">
-      <Filter>ist\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Graphics\i3dUtil.cpp">
-      <Filter>ist\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Graphics\i3dRenderTarget.cpp">
-      <Filter>ist\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Graphics\i3dShader.cpp">
-      <Filter>ist\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Graphics\i3dBuffer.cpp">
-      <Filter>ist\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Graphics\i3duCamera.cpp">
-      <Filter>ist\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Graphics\i3duFont.cpp">
-      <Filter>ist\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Graphics\i3dDevice.cpp">
-      <Filter>ist\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Graphics\i3dDeviceResource.cpp">
-      <Filter>ist\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\Graphics\i3dDeviceContext.cpp">
-      <Filter>ist\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\AtomicRenderingSystem.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
@@ -213,6 +186,66 @@
     <ClCompile Include="Graphics\Renderer_Postprocess.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="ist\GraphicsDX11\i3ddx11Shader.cpp">
+      <Filter>ist\GraphicsDX11</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\GraphicsDX11\i3dudx11Camera.cpp">
+      <Filter>ist\GraphicsDX11</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\GraphicsDX11\i3dudx11Font.cpp">
+      <Filter>ist\GraphicsDX11</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\GraphicsDX11\i3ddx11Assert.cpp">
+      <Filter>ist\GraphicsDX11</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\GraphicsDX11\i3ddx11Buffer.cpp">
+      <Filter>ist\GraphicsDX11</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\GraphicsDX11\i3ddx11Device.cpp">
+      <Filter>ist\GraphicsDX11</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\GraphicsDX11\i3ddx11DeviceContext.cpp">
+      <Filter>ist\GraphicsDX11</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\GraphicsDX11\i3ddx11DeviceResource.cpp">
+      <Filter>ist\GraphicsDX11</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\GraphicsDX11\i3ddx11RenderTarget.cpp">
+      <Filter>ist\GraphicsDX11</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\GraphicsGL\i3dglShader.cpp">
+      <Filter>ist\GraphicsGL</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\GraphicsGL\i3dglUtil.cpp">
+      <Filter>ist\GraphicsGL</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\GraphicsGL\i3duglCamera.cpp">
+      <Filter>ist\GraphicsGL</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\GraphicsGL\i3duglFont.cpp">
+      <Filter>ist\GraphicsGL</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\GraphicsGL\i3dglAssert.cpp">
+      <Filter>ist\GraphicsGL</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\GraphicsGL\i3dglBuffer.cpp">
+      <Filter>ist\GraphicsGL</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\GraphicsGL\i3dglDevice.cpp">
+      <Filter>ist\GraphicsGL</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\GraphicsGL\i3dglDeviceContext.cpp">
+      <Filter>ist\GraphicsGL</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\GraphicsGL\i3dglDeviceResource.cpp">
+      <Filter>ist\GraphicsGL</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\GraphicsGL\i3dglRenderTarget.cpp">
+      <Filter>ist\GraphicsGL</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\GraphicsDX11\i3ddx11Util.cpp">
+      <Filter>ist\GraphicsDX11</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h">
@@ -240,9 +273,6 @@
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="ist\Base.h">
-      <Filter>ist</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Graphics.h">
       <Filter>ist</Filter>
     </ClInclude>
     <ClInclude Include="ist\GraphicsUtil.h">
@@ -417,39 +447,6 @@
     <ClInclude Include="Game\VFX.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="ist\Graphics\i3dAssert.h">
-      <Filter>ist\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Graphics\i3dDevice.h">
-      <Filter>ist\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Graphics\i3dDeviceContext.h">
-      <Filter>ist\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Graphics\i3dUtil.h">
-      <Filter>ist\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Graphics\i3dRenderTarget.h">
-      <Filter>ist\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Graphics\i3dShader.h">
-      <Filter>ist\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Graphics\i3dBuffer.h">
-      <Filter>ist\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Graphics\i3duCamera.h">
-      <Filter>ist\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Graphics\i3duFont.h">
-      <Filter>ist\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Graphics\i3dTypes.h">
-      <Filter>ist\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Graphics\i3dDeviceResource.h">
-      <Filter>ist\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\AtomicRenderingSystem.h">
       <Filter>Graphics</Filter>
     </ClInclude>
@@ -494,6 +491,75 @@
     </ClInclude>
     <ClInclude Include="Graphics\Renderer_Postprocess.h">
       <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Graphics.h">
+      <Filter>ist</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\GraphicsDX11\i3ddx11Shader.h">
+      <Filter>ist\GraphicsDX11</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\GraphicsDX11\i3ddx11Types.h">
+      <Filter>ist\GraphicsDX11</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\GraphicsDX11\i3dudx11Camera.h">
+      <Filter>ist\GraphicsDX11</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\GraphicsDX11\i3dudx11Font.h">
+      <Filter>ist\GraphicsDX11</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\GraphicsDX11\i3ddx11Assert.h">
+      <Filter>ist\GraphicsDX11</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\GraphicsDX11\i3ddx11Buffer.h">
+      <Filter>ist\GraphicsDX11</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\GraphicsDX11\i3ddx11Device.h">
+      <Filter>ist\GraphicsDX11</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\GraphicsDX11\i3ddx11DeviceContext.h">
+      <Filter>ist\GraphicsDX11</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\GraphicsDX11\i3ddx11DeviceResource.h">
+      <Filter>ist\GraphicsDX11</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\GraphicsDX11\i3ddx11RenderTarget.h">
+      <Filter>ist\GraphicsDX11</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\GraphicsGL\i3dglRenderTarget.h">
+      <Filter>ist\GraphicsGL</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\GraphicsGL\i3dglShader.h">
+      <Filter>ist\GraphicsGL</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\GraphicsGL\i3dglTypes.h">
+      <Filter>ist\GraphicsGL</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\GraphicsGL\i3dglUtil.h">
+      <Filter>ist\GraphicsGL</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\GraphicsGL\i3duglCamera.h">
+      <Filter>ist\GraphicsGL</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\GraphicsGL\i3duglFont.h">
+      <Filter>ist\GraphicsGL</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\GraphicsGL\i3dglAssert.h">
+      <Filter>ist\GraphicsGL</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\GraphicsGL\i3dglBuffer.h">
+      <Filter>ist\GraphicsGL</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\GraphicsGL\i3dglDevice.h">
+      <Filter>ist\GraphicsGL</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\GraphicsGL\i3dglDeviceContext.h">
+      <Filter>ist\GraphicsGL</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\GraphicsGL\i3dglDeviceResource.h">
+      <Filter>ist\GraphicsGL</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\GraphicsDX11\i3ddx11Util.h">
+      <Filter>ist\GraphicsDX11</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

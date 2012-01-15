@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "../Base.h"
-#include "i3dBuffer.h"
+#include "i3dglBuffer.h"
 
 namespace ist {
-namespace i3d {
+namespace i3dgl {
 
 template<GLuint BufferType>
 Buffer<BufferType>::Buffer()

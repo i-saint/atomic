@@ -1,10 +1,17 @@
-#ifndef __ist_i3d_Types__
-#define __ist_i3d_Types__
+#ifndef __ist_i3ddx11_Types__
+#define __ist_i3ddx11_Types__
 
 #include "ist/Base/New.h"
 
 namespace ist {
-namespace i3d {
+namespace i3ddx11 {
+
+enum I3D_ERROR_CODE {
+    I3D_ERROR_NONE,
+    I3D_ERROR_D3D11CreateDeviceAndSwapChain_Failed,
+    I3D_ERROR_GetBuffer_Failed,
+    I3D_ERROR_CreateRenderTargetView_Failed,
+};
 
 enum I3D_DEVICE_RESOURCE_TYPE {
     I3D_TEXTURE,
@@ -41,40 +48,6 @@ enum I3D_COLOR_FORMAT
     I3D_DEPTH32F_STENCIL8,
 };
 
-enum I3D_RT_ATTACH
-{
-    I3D_ATTACH_COLOR0   = GL_COLOR_ATTACHMENT0,
-    I3D_ATTACH_COLOR1   = GL_COLOR_ATTACHMENT1,
-    I3D_ATTACH_COLOR2   = GL_COLOR_ATTACHMENT2,
-    I3D_ATTACH_COLOR3   = GL_COLOR_ATTACHMENT3,
-    I3D_ATTACH_COLOR4   = GL_COLOR_ATTACHMENT4,
-    I3D_ATTACH_COLOR5   = GL_COLOR_ATTACHMENT5,
-    I3D_ATTACH_COLOR6   = GL_COLOR_ATTACHMENT6,
-    I3D_ATTACH_COLOR7   = GL_COLOR_ATTACHMENT7,
-    I3D_ATTACH_COLOR8   = GL_COLOR_ATTACHMENT8,
-    I3D_ATTACH_COLOR9   = GL_COLOR_ATTACHMENT9,
-    I3D_ATTACH_COLOR10  = GL_COLOR_ATTACHMENT10,
-    I3D_ATTACH_COLOR11  = GL_COLOR_ATTACHMENT11,
-    I3D_ATTACH_COLOR12  = GL_COLOR_ATTACHMENT12,
-    I3D_ATTACH_COLOR13  = GL_COLOR_ATTACHMENT13,
-    I3D_ATTACH_COLOR14  = GL_COLOR_ATTACHMENT14,
-    I3D_ATTACH_COLOR15  = GL_COLOR_ATTACHMENT15,
-    I3D_ATTACH_DEPTH    = GL_DEPTH_ATTACHMENT,
-    I3D_ATTACH_STENCIL  = GL_STENCIL_ATTACHMENT,
-};
-
-enum I3D_TEXTURE_SLOT
-{
-    I3D_TEX_SLOT_0,
-    I3D_TEX_SLOT_1,
-    I3D_TEX_SLOT_2,
-    I3D_TEX_SLOT_3,
-    I3D_TEX_SLOT_4,
-    I3D_TEX_SLOT_5,
-    I3D_TEX_SLOT_6,
-    I3D_TEX_SLOT_7,
-};
-
 enum I3D_USAGE
 {
     I3D_USAGE_STATIC    = GL_STATIC_DRAW,
@@ -99,6 +72,11 @@ enum I3D_TYPE
     I3D_UINT    = GL_UNSIGNED_INT,
     I3D_FLOAT   = GL_FLOAT,
     I3D_DOUBLE  = GL_DOUBLE,
+};
+
+enum I3D_CONSTANTS
+{
+    I3D_MAX_RENDER_TARGETS = 8,
 };
 
 struct VertexDescriptor
@@ -131,13 +109,13 @@ class PixelShader;
 class GeometryShader;
 class ShaderProgtam;
 
-} // namespace i3d
+} // namespace i3ddx11
 } // namespace ist
 
-#define I3D_DECLARE_DEVICE_RESOURCE(classname) \
+#define I3DDX11_DECLARE_DEVICE_RESOURCE(classname) \
 private:\
     template<class T> friend T* ::call_destructor(T *v);\
     friend class Device;\
     friend class DeviceContext;
 
-#endif // __ist_i3d_Types__
+#endif // __ist_i3ddx11_Types__

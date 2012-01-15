@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "../Base.h"
-#include "i3dDevice.h"
+#include "i3dglDevice.h"
 
 namespace ist {
-namespace i3d {
+namespace i3dgl {
 
 #ifdef _WIN32
 

@@ -1,16 +1,16 @@
-#ifndef __ist_i3d_Buffer__
-#define __ist_i3d_Buffer__
+#ifndef __ist_i3dgl_Buffer__
+#define __ist_i3dgl_Buffer__
 
-#include "i3dTypes.h"
-#include "i3dDeviceResource.h"
+#include "i3dglTypes.h"
+#include "i3dglDeviceResource.h"
 
 namespace ist {
-namespace i3d {
+namespace i3dgl {
 
 template<GLuint BufferType>
 class Buffer : public DeviceResource
 {
-I3D_DECLARE_DEVICE_RESOURCE(Buffer);
+I3DGL_DECLARE_DEVICE_RESOURCE(Buffer);
 protected:
     GLuint m_size;
     GLuint m_capacity;
@@ -34,7 +34,7 @@ public:
 
 class VertexBuffer : public Buffer<GL_ARRAY_BUFFER>
 {
-I3D_DECLARE_DEVICE_RESOURCE(VertexBuffer);
+I3DGL_DECLARE_DEVICE_RESOURCE(VertexBuffer);
 private:
     VertexBuffer() {}
     ~VertexBuffer() {}
@@ -44,7 +44,7 @@ public:
 
 class IndexBuffer : public Buffer<GL_ELEMENT_ARRAY_BUFFER>
 {
-I3D_DECLARE_DEVICE_RESOURCE(IndexBuffer);
+I3DGL_DECLARE_DEVICE_RESOURCE(IndexBuffer);
 private:
     IndexBuffer() {}
     ~IndexBuffer() {}
@@ -54,7 +54,7 @@ public:
 
 class PixelBuffer : public Buffer<GL_PIXEL_PACK_BUFFER>
 {
-I3D_DECLARE_DEVICE_RESOURCE(PixelBuffer);
+I3DGL_DECLARE_DEVICE_RESOURCE(PixelBuffer);
 private:
     PixelBuffer() {}
     ~PixelBuffer() {}
@@ -64,7 +64,7 @@ public:
 
 class PixelUnpackBuffer : public Buffer<GL_PIXEL_UNPACK_BUFFER>
 {
-I3D_DECLARE_DEVICE_RESOURCE(PixelUnpackBuffer);
+I3DGL_DECLARE_DEVICE_RESOURCE(PixelUnpackBuffer);
 private:
     PixelUnpackBuffer() {}
     ~PixelUnpackBuffer() {}
@@ -74,7 +74,7 @@ public:
 
 class UniformBuffer : public Buffer<GL_UNIFORM_BUFFER>
 {
-I3D_DECLARE_DEVICE_RESOURCE(UniformBuffer);
+I3DGL_DECLARE_DEVICE_RESOURCE(UniformBuffer);
 private:
     UniformBuffer() {}
     ~UniformBuffer() {}
@@ -87,7 +87,7 @@ public:
 
 class VertexArray : public DeviceResource
 {
-I3D_DECLARE_DEVICE_RESOURCE(VertexArray);
+I3DGL_DECLARE_DEVICE_RESOURCE(VertexArray);
 private:
     VertexArray();
     ~VertexArray();
@@ -101,5 +101,5 @@ public:
 
 } // namespace i3d
 } // namespace ist
-#endif // __ist_i3d_Buffer__
+#endif // __ist_i3dgl_Buffer__
 

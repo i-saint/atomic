@@ -1,15 +1,15 @@
-#ifndef __ist_i3d_Shader__
-#define __ist_i3d_Shader__
+#ifndef __ist_i3dgl_Shader__
+#define __ist_i3dgl_Shader__
 
-#include "i3dDeviceResource.h"
+#include "i3dglDeviceResource.h"
 
 namespace ist {
-namespace i3d {
+namespace i3dgl {
 
 template<size_t ShaderType>
 class ShaderObject : public DeviceResource
 {
-I3D_DECLARE_DEVICE_RESOURCE(ShaderObject);
+I3DGL_DECLARE_DEVICE_RESOURCE(ShaderObject);
 protected:
     ShaderObject();
     ~ShaderObject();
@@ -20,7 +20,7 @@ public:
 
 class VertexShader : public ShaderObject<GL_VERTEX_SHADER>
 {
-I3D_DECLARE_DEVICE_RESOURCE(VertexShader);
+I3DGL_DECLARE_DEVICE_RESOURCE(VertexShader);
 private:
     VertexShader() {}
     ~VertexShader() {}
@@ -30,7 +30,7 @@ public:
 
 class PixelShader : public ShaderObject<GL_FRAGMENT_SHADER>
 {
-I3D_DECLARE_DEVICE_RESOURCE(PixelShader);
+I3DGL_DECLARE_DEVICE_RESOURCE(PixelShader);
 private:
     PixelShader() {}
     ~PixelShader() {}
@@ -40,7 +40,7 @@ public:
 
 class GeometryShader : public ShaderObject<GL_GEOMETRY_SHADER>
 {
-I3D_DECLARE_DEVICE_RESOURCE(GeometryShader);
+I3DGL_DECLARE_DEVICE_RESOURCE(GeometryShader);
 private:
     GeometryShader() {}
     ~GeometryShader() {}
@@ -51,7 +51,7 @@ public:
 
 class ShaderProgram : public DeviceResource
 {
-I3D_DECLARE_DEVICE_RESOURCE(ShaderProgram);
+I3DGL_DECLARE_DEVICE_RESOURCE(ShaderProgram);
 private:
     ShaderProgram();
     ~ShaderProgram();
@@ -117,4 +117,4 @@ public:
 
 } // namespace i3d
 } // namespace ist
-#endif // __ist_i3d_Shader__
+#endif // __ist_i3dgl_Shader__

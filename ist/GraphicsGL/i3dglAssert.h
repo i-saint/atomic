@@ -1,5 +1,5 @@
-#ifndef __ist_i3d_Assert__
-#define __ist_i3d_Assert__
+#ifndef __ist_i3dgl_Assert__
+#define __ist_i3dgl_Assert__
 
 #ifdef __ist_enable_graphics_assert__
     #include "../Base/Assert.h"
@@ -15,4 +15,4 @@
     #define istCheckGLError()
 #endif // __ist_enable_graphics_assert__
 
-#endif // __ist_i3d_Assert__
+#endif // __ist_i3dgl_Assert__

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 namespace ist {
-namespace i3d {
+namespace i3dgl {
 
 }
 }

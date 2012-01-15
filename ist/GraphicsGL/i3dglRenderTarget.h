@@ -1,16 +1,16 @@
-#ifndef __ist_i3d_RenderTarget__
-#define __ist_i3d_RenderTarget__
+#ifndef __ist_i3dgl_RenderTarget__
+#define __ist_i3dgl_RenderTarget__
 
-#include "i3dTypes.h"
-#include "i3dDeviceResource.h"
+#include "i3dglTypes.h"
+#include "i3dglDeviceResource.h"
 
 namespace ist {
-namespace i3d {
+namespace i3dgl {
 
 
 class Sampler : public DeviceResource
 {
-I3D_DECLARE_DEVICE_RESOURCE(Sampler)
+I3DGL_DECLARE_DEVICE_RESOURCE(Sampler)
 private:
 public:
 };
@@ -18,7 +18,7 @@ public:
 
 class Texture2D : public DeviceResource
 {
-I3D_DECLARE_DEVICE_RESOURCE(Texture2D)
+I3DGL_DECLARE_DEVICE_RESOURCE(Texture2D)
 private:
     uvec2 m_size;
 
@@ -41,7 +41,7 @@ public:
 
 class RenderBuffer : public DeviceResource
 {
-I3D_DECLARE_DEVICE_RESOURCE(RenderBuffer)
+I3DGL_DECLARE_DEVICE_RESOURCE(RenderBuffer)
 private:
     uvec2 m_size;
 
@@ -60,7 +60,7 @@ public:
 
 class RenderTarget : public DeviceResource
 {
-I3D_DECLARE_DEVICE_RESOURCE(RenderTarget)
+I3DGL_DECLARE_DEVICE_RESOURCE(RenderTarget)
 public:
     static const int32 MAX_RENDER_BUFFERS = 8;
 
@@ -93,4 +93,4 @@ public:
 
 } // namespace graphics
 } // namespace ist
-#endif // __ist_i3d_RenderTarget__
+#endif // __ist_i3dgl_RenderTarget__

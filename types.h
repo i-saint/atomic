@@ -47,8 +47,8 @@ using ist::SpinMutex;
 using ist::SFMT;
 typedef ist::Variant16 variant;
 
-namespace i3d = ist::i3d;
-using namespace ist::i3d;
+namespace i3d = ist::i3dgl;
+using namespace ist::i3dgl;
 
 typedef uint32 EntityHandle;
 

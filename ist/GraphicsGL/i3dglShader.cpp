@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "../Base.h"
-#include "i3dShader.h"
+#include "i3dglShader.h"
 
 namespace ist {
-namespace i3d {
+namespace i3dgl {
 
 template<size_t ShaderType>
 ShaderObject<ShaderType>::ShaderObject()

@@ -1,13 +1,13 @@
-#ifndef __ist_i3d_DeviceContext__
-#define __ist_i3d_DeviceContext__
+#ifndef __ist_i3ddx11_DeviceContext__
+#define __ist_i3ddx11_DeviceContext__
 
-#include "i3dTypes.h"
-#include "i3dBuffer.h"
-#include "i3dRenderTarget.h"
-#include "i3dShader.h"
+#include "i3ddx11Types.h"
+#include "i3ddx11Buffer.h"
+#include "i3ddx11RenderTarget.h"
+#include "i3ddx11Shader.h"
 
 namespace ist {
-namespace i3d {
+namespace i3ddx11 {
 
 class DeviceContext
 {
@@ -21,6 +21,7 @@ private:
 
 public:
     DeviceContext();
+    ~DeviceContext();
 
     void setRenderTarget(RenderTarget *rt);
     void setVertexArray(VertexArray *v);
@@ -35,7 +36,7 @@ public:
     void drawIndexedInstanced(uint32 v_offset, uint32 v_num, uint32 i_num);
 };
 
-} // namespace i3d
+} // namespace i3ddx11
 } // namespace ist
 
-#endif // __ist_i3d_DeviceContext__
+#endif // __ist_i3ddx11_DeviceContext__

@@ -1,8 +1,8 @@
-#ifndef __ist_i3du_Camera__
-#define __ist_i3du_Camera__
+#ifndef __ist_i3dudx11_Camera__
+#define __ist_i3dudx11_Camera__
 
 namespace ist {
-namespace i3d {
+namespace i3ddx11 {
 
 
 class Viewport
@@ -51,7 +51,6 @@ public:
     const mat4& getModelViewMatrix() const  { return m_mv_matrix; }
 
     void updateMatrix();
-    bool bind() const;
 };
 
 
@@ -98,7 +97,6 @@ public:
     void setZFar(float v)  { m_zfar=v; }
 
     void updateMatrix();
-    bool bind() const;
 };
 
 
@@ -141,10 +139,9 @@ public:
     void setZFar(float v)   { m_zfar=v; }
 
     void updateMatrix();
-    bool bind() const;
 };
 
 
-} // namespace i3d
+} // namespace i3ddx11
 } // namespace ist
-#endif //__ist_i3du_Camera__
+#endif //__ist_i3dudx11_Camera__

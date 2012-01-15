@@ -1,13 +1,13 @@
-#ifndef __ist_i3d_Util__
-#define __ist_i3d_Util__
+#ifndef __ist_i3ddx11_Util__
+#define __ist_i3ddx11_Util__
 
-#include "i3dShader.h"
-#include "i3dRenderTarget.h"
+#include "i3ddx11Shader.h"
+#include "i3ddx11RenderTarget.h"
 
 class SFMT;
 
 namespace ist {
-namespace i3d {
+namespace i3ddx11 {
 
 // 画像ファイル/ストリームからテクスチャ生成
 bool CreateTexture2DFromFile(Texture2D& tex, const char *filename);
@@ -66,6 +66,6 @@ RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uv
 
 
 
-} // namespace i3d
+} // namespace i3ddx11
 } // namespace ist
-#endif // __ist_i3d_Util__
+#endif // __ist_i3ddx11_Util__
