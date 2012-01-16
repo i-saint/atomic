@@ -147,17 +147,19 @@ void PassPostprocess_Bloom::draw()
         glDrawArrays(GL_QUADS, 0, 16);
         m_sh_luminance->unbind();
         m_rt_gauss0->unbind();
+        stl::swap<RenderTarget*>(m_rt_gauss0, m_rt_gauss1);
     }
 
     // ‰¡ƒuƒ‰[
-    {
-        m_rt_gauss1->bind();
+    for(uint32 i=0; i<2; ++i) {
+        m_rt_gauss0->bind();
         m_sh_hblur->bind();
-        m_rt_gauss0->getColorBuffer(GBUFFER_COLOR)->bind(GLSL_COLOR_BUFFER);
+        m_rt_gauss1->getColorBuffer(GBUFFER_COLOR)->bind(GLSL_COLOR_BUFFER);
         m_va_blur->bind();
         glDrawArrays(GL_QUADS, 0, 16);
         m_sh_hblur->unbind();
-        m_rt_gauss1->unbind();
+        m_rt_gauss0->unbind();
+        stl::swap<RenderTarget*>(m_rt_gauss0, m_rt_gauss1);
     }
 
     // cƒuƒ‰[
@@ -169,6 +171,7 @@ void PassPostprocess_Bloom::draw()
         glDrawArrays(GL_QUADS, 0, 16);
         m_sh_vblur->unbind();
         m_rt_gauss0->unbind();
+        stl::swap<RenderTarget*>(m_rt_gauss0, m_rt_gauss1);
     }
 
     // ‰ÁZ
@@ -178,13 +181,13 @@ void PassPostprocess_Bloom::draw()
 
         brt->bind();
         m_sh_composite->bind();
-        m_rt_gauss0->getColorBuffer(GBUFFER_COLOR)->bind(GLSL_COLOR_BUFFER);
+        m_rt_gauss1->getColorBuffer(GBUFFER_COLOR)->bind(GLSL_COLOR_BUFFER);
         m_va_composite->bind();
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE);
         glDrawArrays(GL_QUADS, 0, 4);
         glDisable(GL_BLEND);
-        m_rt_gauss0->getColorBuffer(0)->unbind();
+        m_rt_gauss1->getColorBuffer(0)->unbind();
         m_sh_composite->unbind();
         brt->unbind();
     }

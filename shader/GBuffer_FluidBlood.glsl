@@ -55,7 +55,7 @@ void main()
     ps_FlagColor    = vs_VertexColor * p;
     ps_FragNormal   = vec4(n, vs_VertexNormal.w);
     ps_FragPosition = vs_InstancePosition + vec4(pos2, z, 0.0);
-    ps_FragGlow     = ps_FlagColor * 0.4;
+    ps_FragGlow     = ps_FlagColor * 0.3;
 }
 
 #endif
