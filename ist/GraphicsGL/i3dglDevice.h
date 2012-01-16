@@ -17,6 +17,7 @@ private:
     HDC     m_hdc;
     HGLRC   m_hglrc;
 #endif // _WIN32
+    DeviceContext *m_context;
 
     std::vector<DeviceResource*>        m_resources;
     std::vector<ResourceHandle>   m_vacant;
@@ -27,6 +28,7 @@ public:
     Device(HWND hwnd);
 #endif // _WIN32
     ~Device();
+    DeviceContext* getContext() { return m_context; }
 
     Buffer*         createBuffer(const BufferDesc &desc);
     VertexArray*    createVertexArray();

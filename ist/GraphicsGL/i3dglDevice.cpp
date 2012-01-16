@@ -1,13 +1,14 @@
 #include "stdafx.h"
 #include "../Base.h"
 #include "i3dglDevice.h"
+#include "i3dglDeviceContext.h"
 
 namespace ist {
 namespace i3dgl {
 
 #ifdef _WIN32
 
-Device::Device(HWND hwnd) : m_hwnd(hwnd)
+Device::Device(HWND hwnd) : m_hwnd(hwnd), m_context(NULL)
 {
     m_hdc = ::GetDC(m_hwnd);
 
@@ -45,6 +46,8 @@ Device::Device(HWND hwnd) : m_hwnd(hwnd)
         const GLubyte *vendor = glGetString(GL_VENDOR);
         istPrint("OpenGL version: %s, vendor: %s\n", version, vendor);
     }
+
+    m_context = istNew(DeviceContext)(this);
 }
 
 Device::~Device()
@@ -52,6 +55,8 @@ Device::~Device()
     for(uint32 i=0; i<m_resources.size(); ++i) {
         istSafeDelete(m_resources[i]);
     }
+
+    istSafeDelete(m_context);
 
     if(m_hglrc!=NULL) {
         ::wglMakeCurrent(NULL, NULL);

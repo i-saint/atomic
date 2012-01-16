@@ -92,7 +92,10 @@
     <ClCompile Include="ist\Base\Assert.cpp" />
     <ClCompile Include="ist\Base\ClassInfo.cpp" />
     <ClCompile Include="ist\Base\FileLoader.cpp" />
-    <ClCompile Include="ist\Base\Half\half.cpp" />
+    <ClCompile Include="ist\Base\Half\half.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="ist\Base\New.cpp" />
     <ClCompile Include="ist\Base\TaskScheduler.cpp" />
     <ClCompile Include="ist\GraphicsDX11\i3ddx11Assert.cpp" />
@@ -167,13 +170,22 @@
     <OutDir>$(SolutionDir)</OutDir>
     <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(BOOST_INCLUDE);$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
+    <LibraryPath>external\lib;$(BOOST_LIBRARY);$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)</OutDir>
+    <IntDir>$(ProjectName)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)d</TargetName>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>./;external;$(CUDA_INC_PATH);$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;$(NVSDKCOMPUTE_ROOT)/C/common/inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

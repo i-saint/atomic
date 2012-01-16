@@ -182,6 +182,9 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>./;external;$(CUDA_INC_PATH);$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;$(NVSDKCOMPUTE_ROOT)/C/common/inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <MinimalRebuild>false</MinimalRebuild>
+      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <PreprocessorDefinitions>_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -200,6 +203,8 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <HostDebugInfo>false</HostDebugInfo>
       <FastMath>false</FastMath>
       <Runtime>MDd</Runtime>
+      <Defines>
+      </Defines>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Intel_SSA|Win32'">

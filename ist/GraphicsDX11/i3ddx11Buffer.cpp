@@ -29,6 +29,7 @@ GLuint Buffer::size() const
 
 void* Buffer::map(I3D_MAP_MODE mode)
 {
+    return NULL;
 }
 
 void Buffer::unmap()
