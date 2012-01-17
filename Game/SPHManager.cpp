@@ -38,7 +38,7 @@ public:
 
         simdmat4 t(m_mat);
         for(uint32 i=0; i<num_particles; ++i) {
-            simdvec4 p((vec4&)particles[i].position);
+            simdvec4 p(vec4(particles[i].position, 1.0f));
             simdvec4 n((vec4&)particles[i].normal);
             m_fluid[i].position = (float4&)glm::vec4_cast(t * p);
             m_fluid[i].velocity = make_float4(0.0f);

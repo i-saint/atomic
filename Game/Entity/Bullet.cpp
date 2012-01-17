@@ -32,10 +32,11 @@ private:
     vec4            m_vel;
     EntityHandle    m_owner;
     float32         m_power;
+    int32           m_past_frame;
     int32           m_lifetime;
 
 public:
-    Bullet_Simple() : m_owner(0), m_power(50.0f), m_lifetime(600) {}
+    Bullet_Simple() : m_owner(0), m_power(50.0f), m_past_frame(0), m_lifetime(600) {}
 
     const mat4& getTransform() const{ return m_transform; }
     EntityHandle getOwner() const   { return m_owner; }
@@ -66,7 +67,8 @@ public:
         //super::update(dt);
         transform::update(dt);
 
-        if(--m_lifetime <=0 ) {
+        ++m_past_frame;
+        if(m_past_frame==m_lifetime) {
             atomicDeleteEntity(getHandle());
             return;
         }
@@ -92,7 +94,12 @@ public:
             l.setColor(light);
             atomicGetPointLights()->addInstance(l);
         }
-        atomicGetSPHRenderer()->addPSetInstance(getModel(), getTransform(), diffuse, glow, vec4());
+        PSetInstance inst;
+        inst.diffuse = diffuse;
+        inst.glow = glow;
+        inst.flash = vec4();
+        inst.elapsed = (float32)m_past_frame;
+        atomicGetSPHRenderer()->addPSetInstance(getModel(), getTransform(), inst);
     }
 
     virtual void eventCollide(const CollideMessage *m)

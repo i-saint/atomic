@@ -4,11 +4,9 @@
 #ifdef GLSL_VS
 ia_out(GLSL_POSITION)           vec4 ia_VertexPosition;
 ia_out(GLSL_NORMAL)             vec3 ia_VertexNormal;
-ia_out(GLSL_INSTANCE_POSITION)  vec4 ia_InstancePosition;
+ia_out(GLSL_INSTANCE_POSITION)  vec3 ia_InstancePosition;
 ia_out(GLSL_INSTANCE_NORMAL)    vec4 ia_InstanceNormal;
-ia_out(GLSL_INSTANCE_COLOR)     vec4 ia_InstanceColor;
-ia_out(GLSL_INSTANCE_GLOW)      vec4 ia_InstanceGlow;
-ia_out(GLSL_INSTANCE_PARAM)     vec4 ia_InstanceFlash;
+ia_out(GLSL_INSTANCE_PARAM)     int  ia_InstanceID;
 #endif
 #if defined(GLSL_VS) || defined(GLSL_PS)
 vs_out vec4 vs_InstancePosition;
@@ -23,8 +21,12 @@ vs_out vec4 vs_Flash;
 
 void main()
 {
-    vec4 fractionPos = ia_InstancePosition;
-    vec4 vert = ia_VertexPosition+fractionPos;
+    vec4 ia_InstanceColor   = texelFetch(u_ParamBuffer, ivec2(0, ia_InstanceID), 0);
+    vec4 ia_InstanceGlow    = texelFetch(u_ParamBuffer, ivec2(1, ia_InstanceID), 0);
+    vec4 ia_InstanceFlash   = texelFetch(u_ParamBuffer, ivec2(2, ia_InstanceID), 0);
+
+    vec4 instancePos = vec4(ia_InstancePosition, 1.0);
+    vec4 vert = ia_VertexPosition+instancePos;
     vert.w = 1.0;
 
     float dif = ia_InstanceNormal.w;
@@ -33,10 +35,11 @@ void main()
     float ndif = 1.0-dif;
     vs_Glow = ia_InstanceGlow * (ndif*ndif);
     vs_Flash = ia_InstanceFlash;
+
     vs_VertexPosition = vec4(vert.xyz, 1.0);
     vs_VertexNormal = vec4(ia_VertexNormal, 0.04);
     vs_VertexColor = vec4(ia_InstanceColor.rgb*dif3, ia_InstanceColor.a);
-    vs_InstancePosition = ia_InstancePosition;
+    vs_InstancePosition = instancePos;
     gl_Position = u_RS.ModelViewProjectionMatrix * vert;
 }
 

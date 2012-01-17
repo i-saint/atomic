@@ -38,6 +38,7 @@ public:
     GeometryShader* createGeometryShader();
     ShaderProgram*  createShaderProgram();
 
+    Texture1D*      createTexture1D();
     Texture2D*      createTexture2D();
     RenderTarget*   createRenderTarget();
 

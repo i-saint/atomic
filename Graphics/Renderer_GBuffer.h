@@ -13,8 +13,9 @@ private:
     AtomicShader    *m_sh_rigid;
 
     stl::vector<Task*>          m_tasks;
-    stl::vector<PSetInstance>   m_rinstances;
+    stl::vector<PSetUpdateInfo> m_rupdateinfo;
     stl::vector<PSetParticle>   m_rparticles;
+    stl::vector<PSetInstance>   m_rinstances;
 
     void resizeTasks(uint32 n);
 
@@ -24,7 +25,7 @@ public:
     void beforeDraw();
     void draw();
 
-    void addPSetInstance(PSET_RID psid, const mat4 &t, const vec4 &diffuse, const vec4 &glow, const vec4 &flash);
+    void addPSetInstance(PSET_RID psid, const mat4 &t, const PSetInstance inst);
 };
 
 } // namespace atomic

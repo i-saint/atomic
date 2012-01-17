@@ -33,6 +33,7 @@ class GraphicResourceManager : boost::noncopyable
 {
 private:
     SystemFont      *m_font;
+    Texture1D       *m_tex1d[TEX1D_END];
     Texture2D       *m_tex2d[TEX2D_END];
     VertexArray     *m_va[VA_END];
     Buffer          *m_vbo[VBO_END];
@@ -54,6 +55,7 @@ public:
     static void finalizeInstance();
 
     SystemFont*     getFont()                   { return m_font; }
+    Texture1D*      getTexture1D(TEX1D_RID i)   { return m_tex1d[i]; }
     Texture2D*      getTexture2D(TEX2D_RID i)   { return m_tex2d[i]; }
     VertexArray*    getVertexArray(VA_RID i)    { return m_va[i]; }
     Buffer*         getVertexBuffer(VBO_RID i)  { return m_vbo[i]; }
@@ -69,6 +71,7 @@ public:
 #define atomicGetResourceManager()   GraphicResourceManager::getInstance()
 
 #define atomicGetFont()             atomicGetResourceManager()->getFont()
+#define atomicGetTexture1D(i)       atomicGetResourceManager()->getTexture1D(i)
 #define atomicGetTexture2D(i)       atomicGetResourceManager()->getTexture2D(i)
 #define atomicGetVertexArray(i)     atomicGetResourceManager()->getVertexArray(i)
 #define atomicGetVertexBuffer(i)    atomicGetResourceManager()->getVertexBuffer(i)

@@ -44,6 +44,7 @@ inline AtomicShader* CreateAtomicShader(const char* source)
 bool GraphicResourceManager::initialize()
 {
     m_font = NULL;
+    stl::fill_n(m_tex1d, _countof(m_tex1d), (Texture1D*)NULL);
     stl::fill_n(m_tex2d, _countof(m_tex2d), (Texture2D*)NULL);
     stl::fill_n(m_va, _countof(m_va), (VertexArray*)NULL);
     stl::fill_n(m_vbo, _countof(m_vbo), (Buffer*)NULL);
@@ -61,6 +62,9 @@ bool GraphicResourceManager::initialize()
     i3d::Device *dev = atomicGetGLDevice();
     {
         m_font = istNew(SystemFont)(dev->getHDC());
+    }
+    for(uint32 i=0; i<_countof(m_tex1d); ++i) {
+        m_tex1d[i] = dev->createTexture1D();
     }
     for(uint32 i=0; i<_countof(m_tex2d); ++i) {
         m_tex2d[i] = dev->createTexture2D();
@@ -123,6 +127,7 @@ bool GraphicResourceManager::initialize()
     {
         // create textures
         GenerateRandomTexture(*m_tex2d[TEX2D_RANDOM], uvec2(64, 64), I3D_RGB8U);
+        m_tex2d[TEX2D_ENTITY_PARAMS]->allocate(uvec2(4, 1024), I3D_RGBA32F, NULL);
     }
     {
         // create render targets
@@ -172,6 +177,7 @@ void GraphicResourceManager::finalize()
     for(uint32 i=0; i<_countof(m_vbo); ++i)     { if(m_vbo[i]) { atomicSafeRelease( m_vbo[i] ); } }
     for(uint32 i=0; i<_countof(m_va); ++i)      { if(m_va[i]) { atomicSafeRelease( m_va[i] ); } }
     for(uint32 i=0; i<_countof(m_tex2d); ++i)   { if(m_tex2d[i]) { atomicSafeRelease( m_tex2d[i] ); } }
+    for(uint32 i=0; i<_countof(m_tex1d); ++i)   { if(m_tex1d[i]) { atomicSafeRelease( m_tex1d[i] ); } }
     istSafeDelete(m_font);
 }
 

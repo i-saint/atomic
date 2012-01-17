@@ -176,6 +176,7 @@ void AtomicRenderer::passDeferredShading()
     m_rt_gbuffer->getColorBuffer(GBUFFER_POSITION)->bind(GLSL_POSITION_BUFFER);
     m_rt_gbuffer->getColorBuffer(GBUFFER_GLOW)->bind(GLSL_GLOW_BUFFER);
     brt->getColorBuffer(0)->bind(GLSL_BACK_BUFFER);
+    atomicGetTexture2D(TEX2D_RANDOM)->bind(GLSL_RANDOM_BUFFER);
 
     glClear(GL_COLOR_BUFFER_BIT);
     glEnable(GL_BLEND);

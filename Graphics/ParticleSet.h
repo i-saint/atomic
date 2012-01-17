@@ -25,11 +25,31 @@ struct BloodstainParticle_IsDead
 
 struct PSetParticle
 {
-    vec4 position;
     vec4 normal;
+    vec3 position;
+    int instanceid;
+};
+
+struct PSetInstance
+{
     vec4 diffuse;
     vec4 glow;
     vec4 flash;
+    float32 elapsed;
+    float32 appear_radius;
+    float32 padding[2];
+};
+
+struct PSetUpdateInfo
+{
+    mat4 transform;
+    union {
+        struct {
+            PSET_RID psid;
+            uint32 instanceid;
+        };
+        float4 padding;
+    };
 };
 
 
@@ -57,20 +77,6 @@ struct RigidInfo
             float4 beam_begin; // w = radius
             float4 beam_end;
         };
-    };
-};
-
-struct PSetInstance
-{
-    mat4 transform;
-    vec4 diffuse;
-    vec4 glow;
-    vec4 flash;
-    union {
-        struct {
-            PSET_RID psid;
-        };
-        float4 padding;
     };
 };
 

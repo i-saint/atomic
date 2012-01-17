@@ -7,6 +7,9 @@
     {
         RenderStates u_RS;
     };
+#ifdef GLSL_VS
+    uniform sampler2D u_ParamBuffer;
+#endif // GLSL_VS
 #ifdef GLSL_PS
     uniform sampler2D u_ColorBuffer;
     uniform sampler2D u_NormalBuffer;
@@ -14,7 +17,7 @@
     uniform sampler2D u_GlowBuffer;
     uniform sampler2D u_BackBuffer;
     uniform sampler2D u_RandomBuffer;
-#else
+    uniform sampler2D u_ParamBuffer;
 #endif
 
 #if defined(GLSL_VS)

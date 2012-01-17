@@ -421,8 +421,7 @@ bool CreateCubeParticleSet( ParticleSet &pset, RigidInfo &ri, float32 half_len )
     for(uint32 i=0; i<num; ++i) {
         vec4 rv = vec4(random.genFloat32(),random.genFloat32(),random.genFloat32(),0.0f) * len;
         vec4 ppos = pos + rv;
-        particles[i].position = ppos;
-        particles[i].position.w = 1.0f;
+        particles[i].position = vec3(ppos);
 
         float32 max_d = 0.0f;
         uint32 max_p = 0;
@@ -456,8 +455,7 @@ bool CreateSphereParticleSet( ParticleSet &pset, RigidInfo &ri, float32 radius )
         vec4 dir = glm::normalize(vec4(random.genFloat32(),random.genFloat32(),random.genFloat32(),0.0f)-half);
         float l = random.genFloat32()*radius;
         vec4 pos = dir*l;
-        particles[i].position   = pos;
-        particles[i].position.w = 1.0f;
+        particles[i].position   = vec3(pos);
         particles[i].normal     = dir;
         particles[i].normal.w   = l / radius;
     }

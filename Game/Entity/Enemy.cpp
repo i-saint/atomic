@@ -143,7 +143,12 @@ public:
             atomicGetPointLights()->addInstance(l);
         }
         if(m_state!=ST_FADEOUT) {
-            atomicGetSPHRenderer()->addPSetInstance(getModel(), getTransform(), diffuse, glow, getFlashColor());
+            PSetInstance inst;
+            inst.diffuse = diffuse;
+            inst.glow = glow;
+            inst.flash = getFlashColor();
+            inst.elapsed = (float32)getPastFrame();
+            atomicGetSPHRenderer()->addPSetInstance(getModel(), getTransform(), inst);
             atomicGetBloodstainRenderer()->addBloodstainParticles(getTransform(), getBloodStainParticles(), getNumBloodstainParticles());
         }
     }

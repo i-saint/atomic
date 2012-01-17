@@ -38,8 +38,14 @@ enum RT_RID {
     RT_END,
 };
 
+enum TEX1D_RID {
+    TEX1D_DUMMY,
+    TEX1D_END,
+};
+
 enum TEX2D_RID {
     TEX2D_RANDOM,
+    TEX2D_ENTITY_PARAMS,
     TEX2D_END,
 };
 

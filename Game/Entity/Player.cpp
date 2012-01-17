@@ -135,8 +135,12 @@ public:
             atomicGetPointLights()->addInstance(l);
         }
         {
-            atomicGetSPHRenderer()->addPSetInstance(pset_id, getTransform(),
-                vec4(0.6f, 0.6f, 0.6f, 50.0f), vec4(0.2f, 0.0f, 1.0f, 0.0f), vec4());
+            PSetInstance inst;
+            inst.diffuse = vec4(0.6f, 0.6f, 0.6f, 50.0f);
+            inst.glow = vec4(0.2f, 0.0f, 1.0f, 0.0f);
+            inst.flash = vec4();
+            inst.elapsed = (float32)getPastFrame();
+            atomicGetSPHRenderer()->addPSetInstance(pset_id, getTransform(), inst);
         }
     }
 

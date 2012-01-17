@@ -135,6 +135,13 @@ ShaderProgram* Device::createShaderProgram()
     return r;
 }
 
+Texture1D* Device::createTexture1D()
+{
+    Texture1D *r = istNew(Texture1D)(this);
+    addResource(r);
+    return r;
+}
+
 Texture2D* Device::createTexture2D()
 {
     Texture2D *r = istNew(Texture2D)(this);
