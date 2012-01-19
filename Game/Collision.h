@@ -169,18 +169,18 @@ class CollisionGrid
 {
 public:
     static const int32 MAX_ENTITIES_IN_CELL = 64;
-    static const uvec2 GRID_DIV;
+    static const ivec2 GRID_DIV;
     static const uint32 GRID_XDIV = 32;
     static const uint32 GRID_YDIV = 32;
     static const vec2 CELL_SIZE;
     struct Cell
     {
-        CollisionEntity *entities[MAX_ENTITIES_IN_CELL-1];
+        CollisionHandle handles[MAX_ENTITIES_IN_CELL-1];
         uint32 num;
         Cell()
         {
             num = 0;
-            std::fill_n(entities, _countof(entities), (CollisionEntity*)NULL);
+            std::fill_n(handles, _countof(handles), 0);
         }
     };
 
@@ -190,9 +190,9 @@ private:
 public:
     CollisionGrid();
     void updateGrid(stl::vector<CollisionEntity*> &entities);
-    uvec2 getGridCoord(const vec4 &pos);
-    void getGridRange(const BoundingBox &bb, uvec2 &out_bl, uvec2 &out_ur);
-    void getEntities(const BoundingBox &bb, stl::vector<CollisionEntity*> &out_entities);
+    ivec2 getGridCoord(const vec4 &pos);
+    void getGridRange(const BoundingBox &bb, ivec2 &out_bl, ivec2 &out_ur);
+    void getEntities(const BoundingBox &bb, stl::vector<CollisionHandle> &out_handles);
 };
 
 
@@ -212,8 +212,8 @@ private:
     HandleCont      m_vacant;
     uint32          m_active_tasks;
 #ifdef __atomic_enable_distance_field__
-    DistanceField *m_df[2];
-    uint32 m_df_current;
+    DistanceField   *m_df[2];
+    uint32          m_df_current;
 #endif // __atomic_enable_distance_field__
 
     void addEntity(CollisionEntity *e);
@@ -235,7 +235,7 @@ public:
     void deleteEntity(CollisionHandle e);
     void deleteEntity(CollisionEntity *e);
 
-    uint32 collide(CollisionEntity *e, MessageCont &m, EntityCont &neighbor_store);
+    uint32 collide(CollisionEntity *e, MessageCont &m, HandleCont &neighbor_store);
 
     CollisionGrid* getCollisionGrid();
     DistanceField* getDistanceField();

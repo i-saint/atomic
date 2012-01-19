@@ -301,7 +301,7 @@ void DistanceField::updateEnd()
 
 
 
-const uvec2 CollisionGrid::GRID_DIV = uvec2(32, 32);
+const ivec2 CollisionGrid::GRID_DIV = ivec2(32, 32);
 const vec2 CollisionGrid::CELL_SIZE = vec2(SPH_GRID_SIZE / GRID_DIV.x, SPH_GRID_SIZE / GRID_DIV.y);
 
 CollisionGrid::CollisionGrid()
@@ -310,56 +310,56 @@ CollisionGrid::CollisionGrid()
 
 void CollisionGrid::updateGrid( stl::vector<CollisionEntity*> &entities )
 {
-    for(uint32 yi=0; yi<GRID_DIV.y; ++yi) {
-        for(uint32 xi=0; xi<GRID_DIV.x; ++xi) {
+    for(int32 yi=0; yi<GRID_DIV.y; ++yi) {
+        for(int32 xi=0; xi<GRID_DIV.x; ++xi) {
             Cell &gd = m_grid[yi][xi];
             gd.num = 0;
         }
     }
 
     uint32 num_entities = entities.size();
-    uvec2 bl, ur;
+    ivec2 bl, ur;
     for(uint32 i=0; i<num_entities; ++i) {
         CollisionEntity *ce = entities[i];
         if(!ce) { continue; }
         getGridRange(ce->bb, bl, ur);
-        for(uint32 yi=bl.y; yi<ur.y; ++yi) {
-            for(uint32 xi=bl.x; xi<ur.x; ++xi) {
+        for(int32 yi=bl.y; yi<ur.y; ++yi) {
+            for(int32 xi=bl.x; xi<ur.x; ++xi) {
                 Cell &gd = m_grid[yi][xi];
-                if(gd.num==_countof(gd.entities)) {
+                if(gd.num==_countof(gd.handles)) {
                     istPrint("warning: max reached.\n");
                     break;
                 }
-                gd.entities[gd.num++] = ce;
+                gd.handles[gd.num++] = ce->getCollisionHandle();
             }
         }
     }
 }
 
-uvec2 CollisionGrid::getGridCoord( const vec4 &pos )
+ivec2 CollisionGrid::getGridCoord( const vec4 &pos )
 {
     const vec2 grid_pos = vec2(-SPH_GRID_SIZE*0.5f, -SPH_GRID_SIZE*0.5f);
     const ivec2 grid_coord = ivec2((vec2(pos)-grid_pos)/CELL_SIZE);
-    return uvec2( glm::max(glm::min(grid_coord, ivec2(GRID_DIV-uvec2(1,1))), ivec2(0,0)) );
+    return glm::max(glm::min(grid_coord, GRID_DIV-ivec2(1,1)), ivec2(0,0));
 }
 
-void CollisionGrid::getGridRange( const BoundingBox &bb, uvec2 &out_bl, uvec2 &out_ur )
+void CollisionGrid::getGridRange( const BoundingBox &bb, ivec2 &out_bl, ivec2 &out_ur )
 {
     out_bl = getGridCoord(bb.bl);
-    out_ur = getGridCoord(bb.ur) + uvec2(1,1);
+    out_ur = getGridCoord(bb.ur) + ivec2(1,1);
 }
 
-void CollisionGrid::getEntities( const BoundingBox &bb, stl::vector<CollisionEntity*> &out_entities )
+void CollisionGrid::getEntities( const BoundingBox &bb, stl::vector<CollisionHandle> &out_entities )
 {
-    uvec2 bl, ur;
+    ivec2 bl, ur;
     getGridRange(bb, bl, ur);
-    for(uint32 yi=bl.y; yi<ur.y; ++yi) {
-        for(uint32 xi=bl.x; xi<ur.x; ++xi) {
+    for(int32 yi=bl.y; yi<ur.y; ++yi) {
+        for(int32 xi=bl.x; xi<ur.x; ++xi) {
             Cell &gd = m_grid[yi][xi];
-            out_entities.insert(out_entities.end(), gd.entities, gd.entities+gd.num);
+            out_entities.insert(out_entities.end(), gd.handles, gd.handles+gd.num);
         }
     }
-    std::sort(out_entities.begin(), out_entities.end(), LessCollisionHandle());
+    std::sort(out_entities.begin(), out_entities.end());
     stl::unique(out_entities.begin(), out_entities.end());
 }
 
@@ -368,11 +368,12 @@ void CollisionGrid::getEntities( const BoundingBox &bb, stl::vector<CollisionEnt
 class CollideTask : public Task
 {
 private:
+    typedef stl::vector<CollisionHandle> HandleCont;
     typedef stl::vector<CollisionEntity*> EntityCont;
     typedef EntityCont::iterator CollisionIterator;
     typedef stl::vector<CollideMessage> MessageCont;
     CollisionSet        *m_manager;
-    EntityCont          m_neighbors;
+    HandleCont          m_neighbors;
     MessageCont         m_messages;
     CollisionIterator   m_begin;
     CollisionIterator   m_end;
@@ -393,7 +394,7 @@ public:
 };
 
 
-uint32 CollisionSet::collide(CollisionEntity *sender, MessageCont &m, EntityCont &neighbor_store)
+uint32 CollisionSet::collide(CollisionEntity *sender, MessageCont &m, HandleCont &neighbor_store)
 {
     if(!sender || (sender->getFlags() & CF_SENDER)==0 ) { return 0; }
 
@@ -401,7 +402,7 @@ uint32 CollisionSet::collide(CollisionEntity *sender, MessageCont &m, EntityCont
     m_grid.getEntities(sender->bb, neighbor_store);
     uint32 num_neighbors = neighbor_store.size();
     for(uint32 i=0; i<num_neighbors; ++i) {
-        CollisionEntity *receiver = neighbor_store[i];
+        CollisionEntity *receiver = getEntity(neighbor_store[i]);
         if((receiver->getFlags() & CF_RECEIVER) == 0 ) { continue; }
         if(receiver->getGObjHandle() == sender->getGObjHandle()) { continue; }
         CollideMessage message;
@@ -528,7 +529,7 @@ void CollisionSet::addEntity(CollisionEntity *e)
 
 CollisionEntity* CollisionSet::getEntity(CollisionHandle h)
 {
-    if(h==0) { return NULL; }
+    //if(h==0) { return NULL; }
     return m_entities[h];
 }
 
