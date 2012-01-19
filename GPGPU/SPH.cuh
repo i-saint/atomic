@@ -19,6 +19,7 @@ typedef uint2 sphGridData;
 typedef glm::vec4 vec4;
 typedef glm::mat4 mat4;
 
+#define SPH_GRID_SIZE 5.12f
 
 const int SPH_FLUID_GRID_DIV_SHIFT_X = 8; // 
 const int SPH_FLUID_GRID_DIV_SHIFT_Y = 8; // 
@@ -67,8 +68,8 @@ struct sphParams
 
 struct sphBoundingBox
 {
-    float4 ur;
     float4 bl;
+    float4 ur;
 };
 
 struct sphRigidCollision
@@ -81,6 +82,7 @@ struct sphRigidCollision
         };
         float4 padding;
     };
+    sphBoundingBox bb;
 };
 
 struct sphRigidPlane : public sphRigidCollision
@@ -90,13 +92,11 @@ struct sphRigidPlane : public sphRigidCollision
 
 struct sphRigidSphere : public sphRigidCollision
 {
-    sphBoundingBox bb;
     float4 pos_r;
 };
 
 struct sphRigidBox : public sphRigidCollision
 {
-    sphBoundingBox bb;
     float4 position;
     float4 planes[6];
 };

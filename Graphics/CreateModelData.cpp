@@ -297,26 +297,33 @@ void CreateFieldGridLines( VertexArray *va, Buffer *&vbo )
     stl::vector<vertex_t> vertices;
 
     vec3 div    = vec3(SPH_DISTANCE_FIELD_DIV_X, SPH_DISTANCE_FIELD_DIV_Y, SPH_DISTANCE_FIELD_DIV_Z);
-    vec3 bl     = vec3(-2.56, -2.56, 0.0f);
-    vec3 size   = vec3(5.12);
+    vec3 bl     = vec3(-SPH_GRID_SIZE*0.5f, -SPH_GRID_SIZE*0.5f, 0.0f);
+    vec3 size   = vec3(SPH_GRID_SIZE);
     vec3 cell   = size / div;
     vertices.reserve((SPH_DISTANCE_FIELD_DIV_X+1) * (SPH_DISTANCE_FIELD_DIV_Y+1) * 2);
 
+    vec4 color1 = vec4(0.25f, 0.5f, 1.0f, 0.1f);
+    vec4 color2 = vec4(0.25f, 0.5f, 1.0f, 0.15f);
     for(uint32 xi=0; xi<=div.x; ++xi) {
         vertex_t t[2];
         t[0].pos = vec4(bl + vec3(cell.x*xi,   0.0f, 0.0f), 1.0f);
         t[1].pos = vec4(bl + vec3(cell.x*xi, size.y, 0.0f), 1.0f);
+        vec4 color = xi %4 == 0 ? color2 : color1;
+        t[0].color = color;
+        t[1].color = color;
         vertices.insert(vertices.end(), t, t+_countof(t));
     }
     for(uint32 yi=0; yi<=div.y; ++yi) {
         vertex_t t[2];
         t[0].pos = vec4(bl + vec3(  0.0f, cell.y*yi, 0.0f), 1.0f);
         t[1].pos = vec4(bl + vec3(size.x, cell.y*yi, 0.0f), 1.0f);
+        vec4 color = yi %4 == 0 ? color2 : color1;
+        t[0].color = color;
+        t[1].color = color;
         vertices.insert(vertices.end(), t, t+_countof(t));
    }
 
     for(uint32 i=0; i<vertices.size(); ++i) {
-        vertices[i].color = vec4(0.25f, 0.5f, 1.0f, 0.1f);
     }
 
     VertexDesc descs[] = {
@@ -332,8 +339,8 @@ void CreateFieldGridLines( VertexArray *va, Buffer *&vbo )
 void CreateDistanceFieldQuads( VertexArray *va, Buffer *&quad_model, Buffer *&quad_pos, Buffer *&quad_dist )
 {
     vec3 div    = vec3(SPH_DISTANCE_FIELD_DIV_X, SPH_DISTANCE_FIELD_DIV_Y, SPH_DISTANCE_FIELD_DIV_Z);
-    vec3 bl     = vec3(-2.56, -2.56, 0.0f);
-    vec3 size   = vec3(5.12);
+    vec3 bl     = vec3(-SPH_GRID_SIZE*0.5f, -SPH_GRID_SIZE*0.5f, 0.0f);
+    vec3 size   = vec3(SPH_GRID_SIZE);
     vec3 cell   = size / div;
 
     {

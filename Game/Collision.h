@@ -21,8 +21,8 @@ enum COLLISION_FLAG {
 
 struct BoundingBox
 {
-    vec4 ur;
     vec4 bl;
+    vec4 ur;
 
     void adjust() {
         if(ur.x < bl.x) { stl::swap<float32>(ur.x, bl.x); }
@@ -76,7 +76,12 @@ public:
 
     void setGObjHandle(EntityHandle v)  { m_gobj_handle=v; }
     void setFlags(int32 v)              { m_flags=v; }
+
+    BoundingBox bb;
 };
+
+struct LessCollisionHandle { bool operator()(CollisionEntity *a, CollisionEntity *b) { return a->getCollisionHandle() < b->getCollisionHandle(); }};
+
 
 struct CollisionPlane : public CollisionEntity
 {
@@ -90,7 +95,6 @@ public:
 struct CollisionSphere : public CollisionEntity
 {
 public:
-    BoundingBox bb;
     vec4 pos_r; // w=radius
 
     CollisionSphere() { setShape(CS_SPHERE); }
@@ -104,7 +108,6 @@ public:
 struct CollisionBox : public CollisionEntity
 {
 public:
-    BoundingBox bb;
     vec4 position;
     vec4 planes[6];
 
@@ -162,8 +165,37 @@ public:
     void updateEnd();
 };
 
+class CollisionGrid
+{
+public:
+    static const int32 MAX_ENTITIES_IN_CELL = 64;
+    static const uvec2 GRID_DIV;
+    static const uint32 GRID_XDIV = 32;
+    static const uint32 GRID_YDIV = 32;
+    static const vec2 CELL_SIZE;
+    struct Cell
+    {
+        CollisionEntity *entities[MAX_ENTITIES_IN_CELL-1];
+        uint32 num;
+        Cell()
+        {
+            num = 0;
+            std::fill_n(entities, _countof(entities), (CollisionEntity*)NULL);
+        }
+    };
 
-// åªèÛëçìñÇËï˚éÆÅc
+private:
+    Cell m_grid[GRID_YDIV][GRID_XDIV];
+
+public:
+    CollisionGrid();
+    void updateGrid(stl::vector<CollisionEntity*> &entities);
+    uvec2 getGridCoord(const vec4 &pos);
+    void getGridRange(const BoundingBox &bb, uvec2 &out_bl, uvec2 &out_ur);
+    void getEntities(const BoundingBox &bb, stl::vector<CollisionEntity*> &out_entities);
+};
+
+
 class CollisionSet : public boost::noncopyable
 {
 friend class CollideTask;
@@ -174,10 +206,11 @@ public:
     typedef stl::vector<CollideMessage>     MessageCont;
 
 private:
-    TaskCont    m_tasks;
-    EntityCont  m_entities;
-    HandleCont  m_vacant;
-    uint32      m_active_tasks;
+    CollisionGrid   m_grid;
+    TaskCont        m_tasks;
+    EntityCont      m_entities;
+    HandleCont      m_vacant;
+    uint32          m_active_tasks;
 #ifdef __atomic_enable_distance_field__
     DistanceField *m_df[2];
     uint32 m_df_current;
@@ -202,8 +235,9 @@ public:
     void deleteEntity(CollisionHandle e);
     void deleteEntity(CollisionEntity *e);
 
-    uint32 collide(CollisionEntity *e, MessageCont &m);
+    uint32 collide(CollisionEntity *e, MessageCont &m, EntityCont &neighbor_store);
 
+    CollisionGrid* getCollisionGrid();
     DistanceField* getDistanceField();
 };
 

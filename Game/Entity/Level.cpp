@@ -49,7 +49,7 @@ public:
     {
         super::initialize();
 
-        const vec4 field_size = vec4(2.56f);
+        const vec4 field_size = vec4(SPH_GRID_SIZE*0.5f);
         atomicGetWorld()->setFieldSize(field_size);
 
         vec4 planes[] = {
@@ -58,10 +58,17 @@ public:
             vec4( 0.0f,-1.0f, 0.0f, field_size.y),
             vec4( 0.0f, 1.0f, 0.0f, field_size.y),
         };
+        BoundingBox bboxes[] = {
+            {vec4( field_size.x,-field_size.y, 0.0f, 1.0f), vec4( field_size.x, field_size.y, 0.0f, 1.0f)},
+            {vec4(-field_size.x,-field_size.y, 0.0f, 1.0f), vec4(-field_size.x, field_size.y, 0.0f, 1.0f)},
+            {vec4(-field_size.x, field_size.y, 0.0f, 1.0f), vec4( field_size.x, field_size.y, 0.0f, 1.0f)},
+            {vec4(-field_size.x,-field_size.y, 0.0f, 1.0f), vec4( field_size.x,-field_size.y, 0.0f, 1.0f)},
+        };
         for(uint32 i=0; i<_countof(planes); ++i) {
             CollisionPlane *p = atomicCreateCollision(CollisionPlane);
             p->setGObjHandle(getHandle());
             p->setFlags(CF_SENDER|CF_AFFECT_SPH);
+            p->bb = bboxes[i];
             p->plane = planes[i];
             m_planes[i] = p->getCollisionHandle();
         }

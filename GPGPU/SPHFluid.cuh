@@ -302,8 +302,8 @@ struct _FluidComputeForce
 
 __device__ float3 GetDistanceFieldCoord(float4 pos)
 {
-    const float3 grid_pos = make_float3(-2.56f, -2.56f, 0.0f);
-    const float3 grid_size = make_float3(5.12f, 5.12f, 0.32f);
+    const float3 grid_pos = make_float3(-SPH_GRID_SIZE*0.5f, -SPH_GRID_SIZE*0.5f, 0.0f);
+    const float3 grid_size = make_float3(SPH_GRID_SIZE, SPH_GRID_SIZE, 0.32f);
     float3 coord = (make_float3(pos)-grid_pos) / grid_size;
     return coord;
 }

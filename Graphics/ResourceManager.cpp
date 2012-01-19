@@ -74,7 +74,7 @@ bool GraphicResourceManager::initialize()
     }
 
     {
-        CreateFloorQuad(m_va[VA_FLOOR_QUAD], m_vbo[VBO_FLOOR_QUAD], vec4(-2.56f, -2.56f, -0.15f, 0.0f), vec4(5.12f, 5.12f, 0.0f, 0.0f));
+        CreateFloorQuad(m_va[VA_FLOOR_QUAD], m_vbo[VBO_FLOOR_QUAD], vec4(-SPH_GRID_SIZE*0.5f, -SPH_GRID_SIZE*0.5f, -0.15f, 0.0f), vec4(SPH_GRID_SIZE, SPH_GRID_SIZE, 0.0f, 0.0f));
         CreateScreenQuad(m_va[VA_SCREEN_QUAD], m_vbo[VBO_SCREEN_QUAD]);
         CreateBloomLuminanceQuads(m_va[VA_BLOOM_LUMINANCE_QUADS], m_vbo[VBO_BLOOM_LUMINANCE_QUADS]);
         CreateBloomBlurQuads(m_va[VA_BLOOM_BLUR_QUADS], m_vbo[VBO_BLOOM_BLUR_QUADS]);
