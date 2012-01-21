@@ -12,34 +12,42 @@
 namespace atomic {
 
 
-class UpdateRigidParticle : public AtomicTask
+UpdateRigidParticle::UpdateRigidParticle(const PSetUpdateInfo &ri, PSetParticle *p)
+{
+    m_rinst = &ri;
+    m_particles = p;
+}
+
+void UpdateRigidParticle::exec()
+{
+    const ParticleSet *rc = atomicGetParticleSet(m_rinst->psid);
+    uint32 num_particles            = rc->getNumParticles();
+    const PSetParticle *particles   = rc->getParticleData();
+    simdmat4 t(m_rinst->transform);
+    for(uint32 i=0; i<num_particles; ++i) {
+        simdvec4 p(vec4(particles[i].position, 1.0f));
+        simdvec4 n((vec4&)particles[i].normal);
+        m_particles[i].position     = vec3(glm::vec4_cast(t * p));
+        m_particles[i].normal       = glm::vec4_cast(t * n);
+        m_particles[i].instanceid   = m_rinst->instanceid;
+    }
+}
+
+class UpdateRigidParticleTask : public AtomicTask
 {
 private:
-    const PSetUpdateInfo *m_rinst;
-    PSetParticle *m_particles;
+    UpdateRigidParticle *m_begin, *m_end;
 
 public:
-    void setup(const PSetUpdateInfo &ri, PSetParticle *p)
-    {
-        m_rinst = &ri;
-        m_particles = p;
-    }
-
+    void setup(UpdateRigidParticle *begin, UpdateRigidParticle *end) { m_begin=begin; m_end=end; }
     void exec()
     {
-        const ParticleSet *rc = atomicGetParticleSet(m_rinst->psid);
-        uint32 num_particles            = rc->getNumParticles();
-        const PSetParticle *particles   = rc->getParticleData();
-        simdmat4 t(m_rinst->transform);
-        for(uint32 i=0; i<num_particles; ++i) {
-            simdvec4 p(vec4(particles[i].position, 1.0f));
-            simdvec4 n((vec4&)particles[i].normal);
-            m_particles[i].position     = vec3(glm::vec4_cast(t * p));
-            m_particles[i].normal       = glm::vec4_cast(t * n);
-            m_particles[i].instanceid   = m_rinst->instanceid;
+        for(UpdateRigidParticle *i=m_begin; i!=m_end; ++i) {
+            i->exec();
         }
     }
 };
+
 
 
 PassGBuffer_SPH::PassGBuffer_SPH()
@@ -69,20 +77,42 @@ void PassGBuffer_SPH::beforeDraw()
 void PassGBuffer_SPH::draw()
 {
     // update rigid particle
+    m_updater.clear();
     uint32 num_rigid_particles = 0;
-    uint32 num_rigids = m_rupdateinfo.size();
+    uint32 num_tasks = 0;
     {
-        resizeTasks(num_rigids);
-        for(uint32 i=0; i<num_rigids; ++i) {
-            num_rigid_particles += atomicGetParticleSet(m_rupdateinfo[i].psid)->getNumParticles();
+        // 合計パーティクル数を算出して、それが収まるバッファを確保
+        uint32 num_rigids = m_rupdateinfo.size();
+        for(uint32 ri=0; ri<num_rigids; ++ri) {
+            num_rigid_particles += atomicGetParticleSet(m_rupdateinfo[ri].psid)->getNumParticles();
         }
         m_rparticles.resize(num_rigid_particles);
+
+        // 並列更新に必要な情報を設定
         size_t n = 0;
-        for(uint32 i=0; i<num_rigids; ++i) {
-            static_cast<UpdateRigidParticle*>(m_tasks[i])->setup(m_rupdateinfo[i], &m_rparticles[n]);
-            n += atomicGetParticleSet(m_rupdateinfo[i].psid)->getNumParticles();
+        for(uint32 ri=0; ri<num_rigids; ++ri) {
+            m_updater.push_back( UpdateRigidParticle(m_rupdateinfo[ri], &m_rparticles[n]) );
+            n += atomicGetParticleSet(m_rupdateinfo[ri].psid)->getNumParticles();
         }
-        TaskScheduler::addTask(&m_tasks[0], num_rigids);
+
+        // 並列更新の粒度を設定 (一定頂点数でタスクを分割)
+        const uint32 minimum_particles_in_task = 5000;
+        UpdateRigidParticle *last = &m_updater[0];
+        uint32 particles_in_task = 0;
+        for(uint32 ri=0; ri<num_rigids; ++ri) {
+            particles_in_task += atomicGetParticleSet(m_rupdateinfo[ri].psid)->getNumParticles();
+            if(particles_in_task > minimum_particles_in_task || ri+1==num_rigids) {
+                UpdateRigidParticle *current = &m_updater[ri+1];
+                resizeTasks(num_tasks+1);
+                static_cast<UpdateRigidParticleTask*>(m_tasks[num_tasks])->setup(last, current);
+                last = current;
+                ++num_tasks;
+                particles_in_task = 0;
+            }
+        }
+
+        // 並列頂点更新開始
+        TaskScheduler::addTask(&m_tasks[0], num_tasks);
     }
     // copy fluid particles (CUDA -> GL)
     atomicGetSPHManager()->copyParticlesToGL();
@@ -112,8 +142,7 @@ void PassGBuffer_SPH::draw()
     Texture2D *param_texture = atomicGetTexture2D(TEX2D_ENTITY_PARAMS);
     {
         param_texture->copy(0, uvec2(0,0), uvec2(sizeof(PSetInstance)/sizeof(vec4), m_rinstances.size()), I3D_RGBA32F, &m_rinstances[0]);
-        //param_texture->allocate(4096, I3D_RGBA32F, &m_rinstances[0]);
-        TaskScheduler::waitFor(&m_tasks[0], num_rigids);
+        TaskScheduler::waitFor(&m_tasks[0], num_tasks);
         MapAndWrite(*m_vbo_rigid, &m_rparticles[0], sizeof(PSetParticle)*num_rigid_particles);
     }
     {
@@ -146,7 +175,7 @@ void PassGBuffer_SPH::draw()
 void PassGBuffer_SPH::resizeTasks( uint32 n )
 {
     while(m_tasks.size() < n) {
-        m_tasks.push_back( istNew(UpdateRigidParticle)() );
+        m_tasks.push_back( istNew(UpdateRigidParticleTask)() );
     }
 }
 

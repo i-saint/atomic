@@ -3,7 +3,7 @@
 namespace atomic {
 
 const int ATOMIC_MAX_DIRECTIONAL_LIGHTS = 16;
-const int ATOMIC_MAX_POINT_LIGHTS = 256;
+const int ATOMIC_MAX_POINT_LIGHTS = 1024;
 
 class DirectionalLight
 {
