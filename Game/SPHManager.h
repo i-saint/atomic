@@ -13,7 +13,7 @@ class Task_FractionDraw;
 class Task_FractionUpdateAsync;
 
 
-class SPHManager : public AtomicGameModule
+class SPHManager : public IAtomicGameModule
 {
 private:
     thrust::host_vector<sphRigidPlane>          m_planes;

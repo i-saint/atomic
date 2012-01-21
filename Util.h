@@ -19,6 +19,44 @@ namespace atomic {
 
     void CreateDateString(char *buf, uint32 len);
 
+
+    // 同一値が並ぶコンテナを巡回する際、同じ数値の連続をスキップする iterator adapter
+    // (例: {1,2,2,3,3,3,1,1} を巡回すると 1,2,3,1,end の順に結果が返る)
+    // 巡回のみの場合、遅い stl::unique() のそこそこ高速な代替手段となる
+    template<class IteratorType>
+    class unique_iterator
+    {
+    public:
+        typedef IteratorType base_t;
+        typedef typename stl::iterator_traits<base_t>::value_type value_type;
+        typedef typename stl::iterator_traits<base_t>::difference_type difference_type;
+        typedef typename stl::iterator_traits<base_t>::value_type value_type;
+        typedef typename stl::iterator_traits<base_t>::pointer pointer;
+        typedef typename stl::iterator_traits<base_t>::reference reference;
+        typedef typename stl::iterator_traits<base_t>::iterator_category iterator_category;
+
+    private:
+        base_t m_iter, m_end;
+
+    public:
+        unique_iterator(const base_t &v, const base_t &e) : m_iter(v), m_end(e) {}
+        unique_iterator& operator++() {
+            const value_type &last = *(m_iter++);
+            while(m_iter!=m_end && *m_iter==last) { ++m_iter; }
+            return *this;
+        }
+        unique_iterator operator++(int) {
+            unique_iterator r = *this;
+            operator++();
+            return r;
+        }
+        value_type& operator*() { return *m_iter; }
+        base_t& operator->() { return m_iter; }
+        bool operator==(const base_t &v) const { return m_iter==v; }
+        bool operator!=(const base_t &v) const { return m_iter!=v; }
+    };
+
+
 } // namespace atomic
 
 namespace glm {

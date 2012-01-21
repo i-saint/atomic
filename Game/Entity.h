@@ -57,7 +57,7 @@ public:
     virtual bool query(uint32 query_id, variant &v) const { return false; }
 };
 
-class EntitySet : public AtomicGameModule
+class EntitySet : public IAtomicGameModule
 {
 public:
     typedef stl::vector<EntityHandle> HandleCont;

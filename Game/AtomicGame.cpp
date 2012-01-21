@@ -66,7 +66,7 @@ void AtomicGame::frameBegin()
 void AtomicGame::update(float32 dt)
 {
     m_input_server->update(*atomicGetSystemInputs());
-    m_world->update(dt);
+    m_world->update(1.0f);
 }
 
 void AtomicGame::asyncupdateBegin(float32 dt)

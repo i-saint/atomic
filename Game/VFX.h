@@ -7,10 +7,10 @@ struct __declspec(align(16)) VFXScintillaData
     vec4 position;
     vec4 color;
     vec4 velosity;
-    float32 m_frame;
-    float32 m_size;
+    float32 frame;
+    float32 scale;
     CollisionHandle m_collision;
-    VFXScintillaData() : m_frame(0.0f), m_size(0.0f), m_collision(0) {}
+    VFXScintillaData() : frame(0.0f), scale(0.02f), m_collision(0) {}
 };
 typedef stl::vector<VFXScintillaData> VFXScintillaDataCont;
 
@@ -21,7 +21,7 @@ struct __declspec(align(16)) VFXExplosionData
     vec4 velosity;
     float32 m_frame;
     float32 m_size;
-    VFXExplosionData() : m_frame(0.0f), m_size(0.0f) {}
+    VFXExplosionData() : m_frame(0.0f), m_size(0.02f) {}
 };
 typedef stl::vector<VFXExplosionData> VFXExplosionDataCont;
 
@@ -32,7 +32,7 @@ struct __declspec(align(16)) VFXDebrisData
     vec4 velosity;
     float32 m_frame;
     float32 m_size;
-    VFXDebrisData() : m_frame(0.0f), m_size(0.0f) {}
+    VFXDebrisData() : m_frame(0.0f), m_size(0.02f) {}
 };
 typedef stl::vector<VFXDebrisData> VFXDebrisDataCont;
 
@@ -44,7 +44,6 @@ public:
     virtual ~IVFXComponent() {}
     virtual void frameBegin()=0;
     virtual void update(float32 dt)=0;
-    virtual void updateEnd()=0;
     virtual void asyncupdate(float32 dt)=0;
     virtual void draw()=0;
     virtual void frameEnd()=0;
@@ -54,55 +53,63 @@ public:
 
 class VFXScintilla : public IVFXComponent
 {
+public:
+    typedef VFXScintillaData Data;
+    typedef VFXScintillaDataCont DataCont;
 private:
-    VFXScintillaDataCont m_data;
+    DataCont m_data;
 
 public:
     void frameBegin();
     void update(float32 dt);
-    void updateEnd();
     void asyncupdate(float32 dt);
     void draw();
     void frameEnd();
 
-    void addData(const VFXScintillaData *data, uint32 data_num);
+    void addData(const Data *data, uint32 data_num);
 };
 
 class VFXExplosion : public IVFXComponent
 {
+public:
+    typedef VFXExplosionData Data;
+    typedef VFXExplosionDataCont DataCont;
+
 private:
-    VFXExplosionDataCont m_data;
+    DataCont m_data;
 
 public:
     void frameBegin();
     void update(float32 dt);
-    void updateEnd();
     void asyncupdate(float32 dt);
     void draw();
     void frameEnd();
 
-    void addData(const VFXScintillaData *data, uint32 data_num);
+    void addData(const Data *data, uint32 data_num);
 };
 
 class VFXDebris : public IVFXComponent
 {
+public:
+    typedef VFXDebrisData Data;
+    typedef VFXDebrisDataCont DataCont;
+
 private:
-    VFXDebrisDataCont m_data;
+    DataCont m_data;
 
 public:
     void frameBegin();
     void update(float32 dt);
-    void updateEnd();
     void asyncupdate(float32 dt);
     void draw();
     void frameEnd();
 
-    void addData(const VFXScintillaData *data, uint32 data_num);
+    void addData(const Data *data, uint32 data_num);
 };
 
 
 
-class VFXSet : public AtomicGameModule
+class VFXSet : public IAtomicGameModule
 {
 private:
     VFXScintilla *m_scintilla;

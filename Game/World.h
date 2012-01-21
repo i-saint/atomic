@@ -11,17 +11,17 @@ class SPHManager;
 class VFXSet;
 
 
-class World : public AtomicGameModule
+class World : public IAtomicGameModule
 {
 private:
     CollisionSet    *m_collision_set;
     SPHManager      *m_sph;
     EntitySet       *m_entity_set;
     VFXSet          *m_vfx;
-    typedef stl::vector<AtomicGameModule*> ModuleCont;
+    typedef stl::vector<IAtomicGameModule*> ModuleCont;
     ModuleCont      m_modules;
 
-    typedef Task_UpdateAsync<AtomicGameModule> ModuleUpdateTask;
+    typedef Task_UpdateAsync<IAtomicGameModule> ModuleUpdateTask;
     typedef stl::vector<ModuleUpdateTask*> ModuleUpdateTaskCont;
     ModuleUpdateTaskCont m_module_update_tasks;
 

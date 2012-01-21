@@ -1,6 +1,7 @@
 ﻿#include "stdafx.h"
 #include "types.h"
 #include "Task.h"
+#include "Util.h"
 #include "Game/AtomicApplication.h"
 #include "Game/AtomicGame.h"
 #include "Game/World.h"
@@ -359,8 +360,7 @@ void CollisionGrid::getEntities( const BoundingBox &bb, stl::vector<CollisionHan
             out_entities.insert(out_entities.end(), gd.handles, gd.handles+gd.num);
         }
     }
-    std::sort(out_entities.begin(), out_entities.end());
-    stl::unique(out_entities.begin(), out_entities.end());
+    stl::sort(out_entities.begin(), out_entities.end());
 }
 
 
@@ -393,16 +393,15 @@ public:
     MessageCont& getMessages() { return m_messages; }
 };
 
-
-uint32 CollisionSet::collide(CollisionEntity *sender, MessageCont &m, HandleCont &neighbor_store)
+uint32 CollisionSet::collide(CollisionEntity *sender, MessageCont &m, HandleCont &neighbors)
 {
     if(!sender || (sender->getFlags() & CF_SENDER)==0 ) { return 0; }
 
     uint32 n = 0;
-    m_grid.getEntities(sender->bb, neighbor_store);
-    uint32 num_neighbors = neighbor_store.size();
-    for(uint32 i=0; i<num_neighbors; ++i) {
-        CollisionEntity *receiver = getEntity(neighbor_store[i]);
+    m_grid.getEntities(sender->bb, neighbors);
+    unique_iterator<HandleCont::iterator> iter(neighbors.begin(), neighbors.end());
+    for(; iter!=neighbors.end(); ++iter) {
+        CollisionEntity *receiver = getEntity(*iter);
         if((receiver->getFlags() & CF_RECEIVER) == 0 ) { continue; }
         if(receiver->getGObjHandle() == sender->getGObjHandle()) { continue; }
         CollideMessage message;
@@ -413,7 +412,7 @@ uint32 CollisionSet::collide(CollisionEntity *sender, MessageCont &m, HandleCont
             ++n;
         }
     }
-    neighbor_store.clear();
+    neighbors.clear();
 
     return n;
 }
@@ -451,15 +450,6 @@ void CollisionSet::frameBegin()
 
 void CollisionSet::update(float32 dt)
 {
-    for(uint32 ti=0; ti<m_active_tasks; ++ti) {
-        const MessageCont &messages = m_tasks[ti]->getMessages();
-        uint32 num_messages = messages.size();
-        for(uint32 mi=0; mi<num_messages; ++mi) {
-            if(IEntity *e = atomicGetEntity(messages[mi].to)) {
-                atomicCall(e, eventCollide, static_cast<const CollideMessage*>(&messages[mi]));
-            }
-        }
-    }
 }
 
 void CollisionSet::resizeTasks(uint32 n)
@@ -496,6 +486,16 @@ void CollisionSet::frameEnd()
 #ifdef __atomic_enable_distance_field__
     m_df[(m_df_current+1) % _countof(m_df)]->updateEnd();
 #endif // __atomic_enable_distance_field__
+
+    for(uint32 ti=0; ti<m_active_tasks; ++ti) {
+        const MessageCont &messages = m_tasks[ti]->getMessages();
+        uint32 num_messages = messages.size();
+        for(uint32 mi=0; mi<num_messages; ++mi) {
+            if(IEntity *e = atomicGetEntity(messages[mi].to)) {
+                atomicCall(e, eventCollide, static_cast<const CollideMessage*>(&messages[mi]));
+            }
+        }
+    }
 }
 
 void CollisionSet::copyRigitsToGPU()

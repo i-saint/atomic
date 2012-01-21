@@ -5,6 +5,15 @@
 
 namespace atomic {
 
+    template<class T>
+    struct VFXData_IsDead
+    {
+        bool operator()(const T &v) const
+        {
+            return v.scale <= 0.0f;
+        }
+    };
+
 
 void VFXScintilla::frameBegin()
 {
@@ -14,12 +23,22 @@ void VFXScintilla::update( float32 dt )
 {
 }
 
-void VFXScintilla::updateEnd()
-{
-}
-
 void VFXScintilla::asyncupdate( float32 dt )
 {
+    uint32 num_data = m_data.size();
+    for(uint32 i=0; i<num_data; ++i) {
+        Data &data = m_data[i];
+        simdvec4 pos = simdvec4(data.position);
+        simdvec4 vel = simdvec4(data.velosity);
+        data.position = glm::vec4_cast(pos + vel);
+        data.frame += dt;
+        if(data.frame > 60.0f) {
+            data.scale = data.scale -= 0.0003f;
+        }
+    }
+    m_data.erase(
+        stl::remove_if(m_data.begin(), m_data.end(), VFXData_IsDead<Data>()),
+        m_data.end());
 }
 
 void VFXScintilla::draw()
@@ -32,19 +51,16 @@ void VFXScintilla::frameEnd()
 
 void VFXScintilla::addData( const VFXScintillaData *data, uint32 data_num )
 {
+    m_data.insert(m_data.end(), data, data+data_num);
 }
+
+
 
 void VFXExplosion::frameBegin()
 {
 }
 
-
-
 void VFXExplosion::update( float32 dt )
-{
-}
-
-void VFXExplosion::updateEnd()
 {
 }
 
@@ -60,8 +76,9 @@ void VFXExplosion::frameEnd()
 {
 }
 
-void VFXExplosion::addData( const VFXScintillaData *data, uint32 data_num )
+void VFXExplosion::addData( const Data *data, uint32 data_num )
 {
+    m_data.insert(m_data.end(), data, data+data_num);
 }
 
 
@@ -71,10 +88,6 @@ void VFXDebris::frameBegin()
 }
 
 void VFXDebris::update( float32 dt )
-{
-}
-
-void VFXDebris::updateEnd()
 {
 }
 
@@ -90,8 +103,9 @@ void VFXDebris::frameEnd()
 {
 }
 
-void VFXDebris::addData( const VFXScintillaData *data, uint32 data_num )
+void VFXDebris::addData( const Data *data, uint32 data_num )
 {
+    m_data.insert(m_data.end(), data, data+data_num);
 }
 
 

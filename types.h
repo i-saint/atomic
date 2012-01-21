@@ -70,14 +70,29 @@ enum ATOMIC_ERROR {
     ATERR_CUDA_INSUFFICIENT_DRIVER,
 };
 
-class AtomicGameModule : public boost::noncopyable
+class IAtomicGameModule : public boost::noncopyable
 {
 public:
-    virtual ~AtomicGameModule() {}
+    virtual ~IAtomicGameModule() {}
+
+    // フレーム開始時に呼ばれる。
     virtual void frameBegin()=0;
+
+    // 同期更新。dt の単位はフレーム。
     virtual void update(float32 dt)=0;
+
+    // 非同期更新。dt の単位はフレーム。
+    // asyncupdate() と draw() は並列に走るため、draw() に asyncupdate() の結果に依存する処理がある場合、
+    // draw() の中で asyncupdate() の完了を待つ必要がある。
     virtual void asyncupdate(float32 dt)=0;
+
+    // 描画用データを作って Renderer へ送る。(i3d::DeviceContext などを直接触る処理があってはならない)
+    // asyncupdate() と draw() は並列に走るため、draw() に asyncupdate() の結果に依存する処理がある場合、
+    // draw() の中で asyncupdate() の完了を待つ必要がある。
     virtual void draw()=0;
+
+    // フレーム終了時に呼ばれる。
+    // 非同期更新処理がある場合、この中で完了を待つこと。(フレームを跨ぐ処理があってはならない)
     virtual void frameEnd()=0;
 
     // todo: serialize/deserialize

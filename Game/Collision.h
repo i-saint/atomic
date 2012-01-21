@@ -191,11 +191,15 @@ public:
     void updateGrid(stl::vector<CollisionEntity*> &entities);
     ivec2 getGridCoord(const vec4 &pos);
     void getGridRange(const BoundingBox &bb, ivec2 &out_bl, ivec2 &out_ur);
+
+    // BoundingBox の範囲のセルの要素を取得。
+    // 注意: out_handles の結果はソートされているが、同じ要素が複数入っている可能性がある。
+    //       atomic::unique_iterator で重複要素を回避しながら巡回すること。(stl::unique() が非常に遅いため、こうなっている)
     void getEntities(const BoundingBox &bb, stl::vector<CollisionHandle> &out_handles);
 };
 
 
-class CollisionSet : public AtomicGameModule
+class CollisionSet : public IAtomicGameModule
 {
 friend class CollideTask;
 public:
@@ -235,7 +239,7 @@ public:
     void deleteEntity(CollisionHandle e);
     void deleteEntity(CollisionEntity *e);
 
-    uint32 collide(CollisionEntity *e, MessageCont &m, HandleCont &neighbor_store);
+    uint32 collide(CollisionEntity *e, MessageCont &m, HandleCont &neighbors_placeholder);
 
     CollisionGrid* getCollisionGrid();
     DistanceField* getDistanceField();
