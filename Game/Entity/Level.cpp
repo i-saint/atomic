@@ -187,7 +187,7 @@ public:
             if(m_level > 0 && !isPlayerAlive()) {
                 m_frame = 0;
                 m_state = ST_GAME_OVER;
-                atomicGetFader()->setFade(vec4(0.0f, 0.0f, 0.0f, 1.0f), 300);
+                atomicGetFader()->setFade(vec4(0.0f, 0.0f, 0.0f, 1.0f), 300.0f);
             }
         }
         else if(m_state==ST_GAME_OVER) {
@@ -256,7 +256,7 @@ public:
         }
         {
             atomicGetFader()->setColor(vec4(0.0f, 0.0f, 0.0f, 1.0f));
-            atomicGetFader()->setFade(vec4(0.0f, 0.0f, 0.0f, 0.0f), 60);
+            atomicGetFader()->setFade(vec4(0.0f, 0.0f, 0.0f, 0.0f), 60.0f);
         }
         goNextLevel();
     }

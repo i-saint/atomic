@@ -63,8 +63,8 @@ private:
 
     vec4 m_begin_color;
     vec4 m_end_color;
-    uint32 m_begin_frame;
-    uint32 m_end_frame;
+    float32 m_begin_frame;
+    float32 m_end_frame;
 
 public:
     PassPostprocess_Fade();
@@ -72,7 +72,7 @@ public:
     void draw();
 
     void setColor(const vec4 &v) { m_params.color=v; }
-    void setFade(const vec4 &v, uint32 frame);
+    void setFade(const vec4 &v, float32 frame);
 };
 
 } // namespace atomic

@@ -13,7 +13,7 @@ class Task_FractionDraw;
 class Task_FractionUpdateAsync;
 
 
-class SPHManager : boost::noncopyable
+class SPHManager : public AtomicGameModule
 {
 private:
     thrust::host_vector<sphRigidPlane>          m_planes;
@@ -29,14 +29,13 @@ public:
     SPHManager();
     ~SPHManager();
 
-    void initialize();
     void serialize(Serializer& s) const;
     void deserialize(Deserializer& s);
 
     void frameBegin();
     void update(float32 dt);
     void asyncupdate(float32 dt);
-    void draw() const;
+    void draw();
     void frameEnd();
 
     void copyParticlesToGL();

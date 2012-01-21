@@ -52,6 +52,7 @@ namespace i3d = ist::i3dgl;
 using namespace ist::i3dgl;
 
 typedef uint32 EntityHandle;
+typedef uint32 CollisionHandle;
 
 typedef stl::allocator PermanentAllocator;
 typedef stl::allocator FrameAllocator;
@@ -67,6 +68,19 @@ enum ATOMIC_ERROR {
     ATERR_OPENGL_INITIALIZATION_FAILED,
     ATERR_CUDA_NO_DEVICE,
     ATERR_CUDA_INSUFFICIENT_DRIVER,
+};
+
+class AtomicGameModule : public boost::noncopyable
+{
+public:
+    virtual ~AtomicGameModule() {}
+    virtual void frameBegin()=0;
+    virtual void update(float32 dt)=0;
+    virtual void asyncupdate(float32 dt)=0;
+    virtual void draw()=0;
+    virtual void frameEnd()=0;
+
+    // todo: serialize/deserialize
 };
 
 

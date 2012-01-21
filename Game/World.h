@@ -8,24 +8,27 @@ namespace atomic {
 class EntitySet;
 class CollisionSet;
 class SPHManager;
+class VFXSet;
 
 
-class World : boost::noncopyable
+class World : public AtomicGameModule
 {
 private:
     CollisionSet    *m_collision_set;
-    EntitySet       *m_entity_set;
     SPHManager      *m_sph;
+    EntitySet       *m_entity_set;
+    VFXSet          *m_vfx;
+    typedef stl::vector<AtomicGameModule*> ModuleCont;
+    ModuleCont      m_modules;
 
-    Task_UpdateAsync<World>         *m_task_update_world;
-    Task_UpdateAsync<EntitySet>     *m_task_update_entity;
-    Task_UpdateAsync<CollisionSet>  *m_task_update_collision;
-    Task_UpdateAsync<SPHManager>    *m_task_update_sph;
+    typedef Task_UpdateAsync<AtomicGameModule> ModuleUpdateTask;
+    typedef stl::vector<ModuleUpdateTask*> ModuleUpdateTaskCont;
+    ModuleUpdateTaskCont m_module_update_tasks;
 
     PerspectiveCamera m_camera;
     vec4 m_field_size;
 
-    uint32 m_frame;
+    float32 m_frame;
 
 public:
     World();
@@ -40,12 +43,12 @@ public:
     void asyncupdate(float32 dt);
     void asyncupdateBegin(float32 dt);
     void asyncupdateEnd();
-    void draw() const;
+    void draw();
     void frameEnd();
 
     PerspectiveCamera* getCamera() { return &m_camera; }
     const vec4& getFieldSize() const    { return m_field_size; }
-    uint32 getFrame() const             { return m_frame; }
+    float32 getFrame() const            { return m_frame; }
 
     void setFieldSize(const vec4 &v)    { m_field_size=v; }
 

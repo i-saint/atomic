@@ -57,7 +57,7 @@ public:
     virtual bool query(uint32 query_id, variant &v) const { return false; }
 };
 
-class EntitySet : boost::noncopyable
+class EntitySet : public AtomicGameModule
 {
 public:
     typedef stl::vector<EntityHandle> HandleCont;
@@ -77,7 +77,6 @@ public:
 
     void frameBegin();
     void update(float32 dt);
-    void updateEnd();
     void asyncupdate(float32 dt);
     void draw();
     void frameEnd();

@@ -447,9 +447,6 @@ CollisionSet::~CollisionSet()
 
 void CollisionSet::frameBegin()
 {
-#ifdef __atomic_enable_distance_field__
-    m_df[(m_df_current+1) % _countof(m_df)]->updateEnd();
-#endif // __atomic_enable_distance_field__
 }
 
 void CollisionSet::update(float32 dt)
@@ -487,8 +484,18 @@ void CollisionSet::asyncupdate(float32 dt)
     TaskScheduler::waitFor((Task**)&m_tasks[0], m_tasks.size());
 }
 
+void CollisionSet::draw()
+{
+#ifdef __atomic_enable_distance_field__
+    m_df[(m_df_current+1) % _countof(m_df)]->updateEnd();
+#endif // __atomic_enable_distance_field__
+}
+
 void CollisionSet::frameEnd()
 {
+#ifdef __atomic_enable_distance_field__
+    m_df[(m_df_current+1) % _countof(m_df)]->updateEnd();
+#endif // __atomic_enable_distance_field__
 }
 
 void CollisionSet::copyRigitsToGPU()

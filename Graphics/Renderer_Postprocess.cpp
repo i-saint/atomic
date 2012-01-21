@@ -205,11 +205,11 @@ PassPostprocess_Fade::PassPostprocess_Fade()
 
 void PassPostprocess_Fade::beforeDraw()
 {
-    uint32 frame = atomicGetFrame();
+    float32 frame = atomicGetFrame();
     if(frame > m_end_frame) { return; }
 
     vec4 diff = m_end_color-m_begin_color;
-    uint32 f = m_end_frame-m_begin_frame;
+    float32 f = m_end_frame-m_begin_frame;
     float32 l = float32(frame-m_begin_frame)/f;
     m_params.color = m_begin_color + diff*l;
 }
@@ -234,7 +234,7 @@ void PassPostprocess_Fade::draw()
     brt->unbind();
 }
 
-void PassPostprocess_Fade::setFade(const vec4 &v, uint32 frame)
+void PassPostprocess_Fade::setFade(const vec4 &v, float32 frame)
 {
     m_begin_color = m_params.color;
     m_end_color = v;

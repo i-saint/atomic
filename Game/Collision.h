@@ -43,7 +43,6 @@ struct BoundingBox
 };
 
 class CollisionSet;
-typedef uint32 CollisionHandle;
 
 
 // virtual なデストラクタがないのは意図的。
@@ -196,7 +195,7 @@ public:
 };
 
 
-class CollisionSet : public boost::noncopyable
+class CollisionSet : public AtomicGameModule
 {
 friend class CollideTask;
 public:
@@ -226,6 +225,7 @@ public:
     void frameBegin();
     void update(float32 dt);
     void asyncupdate(float32 dt);
+    void draw();
     void frameEnd();
 
     void copyRigitsToGPU();

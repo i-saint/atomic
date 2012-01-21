@@ -139,6 +139,12 @@ bool AtomicApplication::initialize(int argc, char *argv[])
             return false;
         }
 
+        for(int32 i=0; i<dev_count; ++i) {
+            cudaDeviceProp dev;
+            cudaGetDeviceProperties(&dev, i);
+            istPrint("CUDA device %d: %s\n", i, dev.name);
+        }
+
         int device_id = cutGetMaxGflopsDeviceId();
         CUDA_SAFE_CALL( cudaSetDevice(device_id) );
         CUDA_SAFE_CALL( cudaGLSetGLDevice(device_id) );

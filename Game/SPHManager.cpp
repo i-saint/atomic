@@ -84,11 +84,6 @@ SPHManager::~SPHManager()
 }
 
 
-void SPHManager::initialize()
-{
-}
-
-
 void SPHManager::frameBegin()
 {
     m_planes.clear();
@@ -124,7 +119,7 @@ void SPHManager::addRigid(const sphRigidSphere &s)  { m_spheres.push_back(s); }
 void SPHManager::addRigid(const sphRigidBox &s)     { m_boxes.push_back(s); }
 void SPHManager::addForce(const sphForcePointGravity &v) { m_pgravity.push_back(v); }
 
-void SPHManager::draw() const
+void SPHManager::draw()
 {
 }
 
