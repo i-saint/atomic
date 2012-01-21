@@ -28,4 +28,6 @@ void operator delete[](void* p);
 #define istSafeRelease(Obj)             if(Obj){Obj->release();Obj=NULL;}
 #define istSafeAddRef(Obj)              if(Obj){Obj->addRef();}
 
+#define istThreadLocal                  __declspec(thread)
+
 #endif // __ist_Base_New__
