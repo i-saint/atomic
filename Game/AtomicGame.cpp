@@ -94,7 +94,7 @@ void AtomicGame::draw()
         if(is->isButtonPressed(3) && f%16!=0){ return; }
     }
     atomicKickDraw();
-    atomicWaitForDrawCallbackComplete();
+    atomicWaitUntilDrawCallbackComplete();
 }
 
 void AtomicGame::frameEnd()

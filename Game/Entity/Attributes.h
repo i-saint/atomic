@@ -140,50 +140,43 @@ public:
 class Attr_DoubleAxisRotation
 {
 private:
-    struct Attr_DoubleAxisRotationData
-    {
-        vec4 m_pos;
-        vec4 m_scale;
-        vec4 m_axis1;
-        vec4 m_axis2;
-        float32 m_rot1;
-        float32 m_rot2;
-
-        Attr_DoubleAxisRotationData()
-            : m_scale(1.0f, 1.0f, 1.0f, 0.0f)
-            , m_axis1(0.0f, 1.0f, 0.0f, 0.0f)
-            , m_axis2(0.0f, 0.0f, 1.0f, 0.0f)
-            , m_rot1(0.0f), m_rot2(0.0f)
-        {}
-    };
-    Attr_DoubleAxisRotationData m_td_sync, m_td_async;
+    vec4 m_pos;
+    vec4 m_scale;
+    vec4 m_axis1;
+    vec4 m_axis2;
+    float32 m_rot1;
+    float32 m_rot2;
 
 public:
     Attr_DoubleAxisRotation()
+        : m_scale(1.0f, 1.0f, 1.0f, 0.0f)
+        , m_axis1(0.0f, 1.0f, 0.0f, 0.0f)
+        , m_axis2(0.0f, 0.0f, 1.0f, 0.0f)
+        , m_rot1(0.0f), m_rot2(0.0f)
     {
     }
 
-    const vec4& getPosition() const { return m_td_async.m_pos; }
-    const vec4& getScale() const    { return m_td_async.m_scale; }
-    const vec4& getAxis1() const    { return m_td_async.m_axis1; }
-    const vec4& getAxis2() const    { return m_td_async.m_axis2; }
-    float32 getRotate1() const      { return m_td_async.m_rot1; }
-    float32 getRotate2() const      { return m_td_async.m_rot2; }
+    const vec4& getPosition() const { return m_pos; }
+    const vec4& getScale() const    { return m_scale; }
+    const vec4& getAxis1() const    { return m_axis1; }
+    const vec4& getAxis2() const    { return m_axis2; }
+    float32 getRotate1() const      { return m_rot1; }
+    float32 getRotate2() const      { return m_rot2; }
 
-    void setPosition(const vec4& v) { m_td_async.m_pos=v; }
-    void setScale(const vec4& v)    { m_td_async.m_scale=v; }
-    void setAxis1(const vec4& v)    { m_td_async.m_axis1=v; }
-    void setAxis2(const vec4& v)    { m_td_async.m_axis2=v; }
-    void setRotate1(float32 v)      { m_td_async.m_rot1=v; }
-    void setRotate2(float32 v)      { m_td_async.m_rot2=v; }
+    void setPosition(const vec4& v) { m_pos=v; }
+    void setScale(const vec4& v)    { m_scale=v; }
+    void setAxis1(const vec4& v)    { m_axis1=v; }
+    void setAxis2(const vec4& v)    { m_axis2=v; }
+    void setRotate1(float32 v)      { m_rot1=v; }
+    void setRotate2(float32 v)      { m_rot2=v; }
 
     mat4 computeMatrix() const
     {
         mat4 mat;
-        mat = glm::translate(mat, reinterpret_cast<const vec3&>(m_td_async.m_pos));
-        mat = glm::rotate(mat, m_td_async.m_rot2, reinterpret_cast<const vec3&>(m_td_async.m_axis2));
-        mat = glm::rotate(mat, m_td_async.m_rot1, reinterpret_cast<const vec3&>(m_td_async.m_axis1));
-        mat = glm::scale(mat, reinterpret_cast<const vec3&>(m_td_async.m_scale));
+        mat = glm::translate(mat, reinterpret_cast<const vec3&>(m_pos));
+        mat = glm::rotate(mat, m_rot2, reinterpret_cast<const vec3&>(m_axis2));
+        mat = glm::rotate(mat, m_rot1, reinterpret_cast<const vec3&>(m_axis1));
+        mat = glm::scale(mat, reinterpret_cast<const vec3&>(m_scale));
         return mat;
     }
 
@@ -212,13 +205,6 @@ public:
             default: return false;
         }
     }
-
-    void update(float32 dt)
-    {
-        m_td_sync = m_td_async;
-    }
-
-    void asyncupdate(float32 dt) {}
 };
 
 template<class T>
@@ -226,24 +212,18 @@ class TAttr_RotateSpeed : public T
 {
 typedef T super;
 private:
-    struct TAttr_RotateSpeedData
-    {
-        float32 m_rspeed1;
-        float32 m_rspeed2;
-
-        TAttr_RotateSpeedData() : m_rspeed1(0.0f), m_rspeed2(0.0f) {}
-    };
-
-    TAttr_RotateSpeedData m_rs_sync, m_rs_async;
+    float32 m_rspeed1;
+    float32 m_rspeed2;
 
 public:
     TAttr_RotateSpeed()
+        : m_rspeed1(0.0f), m_rspeed2(0.0f)
     {}
 
-    float32 getRotateSpeed1() const { return m_rs_async.m_rspeed1; }
-    float32 getRotateSpeed2() const { return m_rs_async.m_rspeed2; }
-    void setRotateSpeed1(float32 v) { m_rs_async.m_rspeed1=v; }
-    void setRotateSpeed2(float32 v) { m_rs_async.m_rspeed2=v; }
+    float32 getRotateSpeed1() const { return m_rspeed1; }
+    float32 getRotateSpeed2() const { return m_rspeed2; }
+    void setRotateSpeed1(float32 v) { m_rspeed1=v; }
+    void setRotateSpeed2(float32 v) { m_rspeed2=v; }
 
     bool call(uint32 call_id, const variant &v)
     {
@@ -263,17 +243,52 @@ public:
         }
     }
 
-    void update(float32 dt)
+    void updateRotate(float32 dt)
     {
-        super::update(dt);
-        m_rs_sync = m_rs_async;
-    }
-
-    void asyncupdate(float32 dt)
-    {
-        super::asyncupdate(dt);
         this->setRotate1(this->getRotate1()+getRotateSpeed1());
         this->setRotate2(this->getRotate2()+getRotateSpeed2());
+    }
+};
+
+template<class T>
+class TAttr_TransformMatrix : public T
+{
+typedef T super;
+private:
+    mat4 m_transform;
+
+public:
+    const mat4& getTransform() const    { return m_transform; }
+
+    void setTransform(const mat4 &v) { m_transform=v; }
+
+    void updateTransformMatrix()
+    {
+        setTransform(super::computeMatrix());
+    }
+};
+
+template<class T>
+class TAttr_TransformMatrixI : public T
+{
+typedef T super;
+private:
+    mat4 m_transform;
+    mat4 m_itransform;
+
+public:
+    const mat4& getTransform() const        { return m_transform; }
+    const mat4& getInverseTransform() const { return m_itransform; }
+
+    void setTransform(const mat4 &v)
+    {
+        m_transform = v;
+        m_itransform = glm::inverse(v);
+    }
+
+    void updateTransformMatrix()
+    {
+        setTransform(super::computeMatrix());
     }
 };
 

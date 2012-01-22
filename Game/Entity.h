@@ -46,30 +46,57 @@ public:
     IEntity() : m_ehandle(0) {}
     virtual ~IEntity() {}
     uint32 getHandle() const    { return m_ehandle; }
+
+    // 初期化処理
     virtual void initialize()   {}
+
+    // 終了処理。
+    // EntitySet から開放されたタイミングで呼ばれる。
+    // 参照カウンタ方式を取る場合 EntitySet から解放されても delete はされない可能性があるため、
+    // そのようなケースでデストラクタと使い分ける必要が出てくる。
     virtual void finalize()     {}
 
-    virtual void update(float32 dt)=0;
+    // 同期更新
+    virtual void update(float32 dt)     {}
+
+    // 非同期更新。
+    // Entity 間の更新は並列に行われるが、その間、衝突判定や描画などの他のモジュールの更新は行われない。
+    // (それらは Entity の更新が全て終わってから行われる)
+    // 位置などの更新を 1 フレーム遅らせて他モジュールとも並列に更新したかったが、それだとどうしても衝突の押し返しが不自然になるため、こうなった。
     virtual void asyncupdate(float32 dt){}
+
+    // 描画データを作って Renderer に渡す。
+    // (渡すだけ。この中で i3d::Device などの描画 API を直接呼んではならない)
     virtual void draw()                 {}
 
+
+    // call_id に対応するメソッドを引数 v で呼ぶ。 (主に setHoge() 系)
+    // Routine や外部スクリプトとの連動用。
     virtual bool call(uint32 call_id, const variant &v) { return false; }
+
+    // query_id に対応するメソッドを呼んで v に結果を格納する。(主に getHoge() 系)
+    // Routine や外部スクリプトとの連動用。
     virtual bool query(uint32 query_id, variant &v) const { return false; }
 };
+
+
 
 class EntitySet : public IAtomicGameModule
 {
 public:
     typedef stl::vector<EntityHandle> HandleCont;
     typedef stl::vector<IEntity*> EntityCont;
+    typedef stl::vector<Task*> TaskCont;
 
 private:
     HandleCont m_vacant[ECID_END][ESID_MAX];
     EntityCont m_entities[ECID_END][ESID_MAX];
     EntityCont m_new_entities;
     HandleCont m_all;
+    TaskCont m_tasks;
 
     void addEntity(uint32 categoryid, uint32 classid, IEntity *e);
+    void resizeTasks(uint32 n);
 
 public:
     EntitySet();
@@ -77,7 +104,11 @@ public:
 
     void frameBegin();
     void update(float32 dt);
+
+    // なにもしない。
+    // 不本意ながら Entity の非同期更新は update() 内で行う。 (IEntity を参照)
     void asyncupdate(float32 dt);
+
     void draw();
     void frameEnd();
 

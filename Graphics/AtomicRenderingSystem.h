@@ -36,11 +36,11 @@ public:
 
 } // namespace atomic
 
-#define atomicGetRenderingSystem()          AtomicRenderingSystem::getInstance()
-#define atomicWaitForDrawCallbackComplete() atomicGetRenderingSystem()->waitUntilDrawCallbackComplete()
-#define atomicKickDraw()                    atomicGetRenderingSystem()->kickDraw()
-#define atomicGetAverageFPS()               atomicGetRenderingSystem()->getAverageFPS()
-#define atomicGetGLDevice()                 atomicGetRenderingSystem()->getDevice()
-#define atomicGetGLDeviceContext()          atomicGetRenderingSystem()->getDeviceContext()
+#define atomicGetRenderingSystem()              AtomicRenderingSystem::getInstance()
+#define atomicWaitUntilDrawCallbackComplete()   atomicGetRenderingSystem()->waitUntilDrawCallbackComplete()
+#define atomicKickDraw()                        atomicGetRenderingSystem()->kickDraw()
+#define atomicGetAverageFPS()                   atomicGetRenderingSystem()->getAverageFPS()
+#define atomicGetGLDevice()                     atomicGetRenderingSystem()->getDevice()
+#define atomicGetGLDeviceContext()              atomicGetRenderingSystem()->getDeviceContext()
 
 #endif // __atomic_Graphics_AtomicGraphics__

@@ -1,5 +1,5 @@
-#ifndef __atomic_Game_Task_h__
-#define __atomic_Game_Task_h__
+#ifndef __atomic_Game_Task__
+#define __atomic_Game_Task__
 namespace atomic {
 
 class AtomicTask : public Task
@@ -28,4 +28,4 @@ public:
 };
 
 } // namespace atomic
-#endif //__atomic_Game_Task_h__
+#endif //__atomic_Game_Task__

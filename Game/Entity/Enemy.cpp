@@ -19,13 +19,13 @@ namespace atomic {
 
 class Enemy_Test
     : public Breakable
-    , public TAttr_RotateSpeed<Attr_DoubleAxisRotation>
+    , public TAttr_TransformMatrixI< TAttr_RotateSpeed<Attr_DoubleAxisRotation> >
     , public Attr_ParticleSet
     , public Attr_Collision
     , public Attr_Bloodstain
 {
 typedef Breakable super;
-typedef TAttr_RotateSpeed<Attr_DoubleAxisRotation> transform;
+typedef TAttr_TransformMatrixI< TAttr_RotateSpeed<Attr_DoubleAxisRotation> > transform;
 typedef Attr_ParticleSet    model;
 typedef Attr_Collision      collision;
 typedef Attr_Bloodstain     bloodstain;
@@ -36,7 +36,7 @@ private:
         ST_FADEOUT,
     };
 
-    static const int FADEIN_TIME = 1;
+    static const int FADEIN_TIME = 180;
     static const int FADEOUT_TIME = 60;
     STATE m_state;
     int32 m_st_frame;
@@ -70,10 +70,6 @@ public:
     virtual void update(float32 dt)
     {
         super::update(dt);
-        transform::update(dt);
-        //if(getPastFrame()==1) { setTransform(computeMatrix()); }
-        setTransform(computeMatrix());
-
 
         ++m_st_frame;
         float32 rigid_scale = 1.0f;
@@ -82,9 +78,6 @@ public:
             if(m_st_frame==FADEIN_TIME) {
                 setState(ST_ACTIVE);
             }
-        }
-        if(getState()!=ST_FADEOUT) {
-            collision::updateCollision(getModel(), getTransform(), rigid_scale);
         }
         if(getState()==ST_FADEOUT) {
             if(m_st_frame==2) { // 1 フレームコリジョンを残してパーティクルを爆散させる
@@ -96,27 +89,37 @@ public:
         }
     }
 
-    virtual void updateRoutine(float32 dt)
-    {
-        if(getState()==ST_ACTIVE) {
-            IRoutine *routine = getRoutine();
-            if(routine) { routine->update(dt); }
-        }
-    }
-
     virtual void asyncupdate(float32 dt)
     {
         super::asyncupdate(dt);
-        transform::asyncupdate(dt);
+        transform::updateRotate(dt);
+        transform::updateTransformMatrix();
         bloodstain::updateBloodstain();
-        //setTransform(computeMatrix());
+
+        float32 rigid_scale = 1.0f;
+        if(getState()==ST_FADEIN) {
+            rigid_scale = ((float32)m_st_frame / FADEIN_TIME);
+        }
+        if(getState()!=ST_FADEOUT) {
+            collision::updateCollision(getModel(), getTransform(), rigid_scale);
+        }
+    }
+
+    virtual void updateRoutine(float32 dt)
+    {
+        if(getState()==ST_ACTIVE) {
+            if(IRoutine *routine = getRoutine()) {
+                routine->update(dt);
+            }
+        }
     }
 
     virtual void asyncupdateRoutine(float32 dt)
     {
         if(getState()==ST_ACTIVE) {
-            IRoutine *routine = getRoutine();
-            if(routine) { routine->asyncupdate(dt); }
+            if(IRoutine *routine = getRoutine()) {
+                routine->asyncupdate(dt);
+            }
         }
     }
 

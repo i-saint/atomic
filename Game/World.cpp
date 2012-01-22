@@ -82,8 +82,8 @@ void World::update(float32 dt)
         m_entity_set->createEntity<Level_Test>();
     }
 
-    for(uint32 i=0; i<m_modules.size(); ++i) {
-        m_modules[i]->update(dt);
+    for(ModuleCont::iterator i=m_modules.begin(); i!=m_modules.end(); ++i) {
+        (*i)->update(dt);
     }
 }
 
@@ -109,16 +109,16 @@ void World::asyncupdate(float32 dt)
 
 void World::draw()
 {
-    for(uint32 i=0; i<m_modules.size(); ++i) {
-        m_modules[i]->draw();
+    for(ModuleCont::iterator i=m_modules.begin(); i!=m_modules.end(); ++i) {
+        (*i)->draw();
     }
 }
 
 void World::frameEnd()
 {
-    m_entity_set->frameEnd();
-    m_sph->frameEnd();
-    m_collision_set->frameEnd();
+    for(ModuleCont::reverse_iterator i=m_modules.rbegin(); i!=m_modules.rend(); ++i) {
+        (*i)->frameEnd();
+    }
 }
 
 

@@ -114,6 +114,7 @@ void AtomicRenderingThread::waitUntilDrawCallbackComplete()
     for(;;) {
         STATE r = getState();
         if(r!=ST_BUSY && r!=ST_PROCESSING_CALLBACK) { break; }
+        // todo: Å´Ç‡Ç¡Ç∆Ç¢Ç¢ë“Çøï˚Ç»Ç¢ÅH
         ::Sleep(1);
     }
 }

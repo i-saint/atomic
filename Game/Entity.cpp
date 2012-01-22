@@ -3,6 +3,7 @@
 #include "AtomicGame.h"
 #include "Graphics/ResourceManager.h"
 #include "Entity.h"
+#include "Task.h"
 
 #ifdef __atomic_enable_strict_handle_check__
     #define atomicStrictHandleCheck(h) if(!isValidHandle(h)) { istAssert("invalid entity handle\n"); }
@@ -11,6 +12,35 @@
 #endif
 
 namespace atomic {
+
+
+class EntityUpdateTask : public AtomicTask
+{
+private:
+    EntitySet *m_eset;
+    EntityHandle *m_begin, *m_end;
+    float32 m_dt;
+
+public:
+    EntityUpdateTask(EntitySet *eset) : m_eset(eset) {}
+    void setup(EntityHandle *begin, EntityHandle *end, float32 dt)
+    {
+        m_begin = begin;
+        m_end = end;
+        m_dt = dt;
+    }
+
+    void exec()
+    {
+        const float32 dt = m_dt;
+        for(EntityHandle *i=m_begin; i!=m_end; ++i) {
+            if(IEntity *e=m_eset->getEntity(*i)) {
+                e->asyncupdate(dt);
+            }
+        }
+    }
+};
+
 
 
 void EntitySet::addEntity( uint32 categoryid, uint32 classid, IEntity *e )
@@ -29,6 +59,13 @@ void EntitySet::addEntity( uint32 categoryid, uint32 classid, IEntity *e )
     e->initialize();
     entities.push_back(NULL); // reserve
     m_new_entities.push_back(e);
+}
+
+void EntitySet::resizeTasks( uint32 n )
+{
+    while(m_tasks.size() < n) {
+        m_tasks.push_back( istNew(EntityUpdateTask)(this) );
+    }
 }
 
 EntitySet::EntitySet()
@@ -50,6 +87,11 @@ EntitySet::~EntitySet()
         }
     }
     m_all.clear();
+
+    for(uint32 i=0; i<m_tasks.size(); ++i) {
+        istSafeDelete(m_tasks[i]);
+    }
+    m_tasks.clear();
 }
 
 void EntitySet::frameBegin()
@@ -89,24 +131,25 @@ void EntitySet::update( float32 dt )
     m_new_entities.clear();
 
 
-    // todo updateAsync()
+    // asyncupdate
+    {
+        const uint32 block_size = 128;
+        const uint32 num_entities = m_all.size();
+        const uint32 num_tasks = num_entities / block_size + 1;
+        resizeTasks(num_tasks);
+        for(uint32 i=0; i<num_tasks; ++i) {
+            static_cast<EntityUpdateTask*>(m_tasks[i])->setup(
+                &m_all[block_size*i],
+                &m_all[stl::min(block_size*(i+1), num_entities)],
+                dt);
+        }
+        TaskScheduler::addTask(&m_tasks[0], num_tasks);
+        TaskScheduler::waitFor(&m_tasks[0], num_tasks);
+    }
 }
 
 void EntitySet::asyncupdate(float32 dt)
 {
-    // todo: blocknize
-    for(uint32 i=0; i<ECID_END; ++i) {
-        for(uint32 j=0; j<ESID_MAX; ++j) {
-            EntityCont &entities = m_entities[i][j];
-            uint32 s = entities.size();
-            for(uint32 k=0; k<s; ++k) {
-                IEntity *entity = entities[k];
-                if(entity) {
-                    entity->asyncupdate(dt);
-                }
-            }
-        }
-    }
 }
 
 void EntitySet::draw()

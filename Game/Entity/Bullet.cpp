@@ -17,18 +17,17 @@ namespace atomic {
 
 class Bullet_Simple
     : public IEntity
-    , public TAttr_RotateSpeed<Attr_DoubleAxisRotation>
+    , public TAttr_TransformMatrix< TAttr_RotateSpeed<Attr_DoubleAxisRotation> >
     , public Attr_ParticleSet
     , public Attr_Collision
     , public Attr_MessageHandler
 {
 typedef IEntity super;
-typedef TAttr_RotateSpeed<Attr_DoubleAxisRotation> transform;
+typedef TAttr_TransformMatrix< TAttr_RotateSpeed<Attr_DoubleAxisRotation> > transform;
 typedef Attr_ParticleSet model;
 typedef Attr_Collision collision;
 typedef Attr_MessageHandler mhandler;
 private:
-    mat4            m_transform;
     vec4            m_vel;
     EntityHandle    m_owner;
     float32         m_power;
@@ -38,9 +37,10 @@ private:
 public:
     Bullet_Simple() : m_owner(0), m_power(50.0f), m_past_frame(0), m_lifetime(600) {}
 
-    const mat4& getTransform() const{ return m_transform; }
     EntityHandle getOwner() const   { return m_owner; }
     const vec4& getVelocity() const { return m_vel; }
+    int32 getPastFrame() const      { return m_past_frame; }
+    int32 getLifeTime() const       { return m_lifetime; }
     float32 getPower() const        { return m_power; }
 
     void setOwner(EntityHandle v)   { m_owner=v; }
@@ -62,23 +62,31 @@ public:
         setRotateSpeed2(1.5f);
     }
 
-    void update(float32 dt)
+    virtual void update(float32 dt)
     {
-        //super::update(dt);
-        transform::update(dt);
+        super::update(dt);
 
         ++m_past_frame;
         if(m_past_frame==m_lifetime) {
             atomicDeleteEntity(getHandle());
             return;
         }
+    }
 
+    virtual void asyncupdate(float32 dt)
+    {
+        super::asyncupdate(dt);
+        move();
+        transform::updateRotate(dt);
+        transform::updateTransformMatrix();
+        collision::updateCollision(getModel(), getTransform(), 0.5f);
+    }
+
+    void move()
+    {
         vec4 pos = getPosition();
         pos += getVelocity();
         setPosition(pos);
-
-        m_transform = computeMatrix();
-        collision::updateCollision(getModel(), getTransform(), 0.5f);
     }
 
     virtual void draw()
@@ -109,7 +117,7 @@ public:
         if(IEntity *e=atomicGetEntity(m->from)) {
             atomicCall(e, damage, m_power);
         }
-        atomicGetSPHManager()->addFluid(getModel(), m_transform);
+        atomicGetSPHManager()->addFluid(getModel(), getTransform());
         atomicPlaySE(SE_CHANNEL2, SE_EXPLOSION2, getPosition(), true);
         atomicDeleteEntity(getHandle());
     }

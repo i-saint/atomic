@@ -452,6 +452,15 @@ void CollisionSet::frameBegin()
 
 void CollisionSet::update(float32 dt)
 {
+    for(uint32 ti=0; ti<m_active_tasks; ++ti) {
+        const MessageCont &messages = m_tasks[ti]->getMessages();
+        uint32 num_messages = messages.size();
+        for(uint32 mi=0; mi<num_messages; ++mi) {
+            if(IEntity *e = atomicGetEntity(messages[mi].to)) {
+                atomicCall(e, eventCollide, static_cast<const CollideMessage*>(&messages[mi]));
+            }
+        }
+    }
 }
 
 void CollisionSet::resizeTasks(uint32 n)
@@ -489,16 +498,6 @@ void CollisionSet::frameEnd()
 #ifdef __atomic_enable_distance_field__
     m_df[(m_df_current+1) % _countof(m_df)]->updateEnd();
 #endif // __atomic_enable_distance_field__
-
-    for(uint32 ti=0; ti<m_active_tasks; ++ti) {
-        const MessageCont &messages = m_tasks[ti]->getMessages();
-        uint32 num_messages = messages.size();
-        for(uint32 mi=0; mi<num_messages; ++mi) {
-            if(IEntity *e = atomicGetEntity(messages[mi].to)) {
-                atomicCall(e, eventCollide, static_cast<const CollideMessage*>(&messages[mi]));
-            }
-        }
-    }
 }
 
 void CollisionSet::copyRigitsToGPU()

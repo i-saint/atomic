@@ -50,6 +50,7 @@ namespace atomic {
     typedef Attr_MessageHandler mhandler;
     private:
         vec4 m_vel;
+        vec4 m_target_pos;
 
     public:
         Routine_HomingPlayer() {}
@@ -57,13 +58,17 @@ namespace atomic {
         void update(float32 dt)
         {
             IEntity *e = getEntity();
-            vec4 pos = atomicQuery(getEntity(), getPosition, vec4);
-            vec4 player_pos = GetNearestPlayerPosition(pos);
+            vec4 pos = atomicQuery(e, getPosition, vec4);
+            m_target_pos = GetNearestPlayerPosition(pos);
+        }
 
+        void asyncupdate(float32 dt)
+        {
+            IEntity *e = getEntity();
+            vec4 pos = atomicQuery(e, getPosition, vec4);
             m_vel *= 0.98f;
-            m_vel += glm::normalize(player_pos-pos) * 0.0002f;
+            m_vel += glm::normalize(m_target_pos-pos) * 0.0002f;
             pos += m_vel;
-
             atomicCall(e, setPosition, pos);
         }
 
@@ -100,7 +105,7 @@ namespace atomic {
         void setVelocity(const vec4 &v) { m_vel=v; }
         void setAccel(const vec4 &v)    { m_accel=v; }
 
-        void update(float32 dt)
+        void asyncupdate(float32 dt)
         {
             IEntity *e = getEntity();
             vec4 pos = atomicQuery(e, getPosition, vec4);
@@ -111,7 +116,7 @@ namespace atomic {
 
         virtual void eventCollide(const CollideMessage *m)
         {
-            vec4 v = m->direction * m->direction.w * 0.1f;
+            vec4 v = m->direction * m->direction.w * 0.2f;
             m_vel += v;
             m_vel.z = 0.0f;
             m_vel.w = 0.0f;

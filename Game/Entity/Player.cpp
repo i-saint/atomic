@@ -18,10 +18,10 @@ namespace atomic {
 
 class Player
     : public Breakable
-    , public TAttr_RotateSpeed<Attr_DoubleAxisRotation>
+    , public TAttr_TransformMatrix< TAttr_RotateSpeed<Attr_DoubleAxisRotation> >
 {
 typedef Breakable super;
-typedef TAttr_RotateSpeed<Attr_DoubleAxisRotation> transform;
+typedef TAttr_TransformMatrix< TAttr_RotateSpeed<Attr_DoubleAxisRotation> > transform;
 private:
     static const PSET_RID pset_id = PSET_SPHERE_SMALL;
 
@@ -45,7 +45,7 @@ public:
         m_collision.setCollisionShape(CS_SPHERE);
         m_barrier.initializeCollision(0);
         m_barrier.setCollisionShape(CS_SPHERE);
-        //m_barrier.setCollisionFlags(CF_AFFECT_SPH);
+        m_barrier.setCollisionFlags(CF_AFFECT_SPH);
 
         setHealth(500.0f);
         setAxis1(GenRandomUnitVector3());
@@ -59,7 +59,7 @@ public:
         }
     }
 
-    virtual void update(float32 dt)
+    void move()
     {
         m_cooldown = std::max<int32>(0, m_cooldown-1);
 
@@ -76,30 +76,30 @@ public:
         setPosition(pos);
 
         m_vel *= 0.96f;
+    }
 
+    virtual void update(float32 dt)
+    {
+        super::update(dt);
         {
             sphForcePointGravity pg;
-            pg.position = (float4&)pos;
+            pg.position = (const float4&)getPosition();
             pg.strength = 2.0f;
             atomicGetSPHManager()->addForce(pg);
         }
-
-
-        super::update(dt);
-        transform::update(dt);
-
-        //if(getPastFrame()==1) { setTransform(computeMatrix()); }
-        setTransform(computeMatrix());
-        m_collision.updateCollision(pset_id, getTransform(), 0.5f);
-        m_barrier.updateCollision(pset_id, getTransform(), 3.0f);
     }
 
     void asyncupdate(float32 dt)
     {
         super::asyncupdate(dt);
-        transform::asyncupdate(dt);
-        //setTransform(computeMatrix());
+
+        move();
         updateLights();
+
+        transform::updateRotate(dt);
+        transform::updateTransformMatrix();
+        m_collision.updateCollision(pset_id, getTransform(), 0.5f);
+        m_barrier.updateCollision(pset_id, getTransform(), 3.0f);
     }
 
     void updateLights()
@@ -143,7 +143,7 @@ public:
             inst.glow = vec4(0.2f, 0.0f, 1.0f, 0.0f);
             inst.flash = vec4();
             inst.elapsed = (float32)getPastFrame();
-            atomicGetSPHRenderer()->addPSetInstance(pset_id, getTransformS(), inst);
+            atomicGetSPHRenderer()->addPSetInstance(pset_id, getTransform(), inst);
         }
     }
 
