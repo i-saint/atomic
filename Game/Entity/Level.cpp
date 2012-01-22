@@ -107,16 +107,19 @@ public:
         IEntity *e = NULL;
         e = atomicCreateEntity(Enemy_Test);
         atomicCall(e, setCollisionShape, CS_SPHERE);
-        atomicCall(e, setModel, PSET_SPHERE_SMALL);
-        atomicCall(e, setPosition, GenRandomVector2() * 2.2f);
-        atomicCall(e, setHealth, 15.0f * getLoopBoost());
+        atomicCall(e, setCollisionFlags, CF_RECEIVER|CF_SENDER);
+        atomicCall(e, setModel, PSET_SPHERE_BULLET);
+        atomicCall(e, setPosition, GenRandomVector2() * 0.5f + vec4(1.5f, 1.5f, 0.0f, 0.0f));
+        atomicCall(e, setHealth, 5.0f * getLoopBoost());
         atomicCall(e, setAxis1, GenRandomUnitVector3());
         atomicCall(e, setAxis2, GenRandomUnitVector3());
         atomicCall(e, setRotateSpeed1, 2.4f);
         atomicCall(e, setRotateSpeed2, 2.4f);
         atomicCall(e, setRoutine, ROUTINE_PINBALL);
-        atomicCall(e, setLightRadius, 0.65f);
-        atomicCall(e, setVelocity, GenRandomUnitVector2()*0.01f);
+        atomicCall(e, setLightRadius, 0.0f);
+        atomicCall(e, setVelocity, (vec4(0.0f, -0.99f, 0.0f, 0.0f))*0.005f);
+        //atomicCall(e, setAccel, GenRandomUnitVector2()*0.00005f);
+        atomicCall(e, setAccel, vec4(0.0f, -1.0f, 0.0f, 0.0f)*0.00005f);
         m_small_enemies.push_back(e->getHandle());
         return e;
     }
@@ -157,7 +160,7 @@ public:
         atomicCall(e, setRotateSpeed1, 0.1f);
         atomicCall(e, setRotateSpeed2, 0.1f);
         atomicCall(e, setRoutine, ROUTINE_SHOOT);
-        atomicCall(e, setLightRadius, 1.2f);
+        atomicCall(e, setLightRadius, 1.4f);
         atomicCall(e, setExplosionSE, SE_EXPLOSION5);
         atomicCall(e, setExplosionChannel, SE_CHANNEL5);
         m_large_enemies.push_back(e->getHandle());
@@ -253,6 +256,7 @@ public:
             IEntity *e = atomicCreateEntity(Player);
             m_player = e->getHandle();
             atomicCall(e, setPosition, vec4(0.0f, 0.0f, 0.0f, 1.0f));
+            atomicCall(e, setHealth, 100000000.0f);
         }
         {
             atomicGetFader()->setColor(vec4(0.0f, 0.0f, 0.0f, 1.0f));
@@ -263,13 +267,13 @@ public:
 
     void level1()
     {
-        if(m_frame < 1200) {
-            if(m_frame % 50 == 0) {
-                //IEntity *e = putPinballEnemy();
-                IEntity *e = putSmallEnemy();
+        if(m_frame < 3000) {
+            if(m_frame % 1 == 0) {
+                putPinballEnemy();
+                putPinballEnemy();
             }
-            if(m_frame==1) {
-                //IEntity *e = putLargeEnemy();
+            if(m_frame % 50 == 0) {
+                //IEntity *e = putSmallEnemy();
             }
         }
         else if(isAllDead()) {
@@ -354,6 +358,15 @@ public:
 
     void draw()
     {
+        {
+            DirectionalLight dl;
+            dl.setDirection(glm::normalize(vec4(1.0f, -1.0f, -0.5f, 0.0f)));
+            dl.setDiffuse(vec4(0.3f, 0.3f, 0.3f, 1.0f));
+            dl.setAmbient(vec4(0.0f, 0.0f, 0.0f, 0.0f));
+            atomicGetDirectionalLights()->addInstance(dl);
+        }
+
+
         float32 health = 0.0f;
         if(IEntity *e = atomicGetEntity(m_player)) {
             health = atomicQuery(e, getHealth, float32);

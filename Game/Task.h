@@ -8,6 +8,12 @@ public:
     ~AtomicTask() { join(); }
 };
 
+class AtomicDrawTask : public AtomicTask
+{
+public:
+    AtomicDrawTask() { setPriority(50); }
+};
+
 template<class T>
 class Task_UpdateAsync : public AtomicTask
 {

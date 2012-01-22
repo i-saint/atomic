@@ -51,7 +51,7 @@ public:
     {
         collision::initializeCollision(getHandle());
         setCollisionShape(CS_SPHERE);
-        setCollisionFlag(CF_RECEIVER | CF_AFFECT_SPH);
+        setCollisionFlags(CF_RECEIVER | CF_AFFECT_SPH);
 
         setModel(PSET_SPHERE_SMALL);
         setDiffuseColor(vec4(0.6f, 0.6f, 0.6f, 80.0f));

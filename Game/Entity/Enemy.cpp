@@ -36,7 +36,7 @@ private:
         ST_FADEOUT,
     };
 
-    static const int FADEIN_TIME = 180;
+    static const int FADEIN_TIME = 1;
     static const int FADEOUT_TIME = 60;
     STATE m_state;
     int32 m_st_frame;
@@ -71,8 +71,9 @@ public:
     {
         super::update(dt);
         transform::update(dt);
-
+        //if(getPastFrame()==1) { setTransform(computeMatrix()); }
         setTransform(computeMatrix());
+
 
         ++m_st_frame;
         float32 rigid_scale = 1.0f;
@@ -106,7 +107,9 @@ public:
     virtual void asyncupdate(float32 dt)
     {
         super::asyncupdate(dt);
+        transform::asyncupdate(dt);
         bloodstain::updateBloodstain();
+        //setTransform(computeMatrix());
     }
 
     virtual void asyncupdateRoutine(float32 dt)
@@ -119,6 +122,8 @@ public:
 
     virtual void draw()
     {
+        //return;
+
         vec4 diffuse = getDiffuseColor();
         vec4 glow = getGlowColor();
         vec4 light = vec4(0.8f, 0.1f, 0.2f, 1.0f);
@@ -135,9 +140,9 @@ public:
             light   *= s;
         }
 
-        {
+        if(m_light_radius > 0.0f) {
             PointLight l;
-            l.setPosition(getPosition() + vec4(0.0f, 0.0f, 0.2f, 1.0f));
+            l.setPosition(getPosition() + vec4(0.0f, 0.0f, m_light_radius*0.5f, 1.0f));
             l.setColor(light);
             l.setRadius(m_light_radius);
             atomicGetPointLights()->addInstance(l);

@@ -176,13 +176,13 @@ const vec3 DistanceField::grid_size  = vec3(SPH_GRID_SIZE, SPH_GRID_SIZE, 0.32f)
 const vec3 DistanceField::grid_pos   = vec3(-SPH_GRID_SIZE*0.5f, -SPH_GRID_SIZE*0.5f, 0.0f);
 const vec3 DistanceField::cell_size  = grid_size/vec3(grid_div);
 
-atomic::ivec3 DistanceField::getDistanceFieldCoord( const vec3 &pos )
+ivec3 DistanceField::getDistanceFieldCoord( const vec3 &pos )
 {
     ivec3 fc = ivec3((pos-grid_pos) / cell_size);
     return glm::min(grid_div-ivec3(1,1,1), glm::max(ivec3(0,0,0), fc));
 }
 
-class DistanceTask : public Task
+class DistanceTask : public AtomicTask
 {
 private:
     typedef stl::vector<CollisionEntity*>   EntityCont;
@@ -365,7 +365,7 @@ void CollisionGrid::getEntities( const BoundingBox &bb, stl::vector<CollisionHan
 
 
 
-class CollideTask : public Task
+class CollideTask : public AtomicTask
 {
 private:
     typedef stl::vector<CollisionHandle> HandleCont;
@@ -395,7 +395,7 @@ public:
 
 uint32 CollisionSet::collide(CollisionEntity *sender, MessageCont &m, HandleCont &neighbors)
 {
-    if(!sender || (sender->getFlags() & CF_SENDER)==0 ) { return 0; }
+    if(!sender || (sender->getFlags() & CF_SENDER)==0) { return 0; }
 
     uint32 n = 0;
     m_grid.getEntities(sender->bb, neighbors);
@@ -407,7 +407,9 @@ uint32 CollisionSet::collide(CollisionEntity *sender, MessageCont &m, HandleCont
         CollideMessage message;
         if(Collide(sender, receiver, message)) {
             message.to = receiver->getGObjHandle();
+            message.cto = receiver->getCollisionHandle();
             message.from = sender->getGObjHandle();
+            message.cfrom = sender->getCollisionHandle();
             m.push_back(message);
             ++n;
         }
@@ -463,7 +465,7 @@ void CollisionSet::asyncupdate(float32 dt)
 {
     m_grid.updateGrid(m_entities);
 
-    const uint32 block_size = 32;
+    const uint32 block_size = 256;
     uint32 num_entities = m_entities.size();
     m_active_tasks = num_entities / block_size + (num_entities%block_size==0 ? 0 : 1);
     resizeTasks(m_active_tasks);
@@ -471,7 +473,6 @@ void CollisionSet::asyncupdate(float32 dt)
         m_tasks[i]->setup(m_entities.begin()+(block_size*i), m_entities.begin()+std::min<uint32>(block_size*(i+1), m_entities.size()));
     }
     TaskScheduler::addTask((Task**)&m_tasks[0], m_tasks.size());
-    TaskScheduler::waitFor((Task**)&m_tasks[0], m_tasks.size());
 }
 
 void CollisionSet::draw()
@@ -483,6 +484,8 @@ void CollisionSet::draw()
 
 void CollisionSet::frameEnd()
 {
+    TaskScheduler::waitFor((Task**)&m_tasks[0], m_tasks.size());
+
 #ifdef __atomic_enable_distance_field__
     m_df[(m_df_current+1) % _countof(m_df)]->updateEnd();
 #endif // __atomic_enable_distance_field__

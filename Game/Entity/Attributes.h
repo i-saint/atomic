@@ -76,10 +76,11 @@ public:
     }
 };
 
-class Attr_Transform : public Attr_Translate
+class Attr_Transform
 {
 typedef Attr_Translate super;
 private:
+    vec4 m_pos;
     vec4 m_scale;
     vec4 m_axis;
     float32 m_rot;
@@ -91,13 +92,15 @@ public:
         , m_rot(0.0f)
     {}
 
-    const vec4& getScale() const{ return m_scale; }
-    const vec4& getAxis() const { return m_axis; }
-    float32 getRotate() const   { return m_rot; }
+    const vec4& getPosition() const { return m_pos; }
+    const vec4& getScale() const    { return m_scale; }
+    const vec4& getAxis() const     { return m_axis; }
+    float32 getRotate() const       { return m_rot; }
 
-    void setScale(const vec4& v){ m_scale=v; }
-    void setAxis(const vec4& v) { m_axis=v; }
-    void setRotate(float32 v)   { m_rot=v; }
+    void setPosition(const vec4& v) { m_pos=v; }
+    void setScale(const vec4& v)    { m_scale=v; }
+    void setAxis(const vec4& v)     { m_axis=v; }
+    void setRotate(float32 v)       { m_rot=v; }
 
     mat4 computeMatrix() const
     {
@@ -111,20 +114,22 @@ public:
     bool call(uint32 call_id, const variant &v)
     {
         switch(call_id) {
+            DEFINE_ECALL1(setPosition, vec4);
             DEFINE_ECALL1(setScale, vec4);
             DEFINE_ECALL1(setAxis, vec4);
             DEFINE_ECALL1(setRotate, float32);
-            default: return super::call(call_id, v);
+        default: return false;
         }
     }
 
     bool query(uint32 query_id, variant &v) const
     {
         switch(query_id) {
+            DEFINE_EQUERY(getPosition);
             DEFINE_EQUERY(getScale);
             DEFINE_EQUERY(getAxis);
             DEFINE_EQUERY(getRotate);
-            default: return super::query(query_id, v);
+        default: return false;
         }
     }
 
@@ -132,71 +137,87 @@ public:
     void asyncupdate(float32 dt) {}
 };
 
-class Attr_DoubleAxisRotation : public Attr_Translate
+class Attr_DoubleAxisRotation
 {
-typedef Attr_Translate super;
 private:
-    vec4 m_scale;
-    vec4 m_axis1;
-    vec4 m_axis2;
-    float32 m_rot1;
-    float32 m_rot2;
+    struct Attr_DoubleAxisRotationData
+    {
+        vec4 m_pos;
+        vec4 m_scale;
+        vec4 m_axis1;
+        vec4 m_axis2;
+        float32 m_rot1;
+        float32 m_rot2;
+
+        Attr_DoubleAxisRotationData()
+            : m_scale(1.0f, 1.0f, 1.0f, 0.0f)
+            , m_axis1(0.0f, 1.0f, 0.0f, 0.0f)
+            , m_axis2(0.0f, 0.0f, 1.0f, 0.0f)
+            , m_rot1(0.0f), m_rot2(0.0f)
+        {}
+    };
+    Attr_DoubleAxisRotationData m_td_sync, m_td_async;
 
 public:
     Attr_DoubleAxisRotation()
-        : m_scale(1.0f, 1.0f, 1.0f, 0.0f)
-        , m_axis1(0.0f, 1.0f, 0.0f, 0.0f)
-        , m_axis2(0.0f, 0.0f, 1.0f, 0.0f)
-        , m_rot1(0.0f), m_rot2(0.0f)
-    {}
+    {
+    }
 
-    const vec4& getScale() const{ return m_scale; }
-    const vec4& getAxis1() const{ return m_axis1; }
-    const vec4& getAxis2() const{ return m_axis2; }
-    float32 getRotate1() const  { return m_rot1; }
-    float32 getRotate2() const  { return m_rot2; }
+    const vec4& getPosition() const { return m_td_async.m_pos; }
+    const vec4& getScale() const    { return m_td_async.m_scale; }
+    const vec4& getAxis1() const    { return m_td_async.m_axis1; }
+    const vec4& getAxis2() const    { return m_td_async.m_axis2; }
+    float32 getRotate1() const      { return m_td_async.m_rot1; }
+    float32 getRotate2() const      { return m_td_async.m_rot2; }
 
-    void setScale(const vec4& v){ m_scale=v; }
-    void setAxis1(const vec4& v){ m_axis1=v; }
-    void setAxis2(const vec4& v){ m_axis2=v; }
-    void setRotate1(float32 v)  { m_rot1=v; }
-    void setRotate2(float32 v)  { m_rot2=v; }
+    void setPosition(const vec4& v) { m_td_async.m_pos=v; }
+    void setScale(const vec4& v)    { m_td_async.m_scale=v; }
+    void setAxis1(const vec4& v)    { m_td_async.m_axis1=v; }
+    void setAxis2(const vec4& v)    { m_td_async.m_axis2=v; }
+    void setRotate1(float32 v)      { m_td_async.m_rot1=v; }
+    void setRotate2(float32 v)      { m_td_async.m_rot2=v; }
 
     mat4 computeMatrix() const
     {
         mat4 mat;
-        mat = glm::translate(mat, reinterpret_cast<const vec3&>(m_pos));
-        mat = glm::rotate(mat, m_rot2, reinterpret_cast<const vec3&>(m_axis2));
-        mat = glm::rotate(mat, m_rot1, reinterpret_cast<const vec3&>(m_axis1));
-        mat = glm::scale(mat, reinterpret_cast<const vec3&>(m_scale));
+        mat = glm::translate(mat, reinterpret_cast<const vec3&>(m_td_async.m_pos));
+        mat = glm::rotate(mat, m_td_async.m_rot2, reinterpret_cast<const vec3&>(m_td_async.m_axis2));
+        mat = glm::rotate(mat, m_td_async.m_rot1, reinterpret_cast<const vec3&>(m_td_async.m_axis1));
+        mat = glm::scale(mat, reinterpret_cast<const vec3&>(m_td_async.m_scale));
         return mat;
     }
 
     bool call(uint32 call_id, const variant &v)
     {
         switch(call_id) {
+            DEFINE_ECALL1(setPosition, vec4);
             DEFINE_ECALL1(setScale, vec4);
             DEFINE_ECALL1(setAxis1, vec4);
             DEFINE_ECALL1(setAxis2, vec4);
             DEFINE_ECALL1(setRotate1, float32);
             DEFINE_ECALL1(setRotate2, float32);
-            default: return super::call(call_id, v);
+            default: return false;
         }
     }
 
     bool query(uint32 query_id, variant &v) const
     {
         switch(query_id) {
+            DEFINE_EQUERY(getPosition);
             DEFINE_EQUERY(getScale);
             DEFINE_EQUERY(getAxis1);
             DEFINE_EQUERY(getAxis2);
             DEFINE_EQUERY(getRotate1);
             DEFINE_EQUERY(getRotate2);
-            default: return super::query(query_id, v);
+            default: return false;
         }
     }
 
-    void update(float32 dt) {}
+    void update(float32 dt)
+    {
+        m_td_sync = m_td_async;
+    }
+
     void asyncupdate(float32 dt) {}
 };
 
@@ -205,17 +226,24 @@ class TAttr_RotateSpeed : public T
 {
 typedef T super;
 private:
-    float32 m_rspeed1;
-    float32 m_rspeed2;
+    struct TAttr_RotateSpeedData
+    {
+        float32 m_rspeed1;
+        float32 m_rspeed2;
+
+        TAttr_RotateSpeedData() : m_rspeed1(0.0f), m_rspeed2(0.0f) {}
+    };
+
+    TAttr_RotateSpeedData m_rs_sync, m_rs_async;
 
 public:
-    TAttr_RotateSpeed() : m_rspeed1(0.0f), m_rspeed2(0.0f)
+    TAttr_RotateSpeed()
     {}
 
-    float32 getRotateSpeed1() const { return m_rspeed1; }
-    float32 getRotateSpeed2() const { return m_rspeed2; }
-    void setRotateSpeed1(float32 v) { m_rspeed1=v; }
-    void setRotateSpeed2(float32 v) { m_rspeed2=v; }
+    float32 getRotateSpeed1() const { return m_rs_async.m_rspeed1; }
+    float32 getRotateSpeed2() const { return m_rs_async.m_rspeed2; }
+    void setRotateSpeed1(float32 v) { m_rs_async.m_rspeed1=v; }
+    void setRotateSpeed2(float32 v) { m_rs_async.m_rspeed2=v; }
 
     bool call(uint32 call_id, const variant &v)
     {
@@ -237,11 +265,16 @@ public:
 
     void update(float32 dt)
     {
+        super::update(dt);
+        m_rs_sync = m_rs_async;
+    }
+
+    void asyncupdate(float32 dt)
+    {
+        super::asyncupdate(dt);
         this->setRotate1(this->getRotate1()+getRotateSpeed1());
         this->setRotate2(this->getRotate2()+getRotateSpeed2());
     }
-
-    void asyncupdate(float32 dt) {}
 };
 
 
@@ -303,11 +336,19 @@ public:
         finalizeCollision();
     }
 
-    void setCollisionFlag(int32 v)
+    void setCollisionFlags(int32 v)
     {
         if(CollisionEntity *ce=atomicGetCollision(m_collision)) {
             ce->setFlags(v);
         }
+    }
+
+    uint32 getCollisionFlags() const
+    {
+        if(CollisionEntity *ce=atomicGetCollision(m_collision)) {
+            return ce->getFlags();
+        }
+        return 0;
     }
 
     void initializeCollision(EntityHandle h)
@@ -370,6 +411,7 @@ public:
     bool call(uint32 call_id, const variant &v)
     {
         switch(call_id) {
+            DEFINE_ECALL1(setCollisionFlags, uint32);
             DEFINE_ECALL1(setCollisionShape, COLLISION_SHAPE);
          }
         return false;
@@ -378,6 +420,7 @@ public:
     bool query(uint32 query_id, variant &v) const
     {
         switch(query_id) {
+            DEFINE_EQUERY(getCollisionFlags);
             DEFINE_EQUERY(getCollisionHandle);
         }
         return false;

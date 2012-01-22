@@ -20,6 +20,7 @@ namespace atomic {
 
     bool CreateCubeParticleSet(ParticleSet &pset, RigidInfo &ri, float32 half_len);
     bool CreateSphereParticleSet(ParticleSet &pset, RigidInfo &ri, float32 radius);
+    bool CreateBulletParticleSet(ParticleSet &pset, RigidInfo &ri);
 
 } // namespace atomic
 #endif // __atomic_Graphics_ModelData_h__

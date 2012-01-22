@@ -92,36 +92,50 @@ namespace atomic {
         typedef Attr_MessageHandler mhandler;
     private:
         vec4 m_vel;
+        vec4 m_accel;
 
     public:
         Routine_Pinball() {}
 
         void setVelocity(const vec4 &v) { m_vel=v; }
+        void setAccel(const vec4 &v)    { m_accel=v; }
 
         void update(float32 dt)
         {
             IEntity *e = getEntity();
-            vec4 pos = atomicQuery(getEntity(), getPosition, vec4);
+            vec4 pos = atomicQuery(e, getPosition, vec4);
             pos += m_vel;
+            m_vel += m_accel;
             atomicCall(e, setPosition, pos);
         }
 
         virtual void eventCollide(const CollideMessage *m)
         {
-            vec4 base_dir = m->direction;
-            vec4 dir = base_dir;
-            dir.z = dir.w = 0.0f;
-            dir = glm::normalize(dir);
+            vec4 v = m->direction * m->direction.w * 0.1f;
+            m_vel += v;
+            m_vel.z = 0.0f;
+            m_vel.w = 0.0f;
 
-            if(glm::dot(dir, m_vel) < 0.0f) {
-                m_vel = glm::reflect(m_vel, dir);
-            }
+            float32 len = glm::length(m_vel);
+            const float32 max_speed = 0.01f;
+            if(len > max_speed) { m_vel = m_vel / len * max_speed; }
+
+            //vec4 base_dir = m->direction;
+            //vec4 dir = base_dir;
+            //dir.z = dir.w = 0.0f;
+            //dir = glm::normalize(dir);
+
+            //vec4 vel = m_vel;
+            //if(glm::dot(dir, vel) < 0.0f) {
+            //    m_vel = glm::reflect(vel*0.98f, dir);
+            //}
         }
 
         virtual bool call(uint32 call_id, const variant &v)
         {
             switch(call_id) {
-            DEFINE_ECALL1(setVelocity, vec4);
+                DEFINE_ECALL1(setVelocity, vec4);
+                DEFINE_ECALL1(setAccel, vec4);
             default: return mhandler::call(call_id, v);
             }
         }

@@ -11,7 +11,7 @@ namespace atomic {
 
 
 
-class UpdateBloodstainParticle : public AtomicTask
+class UpdateBloodstainParticle : public AtomicDrawTask
 {
 private:
     mat4 m_transform;

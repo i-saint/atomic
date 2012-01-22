@@ -33,7 +33,7 @@ void UpdateRigidParticle::exec()
     }
 }
 
-class UpdateRigidParticleTask : public AtomicTask
+class UpdateRigidParticleTask : public AtomicDrawTask
 {
 private:
     UpdateRigidParticle *m_begin, *m_end;
@@ -160,16 +160,16 @@ void PassGBuffer_SPH::draw()
         m_sh_rigid->unbind();
     }
 
-    //// floor
-    //{
-    //    AtomicShader *sh_floor = atomicGetShader(SH_GBUFFER_FLOOR);
-    //    VertexArray *va_floor = atomicGetVertexArray(VA_FLOOR_QUAD);
-    //    sh_floor->bind();
-    //    va_floor->bind();
-    //    glDrawArrays(GL_QUADS, 0, 4);
-    //    va_floor->unbind();
-    //    sh_floor->unbind();
-    //}
+    // floor
+    {
+        AtomicShader *sh_floor = atomicGetShader(SH_GBUFFER_FLOOR);
+        VertexArray *va_floor = atomicGetVertexArray(VA_FLOOR_QUAD);
+        sh_floor->bind();
+        va_floor->bind();
+        glDrawArrays(GL_QUADS, 0, 4);
+        va_floor->unbind();
+        sh_floor->unbind();
+    }
 }
 
 void PassGBuffer_SPH::resizeTasks( uint32 n )

@@ -32,6 +32,8 @@ bool CreateFragmentShaderFromString(PixelShader& sh, const char* source);
 template<class BufferObjectType>
 bool MapAndWrite(BufferObjectType& bo, const void *data, size_t data_size)
 {
+    if(data_size > bo.getDesc().size) { istAssert("exceeded buffer size.\n"); }
+
     if(void *p = bo.map(I3D_MAP_WRITE)) {
         ::memcpy(p, data, data_size);
         bo.unmap();

@@ -120,12 +120,14 @@ struct CollideMessage
         struct {
             EntityHandle from;
             EntityHandle to;
+            CollisionHandle cfrom;
+            CollisionHandle cto;
         };
         float4 padding;
     };
     vec4 direction; // w=ÇﬂÇËçûÇ›ó 
 
-    CollideMessage() : from(0), to(0) {}
+    CollideMessage() : from(0), to(0), cfrom(0), cto(0) {}
 };
 
 

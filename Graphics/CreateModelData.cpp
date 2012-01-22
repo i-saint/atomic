@@ -472,4 +472,36 @@ bool CreateSphereParticleSet( ParticleSet &pset, RigidInfo &ri, float32 radius )
     return true;
 }
 
+bool CreateBulletParticleSet( ParticleSet &pset, RigidInfo &ri )
+{
+    float32 r = 0.03f * 0.5f;
+    vec4 center = vec4();
+    mat4 z120 = glm::rotate(mat4(), 120.0f, vec3(0.0f, 0.0f, 1.0f));
+    const vec4 pos[5] = {
+        vec4(0.0f, 0, 0.0f, 1.0f),
+        vec4(0.0f, r, 0.0f, 1.0f),
+        glm::rotate(mat4(),  30.0f, vec3(0.0f, 1.0f, 0.0f)) * (z120*vec4(0.0f, r, 0.0f, 1.0f)),
+        glm::rotate(mat4(), 150.0f, vec3(0.0f, 1.0f, 0.0f)) * (z120*vec4(0.0f, r, 0.0f, 1.0f)),
+        glm::rotate(mat4(), 270.0f, vec3(0.0f, 1.0f, 0.0f)) * (z120*vec4(0.0f, r, 0.0f, 1.0f)),
+    };
+    const vec4 normal[5] = {
+        vec4(0.0f, 0.0f, 0.0f, 0.6f),
+        vec4(glm::normalize(vec3(pos[1])), 0.9f),
+        vec4(glm::normalize(vec3(pos[2])), 0.9f),
+        vec4(glm::normalize(vec3(pos[3])), 0.9f),
+        vec4(glm::normalize(vec3(pos[4])), 0.9f),
+    };
+
+    stl::vector<PSetParticle> particles;
+    particles.resize(_countof(pos));
+    for(uint32 i=0; i<_countof(pos); ++i) {
+        particles[i].normal = normal[i];
+        particles[i].position = vec3(pos[i]);
+    }
+
+    pset.setData(particles);
+    ri.sphere_radius = 0.03f;
+    return true;
+}
+
 } // namespace atomic

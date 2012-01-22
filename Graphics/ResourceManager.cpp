@@ -126,7 +126,7 @@ bool GraphicResourceManager::initialize()
     {
         // create textures
         GenerateRandomTexture(*m_tex2d[TEX2D_RANDOM], uvec2(64, 64), I3D_RGB8U);
-        m_tex2d[TEX2D_ENTITY_PARAMS]->allocate(uvec2(4, 4096), I3D_RGBA32F, NULL);
+        m_tex2d[TEX2D_ENTITY_PARAMS]->allocate(uvec2(4, 4096*2), I3D_RGBA32F, NULL);
     }
     {
         // create render targets
@@ -159,7 +159,7 @@ bool GraphicResourceManager::initialize()
         CreateSphereParticleSet(m_pset[PSET_SPHERE_SMALL],  m_rinfo[PSET_SPHERE_SMALL],  0.125f);
         CreateSphereParticleSet(m_pset[PSET_SPHERE_MEDIUM], m_rinfo[PSET_SPHERE_MEDIUM], 0.25f);
         CreateSphereParticleSet(m_pset[PSET_SPHERE_LARGE],  m_rinfo[PSET_SPHERE_LARGE],  0.5f);
-        CreateSphereParticleSet(m_pset[PSET_SPHERE_BULLET], m_rinfo[PSET_SPHERE_BULLET],  0.03f);
+        CreateBulletParticleSet(m_pset[PSET_SPHERE_BULLET], m_rinfo[PSET_SPHERE_BULLET]);
     }
 
     return true;

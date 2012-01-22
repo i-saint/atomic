@@ -128,6 +128,9 @@ bool Texture2D::allocate(const uvec2 &size, I3D_COLOR_FORMAT fmt, void *data)
 
 void Texture2D::copy(uint32 mip_level, const uvec2 &pos, const uvec2 &size, I3D_COLOR_FORMAT fmt, void *data)
 {
+    if(size.x-pos.x > getSize().x || size.y-pos.y > getSize().y) {
+        istAssert("exceeded texture size.\n");
+    }
     GLint internal_format = 0;
     GLint format = 0;
     GLint type = 0;

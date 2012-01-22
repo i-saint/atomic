@@ -16,17 +16,20 @@ namespace atomic {
     typedef IEntity super;
     typedef Attr_MessageHandler mhandler;
     private:
-        mat4        m_transform;
-        mat4        m_itransform;
+        struct BreakableData {
+            mat4        m_transform;
+            mat4        m_itransform;
+        };
+        BreakableData m_bd_sync, m_bd_async;
         vec4        m_flash_color;
         IRoutine    *m_routine;
         float32     m_health;
         float32     m_delta_damage;
-        int         m_past_frame;
+        int32       m_past_frame;
 
     public:
         Breakable()
-        : m_transform(), m_routine(NULL), m_health(1.0f), m_delta_damage(0.0f), m_past_frame(0)
+        : m_routine(NULL), m_health(1.0f), m_delta_damage(0.0f), m_past_frame(0)
         {}
 
         ~Breakable()
@@ -34,15 +37,18 @@ namespace atomic {
             istSafeDelete(m_routine);
         }
 
+        const mat4& getTransformS() const       { return m_bd_sync.m_transform; }
+        const mat4& getInverseTransformS() const{ return m_bd_sync.m_itransform; }
+
+        const mat4& getTransform() const        { return m_bd_async.m_transform; }
+        const mat4& getInverseTransform() const { return m_bd_async.m_itransform; }
         float32     getHealth() const           { return m_health; }
-        const mat4& getTransform() const        { return m_transform; }
-        const mat4& getInverseTransform() const { return m_itransform; }
         IRoutine*   getRoutine()                { return m_routine; }
         const vec4& getFlashColor() const       { return m_flash_color; }
-        int         getPastFrame() const        { return m_past_frame; }
+        int32       getPastFrame() const        { return m_past_frame; }
 
         void setHealth(float32 v)       { m_health=v; }
-        void setTransform(const mat4& v){ m_transform=v; m_itransform=glm::inverse(m_transform); }
+        void setTransform(const mat4& v){ m_bd_async.m_transform=v; m_bd_async.m_itransform=glm::inverse(m_bd_async.m_transform); }
         void setRoutine(ROUTINE_CLASSID rcid)
         {
             istSafeDelete(m_routine);
@@ -52,6 +58,7 @@ namespace atomic {
 
         virtual void update(float32 dt)
         {
+            m_bd_sync = m_bd_async;
             ++m_past_frame;
             updateRoutine(dt);
             updateDamageFlash();

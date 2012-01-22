@@ -45,7 +45,7 @@ public:
         m_collision.setCollisionShape(CS_SPHERE);
         m_barrier.initializeCollision(0);
         m_barrier.setCollisionShape(CS_SPHERE);
-        m_barrier.setCollisionFlag(CF_AFFECT_SPH);
+        //m_barrier.setCollisionFlags(CF_AFFECT_SPH);
 
         setHealth(500.0f);
         setAxis1(GenRandomUnitVector3());
@@ -88,6 +88,7 @@ public:
         super::update(dt);
         transform::update(dt);
 
+        //if(getPastFrame()==1) { setTransform(computeMatrix()); }
         setTransform(computeMatrix());
         m_collision.updateCollision(pset_id, getTransform(), 0.5f);
         m_barrier.updateCollision(pset_id, getTransform(), 3.0f);
@@ -96,6 +97,8 @@ public:
     void asyncupdate(float32 dt)
     {
         super::asyncupdate(dt);
+        transform::asyncupdate(dt);
+        //setTransform(computeMatrix());
         updateLights();
     }
 
@@ -140,7 +143,7 @@ public:
             inst.glow = vec4(0.2f, 0.0f, 1.0f, 0.0f);
             inst.flash = vec4();
             inst.elapsed = (float32)getPastFrame();
-            atomicGetSPHRenderer()->addPSetInstance(pset_id, getTransform(), inst);
+            atomicGetSPHRenderer()->addPSetInstance(pset_id, getTransformS(), inst);
         }
     }
 
@@ -153,6 +156,9 @@ public:
 
     virtual void eventCollide(const CollideMessage *m)
     {
+        if( m->cfrom==m_barrier.getCollisionHandle() ||
+            m->cto==m_barrier.getCollisionHandle()) { return; }
+
         vec4 v = m->direction * m->direction.w * 0.2f;
         m_vel += v;
         m_vel.z = 0.0f;
