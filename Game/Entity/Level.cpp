@@ -366,7 +366,7 @@ public:
             dl.setDirection(glm::normalize(vec4(1.0f, -1.0f, -0.5f, 0.0f)));
             dl.setDiffuse(vec4(0.3f, 0.3f, 0.3f, 1.0f));
             dl.setAmbient(vec4(0.0f, 0.0f, 0.0f, 0.0f));
-            atomicGetDirectionalLights()->addInstance(dl);
+            atomicGetLights()->addLight(dl);
         }
 
 

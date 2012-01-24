@@ -148,7 +148,7 @@ public:
             l.setPosition(getPosition() + vec4(0.0f, 0.0f, m_light_radius*0.5f, 1.0f));
             l.setColor(light);
             l.setRadius(m_light_radius);
-            atomicGetPointLights()->addInstance(l);
+            atomicGetLights()->addLight(l);
         }
         if(m_state!=ST_FADEOUT) {
             PSetInstance inst;

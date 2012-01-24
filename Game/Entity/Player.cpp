@@ -127,7 +127,7 @@ public:
             l.setPosition(getPosition()+vec4(0.0f, 0.0f, 0.3f, 0.0f));
             l.setColor(vec4(0.1f, 0.2f, 1.0f, 1.0f));
             l.setRadius(1.0f);
-            atomicGetPointLights()->addInstance(l);
+            atomicGetLights()->addLight(l);
         }
         for(uint32 i=0; i<_countof(m_lightpos); ++i) {
             vec4 &pos = m_lightpos[i];
@@ -135,7 +135,7 @@ public:
             l.setPosition(pos);
             l.setColor(vec4(0.3f, 0.6f, 0.6f, 1.0f) + vec4(sinf(pos.x), sinf(pos.y), cosf(pos.x+pos.y), 0.0f)*0.1f);
             l.setRadius(1.2f);
-            atomicGetPointLights()->addInstance(l);
+            atomicGetLights()->addLight(l);
         }
         {
             PSetInstance inst;

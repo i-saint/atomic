@@ -100,7 +100,7 @@ public:
             l.setPosition(getPosition() + vec4(0.0f, 0.0f, 0.15f, 1.0f));
             l.setRadius(0.4f);
             l.setColor(light);
-            atomicGetPointLights()->addInstance(l);
+            atomicGetLights()->addLight(l);
         }
         PSetInstance inst;
         inst.diffuse = diffuse;

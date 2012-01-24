@@ -50,6 +50,17 @@ struct
     vec4 color;
 };
 
+struct
+#ifndef GLSL
+    __declspec(align(16))
+#endif // GLSL
+    DebugShowBufferParams
+{
+    vec2 bottom_left; // スクリーン座標、-1.0～1.0
+    vec2 upper_right; // スクリーン座標、-1.0～1.0
+    vec2 color_range; // この範囲を 0.0～1.0 に clamp する
+};
+
 
 #ifndef GLSL
 } // namespace atomic

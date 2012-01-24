@@ -141,24 +141,37 @@ void PassDeferredShading_Bloodstain::addBloodstainParticles( const mat4 &t, cons
 
 
 
-PassDeferredShading_DirectionalLights::PassDeferredShading_DirectionalLights()
+PassDeferredShading_Lights::PassDeferredShading_Lights()
+    : m_rendered_lights(0)
 {
-    m_instances.reserve(ATOMIC_MAX_DIRECTIONAL_LIGHTS);
+    m_directional_lights.reserve(ATOMIC_MAX_DIRECTIONAL_LIGHTS);
+    m_point_lights.reserve(ATOMIC_MAX_POINT_LIGHTS);
 }
 
-void PassDeferredShading_DirectionalLights::beforeDraw()
+void PassDeferredShading_Lights::beforeDraw()
 {
-    m_instances.clear();
+    m_directional_lights.clear();
+    m_point_lights.clear();
+    m_rendered_lights = 0;
 }
 
-void PassDeferredShading_DirectionalLights::draw()
+void PassDeferredShading_Lights::draw()
 {
+    drawDirectionalLights();
+    drawPointLights();
+}
+
+void PassDeferredShading_Lights::drawDirectionalLights()
+{
+    int32 show = atomicGetConfig()->debug_show_lights;
     AtomicShader *shader    = atomicGetShader(SH_DIRECTIONALLIGHT);
     VertexArray *va_quad    = atomicGetVertexArray(VA_SCREEN_QUAD);
     Buffer *vbo_instance    = atomicGetVertexBuffer(VBO_DIRECTIONALLIGHT_INSTANCES);
 
-    const uint32 num_instances = m_instances.size();
-    MapAndWrite(*vbo_instance, &m_instances[0], sizeof(light_t)*num_instances);
+    int32 num_lights = m_directional_lights.size();
+    if(show >= 0) { num_lights = stl::max<int32>(stl::min<int32>(show-m_rendered_lights, num_lights), 0); }
+    m_rendered_lights += num_lights;
+    MapAndWrite(*vbo_instance, &m_directional_lights[0], sizeof(DirectionalLight)*num_lights);
 
     const VertexDesc descs[] = {
         {GLSL_INSTANCE_DIRECTION,I3D_FLOAT,4,  0, false, 1},
@@ -168,37 +181,23 @@ void PassDeferredShading_DirectionalLights::draw()
     shader->bind();
     va_quad->bind();
     va_quad->setAttributes(*vbo_instance, sizeof(DirectionalLight), descs, _countof(descs));
-    glDrawArraysInstanced(GL_QUADS, 0, 4, num_instances);
+    glDrawArraysInstanced(GL_QUADS, 0, 4, num_lights);
     va_quad->unbind();
     shader->unbind();
 }
 
-void PassDeferredShading_DirectionalLights::addInstance( const DirectionalLight& v )
+void PassDeferredShading_Lights::drawPointLights()
 {
-    m_instances.push_back(v);
-}
-
-
-
-PassDeferredShading_PointLights::PassDeferredShading_PointLights()
-{
-    m_instances.reserve(1024);
-}
-
-void PassDeferredShading_PointLights::beforeDraw()
-{
-    m_instances.clear();
-}
-
-void PassDeferredShading_PointLights::draw()
-{
+    int32 show = atomicGetConfig()->debug_show_lights;
     AtomicShader *shader    = atomicGetShader(SH_POINTLIGHT);
     Buffer *ibo_sphere      = atomicGetIndexBuffer(IBO_LIGHT_SPHERE);
     VertexArray *va_sphere  = atomicGetVertexArray(VA_UNIT_SPHERE);
     Buffer *vbo_instance    = atomicGetVertexBuffer(VBO_POINTLIGHT_INSTANCES);
 
-    const uint32 num_instances = m_instances.size();
-    MapAndWrite(*vbo_instance, &m_instances[0], sizeof(PointLight)*num_instances);
+    int32 num_lights = m_point_lights.size();
+    if(show >= 0) { num_lights = stl::max<int32>(stl::min<int32>(show-m_rendered_lights, num_lights), 0); }
+    m_rendered_lights += num_lights;
+    MapAndWrite(*vbo_instance, &m_point_lights[0], sizeof(PointLight)*num_lights);
 
     const VertexDesc descs[] = {
         {GLSL_INSTANCE_POSITION,I3D_FLOAT,4, 0, false, 1},
@@ -210,10 +209,20 @@ void PassDeferredShading_PointLights::draw()
     va_sphere->bind();
     va_sphere->setAttributes(*vbo_instance, sizeof(PointLight), descs, _countof(descs));
     ibo_sphere->bind();
-    glDrawElementsInstanced(GL_QUADS, (16-1)*(32)*4, GL_UNSIGNED_INT, 0, num_instances);
+    glDrawElementsInstanced(GL_QUADS, (16-1)*(32)*4, GL_UNSIGNED_INT, 0, num_lights);
     ibo_sphere->unbind();
     va_sphere->unbind();
     shader->unbind();
+}
+
+void PassDeferredShading_Lights::addLight( const DirectionalLight& v )
+{
+    m_directional_lights.push_back(v);
+}
+
+void PassDeferredShading_Lights::addLight( const PointLight& v )
+{
+    m_point_lights.push_back(v);
 }
 
 } // namespace atomic

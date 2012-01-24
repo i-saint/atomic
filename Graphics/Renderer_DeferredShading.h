@@ -34,35 +34,25 @@ public:
 };
 
 
-class PassDeferredShading_DirectionalLights : public IRenderer
+class PassDeferredShading_Lights : public IRenderer
 {
 private:
-    typedef DirectionalLight light_t;
-    typedef stl::vector<DirectionalLight> InstanceCont;
-    InstanceCont    m_instances;
+    typedef stl::vector<DirectionalLight> DirectionalLights;
+    typedef stl::vector<PointLight> PointLights;
+    DirectionalLights   m_directional_lights;
+    PointLights         m_point_lights;
+    uint32              m_rendered_lights;
+
+    void drawDirectionalLights();
+    void drawPointLights();
 
 public:
-    PassDeferredShading_DirectionalLights();
+    PassDeferredShading_Lights();
     void beforeDraw();
     void draw();
 
-    void addInstance(const DirectionalLight& v);
-};
-
-class PassDeferredShading_PointLights : public IRenderer
-{
-public:
-
-private:
-    typedef stl::vector<PointLight> InstanceCont;
-    InstanceCont    m_instances;
-
-public:
-    PassDeferredShading_PointLights();
-    void beforeDraw();
-    void draw();
-
-    void addInstance(const PointLight& v) { m_instances.push_back(v); }
+    void addLight(const DirectionalLight& v);
+    void addLight(const PointLight& v);
 };
 
 } // namespace atomic

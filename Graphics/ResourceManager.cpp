@@ -95,9 +95,10 @@ bool GraphicResourceManager::initialize()
         m_vbo[VBO_BLOODSTAIN_PARTICLES] = CreateVertexBuffer(dev, sizeof(BloodstainParticle)*SPH_MAX_FLUID_PARTICLES, I3D_USAGE_DYNAMIC);
     }
     {
-        m_ubo[UBO_RENDER_STATES] = CreateUniformBuffer(dev, sizeof(RenderStates), I3D_USAGE_DYNAMIC);
-        m_ubo[UBO_FXAA_PARAMS] = CreateUniformBuffer(dev, sizeof(FXAAParams), I3D_USAGE_DYNAMIC);
-        m_ubo[UBO_FADE_PARAMS] = CreateUniformBuffer(dev, sizeof(FadeParams), I3D_USAGE_DYNAMIC);
+        m_ubo[UBO_RENDER_STATES]    = CreateUniformBuffer(dev, sizeof(RenderStates), I3D_USAGE_DYNAMIC);
+        m_ubo[UBO_FXAA_PARAMS]      = CreateUniformBuffer(dev, sizeof(FXAAParams), I3D_USAGE_DYNAMIC);
+        m_ubo[UBO_FADE_PARAMS]      = CreateUniformBuffer(dev, sizeof(FadeParams), I3D_USAGE_DYNAMIC);
+        m_ubo[UBO_DEBUG_SHOW_BUFFER_PARAMS] = CreateUniformBuffer(dev, sizeof(DebugShowBufferParams), I3D_USAGE_DYNAMIC);
     }
     {
         // create shaders
@@ -122,6 +123,8 @@ bool GraphicResourceManager::initialize()
         m_shader[SH_FILL_INSTANCED]     = CreateAtomicShader(g_FillInstanced_glsl);
         m_shader[SH_DISTANCE_FIELD]     = CreateAtomicShader(g_DistanceField_glsl);
         m_shader[SH_OUTPUT]             = CreateAtomicShader(g_Out_glsl);
+        m_shader[SH_DEBUG_SHOW_RGB]     = CreateAtomicShader(g_Debug_ShowRGB_glsl);
+        m_shader[SH_DEBUG_SHOW_AAA]     = CreateAtomicShader(g_Debug_ShowAAA_glsl);
     }
     {
         // create textures

@@ -13,13 +13,16 @@ struct AtomicConfig
     ivec2 window_size;
     bool fullscreen;
     bool vsync;
+    bool pause;
     bool posteffect_microscopic;
     bool posteffect_bloom;
     bool posteffect_antialias;
     bool show_text;
     bool show_bloodstain;
-    bool show_grid;     // debug
-    bool show_distance; // debug
+    bool debug_show_grid;
+    bool debug_show_distance;
+    int32 debug_show_gbuffer;
+    int32 debug_show_lights;
     bool sound_enable;
     float32 bgm_volume;
     float32 se_volume;

@@ -60,17 +60,23 @@ bool AtomicGame::readReplayFromFile(const char *path)
 
 void AtomicGame::frameBegin()
 {
+    if(atomicGetConfig()->pause) { return; }
+
     m_world->frameBegin();
 }
 
 void AtomicGame::update(float32 dt)
 {
+    if(atomicGetConfig()->pause) { return; }
+
     m_input_server->update(*atomicGetSystemInputs());
     m_world->update(1.0f);
 }
 
 void AtomicGame::asyncupdateBegin(float32 dt)
 {
+    if(atomicGetConfig()->pause) { return; }
+
     m_world->asyncupdateBegin(dt);
 }
 

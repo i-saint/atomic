@@ -471,14 +471,19 @@ public:
     }
 };
 
+
+// 流体を浴びた時血痕を残すエフェクトを実現する
 class Attr_Bloodstain
 {
 private:
+    // 血痕を残す頻度。流体がこの回数衝突したとき残す。
+    static const uint32 bloodstain_frequency = 128;
+
     stl::vector<BloodstainParticle> m_bloodstain;
-    uint32 m_bloodstain_count;
+    uint32 m_bloodstain_hitcount;
 
 public:
-    Attr_Bloodstain() : m_bloodstain_count(0)
+    Attr_Bloodstain() : m_bloodstain_hitcount(0)
     {
         m_bloodstain.reserve(256);
     }
@@ -487,7 +492,7 @@ public:
     {
         if(!atomicGetConfig()->show_bloodstain) { return; }
 
-        if(++m_bloodstain_count % 128 == 0) {
+        if(++m_bloodstain_hitcount % bloodstain_frequency == 0) {
             BloodstainParticle tmp;
             tmp.position = pos;
             tmp.lifetime = 1.0f;

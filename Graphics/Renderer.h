@@ -11,7 +11,7 @@ class IRenderer : public boost::noncopyable
 {
 public:
     virtual ~IRenderer() {}
-    virtual void beforeDraw()=0;    // メインスレッドから、描画処理の前に呼ばれる。頂点データの用意などを行う
+    virtual void beforeDraw() {}    // メインスレッドから、描画処理の前に呼ばれる。頂点データの用意などを行う
     virtual void draw()=0;          // 描画スレッドから呼ばれる。頂点データの GPU への転送、描画コマンド発行などを行う
 };
 
@@ -19,13 +19,13 @@ public:
 class PassGBuffer_SPH;
 class PassGBuffer_ParticleSet;
 class PassDeferredShading_Bloodstain;
-class PassDeferredShading_DirectionalLights;
-class PassDeferredShading_PointLights;
+class PassDeferredShading_Lights;
 class PassPostprocess_Microscopic;
 class PassPostprocess_FXAA;
 class PassPostprocess_Bloom;
 class PassPostprocess_Fade;
 class SystemTextRenderer;
+class PassHUD_DebugShowBuffer;
 
 class PassForwardShading_DistanceField; // for debug
 
@@ -42,13 +42,13 @@ private:
     // internal resources
     PassGBuffer_SPH                         *m_renderer_sph;
     PassDeferredShading_Bloodstain          *m_renderer_bloodstain;
-    PassDeferredShading_DirectionalLights   *m_renderer_dir_lights;
-    PassDeferredShading_PointLights         *m_renderer_point_lights;
+    PassDeferredShading_Lights              *m_renderer_lights;
     PassPostprocess_FXAA                    *m_renderer_fxaa;
     PassPostprocess_Bloom                   *m_renderer_bloom;
     PassPostprocess_Fade                    *m_renderer_fade;
     PassPostprocess_Microscopic             *m_renderer_microscopic;
     PassForwardShading_DistanceField        *m_renderer_distance_field;
+    PassHUD_DebugShowBuffer                 *m_debug_show_gbuffer;
     stl::vector<IRenderer*>                 m_renderers[PASS_END];
 
     SystemTextRenderer                      *m_stext;
@@ -81,8 +81,7 @@ public:
     RenderStates* getRenderStates()                                 { return &m_render_states; }
     PassGBuffer_SPH* getSPHRenderer()                               { return m_renderer_sph; }
     PassDeferredShading_Bloodstain* getBloodStainRenderer()         { return m_renderer_bloodstain; }
-    PassDeferredShading_DirectionalLights* getDirectionalLights()   { return m_renderer_dir_lights; }
-    PassDeferredShading_PointLights* getPointLights()               { return m_renderer_point_lights; }
+    PassDeferredShading_Lights* getLights()                         { return m_renderer_lights; }
     PassPostprocess_Fade* getFader()                                { return m_renderer_fade; }
     SystemTextRenderer* getSystemTextRenderer()                     { return m_stext; }
 
@@ -96,8 +95,7 @@ public:
 #define atomicGetDefaultViewport()      atomicGetRenderer()->getDefaultViewport()
 #define atomicGetBloodstainRenderer()   atomicGetRenderer()->getBloodStainRenderer()
 #define atomicGetSPHRenderer()          atomicGetRenderer()->getSPHRenderer()
-#define atomicGetDirectionalLights()    atomicGetRenderer()->getDirectionalLights()
-#define atomicGetPointLights()          atomicGetRenderer()->getPointLights()
+#define atomicGetLights()               atomicGetRenderer()->getLights()
 #define atomicGetFader()                atomicGetRenderer()->getFader()
 #define atomicGetSystemTextRenderer()   atomicGetRenderer()->getSystemTextRenderer()
 
@@ -122,6 +120,28 @@ public:
     void draw();
 
     void addText(const ivec2 &pos, const char *text);
+};
+
+class PassHUD_DebugShowBuffer : public IRenderer
+{
+private:
+#ifdef __atomic_enable_debug_feature__
+    void drawColorBuffer(const DebugShowBufferParams &params);
+    void drawNormalBuffer(const DebugShowBufferParams &params);
+    void drawPositionBuffer(const DebugShowBufferParams &params);
+    void drawGlowBuffer(const DebugShowBufferParams &params);
+#endif // __atomic_enable_debug_feature__
+
+public:
+    RenderTarget *m_rt;
+    RenderTarget *m_gbuffer;
+    AtomicShader *m_sh_rgb;
+    AtomicShader *m_sh_aaa;
+    Buffer *m_ub_params;
+    int32 m_loc_params;
+
+    PassHUD_DebugShowBuffer();
+    void draw();
 };
 
 } // namespace atomic
