@@ -98,6 +98,7 @@
     <ClInclude Include="Util.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="GPGPU\SPH.cl" />
     <None Include="GPGPU\SPHFluid.cuh" />
     <None Include="GPGPU\SPHForce.cuh" />
     <None Include="GPGPU\SPHRigid.cuh" />

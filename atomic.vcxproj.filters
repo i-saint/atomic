@@ -233,6 +233,9 @@
     <None Include="GPGPU\SPHForce.cuh">
       <Filter>GPGPU</Filter>
     </None>
+    <None Include="GPGPU\SPH.cl">
+      <Filter>GPGPU</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="GPGPU\SPH.cu">

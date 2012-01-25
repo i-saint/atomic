@@ -28,6 +28,9 @@
     <Filter Include="ist\Base\Half">
       <UniqueIdentifier>{95a3805f-13e4-40a2-bd50-1641dfc66287}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ist\GPUCL">
+      <UniqueIdentifier>{0c7b02c9-d000-4e06-b6cb-2e5ee4d250e1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ist\Base.h">
@@ -255,6 +258,12 @@
     <ClInclude Include="ist\Base\Half\toFloat.h">
       <Filter>ist\Base\Half</Filter>
     </ClInclude>
+    <ClInclude Include="ist\GPGPU.h">
+      <Filter>ist</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\GPUCL\gpuclDevice.h">
+      <Filter>ist\GPUCL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ist\Window\Application.cpp">
@@ -379,6 +388,9 @@
     </ClCompile>
     <ClCompile Include="ist\Base\Half\half.cpp">
       <Filter>ist\Base\Half</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\GPUCL\gpuclDevice.cpp">
+      <Filter>ist\GPUCL</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
