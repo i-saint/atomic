@@ -10,22 +10,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\shader.rb" />
-    <None Include="shader\RenderStates.glslh">
-      <Filter>shader</Filter>
-    </None>
-    <None Include="shader\Common.glslh">
-      <Filter>shader</Filter>
-    </None>
-    <None Include="shader\Semantics.glslh">
-      <Filter>shader</Filter>
-    </None>
     <None Include="shader\Deferred_PointLight.glsl">
       <Filter>shader</Filter>
     </None>
     <None Include="shader\Out.glsl">
-      <Filter>shader</Filter>
-    </None>
-    <None Include="shader\Bloom.glslh">
       <Filter>shader</Filter>
     </None>
     <None Include="shader\Bloom_Composite.glsl">
@@ -91,6 +79,18 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shader\Fxaa3_11.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="shader\Bloom.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="shader\Common.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="shader\RenderStates.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="shader\Semantics.h">
       <Filter>shader</Filter>
     </ClInclude>
   </ItemGroup>

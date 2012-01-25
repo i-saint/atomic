@@ -1,8 +1,8 @@
 #ifndef __atomic_Graphics_Shader_h__
 #define __atomic_Graphics_Shader_h__
 
-#include "shader/Semantics.glslh"
-#include "shader/RenderStates.glslh"
+#include "shader/Semantics.h"
+#include "shader/RenderStates.h"
 
 namespace atomic {
 

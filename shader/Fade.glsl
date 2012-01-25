@@ -1,5 +1,5 @@
 #version 330 core
-#pragma include("Common.glslh")
+#pragma include("Common.h")
 
 layout(std140) uniform fade_params
 {

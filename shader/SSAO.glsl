@@ -1,6 +1,6 @@
 #version 410 compatibility
 
-#pragma include("Common.glslh")
+#pragma include("Common.h")
 
 #if defined(GLSL_VS) || defined(GLSL_PS)
 vs_out vec2 vs_Texcoord;

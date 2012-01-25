@@ -101,12 +101,10 @@
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="shader\Bloom.glslh" />
     <None Include="shader\Bloom_Composite.glsl" />
     <None Include="shader\Bloom_HBlur.glsl" />
     <None Include="shader\Bloom_Luminance.glsl" />
     <None Include="shader\Bloom_VBlur.glsl" />
-    <None Include="shader\Common.glslh" />
     <None Include="shader\Debug_ShowAAA.glsl" />
     <None Include="shader\Debug_ShowRGB.glsl" />
     <None Include="shader\Deferred_Bloodstain.glsl" />
@@ -125,12 +123,14 @@
     <None Include="shader\GBuffer_RigidSpherical.glsl" />
     <None Include="shader\Out.glsl" />
     <None Include="shader\Postprocess_Microscopic.glsl" />
-    <None Include="shader\RenderStates.glslh" />
-    <None Include="shader\Semantics.glslh" />
     <None Include="shader\shader.rb" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="shader\Bloom.h" />
+    <ClInclude Include="shader\Common.h" />
     <ClInclude Include="shader\Fxaa3_11.h" />
+    <ClInclude Include="shader\RenderStates.h" />
+    <ClInclude Include="shader\Semantics.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

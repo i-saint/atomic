@@ -5,7 +5,7 @@
 #define FXAA_QUALITY__PRESET 12
 #pragma include("Fxaa3_11.h")
 
-#pragma include("Common.glslh")
+#pragma include("Common.h")
 
 layout(std140) uniform fxaa_params
 {

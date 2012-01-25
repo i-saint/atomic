@@ -1,2 +1,2 @@
 #define GLSL_BLOOM_HBLUR
-#pragma include("Bloom.glslh")
+#pragma include("Bloom.h")

@@ -1,5 +1,5 @@
-#pragma include("RenderStates.glslh")
-#pragma include("Semantics.glslh")
+#pragma include("RenderStates.h")
+#pragma include("Semantics.h")
 
 
 #ifdef GLSL

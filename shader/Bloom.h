@@ -1,6 +1,6 @@
 #version 330 core
 
-#pragma include("Common.glslh")
+#pragma include("Common.h")
 
 const vec2 u_ScreenSize = vec2(512.0, 256.0);
 const vec2 u_RcpScreenSize = vec2(1.0,1.0)/u_ScreenSize;
