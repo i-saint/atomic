@@ -133,7 +133,7 @@ RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uv
     I3D_COLOR_FORMAT color_format)
 {
     I3D_COLOR_FORMAT color_formats[I3D_MAX_RENDER_TARGETS];
-    std::fill_n(color_formats, num_color_buffers, color_format);
+    stl::fill_n(color_formats, num_color_buffers, color_format);
     return CreateRenderTarget(dev, num_color_buffers, size, color_formats);
 }
 
@@ -156,7 +156,7 @@ RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uv
     I3D_COLOR_FORMAT color_format, I3D_COLOR_FORMAT depthstencil_format)
 {
     I3D_COLOR_FORMAT color_formats[I3D_MAX_RENDER_TARGETS];
-    std::fill_n(color_formats, num_color_buffers, color_format);
+    stl::fill_n(color_formats, num_color_buffers, color_format);
     return CreateRenderTarget(dev, num_color_buffers, size, color_formats, depthstencil_format);
 }
 

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "ist/ist.h"
+#include "ist/Base.h"
 #include "gpuclDevice.h"
 
 #if defined (__APPLE__) || defined(MACOSX)

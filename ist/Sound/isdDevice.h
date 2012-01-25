@@ -11,8 +11,8 @@ class Device
 private:
     ALCdevice *m_device;
     ALCcontext *m_context;
-    std::vector<DeviceResource*> m_resources;
-    std::vector<ResourceHandle> m_vacant;
+    stl::vector<DeviceResource*> m_resources;
+    stl::vector<ResourceHandle> m_vacant;
 
     void addResource(DeviceResource *v);
 

@@ -118,7 +118,7 @@ size_t WaveStream::getBitsPerSample() const { return m_format.bits_per_sample; }
 WaveStream::DataCont& WaveStream::readByte(size_t require_size)
 {
     m_tmp.clear();
-    m_tmp.resize(std::min<size_t>(require_size, size()-tell()));
+    m_tmp.resize(stl::min<size_t>(require_size, size()-tell()));
     fread(&m_tmp[0], 1, m_tmp.size(), m_file);
     return m_tmp;
 }

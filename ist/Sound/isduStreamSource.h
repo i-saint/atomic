@@ -60,7 +60,7 @@ public:
 class StreamSource : public SourceAdapter, public ReferenceCounter
 {
 public:
-    typedef std::vector<char> DataCont;
+    typedef stl::vector<char> DataCont;
 
 private:
     static const int s_num_buffers = 4;
@@ -89,8 +89,8 @@ template<class SourceType>
 class TSourceSet : public ReferenceCounter
 {
 public:
-    typedef std::vector<SourceType*> SourceCont;
-    typedef std::vector<ALuint> HandleCont;
+    typedef stl::vector<SourceType*> SourceCont;
+    typedef stl::vector<ALuint> HandleCont;
 private:
     SourceCont m_sources;
     HandleCont m_handles;

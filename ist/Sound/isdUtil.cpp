@@ -10,7 +10,7 @@ bool CreateBufferFromWaveFile(const char* filepath, Buffer *buf)
 {
     Stream *s = CreateStreamFromWaveFile(filepath);
     if(s) {
-        std::vector<char>& tmp = s->readByte(s->size());
+        stl::vector<char>& tmp = s->readByte(s->size());
         buf->copy(&tmp[0], tmp.size(), s->getALFormat(), s->getSampleRate());
         delete s;
         return true;
@@ -23,7 +23,7 @@ bool CreateBufferFromOggFile(const char* filepath, Buffer *buf)
 #ifdef __ist_with_oggvorbis__
     Stream *s = CreateStreamFromOggFile(filepath);
     if(s) {
-        std::vector<char>& tmp = s->readByte(s->size());
+        stl::vector<char>& tmp = s->readByte(s->size());
         buf->copy(&tmp[0], tmp.size(), s->getALFormat(), s->getSampleRate());
         delete s;
         return true;

@@ -10,7 +10,7 @@ namespace isd {
 class Stream : public ReferenceCounter
 {
 public:
-    typedef std::vector<char> DataCont;
+    typedef stl::vector<char> DataCont;
 
 public:
     virtual ~Stream();

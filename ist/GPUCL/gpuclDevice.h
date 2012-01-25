@@ -6,6 +6,8 @@
 #else
 #include <CL/opencl.h>
 #endif 
+#include "ist/GraphicsGL/i3dgl.h"
+#include "gpuclDeviceResource.h"
 
 namespace ist {
 namespace gpucl {
@@ -28,50 +30,17 @@ public:
     Device();
     ~Device();
 
+    cl_device_id getDeviceID() { return m_device; }
+    cl_context getContext() { return m_context; }
+
     Program* createProgram(const char **source, const uint32 *length, const char *compile_options);
     Kernel* createKernel(Program *program, const char *entry_point);
+
+    void deleteResource(DeviceResource *r);
 
     void queueKernel(Kernel **kernels, uint32 num_kernels);
 };
 
-
-class DeviceResource
-{
-private:
-    Device *m_dev;
-
-public:
-    DeviceResource();
-    virtual ~DeviceResource();
-    void addRef();
-    void release();
-};
-
-class Program : public DeviceResource
-{
-private:
-    cl_program m_program;
-
-    Program();
-    ~Program();
-    void initialize(const char **source, const uint32 *length, const char *compile_options);
-
-public:
-    cl_program getProgram() { return m_program; }
-};
-
-class Kernel : public DeviceResource
-{
-private:
-    cl_kernel m_kernel;
-
-    Kernel();
-    ~Kernel();
-    void initialize(Program *program, const char *entry_point);
-
-public:
-    cl_kernel getKernel() { return m_kernel; }
-};
 
 } // namespace gpucl
 } // namespace ist

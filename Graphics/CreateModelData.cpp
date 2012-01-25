@@ -6,7 +6,7 @@
 #include "Graphics/ParticleSet.h"
 #include "Graphics/CreateModelData.h"
 #include "GPGPU/SPH.cuh"
-#include "shader/Semantics.glslh"
+#include "shader/Semantics.h"
 #include <math.h>
 
 

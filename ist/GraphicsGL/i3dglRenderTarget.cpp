@@ -173,7 +173,7 @@ RenderTarget::RenderTarget(Device *dev)
 {
     glGenFramebuffers(1, &m_handle);
 
-    std::fill_n(m_color_buffers, _countof(m_color_buffers), (Texture2D*)NULL);
+    stl::fill_n(m_color_buffers, _countof(m_color_buffers), (Texture2D*)NULL);
 }
 
 RenderTarget::~RenderTarget()
@@ -209,7 +209,7 @@ bool RenderTarget::setRenderBuffers(Texture2D **rb, uint32 num, Texture2D *depth
     releaseBuffers();
 
     m_num_color_buffers = num;
-    std::copy(rb, rb+num, m_color_buffers);
+    stl::copy(rb, rb+num, m_color_buffers);
     m_depthstencil = depthstencil;
 
     glBindFramebuffer(GL_FRAMEBUFFER, m_handle);
@@ -233,7 +233,7 @@ bool RenderTarget::getRenderBuffers(Texture2D **rb, uint32 &num, Texture2D *&dep
     }
 
     num = m_num_color_buffers;
-    std::copy(m_color_buffers, m_color_buffers+m_num_color_buffers, rb);
+    stl::copy(m_color_buffers, m_color_buffers+m_num_color_buffers, rb);
     depthstencil = m_depthstencil;
     return true;
 }

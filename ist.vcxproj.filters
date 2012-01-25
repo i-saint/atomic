@@ -264,6 +264,15 @@
     <ClInclude Include="ist\GPUCL\gpuclDevice.h">
       <Filter>ist\GPUCL</Filter>
     </ClInclude>
+    <ClInclude Include="ist\GPUCL\gpuclDeviceResource.h">
+      <Filter>ist\GPUCL</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\GraphicsGL\i3dgl.h">
+      <Filter>ist\GraphicsGL</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\GraphicsDX11\i3ddx11.h">
+      <Filter>ist\GraphicsDX11</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ist\Window\Application.cpp">
@@ -390,6 +399,9 @@
       <Filter>ist\Base\Half</Filter>
     </ClCompile>
     <ClCompile Include="ist\GPUCL\gpuclDevice.cpp">
+      <Filter>ist\GPUCL</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\GPUCL\gpuclDeviceResource.cpp">
       <Filter>ist\GPUCL</Filter>
     </ClCompile>
   </ItemGroup>

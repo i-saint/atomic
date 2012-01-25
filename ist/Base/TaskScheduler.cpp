@@ -81,7 +81,7 @@ struct greater_priority
 class TaskQueue
 {
 private:
-    typedef std::list<TaskPtr> Tasks;
+    typedef stl::list<TaskPtr> Tasks;
     Tasks m_tasks;
     boost::mutex m_suspender;
     boost::condition_variable m_cond;
@@ -149,7 +149,7 @@ void TaskQueue::addTask(TaskPtr tasks[], size_t num)
             TaskPtr t = tasks[i];
             t->beforeExec();
 
-            Tasks::iterator pos = std::upper_bound(m_tasks.begin(), m_tasks.end(), t, greater_priority());
+            Tasks::iterator pos = stl::upper_bound(m_tasks.begin(), m_tasks.end(), t, greater_priority());
             m_tasks.insert(pos, t);
         }
         notify();

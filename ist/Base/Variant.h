@@ -37,7 +37,7 @@ namespace ist {
         TVariant& operator=(const T (&v)[S])
         {
             BOOST_STATIC_ASSERT(sizeof(v)<=Size);
-            std::copy(v, v+S, reinterpret_cast<T*>(m_buf));
+            stl::copy(v, v+S, reinterpret_cast<T*>(m_buf));
             return *this;
         }
 

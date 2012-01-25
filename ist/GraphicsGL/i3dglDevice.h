@@ -19,8 +19,8 @@ private:
 #endif // _WIN32
     DeviceContext *m_context;
 
-    std::vector<DeviceResource*>        m_resources;
-    std::vector<ResourceHandle>   m_vacant;
+    stl::vector<DeviceResource*>        m_resources;
+    stl::vector<ResourceHandle>   m_vacant;
     void addResource(DeviceResource *v);
 
 public:

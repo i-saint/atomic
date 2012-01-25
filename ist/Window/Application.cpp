@@ -329,7 +329,7 @@ DisplaySetting Application::getCurrentDisplaySetting() const
 
 void Application::getAvalableDisplaySettings( DisplaySetting*& settings, int& num_settings ) const
 {
-    static std::vector<DisplaySetting> dsv;
+    static stl::vector<DisplaySetting> dsv;
     if(dsv.empty()) {
         int i = 0;
         DEVMODE mode;

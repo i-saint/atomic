@@ -19,8 +19,8 @@ private:
     ID3D11RenderTargetView  *m_rtview;
     I3D_ERROR_CODE m_error;
 
-    std::vector<DeviceResource*>        m_resources;
-    std::vector<ResourceHandle>   m_vacant;
+    stl::vector<DeviceResource*>        m_resources;
+    stl::vector<ResourceHandle>   m_vacant;
     void addResource(DeviceResource *v);
 
 public:
