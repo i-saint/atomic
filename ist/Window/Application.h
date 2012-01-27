@@ -73,6 +73,7 @@ public:
 
     virtual void translateMessage();
 
+    int showMessageDialog(const char* message, const char* caption, int dlgtype=DLG_OK);
     int showMessageDialog(const wchar_t* message, const wchar_t* caption, int dlgtype=DLG_OK);
 
     bool isFullscreen() const { return m_fullscreen; }

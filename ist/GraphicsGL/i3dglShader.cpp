@@ -51,7 +51,7 @@ bool ShaderObject<ShaderType>::compile( const char *src, int length )
             int l;
             GLchar *info_log = new GLchar[length];
             glGetShaderInfoLog(m_handle, length, &l, info_log);
-            istPuts(info_log);
+            istPrint(info_log);
             istAssert("compile failed.");
             delete[] info_log;
         }
@@ -100,8 +100,8 @@ bool ShaderProgram::link( VertexShader *vsh, PixelShader *fsh, GeometryShader *g
             int l;
             GLchar *info_log = new GLchar[length];
             glGetProgramInfoLog(m_handle, length, &l, info_log);
-            istPuts(info_log);
-            istAssert("compile failed.");
+            istPrint(info_log);
+            istAssert("link failed.");
             delete[] info_log;
         }
         return false;

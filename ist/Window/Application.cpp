@@ -313,9 +313,14 @@ void Application::translateMessage()
     }
 }
 
+int Application::showMessageDialog( const char* message, const char* caption, int dlgtype/*=DLG_OK*/ )
+{
+    return ::MessageBoxA(m_hwnd, message, caption, dlgtype);
+}
+
 int Application::showMessageDialog( const wchar_t* message, const wchar_t* caption, int dlgtype )
 {
-    return ::MessageBox(m_hwnd, message, caption, dlgtype);
+    return ::MessageBoxW(m_hwnd, message, caption, dlgtype);
 }
 
 DisplaySetting Application::getCurrentDisplaySetting() const

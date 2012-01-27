@@ -3,7 +3,6 @@
 
 #ifdef __ist_enable_assert__
 
-#define istPuts(str) ist::DebugPuts(str)
 #define istPrint(...) ist::DebugPrint(__FILE__, __LINE__, __VA_ARGS__)
 #define istAssert(...)\
     {\
@@ -20,9 +19,6 @@ namespace ist
     typedef int (*PanicHandler)();
     void SetAssertHandler(AssertHandler handler);
     void SetPanicHandler(PanicHandler handler);
-
-    void DebugPuts(const char* fmt);
-    void DebugPuts(const wchar_t* fmt);
 
     void DebugPrint(const char* file, int line, const char* fmt, ...);
     void DebugPrintV(const char* file, int line, const char* fmt, va_list vl);

@@ -20,30 +20,56 @@ namespace
     PanicHandler s_panic_handler = 0;
 }
 
+#ifdef __ist_enable_file_log__
+namespace
+{
+    FILE *s_logfile = NULL;
+}
+
+void CloseLogFile()
+{
+    if(s_logfile) {
+        fclose(s_logfile);
+    }
+}
+
+void InitLogFile()
+{
+    if(!s_logfile) {
+        s_logfile = fopen("log.txt", "w");
+        if(s_logfile) {
+            atexit(CloseLogFile);
+        }
+    }
+}
+
+void WriteLogFile(const char *text)
+{
+    InitLogFile();
+    if(s_logfile) {
+        fprintf(s_logfile, text);
+        fflush(s_logfile);
+    }
+}
+
+void WriteLogFile(const wchar_t *text)
+{
+    InitLogFile();
+    if(s_logfile) {
+        fwprintf(s_logfile, text);
+        fflush(s_logfile);
+    }
+}
+#else // __ist_enable_file_log__
+
+#define WriteLogFile(...)
+
+#endif // __ist_enable_file_log__
+
 
 void SetAssertHandler(AssertHandler handler) { s_assert_handler = handler; }
 void SetPanicHandler(PanicHandler handler)   { s_panic_handler = handler; }
 
-
-void DebugPuts(const char* str)
-{
-#ifdef _WIN32
-    ::OutputDebugStringA(str);
-#else
-    puts(str);
-    fflush(stdout);
-#endif // _WIN32
-}
-
-void DebugPuts(const wchar_t* str)
-{
-#ifdef _WIN32
-    ::OutputDebugStringW(str);
-#else
-    puts(str);
-    fflush(stdout);
-#endif // _WIN32
-}
 
 void DebugPrint(const char* file, int line, const char* fmt, ...)
 {
@@ -59,8 +85,10 @@ void DebugPrintV(const char* file, int line, const char* fmt, va_list vl)
     char buf[DPRINTF_MES_LENGTH];
     _snprintf_s(buf, DPRINTF_MES_LENGTH, "%s:%d - ", file, line);
     ::OutputDebugStringA(buf);
+    WriteLogFile(buf);
     _vsnprintf_s(buf, DPRINTF_MES_LENGTH, fmt, vl);
     ::OutputDebugStringA(buf);
+    WriteLogFile(buf);
 #else
     vprintf(fmt, vl);
     fflush(stdout);
@@ -82,8 +110,10 @@ void DebugPrintV(const char* file, int line, const wchar_t* fmt, va_list vl)
     wchar_t wbuf[DPRINTF_MES_LENGTH];
     _snprintf_s(buf, DPRINTF_MES_LENGTH, "%s:%d - ", file, line);
     ::OutputDebugStringA(buf);
+    WriteLogFile(buf);
     _vsnwprintf_s(wbuf, DPRINTF_MES_LENGTH, _TRUNCATE, fmt, vl);
     ::OutputDebugStringW(wbuf);
+    WriteLogFile(wbuf);
 #else
     vwprintf(fmt, vl);
     fflush(stdout);
@@ -106,8 +136,10 @@ int DebugAssertV(const char* file, int line, const char* fmt, va_list vl)
     char buf[DPRINTF_MES_LENGTH];
     _snprintf_s(buf, DPRINTF_MES_LENGTH, "assertion failed %s:%d - ", file, line);
     ::OutputDebugStringA(buf);
+    WriteLogFile(buf);
     _vsnprintf_s(buf, DPRINTF_MES_LENGTH, fmt, vl);
     ::OutputDebugStringA(buf);
+    WriteLogFile(buf);
     DebugBreak();
 #else
     printf("assertion failed %s:%d - ", file, line);
@@ -135,8 +167,10 @@ int DebugAssertV(const char* file, int line, const wchar_t* fmt, va_list vl)
     wchar_t wbuf[DPRINTF_MES_LENGTH];
     _snprintf_s(buf, DPRINTF_MES_LENGTH, "assertion failed %s:%d - ", file, line);
     ::OutputDebugStringA(buf);
+    WriteLogFile(buf);
     _vsnwprintf_s(wbuf, DPRINTF_MES_LENGTH, _TRUNCATE, fmt, vl);
     ::OutputDebugStringW(wbuf);
+    WriteLogFile(wbuf);
     DebugBreak();
 #else
     printf("assertion failed %s:%d - ", file, line);

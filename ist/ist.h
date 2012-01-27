@@ -4,6 +4,7 @@
 //feature macros:
 //
 //#define __ist_enable_assert__
+//#define __ist_enable_file_log__
 //#define __ist_enable_graphics_assert__
 //
 //#define __ist_with_OpenGL__
