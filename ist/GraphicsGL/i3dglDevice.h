@@ -34,10 +34,10 @@ public:
     Buffer*         createBuffer(const BufferDesc &desc);
     VertexArray*    createVertexArray();
 
-    VertexShader*   createVertexShader();
-    PixelShader*    createPixelShader();
-    GeometryShader* createGeometryShader();
-    ShaderProgram*  createShaderProgram();
+    VertexShader*   createVertexShader(const VertexShaderDesc &desc);
+    PixelShader*    createPixelShader(const PixelShaderDesc &desc);
+    GeometryShader* createGeometryShader(const GeometryShaderDesc &desc);
+    ShaderProgram*  createShaderProgram(const ShaderProgramDesc &desc);
 
     Sampler*        createSampler(const SamplerDesc &desc);
     Texture1D*      createTexture1D(const Texture1DDesc &desc);

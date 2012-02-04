@@ -12,12 +12,9 @@ AtomicShader::AtomicShader()
 : m_shader(NULL)
 , m_vs(NULL)
 , m_ps(NULL)
+, m_gs(NULL)
 , m_loc_renderstates(0)
 {
-    i3d::Device *dev = atomicGetGLDevice();
-    m_shader = dev->createShaderProgram();
-    m_vs = dev->createVertexShader();
-    m_ps = dev->createPixelShader();
 }
 
 AtomicShader::~AtomicShader()
@@ -34,9 +31,36 @@ void AtomicShader::release()
 
 bool AtomicShader::loadFromMemory( const char* src )
 {
-    CreateVertexShaderFromString(*m_vs, src);
-    CreateFragmentShaderFromString(*m_ps, src);
-    m_shader->link(m_vs, m_ps, NULL);
+    i3d::Device *dev = atomicGetGLDevice();
+    {
+        std::string source;
+        source += "#define GLSL\n";
+        source += "#define GLSL_VS\n";
+        source += src;
+        VertexShaderDesc desc = VertexShaderDesc(source.c_str(), source.size());
+        m_vs = dev->createVertexShader(desc);
+    }
+    {
+        std::string source;
+        source += "#define GLSL\n";
+        source += "#define GLSL_PS\n";
+        source += src;
+        PixelShaderDesc desc = PixelShaderDesc(source.c_str(), source.size());
+        m_ps = dev->createPixelShader(desc);
+    }
+    //{
+    //    std::string source;
+    //    source += "#define GLSL\n";
+    //    source += "#define GLSL_GS\n";
+    //    source += src;
+    //    GeometryShaderDesc desc = GeometryShaderDesc(source.c_str(), source.size());
+    //    m_gs = dev->createGeometryShader(desc);
+    //}
+    {
+        ShaderProgramDesc desc = ShaderProgramDesc(m_vs, m_ps, m_gs);
+        m_shader = dev->createShaderProgram(desc);
+    }
+
 
     m_loc_renderstates = m_shader->getUniformBlockIndex("render_states");
 

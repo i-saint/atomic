@@ -24,7 +24,7 @@ struct SoundRequest
     REQ_TYPE    type;
     union {
         struct {
-            float32     pos[4];
+            float32     pos[3];
         } listener;
         struct {
             SE_CHANNEL  ch;
@@ -35,7 +35,7 @@ struct SoundRequest
         struct {
             BGM_CHANNEL ch;
             BGM_RID     rid;
-            uint32      ms;
+            uint32      fade_ms;
         } bgm;
     };
 };
@@ -264,7 +264,7 @@ void AtomicSound::setListenerPosition(const vec4 &pos)
 
     SoundRequest req;
     req.type    = SoundRequest::REQ_LISTENER_POS;
-    (vec4&)(req.listener.pos) = pos;
+    (vec3&)(req.listener.pos) = vec3(pos);
     m_sound_thread->addRequest(req);
 }
 
@@ -305,8 +305,8 @@ void AtomicSound::playBGM(BGM_CHANNEL channel, BGM_RID bgm)
 
     SoundRequest req;
     req.type    = SoundRequest::REQ_BGM_PLAY;
-    req.bgm.ch   = channel;
-    req.bgm.rid  = bgm;
+    req.bgm.ch  = channel;
+    req.bgm.rid = bgm;
     m_sound_thread->addRequest(req);
 }
 
@@ -315,9 +315,9 @@ void AtomicSound::fadeBGM(BGM_CHANNEL channel, uint32 ms)
     if(!m_sound_thread) { return; }
 
     SoundRequest req;
-    req.type    = SoundRequest::REQ_BGM_FADE;
-    req.bgm.ch  = channel;
-    req.bgm.ms  = ms;
+    req.type        = SoundRequest::REQ_BGM_FADE;
+    req.bgm.ch      = channel;
+    req.bgm.fade_ms = ms;
     m_sound_thread->addRequest(req);
 }
 

@@ -18,19 +18,21 @@ Texture2D* GenerateRandomTexture(Device *dev, const uvec2 &size, I3D_COLOR_FORMA
 Texture2D* GenerateRandomTexture(Device *dev, const uvec2 &size, I3D_COLOR_FORMAT format, SFMT& random);
 
 // ファイル/ストリームから各種シェーダ生成
-bool CreateVertexShaderFromFile(VertexShader& sh, const char *filename);
-bool CreateGeometryShaderFromFile(GeometryShader& sh, const char *filename);
-bool CreateFragmentShaderFromFile(PixelShader& sh, const char *filename);
-bool CreateVertexShaderFromStream(VertexShader& sh, std::istream& st);
-bool CreateGeometryShaderFromStream(GeometryShader& sh, std::istream& st);
-bool CreateFragmentShaderFromStream(PixelShader& sh, std::istream& st);
-bool CreateVertexShaderFromString(VertexShader& sh, const char* source);
-bool CreateGeometryShaderFromString(GeometryShader& sh, const char* source);
-bool CreateFragmentShaderFromString(PixelShader& sh, const char* source);
+VertexShader*   CreateVertexShaderFromFile(Device *dev, const char *filename);
+GeometryShader* CreateGeometryShaderFromFile(Device *dev, const char *filename);
+PixelShader*    CreatePixelShaderFromFile(Device *dev, const char *filename);
+
+VertexShader*   CreateVertexShaderFromStream(Device *dev, std::istream& st);
+GeometryShader* CreateGeometryShaderFromStream(Device *dev, std::istream& st);
+PixelShader*    CreatePixelShaderFromStream(Device *dev, std::istream& st);
+
+VertexShader*   CreateVertexShaderFromString(Device *dev, const std::string &source);
+GeometryShader* CreateGeometryShaderFromString(Device *dev, const std::string &source);
+PixelShader*    CreatePixelShaderFromString(Device *dev, const std::string &source);
 
 
 template<class BufferObjectType>
-bool MapAndWrite(BufferObjectType& bo, const void *data, size_t data_size)
+inline bool MapAndWrite(BufferObjectType& bo, const void *data, size_t data_size)
 {
     if(data_size > bo.getDesc().size) { istAssert("exceeded buffer size.\n"); }
 
@@ -42,8 +44,10 @@ bool MapAndWrite(BufferObjectType& bo, const void *data, size_t data_size)
     return false;
 }
 template<class BufferObjectType>
-bool MapAndRead(BufferObjectType& bo, void *data, size_t data_size)
+inline bool MapAndRead(BufferObjectType& bo, void *data, size_t data_size)
 {
+    if(data_size > bo.getDesc().size) { istAssert("exceeded buffer size.\n"); }
+
     if(void *p = bo.map(I3D_MAP_READ)) {
         ::memcpy(data, p, data_size);
         bo.unmap();

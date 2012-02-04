@@ -44,7 +44,7 @@ public:
 #define atomicIsSEPlaying(channel)                  atomicGetSound()->isSEPlaying(channel)
 
 #define atomicPlayBGM(channel, bgm)                 atomicGetSound()->playBGM(channel, bgm)
-#define atomicFadeBGM(channel, ms)                  atomicGetSound()->fadeBGM(channel, ms)
+#define atomicFadeBGM(channel, fade_ms)                  atomicGetSound()->fadeBGM(channel, fade_ms)
 #define atomicHaltBGM(channel)                      atomicGetSound()->haltBGM(channel)
 #define atomicIsBGMPlaying(channel)                 atomicGetSound()->isBGMPlaying(channel)
 

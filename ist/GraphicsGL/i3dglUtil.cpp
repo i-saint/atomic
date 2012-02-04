@@ -76,43 +76,57 @@ Texture2D* GenerateRandomTexture(Device *dev, const uvec2 &size, I3D_COLOR_FORMA
 }
 
 
-template<class ShaderType>
-inline bool CreateShaderFromFile(ShaderType& sh, const char *filename)
+template<class ShaderType> inline ShaderType* CreateShaderFromString(Device *dev, const std::string &source);
+
+template<> inline VertexShader* CreateShaderFromString<VertexShader>(Device *dev, const std::string &source)
 {
-    std::ifstream  st(filename, std::ios::binary);
-    if(st.fail()) {
-        istAssert("file not found %s", filename);
-        return false;
-    }
-    return CreateShaderFromStream<ShaderType>(sh, st);
+    VertexShaderDesc desc = VertexShaderDesc(source.c_str(), source.size());
+    return dev->createVertexShader(desc);
+}
+template<> inline PixelShader* CreateShaderFromString<PixelShader>(Device *dev, const std::string &source)
+{
+    PixelShaderDesc desc = PixelShaderDesc(source.c_str(), source.size());
+    return dev->createPixelShader(desc);
+}
+template<> inline GeometryShader* CreateShaderFromString<GeometryShader>(Device *dev, const std::string &source)
+{
+    GeometryShaderDesc desc = GeometryShaderDesc(source.c_str(), source.size());
+    return dev->createGeometryShader(desc);
 }
 
 template<class ShaderType>
-inline bool CreateShaderFromStream(ShaderType& sh, std::istream& st)
+inline ShaderType* CreateShaderFromStream(Device *dev, std::istream& st)
 {
     std::string source;
     std::ostringstream str_out;
     str_out << st.rdbuf();
     source = str_out.str();
 
-    return sh.compile(source.c_str(), source.size());
+    return CreateShaderFromString<ShaderType>(dev, source);
 }
 
 template<class ShaderType>
-inline bool CreateShaderFromString(ShaderType& sh, const char* source)
+inline ShaderType* CreateShaderFromFile(Device *dev, const char *filename)
 {
-    return sh.compile(source, strlen(source));
+    std::ifstream  st(filename, std::ios::binary);
+    if(st.fail()) {
+        istAssert("file not found %s", filename);
+        return NULL;
+    }
+    return CreateShaderFromStream<ShaderType>(dev, st);
 }
 
-bool CreateVertexShaderFromFile(VertexShader& sh, const char *filename)     { return CreateShaderFromFile<VertexShader>(sh, filename); }
-bool CreateGeometryShaderFromFile(GeometryShader& sh, const char *filename) { return CreateShaderFromFile<GeometryShader>(sh, filename); }
-bool CreateFragmentShaderFromFile(PixelShader& sh, const char *filename)    { return CreateShaderFromFile<PixelShader>(sh, filename); }
-bool CreateVertexShaderFromStream(VertexShader& sh, std::istream& st)       { return CreateShaderFromStream<VertexShader>(sh, st); }
-bool CreateGeometryShaderFromStream(GeometryShader& sh, std::istream& st)   { return CreateShaderFromStream<GeometryShader>(sh, st); }
-bool CreateFragmentShaderFromStream(PixelShader& sh, std::istream& st)      { return CreateShaderFromStream<PixelShader>(sh, st); }
-bool CreateVertexShaderFromString(VertexShader& sh, const char* source)     { return CreateShaderFromString<VertexShader>(sh, source); }
-bool CreateGeometryShaderFromString(GeometryShader& sh, const char* source) { return CreateShaderFromString<GeometryShader>(sh, source); }
-bool CreateFragmentShaderFromString(PixelShader& sh, const char* source)    { return CreateShaderFromString<PixelShader>(sh, source); }
+VertexShader*   CreateVertexShaderFromFile(Device *dev, const char *filename)       { return CreateShaderFromFile<VertexShader>(dev, filename); }
+GeometryShader* CreateGeometryShaderFromFile(Device *dev, const char *filename)     { return CreateShaderFromFile<GeometryShader>(dev, filename); }
+PixelShader*    CreatePixelShaderFromFile(Device *dev, const char *filename)        { return CreateShaderFromFile<PixelShader>(dev, filename); }
+
+VertexShader*   CreateVertexShaderFromStream(Device *dev, std::istream& st)         { return CreateShaderFromStream<VertexShader>(dev, st); }
+GeometryShader* CreateGeometryShaderFromStream(Device *dev, std::istream& st)       { return CreateShaderFromStream<GeometryShader>(dev, st); }
+PixelShader*    CreatePixelShaderFromStream(Device *dev, std::istream& st)          { return CreateShaderFromStream<PixelShader>(dev, st); }
+
+VertexShader*   CreateVertexShaderFromString(Device *dev, const std::string &source)    { return CreateShaderFromString<VertexShader>(dev, source); }
+GeometryShader* CreateGeometryShaderFromString(Device *dev, const std::string &source)  { return CreateShaderFromString<GeometryShader>(dev, source); }
+PixelShader*    CreatePixelShaderFromString(Device *dev, const std::string &source)     { return CreateShaderFromString<PixelShader>(dev, source); }
 
 
 

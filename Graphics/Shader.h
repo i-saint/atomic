@@ -13,6 +13,7 @@ protected:
     ShaderProgram   *m_shader;
     VertexShader    *m_vs;
     PixelShader     *m_ps;
+    GeometryShader  *m_gs;
     int32 m_loc_renderstates;
 
 public:

@@ -107,30 +107,30 @@ VertexArray* Device::createVertexArray()
     return r;
 }
 
-VertexShader* Device::createVertexShader()
+VertexShader* Device::createVertexShader(const VertexShaderDesc &desc)
 {
-    VertexShader *r = istNew(VertexShader)(this);
+    VertexShader *r = istNew(VertexShader)(this, desc);
     addResource(r);
     return r;
 }
 
-PixelShader* Device::createPixelShader()
+PixelShader* Device::createPixelShader(const PixelShaderDesc &desc)
 {
-    PixelShader *r = istNew(PixelShader)(this);
+    PixelShader *r = istNew(PixelShader)(this, desc);
     addResource(r);
     return r;
 }
 
-GeometryShader* Device::createGeometryShader()
+GeometryShader* Device::createGeometryShader(const GeometryShaderDesc &desc)
 {
-    GeometryShader *r = istNew(GeometryShader)(this);
+    GeometryShader *r = istNew(GeometryShader)(this, desc);
     addResource(r);
     return r;
 }
 
-ShaderProgram* Device::createShaderProgram()
+ShaderProgram* Device::createShaderProgram(const ShaderProgramDesc &desc)
 {
-    ShaderProgram *r = istNew(ShaderProgram)(this);
+    ShaderProgram *r = istNew(ShaderProgram)(this, desc);
     addResource(r);
     return r;
 }

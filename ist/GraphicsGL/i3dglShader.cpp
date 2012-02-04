@@ -24,21 +24,7 @@ ShaderObject<ShaderType>::~ShaderObject()
 template<size_t ShaderType>
 bool ShaderObject<ShaderType>::compile( const char *src, int length )
 {
-    // set shader source
-    {
-        const char vs_define[] = "#define GLSL\n#define GLSL_VS\n";
-        const char ps_define[] = "#define GLSL\n#define GLSL_PS\n";
-        const char gs_define[] = "#define GLSL\n#define GLSL_GL\n";
-
-        const char* sources[] = {NULL, src};
-        if(ShaderType==GL_VERTEX_SHADER) { sources[0]=vs_define; }
-        if(ShaderType==GL_FRAGMENT_SHADER) { sources[0]=ps_define; }
-        if(ShaderType==GL_GEOMETRY_SHADER) { sources[0]=gs_define; }
-        const int len[] = {strlen(sources[0]), length};
-
-        glShaderSource(m_handle, 2, sources, len);
-    }
-    // compile
+    glShaderSource(m_handle, 1, &src, &length);
     glCompileShader(m_handle);
 
     // get errors
@@ -65,29 +51,47 @@ template ShaderObject<GL_VERTEX_SHADER>;
 template ShaderObject<GL_FRAGMENT_SHADER>;
 template ShaderObject<GL_GEOMETRY_SHADER>;
 
+VertexShader::VertexShader( Device *dev, const VertexShaderDesc &desc )
+    : super(dev)
+{
+    compile(desc.source, desc.source_len);
+}
+
+VertexShader::~VertexShader()
+{
+}
+
+PixelShader::PixelShader( Device *dev, const PixelShaderDesc &desc )
+    : super(dev)
+{
+    compile(desc.source, desc.source_len);
+}
+
+PixelShader::~PixelShader()
+{
+}
+
+GeometryShader::GeometryShader( Device *dev, const GeometryShaderDesc &desc )
+    : super(dev)
+{
+    compile(desc.source, desc.source_len);
+}
+
+GeometryShader::~GeometryShader()
+{
+}
 
 
-ShaderProgram::ShaderProgram(Device *dev)
+
+ShaderProgram::ShaderProgram(Device *dev, const ShaderProgramDesc &desc)
     : super(dev)
 {
     m_handle = glCreateProgram();
-}
 
-ShaderProgram::~ShaderProgram()
-{
-    if(m_handle!=0) {
-        glDeleteProgram(m_handle);
-        m_handle = 0;
-    }
-}
 
-bool ShaderProgram::link( VertexShader *vsh, PixelShader *fsh, GeometryShader *gsh )
-{
-    if(vsh) { glAttachShader(m_handle, vsh->getHandle()); }
-    if(fsh) { glAttachShader(m_handle, fsh->getHandle()); }
-    if(gsh) { glAttachShader(m_handle, gsh->getHandle()); }
-
-    // link
+    if(desc.vsh) { glAttachShader(m_handle, desc.vsh->getHandle()); }
+    if(desc.psh) { glAttachShader(m_handle, desc.psh->getHandle()); }
+    if(desc.gsh) { glAttachShader(m_handle, desc.gsh->getHandle()); }
     glLinkProgram(m_handle);
 
     // get errors
@@ -104,10 +108,15 @@ bool ShaderProgram::link( VertexShader *vsh, PixelShader *fsh, GeometryShader *g
             istAssert("link failed.");
             delete[] info_log;
         }
-        return false;
     }
+}
 
-    return true;
+ShaderProgram::~ShaderProgram()
+{
+    if(m_handle!=0) {
+        glDeleteProgram(m_handle);
+        m_handle = 0;
+    }
 }
 
 
@@ -209,6 +218,7 @@ GLuint ShaderProgram::getSubroutineIndexF(const char *name) { return glGetSubrou
 void ShaderProgram::setSubroutineV(GLsizei count, GLuint *indices) { glUniformSubroutinesuiv(GL_VERTEX_SHADER, count, indices); }
 void ShaderProgram::setSubroutineG(GLsizei count, GLuint *indices) { glUniformSubroutinesuiv(GL_GEOMETRY_SHADER, count, indices); }
 void ShaderProgram::setSubroutineF(GLsizei count, GLuint *indices) { glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, count, indices); }
+
 
 } // namespace i3d
 } // namespace ist

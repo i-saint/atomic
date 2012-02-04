@@ -103,6 +103,23 @@ enum I3D_TEXTURE_FILTER
 };
 
 
+typedef uint32 ResourceHandle;
+class Device;
+class DeviceContext;
+class DeviceResource;
+class Buffer;
+class VertexArray;
+class Texture1D;
+class Texture2D;
+class Texture3D;
+typedef Texture2D RenderBuffer;
+class RenderTarget;
+class VertexShader;
+class PixelShader;
+class GeometryShader;
+class ShaderProgtam;
+
+
 struct VertexDesc
 {
     GLuint location;        // shader value location
@@ -121,7 +138,7 @@ struct BufferDesc
     void *data;
 
     // data は NULL でもよく、その場合メモリ確保だけが行われる。
-    BufferDesc(I3D_BUFFER_TYPE _type, I3D_USAGE _usage=I3D_USAGE_DYNAMIC, uint32 _size=0, void *_data=NULL)
+    explicit BufferDesc(I3D_BUFFER_TYPE _type, I3D_USAGE _usage=I3D_USAGE_DYNAMIC, uint32 _size=0, void *_data=NULL)
         : type(_type)
         , usage(_usage)
         , size(_size)
@@ -137,7 +154,7 @@ struct SamplerDesc
     I3D_TEXTURE_FILTER filter_min;
     I3D_TEXTURE_FILTER filter_mag;
 
-    SamplerDesc(
+    explicit SamplerDesc(
         I3D_TEXTURE_CLAMP _s=I3D_CLAMP_TO_EDGE, I3D_TEXTURE_CLAMP _t=I3D_CLAMP_TO_EDGE, I3D_TEXTURE_CLAMP _r=I3D_CLAMP_TO_EDGE,
         I3D_TEXTURE_FILTER _min=I3D_NEAREST, I3D_TEXTURE_FILTER _mag=I3D_NEAREST)
         : wrap_s(_s), wrap_t(_t), wrap_r(_r)
@@ -152,7 +169,7 @@ struct Texture1DDesc
     uint32 mipmaps;
     void *data;
 
-    Texture1DDesc(I3D_COLOR_FORMAT _format=I3D_RGBA8U, uint32 _size=0, uint32 _mipmaps=0, void *_data=NULL)
+    explicit Texture1DDesc(I3D_COLOR_FORMAT _format=I3D_RGBA8U, uint32 _size=0, uint32 _mipmaps=0, void *_data=NULL)
         : format(_format)
         , size(_size)
         , mipmaps(_mipmaps)
@@ -167,7 +184,7 @@ struct Texture2DDesc
     uint32 mipmaps;
     void *data;
 
-    Texture2DDesc(I3D_COLOR_FORMAT _format=I3D_RGBA8U, uvec2 _size=uvec2(0, 0), uint32 _mipmaps=0, void *_data=NULL)
+    explicit Texture2DDesc(I3D_COLOR_FORMAT _format=I3D_RGBA8U, uvec2 _size=uvec2(0, 0), uint32 _mipmaps=0, void *_data=NULL)
         : format(_format)
         , size(_size)
         , mipmaps(_mipmaps)
@@ -182,7 +199,7 @@ struct Texture3DDesc
     uint32 mipmaps;
     void *data;
 
-    Texture3DDesc(I3D_COLOR_FORMAT _format=I3D_RGBA8U, uvec3 _size=uvec3(0, 0, 0), uint32 _mipmaps=0, void *_data=NULL)
+    explicit Texture3DDesc(I3D_COLOR_FORMAT _format=I3D_RGBA8U, uvec3 _size=uvec3(0, 0, 0), uint32 _mipmaps=0, void *_data=NULL)
         : format(_format)
         , size(_size)
         , mipmaps(_mipmaps)
@@ -190,22 +207,28 @@ struct Texture3DDesc
     {}
 };
 
+struct ShaderDesc
+{
+    const char *source;
+    uint32 source_len;
 
-typedef uint32 ResourceHandle;
-class Device;
-class DeviceContext;
-class DeviceResource;
-class Buffer;
-class VertexArray;
-class Texture1D;
-class Texture2D;
-class Texture3D;
-typedef Texture2D RenderBuffer;
-class RenderTarget;
-class VertexShader;
-class PixelShader;
-class GeometryShader;
-class ShaderProgtam;
+    explicit ShaderDesc(const char *s=NULL, uint32 l=0) : source(s), source_len(l) {}
+};
+typedef ShaderDesc VertexShaderDesc;
+typedef ShaderDesc GeometryShaderDesc;
+typedef ShaderDesc PixelShaderDesc;
+
+struct ShaderProgramDesc
+{
+    VertexShader    *vsh;
+    PixelShader     *psh;
+    GeometryShader  *gsh;
+
+    explicit ShaderProgramDesc(VertexShader *v=NULL, PixelShader *p=NULL, GeometryShader *g=NULL)
+        : vsh(v), psh(p), gsh(g)
+    {}
+};
+
 
 } // namespace i3d
 } // namespace ist
