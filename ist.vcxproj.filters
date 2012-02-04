@@ -273,6 +273,9 @@
     <ClInclude Include="ist\GraphicsDX11\i3ddx11.h">
       <Filter>ist\GraphicsDX11</Filter>
     </ClInclude>
+    <ClInclude Include="ist\GraphicsGL\i3dglTexture.h">
+      <Filter>ist\GraphicsGL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ist\Window\Application.cpp">
@@ -403,6 +406,9 @@
     </ClCompile>
     <ClCompile Include="ist\GPUCL\gpuclDeviceResource.cpp">
       <Filter>ist\GPUCL</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\GraphicsGL\i3dglTexture.cpp">
+      <Filter>ist\GraphicsGL</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

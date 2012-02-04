@@ -50,6 +50,7 @@
     <ClInclude Include="ist\GraphicsGL\i3dglDeviceResource.h" />
     <ClInclude Include="ist\GraphicsGL\i3dglRenderTarget.h" />
     <ClInclude Include="ist\GraphicsGL\i3dglShader.h" />
+    <ClInclude Include="ist\GraphicsGL\i3dglTexture.h" />
     <ClInclude Include="ist\GraphicsGL\i3dglTypes.h" />
     <ClInclude Include="ist\GraphicsGL\i3dglUtil.h" />
     <ClInclude Include="ist\GraphicsGL\i3duglCamera.h" />
@@ -122,6 +123,7 @@
     <ClCompile Include="ist\GraphicsGL\i3dglDeviceResource.cpp" />
     <ClCompile Include="ist\GraphicsGL\i3dglRenderTarget.cpp" />
     <ClCompile Include="ist\GraphicsGL\i3dglShader.cpp" />
+    <ClCompile Include="ist\GraphicsGL\i3dglTexture.cpp" />
     <ClCompile Include="ist\GraphicsGL\i3dglUtil.cpp" />
     <ClCompile Include="ist\GraphicsGL\i3duglCamera.cpp" />
     <ClCompile Include="ist\GraphicsGL\i3duglFont.cpp" />

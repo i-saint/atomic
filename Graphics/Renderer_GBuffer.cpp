@@ -102,7 +102,7 @@ void PassGBuffer_SPH::draw()
         for(uint32 ri=0; ri<num_rigids; ++ri) {
             particles_in_task += atomicGetParticleSet(m_rupdateinfo[ri].psid)->getNumParticles();
             if(particles_in_task > minimum_particles_in_task || ri+1==num_rigids) {
-                UpdateRigidParticle *current = &m_updater[ri+1];
+                UpdateRigidParticle *current = &m_updater[0]+(ri+1);
                 resizeTasks(num_tasks+1);
                 static_cast<UpdateRigidParticleTask*>(m_tasks[num_tasks])->setup(last, current);
                 last = current;
@@ -136,9 +136,6 @@ void PassGBuffer_SPH::draw()
     }
 
     // rigid particle
-    static Sampler sampler;
-    sampler.bind(GLSL_RANDOM_BUFFER);
-    sampler.bind(GLSL_PARAM_BUFFER);
     Texture2D *param_texture = atomicGetTexture2D(TEX2D_ENTITY_PARAMS);
     {
         param_texture->copy(0, uvec2(0,0), uvec2(sizeof(PSetInstance)/sizeof(vec4), m_rinstances.size()), I3D_RGBA32F, &m_rinstances[0]);

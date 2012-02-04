@@ -3,6 +3,7 @@
 
 #include "i3dglBuffer.h"
 #include "i3dglDeviceResource.h"
+#include "i3dglTexture.h"
 #include "i3dglRenderTarget.h"
 #include "i3dglShader.h"
 
@@ -19,8 +20,8 @@ private:
 #endif // _WIN32
     DeviceContext *m_context;
 
-    stl::vector<DeviceResource*>        m_resources;
-    stl::vector<ResourceHandle>   m_vacant;
+    stl::vector<DeviceResource*>    m_resources;
+    stl::vector<ResourceHandle>     m_vacant;
     void addResource(DeviceResource *v);
 
 public:
@@ -38,8 +39,10 @@ public:
     GeometryShader* createGeometryShader();
     ShaderProgram*  createShaderProgram();
 
-    Texture1D*      createTexture1D();
-    Texture2D*      createTexture2D();
+    Sampler*        createSampler(const SamplerDesc &desc);
+    Texture1D*      createTexture1D(const Texture1DDesc &desc);
+    Texture2D*      createTexture2D(const Texture2DDesc &desc);
+    Texture3D*      createTexture3D(const Texture3DDesc &desc);
     RenderTarget*   createRenderTarget();
 
     void deleteResource(ResourceHandle v);

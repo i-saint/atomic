@@ -139,8 +139,8 @@ void EntitySet::update( float32 dt )
         resizeTasks(num_tasks);
         for(uint32 i=0; i<num_tasks; ++i) {
             static_cast<EntityUpdateTask*>(m_tasks[i])->setup(
-                &m_all[block_size*i],
-                &m_all[stl::min(block_size*(i+1), num_entities)],
+                &m_all[0]+block_size*i,
+                &m_all[0]+stl::min(block_size*(i+1), num_entities),
                 dt);
         }
         TaskScheduler::addTask(&m_tasks[0], num_tasks);

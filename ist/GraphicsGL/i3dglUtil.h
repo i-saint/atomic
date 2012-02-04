@@ -10,12 +10,12 @@ namespace ist {
 namespace i3dgl {
 
 // 画像ファイル/ストリームからテクスチャ生成
-bool CreateTexture2DFromFile(Texture2D& tex, const char *filename);
-bool CreateTexture2DFromStream(Texture2D& tex, std::istream& st);
+Texture2D* CreateTexture2DFromFile(Device *dev, const char *filename);
+Texture2D* CreateTexture2DFromStream(Device *dev, std::istream& st);
 
 // 乱数テクスチャ生成
-bool GenerateRandomTexture(Texture2D &tex, const uvec2 &size, I3D_COLOR_FORMAT format);
-bool GenerateRandomTexture(Texture2D &tex, const uvec2 &size, I3D_COLOR_FORMAT format, SFMT& random);
+Texture2D* GenerateRandomTexture(Device *dev, const uvec2 &size, I3D_COLOR_FORMAT format);
+Texture2D* GenerateRandomTexture(Device *dev, const uvec2 &size, I3D_COLOR_FORMAT format, SFMT& random);
 
 // ファイル/ストリームから各種シェーダ生成
 bool CreateVertexShaderFromFile(VertexShader& sh, const char *filename);
@@ -55,16 +55,16 @@ bool MapAndRead(BufferObjectType& bo, void *data, size_t data_size)
 
 
 RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
-    I3D_COLOR_FORMAT color_format);
+    I3D_COLOR_FORMAT color_format, uint32 mipmaps=0);
 
 RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
-    I3D_COLOR_FORMAT *color_formats);
+    I3D_COLOR_FORMAT *color_formats, uint32 mipmaps=0);
 
 RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
-    I3D_COLOR_FORMAT color_format, I3D_COLOR_FORMAT depthstencil_format);
+    I3D_COLOR_FORMAT color_format, I3D_COLOR_FORMAT depthstencil_format, uint32 mipmaps=0);
 
 RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
-    I3D_COLOR_FORMAT *color_formats, I3D_COLOR_FORMAT depthstencil_format);
+    I3D_COLOR_FORMAT *color_formats, I3D_COLOR_FORMAT depthstencil_format, uint32 mipmaps=0);
 
 
 Buffer* CreateVertexBuffer(Device *dev, uint32 size, I3D_USAGE usage, void *data=NULL);

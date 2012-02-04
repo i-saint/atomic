@@ -44,6 +44,7 @@ inline AtomicShader* CreateAtomicShader(const char* source)
 bool GraphicResourceManager::initialize()
 {
     m_font = NULL;
+    stl::fill_n(m_sampler, _countof(m_sampler), (Sampler*)NULL);
     stl::fill_n(m_tex1d, _countof(m_tex1d), (Texture1D*)NULL);
     stl::fill_n(m_tex2d, _countof(m_tex2d), (Texture2D*)NULL);
     stl::fill_n(m_va, _countof(m_va), (VertexArray*)NULL);
@@ -61,12 +62,6 @@ bool GraphicResourceManager::initialize()
     i3d::Device *dev = atomicGetGLDevice();
     {
         m_font = istNew(SystemFont)(dev->getHDC());
-    }
-    for(uint32 i=0; i<_countof(m_tex1d); ++i) {
-        m_tex1d[i] = dev->createTexture1D();
-    }
-    for(uint32 i=0; i<_countof(m_tex2d); ++i) {
-        m_tex2d[i] = dev->createTexture2D();
     }
     for(uint32 i=0; i<_countof(m_va); ++i) {
         m_va[i] = dev->createVertexArray();
@@ -127,9 +122,14 @@ bool GraphicResourceManager::initialize()
         m_shader[SH_DEBUG_SHOW_AAA]     = CreateAtomicShader(g_Debug_ShowAAA_glsl);
     }
     {
+        // samplers
+        m_sampler[SAMPLER_GBUFFER]          = dev->createSampler(SamplerDesc(I3D_REPEAT, I3D_REPEAT, I3D_REPEAT, I3D_LINEAR, I3D_LINEAR));
+        m_sampler[SAMPLER_TEXTURE_DEFAULT]  = dev->createSampler(SamplerDesc(I3D_REPEAT, I3D_REPEAT, I3D_REPEAT, I3D_LINEAR, I3D_LINEAR));
+    }
+    {
         // create textures
-        GenerateRandomTexture(*m_tex2d[TEX2D_RANDOM], uvec2(64, 64), I3D_RGB8U);
-        m_tex2d[TEX2D_ENTITY_PARAMS]->allocate(uvec2(4, 4096*2), I3D_RGBA32F, NULL);
+        m_tex2d[TEX2D_RANDOM] = GenerateRandomTexture(dev, uvec2(64, 64), I3D_RGB8U);
+        m_tex2d[TEX2D_ENTITY_PARAMS] = dev->createTexture2D(Texture2DDesc(I3D_RGBA32F, uvec2(4, 4096*2)));
     }
     {
         // create render targets
@@ -165,6 +165,18 @@ bool GraphicResourceManager::initialize()
         CreateBulletParticleSet(m_pset[PSET_SPHERE_BULLET], m_rinfo[PSET_SPHERE_BULLET]);
     }
 
+
+    {
+        Sampler *smp_gb = atomicGetSampler(SAMPLER_GBUFFER);
+        Sampler *smp_tex = atomicGetSampler(SAMPLER_TEXTURE_DEFAULT);
+        smp_tex->bind(GLSL_COLOR_BUFFER);
+        smp_gb->bind(GLSL_NORMAL_BUFFER);
+        smp_gb->bind(GLSL_POSITION_BUFFER);
+        smp_tex->bind(GLSL_GLOW_BUFFER);
+        smp_tex->bind(GLSL_BACK_BUFFER);
+        smp_tex->bind(GLSL_RANDOM_BUFFER);
+        smp_tex->bind(GLSL_PARAM_BUFFER);
+   }
     return true;
 }
 
@@ -181,6 +193,7 @@ void GraphicResourceManager::finalize()
     for(uint32 i=0; i<_countof(m_va); ++i)      { if(m_va[i]) { atomicSafeRelease( m_va[i] ); } }
     for(uint32 i=0; i<_countof(m_tex2d); ++i)   { if(m_tex2d[i]) { atomicSafeRelease( m_tex2d[i] ); } }
     for(uint32 i=0; i<_countof(m_tex1d); ++i)   { if(m_tex1d[i]) { atomicSafeRelease( m_tex1d[i] ); } }
+    for(uint32 i=0; i<_countof(m_sampler); ++i) { if(m_sampler[i]) { atomicSafeRelease( m_sampler[i] ); } }
     istSafeDelete(m_font);
 }
 

@@ -8,67 +8,6 @@ namespace ist {
 namespace i3dgl {
 
 
-class Sampler : public DeviceResource
-{
-I3DGL_DECLARE_DEVICE_RESOURCE(Sampler)
-typedef DeviceResource super;
-private:
-public:
-    Sampler();
-    ~Sampler();
-    void bind(uint32 slot);
-    void unbind(uint32 slot);
-};
-
-
-class Texture1D : public DeviceResource
-{
-I3DGL_DECLARE_DEVICE_RESOURCE(Texture1D)
-typedef DeviceResource super;
-private:
-    uint32 m_size;
-
-private:
-    Texture1D(Device *dev);
-    ~Texture1D();
-
-public:
-    bool allocate(uint32 size, I3D_COLOR_FORMAT format, void *data=NULL);
-    void copy(uint32 mip_level, uint32 pos, uint32 size, I3D_COLOR_FORMAT format, void *data);
-
-    void bind() const;
-    void unbind() const;
-    void bind(int slot) const;
-    void unbind(int slot) const;
-
-    uint32 getSize() const;
-};
-
-class Texture2D : public DeviceResource
-{
-I3DGL_DECLARE_DEVICE_RESOURCE(Texture2D)
-typedef DeviceResource super;
-private:
-    uvec2 m_size;
-
-private:
-    Texture2D(Device *dev);
-    ~Texture2D();
-
-public:
-    bool allocate(const uvec2 &size, I3D_COLOR_FORMAT format, void *data=NULL);
-    void copy(uint32 mip_level, const uvec2 &pos, const uvec2 &size, I3D_COLOR_FORMAT format, void *data);
-
-    void bind() const;
-    void unbind() const;
-    void bind(int slot) const;
-    void unbind(int slot) const;
-
-    const uvec2& getSize() const;
-};
-
-
-
 class RenderTarget : public DeviceResource
 {
 I3DGL_DECLARE_DEVICE_RESOURCE(RenderTarget)

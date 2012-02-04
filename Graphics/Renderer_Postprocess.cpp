@@ -132,7 +132,7 @@ void PassPostprocess_Bloom::draw()
 {
     if(!atomicGetConfig()->posteffect_bloom) { return; }
 
-    Viewport vp(ivec2(), m_rt_gauss0->getColorBuffer(0)->getSize());
+    Viewport vp(ivec2(), m_rt_gauss0->getColorBuffer(0)->getDesc().size);
     vp.bind();
 
     // ‹P“x’Šo
@@ -187,7 +187,7 @@ void PassPostprocess_Bloom::draw()
         glBlendFunc(GL_SRC_ALPHA, GL_ONE);
         glDrawArrays(GL_QUADS, 0, 4);
         glDisable(GL_BLEND);
-        m_rt_gauss1->getColorBuffer(0)->unbind();
+        m_rt_gauss1->getColorBuffer(0)->unbind(GLSL_COLOR_BUFFER);
         m_sh_composite->unbind();
         brt->unbind();
     }

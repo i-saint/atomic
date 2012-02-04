@@ -11,30 +11,30 @@
 namespace ist {
 namespace i3dgl {
 
-bool CreateTexture2DFromFile(Texture2D& tex, const char *filename)
+Texture2D* CreateTexture2DFromFile(Device *dev, const char *filename)
 {
     std::ifstream  st(filename, std::ios::binary);
     if(st.fail()) {
         istAssert("file not found %s", filename);
         return false;
     }
-    return CreateTexture2DFromStream(tex, st);
+    return CreateTexture2DFromStream(dev, st);
 }
 
-bool CreateTexture2DFromStream(Texture2D& tex, std::istream& st)
+Texture2D* CreateTexture2DFromStream(Device *dev, std::istream& st)
 {
     istAssert("not implemented");
     return false;
 }
 
-bool GenerateRandomTexture(Texture2D &tex, const uvec2 &size, I3D_COLOR_FORMAT format)
+Texture2D* GenerateRandomTexture(Device *dev, const uvec2 &size, I3D_COLOR_FORMAT format)
 {
     static SFMT random;
     if(!random.isInitialized()) { random.initialize((uint32_t)::time(0)); }
-    return GenerateRandomTexture(tex, size, format, random);
+    return GenerateRandomTexture(dev, size, format, random);
 }
 
-bool GenerateRandomTexture(Texture2D &tex, const uvec2 &size, I3D_COLOR_FORMAT format, SFMT& random)
+Texture2D* GenerateRandomTexture(Device *dev, const uvec2 &size, I3D_COLOR_FORMAT format, SFMT& random)
 {
     std::string buffer;
     if(format==I3D_RGB8U) {
@@ -71,8 +71,8 @@ bool GenerateRandomTexture(Texture2D &tex, const uvec2 &size, I3D_COLOR_FORMAT f
         istAssert("–¢ŽÀ‘•");
     }
 
-    bool ret =  tex.allocate(size, format, &buffer[0]);
-    return ret;
+    Texture2DDesc desc = Texture2DDesc(format, size, 0, &buffer[0]);
+    return dev->createTexture2D(desc);
 }
 
 
@@ -116,34 +116,27 @@ bool CreateFragmentShaderFromString(PixelShader& sh, const char* source)    { re
 
 
 
-Texture2D* CreateRenderBufferTexture(Device *dev, const uvec2 &size, I3D_COLOR_FORMAT color_format)
+Texture2D* CreateRenderBufferTexture(Device *dev, const uvec2 &size, I3D_COLOR_FORMAT color_format, uint32 mipmaps)
 {
-    Texture2D *r = dev->createTexture2D();
-    r->allocate(size, color_format);
-    r->bind();
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    r->unbind();
-    return r;
+    Texture2DDesc desc = Texture2DDesc(color_format, size, mipmaps);
+    return dev->createTexture2D(desc);
 }
 
 RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
-    I3D_COLOR_FORMAT color_format)
+    I3D_COLOR_FORMAT color_format, uint32 mipmaps)
 {
     I3D_COLOR_FORMAT color_formats[I3D_MAX_RENDER_TARGETS];
     stl::fill_n(color_formats, num_color_buffers, color_format);
-    return CreateRenderTarget(dev, num_color_buffers, size, color_formats);
+    return CreateRenderTarget(dev, num_color_buffers, size, color_formats, mipmaps);
 }
 
 RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
-    I3D_COLOR_FORMAT *color_formats)
+    I3D_COLOR_FORMAT *color_formats, uint32 mipmaps)
 {
     Texture2D *rb[I3D_MAX_RENDER_TARGETS];
     RenderTarget *rt = dev->createRenderTarget();
     for(uint32 i=0; i<num_color_buffers; ++i) {
-        rb[i] = CreateRenderBufferTexture(dev, size, color_formats[i]);
+        rb[i] = CreateRenderBufferTexture(dev, size, color_formats[i], mipmaps);
     }
     rt->setRenderBuffers(rb, num_color_buffers, NULL);
     for(uint32 i=0; i<num_color_buffers; ++i) {
@@ -153,24 +146,24 @@ RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uv
 }
 
 RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
-    I3D_COLOR_FORMAT color_format, I3D_COLOR_FORMAT depthstencil_format)
+    I3D_COLOR_FORMAT color_format, I3D_COLOR_FORMAT depthstencil_format, uint32 mipmaps)
 {
     I3D_COLOR_FORMAT color_formats[I3D_MAX_RENDER_TARGETS];
     stl::fill_n(color_formats, num_color_buffers, color_format);
-    return CreateRenderTarget(dev, num_color_buffers, size, color_formats, depthstencil_format);
+    return CreateRenderTarget(dev, num_color_buffers, size, color_formats, depthstencil_format, mipmaps);
 }
 
 RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
-    I3D_COLOR_FORMAT *color_formats, I3D_COLOR_FORMAT depthstencil_format)
+    I3D_COLOR_FORMAT *color_formats, I3D_COLOR_FORMAT depthstencil_format, uint32 mipmaps)
 {
     Texture2D *rb[I3D_MAX_RENDER_TARGETS];
     Texture2D *ds;
     RenderTarget *rt = dev->createRenderTarget();
     for(uint32 i=0; i<num_color_buffers; ++i) {
-        rb[i] = CreateRenderBufferTexture(dev, size, color_formats[i]);
+        rb[i] = CreateRenderBufferTexture(dev, size, color_formats[i], mipmaps);
     }
     {
-        ds = CreateRenderBufferTexture(dev, size, depthstencil_format);
+        ds = CreateRenderBufferTexture(dev, size, depthstencil_format, mipmaps);
     }
     rt->setRenderBuffers(rb, num_color_buffers, ds);
     for(uint32 i=0; i<num_color_buffers; ++i) {

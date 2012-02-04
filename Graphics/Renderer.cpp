@@ -109,7 +109,7 @@ void AtomicRenderer::draw()
         m_render_states.RcpScreenSize   = vec2(1.0f, 1.0f) / m_render_states.ScreenSize;
         m_render_states.AspectRatio     = (float32)wsize.x / (float32)wsize.y;
         m_render_states.RcpAspectRatio  = 1.0f / m_render_states.AspectRatio;
-        m_render_states.ScreenTexcoord  = m_render_states.ScreenSize / vec2(m_rt_gbuffer->getColorBuffer(0)->getSize());
+        m_render_states.ScreenTexcoord  = m_render_states.ScreenSize / vec2(m_rt_gbuffer->getColorBuffer(0)->getDesc().size);
         MapAndWrite(*ubo_renderstates, &m_render_states, sizeof(m_render_states));
     }
 

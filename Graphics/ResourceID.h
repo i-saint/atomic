@@ -40,6 +40,12 @@ enum RT_RID {
     RT_END,
 };
 
+enum SAMPLER_RID {
+    SAMPLER_GBUFFER,
+    SAMPLER_TEXTURE_DEFAULT,
+    SAMPLER_END,
+};
+
 enum TEX1D_RID {
     TEX1D_DUMMY,
     TEX1D_END,

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "../Base.h"
+#include "i3dglTexture.h"
 #include "i3dglRenderTarget.h"
 
 namespace ist {
@@ -30,139 +31,6 @@ bool DetectGLFormat(I3D_COLOR_FORMAT fmt, GLint &internal_format, GLint &format,
     }
     return true;
 }
-
-
-
-Texture1D::Texture1D(Device *dev)
-    : super(dev)
-{
-    glGenTextures(1, &m_handle);
-}
-
-Texture1D::~Texture1D()
-{
-    if(m_handle!=0) {
-        glDeleteTextures(1, &m_handle);
-        m_handle = 0;
-    }
-}
-
-bool Texture1D::allocate(uint32 size, I3D_COLOR_FORMAT fmt, void *data)
-{
-    GLint internal_format = 0;
-    GLint format = 0;
-    GLint type = 0;
-    DetectGLFormat(fmt, internal_format, format, type);
-
-    m_size = size;
-    glBindTexture( GL_TEXTURE_1D, m_handle );
-    glTexImage1D( GL_TEXTURE_1D, 0, internal_format, size, 0, format, type, data );
-    glBindTexture( GL_TEXTURE_1D, 0 );
-    return true;
-}
-
-void Texture1D::copy(uint32 mip_level, uint32 pos, uint32 size, I3D_COLOR_FORMAT fmt, void *data)
-{
-    GLint internal_format = 0;
-    GLint format = 0;
-    GLint type = 0;
-    DetectGLFormat(fmt, internal_format, format, type);
-
-    glBindTexture( GL_TEXTURE_1D, m_handle );
-    glTexSubImage1D(GL_TEXTURE_1D, mip_level, pos, size, format, type, data);
-    glBindTexture( GL_TEXTURE_1D, 0 );
-}
-
-void Texture1D::bind() const
-{
-    glBindTexture(GL_TEXTURE_1D, m_handle);
-}
-void Texture1D::unbind() const
-{
-    glBindTexture(GL_TEXTURE_1D, 0);
-}
-
-void Texture1D::bind(int slot) const
-{
-    glActiveTexture(GL_TEXTURE0+slot);
-    glBindTexture(GL_TEXTURE_1D, m_handle);
-}
-void Texture1D::unbind(int slot) const
-{
-    glActiveTexture(GL_TEXTURE0+slot);
-    glBindTexture(GL_TEXTURE_1D, 0);
-}
-
-uint32 Texture1D::getSize() const { return m_size; }
-
-
-
-
-Texture2D::Texture2D(Device *dev)
-    : super(dev)
-{
-    glGenTextures(1, &m_handle);
-}
-
-Texture2D::~Texture2D()
-{
-    if(m_handle!=0) {
-        glDeleteTextures(1, &m_handle);
-        m_handle = 0;
-    }
-}
-
-bool Texture2D::allocate(const uvec2 &size, I3D_COLOR_FORMAT fmt, void *data)
-{
-    GLint internal_format = 0;
-    GLint format = 0;
-    GLint type = 0;
-    DetectGLFormat(fmt, internal_format, format, type);
-
-    m_size = size;
-    glBindTexture( GL_TEXTURE_2D, m_handle );
-    glTexImage2D( GL_TEXTURE_2D, 0, internal_format, m_size.x, m_size.y, 0, format, type, data );
-    glBindTexture( GL_TEXTURE_2D, 0 );
-    return true;
-}
-
-void Texture2D::copy(uint32 mip_level, const uvec2 &pos, const uvec2 &size, I3D_COLOR_FORMAT fmt, void *data)
-{
-    if(size.x-pos.x > getSize().x || size.y-pos.y > getSize().y) {
-        istAssert("exceeded texture size.\n");
-    }
-    GLint internal_format = 0;
-    GLint format = 0;
-    GLint type = 0;
-    DetectGLFormat(fmt, internal_format, format, type);
-
-    glBindTexture( GL_TEXTURE_2D, m_handle );
-    glTexSubImage2D(GL_TEXTURE_2D, mip_level, pos.x, pos.y, size.x, size.y, format, type, data);
-    glBindTexture( GL_TEXTURE_2D, 0 );
-}
-
-void Texture2D::bind() const
-{
-    glBindTexture(GL_TEXTURE_2D, m_handle);
-}
-void Texture2D::unbind() const
-{
-    glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-void Texture2D::bind(int slot) const
-{
-    glActiveTexture(GL_TEXTURE0+slot);
-    glBindTexture(GL_TEXTURE_2D, m_handle);
-}
-void Texture2D::unbind(int slot) const
-{
-    glActiveTexture(GL_TEXTURE0+slot);
-    glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-const uvec2& Texture2D::getSize() const { return m_size; }
-
 
 
 
@@ -330,31 +198,6 @@ void RenderTarget::unbind() const
 //    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 //    return true;
 //}
-
-
-Sampler::Sampler() : super(NULL)
-{
-    glGenSamplers(1, &m_handle);
-    glSamplerParameteri (m_handle, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glSamplerParameteri (m_handle, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glSamplerParameteri (m_handle, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glSamplerParameteri (m_handle, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-}
-
-Sampler::~Sampler()
-{
-    glDeleteSamplers(1, &m_handle);
-}
-
-void Sampler::bind(uint32 slot)
-{
-    glBindSampler(slot, m_handle);
-}
-
-void Sampler::unbind(uint32 slot)
-{
-    glBindSampler(slot, 0);
-}
 
 } // namespace i3d
 } // namespace ist

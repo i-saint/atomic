@@ -30,9 +30,9 @@ enum I3D_COLOR_FORMAT
     I3D_RG8U,
     I3D_RG16F,
     I3D_RG32F,
-    I3D_RGB8U,  // texture only
-    I3D_RGB16F, // 
-    I3D_RGB32F, // 
+    I3D_RGB8U,
+    I3D_RGB16F,
+    I3D_RGB32F,
     I3D_RGBA8U,
     I3D_RGBA16F,
     I3D_RGBA32F,
@@ -79,22 +79,39 @@ enum I3D_BUFFER_TYPE
 
 enum I3D_CONSTANTS
 {
-    I3D_MAX_RENDER_TARGETS = 8,
-    I3D_MAX_VERTEX_BUFFERS = 8,
-    I3D_MAX_VERTEX_DESCS = 16,
+    I3D_MAX_RENDER_TARGETS  = 8,
+    I3D_MAX_VERTEX_BUFFERS  = 8,
+    I3D_MAX_VERTEX_DESCS    = 16,
+};
+
+enum I3D_TEXTURE_CLAMP
+{
+    I3D_REPEAT          = GL_REPEAT,
+    I3D_MIRRORED_REPEAT = GL_MIRRORED_REPEAT,
+    I3D_CLAMP_TO_EDGE   = GL_CLAMP_TO_EDGE,
+    I3D_CLAMP_TO_BORDER = GL_CLAMP_TO_BORDER,
+};
+
+enum I3D_TEXTURE_FILTER
+{
+    I3D_NEAREST                 = GL_NEAREST,
+    I3D_LINEAR                  = GL_LINEAR,
+    I3D_NEAREST_MIPMAP_NEAREST  = GL_NEAREST_MIPMAP_NEAREST,
+    I3D_NEAREST_MIPMAP_LINEAR   = GL_NEAREST_MIPMAP_LINEAR,
+    I3D_LINEAR_MIPMAP_NEAREST   = GL_LINEAR_MIPMAP_NEAREST,
+    I3D_LINEAR_MIPMAP_LINEAR    = GL_LINEAR_MIPMAP_LINEAR,
 };
 
 
 struct VertexDesc
 {
-    GLuint location;
-    I3D_TYPE type;
-    GLuint num_elements; // must be 1,2,3,4
+    GLuint location;        // shader value location
+    I3D_TYPE type;          // value type
+    GLuint num_elements;    // must be 1,2,3,4
     GLuint offset;
     bool normalize;
     GLuint divisor; // 0: per vertex, other: per n instance
 };
-
 
 struct BufferDesc
 {
@@ -104,10 +121,74 @@ struct BufferDesc
     void *data;
 
     // data は NULL でもよく、その場合メモリ確保だけが行われる。
-    BufferDesc() : type(I3D_VERTEX_BUFFER), usage(I3D_USAGE_DYNAMIC), size(0), data(NULL) {}
-    BufferDesc(I3D_BUFFER_TYPE t, I3D_USAGE u, uint32 s, void *d) : type(t), usage(u), size(s), data(d) {}
+    BufferDesc(I3D_BUFFER_TYPE _type, I3D_USAGE _usage=I3D_USAGE_DYNAMIC, uint32 _size=0, void *_data=NULL)
+        : type(_type)
+        , usage(_usage)
+        , size(_size)
+        , data(_data)
+    {}
 };
 
+struct SamplerDesc
+{
+    I3D_TEXTURE_CLAMP wrap_s;
+    I3D_TEXTURE_CLAMP wrap_t;
+    I3D_TEXTURE_CLAMP wrap_r;
+    I3D_TEXTURE_FILTER filter_min;
+    I3D_TEXTURE_FILTER filter_mag;
+
+    SamplerDesc(
+        I3D_TEXTURE_CLAMP _s=I3D_CLAMP_TO_EDGE, I3D_TEXTURE_CLAMP _t=I3D_CLAMP_TO_EDGE, I3D_TEXTURE_CLAMP _r=I3D_CLAMP_TO_EDGE,
+        I3D_TEXTURE_FILTER _min=I3D_NEAREST, I3D_TEXTURE_FILTER _mag=I3D_NEAREST)
+        : wrap_s(_s), wrap_t(_t), wrap_r(_r)
+        , filter_min(_min), filter_mag(_mag)
+    {}
+};
+
+struct Texture1DDesc
+{
+    I3D_COLOR_FORMAT format;
+    uint32 size;
+    uint32 mipmaps;
+    void *data;
+
+    Texture1DDesc(I3D_COLOR_FORMAT _format=I3D_RGBA8U, uint32 _size=0, uint32 _mipmaps=0, void *_data=NULL)
+        : format(_format)
+        , size(_size)
+        , mipmaps(_mipmaps)
+        , data(_data)
+    {}
+};
+
+struct Texture2DDesc
+{
+    I3D_COLOR_FORMAT format;
+    uvec2 size;
+    uint32 mipmaps;
+    void *data;
+
+    Texture2DDesc(I3D_COLOR_FORMAT _format=I3D_RGBA8U, uvec2 _size=uvec2(0, 0), uint32 _mipmaps=0, void *_data=NULL)
+        : format(_format)
+        , size(_size)
+        , mipmaps(_mipmaps)
+        , data(_data)
+    {}
+};
+
+struct Texture3DDesc
+{
+    I3D_COLOR_FORMAT format;
+    uvec3 size;
+    uint32 mipmaps;
+    void *data;
+
+    Texture3DDesc(I3D_COLOR_FORMAT _format=I3D_RGBA8U, uvec3 _size=uvec3(0, 0, 0), uint32 _mipmaps=0, void *_data=NULL)
+        : format(_format)
+        , size(_size)
+        , mipmaps(_mipmaps)
+        , data(_data)
+    {}
+};
 
 
 typedef uint32 ResourceHandle;

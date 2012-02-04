@@ -277,7 +277,7 @@ void AtomicSound::playSE(SE_CHANNEL channel, SE_RID se, const vec4 &pos, bool _o
     req.se.ch   = channel;
     req.se.rid  = se;
     req.se.force= _override;
-    (vec4&)(req.se.pos) = pos;
+    (vec3&)(req.se.pos) = vec3(pos);
     m_sound_thread->addRequest(req);
 }
 
