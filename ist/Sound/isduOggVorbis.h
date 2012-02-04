@@ -8,6 +8,7 @@ namespace ist {
 namespace isd {
 
 
+// .ogg ファイルのストリーミング再生を実現。
 class OggVorbisFileStream : public Stream
 {
 private:
@@ -35,6 +36,7 @@ public:
     DataCont& readByte(size_t require_size);
 };
 
+// .ogg ファイルの内容をメモリに配置して、それをストリーミング再生する機能を実現
 class OggVorbisMemoryStream : public Stream
 {
 private:
@@ -49,6 +51,7 @@ public:
     OggVorbisMemoryStream();
     virtual ~OggVorbisMemoryStream();
 
+    // data はコピーせず共有する
     bool openStream(void* data, size_t data_size);
     void closeStream();
 

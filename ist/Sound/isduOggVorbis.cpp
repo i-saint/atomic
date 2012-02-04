@@ -26,8 +26,10 @@ bool OggVorbisFileStream::openStream(const char* filepath)
         istPrint("OggVorbisStream::OggVorbisStream(): file not found %s\n", filepath);
         goto LABEL_ERROR;
     }
-    e = ov_open(m_file, &m_ov, 0,0);
-    if(e!=0) {
+
+    // _DEBUG の有無で FILE の内容が違うため、ov_open() を使うと libvorbisfile.dll とアプリケーションのビルド構成が違うとクラッシュします。
+    // それを回避するため、ov_open() の代わりに ov_open_callbacks() を用います。
+    if ( ov_open_callbacks( m_file, &m_ov , 0, 0, OV_CALLBACKS_DEFAULT ) != 0 ) {
         istPrint("OggVorbisStream::OggVorbisStream(): not vorbis file %s\n", filepath);
         goto LABEL_ERROR;
     }
