@@ -166,13 +166,13 @@ struct Texture1DDesc
 {
     I3D_COLOR_FORMAT format;
     uint32 size;
-    uint32 mipmaps;
+    uint32 mipmap;
     void *data;
 
-    explicit Texture1DDesc(I3D_COLOR_FORMAT _format=I3D_RGBA8U, uint32 _size=0, uint32 _mipmaps=0, void *_data=NULL)
+    explicit Texture1DDesc(I3D_COLOR_FORMAT _format=I3D_RGBA8U, uint32 _size=0, uint32 _mipmap=0, void *_data=NULL)
         : format(_format)
         , size(_size)
-        , mipmaps(_mipmaps)
+        , mipmap(_mipmap)
         , data(_data)
     {}
 };
@@ -181,13 +181,13 @@ struct Texture2DDesc
 {
     I3D_COLOR_FORMAT format;
     uvec2 size;
-    uint32 mipmaps;
+    uint32 mipmap;
     void *data;
 
-    explicit Texture2DDesc(I3D_COLOR_FORMAT _format=I3D_RGBA8U, uvec2 _size=uvec2(0, 0), uint32 _mipmaps=0, void *_data=NULL)
+    explicit Texture2DDesc(I3D_COLOR_FORMAT _format=I3D_RGBA8U, uvec2 _size=uvec2(0, 0), uint32 _mipmap=0, void *_data=NULL)
         : format(_format)
         , size(_size)
-        , mipmaps(_mipmaps)
+        , mipmap(_mipmap)
         , data(_data)
     {}
 };
@@ -196,13 +196,13 @@ struct Texture3DDesc
 {
     I3D_COLOR_FORMAT format;
     uvec3 size;
-    uint32 mipmaps;
+    uint32 mipmap;
     void *data;
 
-    explicit Texture3DDesc(I3D_COLOR_FORMAT _format=I3D_RGBA8U, uvec3 _size=uvec3(0, 0, 0), uint32 _mipmaps=0, void *_data=NULL)
+    explicit Texture3DDesc(I3D_COLOR_FORMAT _format=I3D_RGBA8U, uvec3 _size=uvec3(0, 0, 0), uint32 _mipmap=0, void *_data=NULL)
         : format(_format)
         , size(_size)
-        , mipmaps(_mipmaps)
+        , mipmap(_mipmap)
         , data(_data)
     {}
 };

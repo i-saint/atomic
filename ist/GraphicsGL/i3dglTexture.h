@@ -40,7 +40,7 @@ private:
 
 public:
     void copy(uint32 mip_level, uint32 pos, uint32 size, I3D_COLOR_FORMAT format, void *data);
-    void generateMipmaps();
+    void generateMipmap();
 
     void bind(int slot) const;
     void unbind(int slot) const;
@@ -66,7 +66,7 @@ private:
 
 public:
     void copy(uint32 mip_level, const uvec2 &pos, const uvec2 &size, I3D_COLOR_FORMAT format, void *data);
-    void generateMipmaps();
+    void generateMipmap();
 
     void bind(int slot) const;
     void unbind(int slot) const;
@@ -92,7 +92,7 @@ private:
 
 public:
     void copy(uint32 mip_level, const uvec3 &pos, const uvec3 &size, I3D_COLOR_FORMAT format, void *data);
-    void generateMipmaps();
+    void generateMipmap();
 
     void bind(int slot) const;
     void unbind(int slot) const;

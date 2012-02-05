@@ -59,16 +59,16 @@ inline bool MapAndRead(BufferObjectType& bo, void *data, size_t data_size)
 
 
 RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
-    I3D_COLOR_FORMAT color_format, uint32 mipmaps=0);
+    I3D_COLOR_FORMAT color_format, uint32 level=0);
 
 RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
-    I3D_COLOR_FORMAT *color_formats, uint32 mipmaps=0);
+    I3D_COLOR_FORMAT *color_formats, uint32 level=0);
 
 RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
-    I3D_COLOR_FORMAT color_format, I3D_COLOR_FORMAT depthstencil_format, uint32 mipmaps=0);
+    I3D_COLOR_FORMAT color_format, I3D_COLOR_FORMAT depthstencil_format, uint32 level_color=0, uint32 level_depth=0);
 
 RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
-    I3D_COLOR_FORMAT *color_formats, I3D_COLOR_FORMAT depthstencil_format, uint32 mipmaps=0);
+    I3D_COLOR_FORMAT *color_formats, I3D_COLOR_FORMAT depthstencil_format, uint32 level_color=0, uint32 level_depth=0);
 
 
 Buffer* CreateVertexBuffer(Device *dev, uint32 size, I3D_USAGE usage, void *data=NULL);
