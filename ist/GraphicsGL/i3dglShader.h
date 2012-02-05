@@ -110,12 +110,12 @@ public:
     void setVertexAttrib4fv(GLint al, const GLfloat *v);
 
     // subroutine
-    GLuint getSubroutineIndexV(const char *name);
-    GLuint getSubroutineIndexG(const char *name);
-    GLuint getSubroutineIndexF(const char *name);
-    void setSubroutineV(GLsizei count, GLuint *indices);
-    void setSubroutineG(GLsizei count, GLuint *indices);
-    void setSubroutineF(GLsizei count, GLuint *indices);
+    GLuint getSubroutineIndexVS(const char *name);
+    GLuint getSubroutineIndexGS(const char *name);
+    GLuint getSubroutineIndexPS(const char *name);
+    void setSubroutineVS(GLsizei count, GLuint *indices);
+    void setSubroutineGS(GLsizei count, GLuint *indices);
+    void setSubroutinePS(GLsizei count, GLuint *indices);
 };
 
 

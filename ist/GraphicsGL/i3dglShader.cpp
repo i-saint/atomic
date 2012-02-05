@@ -212,12 +212,12 @@ void ShaderProgram::setVertexAttrib2fv(GLint al, const GLfloat *v) { glVertexAtt
 void ShaderProgram::setVertexAttrib3fv(GLint al, const GLfloat *v) { glVertexAttrib3fv(al, v); }
 void ShaderProgram::setVertexAttrib4fv(GLint al, const GLfloat *v) { glVertexAttrib4fv(al, v); }
 
-GLuint ShaderProgram::getSubroutineIndexV(const char *name) { return glGetSubroutineIndex(m_handle, GL_VERTEX_SHADER, name); }
-GLuint ShaderProgram::getSubroutineIndexG(const char *name) { return glGetSubroutineIndex(m_handle, GL_GEOMETRY_SHADER, name); }
-GLuint ShaderProgram::getSubroutineIndexF(const char *name) { return glGetSubroutineIndex(m_handle, GL_FRAGMENT_SHADER, name); }
-void ShaderProgram::setSubroutineV(GLsizei count, GLuint *indices) { glUniformSubroutinesuiv(GL_VERTEX_SHADER, count, indices); }
-void ShaderProgram::setSubroutineG(GLsizei count, GLuint *indices) { glUniformSubroutinesuiv(GL_GEOMETRY_SHADER, count, indices); }
-void ShaderProgram::setSubroutineF(GLsizei count, GLuint *indices) { glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, count, indices); }
+GLuint ShaderProgram::getSubroutineIndexVS(const char *name) { return glGetSubroutineIndex(m_handle, GL_VERTEX_SHADER, name); }
+GLuint ShaderProgram::getSubroutineIndexGS(const char *name) { return glGetSubroutineIndex(m_handle, GL_GEOMETRY_SHADER, name); }
+GLuint ShaderProgram::getSubroutineIndexPS(const char *name) { return glGetSubroutineIndex(m_handle, GL_FRAGMENT_SHADER, name); }
+void ShaderProgram::setSubroutineVS(GLsizei count, GLuint *indices) { glUniformSubroutinesuiv(GL_VERTEX_SHADER, count, indices); }
+void ShaderProgram::setSubroutineGS(GLsizei count, GLuint *indices) { glUniformSubroutinesuiv(GL_GEOMETRY_SHADER, count, indices); }
+void ShaderProgram::setSubroutinePS(GLsizei count, GLuint *indices) { glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, count, indices); }
 
 
 } // namespace i3d

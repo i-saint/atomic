@@ -109,6 +109,8 @@ class DeviceContext;
 class DeviceResource;
 class Buffer;
 class VertexArray;
+class Sampler;
+class Texture;
 class Texture1D;
 class Texture2D;
 class Texture3D;

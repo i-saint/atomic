@@ -23,10 +23,17 @@ public:
 };
 
 
-class Texture1D : public DeviceResource
+class Texture : public DeviceResource
+{
+typedef DeviceResource super;
+protected:
+    Texture(Device *dev);
+};
+
+class Texture1D : public Texture
 {
 I3DGL_DECLARE_DEVICE_RESOURCE(Texture1D)
-typedef DeviceResource super;
+typedef Texture super;
 private:
     static const int TEXTURE_TYPE;
     Texture1DDesc m_desc;
@@ -49,10 +56,10 @@ public:
 };
 
 
-class Texture2D : public DeviceResource
+class Texture2D : public Texture
 {
 I3DGL_DECLARE_DEVICE_RESOURCE(Texture2D)
-typedef DeviceResource super;
+typedef Texture super;
 private:
     static const int TEXTURE_TYPE;
     Texture2DDesc m_desc;
@@ -75,10 +82,10 @@ public:
 };
 
 
-class Texture3D : public DeviceResource
+class Texture3D : public Texture
 {
 I3DGL_DECLARE_DEVICE_RESOURCE(Texture3D)
-typedef DeviceResource super;
+typedef Texture super;
 private:
     static const int TEXTURE_TYPE;
     Texture3DDesc m_desc;

@@ -39,6 +39,10 @@ void Sampler::unbind( uint32 slot )
 
 
 
+Texture::Texture( Device *dev ) : super(dev)
+{
+}
+
 
 const int Texture1D::TEXTURE_TYPE = GL_TEXTURE_1D;
 
@@ -261,6 +265,7 @@ void Texture3D::unbind(int slot) const
 }
 
 const Texture3DDesc& Texture3D::getDesc() const { return m_desc; }
+
 
 
 } // namespace i3dgl
