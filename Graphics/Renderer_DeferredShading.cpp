@@ -192,6 +192,7 @@ void PassDeferredShading_Lights::drawMultiResolution()
 
         drawDirectionalLights();
         drawPointLights();
+        debugShowResolution(2);
         rt_quarter->unbind();
     }
 
@@ -207,6 +208,7 @@ void PassDeferredShading_Lights::drawMultiResolution()
         upsampling(2);
         drawDirectionalLights();
         drawPointLights();
+        debugShowResolution(1);
 
         rt_half->unbind();
     }
@@ -219,10 +221,26 @@ void PassDeferredShading_Lights::drawMultiResolution()
         upsampling(1);
         drawDirectionalLights();
         drawPointLights();
+        debugShowResolution(0);
+
         // not unbind
     }
 
     atomicGetSampler(SAMPLER_TEXTURE_DEFAULT)->bind(GLSL_BACK_BUFFER);
+}
+
+void PassDeferredShading_Lights::debugShowResolution( int32 level )
+{
+    static const vec4 colors[] = {
+        vec4(0.8f, 0.0f, 0.0f, 0.7f),
+        vec4(0.5f, 0.0f, 0.0f, 0.7f),
+        vec4(0.2f, 0.0f, 0.0f, 0.7f),
+    };
+    if(atomicGetConfig()->debug_show_resolution) {
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        FillScreen(colors[level]);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    }
 }
 
 void PassDeferredShading_Lights::upsampling(int32 level)

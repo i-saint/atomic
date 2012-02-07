@@ -46,6 +46,7 @@ private:
     void drawStandard();
     void drawMultiResolution();
     void upsampling(int32 level);
+    void debugShowResolution(int32 level);
 
     void updateConstantBuffers();
     void drawDirectionalLights();

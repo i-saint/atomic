@@ -1,30 +1,29 @@
 #version 330 core
 #pragma include("Common.h")
 
+layout(std140) uniform fill_params
+{
+    FillParams u_Fill;
+};
+
 #ifdef GLSL_VS
-ia_out(GLSL_POSITION)           vec4 ia_VertexPosition;
-ia_out(GLSL_COLOR)              vec4 ia_VertexColor;
-#endif
-#if defined(GLSL_VS) || defined(GLSL_PS)
-vs_out vec4 vs_VertexColor;
+ia_out(GLSL_POSITION)           vec2 ia_VertexPosition;
 #endif
 
 #if defined(GLSL_VS)
 
 void main()
 {
-    vs_VertexColor      = ia_VertexColor;
-    gl_Position         = u_RS.ModelViewProjectionMatrix * ia_VertexPosition;
+    gl_Position = vec4(ia_VertexPosition, 0.0, 1.0);
 }
 
 #elif defined(GLSL_PS)
 
-ps_out(0) vec4 ps_FlagColor;
+ps_out(0) vec4 ps_FragColor;
 
 void main()
 {
-    ps_FlagColor    = vs_VertexColor;
+    ps_FragColor = u_Fill.color;
 }
 
 #endif
-

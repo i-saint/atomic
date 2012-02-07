@@ -24,6 +24,7 @@ struct AtomicConfig
     bool debug_show_distance;
     int32 debug_show_gbuffer;
     int32 debug_show_lights;
+    int32 debug_show_resolution;
     bool sound_enable;
     float32 bgm_volume;
     float32 se_volume;

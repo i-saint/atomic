@@ -7,6 +7,8 @@ namespace atomic {
     struct CollisionSphere;
     struct CollisionBox;
 
+    void FillScreen(const vec4 &color);
+
     vec4 GenRandomVector2();
     vec4 GenRandomVector3();
     vec4 GenRandomUnitVector2();

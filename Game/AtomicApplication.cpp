@@ -32,6 +32,7 @@ AtomicConfig::AtomicConfig()
     debug_show_distance     = false;
     debug_show_gbuffer      = 0;
     debug_show_lights       = -1;
+    debug_show_resolution   = 0;
     sound_enable            = true;
     bgm_volume              = 0.5;
     se_volume               = 0.5;
@@ -59,6 +60,7 @@ bool AtomicConfig::readFromFile( const char* filepath )
         if(sscanf(buf, "show_bloodstain = %d", &itmp.x)==1)         { show_bloodstain=(itmp.x!=0); }
         if(sscanf(buf, "debug_show_grid = %d", &itmp.x)==1)         { debug_show_grid=(itmp.x!=0); }
         if(sscanf(buf, "debug_show_distance = %d", &itmp.x)==1)     { debug_show_distance=(itmp.x!=0); }
+        if(sscanf(buf, "debug_show_resolution = %d", &itmp.x)==1)   { debug_show_resolution=(itmp.x!=0); }
         if(sscanf(buf, "sound_enable = %f", &itmp.x)==1)            { sound_enable=(itmp.x!=0); }
         if(sscanf(buf, "bgm_volume = %f", &ftmp.x)==1)              { bgm_volume=ftmp.x; }
         if(sscanf(buf, "se_volume = %f", &ftmp.x)==1)               { se_volume=ftmp.x; }
@@ -84,6 +86,7 @@ bool AtomicConfig::writeToFile( const char* filepath )
     fprintf(f, "show_bloodstain = %d\n",        show_bloodstain);
     fprintf(f, "debug_show_grid = %d\n",        debug_show_grid);
     fprintf(f, "debug_show_distance = %d\n",    debug_show_distance);
+    fprintf(f, "debug_show_resolution = %d\n",  debug_show_resolution);
     fprintf(f, "sound_enable = %d\n",           sound_enable);
     fprintf(f, "bgm_volume = %f\n",             bgm_volume);
     fprintf(f, "se_volume = %f\n",              se_volume);
@@ -250,6 +253,12 @@ void AtomicApplication::updateInput()
     }
     if(getKeyboardState().isKeyTriggered(ist::KEY_F7)) {
         m_config.pause = !m_config.pause;
+    }
+    if(getKeyboardState().isKeyTriggered(ist::KEY_F8)) {
+        m_config.enable_multiresolution = !m_config.enable_multiresolution;
+    }
+    if(getKeyboardState().isKeyTriggered(ist::KEY_F9)) {
+        m_config.debug_show_resolution = !m_config.debug_show_resolution;
     }
 
     {

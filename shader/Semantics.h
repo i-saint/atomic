@@ -29,4 +29,5 @@
 #define GLSL_RENDERSTATE_BINDING    0
 #define GLSL_FXAA_BINDING           1
 #define GLSL_FADE_BINDING           2
-#define GLSL_DEBUG_BUFFER_BINDING   3
+#define GLSL_FILL_BINDING           3
+#define GLSL_DEBUG_BUFFER_BINDING   4

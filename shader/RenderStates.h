@@ -1,14 +1,17 @@
 #ifndef __atomic_RenderStates__
 #define __atomic_RenderStates__
+
+#ifdef GLSL
+    #define ALIGN16 
+#else // GLSL
+    #define ALIGN16 __declspec(align(16))
+#endif // GLSL
+
 #ifndef GLSL
 namespace atomic {
 #endif // GLSL
 
-struct
-#ifndef GLSL
-    __declspec(align(16))
-#endif // GLSL
-    RenderStates
+struct ALIGN16 RenderStates
 {
     mat4 ModelViewProjectionMatrix;
     vec4 CameraPosition;
@@ -22,11 +25,7 @@ struct
 };
 
 
-struct
-#ifndef GLSL
-    __declspec(align(16))
-#endif // GLSL
-    FXAAParams
+struct ALIGN16 FXAAParams
 {
     vec4 fxaaConsolePosPos;
     vec4 fxaaConsoleRcpFrameOpt;
@@ -42,20 +41,17 @@ struct
     float fxaaConsoleEdgeThresholdMin;
 };
 
-struct
-#ifndef GLSL
-    __declspec(align(16))
-#endif // GLSL
-    FadeParams
+struct ALIGN16 FadeParams
 {
     vec4 color;
 };
 
-struct
-#ifndef GLSL
-    __declspec(align(16))
-#endif // GLSL
-    DebugShowBufferParams
+struct ALIGN16 FillParams
+{
+    vec4 color;
+};
+
+struct ALIGN16 DebugShowBufferParams
 {
     vec2 bottom_left; // スクリーン座標、-1.0～1.0
     vec2 upper_right; // スクリーン座標、-1.0～1.0
@@ -66,4 +62,5 @@ struct
 #ifndef GLSL
 } // namespace atomic
 #endif // GLSL
+#undef ALIGN16
 #endif // __atomic_RenderStates__

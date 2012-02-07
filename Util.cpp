@@ -7,9 +7,30 @@
 #include "Game/Entity.h"
 #include "Game/EntityClass.h"
 #include "Game/EntityQuery.h"
+#include "Graphics/ResourceManager.h"
+#include "Graphics/Shader.h"
 #include "Util.h"
 
 namespace atomic {
+
+void FillScreen( const vec4 &color )
+{
+    AtomicShader *sh_fill   = atomicGetShader(SH_FILL);
+    VertexArray *va_quad    = atomicGetVertexArray(VA_SCREEN_QUAD);
+    Buffer *ubo_params      = atomicGetUniformBuffer(UBO_FILL_PARAMS);
+    static uint32 location  = sh_fill->getUniformBlockIndex("fill_params");
+
+    FillParams params;
+    params.color = color;
+    MapAndWrite(*ubo_params, &params, sizeof(params));
+
+    sh_fill->bind();
+    sh_fill->setUniformBlock(location, GLSL_FILL_BINDING, ubo_params->getHandle());
+    va_quad->bind();
+    glDrawArrays(GL_QUADS, 0, 4);
+    sh_fill->unbind();
+}
+
 
 vec4 GenRandomVector2()
 {

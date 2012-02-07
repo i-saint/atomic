@@ -93,6 +93,7 @@ bool GraphicResourceManager::initialize()
         m_ubo[UBO_RENDER_STATES]    = CreateUniformBuffer(dev, sizeof(RenderStates), I3D_USAGE_DYNAMIC);
         m_ubo[UBO_FXAA_PARAMS]      = CreateUniformBuffer(dev, sizeof(FXAAParams), I3D_USAGE_DYNAMIC);
         m_ubo[UBO_FADE_PARAMS]      = CreateUniformBuffer(dev, sizeof(FadeParams), I3D_USAGE_DYNAMIC);
+        m_ubo[UBO_FILL_PARAMS]      = CreateUniformBuffer(dev, sizeof(FillParams), I3D_USAGE_DYNAMIC);
         m_ubo[UBO_DEBUG_SHOW_BUFFER_PARAMS] = CreateUniformBuffer(dev, sizeof(DebugShowBufferParams), I3D_USAGE_DYNAMIC);
     }
     {
