@@ -25,6 +25,7 @@ AtomicConfig::AtomicConfig()
     posteffect_microscopic  = false;
     posteffect_bloom        = true;
     posteffect_antialias    = false;
+    enable_multiresolution  = false;
     show_text               = true;
     show_bloodstain         = false;
     debug_show_grid         = false;
@@ -53,6 +54,7 @@ bool AtomicConfig::readFromFile( const char* filepath )
         if(sscanf(buf, "posteffect_microscopic = %d", &itmp.x)==1)  { posteffect_microscopic=(itmp.x!=0); }
         if(sscanf(buf, "posteffect_bloom = %d", &itmp.x)==1)        { posteffect_bloom=(itmp.x!=0); }
         if(sscanf(buf, "posteffect_antialias = %d", &itmp.x)==1)    { posteffect_antialias=(itmp.x!=0); }
+        if(sscanf(buf, "enable_multiresolution = %d", &itmp.x)==1)  { enable_multiresolution=(itmp.x!=0); }
         if(sscanf(buf, "show_text = %d", &itmp.x)==1)               { show_text=(itmp.x!=0); }
         if(sscanf(buf, "show_bloodstain = %d", &itmp.x)==1)         { show_bloodstain=(itmp.x!=0); }
         if(sscanf(buf, "debug_show_grid = %d", &itmp.x)==1)         { debug_show_grid=(itmp.x!=0); }
@@ -77,6 +79,7 @@ bool AtomicConfig::writeToFile( const char* filepath )
     fprintf(f, "posteffect_microscopic = %d\n", posteffect_microscopic);
     fprintf(f, "posteffect_bloom = %d\n",       posteffect_bloom);
     fprintf(f, "posteffect_antialias = %d\n",   posteffect_antialias);
+    fprintf(f, "enable_multiresolution = %d\n", enable_multiresolution);
     fprintf(f, "show_text = %d\n",              show_text);
     fprintf(f, "show_bloodstain = %d\n",        show_bloodstain);
     fprintf(f, "debug_show_grid = %d\n",        debug_show_grid);

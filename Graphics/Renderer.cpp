@@ -128,7 +128,7 @@ void AtomicRenderer::draw()
 
 void AtomicRenderer::passShadow()
 {
-    glClear(GL_DEPTH_BUFFER_BIT);
+    //glClear(GL_DEPTH_BUFFER_BIT);
     glFrontFace(GL_CW);
     glEnable(GL_DEPTH_TEST);
 
@@ -162,6 +162,13 @@ void AtomicRenderer::passGBuffer()
     glDisable(GL_STENCIL_TEST);
     glDisable(GL_DEPTH_TEST);
     m_rt_gbuffer->unbind();
+
+    if(atomicGetConfig()->enable_multiresolution) {
+        m_rt_gbuffer->getColorBuffer(GBUFFER_COLOR)->generateMipmap();
+        m_rt_gbuffer->getColorBuffer(GBUFFER_NORMAL)->generateMipmap();
+        m_rt_gbuffer->getColorBuffer(GBUFFER_POSITION)->generateMipmap();
+        m_rt_gbuffer->getDepthStencilBuffer()->generateMipmap();
+    }
 }
 
 void AtomicRenderer::passDeferredShading()

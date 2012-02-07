@@ -23,14 +23,15 @@ private:
     void releaseBuffers();
 
 public:
-    bool setRenderBuffers(Texture2D **rb, uint32 num, Texture2D *depthstencil);
+    bool setRenderBuffers(Texture2D **rb, uint32 num, Texture2D *depthstencil, uint32 level=0);
     bool getRenderBuffers(Texture2D **rb, uint32 &num, Texture2D *&depthstencil);
     void setNumColorBuffers(uint32 v);
-    void setColorBuffer(uint32 i, Texture2D *rb);
-    void setDepthStencilBuffer(Texture2D *rb);
+    void setColorBuffer(uint32 i, Texture2D *rb, uint32 level=0);
+    void setDepthStencilBuffer(Texture2D *rb, uint32 level=0);
     uint32 getNumColorBuffers() const;
     Texture2D* getColorBuffer(uint32 i);
     Texture2D* getDepthStencilBuffer();
+
     void bind() const;
     void unbind() const;
 

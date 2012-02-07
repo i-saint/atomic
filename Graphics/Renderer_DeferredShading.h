@@ -43,6 +43,11 @@ private:
     PointLights         m_point_lights;
     uint32              m_rendered_lights;
 
+    void drawStandard();
+    void drawMultiResolution();
+    void upsampling(int32 level);
+
+    void updateConstantBuffers();
     void drawDirectionalLights();
     void drawPointLights();
 

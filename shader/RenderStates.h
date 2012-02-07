@@ -18,6 +18,7 @@ struct
     vec2 RcpScreenSize;
     float AspectRatio;
     float RcpAspectRatio;
+    int Level;
 };
 
 

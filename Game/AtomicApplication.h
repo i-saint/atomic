@@ -17,6 +17,7 @@ struct AtomicConfig
     bool posteffect_microscopic;
     bool posteffect_bloom;
     bool posteffect_antialias;
+    bool enable_multiresolution;
     bool show_text;
     bool show_bloodstain;
     bool debug_show_grid;

@@ -110,6 +110,7 @@
     <None Include="shader\Deferred_Bloodstain.glsl" />
     <None Include="shader\Deferred_DirectionalLight.glsl" />
     <None Include="shader\Deferred_PointLight.glsl" />
+    <None Include="shader\Deferred_Upsampling.glsl" />
     <None Include="shader\DistanceField.glsl" />
     <None Include="shader\Fade.glsl" />
     <None Include="shader\Fill.glsl" />

@@ -22,6 +22,7 @@ bool DetectGLFormat(I3D_COLOR_FORMAT fmt, GLint &internal_format, GLint &format,
     case I3D_RGBA8U:    internal_format=GL_RGBA8;   format=GL_RGBA; type=GL_UNSIGNED_BYTE;  break;
     case I3D_RGBA16F:   internal_format=GL_RGBA16F; format=GL_RGBA; type=GL_FLOAT;          break;
     case I3D_RGBA32F:   internal_format=GL_RGBA32F; format=GL_RGBA; type=GL_FLOAT;          break;
+    case I3D_DEPTH16F:  internal_format=GL_DEPTH_COMPONENT16; format=GL_DEPTH_COMPONENT; type=GL_FLOAT; break;
     case I3D_DEPTH32F:  internal_format=GL_DEPTH_COMPONENT; format=GL_DEPTH_COMPONENT; type=GL_FLOAT; break;
     case I3D_DEPTH24_STENCIL8:    internal_format=GL_DEPTH24_STENCIL8;  format=GL_DEPTH_STENCIL; type=GL_UNSIGNED_INT_24_8; break;
     case I3D_DEPTH32F_STENCIL8:   internal_format=GL_DEPTH32F_STENCIL8; format=GL_DEPTH_STENCIL; type=GL_FLOAT_32_UNSIGNED_INT_24_8_REV; break;
@@ -62,7 +63,7 @@ void RenderTarget::releaseBuffers()
 }
 
 
-bool RenderTarget::setRenderBuffers(Texture2D **rb, uint32 num, Texture2D *depthstencil)
+bool RenderTarget::setRenderBuffers(Texture2D **rb, uint32 num, Texture2D *depthstencil, uint32 level)
 {
     if(num>=I3D_MAX_RENDER_TARGETS) {
         istPrint("number of render targets must be less than %d\n", I3D_MAX_RENDER_TARGETS);
@@ -83,12 +84,12 @@ bool RenderTarget::setRenderBuffers(Texture2D **rb, uint32 num, Texture2D *depth
     glBindFramebuffer(GL_FRAMEBUFFER, m_handle);
     for(uint32 i=0; i<num; ++i) {
         GLuint h = rb[i] ? rb[i]->getHandle() : 0;
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+i, GL_TEXTURE_2D, h, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+i, GL_TEXTURE_2D, h, level);
     }
     {
         GLuint h = depthstencil ? depthstencil->getHandle() : 0;
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, h, 0);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, h, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, h, level);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, h, level);
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     return true;
@@ -111,7 +112,7 @@ void RenderTarget::setNumColorBuffers(uint32 v)
     m_num_color_buffers = v;
 }
 
-void RenderTarget::setColorBuffer(uint32 i, Texture2D *rb)
+void RenderTarget::setColorBuffer(uint32 i, Texture2D *rb, uint32 level)
 {
     istSafeAddRef(rb);
     istSafeRelease(m_color_buffers[i]);
@@ -119,7 +120,7 @@ void RenderTarget::setColorBuffer(uint32 i, Texture2D *rb)
     {
         GLuint h = rb ? rb->getHandle() : 0;
         glBindFramebuffer(GL_FRAMEBUFFER, m_handle);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+i, GL_TEXTURE_2D, h, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+i, GL_TEXTURE_2D, h, level);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
     m_color_buffers[i] = rb;
@@ -131,7 +132,7 @@ void RenderTarget::setColorBuffer(uint32 i, Texture2D *rb)
     m_num_color_buffers = used;
 }
 
-void RenderTarget::setDepthStencilBuffer(Texture2D *rb)
+void RenderTarget::setDepthStencilBuffer(Texture2D *rb, uint32 level)
 {
     istSafeAddRef(rb);
     istSafeRelease(m_depthstencil);
@@ -139,8 +140,8 @@ void RenderTarget::setDepthStencilBuffer(Texture2D *rb)
     {
         GLuint h = rb ? rb->getHandle() : 0;
         glBindFramebuffer(GL_FRAMEBUFFER, m_handle);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, h, 0);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, h, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, h, level);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, h, level);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
     m_depthstencil = rb;
