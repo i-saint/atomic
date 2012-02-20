@@ -28,7 +28,7 @@ public:
 class __declspec(align(16)) Camera
 {
 private:
-    mat4 m_mv_matrix;
+    mat4 m_v_matrix;
     vec4 m_position;
     vec4 m_target;
     vec4 m_up;
@@ -48,7 +48,7 @@ public:
     const vec4& getPosition() const     { return m_position; }
     const vec4& getTarget() const       { return m_target; }
     const vec4& getUp() const           { return m_up; }
-    const mat4& getModelViewMatrix() const  { return m_mv_matrix; }
+    const mat4& getViewMatrix() const   { return m_v_matrix; }
 
     void updateMatrix();
 };
@@ -59,7 +59,7 @@ class __declspec(align(16)) OrthographicCamera : public Camera
 typedef Camera super;
 private:
     mat4 m_p_matrix;
-    mat4 m_mvp_matrix;
+    mat4 m_vp_matrix;
     float m_left;
     float m_right;
     float m_bottom;
@@ -83,8 +83,8 @@ public:
     float getTop() const    { return m_top; }
     float getZNear() const  { return m_znear; }
     float getZFar() const   { return m_zfar; }
-    const mat4& getProjectionMatrix() const         { return m_p_matrix; }
-    const mat4& getModelViewProjectionMatrix() const{ return m_mvp_matrix; }
+    const mat4& getProjectionMatrix() const     { return m_p_matrix; }
+    const mat4& getViewProjectionMatrix() const { return m_vp_matrix; }
 
     void setScreen(float l, float r, float b, float t)
     {
@@ -105,7 +105,7 @@ class __declspec(align(16)) PerspectiveCamera : public Camera
 typedef Camera super;
 private:
     mat4 m_p_matrix;
-    mat4 m_mvp_matrix;
+    mat4 m_vp_matrix;
     float m_fovy;
     float m_aspect;
     float m_znear;
@@ -123,8 +123,8 @@ public:
     float getAspect() const { return m_aspect; }
     float getZNear() const  { return m_znear; }
     float getZFar() const   { return m_zfar; }
-    const mat4& getProjectionMatrix() const         { return m_p_matrix; }
-    const mat4& getModelViewProjectionMatrix() const{ return m_mvp_matrix; }
+    const mat4& getProjectionMatrix() const     { return m_p_matrix; }
+    const mat4& getViewProjectionMatrix() const { return m_vp_matrix; }
 
     void setFrustumParam(float fovy, float aspect, float znear, float zfar)
     {

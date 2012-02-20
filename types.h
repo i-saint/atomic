@@ -46,6 +46,8 @@ using ist::Task;
 using ist::TaskScheduler;
 using ist::SpinMutex;
 using ist::SFMT;
+using ist::FrustumPlanes;
+using ist::AABB;
 typedef ist::Variant16 variant;
 
 namespace i3d = ist::i3dgl;

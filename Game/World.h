@@ -26,6 +26,7 @@ private:
     ModuleUpdateTaskCont m_module_update_tasks;
 
     PerspectiveCamera m_camera;
+    FrustumPlanes m_frustum;
     vec4 m_field_size;
 
     float32 m_frame;
@@ -46,7 +47,8 @@ public:
     void draw();
     void frameEnd();
 
-    PerspectiveCamera* getCamera() { return &m_camera; }
+    PerspectiveCamera* getCamera()      { return &m_camera; }
+    const FrustumPlanes* getViewFrustum() const { return &m_frustum; }
     const vec4& getFieldSize() const    { return m_field_size; }
     float32 getFrame() const            { return m_frame; }
 
@@ -60,6 +62,7 @@ public:
 
 #define atomicGetFrame()        atomicGetWorld()->getFrame()
 #define atomicGetCamera()       atomicGetWorld()->getCamera()
+#define atomicGetViewFrustum()  atomicGetWorld()->getViewFrustum()
 #define atomicGenRandFloat()    atomicGetRandom()->genFloat32()
 
 #define atomicGetEntitySet()    atomicGetWorld()->getEntitySet()

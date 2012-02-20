@@ -85,6 +85,9 @@ void World::update(float32 dt)
     for(ModuleCont::iterator i=m_modules.begin(); i!=m_modules.end(); ++i) {
         (*i)->update(dt);
     }
+
+    m_camera.updateMatrix();
+    m_frustum.constructFromViewProjectionMatrix(m_camera.getViewProjectionMatrix());
 }
 
 void World::asyncupdateBegin(float32 dt)

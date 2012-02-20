@@ -4,7 +4,8 @@
 #include "Base.h"
 #include "Math/Constants.h"
 #include "Math/SoA.h"
-#include "Math/Linear.h"
+//#include "Math/Linear.h"
 #include "Math/SFMT/SFMT.h"
+#include "Math/FrustumCulling.h"
 
 #endif // __ist_Math__

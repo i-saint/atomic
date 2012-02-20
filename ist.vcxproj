@@ -59,6 +59,7 @@
     <ClInclude Include="ist\ist.h" />
     <ClInclude Include="ist\Math.h" />
     <ClInclude Include="ist\Math\Constants.h" />
+    <ClInclude Include="ist\Math\FrustumCulling.h" />
     <ClInclude Include="ist\Math\Linear.h" />
     <ClInclude Include="ist\Math\SFMT\SFMT-alti.h" />
     <ClInclude Include="ist\Math\SFMT\SFMT-params.h" />
@@ -144,6 +145,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ist\Window\Application.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ist\Math\FrustumCulling.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8D4B1790-F166-4122-9CE6-8AF10214ED82}</ProjectGuid>

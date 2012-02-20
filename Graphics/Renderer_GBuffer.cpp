@@ -178,6 +178,15 @@ void PassGBuffer_SPH::resizeTasks( uint32 n )
 
 void PassGBuffer_SPH::addPSetInstance( PSET_RID psid, const mat4 &t, const PSetInstance inst )
 {
+    // todo: AABB ìKêÿÇ…ê›íË
+    //{
+    //    simdvec4 pos = simdvec4(t[3]);
+    //    AABB aabb = AABB(pos.Data);
+    //    if(!ist::TestFrustumAABB(*atomicGetViewFrustum(), aabb)) {
+    //        return;
+    //    }
+    //}
+
     PSetUpdateInfo tmp;
     tmp.psid        = psid;
     tmp.instanceid  = m_rinstances.size();

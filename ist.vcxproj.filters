@@ -276,6 +276,9 @@
     <ClInclude Include="ist\GraphicsGL\i3dglTexture.h">
       <Filter>ist\GraphicsGL</Filter>
     </ClInclude>
+    <ClInclude Include="ist\Math\FrustumCulling.h">
+      <Filter>ist\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ist\Window\Application.cpp">
@@ -410,5 +413,10 @@
     <ClCompile Include="ist\GraphicsGL\i3dglTexture.cpp">
       <Filter>ist\GraphicsGL</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ist\Math\FrustumCulling.inl">
+      <Filter>ist\Math</Filter>
+    </None>
   </ItemGroup>
 </Project>

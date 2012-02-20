@@ -102,8 +102,7 @@ void AtomicRenderer::draw()
         PerspectiveCamera *camera   = atomicGetCamera();
         Buffer *ubo_renderstates    = atomicGetUniformBuffer(UBO_RENDER_STATES);
         const uvec2 &wsize          = atomicGetWindowSize();
-        camera->updateMatrix();
-        m_render_states.ModelViewProjectionMatrix = camera->getModelViewProjectionMatrix();
+        m_render_states.ModelViewProjectionMatrix = camera->getViewProjectionMatrix();
         m_render_states.CameraPosition  = camera->getPosition();
         m_render_states.ScreenSize      = vec2(atomicGetWindowSize());
         m_render_states.RcpScreenSize   = vec2(1.0f, 1.0f) / m_render_states.ScreenSize;
