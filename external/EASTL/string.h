@@ -245,6 +245,7 @@ namespace eastl
         signed char    mEmptyS8[1];
         char16_t       mEmpty16[1];
         char32_t       mEmpty32[1];
+        wchar_t        mEmptyW[1];
     };
     extern EASTL_API EmptyString gEmptyString;
 
@@ -253,6 +254,7 @@ namespace eastl
     inline const char*          GetEmptyString(char)          { return gEmptyString.mEmpty8;  }
     inline const char16_t*      GetEmptyString(char16_t)      { return gEmptyString.mEmpty16; }
     inline const char32_t*      GetEmptyString(char32_t)      { return gEmptyString.mEmpty32; }
+    inline const wchar_t*       GetEmptyString(wchar_t)       { return gEmptyString.mEmptyW; }
 
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -645,6 +647,14 @@ namespace eastl
     inline size_t CharStrlen(const char32_t* p)
     {
         const char32_t* pCurrent = p;
+        while(*pCurrent)
+            ++pCurrent;
+        return (size_t)(pCurrent - p);
+    }
+
+    inline size_t CharStrlen(const wchar_t* p)
+    {
+        const wchar_t* pCurrent = p;
         while(*pCurrent)
             ++pCurrent;
         return (size_t)(pCurrent - p);

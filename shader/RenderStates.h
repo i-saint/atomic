@@ -51,6 +51,12 @@ struct ALIGN16 FillParams
     vec4 color;
 };
 
+struct ALIGN16 MultiresolutionParams
+{
+    ivec4 Level;
+    vec4 Threshold;
+};
+
 struct ALIGN16 DebugShowBufferParams
 {
     vec2 bottom_left; // スクリーン座標、-1.0～1.0

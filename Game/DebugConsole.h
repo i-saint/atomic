@@ -5,7 +5,7 @@ namespace atomic {
     class DebugConsole
     {
     private:
-        stl::vector<stl::wstring> m_history;
+        stl::list<stl::wstring> m_history;
         stl::wstring m_command;
 
     public:

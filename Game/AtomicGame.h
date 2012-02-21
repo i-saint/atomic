@@ -30,6 +30,8 @@ public:
     // •`‰æƒXƒŒƒbƒh‚©‚çŒÄ‚Î‚ê‚é
     void drawCallback();
 
+    int handleCommandLine(const stl::wstring &command);
+
     const InputState* getIngameInputs() const { return m_input_server->getInput(); }
     World* getWorld()   { return m_world; }
     SFMT* getRandom()   { return &m_rand; }

@@ -6,6 +6,7 @@
 #include "Graphics/AtomicRenderingSystem.h"
 #include "Game/World.h"
 #include "Sound/AtomicSound.h"
+#include "Graphics/Renderer.h"
 
 #define ATOMIC_CONFIG_FILE_PATH "atomic.conf"
 
@@ -25,7 +26,7 @@ AtomicConfig::AtomicConfig()
     posteffect_microscopic  = false;
     posteffect_bloom        = true;
     posteffect_antialias    = false;
-    enable_multiresolution  = false;
+    multiresolution         = false;
     show_text               = true;
     show_bloodstain         = false;
     debug_show_grid         = false;
@@ -55,7 +56,7 @@ bool AtomicConfig::readFromFile( const char* filepath )
         if(sscanf(buf, "posteffect_microscopic = %d", &itmp.x)==1)  { posteffect_microscopic=(itmp.x!=0); }
         if(sscanf(buf, "posteffect_bloom = %d", &itmp.x)==1)        { posteffect_bloom=(itmp.x!=0); }
         if(sscanf(buf, "posteffect_antialias = %d", &itmp.x)==1)    { posteffect_antialias=(itmp.x!=0); }
-        if(sscanf(buf, "enable_multiresolution = %d", &itmp.x)==1)  { enable_multiresolution=(itmp.x!=0); }
+        if(sscanf(buf, "multiresolution = %d", &itmp.x)==1)         { multiresolution=(itmp.x!=0); }
         if(sscanf(buf, "show_text = %d", &itmp.x)==1)               { show_text=(itmp.x!=0); }
         if(sscanf(buf, "show_bloodstain = %d", &itmp.x)==1)         { show_bloodstain=(itmp.x!=0); }
         if(sscanf(buf, "debug_show_grid = %d", &itmp.x)==1)         { debug_show_grid=(itmp.x!=0); }
@@ -81,7 +82,7 @@ bool AtomicConfig::writeToFile( const char* filepath )
     fprintf(f, "posteffect_microscopic = %d\n", posteffect_microscopic);
     fprintf(f, "posteffect_bloom = %d\n",       posteffect_bloom);
     fprintf(f, "posteffect_antialias = %d\n",   posteffect_antialias);
-    fprintf(f, "enable_multiresolution = %d\n", enable_multiresolution);
+    fprintf(f, "multiresolution = %d\n",        multiresolution);
     fprintf(f, "show_text = %d\n",              show_text);
     fprintf(f, "show_bloodstain = %d\n",        show_bloodstain);
     fprintf(f, "debug_show_grid = %d\n",        debug_show_grid);
@@ -255,10 +256,18 @@ void AtomicApplication::updateInput()
         m_config.pause = !m_config.pause;
     }
     if(getKeyboardState().isKeyTriggered(ist::KEY_F8)) {
-        m_config.enable_multiresolution = !m_config.enable_multiresolution;
+        m_config.multiresolution = !m_config.multiresolution;
     }
     if(getKeyboardState().isKeyTriggered(ist::KEY_F9)) {
         m_config.debug_show_resolution = !m_config.debug_show_resolution;
+    }
+    if(getKeyboardState().isKeyPressed('8')) {
+        float &p = atomicGetLights()->getMultiresolutionParams().Threshold.x;
+        p = clamp(p-0.001f, 0.0f, 1.0f);
+    }
+    if(getKeyboardState().isKeyPressed('9')) {
+        float &p = atomicGetLights()->getMultiresolutionParams().Threshold.x;
+        p = clamp(p+0.001f, 0.0f, 1.0f);
     }
 
     {
@@ -307,13 +316,28 @@ int AtomicApplication::handleWindowMessage(const ist::WindowMessage& wm)
     case ist::WindowMessage::MES_IME_RESULT:
         {
             const ist::WM_IME& m = static_cast<const ist::WM_IME&>(wm);
-            handleCommandLine(m.text, m.text_len);
+            stl::wstring str(m.text, m.text_len);
+            handleCommandLine(str);
         }
         return 0;
 
-    case ist::WindowMessage::MES_IME_BEGIN: istPrint(L"MES_IME_BEGIN\n"); break;
-    case ist::WindowMessage::MES_IME_END: istPrint(L"MES_IME_END\n"); break;
-    case ist::WindowMessage::MES_IME_CHAR: istPrint(L"MES_IME_CHAR\n"); break;
+    case ist::WindowMessage::MES_IME_BEGIN:
+        {
+            istPrint(L"MES_IME_BEGIN\n");
+        }
+        break;
+    case ist::WindowMessage::MES_IME_END:
+        {
+            istPrint(L"MES_IME_END\n");
+        }
+        break;
+    case ist::WindowMessage::MES_IME_CHAR:
+        {
+            const ist::WM_IME& m = static_cast<const ist::WM_IME&>(wm);
+            stl::wstring str(m.text, m.text_len);
+            istPrint(L"MES_IME_CHAR %s\n", str.c_str());
+        }
+        break;
     }
 
     return 0;
@@ -321,7 +345,7 @@ int AtomicApplication::handleWindowMessage(const ist::WindowMessage& wm)
 
 void AtomicApplication::handleError(ATOMIC_ERROR e)
 {
-    std::wstring mes;
+    stl::wstring mes;
     switch(e) {
     case ATERR_OPENGL_330_IS_NOT_SUPPORTED:   mes=GetText(TID_OPENGL330_IS_NOT_SUPPORTED); break;
     case ATERR_CUDA_NO_DEVICE:                mes=GetText(TID_ERROR_CUDA_NO_DEVICE); break;
@@ -330,15 +354,101 @@ void AtomicApplication::handleError(ATOMIC_ERROR e)
     istShowMessageDialog(mes.c_str(), L"error", DLG_OK);
 }
 
-void AtomicApplication::handleCommandLine( const wchar_t* command, size_t command_len )
-{
-    istPrint(L"%s\n", command);
-}
-
 
 void AtomicApplication::drawCallback()
 {
     m_game->drawCallback();
+}
+
+
+
+typedef void (*CommandLineHandler)(const stl::wstring &command);
+typedef stl::pair<stl::wstring, CommandLineHandler> CommandPair;
+typedef stl::vector<CommandPair> CommandLineHandlerTable;
+
+
+void cmd_pause(const stl::wstring &value) {
+    atomicGetConfig()->pause = !atomicGetConfig()->pause;
+}
+
+void cmd_set_posteffect_microscopic(const stl::wstring &value) {
+    int v;
+    if( swscanf(value.c_str(), L"%d", &v) ) {
+        atomicGetConfig()->posteffect_microscopic = v!=0;
+    }
+}
+
+void cmd_set_posteffect_bloom(const stl::wstring &value) {
+    int v;
+    if( swscanf(value.c_str(), L"%d", &v) ) {
+        atomicGetConfig()->posteffect_bloom = v!=0;
+    }
+}
+
+void cmd_set_posteffect_antialias(const stl::wstring &value) {
+    int v;
+    if( swscanf(value.c_str(), L"%d", &v) ) {
+        atomicGetConfig()->posteffect_antialias = v!=0;
+    }
+}
+
+void cmd_set_multiresolution(const stl::wstring &value) {
+    int v;
+    if( swscanf(value.c_str(), L"%d", &v) ) {
+        atomicGetConfig()->multiresolution = v!=0;
+    }
+}
+
+void cmd_set_show_text(const stl::wstring &value) {
+    int v;
+    if( swscanf(value.c_str(), L"%d", &v) ) {
+        atomicGetConfig()->show_text = v!=0;
+    }
+}
+
+void cmd_set_show_bloodstain(const stl::wstring &value) {
+    int v;
+    if( swscanf(value.c_str(), L"%d", &v) ) {
+        atomicGetConfig()->show_bloodstain = v!=0;
+    }
+}
+
+void cmd_set_debug_show_grid(const stl::wstring &value) {
+    int v;
+    if( swscanf(value.c_str(), L"%d", &v) ) {
+        atomicGetConfig()->debug_show_grid = v!=0;
+    }
+}
+
+struct equal_first {
+    const stl::wstring command;
+    equal_first(const stl::wstring &c) : command(c) {}
+    bool operator()(const CommandPair &v) const {
+        return command.find(v.first) != stl::wstring::npos;
+    }
+};
+
+int32 AtomicApplication::handleCommandLine( const stl::wstring &command )
+{
+    static CommandLineHandlerTable s_table;
+    if(s_table.empty()) {
+        s_table.push_back(CommandPair(L"pause",                     cmd_pause));
+        s_table.push_back(CommandPair(L"set posteffect_microscopic",cmd_set_posteffect_microscopic));
+        s_table.push_back(CommandPair(L"set posteffect_bloom",      cmd_set_posteffect_bloom));
+        s_table.push_back(CommandPair(L"set posteffect_antialias",  cmd_set_posteffect_antialias));
+        s_table.push_back(CommandPair(L"set multiresolution",       cmd_set_multiresolution));
+        s_table.push_back(CommandPair(L"set show_text",             cmd_set_show_text));
+        s_table.push_back(CommandPair(L"set show_bloodstain",       cmd_set_show_bloodstain));
+        s_table.push_back(CommandPair(L"set debug_show_grid",       cmd_set_debug_show_grid));
+    }
+
+    CommandLineHandlerTable::iterator p = stl::find_if(s_table.begin(), s_table.end(), equal_first(command));
+    if(p != s_table.end()) {
+        stl::wstring value(command.c_str()+(p->first.size()+1));
+        p->second(value);
+        return 1;
+    }
+    return 0;
 }
 
 

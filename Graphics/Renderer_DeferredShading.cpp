@@ -144,6 +144,9 @@ void PassDeferredShading_Bloodstain::addBloodstainParticles( const mat4 &t, cons
 PassDeferredShading_Lights::PassDeferredShading_Lights()
     : m_rendered_lights(0)
 {
+    m_mr_params.Level = ivec4(0,0,0,0);
+    m_mr_params.Threshold = vec4(0.95f, 0.0f, 0.0f, 0.0f);
+
     m_directional_lights.reserve(ATOMIC_MAX_DIRECTIONAL_LIGHTS);
     m_point_lights.reserve(ATOMIC_MAX_POINT_LIGHTS);
 }
@@ -158,7 +161,7 @@ void PassDeferredShading_Lights::beforeDraw()
 void PassDeferredShading_Lights::draw()
 {
     updateConstantBuffers();
-    if(atomicGetConfig()->enable_multiresolution) {
+    if(atomicGetConfig()->multiresolution) {
         drawMultiResolution();
     }
     else {
@@ -168,8 +171,7 @@ void PassDeferredShading_Lights::draw()
 
 void PassDeferredShading_Lights::drawStandard()
 {
-    drawDirectionalLights();
-    drawPointLights();
+    drawLights();
 }
 
 void PassDeferredShading_Lights::drawMultiResolution()
@@ -190,8 +192,7 @@ void PassDeferredShading_Lights::drawMultiResolution()
         rt_quarter->bind();
         glClear(GL_COLOR_BUFFER_BIT);
 
-        drawDirectionalLights();
-        drawPointLights();
+        drawLights();
         debugShowResolution(2);
         rt_quarter->unbind();
     }
@@ -206,8 +207,7 @@ void PassDeferredShading_Lights::drawMultiResolution()
         glClear(GL_COLOR_BUFFER_BIT);
 
         upsampling(2);
-        drawDirectionalLights();
-        drawPointLights();
+        drawLights();
         debugShowResolution(1);
 
         rt_half->unbind();
@@ -219,8 +219,7 @@ void PassDeferredShading_Lights::drawMultiResolution()
         rt_original->bind();
 
         upsampling(1);
-        drawDirectionalLights();
-        drawPointLights();
+        drawLights();
         debugShowResolution(0);
 
         // not unbind
@@ -246,8 +245,9 @@ void PassDeferredShading_Lights::debugShowResolution( int32 level )
 void PassDeferredShading_Lights::upsampling(int32 level)
 {
     AtomicShader *sh_upsampling = atomicGetShader(SH_UPSAMPLING);
-    VertexArray *va_quad    = atomicGetVertexArray(VA_SCREEN_QUAD);
-    Buffer *ubo_renderstates    = atomicGetUniformBuffer(UBO_RENDER_STATES);
+    VertexArray *va_quad        = atomicGetVertexArray(VA_SCREEN_QUAD);
+    Buffer *ubo_mrp             = atomicGetUniformBuffer(UBO_MULTIRESOLUTION_PARAMS);
+    int mr_params_loc = sh_upsampling->getUniformBlockIndex("multiresolution_params");
 
     Texture2D *lower_resolution = NULL;
     RenderTarget *rt = NULL;
@@ -265,9 +265,8 @@ void PassDeferredShading_Lights::upsampling(int32 level)
     }
 
     {
-        RenderStates rs = *atomicGetRenderStates();
-        rs.Level = level;
-        MapAndWrite(*ubo_renderstates, &rs, sizeof(rs));
+        m_mr_params.Level.x = level;
+        MapAndWrite(*ubo_mrp, &m_mr_params, sizeof(m_mr_params));
     }
     
     glDepthFunc(GL_ALWAYS);
@@ -275,6 +274,7 @@ void PassDeferredShading_Lights::upsampling(int32 level)
     glDepthMask(GL_TRUE);
 
     sh_upsampling->bind();
+    sh_upsampling->setUniformBlock(mr_params_loc, GLSL_MULTIRESOLUTION_BINDING, ubo_mrp->getHandle());
     lower_resolution->bind(GLSL_BACK_BUFFER);
     va_quad->bind();
     glDrawArrays(GL_QUADS, 0, 4);
@@ -288,25 +288,27 @@ void PassDeferredShading_Lights::upsampling(int32 level)
 
 void PassDeferredShading_Lights::updateConstantBuffers()
 {
-    int32 show = atomicGetConfig()->debug_show_lights;
     {
         AtomicShader *shader    = atomicGetShader(SH_DIRECTIONALLIGHT);
         VertexArray *va_quad    = atomicGetVertexArray(VA_SCREEN_QUAD);
         Buffer *vbo_instance    = atomicGetVertexBuffer(VBO_DIRECTIONALLIGHT_INSTANCES);
 
         int32 num_lights = m_directional_lights.size();
-        if(show >= 0) { num_lights = stl::max<int32>(stl::min<int32>(show-m_rendered_lights, num_lights), 0); }
-        m_rendered_lights += num_lights;
         MapAndWrite(*vbo_instance, &m_directional_lights[0], sizeof(DirectionalLight)*num_lights);
     }
     {
         Buffer *vbo_instance    = atomicGetVertexBuffer(VBO_POINTLIGHT_INSTANCES);
 
         int32 num_lights = m_point_lights.size();
-        if(show >= 0) { num_lights = stl::max<int32>(stl::min<int32>(show-m_rendered_lights, num_lights), 0); }
-        m_rendered_lights += num_lights;
         MapAndWrite(*vbo_instance, &m_point_lights[0], sizeof(PointLight)*num_lights);
     }
+}
+
+void PassDeferredShading_Lights::drawLights()
+{
+    m_rendered_lights = 0;
+    drawDirectionalLights();
+    drawPointLights();
 }
 
 void PassDeferredShading_Lights::drawDirectionalLights()
@@ -314,7 +316,13 @@ void PassDeferredShading_Lights::drawDirectionalLights()
     AtomicShader *shader    = atomicGetShader(SH_DIRECTIONALLIGHT);
     VertexArray *va_quad    = atomicGetVertexArray(VA_SCREEN_QUAD);
     Buffer *vbo_instance    = atomicGetVertexBuffer(VBO_DIRECTIONALLIGHT_INSTANCES);
+
     int32 num_lights = m_directional_lights.size();
+    int32 show = atomicGetConfig()->debug_show_lights - m_rendered_lights;
+    if(show >= 0) {
+        num_lights = std::min(num_lights, show);
+    }
+    m_rendered_lights += num_lights;
 
     const VertexDesc descs[] = {
         {GLSL_INSTANCE_DIRECTION,I3D_FLOAT,4,  0, false, 1},
@@ -335,7 +343,13 @@ void PassDeferredShading_Lights::drawPointLights()
     Buffer *ibo_sphere      = atomicGetIndexBuffer(IBO_LIGHT_SPHERE);
     VertexArray *va_sphere  = atomicGetVertexArray(VA_UNIT_SPHERE);
     Buffer *vbo_instance    = atomicGetVertexBuffer(VBO_POINTLIGHT_INSTANCES);
+
     int32 num_lights = m_point_lights.size();
+    int32 show = atomicGetConfig()->debug_show_lights - m_rendered_lights;
+    if(show >= 0) {
+        num_lights = std::min(num_lights, show);
+    }
+    m_rendered_lights += num_lights;
 
     const VertexDesc descs[] = {
         {GLSL_INSTANCE_POSITION,I3D_FLOAT,4, 0, false, 1},

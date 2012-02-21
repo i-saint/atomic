@@ -26,8 +26,9 @@
 #define GLSL_PARAM_BUFFER       6
 
 // uniform blocks
-#define GLSL_RENDERSTATE_BINDING    0
-#define GLSL_FXAA_BINDING           1
-#define GLSL_FADE_BINDING           2
-#define GLSL_FILL_BINDING           3
-#define GLSL_DEBUG_BUFFER_BINDING   4
+#define GLSL_RENDERSTATE_BINDING        0
+#define GLSL_FXAA_BINDING               1
+#define GLSL_FADE_BINDING               2
+#define GLSL_FILL_BINDING               3
+#define GLSL_MULTIRESOLUTION_BINDING    5
+#define GLSL_DEBUG_BUFFER_BINDING       6

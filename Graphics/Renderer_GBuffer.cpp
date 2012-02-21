@@ -157,16 +157,16 @@ void PassGBuffer_SPH::draw()
         m_sh_rigid->unbind();
     }
 
-    //// floor
-    //{
-    //    AtomicShader *sh_floor = atomicGetShader(SH_GBUFFER_FLOOR);
-    //    VertexArray *va_floor = atomicGetVertexArray(VA_FLOOR_QUAD);
-    //    sh_floor->bind();
-    //    va_floor->bind();
-    //    glDrawArrays(GL_QUADS, 0, 4);
-    //    va_floor->unbind();
-    //    sh_floor->unbind();
-    //}
+    // floor
+    {
+        AtomicShader *sh_floor = atomicGetShader(SH_GBUFFER_FLOOR);
+        VertexArray *va_floor = atomicGetVertexArray(VA_FLOOR_QUAD);
+        sh_floor->bind();
+        va_floor->bind();
+        glDrawArrays(GL_QUADS, 0, 4);
+        va_floor->unbind();
+        sh_floor->unbind();
+    }
 }
 
 void PassGBuffer_SPH::resizeTasks( uint32 n )
@@ -179,13 +179,13 @@ void PassGBuffer_SPH::resizeTasks( uint32 n )
 void PassGBuffer_SPH::addPSetInstance( PSET_RID psid, const mat4 &t, const PSetInstance inst )
 {
     // todo: AABB ìKêÿÇ…ê›íË
-    //{
-    //    simdvec4 pos = simdvec4(t[3]);
-    //    AABB aabb = AABB(pos.Data);
-    //    if(!ist::TestFrustumAABB(*atomicGetViewFrustum(), aabb)) {
-    //        return;
-    //    }
-    //}
+    {
+        simdvec4 pos = simdvec4(t[3]);
+        AABB aabb = AABB(pos.Data);
+        if(!ist::TestFrustumAABB(*atomicGetViewFrustum(), aabb)) {
+            return;
+        }
+    }
 
     PSetUpdateInfo tmp;
     tmp.psid        = psid;

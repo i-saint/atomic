@@ -162,7 +162,7 @@ void AtomicRenderer::passGBuffer()
     glDisable(GL_DEPTH_TEST);
     m_rt_gbuffer->unbind();
 
-    if(atomicGetConfig()->enable_multiresolution) {
+    if(atomicGetConfig()->multiresolution) {
         m_rt_gbuffer->getColorBuffer(GBUFFER_COLOR)->generateMipmap();
         m_rt_gbuffer->getColorBuffer(GBUFFER_NORMAL)->generateMipmap();
         m_rt_gbuffer->getColorBuffer(GBUFFER_POSITION)->generateMipmap();
@@ -253,6 +253,9 @@ void AtomicRenderer::passOutput()
     glDrawArrays(GL_QUADS, 0, 4);
     m_sh_out->unbind();
 
+
+    // texts 
+
     char buf[64];
     sprintf(buf, "FPS: %.0f", atomicGetRenderingSystem()->getAverageFPS());
     m_stext->addText(ivec2(5, 0), buf);
@@ -277,6 +280,15 @@ void AtomicRenderer::passOutput()
     m_stext->addText(ivec2(5, 110), buf);
     sprintf(buf, "Pause: [F7]");
     m_stext->addText(ivec2(5, 130), buf);
+    sprintf(buf, "Toggle Multiresolution: [F8]");
+    m_stext->addText(ivec2(5, 150), buf);
+    sprintf(buf, "Show Multiresolution Level: [F9]");
+    m_stext->addText(ivec2(5, 170), buf);
+
+    sprintf(buf, "Multiresolution Threshold: %.3f", atomicGetLights()->getMultiresolutionParams().Threshold.x);
+    m_stext->addText(ivec2(5, 190), buf);
+    sprintf(buf, "Multiresolution Threshold: %.3f ([8]<- [9]->)", atomicGetLights()->getMultiresolutionParams().Threshold.x);
+    m_stext->addText(ivec2(5, 190), buf);
 
     m_stext->draw();
 }

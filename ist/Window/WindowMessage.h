@@ -92,6 +92,9 @@ struct WM_Mouse : public WindowMessage
     short y;
 };
 
+
+
+// MES_IME_CHAR, MES_IME_RESULT のとき、text, text_len に入力データが入っている
 struct WM_IME : public WindowMessage
 {
     size_t text_len;

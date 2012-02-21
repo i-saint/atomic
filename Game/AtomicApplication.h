@@ -17,7 +17,7 @@ struct AtomicConfig
     bool posteffect_microscopic;
     bool posteffect_bloom;
     bool posteffect_antialias;
-    bool enable_multiresolution;
+    bool multiresolution;
     bool show_text;
     bool show_bloodstain;
     bool debug_show_grid;
@@ -61,7 +61,7 @@ public:
 
     virtual int handleWindowMessage(const ist::WindowMessage& wm);
     void handleError(ATOMIC_ERROR e);
-    void handleCommandLine(const wchar_t* command, size_t command_len);
+    int32 handleCommandLine(const stl::wstring &command);
 
     // •`‰æƒXƒŒƒbƒh‚©‚çŒÄ‚Î‚ê‚é
     void drawCallback();

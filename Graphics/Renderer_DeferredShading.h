@@ -39,9 +39,10 @@ class PassDeferredShading_Lights : public IRenderer
 private:
     typedef stl::vector<DirectionalLight> DirectionalLights;
     typedef stl::vector<PointLight> PointLights;
-    DirectionalLights   m_directional_lights;
-    PointLights         m_point_lights;
-    uint32              m_rendered_lights;
+    MultiresolutionParams   m_mr_params;
+    DirectionalLights       m_directional_lights;
+    PointLights             m_point_lights;
+    uint32                  m_rendered_lights;
 
     void drawStandard();
     void drawMultiResolution();
@@ -49,6 +50,7 @@ private:
     void debugShowResolution(int32 level);
 
     void updateConstantBuffers();
+    void drawLights();
     void drawDirectionalLights();
     void drawPointLights();
 
@@ -59,6 +61,8 @@ public:
 
     void addLight(const DirectionalLight& v);
     void addLight(const PointLight& v);
+
+    MultiresolutionParams& getMultiresolutionParams() { return m_mr_params; }
 };
 
 } // namespace atomic

@@ -126,6 +126,4 @@ void AtomicGame::drawCallback()
     AtomicRenderer::getInstance()->draw();
 }
 
-
-
 } // namespace atomic
