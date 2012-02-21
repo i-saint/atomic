@@ -1,8 +1,5 @@
 #ifndef __ist_Math_FrustumCulling_h__
 #define __ist_Math_FrustumCulling_h__
-
-#include "Base.h"
-
 namespace ist {
 
 typedef __m128 simdvec4_t;
@@ -29,6 +26,8 @@ private:
     simdvec4_t m_data[2];
 
 public:
+    // 全ての simdvec4_t の引数の w 要素は 1.0f である必要があります
+
     AxisAlignedBoundingBox() { m_data[0]=m_data[1]=_mm_set1_ps(0.0f); }
     AxisAlignedBoundingBox(const simdvec4_t v) { m_data[0]=m_data[1]=v; }
     AxisAlignedBoundingBox(const simdvec4_t v_min, const simdvec4_t v_max) { m_data[0]=v_min; m_data[1]=v_max; }

@@ -2,7 +2,6 @@
 #define __ist_Math_FrustumCulling_inl__
 namespace ist {
 
-
 // _mm_set_ps() ‚Í wzyx ‚Ì‡‚ÉŠi”[‚³‚ê‚é (little endian) ‚½‚ßAxyzw ‚Ì‡‚ÉŠi”[‚·‚é‚à‚Ì‚ğ—pˆÓ
 inline simdvec4_t simdvec4_set( float _1, float _2, float _3, float _4 )
 {
@@ -17,6 +16,11 @@ inline simdvec4_t min( simdvec4_t v1, simdvec4_t v2 )
 inline simdvec4_t max( simdvec4_t v1, simdvec4_t v2 )
 {
     return _mm_max_ps(v1, v2);
+}
+
+inline simdvec4_t greater( simdvec4_t v1, simdvec4_t v2 )
+{
+    return _mm_cmpgt_ps(v1, v2);
 }
 
 inline simdvec4_t select( simdvec4_t v1, simdvec4_t v2, simdvec4_t c )
@@ -126,9 +130,10 @@ inline bool TestFrustumAABB(const FrustumPlanes &frustum, const AABB &aabb)
     const simdvec4_t aabb_max = aabb[1];
 
     for(int i=0; i<6; ++i) {
-        const simdvec4_t gt_zero = max(frustum[i], zero);
-        const simdvec4_t pos = select(aabb_max, aabb_min, gt_zero);
-        const simdvec4_t r = dot(pos, frustum[i]);
+        const simdvec4_t plane  = frustum[i];
+        const simdvec4_t gt_zero= greater(plane, zero);
+        const simdvec4_t pos    = select(aabb_min, aabb_max, gt_zero);
+        const simdvec4_t r      = dot(pos, plane);
 
         __declspec(align(16)) float rv[4];
         _mm_store_ss(rv, r);
