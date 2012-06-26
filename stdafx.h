@@ -46,6 +46,9 @@
 #include <EASTL/set.h>
 #include <EASTL/map.h>
 #include <EASTL/string.h>
+
+#include <tbb/tbb.h>
+
 #include <iostream>
 
 namespace stl = eastl;

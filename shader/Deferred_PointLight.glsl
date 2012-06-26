@@ -89,8 +89,8 @@ void main()
 
     vec3 Ambient    = normalize(FragPos)*0.05;
     vec4 Result = vec4(0.0, 0.0, 0.0, 1.0);
-    Result.rgb += vs_LightColor.rgb * (Ambient + Albedo * Intensity) * LightAttenuation;
-    Result.rgb += vs_LightColor.rgb * Specular * LightAttenuation;
+    Result.rgb += LightColor * (Ambient + Albedo * Intensity) * LightAttenuation;
+    Result.rgb += LightColor * Specular * LightAttenuation;
 
     ps_FragColor = Result;
 }
