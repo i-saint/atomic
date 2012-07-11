@@ -12,6 +12,50 @@
 namespace atomic {
 
 
+PassGBuffer_Particle::PassGBuffer_Particle()
+{
+    m_va_cube   = atomicGetVertexArray(VA_FLUID_CUBE);
+    m_sh        = atomicGetShader(SH_GBUFFER_PARTICLES);
+    m_vbo       = atomicGetVertexBuffer(VBO_PARTICLES);
+}
+
+PassGBuffer_Particle::~PassGBuffer_Particle()
+{
+}
+
+void PassGBuffer_Particle::beforeDraw()
+{
+    m_particles.clear();
+}
+
+void PassGBuffer_Particle::draw()
+{
+    if(m_particles.empty()) { return; }
+
+    MapAndWrite(*m_vbo, &m_particles[0], sizeof(IndivisualParticle)*m_particles.size());
+    {
+        const VertexDesc descs[] = {
+            {GLSL_INSTANCE_POSITION, I3D_FLOAT,4,  0, false, 1},
+            {GLSL_INSTANCE_COLOR,    I3D_FLOAT,4, 16, false, 1},
+            {GLSL_INSTANCE_GLOW,     I3D_FLOAT,4, 32, false, 1},
+            {GLSL_INSTANCE_PARAM,    I3D_FLOAT,4, 48, false, 1},
+        };
+        m_sh->bind();
+        m_va_cube->bind();
+        m_va_cube->setAttributes(*m_vbo, sizeof(IndivisualParticle), descs, _countof(descs));
+        glDrawArraysInstanced(GL_QUADS, 0, 24, m_particles.size());
+        m_va_cube->unbind();
+        m_sh->unbind();
+    }
+}
+
+void PassGBuffer_Particle::addParticle( const IndivisualParticle *particles, uint32 num )
+{
+    m_particles.insert(m_particles.end(), particles, particles+num);
+}
+
+
+
 UpdateRigidParticle::UpdateRigidParticle(const PSetUpdateInfo &ri, PSetParticle *p)
 {
     m_rinst = &ri;

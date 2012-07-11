@@ -17,6 +17,7 @@ public:
 
 
 class PassGBuffer_SPH;
+class PassGBuffer_Particle;
 class PassGBuffer_ParticleSet;
 class PassDeferredShading_Bloodstain;
 class PassDeferredShading_Lights;
@@ -41,6 +42,7 @@ private:
 
     // internal resources
     PassGBuffer_SPH                         *m_renderer_sph;
+    PassGBuffer_Particle                    *m_renderer_particle;
     PassDeferredShading_Bloodstain          *m_renderer_bloodstain;
     PassDeferredShading_Lights              *m_renderer_lights;
     PassPostprocess_FXAA                    *m_renderer_fxaa;
@@ -80,6 +82,7 @@ public:
     const Viewport* getDefaultViewport() const                      { return &m_default_viewport; }
     RenderStates* getRenderStates()                                 { return &m_render_states; }
     PassGBuffer_SPH* getSPHRenderer()                               { return m_renderer_sph; }
+    PassGBuffer_Particle* getParticleRenderer()                     { return m_renderer_particle; }
     PassDeferredShading_Bloodstain* getBloodStainRenderer()         { return m_renderer_bloodstain; }
     PassDeferredShading_Lights* getLights()                         { return m_renderer_lights; }
     PassPostprocess_Fade* getFader()                                { return m_renderer_fade; }
@@ -95,6 +98,7 @@ public:
 #define atomicGetDefaultViewport()      atomicGetRenderer()->getDefaultViewport()
 #define atomicGetBloodstainRenderer()   atomicGetRenderer()->getBloodStainRenderer()
 #define atomicGetSPHRenderer()          atomicGetRenderer()->getSPHRenderer()
+#define atomicGetParticleRenderer()     atomicGetRenderer()->getParticleRenderer()
 #define atomicGetLights()               atomicGetRenderer()->getLights()
 #define atomicGetFader()                atomicGetRenderer()->getFader()
 #define atomicGetSystemTextRenderer()   atomicGetRenderer()->getSystemTextRenderer()

@@ -48,6 +48,7 @@ namespace atomic {
 
     enum ENTITY_VFX_CLASS_ID
     {
+        ESID_VFX_SCINTILLA,
         ESID_VFX_END,
     };
 

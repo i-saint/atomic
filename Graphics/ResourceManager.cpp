@@ -85,6 +85,7 @@ bool GraphicResourceManager::initialize()
 
         m_vbo[VBO_FLUID_PARTICLES] = CreateVertexBuffer(dev, sizeof(sphFluidParticle)*SPH_MAX_FLUID_PARTICLES, I3D_USAGE_DYNAMIC);
         m_vbo[VBO_RIGID_PARTICLES] = CreateVertexBuffer(dev, sizeof(PSetParticle)*SPH_MAX_RIGID_PARTICLES, I3D_USAGE_DYNAMIC);
+        m_vbo[VBO_PARTICLES] = CreateVertexBuffer(dev, sizeof(IndivisualParticle)*SPH_MAX_INDIVISUAL_PARTICLES, I3D_USAGE_DYNAMIC);
         m_vbo[VBO_DIRECTIONALLIGHT_INSTANCES] = CreateVertexBuffer(dev, sizeof(DirectionalLight)*ATOMIC_MAX_DIRECTIONAL_LIGHTS, I3D_USAGE_DYNAMIC);
         m_vbo[VBO_POINTLIGHT_INSTANCES] = CreateVertexBuffer(dev, sizeof(PointLight)*ATOMIC_MAX_POINT_LIGHTS, I3D_USAGE_DYNAMIC);
         m_vbo[VBO_BLOODSTAIN_PARTICLES] = CreateVertexBuffer(dev, sizeof(BloodstainParticle)*SPH_MAX_FLUID_PARTICLES, I3D_USAGE_DYNAMIC);
@@ -105,6 +106,7 @@ bool GraphicResourceManager::initialize()
         m_shader[SH_GBUFFER_FLUID]      = CreateAtomicShader(g_GBuffer_FluidBlood_glsl);
         //m_shader[SH_GBUFFER_FLUID]      = CreateAtomicShader(g_GBuffer_FluidSpherical_glsl);
         m_shader[SH_GBUFFER_RIGID]      = CreateAtomicShader(g_GBuffer_RigidSpherical_glsl);
+        m_shader[SH_GBUFFER_PARTICLES]  = CreateAtomicShader(g_GBuffer_ParticleSpherical_glsl);
         m_shader[SH_BLOODSTAIN]         = CreateAtomicShader(g_Deferred_Bloodstain_glsl);
         m_shader[SH_UPSAMPLING]         = CreateAtomicShader(g_Deferred_Upsampling_glsl);
         m_shader[SH_POINTLIGHT]         = CreateAtomicShader(g_Deferred_PointLight_glsl);

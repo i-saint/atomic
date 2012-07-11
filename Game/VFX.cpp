@@ -1,7 +1,10 @@
 #include "stdafx.h"
 #include "ist/ist.h"
 #include "types.h"
+#include "Graphics/ResourceManager.h"
+#include "Graphics/Renderer.h"
 #include "Game/VFX.h"
+#include "Util.h"
 
 namespace atomic {
 
@@ -10,7 +13,7 @@ namespace atomic {
     {
         bool operator()(const T &v) const
         {
-            return v.scale <= 0.0f;
+            return v.size <= 0.0f;
         }
     };
 
@@ -25,101 +28,57 @@ void VFXScintilla::update( float32 dt )
 
 void VFXScintilla::asyncupdate( float32 dt )
 {
-    uint32 num_data = m_data.size();
+    uint32 num_data = m_particles.size();
     for(uint32 i=0; i<num_data; ++i) {
-        Data &data = m_data[i];
+        ParticleData &data = m_particles[i];
         simdvec4 pos = simdvec4(data.position);
         simdvec4 vel = simdvec4(data.velosity);
         data.position = glm::vec4_cast(pos + vel);
         data.frame += dt;
         if(data.frame > 60.0f) {
-            data.scale = data.scale -= 0.0003f;
+            data.size = data.size -= 0.0003f;
         }
     }
-    m_data.erase(
-        stl::remove_if(m_data.begin(), m_data.end(), VFXData_IsDead<Data>()),
-        m_data.end());
+    m_particles.erase(
+        stl::remove_if(m_particles.begin(), m_particles.end(), VFXData_IsDead<ParticleData>()),
+        m_particles.end());
 }
 
 void VFXScintilla::draw()
 {
+    uint32 num_data = m_particles.size();
+    for(uint32 i=0; i<num_data; ++i) {
+        ParticleData &data = m_particles[i];
+        IndivisualParticle particles;
+        particles.position = data.position;
+        particles.color = data.color;
+        particles.glow = data.glow;
+        atomicGetParticleRenderer()->addParticle(&particles, 1);
+    }
 }
 
 void VFXScintilla::frameEnd()
 {
 }
 
-void VFXScintilla::addData( const VFXScintillaData *data, uint32 data_num )
+void VFXScintilla::addData( const VFXScintillaSpawnData &spawn )
 {
-    m_data.insert(m_data.end(), data, data+data_num);
+    ParticleData *particles = (ParticleData*)_alloca(sizeof(ParticleData)*spawn.num_particles);
+    for(uint32 i=0; i<spawn.num_particles; ++i) {
+        particles[i].position = spawn.position + (GenRandomUnitVector3() * spawn.scatter_radius);
+        particles[i].color = spawn.color;
+        particles[i].glow = spawn.glow;
+        particles[i].size = spawn.size;
+        particles[i].velosity = spawn.velosity + (GenRandomUnitVector3() * spawn.diffuse_strength);
+    }
+    m_particles.insert(m_particles.end(), particles, particles+spawn.num_particles);
 }
-
-
-
-void VFXExplosion::frameBegin()
-{
-}
-
-void VFXExplosion::update( float32 dt )
-{
-}
-
-void VFXExplosion::asyncupdate( float32 dt )
-{
-}
-
-void VFXExplosion::draw()
-{
-}
-
-void VFXExplosion::frameEnd()
-{
-}
-
-void VFXExplosion::addData( const Data *data, uint32 data_num )
-{
-    m_data.insert(m_data.end(), data, data+data_num);
-}
-
-
-
-void VFXDebris::frameBegin()
-{
-}
-
-void VFXDebris::update( float32 dt )
-{
-}
-
-void VFXDebris::asyncupdate( float32 dt )
-{
-}
-
-void VFXDebris::draw()
-{
-}
-
-void VFXDebris::frameEnd()
-{
-}
-
-void VFXDebris::addData( const Data *data, uint32 data_num )
-{
-    m_data.insert(m_data.end(), data, data+data_num);
-}
-
 
 
 VFXSet::VFXSet()
 {
     m_scintilla = istNew(VFXScintilla)();
     m_components.push_back(m_scintilla);
-
-    m_explosion = istNew(VFXExplosion)();
-    m_components.push_back(m_explosion);
-
-    m_debris    = istNew(VFXDebris)();
-    m_components.push_back(m_debris);
 }
 
 VFXSet::~VFXSet()

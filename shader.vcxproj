@@ -120,6 +120,7 @@
     <None Include="shader\GBuffer_Fluid.glsl" />
     <None Include="shader\GBuffer_FluidBlood.glsl" />
     <None Include="shader\GBuffer_FluidSpherical.glsl" />
+    <None Include="shader\GBuffer_ParticleSpherical.glsl" />
     <None Include="shader\GBuffer_Rigid.glsl" />
     <None Include="shader\GBuffer_RigidSpherical.glsl" />
     <None Include="shader\Out.glsl" />

@@ -2,40 +2,33 @@
 #define __atomic_Game_VFX__
 namespace atomic {
 
-struct __declspec(align(16)) VFXScintillaData
+struct VFXScintillaSpawnData
 {
     vec4 position;
     vec4 color;
+    vec4 glow;
+    vec4 velosity;
+    float32 size;
+    float32 lifetime;
+    float32 scatter_radius;
+    float32 diffuse_strength;
+    uint32 num_particles;
+    VFXScintillaSpawnData()
+        : size(0.01f), lifetime(0.0f), scatter_radius(0.02f), diffuse_strength(0.01f), num_particles(0) {}
+};
+
+struct __declspec(align(16)) VFXScintillaParticleData
+{
+    vec4 position;
+    vec4 color;
+    vec4 glow;
     vec4 velosity;
     float32 frame;
-    float32 scale;
-    CollisionHandle m_collision;
-    VFXScintillaData() : frame(0.0f), scale(0.02f), m_collision(0) {}
+    float32 size;
+    CollisionHandle collision;
+    VFXScintillaParticleData() : frame(0.0f), size(0.01f), collision(0) {}
 };
-typedef stl::vector<VFXScintillaData> VFXScintillaDataCont;
-
-struct __declspec(align(16)) VFXExplosionData
-{
-    vec4 position;
-    vec4 color;
-    vec4 velosity;
-    float32 m_frame;
-    float32 m_size;
-    VFXExplosionData() : m_frame(0.0f), m_size(0.02f) {}
-};
-typedef stl::vector<VFXExplosionData> VFXExplosionDataCont;
-
-struct __declspec(align(16)) VFXDebrisData
-{
-    vec4 position;
-    vec4 color;
-    vec4 velosity;
-    float32 m_frame;
-    float32 m_size;
-    VFXDebrisData() : m_frame(0.0f), m_size(0.02f) {}
-};
-typedef stl::vector<VFXDebrisData> VFXDebrisDataCont;
-
+typedef stl::vector<VFXScintillaParticleData> VFXScintillaDataCont;
 
 
 class IVFXComponent
@@ -54,10 +47,10 @@ public:
 class VFXScintilla : public IVFXComponent
 {
 public:
-    typedef VFXScintillaData Data;
-    typedef VFXScintillaDataCont DataCont;
+    typedef VFXScintillaParticleData ParticleData;
+    typedef VFXScintillaDataCont ParticleCont;
 private:
-    DataCont m_data;
+    ParticleCont m_particles;
 
 public:
     void frameBegin();
@@ -66,55 +59,14 @@ public:
     void draw();
     void frameEnd();
 
-    void addData(const Data *data, uint32 data_num);
+    void addData(const VFXScintillaSpawnData &data);
 };
-
-class VFXExplosion : public IVFXComponent
-{
-public:
-    typedef VFXExplosionData Data;
-    typedef VFXExplosionDataCont DataCont;
-
-private:
-    DataCont m_data;
-
-public:
-    void frameBegin();
-    void update(float32 dt);
-    void asyncupdate(float32 dt);
-    void draw();
-    void frameEnd();
-
-    void addData(const Data *data, uint32 data_num);
-};
-
-class VFXDebris : public IVFXComponent
-{
-public:
-    typedef VFXDebrisData Data;
-    typedef VFXDebrisDataCont DataCont;
-
-private:
-    DataCont m_data;
-
-public:
-    void frameBegin();
-    void update(float32 dt);
-    void asyncupdate(float32 dt);
-    void draw();
-    void frameEnd();
-
-    void addData(const Data *data, uint32 data_num);
-};
-
 
 
 class VFXSet : public IAtomicGameModule
 {
 private:
     VFXScintilla *m_scintilla;
-    VFXExplosion *m_explosion;
-    VFXDebris    *m_debris;
     stl::vector<IVFXComponent*> m_components;
 
 public:
@@ -128,8 +80,6 @@ public:
     void frameEnd();
 
     VFXScintilla* getScintilla() { return m_scintilla; }
-    VFXExplosion* getExplosion() { return m_explosion; }
-    VFXDebris* getDebris() { return m_debris; }
 };
 
 } // namespace atomic

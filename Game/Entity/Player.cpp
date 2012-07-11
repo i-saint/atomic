@@ -145,6 +145,14 @@ public:
             inst.elapsed = (float32)getPastFrame();
             atomicGetSPHRenderer()->addPSetInstance(pset_id, getTransform(), inst);
         }
+        //{
+        //    IndivisualParticle particles;
+        //    particles.position = getPosition()+vec4(0.3f, 0.3f, 0.05f, 0.0f);
+        //    particles.color = vec4(0.6f, 0.6f, 0.6f, 50.0f);
+        //    particles.glow = vec4(0.15f, 0.15f, 0.3f, 1.0f);
+        //    particles.scale = 3.0f;
+        //    atomicGetParticleRenderer()->addParticle(&particles, 1);
+        //}
     }
 
     virtual void destroy()

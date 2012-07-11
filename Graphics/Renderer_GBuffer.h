@@ -14,6 +14,23 @@ public:
 };
 
 
+class PassGBuffer_Particle : public IRenderer
+{
+private:
+    VertexArray     *m_va_cube;
+    Buffer          *m_vbo;
+    AtomicShader    *m_sh;
+    stl::vector<IndivisualParticle> m_particles;
+
+public:
+    PassGBuffer_Particle();
+    ~PassGBuffer_Particle();
+    void beforeDraw();
+    void draw();
+
+    void addParticle(const IndivisualParticle *particles, uint32 num);
+};
+
 class PassGBuffer_SPH : public IRenderer
 {
 private:

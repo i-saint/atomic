@@ -23,12 +23,23 @@ struct BloodstainParticle_IsDead
     }
 };
 
+struct IndivisualParticle
+{
+    vec4 position;
+    vec4 color;
+    vec4 glow;
+    float32 scale;
+    float32 padding[3];
+};
+BOOST_STATIC_ASSERT(sizeof(IndivisualParticle)%16==0);
+
 struct PSetParticle
 {
     vec4 normal;
     vec3 position;
     int instanceid;
 };
+BOOST_STATIC_ASSERT(sizeof(PSetParticle)%16==0);
 
 struct PSetInstance
 {
@@ -39,6 +50,7 @@ struct PSetInstance
     float32 appear_radius;
     float32 padding[2];
 };
+BOOST_STATIC_ASSERT(sizeof(PSetInstance)%16==0);
 
 struct PSetUpdateInfo
 {
