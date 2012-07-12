@@ -34,6 +34,18 @@ private:
     vec4 m_lightvel[1];
 
 public:
+    IST_INTROSPECTION_INHERIT(
+        Player,
+        IST_SUPER(super)
+        IST_SUPER(transform),
+        IST_MEMBER(m_vel)
+        IST_MEMBER(m_cooldown)
+        IST_MEMBER(m_collision)
+        IST_MEMBER(m_barrier)
+        IST_MEMBER(m_lightpos)
+        IST_MEMBER(m_lightvel)
+        );
+
     Player() : m_cooldown(0)
     {
     }
@@ -98,8 +110,8 @@ public:
 
         transform::updateRotate(dt);
         transform::updateTransformMatrix();
-        m_collision.updateCollision(pset_id, getTransform(), 0.5f);
-        m_barrier.updateCollision(pset_id, getTransform(), 3.0f);
+        m_collision.updateCollisionByParticleSet(pset_id, getTransform(), 0.5f);
+        m_barrier.updateCollisionByParticleSet(pset_id, getTransform(), 3.0f);
     }
 
     void updateLights()

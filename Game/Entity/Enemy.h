@@ -25,6 +25,17 @@ private:
     int32       m_past_frame;
 
 public:
+    IST_INTROSPECTION_INHERIT(
+        Breakable,
+        IST_SUPER(IEntity)
+        IST_SUPER(Attr_MessageHandler),
+        IST_MEMBER(m_flash_color)
+        IST_MEMBER(m_routine)
+        IST_MEMBER(m_health)
+        IST_MEMBER(m_delta_damage)
+        IST_MEMBER(m_past_frame)
+        );
+
     Breakable()
     : m_routine(NULL), m_health(1.0f), m_delta_damage(0.0f), m_past_frame(0)
     {}

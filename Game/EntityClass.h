@@ -36,6 +36,7 @@ namespace atomic {
 
     enum ENTITY_BULLET_CLASS_ID
     {
+        ESID_BULLET_PARTICLE,
         ESID_BULLET_SIMPLE,
         ESID_BULLET_END,
     };

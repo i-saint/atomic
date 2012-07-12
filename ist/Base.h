@@ -11,5 +11,6 @@
 #include "Base/BinaryStream.h"
 #include "Base/TaskScheduler.h"
 #include "Base/FileLoader.h"
+#include "Base/Serialize.h"
 
 #endif // __ist_Base__

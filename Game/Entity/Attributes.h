@@ -17,6 +17,11 @@ protected:
     void setRefCount(uint32 v) { m_ref_count=v; }
 
 public:
+    IST_INTROSPECTION(
+        Attr_RefCount,
+        IST_MEMBER(m_ref_count)
+        );
+
     Attr_RefCount() : m_ref_count(1) {}
     uint32 getRefCount() const  { return m_ref_count; }
     uint32 addRefCount()        { return ++m_ref_count; }
@@ -48,6 +53,11 @@ protected:
     vec4 m_pos;
 
 public:
+    IST_INTROSPECTION(
+        Attr_Translate,
+        IST_MEMBER(m_pos)
+        );
+
     Attr_Translate() {}
     const vec4& getPosition() const { return m_pos; }
     void setPosition(const vec4& v) { m_pos=v; }
@@ -78,7 +88,6 @@ public:
 
 class Attr_Transform
 {
-typedef Attr_Translate super;
 private:
     vec4 m_pos;
     vec4 m_scale;
@@ -86,6 +95,14 @@ private:
     float32 m_rot;
 
 public:
+    IST_INTROSPECTION(
+        Attr_Transform,
+        IST_MEMBER(m_pos)
+        IST_MEMBER(m_scale)
+        IST_MEMBER(m_axis)
+        IST_MEMBER(m_rot)
+        );
+
     Attr_Transform()
         : m_scale(1.0f, 1.0f, 1.0f, 0.0f)
         , m_axis(0.0f, 0.0f, 1.0f, 0.0f)
@@ -114,10 +131,10 @@ public:
     bool call(uint32 call_id, const variant &v)
     {
         switch(call_id) {
-            DEFINE_ECALL1(setPosition, vec4);
-            DEFINE_ECALL1(setScale, vec4);
-            DEFINE_ECALL1(setAxis, vec4);
-            DEFINE_ECALL1(setRotate, float32);
+        DEFINE_ECALL1(setPosition, vec4);
+        DEFINE_ECALL1(setScale, vec4);
+        DEFINE_ECALL1(setAxis, vec4);
+        DEFINE_ECALL1(setRotate, float32);
         default: return false;
         }
     }
@@ -125,10 +142,10 @@ public:
     bool query(uint32 query_id, variant &v) const
     {
         switch(query_id) {
-            DEFINE_EQUERY(getPosition);
-            DEFINE_EQUERY(getScale);
-            DEFINE_EQUERY(getAxis);
-            DEFINE_EQUERY(getRotate);
+        DEFINE_EQUERY(getPosition);
+        DEFINE_EQUERY(getScale);
+        DEFINE_EQUERY(getAxis);
+        DEFINE_EQUERY(getRotate);
         default: return false;
         }
     }
@@ -148,6 +165,16 @@ private:
     float32 m_rot2;
 
 public:
+    IST_INTROSPECTION(
+        Attr_DoubleAxisRotation,
+        IST_MEMBER(m_pos)
+        IST_MEMBER(m_scale)
+        IST_MEMBER(m_axis1)
+        IST_MEMBER(m_axis2)
+        IST_MEMBER(m_rot1)
+        IST_MEMBER(m_rot2)
+        );
+
     Attr_DoubleAxisRotation()
         : m_scale(1.0f, 1.0f, 1.0f, 0.0f)
         , m_axis1(0.0f, 1.0f, 0.0f, 0.0f)
@@ -216,6 +243,13 @@ private:
     float32 m_rspeed2;
 
 public:
+    IST_INTROSPECTION_INHERIT(
+        TAttr_RotateSpeed,
+        IST_SUPER(super),
+        IST_MEMBER(m_rspeed1)
+        IST_MEMBER(m_rspeed2)
+        );
+
     TAttr_RotateSpeed()
         : m_rspeed1(0.0f), m_rspeed2(0.0f)
     {}
@@ -258,6 +292,12 @@ private:
     mat4 m_transform;
 
 public:
+    IST_INTROSPECTION_INHERIT(
+        TAttr_TransformMatrix,
+        IST_SUPER(super),
+        IST_MEMBER(m_transform)
+        );
+
     const mat4& getTransform() const    { return m_transform; }
 
     void setTransform(const mat4 &v) { m_transform=v; }
@@ -277,6 +317,13 @@ private:
     mat4 m_itransform;
 
 public:
+    IST_INTROSPECTION_INHERIT(
+        TAttr_TransformMatrixI,
+        IST_SUPER(super),
+        IST_MEMBER(m_transform)
+        IST_MEMBER(m_itransform)
+        );
+
     const mat4& getTransform() const        { return m_transform; }
     const mat4& getInverseTransform() const { return m_itransform; }
 
@@ -303,6 +350,13 @@ private:
     PSET_RID m_psetid;
 
 public:
+    IST_INTROSPECTION(
+        Attr_ParticleSet,
+        IST_MEMBER(m_diffuse_color)
+        IST_MEMBER(m_glow_color)
+        IST_MEMBER(m_psetid)
+        );
+
     Attr_ParticleSet() : m_psetid(PSET_CUBE_SMALL)
     {}
 
@@ -342,6 +396,12 @@ private:
     EntityHandle m_owner_handle;
 
 public:
+    IST_INTROSPECTION(
+        Attr_Collision,
+        IST_MEMBER(m_collision)
+        IST_MEMBER(m_owner_handle)
+        );
+
     Attr_Collision() : m_collision(0), m_owner_handle(0)
     {
     }
@@ -402,7 +462,21 @@ public:
         return m_collision;
     }
 
-    void updateCollision(PSET_RID psid, const mat4 &t, float32 scale)
+    void updateCollisionAsSphere(const mat4 &t, float32 radius)
+    {
+        if(CollisionEntity *ce = atomicGetCollision(m_collision)) {
+            switch(ce->getShape()) {
+            case CS_SPHERE:
+                {
+                    vec4 pos = t * vec4(0.0f, 0.0f, 0.0f, 1.0f);
+                    UpdateCollisionSphere(*static_cast<CollisionSphere*>(ce), pos, radius);
+                }
+                break;
+            }
+        }
+    }
+
+    void updateCollisionByParticleSet(PSET_RID psid, const mat4 &t, float32 scale)
     {
         if(CollisionEntity *ce = atomicGetCollision(m_collision)) {
             switch(ce->getShape()) {
@@ -410,13 +484,13 @@ public:
                 {
                     vec4 pos = t * vec4(0.0f, 0.0f, 0.0f, 1.0f);
                     float radius = atomicGetRigidInfo(psid)->sphere_radius * scale;
-                    UpdateCollisionSphere(*static_cast<CollisionSphere*>(atomicGetCollision(m_collision)), pos, radius);
+                    UpdateCollisionSphere(*static_cast<CollisionSphere*>(ce), pos, radius);
                 }
                 break;
             case CS_BOX:
                 {
                     vec4 box_size = (vec4&)atomicGetRigidInfo(psid)->box_size * scale;
-                    UpdateCollisionBox(*static_cast<CollisionBox*>(atomicGetCollision(m_collision)), t, box_size);
+                    UpdateCollisionBox(*static_cast<CollisionBox*>(ce), t, box_size);
                 }
                 break;
             }
@@ -452,6 +526,8 @@ struct KillMessage;
 class Attr_MessageHandler
 {
 public:
+    IST_INTROSPECTION_INTERFACE(Attr_MessageHandler);
+
     virtual void eventCollide(const CollideMessage *m)  {}
     virtual void eventFluid(const sphFluidMessage *m)   {}
     virtual void eventDamage(const DamageMessage *m)    {}
@@ -483,6 +559,12 @@ private:
     uint32 m_bloodstain_hitcount;
 
 public:
+    IST_INTROSPECTION(
+        Attr_Bloodstain,
+        IST_MEMBER(m_bloodstain)
+        IST_MEMBER(m_bloodstain_hitcount)
+        );
+
     Attr_Bloodstain() : m_bloodstain_hitcount(0)
     {
         m_bloodstain.reserve(256);
