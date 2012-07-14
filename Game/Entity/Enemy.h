@@ -15,6 +15,7 @@ class Breakable
     : public IEntity
     , public Attr_MessageHandler
 {
+typedef Breakable this_t;
 typedef IEntity super;
 typedef Attr_MessageHandler mhandler;
 private:
@@ -25,17 +26,34 @@ private:
     int32       m_past_frame;
 
 public:
-    IST_INTROSPECTION_INHERIT(
-        Breakable,
+    IST_INTROSPECTION(
+        IST_NAME(Breakable)
         IST_SUPER(IEntity)
-        IST_SUPER(Attr_MessageHandler),
+        IST_SUPER(Attr_MessageHandler)
         IST_MEMBER(m_flash_color)
         IST_MEMBER(m_routine)
         IST_MEMBER(m_health)
         IST_MEMBER(m_delta_damage)
         IST_MEMBER(m_past_frame)
-        );
+    )
+    DEFINE_CALLS(
+        DEFINE_ECALL_DELEGATE(m_routine)
+        METHODS(
+        DEFINE_ECALL(setHealth)
+        DEFINE_ECALL(setRoutine)
+        DEFINE_ECALL(damage)
+        )
+        DEFINE_ECALL_SUPER(super)
+        DEFINE_ECALL_SUPER(mhandler)
+    )
+    DEFINE_QUERIES(
+        DEFINE_EQUERY_DELEGATE(m_routine)
+        METHODS(
+        DEFINE_EQUERY(getHealth)
+        )
+    )
 
+public:
     Breakable()
     : m_routine(NULL), m_health(1.0f), m_delta_damage(0.0f), m_past_frame(0)
     {}
@@ -120,28 +138,6 @@ public:
     virtual void destroy()
     {
         atomicDeleteEntity(getHandle());
-    }
-
-    virtual bool call(uint32 call_id, const variant &v)
-    {
-        if(m_routine && m_routine->call(call_id, v)) { }
-
-        switch(call_id) {
-        DEFINE_ECALL1(setHealth, float32);
-        DEFINE_ECALL1(setRoutine, ROUTINE_CLASSID);
-        DEFINE_ECALL1(damage, float32);
-        default: return super::call(call_id, v) || mhandler::call(call_id, v);
-        }
-    }
-
-    virtual bool query(uint32 query_id, variant &v) const
-    {
-        if(m_routine && m_routine->query(query_id, v)) { return true; }
-
-        switch(query_id) {
-            DEFINE_EQUERY(getHealth);
-        }
-        return false;
     }
 };
 

@@ -14,6 +14,80 @@
 
 namespace atomic {
 
+class Bullet_Laser
+    : public IEntity
+    , public TAttr_TransformMatrix< Attr_Translate >
+{
+typedef Bullet_Laser this_t;
+typedef IEntity super;
+typedef TAttr_TransformMatrix< Attr_Translate > transform;
+private:
+    struct LaserParticle
+    {
+        vec3 initial_pos;
+        float32 elapsed;
+    };
+
+    stl::vector<LaserParticle> m_particles;
+    vec4 m_dir;
+    float32 m_speed;
+    EntityHandle m_owner;
+
+public:
+    DEFINE_CALLS(
+        METHODS(
+        DEFINE_ECALL(setOwner)
+        DEFINE_ECALL(setDirection)
+        DEFINE_ECALL(setSpeed)
+        )
+        DEFINE_ECALL_SUPER(super)
+        DEFINE_ECALL_SUPER(transform)
+    )
+    DEFINE_QUERIES(
+        METHODS(
+        DEFINE_EQUERY(getOwner)
+        DEFINE_EQUERY(getDirection)
+        DEFINE_EQUERY(getSpeed)
+        )
+        DEFINE_EQUERY_SUPER(super)
+        DEFINE_EQUERY_SUPER(transform)
+    )
+
+public:
+    Bullet_Laser() : m_speed(0.1f)
+    {
+    }
+
+    EntityHandle getOwner() const   { return m_owner; }
+    const vec4& getDirection() const{ return m_dir; }
+    float32 getSpeed() const        { return m_speed; }
+
+    void setOwner(EntityHandle v)   { m_owner=v; }
+    void setDirection(const vec4 &v){ m_dir=v; }
+    void setSpeed(float32 v)        { m_speed=v; }
+
+
+    void initialize()
+    {
+    }
+
+    virtual void update(float32 dt)
+    {
+        super::update(dt);
+    }
+
+    virtual void asyncupdate(float32 dt)
+    {
+        super::asyncupdate(dt);
+        transform::updateTransformMatrix();
+    }
+
+    virtual void draw()
+    {
+    }
+};
+atomicImplementEntity(Bullet_Laser, ECID_BULLET, ESID_BULLET_LASER);
+
 
 class Bullet_Particle
     : public IEntity
@@ -21,6 +95,7 @@ class Bullet_Particle
     , public Attr_Collision
     , public Attr_MessageHandler
 {
+typedef Bullet_Particle this_t;
 typedef IEntity super;
 typedef TAttr_TransformMatrix< Attr_Translate > transform;
 typedef Attr_Collision collision;
@@ -31,6 +106,27 @@ private:
     float32         m_power;
     int32           m_past_frame;
     int32           m_lifetime;
+
+public:
+    DEFINE_CALLS(
+        METHODS(
+        DEFINE_ECALL(setOwner)
+        DEFINE_ECALL(setVelocity)
+        DEFINE_ECALL(setPower)
+        )
+        DEFINE_ECALL_SUPER(super)
+        DEFINE_ECALL_SUPER(transform)
+        DEFINE_ECALL_SUPER(mhandler)
+    )
+    DEFINE_QUERIES(
+        METHODS(
+        DEFINE_EQUERY(getOwner)
+        DEFINE_EQUERY(getVelocity)
+        DEFINE_EQUERY(getPower)
+        )
+        DEFINE_EQUERY_SUPER(super)
+        DEFINE_EQUERY_SUPER(transform)
+    )
 
 public:
     Bullet_Particle() : m_owner(0), m_power(50.0f), m_past_frame(0), m_lifetime(600) {}
@@ -102,30 +198,6 @@ public:
         //atomicPlaySE(SE_CHANNEL2, SE_EXPLOSION2, getPosition(), true);
         atomicDeleteEntity(getHandle());
     }
-
-    virtual bool call(uint32 call_id, const variant &v)
-    {
-        switch(call_id) {
-        DEFINE_ECALL1(setOwner, EntityHandle);
-        DEFINE_ECALL1(setVelocity, vec4);
-        DEFINE_ECALL1(setPower, float32);
-        default: return super::call(call_id, v) ||
-                     transform::call(call_id, v) ||
-                     mhandler::call(call_id, v);
-        }
-    }
-
-    virtual bool query(uint32 query_id, variant &v) const
-    {
-        switch(query_id) {
-        DEFINE_EQUERY(getOwner);
-        DEFINE_EQUERY(getVelocity);
-        DEFINE_EQUERY(getPower);
-        default: return super::query(query_id, v) ||
-                     transform::query(query_id, v);
-        }
-        return false;
-    }
 };
 atomicImplementEntity(Bullet_Particle, ECID_BULLET, ESID_BULLET_PARTICLE);
 
@@ -137,6 +209,7 @@ class Bullet_Simple
     , public Attr_Collision
     , public Attr_MessageHandler
 {
+typedef Bullet_Simple this_t;
 typedef IEntity super;
 typedef TAttr_TransformMatrix< TAttr_RotateSpeed<Attr_DoubleAxisRotation> > transform;
 typedef Attr_ParticleSet model;
@@ -148,6 +221,29 @@ private:
     float32         m_power;
     int32           m_past_frame;
     int32           m_lifetime;
+
+public:
+    DEFINE_CALLS(
+        METHODS(
+        DEFINE_ECALL(setOwner)
+        DEFINE_ECALL(setVelocity)
+        DEFINE_ECALL(setPower)
+        )
+        DEFINE_ECALL_SUPER(super)
+        DEFINE_ECALL_SUPER(transform)
+        DEFINE_ECALL_SUPER(model)
+        DEFINE_ECALL_SUPER(mhandler)
+    )
+    DEFINE_QUERIES(
+        METHODS(
+        DEFINE_EQUERY(getOwner)
+        DEFINE_EQUERY(getVelocity)
+        DEFINE_EQUERY(getPower)
+        )
+        DEFINE_EQUERY_SUPER(super)
+        DEFINE_EQUERY_SUPER(transform)
+        DEFINE_EQUERY_SUPER(model)
+    )
 
 public:
     Bullet_Simple() : m_owner(0), m_power(50.0f), m_past_frame(0), m_lifetime(600) {}
@@ -235,32 +331,6 @@ public:
         atomicGetSPHManager()->addFluid(getModel(), getTransform());
         atomicPlaySE(SE_CHANNEL2, SE_EXPLOSION2, getPosition(), true);
         atomicDeleteEntity(getHandle());
-    }
-
-    virtual bool call(uint32 call_id, const variant &v)
-    {
-        switch(call_id) {
-        DEFINE_ECALL1(setOwner, EntityHandle);
-        DEFINE_ECALL1(setVelocity, vec4);
-        DEFINE_ECALL1(setPower, float32);
-        default: return super::call(call_id, v) ||
-                        transform::call(call_id, v) ||
-                        model::call(call_id, v) ||
-                        mhandler::call(call_id, v);
-        }
-    }
-
-    virtual bool query(uint32 query_id, variant &v) const
-    {
-        switch(query_id) {
-        DEFINE_EQUERY(getOwner);
-        DEFINE_EQUERY(getVelocity);
-        DEFINE_EQUERY(getPower);
-        default: return super::query(query_id, v) ||
-                     transform::query(query_id, v) ||
-                     model::query(query_id, v);
-        }
-        return false;
     }
 };
 atomicImplementEntity(Bullet_Simple, ECID_BULLET, ESID_BULLET_SIMPLE);

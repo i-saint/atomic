@@ -4,38 +4,27 @@
 #include <cstdlib>
 #include <vector>
 #include <algorithm>
-#define IST_INTROSPECTION_INTERFACE(type) \
-    typedef type self_t; \
+
+#define IST_INTROSPECTION(...) \
     static const ist::MemberInfoCollection& _GetMemberInfo() { \
-        static ist::MemberInfoCollection collection(NULL, 0);\
+        static bool initialized = false;\
+        static ist::MemberInfoCollection collection;\
+        if(!initialized) {\
+            initialized = true;\
+            __VA_ARGS__\
+        }\
         return collection;\
     }\
     virtual const ist::MemberInfoCollection& GetMemberInfo() { return _GetMemberInfo(); }
 
-#define IST_INTROSPECTION(type, members) \
-    typedef type self_t; \
-    static const ist::MemberInfoCollection& _GetMemberInfo() { \
-        static ist::IMemberInfo *data[] = { members }; \
-        static ist::MemberInfoCollection collection(data, _countof(data));\
-        return collection;\
-    }\
-    virtual const ist::MemberInfoCollection& GetMemberInfo() { return _GetMemberInfo(); }
-
-#define IST_INTROSPECTION_INHERIT(type, supers, members) \
-    typedef type self_t; \
-    static const ist::MemberInfoCollection& _GetMemberInfo() { \
-        static ist::MemberInfoCollection s[] = { supers }; \
-        static ist::IMemberInfo *data[] = { members }; \
-        static ist::MemberInfoCollection collection(s, _countof(s), data, _countof(data));\
-        return collection;\
-    }\
-    virtual const ist::MemberInfoCollection& GetMemberInfo() { return _GetMemberInfo(); }
-
-#define IST_MEMBER(name) \
-    ist::CreateMemberInfo(&self_t::name, #name),
+#define IST_NAME(name) \
+    collection.setName(#name);
 
 #define IST_SUPER(name) \
-    ist::CreateSuperMembers< self_t, name >(name::_GetMemberInfo()),
+    collection.addSuper(ist::CreateSuperMembers<this_t, name>(name::_GetMemberInfo()));
+
+#define IST_MEMBER(name) \
+    collection.addMember(ist::CreateMemberInfo(&this_t::name, #name));
 
 
 namespace ist {
@@ -107,20 +96,20 @@ namespace ist {
         typedef container::iterator iterator;
         typedef container::const_iterator const_iterator;
         container data;
+        const char *name;
 
-        MemberInfoCollection() {}
-        MemberInfoCollection(IMemberInfo **d, size_t n)
+        MemberInfoCollection() : name("") {}
+        void setName(const char *v) { name=v; }
+        void addSuper(const MemberInfoCollection &supers)
         {
-            data.insert(data.end(), d, d+n);
+            data.insert(data.end(), supers.begin(), supers.end());
         }
-        MemberInfoCollection(const MemberInfoCollection *supers, size_t sn,  IMemberInfo **d, size_t n)
+        void addMember(IMemberInfo *d)
         {
-            for(size_t i=0; i<sn; ++i) {
-                data.insert(data.end(), supers[i].begin(), supers[i].end());
-            }
-            data.insert(data.end(), d, d+n);
+            data.push_back(d);
         }
 
+        const char* getName() { return name; }
         IMemberInfo* operator[](int i) const { return data[i]; }
         size_t size() const { return data.size(); }
         iterator begin() { return data.begin(); }

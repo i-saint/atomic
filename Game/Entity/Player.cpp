@@ -20,6 +20,7 @@ class Player
     : public Breakable
     , public TAttr_TransformMatrix< TAttr_RotateSpeed<Attr_DoubleAxisRotation> >
 {
+typedef Player this_t;
 typedef Breakable super;
 typedef TAttr_TransformMatrix< TAttr_RotateSpeed<Attr_DoubleAxisRotation> > transform;
 private:
@@ -34,18 +35,29 @@ private:
     vec4 m_lightvel[1];
 
 public:
-    IST_INTROSPECTION_INHERIT(
-        Player,
+    IST_INTROSPECTION(
+        IST_NAME(Player)
         IST_SUPER(super)
-        IST_SUPER(transform),
+        IST_SUPER(transform)
         IST_MEMBER(m_vel)
         IST_MEMBER(m_cooldown)
         IST_MEMBER(m_collision)
         IST_MEMBER(m_barrier)
         IST_MEMBER(m_lightpos)
         IST_MEMBER(m_lightvel)
-        );
+        )
 
+    bool call(uint32 call_id, const variant &v)
+    {
+        return super::call(call_id, v) || transform::call(call_id, v);
+    }
+
+    bool query(uint32 query_id, variant &v) const
+    {
+        return super::query(query_id, v) || transform::query(query_id, v);
+    }
+
+public:
     Player() : m_cooldown(0)
     {
     }
@@ -185,16 +197,6 @@ public:
         m_vel.w = 0.0f;
 
         damage(m->direction.w * 100.0f);
-    }
-
-    bool call(uint32 call_id, const variant &v)
-    {
-        return super::call(call_id, v) || transform::call(call_id, v);
-    }
-
-    bool query(uint32 query_id, variant &v) const
-    {
-        return super::query(query_id, v) || transform::query(query_id, v);
     }
 };
 

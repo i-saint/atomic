@@ -24,6 +24,7 @@ class Enemy_Test
     , public Attr_Collision
     , public Attr_Bloodstain
 {
+typedef Enemy_Test this_t;
 typedef Breakable super;
 typedef TAttr_TransformMatrixI< TAttr_RotateSpeed<Attr_DoubleAxisRotation> > transform;
 typedef Attr_ParticleSet    model;
@@ -43,6 +44,25 @@ private:
     float32 m_light_radius;
     SE_CHANNEL m_explosion_channel;
     SE_RID m_explosion_se;
+
+public:
+    DEFINE_CALLS(
+        METHODS(
+        DEFINE_ECALL(setLightRadius)
+        DEFINE_ECALL(setExplosionSE)
+        DEFINE_ECALL(setExplosionChannel)
+        )
+        DEFINE_ECALL_SUPER(super)
+        DEFINE_ECALL_SUPER(transform)
+        DEFINE_ECALL_SUPER(model)
+        DEFINE_ECALL_SUPER(collision)
+    )
+    DEFINE_QUERIES(
+        DEFINE_EQUERY_SUPER(super)
+        DEFINE_EQUERY_SUPER(transform)
+        DEFINE_EQUERY_SUPER(model)
+        DEFINE_EQUERY_SUPER(collision)
+    )
 
 public:
     Enemy_Test() : m_state(ST_FADEIN), m_st_frame(0), m_light_radius(0.5f)
@@ -174,22 +194,6 @@ public:
         addBloodstain(getInverseTransform() * (vec4&)m->position);
         damage(length(m->velocity3)*0.002f);
     }
-
-
-    virtual bool call(uint32 call_id, const variant &v)
-    {
-        switch(call_id) {
-        DEFINE_ECALL1(setLightRadius, float32);
-        DEFINE_ECALL1(setExplosionSE, SE_RID);
-        DEFINE_ECALL1(setExplosionChannel, SE_CHANNEL);
-        default: return super::call(call_id, v) || transform::call(call_id, v) || model::call(call_id, v) || collision::call(call_id, v);
-        }
-    }
-
-    virtual bool query(uint32 query_id, variant &v) const
-    {
-        return super::query(query_id, v) || transform::query(query_id, v) || model::query(query_id, v) || collision::query(query_id, v);
-    }
 };
 
 
@@ -206,11 +210,8 @@ public:
 
     void update(float32 dt)
     {
-
     }
 };
-
-
 atomicImplementEntity(Enemy_Test, ECID_ENEMY, ESID_ENEMY_TEST);
 
 } // namespace atomic

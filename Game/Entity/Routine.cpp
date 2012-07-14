@@ -13,138 +13,139 @@
 
 namespace atomic {
 
-    RoutineCreator g_routine_creators[ROUTINE_END];
+RoutineCreator g_routine_creators[ROUTINE_END];
 
-    IRoutine* CreateRoutine(ROUTINE_CLASSID rcid)
+IRoutine* CreateRoutine(ROUTINE_CLASSID rcid)
+{
+    if(rcid==ROUTINE_NULL) { return NULL; }
+    return g_routine_creators[rcid]();
+}
+
+
+class Routine_Shoot : public IRoutine
+{
+private:
+    int32 m_frame;
+
+public:
+    Routine_Shoot() : m_frame(0) {}
+
+    void update(float32 dt)
     {
-        if(rcid==ROUTINE_NULL) { return NULL; }
-        return g_routine_creators[rcid]();
+        ++m_frame;
+        if(m_frame % 300 == 0) {
+            IEntity *e = getEntity();
+            vec4 pos = atomicQuery(getEntity(), getPosition, vec4);
+            vec4 player_pos = GetNearestPlayerPosition(pos);
+            vec2 vel = glm::normalize(vec2(player_pos)-vec2(pos)) * 0.01f;
+            ShootSimpleBullet(e->getHandle(), pos, vec4(vel, 0.0f, 0.0f));
+        }
+    }
+};
+atomicImplementRoutine(Routine_Shoot, ROUTINE_SHOOT);
+
+
+class Routine_HomingPlayer : public IRoutine, public Attr_MessageHandler
+{
+typedef Attr_MessageHandler mhandler;
+private:
+    vec4 m_vel;
+    vec4 m_target_pos;
+
+public:
+    Routine_HomingPlayer() {}
+
+    void update(float32 dt)
+    {
+        IEntity *e = getEntity();
+        vec4 pos = atomicQuery(e, getPosition, vec4);
+        m_target_pos = GetNearestPlayerPosition(pos);
     }
 
-
-    class Routine_Shoot : public IRoutine
+    void asyncupdate(float32 dt)
     {
-    private:
-        int32 m_frame;
+        IEntity *e = getEntity();
+        vec4 pos = atomicQuery(e, getPosition, vec4);
+        m_vel *= 0.98f;
+        m_vel += glm::normalize(m_target_pos-pos) * 0.0002f;
+        pos += m_vel;
+        atomicCall(e, setPosition, pos);
+    }
 
-    public:
-        Routine_Shoot() : m_frame(0) {}
-
-        void update(float32 dt)
-        {
-            ++m_frame;
-            if(m_frame % 300 == 0) {
-                IEntity *e = getEntity();
-                vec4 pos = atomicQuery(getEntity(), getPosition, vec4);
-                vec4 player_pos = GetNearestPlayerPosition(pos);
-                vec2 vel = glm::normalize(vec2(player_pos)-vec2(pos)) * 0.01f;
-                ShootSimpleBullet(e->getHandle(), pos, vec4(vel, 0.0f, 0.0f));
-            }
-        }
-    };
-    atomicImplementRoutine(Routine_Shoot, ROUTINE_SHOOT);
-
-
-    class Routine_HomingPlayer : public IRoutine, public Attr_MessageHandler
+    virtual void eventCollide(const CollideMessage *m)
     {
-    typedef Attr_MessageHandler mhandler;
-    private:
-        vec4 m_vel;
-        vec4 m_target_pos;
+        vec4 v = m->direction * m->direction.w * 0.1f;
+        m_vel += v;
+        m_vel.z = 0.0f;
+        m_vel.w = 0.0f;
 
-    public:
-        Routine_HomingPlayer() {}
+        float32 len = glm::length(m_vel);
+        const float32 max_speed = 0.01f;
+        if(len > max_speed) { m_vel = m_vel / len * max_speed; }
+    }
 
-        void update(float32 dt)
-        {
-            IEntity *e = getEntity();
-            vec4 pos = atomicQuery(e, getPosition, vec4);
-            m_target_pos = GetNearestPlayerPosition(pos);
-        }
-
-        void asyncupdate(float32 dt)
-        {
-            IEntity *e = getEntity();
-            vec4 pos = atomicQuery(e, getPosition, vec4);
-            m_vel *= 0.98f;
-            m_vel += glm::normalize(m_target_pos-pos) * 0.0002f;
-            pos += m_vel;
-            atomicCall(e, setPosition, pos);
-        }
-
-        virtual void eventCollide(const CollideMessage *m)
-        {
-            vec4 v = m->direction * m->direction.w * 0.1f;
-            m_vel += v;
-            m_vel.z = 0.0f;
-            m_vel.w = 0.0f;
-
-            float32 len = glm::length(m_vel);
-            const float32 max_speed = 0.01f;
-            if(len > max_speed) { m_vel = m_vel / len * max_speed; }
-        }
-
-        virtual bool call(uint32 call_id, const variant &v)
-        {
-            return mhandler::call(call_id, v);
-        }
-    };
-    atomicImplementRoutine(Routine_HomingPlayer, ROUTINE_HOMING_PLAYER);
-
-
-    class Routine_Pinball : public IRoutine, public Attr_MessageHandler
+    virtual bool call(uint32 call_id, const variant &v)
     {
-        typedef Attr_MessageHandler mhandler;
-    private:
-        vec4 m_vel;
-        vec4 m_accel;
+        return mhandler::call(call_id, v);
+    }
+};
+atomicImplementRoutine(Routine_HomingPlayer, ROUTINE_HOMING_PLAYER);
 
-    public:
-        Routine_Pinball() {}
 
-        void setVelocity(const vec4 &v) { m_vel=v; }
-        void setAccel(const vec4 &v)    { m_accel=v; }
+class Routine_Pinball : public IRoutine, public Attr_MessageHandler
+{
+typedef Routine_Pinball this_t;
+typedef Attr_MessageHandler mhandler;
+private:
+    vec4 m_vel;
+    vec4 m_accel;
 
-        void asyncupdate(float32 dt)
-        {
-            IEntity *e = getEntity();
-            vec4 pos = atomicQuery(e, getPosition, vec4);
-            pos += m_vel;
-            m_vel += m_accel;
-            atomicCall(e, setPosition, pos);
-        }
+public:
+    DEFINE_CALLS(
+        METHODS(
+        DEFINE_ECALL(setVelocity)
+        DEFINE_ECALL(setAccel)
+        )
+        DEFINE_ECALL_SUPER(mhandler)
+    )
 
-        virtual void eventCollide(const CollideMessage *m)
-        {
-            vec4 v = m->direction * m->direction.w * 0.2f;
-            m_vel += v;
-            m_vel.z = 0.0f;
-            m_vel.w = 0.0f;
+public:
+    Routine_Pinball() {}
 
-            float32 len = glm::length(m_vel);
-            const float32 max_speed = 0.01f;
-            if(len > max_speed) { m_vel = m_vel / len * max_speed; }
+    void setVelocity(const vec4 &v) { m_vel=v; }
+    void setAccel(const vec4 &v)    { m_accel=v; }
 
-            //vec4 base_dir = m->direction;
-            //vec4 dir = base_dir;
-            //dir.z = dir.w = 0.0f;
-            //dir = glm::normalize(dir);
+    void asyncupdate(float32 dt)
+    {
+        IEntity *e = getEntity();
+        vec4 pos = atomicQuery(e, getPosition, vec4);
+        pos += m_vel;
+        m_vel += m_accel;
+        atomicCall(e, setPosition, pos);
+    }
 
-            //vec4 vel = m_vel;
-            //if(glm::dot(dir, vel) < 0.0f) {
-            //    m_vel = glm::reflect(vel*0.98f, dir);
-            //}
-        }
+    virtual void eventCollide(const CollideMessage *m)
+    {
+        vec4 v = m->direction * m->direction.w * 0.2f;
+        m_vel += v;
+        m_vel.z = 0.0f;
+        m_vel.w = 0.0f;
 
-        virtual bool call(uint32 call_id, const variant &v)
-        {
-            switch(call_id) {
-                DEFINE_ECALL1(setVelocity, vec4);
-                DEFINE_ECALL1(setAccel, vec4);
-            default: return mhandler::call(call_id, v);
-            }
-        }
-    };
-    atomicImplementRoutine(Routine_Pinball, ROUTINE_PINBALL);
+        float32 len = glm::length(m_vel);
+        const float32 max_speed = 0.01f;
+        if(len > max_speed) { m_vel = m_vel / len * max_speed; }
+
+        //vec4 base_dir = m->direction;
+        //vec4 dir = base_dir;
+        //dir.z = dir.w = 0.0f;
+        //dir = glm::normalize(dir);
+
+        //vec4 vel = m_vel;
+        //if(glm::dot(dir, vel) < 0.0f) {
+        //    m_vel = glm::reflect(vel*0.98f, dir);
+        //}
+    }
+};
+atomicImplementRoutine(Routine_Pinball, ROUTINE_PINBALL);
 
 } // namespace atomic

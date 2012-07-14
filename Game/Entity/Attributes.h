@@ -10,6 +10,7 @@ namespace atomic {
 
 class Attr_RefCount
 {
+typedef Attr_RefCount this_t;
 private:
     uint32 m_ref_count;
 
@@ -18,46 +19,53 @@ protected:
 
 public:
     IST_INTROSPECTION(
-        Attr_RefCount,
+        IST_NAME(Attr_RefCount)
         IST_MEMBER(m_ref_count)
-        );
+    )
+    DEFINE_CALLS(
+        METHODS(
+        DEFINE_ECALL(setRefCount)
+        DEFINE_ECALL(addRefCount)
+        DEFINE_ECALL(release)
+        )
+    )
+    DEFINE_QUERIES(
+        METHODS(
+        DEFINE_EQUERY(getRefCount)
+        )
+    )
 
+public:
     Attr_RefCount() : m_ref_count(1) {}
     uint32 getRefCount() const  { return m_ref_count; }
     uint32 addRefCount()        { return ++m_ref_count; }
     uint32 release()            { return --m_ref_count; }
-
-    bool call(uint32 call_id, const variant &v)
-    {
-        switch(call_id) {
-            DEFINE_ECALL1(setRefCount, uint32);
-            DEFINE_ECALL0(addRefCount);
-            DEFINE_ECALL0(release);
-        }
-        return false;
-    }
-
-    bool query(uint32 query_id, variant &v) const
-    {
-        switch(query_id) {
-            DEFINE_EQUERY(getRefCount);
-        }
-        return false;
-    }
 };
 
 
 class Attr_Translate
 {
+typedef Attr_Translate this_t;
 protected:
     vec4 m_pos;
 
 public:
     IST_INTROSPECTION(
-        Attr_Translate,
+        IST_NAME(Attr_Translate)
         IST_MEMBER(m_pos)
-        );
+    )
+    DEFINE_CALLS(
+        METHODS(
+        DEFINE_ECALL(setPosition)
+        )
+    )
+    DEFINE_QUERIES(
+        METHODS(
+        DEFINE_EQUERY(getPosition)
+        )
+    )
 
+public:
     Attr_Translate() {}
     const vec4& getPosition() const { return m_pos; }
     void setPosition(const vec4& v) { m_pos=v; }
@@ -68,26 +76,11 @@ public:
         mat = glm::translate(mat, reinterpret_cast<const vec3&>(m_pos));
         return mat;
     }
-
-    bool call(uint32 call_id, const variant &v)
-    {
-        switch(call_id) {
-            DEFINE_ECALL1(setPosition, vec4);
-        }
-        return false;
-    }
-
-    bool query(uint32 query_id, variant &v) const
-    {
-        switch(query_id) {
-            DEFINE_EQUERY(getPosition);
-        }
-        return false;
-    }
 };
 
 class Attr_Transform
 {
+typedef Attr_Transform this_t;
 private:
     vec4 m_pos;
     vec4 m_scale;
@@ -96,13 +89,30 @@ private:
 
 public:
     IST_INTROSPECTION(
-        Attr_Transform,
+        IST_NAME(Attr_Transform)
         IST_MEMBER(m_pos)
         IST_MEMBER(m_scale)
         IST_MEMBER(m_axis)
         IST_MEMBER(m_rot)
-        );
+    )
+    DEFINE_CALLS(
+        METHODS(
+        DEFINE_ECALL(setPosition)
+        DEFINE_ECALL(setScale)
+        DEFINE_ECALL(setAxis)
+        DEFINE_ECALL(setRotate)
+        )
+    )
+    DEFINE_QUERIES(
+        METHODS(
+        DEFINE_EQUERY(getPosition)
+        DEFINE_EQUERY(getScale)
+        DEFINE_EQUERY(getAxis)
+        DEFINE_EQUERY(getRotate)
+        )
+    )
 
+public:
     Attr_Transform()
         : m_scale(1.0f, 1.0f, 1.0f, 0.0f)
         , m_axis(0.0f, 0.0f, 1.0f, 0.0f)
@@ -128,34 +138,13 @@ public:
         return mat;
     }
 
-    bool call(uint32 call_id, const variant &v)
-    {
-        switch(call_id) {
-        DEFINE_ECALL1(setPosition, vec4);
-        DEFINE_ECALL1(setScale, vec4);
-        DEFINE_ECALL1(setAxis, vec4);
-        DEFINE_ECALL1(setRotate, float32);
-        default: return false;
-        }
-    }
-
-    bool query(uint32 query_id, variant &v) const
-    {
-        switch(query_id) {
-        DEFINE_EQUERY(getPosition);
-        DEFINE_EQUERY(getScale);
-        DEFINE_EQUERY(getAxis);
-        DEFINE_EQUERY(getRotate);
-        default: return false;
-        }
-    }
-
     void update(float32 dt) {}
     void asyncupdate(float32 dt) {}
 };
 
 class Attr_DoubleAxisRotation
 {
+typedef Attr_DoubleAxisRotation this_t;
 private:
     vec4 m_pos;
     vec4 m_scale;
@@ -166,15 +155,36 @@ private:
 
 public:
     IST_INTROSPECTION(
-        Attr_DoubleAxisRotation,
+        IST_NAME(Attr_DoubleAxisRotation)
         IST_MEMBER(m_pos)
         IST_MEMBER(m_scale)
         IST_MEMBER(m_axis1)
         IST_MEMBER(m_axis2)
         IST_MEMBER(m_rot1)
         IST_MEMBER(m_rot2)
-        );
+    )
+    DEFINE_CALLS(
+        METHODS(
+        DEFINE_ECALL(setPosition)
+        DEFINE_ECALL(setScale)
+        DEFINE_ECALL(setAxis1)
+        DEFINE_ECALL(setAxis2)
+        DEFINE_ECALL(setRotate1)
+        DEFINE_ECALL(setRotate2)
+        )
+    )
+    DEFINE_QUERIES(
+        METHODS(
+        DEFINE_EQUERY(getPosition)
+        DEFINE_EQUERY(getScale)
+        DEFINE_EQUERY(getAxis1)
+        DEFINE_EQUERY(getAxis2)
+        DEFINE_EQUERY(getRotate1)
+        DEFINE_EQUERY(getRotate2)
+        )
+    )
 
+public:
     Attr_DoubleAxisRotation()
         : m_scale(1.0f, 1.0f, 1.0f, 0.0f)
         , m_axis1(0.0f, 1.0f, 0.0f, 0.0f)
@@ -206,50 +216,40 @@ public:
         mat = glm::scale(mat, reinterpret_cast<const vec3&>(m_scale));
         return mat;
     }
-
-    bool call(uint32 call_id, const variant &v)
-    {
-        switch(call_id) {
-            DEFINE_ECALL1(setPosition, vec4);
-            DEFINE_ECALL1(setScale, vec4);
-            DEFINE_ECALL1(setAxis1, vec4);
-            DEFINE_ECALL1(setAxis2, vec4);
-            DEFINE_ECALL1(setRotate1, float32);
-            DEFINE_ECALL1(setRotate2, float32);
-            default: return false;
-        }
-    }
-
-    bool query(uint32 query_id, variant &v) const
-    {
-        switch(query_id) {
-            DEFINE_EQUERY(getPosition);
-            DEFINE_EQUERY(getScale);
-            DEFINE_EQUERY(getAxis1);
-            DEFINE_EQUERY(getAxis2);
-            DEFINE_EQUERY(getRotate1);
-            DEFINE_EQUERY(getRotate2);
-            default: return false;
-        }
-    }
 };
 
 template<class T>
 class TAttr_RotateSpeed : public T
 {
+typedef TAttr_RotateSpeed this_t;
 typedef T super;
 private:
     float32 m_rspeed1;
     float32 m_rspeed2;
 
 public:
-    IST_INTROSPECTION_INHERIT(
-        TAttr_RotateSpeed,
-        IST_SUPER(super),
+    IST_INTROSPECTION(
+        IST_NAME(TAttr_RotateSpeed)
+        IST_SUPER(super)
         IST_MEMBER(m_rspeed1)
         IST_MEMBER(m_rspeed2)
-        );
+    )
+    DEFINE_CALLS(
+        METHODS(
+        DEFINE_ECALL(setRotateSpeed1)
+        DEFINE_ECALL(setRotateSpeed2)
+        )
+        DEFINE_ECALL_SUPER(super)
+    )
+    DEFINE_QUERIES(
+        METHODS(
+        DEFINE_EQUERY(getRotateSpeed1)
+        DEFINE_EQUERY(getRotateSpeed2)
+        )
+        DEFINE_EQUERY_SUPER(super)
+    )
 
+public:
     TAttr_RotateSpeed()
         : m_rspeed1(0.0f), m_rspeed2(0.0f)
     {}
@@ -258,24 +258,6 @@ public:
     float32 getRotateSpeed2() const { return m_rspeed2; }
     void setRotateSpeed1(float32 v) { m_rspeed1=v; }
     void setRotateSpeed2(float32 v) { m_rspeed2=v; }
-
-    bool call(uint32 call_id, const variant &v)
-    {
-        switch(call_id) {
-        DEFINE_ECALL1(setRotateSpeed1, float32);
-        DEFINE_ECALL1(setRotateSpeed2, float32);
-        default: return super::call(call_id, v);
-        }
-    }
-
-    bool query(uint32 query_id, variant &v) const
-    {
-        switch(query_id) {
-            DEFINE_EQUERY(getRotateSpeed1);
-            DEFINE_EQUERY(getRotateSpeed2);
-            default: return super::query(query_id, v);
-        }
-    }
 
     void updateRotate(float32 dt)
     {
@@ -287,16 +269,17 @@ public:
 template<class T>
 class TAttr_TransformMatrix : public T
 {
+typedef TAttr_TransformMatrix this_t;
 typedef T super;
 private:
     mat4 m_transform;
 
 public:
-    IST_INTROSPECTION_INHERIT(
-        TAttr_TransformMatrix,
-        IST_SUPER(super),
+    IST_INTROSPECTION(
+        IST_NAME(TAttr_TransformMatrix)
+        IST_SUPER(super)
         IST_MEMBER(m_transform)
-        );
+    )
 
     const mat4& getTransform() const    { return m_transform; }
 
@@ -311,19 +294,21 @@ public:
 template<class T>
 class TAttr_TransformMatrixI : public T
 {
+typedef TAttr_TransformMatrixI this_t;
 typedef T super;
 private:
     mat4 m_transform;
     mat4 m_itransform;
 
 public:
-    IST_INTROSPECTION_INHERIT(
-        TAttr_TransformMatrixI,
-        IST_SUPER(super),
+    IST_INTROSPECTION(
+        IST_NAME(TAttr_TransformMatrixI)
+        IST_SUPER(super)
         IST_MEMBER(m_transform)
         IST_MEMBER(m_itransform)
-        );
+    )
 
+public:
     const mat4& getTransform() const        { return m_transform; }
     const mat4& getInverseTransform() const { return m_itransform; }
 
@@ -344,6 +329,7 @@ public:
 
 class Attr_ParticleSet
 {
+typedef Attr_ParticleSet this_t;
 private:
     vec4 m_diffuse_color;
     vec4 m_glow_color;
@@ -351,12 +337,27 @@ private:
 
 public:
     IST_INTROSPECTION(
-        Attr_ParticleSet,
+        IST_NAME(Attr_ParticleSet)
         IST_MEMBER(m_diffuse_color)
         IST_MEMBER(m_glow_color)
         IST_MEMBER(m_psetid)
-        );
+    )
+    DEFINE_CALLS(
+        METHODS(
+        DEFINE_ECALL(setDiffuseColor)
+        DEFINE_ECALL(setGlowColor)
+        DEFINE_ECALL(setModel)
+        )
+    )
+    DEFINE_QUERIES(
+        METHODS(
+        DEFINE_EQUERY(getDiffuseColor)
+        DEFINE_EQUERY(getGlowColor)
+        DEFINE_EQUERY(getModel)
+        )
+    )
 
+public:
     Attr_ParticleSet() : m_psetid(PSET_CUBE_SMALL)
     {}
 
@@ -366,42 +367,36 @@ public:
     const vec4& getDiffuseColor() const { return m_diffuse_color; }
     const vec4& getGlowColor() const    { return m_glow_color; }
     PSET_RID getModel() const           { return m_psetid; }
-
-    bool call(uint32 call_id, const variant &v)
-    {
-        switch(call_id) {
-            DEFINE_ECALL1(setDiffuseColor, vec4);
-            DEFINE_ECALL1(setGlowColor, vec4);
-            DEFINE_ECALL1(setModel, PSET_RID);
-        }
-        return false;
-    }
-
-    bool query(uint32 query_id, variant &v) const
-    {
-        switch(query_id) {
-            DEFINE_EQUERY(getDiffuseColor);
-            DEFINE_EQUERY(getGlowColor);
-            DEFINE_EQUERY(getModel);
-        }
-        return false;
-    }
 };
 
 
 class Attr_Collision
 {
+typedef Attr_Collision this_t;
 private:
     CollisionHandle m_collision;
     EntityHandle m_owner_handle;
 
 public:
     IST_INTROSPECTION(
-        Attr_Collision,
+        IST_NAME(Attr_Collision)
         IST_MEMBER(m_collision)
         IST_MEMBER(m_owner_handle)
-        );
+    )
+    DEFINE_CALLS(
+        METHODS(
+        DEFINE_ECALL(setCollisionFlags)
+        DEFINE_ECALL(setCollisionShape)
+        )
+    )
+    DEFINE_QUERIES(
+        METHODS(
+        DEFINE_EQUERY(getCollisionFlags)
+        DEFINE_EQUERY(getCollisionHandle)
+        )
+    )
 
+public:
     Attr_Collision() : m_collision(0), m_owner_handle(0)
     {
     }
@@ -496,24 +491,6 @@ public:
             }
         }
     }
-
-    bool call(uint32 call_id, const variant &v)
-    {
-        switch(call_id) {
-            DEFINE_ECALL1(setCollisionFlags, uint32);
-            DEFINE_ECALL1(setCollisionShape, COLLISION_SHAPE);
-         }
-        return false;
-    }
-
-    bool query(uint32 query_id, variant &v) const
-    {
-        switch(query_id) {
-            DEFINE_EQUERY(getCollisionFlags);
-            DEFINE_EQUERY(getCollisionHandle);
-        }
-        return false;
-    }
 };
 
 
@@ -525,32 +502,34 @@ struct KillMessage;
 
 class Attr_MessageHandler
 {
+typedef Attr_MessageHandler this_t;
 public:
-    IST_INTROSPECTION_INTERFACE(Attr_MessageHandler);
+    IST_INTROSPECTION(
+        IST_NAME(Attr_MessageHandler)
+    )
+    DEFINE_CALLS(
+        METHODS(
+        DEFINE_ECALL(eventCollide)
+        DEFINE_ECALL(eventFluid)
+        DEFINE_ECALL(eventDamage)
+        DEFINE_ECALL(eventDestroy)
+        DEFINE_ECALL(eventKill)
+        )
+    )
+
 
     virtual void eventCollide(const CollideMessage *m)  {}
     virtual void eventFluid(const sphFluidMessage *m)   {}
     virtual void eventDamage(const DamageMessage *m)    {}
     virtual void eventDestroy(const DestroyMessage *m)  {}
     virtual void eventKill(const KillMessage *m)        {}
-
-    bool call(uint32 call_id, const variant &v)
-    {
-        switch(call_id) {
-            DEFINE_ECALL1(eventCollide, const CollideMessage*);
-            DEFINE_ECALL1(eventFluid,   const sphFluidMessage*);
-            DEFINE_ECALL1(eventDamage,  const DamageMessage*);
-            DEFINE_ECALL1(eventDestroy, const DestroyMessage*);
-            DEFINE_ECALL1(eventKill,    const KillMessage*);
-        }
-        return false;
-    }
 };
 
 
 // 流体を浴びた時血痕を残すエフェクトを実現する
 class Attr_Bloodstain
 {
+typedef Attr_Bloodstain this_t;
 private:
     // 血痕を残す頻度。流体がこの回数衝突したとき残す。
     static const uint32 bloodstain_frequency = 128;
@@ -560,11 +539,12 @@ private:
 
 public:
     IST_INTROSPECTION(
-        Attr_Bloodstain,
+        IST_NAME(Attr_Bloodstain)
         IST_MEMBER(m_bloodstain)
         IST_MEMBER(m_bloodstain_hitcount)
-        );
+    )
 
+public:
     Attr_Bloodstain() : m_bloodstain_hitcount(0)
     {
         m_bloodstain.reserve(256);

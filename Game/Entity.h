@@ -33,6 +33,7 @@ template<class T> struct EntityTraits;
 
 class IEntity
 {
+typedef IEntity this_t;
 friend class EntitySet;
 private:
     EntityHandle m_ehandle;
@@ -41,7 +42,9 @@ private:
     void setHandle(uint32 h) { m_ehandle=h; }
 
 public:
-    IST_INTROSPECTION_INTERFACE(IEntity);
+    IST_INTROSPECTION(
+        IST_NAME(IEntity)
+    )
 
     // コンストラクタではメンバ変数初期化以外の処理を行なってはならない。他は initialize() で行う。
     // (ID がコンストラクタの後に決まるため、子オブジェクトの処理順などを適切に行うにはこうする必要がある)
@@ -85,6 +88,7 @@ public:
 
 class EntitySet : public IAtomicGameModule
 {
+typedef EntitySet this_t;
 public:
     typedef stl::vector<EntityHandle> HandleCont;
     typedef stl::vector<IEntity*> EntityCont;

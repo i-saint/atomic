@@ -2,16 +2,55 @@
 #define __atomic_Game_EntityQuery__
 
 
-#define DEFINE_ECALL0(funcname)         \
-    case ECALL_##funcname: funcname(); return true;
 
-#define DEFINE_ECALL1(funcname, type)   \
-    case ECALL_##funcname: funcname(v.cast<type>()); return true;
+#define DEFINE_ECALL(funcname)         \
+    case ECALL_##funcname: MFCall(*this, &this_t::funcname, v); return true;
+
+#define DEFINE_ECALL_SUPER(classname)   \
+    if(this->classname::call(call_id, v)) { return true; }
+
+#define DEFINE_ECALL_DELEGATE(obj)   \
+    if(obj && obj->call(call_id, v)) {}
 
 #define DEFINE_EQUERY(funcname)    \
     case EQUERY_##funcname: v=funcname(); return true;
 
+#define DEFINE_EQUERY_SUPER(classname)   \
+    if(this->classname::query(call_id, v)) { return true; }
+
+#define DEFINE_EQUERY_DELEGATE(obj)   \
+    if(obj && obj->query(call_id, v)) { return true; }
+
+#define METHODS(methods)    \
+    switch(call_id) {\
+    methods\
+    }
+
+#define DEFINE_CALLS(blocks) \
+    virtual bool call(uint32 call_id, const variant &v)\
+    {\
+        blocks\
+        return false;\
+    }
+
+#define DEFINE_QUERIES(blocks) \
+    virtual bool query(uint32 call_id, variant &v) const\
+    {\
+        blocks\
+        return false;\
+    }
+
+
 namespace atomic {
+
+template<class T> struct DeRef { typedef T type; };
+template<class T> struct DeRef<T&> { typedef T type; };
+
+template<class T, class Res>
+inline void MFCall( T &obj, Res (T::*mf)(), const variant &v ) { (obj.*mf)(); }
+template<class T, class Res, class Arg1>
+inline void MFCall( T &obj, Res (T::*mf)(Arg1), const variant &v ) { (obj.*mf)(v.cast<DeRef<Arg1>::type>()); }
+
 
 enum ENTITY_CALL
 {
@@ -48,6 +87,8 @@ enum ENTITY_CALL
     ECALL_setRotateSpeed,
     ECALL_setRotateSpeed1 = ECALL_setRotateSpeed,
     ECALL_setRotateSpeed2,
+    ECALL_setDirection,
+    ECALL_setSpeed,
     ECALL_setLightRadius,
     ECALL_setExplosionSE,
     ECALL_setExplosionChannel,
@@ -75,6 +116,8 @@ enum ENTITY_QUERY
     EQUERY_getRotate,
     EQUERY_getRotate1 = EQUERY_getRotate,
     EQUERY_getRotate2,
+    EQUERY_getDirection,
+    EQUERY_getSpeed,
     EQUERY_getRotateSpeed,
     EQUERY_getRotateSpeed1 = ECALL_setRotateSpeed,
     EQUERY_getRotateSpeed2,
