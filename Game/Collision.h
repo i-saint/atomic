@@ -61,7 +61,7 @@ private:
         float4 padding;
     };
 
-    void SetCollisionHandle(CollisionHandle v) { m_col_handle=v; }
+    void setCollisionHandle(CollisionHandle v) { m_col_handle=v; }
 
 protected:
     void setShape(COLLISION_SHAPE v) { m_shape=v; }
@@ -211,6 +211,10 @@ public:
     typedef stl::vector<CollideMessage>     MessageCont;
 
 private:
+    ist::pool_allocator<> m_plane_allocator;
+    ist::pool_allocator<> m_sphere_allocator;
+    ist::pool_allocator<> m_box_allocator;
+
     CollisionGrid   m_grid;
     TaskCont        m_tasks;
     EntityCont      m_entities;

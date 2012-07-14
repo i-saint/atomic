@@ -4,9 +4,6 @@
 #include <cstdlib>
 #include <vector>
 #include <algorithm>
-
-namespace ist {
-
 #define IST_INTROSPECTION_INTERFACE(type) \
     typedef type self_t; \
     static const ist::MemberInfoCollection& _GetMemberInfo() { \
@@ -41,17 +38,37 @@ namespace ist {
     ist::CreateSuperMembers< self_t, name >(name::_GetMemberInfo()),
 
 
-    template<class T> inline void assign(T &a, const T &b) { a=b; }
-    template<class T, size_t N> inline void assign(T (&a)[N], const T (&b)[N]) { std::copy(b, b+_countof(b), a); }
+namespace ist {
 
-    template<class T> inline size_t get_size(const T &v) { return sizeof(v); }
+    template<class T>
+    inline void assign(T &a, const T &b)
+    {
+        a = b;
+    }
+
+    template<class T, size_t N>
+    inline void assign(T (&a)[N], const T (&b)[N])
+    {
+        for(size_t i=0; i<N; ++i) {
+            assign<T>(a[i], b[i]);
+        }
+    }
+
+    template<class T>
+    inline size_t get_size(const T &v)
+    {
+        return sizeof(v);
+    }
+
+
+
 
     struct IMemberInfo
     {
         virtual ~IMemberInfo() {}
         virtual const char* GetName() const=0;
         virtual const void* GetValue(const void *obj) const=0;
-        virtual size_t GetSize(const void *obj) const=0; // std::vector<> とかで動的にサイズ変わる可能性あるので一応 obj を引数に取るように
+        virtual size_t GetSize(const void *obj) const=0; // POD 型は sizeof するだけなので静的に決まるが、std::vector<> とかは動的にサイズ変わるので obj を引数に取る必要がある
         virtual void SetValue(void *obj, const void *v)=0;
     };
 

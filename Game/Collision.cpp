@@ -421,7 +421,10 @@ uint32 CollisionSet::collide(CollisionEntity *sender, MessageCont &m, HandleCont
 
 
 CollisionSet::CollisionSet()
-    : m_active_tasks(0)
+    : m_plane_allocator(sizeof(CollisionPlane), 64, 16, stl::get_default_allocator(NULL))
+    , m_sphere_allocator(sizeof(CollisionSphere), 65536, 16, stl::get_default_allocator(NULL))
+    , m_box_allocator(sizeof(CollisionBox), 1024, 16, stl::get_default_allocator(NULL))
+    , m_active_tasks(0)
 {
     m_tasks.reserve(32);
     m_entities.reserve(1024);
@@ -440,7 +443,7 @@ CollisionSet::~CollisionSet()
     for(uint32 i=0; i<_countof(m_df); ++i)      { istSafeDelete(m_df[i]); }
 #endif // __atomic_enable_distance_field__
     for(uint32 i=0; i<m_tasks.size(); ++i)      { istSafeDelete(m_tasks[i]); }
-    for(uint32 i=0; i<m_entities.size(); ++i)   { istSafeDelete(m_entities[i]); }
+    for(uint32 i=0; i<m_entities.size(); ++i)   { deleteEntity(m_entities[i]); }
     m_tasks.clear();
     m_entities.clear();
     m_vacant.clear();
@@ -533,7 +536,7 @@ void CollisionSet::addEntity(CollisionEntity *e)
         h = (CollisionHandle)m_entities.size();
         m_entities.push_back(e);
     }
-    e->SetCollisionHandle(h);
+    e->setCollisionHandle(h);
 }
 
 CollisionEntity* CollisionSet::getEntity(CollisionHandle h)
@@ -544,34 +547,41 @@ CollisionEntity* CollisionSet::getEntity(CollisionHandle h)
 
 template<> CollisionPlane* CollisionSet::createEntity<CollisionPlane>()
 {
-    CollisionPlane *e = istNew(CollisionPlane)();
+    CollisionPlane *e = istNewA(CollisionPlane, m_plane_allocator)();
     addEntity(e);
     return e;
 }
-
 template<> CollisionSphere* CollisionSet::createEntity<CollisionSphere>()
 {
-    CollisionSphere *e = istNew(CollisionSphere)();
+    CollisionSphere *e = istNewA(CollisionSphere, m_sphere_allocator)();
     addEntity(e);
     return e;
 }
-
 template<> CollisionBox* CollisionSet::createEntity<CollisionBox>()
 {
-    CollisionBox *e = istNew(CollisionBox)();
+    CollisionBox *e = istNewA(CollisionBox, m_box_allocator)();
     addEntity(e);
     return e;
 }
 
 void CollisionSet::deleteEntity(CollisionHandle h)
 {
-    istSafeDelete(m_entities[h]);
-    m_vacant.push_back(h);
+    CollisionEntity *&ce = m_entities[h];
+    if(ce) {
+        switch(ce->getShape()) {
+        case CS_PLANE:  istSafeDeleteA(ce, m_plane_allocator); break;
+        case CS_SPHERE: istSafeDeleteA(ce, m_sphere_allocator); break;
+        case CS_BOX:    istSafeDeleteA(ce, m_box_allocator); break;
+        }
+        m_vacant.push_back(h);
+    }
 }
 
 void CollisionSet::deleteEntity(CollisionEntity *e)
 {
-    deleteEntity(e->getCollisionHandle());
+    if(e != NULL) {
+        deleteEntity(e->getCollisionHandle());
+    }
 }
 
 CollisionGrid* CollisionSet::getCollisionGrid()

@@ -12,7 +12,7 @@ inline void bad_alloc_hander(const Allocator* allocator)
 }
 
 
-
+namespace ist {
 
 template<class ParentAllocatorType=stl::allocator, bool AllowOverflow=false>
 class stack_allocator
@@ -98,7 +98,7 @@ public:
 };
 
 
-template<class ParentAllocatorType=stl::allocator, bool AllowOverflow=false>
+template<class ParentAllocatorType=stl::allocator>
 class pool_allocator
 {
 public:
@@ -130,24 +130,24 @@ public:
     {
     }
 
-    pool_allocator( size_t size_element, size_t num_element, size_t alignment=8, parent_allocator& parent=get_default_allocator<parent_allocator>(NULL) )
+    pool_allocator( size_t size_element, size_t num_element, size_t alignment, parent_allocator *parent )
     {
         initialize(size_element, num_element, alignment, parent);
     }
 
-    void initialize( size_t size_element, size_t num_element, size_t alignment=8, parent_allocator& parent=get_default_allocator<parent_allocator>(NULL) )
+    void initialize( size_t size_element, size_t num_element, size_t alignment, parent_allocator *parent )
     {
         m_memory = NULL;
         m_used = NULL;
         m_size_element = size_element;
         m_max_element = num_element;
         m_alignment = alignment;
-        m_parent = parent
+        m_parent = parent;
 
-        void* unused[] = (void**)alloc.allocate(sizeof(void*)*num_element);
-        void* mem = alloc.allocate(size_element*num_element, alignment, 0);
+        void** unused = (void**)parent->allocate(sizeof(void*)*num_element);
+        void* mem = parent->allocate(size_element*num_element, alignment, 0);
         for(size_t i=0; i<num_element; ++i) {
-            unused = (char*)mem + (size_element*i);
+            unused[i] = (char*)mem + (size_element*i);
         }
         m_unused = unused;
         m_memory = mem;
@@ -155,10 +155,9 @@ public:
 
     ~pool_allocator()
     {
-        parent_allocator *parent = m_parent;
-        if(parent) {
-            parent.deallocate(m_memory, size_element*num_element);
-            parent.deallocate(m_unused, sizeof(void*)*num_element);
+        if(m_parent) {
+            m_parent->deallocate(m_memory, m_size_element*m_max_element);
+            m_parent->deallocate(m_unused, sizeof(void*)*m_max_element);
         }
     }
 
@@ -194,5 +193,5 @@ public:
     }
 };
 
-
+} // namespace ist
 
