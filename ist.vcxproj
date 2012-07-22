@@ -17,6 +17,7 @@
     <ClInclude Include="ist\Base\BinaryStream.h" />
     <ClInclude Include="ist\Base\ClassInfo.h" />
     <ClInclude Include="ist\Base\FileLoader.h" />
+    <ClInclude Include="ist\Base\Generics.h" />
     <ClInclude Include="ist\Base\Half\eLut.h" />
     <ClInclude Include="ist\Base\Half\half.h" />
     <ClInclude Include="ist\Base\Half\halfFunction.h" />
@@ -24,9 +25,17 @@
     <ClInclude Include="ist\Base\Half\toFloat.h" />
     <ClInclude Include="ist\Base\New.h" />
     <ClInclude Include="ist\Base\Serialize.h" />
-    <ClInclude Include="ist\Base\TaskScheduler.h" />
+    <ClInclude Include="ist\Base\SharedObject.h" />
     <ClInclude Include="ist\Base\Types.h" />
     <ClInclude Include="ist\Base\Variant.h" />
+    <ClInclude Include="ist\Concurrency.h" />
+    <ClInclude Include="ist\Concurrency\AsyncFunction.h" />
+    <ClInclude Include="ist\Concurrency\Atomic.h" />
+    <ClInclude Include="ist\Concurrency\ParallelAlgorithm.h" />
+    <ClInclude Include="ist\Concurrency\SpinMutex.h" />
+    <ClInclude Include="ist\Concurrency\TaskScheduler.h" />
+    <ClInclude Include="ist\Concurrency\TaskUtil.h" />
+    <ClInclude Include="ist\Concurrency\ThreadUtil.h" />
     <ClInclude Include="ist\GPGPU.h" />
     <ClInclude Include="ist\GPUCL\gpuclDevice.h" />
     <ClInclude Include="ist\GPUCL\gpuclDeviceResource.h" />
@@ -106,7 +115,9 @@
     </ClCompile>
     <ClCompile Include="ist\Base\New.cpp" />
     <ClCompile Include="ist\Base\Serialize.cpp" />
-    <ClCompile Include="ist\Base\TaskScheduler.cpp" />
+    <ClCompile Include="ist\Concurrency\TaskScheduler.cpp" />
+    <ClCompile Include="ist\Concurrency\TaskUtil.cpp" />
+    <ClCompile Include="ist\Concurrency\ThreadUtil.cpp" />
     <ClCompile Include="ist\GPUCL\gpuclDevice.cpp" />
     <ClCompile Include="ist\GPUCL\gpuclDeviceResource.cpp" />
     <ClCompile Include="ist\GraphicsDX11\i3ddx11Assert.cpp" />

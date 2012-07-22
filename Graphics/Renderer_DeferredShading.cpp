@@ -84,8 +84,8 @@ void PassDeferredShading_Bloodstain::draw()
             n += bps.num_bsp;
         }
     }
-    TaskScheduler::addTask(&m_tasks[0], num_instances);
-    TaskScheduler::waitFor(&m_tasks[0], num_instances);
+    ist::EnqueueTasks(&m_tasks[0], num_instances);
+    ist::WaitTasks(&m_tasks[0], num_instances);
 
     MapAndWrite(*m_vbo_bloodstain, &m_particles[0], sizeof(BloodstainParticle)*num_particles);
 

@@ -49,7 +49,7 @@ private:
     bool m_initialization_complete;
     bool m_stop_request;
 
-    SpinMutex                   m_se_lock;
+    spin_mutex                  m_se_lock;
     stl::vector<SoundRequest>   m_requests;
     stl::vector<SoundRequest>   m_reqests2;
 

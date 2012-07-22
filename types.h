@@ -42,9 +42,9 @@ typedef ist::bostream Serializer;
 typedef ist::bistream Deserializer;
 
 
+using ist::spin_mutex;
 using ist::Task;
 using ist::TaskScheduler;
-using ist::SpinMutex;
 using ist::SFMT;
 using ist::FrustumPlanes;
 using ist::AABB;

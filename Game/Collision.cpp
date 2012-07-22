@@ -192,7 +192,7 @@ private:
     EntityCont          *m_entities;
 
 public:
-    DistanceTask(DistanceField *df) : m_df(df) { setPriority(90); }
+    DistanceTask(DistanceField *df) : m_df(df) { setPriority(Task::Priority_Low); }
     void setup(const ivec3 &bl, const ivec3 &ur, EntityCont &ec) { m_bl=bl; m_ur=ur; m_entities=&ec; }
 
     void getOverlaped(const BoundingBox &bb, ivec3 &out_ubl, ivec3 &out_uur)
@@ -291,12 +291,12 @@ void DistanceField::updateBegin( EntityCont &v )
             dt->setup(bl, ur, v);
         }
     }
-    TaskScheduler::addTask((Task**)&m_tasks[0], m_tasks.size());
+    ist::EnqueueTasks(&m_tasks[0], m_tasks.size());
 }
 
 void DistanceField::updateEnd()
 {
-    for(uint32 i=0; i<m_tasks.size(); ++i) { m_tasks[i]->join(); }
+    ist::WaitTasks(&m_tasks[0], m_tasks.size());
 }
 
 
@@ -484,7 +484,7 @@ void CollisionSet::asyncupdate(float32 dt)
     for(uint32 i=0; i<m_active_tasks; ++i) {
         m_tasks[i]->setup(m_entities.begin()+(block_size*i), m_entities.begin()+std::min<uint32>(block_size*(i+1), m_entities.size()));
     }
-    TaskScheduler::addTask((Task**)&m_tasks[0], m_tasks.size());
+    ist::EnqueueTasks(&m_tasks[0], m_tasks.size());
 }
 
 void CollisionSet::draw()
@@ -496,7 +496,7 @@ void CollisionSet::draw()
 
 void CollisionSet::frameEnd()
 {
-    TaskScheduler::waitFor((Task**)&m_tasks[0], m_tasks.size());
+    ist::WaitTasks(&m_tasks[0], m_tasks.size());
 
 #ifdef __atomic_enable_distance_field__
     m_df[(m_df_current+1) % _countof(m_df)]->updateEnd();

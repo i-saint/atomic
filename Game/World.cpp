@@ -95,12 +95,12 @@ void World::asyncupdateBegin(float32 dt)
     for(uint32 i=0; i<m_module_update_tasks.size(); ++i) {
         m_module_update_tasks[i]->setArg(dt);
     }
-    TaskScheduler::addTask((Task**)&m_module_update_tasks[0], m_module_update_tasks.size());
+    ist::EnqueueTasks(&m_module_update_tasks[0], m_module_update_tasks.size());
 }
 
 void World::asyncupdateEnd()
 {
-    TaskScheduler::waitFor((Task**)&m_module_update_tasks[0], m_module_update_tasks.size());
+    ist::WaitTasks(&m_module_update_tasks[0], m_module_update_tasks.size());
 }
 
 void World::asyncupdate(float32 dt)

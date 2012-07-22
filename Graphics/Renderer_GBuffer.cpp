@@ -156,7 +156,7 @@ void PassGBuffer_SPH::draw()
         }
 
         // 並列頂点更新開始
-        TaskScheduler::addTask(&m_tasks[0], num_tasks);
+        ist::EnqueueTasks(&m_tasks[0], num_tasks);
     }
     // copy fluid particles (CUDA -> GL)
     atomicGetSPHManager()->copyParticlesToGL();
@@ -183,7 +183,7 @@ void PassGBuffer_SPH::draw()
     Texture2D *param_texture = atomicGetTexture2D(TEX2D_ENTITY_PARAMS);
     {
         param_texture->copy(0, uvec2(0,0), uvec2(sizeof(PSetInstance)/sizeof(vec4), m_rinstances.size()), I3D_RGBA32F, &m_rinstances[0]);
-        TaskScheduler::waitFor(&m_tasks[0], num_tasks);
+        ist::WaitTasks(&m_tasks[0], num_tasks);
         MapAndWrite(*m_vbo_rigid, &m_rparticles[0], sizeof(PSetParticle)*num_rigid_particles);
     }
     {

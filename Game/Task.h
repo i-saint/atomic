@@ -5,13 +5,13 @@ namespace atomic {
 class AtomicTask : public Task
 {
 public:
-    ~AtomicTask() { join(); }
+    ~AtomicTask() { wait(); }
 };
 
 class AtomicDrawTask : public AtomicTask
 {
 public:
-    AtomicDrawTask() { setPriority(50); }
+    AtomicDrawTask() { setPriority(Task::Priority_Low); }
 };
 
 template<class T>

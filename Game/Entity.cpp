@@ -143,8 +143,8 @@ void EntitySet::update( float32 dt )
                 &m_all[0]+stl::min(block_size*(i+1), num_entities),
                 dt);
         }
-        TaskScheduler::addTask(&m_tasks[0], num_tasks);
-        TaskScheduler::waitFor(&m_tasks[0], num_tasks);
+        ist::EnqueueTasks(&m_tasks[0], num_tasks);
+        ist::WaitTasks(&m_tasks[0], num_tasks);
     }
 }
 

@@ -111,7 +111,7 @@ void SPHManager::update(float32 dt)
 void SPHManager::asyncupdate(float32 dt)
 {
     static_cast<SPHAsyncUpdateTask*>(m_asyncupdate_task)->setup(dt);
-    TaskScheduler::addTask(m_asyncupdate_task);
+    TaskScheduler::getInstance()->enqueue(m_asyncupdate_task);
 }
 
 void SPHManager::addRigid(const sphRigidPlane &s)   { m_planes.push_back(s); }
@@ -125,13 +125,13 @@ void SPHManager::draw()
 
 void SPHManager::frameEnd()
 {
-    TaskScheduler::waitFor(m_asyncupdate_task);
+    m_asyncupdate_task->wait();
 }
 
 
 void SPHManager::copyParticlesToGL()
 {
-    TaskScheduler::waitFor(m_asyncupdate_task);
+    m_asyncupdate_task->wait();
     SPHCopyToGL();
 }
 
@@ -140,7 +140,7 @@ void SPHManager::taskAsyncupdate( float32 dt )
     atomicGetCollisionSet()->copyRigitsToGPU();
 
     for(uint32 i=0; i<m_current_fluid_task; ++i) {
-        m_fluid_tasks[i]->join();
+        m_fluid_tasks[i]->wait();
         const thrust::host_vector<sphFluidParticle> &fluid = static_cast<ComputeFluidParticle*>(m_fluid_tasks[i])->getData();
         m_fluid.insert(m_fluid.end(), fluid.begin(), fluid.end());
     }
@@ -168,7 +168,7 @@ void SPHManager::addFluid(PSET_RID psid, const mat4 &t)
     }
     ComputeFluidParticle *task = static_cast<ComputeFluidParticle*>(m_fluid_tasks[m_current_fluid_task++]);
     task->setup(psid, t);
-    task->kick();
+    TaskScheduler::getInstance()->enqueue(task);
 }
 
 } // namespace atomic
