@@ -9,7 +9,6 @@
 #include "Base/Variant.h"
 #include "Base/Assert.h"
 #include "Base/BinaryStream.h"
-#include "Base/TaskScheduler.h"
 #include "Base/FileLoader.h"
 #include "Base/Serialize.h"
 

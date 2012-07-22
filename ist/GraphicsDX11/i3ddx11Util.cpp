@@ -6,6 +6,7 @@
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <ctime>
 #include "i3ddx11Device.h"
 #include "i3ddx11Shader.h"
 #include "i3ddx11Util.h"

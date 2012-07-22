@@ -20,6 +20,7 @@
 #endif // _DEBUG
 
 #include "Base.h"
+#include "Concurrency.h"
 #include "Math.h"
 #include "Graphics.h"
 #include "GraphicsUtil.h"

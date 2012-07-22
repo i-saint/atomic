@@ -7,6 +7,7 @@
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <ctime>
 
 namespace ist {
 namespace i3dgl {
