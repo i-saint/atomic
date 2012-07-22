@@ -26,10 +26,9 @@ public:
     };
 
     enum State {
-        State_Initialized,
+        State_Completed,
         State_Ready,
         State_Running,
-        State_Completed,
     };
 
 public:

@@ -40,10 +40,7 @@ World::World()
     m_vfx = istNew(VFXSet)();
     m_modules.push_back(m_vfx);
 
-    m_module_update_tasks.push_back( istNew(ModuleUpdateTask)(this) );
-    m_module_update_tasks.push_back( istNew(ModuleUpdateTask)(m_collision_set) );
-    m_module_update_tasks.push_back( istNew(ModuleUpdateTask)(m_entity_set) );
-    m_module_update_tasks.push_back( istNew(ModuleUpdateTask)(m_sph) );
+    m_module_asyncupdates.resize( m_modules.size() );
 
     const uvec2 &wsize = atomicGetWindowSize();
     m_camera.setAspect((float32)wsize.x/(float32)wsize.y);
@@ -51,9 +48,7 @@ World::World()
 
 World::~World()
 {
-    for(ModuleUpdateTaskCont::reverse_iterator i=m_module_update_tasks.rbegin(); i<m_module_update_tasks.rend(); ++i) {
-        istDelete(*i);
-    }
+    m_module_asyncupdates.clear();
     for(ModuleCont::reverse_iterator i=m_modules.rbegin(); i!=m_modules.rend(); ++i) {
         istDelete(*i);
     }
@@ -92,15 +87,16 @@ void World::update(float32 dt)
 
 void World::asyncupdateBegin(float32 dt)
 {
-    for(uint32 i=0; i<m_module_update_tasks.size(); ++i) {
-        m_module_update_tasks[i]->setArg(dt);
+    for(uint32 i=0; i<m_module_asyncupdates.size(); ++i) {
+        m_module_asyncupdates[i].start(&IAtomicGameModule::asyncupdate, *m_modules[i], dt);
     }
-    ist::EnqueueTasks(&m_module_update_tasks[0], m_module_update_tasks.size());
 }
 
 void World::asyncupdateEnd()
 {
-    ist::WaitTasks(&m_module_update_tasks[0], m_module_update_tasks.size());
+    for(uint32 i=0; i<m_module_asyncupdates.size(); ++i) {
+        m_module_asyncupdates[i].wait();
+    }
 }
 
 void World::asyncupdate(float32 dt)

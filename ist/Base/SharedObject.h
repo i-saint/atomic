@@ -13,6 +13,8 @@ namespace ist {
         virtual ~SharedObject() {}
         void incrementReferenceCount() { ++m_ref_counter; }
         void decrementReferenceCount() { if(--m_ref_counter==0) { onZeroReference(); } }
+        void setReferenceCount(int32 v) { m_ref_counter=v; }
+        int32 getReferenceCount() const { return m_ref_counter; }
 
     protected:
         virtual void onZeroReference() { istDelete(this); }

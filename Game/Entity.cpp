@@ -132,20 +132,15 @@ void EntitySet::update( float32 dt )
 
 
     // asyncupdate
-    {
-        const uint32 block_size = 128;
-        const uint32 num_entities = m_all.size();
-        const uint32 num_tasks = num_entities / block_size + 1;
-        resizeTasks(num_tasks);
-        for(uint32 i=0; i<num_tasks; ++i) {
-            static_cast<EntityUpdateTask*>(m_tasks[i])->setup(
-                &m_all[0]+block_size*i,
-                &m_all[0]+stl::min(block_size*(i+1), num_entities),
-                dt);
-        }
-        ist::EnqueueTasks(&m_tasks[0], num_tasks);
-        ist::WaitTasks(&m_tasks[0], num_tasks);
-    }
+    ist::parallel_for(
+        size_t(0), m_all.size(), 32,
+        [&](size_t first, size_t last) {
+            for(size_t i=first; i!=last; ++i) {
+                if(IEntity *e=getEntity(m_all[i])) {
+                    e->asyncupdate(dt);
+                }
+            }
+        });
 }
 
 void EntitySet::asyncupdate(float32 dt)

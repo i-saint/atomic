@@ -9,7 +9,7 @@ namespace ist {
 
 Task::Task()
     : m_priority(Task::Priority_Default)
-    , m_state(State_Initialized)
+    , m_state(State_Completed)
 {}
 
 Task::~Task()
