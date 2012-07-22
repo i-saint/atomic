@@ -6,5 +6,7 @@
 #include "Concurrency/ThreadUtil.h"
 #include "Concurrency/TaskScheduler.h"
 #include "Concurrency/TaskUtil.h"
+#include "Concurrency/AsyncFunction.h"
+#include "Concurrency/ParallelAlgorithm.h"
 
 #endif // __ist_Concurrency__

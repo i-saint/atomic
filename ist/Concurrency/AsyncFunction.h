@@ -28,7 +28,7 @@ struct ArgHolder
 {
     ArgHolder() {}
     ArgHolder(Arg v) : m_value(v) {}
-    Arg operator Arg() const { return m_value; }
+    operator Arg() const { return m_value; }
     Arg m_value;
 };
 template<class Arg>
@@ -36,7 +36,7 @@ struct ArgHolder<const Arg>
 {
     ArgHolder() {}
     ArgHolder(const Arg v) : m_value(v) {}
-    const Arg operator Arg() const { return m_value; }
+    operator Arg() const { return m_value; }
     Arg m_value;
 };
 template<class Arg>
@@ -44,7 +44,7 @@ struct ArgHolder<Arg&>
 {
     ArgHolder() {}
     ArgHolder(Arg &v) : m_value(&v) {}
-    Arg& operator Arg() const { return *m_value; }
+    operator Arg() const { return *m_value; }
     Arg *m_value;
 };
 template<class Arg>
@@ -52,7 +52,7 @@ struct ArgHolder<const Arg&>
 {
     ArgHolder() {}
     ArgHolder(const Arg &v) : m_value(&v) {}
-    const Arg& operator Arg() const { return *m_value; }
+    operator Arg() const { return *m_value; }
     const Arg *m_value;
 };
 
@@ -68,7 +68,7 @@ public:
 
     AsyncFunction() {}
     AsyncFunction(Func f) { start(f); }
-    void start(Func f) { m_func=f; start(); }
+    void start(Func f) { m_func=f; AsyncFunctionBase::start(); }
     void exec() { m_ret=m_func(); }
     Ret getValue() { wait(); return m_ret; }
 private:
@@ -81,12 +81,11 @@ class AsyncFunction<> : public AsyncFunctionBase
 {
 public:
     typedef void (*Func)();
-    typedef ArgHolder<Ret> RetH;
 
     AsyncFunction() {}
     AsyncFunction(Func f) { start(f); }
-    void start(Func f) { m_func=f; start(); }
-    void exec() { m_ret=m_func(); }
+    void start(Func f) { m_func=f; AsyncFunctionBase::start(); }
+    void exec() { m_func(); }
     void getValue() { wait(); }
 private:
     Func m_func;
@@ -103,13 +102,12 @@ public:
 
     AsyncFunction() {}
     AsyncFunction(Func f, Arg1 a1) { start(f, a1); }
-    void start(Func f, Arg1 a1) { m_func=f; m_arg=a1; start(); }
+    void start(Func f, Arg1 a1) { m_func=f; m_arg=a1; AsyncFunctionBase::>start(); }
     void exec() { m_ret=m_func(m_arg1); }
     Ret getValue() { wait(); return m_ret; }
 private:
     Func m_func;
-    RetH m_ret;
-    Arg1H m_arg1;
+    RetH m_ret; Arg1H m_arg1;
 };
 
 template<class Arg1>
@@ -121,7 +119,7 @@ public:
 
     AsyncFunction() {}
     AsyncFunction(Func f, Arg1 a1) { start(f, a1); }
-    void start(Func f, Arg1 a1) { m_func=f; m_arg=a1; start(); }
+    void start(Func f, Arg1 a1) { m_func=f; m_arg=a1; AsyncFunctionBase::start(); }
     void exec() { m_func(m_arg1); }
     void getValue() { wait(); }
 private:
@@ -140,7 +138,7 @@ public:
 
     AsyncMethod() {}
     AsyncMethod(Func f, Class &o) { start(f, o); }
-    void start(Func f, Class &o) { m_func=f; m_obj=&o; start(); }
+    void start(Func f, Class &o) { m_func=f; m_obj=&o; AsyncFunctionBase::start(); }
     void exec() { m_ret=(m_obj->*m_func)(); }
     Ret getValue() { wait(); return m_ret; }
 private:
@@ -157,12 +155,51 @@ public:
 
     AsyncMethod() {}
     AsyncMethod(Func f, Class &o) { start(f, o); }
-    void start(Func f, Class &o) { m_func=f; m_obj=&o; start(); }
+    void start(Func f, Class &o) { m_func=f; m_obj=&o; AsyncFunctionBase::start(); }
     void exec() { (m_obj->*m_func)(); }
     void getValue() { wait(); }
 private:
     Func m_func;
     Class *m_obj;
+};
+
+
+// async method: arg 1
+template<class Class, class Ret, class Arg1>
+class AsyncMethod<Class, Ret, Arg1> : public AsyncFunctionBase
+{
+public:
+    typedef Ret (Class::*Func)(Arg1);
+    typedef ArgHolder<Ret> RetH;
+    typedef ArgHolder<Arg1> Arg1H;
+
+    AsyncMethod() {}
+    AsyncMethod(Func f, Class &o, Arg1 a1) { start(f, o, a1); }
+    void start(Func f, Class &o, Arg1 a1) { m_func=f; m_obj=&o; m_arg1=a1; AsyncFunctionBase::start(); }
+    void exec() { m_ret=(m_obj->*m_func)(m_arg1); }
+    Ret getValue() { wait(); return m_ret; }
+private:
+    Func m_func;
+    Class *m_obj;
+    RetH m_ret; Arg1H m_arg1;
+};
+
+template<class Class, class Arg1>
+class AsyncMethod<Class, void, Arg1> : public AsyncFunctionBase
+{
+public:
+    typedef void (Class::*Func)(Arg1);
+    typedef ArgHolder<Arg1> Arg1H;
+
+    AsyncMethod() {}
+    AsyncMethod(Func f, Class &o, Arg1 a1) { start(f, o, a1); }
+    void start(Func f, Class &o, Arg1 a1) { m_func=f; m_obj=&o; m_arg1=a1; AsyncFunctionBase::start(); }
+    void exec() { (m_obj->*m_func)(m_arg1); }
+    void getValue() { wait(); }
+private:
+    Func m_func;
+    Class *m_obj;
+    Arg1H m_arg1;
 };
 
 
@@ -176,7 +213,7 @@ public:
 
     AsyncConstMethod() {}
     AsyncConstMethod(Func f, const Class &o) { start(f, o); }
-    void start(Func f, const Class &o) { m_func=f; m_obj=&o; start(); }
+    void start(Func f, const Class &o) { m_func=f; m_obj=&o; AsyncFunctionBase::start(); }
     void exec() { m_ret=(m_obj->*m_func)(); }
     Ret getValue() { wait(); return m_ret; }
 private:
@@ -193,13 +230,53 @@ public:
 
     AsyncConstMethod() {}
     AsyncConstMethod(Func f, const Class &o) { start(f, o); }
-    void start(Func f, const Class &o) { m_func=f; m_obj=&o; start(); }
+    void start(Func f, const Class &o) { m_func=f; m_obj=&o; AsyncFunctionBase::start(); }
     void exec() { (m_obj->*m_func)(); }
     void getValue() { wait(); }
 private:
     Func m_func;
     const Class *m_obj;
 };
+
+
+// async const method: arg 1
+template<class Class, class Ret, class Arg1>
+class AsyncConstMethod<Class, Ret, Arg1> : public AsyncFunctionBase
+{
+public:
+    typedef Ret (Class::*Func)(Arg1) const;
+    typedef ArgHolder<Ret> RetH;
+    typedef ArgHolder<Arg1> Arg1H;
+
+    AsyncConstMethod() {}
+    AsyncConstMethod(Func f, const Class &o, Arg1 a1) { start(f, o, a1); }
+    void start(Func f, const Class &o, Arg1 a1) { m_func=f; m_obj=&o; m_arg1=a1; AsyncFunctionBase::start(); }
+    void exec() { m_ret=(m_obj->*m_func)(m_arg1); }
+    Ret getValue() { wait(); return m_ret; }
+private:
+    Func m_func;
+    const Class *m_obj;
+    RetH m_ret; Arg1H m_arg1;
+};
+
+template<class Class, class Arg1>
+class AsyncConstMethod<Class, void, Arg1> : public AsyncFunctionBase
+{
+public:
+    typedef void (Class::*Func)(Arg1) const;
+    typedef ArgHolder<Arg1> Arg1H;
+
+    AsyncConstMethod() {}
+    AsyncConstMethod(Func f, const Class &o, Arg1 a1) { start(f, o, a1); }
+    void start(Func f, const Class &o, Arg1 a1) { m_func=f; m_obj=&o; m_arg1=a1; AsyncFunctionBase::start(); }
+    void exec() { (m_obj->*m_func)(m_arg1); }
+    void getValue() { wait(); }
+private:
+    Func m_func;
+    const Class *m_obj;
+    Arg1H m_arg1;
+};
+
 
 
 } // namespace ist
