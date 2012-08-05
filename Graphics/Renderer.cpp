@@ -16,12 +16,8 @@ AtomicRenderer* AtomicRenderer::s_inst = NULL;
 
 void AtomicRenderer::initializeInstance()
 {
-    if(!s_inst) {
-        s_inst = istNew(AtomicRenderer) ();
-    }
-    else {
-        istAssert("already initialized");
-    }
+    istAssert(s_inst==NULL, "already initialized");
+    s_inst = istNew(AtomicRenderer) ();
 }
 
 void AtomicRenderer::finalizeInstance()

@@ -13,9 +13,7 @@ namespace atomic {
 
     void CudaBuffer::setCapacity( uint32 byte )
     {
-        if(m_host_buf!=NULL) {
-            istAssert("re-allocation is not supported.\n");
-        }
+        istAssert(m_host_buf==NULL, "re-allocation is not supported.\n");
         m_capacity = byte;
         m_host_buf = istAlignedMalloc(m_capacity, 16);
         cudaMalloc(&m_device_buf, m_capacity);
@@ -28,9 +26,7 @@ namespace atomic {
 
     void CudaBuffer::copyHostToDevice( uint32 byte )
     {
-        if(byte > m_capacity) {
-            istAssert("max capacity exceeded.\n");
-        }
+        istAssert(byte<=m_capacity, "max capacity exceeded.\n");
         cudaMemcpy(m_device_buf, m_host_buf, byte, cudaMemcpyHostToDevice);
     }
 

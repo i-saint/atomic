@@ -38,7 +38,7 @@ void* Buffer::map(I3D_MAP_MODE mode)
 {
     glBindBuffer(m_desc.type, m_handle);
     void *r = glMapBuffer(m_desc.type, mode);
-    if(r==NULL) { istAssert("BufferObject::map() failed\n"); }
+    istAssert(r!=NULL, "BufferObject::map() failed\n");
     glBindBuffer(m_desc.type, 0);
     return r;
 }

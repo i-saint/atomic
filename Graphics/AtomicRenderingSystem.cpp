@@ -109,7 +109,9 @@ void AtomicRenderingThread::exec()
         goto finalize_section;
     }
 
+#ifdef istWindows
     wglSwapIntervalEXT(atomicGetConfig()->vsync);
+#endif // istWindows
     GraphicResourceManager::intializeInstance();
     AtomicRenderer::initializeInstance();
     m_cond_initialize_complete.signalOne();

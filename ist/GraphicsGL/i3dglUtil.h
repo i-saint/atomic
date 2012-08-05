@@ -34,7 +34,7 @@ PixelShader*    CreatePixelShaderFromString(Device *dev, const std::string &sour
 template<class BufferObjectType>
 inline bool MapAndWrite(BufferObjectType& bo, const void *data, size_t data_size)
 {
-    if(data_size > bo.getDesc().size) { istAssert("exceeded buffer size.\n"); }
+    istAssert(data_size<=bo.getDesc().size, "exceeded buffer size.\n");
 
     if(void *p = bo.map(I3D_MAP_WRITE)) {
         ::memcpy(p, data, data_size);
@@ -46,7 +46,7 @@ inline bool MapAndWrite(BufferObjectType& bo, const void *data, size_t data_size
 template<class BufferObjectType>
 inline bool MapAndRead(BufferObjectType& bo, void *data, size_t data_size)
 {
-    if(data_size > bo.getDesc().size) { istAssert("exceeded buffer size.\n"); }
+    istAssert(data_size<=bo.getDesc().size, "exceeded buffer size.\n");
 
     if(void *p = bo.map(I3D_MAP_READ)) {
         ::memcpy(data, p, data_size);

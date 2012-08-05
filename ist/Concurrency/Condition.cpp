@@ -24,7 +24,7 @@ namespace ist {
     void Condition::signalOne()
     {
         BOOL r = ::SetEvent(m_lockobj);
-        if(r!=TRUE) { istAssert("Condition::signalOne()"); }
+        istAssert(r==TRUE, "Condition::signalOne()");
     }
 
     void Condition::signalAll()

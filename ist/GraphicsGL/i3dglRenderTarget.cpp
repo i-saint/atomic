@@ -27,7 +27,7 @@ bool DetectGLFormat(I3D_COLOR_FORMAT fmt, GLint &internal_format, GLint &format,
     case I3D_DEPTH24_STENCIL8:    internal_format=GL_DEPTH24_STENCIL8;  format=GL_DEPTH_STENCIL; type=GL_UNSIGNED_INT_24_8; break;
     case I3D_DEPTH32F_STENCIL8:   internal_format=GL_DEPTH32F_STENCIL8; format=GL_DEPTH_STENCIL; type=GL_FLOAT_32_UNSIGNED_INT_24_8_REV; break;
     default:
-        istAssert("unknown format: %d", fmt);
+        istAssert(false, "unknown format: %d", fmt);
         return false;
     }
     return true;

@@ -149,7 +149,7 @@ Texture2D::~Texture2D()
 void Texture2D::copy(uint32 mip_level, const uvec2 &pos, const uvec2 &size, I3D_COLOR_FORMAT fmt, void *data)
 {
     if(size.x-pos.x > m_desc.size.x || size.y-pos.y > m_desc.size.y) {
-        istAssert("exceeded texture size.\n");
+        istAssert(false, "exceeded texture size.\n");
     }
     GLint internal_format = 0;
     GLint format = 0;
@@ -225,7 +225,7 @@ Texture3D::~Texture3D()
 void Texture3D::copy(uint32 mip_level, const uvec3 &pos, const uvec3 &size, I3D_COLOR_FORMAT fmt, void *data)
 {
     if(size.x-pos.x > m_desc.size.x || size.y-pos.y > m_desc.size.y || size.z-pos.z > m_desc.size.z) {
-        istAssert("exceeded texture size.\n");
+        istAssert(false, "exceeded texture size.\n");
     }
     GLint internal_format = 0;
     GLint format = 0;

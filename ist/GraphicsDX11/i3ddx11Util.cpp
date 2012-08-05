@@ -26,7 +26,7 @@ bool CreateTexture2DFromFile(Texture2D& tex, const char *filename)
 
 bool CreateTexture2DFromStream(Texture2D& tex, std::istream& st)
 {
-    istAssert("not implemented");
+    istAssert(false, "not implemented");
     return false;
 }
 
@@ -71,7 +71,7 @@ bool GenerateRandomTexture(Texture2D &tex, const uvec2 &size, I3D_COLOR_FORMAT f
         }
     }
     else {
-        istAssert("–¢ŽÀ‘•");
+        istAssert(false, "not implemented");
     }
 
     bool ret =  tex.allocate(size, format, &buffer[0]);

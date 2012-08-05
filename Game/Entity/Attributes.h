@@ -446,7 +446,7 @@ public:
         switch(cs) {
         case CS_BOX:    ce = atomicCreateCollision(CollisionBox);   break;
         case CS_SPHERE: ce = atomicCreateCollision(CollisionSphere);break;
-        default: istAssert("unknown collision shape\n"); return;
+        default: istAssert(false, "unknown collision shape\n"); return;
         }
         ce->setGObjHandle(m_owner_handle);
         m_collision = ce->getCollisionHandle();

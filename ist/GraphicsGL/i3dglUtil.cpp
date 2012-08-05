@@ -24,7 +24,7 @@ Texture2D* CreateTexture2DFromFile(Device *dev, const char *filename)
 
 Texture2D* CreateTexture2DFromStream(Device *dev, std::istream& st)
 {
-    istAssert("not implemented");
+    istAssert(false, "not implemented");
     return false;
 }
 
@@ -69,7 +69,7 @@ Texture2D* GenerateRandomTexture(Device *dev, const uvec2 &size, I3D_COLOR_FORMA
         }
     }
     else {
-        istAssert("–¢ŽÀ‘•");
+        istAssert(false, "not implemented");
     }
 
     Texture2DDesc desc = Texture2DDesc(format, size, 0, &buffer[0]);

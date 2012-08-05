@@ -104,7 +104,7 @@ AtomicApplication::AtomicApplication()
     : m_request_exit(false)
     , m_game(NULL)
 {
-    if(g_appinst) { istAssert("already initialized"); }
+    istAssert(g_appinst==NULL, "already initialized");
     g_appinst = this;
 
 }
