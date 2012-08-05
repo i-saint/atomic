@@ -75,7 +75,7 @@ EntitySet::EntitySet()
 
 EntitySet::~EntitySet()
 {
-    for(uint32 i=0; i<ECID_END; ++i) {
+    for(uint32 i=0; i<ECID_End; ++i) {
         for(uint32 j=0; j<ESID_MAX; ++j) {
             EntityCont &entities = m_entities[i][j];
             uint32 s = entities.size();
@@ -149,7 +149,7 @@ void EntitySet::asyncupdate(float32 dt)
 
 void EntitySet::draw()
 {
-    for(uint32 i=0; i<ECID_END; ++i) {
+    for(uint32 i=0; i<ECID_End; ++i) {
         for(uint32 j=0; j<ESID_MAX; ++j) {
             EntityCont &entities = m_entities[i][j];
             uint32 s = entities.size();

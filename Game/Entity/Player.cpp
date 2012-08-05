@@ -35,27 +35,25 @@ private:
     vec4 m_lightvel[1];
 
 public:
-    IST_INTROSPECTION(
-        IST_NAME(Player)
-        IST_SUPER(super)
-        IST_SUPER(transform)
-        IST_MEMBER(m_vel)
-        IST_MEMBER(m_cooldown)
-        IST_MEMBER(m_collision)
-        IST_MEMBER(m_barrier)
-        IST_MEMBER(m_lightpos)
-        IST_MEMBER(m_lightvel)
-        )
-
-    bool call(uint32 call_id, const variant &v)
-    {
-        return super::call(call_id, v) || transform::call(call_id, v);
-    }
-
-    bool query(uint32 query_id, variant &v) const
-    {
-        return super::query(query_id, v) || transform::query(query_id, v);
-    }
+    istIntrospectionBlock(
+        istName(Player)
+        istSuper(super)
+        istSuper(transform)
+        istMember(m_vel)
+        istMember(m_cooldown)
+        istMember(m_collision)
+        istMember(m_barrier)
+        istMember(m_lightpos)
+        istMember(m_lightvel)
+    )
+    atomicECallBlock(
+        atomicECallSuper(super)
+        atomicECallSuper(transform)
+    )
+    atomicEQueryBlock(
+        atomicEQuerySuper(super)
+        atomicEQuerySuper(transform)
+    )
 
 public:
     Player() : m_cooldown(0)
@@ -200,6 +198,6 @@ public:
     }
 };
 
-atomicImplementEntity(Player, ECID_PLAYER, ESID_PLAYER);
+atomicImplementEntity(Player, ECID_Player);
 
 } // namespace atomic

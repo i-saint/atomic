@@ -381,6 +381,6 @@ public:
     }
 };
 
-atomicImplementEntity(Level_Test, ECID_LEVEL, ESID_LEVEL_TEST);
+atomicImplementEntity(Level_Test, ECID_Level);
 
 } // namespace atomic

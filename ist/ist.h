@@ -19,6 +19,7 @@
 #pragma comment(lib, "ist.lib")
 #endif // _DEBUG
 
+#include "Config.h"
 #include "Base.h"
 #include "Concurrency.h"
 #include "Math.h"

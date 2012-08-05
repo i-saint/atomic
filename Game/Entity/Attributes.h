@@ -18,20 +18,20 @@ protected:
     void setRefCount(uint32 v) { m_ref_count=v; }
 
 public:
-    IST_INTROSPECTION(
-        IST_NAME(Attr_RefCount)
-        IST_MEMBER(m_ref_count)
+    istIntrospectionBlock(
+        istName(Attr_RefCount)
+        istMember(m_ref_count)
     )
-    DEFINE_CALLS(
-        METHODS(
-        DEFINE_ECALL(setRefCount)
-        DEFINE_ECALL(addRefCount)
-        DEFINE_ECALL(release)
+    atomicECallBlock(
+        atomicMethodBlock(
+        atomicECall(setRefCount)
+        atomicECall(addRefCount)
+        atomicECall(release)
         )
     )
-    DEFINE_QUERIES(
-        METHODS(
-        DEFINE_EQUERY(getRefCount)
+    atomicEQueryBlock(
+        atomicMethodBlock(
+        atomicEQuery(getRefCount)
         )
     )
 
@@ -50,18 +50,18 @@ protected:
     vec4 m_pos;
 
 public:
-    IST_INTROSPECTION(
-        IST_NAME(Attr_Translate)
-        IST_MEMBER(m_pos)
+    istIntrospectionBlock(
+        istName(Attr_Translate)
+        istMember(m_pos)
     )
-    DEFINE_CALLS(
-        METHODS(
-        DEFINE_ECALL(setPosition)
+    atomicECallBlock(
+        atomicMethodBlock(
+        atomicECall(setPosition)
         )
     )
-    DEFINE_QUERIES(
-        METHODS(
-        DEFINE_EQUERY(getPosition)
+    atomicEQueryBlock(
+        atomicMethodBlock(
+        atomicEQuery(getPosition)
         )
     )
 
@@ -88,27 +88,27 @@ private:
     float32 m_rot;
 
 public:
-    IST_INTROSPECTION(
-        IST_NAME(Attr_Transform)
-        IST_MEMBER(m_pos)
-        IST_MEMBER(m_scale)
-        IST_MEMBER(m_axis)
-        IST_MEMBER(m_rot)
+    istIntrospectionBlock(
+        istName(Attr_Transform)
+        istMember(m_pos)
+        istMember(m_scale)
+        istMember(m_axis)
+        istMember(m_rot)
     )
-    DEFINE_CALLS(
-        METHODS(
-        DEFINE_ECALL(setPosition)
-        DEFINE_ECALL(setScale)
-        DEFINE_ECALL(setAxis)
-        DEFINE_ECALL(setRotate)
+    atomicECallBlock(
+        atomicMethodBlock(
+        atomicECall(setPosition)
+        atomicECall(setScale)
+        atomicECall(setAxis)
+        atomicECall(setRotate)
         )
     )
-    DEFINE_QUERIES(
-        METHODS(
-        DEFINE_EQUERY(getPosition)
-        DEFINE_EQUERY(getScale)
-        DEFINE_EQUERY(getAxis)
-        DEFINE_EQUERY(getRotate)
+    atomicEQueryBlock(
+        atomicMethodBlock(
+        atomicEQuery(getPosition)
+        atomicEQuery(getScale)
+        atomicEQuery(getAxis)
+        atomicEQuery(getRotate)
         )
     )
 
@@ -154,33 +154,33 @@ private:
     float32 m_rot2;
 
 public:
-    IST_INTROSPECTION(
-        IST_NAME(Attr_DoubleAxisRotation)
-        IST_MEMBER(m_pos)
-        IST_MEMBER(m_scale)
-        IST_MEMBER(m_axis1)
-        IST_MEMBER(m_axis2)
-        IST_MEMBER(m_rot1)
-        IST_MEMBER(m_rot2)
+    istIntrospectionBlock(
+        istName(Attr_DoubleAxisRotation)
+        istMember(m_pos)
+        istMember(m_scale)
+        istMember(m_axis1)
+        istMember(m_axis2)
+        istMember(m_rot1)
+        istMember(m_rot2)
     )
-    DEFINE_CALLS(
-        METHODS(
-        DEFINE_ECALL(setPosition)
-        DEFINE_ECALL(setScale)
-        DEFINE_ECALL(setAxis1)
-        DEFINE_ECALL(setAxis2)
-        DEFINE_ECALL(setRotate1)
-        DEFINE_ECALL(setRotate2)
+    atomicECallBlock(
+        atomicMethodBlock(
+        atomicECall(setPosition)
+        atomicECall(setScale)
+        atomicECall(setAxis1)
+        atomicECall(setAxis2)
+        atomicECall(setRotate1)
+        atomicECall(setRotate2)
         )
     )
-    DEFINE_QUERIES(
-        METHODS(
-        DEFINE_EQUERY(getPosition)
-        DEFINE_EQUERY(getScale)
-        DEFINE_EQUERY(getAxis1)
-        DEFINE_EQUERY(getAxis2)
-        DEFINE_EQUERY(getRotate1)
-        DEFINE_EQUERY(getRotate2)
+    atomicEQueryBlock(
+        atomicMethodBlock(
+        atomicEQuery(getPosition)
+        atomicEQuery(getScale)
+        atomicEQuery(getAxis1)
+        atomicEQuery(getAxis2)
+        atomicEQuery(getRotate1)
+        atomicEQuery(getRotate2)
         )
     )
 
@@ -228,25 +228,25 @@ private:
     float32 m_rspeed2;
 
 public:
-    IST_INTROSPECTION(
-        IST_NAME(TAttr_RotateSpeed)
-        IST_SUPER(super)
-        IST_MEMBER(m_rspeed1)
-        IST_MEMBER(m_rspeed2)
+    istIntrospectionBlock(
+        istName(TAttr_RotateSpeed)
+        istSuper(super)
+        istMember(m_rspeed1)
+        istMember(m_rspeed2)
     )
-    DEFINE_CALLS(
-        METHODS(
-        DEFINE_ECALL(setRotateSpeed1)
-        DEFINE_ECALL(setRotateSpeed2)
+    atomicECallBlock(
+        atomicMethodBlock(
+        atomicECall(setRotateSpeed1)
+        atomicECall(setRotateSpeed2)
         )
-        DEFINE_ECALL_SUPER(super)
+        atomicECallSuper(super)
     )
-    DEFINE_QUERIES(
-        METHODS(
-        DEFINE_EQUERY(getRotateSpeed1)
-        DEFINE_EQUERY(getRotateSpeed2)
+    atomicEQueryBlock(
+        atomicMethodBlock(
+        atomicEQuery(getRotateSpeed1)
+        atomicEQuery(getRotateSpeed2)
         )
-        DEFINE_EQUERY_SUPER(super)
+        atomicEQuerySuper(super)
     )
 
 public:
@@ -275,10 +275,10 @@ private:
     mat4 m_transform;
 
 public:
-    IST_INTROSPECTION(
-        IST_NAME(TAttr_TransformMatrix)
-        IST_SUPER(super)
-        IST_MEMBER(m_transform)
+    istIntrospectionBlock(
+        istName(TAttr_TransformMatrix)
+        istSuper(super)
+        istMember(m_transform)
     )
 
     const mat4& getTransform() const    { return m_transform; }
@@ -301,11 +301,11 @@ private:
     mat4 m_itransform;
 
 public:
-    IST_INTROSPECTION(
-        IST_NAME(TAttr_TransformMatrixI)
-        IST_SUPER(super)
-        IST_MEMBER(m_transform)
-        IST_MEMBER(m_itransform)
+    istIntrospectionBlock(
+        istName(TAttr_TransformMatrixI)
+        istSuper(super)
+        istMember(m_transform)
+        istMember(m_itransform)
     )
 
 public:
@@ -336,24 +336,24 @@ private:
     PSET_RID m_psetid;
 
 public:
-    IST_INTROSPECTION(
-        IST_NAME(Attr_ParticleSet)
-        IST_MEMBER(m_diffuse_color)
-        IST_MEMBER(m_glow_color)
-        IST_MEMBER(m_psetid)
+    istIntrospectionBlock(
+        istName(Attr_ParticleSet)
+        istMember(m_diffuse_color)
+        istMember(m_glow_color)
+        istMember(m_psetid)
     )
-    DEFINE_CALLS(
-        METHODS(
-        DEFINE_ECALL(setDiffuseColor)
-        DEFINE_ECALL(setGlowColor)
-        DEFINE_ECALL(setModel)
+    atomicECallBlock(
+        atomicMethodBlock(
+        atomicECall(setDiffuseColor)
+        atomicECall(setGlowColor)
+        atomicECall(setModel)
         )
     )
-    DEFINE_QUERIES(
-        METHODS(
-        DEFINE_EQUERY(getDiffuseColor)
-        DEFINE_EQUERY(getGlowColor)
-        DEFINE_EQUERY(getModel)
+    atomicEQueryBlock(
+        atomicMethodBlock(
+        atomicEQuery(getDiffuseColor)
+        atomicEQuery(getGlowColor)
+        atomicEQuery(getModel)
         )
     )
 
@@ -378,21 +378,21 @@ private:
     EntityHandle m_owner_handle;
 
 public:
-    IST_INTROSPECTION(
-        IST_NAME(Attr_Collision)
-        IST_MEMBER(m_collision)
-        IST_MEMBER(m_owner_handle)
+    istIntrospectionBlock(
+        istName(Attr_Collision)
+        istMember(m_collision)
+        istMember(m_owner_handle)
     )
-    DEFINE_CALLS(
-        METHODS(
-        DEFINE_ECALL(setCollisionFlags)
-        DEFINE_ECALL(setCollisionShape)
+    atomicECallBlock(
+        atomicMethodBlock(
+        atomicECall(setCollisionFlags)
+        atomicECall(setCollisionShape)
         )
     )
-    DEFINE_QUERIES(
-        METHODS(
-        DEFINE_EQUERY(getCollisionFlags)
-        DEFINE_EQUERY(getCollisionHandle)
+    atomicEQueryBlock(
+        atomicMethodBlock(
+        atomicEQuery(getCollisionFlags)
+        atomicEQuery(getCollisionHandle)
         )
     )
 
@@ -504,16 +504,16 @@ class Attr_MessageHandler
 {
 typedef Attr_MessageHandler this_t;
 public:
-    IST_INTROSPECTION(
-        IST_NAME(Attr_MessageHandler)
+    istIntrospectionBlock(
+        istName(Attr_MessageHandler)
     )
-    DEFINE_CALLS(
-        METHODS(
-        DEFINE_ECALL(eventCollide)
-        DEFINE_ECALL(eventFluid)
-        DEFINE_ECALL(eventDamage)
-        DEFINE_ECALL(eventDestroy)
-        DEFINE_ECALL(eventKill)
+    atomicECallBlock(
+        atomicMethodBlock(
+        atomicECall(eventCollide)
+        atomicECall(eventFluid)
+        atomicECall(eventDamage)
+        atomicECall(eventDestroy)
+        atomicECall(eventKill)
         )
     )
 
@@ -538,10 +538,10 @@ private:
     uint32 m_bloodstain_hitcount;
 
 public:
-    IST_INTROSPECTION(
-        IST_NAME(Attr_Bloodstain)
-        IST_MEMBER(m_bloodstain)
-        IST_MEMBER(m_bloodstain_hitcount)
+    istIntrospectionBlock(
+        istName(Attr_Bloodstain)
+        istMember(m_bloodstain)
+        istMember(m_bloodstain_hitcount)
     )
 
 public:

@@ -1,9 +1,12 @@
 #ifndef __ist_Base_ClassInfo__
 #define __ist_Base_ClassInfo__
+
+#include "ist/Base/Decl.h"
+
 namespace ist {
 
     template<class T>
-    struct ClassInfo
+    struct istInterModule ClassInfo
     {
         static int getClassID();
         static const char* getClassName();

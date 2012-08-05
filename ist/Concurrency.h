@@ -2,8 +2,9 @@
 #define __ist_Concurrency__
 
 #include "Concurrency/Atomic.h"
-#include "Concurrency/SpinMutex.h"
-#include "Concurrency/ThreadUtil.h"
+#include "Concurrency/Mutex.h"
+#include "Concurrency/Condition.h"
+#include "Concurrency/Thread.h"
 #include "Concurrency/TaskScheduler.h"
 #include "Concurrency/TaskUtil.h"
 #include "Concurrency/AsyncFunction.h"

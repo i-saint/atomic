@@ -34,23 +34,23 @@ private:
     EntityHandle m_owner;
 
 public:
-    DEFINE_CALLS(
-        METHODS(
-        DEFINE_ECALL(setOwner)
-        DEFINE_ECALL(setDirection)
-        DEFINE_ECALL(setSpeed)
+    atomicECallBlock(
+        atomicMethodBlock(
+        atomicECall(setOwner)
+        atomicECall(setDirection)
+        atomicECall(setSpeed)
         )
-        DEFINE_ECALL_SUPER(super)
-        DEFINE_ECALL_SUPER(transform)
+        atomicECallSuper(super)
+        atomicECallSuper(transform)
     )
-    DEFINE_QUERIES(
-        METHODS(
-        DEFINE_EQUERY(getOwner)
-        DEFINE_EQUERY(getDirection)
-        DEFINE_EQUERY(getSpeed)
+    atomicEQueryBlock(
+        atomicMethodBlock(
+        atomicEQuery(getOwner)
+        atomicEQuery(getDirection)
+        atomicEQuery(getSpeed)
         )
-        DEFINE_EQUERY_SUPER(super)
-        DEFINE_EQUERY_SUPER(transform)
+        atomicEQuerySuper(super)
+        atomicEQuerySuper(transform)
     )
 
 public:
@@ -86,7 +86,7 @@ public:
     {
     }
 };
-atomicImplementEntity(Bullet_Laser, ECID_BULLET, ESID_BULLET_LASER);
+atomicImplementEntity(Bullet_Laser, ECID_Bullet);
 
 
 class Bullet_Particle
@@ -108,24 +108,24 @@ private:
     int32           m_lifetime;
 
 public:
-    DEFINE_CALLS(
-        METHODS(
-        DEFINE_ECALL(setOwner)
-        DEFINE_ECALL(setVelocity)
-        DEFINE_ECALL(setPower)
+    atomicECallBlock(
+        atomicMethodBlock(
+        atomicECall(setOwner)
+        atomicECall(setVelocity)
+        atomicECall(setPower)
         )
-        DEFINE_ECALL_SUPER(super)
-        DEFINE_ECALL_SUPER(transform)
-        DEFINE_ECALL_SUPER(mhandler)
+        atomicECallSuper(super)
+        atomicECallSuper(transform)
+        atomicECallSuper(mhandler)
     )
-    DEFINE_QUERIES(
-        METHODS(
-        DEFINE_EQUERY(getOwner)
-        DEFINE_EQUERY(getVelocity)
-        DEFINE_EQUERY(getPower)
+    atomicEQueryBlock(
+        atomicMethodBlock(
+        atomicEQuery(getOwner)
+        atomicEQuery(getVelocity)
+        atomicEQuery(getPower)
         )
-        DEFINE_EQUERY_SUPER(super)
-        DEFINE_EQUERY_SUPER(transform)
+        atomicEQuerySuper(super)
+        atomicEQuerySuper(transform)
     )
 
 public:
@@ -199,7 +199,7 @@ public:
         atomicDeleteEntity(getHandle());
     }
 };
-atomicImplementEntity(Bullet_Particle, ECID_BULLET, ESID_BULLET_PARTICLE);
+atomicImplementEntity(Bullet_Particle, ECID_Bullet);
 
 
 class Bullet_Simple
@@ -223,26 +223,26 @@ private:
     int32           m_lifetime;
 
 public:
-    DEFINE_CALLS(
-        METHODS(
-        DEFINE_ECALL(setOwner)
-        DEFINE_ECALL(setVelocity)
-        DEFINE_ECALL(setPower)
+    atomicECallBlock(
+        atomicMethodBlock(
+        atomicECall(setOwner)
+        atomicECall(setVelocity)
+        atomicECall(setPower)
         )
-        DEFINE_ECALL_SUPER(super)
-        DEFINE_ECALL_SUPER(transform)
-        DEFINE_ECALL_SUPER(model)
-        DEFINE_ECALL_SUPER(mhandler)
+        atomicECallSuper(super)
+        atomicECallSuper(transform)
+        atomicECallSuper(model)
+        atomicECallSuper(mhandler)
     )
-    DEFINE_QUERIES(
-        METHODS(
-        DEFINE_EQUERY(getOwner)
-        DEFINE_EQUERY(getVelocity)
-        DEFINE_EQUERY(getPower)
+    atomicEQueryBlock(
+        atomicMethodBlock(
+        atomicEQuery(getOwner)
+        atomicEQuery(getVelocity)
+        atomicEQuery(getPower)
         )
-        DEFINE_EQUERY_SUPER(super)
-        DEFINE_EQUERY_SUPER(transform)
-        DEFINE_EQUERY_SUPER(model)
+        atomicEQuerySuper(super)
+        atomicEQuerySuper(transform)
+        atomicEQuerySuper(model)
     )
 
 public:
@@ -333,6 +333,6 @@ public:
         atomicDeleteEntity(getHandle());
     }
 };
-atomicImplementEntity(Bullet_Simple, ECID_BULLET, ESID_BULLET_SIMPLE);
+atomicImplementEntity(Bullet_Simple, ECID_Bullet);
 
 } // namespace atomic

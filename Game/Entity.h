@@ -3,18 +3,18 @@
 
 #include "EntityClass.h"
 
-#define atomicImplementEntity(class_name, category_id, class_id)\
+#define atomicImplementEntity(class_name, category_id)\
 class class_name;                                               \
 template<> struct EntityTraits<class_name>                      \
 {                                                               \
     enum {                                                      \
     CATEGORY_ID = category_id,                                  \
-    CLASS_ID = class_id,                                        \
+    CLASS_ID = ESID_##class_name,                                \
     };                                                          \
 };                                                              \
-template<> IEntity* EntitySet::createEntity<class_name>()    \
+template<> IEntity* EntitySet::createEntity<class_name>()       \
 {                                                               \
-    class_name *t = istNew(class_name)();                      \
+    class_name *t = istNew(class_name)();                       \
     typedef EntityTraits<class_name> traits;                    \
     addEntity(traits::CATEGORY_ID, traits::CLASS_ID, t);        \
     return t;                                                   \
@@ -42,8 +42,8 @@ private:
     void setHandle(uint32 h) { m_ehandle=h; }
 
 public:
-    IST_INTROSPECTION(
-        IST_NAME(IEntity)
+    istIntrospectionBlock(
+        istName(IEntity)
     )
 
     // コンストラクタではメンバ変数初期化以外の処理を行なってはならない。他は initialize() で行う。
@@ -95,8 +95,8 @@ public:
     typedef stl::vector<Task*> TaskCont;
 
 private:
-    HandleCont m_vacant[ECID_END][ESID_MAX];
-    EntityCont m_entities[ECID_END][ESID_MAX];
+    HandleCont m_vacant[ECID_End][ESID_MAX];
+    EntityCont m_entities[ECID_End][ESID_MAX];
     EntityCont m_new_entities;
     HandleCont m_all;
     TaskCont m_tasks;

@@ -26,30 +26,30 @@ private:
     int32       m_past_frame;
 
 public:
-    IST_INTROSPECTION(
-        IST_NAME(Breakable)
-        IST_SUPER(IEntity)
-        IST_SUPER(Attr_MessageHandler)
-        IST_MEMBER(m_flash_color)
-        IST_MEMBER(m_routine)
-        IST_MEMBER(m_health)
-        IST_MEMBER(m_delta_damage)
-        IST_MEMBER(m_past_frame)
+    istIntrospectionBlock(
+        istName(Breakable)
+        istSuper(IEntity)
+        istSuper(Attr_MessageHandler)
+        istMember(m_flash_color)
+        istMember(m_routine)
+        istMember(m_health)
+        istMember(m_delta_damage)
+        istMember(m_past_frame)
     )
-    DEFINE_CALLS(
-        DEFINE_ECALL_DELEGATE(m_routine)
-        METHODS(
-        DEFINE_ECALL(setHealth)
-        DEFINE_ECALL(setRoutine)
-        DEFINE_ECALL(damage)
+    atomicECallBlock(
+        atomicECallDelegate(m_routine)
+        atomicMethodBlock(
+        atomicECall(setHealth)
+        atomicECall(setRoutine)
+        atomicECall(damage)
         )
-        DEFINE_ECALL_SUPER(super)
-        DEFINE_ECALL_SUPER(mhandler)
+        atomicECallSuper(super)
+        atomicECallSuper(mhandler)
     )
-    DEFINE_QUERIES(
-        DEFINE_EQUERY_DELEGATE(m_routine)
-        METHODS(
-        DEFINE_EQUERY(getHealth)
+    atomicEQueryBlock(
+        atomicEQueryDelegate(m_routine)
+        atomicMethodBlock(
+        atomicEQuery(getHealth)
         )
     )
 

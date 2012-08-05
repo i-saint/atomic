@@ -6,7 +6,7 @@
 
 namespace ist {
 namespace i3dgl {
-#ifdef _WIN32
+#ifdef istWindows
 
 static const int g_list_base = 0;
 
@@ -44,7 +44,7 @@ void SystemFont::draw(int x, int y, const wchar_t *text)
     glWindowPos2i(x, m_window_height-m_font_height-y);
     glCallLists (len, GL_UNSIGNED_SHORT, text);
 }
-#endif // _WIN32
+#endif // istWindows
 
 } // namespace i3d
 } // namespace ist

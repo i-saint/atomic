@@ -3,11 +3,13 @@
 
 #include <vector>
 #include <deque>
-#include <boost/thread.hpp>
+#include <boost/intrusive_ptr.hpp>
 #include "ist/Base/Types.h"
 #include "ist/Base/SharedObject.h"
 #include "ist/Concurrency/Atomic.h"
-#include "ist/Concurrency/SpinMutex.h"
+#include "ist/Concurrency/Mutex.h"
+#include "ist/Concurrency/Condition.h"
+#include "ist/Concurrency/Thread.h"
 
 
 namespace ist {
@@ -24,7 +26,6 @@ public:
         Priority_Default= 1,
         Priority_Max    = 2,
     };
-
     enum State {
         State_Completed,
         State_Ready,
@@ -44,7 +45,11 @@ public:
     virtual void exec()=0;
 
 protected:
-    virtual void setState(State v) { m_state=v; }
+    /// 継承先でオーバーライドする場合、Task::setState() を呼ぶタイミングに注意。
+    /// setState(State_Completed) した瞬間別のスレッドから破棄される可能性があるため、
+    /// 最初に setState() すると以降の処理で解放済みメモリへのアクセスエラーが発生する可能性がある。
+    /// したがって多くの場合は最後に呼ばないといけない。
+    virtual void setState(State v);
 
 private:
     Priority m_priority;
@@ -55,7 +60,7 @@ private:
 class TaskWorker;
 class TaskStream;
 
-class TaskScheduler
+class istInterModule TaskScheduler
 {
 friend class TaskWorker;
 template<class T> friend T* ::call_destructor(T *v);
@@ -75,15 +80,14 @@ private:
     Task* dequeue();
     void waitForNewTask();
     void advertiseNewTask();
-    atomic_int32 getHungryWorkerCount() { return m_num_hungry_worker.compare_and_swap(m_num_hungry_worker, m_num_hungry_worker); }
+    int32 getHungryWorkerCount() { return m_num_hungry_worker; }
     int32 incrementHungryWorker() { return ++m_num_hungry_worker; }
     int32 decrementHungryWorker() { return --m_num_hungry_worker; }
 
 private:
     std::vector< boost::intrusive_ptr<TaskStream> > m_taskstream;
     std::vector< boost::intrusive_ptr<TaskWorker> > m_workers;
-    boost::mutex m_mutex_new_task;
-    boost::condition_variable m_cond_new_task;
+    Condition m_cond_new_task;
     atomic_int32 m_num_hungry_worker;
 };
 

@@ -33,7 +33,7 @@ private:
 };
 
 template<class Index, class Step, class Body>
-void parallel_for(Index first, Index last, Step step, const Body &body)
+inline void parallel_for(Index first, Index last, Step step, const Body &body)
 {
     typedef ParallelForTask<Index, Body> Task;
     Task tasks[128];
@@ -46,7 +46,7 @@ void parallel_for(Index first, Index last, Step step, const Body &body)
 }
 
 template<class Index, class Body>
-void parallel_for(Index first, Index last, const Body &body)
+inline void parallel_for(Index first, Index last, const Body &body)
 {
     parallel_for<Index, int32, Body>(first, last, 1, body);
 }

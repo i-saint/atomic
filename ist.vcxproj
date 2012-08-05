@@ -16,6 +16,7 @@
     <ClInclude Include="ist\Base\Assert.h" />
     <ClInclude Include="ist\Base\BinaryStream.h" />
     <ClInclude Include="ist\Base\ClassInfo.h" />
+    <ClInclude Include="ist\Base\Decl.h" />
     <ClInclude Include="ist\Base\FileLoader.h" />
     <ClInclude Include="ist\Base\Generics.h" />
     <ClInclude Include="ist\Base\Half\eLut.h" />
@@ -31,11 +32,14 @@
     <ClInclude Include="ist\Concurrency.h" />
     <ClInclude Include="ist\Concurrency\AsyncFunction.h" />
     <ClInclude Include="ist\Concurrency\Atomic.h" />
+    <ClInclude Include="ist\Concurrency\Condition.h" />
+    <ClInclude Include="ist\Concurrency\Mutex.h" />
     <ClInclude Include="ist\Concurrency\ParallelAlgorithm.h" />
-    <ClInclude Include="ist\Concurrency\SpinMutex.h" />
     <ClInclude Include="ist\Concurrency\TaskScheduler.h" />
     <ClInclude Include="ist\Concurrency\TaskUtil.h" />
-    <ClInclude Include="ist\Concurrency\ThreadUtil.h" />
+    <ClInclude Include="ist\Concurrency\Thread.h" />
+    <ClInclude Include="ist\Concurrency\ThreadCommon.h" />
+    <ClInclude Include="ist\Config.h" />
     <ClInclude Include="ist\GPGPU.h" />
     <ClInclude Include="ist\GPUCL\gpuclDevice.h" />
     <ClInclude Include="ist\GPUCL\gpuclDeviceResource.h" />
@@ -85,7 +89,9 @@
     <ClInclude Include="ist\Math\SFMT\SFMT-params86243.h" />
     <ClInclude Include="ist\Math\SFMT\SFMT-sse2.h" />
     <ClInclude Include="ist\Math\SFMT\SFMT.h" />
-    <ClInclude Include="ist\Math\SoA.h" />
+    <ClInclude Include="ist\Math\simdvec.h" />
+    <ClInclude Include="ist\Math\simdvec_permute.h" />
+    <ClInclude Include="ist\Math\soavec.h" />
     <ClInclude Include="ist\Sound.h" />
     <ClInclude Include="ist\Sound\isdBuffer.h" />
     <ClInclude Include="ist\Sound\isdDevice.h" />
@@ -115,9 +121,11 @@
     </ClCompile>
     <ClCompile Include="ist\Base\New.cpp" />
     <ClCompile Include="ist\Base\Serialize.cpp" />
+    <ClCompile Include="ist\Concurrency\Condition.cpp" />
+    <ClCompile Include="ist\Concurrency\Mutex.cpp" />
     <ClCompile Include="ist\Concurrency\TaskScheduler.cpp" />
     <ClCompile Include="ist\Concurrency\TaskUtil.cpp" />
-    <ClCompile Include="ist\Concurrency\ThreadUtil.cpp" />
+    <ClCompile Include="ist\Concurrency\Thread.cpp" />
     <ClCompile Include="ist\GPUCL\gpuclDevice.cpp" />
     <ClCompile Include="ist\GPUCL\gpuclDeviceResource.cpp" />
     <ClCompile Include="ist\GraphicsDX11\i3ddx11Assert.cpp" />

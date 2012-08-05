@@ -1,8 +1,7 @@
 #include <windows.h>
-#include "../Base.h"
+#include "ist/Base.h"
 
 #define SSE_SHUFFLE(w,x,y,z) _MM_SHUFFLE(z,y,x,w)
-#define istForceInline __forceinline
 
 //#define __ist_enable_soavec8__
 
@@ -167,6 +166,7 @@ namespace detail {
 //  AoS <-> SoA
 ///////////////////////////////////////////////////////////////
 
+#if defined(istx84)
 // 2 要素 SoA ベクトルへ
 istForceInline soavec24 soa_transpose24(const simdvec4 &v0)
 {
@@ -316,6 +316,8 @@ istForceInline soavec44 soa_transpose44(const simdvec4 &v0, const simdvec4 &v1, 
         _mm_shuffle_ps(r3, r4, SSE_SHUFFLE(0,1,0,1)),
         _mm_shuffle_ps(r3, r4, SSE_SHUFFLE(2,3,2,3)) );
 }
+#elif defined(istARM)
+#endif
 
 #ifdef __ist_enable_soavec8__
 // todo

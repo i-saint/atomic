@@ -32,7 +32,7 @@ public:
 private:
     static MessageRouter *s_instance;
     MessageBlockCont m_blocks;
-    spin_mutex m_lock_status;
+    SpinMutex m_lock_status;
 
     MessageRouter();
 

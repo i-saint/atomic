@@ -101,12 +101,12 @@ private:
     vec4 m_accel;
 
 public:
-    DEFINE_CALLS(
-        METHODS(
-        DEFINE_ECALL(setVelocity)
-        DEFINE_ECALL(setAccel)
+    atomicECallBlock(
+        atomicMethodBlock(
+        atomicECall(setVelocity)
+        atomicECall(setAccel)
         )
-        DEFINE_ECALL_SUPER(mhandler)
+        atomicECallSuper(mhandler)
     )
 
 public:

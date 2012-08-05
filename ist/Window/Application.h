@@ -85,9 +85,9 @@ public:
     DisplaySetting getCurrentDisplaySetting() const;
     void getAvalableDisplaySettings(DisplaySetting*& settings, int& num_settings) const;
 
-#ifdef _WIN32
+#ifdef istWindows
     HWND getWindowHandle() const { return m_hwnd; }
-#endif // _WIN32
+#endif // istWindows
 };
 
 } // namespace ist

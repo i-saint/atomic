@@ -5,7 +5,7 @@
 #include <vector>
 #include <algorithm>
 
-#define IST_INTROSPECTION(...) \
+#define istIntrospectionBlock(...) \
     static const ist::MemberInfoCollection& _GetMemberInfo() { \
         static bool initialized = false;\
         static ist::MemberInfoCollection collection;\
@@ -17,13 +17,13 @@
     }\
     virtual const ist::MemberInfoCollection& GetMemberInfo() { return _GetMemberInfo(); }
 
-#define IST_NAME(name) \
+#define istName(name) \
     collection.setName(#name);
 
-#define IST_SUPER(name) \
+#define istSuper(name) \
     collection.addSuper(ist::CreateSuperMembers<this_t, name>(name::_GetMemberInfo()));
 
-#define IST_MEMBER(name) \
+#define istMember(name) \
     collection.addMember(ist::CreateMemberInfo(&this_t::name, #name));
 
 
@@ -74,20 +74,25 @@ namespace ist {
     };
 
     template<class T, class MemT>
-    IMemberInfo* CreateMemberInfo(MemT T::*data, const char *name)
+    struct StructuredMemberInfo : public IMemberInfo
     {
-        return new MemberInfo<T,MemT>(data, name);
-    }
+        IMemberInfo *mi;
+        StructuredMemberInfo(IMemberInfo *v) : mi(v) {}
+        virtual const char* GetName() const                 { return mi->GetName(); }
+        virtual const void* GetValue(const void *obj) const { return mi->GetValue( static_cast<const MemT*>(reinterpret_cast<const T*>(obj)) ); }
+        virtual size_t GetSize(const void *obj) const       { return mi->GetSize( static_cast<const MemT*>(reinterpret_cast<const T*>(obj)) ); }
+        virtual void SetValue(void *obj, const void *v)     { mi->SetValue( static_cast<MemT*>(reinterpret_cast<T*>(obj)), v); }
+    };
 
-    template<class Self, class Super>
+    template<class T, class Super>
     struct SuperMemberInfo : public IMemberInfo
     {
         IMemberInfo *mi;
         SuperMemberInfo(IMemberInfo *v) : mi(v) {}
         virtual const char* GetName() const                 { return mi->GetName(); }
-        virtual const void* GetValue(const void *obj) const { return mi->GetValue( static_cast<const Super*>(reinterpret_cast<const Self*>(obj)) ); }
-        virtual size_t GetSize(const void *obj) const       { return mi->GetSize( static_cast<const Super*>(reinterpret_cast<const Self*>(obj)) ); }
-        virtual void SetValue(void *obj, const void *v)     { mi->SetValue( static_cast<Super*>(reinterpret_cast<Self*>(obj)), v); }
+        virtual const void* GetValue(const void *obj) const { return mi->GetValue( static_cast<const Super*>(reinterpret_cast<const T*>(obj)) ); }
+        virtual size_t GetSize(const void *obj) const       { return mi->GetSize( static_cast<const Super*>(reinterpret_cast<const T*>(obj)) ); }
+        virtual void SetValue(void *obj, const void *v)     { mi->SetValue( static_cast<Super*>(reinterpret_cast<T*>(obj)), v); }
     };
 
     struct MemberInfoCollection
@@ -118,12 +123,19 @@ namespace ist {
         const_iterator end() const   { return data.end(); }
     };
 
-    template<class Self, class Super>
+
+    template<class T, class MemT>
+    IMemberInfo* CreateMemberInfo(MemT T::*data, const char *name)
+    {
+        return new MemberInfo<T,MemT>(data, name);
+    }
+
+    template<class T, class Super>
     MemberInfoCollection CreateSuperMembers(const MemberInfoCollection& s)
     {
         MemberInfoCollection r;
         for(size_t i=0; i<s.data.size(); ++i) {
-            r.data.push_back(new SuperMemberInfo<Self, Super>(s.data[i]));
+            r.data.push_back(new SuperMemberInfo<T, Super>(s.data[i]));
         }
         return r;
     }

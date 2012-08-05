@@ -1,6 +1,7 @@
 #include <EASTL/allocator.h>
 #include <EASTL/algorithm.h>
 #include <EASTL/sort.h>
+#include "ist/Base/Decl.h"
 
 
 void bad_alloc_hander_generic(const void* allocator_ptr);
@@ -15,7 +16,7 @@ inline void bad_alloc_hander(const Allocator* allocator)
 namespace ist {
 
 template<class ParentAllocatorType=stl::allocator, bool AllowOverflow=false>
-class stack_allocator
+class istInterModule stack_allocator
 {
 public:
     typedef ParentAllocatorType parent_allocator;
@@ -99,7 +100,7 @@ public:
 
 
 template<class ParentAllocatorType=stl::allocator>
-class pool_allocator
+class istInterModule pool_allocator
 {
 public:
     typedef ParentAllocatorType parent_allocator;

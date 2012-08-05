@@ -9,16 +9,16 @@ namespace i3dgl {
 class SystemFont : public ReferenceCounter
 {
 private:
-#ifdef _WIN32
+#ifdef istWindows
     HDC m_hdc;
-#endif // _WIN32
+#endif // istWindows
     int m_window_height;
     int m_font_height;
 
 public:
-#ifdef _WIN32
+#ifdef istWindows
     SystemFont(HDC m_hdc);
-#endif // _WIN32
+#endif // istWindows
     ~SystemFont();
 
     void draw(int x, int y, const char *text);

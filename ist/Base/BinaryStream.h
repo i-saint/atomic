@@ -2,7 +2,7 @@
 #define __ist_BinaryStream__
 namespace ist {
 
-class bistream_base
+class istInterModule bistream_base
 {
 public:
     virtual ~bistream_base() {}
@@ -11,7 +11,7 @@ public:
     virtual void setReadPos(uint64 pos)=0;
 };
 
-class bostream_base
+class istInterModule bostream_base
 {
 public:
     virtual ~bostream_base() {}
@@ -21,7 +21,7 @@ public:
 };
 
 
-class bistream : public bistream_base
+class istInterModule bistream : public bistream_base
 {
 public:
     bistream(std::istream& s) : m_is(*s.rdbuf()) {}
@@ -35,7 +35,7 @@ private:
     std::streambuf& m_is;
 };
 
-class bostream : public bostream_base
+class istInterModule bostream : public bostream_base
 {
 public:
     bostream(std::ostream& s) : m_os(*s.rdbuf()) {}
@@ -49,7 +49,7 @@ private:
     std::streambuf& m_os;
 };
 
-class biostream : public bistream, public bostream
+class istInterModule biostream : public bistream, public bostream
 {
 public:
     biostream(std::iostream& s) : bistream(s), bostream(s) {}
@@ -87,7 +87,7 @@ inline ist::bistream_base& operator>>(ist::bistream_base &s, unsigned long long 
 
 namespace ist {
 
-class gzbiostream : public bistream_base, public bostream_base
+class istInterModule gzbiostream : public bistream_base, public bostream_base
 {
 private:
     gzFile m_gz;

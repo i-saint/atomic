@@ -1,11 +1,11 @@
 #ifndef __ist_Concurrency_Atomic_h__
 #define __ist_Concurrency_Atomic_h__
 
-#include "ist/Base/Types.h"
+#include "ist/Base.h"
 
 namespace ist {
 
-#if defined(_WIN32)
+#if defined(istWindows)
 class atomic_int32
 {
 public:
@@ -27,7 +27,7 @@ private:
     volatile long m_value;
 };
 
-#elif defined(__GNUC__)
+#else
 
 class atomic_int32
 {
@@ -50,7 +50,7 @@ private:
     int32 m_value;
 };
 
-#endif // _WIN32
+#endif // istWindows
 
 } // namespace ist
 

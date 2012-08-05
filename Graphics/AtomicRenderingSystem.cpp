@@ -30,42 +30,31 @@ struct RenderingRequest
     }
 };
 
-class AtomicRenderingThread
+class AtomicRenderingThread : public ist::Thread
 {
-public:
-    enum STATE {
-        ST_BEFORE_INITIALIZE,
-        ST_IDLING,
-        ST_BUSY,
-        ST_PROCESSING_CALLBACK,
-        ST_PROCESSING_GL,
-        ST_ERROR,
-    };
-
 private:
     i3d::Device *m_device;
     i3d::DeviceContext *m_context;
-    boost::thread *m_thread;
 
     ATOMIC_ERROR m_error;
-    volatile uint32 m_state;
-    boost::mutex m_mutex_request;
-    boost::condition_variable m_cond_request;
+    ist::Mutex m_mutex_request;
+    ist::Condition m_cond_request;
+    ist::Condition m_cond_initialize_complete;
+    ist::Condition m_cond_callback_complete;
     stl::vector<RenderingRequest> m_requests;
+    stl::vector<RenderingRequest> m_requests_temp;
 
     PerformanceCounter m_fps_counter;
 
 public:
     AtomicRenderingThread();
     ~AtomicRenderingThread();
-    void operator()();
-    void run();
+
+    void exec();
 
     void pushRequest(const RenderingRequest &req);
     RenderingRequest popRequest();
 
-    void setState(STATE v);
-    STATE getState() const;
     void waitUntilInitializationComplete();
     void waitUntilDrawCallbackComplete();
 
@@ -80,89 +69,69 @@ public:
 AtomicRenderingThread::AtomicRenderingThread()
     : m_device(NULL)
     , m_context(NULL)
-    , m_thread(NULL)
     , m_error(ATERR_NOERROR)
-    , m_state(ST_BEFORE_INITIALIZE)
 {
 }
 
 AtomicRenderingThread::~AtomicRenderingThread()
 {
-    if(m_thread) {
-        pushRequest(RenderingRequest::createStopRequest());
-        m_thread->join();
-        istSafeDelete(m_thread);
-    }
-}
-
-void AtomicRenderingThread::run()
-{
-    m_thread = istNew( boost::thread(boost::ref(*this)) );
+    pushRequest(RenderingRequest::createStopRequest());
+    join();
 }
 
 void AtomicRenderingThread::waitUntilInitializationComplete()
 {
-    for(;;) {
-        STATE r = getState();
-        if(r!=ST_BEFORE_INITIALIZE) { break; }
-        ::Sleep(0);
-    }
+    m_cond_initialize_complete.wait();
 }
 
 void AtomicRenderingThread::waitUntilDrawCallbackComplete()
 {
-    for(;;) {
-        STATE r = getState();
-        if(r!=ST_BUSY && r!=ST_PROCESSING_CALLBACK) { break; }
-        // todo: Å´Ç‡Ç¡Ç∆Ç¢Ç¢ë“Çøï˚Ç»Ç¢ÅH
-        ::Sleep(1);
-    }
+    m_cond_callback_complete.wait();
 }
 
 void AtomicRenderingThread::pushRequest(const RenderingRequest &req)
 {
-    boost::lock_guard<boost::mutex> lock(m_mutex_request);
-    m_requests.push_back(req);
-    setState(ST_BUSY);
-    m_cond_request.notify_all();
-}
-
-RenderingRequest AtomicRenderingThread::popRequest()
-{
-    boost::unique_lock<boost::mutex> lock(m_mutex_request);
-    if(m_requests.empty()) {
-        setState(ST_IDLING);
-        m_cond_request.wait(lock);
+    {
+        ist::Mutex::ScopedLock lock(m_mutex_request);
+        m_requests.push_back(req);
     }
-    RenderingRequest r = m_requests.back();
-    m_requests.pop_back();
-    return r;
+    m_cond_request.signalOne();
 }
 
-
-void AtomicRenderingThread::operator()()
+void AtomicRenderingThread::exec()
 {
-    ist::SetThreadName("AtomicRenderingThread");
+    ist::Thread::setNameToCurrentThread("AtomicRenderingThread");
 
     m_device = istNew(i3d::Device)(atomicGetApplication()->getWindowHandle());
     if(!GLEW_VERSION_3_3) {
         m_error = ATERR_OPENGL_330_IS_NOT_SUPPORTED;
+        m_cond_initialize_complete.signalOne();
         goto finalize_section;
     }
 
     wglSwapIntervalEXT(atomicGetConfig()->vsync);
     GraphicResourceManager::intializeInstance();
     AtomicRenderer::initializeInstance();
+    m_cond_initialize_complete.signalOne();
 
-    for(;;) {
-        RenderingRequest req = popRequest();
-        switch(req.type) {
-        case RenderingRequest::REQ_STOP: goto end_section; break;
-        case RenderingRequest::REQ_RENDER: doRender(); break;
+    bool end_flag = false;
+    while(!end_flag) {
+        m_cond_request.wait();
+        {
+            ist::Mutex::ScopedLock lock(m_mutex_request);
+            m_requests_temp = m_requests;
+            m_requests.clear();
         }
+        for(size_t i=0; i<m_requests_temp.size(); ++i) {
+            RenderingRequest req = m_requests_temp[i];
+            switch(req.type) {
+            case RenderingRequest::REQ_STOP: end_flag=true; break;
+            case RenderingRequest::REQ_RENDER: doRender(); break;
+            }
+        }
+        m_requests_temp.clear();
     }
 
-end_section:
     AtomicRenderer::finalizeInstance();
     GraphicResourceManager::finalizeInstance();
 
@@ -172,28 +141,11 @@ finalize_section:
 
 void AtomicRenderingThread::doRender()
 {
-    setState(ST_PROCESSING_CALLBACK);
     atomicGetApplication()->drawCallback();
-
-    setState(ST_PROCESSING_GL);
+    m_cond_callback_complete.signalOne();
     m_device->swapBuffers();
-
     m_fps_counter.count();
 }
-
-void AtomicRenderingThread::setState( STATE v )
-{
-    InterlockedExchange(&m_state, v);
-}
-
-AtomicRenderingThread::STATE AtomicRenderingThread::getState() const
-{
-    MemoryBarrier();
-    STATE r = (STATE)m_state;
-    MemoryBarrier();
-    return r;
-}
-
 
 
 

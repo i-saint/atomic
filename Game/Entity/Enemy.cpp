@@ -46,22 +46,22 @@ private:
     SE_RID m_explosion_se;
 
 public:
-    DEFINE_CALLS(
-        METHODS(
-        DEFINE_ECALL(setLightRadius)
-        DEFINE_ECALL(setExplosionSE)
-        DEFINE_ECALL(setExplosionChannel)
+    atomicECallBlock(
+        atomicMethodBlock(
+        atomicECall(setLightRadius)
+        atomicECall(setExplosionSE)
+        atomicECall(setExplosionChannel)
         )
-        DEFINE_ECALL_SUPER(super)
-        DEFINE_ECALL_SUPER(transform)
-        DEFINE_ECALL_SUPER(model)
-        DEFINE_ECALL_SUPER(collision)
+        atomicECallSuper(super)
+        atomicECallSuper(transform)
+        atomicECallSuper(model)
+        atomicECallSuper(collision)
     )
-    DEFINE_QUERIES(
-        DEFINE_EQUERY_SUPER(super)
-        DEFINE_EQUERY_SUPER(transform)
-        DEFINE_EQUERY_SUPER(model)
-        DEFINE_EQUERY_SUPER(collision)
+    atomicEQueryBlock(
+        atomicEQuerySuper(super)
+        atomicEQuerySuper(transform)
+        atomicEQuerySuper(model)
+        atomicEQuerySuper(collision)
     )
 
 public:
@@ -195,6 +195,7 @@ public:
         damage(length(m->velocity3)*0.002f);
     }
 };
+atomicImplementEntity(Enemy_Test, ECID_Enemy);
 
 
 class Routine_ChasePlayerRough : public IRoutine
@@ -212,7 +213,6 @@ public:
     {
     }
 };
-atomicImplementEntity(Enemy_Test, ECID_ENEMY, ESID_ENEMY_TEST);
 
 } // namespace atomic
 

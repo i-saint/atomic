@@ -13,11 +13,11 @@ namespace i3dgl {
 class Device
 {
 private:
-#ifdef _WIN32
+#ifdef istWindows
     HWND    m_hwnd;
     HDC     m_hdc;
     HGLRC   m_hglrc;
-#endif // _WIN32
+#endif // istWindows
     DeviceContext *m_context;
 
     stl::vector<DeviceResource*>    m_resources;
@@ -25,9 +25,9 @@ private:
     void addResource(DeviceResource *v);
 
 public:
-#ifdef _WIN32
+#ifdef istWindows
     Device(HWND hwnd);
-#endif // _WIN32
+#endif // istWindows
     ~Device();
     DeviceContext* getContext() { return m_context; }
 
@@ -49,10 +49,10 @@ public:
 
     void swapBuffers();
 
-#ifdef _WIN32
+#ifdef istWindows
     HDC getHDC() { return m_hdc; }
     HGLRC getHGLRC() { return m_hglrc; }
-#endif // _WIN32
+#endif // istWindows
 };
 
 } // namespace i3d

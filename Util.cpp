@@ -100,7 +100,7 @@ void UpdateCollisionBox(CollisionBox &o, const mat4& t, const vec4 &size)
 
 vec4 GetNearestPlayerPosition(const vec4 &pos)
 {
-    if(IEntity *player = atomicGetEntity( EntityCreateHandle(ECID_PLAYER, ESID_PLAYER, 0) )) {
+    if(IEntity *player = atomicGetEntity( EntityCreateHandle(ECID_Player, ESID_Player, 0) )) {
         return atomicQuery(player, getPosition, vec4);
     }
     return vec4();

@@ -3,37 +3,37 @@
 
 
 
-#define DEFINE_ECALL(funcname)         \
+#define atomicECall(funcname)         \
     case ECALL_##funcname: MFCall(*this, &this_t::funcname, v); return true;
 
-#define DEFINE_ECALL_SUPER(classname)   \
+#define atomicECallSuper(classname)   \
     if(this->classname::call(call_id, v)) { return true; }
 
-#define DEFINE_ECALL_DELEGATE(obj)   \
+#define atomicECallDelegate(obj)   \
     if(obj && obj->call(call_id, v)) {}
 
-#define DEFINE_EQUERY(funcname)    \
+#define atomicEQuery(funcname)    \
     case EQUERY_##funcname: v=funcname(); return true;
 
-#define DEFINE_EQUERY_SUPER(classname)   \
+#define atomicEQuerySuper(classname)   \
     if(this->classname::query(call_id, v)) { return true; }
 
-#define DEFINE_EQUERY_DELEGATE(obj)   \
+#define atomicEQueryDelegate(obj)   \
     if(obj && obj->query(call_id, v)) { return true; }
 
-#define METHODS(methods)    \
+#define atomicMethodBlock(methods)    \
     switch(call_id) {\
     methods\
     }
 
-#define DEFINE_CALLS(blocks) \
+#define atomicECallBlock(blocks) \
     virtual bool call(uint32 call_id, const variant &v)\
     {\
         blocks\
         return false;\
     }
 
-#define DEFINE_QUERIES(blocks) \
+#define atomicEQueryBlock(blocks) \
     virtual bool query(uint32 call_id, variant &v) const\
     {\
         blocks\
@@ -93,7 +93,7 @@ enum ENTITY_CALL
     ECALL_setExplosionSE,
     ECALL_setExplosionChannel,
 
-    ECALL_END,
+    ECALL_End,
 };
 
 enum ENTITY_QUERY
@@ -122,7 +122,7 @@ enum ENTITY_QUERY
     EQUERY_getRotateSpeed1 = ECALL_setRotateSpeed,
     EQUERY_getRotateSpeed2,
 
-    EQUERY_END,
+    EQUERY_End,
 };
 
 

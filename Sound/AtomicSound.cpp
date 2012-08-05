@@ -41,25 +41,8 @@ struct SoundRequest
 };
 
 
-class SoundThread
+class SoundThread : public ist::Thread
 {
-private:
-    boost::thread *m_thread;
-    isd::Device *m_device;
-    bool m_initialization_complete;
-    bool m_stop_request;
-
-    spin_mutex                  m_se_lock;
-    stl::vector<SoundRequest>   m_requests;
-    stl::vector<SoundRequest>   m_reqests2;
-
-    isd::Listener         *m_listener;
-    isd::StreamSource     *m_bgm_source;
-    isd::Source           *m_se_sources[SE_CHANNEL_END];
-
-    isd::Stream           *m_stream;
-    isd::Buffer           *m_se_data[SE_END];
-
 public:
     SoundThread();
     ~SoundThread();
@@ -67,7 +50,7 @@ public:
     void initialize();
     void finalize();
 
-    void run();
+    void exec();
     void requestStop() { m_stop_request=true; }
 
     bool isInitializationComplete() const { return m_initialization_complete; }
@@ -75,13 +58,28 @@ public:
     void addRequest(const SoundRequest & v);
 
 public:
-    void operator()();
     void processRequests();
+
+private:
+    isd::Device *m_device;
+    bool m_initialization_complete;
+    bool m_stop_request;
+
+    ist::Condition              m_cond_request;
+    ist::Mutex                  m_mutex_request;
+    stl::vector<SoundRequest>   m_requests;
+    stl::vector<SoundRequest>   m_requests_temp;
+
+    isd::Listener         *m_listener;
+    isd::StreamSource     *m_bgm_source;
+    isd::Source           *m_se_sources[SE_CHANNEL_END];
+
+    isd::Stream           *m_stream;
+    isd::Buffer           *m_se_data[SE_END];
 };
 
 SoundThread::SoundThread()
-    : m_thread(NULL)
-    , m_initialization_complete(false)
+    : m_initialization_complete(false)
     , m_stop_request(false)
 {
     m_listener = NULL;
@@ -91,16 +89,14 @@ SoundThread::SoundThread()
     std::fill_n(m_se_data, _countof(m_se_data), (isd::Buffer*)NULL);
 
     m_requests.reserve(64);
-    m_reqests2.reserve(64);
+    m_requests_temp.reserve(64);
 }
 
 SoundThread::~SoundThread()
 {
     requestStop();
-    if(m_thread) {
-        m_thread->join();
-        istSafeDelete(m_thread);
-    }
+    m_cond_request.signalOne();
+    join();
 }
 
 void SoundThread::initialize()
@@ -150,20 +146,17 @@ void SoundThread::finalize()
 
 void SoundThread::addRequest(const SoundRequest & v)
 {
-    m_se_lock.lock();
-    m_requests.push_back(v);
-    m_se_lock.unlock();
+    {
+        ist::Mutex::ScopedLock lock(m_mutex_request);
+        m_requests.push_back(v);
+    }
+    m_cond_request.signalOne();
 }
 
 
-void SoundThread::run()
+void SoundThread::exec()
 {
-    m_thread = istNew(boost::thread(boost::ref(*this)));
-}
-
-void SoundThread::operator()()
-{
-    ist::SetThreadName("AtomicSoundThread");
+    ist::Thread::setNameToCurrentThread("AtomicSoundThread");
 
     initialize();
     m_initialization_complete = true;
@@ -172,12 +165,12 @@ void SoundThread::operator()()
     m_bgm_source->play();
 
     while(!m_stop_request) {
-        ::Sleep(1);
         processRequests();
         m_bgm_source->update();
         if(m_bgm_source->eof()) {
             m_bgm_source->seek(0);
         }
+        m_cond_request.wait();
     }
 
     finalize();
@@ -186,13 +179,15 @@ void SoundThread::operator()()
 
 void SoundThread::processRequests()
 {
-    m_se_lock.lock();
-    m_reqests2 = m_requests;
-    m_requests.clear();
-    m_se_lock.unlock();
+    {
+        // lock 範囲を最小にするため、ここではワーキング領域に移すだけ
+        ist::Mutex::ScopedLock lock(m_mutex_request);
+        m_requests_temp = m_requests;
+        m_requests.clear();
+    }
 
-    for(uint32 i=0; i<m_reqests2.size(); ++i) {
-        SoundRequest &req = m_reqests2[i];
+    for(size_t i=0; i<m_requests_temp.size(); ++i) {
+        SoundRequest &req = m_requests_temp[i];
         switch(req.type) {
         case SoundRequest::REQ_LISTENER_POS:
             {
@@ -218,6 +213,7 @@ void SoundThread::processRequests()
             break;
         }
     }
+    m_requests_temp.clear();
 }
 
 

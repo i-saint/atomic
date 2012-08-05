@@ -10,8 +10,6 @@ TreeTask::TreeTask()
 
 void TreeTask::setState( State v )
 {
-    super::setState(v);
-
     switch(getState()) {
     case State_Ready:
         if(TreeTask *parent=getParent()) { parent->incrementActiveChildren(); }
@@ -20,6 +18,8 @@ void TreeTask::setState( State v )
         if(TreeTask *parent=getParent()) { parent->decrementActiveChildren(); }
         break;
     }
+
+    super::setState(v);
 }
 
 void TreeTask::waitChildren()

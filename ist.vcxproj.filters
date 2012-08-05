@@ -96,9 +96,6 @@
     <ClInclude Include="ist\Math\Linear.h">
       <Filter>ist\Math</Filter>
     </ClInclude>
-    <ClInclude Include="ist\Math\SoA.h">
-      <Filter>ist\Math</Filter>
-    </ClInclude>
     <ClInclude Include="ist\Math\SFMT\SFMT-alti.h">
       <Filter>ist\Math\SFMT</Filter>
     </ClInclude>
@@ -288,16 +285,10 @@
     <ClInclude Include="ist\Concurrency\Atomic.h">
       <Filter>ist\Concurrency</Filter>
     </ClInclude>
-    <ClInclude Include="ist\Concurrency\SpinMutex.h">
-      <Filter>ist\Concurrency</Filter>
-    </ClInclude>
     <ClInclude Include="ist\Concurrency\TaskScheduler.h">
       <Filter>ist\Concurrency</Filter>
     </ClInclude>
     <ClInclude Include="ist\Concurrency\TaskUtil.h">
-      <Filter>ist\Concurrency</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Concurrency\ThreadUtil.h">
       <Filter>ist\Concurrency</Filter>
     </ClInclude>
     <ClInclude Include="ist\Concurrency.h">
@@ -311,6 +302,33 @@
     </ClInclude>
     <ClInclude Include="ist\Base\Generics.h">
       <Filter>ist\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Base\Decl.h">
+      <Filter>ist\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Concurrency\Mutex.h">
+      <Filter>ist\Concurrency</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Config.h">
+      <Filter>ist</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Concurrency\Thread.h">
+      <Filter>ist\Concurrency</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Math\simdvec.h">
+      <Filter>ist\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Math\simdvec_permute.h">
+      <Filter>ist\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Math\soavec.h">
+      <Filter>ist\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Concurrency\Condition.h">
+      <Filter>ist\Concurrency</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Concurrency\ThreadCommon.h">
+      <Filter>ist\Concurrency</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -449,10 +467,16 @@
     <ClCompile Include="ist\Concurrency\TaskScheduler.cpp">
       <Filter>ist\Concurrency</Filter>
     </ClCompile>
-    <ClCompile Include="ist\Concurrency\ThreadUtil.cpp">
+    <ClCompile Include="ist\Concurrency\TaskUtil.cpp">
       <Filter>ist\Concurrency</Filter>
     </ClCompile>
-    <ClCompile Include="ist\Concurrency\TaskUtil.cpp">
+    <ClCompile Include="ist\Concurrency\Thread.cpp">
+      <Filter>ist\Concurrency</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Concurrency\Condition.cpp">
+      <Filter>ist\Concurrency</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Concurrency\Mutex.cpp">
       <Filter>ist\Concurrency</Filter>
     </ClCompile>
   </ItemGroup>

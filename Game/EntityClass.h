@@ -4,64 +4,63 @@
 namespace atomic {
     enum ENTITY_CATEGORY_ID
     {
-        ECID_UNKNOWN,
-        ECID_PLAYER,
-        ECID_ENEMY,
-        ECID_OBSTRUCT,
-        ECID_BULLET,
-        ECID_LEVEL,
+        ECID_Unknown,
+        ECID_Player,
+        ECID_Enemy,
+        ECID_Obstruct,
+        ECID_Bullet,
+        ECID_Level,
         ECID_VFX,
 
-        ECID_END,
+        ECID_End,
     };
 
     enum ENTITY_PLAYER_CLASS_ID
     {
-        ESID_PLAYER,
-        ESID_PLAYER_END,
+        ESID_Player,
+        ESID_Player_End,
     };
 
     enum ENTITY_ENEMY_CLASS_ID
     {
-        ESID_ENEMY_TEST,
-        ESID_ENEMY_END,
+        ESID_Enemy_Test,
+        ESID_Enemy_End,
     };
 
     enum ENTITY_OBSTACLE_CLASS_ID
     {
-        ESID_OBSTACLE_CUBE,
-        ESID_OBSTACLE_SPHERE,
-        ESID_OBSTACLE_END,
+        ESID_Obstacle,
+        ESID_Obstacle_End,
     };
 
     enum ENTITY_BULLET_CLASS_ID
     {
-        ESID_BULLET_SIMPLE,
-        ESID_BULLET_PARTICLE,
-        ESID_BULLET_LASER,
-        ESID_BULLET_END,
+        ESID_Bullet_Simple,
+        ESID_Bullet_Particle,
+        ESID_Bullet_Laser,
+        ESID_Bullet_End,
     };
 
     enum ENTITY_LEVEL_CLASS_ID
     {
-        ESID_LEVEL_TEST,
-        ESID_LEVEL_END,
+        ESID_Level_Test,
+        ESID_Level_End,
     };
 
     enum ENTITY_VFX_CLASS_ID
     {
-        ESID_VFX_SCINTILLA,
-        ESID_VFX_END,
+        ESID_VFX_Scintilla,
+        ESID_VFX_End,
     };
 
     enum {
         ESID_MAX = 16
     };
-    BOOST_STATIC_ASSERT(ESID_MAX >= ESID_PLAYER_END);
-    BOOST_STATIC_ASSERT(ESID_MAX >= ESID_ENEMY_END);
-    BOOST_STATIC_ASSERT(ESID_MAX >= ESID_OBSTACLE_END);
-    BOOST_STATIC_ASSERT(ESID_MAX >= ESID_BULLET_END);
-    BOOST_STATIC_ASSERT(ESID_MAX >= ESID_VFX_END);
+    BOOST_STATIC_ASSERT(ESID_MAX >= ESID_Player_End);
+    BOOST_STATIC_ASSERT(ESID_MAX >= ESID_Enemy_End);
+    BOOST_STATIC_ASSERT(ESID_MAX >= ESID_Obstacle_End);
+    BOOST_STATIC_ASSERT(ESID_MAX >= ESID_Bullet_End);
+    BOOST_STATIC_ASSERT(ESID_MAX >= ESID_VFX_End);
 
     // EntityHandle: 上位 4 bit がカテゴリ (ENTITY_CATEGORY_ID)、その次 8 bit がカテゴリ内種別 (ENTITY_*_CLASS_ID)、それ以下は ID のフィールド
     inline uint32 EntityGetCategory(EntityHandle e) { return (e & 0xF0000000) >> 28; }

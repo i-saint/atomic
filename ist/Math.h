@@ -2,8 +2,9 @@
 #define __ist_Math__
 
 #include "Base.h"
+//#include "Math/simdvec.h"
+#include "Math/soavec.h"
 #include "Math/Constants.h"
-#include "Math/SoA.h"
 //#include "Math/Linear.h"
 #include "Math/SFMT/SFMT.h"
 #include "Math/FrustumCulling.h"

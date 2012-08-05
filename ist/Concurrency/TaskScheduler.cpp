@@ -2,18 +2,22 @@
 #include "ist/Base/New.h"
 #include "ist/Base/Assert.h"
 #include "ist/Concurrency/TaskScheduler.h"
-#include "ist/Concurrency/ThreadUtil.h"
 
 namespace ist {
 
 
 Task::Task()
-    : m_priority(Task::Priority_Default)
+    : m_priority(Priority_Default)
     , m_state(State_Completed)
 {}
 
 Task::~Task()
 {}
+
+void Task::setState(State v)
+{
+    m_state = v;
+}
 
 void Task::wait()
 {
@@ -31,10 +35,10 @@ public:
 
 private:
     std::deque<Task*> m_tasks;
-    spin_mutex m_mutex;
+    Mutex m_mutex;
 };
 
-class TaskWorker : public SharedObject
+class TaskWorker : public Thread
 {
 public:
     TaskWorker(int32 cpu_index);
@@ -42,17 +46,16 @@ public:
     void requestExit() { m_flag_exit.swap(1); }
     bool getExitFlag() { return m_flag_exit.compare_and_swap(m_flag_exit, m_flag_exit)!=0; }
 
-    void operator()();
+    void exec();
 
 private:
-    boost::thread *m_thread;
     atomic_int32 m_flag_exit;
 };
 
 
 void TaskStream::enqueue( Task *v )
 {
-    spin_mutex::scoped_lock lock(m_mutex);
+    Mutex::ScopedLock lock(m_mutex);
     m_tasks.push_back(v);
 }
 
@@ -60,7 +63,7 @@ Task* TaskStream::dequeue()
 {
     Task *ret = NULL;
     {
-        spin_mutex::scoped_lock lock(m_mutex);
+        Mutex::ScopedLock lock(m_mutex);
         if(!m_tasks.empty()) {
             ret = m_tasks.front();
             m_tasks.pop_front();
@@ -69,26 +72,27 @@ Task* TaskStream::dequeue()
     return ret;
 }
 
+
 TaskWorker::TaskWorker( int32 cpu_index )
 {
-    m_thread = istNew(boost::thread)( boost::ref(*this) );
-#ifdef _WIN32
-    SetThreadName(::GetThreadId(m_thread->native_handle()), "ist::TaskWorker");
-    ::SetThreadAffinityMask(m_thread->native_handle(), 1<<cpu_index);
-#endif // _WIN32
+    setName("ist::TaskWorker");
+    setAffinityMask(1<<cpu_index);
+    setPriority(Thread::Priority_High);
+    //setPriority();
+    run();
 }
 
 TaskWorker::~TaskWorker()
 {
-    m_thread->join();
-    istSafeDelete(m_thread);
+    join();
 }
 
-void TaskWorker::operator()()
+void TaskWorker::exec()
 {
     TaskScheduler *scheduler = TaskScheduler::getInstance();
     for(;;) {
         while(scheduler->processOneTask()) {}
+
         scheduler->incrementHungryWorker();
         scheduler->waitForNewTask();
         bool flag_exit = getExitFlag();
@@ -152,19 +156,22 @@ TaskScheduler::TaskScheduler( uint32 num_threads )
 {
     g_task_scheduler = this;
 
+    Thread::setPriorityToCurrentThread(Thread::Priority_High);
+
+
     // task stream ì¬
     for(int32 i=0; i<Task::Priority_Max+1; ++i) {
         m_taskstream.push_back( istNew(TaskStream)() );
     }
 
     // task worker ì¬
-    int processors = boost::thread::hardware_concurrency();
-#ifdef _WIN32
+    int processors = Thread::getLogicalCpuCount();
+#ifdef istWindows
     SYSTEM_INFO info;
     GetSystemInfo(&info);
     processors = info.dwNumberOfProcessors;
     SetThreadAffinityMask(GetCurrentThread(), 1);
-#endif // _WIN32
+#endif // istWindows
     if(num_threads == -1) { num_threads = processors; }
 
     for(size_t i=1; i<num_threads; ++i)
@@ -182,8 +189,12 @@ TaskScheduler::~TaskScheduler()
     for(size_t i=0; i<m_workers.size(); ++i) {
         m_workers[i]->requestExit();
     }
-    advertiseNewTask();
-    while(getHungryWorkerCount()>0) {}
+    while(getHungryWorkerCount()>0) {
+        advertiseNewTask();
+    }
+    for(size_t i=0; i<m_workers.size(); ++i) {
+        m_workers[i]->join();
+    }
     // ‚±‚±‚Ü‚Å‚«‚½‚ç worker ‚ğ delete ‚µ‚Ä‚à‘åä•v‚È‚Í‚¸
     m_workers.clear();
 
@@ -205,13 +216,15 @@ Task* TaskScheduler::dequeue()
 
 void TaskScheduler::waitForNewTask()
 {
-    boost::mutex::scoped_lock lock(m_mutex_new_task);
-    m_cond_new_task.wait(lock);
+    m_cond_new_task.wait();
 }
 
 void TaskScheduler::advertiseNewTask()
 {
-    m_cond_new_task.notify_all();
+    int32 n = getHungryWorkerCount();
+    for(int32 i=0; i<n; ++i) {
+        m_cond_new_task.signalOne();
+    }
 }
 
 

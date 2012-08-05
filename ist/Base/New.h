@@ -2,8 +2,8 @@
 #define __ist_Base_New__
 
 template<class T> inline T* call_destructor(T* p) { p->~T(); return p; }
-void* istnew(size_t size);
-void istdelete(void* p);
+istInterModule void* istnew(size_t size);
+istInterModule void istdelete(void* p);
 
 void* operator new[](size_t size);
 void operator delete[](void* p);
@@ -37,6 +37,5 @@ void operator delete[](void* p);
 #define istSafeRelease(Obj)             if(Obj){Obj->release();Obj=NULL;}
 #define istSafeAddRef(Obj)              if(Obj){Obj->addRef();}
 
-#define istThreadLocal                  __declspec(thread)
 
 #endif // __ist_Base_New__
