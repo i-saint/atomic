@@ -32,6 +32,9 @@
     <ClInclude Include="SPH_types.h">
       <Filter>SPH</Filter>
     </ClInclude>
+    <ClInclude Include="SPH_collision.h">
+      <Filter>SPH</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="SPH_core.ispc">

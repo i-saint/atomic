@@ -7,6 +7,7 @@
 
 #include "ispc_vectormath.h"
 #include "SPH_const.h"
+#include "SPH_collision.h"
 typedef unsigned int32 uint32;
 
 
@@ -33,13 +34,6 @@ export void sphInitializeConstants()
 
 struct Vec3 { float x,y,z; };
 static soa<8> Vec3 g_accel[SPH_MAX_PARTICLE_NUM];
-
-struct Particle
-{
-    float   posx, posy, posz;
-    float   velx, vely, velz;
-    float   density;
-};
 
 struct GridData
 {

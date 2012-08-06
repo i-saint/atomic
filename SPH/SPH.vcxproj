@@ -26,6 +26,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ispc_vectormath.h" />
+    <ClInclude Include="SPH_collision.h" />
     <ClInclude Include="SPH_const.h" />
     <ClInclude Include="SPH_data.h" />
     <ClInclude Include="SPH_types.h" />
