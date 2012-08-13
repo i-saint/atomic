@@ -1,4 +1,4 @@
-#ifndef __ist_isd_OggVorbis__
+ï»¿#ifndef __ist_isd_OggVorbis__
 #define __ist_isd_OggVorbis__
 
 #include <vorbis/vorbisfile.h>
@@ -8,7 +8,7 @@ namespace ist {
 namespace isd {
 
 
-// .ogg ƒtƒ@ƒCƒ‹‚ÌƒXƒgƒŠ[ƒ~ƒ“ƒOÄ¶‚ğÀŒ»B
+// .ogg ãƒ•ã‚¡ã‚¤ãƒ«ã®ã‚¹ãƒˆãƒªãƒ¼ãƒŸãƒ³ã‚°å†ç”Ÿã‚’å®Ÿç¾ã€‚
 class OggVorbisFileStream : public Stream
 {
 private:
@@ -36,7 +36,7 @@ public:
     DataCont& readByte(size_t require_size);
 };
 
-// .ogg ƒtƒ@ƒCƒ‹‚Ì“à—e‚ğƒƒ‚ƒŠ‚É”z’u‚µ‚ÄA‚»‚ê‚ğƒXƒgƒŠ[ƒ~ƒ“ƒOÄ¶‚·‚é‹@”\‚ğÀŒ»
+// .ogg ãƒ•ã‚¡ã‚¤ãƒ«ã®å†…å®¹ã‚’ãƒ¡ãƒ¢ãƒªã«é…ç½®ã—ã¦ã€ãã‚Œã‚’ã‚¹ãƒˆãƒªãƒ¼ãƒŸãƒ³ã‚°å†ç”Ÿã™ã‚‹æ©Ÿèƒ½ã‚’å®Ÿç¾
 class OggVorbisMemoryStream : public Stream
 {
 private:
@@ -51,7 +51,7 @@ public:
     OggVorbisMemoryStream();
     virtual ~OggVorbisMemoryStream();
 
-    // data ‚ÍƒRƒs[‚¹‚¸‹¤—L‚·‚é
+    // data ã¯ã‚³ãƒ”ãƒ¼ã›ãšå…±æœ‰ã™ã‚‹
     bool openStream(void* data, size_t data_size);
     void closeStream();
 

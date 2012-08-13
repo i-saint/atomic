@@ -1,10 +1,10 @@
-#ifndef __ist_Base_Variant__
+ï»¿#ifndef __ist_Base_Variant__
 #define __ist_Base_Variant__
 namespace ist {
 
 
-// ‰½‚Å‚àû—e‚·‚é‚æŒ^
-// û—e‚³‚ê‚½ƒIƒuƒWƒFƒNƒg‚ÍƒfƒXƒgƒ‰ƒNƒ^‚ÍŒÄ‚Î‚ê‚È‚¢‚Ì‚Å’ˆÓ
+// ä½•ã§ã‚‚åå®¹ã™ã‚‹ã‚ˆå‹
+// åå®¹ã•ã‚ŒãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¯ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã¯å‘¼ã°ã‚Œãªã„ã®ã§æ³¨æ„
 template<size_t Size>
 class TVariant
 {

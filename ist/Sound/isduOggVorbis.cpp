@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "../Base.h"
 #include "../Sound.h"
 #include "isduOggVorbis.h"
@@ -27,8 +27,8 @@ bool OggVorbisFileStream::openStream(const char* filepath)
         goto LABEL_ERROR;
     }
 
-    // _DEBUG ‚Ì—L–³‚Å FILE ‚Ì“à—e‚ªˆá‚¤‚½‚ßAov_open() ‚ğg‚¤‚Æ libvorbisfile.dll ‚ÆƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚Ìƒrƒ‹ƒh\¬‚ªˆá‚¤‚ÆƒNƒ‰ƒbƒVƒ…‚µ‚Ü‚·B
-    // ‚»‚ê‚ğ‰ñ”ğ‚·‚é‚½‚ßAov_open() ‚Ì‘ã‚í‚è‚É ov_open_callbacks() ‚ğ—p‚¢‚Ü‚·B
+    // _DEBUG ã®æœ‰ç„¡ã§ FILE ã®å†…å®¹ãŒé•ã†ãŸã‚ã€ov_open() ã‚’ä½¿ã†ã¨ libvorbisfile.dll ã¨ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã®ãƒ“ãƒ«ãƒ‰æ§‹æˆãŒé•ã†ã¨ã‚¯ãƒ©ãƒƒã‚·ãƒ¥ã—ã¾ã™ã€‚
+    // ãã‚Œã‚’å›é¿ã™ã‚‹ãŸã‚ã€ov_open() ã®ä»£ã‚ã‚Šã« ov_open_callbacks() ã‚’ç”¨ã„ã¾ã™ã€‚
     if ( ov_open_callbacks( m_file, &m_ov , 0, 0, OV_CALLBACKS_DEFAULT ) != 0 ) {
         istPrint("OggVorbisStream::OggVorbisStream(): not vorbis file %s\n", filepath);
         goto LABEL_ERROR;

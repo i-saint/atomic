@@ -1,4 +1,4 @@
-#ifndef __ist_Base_Types__
+﻿#ifndef __ist_Base_Types__
 #define __ist_Base_Types__
 
 #include <glm/glm.hpp>

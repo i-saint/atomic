@@ -1,4 +1,4 @@
-#ifndef __ist_i3ddx11_Device__
+﻿#ifndef __ist_i3ddx11_Device__
 #define __ist_i3ddx11_Device__
 
 #include "i3ddx11Buffer.h"

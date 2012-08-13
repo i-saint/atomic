@@ -1,4 +1,4 @@
-#ifndef __ist_i3dgl_Device__
+﻿#ifndef __ist_i3dgl_Device__
 #define __ist_i3dgl_Device__
 
 #include "i3dglBuffer.h"

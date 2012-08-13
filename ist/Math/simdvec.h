@@ -22,6 +22,9 @@ namespace ist {
 #endif
 
 #if defined(istx86)
+    istForceInline simdvec4 simdvec4_set() { return _mm_set1_ps(0.0f); }
+    istForceInline simdvec4 simdvec4_set(float v) { return _mm_set1_ps(v); }
+    istForceInline simdvec4 simdvec4_set(float _x, float _y, float _z, float _w) { return _mm_set_ps(_x, _y, _z, _w); }
     istForceInline simdvec4 operator+(simdvec4 a, simdvec4 b)               { return _mm_add_ps(a, b); }
     istForceInline simdvec4 operator-(simdvec4 a, simdvec4 b)               { return _mm_sub_ps(a, b); }
     istForceInline simdvec4 operator*(simdvec4 a, simdvec4 b)               { return _mm_mul_ps(a, b); }

@@ -1,4 +1,4 @@
-#ifndef __ist_i3ddx11_Util__
+ï»¿#ifndef __ist_i3ddx11_Util__
 #define __ist_i3ddx11_Util__
 
 #include "i3ddx11Shader.h"
@@ -9,15 +9,15 @@ class SFMT;
 namespace ist {
 namespace i3ddx11 {
 
-// ‰æ‘œƒtƒ@ƒCƒ‹/ƒXƒgƒŠ[ƒ€‚©‚çƒeƒNƒXƒ`ƒƒ¶¬
+// ç”»åƒãƒ•ã‚¡ã‚¤ãƒ«/ã‚¹ãƒˆãƒªãƒ¼ãƒ ã‹ã‚‰ãƒ†ã‚¯ã‚¹ãƒãƒ£ç”Ÿæˆ
 bool CreateTexture2DFromFile(Texture2D& tex, const char *filename);
 bool CreateTexture2DFromStream(Texture2D& tex, std::istream& st);
 
-// —”ƒeƒNƒXƒ`ƒƒ¶¬
+// ä¹±æ•°ãƒ†ã‚¯ã‚¹ãƒãƒ£ç”Ÿæˆ
 bool GenerateRandomTexture(Texture2D &tex, const uvec2 &size, I3D_COLOR_FORMAT format);
 bool GenerateRandomTexture(Texture2D &tex, const uvec2 &size, I3D_COLOR_FORMAT format, SFMT& random);
 
-// ƒtƒ@ƒCƒ‹/ƒXƒgƒŠ[ƒ€‚©‚çŠeíƒVƒF[ƒ_¶¬
+// ãƒ•ã‚¡ã‚¤ãƒ«/ã‚¹ãƒˆãƒªãƒ¼ãƒ ã‹ã‚‰å„ç¨®ã‚·ã‚§ãƒ¼ãƒ€ç”Ÿæˆ
 bool CreateVertexShaderFromFile(VertexShader& sh, const char *filename);
 bool CreateGeometryShaderFromFile(GeometryShader& sh, const char *filename);
 bool CreateFragmentShaderFromFile(PixelShader& sh, const char *filename);

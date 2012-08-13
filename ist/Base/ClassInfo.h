@@ -1,4 +1,4 @@
-#ifndef __ist_Base_ClassInfo__
+﻿#ifndef __ist_Base_ClassInfo__
 #define __ist_Base_ClassInfo__
 
 #include "ist/Base/Decl.h"

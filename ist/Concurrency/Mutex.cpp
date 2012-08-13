@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "ist/Concurrency/Mutex.h"
 
 namespace ist {
@@ -17,7 +17,7 @@ namespace ist {
     {
         pthread_mutexattr_t attr;
         pthread_mutexattr_init(&attr);
-        pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE); // recursive �ݒ�
+        pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE); // recursive 設定
         pthread_mutex_init(&m_lockobj, &attr);
         pthread_mutexattr_destroy(&attr);
     }

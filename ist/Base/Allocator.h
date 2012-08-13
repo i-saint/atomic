@@ -1,4 +1,4 @@
-#include <EASTL/allocator.h>
+ï»¿#include <EASTL/allocator.h>
 #include <EASTL/algorithm.h>
 #include <EASTL/sort.h>
 #include "ist/Base/Decl.h"
@@ -170,12 +170,12 @@ public:
         return m_unused[m_used++];
     }
 
-    // ŒİŠ·«‚Ì‚½‚ß—pˆÓBˆø”‚Í‘S•”–³‹
+    // äº’æ›æ€§ã®ãŸã‚ç”¨æ„ã€‚å¼•æ•°ã¯å…¨éƒ¨ç„¡è¦–
     void* allocate(size_t size)
     {
         return allocate();
     }
-    // “¯ã
+    // åŒä¸Š
     void* allocate(size_t size, size_t alignment, size_t offset, int flags = 0)
     {
         return allocate();
@@ -187,7 +187,7 @@ public:
     }
 
 
-    // ”ñŒİŠ·‹@”\
+    // éäº’æ›æ©Ÿèƒ½
     void defrag()
     {
         stl::stable_sort(m_unused+m_used, m_unused+m_max_element);

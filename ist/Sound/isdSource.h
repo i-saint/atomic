@@ -1,4 +1,4 @@
-#ifndef __ist_isd_Source__
+﻿#ifndef __ist_isd_Source__
 #define __ist_isd_Source__
 
 #include "isdDeviceResource.h"

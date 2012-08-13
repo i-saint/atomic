@@ -1,4 +1,4 @@
-#ifndef __ist__
+﻿#ifndef __ist__
 #define __ist__
 
 //feature macros:

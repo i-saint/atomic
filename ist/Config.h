@@ -1,4 +1,4 @@
-#ifndef __ist_Config_h__
+﻿#ifndef __ist_Config_h__
 
 #define __ist_enable_assert__
 #define __ist_enable_graphics_assert__

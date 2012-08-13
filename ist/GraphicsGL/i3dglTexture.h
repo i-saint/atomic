@@ -1,4 +1,4 @@
-#ifndef __ist_i3dgl_Texture__
+﻿#ifndef __ist_i3dgl_Texture__
 #define __ist_i3dgl_Texture__
 
 #include "i3dglTypes.h"

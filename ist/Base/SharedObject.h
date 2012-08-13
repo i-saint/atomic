@@ -1,4 +1,4 @@
-#ifndef __ist_Base_SharedObject_h_
+﻿#ifndef __ist_Base_SharedObject_h_
 #define __ist_Base_SharedObject_h_
 
 #include "ist/Base/Types.h"

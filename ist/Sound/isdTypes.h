@@ -1,4 +1,4 @@
-#ifndef __ist_isd_Types__
+﻿#ifndef __ist_isd_Types__
 #define __ist_isd_Types__
 
 #include "ist/Base/New.h"

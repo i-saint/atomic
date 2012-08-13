@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "ist/Base/New.h"
 #include "ist/Base/Assert.h"
 #include "ist/Concurrency/TaskScheduler.h"
@@ -159,12 +159,12 @@ TaskScheduler::TaskScheduler( uint32 num_threads )
     Thread::setPriorityToCurrentThread(Thread::Priority_High);
 
 
-    // task stream ì¬
+    // task stream ä½œæˆ
     for(int32 i=0; i<Task::Priority_Max+1; ++i) {
         m_taskstream.push_back( istNew(TaskStream)() );
     }
 
-    // task worker ì¬
+    // task worker ä½œæˆ
     int processors = Thread::getLogicalCpuCount();
 #ifdef istWindows
     SYSTEM_INFO info;
@@ -183,9 +183,9 @@ TaskScheduler::TaskScheduler( uint32 num_threads )
 
 TaskScheduler::~TaskScheduler()
 {
-    // ‘Sƒ^ƒXƒN‚Ìˆ—Š®—¹‚ğ‘Ò‚Â
+    // å…¨ã‚¿ã‚¹ã‚¯ã®å‡¦ç†å®Œäº†ã‚’å¾…ã¤
     waitForAll();
-    // worker ‚ÉI—¹—v‹‚ğo‚µ‚Ä‚©‚ç wait ‘Ò‚¿‚ğ‰ğœ
+    // worker ã«çµ‚äº†è¦æ±‚ã‚’å‡ºã—ã¦ã‹ã‚‰ wait å¾…ã¡ã‚’è§£é™¤
     for(size_t i=0; i<m_workers.size(); ++i) {
         m_workers[i]->requestExit();
     }
@@ -195,7 +195,7 @@ TaskScheduler::~TaskScheduler()
     for(size_t i=0; i<m_workers.size(); ++i) {
         m_workers[i]->join();
     }
-    // ‚±‚±‚Ü‚Å‚«‚½‚ç worker ‚ğ delete ‚µ‚Ä‚à‘åä•v‚È‚Í‚¸
+    // ã“ã“ã¾ã§ããŸã‚‰ worker ã‚’ delete ã—ã¦ã‚‚å¤§ä¸ˆå¤«ãªã¯ãš
     m_workers.clear();
 
     m_taskstream.clear();

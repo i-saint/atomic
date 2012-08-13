@@ -1,4 +1,4 @@
-#ifndef __ist_Concurrency_Mutex_h__
+ï»¿#ifndef __ist_Concurrency_Mutex_h__
 #define __ist_Concurrency_Mutex_h__
 
 #include "ist/Concurrency/Atomic.h"
@@ -26,11 +26,11 @@ private:
 };
 
 
-/// CAS (compare and swap) ‚É‚æ‚é spin lockB
-/// atomic operation ‚Ì busy loop ‚Å‘Ò‚Â‚½‚ßA‚±‚¢‚Â‚Å’·ŠÔ‘Ò‚Â‚ÆƒVƒXƒeƒ€‘S‘Ì‚É[‚ÈƒpƒtƒH[ƒ}ƒ“ƒX‚Ìˆ«‰e‹¿‚ğ‹y‚Ú‚µ‚Ü‚·B
-/// g‚¤ê‡A•K‚¸ light_mutex ‚Æ”äŠr‚µ‚Ä–{“–‚É‘¬‚­‚È‚é‚©ŒŸØ‚ª•K—v‚Å‚·B
-/// “Á‚É Windows ‚Ìê‡ priority boost ‚ª‚©‚©‚ç‚È‚¢‚½‚ß‚©‘½‚­‚Ìê‡•’Ê‚Ì mutex ‚æ‚è’x‚­‚È‚è‚Ü‚·B
-/// android ‚Å—LŒø‚É‹@”\‚·‚é‚±‚Æ‚ª‚ ‚é‚©ŒŸØ‚µ‚ÄA‚¾‚ß‚È‚çÁ‚µ‚½•û‚ª‚¢‚¢‚Æv‚í‚ê‚Ü‚·B
+/// CAS (compare and swap) ã«ã‚ˆã‚‹ spin lockã€‚
+/// atomic operation ã® busy loop ã§å¾…ã¤ãŸã‚ã€ã“ã„ã¤ã§é•·æ™‚é–“å¾…ã¤ã¨ã‚·ã‚¹ãƒ†ãƒ å…¨ä½“ã«æ·±åˆ»ãªãƒ‘ãƒ•ã‚©ãƒ¼ãƒãƒ³ã‚¹ã®æ‚ªå½±éŸ¿ã‚’åŠã¼ã—ã¾ã™ã€‚
+/// ä½¿ã†å ´åˆã€å¿…ãš light_mutex ã¨æ¯”è¼ƒã—ã¦æœ¬å½“ã«é€Ÿããªã‚‹ã‹æ¤œè¨¼ãŒå¿…è¦ã§ã™ã€‚
+/// ç‰¹ã« Windows ã®å ´åˆ priority boost ãŒã‹ã‹ã‚‰ãªã„ãŸã‚ã‹å¤šãã®å ´åˆæ™®é€šã® mutex ã‚ˆã‚Šé…ããªã‚Šã¾ã™ã€‚
+/// android ã§æœ‰åŠ¹ã«æ©Ÿèƒ½ã™ã‚‹ã“ã¨ãŒã‚ã‚‹ã‹æ¤œè¨¼ã—ã¦ã€ã ã‚ãªã‚‰æ¶ˆã—ãŸæ–¹ãŒã„ã„ã¨æ€ã‚ã‚Œã¾ã™ã€‚
 class istInterModule SpinMutex
 {
 public:
@@ -57,8 +57,8 @@ private:
 
 
 /// mutex
-/// Windows ‚Å‚Í CRITICAL_SECTION ‚É‚æ‚éÀ‘•B
-/// recursive ‘Î‰
+/// Windows ã§ã¯ CRITICAL_SECTION ã«ã‚ˆã‚‹å®Ÿè£…ã€‚
+/// recursive å¯¾å¿œ
 class istInterModule Mutex
 {
 public:

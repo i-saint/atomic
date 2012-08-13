@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include <string>
 #include "../Sound.h"
 #include "../Base.h"

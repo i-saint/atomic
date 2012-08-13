@@ -1,4 +1,4 @@
-#ifndef __ist_Concurrency_Atomic_h__
+﻿#ifndef __ist_Concurrency_Atomic_h__
 #define __ist_Concurrency_Atomic_h__
 
 #include "ist/Base.h"

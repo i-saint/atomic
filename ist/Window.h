@@ -1,4 +1,4 @@
-#ifndef __ist_Window__
+﻿#ifndef __ist_Window__
 #define __ist_Window__
 
 #include <mmsystem.h>

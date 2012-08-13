@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "../Base.h"
 #include "i3dglDevice.h"
 #include "i3dglDeviceContext.h"
@@ -14,26 +14,26 @@ Device::Device(HWND hwnd) : m_hwnd(hwnd), m_context(NULL)
 
     int pixelformat;
     static PIXELFORMATDESCRIPTOR pfd = {
-        sizeof(PIXELFORMATDESCRIPTOR),    //‚±‚Ì\‘¢‘Ì‚ÌƒTƒCƒY
-        1,                  //OpenGLƒo[ƒWƒ‡ƒ“
-        PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,       //ƒ_ƒuƒ‹ƒoƒbƒtƒ@Žg—p‰Â”\
-        PFD_TYPE_RGBA,      //RGBAƒJƒ‰[
-        32,                 //F”
-        0, 0,               //RGBA‚Ìƒrƒbƒg‚ÆƒVƒtƒgÝ’è        
+        sizeof(PIXELFORMATDESCRIPTOR),    //ã“ã®æ§‹é€ ä½“ã®ã‚µã‚¤ã‚º
+        1,                  //OpenGLãƒãƒ¼ã‚¸ãƒ§ãƒ³
+        PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,       //ãƒ€ãƒ–ãƒ«ãƒãƒƒãƒ•ã‚¡ä½¿ç”¨å¯èƒ½
+        PFD_TYPE_RGBA,      //RGBAã‚«ãƒ©ãƒ¼
+        32,                 //è‰²æ•°
+        0, 0,               //RGBAã®ãƒ“ãƒƒãƒˆã¨ã‚·ãƒ•ãƒˆè¨­å®š        
         0, 0,                //G
         0, 0,                //B
         0, 0,                //A
-        0,                  //ƒAƒLƒ…ƒ€ƒŒ[ƒVƒ‡ƒ“ƒoƒbƒtƒ@
-        0, 0, 0, 0,         //RGBAƒAƒLƒ…ƒ€ƒŒ[ƒVƒ‡ƒ“ƒoƒbƒtƒ@
-        32,                 //Zƒoƒbƒtƒ@    
-        0,                  //ƒXƒeƒ“ƒVƒ‹ƒoƒbƒtƒ@
-        0,                  //Žg—p‚µ‚È‚¢
-        PFD_MAIN_PLANE,     //ƒŒƒCƒ„[ƒ^ƒCƒv
-        0,                  //—\–ñ
-        0, 0, 0             //ƒŒƒCƒ„[ƒ}ƒXƒN‚ÌÝ’èE–¢Žg—p
+        0,                  //ã‚¢ã‚­ãƒ¥ãƒ ãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³ãƒãƒƒãƒ•ã‚¡
+        0, 0, 0, 0,         //RGBAã‚¢ã‚­ãƒ¥ãƒ ãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³ãƒãƒƒãƒ•ã‚¡
+        32,                 //Zãƒãƒƒãƒ•ã‚¡    
+        0,                  //ã‚¹ãƒ†ãƒ³ã‚·ãƒ«ãƒãƒƒãƒ•ã‚¡
+        0,                  //ä½¿ç”¨ã—ãªã„
+        PFD_MAIN_PLANE,     //ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚¿ã‚¤ãƒ—
+        0,                  //äºˆç´„
+        0, 0, 0             //ãƒ¬ã‚¤ãƒ¤ãƒ¼ãƒžã‚¹ã‚¯ã®è¨­å®šãƒ»æœªä½¿ç”¨
     };
 
-    // glew —p‚Ì‰¼‚ÌƒRƒ“ƒeƒLƒXƒg¶¬
+    // glew ç”¨ã®ä»®ã®ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆç”Ÿæˆ
     if(((pixelformat = ::ChoosePixelFormat(m_hdc, &pfd)) == 0)
         || ((::SetPixelFormat(m_hdc, pixelformat, &pfd) == FALSE))
         || (!(m_hglrc=::wglCreateContext(m_hdc)))) {

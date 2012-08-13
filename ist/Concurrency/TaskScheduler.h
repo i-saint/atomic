@@ -1,4 +1,4 @@
-#ifndef __ist_Concurrency_TashScheduler_h__
+ï»¿#ifndef __ist_Concurrency_TashScheduler_h__
 #define __ist_Concurrency_TashScheduler_h__
 
 #include <vector>
@@ -45,10 +45,10 @@ public:
     virtual void exec()=0;
 
 protected:
-    /// Œp³æ‚ÅƒI[ƒo[ƒ‰ƒCƒh‚·‚éê‡ATask::setState() ‚ğŒÄ‚Ôƒ^ƒCƒ~ƒ“ƒO‚É’ˆÓB
-    /// setState(State_Completed) ‚µ‚½uŠÔ•Ê‚ÌƒXƒŒƒbƒh‚©‚ç”jŠü‚³‚ê‚é‰Â”\«‚ª‚ ‚é‚½‚ßA
-    /// Å‰‚É setState() ‚·‚é‚ÆˆÈ~‚Ìˆ—‚Å‰ğ•úÏ‚İƒƒ‚ƒŠ‚Ö‚ÌƒAƒNƒZƒXƒGƒ‰[‚ª”­¶‚·‚é‰Â”\«‚ª‚ ‚éB
-    /// ‚µ‚½‚ª‚Á‚Ä‘½‚­‚Ìê‡‚ÍÅŒã‚ÉŒÄ‚Î‚È‚¢‚Æ‚¢‚¯‚È‚¢B
+    /// ç¶™æ‰¿å…ˆã§ã‚ªãƒ¼ãƒãƒ¼ãƒ©ã‚¤ãƒ‰ã™ã‚‹å ´åˆã€Task::setState() ã‚’å‘¼ã¶ã‚¿ã‚¤ãƒŸãƒ³ã‚°ã«æ³¨æ„ã€‚
+    /// setState(State_Completed) ã—ãŸç¬é–“åˆ¥ã®ã‚¹ãƒ¬ãƒƒãƒ‰ã‹ã‚‰ç ´æ£„ã•ã‚Œã‚‹å¯èƒ½æ€§ãŒã‚ã‚‹ãŸã‚ã€
+    /// æœ€åˆã« setState() ã™ã‚‹ã¨ä»¥é™ã®å‡¦ç†ã§è§£æ”¾æ¸ˆã¿ãƒ¡ãƒ¢ãƒªã¸ã®ã‚¢ã‚¯ã‚»ã‚¹ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã™ã‚‹å¯èƒ½æ€§ãŒã‚ã‚‹ã€‚
+    /// ã—ãŸãŒã£ã¦å¤šãã®å ´åˆã¯æœ€å¾Œã«å‘¼ã°ãªã„ã¨ã„ã‘ãªã„ã€‚
     virtual void setState(State v);
 
 private:

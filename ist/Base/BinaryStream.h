@@ -1,4 +1,4 @@
-#ifndef __ist_BinaryStream__
+﻿#ifndef __ist_BinaryStream__
 #define __ist_BinaryStream__
 namespace ist {
 

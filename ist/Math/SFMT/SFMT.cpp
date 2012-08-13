@@ -1,4 +1,4 @@
-/** 
+﻿/** 
  * @file  SFMT.c
  * @brief SIMD oriented Fast Mersenne Twister(SFMT)
  *

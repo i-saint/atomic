@@ -1,4 +1,4 @@
-//
+﻿//
 // This is an automatically generated file.
 // Do not edit.
 //

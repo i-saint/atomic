@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "../Base.h"
 #include "i3dglTexture.h"
 #include "i3dglRenderTarget.h"
@@ -70,11 +70,11 @@ bool RenderTarget::setRenderBuffers(Texture2D **rb, uint32 num, Texture2D *depth
         return false;
     }
 
-    // Œ»ƒoƒbƒtƒ@‚Æ rb, depthstencil ‚ª“¯‚¶•¨‚ğw‚µ‚Ä‚é‰Â”\«‚ª‚ ‚é‚½‚ßAæ‚ÉQÆƒJƒEƒ“ƒ^‘‰Á
+    // ç¾ãƒãƒƒãƒ•ã‚¡ã¨ rb, depthstencil ãŒåŒã˜ç‰©ã‚’æŒ‡ã—ã¦ã‚‹å¯èƒ½æ€§ãŒã‚ã‚‹ãŸã‚ã€å…ˆã«å‚ç…§ã‚«ã‚¦ãƒ³ã‚¿å¢—åŠ 
     for(uint32 i=0; i<num; ++i) { istSafeAddRef(rb[i]); }
     istSafeAddRef(depthstencil);
 
-    // Œ»ƒoƒbƒtƒ@‚ÌQÆƒJƒEƒ“ƒ^Œ¸­
+    // ç¾ãƒãƒƒãƒ•ã‚¡ã®å‚ç…§ã‚«ã‚¦ãƒ³ã‚¿æ¸›å°‘
     releaseBuffers();
 
     m_num_color_buffers = num;

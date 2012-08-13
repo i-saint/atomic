@@ -1,4 +1,4 @@
-/** 
+﻿/** 
  * @file SFMT-alti.h 
  *
  * @brief SIMD oriented Fast Mersenne Twister(SFMT)

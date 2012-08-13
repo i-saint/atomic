@@ -1,4 +1,4 @@
-#ifndef __ist_i3dgl_DeviceResource__
+﻿#ifndef __ist_i3dgl_DeviceResource__
 #define __ist_i3dgl_DeviceResource__
 
 #include "i3dglTypes.h"

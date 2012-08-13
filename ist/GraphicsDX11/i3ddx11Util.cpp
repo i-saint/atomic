@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "../Base.h"
 #include "../Math.h"
 #include <D3D11.h>

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "ist/Concurrency/Thread.h"
 
 #if defined(istWindows)

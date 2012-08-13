@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "New.h"
 
 static const size_t minimum_alignment = 16;

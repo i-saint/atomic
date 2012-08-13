@@ -1,4 +1,4 @@
-#ifndef __ist_Math__
+﻿#ifndef __ist_Math__
 #define __ist_Math__
 
 #include "Base.h"

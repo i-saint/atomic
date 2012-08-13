@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include <wingdi.h>
 #include "../Window.h"
 #include "i3duglFont.h"

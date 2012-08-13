@@ -1,4 +1,4 @@
-#ifndef __ist_Concurrency_Condition_h__
+﻿#ifndef __ist_Concurrency_Condition_h__
 #define __ist_Concurrency_Condition_h__
 
 #include "ist/Concurrency/ThreadCommon.h"
@@ -20,11 +20,11 @@ public:
     Condition();
     ~Condition();
     void wait();
-    /// �N���҂��Ă��Ȃ���Ԃ� signalOne() �����ꍇ�Asignal ��Ԃ��p�����܂��B(Windows �� Event ����)
-    /// * �� Windows �̏ꍇ�A2 �̃X���b�h�� signal ���`����Ă��܂��\��������܂��B
-    ///   �⊶�ł����A1 �̃X���b�h�����N���Ȃ��Ƃ����O��̃R�[�h�͏����Ȃ��ł��������B
+    /// 誰も待っていない状態で signalOne() した場合、signal 状態が継続します。(Windows の Event 方式)
+    /// * 非 Windows の場合、2 つのスレッドに signal が伝わってしまう可能性があります。
+    ///   遺憾ですが、1 つのスレッドしか起きないという前提のコードは書かないでください。
     void signalOne();
-    /// ������͒N���҂��Ă��Ȃ��Ă� signal ��Ԃ͌p�����܂���
+    /// こちらは誰も待っていなくても signal 状態は継続しません
     void signalAll();
 
     Handle& getHandle() { return m_lockobj; }

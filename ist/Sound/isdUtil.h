@@ -1,4 +1,4 @@
-#ifndef __ist_isd_Util__
+﻿#ifndef __ist_isd_Util__
 #define __ist_isd_Util__
 
 #include "isdTypes.h"

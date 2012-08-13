@@ -1,10 +1,10 @@
-#ifndef __ist_Graphic_Linear_h__
+ï»¿#ifndef __ist_Graphic_Linear_h__
 #define __ist_Graphic_Linear_h__
 
 
 namespace ist {
 
-// union ‚É“ü‚ê‚½‚¢‚È‚Ç‚ÌƒVƒ`ƒ…ƒG[ƒVƒ‡ƒ“‚ª—\‘z‚³‚ê‚é‚½‚ßAƒRƒ“ƒXƒgƒ‰ƒNƒ^‚ğ‚½‚È‚¢\‘¢‚É‚µ‚Ä‚¢‚Ü‚·
+// union ã«å…¥ã‚ŒãŸã„ãªã©ã®ã‚·ãƒãƒ¥ã‚¨ãƒ¼ã‚·ãƒ§ãƒ³ãŒäºˆæƒ³ã•ã‚Œã‚‹ãŸã‚ã€ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã‚’æŒãŸãªã„æ§‹é€ ã«ã—ã¦ã„ã¾ã™
 
 struct __declspec(align(16)) Point
 {

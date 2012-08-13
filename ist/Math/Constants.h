@@ -1,4 +1,4 @@
-#ifndef __ist_Math_Constants__
+﻿#ifndef __ist_Math_Constants__
 #define __ist_Math_Constants__
 namespace ist {
 

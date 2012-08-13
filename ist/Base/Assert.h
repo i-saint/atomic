@@ -1,4 +1,4 @@
-#ifndef __ist_Assert__
+﻿#ifndef __ist_Assert__
 #define __ist_Assert__
 
 #ifdef __ist_enable_assert__

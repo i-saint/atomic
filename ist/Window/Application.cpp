@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "../Base.h"
 #include "../Sound.h"
 #include "../Window.h"
@@ -196,7 +196,7 @@ Application::~Application()
 bool Application::initialize(ivec2 wpos, ivec2 wsize, const wchar_t *title, bool fullscreen)
 {
     if(g_the_app) {
-        istPrint("Šù‚ÉƒCƒ“ƒXƒ^ƒ“ƒX‚ª‘¶İ‚µ‚Ä‚¢‚é");
+        istPrint("æ—¢ã«ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ãŒå­˜åœ¨ã—ã¦ã„ã‚‹");
         return false;
     }
     g_the_app = this;

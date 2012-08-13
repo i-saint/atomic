@@ -1,4 +1,4 @@
-#ifndef __ist_i3dgl_Util__
+ï»¿#ifndef __ist_i3dgl_Util__
 #define __ist_i3dgl_Util__
 
 #include "i3dglShader.h"
@@ -9,15 +9,15 @@ class SFMT;
 namespace ist {
 namespace i3dgl {
 
-// ‰æ‘œƒtƒ@ƒCƒ‹/ƒXƒgƒŠ[ƒ€‚©‚çƒeƒNƒXƒ`ƒƒ¶¬
+// ç”»åƒãƒ•ã‚¡ã‚¤ãƒ«/ã‚¹ãƒˆãƒªãƒ¼ãƒ ã‹ã‚‰ãƒ†ã‚¯ã‚¹ãƒãƒ£ç”Ÿæˆ
 Texture2D* CreateTexture2DFromFile(Device *dev, const char *filename);
 Texture2D* CreateTexture2DFromStream(Device *dev, std::istream& st);
 
-// —”ƒeƒNƒXƒ`ƒƒ¶¬
+// ä¹±æ•°ãƒ†ã‚¯ã‚¹ãƒãƒ£ç”Ÿæˆ
 Texture2D* GenerateRandomTexture(Device *dev, const uvec2 &size, I3D_COLOR_FORMAT format);
 Texture2D* GenerateRandomTexture(Device *dev, const uvec2 &size, I3D_COLOR_FORMAT format, SFMT& random);
 
-// ƒtƒ@ƒCƒ‹/ƒXƒgƒŠ[ƒ€‚©‚çŠeíƒVƒF[ƒ_¶¬
+// ãƒ•ã‚¡ã‚¤ãƒ«/ã‚¹ãƒˆãƒªãƒ¼ãƒ ã‹ã‚‰å„ç¨®ã‚·ã‚§ãƒ¼ãƒ€ç”Ÿæˆ
 VertexShader*   CreateVertexShaderFromFile(Device *dev, const char *filename);
 GeometryShader* CreateGeometryShaderFromFile(Device *dev, const char *filename);
 PixelShader*    CreatePixelShaderFromFile(Device *dev, const char *filename);

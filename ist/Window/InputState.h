@@ -1,4 +1,4 @@
-#ifndef __ist_Application_InputState__
+Ôªø#ifndef __ist_Application_InputState__
 #define __ist_Application_InputState__
 namespace ist {
 
@@ -76,13 +76,13 @@ private:
 
 public:
     JoyState() { memset(this, 0, sizeof(*this)); }
-    int getX() const { return m_x; } // -32768 Å` 32767
-    int getY() const { return m_y; } // -32768 Å` 32767
-    int getZ() const { return m_z; } // -32768 Å` 32767
-    int getR() const { return m_r; } // -32768 Å` 32767
-    int getU() const { return m_u; } // -32768 Å` 32767
-    int getV() const { return m_v; } // -32768 Å` 32767
-    int getRoV() const { return m_pov; } // 0 Å` 35900, degree * 100
+    int getX() const { return m_x; } // -32768 ÔΩû 32767
+    int getY() const { return m_y; } // -32768 ÔΩû 32767
+    int getZ() const { return m_z; } // -32768 ÔΩû 32767
+    int getR() const { return m_r; } // -32768 ÔΩû 32767
+    int getU() const { return m_u; } // -32768 ÔΩû 32767
+    int getV() const { return m_v; } // -32768 ÔΩû 32767
+    int getRoV() const { return m_pov; } // 0 ÔΩû 35900, degree * 100
     int getButtons() const { return m_buttons; }
     bool isButtonPressed(int i) const { return (m_buttons & (1<<i))!=0; }
 

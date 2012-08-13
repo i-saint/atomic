@@ -1,4 +1,4 @@
-#ifndef __ist_i3ddx11_Shader__
+﻿#ifndef __ist_i3ddx11_Shader__
 #define __ist_i3ddx11_Shader__
 
 #include "i3ddx11DeviceResource.h"

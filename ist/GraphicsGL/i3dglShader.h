@@ -1,4 +1,4 @@
-#ifndef __ist_i3dgl_Shader__
+﻿#ifndef __ist_i3dgl_Shader__
 #define __ist_i3dgl_Shader__
 
 #include "i3dglDeviceResource.h"

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "ist/Base/Assert.h"
 #include "ist/Concurrency/Condition.h"
 
@@ -30,7 +30,7 @@ namespace ist {
     void Condition::signalAll()
     {
         // http://msdn.microsoft.com/en-us/library/windows/desktop/ms684914.aspx
-        // PulseEvent() ‚Í–â‘è‚ª‚ ‚é‚ç‚µ‚¢‚ªAConditionVariable ‚Í vista ˆÈ~‚È‚Ì‚Åc
+        // PulseEvent() ã¯å•é¡ŒãŒã‚ã‚‹ã‚‰ã—ã„ãŒã€ConditionVariable ã¯ vista ä»¥é™ãªã®ã§â€¦
         ::PulseEvent(m_lockobj);
     }
 
@@ -48,7 +48,7 @@ namespace ist {
 
     void Condition::wait()
     {
-        // Windows ‚Ì Event ‚Ìd‘g‚İ‚ğƒGƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“Bsignal ó‘Ô‚È‚ç‘Ò‚½‚¸‚É return
+        // Windows ã® Event ã®ä»•çµ„ã¿ã‚’ã‚¨ãƒŸãƒ¥ãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³ã€‚signal çŠ¶æ…‹ãªã‚‰å¾…ãŸãšã« return
         if(m_signal.compare_and_swap(0, 1)==0) { return; }
 
         pthread_cond_wait(&m_lockobj, &m_mutex.getHandle());

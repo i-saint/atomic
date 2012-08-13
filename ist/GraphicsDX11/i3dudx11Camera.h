@@ -1,4 +1,4 @@
-#ifndef __ist_i3dudx11_Camera__
+﻿#ifndef __ist_i3dudx11_Camera__
 #define __ist_i3dudx11_Camera__
 
 namespace ist {

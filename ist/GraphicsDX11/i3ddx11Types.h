@@ -1,4 +1,4 @@
-#ifndef __ist_i3ddx11_Types__
+﻿#ifndef __ist_i3ddx11_Types__
 #define __ist_i3ddx11_Types__
 
 #include "ist/Base/New.h"

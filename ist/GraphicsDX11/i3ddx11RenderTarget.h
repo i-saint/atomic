@@ -1,4 +1,4 @@
-#ifndef __ist_i3ddx11_RenderTarget__
+﻿#ifndef __ist_i3ddx11_RenderTarget__
 #define __ist_i3ddx11_RenderTarget__
 
 #include "i3ddx11Types.h"

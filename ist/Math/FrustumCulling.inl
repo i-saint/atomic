@@ -1,8 +1,8 @@
-#ifndef __ist_Math_FrustumCulling_inl__
+ï»¿#ifndef __ist_Math_FrustumCulling_inl__
 #define __ist_Math_FrustumCulling_inl__
 namespace ist {
 
-// _mm_set_ps() ‚Í wzyx ‚Ì‡‚ÉŠi”[‚³‚ê‚é (little endian) ‚½‚ßAxyzw ‚Ì‡‚ÉŠi”[‚·‚é‚à‚Ì‚ğ—pˆÓ
+// _mm_set_ps() ã¯ wzyx ã®é †ã«æ ¼ç´ã•ã‚Œã‚‹ (little endian) ãŸã‚ã€xyzw ã®é †ã«æ ¼ç´ã™ã‚‹ã‚‚ã®ã‚’ç”¨æ„
 inline simdvec4_t simdvec4_set( float _1, float _2, float _3, float _4 )
 {
     return _mm_set_ps(_4, _3, _2, _1);

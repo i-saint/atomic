@@ -1,4 +1,4 @@
-#ifndef __ist_Application__
+﻿#ifndef __ist_Application__
 #define __ist_Application__
 
 #include "WindowMessage.h"
@@ -66,9 +66,9 @@ public:
     virtual void mainLoop()=0;
     virtual int handleWindowMessage(const WindowMessage& wm)=0;
 
-    // ���͏��̍X�V�͎��Ԃ������邱�Ƃɒ��ӁB(�����炭 GPU ���\�[�X�̂悤�Ƀ��b�N������̂��Ǝv����)
-    // �܂��A�����������X���b�h����łȂ��Ɛ���ɍX�V�ł��Ȃ��H�悤�ŁA�񓯊��ɍX�V����ۂ́A
-    // ���[�J�[�X���b�h�Ƀ^�X�N������U�����チ�C���X���b�h����X�V�A�̂悤�Ȃ�₱�����菇���K�v�B
+    // 入力情報の更新は時間がかかることに注意。(おそらく GPU リソースのようにロックが入るのだと思われる)
+    // また、初期化したスレッドからでないと正常に更新できない？ようで、非同期に更新する際は、
+    // ワーカースレッドにタスクを割り振った後メインスレッドから更新、のようなややこしい手順が必要。
     virtual void updateInput();
 
     virtual void translateMessage();

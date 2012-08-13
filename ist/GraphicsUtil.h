@@ -1,4 +1,4 @@
-#ifndef __ist_GraphicsUtil__
+﻿#ifndef __ist_GraphicsUtil__
 #define __ist_GraphicsUtil__
 
 

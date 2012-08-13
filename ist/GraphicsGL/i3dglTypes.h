@@ -1,4 +1,4 @@
-#ifndef __ist_i3dgl_Types__
+ï»¿#ifndef __ist_i3dgl_Types__
 #define __ist_i3dgl_Types__
 
 #include "ist/Base/New.h"
@@ -140,7 +140,7 @@ struct BufferDesc
     uint32 size;
     void *data;
 
-    // data ‚Í NULL ‚Å‚à‚æ‚­A‚»‚Ìê‡ƒƒ‚ƒŠŠm•Û‚¾‚¯‚ªs‚í‚ê‚éB
+    // data ã¯ NULL ã§ã‚‚ã‚ˆãã€ãã®å ´åˆãƒ¡ãƒ¢ãƒªç¢ºä¿ã ã‘ãŒè¡Œã‚ã‚Œã‚‹ã€‚
     explicit BufferDesc(I3D_BUFFER_TYPE _type, I3D_USAGE _usage=I3D_USAGE_DYNAMIC, uint32 _size=0, void *_data=NULL)
         : type(_type)
         , usage(_usage)

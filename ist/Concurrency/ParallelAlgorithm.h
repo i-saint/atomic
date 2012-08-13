@@ -1,4 +1,4 @@
-#ifndef __ist_Concurrency_ParallelAlgorithm_h__
+ï»¿#ifndef __ist_Concurrency_ParallelAlgorithm_h__
 #define __ist_Concurrency_ParallelAlgorithm_h__
 
 namespace ist {
@@ -39,10 +39,10 @@ inline void parallel_for(Index first, Index last, Step step, const Body &body)
     Task tasks[128];
     int32 ti = 0;
     for(Index i=first; i<last; i+=step) {
-        tasks[ti].start(i, std::min<Index>(i+step, last), body); // start() ‚ÌÅ‰‚Å wait ‚·‚é‚Ì‚Å ti ‚ªˆêü‚µ‚Ä‚à‘åä•v‚È‚Í‚¸
+        tasks[ti].start(i, std::min<Index>(i+step, last), body); // start() ã®æœ€åˆã§ wait ã™ã‚‹ã®ã§ ti ãŒä¸€å‘¨ã—ã¦ã‚‚å¤§ä¸ˆå¤«ãªã¯ãš
         ti = (ti+1)%_countof(tasks);
     }
-    // scope ”²‚¯‚éƒfƒXƒgƒ‰ƒNƒ^‚Å wait
+    // scope æŠœã‘ã‚‹æ™‚ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã§ wait
 }
 
 template<class Index, class Body>

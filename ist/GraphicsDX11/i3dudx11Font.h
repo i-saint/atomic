@@ -1,4 +1,4 @@
-#ifndef __ist_i3dudx11_Font__
+﻿#ifndef __ist_i3dudx11_Font__
 #define __ist_i3dudx11_Font__
 
 #include "i3ddx11DeviceResource.h"

@@ -1,4 +1,4 @@
-#include <windows.h>
+ï»¿#include <windows.h>
 #include "ist/Base.h"
 
 #define SSE_SHUFFLE(w,x,y,z) _MM_SHUFFLE(z,y,x,w)
@@ -167,7 +167,7 @@ namespace detail {
 ///////////////////////////////////////////////////////////////
 
 #if defined(istx84)
-// 2 —v‘f SoA ƒxƒNƒgƒ‹‚Ö
+// 2 è¦ç´  SoA ãƒ™ã‚¯ãƒˆãƒ«ã¸
 istForceInline soavec24 soa_transpose24(const simdvec4 &v0)
 {
     __m128 zero = _mm_set_ps1(0.0f);
@@ -208,7 +208,7 @@ istForceInline soavec24 soa_transpose24(const simdvec4 &v0, const simdvec4 &v1, 
 }
 
 
-// 3 —v‘f SoA ƒxƒNƒgƒ‹‚Ö
+// 3 è¦ç´  SoA ãƒ™ã‚¯ãƒˆãƒ«ã¸
 istForceInline soavec34 soa_transpose34(const simdvec4 &v0)
 {
     __m128 zero = _mm_set_ps1(0.0f);
@@ -261,7 +261,7 @@ istForceInline soavec34 soa_transpose34(const simdvec4 &v0, const simdvec4 &v1, 
 }
 
 
-// 4 —v‘f SoA ƒxƒNƒgƒ‹‚Ö
+// 4 è¦ç´  SoA ãƒ™ã‚¯ãƒˆãƒ«ã¸
 istForceInline soavec44 soa_transpose44(const simdvec4 &v0)
 {
     __m128 zero = _mm_set_ps1(0.0f);

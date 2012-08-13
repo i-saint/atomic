@@ -1,4 +1,4 @@
-#ifndef __ist_i3ddx11_Assert__
+﻿#ifndef __ist_i3ddx11_Assert__
 #define __ist_i3ddx11_Assert__
 
 #ifdef __ist_enable_graphics_assert__

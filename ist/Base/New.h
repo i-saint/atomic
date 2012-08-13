@@ -1,4 +1,4 @@
-#ifndef __ist_Base_New__
+﻿#ifndef __ist_Base_New__
 #define __ist_Base_New__
 
 template<class T> inline T* call_destructor(T* p) { p->~T(); return p; }

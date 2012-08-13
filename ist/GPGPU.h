@@ -1,4 +1,4 @@
-#ifndef __ist_GPGPU__
+﻿#ifndef __ist_GPGPU__
 #define __ist_GPGPU__
 
 #include "Base/Types.h"

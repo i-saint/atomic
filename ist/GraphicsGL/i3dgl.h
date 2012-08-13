@@ -1,4 +1,4 @@
-#ifndef __ist_i3dgl__
+﻿#ifndef __ist_i3dgl__
 #define __ist_i3dgl__
 
 #pragma comment(lib, "glew32.lib")

@@ -1,4 +1,4 @@
-#ifndef __ist_i3ddx11_Buffer__
+ï»¿#ifndef __ist_i3ddx11_Buffer__
 #define __ist_i3ddx11_Buffer__
 
 #include "i3ddx11Types.h"
@@ -18,7 +18,7 @@ protected:
     ~Buffer();
 
 public:
-    // data ‚Í NULL ‚Å‚à‚æ‚­A‚»‚Ìê‡ƒƒ‚ƒŠŠm•Û‚¾‚¯‚ªs‚í‚ê‚éB
+    // data ã¯ NULL ã§ã‚‚ã‚ˆãã€ãã®å ´åˆãƒ¡ãƒ¢ãƒªç¢ºä¿ã ã‘ãŒè¡Œã‚ã‚Œã‚‹ã€‚
     void allocate(GLuint size, I3D_USAGE usage, void *data=NULL);
 
     void* map(I3D_MAP_MODE mode);

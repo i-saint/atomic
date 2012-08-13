@@ -1,4 +1,4 @@
-#ifndef __ist_i3ddx11__
+﻿#ifndef __ist_i3ddx11__
 #define __ist_i3ddx11__
 
 #ifdef _DEBUG

@@ -1,4 +1,4 @@
-#ifndef __ist_Concurrency_TaskUtil_h__
+﻿#ifndef __ist_Concurrency_TaskUtil_h__
 #define __ist_Concurrency_TaskUtil_h__
 
 #include "ist/Concurrency/TaskScheduler.h"

@@ -1,4 +1,4 @@
-#ifndef __ist_i3ddx11_DeviceContext__
+﻿#ifndef __ist_i3ddx11_DeviceContext__
 #define __ist_i3ddx11_DeviceContext__
 
 #include "i3ddx11Types.h"

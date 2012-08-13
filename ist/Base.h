@@ -1,4 +1,4 @@
-#ifndef __ist_Base__
+﻿#ifndef __ist_Base__
 #define __ist_Base__
 
 #include <stdint.h>

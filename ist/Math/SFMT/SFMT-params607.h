@@ -1,4 +1,4 @@
-#ifndef SFMT_PARAMS607_H
+﻿#ifndef SFMT_PARAMS607_H
 #define SFMT_PARAMS607_H
 
 #define POS1	2

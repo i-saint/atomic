@@ -1,4 +1,4 @@
-#ifndef __ist_i3dgl_RenderTarget__
+ï»¿#ifndef __ist_i3dgl_RenderTarget__
 #define __ist_i3dgl_RenderTarget__
 
 #include "i3dglTypes.h"
@@ -35,7 +35,7 @@ public:
     void bind() const;
     void unbind() const;
 
-    // RenderBuffer ‚Íg‚í‚È‚¢ & DirectX ‚É‘Š“–‹@”\‚È‚¢‚Ì‚Å”ñ‘Î‰‚Å
+    // RenderBuffer ã¯ä½¿ã‚ãªã„ & DirectX ã«ç›¸å½“æ©Ÿèƒ½ãªã„ã®ã§éå¯¾å¿œã§
     //bool attachRenderBuffer(RenderBuffer& tex, I3D_RT_ATTACH attach);
 };
 

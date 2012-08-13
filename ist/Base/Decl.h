@@ -1,4 +1,4 @@
-#ifndef __ist_Base_Decl_h__
+﻿#ifndef __ist_Base_Decl_h__
 #define __ist_Base_Decl_h__
 
 #ifdef istWindows

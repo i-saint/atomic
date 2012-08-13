@@ -1,4 +1,4 @@
-#ifndef __ist_i3dugl_Font__
+﻿#ifndef __ist_i3dugl_Font__
 #define __ist_i3dugl_Font__
 
 #include "i3dglDeviceResource.h"

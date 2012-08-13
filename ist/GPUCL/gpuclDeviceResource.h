@@ -1,4 +1,4 @@
-#ifndef __ist_gpucl_DeviceResource__
+﻿#ifndef __ist_gpucl_DeviceResource__
 #define __ist_gpucl_DeviceResource__
 
 #include "stdafx.h"

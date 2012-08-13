@@ -1,4 +1,4 @@
-#ifndef __ist_TaskScheduler__
+﻿#ifndef __ist_TaskScheduler__
 #define __ist_TaskScheduler__
 
 #include <EASTL/vector.h>

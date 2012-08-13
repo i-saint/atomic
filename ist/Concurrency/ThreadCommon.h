@@ -1,4 +1,4 @@
-#ifndef __ist_Concurrency_ThreadCommon_h__
+﻿#ifndef __ist_Concurrency_ThreadCommon_h__
 #define __ist_Concurrency_ThreadCommon_h__
 
 #ifdef istWindows

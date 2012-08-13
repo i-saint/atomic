@@ -1,4 +1,4 @@
-#ifndef __ist_Concurrency__
+﻿#ifndef __ist_Concurrency__
 #define __ist_Concurrency__
 
 #include "Concurrency/Atomic.h"

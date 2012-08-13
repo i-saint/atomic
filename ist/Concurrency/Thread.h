@@ -1,4 +1,4 @@
-#ifndef __ist_Concurrency_Thread_h__
+ï»¿#ifndef __ist_Concurrency_Thread_h__
 #define __ist_Concurrency_Thread_h__
 
 #include "ist/Base/SharedObject.h"
@@ -35,21 +35,21 @@ public:
 
 public:
     Thread();
-    virtual ~Thread(); /// ƒfƒXƒgƒ‰ƒNƒ^‚Å join() ‚Í‚µ‚È‚¢‚Ì‚Å’ˆÓ
+    virtual ~Thread(); /// ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã§ join() ã¯ã—ãªã„ã®ã§æ³¨æ„
 
     Handle& getHandle() { return m_handle; }
-    /// ˆÈ‰º‚Ì set ŒnŠÖ”‚Í run() ‚Ì‘O‚ÉŒÄ‚Î‚È‚¢‚Æ”½‰f‚³‚ê‚È‚¢‚Ì‚Å’ˆÓB
-    /// (pthread_t ‚©‚ç thread id ‚ğ“¾‚éƒ|[ƒ^ƒuƒ‹‚È•û–@‚ª‚È‚¢‚Ì‚ÅA‘ÎÛƒXƒŒƒbƒh‚ª©•ª‚Å•Ï‚¦‚é‚µ‚©‚È‚¢)
+    /// ä»¥ä¸‹ã® set ç³»é–¢æ•°ã¯ run() ã®å‰ã«å‘¼ã°ãªã„ã¨åæ˜ ã•ã‚Œãªã„ã®ã§æ³¨æ„ã€‚
+    /// (pthread_t ã‹ã‚‰ thread id ã‚’å¾—ã‚‹ãƒãƒ¼ã‚¿ãƒ–ãƒ«ãªæ–¹æ³•ãŒãªã„ã®ã§ã€å¯¾è±¡ã‚¹ãƒ¬ãƒƒãƒ‰ãŒè‡ªåˆ†ã§å¤‰ãˆã‚‹ã—ã‹ãªã„)
     void setName(const char *v)     { strncpy(m_name, v, _countof(m_name)); }
     void setAffinityMask(size_t v)  { m_affinity=v; }
     void setPriority(int v)         { m_priority=v; }
     void setStaskSize(size_t v)     { m_stacksize=v; }
 
-    /// run() ‚ÅƒXƒŒƒbƒh‚ğ¶¬A¶¬‚³‚ê‚½ƒXƒŒƒbƒh‚©‚ç exec() ‚ªŒÄ‚Î‚ê‚éB
+    /// run() ã§ã‚¹ãƒ¬ãƒƒãƒ‰ã‚’ç”Ÿæˆã€ç”Ÿæˆã•ã‚ŒãŸã‚¹ãƒ¬ãƒƒãƒ‰ã‹ã‚‰ exec() ãŒå‘¼ã°ã‚Œã‚‹ã€‚
     void run();
     void join();
 
-    /// V‹Kì¬‚³‚ê‚½ƒXƒŒƒbƒh‚©‚çŒÄ‚Î‚ê‚éBŒp³æ‚Åˆ—“à—e‚ğÀ‘•
+    /// æ–°è¦ä½œæˆã•ã‚ŒãŸã‚¹ãƒ¬ãƒƒãƒ‰ã‹ã‚‰å‘¼ã°ã‚Œã‚‹ã€‚ç¶™æ‰¿å…ˆã§å‡¦ç†å†…å®¹ã‚’å®Ÿè£…
     virtual void exec()=0;
 
     void setParams();

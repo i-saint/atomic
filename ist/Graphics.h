@@ -1,4 +1,4 @@
-#ifndef __ist_Graphics__
+﻿#ifndef __ist_Graphics__
 #define __ist_Graphics__
 
 #ifdef __ist_with_OpenGL__

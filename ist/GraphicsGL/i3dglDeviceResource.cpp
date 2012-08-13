@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "../Base.h"
 #include "i3dglTypes.h"
 #include "i3dglDeviceResource.h"

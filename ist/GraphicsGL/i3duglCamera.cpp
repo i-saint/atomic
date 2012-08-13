@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "../Base.h"
 #include "i3duglCamera.h"
 #include <glm/gtc/matrix_transform.hpp>

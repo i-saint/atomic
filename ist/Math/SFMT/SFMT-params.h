@@ -1,4 +1,4 @@
-#ifndef SFMT_PARAMS_H
+﻿#ifndef SFMT_PARAMS_H
 #define SFMT_PARAMS_H
 
 #if !defined(MEXP)

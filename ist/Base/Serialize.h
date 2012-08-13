@@ -1,4 +1,4 @@
-#ifndef __ist_Base_Serialize__
+ï»¿#ifndef __ist_Base_Serialize__
 #define __ist_Base_Serialize__
 
 #include <cstdlib>
@@ -57,7 +57,7 @@ namespace ist {
         virtual ~IMemberInfo() {}
         virtual const char* GetName() const=0;
         virtual const void* GetValue(const void *obj) const=0;
-        virtual size_t GetSize(const void *obj) const=0; // POD Œ^‚Í sizeof ‚·‚é‚¾‚¯‚È‚Ì‚ÅÃ“I‚ÉŒˆ‚Ü‚é‚ªAstd::vector<> ‚Æ‚©‚Í“®“I‚ÉƒTƒCƒY•Ï‚í‚é‚Ì‚Å obj ‚ğˆø”‚Éæ‚é•K—v‚ª‚ ‚é
+        virtual size_t GetSize(const void *obj) const=0; // POD å‹ã¯ sizeof ã™ã‚‹ã ã‘ãªã®ã§é™çš„ã«æ±ºã¾ã‚‹ãŒã€std::vector<> ã¨ã‹ã¯å‹•çš„ã«ã‚µã‚¤ã‚ºå¤‰ã‚ã‚‹ã®ã§ obj ã‚’å¼•æ•°ã«å–ã‚‹å¿…è¦ãŒã‚ã‚‹
         virtual void SetValue(void *obj, const void *v)=0;
     };
 

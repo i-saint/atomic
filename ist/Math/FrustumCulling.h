@@ -1,4 +1,4 @@
-#ifndef __ist_Math_FrustumCulling_h__
+ï»¿#ifndef __ist_Math_FrustumCulling_h__
 #define __ist_Math_FrustumCulling_h__
 namespace ist {
 
@@ -11,8 +11,8 @@ private:
 
 public:
 
-    // view projection matrix ‚©‚ç frustum ‚ğ\¬‚·‚é 6 ‚Â‚Ì plane ‚ğZo‚µ‚Ü‚·
-    // MatrixType ‚Í XMMATRIX ‚© glm::mat4x4 ‚ğ‘z’è
+    // view projection matrix ã‹ã‚‰ frustum ã‚’æ§‹æˆã™ã‚‹ 6 ã¤ã® plane ã‚’ç®—å‡ºã—ã¾ã™
+    // MatrixType ã¯ XMMATRIX ã‹ glm::mat4x4 ã‚’æƒ³å®š
     template<class MatrixType>
     void constructFromViewProjectionMatrix(const MatrixType &mat, bool normalize=true);
 
@@ -26,7 +26,7 @@ private:
     simdvec4_t m_data[2];
 
 public:
-    // ‘S‚Ä‚Ì simdvec4_t ‚Ìˆø”‚Ì w —v‘f‚Í 1.0f ‚Å‚ ‚é•K—v‚ª‚ ‚è‚Ü‚·
+    // å…¨ã¦ã® simdvec4_t ã®å¼•æ•°ã® w è¦ç´ ã¯ 1.0f ã§ã‚ã‚‹å¿…è¦ãŒã‚ã‚Šã¾ã™
 
     AxisAlignedBoundingBox() { m_data[0]=m_data[1]=_mm_set1_ps(0.0f); }
     AxisAlignedBoundingBox(const simdvec4_t v) { m_data[0]=m_data[1]=v; }
@@ -39,7 +39,7 @@ public:
 };
 typedef AxisAlignedBoundingBox AABB;
 
-// true ‚È‚ç‹ŠE“àAfalse ‚È‚ç‹ŠEŠO
+// true ãªã‚‰è¦–ç•Œå†…ã€false ãªã‚‰è¦–ç•Œå¤–
 bool TestFrustumAABB(const FrustumPlanes &frustum, const AABB &aabb);
 
 

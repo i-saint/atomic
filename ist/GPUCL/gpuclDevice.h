@@ -1,4 +1,4 @@
-#ifndef __ist_gpucl_Device__
+ï»¿#ifndef __ist_gpucl_Device__
 #define __ist_gpucl_Device__
 
 #if defined (__APPLE__) || defined(MACOSX)
@@ -16,7 +16,7 @@ class DeviceResource;
 class Program;
 class Kernel;
 
-// OpenGL ‚Æ˜AŒg‚µ‚½‚¢ê‡AOpenGL ‚Ì‰Šú‰»‚ÌŒã‚É‰Šú‰»‚·‚é•K—v‚ª‚ ‚é
+// OpenGL ã¨é€£æºã—ãŸã„å ´åˆã€OpenGL ã®åˆæœŸåŒ–ã®å¾Œã«åˆæœŸåŒ–ã™ã‚‹å¿…è¦ãŒã‚ã‚‹
 class Device
 {
 private:

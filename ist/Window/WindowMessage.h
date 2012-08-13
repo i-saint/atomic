@@ -1,4 +1,4 @@
-#ifndef __ist_Application_WindowMessage__
+ï»¿#ifndef __ist_Application_WindowMessage__
 #define __ist_Application_WindowMessage__
 namespace ist {
 
@@ -94,7 +94,7 @@ struct WM_Mouse : public WindowMessage
 
 
 
-// MES_IME_CHAR, MES_IME_RESULT ‚Ì‚Æ‚«Atext, text_len ‚É“ü—Íƒf[ƒ^‚ª“ü‚Á‚Ä‚¢‚é
+// MES_IME_CHAR, MES_IME_RESULT ã®ã¨ãã€text, text_len ã«å…¥åŠ›ãƒ‡ãƒ¼ã‚¿ãŒå…¥ã£ã¦ã„ã‚‹
 struct WM_IME : public WindowMessage
 {
     size_t text_len;

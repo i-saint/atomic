@@ -1,4 +1,4 @@
-#ifndef __ist_isd_Stream__
+ï»¿#ifndef __ist_isd_Stream__
 #define __ist_isd_Stream__
 
 #include "isdUtil.h"
@@ -26,13 +26,13 @@ public:
 
     virtual ALenum getALFormat() const;
 
-    /// require_size byte •ª“Ç‚İ‚Ş 
+    /// require_size byte åˆ†èª­ã¿è¾¼ã‚€ 
     virtual DataCont& readByte(size_t require_size)=0;
 
-    /// require_millisecƒ~ƒŠ•b•ª“Ç‚İ‚Ş 
+    /// require_millisecãƒŸãƒªç§’åˆ†èª­ã¿è¾¼ã‚€ 
     DataCont& readMillisec(size_t require_millisec);
 
-    /// require_sampleƒTƒ“ƒvƒ‹•ª“Ç‚İ‚Ş 
+    /// require_sampleã‚µãƒ³ãƒ—ãƒ«åˆ†èª­ã¿è¾¼ã‚€ 
     DataCont& readSample(size_t require_sample);
 };
 

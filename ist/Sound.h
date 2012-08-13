@@ -1,4 +1,4 @@
-#ifndef __ist_Sound__
+﻿#ifndef __ist_Sound__
 #define __ist_Sound__
 
 #include <AL/al.h>
