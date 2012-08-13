@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "ist/Base.h"
 #include "ist/Sound.h"
 #include "types.h"
@@ -180,7 +180,7 @@ void SoundThread::exec()
 void SoundThread::processRequests()
 {
     {
-        // lock ”ÍˆÍ‚ğÅ¬‚É‚·‚é‚½‚ßA‚±‚±‚Å‚Íƒ[ƒLƒ“ƒO—Ìˆæ‚ÉˆÚ‚·‚¾‚¯
+        // lock ç¯„å›²ã‚’æœ€å°ã«ã™ã‚‹ãŸã‚ã€ã“ã“ã§ã¯ãƒ¯ãƒ¼ã‚­ãƒ³ã‚°é ˜åŸŸã«ç§»ã™ã ã‘
         ist::Mutex::ScopedLock lock(m_mutex_request);
         m_requests_temp = m_requests;
         m_requests.clear();

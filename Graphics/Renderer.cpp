@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "types.h"
 #include "Game/AtomicApplication.h"
 #include "Game/AtomicGame.h"
@@ -35,7 +35,7 @@ AtomicRenderer::AtomicRenderer()
     m_rt_out[0]     = atomicGetRenderTarget(RT_OUTPUT0);
     m_rt_out[1]     = atomicGetRenderTarget(RT_OUTPUT1);
 
-    // ’Ç‰Á‚ÌÛ‚ÍƒfƒXƒgƒ‰ƒNƒ^‚Å‚ÌÁ‹ˆ—‚à–Y‚ê‚¸‚É
+    // è¿½åŠ ã®éš›ã¯ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã§ã®æ¶ˆå»å‡¦ç†ã‚‚å¿˜ã‚Œãšã«
     m_renderer_sph              = istNew(PassGBuffer_SPH)();
     m_renderer_particle         = istNew(PassGBuffer_Particle)();
     m_renderer_bloodstain       = istNew(PassDeferredShading_Bloodstain)();

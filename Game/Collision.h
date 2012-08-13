@@ -1,4 +1,4 @@
-#ifndef __atomic_Game_Collision__
+ï»¿#ifndef __atomic_Game_Collision__
 #define __atomic_Game_Collision__
 
 #include "GPGPU/SPH.cuh"
@@ -45,8 +45,8 @@ struct BoundingBox
 class CollisionSet;
 
 
-// virtual ‚ÈƒfƒXƒgƒ‰ƒNƒ^‚ª‚È‚¢‚Ì‚ÍˆÓ}“IB
-// ‚±‚ê‚ğŒp³‚·‚éƒIƒuƒWƒFƒNƒg‚Íƒf[ƒ^•ÛˆÈŠO‚Ì‚±‚Æ‚Í‚â‚Á‚Ä‚Í‚¢‚¯‚È‚¢B
+// virtual ãªãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ãŒãªã„ã®ã¯æ„å›³çš„ã€‚
+// ã“ã‚Œã‚’ç¶™æ‰¿ã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¯ãƒ‡ãƒ¼ã‚¿ä¿æŒä»¥å¤–ã®ã“ã¨ã¯ã‚„ã£ã¦ã¯ã„ã‘ãªã„ã€‚
 struct CollisionEntity
 {
 friend class CollisionSet;
@@ -125,7 +125,7 @@ struct CollideMessage
         };
         float4 padding;
     };
-    vec4 direction; // w=‚ß‚è‚İ—Ê
+    vec4 direction; // w=ã‚ã‚Šè¾¼ã¿é‡
 
     CollideMessage() : from(0), to(0), cfrom(0), cto(0) {}
 };
@@ -194,9 +194,9 @@ public:
     ivec2 getGridCoord(const vec4 &pos);
     void getGridRange(const BoundingBox &bb, ivec2 &out_bl, ivec2 &out_ur);
 
-    // BoundingBox ‚Ì”ÍˆÍ‚ÌƒZƒ‹‚Ì—v‘f‚ğæ“¾B
-    // ’ˆÓ: out_handles ‚ÌŒ‹‰Ê‚Íƒ\[ƒg‚³‚ê‚Ä‚¢‚é‚ªA“¯‚¶—v‘f‚ª•¡”“ü‚Á‚Ä‚¢‚é‰Â”\«‚ª‚ ‚éB
-    //       atomic::unique_iterator ‚Åd•¡—v‘f‚ğ‰ñ”ğ‚µ‚È‚ª‚ç„‰ñ‚·‚é‚±‚ÆB(stl::unique() ‚ª”ñí‚É’x‚¢‚½‚ßA‚±‚¤‚È‚Á‚Ä‚¢‚é)
+    // BoundingBox ã®ç¯„å›²ã®ã‚»ãƒ«ã®è¦ç´ ã‚’å–å¾—ã€‚
+    // æ³¨æ„: out_handles ã®çµæœã¯ã‚½ãƒ¼ãƒˆã•ã‚Œã¦ã„ã‚‹ãŒã€åŒã˜è¦ç´ ãŒè¤‡æ•°å…¥ã£ã¦ã„ã‚‹å¯èƒ½æ€§ãŒã‚ã‚‹ã€‚
+    //       atomic::unique_iterator ã§é‡è¤‡è¦ç´ ã‚’å›é¿ã—ãªãŒã‚‰å·¡å›ã™ã‚‹ã“ã¨ã€‚(stl::unique() ãŒéå¸¸ã«é…ã„ãŸã‚ã€ã“ã†ãªã£ã¦ã„ã‚‹)
     void getEntities(const BoundingBox &bb, stl::vector<CollisionHandle> &out_handles);
 };
 

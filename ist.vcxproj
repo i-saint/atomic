@@ -40,6 +40,7 @@
     <ClInclude Include="ist\Concurrency\Thread.h" />
     <ClInclude Include="ist\Concurrency\ThreadCommon.h" />
     <ClInclude Include="ist\Config.h" />
+    <ClInclude Include="ist\Debug\ParamTree.h" />
     <ClInclude Include="ist\GPGPU.h" />
     <ClInclude Include="ist\GPUCL\gpuclDevice.h" />
     <ClInclude Include="ist\GPUCL\gpuclDeviceResource.h" />
@@ -75,6 +76,7 @@
     <ClInclude Include="ist\Math\Constants.h" />
     <ClInclude Include="ist\Math\FrustumCulling.h" />
     <ClInclude Include="ist\Math\Linear.h" />
+    <ClInclude Include="ist\Math\Misc.h" />
     <ClInclude Include="ist\Math\SFMT\SFMT-alti.h" />
     <ClInclude Include="ist\Math\SFMT\SFMT-params.h" />
     <ClInclude Include="ist\Math\SFMT\SFMT-params11213.h" />
@@ -180,12 +182,14 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v100</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v100</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -200,7 +204,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(BOOST_INCLUDE);$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
     <LibraryPath>external\lib;$(BOOST_LIBRARY);$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
-    <IntDir>$(ProjectName)\$(Configuration)\</IntDir>
+    <IntDir>$(Configuration)\$(ProjectName)\</IntDir>
     <OutDir>$(SolutionDir)</OutDir>
     <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
@@ -208,7 +212,7 @@
     <IncludePath>$(BOOST_INCLUDE);$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
     <LibraryPath>external\lib;$(BOOST_LIBRARY);$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)</OutDir>
-    <IntDir>$(ProjectName)\$(Configuration)\</IntDir>
+    <IntDir>$(Configuration)\$(ProjectName)\</IntDir>
     <TargetName>$(ProjectName)d</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "types.h"
 #include "Game/AtomicApplication.h"
 

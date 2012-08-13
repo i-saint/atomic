@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "features.h"
 #include "types.h"
 #include "Input.h"
@@ -48,7 +48,7 @@ bool RawInputHeader::isValid()
 
 InputServerLocal::InputServerLocal()
 {
-    m_data.reserve(60*20); // 20 •ª—\–ñ
+    m_data.reserve(60*20); // 20 åˆ†äºˆç´„
 }
 IInputServer::IS_CLASS InputServerLocal::getClassID() const { return IS_LOCAL; }
 

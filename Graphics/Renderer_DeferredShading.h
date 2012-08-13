@@ -1,4 +1,4 @@
-#ifndef __atomic_Graphics_Renderer_DeferredShading__
+﻿#ifndef __atomic_Graphics_Renderer_DeferredShading__
 #define __atomic_Graphics_Renderer_DeferredShading__
 namespace atomic {
 

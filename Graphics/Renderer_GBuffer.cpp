@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "types.h"
 #include "Game/AtomicApplication.h"
 #include "Game/AtomicGame.h"
@@ -125,21 +125,21 @@ void PassGBuffer_SPH::draw()
     uint32 num_rigid_particles = 0;
     uint32 num_tasks = 0;
     {
-        // ‡Œvƒp[ƒeƒBƒNƒ‹”‚ğZo‚µ‚ÄA‚»‚ê‚ªû‚Ü‚éƒoƒbƒtƒ@‚ğŠm•Û
+        // åˆè¨ˆãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«æ•°ã‚’ç®—å‡ºã—ã¦ã€ãã‚ŒãŒåã¾ã‚‹ãƒãƒƒãƒ•ã‚¡ã‚’ç¢ºä¿
         uint32 num_rigids = m_rupdateinfo.size();
         for(uint32 ri=0; ri<num_rigids; ++ri) {
             num_rigid_particles += atomicGetParticleSet(m_rupdateinfo[ri].psid)->getNumParticles();
         }
         m_rparticles.resize(num_rigid_particles);
 
-        // •À—ñXV‚É•K—v‚Èî•ñ‚ğİ’è
+        // ä¸¦åˆ—æ›´æ–°ã«å¿…è¦ãªæƒ…å ±ã‚’è¨­å®š
         size_t n = 0;
         for(uint32 ri=0; ri<num_rigids; ++ri) {
             m_updater.push_back( UpdateRigidParticle(m_rupdateinfo[ri], &m_rparticles[n]) );
             n += atomicGetParticleSet(m_rupdateinfo[ri].psid)->getNumParticles();
         }
 
-        // •À—ñXV‚Ì—±“x‚ğİ’è (ˆê’è’¸“_”‚Åƒ^ƒXƒN‚ğ•ªŠ„)
+        // ä¸¦åˆ—æ›´æ–°ã®ç²’åº¦ã‚’è¨­å®š (ä¸€å®šé ‚ç‚¹æ•°ã§ã‚¿ã‚¹ã‚¯ã‚’åˆ†å‰²)
         const uint32 minimum_particles_in_task = 5000;
         UpdateRigidParticle *last = &m_updater[0];
         uint32 particles_in_task = 0;
@@ -155,7 +155,7 @@ void PassGBuffer_SPH::draw()
             }
         }
 
-        // •À—ñ’¸“_XVŠJn
+        // ä¸¦åˆ—é ‚ç‚¹æ›´æ–°é–‹å§‹
         ist::EnqueueTasks(&m_tasks[0], num_tasks);
     }
     // copy fluid particles (CUDA -> GL)
@@ -222,7 +222,7 @@ void PassGBuffer_SPH::resizeTasks( uint32 n )
 
 void PassGBuffer_SPH::addPSetInstance( PSET_RID psid, const mat4 &t, const PSetInstance inst )
 {
-    // todo: AABB “KØ‚Éİ’è
+    // todo: AABB é©åˆ‡ã«è¨­å®š
     {
         simdvec4 pos = simdvec4(t[3]);
         AABB aabb = AABB(pos.Data);

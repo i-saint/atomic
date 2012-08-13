@@ -1,4 +1,4 @@
-#ifndef __atomic_Game_Input__
+﻿#ifndef __atomic_Game_Input__
 #define __atomic_Game_Input__
 namespace atomic {
 

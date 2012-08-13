@@ -1,4 +1,4 @@
-#ifndef __atomic_Game_SPHManager__
+ï»¿#ifndef __atomic_Game_SPHManager__
 #define __atomic_Game_SPHManager__
 
 #include "GPGPU/SPH.cuh"
@@ -41,7 +41,7 @@ public:
     void copyParticlesToGL();
     void taskAsyncupdate(float32 dt);
 
-    // rigid/force ‚Í–ˆƒtƒŒ[ƒ€ƒNƒŠƒA‚³‚ê‚é‚Ì‚ÅA–ˆƒtƒŒ[ƒ€“Ë‚Á‚Ş•K—v‚ª‚ ‚é
+    // rigid/force ã¯æ¯ãƒ•ãƒ¬ãƒ¼ãƒ ã‚¯ãƒªã‚¢ã•ã‚Œã‚‹ã®ã§ã€æ¯ãƒ•ãƒ¬ãƒ¼ãƒ çªã£è¾¼ã‚€å¿…è¦ãŒã‚ã‚‹
     void addRigid(const sphRigidPlane &s);
     void addRigid(const sphRigidSphere &s);
     void addRigid(const sphRigidBox &s);

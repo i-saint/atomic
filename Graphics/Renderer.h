@@ -1,4 +1,4 @@
-#ifndef __atomic_Graphics_Renderer__
+ï»¿#ifndef __atomic_Graphics_Renderer__
 #define __atomic_Graphics_Renderer__
 
 #include "ResourceManager.h"
@@ -11,8 +11,8 @@ class IRenderer : public boost::noncopyable
 {
 public:
     virtual ~IRenderer() {}
-    virtual void beforeDraw() {}    // ƒƒCƒ“ƒXƒŒƒbƒh‚©‚çA•`‰æˆ—‚Ì‘O‚ÉŒÄ‚Î‚ê‚éB’¸“_ƒf[ƒ^‚Ì—pˆÓ‚È‚Ç‚ğs‚¤
-    virtual void draw()=0;          // •`‰æƒXƒŒƒbƒh‚©‚çŒÄ‚Î‚ê‚éB’¸“_ƒf[ƒ^‚Ì GPU ‚Ö‚Ì“]‘—A•`‰æƒRƒ}ƒ“ƒh”­s‚È‚Ç‚ğs‚¤
+    virtual void beforeDraw() {}    // ãƒ¡ã‚¤ãƒ³ã‚¹ãƒ¬ãƒƒãƒ‰ã‹ã‚‰ã€æç”»å‡¦ç†ã®å‰ã«å‘¼ã°ã‚Œã‚‹ã€‚é ‚ç‚¹ãƒ‡ãƒ¼ã‚¿ã®ç”¨æ„ãªã©ã‚’è¡Œã†
+    virtual void draw()=0;          // æç”»ã‚¹ãƒ¬ãƒƒãƒ‰ã‹ã‚‰å‘¼ã°ã‚Œã‚‹ã€‚é ‚ç‚¹ãƒ‡ãƒ¼ã‚¿ã® GPU ã¸ã®è»¢é€ã€æç”»ã‚³ãƒãƒ³ãƒ‰ç™ºè¡Œãªã©ã‚’è¡Œã†
 };
 
 
@@ -76,8 +76,8 @@ public:
     static void initializeInstance();
     static void finalizeInstance();
 
-    void beforeDraw();  // ƒƒCƒ“ƒXƒŒƒbƒh‚©‚çA•`‰æˆ—‚Ì‘O‚ÉŒÄ‚Î‚ê‚é
-    void draw();        // ˆÈ‰º•`‰æƒXƒŒƒbƒh‚©‚çŒÄ‚Î‚ê‚é
+    void beforeDraw();  // ãƒ¡ã‚¤ãƒ³ã‚¹ãƒ¬ãƒƒãƒ‰ã‹ã‚‰ã€æç”»å‡¦ç†ã®å‰ã«å‘¼ã°ã‚Œã‚‹
+    void draw();        // ä»¥ä¸‹æç”»ã‚¹ãƒ¬ãƒƒãƒ‰ã‹ã‚‰å‘¼ã°ã‚Œã‚‹
 
     const Viewport* getDefaultViewport() const                      { return &m_default_viewport; }
     RenderStates* getRenderStates()                                 { return &m_render_states; }

@@ -1,4 +1,4 @@
-#ifndef __atomic_Game_AtomicApplication__
+ï»¿#ifndef __atomic_Game_AtomicApplication__
 #define __atomic_Game_AtomicApplication__
 #include "Input.h"
 
@@ -63,7 +63,7 @@ public:
     void handleError(ATOMIC_ERROR e);
     int32 handleCommandLine(const stl::wstring &command);
 
-    // •`‰æƒXƒŒƒbƒh‚©‚çŒÄ‚Î‚ê‚é
+    // æç”»ã‚¹ãƒ¬ãƒƒãƒ‰ã‹ã‚‰å‘¼ã°ã‚Œã‚‹
     void drawCallback();
 
     void requestExit()                          { m_request_exit=true; }

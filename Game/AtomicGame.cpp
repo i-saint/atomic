@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "types.h"
 #include "AtomicApplication.h"
 #include "AtomicGame.h"
@@ -23,7 +23,7 @@ AtomicGame::AtomicGame()
     m_world = istNew(World)();
     m_world->initialize();
 
-    // ¡‰ñ‚ÍŒÅ’è’l‚Å‰Šú‰»
+    // ä»Šå›žã¯å›ºå®šå€¤ã§åˆæœŸåŒ–
     m_rand.initialize(0);
 }
 
@@ -88,7 +88,7 @@ void AtomicGame::asyncupdateEnd()
 
 void AtomicGame::draw()
 {
-    // todo: ƒtƒŒ[ƒ€ƒXƒLƒbƒvˆ—
+    // todo: ãƒ•ãƒ¬ãƒ¼ãƒ ã‚¹ã‚­ãƒƒãƒ—å‡¦ç†
 
     if(m_input_server->getClassID()==IInputServer::IS_REPLAY) {
         static uint32 f;

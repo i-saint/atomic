@@ -1,4 +1,4 @@
-#ifndef __atomic_Game_DebugConsole__
+﻿#ifndef __atomic_Game_DebugConsole__
 #define __atomic_Game_DebugConsole__
 namespace atomic {
 

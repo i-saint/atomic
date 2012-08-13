@@ -1,4 +1,4 @@
-#ifndef __atomic_Game_EntityClass__
+ï»¿#ifndef __atomic_Game_EntityClass__
 #define __atomic_Game_EntityClass__
 
 namespace atomic {
@@ -62,7 +62,7 @@ namespace atomic {
     BOOST_STATIC_ASSERT(ESID_MAX >= ESID_Bullet_End);
     BOOST_STATIC_ASSERT(ESID_MAX >= ESID_VFX_End);
 
-    // EntityHandle: ãˆÊ 4 bit ‚ªƒJƒeƒSƒŠ (ENTITY_CATEGORY_ID)A‚»‚ÌŽŸ 8 bit ‚ªƒJƒeƒSƒŠ“àŽí•Ê (ENTITY_*_CLASS_ID)A‚»‚êˆÈ‰º‚Í ID ‚ÌƒtƒB[ƒ‹ƒh
+    // EntityHandle: ä¸Šä½ 4 bit ãŒã‚«ãƒ†ã‚´ãƒª (ENTITY_CATEGORY_ID)ã€ãã®æ¬¡ 8 bit ãŒã‚«ãƒ†ã‚´ãƒªå†…ç¨®åˆ¥ (ENTITY_*_CLASS_ID)ã€ãã‚Œä»¥ä¸‹ã¯ ID ã®ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰
     inline uint32 EntityGetCategory(EntityHandle e) { return (e & 0xF0000000) >> 28; }
     inline uint32 EntityGetClass(EntityHandle e)    { return (e & 0x0FF00000) >> 20; }
     inline uint32 EntityGetID(EntityHandle e)       { return (e & 0x000FFFFF) >>  0; }

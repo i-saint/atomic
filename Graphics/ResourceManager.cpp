@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "ist/ist.h"
 #include "types.h"
 #include "Game/AtomicApplication.h"
@@ -54,7 +54,7 @@ bool GraphicResourceManager::initialize()
     stl::fill_n(m_rt, _countof(m_rt), (RenderTarget*)NULL);
     stl::fill_n(m_shader, _countof(m_shader), (AtomicShader*)NULL);
 
-    //// ‚Ç‚¤‚à 2 ‚Ì n æƒTƒCƒY‚ÌƒtƒŒ[ƒ€ƒoƒbƒtƒ@‚Ì•û‚ªáŠ±•`‰æ‘‚¢‚Á‚Û‚¢B 
+    //// ã©ã†ã‚‚ 2 ã® n ä¹—ã‚µã‚¤ã‚ºã®ãƒ•ãƒ¬ãƒ¼ãƒ ãƒãƒƒãƒ•ã‚¡ã®æ–¹ãŒè‹¥å¹²æç”»æ—©ã„ã£ã½ã„ã€‚ 
     uvec2 rt_size = atomicGetWindowSize();
     //uvec2 rt_size = CalcFrameBufferSize();
 

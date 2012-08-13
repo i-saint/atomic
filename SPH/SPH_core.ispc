@@ -35,13 +35,27 @@ export void sphInitializeConstants()
 struct Vec3 { float x,y,z; };
 static soa<8> Vec3 g_accel[SPH_MAX_PARTICLE_NUM];
 
-struct GridData
+
+
+static uniform Sphere *g_spheres;
+static uniform int32 g_num_spheres;
+
+static uniform Plane *g_planes;
+static uniform int32 g_num_planes;
+
+static uniform Box *g_boxes;
+static uniform int32 g_num_boxes;
+
+export void sphSetCollisionShapes(
+    uniform Sphere spheres[], uniform int32 num_spheres,
+    uniform Plane planes[], uniform int32 num_planes,
+    uniform Box boxes[], uniform int32 num_boxes )
 {
-    int32 x;
-    int32 y;
-    int32 soai;
-    float density;
-};
+    g_spheres=spheres; g_num_spheres=num_spheres;
+    g_planes=planes; g_num_planes=num_planes;
+    g_boxes=boxes; g_num_boxes=num_boxes;
+}
+
 
 
 
@@ -68,7 +82,7 @@ export void sphUpdateDensity(
     uniform int32 xi, uniform int32 yi )
 {
     uniform const GridData &gd = grid[yi*SPH_GRID_DIV + xi];
-    uniform const int32 particle_num = gd.y - gd.x;
+    uniform const int32 particle_num = gd.end - gd.begin;
     soa<8> Particle * uniform particles = &all_particles[gd.soai*8];
 
     uniform const int32 nx_beg = max(xi-1, 0);
@@ -77,15 +91,15 @@ export void sphUpdateDensity(
     uniform const int32 ny_end = min(yi+1, SPH_GRID_DIV-1);
 
     for(uniform int32 i=0; i<particle_num; ++i) {
-        uniform vec3 pos1 = {particles[i].posx, particles[i].posy, particles[i].posz};
+        uniform vec3 pos1 = {particles[i].x, particles[i].y, particles[i].z};
         float density = 0.0f;
         for(uniform int32 nyi=ny_beg; nyi<=ny_end; ++nyi) {
             for(uniform int32 nxi=nx_beg; nxi<=nx_end; ++nxi) {
                 uniform const GridData &ngd = grid[nyi*SPH_GRID_DIV + nxi];
-                uniform const int32 neighbor_num = ngd.y - ngd.x;
+                uniform const int32 neighbor_num = ngd.end - ngd.begin;
                 soa<8> Particle * uniform neighbors = &all_particles[ngd.soai*8];
                 foreach(t=0 ... neighbor_num) {
-                    vec3 pos2 = {neighbors[t].posx, neighbors[t].posy, neighbors[t].posz};
+                    vec3 pos2 = {neighbors[t].x, neighbors[t].y, neighbors[t].z};
                     density += sphComputeDensity(pos1, pos2);
                 }
             }
@@ -170,7 +184,7 @@ export void sphUpdateForce(
     uniform int32 xi, uniform int32 yi )
 {
     uniform const GridData &gd = grid[yi*SPH_GRID_DIV + xi];
-    uniform const int32 particle_num = gd.y - gd.x;
+    uniform const int32 particle_num = gd.end - gd.begin;
     soa<8> Particle * uniform particles = &all_particles[gd.soai*8];
     soa<8> Vec3 * uniform accels = &g_accel[gd.soai*8];
 
@@ -180,8 +194,8 @@ export void sphUpdateForce(
     uniform const int32 ny_end = min(yi+1, SPH_GRID_DIV-1);
 
     for(uniform int32 i=0; i<particle_num; ++i) {
-        uniform vec3 pos1 = {particles[i].posx, particles[i].posy, particles[i].posz};
-        uniform vec3 vel1 = {particles[i].velx, particles[i].vely, particles[i].velz};
+        uniform vec3 pos1 = {particles[i].x, particles[i].y, particles[i].z};
+        uniform vec3 vel1 = {particles[i].vx, particles[i].vy, particles[i].vz};
         uniform float density1 = particles[i].density;
         uniform float pressure1 = sphCalculatePressure(density1);
 
@@ -189,11 +203,11 @@ export void sphUpdateForce(
         for(uniform int32 nyi=ny_beg; nyi<=ny_end; ++nyi) {
             for(uniform int32 nxi=nx_beg; nxi<=nx_end; ++nxi) {
                 uniform const GridData &ngd = grid[nyi*SPH_GRID_DIV + nxi];
-                uniform const int32 neighbor_num = ngd.y - ngd.x;
+                uniform const int32 neighbor_num = ngd.end - ngd.begin;
                 soa<8> Particle * uniform neighbors = &all_particles[ngd.soai*8];
                 foreach(t=0 ... neighbor_num) {
-                    vec3 pos2 = {neighbors[t].posx, neighbors[t].posy, neighbors[t].posz};
-                    vec3 vel2 = {neighbors[t].velx, neighbors[t].vely, neighbors[t].velz};
+                    vec3 pos2 = {neighbors[t].x, neighbors[t].y, neighbors[t].z};
+                    vec3 vel2 = {neighbors[t].vx, neighbors[t].vy, neighbors[t].vz};
                     float density2 = neighbors[t].density;
                     accel += sphComputeAccel(pos1, pos2, vel1, vel2, pressure1, density2);
                 }
@@ -248,17 +262,17 @@ export void sphIntegrate(
     uniform int32 xi, uniform int32 yi )
 {
     uniform const GridData &gd = grid[yi*SPH_GRID_DIV + xi];
-    uniform const int32 particle_num = gd.y - gd.x;
+    uniform const int32 particle_num = gd.end - gd.begin;
     soa<8> Particle * uniform particles = &all_particles[gd.soai*8];
     soa<8> Vec3 * uniform accels = &g_accel[gd.soai*8];
 
     uniform const float timestep = 0.01f;
 
     foreach(i=0 ... particle_num) {
-        vec3 vel = {particles[i].velx, particles[i].vely, particles[i].velz};
+        vec3 vel = {particles[i].vx, particles[i].vy, particles[i].vz};
         vec3 accel = {accels[i].x, accels[i].y, accels[i].z};
         //vec3 accel = {0.0f, 0.0f, 0.0f};
-        vec3 pos = {particles[i].posx, particles[i].posy, particles[i].posz};
+        vec3 pos = {particles[i].x, particles[i].y, particles[i].z};
 
         const uniform float DECELERATE = 0.999;
         sphComputeGravity(pos, accel);
@@ -268,13 +282,13 @@ export void sphIntegrate(
 
         pos += vel * timestep;
 
-        particles[i].velx = vel.x;
-        particles[i].vely = vel.y;
-        particles[i].velz = vel.z;
+        particles[i].vx = vel.x;
+        particles[i].vy = vel.y;
+        particles[i].vz = vel.z;
 
-        particles[i].posx = pos.x;
-        particles[i].posy = pos.y;
-        particles[i].posz = pos.z;
+        particles[i].x = pos.x;
+        particles[i].y = pos.y;
+        particles[i].z = pos.z;
     }
 }
 
@@ -336,7 +350,7 @@ export void impUpdateVelocity(
     uniform int32 xi, uniform int32 yi )
 {
     uniform const GridData &gd = grid[yi*SPH_GRID_DIV + xi];
-    uniform const int32 particle_num = gd.y - gd.x;
+    uniform const int32 particle_num = gd.end - gd.begin;
     soa<8> Particle * uniform particles = &all_particles[gd.soai*8];
 
     uniform const int32 nx_beg = max(xi-1, 0);
@@ -345,16 +359,16 @@ export void impUpdateVelocity(
     uniform const int32 ny_end = min(yi+1, SPH_GRID_DIV-1);
 
     for(uniform int32 i=0; i<particle_num; ++i) {
-        uniform vec3 pos1 = {particles[i].posx, particles[i].posy, particles[i].posz};
-        uniform vec3 vel1 = {particles[i].velx, particles[i].vely, particles[i].velz};
+        uniform vec3 pos1 = {particles[i].x, particles[i].y, particles[i].z};
+        uniform vec3 vel1 = {particles[i].vx, particles[i].vy, particles[i].vz};
         vec3 accel = {0.0f, 0.0f, 0.0f};
         for(uniform int32 nyi=ny_beg; nyi<=ny_end; ++nyi) {
             for(uniform int32 nxi=nx_beg; nxi<=nx_end; ++nxi) {
                 uniform const GridData &ngd = grid[nyi*SPH_GRID_DIV + nxi];
                 soa<8> Particle * uniform neighbors = &all_particles[ngd.soai*8];
-                uniform const int32 neighbor_num = ngd.y - ngd.x;
+                uniform const int32 neighbor_num = ngd.end - ngd.begin;
                 foreach(t=0 ... neighbor_num) {
-                    vec3 pos2 = {neighbors[t].posx, neighbors[t].posy, neighbors[t].posz};
+                    vec3 pos2 = {neighbors[t].x, neighbors[t].y, neighbors[t].z};
                     impComputeParticleInteraction(pos1, pos2, accel);
                 }
             }
@@ -363,13 +377,13 @@ export void impUpdateVelocity(
         vel1.x  += reduce_add(accel.x);
         vel1.y  += reduce_add(accel.y);
         vel1.z  += reduce_add(accel.z);
-        particles[i].velx = vel1.x;
-        particles[i].vely = vel1.y;
-        particles[i].velz = vel1.z;
+        particles[i].vx = vel1.x;
+        particles[i].vy = vel1.y;
+        particles[i].vz = vel1.z;
     }
     foreach(i=0 ... particle_num) {
-        vec3 pos1 = {particles[i].posx, particles[i].posy, particles[i].posz};
-        vec3 vel1 = {particles[i].velx, particles[i].vely, particles[i].velz};
+        vec3 pos1 = {particles[i].x, particles[i].y, particles[i].z};
+        vec3 vel1 = {particles[i].vx, particles[i].vy, particles[i].vz};
 
         impComputeGravity(pos1, vel1);
 
@@ -377,9 +391,9 @@ export void impUpdateVelocity(
         const uniform float DECELERATE = 0.995;
         vel1 *= DECELERATE;
 
-        particles[i].velx = vel1.x;
-        particles[i].vely = vel1.y;
-        particles[i].velz = vel1.z;
+        particles[i].vx = vel1.x;
+        particles[i].vy = vel1.y;
+        particles[i].vz = vel1.z;
     }
 }
 
@@ -389,15 +403,15 @@ export void impIntegrate(
     uniform int32 xi, uniform int32 yi )
 {
     uniform const GridData &gd = grid[yi*SPH_GRID_DIV + xi];
-    uniform const int32 particle_num = gd.y - gd.x;
+    uniform const int32 particle_num = gd.end - gd.begin;
     soa<8> Particle * uniform particles = &all_particles[gd.soai*8];
 
     foreach(i=0 ... particle_num) {
-        vec3 pos = {particles[i].posx, particles[i].posy, particles[i].posz};
-        vec3 vel = {particles[i].velx, particles[i].vely, particles[i].velz};
+        vec3 pos = {particles[i].x, particles[i].y, particles[i].z};
+        vec3 vel = {particles[i].vx, particles[i].vy, particles[i].vz};
         pos += vel;
-        particles[i].posx = pos.x;
-        particles[i].posy = pos.y;
-        particles[i].posz = pos.z;
+        particles[i].x = pos.x;
+        particles[i].y = pos.y;
+        particles[i].z = pos.z;
     }
 }

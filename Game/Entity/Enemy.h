@@ -1,4 +1,4 @@
-#ifndef __atomic_Game_Character_Enemy__
+﻿#ifndef __atomic_Game_Character_Enemy__
 #define __atomic_Game_Character_Enemy__
 
 #include "Game/Entity.h"

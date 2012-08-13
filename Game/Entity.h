@@ -1,4 +1,4 @@
-#ifndef __atomic_Game_Entity__
+﻿#ifndef __atomic_Game_Entity__
 #define __atomic_Game_Entity__
 
 #include "EntityClass.h"
@@ -46,41 +46,41 @@ public:
         istName(IEntity)
     )
 
-    // �R���X�g���N�^�ł̓����o�ϐ��������ȊO�̏������s�Ȃ��Ă͂Ȃ�Ȃ��B���� initialize() �ōs���B
-    // (ID ���R���X�g���N�^�̌�Ɍ��܂邽�߁A�q�I�u�W�F�N�g�̏������Ȃǂ�K�؂ɍs���ɂ͂�������K�v������)
+    // コンストラクタではメンバ変数初期化以外の処理を行なってはならない。他は initialize() で行う。
+    // (ID がコンストラクタの後に決まるため、子オブジェクトの処理順などを適切に行うにはこうする必要がある)
     IEntity() : m_ehandle(0) {}
     virtual ~IEntity() {}
     uint32 getHandle() const { return m_ehandle; }
 
-    // ����������
+    // 初期化処理
     virtual void initialize() {}
 
-    // �I�������B
-    // EntitySet ����J�����ꂽ�^�C�~���O�ŌĂ΂��B
-    // �Q�ƃJ�E���^���������ꍇ�Ȃǂ́AEntitySet ���������� (finalize() ���Ă΂�) �Ă� delete �͂���Ȃ��P�[�X�����肤�邽�߁A
-    // �f�X�g���N�^�Ǝg��������K�v���o�Ă���B
+    // 終了処理。
+    // EntitySet から開放されたタイミングで呼ばれる。
+    // 参照カウンタ方式を取る場合などは、EntitySet から解放され (finalize() が呼ばれ) ても delete はされないケースがありうるため、
+    // デストラクタと使い分ける必要が出てくる。
     virtual void finalize() {}
 
-    // �����X�V
+    // 同期更新
     virtual void update(float32 dt) {}
 
-    // �񓯊��X�V�B
-    // Entity �Ԃ̍X�V�͕���ɍs���邪�A���̊ԁA�Փ˔����`��Ȃǂ̑��̃��W���[���̍X�V�͍s���Ȃ��B
-    // (������ Entity �̍X�V���S�ďI����Ă���s����)
-    // �ʒu�Ȃǂ̍X�V�� 1 �t���[���x�点�đ����W���[���Ƃ�����ɍX�V�������������A���ꂾ�Ƃǂ����Ă��Փ˂̉����Ԃ����s���R�ɂȂ邽�߁A�����Ȃ����B
+    // 非同期更新。
+    // Entity 間の更新は並列に行われるが、その間、衝突判定や描画などの他のモジュールの更新は行われない。
+    // (それらは Entity の更新が全て終わってから行われる)
+    // 位置などの更新を 1 フレーム遅らせて他モジュールとも並列に更新したかったが、それだとどうしても衝突の押し返しが不自然になるため、こうなった。
     virtual void asyncupdate(float32 dt) {}
 
-    // �`��f�[�^�� Renderer �ɓn���B
-    // (�n�������B���̒��� i3d::Device �Ȃǂ̕`�� API �𒼐ڌĂ�ł͂Ȃ�Ȃ�)
+    // 描画データを Renderer に渡す。
+    // (渡すだけ。この中で i3d::Device などの描画 API を直接呼んではならない)
     virtual void draw() {}
 
 
-    // call_id �ɑΉ����郁�\�b�h������ v �ŌĂԁB (��� setHoge() �n)
-    // Routine ��O���X�N���v�g�Ƃ̘A���p�B
+    // call_id に対応するメソッドを引数 v で呼ぶ。 (主に setHoge() 系)
+    // Routine や外部スクリプトとの連動用。
     virtual bool call(uint32 call_id, const variant &v) { return false; }
 
-    // query_id �ɑΉ����郁�\�b�h���Ă�� v �Ɍ��ʂ��i�[����B(��� getHoge() �n)
-    // Routine ��O���X�N���v�g�Ƃ̘A���p�B
+    // query_id に対応するメソッドを呼んで v に結果を格納する。(主に getHoge() 系)
+    // Routine や外部スクリプトとの連動用。
     virtual bool query(uint32 query_id, variant &v) const { return false; }
 };
 
@@ -111,8 +111,8 @@ public:
     void frameBegin();
     void update(float32 dt);
 
-    // �Ȃɂ����Ȃ��B
-    // �s�{�ӂȂ��� Entity �̔񓯊��X�V�� update() ���ōs���B (IEntity ���Q��)
+    // なにもしない。
+    // 不本意ながら Entity の非同期更新は update() 内で行う。 (IEntity を参照)
     void asyncupdate(float32 dt);
 
     void draw();

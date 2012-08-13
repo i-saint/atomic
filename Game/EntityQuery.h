@@ -1,4 +1,4 @@
-#ifndef __atomic_Game_EntityQuery__
+﻿#ifndef __atomic_Game_EntityQuery__
 #define __atomic_Game_EntityQuery__
 
 

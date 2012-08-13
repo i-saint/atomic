@@ -1,4 +1,4 @@
-#ifndef __atomic_Game_VFX__
+﻿#ifndef __atomic_Game_VFX__
 #define __atomic_Game_VFX__
 namespace atomic {
 

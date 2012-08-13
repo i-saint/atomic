@@ -1,4 +1,4 @@
-#ifndef __atomic_Graphics_Renderer_GBuffer__
+﻿#ifndef __atomic_Graphics_Renderer_GBuffer__
 #define __atomic_Graphics_Renderer_GBuffer__
 namespace atomic {
 

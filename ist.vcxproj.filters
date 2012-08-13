@@ -34,6 +34,9 @@
     <Filter Include="ist\Concurrency">
       <UniqueIdentifier>{90f1a0bc-d173-46c3-829c-0c11c05c994e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ist\Debug">
+      <UniqueIdentifier>{6e02f437-b545-4ff3-8ff0-ad62f9fb4549}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ist\Base.h">
@@ -329,6 +332,12 @@
     </ClInclude>
     <ClInclude Include="ist\Concurrency\ThreadCommon.h">
       <Filter>ist\Concurrency</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Debug\ParamTree.h">
+      <Filter>ist\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Math\Misc.h">
+      <Filter>ist\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

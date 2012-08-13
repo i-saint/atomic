@@ -1,4 +1,4 @@
-#ifndef __atomic_Graphics_AtomicGraphics__
+ï»¿#ifndef __atomic_Graphics_AtomicGraphics__
 #define __atomic_Graphics_AtomicGraphics__
 
 
@@ -29,7 +29,7 @@ public:
 
     float32 getAverageFPS() const;
 
-    // ˆÈ‰ºƒŒƒ“ƒ_ƒŠƒ“ƒOƒXƒŒƒbƒh‚©‚ç‚Ì‚İƒAƒNƒZƒX‰Â
+    // ä»¥ä¸‹ãƒ¬ãƒ³ãƒ€ãƒªãƒ³ã‚°ã‚¹ãƒ¬ãƒƒãƒ‰ã‹ã‚‰ã®ã¿ã‚¢ã‚¯ã‚»ã‚¹å¯
     i3d::Device* getDevice();
     i3d::DeviceContext* getDeviceContext();
 };

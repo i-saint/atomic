@@ -1,4 +1,4 @@
-#ifndef __atomic_Types__
+ï»¿#ifndef __atomic_Types__
 #define __atomic_Types__
 
 #include "ist/ist.h"
@@ -77,24 +77,24 @@ class IAtomicGameModule : public boost::noncopyable
 public:
     virtual ~IAtomicGameModule() {}
 
-    // ƒtƒŒ[ƒ€ŠJn‚ÉŒÄ‚Î‚ê‚éB
+    // ãƒ•ãƒ¬ãƒ¼ãƒ é–‹å§‹æ™‚ã«å‘¼ã°ã‚Œã‚‹ã€‚
     virtual void frameBegin()=0;
 
-    // “¯ŠúXVBdt ‚Ì’PˆÊ‚ÍƒtƒŒ[ƒ€B
+    // åŒæœŸæ›´æ–°ã€‚dt ã®å˜ä½ã¯ãƒ•ãƒ¬ãƒ¼ãƒ ã€‚
     virtual void update(float32 dt)=0;
 
-    // ”ñ“¯ŠúXVBdt ‚Ì’PˆÊ‚ÍƒtƒŒ[ƒ€B
-    // asyncupdate() ‚Æ draw() ‚Í•À—ñ‚É‘–‚é‚½‚ßAdraw() ‚É asyncupdate() ‚ÌŒ‹‰Ê‚ÉˆË‘¶‚·‚éˆ—‚ª‚ ‚éê‡A
-    // draw() ‚Ì’†‚Å asyncupdate() ‚ÌŠ®—¹‚ğ‘Ò‚Â•K—v‚ª‚ ‚éB
+    // éåŒæœŸæ›´æ–°ã€‚dt ã®å˜ä½ã¯ãƒ•ãƒ¬ãƒ¼ãƒ ã€‚
+    // asyncupdate() ã¨ draw() ã¯ä¸¦åˆ—ã«èµ°ã‚‹ãŸã‚ã€draw() ã« asyncupdate() ã®çµæœã«ä¾å­˜ã™ã‚‹å‡¦ç†ãŒã‚ã‚‹å ´åˆã€
+    // draw() ã®ä¸­ã§ asyncupdate() ã®å®Œäº†ã‚’å¾…ã¤å¿…è¦ãŒã‚ã‚‹ã€‚
     virtual void asyncupdate(float32 dt)=0;
 
-    // •`‰æ—pƒf[ƒ^‚ğì‚Á‚Ä Renderer ‚Ö‘—‚éB(i3d::DeviceContext ‚È‚Ç‚ğ’¼ÚG‚éˆ—‚ª‚ ‚Á‚Ä‚Í‚È‚ç‚È‚¢)
-    // asyncupdate() ‚Æ draw() ‚Í•À—ñ‚É‘–‚é‚½‚ßAdraw() ‚É asyncupdate() ‚ÌŒ‹‰Ê‚ÉˆË‘¶‚·‚éˆ—‚ª‚ ‚éê‡A
-    // draw() ‚Ì’†‚Å asyncupdate() ‚ÌŠ®—¹‚ğ‘Ò‚Â•K—v‚ª‚ ‚éB
+    // æç”»ç”¨ãƒ‡ãƒ¼ã‚¿ã‚’ä½œã£ã¦ Renderer ã¸é€ã‚‹ã€‚(i3d::DeviceContext ãªã©ã‚’ç›´æ¥è§¦ã‚‹å‡¦ç†ãŒã‚ã£ã¦ã¯ãªã‚‰ãªã„)
+    // asyncupdate() ã¨ draw() ã¯ä¸¦åˆ—ã«èµ°ã‚‹ãŸã‚ã€draw() ã« asyncupdate() ã®çµæœã«ä¾å­˜ã™ã‚‹å‡¦ç†ãŒã‚ã‚‹å ´åˆã€
+    // draw() ã®ä¸­ã§ asyncupdate() ã®å®Œäº†ã‚’å¾…ã¤å¿…è¦ãŒã‚ã‚‹ã€‚
     virtual void draw()=0;
 
-    // ƒtƒŒ[ƒ€I—¹‚ÉŒÄ‚Î‚ê‚éB
-    // ”ñ“¯ŠúXVˆ—‚ª‚ ‚éê‡A‚±‚Ì’†‚ÅŠ®—¹‚ğ‘Ò‚Â‚±‚ÆB(ƒtƒŒ[ƒ€‚ğŒ×‚®ˆ—‚ª‚ ‚Á‚Ä‚Í‚È‚ç‚È‚¢)
+    // ãƒ•ãƒ¬ãƒ¼ãƒ çµ‚äº†æ™‚ã«å‘¼ã°ã‚Œã‚‹ã€‚
+    // éåŒæœŸæ›´æ–°å‡¦ç†ãŒã‚ã‚‹å ´åˆã€ã“ã®ä¸­ã§å®Œäº†ã‚’å¾…ã¤ã“ã¨ã€‚(ãƒ•ãƒ¬ãƒ¼ãƒ ã‚’è·¨ãå‡¦ç†ãŒã‚ã£ã¦ã¯ãªã‚‰ãªã„)
     virtual void frameEnd()=0;
 
     // todo: serialize/deserialize

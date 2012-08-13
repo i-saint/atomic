@@ -24,22 +24,22 @@ void SoAnize( int32 num, const sphParticle *particles, ispc::Particle_SOA8 *out 
         ist::soavec34 soav;
         simdvec4 soas;
         soav = ist::soa_transpose34(particles[i+0].position, particles[i+1].position, particles[i+2].position, particles[i+3].position);
-        _mm_store_ps(out[bi].posx+0, soav.x());
-        _mm_store_ps(out[bi].posy+0, soav.y());
-        _mm_store_ps(out[bi].posz+0, soav.z());
+        _mm_store_ps(out[bi].x+0, soav.x());
+        _mm_store_ps(out[bi].y+0, soav.y());
+        _mm_store_ps(out[bi].z+0, soav.z());
         soav = ist::soa_transpose34(particles[i+0].velocity, particles[i+1].velocity, particles[i+2].velocity, particles[i+3].velocity);
-        _mm_store_ps(out[bi].velx+0, soav.x());
-        _mm_store_ps(out[bi].vely+0, soav.y());
-        _mm_store_ps(out[bi].velz+0, soav.z());
+        _mm_store_ps(out[bi].vx+0, soav.x());
+        _mm_store_ps(out[bi].vy+0, soav.y());
+        _mm_store_ps(out[bi].vz+0, soav.z());
 
         soav = ist::soa_transpose34(particles[i+4].position, particles[i+5].position, particles[i+6].position, particles[i+7].position);
-        _mm_store_ps(out[bi].posx+4, soav.x());
-        _mm_store_ps(out[bi].posy+4, soav.y());
-        _mm_store_ps(out[bi].posz+4, soav.z());
+        _mm_store_ps(out[bi].x+4, soav.x());
+        _mm_store_ps(out[bi].y+4, soav.y());
+        _mm_store_ps(out[bi].z+4, soav.z());
         soav = ist::soa_transpose34(particles[i+4].velocity, particles[i+5].velocity, particles[i+6].velocity, particles[i+7].velocity);
-        _mm_store_ps(out[bi].velx+4, soav.x());
-        _mm_store_ps(out[bi].vely+4, soav.y());
-        _mm_store_ps(out[bi].velz+4, soav.z());
+        _mm_store_ps(out[bi].vx+4, soav.x());
+        _mm_store_ps(out[bi].vy+4, soav.y());
+        _mm_store_ps(out[bi].vz+4, soav.z());
 
         soas = ist::simdvec4_set(particles[i+0].params.density, particles[i+1].params.density, particles[i+2].params.density, particles[i+3].params.density);
         _mm_store_ps(out[bi].density+0, soas);
@@ -55,26 +55,26 @@ void AoSnize( int32 num, const ispc::Particle_SOA8 *particles, sphParticle *out 
         int32 i = 8*bi;
         ist::soavec44 aos_pos[2] = {
             ist::soa_transpose44(
-                _mm_load_ps(particles[bi].posx + 0),
-                _mm_load_ps(particles[bi].posy + 0),
-                _mm_load_ps(particles[bi].posz + 0),
+                _mm_load_ps(particles[bi].x + 0),
+                _mm_load_ps(particles[bi].y + 0),
+                _mm_load_ps(particles[bi].z + 0),
                 _mm_set1_ps(1.0f) ),
             ist::soa_transpose44(
-                _mm_load_ps(particles[bi].posx + 4),
-                _mm_load_ps(particles[bi].posy + 4),
-                _mm_load_ps(particles[bi].posz + 4),
+                _mm_load_ps(particles[bi].x + 4),
+                _mm_load_ps(particles[bi].y + 4),
+                _mm_load_ps(particles[bi].z + 4),
                 _mm_set1_ps(1.0f) ),
         };
         ist::soavec44 aos_vel[2] = {
             ist::soa_transpose44(
-                _mm_load_ps(particles[bi].velx + 0),
-                _mm_load_ps(particles[bi].vely + 0),
-                _mm_load_ps(particles[bi].velz + 0),
+                _mm_load_ps(particles[bi].vx + 0),
+                _mm_load_ps(particles[bi].vy + 0),
+                _mm_load_ps(particles[bi].vz + 0),
                 _mm_set1_ps(0.0f) ),
             ist::soa_transpose44(
-                _mm_load_ps(particles[bi].velx + 4),
-                _mm_load_ps(particles[bi].vely + 4),
-                _mm_load_ps(particles[bi].velz + 4),
+                _mm_load_ps(particles[bi].vx + 4),
+                _mm_load_ps(particles[bi].vy + 4),
+                _mm_load_ps(particles[bi].vz + 4),
                 _mm_set1_ps(0.0f) ),
         };
 
@@ -125,7 +125,7 @@ void sphGrid::update()
     tbb::parallel_for(tbb::blocked_range<int>(0, SPH_GRID_CELL_NUM, 128),
         [=](const tbb::blocked_range<int> &r) {
             for(int i=r.begin(); i!=r.end(); ++i) {
-                ce[i].x = ce[i].y = 0;
+                ce[i].begin = ce[i].end = 0;
             }
         });
 
@@ -153,10 +153,10 @@ void sphGrid::update()
                 int32 cell_prev = (G_ID_PREV==-1) ? -1 : ps[G_ID_PREV].params.hash;
                 int32 cell_next = (G_ID_NEXT==SPH_MAX_PARTICLE_NUM) ? -2 : ps[G_ID_NEXT].params.hash;
                 if(cell != cell_prev) {
-                    ce[cell].x = G_ID;
+                    ce[cell].begin = G_ID;
                 }
                 if(cell != cell_next) {
-                    ce[cell].y = G_ID + 1;
+                    ce[cell].end = G_ID + 1;
                 }
             }
     });
@@ -165,7 +165,7 @@ void sphGrid::update()
         int32 soai = 0;
         for(int i=0; i!=SPH_GRID_CELL_NUM; ++i) {
             ce[i].soai = soai;
-            soai += soa_blocks(ce[i].y-ce[i].x);
+            soai += soa_blocks(ce[i].end-ce[i].begin);
         }
     }
 
@@ -173,9 +173,9 @@ void sphGrid::update()
     tbb::parallel_for(tbb::blocked_range<int>(0, SPH_GRID_CELL_NUM, 128),
         [=](const tbb::blocked_range<int> &r) {
             for(int i=r.begin(); i!=r.end(); ++i) {
-                int32 n = ce[i].y - ce[i].x;
+                int32 n = ce[i].end - ce[i].begin;
                 if(n > 0) {
-                    sphParticle *p = &ps[ce[i].x];
+                    sphParticle *p = &ps[ce[i].begin];
                     ispc::Particle_SOA8 *t = &so[ce[i].soai];
                     SoAnize(n, p, t);
                 }
@@ -186,7 +186,7 @@ void sphGrid::update()
     tbb::parallel_for(tbb::blocked_range<int>(0, SPH_GRID_CELL_NUM, 128),
         [=](const tbb::blocked_range<int> &r) {
             for(int i=r.begin(); i!=r.end(); ++i) {
-                int32 n = ce[i].y - ce[i].x;
+                int32 n = ce[i].end - ce[i].begin;
                 if(n > 0) {
                     int xi, yi;
                     GenIndex(i, xi, yi);
@@ -197,7 +197,7 @@ void sphGrid::update()
     tbb::parallel_for(tbb::blocked_range<int>(0, SPH_GRID_CELL_NUM, 128),
         [=](const tbb::blocked_range<int> &r) {
             for(int i=r.begin(); i!=r.end(); ++i) {
-                int32 n = ce[i].y - ce[i].x;
+                int32 n = ce[i].end - ce[i].begin;
                 if(n > 0) {
                     int xi, yi;
                     GenIndex(i, xi, yi);
@@ -208,7 +208,7 @@ void sphGrid::update()
     tbb::parallel_for(tbb::blocked_range<int>(0, SPH_GRID_CELL_NUM, 128),
         [=](const tbb::blocked_range<int> &r) {
             for(int i=r.begin(); i!=r.end(); ++i) {
-                int32 n = ce[i].y - ce[i].x;
+                int32 n = ce[i].end - ce[i].begin;
                 if(n > 0) {
                     int xi, yi;
                     GenIndex(i, xi, yi);
@@ -221,7 +221,7 @@ void sphGrid::update()
     //tbb::parallel_for(tbb::blocked_range<int>(0, SPH_GRID_CELL_NUM, 128),
     //    [=](const tbb::blocked_range<int> &r) {
     //        for(int i=r.begin(); i!=r.end(); ++i) {
-    //            int32 n = ce[i].y - ce[i].x;
+    //            int32 n = ce[i].end - ce[i].begin;
     //            if(n > 0) {
     //                int xi, yi;
     //                GenIndex(i, xi, yi);
@@ -232,7 +232,7 @@ void sphGrid::update()
     //tbb::parallel_for(tbb::blocked_range<int>(0, SPH_GRID_CELL_NUM, 128),
     //    [=](const tbb::blocked_range<int> &r) {
     //        for(int i=r.begin(); i!=r.end(); ++i) {
-    //            int32 n = ce[i].y - ce[i].x;
+    //            int32 n = ce[i].end - ce[i].begin;
     //            if(n > 0) {
     //                int xi, yi;
     //                GenIndex(i, xi, yi);
@@ -245,9 +245,9 @@ void sphGrid::update()
     tbb::parallel_for(tbb::blocked_range<int>(0, SPH_GRID_CELL_NUM, 128),
         [=](const tbb::blocked_range<int> &r) {
             for(int i=r.begin(); i!=r.end(); ++i) {
-                int32 n = ce[i].y - ce[i].x;
+                int32 n = ce[i].end - ce[i].begin;
                 if(n > 0) {
-                    sphParticle *p = &ps[ce[i].x];
+                    sphParticle *p = &ps[ce[i].begin];
                     ispc::Particle_SOA8 *t = &so[ce[i].soai];
                     AoSnize(n, t, p);
                 }

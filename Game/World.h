@@ -1,4 +1,4 @@
-#ifndef __atomic_Game_World_h__
+﻿#ifndef __atomic_Game_World_h__
 #define __atomic_Game_World_h__
 
 #include "Task.h"

@@ -1,4 +1,4 @@
-#ifndef __atomic_Graphics_ParticleSet__
+﻿#ifndef __atomic_Graphics_ParticleSet__
 #define __atomic_Graphics_ParticleSet__
 
 #include "ResourceID.h"

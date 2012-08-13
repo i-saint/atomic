@@ -1,4 +1,4 @@
-#ifndef __atomic_Graphics_ResourceManager__
+﻿#ifndef __atomic_Graphics_ResourceManager__
 #define __atomic_Graphics_ResourceManager__
 
 #include "Graphics/Shader.h"

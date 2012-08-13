@@ -1,4 +1,4 @@
-#ifndef __atomic_Graphics_Renderer_Postprocess__
+﻿#ifndef __atomic_Graphics_Renderer_Postprocess__
 #define __atomic_Graphics_Renderer_Postprocess__
 namespace atomic {
 

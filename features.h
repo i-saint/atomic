@@ -1,4 +1,4 @@
-#ifndef __atomic_features__
+﻿#ifndef __atomic_features__
 #define __atomic_features__
 
 #define __atomic_version__ 1

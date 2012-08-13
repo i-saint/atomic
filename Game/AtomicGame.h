@@ -1,4 +1,4 @@
-#ifndef __atomic_Game_AtomicGame__
+ï»¿#ifndef __atomic_Game_AtomicGame__
 #define __atomic_Game_AtomicGame__
 #include "Input.h"
 
@@ -27,7 +27,7 @@ public:
     void draw();
     void frameEnd();
 
-    // •`‰æƒXƒŒƒbƒh‚©‚çŒÄ‚Î‚ê‚é
+    // æç”»ã‚¹ãƒ¬ãƒƒãƒ‰ã‹ã‚‰å‘¼ã°ã‚Œã‚‹
     void drawCallback();
 
     int handleCommandLine(const stl::wstring &command);

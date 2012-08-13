@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "types.h"
 #include "Util.h"
 #include "Sound/AtomicSound.h"
@@ -100,7 +100,7 @@ public:
             }
         }
         if(getState()==ST_FADEOUT) {
-            if(m_st_frame==2) { // 1 ƒtƒŒ[ƒ€ƒRƒŠƒWƒ‡ƒ“‚ğc‚µ‚Äƒp[ƒeƒBƒNƒ‹‚ğ”šU‚³‚¹‚é
+            if(m_st_frame==2) { // 1 ãƒ•ãƒ¬ãƒ¼ãƒ ã‚³ãƒªã‚¸ãƒ§ãƒ³ã‚’æ®‹ã—ã¦ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ã‚’çˆ†æ•£ã•ã›ã‚‹
                 collision::finalizeCollision();
             }
             if(m_st_frame==FADEOUT_TIME) {

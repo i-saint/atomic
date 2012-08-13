@@ -1,4 +1,4 @@
-#ifndef __atomic_Game_Character_Attributes__
+ï»¿#ifndef __atomic_Game_Character_Attributes__
 #define __atomic_Game_Character_Attributes__
 
 #include "Util.h"
@@ -526,12 +526,12 @@ public:
 };
 
 
-// —¬‘Ì‚ğ—‚Ñ‚½ŒŒ­‚ğc‚·ƒGƒtƒFƒNƒg‚ğÀŒ»‚·‚é
+// æµä½“ã‚’æµ´ã³ãŸæ™‚è¡€ç—•ã‚’æ®‹ã™ã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚’å®Ÿç¾ã™ã‚‹
 class Attr_Bloodstain
 {
 typedef Attr_Bloodstain this_t;
 private:
-    // ŒŒ­‚ğc‚·•p“xB—¬‘Ì‚ª‚±‚Ì‰ñ”Õ“Ë‚µ‚½‚Æ‚«c‚·B
+    // è¡€ç—•ã‚’æ®‹ã™é »åº¦ã€‚æµä½“ãŒã“ã®å›æ•°è¡çªã—ãŸã¨ãæ®‹ã™ã€‚
     static const uint32 bloodstain_frequency = 128;
 
     stl::vector<BloodstainParticle> m_bloodstain;

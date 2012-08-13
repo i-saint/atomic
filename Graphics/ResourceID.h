@@ -1,4 +1,4 @@
-#ifndef __atomic_Graphics_ResourceID__
+﻿#ifndef __atomic_Graphics_ResourceID__
 #define __atomic_Graphics_ResourceID__
 namespace atomic {
 

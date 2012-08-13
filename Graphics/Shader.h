@@ -1,4 +1,4 @@
-#ifndef __atomic_Graphics_Shader_h__
+﻿#ifndef __atomic_Graphics_Shader_h__
 #define __atomic_Graphics_Shader_h__
 
 #include "shader/Semantics.h"

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "types.h"
 #include "Game/AtomicApplication.h"
 #include "Game/AtomicGame.h"
@@ -66,7 +66,7 @@ void PassPostprocess_FXAA::draw()
     m_fxaaparams.fxaaQualityEdgeThresholdMin= 0.0833f;
     MapAndWrite(*ubo_fxaa, &m_fxaaparams, sizeof(m_fxaaparams));
 
-    // ‹P“x’Šo
+    // è¼åº¦æŠ½å‡º
     {
         RenderTarget *brt = atomicGetBackRenderTarget();
         RenderTarget *rt = atomicGetFrontRenderTarget();
@@ -135,7 +135,7 @@ void PassPostprocess_Bloom::draw()
     Viewport vp(ivec2(), m_rt_gauss0->getColorBuffer(0)->getDesc().size);
     vp.bind();
 
-    // ‹P“x’Šo
+    // è¼åº¦æŠ½å‡º
     {
         RenderTarget *brt = atomicGetBackRenderTarget();
 
@@ -150,7 +150,7 @@ void PassPostprocess_Bloom::draw()
         stl::swap<RenderTarget*>(m_rt_gauss0, m_rt_gauss1);
     }
 
-    // ‰¡ƒuƒ‰[
+    // æ¨ªãƒ–ãƒ©ãƒ¼
     for(uint32 i=0; i<2; ++i) {
         m_rt_gauss0->bind();
         m_sh_hblur->bind();
@@ -162,7 +162,7 @@ void PassPostprocess_Bloom::draw()
         stl::swap<RenderTarget*>(m_rt_gauss0, m_rt_gauss1);
     }
 
-    // cƒuƒ‰[
+    // ç¸¦ãƒ–ãƒ©ãƒ¼
     {
         m_rt_gauss0->bind();
         m_sh_vblur->bind();
@@ -174,7 +174,7 @@ void PassPostprocess_Bloom::draw()
         stl::swap<RenderTarget*>(m_rt_gauss0, m_rt_gauss1);
     }
 
-    // ‰ÁZ
+    // åŠ ç®—
     atomicGetDefaultViewport()->bind();
     {
         RenderTarget *brt = atomicGetBackRenderTarget();

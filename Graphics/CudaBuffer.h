@@ -1,4 +1,4 @@
-#ifndef __atomic_Graphics_CudaBuffer__
+﻿#ifndef __atomic_Graphics_CudaBuffer__
 #define __atomic_Graphics_CudaBuffer__
 namespace atomic {
 

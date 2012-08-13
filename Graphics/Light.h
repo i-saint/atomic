@@ -1,4 +1,4 @@
-#ifndef __atomic_Graphics_Light__
+﻿#ifndef __atomic_Graphics_Light__
 #define __atomic_Graphics_Light__
 namespace atomic {
 

@@ -1,4 +1,4 @@
-#ifndef __atomic_Game_Task__
+﻿#ifndef __atomic_Game_Task__
 #define __atomic_Game_Task__
 namespace atomic {
 

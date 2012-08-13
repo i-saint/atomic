@@ -1,4 +1,4 @@
-#ifndef __atomic_Message_h__
+﻿#ifndef __atomic_Message_h__
 #define __atomic_Message_h__
 
 namespace atomic {

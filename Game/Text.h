@@ -1,4 +1,4 @@
-#ifndef __atomic_Game_Text__
+﻿#ifndef __atomic_Game_Text__
 #define __atomic_Game_Text__
 
 namespace atomic {

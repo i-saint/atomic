@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "Text.h"
 
 namespace atomic {
@@ -11,11 +11,11 @@ namespace atomic {
     {
         // error message
         
-        g_jp[TID_OPENGL330_IS_NOT_SUPPORTED]    = L"OpenGL 3.3 ���T�|�[�g����Ă��܂���B\n�h���C�o�̃A�b�v�f�[�g�ŉ��P����Ȃ��ꍇ�A�\���󂠂�܂��񂪂��g���� PC �ł͂��̃v���O�����͓����܂���B";
+        g_jp[TID_OPENGL330_IS_NOT_SUPPORTED]    = L"OpenGL 3.3 がサポートされていません。\nドライバのアップデートで改善されない場合、申し訳ありませんがお使いの PC ではこのプログラムは動きません。";
         g_en[TID_OPENGL330_IS_NOT_SUPPORTED]    = L"OpenGL 3.3 is not supported on your video card";
-        g_jp[TID_ERROR_CUDA_NO_DEVICE]          = L"CUDA �f�o�C�X��������܂���ł����B\n�\���󂠂�܂��񂪁A���g���� PC �ł͋��炭���̃v���O�����͓����܂���B";
+        g_jp[TID_ERROR_CUDA_NO_DEVICE]          = L"CUDA デバイスが見つかりませんでした。\n申し訳ありませんが、お使いの PC では恐らくこのプログラムは動きません。";
         g_en[TID_ERROR_CUDA_NO_DEVICE]          = L"CUDA device not found.\nthis machine can't run this program";
-        g_jp[TID_ERROR_CUDA_INSUFFICIENT_DRIVER]= L"CUDA �f�o�C�X��������܂���ł����B\n�h���C�o�̃A�b�v�f�[�g�ŉ��P����Ȃ��ꍇ�A�\���󂠂�܂��񂪂��g���� PC �ł͂��̃v���O�����͓����܂���B";
+        g_jp[TID_ERROR_CUDA_INSUFFICIENT_DRIVER]= L"CUDA デバイスが見つかりませんでした。\nドライバのアップデートで改善されない場合、申し訳ありませんがお使いの PC ではこのプログラムは動きません。";
         g_en[TID_ERROR_CUDA_INSUFFICIENT_DRIVER]= L"CUDA device not found.\nupdating video card driver may solve this problem.";
 
         // system message

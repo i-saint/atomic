@@ -1,4 +1,4 @@
-#ifndef __atomic_Util__
+ï»¿#ifndef __atomic_Util__
 #define __atomic_Util__
 
 
@@ -24,9 +24,9 @@ namespace atomic {
     template<class T>
     inline T clamp(T v, T vmin, T vmax) { return std::min<T>(std::max<T>(v, vmin), vmax); }
 
-    // “¯ˆê’l‚ª•À‚ÔƒRƒ“ƒeƒi‚ğ„‰ñ‚·‚éÛA“¯‚¶”’l‚Ì˜A‘±‚ğƒXƒLƒbƒv‚·‚é iterator adapter
-    // (—á: {1,2,2,3,3,3,1,1} ‚ğ„‰ñ‚·‚é‚Æ 1,2,3,1,end ‚Ì‡‚ÉŒ‹‰Ê‚ª•Ô‚é)
-    // „‰ñ‚Ì‚İ‚Ìê‡A’x‚¢ stl::unique() ‚Ì‚»‚±‚»‚±‚‘¬‚È‘ã‘Öè’i‚Æ‚È‚é
+    // åŒä¸€å€¤ãŒä¸¦ã¶ã‚³ãƒ³ãƒ†ãƒŠã‚’å·¡å›ã™ã‚‹éš›ã€åŒã˜æ•°å€¤ã®é€£ç¶šã‚’ã‚¹ã‚­ãƒƒãƒ—ã™ã‚‹ iterator adapter
+    // (ä¾‹: {1,2,2,3,3,3,1,1} ã‚’å·¡å›ã™ã‚‹ã¨ 1,2,3,1,end ã®é †ã«çµæœãŒè¿”ã‚‹)
+    // å·¡å›ã®ã¿ã®å ´åˆã€é…ã„ stl::unique() ã®ãã“ãã“é«˜é€Ÿãªä»£æ›¿æ‰‹æ®µã¨ãªã‚‹
     template<class IteratorType>
     class unique_iterator
     {
@@ -66,7 +66,7 @@ namespace atomic {
 namespace glm {
 namespace detail {
 
-// glm ‚Ì’†‚ÉÀ‘Ì‚ª‚È‚¢‚æ‚¤‚È‚Ì‚Åc
+// glm ã®ä¸­ã«å®Ÿä½“ãŒãªã„ã‚ˆã†ãªã®ã§â€¦
 __forceinline fvec4SIMD operator* (fmat4x4SIMD const & M, fvec4SIMD const & V)
 {
     // Splat x,y,z and w

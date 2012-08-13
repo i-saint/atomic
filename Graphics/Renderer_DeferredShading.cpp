@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "types.h"
 #include "Game/AtomicApplication.h"
 #include "Game/AtomicGame.h"
@@ -183,7 +183,7 @@ void PassDeferredShading_Lights::drawMultiResolution()
 
     atomicGetSampler(SAMPLER_GBUFFER)->bind(GLSL_BACK_BUFFER);
 
-    // 1/4 �̉𑜓x�� shading
+    // 1/4 の解像度で shading
     {
         Viewport vp(ivec2(), rt_quarter->getColorBuffer(0)->getDesc().size);
         vp.bind();

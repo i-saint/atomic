@@ -1,4 +1,4 @@
-#ifndef __atomic_Sound_AtomicSound__
+﻿#ifndef __atomic_Sound_AtomicSound__
 #define __atomic_Sound_AtomicSound__
 
 #include "SoundResourceID.h"

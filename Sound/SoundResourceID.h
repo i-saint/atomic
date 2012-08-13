@@ -1,4 +1,4 @@
-#ifndef __atomic_Sound_SoundResourceID__
+﻿#ifndef __atomic_Sound_SoundResourceID__
 #define __atomic_Sound_SoundResourceID__
 
 namespace atomic {
