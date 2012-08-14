@@ -8,30 +8,10 @@ namespace i3dgl {
 
 class Device;
 
-class ReferenceCounter
+
+class DeviceResource : public SharedObject
 {
-private:
-    int32 m_reference_count;
-
-    // non copyable
-    ReferenceCounter(const ReferenceCounter&);
-    ReferenceCounter& operator=(const ReferenceCounter&);
-
-protected:
-    virtual void onZeroRef();
-
-public:
-    ReferenceCounter();
-    virtual ~ReferenceCounter();
-    int32 getRef() const;
-    int32 addRef();
-    int32 release();
-};
-
-
-class DeviceResource : public ReferenceCounter
-{
-template<class T> friend T* ::call_destructor(T*);
+istMakeDestructable;
 friend class Device;
 private:
     Device *m_owner_device;

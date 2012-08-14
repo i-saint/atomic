@@ -10,21 +10,22 @@ namespace ist {
     class SharedObject
     {
     public:
+        SharedObject() : m_ref_counter(1) {}
         virtual ~SharedObject() {}
-        void incrementReferenceCount() { ++m_ref_counter; }
-        void decrementReferenceCount() { if(--m_ref_counter==0) { onZeroReference(); } }
-        void setReferenceCount(int32 v) { m_ref_counter=v; }
-        int32 getReferenceCount() const { return m_ref_counter; }
+        void addRef()           { ++m_ref_counter; }
+        void release()          { if(--m_ref_counter==0) { onZeroRef(); } }
+        void setRef(int32 v)    { m_ref_counter=v; }
+        int32 getRef() const    { return m_ref_counter; }
 
     protected:
-        virtual void onZeroReference() { istDelete(this); }
+        virtual void onZeroRef() { istDelete(this); }
 
     private:
         atomic_int32 m_ref_counter;
     };
 
-    inline void intrusive_ptr_add_ref( SharedObject *obj ) { obj->incrementReferenceCount(); }
-    inline void intrusive_ptr_release( SharedObject *obj ) { obj->decrementReferenceCount(); }
+    inline void intrusive_ptr_add_ref( SharedObject *obj ) { obj->addRef(); }
+    inline void intrusive_ptr_release( SharedObject *obj ) { obj->release(); }
 
 } // namespace ist
 

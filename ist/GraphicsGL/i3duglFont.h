@@ -6,26 +6,18 @@
 namespace ist {
 namespace i3dgl {
 
-class SystemFont : public ReferenceCounter
+
+class IFontRenderer : public SharedObject
 {
-private:
-#ifdef istWindows
-    HDC m_hdc;
-#endif // istWindows
-    int m_window_height;
-    int m_font_height;
-
 public:
-#ifdef istWindows
-    SystemFont(HDC m_hdc);
-#endif // istWindows
-    ~SystemFont();
-
-    void draw(int x, int y, const char *text);
-    void draw(int x, int y, const wchar_t *text);
-
-    int getFontHeight() const { return m_font_height; }
+    virtual void draw(const vec2 &pos, const char *text)=0;
+    virtual void draw(const vec2 &pos, const wchar_t *text)=0;
+    virtual void flush()=0;
+    virtual float32 getFontHeight() const=0;
 };
+
+IFontRenderer* CreateSystemFont(void *hdc);
+IFontRenderer* CreateTTFFont(const char *path_to_ttf, float32 font_size);
 
 } // namespace i3d
 } // namespace ist

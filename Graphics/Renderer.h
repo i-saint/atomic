@@ -114,7 +114,7 @@ class SystemTextRenderer : public IRenderer
 private:
     struct Text {
         char text[128];
-        ivec2 pos;
+        vec2 pos;
     };
     stl::vector<Text> m_texts;
 
@@ -123,7 +123,7 @@ public:
     void beforeDraw();
     void draw();
 
-    void addText(const ivec2 &pos, const char *text);
+    void addText(const vec2 &pos, const char *text);
 };
 
 class PassHUD_DebugShowBuffer : public IRenderer

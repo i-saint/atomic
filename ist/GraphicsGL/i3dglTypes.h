@@ -2,6 +2,7 @@
 #define __ist_i3dgl_Types__
 
 #include "ist/Base/New.h"
+#include "ist/Base/SharedObject.h"
 
 namespace ist {
 namespace i3dgl {
@@ -238,7 +239,7 @@ struct ShaderProgramDesc
 
 #define I3DGL_DECLARE_DEVICE_RESOURCE(classname) \
 private:\
-    template<class T> friend T* ::call_destructor(T *v);\
+    istMakeDestructable;\
     friend class Device;\
     friend class DeviceContext;
 

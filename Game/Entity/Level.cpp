@@ -377,7 +377,7 @@ public:
 
         char buf[64];
         sprintf_s(buf, _countof(buf), "life: %.0f", health);
-        atomicGetSystemTextRenderer()->addText(ivec2(5, 40), buf);
+        atomicGetSystemTextRenderer()->addText(vec2(5.0f, 40.0f), buf);
     }
 };
 

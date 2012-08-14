@@ -62,8 +62,8 @@ class TaskStream;
 
 class istInterModule TaskScheduler
 {
+istMakeDestructable;
 friend class TaskWorker;
-template<class T> friend T* ::call_destructor(T *v);
 public:
     static bool initializeInstance(int32 uint32=-1); // -1: hardware_concurrency-1
     static bool finalizeInstance();

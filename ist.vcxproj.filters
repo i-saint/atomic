@@ -339,6 +339,9 @@
     <ClInclude Include="ist\Math\Misc.h">
       <Filter>ist\Math</Filter>
     </ClInclude>
+    <ClInclude Include="ist\Debug.h">
+      <Filter>ist</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ist\Window\Application.cpp">

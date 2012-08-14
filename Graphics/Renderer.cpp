@@ -257,12 +257,12 @@ void AtomicRenderer::passOutput()
 
     char buf[64];
     sprintf(buf, "FPS: %.0f", atomicGetRenderingSystem()->getAverageFPS());
-    m_stext->addText(ivec2(5, 0), buf);
+    m_stext->addText(vec2(5.0f, 0.0f), buf);
     sprintf(buf, "Particles: %d", SPHGetStates().fluid_num_particles);
-    m_stext->addText(ivec2(5, 20), buf);
+    m_stext->addText(vec2(5.0f, 20.0f), buf);
 
     sprintf(buf, "Bloom: [F2]");
-    m_stext->addText(ivec2(5, 70), buf);
+    m_stext->addText(vec2(5.0f, 70.0f), buf);
     {
         const char names[6][32] = {
             "hidden",
@@ -274,20 +274,20 @@ void AtomicRenderer::passOutput()
         };
         sprintf(buf, "GBuffer: %s [F3/F4]", names[std::abs(atomicGetConfig()->debug_show_gbuffer)%6]);
     }
-    m_stext->addText(ivec2(5, 90), buf);
+    m_stext->addText(vec2(5.0f, 90.0f), buf);
     sprintf(buf, "Lights: %d [F5/F6]", atomicGetConfig()->debug_show_lights);
-    m_stext->addText(ivec2(5, 110), buf);
+    m_stext->addText(vec2(5.0f, 110.0f), buf);
     sprintf(buf, "Pause: [F7]");
-    m_stext->addText(ivec2(5, 130), buf);
+    m_stext->addText(vec2(5.0f, 130.0f), buf);
     sprintf(buf, "Toggle Multiresolution: [F8]");
-    m_stext->addText(ivec2(5, 150), buf);
+    m_stext->addText(vec2(5.0f, 150.0f), buf);
     sprintf(buf, "Show Multiresolution Level: [F9]");
-    m_stext->addText(ivec2(5, 170), buf);
+    m_stext->addText(vec2(5.0f, 170.0f), buf);
 
     sprintf(buf, "Multiresolution Threshold: %.3f", atomicGetLights()->getMultiresolutionParams().Threshold.x);
-    m_stext->addText(ivec2(5, 190), buf);
+    m_stext->addText(vec2(5.0f, 190.0f), buf);
     sprintf(buf, "Multiresolution Threshold: %.3f ([8]<- [9]->)", atomicGetLights()->getMultiresolutionParams().Threshold.x);
-    m_stext->addText(ivec2(5, 190), buf);
+    m_stext->addText(vec2(5.0f, 190.0f), buf);
 
     m_stext->draw();
 }
@@ -313,11 +313,11 @@ void SystemTextRenderer::draw()
 
     for(uint32 i=0; i<m_texts.size(); ++i) {
         const Text &t = m_texts[i];
-        atomicGetFont()->draw(t.pos.x, t.pos.y, t.text);
+        atomicGetFont()->draw(t.pos, t.text);
     }
 }
 
-void SystemTextRenderer::addText(const ivec2 &pos, const char *text)
+void SystemTextRenderer::addText(const vec2 &pos, const char *text)
 {
     Text tmp;
     strncpy(tmp.text, text, _countof(tmp.text));

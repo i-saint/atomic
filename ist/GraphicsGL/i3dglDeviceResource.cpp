@@ -8,40 +8,6 @@ namespace ist {
 namespace i3dgl {
 
 
-ReferenceCounter::ReferenceCounter()
-    : m_reference_count(1)
-{
-}
-
-ReferenceCounter::~ReferenceCounter()
-{
-}
-
-void ReferenceCounter::onZeroRef()
-{
-    istDelete(this);
-}
-
-int32 ReferenceCounter::getRef() const
-{
-    return m_reference_count;
-}
-
-int32 ReferenceCounter::addRef()
-{
-    return ++m_reference_count;
-}
-
-int32 ReferenceCounter::release()
-{
-    if(--m_reference_count==0) {
-        onZeroRef();
-    }
-    return m_reference_count;
-}
-
-
-
 DeviceResource::DeviceResource(Device *dev)
     : m_owner_device(dev)
     , m_dr_handle(0)

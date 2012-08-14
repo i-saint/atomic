@@ -1,28 +1,19 @@
 ﻿#ifndef __ist_i3ddx11_DeviceResource__
 #define __ist_i3ddx11_DeviceResource__
 
-#include "i3ddx11Types.h"
+#include "ist/Base/SharedObject.h"
+#include "ist/GraphicsDX11/i3ddx11Types.h"
 
 namespace ist {
 namespace i3ddx11 {
 
 class Device;
 
-class DeviceResource
+class DeviceResource : public SharedObject
 {
-template<class T> friend T* ::call_destructor(T*);
+istMakeDestructable;
 friend class Device;
-private:
-    Device *m_owner_device;
-    ResourceHandle m_dr_handle;
-    int32 m_reference_count;
-
-private:
-    // non copyable
-    DeviceResource(const DeviceResource&);
-    DeviceResource& operator=(const DeviceResource&);
-
-    void setDeviceResourceHandle(ResourceHandle v);
+public:
     ResourceHandle getDeviceResourceHandle() const;
 
 protected:
@@ -31,10 +22,16 @@ protected:
 
     Device* getOwnerDevice();
 
-public:
-    int32 getRef() const;
-    int32 addRef();
-    int32 release();
+private:
+    // non copyable
+    DeviceResource(const DeviceResource&);
+    DeviceResource& operator=(const DeviceResource&);
+
+    void setDeviceResourceHandle(ResourceHandle v);
+
+private:
+    Device *m_owner_device;
+    ResourceHandle m_dr_handle;
 };
 
 } // namespace i3ddx11

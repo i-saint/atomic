@@ -10,7 +10,7 @@ namespace gpucl {
 
 #define GPUCL_DECLARE_DEVICE_RESOURCE(classname) \
 private:\
-    template<class T> friend T* ::call_destructor(T *v);\
+    istMakeDestructable;\
     friend class Device;
 
 class Device;

@@ -21,6 +21,7 @@
 
 #include "Config.h"
 #include "Base.h"
+#include "Debug.h"
 #include "Concurrency.h"
 #include "Math.h"
 #include "Graphics.h"

@@ -10,7 +10,7 @@ class Device;
 
 class DeviceResource
 {
-template<class T> friend T* ::call_destructor(T*);
+istMakeDestructable;
 friend class Device;
 private:
     Device *m_owner_device;

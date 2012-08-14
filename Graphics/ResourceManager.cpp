@@ -61,7 +61,7 @@ bool GraphicResourceManager::initialize()
     // initialize opengl resources
     i3d::Device *dev = atomicGetGLDevice();
     {
-        m_font = istNew(SystemFont)(dev->getHDC());
+        m_font = CreateSystemFont(dev->getHDC());
     }
     for(uint32 i=0; i<_countof(m_va); ++i) {
         m_va[i] = dev->createVertexArray();

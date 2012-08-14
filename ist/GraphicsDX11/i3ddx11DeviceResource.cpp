@@ -12,12 +12,12 @@ namespace i3ddx11 {
 DeviceResource::DeviceResource(Device *dev)
     : m_owner_device(dev)
     , m_dr_handle(0)
-    , m_reference_count(1)
 {
 }
 
 DeviceResource::~DeviceResource()
 {
+    m_owner_device->deleteResource(getDeviceResourceHandle());
 }
 
 Device* DeviceResource::getOwnerDevice()
@@ -35,24 +35,6 @@ void DeviceResource::setDeviceResourceHandle(ResourceHandle v)
     m_dr_handle = v;
 }
 
-
-int32 DeviceResource::getRef() const
-{
-    return m_reference_count;
-}
-
-int32 DeviceResource::addRef()
-{
-    return ++m_reference_count;
-}
-
-int32 DeviceResource::release()
-{
-    if(--m_reference_count==0) {
-        m_owner_device->deleteResource(getDeviceResourceHandle());
-    }
-    return m_reference_count;
-}
 
 } // namespace i3ddx11
 } // namespace ist

@@ -57,10 +57,12 @@ public:
     }
 };
 
-typedef TVariant<8>  Variant8;
-typedef TVariant<16> Variant16;
-typedef TVariant<32> Variant32;
-typedef TVariant<64> Variant64;
+typedef TVariant<4>   Variant4;
+typedef TVariant<8>   Variant8;
+typedef TVariant<16>  Variant16;
+typedef TVariant<32>  Variant32;
+typedef TVariant<64>  Variant64;
+typedef TVariant<128> Variant128;
 
 template<size_t B, size_t A> inline TVariant<B>& variant_cast(TVariant<A> &a) { return (TVariant<B>&)a; }
 template<size_t B, size_t A> inline const TVariant<B>& variant_cast(const TVariant<A> &a) { return (const TVariant<B>&)a; }

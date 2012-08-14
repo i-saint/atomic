@@ -1,15 +1,17 @@
 #ifndef __ist_Debug_ParamTree__
 #define __ist_Debug_ParamTree__
 
-#include "ist/Base/SharedObject.h"
+#include "ist/Base/New.h"
+#include "ist/Math/Misc.h" // clamp
+
 
 namespace ist {
 
-    class IDebugParamNode;
-    typedef boost::intrusive_ptr<IDebugParamNode> IDebugParamNodePtr;
+    class IParamNode;
 
-    class istInterModule IDebugParamNode : public SharedObject
+    class istInterModule IParamNode
     {
+    istMakeDestructable;
     public:
         enum Event {
             Event_Up,
@@ -21,42 +23,148 @@ namespace ist {
             Event_Focus,
             Event_Defocus,
         };
+        enum Option {
+            Option_None,
+            Option_x10,
+            Option_x100,
+            Option_x01,
+            Option_x001,
+        };
 
-        virtual ~IDebugParamNode() {}
+    public:
         virtual const char* getName() const=0; // dll 跨ぐ可能性を考えると std::string は返したくない
-        virtual bool handleEvent(Event e)=0;
+        virtual int32 getSelection() const=0;
+        virtual bool isOpened() const=0;
+        virtual IParamNode* getParent() const=0;
+        virtual size_t getChildrenCount() const=0;
+        virtual IParamNode* getChild(size_t i) const=0;
+        virtual void addChild(IParamNode *node)=0;
+        virtual void destroy()=0;
+        virtual bool handleEvent(Event e, Option o=Option_None)=0;
+
+        virtual size_t printName(char *buf, size_t buf_size) const=0;
+        virtual size_t printValue(char *buf, size_t buf_size) const=0;
+
+    public:
+        virtual ~IParamNode()=0;
+        virtual void setOpened(bool v)=0;
+        virtual void setParent(IParamNode *parent)=0;
+        virtual void eraseChild(IParamNode *node)=0;
     };
 
 
-    // ここから下の class は他のモジュールに見せてはならない
+    // ここから下の class はモジュールを跨いではならない。
+    // モジュールを跨いでいいのは IParamNode だけとする。
 
-    class DebugParamNodeBase : public IDebugParamNode
+    IParamNode* GetChildByPath(IParamNode *node, const char *name);
+
+    class ParamNodeBase : public IParamNode
     {
+    istMakeDestructable;
     public:
-        virtual bool handleEvent(Event e);
+        virtual const char* getName() const         { return m_name.c_str(); }
+        virtual int32 getSelection() const          { return m_selection; }
+        virtual bool isOpened() const               { return m_opened; }
+        virtual IParamNode* getParent() const       { return m_parent; }
+        virtual size_t getChildrenCount() const     { return m_children.size(); }
+        virtual IParamNode* getChild(size_t i) const{ return m_children[i]; }
 
-        const char* getName() const { return m_name.c_str(); }
+        virtual void addChild(IParamNode *node)
+        {
+            node->setParent(this);
+            m_children.push_back(node);
+        }
+
+        virtual void destroy()
+        {
+            getParent()->eraseChild(this);
+            istDelete(this);
+        }
+
+
+        virtual bool handleAction()             { return false; }
+        virtual bool handleForward(Option o)    { return false; }
+        virtual bool handleBackward(Option o)   { return false; }
+        virtual bool handleFocus()              { return false; }
+        virtual bool handleDefocus()            { return false; }
+        virtual bool handleEvent(Event e, Option o)
+        {
+            IParamNode *selected=getSelectedItem();
+            if(selected) {
+                if(selected->isOpened()) { return selected->handleEvent(e); }
+            }
+            if(isOpened()) {
+                switch(e) {
+                case Event_Up:
+                    if(selected) { selected->handleEvent(Event_Defocus); }
+                    m_selection = std::max<int32>(m_selection-1, 0);
+                    if(selected) { selected->handleEvent(Event_Focus); }
+                    return true;
+                case Event_Down:
+                    if(selected) { selected->handleEvent(Event_Defocus); }
+                    m_selection = std::min<int32>(m_selection+1, std::max<int32>(m_children.size()-1, 0));
+                    if(selected) { selected->handleEvent(Event_Focus); }
+                    return true;
+                case Event_Forward:
+                    if(selected) { selected->handleEvent(e, o); }
+                    return true;
+                case Event_Backward:
+                    if(selected) { selected->handleEvent(e, o); }
+                    return true;
+                case Event_Action:
+                    if(selected) { selected->handleEvent(e); }
+                    return true;
+                case Event_Cancel:
+                    setOpened(false);
+                    return true;
+                }
+            }
+            else {
+                switch(e) {
+                case Event_Forward: return handleForward(o);
+                case Event_Backward:return handleBackward(o);
+                case Event_Focus:   return handleFocus();
+                case Event_Defocus: return handleDefocus();
+                case Event_Action:
+                    if(!m_children.empty()) { setOpened(true); }
+                    return handleAction();
+                }
+            }
+            return false;
+        }
+
+        virtual size_t printValue(char *buf, size_t buf_size) const {}
+
+        IParamNode* getSelectedItem()
+        {
+            if(m_selection<(int32)m_children.size()) {
+                return m_children[m_selection];
+            }
+            return NULL;
+        }
+
+    protected:
+        virtual ~ParamNodeBase();
+        virtual void setOpened(bool v)              { m_opened=v; }
+        virtual void setParent(IParamNode *parent)  { m_parent=parent; }
+        virtual void eraseChild(IParamNode *node)   { m_children.erase(std::find(m_children.begin(), m_children.end(), node)); }
 
     private:
-        std::vector<IDebugParamNodePtr> m_children;
+        std::vector<IParamNode*> m_children;
+        IParamNode *m_parent;
         std::string m_name;
         int32 m_selection;
-        bool m_is_toplevel;
+        bool m_opened;
     };
 
-
     template<class T>
-    T clamp(T v, T minmum, T maximum)
+    class ArithmeticParamNode : public ParamNodeBase
     {
-        return std::min<T>(std::max<T>(v, minmum), maximum);
-    }
-
-    template<class T>
-    class ArithmeticParamNode : public DebugParamNodeBase
-    {
-        typedef DebugParamNodeBase super;
     public:
         typedef T ValueT;
+
+        ArithmeticParamNode() : m_param(NULL), m_min(), m_max(), m_step()
+        {}
 
         void SetValue(ValueT *p, ValueT _min, ValueT _max, ValueT step)
         {
@@ -71,18 +179,16 @@ namespace ist {
         ValueT GetMax() const   { return m_max; }
         ValueT GetStep() const  { return m_step; }
 
-        virtual bool handleEvent(Event e)
+        virtual bool handleForward(Option o)
         {
-            switch(e) {
-            case Event_Forward:
-                *m_param = clamp(*m_param+m_step, m_min, m_max);
-                return true;
-            case Event_Backward:
-                *m_param = clamp(*m_param-m_step, m_min, m_max);
-                return true;
-            default: return super::handleEvent(e);
-            }
-            return false;
+            *m_param = clamp(*m_param+m_step, m_min, m_max);
+            return true;
+        }
+
+        virtual bool handleBackward(Option o)
+        {
+            *m_param = clamp(*m_param-m_step, m_min, m_max);
+            return true;
         }
 
     private:
@@ -91,28 +197,53 @@ namespace ist {
         ValueT m_max;
         ValueT m_step;
     };
-    typedef ArithmeticParamNode<float32>    FloatParamNode;
+    typedef ArithmeticParamNode<float32>    Float32ParamNode;
     typedef ArithmeticParamNode<int32>      Int32ParamNode;
     typedef ArithmeticParamNode<uint32>     Uint32ParamNode;
 
+    class BoolParamNode : public ParamNodeBase
+    {
+    public:
+        BoolParamNode() : m_param(NULL)
+        {}
 
-    template<class T, class U, class Base=DebugParamNodeBase>
-    class MethodParamNode : public Base
+        void SetValue(bool *p)
+        {
+            m_param = p;
+        }
+
+        virtual bool handleForward(Option o)
+        {
+            *m_param = true;
+            return true;
+        }
+
+        virtual bool handleBackward(Option o)
+        {
+            *m_param = false;
+            return true;
+        }
+
+    private:
+        bool *m_param;
+    };
+
+
+    template<class T, class U, class Base=ParamNodeBase>
+    class TMethodParamNode : public Base
     {
     public:
         typedef T MethodT;
         typedef T ClassT;
-        virtual bool handleEvent(Event e)
-        {
-            switch(e) {
-            case Event_Action:
-                (m_obj->*m_method)();
-                return true;
-            default: return super::handleEvent(e);
-            }
-            return false;
-        }
 
+        TMethodParamNode() : m_method(NULL), m_obj(NULL)
+        {}
+
+        virtual bool handleAction()
+        {
+            (m_obj->*m_method)();
+            return true;
+        }
 
     private:
         MethodT m_method;

@@ -32,7 +32,7 @@ enum GBUFFER {
 class GraphicResourceManager : boost::noncopyable
 {
 private:
-    SystemFont      *m_font;
+    IFontRenderer   *m_font;
     Sampler         *m_sampler[SAMPLER_END];
     Texture1D       *m_tex1d[TEX1D_END];
     Texture2D       *m_tex2d[TEX2D_END];
@@ -55,7 +55,7 @@ public:
     static void intializeInstance();
     static void finalizeInstance();
 
-    SystemFont*     getFont()                   { return m_font; }
+    IFontRenderer*  getFont()                   { return m_font; }
     Sampler*        getSampler(SAMPLER_RID i)   { return m_sampler[i]; }
     Texture1D*      getTexture1D(TEX1D_RID i)   { return m_tex1d[i]; }
     Texture2D*      getTexture2D(TEX2D_RID i)   { return m_tex2d[i]; }

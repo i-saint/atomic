@@ -40,6 +40,7 @@
     <ClInclude Include="ist\Concurrency\Thread.h" />
     <ClInclude Include="ist\Concurrency\ThreadCommon.h" />
     <ClInclude Include="ist\Config.h" />
+    <ClInclude Include="ist\Debug.h" />
     <ClInclude Include="ist\Debug\ParamTree.h" />
     <ClInclude Include="ist\GPGPU.h" />
     <ClInclude Include="ist\GPUCL\gpuclDevice.h" />

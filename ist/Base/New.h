@@ -2,6 +2,8 @@
 #define __ist_Base_New__
 
 template<class T> inline T* call_destructor(T* p) { p->~T(); return p; }
+#define istMakeDestructable template<class T> friend T* ::call_destructor(T *v)
+
 istInterModule void* istnew(size_t size);
 istInterModule void istdelete(void* p);
 
