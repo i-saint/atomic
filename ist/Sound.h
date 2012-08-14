@@ -7,6 +7,7 @@
 #include <deque>
 #include <boost/shared_ptr.hpp>
 
+#include "Config.h"
 #include "Base.h"
 #include "Sound/isdDeviceResource.h"
 #include "Sound/isdDevice.h"

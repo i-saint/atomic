@@ -1,11 +1,12 @@
 ﻿#include "stdafx.h"
-#include "../Base.h"
+#ifdef __ist_with_DirectX11__
+
+#include "ist/Base.h"
 #include <D3D11.h>
 #include <D3DX11.h>
 #include "i3ddx11Device.h"
 #include "i3ddx11Shader.h"
 
-#ifdef __ist_with_DirectX11__
 namespace ist {
 namespace i3ddx11 {
 

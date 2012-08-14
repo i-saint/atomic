@@ -1,6 +1,7 @@
 ﻿#include "stdafx.h"
-#include "../Base.h"
-#include "../Window.h"
+#ifdef __ist_with_DirectX11__
+#include "ist/Base.h"
+#include "ist/Window.h"
 #include <D3D11.h>
 #include <D3DX11.h>
 #include "i3ddx11Device.h"
@@ -176,3 +177,4 @@ void Device::swapBuffers()
 
 } // namespace i3ddx11
 } // namespace ist
+#endif // __ist_with_DirectX11__

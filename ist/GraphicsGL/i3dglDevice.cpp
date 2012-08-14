@@ -1,5 +1,6 @@
 ﻿#include "stdafx.h"
-#include "../Base.h"
+#ifdef __ist_with_OpenGL__
+#include "ist/Base.h"
 #include "i3dglDevice.h"
 #include "i3dglDeviceContext.h"
 
@@ -177,3 +178,4 @@ void Device::swapBuffers()
 
 } // namespace i3d
 } // namespace ist
+#endif // __ist_with_OpenGL__

@@ -1,5 +1,6 @@
 ﻿#include "stdafx.h"
-#include "../Base.h"
+#ifdef __ist_with_OpenGL__
+#include "ist/Base.h"
 #include "i3dglTypes.h"
 #include "i3dglDeviceResource.h"
 #include "i3dglDevice.h"
@@ -46,3 +47,4 @@ GLuint DeviceResource::getHandle() const
 
 } // namespace i3d
 } // namespace ist
+#endif // __ist_with_OpenGL__

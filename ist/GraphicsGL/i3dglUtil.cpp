@@ -1,6 +1,7 @@
 ﻿#include "stdafx.h"
-#include "../Base.h"
-#include "../Math.h"
+#ifdef __ist_with_OpenGL__
+#include "ist/Base.h"
+#include "ist/Math.h"
 #include "i3dglDevice.h"
 #include "i3dglShader.h"
 #include "i3dglUtil.h"
@@ -211,3 +212,4 @@ Buffer* CreateUniformBuffer( Device *dev, uint32 size, I3D_USAGE usage, void *da
 
 } // namespace i3d
 } // namespace ist
+#endif // __ist_with_OpenGL__

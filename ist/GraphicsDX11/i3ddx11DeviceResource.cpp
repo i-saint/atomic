@@ -1,4 +1,5 @@
 ﻿#include "stdafx.h"
+#ifdef __ist_with_DirectX11__
 #include "../Base.h"
 #include <D3D11.h>
 #include <D3DX11.h>
@@ -38,3 +39,4 @@ void DeviceResource::setDeviceResourceHandle(ResourceHandle v)
 
 } // namespace i3ddx11
 } // namespace ist
+#endif // __ist_with_DirectX11__

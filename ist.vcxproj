@@ -46,6 +46,7 @@
     <ClInclude Include="ist\GPUCL\gpuclDevice.h" />
     <ClInclude Include="ist\GPUCL\gpuclDeviceResource.h" />
     <ClInclude Include="ist\Graphics.h" />
+    <ClInclude Include="ist\GraphicsCommon\Image.h" />
     <ClInclude Include="ist\GraphicsDX11\i3ddx11.h" />
     <ClInclude Include="ist\GraphicsDX11\i3ddx11Assert.h" />
     <ClInclude Include="ist\GraphicsDX11\i3ddx11Buffer.h" />
@@ -131,6 +132,7 @@
     <ClCompile Include="ist\Concurrency\Thread.cpp" />
     <ClCompile Include="ist\GPUCL\gpuclDevice.cpp" />
     <ClCompile Include="ist\GPUCL\gpuclDeviceResource.cpp" />
+    <ClCompile Include="ist\GraphicsCommon\Image.cpp" />
     <ClCompile Include="ist\GraphicsDX11\i3ddx11Assert.cpp" />
     <ClCompile Include="ist\GraphicsDX11\i3ddx11Buffer.cpp" />
     <ClCompile Include="ist\GraphicsDX11\i3ddx11Device.cpp" />

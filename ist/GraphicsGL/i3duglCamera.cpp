@@ -1,5 +1,6 @@
 ﻿#include "stdafx.h"
-#include "../Base.h"
+#ifdef __ist_with_OpenGL__
+#include "ist/Base.h"
 #include "i3duglCamera.h"
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -40,3 +41,4 @@ void PerspectiveCamera::updateMatrix()
 
 } // namespace i3d
 } // namespace ist
+#endif // __ist_with_OpenGL__

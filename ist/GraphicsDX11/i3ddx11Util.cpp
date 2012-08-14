@@ -1,6 +1,7 @@
 ﻿#include "stdafx.h"
-#include "../Base.h"
-#include "../Math.h"
+#ifdef __ist_with_DirectX11__
+#include "ist/Base.h"
+#include "ist/Math.h"
 #include <D3D11.h>
 #include <D3DX11.h>
 #include <string>
@@ -178,3 +179,4 @@ RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uv
 
 } // namespace i3ddx11
 } // namespace ist
+#endif // __ist_with_DirectX11__

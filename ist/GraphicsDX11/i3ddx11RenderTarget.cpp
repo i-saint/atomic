@@ -1,5 +1,6 @@
 ﻿#include "stdafx.h"
-#include "../Base.h"
+#ifdef __ist_with_DirectX11__
+#include "ist/Base.h"
 #include <D3D11.h>
 #include <D3DX11.h>
 #include "i3ddx11Device.h"
@@ -56,5 +57,4 @@ const uvec2& Texture2D::getSize() const { return m_size; }
 
 } // namespace i3ddx11
 } // namespace ist
-
-
+#endif // __ist_with_DirectX11__

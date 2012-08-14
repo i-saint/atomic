@@ -1,6 +1,7 @@
 ﻿#ifndef __ist_Math__
 #define __ist_Math__
 
+#include "Config.h"
 #include "Base.h"
 //#include "Math/simdvec.h"
 #include "Math/soavec.h"

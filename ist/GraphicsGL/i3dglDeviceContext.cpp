@@ -1,5 +1,6 @@
 ﻿#include "stdafx.h"
-#include "../Base.h"
+#ifdef __ist_with_OpenGL__
+#include "ist/Base.h"
 #include "i3dglDevice.h"
 #include "i3dglDeviceContext.h"
 
@@ -71,3 +72,4 @@ void DeviceContext::drawIndexedInstanced( uint32 num_indices, uint32 num_instanc
 
 } // namespace i3dgl
 } // namespace ist
+#endif // __ist_with_OpenGL__

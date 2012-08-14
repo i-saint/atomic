@@ -1,5 +1,6 @@
 ﻿#include "stdafx.h"
-#include "../Base.h"
+#ifdef __ist_with_OpenGL__
+#include "ist/Base.h"
 #include "i3dglShader.h"
 
 namespace ist {
@@ -222,3 +223,4 @@ void ShaderProgram::setSubroutinePS(GLsizei count, GLuint *indices) { glUniformS
 
 } // namespace i3d
 } // namespace ist
+#endif // __ist_with_OpenGL__

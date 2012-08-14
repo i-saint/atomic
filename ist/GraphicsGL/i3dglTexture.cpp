@@ -1,5 +1,6 @@
 ﻿#include "stdafx.h"
-#include "../Base.h"
+#ifdef __ist_with_OpenGL__
+#include "ist/Base.h"
 #include "i3dglTexture.h"
 
 namespace ist {
@@ -266,7 +267,6 @@ void Texture3D::unbind(int slot) const
 
 const Texture3DDesc& Texture3D::getDesc() const { return m_desc; }
 
-
-
 } // namespace i3dgl
 } // namespace ist
+#endif // __ist_with_OpenGL__

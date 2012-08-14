@@ -1,5 +1,6 @@
 ﻿#include "stdafx.h"
-#include "../Base.h"
+#ifdef __ist_with_OpenGL__
+#include "ist/Base.h"
 #include "i3dglBuffer.h"
 
 namespace ist {
@@ -99,3 +100,4 @@ void VertexArray::setAttributes( Buffer& vb, size_t stride, const VertexDesc *de
 
 } // namespace i3d
 } // namespace ist
+#endif // __ist_with_OpenGL__

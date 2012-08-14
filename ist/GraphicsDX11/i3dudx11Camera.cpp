@@ -1,5 +1,6 @@
 ﻿#include "stdafx.h"
-#include "../Base.h"
+#ifdef __ist_with_DirectX11__
+#include "ist/Base.h"
 #include <D3D11.h>
 #include <D3DX11.h>
 #include "i3dudx11Camera.h"
@@ -41,3 +42,4 @@ void PerspectiveCamera::updateMatrix()
 
 } // namespace i3ddx11
 } // namespace ist
+#endif // __ist_with_DirectX11__

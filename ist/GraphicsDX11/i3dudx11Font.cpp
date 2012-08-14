@@ -1,6 +1,7 @@
 ﻿#include "stdafx.h"
+#ifdef __ist_with_DirectX11__
 #include <wingdi.h>
-#include "../Window.h"
+#include "ist/Window.h"
 #include <D3D11.h>
 #include <D3DX11.h>
 #include "i3dudx11Font.h"
@@ -38,3 +39,4 @@ void SystemFont::draw(int x, int y, const wchar_t *text)
 
 } // namespace i3ddx11
 } // namespace ist
+#endif // __ist_with_DirectX11__

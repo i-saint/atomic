@@ -1,5 +1,6 @@
 ﻿#ifndef __ist_i3ddx11__
 #define __ist_i3ddx11__
+#ifdef __ist_with_DirectX11__
 
 #ifdef _DEBUG
 #pragma comment(lib, "d3d11.lib")
@@ -29,4 +30,5 @@
 #include "i3dudx11Camera.h"
 #include "i3dudx11Font.h"
 
+#endif // __ist_with_DirectX11__
 #endif // __ist_i3ddx11__
