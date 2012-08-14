@@ -26,9 +26,9 @@ VertexShader*   CreateVertexShaderFromStream(Device *dev, std::istream& st);
 GeometryShader* CreateGeometryShaderFromStream(Device *dev, std::istream& st);
 PixelShader*    CreatePixelShaderFromStream(Device *dev, std::istream& st);
 
-VertexShader*   CreateVertexShaderFromString(Device *dev, const std::string &source);
-GeometryShader* CreateGeometryShaderFromString(Device *dev, const std::string &source);
-PixelShader*    CreatePixelShaderFromString(Device *dev, const std::string &source);
+VertexShader*   CreateVertexShaderFromString(Device *dev, const stl::string &source);
+GeometryShader* CreateGeometryShaderFromString(Device *dev, const stl::string &source);
+PixelShader*    CreatePixelShaderFromString(Device *dev, const stl::string &source);
 
 
 template<class BufferObjectType>

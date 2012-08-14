@@ -181,7 +181,7 @@ public:
         Cell()
         {
             num = 0;
-            std::fill_n(handles, _countof(handles), 0);
+            stl::fill_n(handles, _countof(handles), 0);
         }
     };
 

@@ -57,7 +57,7 @@ namespace ist {
         virtual ~IMemberInfo() {}
         virtual const char* GetName() const=0;
         virtual const void* GetValue(const void *obj) const=0;
-        virtual size_t GetSize(const void *obj) const=0; // POD 型は sizeof するだけなので静的に決まるが、std::vector<> とかは動的にサイズ変わるので obj を引数に取る必要がある
+        virtual size_t GetSize(const void *obj) const=0; // POD 型は sizeof するだけなので静的に決まるが、stl::vector<> とかは動的にサイズ変わるので obj を引数に取る必要がある
         virtual void SetValue(void *obj, const void *v)=0;
     };
 
@@ -97,7 +97,7 @@ namespace ist {
 
     struct MemberInfoCollection
     {
-        typedef std::vector<IMemberInfo*> container;
+        typedef stl::vector<IMemberInfo*> container;
         typedef container::iterator iterator;
         typedef container::const_iterator const_iterator;
         container data;

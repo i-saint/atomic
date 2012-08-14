@@ -85,8 +85,8 @@ private:
     int32 decrementHungryWorker() { return --m_num_hungry_worker; }
 
 private:
-    std::vector< boost::intrusive_ptr<TaskStream> > m_taskstream;
-    std::vector< boost::intrusive_ptr<TaskWorker> > m_workers;
+    stl::vector< boost::intrusive_ptr<TaskStream> > m_taskstream;
+    stl::vector< boost::intrusive_ptr<TaskWorker> > m_workers;
     Condition m_cond_new_task;
     atomic_int32 m_num_hungry_worker;
 };

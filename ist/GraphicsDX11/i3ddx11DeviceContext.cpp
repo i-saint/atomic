@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+﻿#include "istPCH.h"
 #ifdef __ist_with_DirectX11__
 #include <D3D11.h>
 #include <D3DX11.h>

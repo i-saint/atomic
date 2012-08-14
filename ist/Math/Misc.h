@@ -17,7 +17,7 @@ namespace ist {
     template<class T>
     inline T clamp(T v, T minmum, T maximum)
     {
-        return std::min<T>(std::max<T>(v, minmum), maximum);
+        return stl::min<T>(stl::max<T>(v, minmum), maximum);
     }
 
 

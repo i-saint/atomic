@@ -39,19 +39,10 @@
 #include <boost/static_assert.hpp>
 #include <boost/mem_fn.hpp>
 #include <boost/function.hpp>
-#include <EASTL/algorithm.h>
-#include <EASTL/sort.h>
-#include <EASTL/vector.h>
-#include <EASTL/list.h>
-#include <EASTL/set.h>
-#include <EASTL/map.h>
-#include <EASTL/string.h>
 
 #include <tbb/tbb.h>
-
 #include <iostream>
 
-namespace stl = eastl;
 
 #include <windows.h>
 #include <windowsx.h>
@@ -63,4 +54,7 @@ namespace stl = eastl;
 #include <crtdbg.h>
 #endif // _DEBUG
 
+#include "ist/ist.h"
+#include "ist/Graphics.h"
+#include "ist/Sound.h"
 #include "features.h"

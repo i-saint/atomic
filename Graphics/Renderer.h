@@ -90,7 +90,7 @@ public:
 
     RenderTarget*   getFrontRenderTarget() { return m_rt_out[0]; }
     RenderTarget*   getBackRenderTarget() { return m_rt_out[1]; }
-    void swapOutputRenderTarget()   { std::swap(m_rt_out[0], m_rt_out[1]); }
+    void swapOutputRenderTarget()   { stl::swap(m_rt_out[0], m_rt_out[1]); }
 };
 
 #define atomicGetRenderer()             AtomicRenderer::getInstance()

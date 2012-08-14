@@ -1,7 +1,7 @@
 ﻿#ifndef __ist_i3ddx11_Types__
 #define __ist_i3ddx11_Types__
 
-#include "ist/Base/New.h"
+#include "ist/Base.h"
 
 namespace ist {
 namespace i3ddx11 {

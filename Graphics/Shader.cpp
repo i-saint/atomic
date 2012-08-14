@@ -33,7 +33,7 @@ bool AtomicShader::loadFromMemory( const char* src )
 {
     i3d::Device *dev = atomicGetGLDevice();
     {
-        std::string source;
+        stl::string source;
         source += "#define GLSL\n";
         source += "#define GLSL_VS\n";
         source += src;
@@ -41,7 +41,7 @@ bool AtomicShader::loadFromMemory( const char* src )
         m_vs = dev->createVertexShader(desc);
     }
     {
-        std::string source;
+        stl::string source;
         source += "#define GLSL\n";
         source += "#define GLSL_PS\n";
         source += src;
@@ -49,7 +49,7 @@ bool AtomicShader::loadFromMemory( const char* src )
         m_ps = dev->createPixelShader(desc);
     }
     //{
-    //    std::string source;
+    //    stl::string source;
     //    source += "#define GLSL\n";
     //    source += "#define GLSL_GS\n";
     //    source += src;

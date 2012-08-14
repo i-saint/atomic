@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+﻿#include "istPCH.h"
 #include "../Base.h"
 #include "../Sound.h"
 #include "../Window.h"
@@ -354,11 +354,15 @@ extern int istmain(int argc, char* argv[]);
 
 int main(int argc, char* argv[])
 {
+    ::setlocale(LC_ALL, "");
     return istmain(argc, argv);
 }
 
+#ifdef istWindows
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prev, LPSTR cmd, int show)
 {
+    ::setlocale(LC_ALL, "");
     ist::g_hinstance = hInstance;
     return istmain(__argc, __argv);
 }
+#endif // istWindows

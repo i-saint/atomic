@@ -240,9 +240,6 @@
     <ClInclude Include="ist\GraphicsGL\i3duglFont.h">
       <Filter>ist\GraphicsGL</Filter>
     </ClInclude>
-    <ClInclude Include="ist\stdafx.h">
-      <Filter>ist</Filter>
-    </ClInclude>
     <ClInclude Include="ist\targetver.h">
       <Filter>ist</Filter>
     </ClInclude>
@@ -347,6 +344,9 @@
     </ClInclude>
     <ClInclude Include="ist\GraphicsCommon\Image.h">
       <Filter>ist\GraphicsCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\istPCH.h">
+      <Filter>ist</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -461,9 +461,6 @@
     <ClCompile Include="ist\GraphicsGL\i3duglFont.cpp">
       <Filter>ist\GraphicsGL</Filter>
     </ClCompile>
-    <ClCompile Include="ist\stdafx.cpp">
-      <Filter>ist</Filter>
-    </ClCompile>
     <ClCompile Include="ist\Base\New.cpp">
       <Filter>ist\Base</Filter>
     </ClCompile>
@@ -499,6 +496,9 @@
     </ClCompile>
     <ClCompile Include="ist\GraphicsCommon\Image.cpp">
       <Filter>ist\GraphicsCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\istPCH.cpp">
+      <Filter>ist</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

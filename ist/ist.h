@@ -19,6 +19,7 @@
 #pragma comment(lib, "ist.lib")
 #endif // _DEBUG
 
+#include "istPCH.h"
 #include "Config.h"
 #include "Base.h"
 #include "Debug.h"

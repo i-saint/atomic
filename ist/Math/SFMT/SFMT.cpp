@@ -10,7 +10,7 @@
  *
  * The new BSD License is applied to this software, see LICENSE.txt
  */
-#include "stdafx.h"
+#include "istPCH.h"
 #include <string.h>
 #include <assert.h>
 #include "../../Math.h"

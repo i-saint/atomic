@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+﻿#include "istPCH.h"
 #include "ClassInfo.h"
 
 namespace ist {

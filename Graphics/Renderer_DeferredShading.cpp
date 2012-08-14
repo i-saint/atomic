@@ -320,7 +320,7 @@ void PassDeferredShading_Lights::drawDirectionalLights()
     int32 num_lights = m_directional_lights.size();
     int32 show = atomicGetConfig()->debug_show_lights - m_rendered_lights;
     if(show >= 0) {
-        num_lights = std::min(num_lights, show);
+        num_lights = stl::min(num_lights, show);
     }
     m_rendered_lights += num_lights;
 
@@ -347,7 +347,7 @@ void PassDeferredShading_Lights::drawPointLights()
     int32 num_lights = m_point_lights.size();
     int32 show = atomicGetConfig()->debug_show_lights - m_rendered_lights;
     if(show >= 0) {
-        num_lights = std::min(num_lights, show);
+        num_lights = stl::min(num_lights, show);
     }
     m_rendered_lights += num_lights;
 

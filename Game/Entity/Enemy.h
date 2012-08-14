@@ -104,7 +104,7 @@ public:
             else if(m_delta_damage) {
                 float32 d = m_delta_damage - threthold2;
                 float32 r = threthold3 - threthold2;
-                m_flash_color = vec4(1.0f, std::max<float32>(1.0f-d/r, 0.0f), 0.0f, 0.0f);
+                m_flash_color = vec4(1.0f, stl::max<float32>(1.0f-d/r, 0.0f), 0.0f, 0.0f);
             }
             m_flash_color *= 0.25f;
         }

@@ -153,9 +153,9 @@ public:
         if(getState()==ST_FADEIN) {
             float32 s   = (float32)m_st_frame / FADEIN_TIME;
             float shininess = diffuse.w;
-            diffuse     *= std::min<float32>(s*2.0f, 1.0f);
+            diffuse     *= stl::min<float32>(s*2.0f, 1.0f);
             diffuse.w   = shininess;
-            glow        *= std::max<float32>(s*2.0f-1.0f, 0.0f);
+            glow        *= stl::max<float32>(s*2.0f-1.0f, 0.0f);
             light       *= s;
         }
         else if(getState()==ST_FADEOUT) {

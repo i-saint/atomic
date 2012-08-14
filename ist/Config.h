@@ -3,12 +3,14 @@
 #define __ist_enable_assert__
 #define __ist_enable_graphics_assert__
 
+#define __ist_with_EASTL__
 #define __ist_with_OpenGL__
 #define __ist_with_OpenGLES__
 #define __ist_with_DirectX11__
 #define __ist_with_zlib__
 #define __ist_with_png__
 //#define __ist_with_jpeg__
+#define __ist_with_OpenAL__
 #define __ist_with_oggvorbis__
 
 #if defined(_WIN64)

@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+﻿#include "istPCH.h"
 #ifdef __ist_with_OpenGL__
 #include <wingdi.h>
 #include "ist/Base.h"
@@ -148,17 +148,40 @@ public:
                 continue;
             }
             ret.x += m_data[di].w;
-            ret.y = std::max<int32>(ret.y, m_data[di].h);
+            ret.y = stl::max<int32>(ret.y, m_data[di].h);
         }
         return vec2((float32)ret.x, (float32)ret.y);
     }
 
 private:
-    std::vector<char> m_buf;
+    stl::vector<char> m_buf;
     const SFF_HEAD *m_header;
     const SFF_DATA *m_data;
 };
 
+class SpriteFontRenderer : public SharedObject
+{
+public:
+    virtual void draw(const vec2 &pos, const char *text)
+    {
+
+    }
+
+    virtual void draw(const vec2 &pos, const wchar_t *text)
+    {
+
+    }
+
+    virtual void flush()
+    {
+
+    }
+
+    virtual float32 getFontHeight() const
+    {
+
+    }
+};
 
 
 

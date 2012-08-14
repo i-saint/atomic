@@ -32,7 +32,7 @@ namespace ist {
         };
 
     public:
-        virtual const char* getName() const=0; // dll 跨ぐ可能性を考えると std::string は返したくない
+        virtual const char* getName() const=0; // dll 跨ぐ可能性を考えると stl::string は返したくない
         virtual int32 getSelection() const=0;
         virtual bool isOpened() const=0;
         virtual IParamNode* getParent() const=0;
@@ -97,12 +97,12 @@ namespace ist {
                 switch(e) {
                 case Event_Up:
                     if(selected) { selected->handleEvent(Event_Defocus); }
-                    m_selection = std::max<int32>(m_selection-1, 0);
+                    m_selection = stl::max<int32>(m_selection-1, 0);
                     if(selected) { selected->handleEvent(Event_Focus); }
                     return true;
                 case Event_Down:
                     if(selected) { selected->handleEvent(Event_Defocus); }
-                    m_selection = std::min<int32>(m_selection+1, std::max<int32>(m_children.size()-1, 0));
+                    m_selection = stl::min<int32>(m_selection+1, stl::max<int32>(m_children.size()-1, 0));
                     if(selected) { selected->handleEvent(Event_Focus); }
                     return true;
                 case Event_Forward:
@@ -147,12 +147,12 @@ namespace ist {
         virtual ~ParamNodeBase();
         virtual void setOpened(bool v)              { m_opened=v; }
         virtual void setParent(IParamNode *parent)  { m_parent=parent; }
-        virtual void eraseChild(IParamNode *node)   { m_children.erase(std::find(m_children.begin(), m_children.end(), node)); }
+        virtual void eraseChild(IParamNode *node)   { m_children.erase(stl::find(m_children.begin(), m_children.end(), node)); }
 
     private:
-        std::vector<IParamNode*> m_children;
+        stl::vector<IParamNode*> m_children;
         IParamNode *m_parent;
-        std::string m_name;
+        stl::string m_name;
         int32 m_selection;
         bool m_opened;
     };

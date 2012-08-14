@@ -1,23 +1,29 @@
 ﻿#ifndef __ist_isd_DeviceResource__
 #define __ist_isd_DeviceResource__
 
-#include "isdTypes.h"
+#include "ist/Sound/isdTypes.h"
 
 namespace ist {
 namespace isd {
 
 class Device;
 
-class DeviceResource
+class DeviceResource : public SharedObject
 {
 istMakeDestructable;
 friend class Device;
-private:
-    Device *m_owner_device;
-    ResourceHandle m_dr_handle;
-    int32 m_reference_count;
+public:
+    Device* getOwnerDevice();
+    void setOwnerDevice(Device *v);
+    ResourceHandle getDeviceResourceHandle() const;
+    void setDeviceResourceHandle(ResourceHandle v);
+
+    ALuint getHandle() const;
 
 protected:
+    DeviceResource();
+    virtual ~DeviceResource();
+
     ALuint m_handle;
 
 private:
@@ -25,21 +31,8 @@ private:
     DeviceResource(const DeviceResource&);
     DeviceResource& operator=(const DeviceResource&);
 
-    Device* getOwnerDevice();
-    void setOwnerDevice(Device *v);
-    ResourceHandle getDeviceResourceHandle() const;
-    void setDeviceResourceHandle(ResourceHandle v);
-
-protected:
-    DeviceResource();
-    virtual ~DeviceResource();
-
-public:
-    int32 getRef() const;
-    int32 addRef();
-    int32 release();
-
-    ALuint getHandle() const;
+    Device *m_owner_device;
+    ResourceHandle m_dr_handle;
 };
 
 } // namespace isd

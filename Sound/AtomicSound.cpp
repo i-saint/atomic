@@ -85,8 +85,8 @@ SoundThread::SoundThread()
     m_listener = NULL;
     m_bgm_source = NULL;
     m_stream = NULL;
-    std::fill_n(m_se_sources, _countof(m_se_sources), (isd::Source*)NULL);
-    std::fill_n(m_se_data, _countof(m_se_data), (isd::Buffer*)NULL);
+    stl::fill_n(m_se_sources, _countof(m_se_sources), (isd::Source*)NULL);
+    stl::fill_n(m_se_data, _countof(m_se_data), (isd::Buffer*)NULL);
 
     m_requests.reserve(64);
     m_requests_temp.reserve(64);

@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+﻿#include "istPCH.h"
 #include "ist/Base.h"
 #include <stdarg.h>
 #ifdef istWindows

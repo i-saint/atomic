@@ -17,7 +17,7 @@ public:
 };
 
 IFontRenderer* CreateSystemFont(void *hdc);
-IFontRenderer* CreateTTFFont(const char *path_to_ttf, float32 font_size);
+IFontRenderer* CreateSpriteFont(const char *path_to_sff, float32 *path_to_png);
 
 } // namespace i3d
 } // namespace ist

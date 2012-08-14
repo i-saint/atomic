@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+﻿#include "istPCH.h"
 #ifdef __ist_with_OpenGL__
 #include "ist/Base.h"
 #include "ist/Math.h"
@@ -38,7 +38,7 @@ Texture2D* GenerateRandomTexture(Device *dev, const uvec2 &size, I3D_COLOR_FORMA
 
 Texture2D* GenerateRandomTexture(Device *dev, const uvec2 &size, I3D_COLOR_FORMAT format, SFMT& random)
 {
-    std::string buffer;
+    stl::string buffer;
     if(format==I3D_RGB8U) {
         uint32 data_size = size.x*size.y*3;
         buffer.resize(data_size);
@@ -78,19 +78,19 @@ Texture2D* GenerateRandomTexture(Device *dev, const uvec2 &size, I3D_COLOR_FORMA
 }
 
 
-template<class ShaderType> inline ShaderType* CreateShaderFromString(Device *dev, const std::string &source);
+template<class ShaderType> inline ShaderType* CreateShaderFromString(Device *dev, const stl::string &source);
 
-template<> inline VertexShader* CreateShaderFromString<VertexShader>(Device *dev, const std::string &source)
+template<> inline VertexShader* CreateShaderFromString<VertexShader>(Device *dev, const stl::string &source)
 {
     VertexShaderDesc desc = VertexShaderDesc(source.c_str(), source.size());
     return dev->createVertexShader(desc);
 }
-template<> inline PixelShader* CreateShaderFromString<PixelShader>(Device *dev, const std::string &source)
+template<> inline PixelShader* CreateShaderFromString<PixelShader>(Device *dev, const stl::string &source)
 {
     PixelShaderDesc desc = PixelShaderDesc(source.c_str(), source.size());
     return dev->createPixelShader(desc);
 }
-template<> inline GeometryShader* CreateShaderFromString<GeometryShader>(Device *dev, const std::string &source)
+template<> inline GeometryShader* CreateShaderFromString<GeometryShader>(Device *dev, const stl::string &source)
 {
     GeometryShaderDesc desc = GeometryShaderDesc(source.c_str(), source.size());
     return dev->createGeometryShader(desc);
@@ -99,12 +99,9 @@ template<> inline GeometryShader* CreateShaderFromString<GeometryShader>(Device 
 template<class ShaderType>
 inline ShaderType* CreateShaderFromStream(Device *dev, std::istream& st)
 {
-    std::string source;
     std::ostringstream str_out;
     str_out << st.rdbuf();
-    source = str_out.str();
-
-    return CreateShaderFromString<ShaderType>(dev, source);
+    return CreateShaderFromString<ShaderType>(dev, str_out.str().c_str());
 }
 
 template<class ShaderType>
@@ -126,9 +123,9 @@ VertexShader*   CreateVertexShaderFromStream(Device *dev, std::istream& st)     
 GeometryShader* CreateGeometryShaderFromStream(Device *dev, std::istream& st)       { return CreateShaderFromStream<GeometryShader>(dev, st); }
 PixelShader*    CreatePixelShaderFromStream(Device *dev, std::istream& st)          { return CreateShaderFromStream<PixelShader>(dev, st); }
 
-VertexShader*   CreateVertexShaderFromString(Device *dev, const std::string &source)    { return CreateShaderFromString<VertexShader>(dev, source); }
-GeometryShader* CreateGeometryShaderFromString(Device *dev, const std::string &source)  { return CreateShaderFromString<GeometryShader>(dev, source); }
-PixelShader*    CreatePixelShaderFromString(Device *dev, const std::string &source)     { return CreateShaderFromString<PixelShader>(dev, source); }
+VertexShader*   CreateVertexShaderFromString(Device *dev, const stl::string &source)    { return CreateShaderFromString<VertexShader>(dev, source); }
+GeometryShader* CreateGeometryShaderFromString(Device *dev, const stl::string &source)  { return CreateShaderFromString<GeometryShader>(dev, source); }
+PixelShader*    CreatePixelShaderFromString(Device *dev, const stl::string &source)     { return CreateShaderFromString<PixelShader>(dev, source); }
 
 
 

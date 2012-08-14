@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+﻿#include "istPCH.h"
 #include "gpuclDevice.h"
 #include "gpuclDeviceResource.h"
 

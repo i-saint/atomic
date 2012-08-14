@@ -199,8 +199,8 @@ public:
     {
         ivec3 ubl = DistanceField::getDistanceFieldCoord(vec3(bb.bl));
         ivec3 uur = DistanceField::getDistanceFieldCoord(vec3(bb.ur)) + ivec3(1,1,1);
-        out_ubl = uvec3(std::max<int32>(ubl.x, out_ubl.x), std::max<int32>(ubl.y, out_ubl.y), std::max<int32>(ubl.z, out_ubl.z));
-        out_uur = uvec3(std::min<int32>(uur.x, out_uur.x), std::min<int32>(uur.y, out_uur.y), std::min<int32>(uur.z, out_uur.z));
+        out_ubl = uvec3(stl::max<int32>(ubl.x, out_ubl.x), stl::max<int32>(ubl.y, out_ubl.y), stl::max<int32>(ubl.z, out_ubl.z));
+        out_uur = uvec3(stl::min<int32>(uur.x, out_uur.x), stl::min<int32>(uur.y, out_uur.y), stl::min<int32>(uur.z, out_uur.z));
     }
 
     void doCollide(const CollisionEntity *ce, const ivec3 &ubl, const ivec3 &uur)
@@ -270,7 +270,7 @@ public:
 
 DistanceField::DistanceField()
 {
-    std::fill_n(m_handle, _countof(m_handle), 0);
+    stl::fill_n(m_handle, _countof(m_handle), 0);
     for(int32 i=0; i<block_num.x*block_num.y; ++i) {
         m_tasks.push_back( istNew(DistanceTask)(this) );
     }
@@ -482,7 +482,7 @@ void CollisionSet::asyncupdate(float32 dt)
     m_active_tasks = num_entities / block_size + (num_entities%block_size==0 ? 0 : 1);
     resizeTasks(m_active_tasks);
     for(uint32 i=0; i<m_active_tasks; ++i) {
-        m_tasks[i]->setup(m_entities.begin()+(block_size*i), m_entities.begin()+std::min<uint32>(block_size*(i+1), m_entities.size()));
+        m_tasks[i]->setup(m_entities.begin()+(block_size*i), m_entities.begin()+stl::min<uint32>(block_size*(i+1), m_entities.size()));
     }
     ist::EnqueueTasks(&m_tasks[0], m_tasks.size());
 }

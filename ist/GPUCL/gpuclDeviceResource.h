@@ -1,7 +1,6 @@
 ﻿#ifndef __ist_gpucl_DeviceResource__
 #define __ist_gpucl_DeviceResource__
 
-#include "stdafx.h"
 #include "ist/ist.h"
 #include "gpuclDevice.h"
 

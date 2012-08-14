@@ -83,7 +83,7 @@ public:
 
     void move()
     {
-        m_cooldown = std::max<int32>(0, m_cooldown-1);
+        m_cooldown = stl::max<int32>(0, m_cooldown-1);
 
         vec4 move = vec4(atomicGetIngameInputs()->getMove()*0.01f, 0.0f, 0.0f);
         if(m_cooldown==0 && atomicGetIngameInputs()->isButtonTriggered(0)) {

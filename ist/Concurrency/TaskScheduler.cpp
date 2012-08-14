@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+﻿#include "istPCH.h"
 #include "ist/Base/New.h"
 #include "ist/Base/Assert.h"
 #include "ist/Concurrency/TaskScheduler.h"

@@ -74,6 +74,7 @@
     <ClInclude Include="ist\GraphicsGL\i3duglFont.h" />
     <ClInclude Include="ist\GraphicsUtil.h" />
     <ClInclude Include="ist\ist.h" />
+    <ClInclude Include="ist\istPCH.h" />
     <ClInclude Include="ist\Math.h" />
     <ClInclude Include="ist\Math\Constants.h" />
     <ClInclude Include="ist\Math\FrustumCulling.h" />
@@ -107,7 +108,6 @@
     <ClInclude Include="ist\Sound\isduStream.h" />
     <ClInclude Include="ist\Sound\isduStreamSource.h" />
     <ClInclude Include="ist\Sound\isdUtil.h" />
-    <ClInclude Include="ist\stdafx.h" />
     <ClInclude Include="ist\targetver.h" />
     <ClInclude Include="ist\Window.h" />
     <ClInclude Include="ist\Window\Application.h" />
@@ -154,6 +154,10 @@
     <ClCompile Include="ist\GraphicsGL\i3dglUtil.cpp" />
     <ClCompile Include="ist\GraphicsGL\i3duglCamera.cpp" />
     <ClCompile Include="ist\GraphicsGL\i3duglFont.cpp" />
+    <ClCompile Include="ist\istPCH.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="ist\Math\Constants.cpp" />
     <ClCompile Include="ist\Math\Linear.cpp" />
     <ClCompile Include="ist\Math\SFMT\SFMT.cpp" />
@@ -166,10 +170,6 @@
     <ClCompile Include="ist\Sound\isduStream.cpp" />
     <ClCompile Include="ist\Sound\isduStreamSource.cpp" />
     <ClCompile Include="ist\Sound\isdUtil.cpp" />
-    <ClCompile Include="ist\stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="ist\Window\Application.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -227,6 +227,7 @@
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>./;external;$(CUDA_INC_PATH);$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;$(NVSDKCOMPUTE_ROOT)/C/common/inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MinimalRebuild>false</MinimalRebuild>
+      <PrecompiledHeaderFile>istPCH.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -243,6 +244,7 @@
       <PreprocessorDefinitions>_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>./;external;$(CUDA_INC_PATH);$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;$(NVSDKCOMPUTE_ROOT)/C/common/inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>istPCH.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

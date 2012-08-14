@@ -176,7 +176,7 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(BOOST_INCLUDE);$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
     <LibraryPath>external\lib;$(BOOST_LIBRARY);$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)\</OutDir>
+    <OutDir>$(SolutionDir)</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">
     <LinkIncremental>true</LinkIncremental>
@@ -247,6 +247,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

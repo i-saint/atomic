@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+﻿#include "istPCH.h"
 #include <string>
 #include "../Sound.h"
 #include "../Base.h"

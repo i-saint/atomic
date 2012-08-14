@@ -42,7 +42,7 @@ private:
 public:
     Level_Test() : m_frame(0), m_player(0), m_level(0), m_loop(0), m_state(ST_BEGIN)
     {
-        std::fill_n(m_planes, _countof(m_planes), 0);
+        stl::fill_n(m_planes, _countof(m_planes), 0);
     }
 
     void initialize()

@@ -22,7 +22,7 @@ namespace atomic {
     void CreateDateString(char *buf, uint32 len);
 
     template<class T>
-    inline T clamp(T v, T vmin, T vmax) { return std::min<T>(std::max<T>(v, vmin), vmax); }
+    inline T clamp(T v, T vmin, T vmax) { return stl::min<T>(stl::max<T>(v, vmin), vmax); }
 
     // 同一値が並ぶコンテナを巡回する際、同じ数値の連続をスキップする iterator adapter
     // (例: {1,2,2,3,3,3,1,1} を巡回すると 1,2,3,1,end の順に結果が返る)

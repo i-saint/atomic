@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+﻿#include "istPCH.h"
 #ifdef __ist_with_OpenGL__
 #include "ist/Base.h"
 #include "i3dglTypes.h"
@@ -14,6 +14,7 @@ DeviceResource::DeviceResource(Device *dev)
     , m_dr_handle(0)
     , m_handle(0)
 {
+    setRef(1);
 }
 
 DeviceResource::~DeviceResource()

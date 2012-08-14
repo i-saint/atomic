@@ -47,6 +47,8 @@ AtomicRenderer::AtomicRenderer()
     m_renderer_distance_field   = istNew(PassForwardShading_DistanceField)();
     m_debug_show_gbuffer        = istNew(PassHUD_DebugShowBuffer)();
 
+    m_stext = istNew(SystemTextRenderer)();
+
     m_renderers[PASS_GBUFFER].push_back(m_renderer_sph);
     m_renderers[PASS_GBUFFER].push_back(m_renderer_particle);
     m_renderers[PASS_DEFERRED].push_back(m_renderer_bloodstain);
@@ -58,14 +60,13 @@ AtomicRenderer::AtomicRenderer()
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_fade);
     m_renderers[PASS_HUD].push_back(m_debug_show_gbuffer);
 
-    m_stext = istNew(SystemTextRenderer)();
-
     m_default_viewport = Viewport(ivec2(0), atomicGetWindowSize());
 }
 
 AtomicRenderer::~AtomicRenderer()
 {
     istSafeDelete(m_stext);
+    istSafeDelete(m_debug_show_gbuffer);
     istSafeDelete(m_renderer_distance_field);
     istSafeDelete(m_renderer_fade);
     istSafeDelete(m_renderer_bloom);

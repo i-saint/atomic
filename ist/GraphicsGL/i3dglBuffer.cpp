@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+﻿#include "istPCH.h"
 #ifdef __ist_with_OpenGL__
 #include "ist/Base.h"
 #include "i3dglBuffer.h"

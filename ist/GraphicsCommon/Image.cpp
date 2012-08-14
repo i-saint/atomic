@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+﻿#include "istPCH.h"
 #include <fstream>
 #include "ist/GraphicsCommon/Image.h"
 
@@ -26,7 +26,7 @@ extern "C" {
 namespace ist {
 
 
-int8 GetFormatByExtention(const std::string& filename)
+int8 GetFormatByExtention(const stl::string& filename)
 {
     uint32 len = filename.size();
     if(len<5) { return Image::FORMAT_UNKNOWN; }
@@ -39,7 +39,7 @@ int8 GetFormatByExtention(const std::string& filename)
 }
 
 
-bool Image::load(const std::string& filename)
+bool Image::load(const stl::string& filename)
 {
     IOConfig conf;
     conf.setPath(filename);
@@ -74,7 +74,7 @@ bool Image::load(std::streambuf& f, const IOConfig& conf)
 }
 
 
-bool Image::save(const std::string& filename) const
+bool Image::save(const stl::string& filename) const
 {
     IOConfig conf;
     conf.setPath(filename);
@@ -330,11 +330,11 @@ class TGACompress
 public:
     TGACompress() {}
 
-    const std::vector<uint8>& getCompressedData() const { return m_comp_pixel; }
+    const stl::vector<uint8>& getCompressedData() const { return m_comp_pixel; }
 
     void compress(const bRGBA *start, int32 width)
     {
-        std::vector<bRGBA> same, diff;
+        stl::vector<bRGBA> same, diff;
 
         for(int32 i=0; i!=width; ++i, ++start)
         {
@@ -377,7 +377,7 @@ public:
     }
 
 private:
-    void writeSameData(std::vector<bRGBA> &temp_pixel)
+    void writeSameData(stl::vector<bRGBA> &temp_pixel)
     {
         m_comp_pixel.push_back( temp_pixel.size()+0x80 );
 
@@ -389,7 +389,7 @@ private:
         temp_pixel.clear();
     }
 
-    void writeDifferentData(std::vector<bRGBA> &temp_pixel)
+    void writeDifferentData(stl::vector<bRGBA> &temp_pixel)
     {
         m_comp_pixel.push_back( temp_pixel.size()-1 );
 
@@ -405,7 +405,7 @@ private:
     }
 
 private:
-    std::vector<uint8> m_comp_pixel;
+    stl::vector<uint8> m_comp_pixel;
 };
 
 bool Image::saveTGA(std::streambuf &f, const Image::IOConfig &conf) const
@@ -434,7 +434,7 @@ bool Image::saveTGA(std::streambuf &f, const Image::IOConfig &conf) const
         {
             comp.compress((*this)[i], width());
         }
-        const std::vector<uint8>& data = comp.getCompressedData();
+        const stl::vector<uint8>& data = comp.getCompressedData();
         bf.write(&data[0], data.size());
     }
 
@@ -512,7 +512,7 @@ bool Image::loadPNG(std::streambuf& f, const IOConfig& conf)
 
 
     // 読み込み
-    std::vector<png_bytep> row_pointers(height());
+    stl::vector<png_bytep> row_pointers(height());
     for(uint32 row=0; row<height(); ++row) {
         row_pointers[row] = (png_bytep)png_malloc(png_ptr, png_get_rowbytes(png_ptr, info_ptr));
     }
@@ -574,7 +574,7 @@ bool Image::savePNG(std::streambuf& f, const Image::IOConfig& conf) const
     ::png_write_info(png_ptr, info_ptr);
 
     Image tmp(*this);
-    std::vector<png_bytep> row_pointers(height());
+    stl::vector<png_bytep> row_pointers(height());
     for(uint32 i=0; i<height(); ++i)
     {
         row_pointers[i] = tmp[i][0].v;

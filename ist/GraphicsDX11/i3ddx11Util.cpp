@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+﻿#include "istPCH.h"
 #ifdef __ist_with_DirectX11__
 #include "ist/Base.h"
 #include "ist/Math.h"
@@ -40,7 +40,7 @@ bool GenerateRandomTexture(Texture2D &tex, const uvec2 &size, I3D_COLOR_FORMAT f
 
 bool GenerateRandomTexture(Texture2D &tex, const uvec2 &size, I3D_COLOR_FORMAT format, SFMT& random)
 {
-    std::string buffer;
+    stl::string buffer;
     if(format==I3D_RGB8U) {
         uint32 data_size = size.x*size.y*3;
         buffer.resize(data_size);
@@ -94,7 +94,7 @@ bool GenerateRandomTexture(Texture2D &tex, const uvec2 &size, I3D_COLOR_FORMAT f
 //template<class ShaderType>
 //inline bool CreateShaderFromStream(ShaderType& sh, std::istream& st)
 //{
-//    std::string source;
+//    stl::string source;
 //    std::ostringstream str_out;
 //    str_out << st.rdbuf();
 //    source = str_out.str();

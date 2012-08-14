@@ -4,18 +4,36 @@
 template<class T> inline T* call_destructor(T* p) { p->~T(); return p; }
 #define istMakeDestructable template<class T> friend T* ::call_destructor(T *v)
 
-istInterModule void* istnew(size_t size);
-istInterModule void istdelete(void* p);
+const size_t MinimumAlignment = 16;
+
+istInterModule void* istRawMalloc(size_t size, size_t align=MinimumAlignment);
+istInterModule void istRawFree(void* p);
 
 void* operator new[](size_t size);
+void* operator new[](size_t size, const char* pName, int flags, unsigned debugFlags, const char* file, int line);
+void* operator new[](size_t size, size_t alignment, size_t alignmentOffset, const char* pName, int flags, unsigned debugFlags, const char* file, int line);
 void operator delete[](void* p);
 
-
 #define istImplementNew()\
-    void* operator new[](size_t size) { return istnew(size); }
+    void* operator new[](size_t size)\
+    {\
+        return istRawMalloc(size);\
+    }\
+    void* operator new[](size_t size, const char* pName, int flags, unsigned debugFlags, const char* file, int line)\
+    {\
+        void* p = istRawMalloc(size, MinimumAlignment);\
+        return p;\
+    }\
+    void* operator new[](size_t size, size_t alignment, size_t alignmentOffset, const char* pName, int flags, unsigned debugFlags, const char* file, int line)\
+    {\
+        void* p = istRawMalloc(size, alignment);\
+        return p;\
+    }
 
 #define istImplementDelete()\
-    void operator delete[](void* p) { istdelete(p); }
+    void operator delete[](void* p) { istRawFree(p); }
+
+
 
 #define istNew(Type)                    new(stl::get_default_allocator(NULL)->allocate(sizeof(Type)))Type
 #define istAlignedNew(Type, Align)      new(stl::get_default_allocator(NULL)->allocate(sizeof(Type), Align, 0))Type

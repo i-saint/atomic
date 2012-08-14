@@ -49,7 +49,7 @@ class Array2D
 {
 public:
     typedef T value_type;
-    typedef std::vector<value_type> container_type;
+    typedef stl::vector<value_type> container_type;
     typedef typename container_type::iterator iterator;
     typedef typename container_type::const_iterator const_iterator;
 
@@ -124,18 +124,18 @@ public:
         IOConfig() : m_format(FORMAT_AUTO), m_png_compress_level(9), m_jpg_quality(100)
         {}
 
-        void setPath(const std::string& path)  { m_path=path; }
+        void setPath(const stl::string& path)  { m_path=path; }
         void setFormat(uint8 v)           { m_format=v; }
         void setPngCompressLevel(uint8 v) { m_png_compress_level=v; }
         void setJpgQuality(uint8 v)       { m_jpg_quality=v; }
 
-        const std::string& getPath() const     { return m_path; }
+        const stl::string& getPath() const     { return m_path; }
         uint8 getFormat() const           { return m_format; }
         uint8 getPngCompressLevel() const { return m_png_compress_level; }
         uint8 getJpgQuality() const       { return m_jpg_quality; }
 
     private:
-        std::string m_path;
+        stl::string m_path;
         uint8 m_format;
         uint8 m_png_compress_level;
         uint8 m_jpg_quality;
@@ -145,12 +145,12 @@ public:
     Image() {}
     explicit Image(uint32 w, uint32 h) { resize(w, h); }
 
-    bool load(const std::string& filename);
+    bool load(const stl::string& filename);
     bool load(const IOConfig& conf);
     bool load(std::istream& f, const IOConfig& conf);
     bool load(std::streambuf& f, const IOConfig& conf);
 
-    bool save(const std::string& filename) const;
+    bool save(const stl::string& filename) const;
     bool save(const IOConfig& conf) const;
     bool save(std::ostream& f, const IOConfig& conf) const;
     bool save(std::streambuf& f, const IOConfig& conf) const;

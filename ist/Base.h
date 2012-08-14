@@ -13,5 +13,6 @@
 #include "Base/FileLoader.h"
 #include "Base/Serialize.h"
 #include "Base/Generics.h"
+#include "Base/SharedObject.h"
 
 #endif // __ist_Base__

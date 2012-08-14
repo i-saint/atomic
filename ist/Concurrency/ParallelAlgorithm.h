@@ -39,7 +39,7 @@ inline void parallel_for(Index first, Index last, Step step, const Body &body)
     Task tasks[128];
     int32 ti = 0;
     for(Index i=first; i<last; i+=step) {
-        tasks[ti].start(i, std::min<Index>(i+step, last), body); // start() の最初で wait するので ti が一周しても大丈夫なはず
+        tasks[ti].start(i, stl::min<Index>(i+step, last), body); // start() の最初で wait するので ti が一周しても大丈夫なはず
         ti = (ti+1)%_countof(tasks);
     }
     // scope 抜ける時デストラクタで wait

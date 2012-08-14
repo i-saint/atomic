@@ -1,5 +1,5 @@
-﻿#ifndef __ist_Base_SharedObject_h_
-#define __ist_Base_SharedObject_h_
+﻿#ifndef __ist_Base_SharedObject_h__
+#define __ist_Base_SharedObject_h__
 
 #include "ist/Base/Types.h"
 #include "ist/Base/New.h"
@@ -10,7 +10,7 @@ namespace ist {
     class SharedObject
     {
     public:
-        SharedObject() : m_ref_counter(1) {}
+        SharedObject() : m_ref_counter(0) {}
         virtual ~SharedObject() {}
         void addRef()           { ++m_ref_counter; }
         void release()          { if(--m_ref_counter==0) { onZeroRef(); } }
@@ -29,4 +29,4 @@ namespace ist {
 
 } // namespace ist
 
-#endif // __ist_Base_SharedObject_h_
+#endif // __ist_Base_SharedObject_h__

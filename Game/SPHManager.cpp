@@ -44,7 +44,7 @@ public:
             m_fluid[i].velocity = make_float4(0.0f);
             m_fluid[i].energy   = 100.0f;
             m_fluid[i].density  = 0.0f;
-            m_fluid[i].position.z = std::max<float32>(m_fluid[i].position.z, 0.0f);
+            m_fluid[i].position.z = stl::max<float32>(m_fluid[i].position.z, 0.0f);
         }
     }
 

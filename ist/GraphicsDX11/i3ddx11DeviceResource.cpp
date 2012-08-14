@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+﻿#include "istPCH.h"
 #ifdef __ist_with_DirectX11__
 #include "../Base.h"
 #include <D3D11.h>
@@ -14,6 +14,7 @@ DeviceResource::DeviceResource(Device *dev)
     : m_owner_device(dev)
     , m_dr_handle(0)
 {
+    setRef(1);
 }
 
 DeviceResource::~DeviceResource()
