@@ -3,13 +3,16 @@
 #include <wingdi.h>
 #include "ist/Base.h"
 #include "ist/Window.h"
-#include "i3duglFont.h"
+#include "ist/GraphicsGL/i3dglDevice.h"
+#include "ist/GraphicsGL/i3duglFont.h"
+#include "ist/GraphicsGL/i3dglUtil.h"
 
 
 namespace ist {
 namespace i3dgl {
 #ifdef istWindows
 
+static const int g_list_base = 0;
 
 class SystemFont : public IFontRenderer
 {
@@ -19,63 +22,48 @@ private:
     int m_font_height;
 
 public:
-    SystemFont(HDC m_hdc);
-    ~SystemFont();
+    SystemFont(HDC m_hdc)
+        : m_hdc(m_hdc)
+        , m_window_height(0)
+        , m_font_height(0)
+    {
+        SelectObject(m_hdc, GetStockObject(SYSTEM_FONT));
+        wglUseFontBitmapsW( m_hdc, 0, 256*32, g_list_base );
 
-    void draw(const vec2 &pos, const char *text);
-    void draw(const vec2 &pos, const wchar_t *text);
-    void flush();
+        TEXTMETRIC metric;
+        GetTextMetrics(m_hdc, &metric);
+        m_font_height = metric.tmHeight;
+        m_window_height = istGetAplication()->getWindowSize().y;
+    }
 
-    float32 getFontHeight() const { return (float32)m_font_height; }
+    ~SystemFont()
+    {
+        m_hdc = NULL;
+        m_window_height = 0;
+        m_font_height = 0;
+    }
+
+    void addText(const vec2 &pos, const char *text, size_t len, float32 size)
+    {
+        glWindowPos2i((int32)pos.x, m_window_height-(int32)pos.y);
+        glCallLists(len, GL_UNSIGNED_BYTE, text);
+    }
+
+    void addText(const vec2 &pos, const wchar_t *text, size_t len, float32 size)
+    {
+        glWindowPos2i((int32)pos.x, m_window_height-(int32)pos.y);
+        glCallLists(len, GL_UNSIGNED_SHORT, text);
+    }
+
+    void flush()
+    {
+    }
 };
 
-
-static const int g_list_base = 0;
-
-SystemFont::SystemFont(HDC m_hdc)
-    : m_hdc(m_hdc)
-    , m_window_height(0)
-    , m_font_height(0)
-{
-    SelectObject(m_hdc, GetStockObject(SYSTEM_FONT));
-    wglUseFontBitmapsW( m_hdc, 0, 256*32, g_list_base );
-
-    TEXTMETRIC metric;
-    GetTextMetrics(m_hdc, &metric);
-    m_font_height = metric.tmHeight;
-    m_window_height = istGetAplication()->getWindowSize().y;
-}
-
-SystemFont::~SystemFont()
-{
-    m_hdc = NULL;
-    m_window_height = 0;
-    m_font_height = 0;
-}
-
-void SystemFont::draw(const vec2 &pos, const char *text)
-{
-    int len = strlen(text);
-    glWindowPos2i((int32)pos.x, m_window_height-m_font_height-(int32)pos.y);
-    glCallLists(len, GL_UNSIGNED_BYTE, text);
-}
-
-void SystemFont::draw(const vec2 &pos, const wchar_t *text)
-{
-    int len = wcslen(text);
-    glWindowPos2i((int32)pos.x, m_window_height-m_font_height-(int32)pos.y);
-    glCallLists(len, GL_UNSIGNED_SHORT, text);
-}
-
-void SystemFont::flush()
-{
-}
-
-IFontRenderer* CreateSystemFont(void *hdc)
+IFontRenderer* CreateSystemFont(Device *device, void *hdc)
 {
     return istNew(SystemFont)((HDC)hdc);
 }
-
 
 
 
@@ -114,6 +102,8 @@ struct FontQuad
 {
     vec2 pos;
     vec2 size;
+    vec2 uv_pos;
+    vec2 uv_size;
 };
 
 class FSS
@@ -153,21 +143,37 @@ public:
         return vec2((float32)ret.x, (float32)ret.y);
     }
 
+    float32 getFontHeight() const
+    {
+        return (float32)m_header->FontHeight;
+    }
+
 private:
     stl::vector<char> m_buf;
     const SFF_HEAD *m_header;
     const SFF_DATA *m_data;
 };
 
-class SpriteFontRenderer : public SharedObject
+class SpriteFontRenderer : public IFontRenderer
 {
 public:
-    virtual void draw(const vec2 &pos, const char *text)
+    SpriteFontRenderer(Device *dev, const char *path_to_fss, const char *path_to_png)
+    {
+        m_fss.load(path_to_fss);
+        m_texture = CreateTexture2DFromFile(dev, path_to_png);
+    }
+
+    ~SpriteFontRenderer()
+    {
+        istSafeRelease(m_texture);
+    }
+
+    virtual void addText(const vec2 &pos, const char *text, size_t len, float32 size)
     {
 
     }
 
-    virtual void draw(const vec2 &pos, const wchar_t *text)
+    virtual void addText(const vec2 &pos, const wchar_t *text, size_t len, float32 size)
     {
 
     }
@@ -179,10 +185,18 @@ public:
 
     virtual float32 getFontHeight() const
     {
-
+        return m_fss.getFontHeight();
     }
+
+private:
+    FSS m_fss;
+    Texture2D *m_texture;
 };
 
+IFontRenderer* CreateSpriteFont(Device *device, const char *path_to_sff, const char *path_to_png)
+{
+    return new SpriteFontRenderer(device, path_to_sff, path_to_png);
+}
 
 
 #endif // istWindows

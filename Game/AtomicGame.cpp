@@ -118,7 +118,7 @@ void AtomicGame::drawCallback()
         uint32 pos  = static_cast<InputServerReplay*>(m_input_server)->getReplayPosition();
         char buf[128];
         _snprintf(buf, _countof(buf), "Replay %d / %d", pos, len);
-        atomicGetSystemTextRenderer()->addText(vec2(5.0f, (float32)wsize.y-20.0f), buf);
+        atomicGetSystemTextRenderer()->addText(vec2(5.0f, (float32)wsize.y), buf);
     }
     if(m_world) {
         m_world->draw();

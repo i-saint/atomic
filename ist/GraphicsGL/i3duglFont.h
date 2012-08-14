@@ -10,14 +10,13 @@ namespace i3dgl {
 class IFontRenderer : public SharedObject
 {
 public:
-    virtual void draw(const vec2 &pos, const char *text)=0;
-    virtual void draw(const vec2 &pos, const wchar_t *text)=0;
+    virtual void addText(const vec2 &pos, const char *text, size_t len, float32 size)=0;
+    virtual void addText(const vec2 &pos, const wchar_t *text, size_t len, float32 size)=0;
     virtual void flush()=0;
-    virtual float32 getFontHeight() const=0;
 };
 
-IFontRenderer* CreateSystemFont(void *hdc);
-IFontRenderer* CreateSpriteFont(const char *path_to_sff, float32 *path_to_png);
+IFontRenderer* CreateSystemFont(Device *device, void *hdc);
+IFontRenderer* CreateSpriteFont(Device *device, const char *path_to_sff, const char *path_to_png);
 
 } // namespace i3d
 } // namespace ist
