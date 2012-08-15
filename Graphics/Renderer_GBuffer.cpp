@@ -37,10 +37,10 @@ void PassGBuffer_Particle::draw()
     MapAndWrite(*m_vbo, &m_particles[0], sizeof(IndivisualParticle)*m_particles.size());
     {
         const VertexDesc descs[] = {
-            {GLSL_INSTANCE_POSITION, I3D_FLOAT,4,  0, false, 1, 0},
-            {GLSL_INSTANCE_COLOR,    I3D_FLOAT,4, 16, false, 1, 0},
-            {GLSL_INSTANCE_GLOW,     I3D_FLOAT,4, 32, false, 1, 0},
-            {GLSL_INSTANCE_PARAM,    I3D_FLOAT,4, 48, false, 1, 0},
+            {GLSL_INSTANCE_POSITION, I3D_FLOAT,4,  0, false, 1},
+            {GLSL_INSTANCE_COLOR,    I3D_FLOAT,4, 16, false, 1},
+            {GLSL_INSTANCE_GLOW,     I3D_FLOAT,4, 32, false, 1},
+            {GLSL_INSTANCE_PARAM,    I3D_FLOAT,4, 48, false, 1},
         };
         m_va_cube->setAttributes(*m_vbo, sizeof(IndivisualParticle), descs, _countof(descs));
 
