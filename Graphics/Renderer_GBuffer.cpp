@@ -32,20 +32,21 @@ void PassGBuffer_Particle::draw()
 {
     if(m_particles.empty()) { return; }
 
+    i3d::DeviceContext *dc = atomicGetGLDeviceContext();
+
     MapAndWrite(*m_vbo, &m_particles[0], sizeof(IndivisualParticle)*m_particles.size());
     {
         const VertexDesc descs[] = {
-            {GLSL_INSTANCE_POSITION, I3D_FLOAT,4,  0, false, 1},
-            {GLSL_INSTANCE_COLOR,    I3D_FLOAT,4, 16, false, 1},
-            {GLSL_INSTANCE_GLOW,     I3D_FLOAT,4, 32, false, 1},
-            {GLSL_INSTANCE_PARAM,    I3D_FLOAT,4, 48, false, 1},
+            {GLSL_INSTANCE_POSITION, I3D_FLOAT,4,  0, false, 1, 0},
+            {GLSL_INSTANCE_COLOR,    I3D_FLOAT,4, 16, false, 1, 0},
+            {GLSL_INSTANCE_GLOW,     I3D_FLOAT,4, 32, false, 1, 0},
+            {GLSL_INSTANCE_PARAM,    I3D_FLOAT,4, 48, false, 1, 0},
         };
-        m_sh->bind();
-        m_va_cube->bind();
         m_va_cube->setAttributes(*m_vbo, sizeof(IndivisualParticle), descs, _countof(descs));
-        glDrawArraysInstanced(GL_QUADS, 0, 24, m_particles.size());
-        m_va_cube->unbind();
-        m_sh->unbind();
+
+        dc->setVertexArray(m_va_cube);
+        m_sh->assign(dc);
+        dc->drawInstanced(I3D_QUADS, 0, 24, m_particles.size());
     }
 }
 
@@ -173,12 +174,12 @@ void PassGBuffer_SPH::draw()
             {GLSL_INSTANCE_POSITION, I3D_FLOAT,4, 16, false, 1},
             {GLSL_INSTANCE_VELOCITY, I3D_FLOAT,4, 32, false, 1},
         };
-        m_sh_fluid->bind();
-        m_va_cube->bind();
+
         m_va_cube->setAttributes(*m_vbo_fluid, sizeof(sphFluidParticle), descs, _countof(descs));
-        glDrawArraysInstanced(GL_QUADS, 0, 24, num_particles);
-        m_va_cube->unbind();
-        m_sh_fluid->unbind();
+
+        m_sh_fluid->assign(dc);
+        dc->setVertexArray(m_va_cube);
+        dc->drawInstanced(I3D_QUADS, 0, 24, num_particles);
     }
 
     // rigid particle
@@ -194,24 +195,20 @@ void PassGBuffer_SPH::draw()
             {GLSL_INSTANCE_POSITION, I3D_FLOAT,3, 16, false, 1},
             {GLSL_INSTANCE_PARAM,    I3D_INT,  1, 28, false, 1},
         };
-        m_sh_rigid->bind();
-        m_va_cube->bind();
         m_va_cube->setAttributes(*m_vbo_rigid, sizeof(PSetParticle), descs, _countof(descs));
-        param_texture->bind(GLSL_PARAM_BUFFER);
-        glDrawArraysInstanced(GL_QUADS, 0, 24, num_rigid_particles);
-        m_va_cube->unbind();
-        m_sh_rigid->unbind();
+
+        m_sh_rigid->assign(dc);
+        dc->setTexture(GLSL_PARAM_BUFFER, param_texture);
+        dc->drawInstanced(I3D_QUADS, 0, 24, num_rigid_particles);
     }
 
     // floor
     {
         AtomicShader *sh_floor = atomicGetShader(SH_GBUFFER_FLOOR);
         VertexArray *va_floor = atomicGetVertexArray(VA_FLOOR_QUAD);
-        sh_floor->bind();
-        va_floor->bind();
-        glDrawArrays(GL_QUADS, 0, 4);
-        va_floor->unbind();
-        sh_floor->unbind();
+        sh_floor->assign(dc);
+        dc->setVertexArray(va_floor);
+        dc->draw(I3D_QUADS, 0, 4);
     }
 }
 

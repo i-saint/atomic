@@ -57,8 +57,8 @@ bool AtomicShader::loadFromMemory( const char* src )
     //    m_gs = dev->createGeometryShader(desc);
     //}
     {
-        m_shader = dev->createShaderProgram();
-        m_shader->link(m_vs, m_gs, m_ps);
+        ShaderProgramDesc desc(m_vs, m_ps, m_gs);
+        m_shader = dev->createShaderProgram(desc);
     }
 
 
@@ -98,6 +98,12 @@ void AtomicShader::bind()
 void AtomicShader::unbind()
 {
     m_shader->unbind();
+}
+
+void AtomicShader::assign( i3d::DeviceContext *dc )
+{
+    m_shader->setUniformBlock(m_loc_renderstates, GLSL_RENDERSTATE_BINDING, atomicGetUniformBuffer(UBO_RENDERSTATES_3D)->getHandle());
+    dc->setShader(m_shader);
 }
 
 

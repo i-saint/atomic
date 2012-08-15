@@ -108,6 +108,7 @@ void AtomicRenderingThread::exec()
         m_cond_initialize_complete.signalOne();
         goto finalize_section;
     }
+    m_context = m_device->getContext();
 
 #ifdef istWindows
     wglSwapIntervalEXT(atomicGetConfig()->vsync);

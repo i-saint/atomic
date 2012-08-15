@@ -27,6 +27,7 @@ public:
     void setUniformBlock(GLuint uniformBlockIndex, GLuint uniformBindingIndex, GLuint uniformBufferHandle);
     void bind();
     void unbind();
+    void assign(i3d::DeviceContext *dc);
 };
 
 

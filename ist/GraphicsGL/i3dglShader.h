@@ -58,14 +58,12 @@ class ShaderProgram : public DeviceResource
 I3DGL_DECLARE_DEVICE_RESOURCE(ShaderProgram);
 typedef DeviceResource super;
 private:
-    ShaderProgram(Device *dev);
+    ShaderProgram(Device *dev, const ShaderProgramDesc &desc);
     ~ShaderProgram();
 
 public:
     void bind();
     void unbind();
-
-    bool link(VertexShader *vs, GeometryShader *gs, PixelShader *ps);
 
     GLint getUniformLocation(const char *name) const;
     GLint getAttribLocation(const char *name) const;

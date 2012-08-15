@@ -67,6 +67,7 @@ void PassDeferredShading_Bloodstain::draw()
 {
     if(m_instances.empty()) { return; }
 
+    i3d::DeviceContext *dc = atomicGetGLDeviceContext();
     uint32 num_instances = m_instances.size();
     uint32 num_particles = 0;
     for(uint32 i=0; i<num_instances; ++i) {
@@ -89,36 +90,37 @@ void PassDeferredShading_Bloodstain::draw()
 
     MapAndWrite(*m_vbo_bloodstain, &m_particles[0], sizeof(BloodstainParticle)*num_particles);
 
+    // RT_GBUFFER のカラーバッファを更新する。
+    // そのため、GLSL_COLOR_BUFFER は一時的に unbind
 
     RenderTarget *grt = atomicGetRenderTarget(RT_GENERIC);
     RenderTarget *gbuffer = atomicGetRenderTarget(RT_GBUFFER);
+    dc->setTexture(GLSL_COLOR_BUFFER, NULL);
     grt->setColorBuffer(0, gbuffer->getColorBuffer(GBUFFER_COLOR));
     grt->setDepthStencilBuffer(gbuffer->getDepthStencilBuffer());
-    grt->bind();
-    gbuffer->getColorBuffer(GBUFFER_NORMAL)->bind(GLSL_NORMAL_BUFFER);
-    gbuffer->getColorBuffer(GBUFFER_POSITION)->bind(GLSL_POSITION_BUFFER);
 
     glDisable(GL_BLEND);
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 
     const VertexDesc descs[] = {
         {GLSL_INSTANCE_POSITION, I3D_FLOAT,4,  0, false, 1},
         {GLSL_INSTANCE_PARAM,    I3D_FLOAT,4, 16, false, 1},
     };
-    m_sh->bind();
-    m_va_sphere->bind();
     m_va_sphere->setAttributes(*m_vbo_bloodstain, sizeof(BloodstainParticle), descs, _countof(descs));
-    m_ibo_sphere->bind();
-    glDrawElementsInstanced(GL_QUADS, (8-1)*(8)*4, GL_UNSIGNED_INT, 0, num_particles);
-    m_ibo_sphere->unbind();
-    m_va_sphere->unbind();
-    m_sh->unbind();
+
+    dc->setRenderTarget(grt);
+    m_sh->assign(dc);
+    dc->setRenderTarget(grt);
+    dc->setVertexArray(m_va_sphere);
+    dc->setIndexBuffer(m_ibo_sphere, I3D_UINT);
+    dc->drawIndexedInstanced(I3D_QUADS, 0, (8-1)*(8)*4, num_particles);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     glEnable(GL_BLEND);
 
-    grt->unbind();
-    atomicGetFrontRenderTarget()->bind();
+    dc->setRenderTarget(atomicGetFrontRenderTarget());
+    dc->setTexture(GLSL_COLOR_BUFFER, gbuffer->getColorBuffer(GBUFFER_COLOR));
 }
 
 void PassDeferredShading_Bloodstain::resizeTasks( uint32 n )
@@ -313,6 +315,7 @@ void PassDeferredShading_Lights::drawLights()
 
 void PassDeferredShading_Lights::drawDirectionalLights()
 {
+    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
     AtomicShader *shader    = atomicGetShader(SH_DIRECTIONALLIGHT);
     VertexArray *va_quad    = atomicGetVertexArray(VA_SCREEN_QUAD);
     Buffer *vbo_instance    = atomicGetVertexBuffer(VBO_DIRECTIONALLIGHT_INSTANCES);
@@ -329,16 +332,16 @@ void PassDeferredShading_Lights::drawDirectionalLights()
         {GLSL_INSTANCE_COLOR,    I3D_FLOAT,4, 16, false, 1},
         {GLSL_INSTANCE_AMBIENT,  I3D_FLOAT,4, 32, false, 1},
     };
-    shader->bind();
-    va_quad->bind();
     va_quad->setAttributes(*vbo_instance, sizeof(DirectionalLight), descs, _countof(descs));
-    glDrawArraysInstanced(GL_QUADS, 0, 4, num_lights);
-    va_quad->unbind();
-    shader->unbind();
+
+    shader->assign(dc);
+    dc->setVertexArray(va_quad);
+    dc->drawInstanced(I3D_QUADS, 0, 4, num_lights);
 }
 
 void PassDeferredShading_Lights::drawPointLights()
 {
+    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
     AtomicShader *shader    = atomicGetShader(SH_POINTLIGHT);
     Buffer *ibo_sphere      = atomicGetIndexBuffer(IBO_LIGHT_SPHERE);
     VertexArray *va_sphere  = atomicGetVertexArray(VA_UNIT_SPHERE);
@@ -356,15 +359,12 @@ void PassDeferredShading_Lights::drawPointLights()
         {GLSL_INSTANCE_COLOR,   I3D_FLOAT,4,16, false, 1},
         {GLSL_INSTANCE_PARAM,   I3D_FLOAT,4,32, false, 1},
     };
-
-    shader->bind();
-    va_sphere->bind();
     va_sphere->setAttributes(*vbo_instance, sizeof(PointLight), descs, _countof(descs));
-    ibo_sphere->bind();
-    glDrawElementsInstanced(GL_QUADS, (16-1)*(32)*4, GL_UNSIGNED_INT, 0, num_lights);
-    ibo_sphere->unbind();
-    va_sphere->unbind();
-    shader->unbind();
+
+    shader->assign(dc);
+    dc->setVertexArray(va_sphere);
+    dc->setIndexBuffer(ibo_sphere, I3D_UINT);
+    dc->drawIndexedInstanced(I3D_QUADS, 0, (16-1)*(32)*4, num_lights);
 }
 
 void PassDeferredShading_Lights::addLight( const DirectionalLight& v )

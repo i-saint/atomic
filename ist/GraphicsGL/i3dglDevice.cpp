@@ -129,9 +129,9 @@ GeometryShader* Device::createGeometryShader(const GeometryShaderDesc &desc)
     return r;
 }
 
-ShaderProgram* Device::createShaderProgram()
+ShaderProgram* Device::createShaderProgram(const ShaderProgramDesc &desc)
 {
-    ShaderProgram *r = istNew(ShaderProgram)(this);
+    ShaderProgram *r = istNew(ShaderProgram)(this, desc);
     addResource(r);
     return r;
 }

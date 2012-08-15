@@ -25,20 +25,19 @@ void PassPostprocess_Microscopic::draw()
 {
     if(!atomicGetConfig()->posteffect_microscopic) { return; }
 
+    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
     RenderTarget *brt = atomicGetBackRenderTarget();
     RenderTarget *rt = atomicGetFrontRenderTarget();
     atomicSwapOutputRenderTarget();
 
-    rt->bind();
-    m_sh->bind();
-    brt->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
-    m_rt_gbuffer->getColorBuffer(GBUFFER_NORMAL)->bind(GLSL_NORMAL_BUFFER);
-    m_rt_gbuffer->getColorBuffer(GBUFFER_POSITION)->bind(GLSL_POSITION_BUFFER);
-    m_rt_gbuffer->getColorBuffer(GBUFFER_GLOW)->bind(GLSL_GLOW_BUFFER);
-    m_va_quad->bind();
-    glDrawArrays(GL_QUADS, 0, 4);
-    m_sh->unbind();
-    rt->unbind();
+    m_sh->assign(dc);
+    dc->setRenderTarget(rt);
+    dc->setTexture(GLSL_COLOR_BUFFER, brt->getColorBuffer(0));
+    dc->setTexture(GLSL_NORMAL_BUFFER, m_rt_gbuffer->getColorBuffer(GBUFFER_NORMAL));
+    dc->setTexture(GLSL_POSITION_BUFFER, m_rt_gbuffer->getColorBuffer(GBUFFER_POSITION));
+    dc->setTexture(GLSL_GLOW_BUFFER, m_rt_gbuffer->getColorBuffer(GBUFFER_GLOW));
+    dc->setVertexArray(m_va_quad);
+    dc->draw(I3D_QUADS, 0, 4);
 }
 
 
@@ -59,6 +58,7 @@ void PassPostprocess_FXAA::draw()
 {
     if(!atomicGetConfig()->posteffect_antialias) { return; }
 
+    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
     Buffer *ubo_fxaa                        = atomicGetUniformBuffer(UBO_FXAA_PARAMS);
     m_fxaaparams.fxaaQualityRcpFrame        = vec2(1.0f, 1.0f) / vec2(atomicGetWindowSize());
     m_fxaaparams.fxaaQualitySubpix          = 0.75f;
@@ -132,6 +132,7 @@ void PassPostprocess_Bloom::draw()
 {
     if(!atomicGetConfig()->posteffect_bloom) { return; }
 
+    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
     Viewport vp(ivec2(), m_rt_gauss0->getColorBuffer(0)->getDesc().size);
     vp.bind();
 
@@ -139,38 +140,32 @@ void PassPostprocess_Bloom::draw()
     {
         RenderTarget *brt = atomicGetBackRenderTarget();
 
-        m_rt_gauss0->bind();
-        m_sh_luminance->bind();
-        brt->getColorBuffer(GBUFFER_COLOR)->bind(GLSL_COLOR_BUFFER);
-        m_rt_gbuffer->getColorBuffer(GBUFFER_GLOW)->bind(GLSL_GLOW_BUFFER);
-        m_va_luminance->bind();
-        glDrawArrays(GL_QUADS, 0, 16);
-        m_sh_luminance->unbind();
-        m_rt_gauss0->unbind();
+        dc->setRenderTarget(m_rt_gauss0);
+        m_sh_luminance->assign(dc);
+        dc->setTexture(GLSL_COLOR_BUFFER, brt->getColorBuffer(GBUFFER_COLOR));
+        dc->setTexture(GLSL_GLOW_BUFFER, m_rt_gbuffer->getColorBuffer(GBUFFER_GLOW));
+        dc->setVertexArray(m_va_luminance);
+        dc->draw(I3D_QUADS, 0, 16);
         stl::swap<RenderTarget*>(m_rt_gauss0, m_rt_gauss1);
     }
 
     // 横ブラー
     for(uint32 i=0; i<2; ++i) {
-        m_rt_gauss0->bind();
-        m_sh_hblur->bind();
-        m_rt_gauss1->getColorBuffer(GBUFFER_COLOR)->bind(GLSL_COLOR_BUFFER);
-        m_va_blur->bind();
-        glDrawArrays(GL_QUADS, 0, 16);
-        m_sh_hblur->unbind();
-        m_rt_gauss0->unbind();
+        dc->setRenderTarget(m_rt_gauss0);
+        m_sh_hblur->assign(dc);
+        dc->setTexture(GLSL_COLOR_BUFFER, m_rt_gauss1->getColorBuffer(GBUFFER_COLOR));
+        dc->setVertexArray(m_va_blur);
+        dc->draw(I3D_QUADS, 0, 16);
         stl::swap<RenderTarget*>(m_rt_gauss0, m_rt_gauss1);
     }
 
     // 縦ブラー
     {
-        m_rt_gauss0->bind();
-        m_sh_vblur->bind();
-        m_rt_gauss1->getColorBuffer(GBUFFER_COLOR)->bind(GLSL_COLOR_BUFFER);
-        m_va_blur->bind();
-        glDrawArrays(GL_QUADS, 0, 16);
-        m_sh_vblur->unbind();
-        m_rt_gauss0->unbind();
+        dc->setRenderTarget(m_rt_gauss0);
+        m_sh_vblur->assign(dc);
+        dc->setTexture(GLSL_COLOR_BUFFER, m_rt_gauss1->getColorBuffer(GBUFFER_COLOR));
+        dc->setVertexArray(m_va_blur);
+        dc->draw(I3D_QUADS, 0, 16);
         stl::swap<RenderTarget*>(m_rt_gauss0, m_rt_gauss1);
     }
 
@@ -179,17 +174,15 @@ void PassPostprocess_Bloom::draw()
     {
         RenderTarget *brt = atomicGetBackRenderTarget();
 
-        brt->bind();
-        m_sh_composite->bind();
-        m_rt_gauss1->getColorBuffer(GBUFFER_COLOR)->bind(GLSL_COLOR_BUFFER);
-        m_va_composite->bind();
+        dc->setRenderTarget(brt);
+        m_sh_composite->assign(dc);
+        dc->setTexture(GLSL_COLOR_BUFFER, m_rt_gauss1->getColorBuffer(GBUFFER_COLOR));
+        dc->setVertexArray(m_va_composite);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-        glDrawArrays(GL_QUADS, 0, 4);
+        dc->draw(I3D_QUADS, 0, 16);
         glDisable(GL_BLEND);
-        m_rt_gauss1->getColorBuffer(0)->unbind(GLSL_COLOR_BUFFER);
-        m_sh_composite->unbind();
-        brt->unbind();
+        dc->setTexture(GLSL_COLOR_BUFFER, NULL);
     }
 }
 

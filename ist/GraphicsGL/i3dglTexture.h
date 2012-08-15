@@ -11,6 +11,7 @@ class Sampler : public DeviceResource
 {
 I3DGL_DECLARE_DEVICE_RESOURCE(Sampler)
 typedef DeviceResource super;
+friend class DeviceContext;
 private:
     SamplerDesc m_desc;
 
@@ -26,8 +27,11 @@ public:
 class Texture : public DeviceResource
 {
 typedef DeviceResource super;
+friend class DeviceContext;
 protected:
     Texture(Device *dev);
+    virtual void bind(uint32 slot) const=0;
+    virtual void unbind(uint32 slot) const=0;
 };
 
 class Texture1D : public Texture
@@ -49,8 +53,8 @@ public:
     void copy(uint32 mip_level, uint32 pos, uint32 size, I3D_COLOR_FORMAT format, void *data);
     void generateMipmap();
 
-    void bind(int slot) const;
-    void unbind(int slot) const;
+    void bind(uint32 slot) const;
+    void unbind(uint32 slot) const;
 
     const Texture1DDesc& getDesc() const;
 };
@@ -75,8 +79,8 @@ public:
     void copy(uint32 mip_level, const uvec2 &pos, const uvec2 &size, I3D_COLOR_FORMAT format, void *data);
     void generateMipmap();
 
-    void bind(int slot) const;
-    void unbind(int slot) const;
+    void bind(uint32 slot) const;
+    void unbind(uint32 slot) const;
 
     const Texture2DDesc& getDesc() const;
 };
@@ -101,8 +105,8 @@ public:
     void copy(uint32 mip_level, const uvec3 &pos, const uvec3 &size, I3D_COLOR_FORMAT format, void *data);
     void generateMipmap();
 
-    void bind(int slot) const;
-    void unbind(int slot) const;
+    void bind(uint32 slot) const;
+    void unbind(uint32 slot) const;
 
     const Texture3DDesc& getDesc() const;
 };

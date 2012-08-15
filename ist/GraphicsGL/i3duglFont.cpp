@@ -50,12 +50,14 @@ public:
 
     void addText(const vec2 &pos, const char *text, size_t len)
     {
+        glUseProgram(0);
         glWindowPos2i((int32)pos.x, m_window_height-(int32)pos.y);
         glCallLists(len, GL_UNSIGNED_BYTE, text);
     }
 
     void addText(const vec2 &pos, const wchar_t *text, size_t len)
     {
+        glUseProgram(0);
         glWindowPos2i((int32)pos.x, m_window_height-(int32)pos.y);
         glCallLists(len, GL_UNSIGNED_SHORT, text);
     }
@@ -242,6 +244,7 @@ public:
         , m_ubo(NULL)
         , m_vs(NULL)
         , m_ps(NULL)
+        , m_shader(NULL)
         , m_size(20.0f)
     {
         if(m_texture = CreateTexture2DFromFile(dev, path_to_png)) {
@@ -250,14 +253,27 @@ public:
         }
         m_vbo = CreateVertexBuffer(dev, sizeof(VertexT)*4*MaxCharsPerDraw, I3D_USAGE_DYNAMIC);
         m_ubo = CreateUniformBuffer(dev, sizeof(RenderState), I3D_USAGE_DYNAMIC);
+        {
+            m_va = dev->createVertexArray();
+            const VertexDesc descs[] = {
+                {0, I3D_FLOAT, 2, 0, false, 0},
+                {1, I3D_FLOAT, 2, 8, false, 0},
+            };
+            m_va->setAttributes(*m_vbo, sizeof(VertexT), descs, _countof(descs));
+        }
+
         m_vs = CreateVertexShaderFromString(dev, g_font_vssrc);
         m_ps = CreatePixelShaderFromString(dev, g_font_pssrc);
+        m_shader = dev->createShaderProgram(ShaderProgramDesc(m_vs, m_ps));
     }
 
     ~SpriteFontRenderer()
     {
+        istSafeRelease(m_shader);
         istSafeRelease(m_ps);
         istSafeRelease(m_vs);
+        istSafeRelease(m_va);
+        istSafeRelease(m_ubo);
         istSafeRelease(m_vbo);
         istSafeRelease(m_texture);
     }
@@ -308,18 +324,9 @@ public:
         MapAndWrite(*m_ubo, &m_renderstate, sizeof(m_renderstate));
         m_quads.clear();
 
-        uint32 stride = sizeof(VertexT);
-        const VertexDesc descs[] = {
-            {0, I3D_FLOAT, 2, 0, false, 1, 0},
-            {1, I3D_FLOAT, 2, 8, false, 1, 0},
-        };
-
-        dc->IAsetPrimitiveTopology(I3D_QUADS);
-        dc->IAsetVertexBuffers(1, &m_vbo, &stride);
-        dc->IAsetInputLayout(_countof(descs), descs);
-        dc->VSsetShader(m_vs);
-        dc->PSsetShader(m_ps);
-        dc->draw(num_vertex, 0);
+        dc->setVertexArray(m_va);
+        dc->setShader(m_shader);
+        dc->draw(I3D_QUADS, 0, num_vertex);
     }
 
 private:
@@ -328,8 +335,10 @@ private:
     Texture2D *m_texture;
     Buffer *m_vbo;
     Buffer *m_ubo;
+    VertexArray *m_va;
     VertexShader *m_vs;
     PixelShader *m_ps;
+    ShaderProgram *m_shader;
     float m_size;
     RenderState m_renderstate;
 };

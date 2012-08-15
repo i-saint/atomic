@@ -150,12 +150,14 @@ void AtomicRenderer::passShadow()
 
 void AtomicRenderer::passGBuffer()
 {
+    i3d::DeviceContext *dc = atomicGetGLDeviceContext();
     const PerspectiveCamera *camera = atomicGetCamera();
 
-    m_rt_gbuffer->bind();
-    glClearColor(0.0f,0.0f,0.0f,1.0f);
-    glClearStencil(0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    dc->clearColor(m_rt_gbuffer, vec4(0.0f,0.0f,0.0f,1.0f));
+    dc->clearDepth(m_rt_gbuffer, 1.0f);
+    dc->clearStencil(m_rt_gbuffer, 0);
+    dc->setRenderTarget(m_rt_gbuffer);
+
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_STENCIL_TEST);
     glStencilFunc(GL_ALWAYS, 1, ~0);
@@ -180,19 +182,20 @@ void AtomicRenderer::passGBuffer()
 
 void AtomicRenderer::passDeferredShading()
 {
+    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
     RenderTarget *brt = atomicGetBackRenderTarget();
     RenderTarget *rt = atomicGetFrontRenderTarget();
 
     rt->setDepthStencilBuffer(m_rt_gbuffer->getDepthStencilBuffer());
-    rt->bind();
-    m_rt_gbuffer->getColorBuffer(GBUFFER_COLOR)->bind(GLSL_COLOR_BUFFER);
-    m_rt_gbuffer->getColorBuffer(GBUFFER_NORMAL)->bind(GLSL_NORMAL_BUFFER);
-    m_rt_gbuffer->getColorBuffer(GBUFFER_POSITION)->bind(GLSL_POSITION_BUFFER);
-    m_rt_gbuffer->getColorBuffer(GBUFFER_GLOW)->bind(GLSL_GLOW_BUFFER);
-    brt->getColorBuffer(0)->bind(GLSL_BACK_BUFFER);
-    atomicGetTexture2D(TEX2D_RANDOM)->bind(GLSL_RANDOM_BUFFER);
+    dc->clearColor(rt, vec4(0.0f, 0.0f, 0.0f, 1.0f));
+    dc->setRenderTarget(rt);
+    dc->setTexture(GLSL_COLOR_BUFFER, m_rt_gbuffer->getColorBuffer(GBUFFER_COLOR));
+    dc->setTexture(GLSL_NORMAL_BUFFER, m_rt_gbuffer->getColorBuffer(GBUFFER_NORMAL));
+    dc->setTexture(GLSL_POSITION_BUFFER, m_rt_gbuffer->getColorBuffer(GBUFFER_POSITION));
+    dc->setTexture(GLSL_GLOW_BUFFER, m_rt_gbuffer->getColorBuffer(GBUFFER_GLOW));
+    dc->setTexture(GLSL_BACK_BUFFER, brt->getColorBuffer(0));
+    dc->setTexture(GLSL_RANDOM_BUFFER, atomicGetTexture2D(TEX2D_RANDOM));
 
-    glClear(GL_COLOR_BUFFER_BIT);
     glEnable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_STENCIL_TEST);
@@ -211,17 +214,17 @@ void AtomicRenderer::passDeferredShading()
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
 
-    rt->unbind();
     rt->setDepthStencilBuffer(NULL);
 }
 
 void AtomicRenderer::passForwardShading()
 {
+    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
     RenderTarget *rt = atomicGetFrontRenderTarget();
     atomicSwapOutputRenderTarget();
 
     rt->setDepthStencilBuffer(m_rt_gbuffer->getDepthStencilBuffer());
-    rt->bind();
+    dc->setRenderTarget(rt);
     glEnable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -233,7 +236,6 @@ void AtomicRenderer::passForwardShading()
 
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
-    rt->unbind();
     rt->setDepthStencilBuffer(NULL);
 }
 
@@ -255,11 +257,12 @@ void AtomicRenderer::passHUD()
 
 void AtomicRenderer::passOutput()
 {
-    atomicGetBackRenderTarget()->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
-    m_sh_out->bind();
-    m_va_screenquad->bind();
-    glDrawArrays(GL_QUADS, 0, 4);
-    m_sh_out->unbind();
+    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
+    m_sh_out->assign(dc);
+    dc->setRenderTarget(NULL);
+    dc->setTexture(GLSL_COLOR_BUFFER, atomicGetBackRenderTarget()->getColorBuffer(0));
+    dc->setVertexArray(m_va_screenquad);
+    dc->draw(I3D_QUADS, 0, 4);
 
 
     // texts 

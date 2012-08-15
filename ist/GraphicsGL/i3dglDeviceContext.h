@@ -14,54 +14,36 @@ class DeviceContext
 {
 I3DGL_DECLARE_DEVICE_RESOURCE(DeviceContext);
 public:
-    void setRenderTarget(uint32 num, RenderBuffer **rt, RenderBuffer *depthstencil);
+    void setVertexArray(VertexArray *va);
+    void setIndexBuffer(Buffer *v, I3D_TYPE format);
+    void setShader(ShaderProgram *v);
+    void setRenderTarget(RenderTarget *rt);
+    void setTexture(uint32 i, Texture *tex);
 
-    void IAsetVertexBuffers(uint32 num_vbo, Buffer **vb, uint32 *strides);
-    void IAsetInputLayout(uint32 num_descs, const VertexDesc *descs);
-    void IAsetIndexBuffer(Buffer *v, I3D_TYPE format);
-    void IAsetPrimitiveTopology(I3D_TOPOLOGY v);
+    void draw(I3D_TOPOLOGY topology, uint32 first_vertex, uint32 num_vertices);
+    void drawIndexed(I3D_TOPOLOGY topology, uint32 first_vertex, uint32 num_indices);
+    void drawInstanced(I3D_TOPOLOGY topology, uint32 first_vertex, uint32 num_vertices, uint32 num_instances);
+    void drawIndexedInstanced(I3D_TOPOLOGY topology, uint32 first_vertex, uint32 num_indices, uint32 num_instances);
+    void applyRenderStates();
 
-    void VSsetShader(VertexShader *v);
-
-    void PSsetShader(PixelShader *v);
-    void PSsetSamplers();
-    void PSsetTextures(uint32 location, Texture2D *textures, uint32 num_textures);
-    void PSsetConstantBuffers();
-
-    void draw(uint32 num_vertices, uint32 first_vertex);
-    void drawIndexed(uint32 num_indices, uint32 first_vertex);
-    void drawInstanced(uint32 num_vertices, uint32 first_vertex, uint32 num_instances);
-    void drawIndexedInstanced(uint32 num_indices, uint32 first_vertex, uint32 num_instances);
+    void clearColor(RenderTarget *rt, vec4 color);
+    void clearDepth(RenderTarget *rt, float32 depth);
+    void clearStencil(RenderTarget *rt, int32 stencil);
 
 private:
     DeviceContext(Device *dev);
     ~DeviceContext();
 
-    void prepareDraw();
 
 private:
     Device         *m_device;
 
-    VertexArray     *m_va;
+    RenderTarget   *m_render_target;
+    VertexArray    *m_vertex_array;
+    ShaderProgram  *m_shader;
 
-    uint32          m_ia_num_vertex_buffers;
-    Buffer         *m_ia_vertex_buffers[I3D_MAX_VERTEX_BUFFERS];
-    uint32          m_ia_vertex_strides[I3D_MAX_VERTEX_BUFFERS];
-    uint32          m_ia_num_vertex_descs;
-    VertexDesc      m_ia_vertex_descs[I3D_MAX_VERTEX_DESCS];
-    Buffer         *m_ia_index_buffer;
-    I3D_TYPE        m_ia_index_format;
-    VertexArray    *m_ia_vertex_array;
-    uint32          m_ia_num_render_targets;
-    RenderTarget   *m_ia_render_target;
-    RenderBuffer   *m_ia_frame_buffers[I3D_MAX_RENDER_TARGETS];
-    RenderBuffer   *m_ia_depth_stencil_buffer;
-
-    I3D_TOPOLOGY    m_ia_topology;
-    ShaderProgram   *m_shader;
-    VertexShader    *m_vs_shader;
-    PixelShader     *m_ps_shader;
-    RenderTarget    *m_om_rendertargets;
+    Buffer         *m_index_buffer;
+    I3D_TYPE        m_index_format;
 };
 
 } // namespace i3d

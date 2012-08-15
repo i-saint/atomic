@@ -132,7 +132,6 @@ struct VertexDesc
     GLuint offset;
     bool normalize;
     GLuint divisor; // 0: per vertex, other: per n instance
-    GLuint vbo_index;
 };
 
 struct BufferDesc
@@ -225,12 +224,12 @@ typedef ShaderDesc PixelShaderDesc;
 
 struct ShaderProgramDesc
 {
-    VertexShader    *vsh;
-    PixelShader     *psh;
-    GeometryShader  *gsh;
+    VertexShader    *vs;
+    PixelShader     *ps;
+    GeometryShader  *gs;
 
     explicit ShaderProgramDesc(VertexShader *v=NULL, PixelShader *p=NULL, GeometryShader *g=NULL)
-        : vsh(v), psh(p), gsh(g)
+        : vs(v), ps(p), gs(g)
     {}
 };
 

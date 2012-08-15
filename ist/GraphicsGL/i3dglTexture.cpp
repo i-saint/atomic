@@ -102,12 +102,12 @@ void Texture1D::unbind() const
     glBindTexture(TEXTURE_TYPE, 0);
 }
 
-void Texture1D::bind(int slot) const
+void Texture1D::bind(uint32 slot) const
 {
     glActiveTexture(GL_TEXTURE0+slot);
     bind();
 }
-void Texture1D::unbind(int slot) const
+void Texture1D::unbind(uint32 slot) const
 {
     glActiveTexture(GL_TEXTURE0+slot);
     unbind();
@@ -178,12 +178,12 @@ void Texture2D::unbind() const
     glBindTexture(TEXTURE_TYPE, 0);
 }
 
-void Texture2D::bind(int slot) const
+void Texture2D::bind(uint32 slot) const
 {
     glActiveTexture(GL_TEXTURE0+slot);
     bind();
 }
-void Texture2D::unbind(int slot) const
+void Texture2D::unbind(uint32 slot) const
 {
     glActiveTexture(GL_TEXTURE0+slot);
     unbind();
@@ -254,12 +254,12 @@ void Texture3D::unbind() const
     glBindTexture(TEXTURE_TYPE, 0);
 }
 
-void Texture3D::bind(int slot) const
+void Texture3D::bind(uint32 slot) const
 {
     glActiveTexture(GL_TEXTURE0+slot);
     bind();
 }
-void Texture3D::unbind(int slot) const
+void Texture3D::unbind(uint32 slot) const
 {
     glActiveTexture(GL_TEXTURE0+slot);
     unbind();
