@@ -4,9 +4,6 @@
     <Filter Include="shader">
       <UniqueIdentifier>{0849537c-2187-4ccb-a173-dc9459c6e85d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="cl">
-      <UniqueIdentifier>{57979fc1-d2c5-410f-8771-7a05c65c91b5}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\shader.rb" />

@@ -23,7 +23,7 @@ ps_out(0) vec4 ps_FragColor;
 
 void main()
 {
-    ps_FragColor = u_Fill.color;
+    ps_FragColor = u_Fill.Color;
 }
 
 #endif

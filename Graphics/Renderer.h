@@ -56,7 +56,8 @@ private:
     SystemTextRenderer                      *m_stext;
 
     Viewport   m_default_viewport;
-    RenderStates    m_render_states;
+    RenderStates    m_rstates3d;
+    RenderStates    m_rstates2d;
 
 private:
     static AtomicRenderer *s_inst;
@@ -79,14 +80,15 @@ public:
     void beforeDraw();  // メインスレッドから、描画処理の前に呼ばれる
     void draw();        // 以下描画スレッドから呼ばれる
 
-    const Viewport* getDefaultViewport() const                      { return &m_default_viewport; }
-    RenderStates* getRenderStates()                                 { return &m_render_states; }
-    PassGBuffer_SPH* getSPHRenderer()                               { return m_renderer_sph; }
-    PassGBuffer_Particle* getParticleRenderer()                     { return m_renderer_particle; }
-    PassDeferredShading_Bloodstain* getBloodStainRenderer()         { return m_renderer_bloodstain; }
-    PassDeferredShading_Lights* getLights()                         { return m_renderer_lights; }
-    PassPostprocess_Fade* getFader()                                { return m_renderer_fade; }
-    SystemTextRenderer* getSystemTextRenderer()                     { return m_stext; }
+    const Viewport* getDefaultViewport() const              { return &m_default_viewport; }
+    RenderStates* getRenderStates3D()                       { return &m_rstates3d; }
+    RenderStates* getRenderStates2D()                       { return &m_rstates2d; }
+    PassGBuffer_SPH* getSPHRenderer()                       { return m_renderer_sph; }
+    PassGBuffer_Particle* getParticleRenderer()             { return m_renderer_particle; }
+    PassDeferredShading_Bloodstain* getBloodStainRenderer() { return m_renderer_bloodstain; }
+    PassDeferredShading_Lights* getLights()                 { return m_renderer_lights; }
+    PassPostprocess_Fade* getFader()                        { return m_renderer_fade; }
+    SystemTextRenderer* getSystemTextRenderer()             { return m_stext; }
 
     RenderTarget*   getFrontRenderTarget() { return m_rt_out[0]; }
     RenderTarget*   getBackRenderTarget() { return m_rt_out[1]; }
@@ -94,7 +96,7 @@ public:
 };
 
 #define atomicGetRenderer()             AtomicRenderer::getInstance()
-#define atomicGetRenderStates()         atomicGetRenderer()->getRenderStates()
+#define atomicGetRenderStates()         atomicGetRenderer()->getRenderStates3D()
 #define atomicGetDefaultViewport()      atomicGetRenderer()->getDefaultViewport()
 #define atomicGetBloodstainRenderer()   atomicGetRenderer()->getBloodStainRenderer()
 #define atomicGetSPHRenderer()          atomicGetRenderer()->getSPHRenderer()

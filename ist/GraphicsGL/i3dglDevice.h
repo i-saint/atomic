@@ -37,7 +37,7 @@ public:
     VertexShader*   createVertexShader(const VertexShaderDesc &desc);
     PixelShader*    createPixelShader(const PixelShaderDesc &desc);
     GeometryShader* createGeometryShader(const GeometryShaderDesc &desc);
-    ShaderProgram*  createShaderProgram(const ShaderProgramDesc &desc);
+    ShaderProgram*  createShaderProgram();
 
     Sampler*        createSampler(const SamplerDesc &desc);
     Texture1D*      createTexture1D(const Texture1DDesc &desc);

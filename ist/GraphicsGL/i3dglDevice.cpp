@@ -53,11 +53,11 @@ Device::Device(HWND hwnd) : m_hwnd(hwnd), m_context(NULL)
 
 Device::~Device()
 {
+    istSafeDelete(m_context);
     for(uint32 i=0; i<m_resources.size(); ++i) {
         istSafeDelete(m_resources[i]);
     }
-
-    istSafeDelete(m_context);
+    m_resources.clear();
 
     if(m_hglrc!=NULL) {
         ::wglMakeCurrent(NULL, NULL);
@@ -129,9 +129,9 @@ GeometryShader* Device::createGeometryShader(const GeometryShaderDesc &desc)
     return r;
 }
 
-ShaderProgram* Device::createShaderProgram(const ShaderProgramDesc &desc)
+ShaderProgram* Device::createShaderProgram()
 {
-    ShaderProgram *r = istNew(ShaderProgram)(this, desc);
+    ShaderProgram *r = istNew(ShaderProgram)(this);
     addResource(r);
     return r;
 }

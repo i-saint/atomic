@@ -83,7 +83,7 @@ enum I3D_CONSTANTS
 {
     I3D_MAX_RENDER_TARGETS  = 8,
     I3D_MAX_VERTEX_BUFFERS  = 8,
-    I3D_MAX_VERTEX_DESCS    = 16,
+    I3D_MAX_VERTEX_DESCS    = 32,
 };
 
 enum I3D_TEXTURE_CLAMP
@@ -132,6 +132,7 @@ struct VertexDesc
     GLuint offset;
     bool normalize;
     GLuint divisor; // 0: per vertex, other: per n instance
+    GLuint vbo_index;
 };
 
 struct BufferDesc

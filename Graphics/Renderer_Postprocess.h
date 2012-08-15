@@ -71,7 +71,7 @@ public:
     void beforeDraw();
     void draw();
 
-    void setColor(const vec4 &v) { m_params.color=v; }
+    void setColor(const vec4 &v) { m_params.Color=v; }
     void setFade(const vec4 &v, float32 frame);
 };
 

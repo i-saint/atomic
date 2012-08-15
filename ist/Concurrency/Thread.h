@@ -41,6 +41,7 @@ public:
     /// 以下の set 系関数は run() の前に呼ばないと反映されないので注意。
     /// (pthread_t から thread id を得るポータブルな方法がないので、対象スレッドが自分で変えるしかない)
     void setName(const char *v)     { strncpy(m_name, v, _countof(m_name)); }
+    void setLocale(const char *v)   { strncpy(m_locale, v, _countof(m_locale)); }
     void setAffinityMask(size_t v)  { m_affinity=v; }
     void setPriority(int v)         { m_priority=v; }
     void setStaskSize(size_t v)     { m_stacksize=v; }
@@ -58,6 +59,7 @@ private:
     Handle  m_handle;
     size_t  m_stacksize;
     char    m_name[64];
+    char    m_locale[64];
     size_t  m_affinity;
     int     m_priority;
 };

@@ -8,6 +8,7 @@ const size_t MinimumAlignment = 16;
 
 istInterModule void* istRawMalloc(size_t size, size_t align=MinimumAlignment);
 istInterModule void istRawFree(void* p);
+istInterModule void* istRawAlloca(size_t size);
 
 void* operator new[](size_t size);
 void* operator new[](size_t size, const char* pName, int flags, unsigned debugFlags, const char* file, int line);

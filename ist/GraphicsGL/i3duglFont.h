@@ -10,9 +10,13 @@ namespace i3dgl {
 class IFontRenderer : public SharedObject
 {
 public:
-    virtual void addText(const vec2 &pos, const char *text, size_t len, float32 size)=0;
-    virtual void addText(const vec2 &pos, const wchar_t *text, size_t len, float32 size)=0;
-    virtual void flush()=0;
+    virtual void setScreen(float32 left, float32 right, float32 bottom, float32 top)=0;
+    virtual void setColor(const vec4 &v)=0;
+    virtual void setSize(float32 v)=0;
+
+    virtual void addText(const vec2 &pos, const char *text, size_t len)=0;
+    virtual void addText(const vec2 &pos, const wchar_t *text, size_t len)=0; // こっちの方が速いのでできるだけこっち使いましょう
+    virtual void flush(DeviceContext *dc)=0;
 };
 
 IFontRenderer* CreateSystemFont(Device *device, void *hdc);

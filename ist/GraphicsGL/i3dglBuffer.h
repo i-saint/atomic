@@ -41,6 +41,7 @@ public:
     void unbind() const;
 
     void setAttributes(Buffer& vbo, size_t stride, const VertexDesc *descs, size_t num_descs);
+    void setAttribute(size_t stride, const VertexDesc &descs);
 };
 
 } // namespace i3d

@@ -18,10 +18,10 @@ layout(std140) uniform debug_params
 void main()
 {
     vec4 vertices[4] = vec4[](
-        vec4(u_Params.upper_right.x, u_Params.upper_right.y, 0.0f, 1.0f),
-        vec4(u_Params.bottom_left.x, u_Params.upper_right.y, 0.0f, 1.0f),
-        vec4(u_Params.bottom_left.x, u_Params.bottom_left.y, 0.0f, 1.0f),
-        vec4(u_Params.upper_right.x, u_Params.bottom_left.y, 0.0f, 1.0f) );
+        vec4(u_Params.UpperRight.x, u_Params.UpperRight.y, 0.0f, 1.0f),
+        vec4(u_Params.BottomLeft.x, u_Params.UpperRight.y, 0.0f, 1.0f),
+        vec4(u_Params.BottomLeft.x, u_Params.BottomLeft.y, 0.0f, 1.0f),
+        vec4(u_Params.UpperRight.x, u_Params.BottomLeft.y, 0.0f, 1.0f) );
     vec2 texcoords[4] = vec2[](
         vec2(1.0, 1.0),
         vec2(0.0, 1.0),
@@ -38,7 +38,7 @@ ps_out(0)   vec4 ps_FragColor;
 void main()
 {
     vec4 Result = vec4(0.0, 0.0, 0.0, 1.0);
-    Result.rgb += clamp(texture(u_ColorBuffer, vs_Texcoord).rgb, u_Params.color_range.xxx, u_Params.color_range.yyy);
+    Result.rgb += clamp(texture(u_ColorBuffer, vs_Texcoord).rgb, u_Params.ColorRange.xxx, u_Params.ColorRange.yyy);
     ps_FragColor = Result;
 }
 

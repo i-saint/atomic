@@ -84,32 +84,10 @@ GeometryShader::~GeometryShader()
 
 
 
-ShaderProgram::ShaderProgram(Device *dev, const ShaderProgramDesc &desc)
+ShaderProgram::ShaderProgram(Device *dev)
     : super(dev)
 {
     m_handle = glCreateProgram();
-
-
-    if(desc.vsh) { glAttachShader(m_handle, desc.vsh->getHandle()); }
-    if(desc.psh) { glAttachShader(m_handle, desc.psh->getHandle()); }
-    if(desc.gsh) { glAttachShader(m_handle, desc.gsh->getHandle()); }
-    glLinkProgram(m_handle);
-
-    // get errors
-    GLint result;
-    glGetProgramiv(m_handle, GL_LINK_STATUS, &result);
-    if(result==GL_FALSE) {
-        int length;
-        glGetProgramiv(m_handle, GL_INFO_LOG_LENGTH, &length);
-        if(length > 0) {
-            int l;
-            GLchar *info_log = new GLchar[length];
-            glGetProgramInfoLog(m_handle, length, &l, info_log);
-            istPrint(info_log);
-            istAssert(false, "link failed.");
-            delete[] info_log;
-        }
-    }
 }
 
 ShaderProgram::~ShaderProgram()
@@ -129,6 +107,32 @@ void ShaderProgram::bind()
 void ShaderProgram::unbind()
 {
     glUseProgram(0);
+}
+
+bool ShaderProgram::link( VertexShader *vs, GeometryShader *gs, PixelShader *ps )
+{
+    if(vs) { glAttachShader(m_handle, vs->getHandle()); }
+    if(gs) { glAttachShader(m_handle, gs->getHandle()); }
+    if(ps) { glAttachShader(m_handle, ps->getHandle()); }
+    glLinkProgram(m_handle);
+
+    // get errors
+    GLint result;
+    glGetProgramiv(m_handle, GL_LINK_STATUS, &result);
+    if(result==GL_FALSE) {
+        int length;
+        glGetProgramiv(m_handle, GL_INFO_LOG_LENGTH, &length);
+        if(length > 0) {
+            int l;
+            GLchar *info_log = new GLchar[length];
+            glGetProgramInfoLog(m_handle, length, &l, info_log);
+            istPrint(info_log);
+            istAssert(false, "link failed.");
+            delete[] info_log;
+        }
+        return false;
+    }
+    return true;
 }
 
 

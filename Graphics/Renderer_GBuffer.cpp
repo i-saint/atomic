@@ -120,6 +120,8 @@ void PassGBuffer_SPH::beforeDraw()
 
 void PassGBuffer_SPH::draw()
 {
+    i3d::DeviceContext *dc = atomicGetGLDeviceContext();
+
     // update rigid particle
     m_updater.clear();
     uint32 num_rigid_particles = 0;

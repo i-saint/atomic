@@ -83,15 +83,16 @@ bool GraphicResourceManager::initialize()
         CreateDistanceFieldQuads(m_va[VA_DISTANCE_FIELD],
             m_vbo[VBO_DISTANCE_FIELD_QUAD], m_vbo[VBO_DISTANCE_FIELD_POS], m_vbo[VBO_DISTANCE_FIELD_DIST]);
 
-        m_vbo[VBO_FLUID_PARTICLES] = CreateVertexBuffer(dev, sizeof(sphFluidParticle)*SPH_MAX_FLUID_PARTICLES, I3D_USAGE_DYNAMIC);
-        m_vbo[VBO_RIGID_PARTICLES] = CreateVertexBuffer(dev, sizeof(PSetParticle)*SPH_MAX_RIGID_PARTICLES, I3D_USAGE_DYNAMIC);
-        m_vbo[VBO_PARTICLES] = CreateVertexBuffer(dev, sizeof(IndivisualParticle)*SPH_MAX_INDIVISUAL_PARTICLES, I3D_USAGE_DYNAMIC);
+        m_vbo[VBO_FLUID_PARTICLES]      = CreateVertexBuffer(dev, sizeof(sphFluidParticle)*SPH_MAX_FLUID_PARTICLES, I3D_USAGE_DYNAMIC);
+        m_vbo[VBO_RIGID_PARTICLES]      = CreateVertexBuffer(dev, sizeof(PSetParticle)*SPH_MAX_RIGID_PARTICLES, I3D_USAGE_DYNAMIC);
+        m_vbo[VBO_PARTICLES]            = CreateVertexBuffer(dev, sizeof(IndivisualParticle)*SPH_MAX_INDIVISUAL_PARTICLES, I3D_USAGE_DYNAMIC);
         m_vbo[VBO_DIRECTIONALLIGHT_INSTANCES] = CreateVertexBuffer(dev, sizeof(DirectionalLight)*ATOMIC_MAX_DIRECTIONAL_LIGHTS, I3D_USAGE_DYNAMIC);
         m_vbo[VBO_POINTLIGHT_INSTANCES] = CreateVertexBuffer(dev, sizeof(PointLight)*ATOMIC_MAX_POINT_LIGHTS, I3D_USAGE_DYNAMIC);
         m_vbo[VBO_BLOODSTAIN_PARTICLES] = CreateVertexBuffer(dev, sizeof(BloodstainParticle)*SPH_MAX_FLUID_PARTICLES, I3D_USAGE_DYNAMIC);
     }
     {
-        m_ubo[UBO_RENDER_STATES]            = CreateUniformBuffer(dev, sizeof(RenderStates), I3D_USAGE_DYNAMIC);
+        m_ubo[UBO_RENDERSTATES_3D]          = CreateUniformBuffer(dev, sizeof(RenderStates), I3D_USAGE_DYNAMIC);
+        m_ubo[UBO_RENDERSTATES_2D]          = CreateUniformBuffer(dev, sizeof(RenderStates), I3D_USAGE_DYNAMIC);
         m_ubo[UBO_FXAA_PARAMS]              = CreateUniformBuffer(dev, sizeof(FXAAParams), I3D_USAGE_DYNAMIC);
         m_ubo[UBO_FADE_PARAMS]              = CreateUniformBuffer(dev, sizeof(FadeParams), I3D_USAGE_DYNAMIC);
         m_ubo[UBO_FILL_PARAMS]              = CreateUniformBuffer(dev, sizeof(FillParams), I3D_USAGE_DYNAMIC);

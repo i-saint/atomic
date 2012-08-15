@@ -120,6 +120,7 @@ Thread::Thread()
     , m_priority(0)
 {
     sprintf(m_name, "ist::Thread");
+    m_locale[0] = '\0';
 }
 
 Thread::~Thread()
@@ -157,6 +158,7 @@ void Thread::setParams()
     setNameToCurrentThread(m_name);
     setAffinityMaskToCurrentThread(m_affinity);
     setPriorityToCurrentThread(m_priority);
+    ::setlocale(LC_ALL, m_locale);
 }
 
 } // namespace ist

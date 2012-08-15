@@ -57,8 +57,8 @@ bool AtomicShader::loadFromMemory( const char* src )
     //    m_gs = dev->createGeometryShader(desc);
     //}
     {
-        ShaderProgramDesc desc = ShaderProgramDesc(m_vs, m_ps, m_gs);
-        m_shader = dev->createShaderProgram(desc);
+        m_shader = dev->createShaderProgram();
+        m_shader->link(m_vs, m_gs, m_ps);
     }
 
 
@@ -92,7 +92,7 @@ void AtomicShader::setUniformBlock(GLuint uniformBlockIndex, GLuint uniformBindi
 void AtomicShader::bind()
 {
     m_shader->bind();
-    m_shader->setUniformBlock(m_loc_renderstates, GLSL_RENDERSTATE_BINDING, atomicGetUniformBuffer(UBO_RENDER_STATES)->getHandle());
+    m_shader->setUniformBlock(m_loc_renderstates, GLSL_RENDERSTATE_BINDING, atomicGetUniformBuffer(UBO_RENDERSTATES_3D)->getHandle());
 }
 
 void AtomicShader::unbind()

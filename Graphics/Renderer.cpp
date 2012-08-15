@@ -100,16 +100,24 @@ void AtomicRenderer::draw()
 
     {
         PerspectiveCamera *camera   = atomicGetCamera();
-        Buffer *ubo_renderstates    = atomicGetUniformBuffer(UBO_RENDER_STATES);
+        Buffer *ubo_rs              = atomicGetUniformBuffer(UBO_RENDERSTATES_3D);
         const uvec2 &wsize          = atomicGetWindowSize();
-        m_render_states.ModelViewProjectionMatrix = camera->getViewProjectionMatrix();
-        m_render_states.CameraPosition  = camera->getPosition();
-        m_render_states.ScreenSize      = vec2(atomicGetWindowSize());
-        m_render_states.RcpScreenSize   = vec2(1.0f, 1.0f) / m_render_states.ScreenSize;
-        m_render_states.AspectRatio     = (float32)wsize.x / (float32)wsize.y;
-        m_render_states.RcpAspectRatio  = 1.0f / m_render_states.AspectRatio;
-        m_render_states.ScreenTexcoord  = m_render_states.ScreenSize / vec2(m_rt_gbuffer->getColorBuffer(0)->getDesc().size);
-        MapAndWrite(*ubo_renderstates, &m_render_states, sizeof(m_render_states));
+        m_rstates3d.ModelViewProjectionMatrix = camera->getViewProjectionMatrix();
+        m_rstates3d.CameraPosition  = camera->getPosition();
+        m_rstates3d.ScreenSize      = vec2(atomicGetWindowSize());
+        m_rstates3d.RcpScreenSize   = vec2(1.0f, 1.0f) / m_rstates3d.ScreenSize;
+        m_rstates3d.AspectRatio     = (float32)wsize.x / (float32)wsize.y;
+        m_rstates3d.RcpAspectRatio  = 1.0f / m_rstates3d.AspectRatio;
+        m_rstates3d.ScreenTexcoord  = m_rstates3d.ScreenSize / vec2(m_rt_gbuffer->getColorBuffer(0)->getDesc().size);
+        m_rstates3d.Color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+        MapAndWrite(*ubo_rs, &m_rstates3d, sizeof(m_rstates3d));
+    }
+    {
+        Buffer *ubo_rs      = atomicGetUniformBuffer(UBO_RENDERSTATES_2D);
+        const vec2 &wsize   = vec2(atomicGetWindowSize());
+        m_rstates2d         = m_rstates3d;
+        m_rstates2d.ModelViewProjectionMatrix = glm::ortho(0.0f, wsize.x, wsize.y, 0.0f);
+        MapAndWrite(*ubo_rs, &m_rstates2d, sizeof(m_rstates2d));
     }
 
     passShadow();
@@ -312,11 +320,16 @@ void SystemTextRenderer::draw()
 {
     if(!atomicGetConfig()->show_text) { return; }
 
+    {
+        const vec2 &wsize   = vec2(atomicGetWindowSize());
+        atomicGetFont()->setScreen(0.0f, wsize.x, wsize.y, 0.0f);
+        atomicGetFont()->setSize(20.0f);
+    }
     for(uint32 i=0; i<m_texts.size(); ++i) {
         const Text &t = m_texts[i];
-        atomicGetFont()->addText(t.pos, t.text, strnlen(t.text, _countof(t.text)), 20.0f);
+        atomicGetFont()->addText(t.pos, t.text, strnlen(t.text, _countof(t.text)));
     }
-    atomicGetFont()->flush();
+    atomicGetFont()->flush(atomicGetGLDeviceContext());
 }
 
 void SystemTextRenderer::addText(const vec2 &pos, const char *text)
@@ -389,9 +402,9 @@ void PassHUD_DebugShowBuffer::draw()
 {
 #ifdef __atomic_enable_debug_feature__
     DebugShowBufferParams params;
-    params.bottom_left = vec2(-1.0f, -1.0f);
-    params.upper_right = vec2( 1.0f,  1.0f);
-    params.color_range = vec2( 0.0f, 1.0f);
+    params.BottomLeft = vec2(-1.0f, -1.0f);
+    params.UpperRight = vec2( 1.0f,  1.0f);
+    params.ColorRange = vec2( 0.0f, 1.0f);
 
     m_rt = atomicGetBackRenderTarget();
     m_rt->bind();
@@ -416,27 +429,27 @@ void PassHUD_DebugShowBuffer::draw()
 
     case 5:
         // color
-        params.bottom_left = vec2(-1.0f, -1.0f);
-        params.upper_right = vec2(-0.5f, -0.5f);
-        params.color_range = vec2(0.0f, 1.0f);
+        params.BottomLeft = vec2(-1.0f, -1.0f);
+        params.UpperRight = vec2(-0.5f, -0.5f);
+        params.ColorRange = vec2(0.0f, 1.0f);
         drawColorBuffer(params);
 
         // normal
-        params.bottom_left += vec2(0.5f, 0.0f);
-        params.upper_right += vec2(0.5f, 0.0f);
-        params.color_range = vec2(0.0f, 1.0f);
+        params.BottomLeft += vec2(0.5f, 0.0f);
+        params.UpperRight += vec2(0.5f, 0.0f);
+        params.ColorRange = vec2(0.0f, 1.0f);
         drawNormalBuffer(params);
 
         // position
-        params.bottom_left += vec2(0.5f, 0.0f);
-        params.upper_right += vec2(0.5f, 0.0f);
-        params.color_range = vec2(0.0f, 1.0f);
+        params.BottomLeft += vec2(0.5f, 0.0f);
+        params.UpperRight += vec2(0.5f, 0.0f);
+        params.ColorRange = vec2(0.0f, 1.0f);
         drawPositionBuffer(params);
 
         // glow
-        params.bottom_left += vec2(0.5f, 0.0f);
-        params.upper_right += vec2(0.5f, 0.0f);
-        params.color_range = vec2(0.0f, 1.0f);
+        params.BottomLeft += vec2(0.5f, 0.0f);
+        params.UpperRight += vec2(0.5f, 0.0f);
+        params.ColorRange = vec2(0.0f, 1.0f);
         drawGlowBuffer(params);
         break;
     }

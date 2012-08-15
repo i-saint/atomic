@@ -211,12 +211,12 @@ void PassPostprocess_Fade::beforeDraw()
     vec4 diff = m_end_color-m_begin_color;
     float32 f = m_end_frame-m_begin_frame;
     float32 l = float32(frame-m_begin_frame)/f;
-    m_params.color = m_begin_color + diff*l;
+    m_params.Color = m_begin_color + diff*l;
 }
 
 void PassPostprocess_Fade::draw()
 {
-    if(m_params.color.a==0.0f) { return; }
+    if(m_params.Color.a==0.0f) { return; }
 
     MapAndWrite(*m_ubo_fade, &m_params, sizeof(m_params));
 
@@ -236,7 +236,7 @@ void PassPostprocess_Fade::draw()
 
 void PassPostprocess_Fade::setFade(const vec4 &v, float32 frame)
 {
-    m_begin_color = m_params.color;
+    m_begin_color = m_params.Color;
     m_end_color = v;
     m_begin_frame = atomicGetFrame();
     m_end_frame = m_begin_frame+frame;

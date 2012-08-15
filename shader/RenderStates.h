@@ -15,6 +15,7 @@ struct ALIGN16 RenderStates
 {
     mat4 ModelViewProjectionMatrix;
     vec4 CameraPosition;
+    vec4 Color;
 
     vec2 ScreenTexcoord;
     vec2 ScreenSize;
@@ -43,12 +44,12 @@ struct ALIGN16 FXAAParams
 
 struct ALIGN16 FadeParams
 {
-    vec4 color;
+    vec4 Color;
 };
 
 struct ALIGN16 FillParams
 {
-    vec4 color;
+    vec4 Color;
 };
 
 struct ALIGN16 MultiresolutionParams
@@ -59,9 +60,9 @@ struct ALIGN16 MultiresolutionParams
 
 struct ALIGN16 DebugShowBufferParams
 {
-    vec2 bottom_left; // スクリーン座標、-1.0～1.0
-    vec2 upper_right; // スクリーン座標、-1.0～1.0
-    vec2 color_range; // この範囲を 0.0～1.0 に clamp する
+    vec2 BottomLeft; // スクリーン座標、-1.0～1.0
+    vec2 UpperRight; // スクリーン座標、-1.0～1.0
+    vec2 ColorRange; // この範囲を 0.0～1.0 に clamp する
 };
 
 
