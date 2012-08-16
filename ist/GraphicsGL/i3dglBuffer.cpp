@@ -97,20 +97,6 @@ void VertexArray::setAttributes( Buffer& vb, size_t stride, const VertexDesc *de
     vb.unbind();
 }
 
-void VertexArray::setAttribute( size_t stride, const VertexDesc &desc )
-{
-    glEnableVertexAttribArray(desc.location);
-    // float type
-    if(desc.type==I3D_HALF || desc.type==I3D_FLOAT || desc.type==I3D_DOUBLE) {
-        glVertexAttribPointer(desc.location, desc.num_elements, desc.type, desc.normalize, stride, (GLvoid*)desc.offset);
-    }
-    // integer type
-    else {
-        glVertexAttribIPointer(desc.location, desc.num_elements, desc.type, stride, (GLvoid*)desc.offset);
-    }
-    glVertexAttribDivisor(desc.location, desc.divisor);
-}
-
 
 } // namespace i3d
 } // namespace ist

@@ -18,23 +18,23 @@ Texture2D* CreateTexture2DFromFile(Device *dev, const char *filename)
 {
     Image img;
     if(!img.load(filename)) {
-        istAssert(false, "file load failed: %s\n", filename);
+        istPrint("file load failed: %s\n", filename);
         return false;
     }
-    Texture2DDesc desc(I3D_RGBA8U, uvec2(img.width(), img.height()), 0, &img[0][0]);
+    Texture2DDesc desc(I3D_RGBA8U, uvec2(img.width(), img.height()), 0, img.data());
     return dev->createTexture2D(desc);
 }
 
-Texture2D* CreateTexture2DFromStream(Device *dev, std::istream& st)
+Texture2D* CreateTexture2DFromStream(Device *dev, bistream &st)
 {
     Image::IOConfig conf;
-    conf.setFormat(Image::FORMAT_PNG);
+    conf.setFileType(Image::FileType_PNG);
     Image img;
-    if(!img.load(*st.rdbuf(), conf)) {
-        istAssert(false, "file load failed\n");
+    if(!img.load(st, conf)) {
+        istPrint("file load failed\n");
         return false;
     }
-    Texture2DDesc desc(I3D_RGBA8U, uvec2(img.width(), img.height()), 0, &img[0][0]);
+    Texture2DDesc desc(I3D_RGBA8U, uvec2(img.width(), img.height()), 0, img.data());
     return dev->createTexture2D(desc);
 }
 

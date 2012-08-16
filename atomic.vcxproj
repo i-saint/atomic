@@ -193,6 +193,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -210,7 +211,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <Optimization>Od</Optimization>
       <HostDebugInfo>false</HostDebugInfo>
       <FastMath>false</FastMath>
-      <Runtime>MDd</Runtime>
+      <Runtime>MD</Runtime>
       <Defines>
       </Defines>
       <Emulation>true</Emulation>

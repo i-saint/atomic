@@ -22,7 +22,8 @@ public:
 };
 
 IFontRenderer* CreateSystemFont(Device *device, void *hdc);
-IFontRenderer* CreateSpriteFont(Device *device, const char *path_to_sff, const char *path_to_png);
+IFontRenderer* CreateSpriteFont(Device *device, const char *path_to_sff, const char *path_to_img);
+IFontRenderer* CreateSpriteFont(Device *device, bistream &sff, bistream &img);
 
 } // namespace i3d
 } // namespace ist

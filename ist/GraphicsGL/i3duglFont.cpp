@@ -3,6 +3,7 @@
 #include <wingdi.h>
 #include "ist/Base.h"
 #include "ist/Window.h"
+#include "ist/GraphicsCommon/Image.h"
 #include "ist/GraphicsGL/i3dglDevice.h"
 #include "ist/GraphicsGL/i3dglDeviceContext.h"
 #include "ist/GraphicsGL/i3duglFont.h"
@@ -143,18 +144,14 @@ public:
         return m_header!=NULL ? (float32)m_header->FontSize : 0.0f;
     }
 
-    bool load(const char *path)
+    bool load(bistream &bf)
     {
-        {
-            FILE *lfd = fopen(path, "rb");
-            if(lfd==NULL) { istPrint("file open failed: %s\n", path); return false; }
-            fseek(lfd, 0, SEEK_END);
-            istPrint("filesize: %d\n", ftell(lfd));
-            m_buf.resize(ftell(lfd));
-            fseek(lfd, 0, SEEK_SET);
-            fread(&m_buf[0], 1, m_buf.size(), lfd);
-            fclose(lfd);
-        }
+        bf.seekg(0, bistream::seekg_end);
+        m_buf.resize((size_t)bf.tellg());
+        bf.seekg(0);
+        bf.read(&m_buf[0], m_buf.size());
+        if(m_buf.size()<4 || !(m_buf[0]=='F', m_buf[1]=='F', m_buf[2]=='S')) { return false; }
+
         m_header = (const SFF_HEAD*)&m_buf[0];
         m_data = (const SFF_DATA*)(&m_buf[0]+sizeof(SFF_HEAD));
         if(m_size==0.0f) { m_size=getFontSize(); }
@@ -181,7 +178,7 @@ public:
                 vec2 uv_size = wh * m_rcp_tex_size;
                 FontQuad q = {base+scaled_offset, scaled_wh, uv_pos, uv_size};
                 quads.push_back(q);
-                if(!m_monospace) { advance = scaled_wh.x; }
+                if(!m_monospace) { advance = scaled_wh.x * m_spacing; }
             }
             base.x += advance;
         }
@@ -240,7 +237,7 @@ layout(location=0) out vec4 ps_FragColor;\
 void main()\
 {\
     vec4 color = u_RS.Color;\
-    color.a = texture(u_ColorBuffer, vs_Texcoord).a;\
+    color.a = texture(u_ColorBuffer, vs_Texcoord).r;\
     ps_FragColor = vec4(color);\
 }\
 ";
@@ -266,7 +263,7 @@ public:
     static const size_t MaxCharsPerDraw = 1024;
 
 public:
-    SpriteFontRenderer(Device *dev, const char *path_to_fss, const char *path_to_png)
+    SpriteFontRenderer()
         : m_sampler(NULL)
         , m_texture(NULL)
         , m_vbo(NULL)
@@ -274,12 +271,39 @@ public:
         , m_vs(NULL)
         , m_ps(NULL)
         , m_shader(NULL)
+    {}
+
+    ~SpriteFontRenderer()
     {
-        m_sampler = dev->createSampler(SamplerDesc(I3D_CLAMP_TO_EDGE, I3D_CLAMP_TO_EDGE, I3D_CLAMP_TO_EDGE, I3D_LINEAR, I3D_LINEAR));
-        if(m_texture = CreateTexture2DFromFile(dev, path_to_png)) {
-            m_fss.load(path_to_fss);
-            m_fss.setTextureSize(vec2(m_texture->getDesc().size));
+        istSafeRelease(m_shader);
+        istSafeRelease(m_ps);
+        istSafeRelease(m_vs);
+        istSafeRelease(m_va);
+        istSafeRelease(m_ubo);
+        istSafeRelease(m_vbo);
+        istSafeRelease(m_sampler);
+        istSafeRelease(m_texture);
+    }
+
+    bool initialize(Device *dev, bistream &fss_stream, bistream &img_stream)
+    {
+        {
+            Image img;
+            if(!img.load(img_stream)) {
+                return false;
+            }
+            // alpha だけ抽出
+            Image alpha;
+            alpha.resize<R_U8>(img.width(), img.height());
+            stl::transform(img.begin<RGBA_U8>(), img.end<RGBA_U8>(), alpha.begin<R_U8>(), [&](const RGBA_U8 &src){ return R_U8(src.a); });
+            Texture2DDesc desc(I3D_R8U, uvec2(alpha.width(), alpha.height()), 0, alpha.data());
+            m_texture = dev->createTexture2D(desc);
         }
+        if(!m_fss.load(fss_stream)) {
+            return false;
+        }
+        m_fss.setTextureSize(vec2(m_texture->getDesc().size));
+        m_sampler = dev->createSampler(SamplerDesc(I3D_CLAMP_TO_EDGE, I3D_CLAMP_TO_EDGE, I3D_CLAMP_TO_EDGE, I3D_LINEAR, I3D_LINEAR));
         m_vbo = CreateVertexBuffer(dev, sizeof(VertexT)*4*MaxCharsPerDraw, I3D_USAGE_DYNAMIC);
         m_ubo = CreateUniformBuffer(dev, sizeof(RenderState), I3D_USAGE_DYNAMIC);
         {
@@ -295,18 +319,7 @@ public:
         m_shader = dev->createShaderProgram(ShaderProgramDesc(m_vs, m_ps));
 
         m_renderstate.color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    }
-
-    ~SpriteFontRenderer()
-    {
-        istSafeRelease(m_shader);
-        istSafeRelease(m_ps);
-        istSafeRelease(m_vs);
-        istSafeRelease(m_va);
-        istSafeRelease(m_ubo);
-        istSafeRelease(m_vbo);
-        istSafeRelease(m_sampler);
-        istSafeRelease(m_texture);
+        return true;
     }
 
     virtual void setScreen(float32 left, float32 right, float32 bottom, float32 top)
@@ -323,11 +336,13 @@ public:
         //size_t wlen = mbstowcs(NULL, text, 0);
         //if(wlen==size_t(-1)) { return; }
         //wchar_t *wtext = (wchar_t*)istRawAlloca(sizeof(wchar_t)*wlen);
-        // ↑_alloca() をメインスレッド以外で使うと、確保したメモリにアクセスするとクラッシュするっぽい？
+        // ↑意図した結果にならない。_alloca() はマルチスレッド非対応？
         // しょうがないので固定サイズで…。
+
         wchar_t wtext[1024];
         size_t wlen = mbstowcs(wtext, text, _countof(wtext));
         if(wlen==size_t(-1)) { return; }
+
         addText(pos, wtext, wlen);
     }
 
@@ -361,7 +376,7 @@ public:
         MapAndWrite(*m_ubo, &m_renderstate, sizeof(m_renderstate));
         m_quads.clear();
 
-        uint32 loc = m_shader->getUniformLocation("render_states");
+        uint32 loc = m_shader->getUniformBlockIndex("render_states");
         m_shader->setUniformBlock(loc, 0, m_ubo->getHandle());
         dc->setVertexArray(m_va);
         dc->setShader(m_shader);
@@ -384,11 +399,22 @@ private:
     RenderState m_renderstate;
 };
 
-IFontRenderer* CreateSpriteFont(Device *device, const char *path_to_sff, const char *path_to_png)
+IFontRenderer* CreateSpriteFont(Device *device, const char *path_to_sff, const char *path_to_img)
 {
-    return new SpriteFontRenderer(device, path_to_sff, path_to_png);
+    bfilestream sff(path_to_sff, "rb");
+    bfilestream img(path_to_img, "rb");
+    if(!sff.isOpened()) { istPrint("%s load failed\n", path_to_sff); return NULL; }
+    if(!img.isOpened()) { istPrint("%s load failed\n", path_to_img); return NULL; }
+    return CreateSpriteFont(device, sff, img);
 }
 
+IFontRenderer* CreateSpriteFont(Device *device, bistream &sff, bistream &img)
+{
+    SpriteFontRenderer *r = new SpriteFontRenderer();
+    if(!r->initialize(device, sff, img)) {
+        return NULL;
+    }
+    return r;}
 
 } // namespace i3d
 } // namespace ist

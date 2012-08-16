@@ -8,162 +8,201 @@ namespace ist {
 
 
 template <typename T>
-struct RGBA
+struct TR
 {
-    union
-    {
+    union {
+        struct { T r; };
+        T v[1];
+    };
+    TR<T>() : r(0) {}
+    TR<T>(T _r) : r(_r) {}
+    bool operator ==(const TR<T> &t) const { return (r==t.r); }
+    T& operator [](int32 i) { return v[i]; }
+    const T& operator [](int32 i) const { return v[i]; }
+};
+
+template <typename T>
+struct TRG
+{
+    union {
+        struct { T r,g; };
+        T v[2];
+    };
+    TRG<T>() : r(0), g(0) {}
+    TRG<T>(T _r, T _g) : r(_r), g(_g) {}
+    bool operator ==(const TRG<T> &t) const { return (r==t.r && g==t.g); }
+    T& operator [](int32 i) { return v[i]; }
+    const T& operator [](int32 i) const { return v[i]; }
+};
+
+template <typename T>
+struct TRGB
+{
+    union {
+        struct { T r,g,b; };
+        T v[3];
+    };
+    TRGB<T>() : r(0), g(0), b(0) {}
+    TRGB<T>(T _r, T _g, T _b, T _a) : r(_r), g(_g), b(_b) {}
+    bool operator ==(const TRGB<T> &t) const { return (r==t.r && g==t.g && b==t.b); }
+    T& operator [](int32 i) { return v[i]; }
+    const T& operator [](int32 i) const { return v[i]; }
+};
+
+template <typename T>
+struct TRGBA
+{
+    union {
         struct { T r,g,b,a; };
         T v[4];
     };
-
-    RGBA<T> operator + (RGBA<T> &t) const { return RGBA<T>(r+t.r, g+t.g, b+t.b, a+t.a ); }
-    RGBA<T> operator - (RGBA<T> &t) const { return RGBA<T>(r-t.r, g-t.g, b-t.b, a-t.a ); }
-    RGBA<T> operator * (RGBA<T> &t) const { return RGBA<T>(r*t.r, g*t.g, b*t.b, a*t.a ); }
-    RGBA<T> operator / (RGBA<T> &t) const { return RGBA<T>(r/t.r, g/t.g, b/t.b, a/t.a ); }
-    RGBA<T>& operator +=(RGBA<T> &t) { *this=*this+t; return *this; }
-    RGBA<T>& operator -=(RGBA<T> &t) { *this=*this-t; return *this; }
-    RGBA<T>& operator *=(RGBA<T> &t) { *this=*this*t; return *this; }
-    RGBA<T>& operator /=(RGBA<T> &t) { *this=*this/t; return *this; }
-    bool operator ==(const RGBA<T> &t) const { return (r==t.r && g==t.g && b==t.b && a==t.a); }
-    bool operator !=(const RGBA<T> &t) const { return !(*this==t); }
+    TRGBA<T>() : r(0), g(0), b(0), a(0) {}
+    TRGBA<T>(T _r, T _g, T _b, T _a) : r(_r), g(_g), b(_b), a(_a) {}
+    bool operator ==(const TRGBA<T> &t) const { return (r==t.r && g==t.g && b==t.b && a==t.a); }
     T& operator [](int32 i) { return v[i]; }
     const T& operator [](int32 i) const { return v[i]; }
-
-    RGBA<T>() : r(0), g(0), b(0), a(0) {}
-    RGBA<T>(T _r, T _g, T _b, T _a) : r(_r), g(_g), b(_b), a(_a) {}
 };
 
-typedef RGBA<uint8> bRGBA;
-typedef RGBA<float32> fRGBA;
-inline fRGBA TofRGBA(const bRGBA& b) { return fRGBA(float32(b.r)/255.0f, float32(b.g)/255.0f, float32(b.b)/255.0f, float32(b.a)/255.0f ); }
-inline bRGBA TobRGBA(const fRGBA& b) { return bRGBA(uint8(b.r*255.0f), uint8(b.g*255.0f), uint8(b.b*255.0f), uint8(b.a*255.0f) ); }
+typedef TR<uint8> R_U8;
+typedef TRG<uint8> RG_U8;
+typedef TRGB<uint8> RGB_U8;
+typedef TRGBA<uint8> RGBA_U8;
+typedef TR<int8> R_I8;
+typedef TRG<int8> RG_I8;
+typedef TRGB<int8> RGB_I8;
+typedef TRGBA<int8> RGBA_I8;
+typedef TR<float32> R_F32;
+typedef TRG<float32> RG_F32;
+typedef TRGB<float32> RGB_F32;
+typedef TRGBA<float32> RGBA_F32;
 
-template<class T>
-inline RGBA<T> GetShininess(const RGBA<T>& b) { return RGBA<T>(T(float32(b.r)*0.299f), T(float32(b.g)*0.587f), T(float32(b.b)*0.114f), b.a); }
-
-
-
-
-template<class T>
-class Array2D
-{
-public:
-    typedef T value_type;
-    typedef stl::vector<value_type> container_type;
-    typedef typename container_type::iterator iterator;
-    typedef typename container_type::const_iterator const_iterator;
-
-    Array2D() : m_width(0), m_height(0) {}
-    Array2D(uint32 w, uint32 h) : m_width(0), m_height(0) { resize(w, h); }
-
-    void assign(const Array2D& v, uint32 x, uint32 y, uint32 width, uint32 height)
-    {
-        resize(width, height);
-        copy(0, 0, v, x, y, width, height);
-    }
-
-    void copy(uint32 sx, uint32 sy, const Array2D& v, uint32 x, uint32 y, uint32 w, uint32 h) {
-        for(uint32 i=y; i<y+h; ++i) {
-            if(sy>=height() || i>=v.width())
-                break;
-            uint32 sbx = sx;
-            for(uint32 j=x; j<x+w; ++j) {
-                if(sx>=height() || j>=v.width())
-                    break;
-                (*this)[sy][sx] = v[i][j];
-                ++sx;
-            }
-            sx = sbx;
-            ++sy;
-        }
-    }
-
-    uint32 size() const { return m_data.size(); }
-    uint32 width() const { return m_width; }
-    uint32 height() const { return m_height; }
-    bool empty() const { return m_data.empty(); }
-    void resize(uint32 w, uint32 h) { m_width=w; m_height=h; m_data.resize(w*h); }
-    void clear() { m_width=0; m_height=0; m_data.clear(); }
-    iterator begin() { return m_data.begin(); }
-    iterator end()   { return m_data.end(); }
-    const_iterator begin() const { return m_data.begin(); }
-    const_iterator end()   const { return m_data.end(); }
-
-    bool is_valid(uint32 x, uint32 y) { return x<width() && y<height(); }
-    T& at(uint32 i) { return m_data[i]; }
-    const T& at(uint32 i) const { return m_data[i]; }
-    T& at(uint32 x, uint32 y) { return m_data[m_width*y+x]; }
-    const T& get(uint32 x, uint32 y) const { return m_data[m_width*y+x]; }
-
-    // bmp[y][x] 
-    T* operator [] (uint32 i) { return &m_data[m_width*i]; }
-    const T* operator [] (uint32 i) const { return &m_data[m_width*i]; }
-
-private:
-    uint32 m_width, m_height;
-    container_type m_data;
+enum ImageFormat {
+    IF_Unknown,
+    IF_R_U8,  IF_RG_U8,  IF_RGB_U8,  IF_RGBA_U8,
+    IF_R_I8,  IF_RG_I8,  IF_RGB_I8,  IF_RGBA_I8,
+    IF_R_F32, IF_RG_F32, IF_RGB_F32, IF_RGBA_F32,
 };
 
+template<class T> struct GetImageFotmatID;
+template<> struct GetImageFotmatID<char*>   { enum { Result=IF_Unknown }; };
+template<> struct GetImageFotmatID<R_U8>    { enum { Result=IF_R_U8 }; };
+template<> struct GetImageFotmatID<RG_U8>   { enum { Result=IF_RG_U8 }; };
+template<> struct GetImageFotmatID<RGB_U8>  { enum { Result=IF_RGB_U8 }; };
+template<> struct GetImageFotmatID<RGBA_U8> { enum { Result=IF_RGBA_U8 }; };
+template<> struct GetImageFotmatID<R_I8>    { enum { Result=IF_R_I8 }; };
+template<> struct GetImageFotmatID<RG_I8>   { enum { Result=IF_RG_I8 }; };
+template<> struct GetImageFotmatID<RGB_I8>  { enum { Result=IF_RGB_I8 }; };
+template<> struct GetImageFotmatID<RGBA_I8> { enum { Result=IF_RGBA_I8 }; };
+template<> struct GetImageFotmatID<R_F32>   { enum { Result=IF_R_F32 }; };
+template<> struct GetImageFotmatID<RG_F32>  { enum { Result=IF_RG_F32 }; };
+template<> struct GetImageFotmatID<RGB_F32> { enum { Result=IF_RGB_F32 }; };
+template<> struct GetImageFotmatID<RGBA_F32>{ enum { Result=IF_RGBA_F32 }; };
 
-class Image : public Array2D<bRGBA>
+inline RGBA_F32 ToF32(const RGBA_U8 &b) { return RGBA_F32(float32(b.r)/255.0f, float32(b.g)/255.0f, float32(b.b)/255.0f, float32(b.a)/255.0f ); }
+inline RGBA_U8 ToU8(const RGBA_F32 &b) { return RGBA_U8(uint8(b.r*255.0f), uint8(b.g*255.0f), uint8(b.b*255.0f), uint8(b.a*255.0f) ); }
+
+template<class T>
+inline TRGBA<T> GetShininess(const TRGBA<T> &b) { return TRGBA<T>(T(float32(b.r)*0.299f), T(float32(b.g)*0.587f), T(float32(b.b)*0.114f), b.a); }
+
+
+
+class istInterModule Image
 {
 public:
-    enum
+    enum FileType
     {
-        FORMAT_AUTO,
-        FORMAT_BMP,
-        FORMAT_TGA,
-        FORMAT_PNG,
-        FORMAT_JPG,
-        FORMAT_UNKNOWN,
+        FileType_Auto,
+        FileType_BMP,
+        FileType_TGA,
+        FileType_PNG,
+        FileType_JPG,
+        FileType_DDS,
+        FileType_Unknown,
     };
 
     class IOConfig
     {
     public:
-        IOConfig() : m_format(FORMAT_AUTO), m_png_compress_level(9), m_jpg_quality(100)
+        IOConfig() : m_filetype(FileType_Auto), m_png_compress_level(9), m_jpg_quality(100)
         {}
 
-        void setPath(const stl::string& path)  { m_path=path; }
-        void setFormat(uint8 v)           { m_format=v; }
-        void setPngCompressLevel(uint8 v) { m_png_compress_level=v; }
-        void setJpgQuality(uint8 v)       { m_jpg_quality=v; }
+        void setPath(const stl::string &path)   { m_path=path; }
+        void setFileType(FileType v)               { m_filetype=v; }
+        void setPngCompressLevel(uint8 v)       { m_png_compress_level=v; }
+        void setJpgQuality(uint8 v)             { m_jpg_quality=v; }
 
-        const stl::string& getPath() const     { return m_path; }
-        uint8 getFormat() const           { return m_format; }
-        uint8 getPngCompressLevel() const { return m_png_compress_level; }
-        uint8 getJpgQuality() const       { return m_jpg_quality; }
+        const stl::string& getPath() const  { return m_path; }
+        FileType getFileType() const           { return m_filetype; }
+        uint8 getPngCompressLevel() const   { return m_png_compress_level; }
+        uint8 getJpgQuality() const         { return m_jpg_quality; }
 
     private:
         stl::string m_path;
-        uint8 m_format;
+        FileType m_filetype;
         uint8 m_png_compress_level;
         uint8 m_jpg_quality;
     };
 
 public:
-    Image() {}
-    explicit Image(uint32 w, uint32 h) { resize(w, h); }
+    Image() : m_format(IF_Unknown), m_width(0), m_height(0) {}
 
-    bool load(const stl::string& filename);
-    bool load(const IOConfig& conf);
-    bool load(std::istream& f, const IOConfig& conf);
-    bool load(std::streambuf& f, const IOConfig& conf);
+    void clear()
+    {
+        m_width = 0;
+        m_height = 0;
+        m_format = IF_Unknown;
+        m_data.clear();
+    }
 
-    bool save(const stl::string& filename) const;
-    bool save(const IOConfig& conf) const;
-    bool save(std::ostream& f, const IOConfig& conf) const;
-    bool save(std::streambuf& f, const IOConfig& conf) const;
+    template<class T> void resize(uint32 w, uint32 h)
+    {
+        m_width = w;
+        m_height = h;
+        m_format = GetImageFotmatID<T>::Result;
+        m_data.resize(w*h*sizeof(T));
+    }
+
+    template<class T> T& get(uint32 y, uint32 x)
+    {
+        istAssert(GetImageFotmatID<T>::Result==m_format, "フォーマット指定ミス\n");
+        return ((T*)data())[width()*y + x];
+    }
+
+    template<class T> const T& get(uint32 y, uint32 x) const
+    {
+        return const_cast<Image*>(this)->get<T>(y, x);
+    }
+
+    template<class T> T* begin()            { return (T*)data(); }
+    template<class T> const T* begin() const{ return (T*)data(); }
+    template<class T> T* end()              { return (T*)data()+(width()*height()); }
+    template<class T> const T* end() const  { return (T*)data()+(width()*height()); }
+
+    size_t width() const { return m_width; }
+    size_t height() const { return m_height; }
+    char* data() { return &m_data[0]; }
+    const char* data() const { return &m_data[0]; }
+
+    bool load(const char *path);
+    bool load(bistream &f, const IOConfig &conf=IOConfig());
+    bool save(const char *path) const;
+    bool save(bostream &f, const IOConfig &conf) const;
 
 private:
-    bool loadBMP(std::streambuf& f, const IOConfig& conf);
-    bool saveBMP(std::streambuf& f, const IOConfig& conf) const;
-    bool loadTGA(std::streambuf& f, const IOConfig& conf);
-    bool saveTGA(std::streambuf& f, const IOConfig& conf) const;
-    bool loadPNG(std::streambuf& f, const IOConfig& conf);
-    bool savePNG(std::streambuf& f, const IOConfig& conf) const;
-    bool loadJPG(std::streambuf& f, const IOConfig& conf);
-    bool saveJPG(std::streambuf& f, const IOConfig& conf) const;
+    bool loadBMP(bistream &f, const IOConfig &conf);
+    bool saveBMP(bostream &f, const IOConfig &conf) const;
+    bool loadTGA(bistream &f, const IOConfig &conf);
+    bool saveTGA(bostream &f, const IOConfig &conf) const;
+    bool loadPNG(bistream &f, const IOConfig &conf);
+    bool savePNG(bostream &f, const IOConfig &conf) const;
+    bool loadJPG(bistream &f, const IOConfig &conf);
+    bool saveJPG(bostream &f, const IOConfig &conf) const;
+    bool loadDDS(bistream &f, const IOConfig &conf);
+    bool saveDDS(bostream &f, const IOConfig &conf) const;
+
+    stl::vector<char> m_data;
+    int32 m_format;
+    uint32 m_width, m_height;
 };
 
 } // namespace ist

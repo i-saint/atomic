@@ -2,151 +2,170 @@
 #define __ist_BinaryStream__
 namespace ist {
 
-class istInterModule bistream_base
+class istInterModule bistream
 {
 public:
-    virtual ~bistream_base() {}
+    enum seekg_dir {
+        seekg_begin,
+        seekg_end,
+        seekg_cur,
+    };
+    virtual ~bistream()=0;
     virtual uint64 read(void* p, uint64 s)=0;
-    virtual uint64 getReadPos() const=0;
-    virtual void setReadPos(uint64 pos)=0;
+    virtual uint64 tellg() const=0;
+    virtual void seekg(uint64 pos, seekg_dir dir=seekg_begin)=0;
 };
 
-class istInterModule bostream_base
+class istInterModule bostream
 {
 public:
-    virtual ~bostream_base() {}
+    enum seekp_dir {
+        seekp_begin,
+        seekp_end,
+        seekp_cur,
+    };
+    virtual ~bostream()=0;
     virtual uint64 write(const void* p, uint64 s)=0;
-    virtual uint64 getWritePos() const=0;
-    virtual void setWritePos(uint64 pos)=0;
+    virtual uint64 tellp() const=0;
+    virtual void seekp(uint64 pos, seekp_dir dir=seekp_begin)=0;
 };
 
 
-class istInterModule bistream : public bistream_base
+class istInterModule bfilestream : public bistream, public bostream
 {
 public:
-    explicit bistream(std::istream& s) : m_is(*s.rdbuf()) {}
-    explicit bistream(std::streambuf& s) : m_is(s) {}
+    bfilestream();
+    bfilestream(const char *path, const char *mode);
+    ~bfilestream();
 
-    uint64 read(void* p, uint64 s)  { return m_is.sgetn(reinterpret_cast<char*>(p), s); }
-    uint64 getReadPos() const       { return m_is.pubseekoff(0, std::ios::cur, std::ios::in); }
-    void setReadPos(uint64 pos)     { m_is.pubseekoff(pos, std::ios::beg, std::ios::in); }
+    bool open(const char *path, const char *mode);
+    bool isOpened() const;
+
+    virtual uint64 read(void* p, uint64 s);
+    virtual uint64 tellg() const;
+    virtual void seekg(uint64 pos, seekg_dir dir=seekg_begin);
+
+    virtual uint64 write(const void* p, uint64 s);
+    virtual uint64 tellp() const;
+    virtual void seekp(uint64 pos, seekp_dir dir=seekp_begin);
+
+private:
+    FILE *m_file;
+
+private:
+    // non copyable
+    bfilestream(const bfilestream&);
+    bfilestream& operator=(const bfilestream&);
+};
+
+class istInterModule bstdistream : public bistream
+{
+public:
+    explicit bstdistream(std::istream& s);
+    explicit bstdistream(std::streambuf& s);
+
+    uint64 read(void* p, uint64 s);
+    uint64 tellg() const;
+    void seekg(uint64 pos, seekg_dir dir=seekg_begin);
 
 private:
     std::streambuf& m_is;
 };
 
-class istInterModule bostream : public bostream_base
+class istInterModule bstdostream : public bostream
 {
 public:
-    explicit bostream(std::ostream& s) : m_os(*s.rdbuf()) {}
-    explicit bostream(std::streambuf& s) : m_os(s) {}
+    explicit bstdostream(std::ostream& s);
+    explicit bstdostream(std::streambuf& s);
 
-    uint64 write(const void* p, uint64 s)   { return m_os.sputn(reinterpret_cast<const char*>(p), s); }
-    uint64 getWritePos() const              { return m_os.pubseekoff(0, std::ios::cur, std::ios::out); }
-    void setWritePos(uint64 pos)            { m_os.pubseekoff(pos, std::ios::beg, std::ios::out); }
+    uint64 write(const void* p, uint64 s);
+    uint64 tellp() const;
+    void seekp(uint64 pos, seekp_dir dir=seekp_begin);
 
 private:
     std::streambuf& m_os;
 };
 
-class istInterModule biostream : public bistream, public bostream
+class istInterModule bstdiostream : public bstdistream, public bstdostream
 {
 public:
-    explicit biostream(std::iostream& s) : bistream(s), bostream(s) {}
-    explicit biostream(std::streambuf& s) : bistream(s), bostream(s) {}
+    explicit bstdiostream(std::iostream& s);
+    explicit bstdiostream(std::streambuf& s);
 };
 
 
 } // namespace ist
 
 
-inline ist::bostream_base& operator<<(ist::bostream_base &s, const char &v)                 { s.write(&v, sizeof(v)); return s; }
-inline ist::bostream_base& operator<<(ist::bostream_base &s, const unsigned char &v)        { s.write(&v, sizeof(v)); return s; }
-inline ist::bostream_base& operator<<(ist::bostream_base &s, const wchar_t &v)              { s.write(&v, sizeof(v)); return s; }
-inline ist::bostream_base& operator<<(ist::bostream_base &s, const short &v)                { s.write(&v, sizeof(v)); return s; }
-inline ist::bostream_base& operator<<(ist::bostream_base &s, const unsigned short &v)       { s.write(&v, sizeof(v)); return s; }
-inline ist::bostream_base& operator<<(ist::bostream_base &s, const int &v)                  { s.write(&v, sizeof(v)); return s; }
-inline ist::bostream_base& operator<<(ist::bostream_base &s, const unsigned int &v)         { s.write(&v, sizeof(v)); return s; }
-inline ist::bostream_base& operator<<(ist::bostream_base &s, const long long &v)            { s.write(&v, sizeof(v)); return s; }
-inline ist::bostream_base& operator<<(ist::bostream_base &s, const unsigned long long &v)   { s.write(&v, sizeof(v)); return s; }
+inline ist::bostream& operator<<(ist::bostream &s, const char &v)                 { s.write(&v, sizeof(v)); return s; }
+inline ist::bostream& operator<<(ist::bostream &s, const unsigned char &v)        { s.write(&v, sizeof(v)); return s; }
+inline ist::bostream& operator<<(ist::bostream &s, const wchar_t &v)              { s.write(&v, sizeof(v)); return s; }
+inline ist::bostream& operator<<(ist::bostream &s, const short &v)                { s.write(&v, sizeof(v)); return s; }
+inline ist::bostream& operator<<(ist::bostream &s, const unsigned short &v)       { s.write(&v, sizeof(v)); return s; }
+inline ist::bostream& operator<<(ist::bostream &s, const int &v)                  { s.write(&v, sizeof(v)); return s; }
+inline ist::bostream& operator<<(ist::bostream &s, const unsigned int &v)         { s.write(&v, sizeof(v)); return s; }
+inline ist::bostream& operator<<(ist::bostream &s, const long long &v)            { s.write(&v, sizeof(v)); return s; }
+inline ist::bostream& operator<<(ist::bostream &s, const unsigned long long &v)   { s.write(&v, sizeof(v)); return s; }
 
 template<class T, size_t N>
-inline ist::bostream_base& operator<<(ist::bostream_base &s, const T (&v)[N])
+inline ist::bostream& operator<<(ist::bostream &s, const T (&v)[N])
 {
     for(size_t i=0; i<N; ++i) { s.write(&v[i], sizeof(T)); }
     return s;
 }
 
-inline ist::bistream_base& operator>>(ist::bistream_base &s, char &v)                 { s.read(&v, sizeof(v)); return s; }
-inline ist::bistream_base& operator>>(ist::bistream_base &s, unsigned char &v)        { s.read(&v, sizeof(v)); return s; }
-inline ist::bistream_base& operator>>(ist::bistream_base &s, wchar_t &v)              { s.read(&v, sizeof(v)); return s; }
-inline ist::bistream_base& operator>>(ist::bistream_base &s, short &v)                { s.read(&v, sizeof(v)); return s; }
-inline ist::bistream_base& operator>>(ist::bistream_base &s, unsigned short &v)       { s.read(&v, sizeof(v)); return s; }
-inline ist::bistream_base& operator>>(ist::bistream_base &s, int &v)                  { s.read(&v, sizeof(v)); return s; }
-inline ist::bistream_base& operator>>(ist::bistream_base &s, unsigned int &v)         { s.read(&v, sizeof(v)); return s; }
-inline ist::bistream_base& operator>>(ist::bistream_base &s, long long &v)            { s.read(&v, sizeof(v)); return s; }
-inline ist::bistream_base& operator>>(ist::bistream_base &s, unsigned long long &v)   { s.read(&v, sizeof(v)); return s; }
+inline ist::bistream& operator>>(ist::bistream &s, char &v)                 { s.read(&v, sizeof(v)); return s; }
+inline ist::bistream& operator>>(ist::bistream &s, unsigned char &v)        { s.read(&v, sizeof(v)); return s; }
+inline ist::bistream& operator>>(ist::bistream &s, wchar_t &v)              { s.read(&v, sizeof(v)); return s; }
+inline ist::bistream& operator>>(ist::bistream &s, short &v)                { s.read(&v, sizeof(v)); return s; }
+inline ist::bistream& operator>>(ist::bistream &s, unsigned short &v)       { s.read(&v, sizeof(v)); return s; }
+inline ist::bistream& operator>>(ist::bistream &s, int &v)                  { s.read(&v, sizeof(v)); return s; }
+inline ist::bistream& operator>>(ist::bistream &s, unsigned int &v)         { s.read(&v, sizeof(v)); return s; }
+inline ist::bistream& operator>>(ist::bistream &s, long long &v)            { s.read(&v, sizeof(v)); return s; }
+inline ist::bistream& operator>>(ist::bistream &s, unsigned long long &v)   { s.read(&v, sizeof(v)); return s; }
 
 template<class T, size_t N>
-inline ist::bistream_base& operator>>(ist::bistream_base &s, T (&v)[N])
+inline ist::bistream& operator>>(ist::bistream &s, T (&v)[N])
 {
     for(size_t i=0; i<N; ++i) { s.read(&v[i], sizeof(T)); }
     return s;
 }
 
 
-#ifdef __ist_with_zlib__
 
 namespace ist {
 
-class istInterModule gzbiostream : public bistream_base, public bostream_base
+#ifdef __ist_with_zlib__
+class istInterModule gzbiostream : public bistream, public bostream
 {
 public:
-    gzbiostream() : m_gz(NULL)
-    {
-    }
+    gzbiostream();
+    gzbiostream(const char *path, const char *mode);
+    ~gzbiostream();
 
-    gzbiostream(const char *path, const char *mode) : m_gz(NULL)
-    {
-        open(path, mode);
-    }
+    bool open(const char *path, const char *mode);
+    void close();
 
-    ~gzbiostream()
-    {
-        close();
-    }
+    bool isOpened() const;
+    bool isEOF() const;
 
-    bool open(const char *path, const char *mode)
-    {
-        close();
-        m_gz = gzopen(path, mode);
-        return isOpened();
-    }
+    uint64 read(void* p, uint64 s);
+    uint64 tellg() const;
+    void seekg(uint64 p, seekg_dir dir=seekg_begin);
 
-    void close()
-    {
-        if(m_gz) {
-            gzclose(m_gz);
-            m_gz = NULL;
-        }
-    }
-
-    bool isOpened() const   { return m_gz!=NULL; }
-    bool isEOF() const      { return gzeof(m_gz)==1; }
-
-    uint64 write(const void* p, uint64 s)   { return gzwrite(m_gz, p, (uint32)s); }
-    uint64 getWritePos() const              { return gztell(m_gz); }
-    void setWritePos(uint64 p)              { gzseek(m_gz, SEEK_SET, (uint32)p); }
-
-    uint64 read(void* p, uint64 s)  { return gzread(m_gz, p, (uint32)s); }
-    uint64 getReadPos() const       { return gztell(m_gz); }
-    void setReadPos(uint64 p)       { gzseek(m_gz, SEEK_SET, (uint32)p); }
+    uint64 write(const void* p, uint64 s);
+    uint64 tellp() const;
+    void seekp(uint64 p, seekp_dir dir=seekp_begin);
 
 private:
     gzFile m_gz;
+private:
+    // non copyable
+    gzbiostream(const gzbiostream&);
+    gzbiostream& operator=(const gzbiostream&);
 };
+#endif // __ist_with_zlib__
 
 } // namespace ist
-#endif // __ist_with_zlib__
 
 #endif // __ist_BinaryStream__

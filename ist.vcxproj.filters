@@ -416,6 +416,9 @@
     <ClCompile Include="ist\istPCH.cpp">
       <Filter>ist</Filter>
     </ClCompile>
+    <ClCompile Include="ist\Base\BinaryStream.cpp">
+      <Filter>ist\Base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ist\Math\FrustumCulling.inl">

@@ -103,6 +103,7 @@
   <ItemGroup>
     <ClCompile Include="ist\Base\Allocator.cpp" />
     <ClCompile Include="ist\Base\Assert.cpp" />
+    <ClCompile Include="ist\Base\BinaryStream.cpp" />
     <ClCompile Include="ist\Base\ClassInfo.cpp" />
     <ClCompile Include="ist\Base\FileLoader.cpp" />
     <ClCompile Include="ist\Base\Half\half.cpp">
@@ -197,11 +198,12 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>./;external;$(CUDA_INC_PATH);$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;$(NVSDKCOMPUTE_ROOT)/C/common/inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MinimalRebuild>false</MinimalRebuild>
       <PrecompiledHeaderFile>istPCH.h</PrecompiledHeaderFile>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

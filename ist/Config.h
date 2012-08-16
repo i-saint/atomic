@@ -31,21 +31,4 @@
 #endif
 
 
-#ifdef __ist_with_zlib__
-#   define ZLIB_DLL
-#   include "zlib/zlib.h"
-#   pragma comment(lib, "zdll.lib")
-#endif // __ist_with_zlib__
-
-#ifdef __ist_with_png__
-#   include <libpng/png.h>
-#   pragma comment(lib,"libpng15.lib")
-#endif // __ist_with_png__
-#ifdef __ist_with_jpeg__
-#   include <jpeglib.h>
-#   include <jerror.h>
-#   pragma comment(lib,"libjpeg.lib")
-#endif // __ist_with_jpeg__
-
-
 #endif // __ist_Config_h__

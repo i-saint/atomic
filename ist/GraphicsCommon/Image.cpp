@@ -1,92 +1,13 @@
 ﻿#include "istPCH.h"
 #include <fstream>
 #include "ist/GraphicsCommon/Image.h"
+#ifdef __ist_with_gli__
+#include "gli/gli.hpp"
+#include "gli//core/texture2d.hpp"
+#include "gli/gtx/loader.hpp"
+#endif // __ist_with_gli__
 
 namespace ist {
-
-
-int8 GetFormatByExtention(const stl::string& filename)
-{
-    uint32 len = filename.size();
-    if(len<5) { return Image::FORMAT_UNKNOWN; }
-
-    if(strncmp(&filename[len-3], "bmp", 3)==0) { return Image::FORMAT_BMP; }
-    if(strncmp(&filename[len-3], "tga", 3)==0) { return Image::FORMAT_TGA; }
-    if(strncmp(&filename[len-3], "png", 3)==0) { return Image::FORMAT_PNG; }
-    if(strncmp(&filename[len-3], "jpg", 3)==0) { return Image::FORMAT_JPG; }
-    return Image::FORMAT_UNKNOWN;
-}
-
-
-bool Image::load(const stl::string& filename)
-{
-    IOConfig conf;
-    conf.setPath(filename);
-    conf.setFormat(GetFormatByExtention(filename));
-    return load(conf);
-}
-
-bool Image::load(const IOConfig& conf)
-{
-    std::fstream f(conf.getPath().c_str(), std::ios::binary|std::ios::in);
-    return load(f, conf);
-}
-
-bool Image::load(std::istream& f, const IOConfig& conf)
-{
-    return load(*f.rdbuf(), conf);
-}
-
-bool Image::load(std::streambuf& f, const IOConfig& conf)
-{
-    clear();
-
-    switch(conf.getFormat())
-    {
-    case FORMAT_BMP: return loadBMP(f, conf);
-    case FORMAT_TGA: return loadTGA(f, conf);
-    case FORMAT_PNG: return loadPNG(f, conf);
-    case FORMAT_JPG: return loadJPG(f, conf);
-    }
-    istPrint("認識できないフォーマットが指定されました。\n");
-    return false;
-}
-
-
-bool Image::save(const stl::string& filename) const
-{
-    IOConfig conf;
-    conf.setPath(filename);
-    conf.setFormat(GetFormatByExtention(filename));
-    return save(conf);
-}
-
-bool Image::save(const IOConfig& conf) const
-{
-    std::fstream f(conf.getPath().c_str(), std::ios::binary|std::ios::out);
-    return save(f, conf);
-}
-
-bool Image::save(std::ostream& f, const IOConfig& conf) const
-{
-    return save(*f.rdbuf(), conf);
-}
-
-bool Image::save(std::streambuf& f, const IOConfig& conf) const
-{
-    switch(conf.getFormat())
-    {
-    case FORMAT_BMP: return saveBMP(f, conf);
-    case FORMAT_TGA: return saveTGA(f, conf);
-    case FORMAT_PNG: return savePNG(f, conf);
-    case FORMAT_JPG: return saveJPG(f, conf);
-    }
-    istPrint("認識できないフォーマットが指定されました。\n");
-    return false;
-}
-
-
-
 
 
 struct BMPHEAD
@@ -152,9 +73,97 @@ struct TGAHEAD
 };
 
 
-static bRGBA Read1Pixel(ist::bistream& bf)
+Image::FileType GetFileTypeByFileHeader(bistream &f)
 {
-    bRGBA t;
+    char m[4];
+    f >> m; f.seekg(0);
+    if(m[0]=='B' && m[1]=='M' && m[2]=='8') { return Image::FileType_BMP; }
+    if(m[1]=='P' && m[2]=='N' && m[3]=='G') { return Image::FileType_PNG; }
+    if(m[0]=='D' && m[1]=='D' && m[2]=='S') { return Image::FileType_DDS; }
+    if(m[0]==0xff && m[1]==0xd8) { return Image::FileType_JPG; }
+    {
+        TGAHEAD tga;
+        f.read(&tga, sizeof(tga)); f.seekg(0);
+        if( (tga.image_type==2 || tga.image_type==10) && tga.Ox==0 && tga.Oy==0 && (tga.pixel==32 || tga.pixel==24)) {
+            return Image::FileType_TGA;
+        }
+    }
+    return Image::FileType_Unknown;
+}
+
+Image::FileType GetFileTypeByExtention(const char *path)
+{
+    uint32 len = strlen(path);
+    if(len<5) { return Image::FileType_Unknown; }
+
+    if(strncmp(&path[len-3], "bmp", 3)==0) { return Image::FileType_BMP; }
+    if(strncmp(&path[len-3], "tga", 3)==0) { return Image::FileType_TGA; }
+    if(strncmp(&path[len-3], "png", 3)==0) { return Image::FileType_PNG; }
+    if(strncmp(&path[len-3], "jpg", 3)==0) { return Image::FileType_JPG; }
+    if(strncmp(&path[len-3], "dds", 3)==0) { return Image::FileType_DDS; }
+    return Image::FileType_Unknown;
+}
+
+
+bool Image::load(const char *path)
+{
+    bfilestream f(path, "rb");
+    IOConfig conf;
+    conf.setFileType(GetFileTypeByExtention(path));
+    return load(f, conf);
+}
+
+bool Image::load(bistream &f, const IOConfig &conf)
+{
+    clear();
+
+    FileType ft = conf.getFileType();
+    if(ft==FileType_Auto) {
+        ft = GetFileTypeByFileHeader(f);
+    }
+    switch(ft)
+    {
+    case FileType_BMP: return loadBMP(f, conf);
+    case FileType_TGA: return loadTGA(f, conf);
+    case FileType_PNG: return loadPNG(f, conf);
+    case FileType_JPG: return loadJPG(f, conf);
+    case FileType_DDS: return loadDDS(f, conf);
+    }
+    istPrint("認識できないフォーマットが指定されました。\n");
+    return false;
+}
+
+
+bool Image::save(const char *path) const
+{
+    bfilestream f(path, "wb");
+    IOConfig conf;
+    conf.setFileType(GetFileTypeByExtention(path));
+    return save(f, conf);
+}
+
+bool Image::save(bostream &f, const IOConfig &conf) const
+{
+    switch(conf.getFileType())
+    {
+    case FileType_BMP: return saveBMP(f, conf);
+    case FileType_TGA: return saveTGA(f, conf);
+    case FileType_PNG: return savePNG(f, conf);
+    case FileType_JPG: return saveJPG(f, conf);
+    }
+    istPrint(L"認識できないフォーマットが指定されました。\n");
+    return false;
+}
+
+
+
+
+
+
+
+static RGBA_U8 Read1Pixel(bistream &bf)
+{
+    RGBA_U8 t;
     bf >> t.b >> t.g >> t.r >> t.a;
     return t;
 }
@@ -163,10 +172,8 @@ static bRGBA Read1Pixel(ist::bistream& bf)
 
 // BMP
 
-bool Image::loadBMP(std::streambuf& f, const IOConfig& conf)
+bool Image::loadBMP(bistream &bf, const IOConfig &conf)
 {
-    ist::biostream bf(f);
-
     BMPHEAD head;
     BMPINFOHEAD infohead;
 
@@ -190,15 +197,28 @@ bool Image::loadBMP(std::streambuf& f, const IOConfig& conf)
         >> infohead.pallete_num
         >> infohead.important_pallete_num;
 
-    if(infohead.bits!=24) { return false; }
+    if(infohead.bits!=24 && infohead.bits!=32) {
+        istPrint(L"bmp は現在 24bit か 32bit しか対応していません。\n");
+        return false;
+    }
 
-    resize(infohead.width, infohead.height);
+    resize<RGBA_U8>(infohead.width, infohead.height);
 
-    for(int32 i=(int32)height()-1; i>=0; --i) {
-        for(int32 j=0; j<(int32)width(); ++j) {
-            bRGBA& c = (*this)[i][j];
-            bf >> c.b >> c.g >> c.r;
-            c.a = 255;
+    if(infohead.bits==24) {
+        for(int32 yi=(int32)height()-1; yi>=0; --yi) {
+            for(int32 xi=0; xi<(int32)width(); ++xi) {
+                RGBA_U8& c = get<RGBA_U8>(yi, xi);
+                bf >> c.b >> c.g >> c.r;
+                c.a = 255;
+            }
+        }
+    }
+    else if(infohead.bits==32) {
+        for(int32 yi=(int32)height()-1; yi>=0; --yi) {
+            for(int32 xi=0; xi<(int32)width(); ++xi) {
+                RGBA_U8& c = get<RGBA_U8>(yi, xi);
+                bf >> c.b >> c.g >> c.r >> c.a;
+            }
         }
     }
 
@@ -206,10 +226,8 @@ bool Image::loadBMP(std::streambuf& f, const IOConfig& conf)
 }
 
 
-bool Image::saveBMP(std::streambuf& f, const IOConfig& conf) const
+bool Image::saveBMP(bostream &bf, const IOConfig &conf) const
 {
-    ist::biostream bf(f);
-
     BMPHEAD head;
     BMPINFOHEAD infohead;
 
@@ -235,9 +253,9 @@ bool Image::saveBMP(std::streambuf& f, const IOConfig& conf) const
         << infohead.pallete_num
         << infohead.important_pallete_num;
 
-    for(int32 i=(int32)height()-1; i>=0; --i) {
-        for(int32 j=0; j<(int32)width(); ++j) {
-            const bRGBA& c = (*this)[i][j];
+    for(int32 yi=(int32)height()-1; yi>=0; --yi) {
+        for(int32 xi=0; xi<(int32)width(); ++xi) {
+            const RGBA_U8& c = get<RGBA_U8>(yi, xi);
             bf << c.b << c.g << c.r;
         }
     }
@@ -250,10 +268,8 @@ bool Image::saveBMP(std::streambuf& f, const IOConfig& conf) const
 
 // TGA
 
-bool Image::loadTGA(std::streambuf& f, const IOConfig& conf)
+bool Image::loadTGA(bistream &bf, const IOConfig &conf)
 {
-    ist::biostream bf(f);
-
     TGAHEAD head;
     bf  >> head.No_ID
         >> head.CMap_Type
@@ -272,12 +288,12 @@ bool Image::loadTGA(std::streambuf& f, const IOConfig& conf)
         return false;
     }
 
-    resize(head.width, head.height);
+    resize<RGBA_U8>(head.width, head.height);
 
-    for(int32 i=(int32)height()-1; i>=0; --i) {
+    for(int32 yi=(int32)height()-1; yi>=0; --yi) {
         if(head.image_type==2) {
-            for(int32 j=0; j<(int32)width(); j++) {
-                (*this)[i][j] = Read1Pixel(bf);
+            for(int32 xi=0; xi<(int32)width(); xi++) {
+                get<RGBA_U8>(yi, xi) = Read1Pixel(bf);
             }
         }
         else if(head.image_type==10) {
@@ -286,14 +302,14 @@ bool Image::loadTGA(std::streambuf& f, const IOConfig& conf)
                 uint8 dist = 0;
                 bf >> dist;
                 if( dist<0x80) {
-                    for(int32 j=0; j<dist+1; ++j, ++loaded) {
-                        (*this)[i][loaded] = Read1Pixel(bf);
+                    for(int32 xi=0; xi<dist+1; ++xi, ++loaded) {
+                        get<RGBA_U8>(yi, loaded) = Read1Pixel(bf);
                     }
                 }
                 else {
-                    bRGBA t = Read1Pixel(bf);
-                    for(int32 j=0x80; j<dist+1; ++j, ++loaded) {
-                        (*this)[i][loaded] = t;
+                    RGBA_U8 t = Read1Pixel(bf);
+                    for(int32 xi=0x80; xi<dist+1; ++xi, ++loaded) {
+                        get<RGBA_U8>(yi, loaded) = t;
                     }
                 }
             }
@@ -311,14 +327,14 @@ public:
 
     const stl::vector<uint8>& getCompressedData() const { return m_comp_pixel; }
 
-    void compress(const bRGBA *start, int32 width)
+    void compress(const RGBA_U8 *start, int32 width)
     {
-        stl::vector<bRGBA> same, diff;
+        stl::vector<RGBA_U8> same, diff;
 
         for(int32 i=0; i!=width; ++i, ++start)
         {
-            const bRGBA *ip=start; ++ip;
-            bRGBA dist=*start;
+            const RGBA_U8 *ip=start; ++ip;
+            RGBA_U8 dist=*start;
 
             if( i+1!=width && dist==*ip && same.size()<0x79 )
             {
@@ -356,7 +372,7 @@ public:
     }
 
 private:
-    void writeSameData(stl::vector<bRGBA> &temp_pixel)
+    void writeSameData(stl::vector<RGBA_U8> &temp_pixel)
     {
         m_comp_pixel.push_back( temp_pixel.size()+0x80 );
 
@@ -368,7 +384,7 @@ private:
         temp_pixel.clear();
     }
 
-    void writeDifferentData(stl::vector<bRGBA> &temp_pixel)
+    void writeDifferentData(stl::vector<RGBA_U8> &temp_pixel)
     {
         m_comp_pixel.push_back( temp_pixel.size()-1 );
 
@@ -387,10 +403,8 @@ private:
     stl::vector<uint8> m_comp_pixel;
 };
 
-bool Image::saveTGA(std::streambuf &f, const Image::IOConfig &conf) const
+bool Image::saveTGA(bostream &bf, const Image::IOConfig &conf) const
 {
-    ist::biostream bf(f);
-
     TGAHEAD head;
     head.width = width();
     head.height = height();
@@ -409,9 +423,9 @@ bool Image::saveTGA(std::streambuf &f, const Image::IOConfig &conf) const
 
     {
         TGACompress comp;
-        for(int32 i=(int32)height()-1; i>=0; --i)
+        for(int32 yi=(int32)height()-1; yi>=0; --yi)
         {
-            comp.compress((*this)[i], width());
+            comp.compress(&get<RGBA_U8>(yi, 0), width());
         }
         const stl::vector<uint8>& data = comp.getCompressedData();
         bf.write(&data[0], data.size());
@@ -429,14 +443,14 @@ namespace
 {
     void png_streambuf_read(png_structp png_ptr, png_bytep data, png_size_t length)
     {
-        std::streambuf* f = reinterpret_cast<std::streambuf*>(png_get_io_ptr(png_ptr));
-        f->sgetn((char*)data, length);
+        bistream *f = reinterpret_cast<bistream*>(png_get_io_ptr(png_ptr));
+        f->read(data, length);
     }
 
     void png_streambuf_write(png_structp png_ptr, png_bytep data, png_size_t length)
     {
-        std::streambuf* f = reinterpret_cast<std::streambuf*>(png_get_io_ptr(png_ptr));
-        f->sputn((char*)data, length);
+        bostream *f = reinterpret_cast<bostream*>(png_get_io_ptr(png_ptr));
+        f->write(data, length);
     }
 
     void png_streambuf_flush(png_structp png_ptr)
@@ -445,13 +459,13 @@ namespace
 } // namespace
 #endif // __ist_with_png__
 
-bool Image::loadPNG(std::streambuf& f, const IOConfig& conf)
+bool Image::loadPNG(bistream &f, const IOConfig &conf)
 {
 #ifdef __ist_with_png__
     png_structp png_ptr = ::png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
     if(png_ptr==0)
     {
-        istPrint("失敗: png_create_read_struct() が null を返しました。");
+        istPrint("失敗: png_create_read_struct() が null を返しました。\n");
         return false;
     }
 
@@ -459,7 +473,7 @@ bool Image::loadPNG(std::streambuf& f, const IOConfig& conf)
     if(info_ptr==0)
     {
         ::png_destroy_read_struct(&png_ptr, (png_infopp)NULL, (png_infopp)NULL);
-        istPrint("失敗: png_create_info_struct() が null を返しました。");
+        istPrint("失敗: png_create_info_struct() が null を返しました。\n");
         return false;
     }
 
@@ -471,7 +485,7 @@ bool Image::loadPNG(std::streambuf& f, const IOConfig& conf)
     ::png_read_info(png_ptr, info_ptr);
     ::png_get_IHDR(png_ptr, info_ptr, &w, &h, &bit_depth, &color_type, &interlace_type, NULL, NULL);
 
-    resize(w, h);
+    resize<RGBA_U8>(w, h);
 
     ::png_set_strip_16(png_ptr);
     ::png_set_packing(png_ptr);
@@ -497,20 +511,19 @@ bool Image::loadPNG(std::streambuf& f, const IOConfig& conf)
     }
     png_read_image(png_ptr, &row_pointers[0]);
 
-    for(int32 i=0; i<(int32)height(); ++i) {
-        for(int32 j=0; j<(int32)width(); ++j) {
-            //bRGBA& c = (*this)[(int32)height()-1-i][j];
-            bRGBA& c = (*this)[i][j];
+    for(int32 yi=0; yi<(int32)height(); ++yi) {
+        for(int32 xi=0; xi<(int32)width(); ++xi) {
+            RGBA_U8& c = get<RGBA_U8>(yi, xi);
             if(color_type==PNG_COLOR_TYPE_RGB_ALPHA) {
-                c.r = row_pointers[i][j*4+0];
-                c.g = row_pointers[i][j*4+1];
-                c.b = row_pointers[i][j*4+2];
-                c.a = row_pointers[i][j*4+3];
+                c.r = row_pointers[yi][xi*4+0];
+                c.g = row_pointers[yi][xi*4+1];
+                c.b = row_pointers[yi][xi*4+2];
+                c.a = row_pointers[yi][xi*4+3];
             }
             else if(color_type==PNG_COLOR_TYPE_RGB) {
-                c.r = row_pointers[i][j*3+0];
-                c.g = row_pointers[i][j*3+1];
-                c.b = row_pointers[i][j*3+2];
+                c.r = row_pointers[yi][xi*3+0];
+                c.g = row_pointers[yi][xi*3+1];
+                c.b = row_pointers[yi][xi*3+2];
                 c.a = 255;
             }
         }
@@ -525,12 +538,12 @@ bool Image::loadPNG(std::streambuf& f, const IOConfig& conf)
     return true;
 
 #else
-    istPrint("失敗: png 使用を無効化した設定でビルドされています。");
+    istPrint("失敗: png 使用を無効化した設定でビルドされています。\n");
     return false;
 #endif // __ist_with_png__
 }
 
-bool Image::savePNG(std::streambuf& f, const Image::IOConfig& conf) const
+bool Image::savePNG(bostream &f, const Image::IOConfig &conf) const
 {
 #ifdef __ist_with_png__
     png_structp png_ptr = ::png_create_write_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
@@ -555,9 +568,9 @@ bool Image::savePNG(std::streambuf& f, const Image::IOConfig& conf) const
 
     Image tmp(*this);
     stl::vector<png_bytep> row_pointers(height());
-    for(int32 i=0; i<(int32)height(); ++i)
+    for(int32 yi=0; yi<(int32)height(); ++yi)
     {
-        row_pointers[i] = tmp[i][0].v;
+        row_pointers[yi] = tmp.get<RGBA_U8>(yi, 0).v;
     }
 
     ::png_write_image(png_ptr, &row_pointers[0]);
@@ -597,7 +610,7 @@ namespace
     typedef struct {
         struct jpeg_source_mgr pub;	/* public fields */
 
-        std::streambuf * infile;		/* source stream */
+        bistream *infile;		/* source stream */
         JOCTET * buffer;		/* start of buffer */
         boolean start_of_file;	/* have we gotten any data yet? */
     } my_source_mgr;
@@ -610,7 +623,7 @@ namespace
     typedef struct {
         struct jpeg_destination_mgr pub; /* public fields */
 
-        std::streambuf * outfile;		/* target stream */
+        bostream * outfile;		/* target stream */
         JOCTET * buffer;		/* start of buffer */
     } my_destination_mgr;
 
@@ -632,7 +645,7 @@ namespace
         my_src_ptr src = (my_src_ptr) cinfo->src;
         size_t nbytes;
 
-        nbytes = src->infile->sgetn((char*)src->buffer, INPUT_BUF_SIZE);
+        nbytes = src->infile->read(src->buffer, INPUT_BUF_SIZE);
 
         if (nbytes <= 0) {
             if (src->start_of_file)	/* Treat empty input file as fatal error */
@@ -669,7 +682,7 @@ namespace
     {
     }
 
-    void jpeg_streambuf_src (j_decompress_ptr cinfo, std::streambuf& streambuf)
+    void jpeg_streambuf_src (j_decompress_ptr cinfo, bistream &streambuf)
     {
         my_src_ptr src;
 
@@ -711,7 +724,7 @@ namespace
     {
         my_dest_ptr dest = (my_dest_ptr) cinfo->dest;
 
-        if (dest->outfile->sputn((char*)dest->buffer, OUTPUT_BUF_SIZE) != (size_t) OUTPUT_BUF_SIZE)
+        if (dest->outfile->write(dest->buffer, OUTPUT_BUF_SIZE) != (size_t) OUTPUT_BUF_SIZE)
             ERREXIT(cinfo, JERR_FILE_WRITE);
 
         dest->pub.next_output_byte = dest->buffer;
@@ -727,7 +740,7 @@ namespace
 
         /* Write any data remaining in the buffer */
         if (datacount > 0) {
-            if (dest->outfile->sputn((char*)dest->buffer, datacount) != datacount)
+            if (dest->outfile->write(dest->buffer, datacount) != datacount)
                 ERREXIT(cinfo, JERR_FILE_WRITE);
         }
     }
@@ -753,7 +766,7 @@ namespace
 #endif // __ist_with_jpeg__
 
 
-bool Image::loadJPG(std::streambuf& f, const IOConfig& conf)
+bool Image::loadJPG(bistream &f, const IOConfig &conf)
 {
     clear();
 
@@ -785,7 +798,7 @@ bool Image::loadJPG(std::streambuf& f, const IOConfig& conf)
         jpeg_read_scanlines(&cinfo, buffer, 1);
         for(int32 i=0; i<(int32)row_stride/3; ++i)
         {
-            bRGBA col(buffer[0][i*3+0], buffer[0][i*3+1], buffer[0][i*3+2], 255);
+            RGBA_U8 col(buffer[0][i*3+0], buffer[0][i*3+1], buffer[0][i*3+2], 255);
             at(pix_count) = col;
             ++pix_count;
         }
@@ -801,7 +814,7 @@ bool Image::loadJPG(std::streambuf& f, const IOConfig& conf)
 #endif // __ist_with_jpeg__
 }
 
-bool Image::saveJPG(std::streambuf& f, const IOConfig& conf) const
+bool Image::saveJPG(bostream &f, const IOConfig &conf) const
 {
 #ifdef __ist_with_jpeg__
     jpeg_compress_struct cinfo;
@@ -850,6 +863,181 @@ bool Image::saveJPG(std::streambuf& f, const IOConfig& conf) const
 #endif // __ist_with_jpeg__
 }
 
+} // namespace ist
+
+
+namespace gli {
+namespace gtx {
+namespace loader_dds10{
+namespace detail {
+
+// gli には std::string を引数にとるやつしかないので、ストリーム版をコピペ改変実装します。参考: loadDDS10()
+inline texture2D loadDDS10_ex( ist::bistream &bin )
+{
+    loader_dds9::detail::ddsHeader HeaderDesc;
+    detail::ddsHeader10 HeaderDesc10;
+    char Magic[4]; 
+
+    //* Read magic number and check if valid .dds file 
+    bin.read((char*)&Magic, sizeof(Magic));
+
+    assert(strncmp(Magic, "DDS ", 4) == 0);
+
+    // Get the surface descriptor 
+    bin.read(&HeaderDesc, sizeof(HeaderDesc));
+    if(HeaderDesc.format.flags & loader_dds9::detail::GLI_DDPF_FOURCC && HeaderDesc.format.fourCC == loader_dds9::detail::GLI_FOURCC_DX10)
+        bin.read(&HeaderDesc10, sizeof(HeaderDesc10));
+
+    loader_dds9::detail::DDLoader Loader;
+    if(HeaderDesc.format.fourCC == loader_dds9::detail::GLI_FOURCC_DX10)
+        Loader.Format = detail::format_dds2gli_cast(HeaderDesc10.dxgiFormat);
+    else if(HeaderDesc.format.flags & loader_dds9::detail::GLI_DDPF_FOURCC)
+        Loader.Format = detail::format_fourcc2gli_cast(HeaderDesc.format.fourCC);
+    else
+    {
+        switch(HeaderDesc.format.bpp)
+        {
+        case 8:
+            Loader.Format = R8U;
+            break;
+        case 16:
+            Loader.Format = RG8U;
+            break;
+        case 24:
+            Loader.Format = RGB8U;
+            break;
+        case 32:
+            Loader.Format = RGBA8U;
+            break;
+        }
+    }
+    Loader.BlockSize = size(image(texture2D::dimensions_type(0), Loader.Format), BLOCK_SIZE);
+    Loader.BPP = size(image(texture2D::dimensions_type(0), Loader.Format), BIT_PER_PIXEL);
+
+    std::size_t Width = HeaderDesc.width;
+    std::size_t Height = HeaderDesc.height;
+
+    gli::format Format = Loader.Format;
+
+    std::streamoff Curr = bin.tellg();
+    bin.seekg(0, ist::bistream::seekg_end);
+    std::streamoff End = bin.tellg();
+    bin.seekg(Curr);
+
+    std::vector<glm::byte> Data(std::size_t(End - Curr), 0);
+    std::size_t Offset = 0;
+
+    bin.read(&Data[0], std::streamsize(Data.size()));
+
+    //texture2D Image(glm::min(MipMapCount, Levels));//SurfaceDesc.mipMapLevels);
+    std::size_t MipMapCount = (HeaderDesc.flags & loader_dds9::detail::GLI_DDSD_MIPMAPCOUNT) ? HeaderDesc.mipMapLevels : 1;
+    //if(Loader.Format == DXT1 || Loader.Format == DXT3 || Loader.Format == DXT5) 
+    //	MipMapCount -= 2;
+    texture2D Image(MipMapCount);
+    for(std::size_t Level = 0; Level < Image.levels() && (Width || Height); ++Level)
+    {
+        Width = glm::max(std::size_t(Width), std::size_t(1));
+        Height = glm::max(std::size_t(Height), std::size_t(1));
+
+        std::size_t MipmapSize = 0;
+        if((Loader.BlockSize << 3) > Loader.BPP)
+            MipmapSize = ((Width + 3) >> 2) * ((Height + 3) >> 2) * Loader.BlockSize;
+        else
+            MipmapSize = Width * Height * Loader.BlockSize;
+        std::vector<glm::byte> MipmapData(MipmapSize, 0);
+
+        memcpy(&MipmapData[0], &Data[0] + Offset, MipmapSize);
+
+        texture2D::dimensions_type Dimensions(Width, Height);
+        Image[Level] = texture2D::image(Dimensions, Format, MipmapData);
+
+        Offset += MipmapSize;
+        Width >>= 1;
+        Height >>= 1;
+    }
+
+    return Image;
+}
+
+
+} // detail
+} // loader_dds10
+} // namespace gtx
+} // namespace gli
+
+namespace ist {
+
+bool Image::loadDDS( bistream &f, const IOConfig &conf )
+{
+    gli::texture2D tex = gli::gtx::loader_dds10::detail::loadDDS10_ex(f);
+    resize<RGBA_U8>(tex[0].dimensions().x, tex[0].dimensions().y);
+    switch(tex.format()) {
+    case gli::R8U:
+        {
+            struct R { uint8 r; };
+            const R *src = (const R*)tex[0].data();
+            for(int32 yi=(int32)height()-1; yi>=0; --yi) {
+                for(int32 xi=0; xi<(int32)width(); ++xi) {
+                    RGBA_U8 &dst = get<RGBA_U8>(yi, xi);
+                    dst.r = src[width()*yi + xi].r;
+                }
+            }
+        }
+        return true;
+
+    case gli::RG8U:
+        {
+            struct RG { uint8 r,g; };
+            const RG *src = (const RG*)tex[0].data();
+            for(int32 yi=(int32)height()-1; yi>=0; --yi) {
+                for(int32 xi=0; xi<(int32)width(); ++xi) {
+                    RGBA_U8 &dst = get<RGBA_U8>(yi, xi);
+                    dst.r = src[width()*yi + xi].r;
+                    dst.g = src[width()*yi + xi].g;
+                }
+            }
+        }
+        return true;
+
+    case gli::RGB8U:
+        {
+            struct RGB { uint8 r,g,b; };
+            const RGB *src = (const RGB*)tex[0].data();
+            for(int32 yi=(int32)height()-1; yi>=0; --yi) {
+                for(int32 xi=0; xi<(int32)width(); ++xi) {
+                    RGBA_U8 &dst = get<RGBA_U8>(yi, xi);
+                    dst.r = src[width()*yi + xi].r;
+                    dst.g = src[width()*yi + xi].g;
+                    dst.b = src[width()*yi + xi].b;
+                }
+            }
+        }
+        return true;
+
+    case gli::RGBA8U:
+        {
+            struct RGBA { uint8 r,g,b,a; };
+            const RGBA *src = (const RGBA*)tex[0].data();
+            for(int32 yi=(int32)height()-1; yi>=0; --yi) {
+                for(int32 xi=0; xi<(int32)width(); ++xi) {
+                    RGBA_U8 &dst = get<RGBA_U8>(yi, xi);
+                    dst.r = src[width()*yi + xi].r;
+                    dst.g = src[width()*yi + xi].g;
+                    dst.b = src[width()*yi + xi].b;
+                    dst.a = src[width()*yi + xi].a;
+                }
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
+bool Image::saveDDS( bostream &f, const IOConfig &conf ) const
+{
+    istPrint("未実装");
+    return false;
+}
 
 
 } // namespace ist
