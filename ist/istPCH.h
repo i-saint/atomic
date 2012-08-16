@@ -12,10 +12,6 @@
 
 #include <stdint.h>
 #include <stdio.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
-
 
 #include "ist/Config.h"
 

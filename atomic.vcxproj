@@ -161,27 +161,27 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(BOOST_INCLUDE);$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>external\lib;$(BOOST_LIBRARY);$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>external\tbb\include;$(BOOST_INCLUDE);$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
+    <LibraryPath>external\lib;C:\project\atomic\external\tbb\lib\ia32\vc10;$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
     <OutDir>$(SolutionDir)</OutDir>
     <TargetName>$(ProjectName)_d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Intel_SSA|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(BOOST_INCLUDE);$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>external\lib;$(BOOST_LIBRARY);$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>external\tbb\include;$(BOOST_INCLUDE);$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
+    <LibraryPath>external\lib;C:\project\atomic\external\tbb\lib\ia32\vc10;$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(BOOST_INCLUDE);$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>external\lib;$(BOOST_LIBRARY);$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>external\tbb\include;$(BOOST_INCLUDE);$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
+    <LibraryPath>external\lib;C:\project\atomic\external\tbb\lib\ia32\vc10;$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(BOOST_INCLUDE);$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>external\lib;$(BOOST_LIBRARY);$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>external\tbb\include;$(BOOST_INCLUDE);$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
+    <LibraryPath>external\lib;C:\project\atomic\external\tbb\lib\ia32\vc10;$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -205,7 +205,7 @@
 copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <CudaCompile>
-      <Include>$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;%(Include)</Include>
+      <Include>external;$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;%(Include)</Include>
       <GPUDebugInfo>false</GPUDebugInfo>
       <Optimization>Od</Optimization>
       <HostDebugInfo>false</HostDebugInfo>
@@ -234,7 +234,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
 copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <CudaCompile>
-      <Include>$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;%(Include)</Include>
+      <Include>external;$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;%(Include)</Include>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -255,7 +255,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>EASTLEAWebKit.lib;cuda.lib;imm32.lib;winmm.lib;cudart.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(BOOST)/lib;$(CUDA_PATH)/lib/Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(CUDA_PATH)/lib/Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
@@ -263,7 +263,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
 copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <CudaCompile>
-      <Include>$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;%(Include)</Include>
+      <Include>external;$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;%(Include)</Include>
       <FastMath>true</FastMath>
       <Optimization>O3</Optimization>
       <Runtime>MD</Runtime>
@@ -286,7 +286,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>EASTLEAWebKit.lib;cuda.lib;imm32.lib;winmm.lib;cudart.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(BOOST)/lib;$(CUDA_PATH)/lib/Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(CUDA_PATH)/lib/Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
@@ -294,7 +294,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
 copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <CudaCompile>
-      <Include>$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;%(Include)</Include>
+      <Include>external;$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;%(Include)</Include>
       <FastMath>true</FastMath>
       <Optimization>O3</Optimization>
       <Runtime>MD</Runtime>

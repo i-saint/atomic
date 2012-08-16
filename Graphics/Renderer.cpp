@@ -296,10 +296,10 @@ void AtomicRenderer::passOutput()
     sprintf(buf, "Show Multiresolution Level: [F9]");
     m_stext->addText(vec2(5.0f, 190.0f), buf);
 
-    sprintf(buf, "Multiresolution Threshold: %.3f", atomicGetLights()->getMultiresolutionParams().Threshold.x);
-    m_stext->addText(vec2(5.0f, 210.0f), buf);
     sprintf(buf, "Multiresolution Threshold: %.3f ([8]<- [9]->)", atomicGetLights()->getMultiresolutionParams().Threshold.x);
     m_stext->addText(vec2(5.0f, 210.0f), buf);
+    sprintf(buf, "やったー！日本語出たよー！");
+    m_stext->addText(vec2(5.0f, 230.0f), buf);
 
     m_stext->draw();
 }
@@ -326,13 +326,18 @@ void SystemTextRenderer::draw()
     {
         const vec2 &wsize   = vec2(atomicGetWindowSize());
         atomicGetFont()->setScreen(0.0f, wsize.x, wsize.y, 0.0f);
-        atomicGetFont()->setSize(20.0f);
+        atomicGetFont()->setSize(18.0f);
+        atomicGetFont()->setMonospace(true);
+        atomicGetFont()->setSpace(0.75f);
     }
     for(uint32 i=0; i<m_texts.size(); ++i) {
         const Text &t = m_texts[i];
         atomicGetFont()->addText(t.pos, t.text, strnlen(t.text, _countof(t.text)));
     }
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     atomicGetFont()->flush(atomicGetGLDeviceContext());
+    glDisable(GL_BLEND);
 }
 
 void SystemTextRenderer::addText(const vec2 &pos, const char *text)

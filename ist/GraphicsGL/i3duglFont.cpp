@@ -47,6 +47,8 @@ public:
     virtual void setScreen(float32 left, float32 right, float32 bottom, float32 top) {}
     virtual void setColor(const vec4 &v) {}
     virtual void setSize(float32 v) {}
+    virtual void setSpace(float32 v) {}
+    virtual void setMonospace(bool v) {}
 
     void addText(const vec2 &pos, const char *text, size_t len)
     {
@@ -118,12 +120,27 @@ struct FontQuad
 class FSS
 {
 public:
-    FSS() : m_header(NULL), m_data(NULL) {}
+    FSS()
+        : m_header(NULL)
+        , m_data(NULL)
+        , m_size(0.0f)
+        , m_spacing(1.0f)
+        , m_monospace(false)
+    {}
 
     void setTextureSize(const vec2 &v)
     {
         m_tex_size = v;
         m_rcp_tex_size = vec2(1.0f, 1.0f) / m_tex_size;
+    }
+
+    void setSize(float32 v) { m_size=v; }
+    void setSpace(float32 v) { m_spacing=v; }
+    void setMonospace(bool v) { m_monospace=v; }
+
+    float getFontSize() const
+    {
+        return m_header!=NULL ? (float32)m_header->FontSize : 0.0f;
     }
 
     bool load(const char *path)
@@ -140,29 +157,33 @@ public:
         }
         m_header = (const SFF_HEAD*)&m_buf[0];
         m_data = (const SFF_DATA*)(&m_buf[0]+sizeof(SFF_HEAD));
+        if(m_size==0.0f) { m_size=getFontSize(); }
         return true;
     }
 
-    void makeQuads(const vec2 &pos, const wchar_t *text, size_t len, float32 size, stl::vector<FontQuad> &quads) const
+    void makeQuads(const vec2 &pos, const wchar_t *text, size_t len, stl::vector<FontQuad> &quads) const
     {
         if(m_header==NULL) { return; }
 
-        const float scale = (float32)m_header->FontHeight / size;
-        vec2 base = pos;
-        vec2 texsize = vec2(float32(m_header->FontWidth), float32(m_header->FontHeight));
+        const float32 base_size = (float32)m_header->FontSize;
+        const float32 scale = m_size / base_size;
+        vec2 base = pos - vec2(0.0f, m_size);
         for(size_t i=0; i<len; ++i) {
             uint32 di = m_header->IndexTbl[text[i]];
-            if(di==0xffff) {
-                istPrint(L"FSS::getFontRect() %c not found\n", text[i]);
-                continue;
+            float advance = (text[i] <= 0xff ? base_size*0.5f : base_size) * scale * m_spacing;
+            if(di!=0xffff) {
+                const SFF_DATA &cdata = m_data[di];
+                vec2 uv = vec2(cdata.u, cdata.v);
+                vec2 wh = vec2(cdata.w, cdata.h);
+                vec2 scaled_wh = wh * scale;
+                vec2 scaled_offset = vec2(float32(cdata.Offset) * scale, 0.0f);
+                vec2 uv_pos = uv*m_rcp_tex_size;
+                vec2 uv_size = wh * m_rcp_tex_size;
+                FontQuad q = {base+scaled_offset, scaled_wh, uv_pos, uv_size};
+                quads.push_back(q);
+                if(!m_monospace) { advance = scaled_wh.x; }
             }
-            const SFF_DATA &cdata = m_data[di];
-            vec2 uv = vec2(cdata.u, cdata.v);
-            vec2 wh = vec2(cdata.w, cdata.h);
-            vec2 scaled_wh = wh * scale;
-            FontQuad q = {base, scaled_wh, uv*m_rcp_tex_size, wh*m_rcp_tex_size};
-            quads.push_back(q);
-            base.x += scaled_wh.x;
+            base.x += advance;
         }
     }
 
@@ -172,10 +193,15 @@ private:
     const SFF_DATA *m_data;
     vec2 m_tex_size;
     vec2 m_rcp_tex_size;
+
+    float32 m_size;
+    float32 m_spacing;
+    bool m_monospace;
 };
 
 namespace {
     const char *g_font_vssrc = "\
+#version 330 core\n\
 struct RenderStates\
 {\
     mat4 ViewProjectionMatrix;\
@@ -197,6 +223,7 @@ void main(void)\
 ";
 
     const char *g_font_pssrc = "\
+#version 330 core\n\
 struct RenderStates\
 {\
     mat4 ViewProjectionMatrix;\
@@ -206,14 +233,15 @@ layout(std140) uniform render_states\
 {\
     RenderStates u_RS;\
 };\
+uniform sampler2D u_ColorBuffer;\
 in vec2 vs_Texcoord;\
 layout(location=0) out vec4 ps_FragColor;\
 \
 void main()\
 {\
     vec4 color = u_RS.Color;\
-    color.a = texture(u_ColorBuffer, vs_Texcoord).r;\
-    ps_FragColor = color;\
+    color.a = texture(u_ColorBuffer, vs_Texcoord).a;\
+    ps_FragColor = vec4(color);\
 }\
 ";
 } // namespace
@@ -239,14 +267,15 @@ public:
 
 public:
     SpriteFontRenderer(Device *dev, const char *path_to_fss, const char *path_to_png)
-        : m_texture(NULL)
+        : m_sampler(NULL)
+        , m_texture(NULL)
         , m_vbo(NULL)
         , m_ubo(NULL)
         , m_vs(NULL)
         , m_ps(NULL)
         , m_shader(NULL)
-        , m_size(20.0f)
     {
+        m_sampler = dev->createSampler(SamplerDesc(I3D_CLAMP_TO_EDGE, I3D_CLAMP_TO_EDGE, I3D_CLAMP_TO_EDGE, I3D_LINEAR, I3D_LINEAR));
         if(m_texture = CreateTexture2DFromFile(dev, path_to_png)) {
             m_fss.load(path_to_fss);
             m_fss.setTextureSize(vec2(m_texture->getDesc().size));
@@ -261,10 +290,11 @@ public:
             };
             m_va->setAttributes(*m_vbo, sizeof(VertexT), descs, _countof(descs));
         }
-
         m_vs = CreateVertexShaderFromString(dev, g_font_vssrc);
         m_ps = CreatePixelShaderFromString(dev, g_font_pssrc);
         m_shader = dev->createShaderProgram(ShaderProgramDesc(m_vs, m_ps));
+
+        m_renderstate.color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
     ~SpriteFontRenderer()
@@ -275,6 +305,7 @@ public:
         istSafeRelease(m_va);
         istSafeRelease(m_ubo);
         istSafeRelease(m_vbo);
+        istSafeRelease(m_sampler);
         istSafeRelease(m_texture);
     }
 
@@ -282,21 +313,27 @@ public:
     {
         m_renderstate.matrix = glm::ortho(left, right, bottom, top);
     }
-    virtual void setColor(const vec4 &v) { m_renderstate.color=v; }
-    virtual void setSize(float32 v) { m_size=v; }
+    virtual void setColor(const vec4 &v)    { m_renderstate.color=v; }
+    virtual void setSize(float32 v)         { m_fss.setSize(v); }
+    virtual void setSpace(float32 v)        { m_fss.setSpace(v); }
+    virtual void setMonospace(bool v)       { m_fss.setMonospace(v); }
 
     virtual void addText(const vec2 &pos, const char *text, size_t len)
     {
-        size_t wlen = mbstowcs(NULL, text, 0);
+        //size_t wlen = mbstowcs(NULL, text, 0);
+        //if(wlen==size_t(-1)) { return; }
+        //wchar_t *wtext = (wchar_t*)istRawAlloca(sizeof(wchar_t)*wlen);
+        // ↑_alloca() をメインスレッド以外で使うと、確保したメモリにアクセスするとクラッシュするっぽい？
+        // しょうがないので固定サイズで…。
+        wchar_t wtext[1024];
+        size_t wlen = mbstowcs(wtext, text, _countof(wtext));
         if(wlen==size_t(-1)) { return; }
-        wchar_t *wtext = (wchar_t*)istRawAlloca(sizeof(wchar_t)*wlen);
-        mbstowcs(wtext, text, len);
         addText(pos, wtext, wlen);
     }
 
     virtual void addText(const vec2 &pos, const wchar_t *text, size_t len)
     {
-        m_fss.makeQuads(pos, text, len, m_size, m_quads);
+        m_fss.makeQuads(pos, text, len, m_quads);
     }
 
     virtual void flush(DeviceContext *dc)
@@ -324,14 +361,19 @@ public:
         MapAndWrite(*m_ubo, &m_renderstate, sizeof(m_renderstate));
         m_quads.clear();
 
+        uint32 loc = m_shader->getUniformLocation("render_states");
+        m_shader->setUniformBlock(loc, 0, m_ubo->getHandle());
         dc->setVertexArray(m_va);
         dc->setShader(m_shader);
+        dc->setSampler(0, m_sampler);
+        dc->setTexture(0, m_texture);
         dc->draw(I3D_QUADS, 0, num_vertex);
     }
 
 private:
     FSS m_fss;
     stl::vector<FontQuad> m_quads;
+    Sampler *m_sampler;
     Texture2D *m_texture;
     Buffer *m_vbo;
     Buffer *m_ubo;
@@ -339,7 +381,6 @@ private:
     VertexShader *m_vs;
     PixelShader *m_ps;
     ShaderProgram *m_shader;
-    float m_size;
     RenderState m_renderstate;
 };
 

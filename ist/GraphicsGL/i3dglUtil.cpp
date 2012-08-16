@@ -2,6 +2,7 @@
 #ifdef __ist_with_OpenGL__
 #include "ist/Base.h"
 #include "ist/Math.h"
+#include "ist/GraphicsCommon/Image.h"
 #include "i3dglDevice.h"
 #include "i3dglShader.h"
 #include "i3dglUtil.h"
@@ -15,18 +16,26 @@ namespace i3dgl {
 
 Texture2D* CreateTexture2DFromFile(Device *dev, const char *filename)
 {
-    std::ifstream  st(filename, std::ios::binary);
-    if(st.fail()) {
-        istAssert("file not found %s", filename);
+    Image img;
+    if(!img.load(filename)) {
+        istAssert(false, "file load failed: %s\n", filename);
         return false;
     }
-    return CreateTexture2DFromStream(dev, st);
+    Texture2DDesc desc(I3D_RGBA8U, uvec2(img.width(), img.height()), 0, &img[0][0]);
+    return dev->createTexture2D(desc);
 }
 
 Texture2D* CreateTexture2DFromStream(Device *dev, std::istream& st)
 {
-    istAssert(false, "not implemented");
-    return false;
+    Image::IOConfig conf;
+    conf.setFormat(Image::FORMAT_PNG);
+    Image img;
+    if(!img.load(*st.rdbuf(), conf)) {
+        istAssert(false, "file load failed\n");
+        return false;
+    }
+    Texture2DDesc desc(I3D_RGBA8U, uvec2(img.width(), img.height()), 0, &img[0][0]);
+    return dev->createTexture2D(desc);
 }
 
 Texture2D* GenerateRandomTexture(Device *dev, const uvec2 &size, I3D_COLOR_FORMAT format)

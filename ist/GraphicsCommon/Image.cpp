@@ -2,27 +2,6 @@
 #include <fstream>
 #include "ist/GraphicsCommon/Image.h"
 
-extern "C" {
-#ifdef __ist_with_png__
-#include <png.h>
-#endif // __ist_with_png__
-#ifdef __ist_with_jpeg__
-#include <jpeglib.h>
-#include <jerror.h>
-#endif // __ist_with_jpeg__
-}
-
-#ifdef istWindows
-#ifdef __ist_with_png__
-#pragma comment(lib,"zlib.lib")
-#pragma comment(lib,"libpng.lib")
-#endif // __ist_with_png__
-
-#ifdef __ist_with_jpeg__
-#pragma comment(lib,"libjpeg.lib")
-#endif // __ist_with_jpeg__
-#endif // istWindows
-
 namespace ist {
 
 
@@ -215,8 +194,8 @@ bool Image::loadBMP(std::streambuf& f, const IOConfig& conf)
 
     resize(infohead.width, infohead.height);
 
-    for(uint32 i=height()-1; i>=0; --i) {
-        for(uint32 j=0; j<width(); ++j) {
+    for(int32 i=(int32)height()-1; i>=0; --i) {
+        for(int32 j=0; j<(int32)width(); ++j) {
             bRGBA& c = (*this)[i][j];
             bf >> c.b >> c.g >> c.r;
             c.a = 255;
@@ -256,8 +235,8 @@ bool Image::saveBMP(std::streambuf& f, const IOConfig& conf) const
         << infohead.pallete_num
         << infohead.important_pallete_num;
 
-    for(uint32 i=height()-1; i>=0; --i) {
-        for(uint32 j=0; j<width(); ++j) {
+    for(int32 i=(int32)height()-1; i>=0; --i) {
+        for(int32 j=0; j<(int32)width(); ++j) {
             const bRGBA& c = (*this)[i][j];
             bf << c.b << c.g << c.r;
         }
@@ -295,9 +274,9 @@ bool Image::loadTGA(std::streambuf& f, const IOConfig& conf)
 
     resize(head.width, head.height);
 
-    for(uint32 i=height()-1; i>=0; --i) {
+    for(int32 i=(int32)height()-1; i>=0; --i) {
         if(head.image_type==2) {
-            for(uint32 j=0; j<width(); j++) {
+            for(int32 j=0; j<(int32)width(); j++) {
                 (*this)[i][j] = Read1Pixel(bf);
             }
         }
@@ -393,7 +372,7 @@ private:
     {
         m_comp_pixel.push_back( temp_pixel.size()-1 );
 
-        for(uint32 d=0; d<temp_pixel.size(); d++)
+        for(int32 d=0; d<(int32)temp_pixel.size(); d++)
         {
             m_comp_pixel.push_back( temp_pixel[d].b );
             m_comp_pixel.push_back( temp_pixel[d].g );
@@ -430,7 +409,7 @@ bool Image::saveTGA(std::streambuf &f, const Image::IOConfig &conf) const
 
     {
         TGACompress comp;
-        for(int32 i=height()-1; i>=0; --i)
+        for(int32 i=(int32)height()-1; i>=0; --i)
         {
             comp.compress((*this)[i], width());
         }
@@ -479,7 +458,7 @@ bool Image::loadPNG(std::streambuf& f, const IOConfig& conf)
     png_infop info_ptr = ::png_create_info_struct(png_ptr);
     if(info_ptr==0)
     {
-        ::png_destroy_read_struct(&png_ptr, png_infopp_NULL, png_infopp_NULL);
+        ::png_destroy_read_struct(&png_ptr, (png_infopp)NULL, (png_infopp)NULL);
         istPrint("失敗: png_create_info_struct() が null を返しました。");
         return false;
     }
@@ -490,7 +469,7 @@ bool Image::loadPNG(std::streambuf& f, const IOConfig& conf)
     int32 bit_depth, color_type, interlace_type;
 
     ::png_read_info(png_ptr, info_ptr);
-    ::png_get_IHDR(png_ptr, info_ptr, &w, &h, &bit_depth, &color_type, &interlace_type, int_p_NULL, int_p_NULL);
+    ::png_get_IHDR(png_ptr, info_ptr, &w, &h, &bit_depth, &color_type, &interlace_type, NULL, NULL);
 
     resize(w, h);
 
@@ -502,7 +481,7 @@ bool Image::loadPNG(std::streambuf& f, const IOConfig& conf)
     }
     if(color_type == PNG_COLOR_TYPE_GRAY && bit_depth<8)
     {
-        ::png_set_gray_1_2_4_to_8(png_ptr);
+        ::png_set_expand_gray_1_2_4_to_8(png_ptr);
     }
     if(::png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))
     {
@@ -513,13 +492,14 @@ bool Image::loadPNG(std::streambuf& f, const IOConfig& conf)
 
     // 読み込み
     stl::vector<png_bytep> row_pointers(height());
-    for(uint32 row=0; row<height(); ++row) {
+    for(int32 row=0; row<(int32)height(); ++row) {
         row_pointers[row] = (png_bytep)png_malloc(png_ptr, png_get_rowbytes(png_ptr, info_ptr));
     }
     png_read_image(png_ptr, &row_pointers[0]);
 
-    for(uint32 i=0; i<height(); ++i) {
-        for(uint32 j=0; j<width(); ++j) {
+    for(int32 i=0; i<(int32)height(); ++i) {
+        for(int32 j=0; j<(int32)width(); ++j) {
+            //bRGBA& c = (*this)[(int32)height()-1-i][j];
             bRGBA& c = (*this)[i][j];
             if(color_type==PNG_COLOR_TYPE_RGB_ALPHA) {
                 c.r = row_pointers[i][j*4+0];
@@ -535,13 +515,13 @@ bool Image::loadPNG(std::streambuf& f, const IOConfig& conf)
             }
         }
     }
-    for(uint32 row=0; row<height(); ++row) {
+    for(int32 row=0; row<(int32)height(); ++row) {
         png_free(png_ptr, row_pointers[row]);
     }
     png_read_end(png_ptr, info_ptr);
 
 
-    png_destroy_read_struct(&png_ptr, &info_ptr, png_infopp_NULL);
+    png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
     return true;
 
 #else
@@ -563,7 +543,7 @@ bool Image::savePNG(std::streambuf& f, const Image::IOConfig& conf) const
     png_infop info_ptr = ::png_create_info_struct(png_ptr);
     if(info_ptr==0)
     {
-        ::png_destroy_write_struct(&png_ptr,  png_infopp_NULL);
+        ::png_destroy_write_struct(&png_ptr,  NULL);
         istPrint("失敗: png_create_info_struct() が null を返しました。");
         return false;
     }
@@ -575,7 +555,7 @@ bool Image::savePNG(std::streambuf& f, const Image::IOConfig& conf) const
 
     Image tmp(*this);
     stl::vector<png_bytep> row_pointers(height());
-    for(uint32 i=0; i<height(); ++i)
+    for(int32 i=0; i<(int32)height(); ++i)
     {
         row_pointers[i] = tmp[i][0].v;
     }
@@ -803,7 +783,7 @@ bool Image::loadJPG(std::streambuf& f, const IOConfig& conf)
     while (cinfo.output_scanline < cinfo.output_height)
     {
         jpeg_read_scanlines(&cinfo, buffer, 1);
-        for(uint32 i=0; i<row_stride/3; ++i)
+        for(int32 i=0; i<(int32)row_stride/3; ++i)
         {
             bRGBA col(buffer[0][i*3+0], buffer[0][i*3+1], buffer[0][i*3+2], 255);
             at(pix_count) = col;
@@ -847,7 +827,7 @@ bool Image::saveJPG(std::streambuf& f, const IOConfig& conf) const
     row_stride = cinfo.image_width*3;
 
     uint8 *buf = new uint8[width()*height()*3];
-    for(uint32 i=0; i<width()*height(); ++i)
+    for(int32 i=0; i<(int32)width()*(int32)height(); ++i)
     {
         buf[i*3+0] = at(i).r;
         buf[i*3+1] = at(i).g;

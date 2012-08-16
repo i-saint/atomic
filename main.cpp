@@ -2,7 +2,6 @@
 #include "types.h"
 #include "Game/AtomicApplication.h"
 
-
 int istmain(int argc, char* argv[])
 {
     atomic::AtomicApplication app;

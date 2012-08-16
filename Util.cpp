@@ -1,4 +1,5 @@
 ﻿#include "stdafx.h"
+#include <ctime>
 #include "types.h"
 #include "Game/AtomicApplication.h"
 #include "Game/AtomicGame.h"

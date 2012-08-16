@@ -178,12 +178,13 @@ void PassDeferredShading_Lights::drawStandard()
 
 void PassDeferredShading_Lights::drawMultiResolution()
 {
+    i3d::DeviceContext *dc = atomicGetGLDeviceContext();
     RenderTarget *rt_gbuffer    = atomicGetRenderTarget(RT_GBUFFER);
     RenderTarget *rt_quarter    = atomicGetRenderTarget(RT_OUTPUT_QUARTER);
     RenderTarget *rt_half       = atomicGetRenderTarget(RT_OUTPUT_HALF);
     RenderTarget *rt_original   = atomicGetFrontRenderTarget();
 
-    atomicGetSampler(SAMPLER_GBUFFER)->bind(GLSL_BACK_BUFFER);
+    dc->setSampler(GLSL_BACK_BUFFER, atomicGetSampler(SAMPLER_GBUFFER));
 
     // 1/4 の解像度で shading
     {
@@ -227,7 +228,7 @@ void PassDeferredShading_Lights::drawMultiResolution()
         // not unbind
     }
 
-    atomicGetSampler(SAMPLER_TEXTURE_DEFAULT)->bind(GLSL_BACK_BUFFER);
+    dc->setSampler(GLSL_BACK_BUFFER, atomicGetSampler(SAMPLER_TEXTURE_DEFAULT));
 }
 
 void PassDeferredShading_Lights::debugShowResolution( int32 level )

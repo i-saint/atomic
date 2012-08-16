@@ -9,6 +9,8 @@
 
 #define _SCL_SECURE_NO_WARNINGS
 
+#define GLM_FORCE_SSE2
+
 #include <windows.h>
 #include <stdio.h>
 #include <GL/glew.h>
@@ -34,7 +36,6 @@
 #include <emmintrin.h>
 #include <pmmintrin.h>
 #include <tmmintrin.h>
-#include <boost/thread.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/static_assert.hpp>
 #include <boost/mem_fn.hpp>

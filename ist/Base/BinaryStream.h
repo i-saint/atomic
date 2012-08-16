@@ -96,10 +96,6 @@ inline ist::bistream_base& operator>>(ist::bistream_base &s, T (&v)[N])
 
 
 #ifdef __ist_with_zlib__
-#include "zlib/zlib.h"
-#ifdef istWindows
-    #pragma comment(lib, "zdll.lib")
-#endif // istWindows
 
 namespace ist {
 

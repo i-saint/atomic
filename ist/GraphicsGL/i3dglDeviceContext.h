@@ -18,6 +18,7 @@ public:
     void setIndexBuffer(Buffer *v, I3D_TYPE format);
     void setShader(ShaderProgram *v);
     void setRenderTarget(RenderTarget *rt);
+    void setSampler(uint32 i, Sampler *smp);
     void setTexture(uint32 i, Texture *tex);
 
     void draw(I3D_TOPOLOGY topology, uint32 first_vertex, uint32 num_vertices);

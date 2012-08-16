@@ -2,6 +2,9 @@
 #define __atomic_SPH_cuh__
 
 #include <cmath>
+#ifdef __CUDACC__
+#define GLM_FORCE_CUDA
+#endif // __CUDACC__
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <thrust/host_vector.h>

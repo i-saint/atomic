@@ -61,7 +61,8 @@ bool GraphicResourceManager::initialize()
     // initialize opengl resources
     i3d::Device *dev = atomicGetGLDevice();
     {
-        m_font = CreateSystemFont(atomicGetGLDevice(), dev->getHDC());
+        //m_font = CreateSystemFont(atomicGetGLDevice(), dev->getHDC());
+        m_font = CreateSpriteFont(atomicGetGLDevice(), "Resources/font.sff", "Resources/font.png");
     }
     for(uint32 i=0; i<_countof(m_va); ++i) {
         m_va[i] = dev->createVertexArray();
@@ -203,7 +204,7 @@ void GraphicResourceManager::finalize()
     for(uint32 i=0; i<_countof(m_tex2d); ++i)   { if(m_tex2d[i]) { atomicSafeRelease( m_tex2d[i] ); } }
     for(uint32 i=0; i<_countof(m_tex1d); ++i)   { if(m_tex1d[i]) { atomicSafeRelease( m_tex1d[i] ); } }
     for(uint32 i=0; i<_countof(m_sampler); ++i) { if(m_sampler[i]) { atomicSafeRelease( m_sampler[i] ); } }
-    istSafeDelete(m_font);
+    atomicSafeRelease(m_font);
 }
 
 

@@ -69,12 +69,23 @@ void DeviceContext::setRenderTarget( RenderTarget *rt )
     }
 }
 
+void DeviceContext::setSampler( uint32 i, Sampler *smp )
+{
+    if(smp!=NULL) {
+        smp->bind(i);
+    }
+    else {
+        glBindSampler(i, 0);
+    }
+}
+
 void DeviceContext::setTexture( uint32 i, Texture *tex )
 {
     if(tex!=NULL) {
         tex->bind(i);
     }
     else {
+        glActiveTexture(GL_TEXTURE0+i);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 }
