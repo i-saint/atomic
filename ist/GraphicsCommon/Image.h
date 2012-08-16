@@ -184,21 +184,21 @@ public:
     const char* data() const { return &m_data[0]; }
 
     bool load(const char *path);
-    bool load(bistream &f, const IOConfig &conf=IOConfig());
+    bool load(IBinaryStream &f, const IOConfig &conf=IOConfig());
     bool save(const char *path) const;
-    bool save(bostream &f, const IOConfig &conf) const;
+    bool save(IBinaryStream &f, const IOConfig &conf) const;
 
 private:
-    bool loadBMP(bistream &f, const IOConfig &conf);
-    bool saveBMP(bostream &f, const IOConfig &conf) const;
-    bool loadTGA(bistream &f, const IOConfig &conf);
-    bool saveTGA(bostream &f, const IOConfig &conf) const;
-    bool loadPNG(bistream &f, const IOConfig &conf);
-    bool savePNG(bostream &f, const IOConfig &conf) const;
-    bool loadJPG(bistream &f, const IOConfig &conf);
-    bool saveJPG(bostream &f, const IOConfig &conf) const;
-    bool loadDDS(bistream &f, const IOConfig &conf);
-    bool saveDDS(bostream &f, const IOConfig &conf) const;
+    bool loadBMP(IBinaryStream &f, const IOConfig &conf);
+    bool saveBMP(IBinaryStream &f, const IOConfig &conf) const;
+    bool loadTGA(IBinaryStream &f, const IOConfig &conf);
+    bool saveTGA(IBinaryStream &f, const IOConfig &conf) const;
+    bool loadPNG(IBinaryStream &f, const IOConfig &conf);
+    bool savePNG(IBinaryStream &f, const IOConfig &conf) const;
+    bool loadJPG(IBinaryStream &f, const IOConfig &conf);
+    bool saveJPG(IBinaryStream &f, const IOConfig &conf) const;
+    bool loadDDS(IBinaryStream &f, const IOConfig &conf);
+    bool saveDDS(IBinaryStream &f, const IOConfig &conf) const;
 
     stl::vector<char> m_data;
     int32 m_format;

@@ -144,11 +144,11 @@ public:
         return m_header!=NULL ? (float32)m_header->FontSize : 0.0f;
     }
 
-    bool load(bistream &bf)
+    bool load(IBinaryStream &bf)
     {
-        bf.seekg(0, bistream::seekg_end);
-        m_buf.resize((size_t)bf.tellg());
-        bf.seekg(0);
+        bf.setReadPos(0, IBinaryStream::Seek_End);
+        m_buf.resize((size_t)bf.getReadPos());
+        bf.setReadPos(0);
         bf.read(&m_buf[0], m_buf.size());
         if(m_buf.size()<4 || !(m_buf[0]=='F', m_buf[1]=='F', m_buf[2]=='S')) { return false; }
 
@@ -285,7 +285,7 @@ public:
         istSafeRelease(m_texture);
     }
 
-    bool initialize(Device *dev, bistream &fss_stream, bistream &img_stream)
+    bool initialize(Device *dev, IBinaryStream &fss_stream, IBinaryStream &img_stream)
     {
         {
             Image img;
@@ -401,14 +401,14 @@ private:
 
 IFontRenderer* CreateSpriteFont(Device *device, const char *path_to_sff, const char *path_to_img)
 {
-    bfilestream sff(path_to_sff, "rb");
-    bfilestream img(path_to_img, "rb");
+    FileStream sff(path_to_sff, "rb");
+    FileStream img(path_to_img, "rb");
     if(!sff.isOpened()) { istPrint("%s load failed\n", path_to_sff); return NULL; }
     if(!img.isOpened()) { istPrint("%s load failed\n", path_to_img); return NULL; }
     return CreateSpriteFont(device, sff, img);
 }
 
-IFontRenderer* CreateSpriteFont(Device *device, bistream &sff, bistream &img)
+IFontRenderer* CreateSpriteFont(Device *device, IBinaryStream &sff, IBinaryStream &img)
 {
     SpriteFontRenderer *r = new SpriteFontRenderer();
     if(!r->initialize(device, sff, img)) {

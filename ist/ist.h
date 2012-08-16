@@ -13,11 +13,7 @@
 //#define __ist_with_zlib__
 //#define __ist_with_oggvorbis__
 
-#ifdef _DEBUG
-#pragma comment(lib, "istd.lib")
-#else
 #pragma comment(lib, "ist.lib")
-#endif // _DEBUG
 
 #include "istPCH.h"
 #include "Config.h"

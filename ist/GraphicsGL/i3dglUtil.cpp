@@ -25,7 +25,7 @@ Texture2D* CreateTexture2DFromFile(Device *dev, const char *filename)
     return dev->createTexture2D(desc);
 }
 
-Texture2D* CreateTexture2DFromStream(Device *dev, bistream &st)
+Texture2D* CreateTexture2DFromStream(Device *dev, IBinaryStream &st)
 {
     Image::IOConfig conf;
     conf.setFileType(Image::FileType_PNG);

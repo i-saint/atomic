@@ -162,7 +162,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>external\tbb\include;$(BOOST_INCLUDE);$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>external\lib;C:\project\atomic\external\tbb\lib\ia32\vc10;$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)$(Configuration);external\lib;C:\project\atomic\external\tbb\lib\ia32\vc10;$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
     <OutDir>$(SolutionDir)</OutDir>
     <TargetName>$(ProjectName)_d</TargetName>
@@ -170,18 +170,18 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Intel_SSA|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>external\tbb\include;$(BOOST_INCLUDE);$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>external\lib;C:\project\atomic\external\tbb\lib\ia32\vc10;$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)$(Configuration);external\lib;C:\project\atomic\external\tbb\lib\ia32\vc10;$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>external\tbb\include;$(BOOST_INCLUDE);$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>external\lib;C:\project\atomic\external\tbb\lib\ia32\vc10;$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)$(Configuration);external\lib;C:\project\atomic\external\tbb\lib\ia32\vc10;$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>external\tbb\include;$(BOOST_INCLUDE);$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>external\lib;C:\project\atomic\external\tbb\lib\ia32\vc10;$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)$(Configuration);external\lib;C:\project\atomic\external\tbb\lib\ia32\vc10;$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

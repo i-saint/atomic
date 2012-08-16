@@ -71,7 +71,7 @@ const InputState* InputServerLocal::getInput() const
 
 bool InputServerLocal::writeToFile(const char *path)
 {
-    ist::gzbiostream gzf(path, "wb");
+    ist::GZFileStream gzf(path, "wb");
     if(!gzf.isOpened()) { return false; }
 
     RawInputHeader header;
@@ -104,7 +104,7 @@ const InputState* InputServerReplay::getInput() const
 
 bool InputServerReplay::readFromFile(const char *path)
 {
-    ist::gzbiostream gzf;
+    ist::GZFileStream gzf;
     gzf.open(path, "rb");
     if(!gzf.isOpened()) { return false; }
 

@@ -1,116 +1,206 @@
 ﻿#include "istPCH.h"
 #include "ist/Base/BinaryStream.h"
+#include "ist/Math/Misc.h"
 
 namespace ist {
 
-inline int32 GetCRTSeekDir(bistream::seekg_dir dir) {
+inline int32 GetCRTSeekDir(IBinaryStream::SeekDir dir) {
     switch(dir) {
-    case bistream::seekg_begin: return SEEK_SET;
-    case bistream::seekg_cur: return SEEK_CUR;
-    case bistream::seekg_end: return SEEK_END;
+    case IBinaryStream::Seek_Begin: return SEEK_SET;
+    case IBinaryStream::Seek_Current: return SEEK_CUR;
+    case IBinaryStream::Seek_End: return SEEK_END;
     }
     return SEEK_SET;
 }
-inline int32 GetCRTSeekDir(bostream::seekp_dir dir) {
-    return GetCRTSeekDir((bistream::seekg_dir)dir);
-}
 
-inline std::ios::seekdir GetSTDSeekDir(bistream::seekg_dir dir) {
+inline std::ios::seekdir GetSTDSeekDir(IBinaryStream::SeekDir dir) {
     switch(dir) {
-    case bistream::seekg_begin: return std::ios::beg;
-    case bistream::seekg_cur: return std::ios::cur;
-    case bistream::seekg_end: return std::ios::end;
+    case IBinaryStream::Seek_Begin: return std::ios::beg;
+    case IBinaryStream::Seek_Current: return std::ios::cur;
+    case IBinaryStream::Seek_End: return std::ios::end;
     }
     return SEEK_SET;
 }
-inline std::ios::seekdir GetSTDSeekDir(bostream::seekp_dir dir) {
-    return GetSTDSeekDir((bistream::seekg_dir)dir);
-}
 
 
 
-bistream::~bistream() {}
-
-bostream::~bostream() {}
+IBinaryStream::~IBinaryStream() {}
 
 
-bfilestream::bfilestream() : m_file(NULL)
+
+FileStream::FileStream() : m_file(NULL)
 {}
 
-bfilestream::bfilestream(const char *path, const char *mode)
+FileStream::FileStream(const char *path, const char *mode)
 {
     open(path, mode);
 }
 
-bfilestream::~bfilestream()
+FileStream::~FileStream()
 {
     if(m_file!=NULL) {
         fclose(m_file);
     }
 }
 
-bool bfilestream::open(const char *path, const char *mode)
+bool FileStream::open(const char *path, const char *mode)
 {
     m_file = fopen(path, mode);
     return isOpened();
 }
 
-bool bfilestream::isOpened() const
+bool FileStream::isOpened() const   { return m_file!=NULL; }
+bool FileStream::isEOF() const      { return feof(m_file)!=0; }
+
+uint64 FileStream::read(void* p, uint64 s)              { return fread(p, 1, (size_t)s, m_file); }
+uint64 FileStream::getReadPos() const                   { return ftell(m_file); }
+void FileStream::setReadPos(uint64 pos, SeekDir dir)    { fseek(m_file, (size_t)pos, GetCRTSeekDir(dir)); }
+
+uint64 FileStream::write(const void* p, uint64 s)       { return fwrite(p, 1, (size_t)s, m_file); }
+uint64 FileStream::getWritePos() const                  { return ftell(m_file); }
+void FileStream::setWritePos(uint64 pos, SeekDir dir)   { fseek(m_file, (size_t)pos, GetCRTSeekDir(dir)); }
+
+
+
+MemoryStream::MemoryStream() : m_readpos(0), m_writepos(0) {}
+MemoryStream::~MemoryStream() {}
+
+uint64 MemoryStream::read(void* p, uint64 s)
 {
-    return m_file!=NULL;
+    size_t actual_size = std::min<size_t>(m_buffer.size()-m_readpos, (size_t)s);
+    memcpy(p, &m_buffer[0]+m_readpos, (size_t)actual_size);
+    m_readpos += actual_size;
+    return actual_size;
 }
 
-uint64 bfilestream::read(void* p, uint64 s)         { return fread(p, 1, (size_t)s, m_file); }
-uint64 bfilestream::tellg() const                   { return ftell(m_file); }
-void bfilestream::seekg(uint64 pos, seekg_dir dir)  { fseek(m_file, (size_t)pos, GetCRTSeekDir(dir)); }
+uint64 MemoryStream::getReadPos() const { return m_readpos; }
+void MemoryStream::setReadPos(uint64 pos, SeekDir dir)
+{
+    if(dir==Seek_Begin) {
+        m_readpos = std::min<size_t>(m_buffer.size(), (size_t)pos);
+    }
+    else if(dir==Seek_End) {
+        m_readpos = std::max<size_t>(m_buffer.size()-(size_t)pos, 0);
+    }
+    else if(dir==Seek_Current) {
+        m_readpos = clamp<size_t>(m_readpos+(size_t)pos, 0, m_buffer.size());
+    }
+}
 
-uint64 bfilestream::write(const void* p, uint64 s)  { return fwrite(p, 1, (size_t)s, m_file); }
-uint64 bfilestream::tellp() const                   { return ftell(m_file); }
-void bfilestream::seekp(uint64 pos, seekp_dir dir)  { fseek(m_file, (size_t)pos, GetCRTSeekDir(dir)); }
+uint64 MemoryStream::write(const void* p, uint64 s)
+{
+    size_t after = m_writepos+(size_t)s;
+    m_buffer.resize(after);
+    memcpy(&m_buffer[0]+m_writepos, p, (size_t)s);
+    return s;
+}
+uint64 MemoryStream::getWritePos() const { return m_writepos; }
+void MemoryStream::setWritePos(uint64 pos, SeekDir dir)
+{
+    if(dir==Seek_Begin) {
+        m_writepos = std::min<size_t>(m_buffer.size(), (size_t)pos);
+    }
+    else if(dir==Seek_End) {
+        m_writepos = std::max<size_t>(m_buffer.size()-(size_t)pos, 0);
+    }
+    else if(dir==Seek_Current) {
+        m_writepos = clamp<size_t>(m_writepos+(size_t)pos, 0, m_buffer.size());
+    }
+}
+
+
+IntrusiveMemoryStream::IntrusiveMemoryStream() { initialize(NULL, 0); }
+IntrusiveMemoryStream::IntrusiveMemoryStream(void *mem, size_t size) { initialize(mem, size); }
+IntrusiveMemoryStream::~IntrusiveMemoryStream() {}
+
+void IntrusiveMemoryStream::initialize(void *mem, size_t size)
+{
+    m_memory = (char*)mem;
+    m_size = size;
+    m_readpos = 0;
+    m_writepos = 0;
+}
+char* IntrusiveMemoryStream::data() { return m_memory; }
+const char* IntrusiveMemoryStream::data() const { return m_memory; }
+
+uint64 IntrusiveMemoryStream::read(void* p, uint64 s)
+{
+    size_t actual_size = std::min<size_t>(m_size-m_readpos, (size_t)s);
+    memcpy(p, m_memory+m_readpos, (size_t)actual_size);
+    m_readpos += actual_size;
+    return actual_size;
+}
+uint64 IntrusiveMemoryStream::getReadPos() const { return m_readpos; }
+void IntrusiveMemoryStream::setReadPos(uint64 pos, SeekDir dir)
+{
+    if(dir==Seek_Begin) {
+        m_readpos = std::min<size_t>(m_size, (size_t)pos);
+    }
+    else if(dir==Seek_End) {
+        m_readpos = std::max<size_t>(m_size-(size_t)pos, 0);
+    }
+    else if(dir==Seek_Current) {
+        m_readpos = clamp<size_t>(m_readpos+(size_t)pos, 0, m_size);
+    }
+}
+
+uint64 IntrusiveMemoryStream::write(const void* p, uint64 s)
+{
+    size_t actual_size = std::min<size_t>(m_size-m_writepos, (size_t)s);
+    memcpy(m_memory+m_writepos, p, actual_size);
+    return actual_size;
+}
+uint64 IntrusiveMemoryStream::getWritePos() const { return m_writepos; }
+void IntrusiveMemoryStream::setWritePos(uint64 pos, SeekDir dir)
+{
+    if(dir==Seek_Begin) {
+        m_writepos = std::min<size_t>(m_size, (size_t)pos);
+    }
+    else if(dir==Seek_End) {
+        m_writepos = std::max<size_t>(m_size-(size_t)pos, 0);
+    }
+    else if(dir==Seek_Current) {
+        m_writepos = clamp<size_t>(m_writepos+(size_t)pos, 0, m_size);
+    }
+}
 
 
 
-bstdistream::bstdistream(std::istream& s) : m_is(*s.rdbuf()) {}
-bstdistream::bstdistream(std::streambuf& s) : m_is(s) {}
-uint64 bstdistream::read(void* p, uint64 s)         { return m_is.sgetn(reinterpret_cast<char*>(p), s); }
-uint64 bstdistream::tellg() const                   { return m_is.pubseekoff(0, std::ios::cur, std::ios::in); }
-void bstdistream::seekg(uint64 pos, seekg_dir dir)  { m_is.pubseekoff(pos, GetSTDSeekDir(dir), std::ios::in); }
+STDStream::STDStream(std::iostream &s) : m_io(*s.rdbuf())   {}
+STDStream::STDStream(std::streambuf &s) : m_io(s)           {}
 
+uint64 STDStream::read(void* p, uint64 s)           { return m_io.sgetn(reinterpret_cast<char*>(p), s); }
+uint64 STDStream::getReadPos() const                { return m_io.pubseekoff(0, std::ios::cur, std::ios::in); }
+void STDStream::setReadPos(uint64 pos, SeekDir dir) { m_io.pubseekoff(pos, GetSTDSeekDir(dir), std::ios::in); }
 
-bstdostream::bstdostream(std::ostream& s) : m_os(*s.rdbuf()) {}
-bstdostream::bstdostream(std::streambuf& s) : m_os(s) {}
-uint64 bstdostream::write(const void* p, uint64 s)  { return m_os.sputn(reinterpret_cast<const char*>(p), s); }
-uint64 bstdostream::tellp() const                   { return m_os.pubseekoff(0, std::ios::cur, std::ios::out); }
-void bstdostream::seekp(uint64 pos, seekp_dir dir)  { m_os.pubseekoff(pos, GetSTDSeekDir(dir), std::ios::out); }
+uint64 STDStream::write(const void* p, uint64 s)    { return m_io.sputn(reinterpret_cast<const char*>(p), s); }
+uint64 STDStream::getWritePos() const               { return m_io.pubseekoff(0, std::ios::cur, std::ios::out); }
+void STDStream::setWritePos(uint64 pos, SeekDir dir){ m_io.pubseekoff(pos, GetSTDSeekDir(dir), std::ios::out); }
 
-
-
-bstdiostream::bstdiostream(std::iostream& s) : bstdistream(s), bstdostream(s) {}
-bstdiostream::bstdiostream(std::streambuf& s) : bstdistream(s), bstdostream(s) {}
 
 #ifdef __ist_with_zlib__
-gzbiostream::gzbiostream() : m_gz(NULL)
+GZFileStream::GZFileStream() : m_gz(NULL)
 {
 }
 
-gzbiostream::gzbiostream(const char *path, const char *mode) : m_gz(NULL)
+GZFileStream::GZFileStream(const char *path, const char *mode) : m_gz(NULL)
 {
     open(path, mode);
 }
 
-gzbiostream::~gzbiostream()
+GZFileStream::~GZFileStream()
 {
     close();
 }
 
-bool gzbiostream::open(const char *path, const char *mode)
+bool GZFileStream::open(const char *path, const char *mode)
 {
     close();
     m_gz = gzopen(path, mode);
     return isOpened();
 }
 
-void gzbiostream::close()
+void GZFileStream::close()
 {
     if(m_gz) {
         gzclose(m_gz);
@@ -118,16 +208,16 @@ void gzbiostream::close()
     }
 }
 
-bool gzbiostream::isOpened() const   { return m_gz!=NULL; }
-bool gzbiostream::isEOF() const      { return gzeof(m_gz)==1; }
+bool GZFileStream::isOpened() const   { return m_gz!=NULL; }
+bool GZFileStream::isEOF() const      { return gzeof(m_gz)==1; }
 
-uint64 gzbiostream::write(const void* p, uint64 s)  { return gzwrite(m_gz, p, (uint32)s); }
-uint64 gzbiostream::tellp() const                   { return gztell(m_gz); }
-void gzbiostream::seekp(uint64 p, seekp_dir dir)    { gzseek(m_gz, (uint32)p, GetCRTSeekDir(dir)); }
+uint64 GZFileStream::write(const void* p, uint64 s) { return gzwrite(m_gz, p, (uint32)s); }
+uint64 GZFileStream::getWritePos() const                  { return gztell(m_gz); }
+void GZFileStream::setWritePos(uint64 p, SeekDir dir)    { gzseek(m_gz, (uint32)p, GetCRTSeekDir(dir)); }
 
-uint64 gzbiostream::read(void* p, uint64 s)     { return gzread(m_gz, p, (uint32)s); }
-uint64 gzbiostream::tellg() const               { return gztell(m_gz); }
-void gzbiostream::seekg(uint64 p, seekg_dir dir){ gzseek(m_gz, (uint32)p, GetCRTSeekDir(dir)); }
+uint64 GZFileStream::read(void* p, uint64 s)        { return gzread(m_gz, p, (uint32)s); }
+uint64 GZFileStream::getReadPos() const                  { return gztell(m_gz); }
+void GZFileStream::setReadPos(uint64 p, SeekDir dir)    { gzseek(m_gz, (uint32)p, GetCRTSeekDir(dir)); }
 #endif // __ist_with_zlib__
 
 } // namespace ist

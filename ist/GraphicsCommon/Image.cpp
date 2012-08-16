@@ -73,17 +73,18 @@ struct TGAHEAD
 };
 
 
-Image::FileType GetFileTypeByFileHeader(bistream &f)
+Image::FileType GetFileTypeByFileHeader(IBinaryStream &f)
 {
     char m[4];
-    f >> m; f.seekg(0);
+    f >> m; f.setReadPos(0);
     if(m[0]=='B' && m[1]=='M' && m[2]=='8') { return Image::FileType_BMP; }
     if(m[1]=='P' && m[2]=='N' && m[3]=='G') { return Image::FileType_PNG; }
     if(m[0]=='D' && m[1]=='D' && m[2]=='S') { return Image::FileType_DDS; }
     if(m[0]==0xff && m[1]==0xd8) { return Image::FileType_JPG; }
     {
+        // tga は magic code がないので、それっぽい値が入ってるかで判断
         TGAHEAD tga;
-        f.read(&tga, sizeof(tga)); f.seekg(0);
+        f.read(&tga, sizeof(tga)); f.setReadPos(0);
         if( (tga.image_type==2 || tga.image_type==10) && tga.Ox==0 && tga.Oy==0 && (tga.pixel==32 || tga.pixel==24)) {
             return Image::FileType_TGA;
         }
@@ -107,13 +108,13 @@ Image::FileType GetFileTypeByExtention(const char *path)
 
 bool Image::load(const char *path)
 {
-    bfilestream f(path, "rb");
+    FileStream f(path, "rb");
     IOConfig conf;
     conf.setFileType(GetFileTypeByExtention(path));
     return load(f, conf);
 }
 
-bool Image::load(bistream &f, const IOConfig &conf)
+bool Image::load(IBinaryStream &f, const IOConfig &conf)
 {
     clear();
 
@@ -136,13 +137,13 @@ bool Image::load(bistream &f, const IOConfig &conf)
 
 bool Image::save(const char *path) const
 {
-    bfilestream f(path, "wb");
+    FileStream f(path, "wb");
     IOConfig conf;
     conf.setFileType(GetFileTypeByExtention(path));
     return save(f, conf);
 }
 
-bool Image::save(bostream &f, const IOConfig &conf) const
+bool Image::save(IBinaryStream &f, const IOConfig &conf) const
 {
     switch(conf.getFileType())
     {
@@ -161,7 +162,7 @@ bool Image::save(bostream &f, const IOConfig &conf) const
 
 
 
-static RGBA_U8 Read1Pixel(bistream &bf)
+static RGBA_U8 Read1Pixel(IBinaryStream &bf)
 {
     RGBA_U8 t;
     bf >> t.b >> t.g >> t.r >> t.a;
@@ -172,7 +173,7 @@ static RGBA_U8 Read1Pixel(bistream &bf)
 
 // BMP
 
-bool Image::loadBMP(bistream &bf, const IOConfig &conf)
+bool Image::loadBMP(IBinaryStream &bf, const IOConfig &conf)
 {
     BMPHEAD head;
     BMPINFOHEAD infohead;
@@ -226,7 +227,7 @@ bool Image::loadBMP(bistream &bf, const IOConfig &conf)
 }
 
 
-bool Image::saveBMP(bostream &bf, const IOConfig &conf) const
+bool Image::saveBMP(IBinaryStream &bf, const IOConfig &conf) const
 {
     BMPHEAD head;
     BMPINFOHEAD infohead;
@@ -268,7 +269,7 @@ bool Image::saveBMP(bostream &bf, const IOConfig &conf) const
 
 // TGA
 
-bool Image::loadTGA(bistream &bf, const IOConfig &conf)
+bool Image::loadTGA(IBinaryStream &bf, const IOConfig &conf)
 {
     TGAHEAD head;
     bf  >> head.No_ID
@@ -403,7 +404,7 @@ private:
     stl::vector<uint8> m_comp_pixel;
 };
 
-bool Image::saveTGA(bostream &bf, const Image::IOConfig &conf) const
+bool Image::saveTGA(IBinaryStream &bf, const Image::IOConfig &conf) const
 {
     TGAHEAD head;
     head.width = width();
@@ -443,13 +444,13 @@ namespace
 {
     void png_streambuf_read(png_structp png_ptr, png_bytep data, png_size_t length)
     {
-        bistream *f = reinterpret_cast<bistream*>(png_get_io_ptr(png_ptr));
+        IBinaryStream *f = reinterpret_cast<IBinaryStream*>(png_get_io_ptr(png_ptr));
         f->read(data, length);
     }
 
     void png_streambuf_write(png_structp png_ptr, png_bytep data, png_size_t length)
     {
-        bostream *f = reinterpret_cast<bostream*>(png_get_io_ptr(png_ptr));
+        IBinaryStream *f = reinterpret_cast<IBinaryStream*>(png_get_io_ptr(png_ptr));
         f->write(data, length);
     }
 
@@ -459,7 +460,7 @@ namespace
 } // namespace
 #endif // __ist_with_png__
 
-bool Image::loadPNG(bistream &f, const IOConfig &conf)
+bool Image::loadPNG(IBinaryStream &f, const IOConfig &conf)
 {
 #ifdef __ist_with_png__
     png_structp png_ptr = ::png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
@@ -543,7 +544,7 @@ bool Image::loadPNG(bistream &f, const IOConfig &conf)
 #endif // __ist_with_png__
 }
 
-bool Image::savePNG(bostream &f, const Image::IOConfig &conf) const
+bool Image::savePNG(IBinaryStream &f, const Image::IOConfig &conf) const
 {
 #ifdef __ist_with_png__
     png_structp png_ptr = ::png_create_write_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
@@ -610,7 +611,7 @@ namespace
     typedef struct {
         struct jpeg_source_mgr pub;	/* public fields */
 
-        bistream *infile;		/* source stream */
+        IBinaryStream *infile;		/* source stream */
         JOCTET * buffer;		/* start of buffer */
         boolean start_of_file;	/* have we gotten any data yet? */
     } my_source_mgr;
@@ -623,7 +624,7 @@ namespace
     typedef struct {
         struct jpeg_destination_mgr pub; /* public fields */
 
-        bostream * outfile;		/* target stream */
+        IBinaryStream * outfile;		/* target stream */
         JOCTET * buffer;		/* start of buffer */
     } my_destination_mgr;
 
@@ -682,7 +683,7 @@ namespace
     {
     }
 
-    void jpeg_streambuf_src (j_decompress_ptr cinfo, bistream &streambuf)
+    void jpeg_streambuf_src (j_decompress_ptr cinfo, IBinaryStream &streambuf)
     {
         my_src_ptr src;
 
@@ -766,7 +767,7 @@ namespace
 #endif // __ist_with_jpeg__
 
 
-bool Image::loadJPG(bistream &f, const IOConfig &conf)
+bool Image::loadJPG(IBinaryStream &f, const IOConfig &conf)
 {
     clear();
 
@@ -814,7 +815,7 @@ bool Image::loadJPG(bistream &f, const IOConfig &conf)
 #endif // __ist_with_jpeg__
 }
 
-bool Image::saveJPG(bostream &f, const IOConfig &conf) const
+bool Image::saveJPG(IBinaryStream &f, const IOConfig &conf) const
 {
 #ifdef __ist_with_jpeg__
     jpeg_compress_struct cinfo;
@@ -872,7 +873,7 @@ namespace loader_dds10{
 namespace detail {
 
 // gli には std::string を引数にとるやつしかないので、ストリーム版をコピペ改変実装します。参考: loadDDS10()
-inline texture2D loadDDS10_ex( ist::bistream &bin )
+inline texture2D loadDDS10_ex( ist::IBinaryStream &bin )
 {
     loader_dds9::detail::ddsHeader HeaderDesc;
     detail::ddsHeader10 HeaderDesc10;
@@ -919,10 +920,10 @@ inline texture2D loadDDS10_ex( ist::bistream &bin )
 
     gli::format Format = Loader.Format;
 
-    std::streamoff Curr = bin.tellg();
-    bin.seekg(0, ist::bistream::seekg_end);
-    std::streamoff End = bin.tellg();
-    bin.seekg(Curr);
+    std::streamoff Curr = bin.getReadPos();
+    bin.setReadPos(0, ist::IBinaryStream::Seek_End);
+    std::streamoff End = bin.getReadPos();
+    bin.setReadPos(Curr);
 
     std::vector<glm::byte> Data(std::size_t(End - Curr), 0);
     std::size_t Offset = 0;
@@ -967,7 +968,7 @@ inline texture2D loadDDS10_ex( ist::bistream &bin )
 
 namespace ist {
 
-bool Image::loadDDS( bistream &f, const IOConfig &conf )
+bool Image::loadDDS( IBinaryStream &f, const IOConfig &conf )
 {
     gli::texture2D tex = gli::gtx::loader_dds10::detail::loadDDS10_ex(f);
     resize<RGBA_U8>(tex[0].dimensions().x, tex[0].dimensions().y);
@@ -1033,7 +1034,7 @@ bool Image::loadDDS( bistream &f, const IOConfig &conf )
     return false;
 }
 
-bool Image::saveDDS( bostream &f, const IOConfig &conf ) const
+bool Image::saveDDS( IBinaryStream &f, const IOConfig &conf ) const
 {
     istPrint("未実装");
     return false;

@@ -2,130 +2,164 @@
 #define __ist_BinaryStream__
 namespace ist {
 
-class istInterModule bistream
+class istInterModule IBinaryStream
 {
 public:
-    enum seekg_dir {
-        seekg_begin,
-        seekg_end,
-        seekg_cur,
+    enum SeekDir {
+        Seek_Begin,
+        Seek_End,
+        Seek_Current,
     };
-    virtual ~bistream()=0;
+    virtual ~IBinaryStream()=0;
+
     virtual uint64 read(void* p, uint64 s)=0;
-    virtual uint64 tellg() const=0;
-    virtual void seekg(uint64 pos, seekg_dir dir=seekg_begin)=0;
-};
+    virtual uint64 getReadPos() const=0;
+    virtual void setReadPos(uint64 pos, SeekDir dir=Seek_Begin)=0;
 
-class istInterModule bostream
-{
-public:
-    enum seekp_dir {
-        seekp_begin,
-        seekp_end,
-        seekp_cur,
-    };
-    virtual ~bostream()=0;
     virtual uint64 write(const void* p, uint64 s)=0;
-    virtual uint64 tellp() const=0;
-    virtual void seekp(uint64 pos, seekp_dir dir=seekp_begin)=0;
+    virtual uint64 getWritePos() const=0;
+    virtual void setWritePos(uint64 pos, SeekDir dir=Seek_Begin)=0;
 };
 
 
-class istInterModule bfilestream : public bistream, public bostream
+class istInterModule FileStream : public IBinaryStream
 {
 public:
-    bfilestream();
-    bfilestream(const char *path, const char *mode);
-    ~bfilestream();
+    FileStream();
+    FileStream(const char *path, const char *mode);
+    ~FileStream();
 
     bool open(const char *path, const char *mode);
     bool isOpened() const;
+    bool isEOF() const;
 
     virtual uint64 read(void* p, uint64 s);
-    virtual uint64 tellg() const;
-    virtual void seekg(uint64 pos, seekg_dir dir=seekg_begin);
+    virtual uint64 getReadPos() const;
+    virtual void setReadPos(uint64 pos, SeekDir dir=Seek_Begin);
 
     virtual uint64 write(const void* p, uint64 s);
-    virtual uint64 tellp() const;
-    virtual void seekp(uint64 pos, seekp_dir dir=seekp_begin);
+    virtual uint64 getWritePos() const;
+    virtual void setWritePos(uint64 pos, SeekDir dir=Seek_Begin);
 
 private:
     FILE *m_file;
 
 private:
     // non copyable
-    bfilestream(const bfilestream&);
-    bfilestream& operator=(const bfilestream&);
+    FileStream(const FileStream&);
+    FileStream& operator=(const FileStream&);
 };
 
-class istInterModule bstdistream : public bistream
+
+class istInterModule MemoryStream : public IBinaryStream
 {
 public:
-    explicit bstdistream(std::istream& s);
-    explicit bstdistream(std::streambuf& s);
+    MemoryStream();
+    ~MemoryStream();
 
-    uint64 read(void* p, uint64 s);
-    uint64 tellg() const;
-    void seekg(uint64 pos, seekg_dir dir=seekg_begin);
+    virtual uint64 read(void* p, uint64 s);
+    virtual uint64 getReadPos() const;
+    virtual void setReadPos(uint64 pos, SeekDir dir=Seek_Begin);
+
+    virtual uint64 write(const void* p, uint64 s);
+    virtual uint64 getWritePos() const;
+    virtual void setWritePos(uint64 pos, SeekDir dir=Seek_Begin);
 
 private:
-    std::streambuf& m_is;
-};
-
-class istInterModule bstdostream : public bostream
-{
-public:
-    explicit bstdostream(std::ostream& s);
-    explicit bstdostream(std::streambuf& s);
-
-    uint64 write(const void* p, uint64 s);
-    uint64 tellp() const;
-    void seekp(uint64 pos, seekp_dir dir=seekp_begin);
+    stl::vector<char> m_buffer;
+    size_t m_readpos;
+    size_t m_writepos;
 
 private:
-    std::streambuf& m_os;
+    // non copyable
+    MemoryStream(const MemoryStream&);
+    MemoryStream& operator=(const MemoryStream&);
 };
 
-class istInterModule bstdiostream : public bstdistream, public bstdostream
+class istInterModule IntrusiveMemoryStream : public IBinaryStream
 {
 public:
-    explicit bstdiostream(std::iostream& s);
-    explicit bstdiostream(std::streambuf& s);
+    IntrusiveMemoryStream();
+    IntrusiveMemoryStream(void *mem, size_t size);
+    ~IntrusiveMemoryStream();
+
+    void initialize(void *mem, size_t size);
+    char* data();
+    const char* data() const;
+
+    virtual uint64 read(void* p, uint64 s);
+    virtual uint64 getReadPos() const;
+    virtual void setReadPos(uint64 pos, SeekDir dir=Seek_Begin);
+
+    virtual uint64 write(const void* p, uint64 s);
+    virtual uint64 getWritePos() const;
+    virtual void setWritePos(uint64 pos, SeekDir dir=Seek_Begin);
+
+private:
+    char *m_memory;
+    size_t m_size;
+    size_t m_readpos;
+    size_t m_writepos;
+
+private:
+    // non copyable
+    IntrusiveMemoryStream(const IntrusiveMemoryStream&);
+    IntrusiveMemoryStream& operator=(const IntrusiveMemoryStream&);
+};
+
+
+
+class istInterModule STDStream : public IBinaryStream
+{
+public:
+    explicit STDStream(std::iostream& s);
+    explicit STDStream(std::streambuf& s);
+
+    virtual uint64 read(void* p, uint64 s);
+    virtual uint64 getReadPos() const;
+    virtual void setReadPos(uint64 pos, SeekDir dir=Seek_Begin);
+
+    virtual uint64 write(const void* p, uint64 s);
+    virtual uint64 getWritePos() const;
+    virtual void setWritePos(uint64 pos, SeekDir dir=Seek_Begin);
+
+private:
+    std::streambuf &m_io;
 };
 
 
 } // namespace ist
 
 
-inline ist::bostream& operator<<(ist::bostream &s, const char &v)                 { s.write(&v, sizeof(v)); return s; }
-inline ist::bostream& operator<<(ist::bostream &s, const unsigned char &v)        { s.write(&v, sizeof(v)); return s; }
-inline ist::bostream& operator<<(ist::bostream &s, const wchar_t &v)              { s.write(&v, sizeof(v)); return s; }
-inline ist::bostream& operator<<(ist::bostream &s, const short &v)                { s.write(&v, sizeof(v)); return s; }
-inline ist::bostream& operator<<(ist::bostream &s, const unsigned short &v)       { s.write(&v, sizeof(v)); return s; }
-inline ist::bostream& operator<<(ist::bostream &s, const int &v)                  { s.write(&v, sizeof(v)); return s; }
-inline ist::bostream& operator<<(ist::bostream &s, const unsigned int &v)         { s.write(&v, sizeof(v)); return s; }
-inline ist::bostream& operator<<(ist::bostream &s, const long long &v)            { s.write(&v, sizeof(v)); return s; }
-inline ist::bostream& operator<<(ist::bostream &s, const unsigned long long &v)   { s.write(&v, sizeof(v)); return s; }
+inline ist::IBinaryStream& operator<<(ist::IBinaryStream &s, const char &v)                 { s.write(&v, sizeof(v)); return s; }
+inline ist::IBinaryStream& operator<<(ist::IBinaryStream &s, const unsigned char &v)        { s.write(&v, sizeof(v)); return s; }
+inline ist::IBinaryStream& operator<<(ist::IBinaryStream &s, const wchar_t &v)              { s.write(&v, sizeof(v)); return s; }
+inline ist::IBinaryStream& operator<<(ist::IBinaryStream &s, const short &v)                { s.write(&v, sizeof(v)); return s; }
+inline ist::IBinaryStream& operator<<(ist::IBinaryStream &s, const unsigned short &v)       { s.write(&v, sizeof(v)); return s; }
+inline ist::IBinaryStream& operator<<(ist::IBinaryStream &s, const int &v)                  { s.write(&v, sizeof(v)); return s; }
+inline ist::IBinaryStream& operator<<(ist::IBinaryStream &s, const unsigned int &v)         { s.write(&v, sizeof(v)); return s; }
+inline ist::IBinaryStream& operator<<(ist::IBinaryStream &s, const long long &v)            { s.write(&v, sizeof(v)); return s; }
+inline ist::IBinaryStream& operator<<(ist::IBinaryStream &s, const unsigned long long &v)   { s.write(&v, sizeof(v)); return s; }
 
 template<class T, size_t N>
-inline ist::bostream& operator<<(ist::bostream &s, const T (&v)[N])
+inline ist::IBinaryStream& operator<<(ist::IBinaryStream &s, const T (&v)[N])
 {
     for(size_t i=0; i<N; ++i) { s.write(&v[i], sizeof(T)); }
     return s;
 }
 
-inline ist::bistream& operator>>(ist::bistream &s, char &v)                 { s.read(&v, sizeof(v)); return s; }
-inline ist::bistream& operator>>(ist::bistream &s, unsigned char &v)        { s.read(&v, sizeof(v)); return s; }
-inline ist::bistream& operator>>(ist::bistream &s, wchar_t &v)              { s.read(&v, sizeof(v)); return s; }
-inline ist::bistream& operator>>(ist::bistream &s, short &v)                { s.read(&v, sizeof(v)); return s; }
-inline ist::bistream& operator>>(ist::bistream &s, unsigned short &v)       { s.read(&v, sizeof(v)); return s; }
-inline ist::bistream& operator>>(ist::bistream &s, int &v)                  { s.read(&v, sizeof(v)); return s; }
-inline ist::bistream& operator>>(ist::bistream &s, unsigned int &v)         { s.read(&v, sizeof(v)); return s; }
-inline ist::bistream& operator>>(ist::bistream &s, long long &v)            { s.read(&v, sizeof(v)); return s; }
-inline ist::bistream& operator>>(ist::bistream &s, unsigned long long &v)   { s.read(&v, sizeof(v)); return s; }
+inline ist::IBinaryStream& operator>>(ist::IBinaryStream &s, char &v)                 { s.read(&v, sizeof(v)); return s; }
+inline ist::IBinaryStream& operator>>(ist::IBinaryStream &s, unsigned char &v)        { s.read(&v, sizeof(v)); return s; }
+inline ist::IBinaryStream& operator>>(ist::IBinaryStream &s, wchar_t &v)              { s.read(&v, sizeof(v)); return s; }
+inline ist::IBinaryStream& operator>>(ist::IBinaryStream &s, short &v)                { s.read(&v, sizeof(v)); return s; }
+inline ist::IBinaryStream& operator>>(ist::IBinaryStream &s, unsigned short &v)       { s.read(&v, sizeof(v)); return s; }
+inline ist::IBinaryStream& operator>>(ist::IBinaryStream &s, int &v)                  { s.read(&v, sizeof(v)); return s; }
+inline ist::IBinaryStream& operator>>(ist::IBinaryStream &s, unsigned int &v)         { s.read(&v, sizeof(v)); return s; }
+inline ist::IBinaryStream& operator>>(ist::IBinaryStream &s, long long &v)            { s.read(&v, sizeof(v)); return s; }
+inline ist::IBinaryStream& operator>>(ist::IBinaryStream &s, unsigned long long &v)   { s.read(&v, sizeof(v)); return s; }
 
 template<class T, size_t N>
-inline ist::bistream& operator>>(ist::bistream &s, T (&v)[N])
+inline ist::IBinaryStream& operator>>(ist::IBinaryStream &s, T (&v)[N])
 {
     for(size_t i=0; i<N; ++i) { s.read(&v[i], sizeof(T)); }
     return s;
@@ -136,12 +170,12 @@ inline ist::bistream& operator>>(ist::bistream &s, T (&v)[N])
 namespace ist {
 
 #ifdef __ist_with_zlib__
-class istInterModule gzbiostream : public bistream, public bostream
+class istInterModule GZFileStream : public IBinaryStream
 {
 public:
-    gzbiostream();
-    gzbiostream(const char *path, const char *mode);
-    ~gzbiostream();
+    GZFileStream();
+    GZFileStream(const char *path, const char *mode);
+    ~GZFileStream();
 
     bool open(const char *path, const char *mode);
     void close();
@@ -149,20 +183,20 @@ public:
     bool isOpened() const;
     bool isEOF() const;
 
-    uint64 read(void* p, uint64 s);
-    uint64 tellg() const;
-    void seekg(uint64 p, seekg_dir dir=seekg_begin);
+    virtual uint64 read(void* p, uint64 s);
+    virtual uint64 getReadPos() const;
+    virtual void setReadPos(uint64 p, SeekDir dir=Seek_Begin);
 
-    uint64 write(const void* p, uint64 s);
-    uint64 tellp() const;
-    void seekp(uint64 p, seekp_dir dir=seekp_begin);
+    virtual uint64 write(const void* p, uint64 s);
+    virtual uint64 getWritePos() const;
+    virtual void setWritePos(uint64 p, SeekDir dir=Seek_Begin);
 
 private:
     gzFile m_gz;
 private:
     // non copyable
-    gzbiostream(const gzbiostream&);
-    gzbiostream& operator=(const gzbiostream&);
+    GZFileStream(const GZFileStream&);
+    GZFileStream& operator=(const GZFileStream&);
 };
 #endif // __ist_with_zlib__
 
