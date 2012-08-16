@@ -7,6 +7,8 @@
 
 namespace ist {
 
+    // この class はモジュール別に独立した実装を持っている必要がある
+    // (==istIntermodule つけてはならない)
     class SharedObject
     {
     public:
@@ -28,5 +30,8 @@ namespace ist {
     inline void intrusive_ptr_release( SharedObject *obj ) { obj->release(); }
 
 } // namespace ist
+
+#define istSafeRelease(Obj)             if(Obj){Obj->release();Obj=NULL;}
+#define istSafeAddRef(Obj)              if(Obj){Obj->addRef();}
 
 #endif // __ist_Base_SharedObject_h__

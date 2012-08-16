@@ -421,9 +421,9 @@ uint32 CollisionSet::collide(CollisionEntity *sender, MessageCont &m, HandleCont
 
 
 CollisionSet::CollisionSet()
-    : m_plane_allocator(sizeof(CollisionPlane), 64, 16, stl::get_default_allocator(NULL))
-    , m_sphere_allocator(sizeof(CollisionSphere), 65536, 16, stl::get_default_allocator(NULL))
-    , m_box_allocator(sizeof(CollisionBox), 1024, 16, stl::get_default_allocator(NULL))
+    : m_plane_allocator(sizeof(CollisionPlane), 64, 16, ist::GetDefaultAllocator())
+    , m_sphere_allocator(sizeof(CollisionSphere), 65536, 16, ist::GetDefaultAllocator())
+    , m_box_allocator(sizeof(CollisionBox), 1024, 16, ist::GetDefaultAllocator())
     , m_active_tasks(0)
 {
     m_tasks.reserve(32);
@@ -513,7 +513,7 @@ void CollisionSet::copyRigitsToGPU()
     uint32 num = m_entities.size();
     for(uint32 i=0; i<num; ++i) {
         const CollisionEntity *ce = m_entities[i];
-        if(!ce || (ce->getFlags() & CF_AFFECT_SPH)==0) { continue; }
+        if(!ce || (ce->getFlags() & CF_SPH_SENDER)==0) { continue; }
 
         // SPH 側の剛体情報とメモリレイアウト同じにしてるので強引に突っ込む
         switch(ce->getShape()) {

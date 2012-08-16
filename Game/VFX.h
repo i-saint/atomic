@@ -17,7 +17,7 @@ struct VFXScintillaSpawnData
         : size(0.01f), lifetime(0.0f), scatter_radius(0.02f), diffuse_strength(0.01f), num_particles(0) {}
 };
 
-struct __declspec(align(16)) VFXScintillaParticleData
+struct VFXScintillaParticleData
 {
     vec4 position;
     vec4 color;

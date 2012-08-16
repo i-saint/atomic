@@ -289,7 +289,7 @@ void CreateCube( VertexArray *va, Buffer *&vbo, float32 half_len )
 
 void CreateFieldGridLines( VertexArray *va, Buffer *&vbo )
 {
-    struct __declspec(align(16)) vertex_t
+    struct vertex_t
     {
         vec4 pos;
         vec4 color;
@@ -363,7 +363,7 @@ void CreateDistanceFieldQuads( VertexArray *va, Buffer *&quad_model, Buffer *&qu
     }
 
     {
-        struct __declspec(align(16)) vertex_t
+        struct vertex_t
         {
             vec4 pos;
         };

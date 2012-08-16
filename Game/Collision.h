@@ -16,7 +16,8 @@ enum COLLISION_SHAPE {
 enum COLLISION_FLAG {
     CF_RECEIVER     = 1 << 0,
     CF_SENDER       = 1 << 1,
-    CF_AFFECT_SPH   = 1 << 2,
+    CF_SPH_SENDER   = 1 << 2,
+    CF_SPH_RECEIVER = 1 << 3,
 };
 
 struct BoundingBox
@@ -25,9 +26,9 @@ struct BoundingBox
     vec4 ur;
 
     void adjust() {
-        if(ur.x < bl.x) { stl::swap<float32>(ur.x, bl.x); }
-        if(ur.y < bl.y) { stl::swap<float32>(ur.y, bl.y); }
-        if(ur.z < bl.z) { stl::swap<float32>(ur.z, bl.z); }
+        if(ur.x < bl.x) { stl::swap(ur.x, bl.x); }
+        if(ur.y < bl.y) { stl::swap(ur.y, bl.y); }
+        if(ur.z < bl.z) { stl::swap(ur.z, bl.z); }
     }
     float32 getXLength() const { return ur.x-bl.x; }
     float32 getYLength() const { return ur.y-bl.y; }
@@ -67,7 +68,7 @@ protected:
     void setShape(COLLISION_SHAPE v) { m_shape=v; }
 
 public:
-    CollisionEntity() : m_shape(CS_NULL), m_col_handle(0), m_gobj_handle(0), m_flags(CF_RECEIVER|CF_SENDER|CF_AFFECT_SPH) {}
+    CollisionEntity() : m_shape(CS_NULL), m_col_handle(0), m_gobj_handle(0), m_flags(CF_RECEIVER|CF_SENDER|CF_SPH_SENDER) {}
     COLLISION_SHAPE getShape() const            { return m_shape; }
     CollisionHandle getCollisionHandle() const  { return m_col_handle; }
     EntityHandle    getGObjHandle() const       { return m_gobj_handle; }
@@ -211,9 +212,9 @@ public:
     typedef stl::vector<CollideMessage>     MessageCont;
 
 private:
-    ist::pool_allocator<> m_plane_allocator;
-    ist::pool_allocator<> m_sphere_allocator;
-    ist::pool_allocator<> m_box_allocator;
+    ist::FixedAllocator m_plane_allocator;
+    ist::FixedAllocator m_sphere_allocator;
+    ist::FixedAllocator m_box_allocator;
 
     CollisionGrid   m_grid;
     TaskCont        m_tasks;

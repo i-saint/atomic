@@ -146,7 +146,7 @@ void PassPostprocess_Bloom::draw()
         dc->setTexture(GLSL_GLOW_BUFFER, m_rt_gbuffer->getColorBuffer(GBUFFER_GLOW));
         dc->setVertexArray(m_va_luminance);
         dc->draw(I3D_QUADS, 0, 16);
-        stl::swap<RenderTarget*>(m_rt_gauss0, m_rt_gauss1);
+        stl::swap(m_rt_gauss0, m_rt_gauss1);
     }
 
     // 横ブラー
@@ -156,7 +156,7 @@ void PassPostprocess_Bloom::draw()
         dc->setTexture(GLSL_COLOR_BUFFER, m_rt_gauss1->getColorBuffer(GBUFFER_COLOR));
         dc->setVertexArray(m_va_blur);
         dc->draw(I3D_QUADS, 0, 16);
-        stl::swap<RenderTarget*>(m_rt_gauss0, m_rt_gauss1);
+        stl::swap(m_rt_gauss0, m_rt_gauss1);
     }
 
     // 縦ブラー
@@ -166,7 +166,7 @@ void PassPostprocess_Bloom::draw()
         dc->setTexture(GLSL_COLOR_BUFFER, m_rt_gauss1->getColorBuffer(GBUFFER_COLOR));
         dc->setVertexArray(m_va_blur);
         dc->draw(I3D_QUADS, 0, 16);
-        stl::swap<RenderTarget*>(m_rt_gauss0, m_rt_gauss1);
+        stl::swap(m_rt_gauss0, m_rt_gauss1);
     }
 
     // 加算

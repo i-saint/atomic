@@ -67,7 +67,7 @@ public:
         m_collision.setCollisionShape(CS_SPHERE);
         m_barrier.initializeCollision(0);
         m_barrier.setCollisionShape(CS_SPHERE);
-        m_barrier.setCollisionFlags(CF_AFFECT_SPH);
+        m_barrier.setCollisionFlags(CF_SPH_SENDER);
 
         setHealth(500.0f);
         setAxis1(GenRandomUnitVector3());

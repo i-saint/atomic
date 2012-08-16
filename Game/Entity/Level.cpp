@@ -67,7 +67,7 @@ public:
         for(uint32 i=0; i<_countof(planes); ++i) {
             CollisionPlane *p = atomicCreateCollision(CollisionPlane);
             p->setGObjHandle(getHandle());
-            p->setFlags(CF_SENDER|CF_AFFECT_SPH);
+            p->setFlags(CF_SENDER|CF_SPH_SENDER);
             p->bb = bboxes[i];
             p->plane = planes[i];
             m_planes[i] = p->getCollisionHandle();

@@ -56,9 +56,6 @@ using namespace ist::i3dgl;
 typedef uint32 EntityHandle;
 typedef uint32 CollisionHandle;
 
-typedef stl::allocator PermanentAllocator;
-typedef stl::allocator FrameAllocator;
-
 
 enum ATOMIC_ERROR {
     ATERR_NOERROR,

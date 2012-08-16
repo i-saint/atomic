@@ -112,12 +112,12 @@ void DeviceContext::drawInstanced( I3D_TOPOLOGY topology, uint32 first_vertex, u
 void DeviceContext::drawIndexedInstanced( I3D_TOPOLOGY topology, uint32 first_vertex, uint32 num_indices, uint32 num_instances )
 {
     applyRenderStates();
-    glDrawElementsInstanced(topology, num_indices, m_index_format, NULL, num_instances);
-    //glDrawElementsInstancedBaseVertex(topology, num_indices, m_index_format, NULL, num_instances, first_vertex);
+    glDrawElementsInstancedBaseVertex(topology, num_indices, m_index_format, NULL, num_instances, first_vertex);
 }
 
 void DeviceContext::applyRenderStates()
 {
+    // todo: render state の変更要求はバッファリングして実際の変更はここでやる
 }
 
 void DeviceContext::clearColor( RenderTarget *rt, vec4 color )

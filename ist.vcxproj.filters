@@ -19,17 +19,11 @@
     <Filter Include="ist\Sound">
       <UniqueIdentifier>{875e69cf-538c-4299-a022-a3d49cc01212}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ist\GraphicsDX11">
-      <UniqueIdentifier>{8d0f37ba-cb73-4f62-a5bb-3169eec1b218}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ist\GraphicsGL">
       <UniqueIdentifier>{ab829834-012b-47ea-ba10-02454853a8c9}</UniqueIdentifier>
     </Filter>
     <Filter Include="ist\Base\Half">
       <UniqueIdentifier>{95a3805f-13e4-40a2-bd50-1641dfc66287}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ist\GPUCL">
-      <UniqueIdentifier>{0c7b02c9-d000-4e06-b6cb-2e5ee4d250e1}</UniqueIdentifier>
     </Filter>
     <Filter Include="ist\Concurrency">
       <UniqueIdentifier>{90f1a0bc-d173-46c3-829c-0c11c05c994e}</UniqueIdentifier>
@@ -174,39 +168,6 @@
     <ClInclude Include="ist\Sound\isdUtil.h">
       <Filter>ist\Sound</Filter>
     </ClInclude>
-    <ClInclude Include="ist\GraphicsDX11\i3ddx11Assert.h">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsDX11\i3ddx11Buffer.h">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsDX11\i3ddx11Device.h">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsDX11\i3ddx11DeviceContext.h">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsDX11\i3ddx11DeviceResource.h">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsDX11\i3ddx11RenderTarget.h">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsDX11\i3ddx11Shader.h">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsDX11\i3ddx11Types.h">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsDX11\i3dudx11Camera.h">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsDX11\i3dudx11Font.h">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsDX11\i3ddx11Util.h">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClInclude>
     <ClInclude Include="ist\GraphicsGL\i3dglAssert.h">
       <Filter>ist\GraphicsGL</Filter>
     </ClInclude>
@@ -261,17 +222,8 @@
     <ClInclude Include="ist\GPGPU.h">
       <Filter>ist</Filter>
     </ClInclude>
-    <ClInclude Include="ist\GPUCL\gpuclDevice.h">
-      <Filter>ist\GPUCL</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GPUCL\gpuclDeviceResource.h">
-      <Filter>ist\GPUCL</Filter>
-    </ClInclude>
     <ClInclude Include="ist\GraphicsGL\i3dgl.h">
       <Filter>ist\GraphicsGL</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsDX11\i3ddx11.h">
-      <Filter>ist\GraphicsDX11</Filter>
     </ClInclude>
     <ClInclude Include="ist\GraphicsGL\i3dglTexture.h">
       <Filter>ist\GraphicsGL</Filter>
@@ -401,36 +353,6 @@
     <ClCompile Include="ist\Sound\isdUtil.cpp">
       <Filter>ist\Sound</Filter>
     </ClCompile>
-    <ClCompile Include="ist\GraphicsDX11\i3ddx11Assert.cpp">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GraphicsDX11\i3ddx11Buffer.cpp">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GraphicsDX11\i3ddx11Device.cpp">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GraphicsDX11\i3ddx11DeviceContext.cpp">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GraphicsDX11\i3ddx11DeviceResource.cpp">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GraphicsDX11\i3ddx11RenderTarget.cpp">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GraphicsDX11\i3ddx11Shader.cpp">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GraphicsDX11\i3dudx11Camera.cpp">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GraphicsDX11\i3dudx11Font.cpp">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GraphicsDX11\i3ddx11Util.cpp">
-      <Filter>ist\GraphicsDX11</Filter>
-    </ClCompile>
     <ClCompile Include="ist\GraphicsGL\i3dglAssert.cpp">
       <Filter>ist\GraphicsGL</Filter>
     </ClCompile>
@@ -466,12 +388,6 @@
     </ClCompile>
     <ClCompile Include="ist\Base\Half\half.cpp">
       <Filter>ist\Base\Half</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GPUCL\gpuclDevice.cpp">
-      <Filter>ist\GPUCL</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\GPUCL\gpuclDeviceResource.cpp">
-      <Filter>ist\GPUCL</Filter>
     </ClCompile>
     <ClCompile Include="ist\GraphicsGL\i3dglTexture.cpp">
       <Filter>ist\GraphicsGL</Filter>
