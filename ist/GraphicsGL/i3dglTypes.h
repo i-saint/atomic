@@ -25,22 +25,45 @@ enum I3D_TOPOLOGY {
 
 enum I3D_COLOR_FORMAT
 {
-    I3D_R8U,
+    I3D_COLOR_UNKNOWN,
+
+                //     CPU  ->    GPU
+    I3D_R8,     //    0-255 ->  0.0f-1.0f
+    I3D_R8S,    // -128-127 -> -1.0f-1.0f
+    I3D_R8U,    //    0-255 ->     0-255
+    I3D_R8I,    // -128-127 ->  -128-127
     I3D_R16F,
     I3D_R32F,
+    I3D_RG8,
+    I3D_RG8S,
     I3D_RG8U,
+    I3D_RG8I,
     I3D_RG16F,
     I3D_RG32F,
+    I3D_RGB8,
+    I3D_RGB8S,
     I3D_RGB8U,
+    I3D_RGB8I,
     I3D_RGB16F,
     I3D_RGB32F,
+    I3D_RGBA8,
+    I3D_RGBA8S,
     I3D_RGBA8U,
+    I3D_RGBA8I,
     I3D_RGBA16F,
     I3D_RGBA32F,
     I3D_DEPTH16F,
     I3D_DEPTH32F,
     I3D_DEPTH24_STENCIL8,
     I3D_DEPTH32F_STENCIL8,
+    I3D_RGB_DXT1,
+    I3D_SRGB_DXT1,
+    I3D_RGBA_DXT1,
+    I3D_SRGBA_DXT1,
+    I3D_RGBA_DXT3,
+    I3D_SRGBA_DXT3,
+    I3D_RGBA_DXT5,
+    I3D_SRGBA_DXT5,
 };
 
 enum I3D_USAGE
@@ -172,12 +195,14 @@ struct Texture1DDesc
     uint32 size;
     uint32 mipmap;
     void *data;
+    uint32 data_size; // 圧縮フォーマットの場合のみ使用
 
-    explicit Texture1DDesc(I3D_COLOR_FORMAT _format=I3D_RGBA8U, uint32 _size=0, uint32 _mipmap=0, void *_data=NULL)
+    explicit Texture1DDesc(I3D_COLOR_FORMAT _format=I3D_RGBA8, uint32 _size=0, uint32 _mipmap=0, void *_data=NULL, size_t _data_size=0)
         : format(_format)
         , size(_size)
         , mipmap(_mipmap)
         , data(_data)
+        , data_size(_data_size)
     {}
 };
 
@@ -187,12 +212,14 @@ struct Texture2DDesc
     uvec2 size;
     uint32 mipmap;
     void *data;
+    uint32 data_size; // 圧縮フォーマットの場合のみ使用
 
-    explicit Texture2DDesc(I3D_COLOR_FORMAT _format=I3D_RGBA8U, uvec2 _size=uvec2(0, 0), uint32 _mipmap=0, void *_data=NULL)
+    explicit Texture2DDesc(I3D_COLOR_FORMAT _format=I3D_RGBA8, uvec2 _size=uvec2(0, 0), uint32 _mipmap=0, void *_data=NULL, size_t _data_size=0)
         : format(_format)
         , size(_size)
         , mipmap(_mipmap)
         , data(_data)
+        , data_size(_data_size)
     {}
 };
 
@@ -202,12 +229,14 @@ struct Texture3DDesc
     uvec3 size;
     uint32 mipmap;
     void *data;
+    uint32 data_size; // 圧縮フォーマットの場合のみ使用
 
-    explicit Texture3DDesc(I3D_COLOR_FORMAT _format=I3D_RGBA8U, uvec3 _size=uvec3(0, 0, 0), uint32 _mipmap=0, void *_data=NULL)
+    explicit Texture3DDesc(I3D_COLOR_FORMAT _format=I3D_RGBA8, uvec3 _size=uvec3(0, 0, 0), uint32 _mipmap=0, void *_data=NULL, size_t _data_size=0)
         : format(_format)
         , size(_size)
         , mipmap(_mipmap)
         , data(_data)
+        , data_size(_data_size)
     {}
 };
 

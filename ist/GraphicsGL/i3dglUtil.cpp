@@ -14,29 +14,51 @@
 namespace ist {
 namespace i3dgl {
 
-Texture2D* CreateTexture2DFromFile(Device *dev, const char *filename)
+Texture2D* CreateTexture2DFromFile(Device *dev, const char *filename, I3D_COLOR_FORMAT format)
 {
     Image img;
     if(!img.load(filename)) {
         istPrint("file load failed: %s\n", filename);
-        return false;
+        return NULL;
     }
-    Texture2DDesc desc(I3D_RGBA8U, uvec2(img.width(), img.height()), 0, img.data());
+    return CreateTexture2DFromImage(dev, img, format);
+}
+
+Texture2D* CreateTexture2DFromStream(Device *dev, IBinaryStream &st, I3D_COLOR_FORMAT format)
+{
+    Image img;
+    if(!img.load(st)) {
+        istPrint("file load failed\n");
+        return NULL;
+    }
+    return CreateTexture2DFromImage(dev, img, format);
+}
+
+Texture2D* CreateTexture2DFromImage(Device *dev, Image &img, I3D_COLOR_FORMAT format)
+{
+    if(format==I3D_COLOR_UNKNOWN) {
+        switch(img.getFormat()) {
+        case IF_R8U:    format=I3D_R8; break;
+        case IF_R8I:    format=I3D_R8S; break;
+        case IF_R32F:   format=I3D_R32F; break;
+        case IF_RG8U:   format=I3D_RG8; break;
+        case IF_RG8I:   format=I3D_RG8S; break;
+        case IF_RG32F:  format=I3D_RG32F; break;
+        case IF_RGB8U:  format=I3D_RGB8; break;
+        case IF_RGB8I:  format=I3D_RGB8S; break;
+        case IF_RGB32F: format=I3D_RGB32F; break;
+        case IF_RGBA8U: format=I3D_RGBA8; break;
+        case IF_RGBA8I: format=I3D_RGBA8S; break;
+        case IF_RGBA32F:format=I3D_RGBA32F; break;
+        case IF_DXT1:   format=I3D_RGBA_DXT1; break;
+        case IF_DXT3:   format=I3D_RGBA_DXT3; break;
+        case IF_DXT5:   format=I3D_RGBA_DXT5; break;
+        }
+    }
+    Texture2DDesc desc(format, uvec2(img.width(), img.height()), 0, img.data(), img.size());
     return dev->createTexture2D(desc);
 }
 
-Texture2D* CreateTexture2DFromStream(Device *dev, IBinaryStream &st)
-{
-    Image::IOConfig conf;
-    conf.setFileType(Image::FileType_PNG);
-    Image img;
-    if(!img.load(st, conf)) {
-        istPrint("file load failed\n");
-        return false;
-    }
-    Texture2DDesc desc(I3D_RGBA8U, uvec2(img.width(), img.height()), 0, img.data());
-    return dev->createTexture2D(desc);
-}
 
 Texture2D* GenerateRandomTexture(Device *dev, const uvec2 &size, I3D_COLOR_FORMAT format)
 {
@@ -48,14 +70,14 @@ Texture2D* GenerateRandomTexture(Device *dev, const uvec2 &size, I3D_COLOR_FORMA
 Texture2D* GenerateRandomTexture(Device *dev, const uvec2 &size, I3D_COLOR_FORMAT format, SFMT& random)
 {
     stl::string buffer;
-    if(format==I3D_RGB8U) {
+    if(format==I3D_RGB8) {
         uint32 data_size = size.x*size.y*3;
         buffer.resize(data_size);
         for(uint32 i=0; i<data_size; ++i) {
             buffer[i] = random.genInt32();
         }
     }
-    else if(format==I3D_RGBA8U) {
+    else if(format==I3D_RGBA8) {
         uint32 data_size = size.x*size.y*4;
         buffer.resize(data_size);
         for(uint32 i=0; i<data_size; ++i) {
@@ -106,18 +128,22 @@ template<> inline GeometryShader* CreateShaderFromString<GeometryShader>(Device 
 }
 
 template<class ShaderType>
-inline ShaderType* CreateShaderFromStream(Device *dev, std::istream& st)
+inline ShaderType* CreateShaderFromStream(Device *dev, IBinaryStream &st)
 {
-    std::ostringstream str_out;
-    str_out << st.rdbuf();
-    return CreateShaderFromString<ShaderType>(dev, str_out.str().c_str());
+    stl::string src;
+    char tmp[1024];
+    uint64 read_size;
+    while( (read_size=st.read(tmp, _countof(tmp))) > 0 ) {
+        src.insert(src.end(), tmp, tmp+read_size);
+    }
+    return CreateShaderFromString<ShaderType>(dev, src);
 }
 
 template<class ShaderType>
 inline ShaderType* CreateShaderFromFile(Device *dev, const char *filename)
 {
-    std::ifstream  st(filename, std::ios::binary);
-    if(st.fail()) {
+    FileStream  st(filename, "rb");
+    if(!st.isOpened()) {
         istAssert("file not found %s", filename);
         return NULL;
     }
@@ -128,9 +154,9 @@ VertexShader*   CreateVertexShaderFromFile(Device *dev, const char *filename)   
 GeometryShader* CreateGeometryShaderFromFile(Device *dev, const char *filename)     { return CreateShaderFromFile<GeometryShader>(dev, filename); }
 PixelShader*    CreatePixelShaderFromFile(Device *dev, const char *filename)        { return CreateShaderFromFile<PixelShader>(dev, filename); }
 
-VertexShader*   CreateVertexShaderFromStream(Device *dev, std::istream& st)         { return CreateShaderFromStream<VertexShader>(dev, st); }
-GeometryShader* CreateGeometryShaderFromStream(Device *dev, std::istream& st)       { return CreateShaderFromStream<GeometryShader>(dev, st); }
-PixelShader*    CreatePixelShaderFromStream(Device *dev, std::istream& st)          { return CreateShaderFromStream<PixelShader>(dev, st); }
+VertexShader*   CreateVertexShaderFromStream(Device *dev, IBinaryStream &st)        { return CreateShaderFromStream<VertexShader>(dev, st); }
+GeometryShader* CreateGeometryShaderFromStream(Device *dev, IBinaryStream &st)      { return CreateShaderFromStream<GeometryShader>(dev, st); }
+PixelShader*    CreatePixelShaderFromStream(Device *dev, IBinaryStream &st)         { return CreateShaderFromStream<PixelShader>(dev, st); }
 
 VertexShader*   CreateVertexShaderFromString(Device *dev, const stl::string &source)    { return CreateShaderFromString<VertexShader>(dev, source); }
 GeometryShader* CreateGeometryShaderFromString(Device *dev, const stl::string &source)  { return CreateShaderFromString<GeometryShader>(dev, source); }

@@ -288,16 +288,11 @@ public:
     bool initialize(Device *dev, IBinaryStream &fss_stream, IBinaryStream &img_stream)
     {
         {
-            Image img;
-            if(!img.load(img_stream)) {
-                return false;
-            }
-            // alpha だけ抽出
-            Image alpha;
-            alpha.resize<R_U8>(img.width(), img.height());
-            stl::transform(img.begin<RGBA_U8>(), img.end<RGBA_U8>(), alpha.begin<R_U8>(), [&](const RGBA_U8 &src){ return R_U8(src.a); });
-            Texture2DDesc desc(I3D_R8U, uvec2(alpha.width(), alpha.height()), 0, alpha.data());
-            m_texture = dev->createTexture2D(desc);
+            Image img, alpha;
+            if(!img.load(img_stream)) { return false; }
+            // alpha だけ抽出。RGBA ではない画像であれば red だけ抽出
+            if(!ExtractAlpha(img, alpha)) { ExtractRed(img, alpha); }
+            m_texture = CreateTexture2DFromImage(dev, alpha);
         }
         if(!m_fss.load(fss_stream)) {
             return false;
@@ -414,7 +409,8 @@ IFontRenderer* CreateSpriteFont(Device *device, IBinaryStream &sff, IBinaryStrea
     if(!r->initialize(device, sff, img)) {
         return NULL;
     }
-    return r;}
+    return r;
+}
 
 } // namespace i3d
 } // namespace ist

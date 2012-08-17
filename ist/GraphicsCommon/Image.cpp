@@ -1,9 +1,7 @@
 ﻿#include "istPCH.h"
-#include <fstream>
 #include "ist/GraphicsCommon/Image.h"
 #ifdef __ist_with_gli__
 #include "gli/gli.hpp"
-#include "gli//core/texture2d.hpp"
 #include "gli/gtx/loader.hpp"
 #endif // __ist_with_gli__
 
@@ -77,7 +75,7 @@ Image::FileType GetFileTypeByFileHeader(IBinaryStream &f)
 {
     char m[4];
     f >> m; f.setReadPos(0);
-    if(m[0]=='B' && m[1]=='M' && m[2]=='8') { return Image::FileType_BMP; }
+    if(m[0]=='B' && m[1]=='M') { return Image::FileType_BMP; }
     if(m[1]=='P' && m[2]=='N' && m[3]=='G') { return Image::FileType_PNG; }
     if(m[0]=='D' && m[1]=='D' && m[2]=='S') { return Image::FileType_DDS; }
     if(m[0]==0xff && m[1]==0xd8) { return Image::FileType_JPG; }
@@ -106,12 +104,16 @@ Image::FileType GetFileTypeByExtention(const char *path)
 }
 
 
-bool Image::load(const char *path)
+bool Image::load(const char *path, const IOConfig &conf)
 {
     FileStream f(path, "rb");
-    IOConfig conf;
-    conf.setFileType(GetFileTypeByExtention(path));
-    return load(f, conf);
+    if(!f.isOpened()) { return false; }
+
+    IOConfig c = conf;
+    if(c.getFileType()==FileType_Auto) {
+        c.setFileType( GetFileTypeByExtention(path) );
+    }
+    return load(f, c);
 }
 
 bool Image::load(IBinaryStream &f, const IOConfig &conf)
@@ -135,12 +137,15 @@ bool Image::load(IBinaryStream &f, const IOConfig &conf)
 }
 
 
-bool Image::save(const char *path) const
+bool Image::save(const char *path, const IOConfig &conf) const
 {
     FileStream f(path, "wb");
-    IOConfig conf;
-    conf.setFileType(GetFileTypeByExtention(path));
-    return save(f, conf);
+    if(!f.isOpened()) { return false; }
+    IOConfig c = conf;
+    if(c.getFileType()==FileType_Auto) {
+        c.setFileType(GetFileTypeByExtention(path));
+    }
+    return save(f, c);
 }
 
 bool Image::save(IBinaryStream &f, const IOConfig &conf) const
@@ -151,6 +156,7 @@ bool Image::save(IBinaryStream &f, const IOConfig &conf) const
     case FileType_TGA: return saveTGA(f, conf);
     case FileType_PNG: return savePNG(f, conf);
     case FileType_JPG: return saveJPG(f, conf);
+    case FileType_DDS: return saveDDS(f, conf);
     }
     istPrint(L"認識できないフォーマットが指定されました。\n");
     return false;
@@ -162,9 +168,9 @@ bool Image::save(IBinaryStream &f, const IOConfig &conf) const
 
 
 
-static RGBA_U8 Read1Pixel(IBinaryStream &bf)
+static RGBA_8U Read1Pixel(IBinaryStream &bf)
 {
-    RGBA_U8 t;
+    RGBA_8U t;
     bf >> t.b >> t.g >> t.r >> t.a;
     return t;
 }
@@ -203,12 +209,12 @@ bool Image::loadBMP(IBinaryStream &bf, const IOConfig &conf)
         return false;
     }
 
-    resize<RGBA_U8>(infohead.width, infohead.height);
+    resize<RGBA_8U>(infohead.width, infohead.height);
 
     if(infohead.bits==24) {
         for(int32 yi=(int32)height()-1; yi>=0; --yi) {
             for(int32 xi=0; xi<(int32)width(); ++xi) {
-                RGBA_U8& c = get<RGBA_U8>(yi, xi);
+                RGBA_8U& c = get<RGBA_8U>(yi, xi);
                 bf >> c.b >> c.g >> c.r;
                 c.a = 255;
             }
@@ -217,7 +223,7 @@ bool Image::loadBMP(IBinaryStream &bf, const IOConfig &conf)
     else if(infohead.bits==32) {
         for(int32 yi=(int32)height()-1; yi>=0; --yi) {
             for(int32 xi=0; xi<(int32)width(); ++xi) {
-                RGBA_U8& c = get<RGBA_U8>(yi, xi);
+                RGBA_8U& c = get<RGBA_8U>(yi, xi);
                 bf >> c.b >> c.g >> c.r >> c.a;
             }
         }
@@ -256,7 +262,7 @@ bool Image::saveBMP(IBinaryStream &bf, const IOConfig &conf) const
 
     for(int32 yi=(int32)height()-1; yi>=0; --yi) {
         for(int32 xi=0; xi<(int32)width(); ++xi) {
-            const RGBA_U8& c = get<RGBA_U8>(yi, xi);
+            const RGBA_8U& c = get<RGBA_8U>(yi, xi);
             bf << c.b << c.g << c.r;
         }
     }
@@ -289,12 +295,12 @@ bool Image::loadTGA(IBinaryStream &bf, const IOConfig &conf)
         return false;
     }
 
-    resize<RGBA_U8>(head.width, head.height);
+    resize<RGBA_8U>(head.width, head.height);
 
     for(int32 yi=(int32)height()-1; yi>=0; --yi) {
         if(head.image_type==2) {
             for(int32 xi=0; xi<(int32)width(); xi++) {
-                get<RGBA_U8>(yi, xi) = Read1Pixel(bf);
+                get<RGBA_8U>(yi, xi) = Read1Pixel(bf);
             }
         }
         else if(head.image_type==10) {
@@ -304,13 +310,13 @@ bool Image::loadTGA(IBinaryStream &bf, const IOConfig &conf)
                 bf >> dist;
                 if( dist<0x80) {
                     for(int32 xi=0; xi<dist+1; ++xi, ++loaded) {
-                        get<RGBA_U8>(yi, loaded) = Read1Pixel(bf);
+                        get<RGBA_8U>(yi, loaded) = Read1Pixel(bf);
                     }
                 }
                 else {
-                    RGBA_U8 t = Read1Pixel(bf);
+                    RGBA_8U t = Read1Pixel(bf);
                     for(int32 xi=0x80; xi<dist+1; ++xi, ++loaded) {
-                        get<RGBA_U8>(yi, loaded) = t;
+                        get<RGBA_8U>(yi, loaded) = t;
                     }
                 }
             }
@@ -328,14 +334,14 @@ public:
 
     const stl::vector<uint8>& getCompressedData() const { return m_comp_pixel; }
 
-    void compress(const RGBA_U8 *start, int32 width)
+    void compress(const RGBA_8U *start, int32 width)
     {
-        stl::vector<RGBA_U8> same, diff;
+        stl::vector<RGBA_8U> same, diff;
 
         for(int32 i=0; i!=width; ++i, ++start)
         {
-            const RGBA_U8 *ip=start; ++ip;
-            RGBA_U8 dist=*start;
+            const RGBA_8U *ip=start; ++ip;
+            RGBA_8U dist=*start;
 
             if( i+1!=width && dist==*ip && same.size()<0x79 )
             {
@@ -373,7 +379,7 @@ public:
     }
 
 private:
-    void writeSameData(stl::vector<RGBA_U8> &temp_pixel)
+    void writeSameData(stl::vector<RGBA_8U> &temp_pixel)
     {
         m_comp_pixel.push_back( temp_pixel.size()+0x80 );
 
@@ -385,7 +391,7 @@ private:
         temp_pixel.clear();
     }
 
-    void writeDifferentData(stl::vector<RGBA_U8> &temp_pixel)
+    void writeDifferentData(stl::vector<RGBA_8U> &temp_pixel)
     {
         m_comp_pixel.push_back( temp_pixel.size()-1 );
 
@@ -426,7 +432,7 @@ bool Image::saveTGA(IBinaryStream &bf, const Image::IOConfig &conf) const
         TGACompress comp;
         for(int32 yi=(int32)height()-1; yi>=0; --yi)
         {
-            comp.compress(&get<RGBA_U8>(yi, 0), width());
+            comp.compress(&get<RGBA_8U>(yi, 0), width());
         }
         const stl::vector<uint8>& data = comp.getCompressedData();
         bf.write(&data[0], data.size());
@@ -486,7 +492,7 @@ bool Image::loadPNG(IBinaryStream &f, const IOConfig &conf)
     ::png_read_info(png_ptr, info_ptr);
     ::png_get_IHDR(png_ptr, info_ptr, &w, &h, &bit_depth, &color_type, &interlace_type, NULL, NULL);
 
-    resize<RGBA_U8>(w, h);
+    resize<RGBA_8U>(w, h);
 
     ::png_set_strip_16(png_ptr);
     ::png_set_packing(png_ptr);
@@ -514,7 +520,7 @@ bool Image::loadPNG(IBinaryStream &f, const IOConfig &conf)
 
     for(int32 yi=0; yi<(int32)height(); ++yi) {
         for(int32 xi=0; xi<(int32)width(); ++xi) {
-            RGBA_U8& c = get<RGBA_U8>(yi, xi);
+            RGBA_8U& c = get<RGBA_8U>(yi, xi);
             if(color_type==PNG_COLOR_TYPE_RGB_ALPHA) {
                 c.r = row_pointers[yi][xi*4+0];
                 c.g = row_pointers[yi][xi*4+1];
@@ -571,7 +577,7 @@ bool Image::savePNG(IBinaryStream &f, const Image::IOConfig &conf) const
     stl::vector<png_bytep> row_pointers(height());
     for(int32 yi=0; yi<(int32)height(); ++yi)
     {
-        row_pointers[yi] = tmp.get<RGBA_U8>(yi, 0).v;
+        row_pointers[yi] = tmp.get<RGBA_8U>(yi, 0).v;
     }
 
     ::png_write_image(png_ptr, &row_pointers[0]);
@@ -799,7 +805,7 @@ bool Image::loadJPG(IBinaryStream &f, const IOConfig &conf)
         jpeg_read_scanlines(&cinfo, buffer, 1);
         for(int32 i=0; i<(int32)row_stride/3; ++i)
         {
-            RGBA_U8 col(buffer[0][i*3+0], buffer[0][i*3+1], buffer[0][i*3+2], 255);
+            RGBA_8U col(buffer[0][i*3+0], buffer[0][i*3+1], buffer[0][i*3+2], 255);
             at(pix_count) = col;
             ++pix_count;
         }
@@ -867,6 +873,7 @@ bool Image::saveJPG(IBinaryStream &f, const IOConfig &conf) const
 } // namespace ist
 
 
+#ifdef __ist_with_gli__
 namespace gli {
 namespace gtx {
 namespace loader_dds10{
@@ -965,72 +972,38 @@ inline texture2D loadDDS10_ex( ist::IBinaryStream &bin )
 } // loader_dds10
 } // namespace gtx
 } // namespace gli
+#endif // __ist_with_gli__
 
 namespace ist {
 
 bool Image::loadDDS( IBinaryStream &f, const IOConfig &conf )
 {
+#ifdef __ist_with_gli__
     gli::texture2D tex = gli::gtx::loader_dds10::detail::loadDDS10_ex(f);
-    resize<RGBA_U8>(tex[0].dimensions().x, tex[0].dimensions().y);
+    ivec2 dim = ivec2(tex[0].dimensions().x, tex[0].dimensions().y);
     switch(tex.format()) {
-    case gli::R8U:
-        {
-            struct R { uint8 r; };
-            const R *src = (const R*)tex[0].data();
-            for(int32 yi=(int32)height()-1; yi>=0; --yi) {
-                for(int32 xi=0; xi<(int32)width(); ++xi) {
-                    RGBA_U8 &dst = get<RGBA_U8>(yi, xi);
-                    dst.r = src[width()*yi + xi].r;
-                }
-            }
-        }
-        return true;
+    case gli::R8U:      setup(IF_R8U, dim.x, dim.y, tex[0].capacity()); break;
+    case gli::R8I:      setup(IF_R8I, dim.x, dim.y, tex[0].capacity()); break;
+    case gli::R32F:     setup(IF_R32F, dim.x, dim.y, tex[0].capacity()); break;
+    case gli::RG8U:     setup(IF_RG8U, dim.x, dim.y, tex[0].capacity()); break;
+    case gli::RG8I:     setup(IF_RG8I, dim.x, dim.y, tex[0].capacity()); break;
+    case gli::RG32F:    setup(IF_RG32F, dim.x, dim.y, tex[0].capacity()); break;
+    case gli::RGB8U:    setup(IF_RGB8U, dim.x, dim.y, tex[0].capacity()); break;
+    case gli::RGB8I:    setup(IF_RGB8I, dim.x, dim.y, tex[0].capacity()); break;
+    case gli::RGB32F:   setup(IF_RGB32F, dim.x, dim.y, tex[0].capacity()); break;
+    case gli::RGBA8U:   setup(IF_RGBA8U, dim.x, dim.y, tex[0].capacity()); break;
+    case gli::RGBA8I:   setup(IF_RGBA8I, dim.x, dim.y, tex[0].capacity()); break;
+    case gli::RGBA32F:  setup(IF_RGBA32F, dim.x, dim.y, tex[0].capacity()); break;
 
-    case gli::RG8U:
-        {
-            struct RG { uint8 r,g; };
-            const RG *src = (const RG*)tex[0].data();
-            for(int32 yi=(int32)height()-1; yi>=0; --yi) {
-                for(int32 xi=0; xi<(int32)width(); ++xi) {
-                    RGBA_U8 &dst = get<RGBA_U8>(yi, xi);
-                    dst.r = src[width()*yi + xi].r;
-                    dst.g = src[width()*yi + xi].g;
-                }
-            }
-        }
-        return true;
+    case gli::DXT1:     setup(IF_DXT1, dim.x, dim.y, tex[0].capacity()); break;
+    case gli::DXT3:     setup(IF_DXT3, dim.x, dim.y, tex[0].capacity()); break;
+    case gli::DXT5:     setup(IF_DXT5, dim.x, dim.y, tex[0].capacity()); break;
 
-    case gli::RGB8U:
-        {
-            struct RGB { uint8 r,g,b; };
-            const RGB *src = (const RGB*)tex[0].data();
-            for(int32 yi=(int32)height()-1; yi>=0; --yi) {
-                for(int32 xi=0; xi<(int32)width(); ++xi) {
-                    RGBA_U8 &dst = get<RGBA_U8>(yi, xi);
-                    dst.r = src[width()*yi + xi].r;
-                    dst.g = src[width()*yi + xi].g;
-                    dst.b = src[width()*yi + xi].b;
-                }
-            }
-        }
-        return true;
-
-    case gli::RGBA8U:
-        {
-            struct RGBA { uint8 r,g,b,a; };
-            const RGBA *src = (const RGBA*)tex[0].data();
-            for(int32 yi=(int32)height()-1; yi>=0; --yi) {
-                for(int32 xi=0; xi<(int32)width(); ++xi) {
-                    RGBA_U8 &dst = get<RGBA_U8>(yi, xi);
-                    dst.r = src[width()*yi + xi].r;
-                    dst.g = src[width()*yi + xi].g;
-                    dst.b = src[width()*yi + xi].b;
-                    dst.a = src[width()*yi + xi].a;
-                }
-            }
-        }
-        return true;
+    default: return false;
     }
+    memcpy(data(), tex[0].data(), tex[0].capacity());
+    return true;
+#endif // __ist_with_gli__
     return false;
 }
 

@@ -59,7 +59,12 @@ Texture1D::Texture1D(Device *dev, const Texture1DDesc &desc)
     DetectGLFormat(m_desc.format, internal_format, format, type);
 
     bind();
-    glTexImage1D( TEXTURE_TYPE, 0, internal_format, m_desc.size, 0, format, type, m_desc.data );
+    if(m_desc.format<I3D_RGB_DXT1) {
+        glTexImage1D( TEXTURE_TYPE, 0, internal_format, m_desc.size, 0, format, type, m_desc.data );
+    }
+    else {
+        glCompressedTexImage1D( TEXTURE_TYPE, 0, internal_format, m_desc.size, 0, m_desc.data_size, m_desc.data );
+    }
     if(desc.mipmap != 0) {
         glGenerateMipmap(TEXTURE_TYPE);
     }
@@ -132,7 +137,12 @@ Texture2D::Texture2D(Device *dev, const Texture2DDesc &desc)
     DetectGLFormat(m_desc.format, internal_format, format, type);
 
     bind();
-    glTexImage2D( TEXTURE_TYPE, 0, internal_format, m_desc.size.x, m_desc.size.y, 0, format, type, m_desc.data );
+    if(m_desc.format<I3D_RGB_DXT1) {
+        glTexImage2D( TEXTURE_TYPE, 0, internal_format, m_desc.size.x, m_desc.size.y, 0, format, type, m_desc.data );
+    }
+    else {
+        glCompressedTexImage2D( TEXTURE_TYPE, 0, internal_format, m_desc.size.x, m_desc.size.y, 0, m_desc.data_size, m_desc.data );
+    }
     if(desc.mipmap != 0) {
         glGenerateMipmap(TEXTURE_TYPE);
     }
@@ -208,7 +218,12 @@ Texture3D::Texture3D(Device *dev, const Texture3DDesc &desc)
     DetectGLFormat(m_desc.format, internal_format, format, type);
 
     bind();
-    glTexImage3D( TEXTURE_TYPE, 0, internal_format, m_desc.size.x, m_desc.size.y, m_desc.size.z, 0, format, type, m_desc.data );
+    if(m_desc.format<I3D_RGB_DXT1) {
+        glTexImage3D( TEXTURE_TYPE, 0, internal_format, m_desc.size.x, m_desc.size.y, m_desc.size.z, 0, format, type, m_desc.data );
+    }
+    else {
+        glCompressedTexImage3D( TEXTURE_TYPE, 0, internal_format, m_desc.size.x, m_desc.size.y, m_desc.size.z, 0, m_desc.data_size, m_desc.data );
+    }
     if(desc.mipmap != 0) {
         glGenerateMipmap(TEXTURE_TYPE);
     }

@@ -10,8 +10,9 @@ namespace ist {
 namespace i3dgl {
 
 // 画像ファイル/ストリームからテクスチャ生成
-Texture2D* CreateTexture2DFromFile(Device *dev, const char *filename);
-Texture2D* CreateTexture2DFromStream(Device *dev, std::istream& st);
+Texture2D* CreateTexture2DFromFile(Device *dev, const char *filename, I3D_COLOR_FORMAT format=I3D_COLOR_UNKNOWN);
+Texture2D* CreateTexture2DFromStream(Device *dev, IBinaryStream &st, I3D_COLOR_FORMAT format=I3D_COLOR_UNKNOWN);
+Texture2D* CreateTexture2DFromImage(Device *dev, Image &img, I3D_COLOR_FORMAT format=I3D_COLOR_UNKNOWN);
 
 // 乱数テクスチャ生成
 Texture2D* GenerateRandomTexture(Device *dev, const uvec2 &size, I3D_COLOR_FORMAT format);
@@ -22,9 +23,9 @@ VertexShader*   CreateVertexShaderFromFile(Device *dev, const char *filename);
 GeometryShader* CreateGeometryShaderFromFile(Device *dev, const char *filename);
 PixelShader*    CreatePixelShaderFromFile(Device *dev, const char *filename);
 
-VertexShader*   CreateVertexShaderFromStream(Device *dev, std::istream& st);
-GeometryShader* CreateGeometryShaderFromStream(Device *dev, std::istream& st);
-PixelShader*    CreatePixelShaderFromStream(Device *dev, std::istream& st);
+VertexShader*   CreateVertexShaderFromStream(Device *dev, IBinaryStream &st);
+GeometryShader* CreateGeometryShaderFromStream(Device *dev, IBinaryStream &st);
+PixelShader*    CreatePixelShaderFromStream(Device *dev, IBinaryStream &st);
 
 VertexShader*   CreateVertexShaderFromString(Device *dev, const stl::string &source);
 GeometryShader* CreateGeometryShaderFromString(Device *dev, const stl::string &source);

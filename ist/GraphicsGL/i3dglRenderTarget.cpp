@@ -11,22 +11,47 @@ bool DetectGLFormat(I3D_COLOR_FORMAT fmt, GLint &internal_format, GLint &format,
 {
     switch(fmt)
     {
-    case I3D_R8U:       internal_format=GL_R8;      format=GL_RED;  type=GL_UNSIGNED_BYTE;  break;
-    case I3D_R16F:      internal_format=GL_R16F;    format=GL_RED;  type=GL_FLOAT;          break;
-    case I3D_R32F:      internal_format=GL_R32F;    format=GL_RED;  type=GL_FLOAT;          break;
-    case I3D_RG8U:      internal_format=GL_RG8;     format=GL_RG;   type=GL_UNSIGNED_BYTE;  break;
-    case I3D_RG16F:     internal_format=GL_RG16F;   format=GL_RG;   type=GL_FLOAT;          break;
-    case I3D_RG32F:     internal_format=GL_RG32F;   format=GL_RG;   type=GL_FLOAT;          break;
-    case I3D_RGB8U:     internal_format=GL_RGB8;    format=GL_RGB;  type=GL_UNSIGNED_BYTE;  break;
-    case I3D_RGB16F:    internal_format=GL_RGB16F;  format=GL_RGB;  type=GL_FLOAT;          break;
-    case I3D_RGB32F:    internal_format=GL_RGB32F;  format=GL_RGB;  type=GL_FLOAT;          break;
-    case I3D_RGBA8U:    internal_format=GL_RGBA8;   format=GL_RGBA; type=GL_UNSIGNED_BYTE;  break;
-    case I3D_RGBA16F:   internal_format=GL_RGBA16F; format=GL_RGBA; type=GL_FLOAT;          break;
-    case I3D_RGBA32F:   internal_format=GL_RGBA32F; format=GL_RGBA; type=GL_FLOAT;          break;
-    case I3D_DEPTH16F:  internal_format=GL_DEPTH_COMPONENT16; format=GL_DEPTH_COMPONENT; type=GL_FLOAT; break;
-    case I3D_DEPTH32F:  internal_format=GL_DEPTH_COMPONENT; format=GL_DEPTH_COMPONENT; type=GL_FLOAT; break;
-    case I3D_DEPTH24_STENCIL8:    internal_format=GL_DEPTH24_STENCIL8;  format=GL_DEPTH_STENCIL; type=GL_UNSIGNED_INT_24_8; break;
-    case I3D_DEPTH32F_STENCIL8:   internal_format=GL_DEPTH32F_STENCIL8; format=GL_DEPTH_STENCIL; type=GL_FLOAT_32_UNSIGNED_INT_24_8_REV; break;
+    case I3D_R8:        internal_format=GL_R8;          format=GL_RED;  type=GL_UNSIGNED_BYTE;  break;
+    case I3D_R8S:       internal_format=GL_R8_SNORM;    format=GL_RED;  type=GL_BYTE;           break;
+    case I3D_R8U:       internal_format=GL_R8UI;        format=GL_RED;  type=GL_UNSIGNED_BYTE;  break;
+    case I3D_R8I:       internal_format=GL_R8I;         format=GL_RED;  type=GL_BYTE;           break;
+    case I3D_R16F:      internal_format=GL_R16F;        format=GL_RED;  type=GL_FLOAT;          break;
+    case I3D_R32F:      internal_format=GL_R32F;        format=GL_RED;  type=GL_FLOAT;          break;
+
+    case I3D_RG8:       internal_format=GL_RG8;         format=GL_RG;   type=GL_UNSIGNED_BYTE;  break;
+    case I3D_RG8S:      internal_format=GL_RG8_SNORM;   format=GL_RG;   type=GL_BYTE;           break;
+    case I3D_RG8U:      internal_format=GL_RG8UI;       format=GL_RG;   type=GL_UNSIGNED_BYTE;  break;
+    case I3D_RG8I:      internal_format=GL_RG8I;        format=GL_RG;   type=GL_BYTE;           break;
+    case I3D_RG16F:     internal_format=GL_RG16F;       format=GL_RG;   type=GL_FLOAT;          break;
+    case I3D_RG32F:     internal_format=GL_RG32F;       format=GL_RG;   type=GL_FLOAT;          break;
+
+    case I3D_RGB8:      internal_format=GL_RGB8;        format=GL_RGB;  type=GL_UNSIGNED_BYTE;  break;
+    case I3D_RGB8S:     internal_format=GL_RGB8_SNORM;  format=GL_RGB;  type=GL_BYTE;           break;
+    case I3D_RGB8U:     internal_format=GL_RGB8UI;      format=GL_RGB;  type=GL_UNSIGNED_BYTE;  break;
+    case I3D_RGB8I:     internal_format=GL_RGB8I;       format=GL_RGB;  type=GL_BYTE;           break;
+    case I3D_RGB16F:    internal_format=GL_RGB16F;      format=GL_RGB;  type=GL_FLOAT;          break;
+    case I3D_RGB32F:    internal_format=GL_RGB32F;      format=GL_RGB;  type=GL_FLOAT;          break;
+
+    case I3D_RGBA8:     internal_format=GL_RGBA8;       format=GL_RGBA; type=GL_UNSIGNED_BYTE;  break;
+    case I3D_RGBA8S:    internal_format=GL_RGBA8_SNORM; format=GL_RGBA; type=GL_BYTE;           break;
+    case I3D_RGBA8U:    internal_format=GL_RGBA8UI;     format=GL_RGBA; type=GL_UNSIGNED_BYTE;  break;
+    case I3D_RGBA8I:    internal_format=GL_RGBA8I;      format=GL_RGBA; type=GL_BYTE;           break;
+    case I3D_RGBA16F:   internal_format=GL_RGBA16F;     format=GL_RGBA; type=GL_FLOAT;          break;
+    case I3D_RGBA32F:   internal_format=GL_RGBA32F;     format=GL_RGBA; type=GL_FLOAT;          break;
+
+    case I3D_DEPTH16F:          internal_format=GL_DEPTH_COMPONENT16;   format=GL_DEPTH_COMPONENT;  type=GL_FLOAT;                          break;
+    case I3D_DEPTH32F:          internal_format=GL_DEPTH_COMPONENT;     format=GL_DEPTH_COMPONENT;  type=GL_FLOAT;                          break;
+    case I3D_DEPTH24_STENCIL8:  internal_format=GL_DEPTH24_STENCIL8;    format=GL_DEPTH_STENCIL;    type=GL_UNSIGNED_INT_24_8;              break;
+    case I3D_DEPTH32F_STENCIL8: internal_format=GL_DEPTH32F_STENCIL8;   format=GL_DEPTH_STENCIL;    type=GL_FLOAT_32_UNSIGNED_INT_24_8_REV; break;
+
+    case I3D_RGB_DXT1:  internal_format=GL_COMPRESSED_RGB_S3TC_DXT1_EXT;        break;
+    case I3D_SRGB_DXT1: internal_format=GL_COMPRESSED_SRGB_S3TC_DXT1_EXT;       break;
+    case I3D_RGBA_DXT1: internal_format=GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;       break;
+    case I3D_SRGBA_DXT1:internal_format=GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT; break;
+    case I3D_RGBA_DXT3: internal_format=GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;       break;
+    case I3D_SRGBA_DXT3:internal_format=GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT; break;
+    case I3D_RGBA_DXT5: internal_format=GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;       break;
+    case I3D_SRGBA_DXT5:internal_format=GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT; break;
     default:
         istAssert(false, "unknown format: %d", fmt);
         return false;
