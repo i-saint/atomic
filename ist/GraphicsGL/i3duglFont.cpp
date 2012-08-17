@@ -333,17 +333,17 @@ public:
 
     virtual void addText(const vec2 &pos, const char *text, size_t len)
     {
-        //size_t wlen = mbstowcs(NULL, text, 0);
-        //if(wlen==size_t(-1)) { return; }
-        //wchar_t *wtext = (wchar_t*)istRawAlloca(sizeof(wchar_t)*wlen);
-        // ↑意図した結果にならない。_alloca() はマルチスレッド非対応？
-        // しょうがないので固定サイズで…。
+        // _alloca() で一時領域高速に取りたいところだが、_alloca() はマルチスレッド非対応っぽいので素直な実装で
+        if(len==0) { len = strlen(text); }
+        stl::string tmp(text, len);
 
-        wchar_t wtext[1024];
-        size_t wlen = mbstowcs(wtext, text, _countof(wtext));
+        size_t wlen = mbstowcs(NULL, tmp.c_str(), 0);
         if(wlen==size_t(-1)) { return; }
 
-        addText(pos, wtext, wlen);
+        stl::wstring wtext;
+        wtext.resize(wlen);
+        mbstowcs(&wtext[0], tmp.c_str(), wlen);
+        addText(x,y, wtext.c_str(), wlen);
     }
 
     virtual void addText(const vec2 &pos, const wchar_t *text, size_t len)
