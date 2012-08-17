@@ -300,6 +300,9 @@
     <ClInclude Include="ist\istPCH.h">
       <Filter>ist</Filter>
     </ClInclude>
+    <ClInclude Include="ist\Base\CRTex.h">
+      <Filter>ist\Base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ist\Window\Application.cpp">

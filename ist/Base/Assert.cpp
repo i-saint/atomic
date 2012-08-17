@@ -83,10 +83,10 @@ void DebugPrintV(const char* file, int line, const char* fmt, va_list vl)
 {
 #ifdef istWindows
     char buf[DPRINTF_MES_LENGTH];
-    _snprintf_s(buf, DPRINTF_MES_LENGTH, "%s:%d - ", file, line);
+    istsprintf(buf, "%s:%d - ", file, line);
     ::OutputDebugStringA(buf);
     WriteLogFile(buf);
-    _vsnprintf_s(buf, DPRINTF_MES_LENGTH, fmt, vl);
+    istvsprintf(buf, fmt, vl);
     ::OutputDebugStringA(buf);
     WriteLogFile(buf);
 #else // istWindows
@@ -108,10 +108,10 @@ void DebugPrintV(const char* file, int line, const wchar_t* fmt, va_list vl)
 #ifdef istWindows
     char buf[DPRINTF_MES_LENGTH];
     wchar_t wbuf[DPRINTF_MES_LENGTH];
-    _snprintf_s(buf, DPRINTF_MES_LENGTH, "%s:%d - ", file, line);
+    istsprintf(buf, "%s:%d - ", file, line);
     ::OutputDebugStringA(buf);
     WriteLogFile(buf);
-    _vsnwprintf_s(wbuf, DPRINTF_MES_LENGTH, _TRUNCATE, fmt, vl);
+    istvsprintf(wbuf, fmt, vl);
     ::OutputDebugStringW(wbuf);
     WriteLogFile(wbuf);
 #else // istWindows
@@ -134,10 +134,10 @@ int DebugAssertV(const char* file, int line, const char* fmt, va_list vl)
 {
 #ifdef istWindows
     char buf[DPRINTF_MES_LENGTH];
-    _snprintf_s(buf, DPRINTF_MES_LENGTH, "assertion failed %s:%d - ", file, line);
+    istsprintf(buf, "assertion failed %s:%d - ", file, line);
     ::OutputDebugStringA(buf);
     WriteLogFile(buf);
-    _vsnprintf_s(buf, DPRINTF_MES_LENGTH, fmt, vl);
+    istvsprintf(buf, fmt, vl);
     ::OutputDebugStringA(buf);
     WriteLogFile(buf);
     DebugBreak();
@@ -145,7 +145,7 @@ int DebugAssertV(const char* file, int line, const char* fmt, va_list vl)
     printf("assertion failed %s:%d - ", file, line);
     vprintf(fmt, vl);
     fflush(stdout);
-    fgets(buf, DPRINTF_MES_LENGTH, stdin);
+    fgets(buf, _countof(buf), stdin);
     return s_assert_handler ? s_assert_handler() : 0;
 #endif // istWindows
     return 0;
@@ -165,10 +165,10 @@ int DebugAssertV(const char* file, int line, const wchar_t* fmt, va_list vl)
 #ifdef istWindows
     char buf[DPRINTF_MES_LENGTH];
     wchar_t wbuf[DPRINTF_MES_LENGTH];
-    _snprintf_s(buf, DPRINTF_MES_LENGTH, "assertion failed %s:%d - ", file, line);
+    istsprintf(buf, "assertion failed %s:%d - ", file, line);
     ::OutputDebugStringA(buf);
     WriteLogFile(buf);
-    _vsnwprintf_s(wbuf, DPRINTF_MES_LENGTH, _TRUNCATE, fmt, vl);
+    istvsnwprintf(wbuf, _countof(wbuf), fmt, vl);
     ::OutputDebugStringW(wbuf);
     WriteLogFile(wbuf);
     DebugBreak();
@@ -176,7 +176,7 @@ int DebugAssertV(const char* file, int line, const wchar_t* fmt, va_list vl)
     printf("assertion failed %s:%d - ", file, line);
     vprintf(fmt, vl);
     fflush(stdout);
-    fgets(buf, DPRINTF_MES_LENGTH, stdin);
+    fgets(buf, _countof(buf), stdin);
     return s_assert_handler ? s_assert_handler() : 0;
 #endif // istWindows
     return 0;

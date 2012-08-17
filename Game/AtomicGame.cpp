@@ -33,7 +33,7 @@ AtomicGame::~AtomicGame()
         char path[128];
         char date[128];
         CreateDateString(date, _countof(date));
-        sprintf_s(path, _countof(path), "%s.replay", date);
+        istsprintf(path, "%s.replay", date);
         for(size_t i=0; i<_countof(path); ++i) { if(path[i]=='/' || path[i]==':') { path[i]='-'; } }
         static_cast<InputServerLocal*>(m_input_server)->writeToFile(path);
     }
@@ -117,7 +117,7 @@ void AtomicGame::drawCallback()
         uint32 len  = static_cast<InputServerReplay*>(m_input_server)->getReplayLength();
         uint32 pos  = static_cast<InputServerReplay*>(m_input_server)->getReplayPosition();
         char buf[128];
-        _snprintf(buf, _countof(buf), "Replay %d / %d", pos, len);
+        istsprintf(buf, "Replay %d / %d", pos, len);
         atomicGetSystemTextRenderer()->addText(vec2(5.0f, (float32)wsize.y), buf);
     }
     if(m_world) {

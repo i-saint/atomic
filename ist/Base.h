@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "Base/Decl.h"
+#include "Base/CRTex.h"
 #include "Base/Types.h"
 #include "Base/Allocator.h"
 #include "Base/New.h"

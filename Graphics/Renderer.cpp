@@ -268,12 +268,12 @@ void AtomicRenderer::passOutput()
     // texts 
 
     char buf[64];
-    sprintf(buf, "FPS: %.0f", atomicGetRenderingSystem()->getAverageFPS());
+    istsprintf(buf, "FPS: %.0f", atomicGetRenderingSystem()->getAverageFPS());
     m_stext->addText(vec2(5.0f, 5.0f), buf);
-    sprintf(buf, "Particles: %d", SPHGetStates().fluid_num_particles);
+    istsprintf(buf, "Particles: %d", SPHGetStates().fluid_num_particles);
     m_stext->addText(vec2(5.0f, 25.0f), buf);
 
-    sprintf(buf, "Bloom: [F2]");
+    istsprintf(buf, "Bloom: [F2]");
     m_stext->addText(vec2(5.0f, 45.0f), buf);
     {
         const char names[6][32] = {
@@ -284,21 +284,21 @@ void AtomicRenderer::passOutput()
             "glow",
             "all",
         };
-        sprintf(buf, "GBuffer: %s [F3/F4]", names[std::abs(atomicGetConfig()->debug_show_gbuffer)%6]);
+        istsprintf(buf, "GBuffer: %s [F3/F4]", names[std::abs(atomicGetConfig()->debug_show_gbuffer)%6]);
     }
     m_stext->addText(vec2(5.0f, 110.0f), buf);
-    sprintf(buf, "Lights: %d [F5/F6]", atomicGetConfig()->debug_show_lights);
+    istsprintf(buf, "Lights: %d [F5/F6]", atomicGetConfig()->debug_show_lights);
     m_stext->addText(vec2(5.0f, 130.0f), buf);
-    sprintf(buf, "Pause: [F7]");
+    istsprintf(buf, "Pause: [F7]");
     m_stext->addText(vec2(5.0f, 150.0f), buf);
-    sprintf(buf, "Toggle Multiresolution: [F8]");
+    istsprintf(buf, "Toggle Multiresolution: [F8]");
     m_stext->addText(vec2(5.0f, 170.0f), buf);
-    sprintf(buf, "Show Multiresolution Level: [F9]");
+    istsprintf(buf, "Show Multiresolution Level: [F9]");
     m_stext->addText(vec2(5.0f, 190.0f), buf);
 
-    sprintf(buf, "Multiresolution Threshold: %.3f ([8]<- [9]->)", atomicGetLights()->getMultiresolutionParams().Threshold.x);
+    istsprintf(buf, "Multiresolution Threshold: %.3f ([8]<- [9]->)", atomicGetLights()->getMultiresolutionParams().Threshold.x);
     m_stext->addText(vec2(5.0f, 210.0f), buf);
-    sprintf(buf, "やったー！日本語出たよー！");
+    istsprintf(buf, "やったー！日本語出たよー！");
     m_stext->addText(vec2(5.0f, 230.0f), buf);
 
     m_stext->draw();
