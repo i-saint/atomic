@@ -5,26 +5,6 @@ namespace ist {
 namespace i3dgl {
 
 
-class Viewport
-{
-private:
-    ivec2 m_pos;
-    uvec2 m_size;
-
-public:
-    Viewport() : m_pos(0,0), m_size(100,100) {}
-    Viewport(const ivec2 pos, const uvec2 &size) : m_pos(pos), m_size(size) {}
-
-    const ivec2& getPosition() const{ return m_pos; }
-    const uvec2& getSize() const    { return m_size; }
-    float32 getAspectRatio() const  { return (float32)m_size.x/(float32)m_size.y; }
-    void setPosition(const ivec2 v) { m_pos=v; }
-    void setSize(const ivec2 v)     { m_size=v; }
-
-    bool bind() const;
-};
-
-
 class __declspec(align(16)) Camera
 {
 private:

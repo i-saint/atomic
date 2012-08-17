@@ -269,12 +269,12 @@ void AtomicRenderer::passOutput()
 
     char buf[64];
     sprintf(buf, "FPS: %.0f", atomicGetRenderingSystem()->getAverageFPS());
-    m_stext->addText(vec2(5.0f, 20.0f), buf);
+    m_stext->addText(vec2(5.0f, 5.0f), buf);
     sprintf(buf, "Particles: %d", SPHGetStates().fluid_num_particles);
-    m_stext->addText(vec2(5.0f, 40.0f), buf);
+    m_stext->addText(vec2(5.0f, 25.0f), buf);
 
     sprintf(buf, "Bloom: [F2]");
-    m_stext->addText(vec2(5.0f, 90.0f), buf);
+    m_stext->addText(vec2(5.0f, 45.0f), buf);
     {
         const char names[6][32] = {
             "hidden",
@@ -328,7 +328,7 @@ void SystemTextRenderer::draw()
         atomicGetFont()->setScreen(0.0f, wsize.x, wsize.y, 0.0f);
         atomicGetFont()->setSize(18.0f);
         atomicGetFont()->setMonospace(true);
-        atomicGetFont()->setSpace(0.75f);
+        atomicGetFont()->setSpacing(0.75f);
     }
     for(uint32 i=0; i<m_texts.size(); ++i) {
         const Text &t = m_texts[i];

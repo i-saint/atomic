@@ -189,7 +189,7 @@ void PassDeferredShading_Lights::drawMultiResolution()
     // 1/4 の解像度で shading
     {
         Viewport vp(ivec2(), rt_quarter->getColorBuffer(0)->getDesc().size);
-        vp.bind();
+        dc->setViewport(vp);
 
         rt_quarter->setDepthStencilBuffer(rt_gbuffer->getDepthStencilBuffer(), 2);
         rt_quarter->bind();
@@ -203,7 +203,7 @@ void PassDeferredShading_Lights::drawMultiResolution()
     // 1/2
     {
         Viewport vp(ivec2(), rt_half->getColorBuffer(0)->getDesc().size);
-        vp.bind();
+        dc->setViewport(vp);
 
         rt_half->setDepthStencilBuffer(rt_gbuffer->getDepthStencilBuffer(), 1);
         rt_half->bind();
@@ -218,7 +218,7 @@ void PassDeferredShading_Lights::drawMultiResolution()
 
     // 1/1
     {
-        atomicGetDefaultViewport()->bind();
+        dc->setViewport(*atomicGetDefaultViewport());
         rt_original->bind();
 
         upsampling(1);

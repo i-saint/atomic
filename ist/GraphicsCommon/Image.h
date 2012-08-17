@@ -1,7 +1,6 @@
 ﻿#ifndef __ist_GraphicsCommon_Image_h__
 #define __ist_GraphicsCommon_Image_h__
 
-#include <vector>
 #include "ist/Base.h"
 
 namespace ist {
@@ -81,11 +80,13 @@ enum ImageFormat {
     IF_R8U,  IF_RG8U,  IF_RGB8U,  IF_RGBA8U,
     IF_R8I,  IF_RG8I,  IF_RGB8I,  IF_RGBA8I,
     IF_R32F, IF_RG32F, IF_RGB32F, IF_RGBA32F,
-    IF_DXT1, IF_DXT3,  IF_DXT5,
+    IF_RGBA_DXT1,
+    IF_RGBA_DXT3,
+    IF_RGBA_DXT5,
 };
 
 template<class T> struct GetImageFotmatID;
-template<> struct GetImageFotmatID<char*>   { enum { Result=IF_Unknown }; };
+template<> struct GetImageFotmatID<char>    { enum { Result=IF_Unknown }; };
 template<> struct GetImageFotmatID<R_8U>    { enum { Result=IF_R8U }; };
 template<> struct GetImageFotmatID<RG_8U>   { enum { Result=IF_RG8U }; };
 template<> struct GetImageFotmatID<RGB_8U>  { enum { Result=IF_RGB8U }; };

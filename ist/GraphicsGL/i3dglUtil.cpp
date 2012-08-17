@@ -38,21 +38,21 @@ Texture2D* CreateTexture2DFromImage(Device *dev, Image &img, I3D_COLOR_FORMAT fo
 {
     if(format==I3D_COLOR_UNKNOWN) {
         switch(img.getFormat()) {
-        case IF_R8U:    format=I3D_R8; break;
-        case IF_R8I:    format=I3D_R8S; break;
-        case IF_R32F:   format=I3D_R32F; break;
-        case IF_RG8U:   format=I3D_RG8; break;
-        case IF_RG8I:   format=I3D_RG8S; break;
-        case IF_RG32F:  format=I3D_RG32F; break;
-        case IF_RGB8U:  format=I3D_RGB8; break;
-        case IF_RGB8I:  format=I3D_RGB8S; break;
-        case IF_RGB32F: format=I3D_RGB32F; break;
-        case IF_RGBA8U: format=I3D_RGBA8; break;
-        case IF_RGBA8I: format=I3D_RGBA8S; break;
-        case IF_RGBA32F:format=I3D_RGBA32F; break;
-        case IF_DXT1:   format=I3D_RGBA_DXT1; break;
-        case IF_DXT3:   format=I3D_RGBA_DXT3; break;
-        case IF_DXT5:   format=I3D_RGBA_DXT5; break;
+        case IF_R8U:        format=I3D_R8; break;
+        case IF_R8I:        format=I3D_R8S; break;
+        case IF_R32F:       format=I3D_R32F; break;
+        case IF_RG8U:       format=I3D_RG8; break;
+        case IF_RG8I:       format=I3D_RG8S; break;
+        case IF_RG32F:      format=I3D_RG32F; break;
+        case IF_RGB8U:      format=I3D_RGB8; break;
+        case IF_RGB8I:      format=I3D_RGB8S; break;
+        case IF_RGB32F:     format=I3D_RGB32F; break;
+        case IF_RGBA8U:     format=I3D_RGBA8; break;
+        case IF_RGBA8I:     format=I3D_RGBA8S; break;
+        case IF_RGBA32F:    format=I3D_RGBA32F; break;
+        case IF_RGBA_DXT1:  format=I3D_RGBA_DXT1; break;
+        case IF_RGBA_DXT3:  format=I3D_RGBA_DXT3; break;
+        case IF_RGBA_DXT5:  format=I3D_RGBA_DXT5; break;
         }
     }
     Texture2DDesc desc(format, uvec2(img.width(), img.height()), 0, img.data(), img.size());

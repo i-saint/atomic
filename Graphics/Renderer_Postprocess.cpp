@@ -146,6 +146,7 @@ void PassPostprocess_Bloom::draw()
         dc->setTexture(GLSL_GLOW_BUFFER, m_rt_gbuffer->getColorBuffer(GBUFFER_GLOW));
         dc->setVertexArray(m_va_luminance);
         dc->draw(I3D_QUADS, 0, 16);
+        dc->setRenderTarget(NULL);
         stl::swap(m_rt_gauss0, m_rt_gauss1);
     }
 
@@ -156,6 +157,7 @@ void PassPostprocess_Bloom::draw()
         dc->setTexture(GLSL_COLOR_BUFFER, m_rt_gauss1->getColorBuffer(GBUFFER_COLOR));
         dc->setVertexArray(m_va_blur);
         dc->draw(I3D_QUADS, 0, 16);
+        dc->setRenderTarget(NULL);
         stl::swap(m_rt_gauss0, m_rt_gauss1);
     }
 
@@ -166,11 +168,12 @@ void PassPostprocess_Bloom::draw()
         dc->setTexture(GLSL_COLOR_BUFFER, m_rt_gauss1->getColorBuffer(GBUFFER_COLOR));
         dc->setVertexArray(m_va_blur);
         dc->draw(I3D_QUADS, 0, 16);
+        dc->setRenderTarget(NULL);
         stl::swap(m_rt_gauss0, m_rt_gauss1);
     }
 
     // 加算
-    atomicGetDefaultViewport()->bind();
+    dc->setViewport(*atomicGetDefaultViewport());
     {
         RenderTarget *brt = atomicGetBackRenderTarget();
 
@@ -183,6 +186,7 @@ void PassPostprocess_Bloom::draw()
         dc->draw(I3D_QUADS, 0, 16);
         glDisable(GL_BLEND);
         dc->setTexture(GLSL_COLOR_BUFFER, NULL);
+        dc->setRenderTarget(NULL);
     }
 }
 

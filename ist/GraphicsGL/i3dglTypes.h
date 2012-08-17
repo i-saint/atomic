@@ -263,13 +263,34 @@ struct ShaderProgramDesc
 };
 
 
-} // namespace i3d
-} // namespace ist
+class Viewport
+{
+private:
+    ivec2 m_pos;
+    uvec2 m_size;
+
+public:
+    Viewport() : m_pos(0,0), m_size(100,100) {}
+    Viewport(const ivec2 pos, const uvec2 &size) : m_pos(pos), m_size(size) {}
+
+    const ivec2& getPosition() const{ return m_pos; }
+    const uvec2& getSize() const    { return m_size; }
+    float32 getAspectRatio() const  { return (float32)m_size.x/(float32)m_size.y; }
+    void setPosition(const ivec2 v) { m_pos=v; }
+    void setSize(const ivec2 v)     { m_size=v; }
+
+    bool bind() const;
+};
+
 
 #define I3DGL_DECLARE_DEVICE_RESOURCE(classname) \
 private:\
     istMakeDestructable;\
     friend class Device;\
     friend class DeviceContext;
+
+
+} // namespace i3d
+} // namespace ist
 
 #endif // __ist_i3dgl_Types__

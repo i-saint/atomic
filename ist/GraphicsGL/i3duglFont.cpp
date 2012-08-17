@@ -48,7 +48,7 @@ public:
     virtual void setScreen(float32 left, float32 right, float32 bottom, float32 top) {}
     virtual void setColor(const vec4 &v) {}
     virtual void setSize(float32 v) {}
-    virtual void setSpace(float32 v) {}
+    virtual void setSpacing(float32 v) {}
     virtual void setMonospace(bool v) {}
 
     void addText(const vec2 &pos, const char *text, size_t len)
@@ -116,6 +116,7 @@ struct FontQuad
     vec2 size;
     vec2 uv_pos;
     vec2 uv_size;
+    vec4 color;
 };
 
 class FSS
@@ -124,6 +125,7 @@ public:
     FSS()
         : m_header(NULL)
         , m_data(NULL)
+        , m_color(1.0f, 1.0f, 1.0f, 1.0f)
         , m_size(0.0f)
         , m_spacing(1.0f)
         , m_monospace(false)
@@ -135,9 +137,10 @@ public:
         m_rcp_tex_size = vec2(1.0f, 1.0f) / m_tex_size;
     }
 
-    void setSize(float32 v) { m_size=v; }
-    void setSpace(float32 v) { m_spacing=v; }
-    void setMonospace(bool v) { m_monospace=v; }
+    void setColor(const vec4 &v){ m_color=v; }
+    void setSize(float32 v)     { m_size=v; }
+    void setSpace(float32 v)    { m_spacing=v; }
+    void setMonospace(bool v)   { m_monospace=v; }
 
     float getFontSize() const
     {
@@ -164,7 +167,7 @@ public:
 
         const float32 base_size = (float32)m_header->FontSize;
         const float32 scale = m_size / base_size;
-        vec2 base = pos - vec2(0.0f, m_size);
+        vec2 base = pos;
         for(size_t i=0; i<len; ++i) {
             uint32 di = m_header->IndexTbl[text[i]];
             float advance = (text[i] <= 0xff ? base_size*0.5f : base_size) * scale * m_spacing;
@@ -176,9 +179,9 @@ public:
                 vec2 scaled_offset = vec2(float32(cdata.Offset) * scale, 0.0f);
                 vec2 uv_pos = uv*m_rcp_tex_size;
                 vec2 uv_size = wh * m_rcp_tex_size;
-                FontQuad q = {base+scaled_offset, scaled_wh, uv_pos, uv_size};
+                FontQuad q = {base+scaled_offset, scaled_wh, uv_pos, uv_size, m_color};
                 quads.push_back(q);
-                if(!m_monospace) { advance = scaled_wh.x * m_spacing; }
+                if(!m_monospace) { advance = (scaled_wh.x + scaled_offset.x) * m_spacing; }
             }
             base.x += advance;
         }
@@ -191,57 +194,59 @@ private:
     vec2 m_tex_size;
     vec2 m_rcp_tex_size;
 
+    vec4 m_color;
     float32 m_size;
     float32 m_spacing;
     bool m_monospace;
 };
 
-namespace {
-    const char *g_font_vssrc = "\
+
+const char *g_font_vssrc = "\
 #version 330 core\n\
 struct RenderStates\
 {\
     mat4 ViewProjectionMatrix;\
-    vec4 Color;\
 };\
 layout(std140) uniform render_states\
 {\
     RenderStates u_RS;\
 };\
 layout(location=0) in vec2 ia_VertexPosition;\
-layout(location=1) in vec2 ia_VertexTexcoord0;\
+layout(location=1) in vec2 ia_VertexTexcoord;\
+layout(location=2) in vec4 ia_VertexColor;\
 out vec2 vs_Texcoord;\
+out vec4 vs_Color;\
 \
 void main(void)\
 {\
-    vs_Texcoord = ia_VertexTexcoord0;\
+    vs_Texcoord = ia_VertexTexcoord;\
+    vs_Color    = ia_VertexColor;\
     gl_Position = u_RS.ViewProjectionMatrix * vec4(ia_VertexPosition, 0.0, 1.0);\
 }\
 ";
 
-    const char *g_font_pssrc = "\
+const char *g_font_pssrc = "\
 #version 330 core\n\
 struct RenderStates\
 {\
     mat4 ViewProjectionMatrix;\
-    vec4 Color;\
 };\
 layout(std140) uniform render_states\
 {\
     RenderStates u_RS;\
 };\
-uniform sampler2D u_ColorBuffer;\
+uniform sampler2D u_Font;\
 in vec2 vs_Texcoord;\
+in vec4 vs_Color;\
 layout(location=0) out vec4 ps_FragColor;\
 \
 void main()\
 {\
-    vec4 color = u_RS.Color;\
-    color.a = texture(u_ColorBuffer, vs_Texcoord).r;\
+    vec4 color = vs_Color;\
+    color.a *= texture(u_Font, vs_Texcoord).r;\
     ps_FragColor = vec4(color);\
 }\
 ";
-} // namespace
 
 class SpriteFontRenderer : public IFontRenderer
 {
@@ -250,14 +255,14 @@ public:
     {
         vec2 pos;
         vec2 texcoord;
+        vec4 color;
 
         VertexT() {}
-        VertexT(const vec2 &p, const vec2 &t) : pos(p), texcoord(t) {}
+        VertexT(const vec2 &p, const vec2 &t, const vec4 &c) : pos(p), texcoord(t), color(c) {}
     };
     struct RenderState
     {
         mat4 matrix;
-        vec4 color;
     };
 
     static const size_t MaxCharsPerDraw = 1024;
@@ -304,8 +309,9 @@ public:
         {
             m_va = dev->createVertexArray();
             const VertexDesc descs[] = {
-                {0, I3D_FLOAT, 2, 0, false, 0},
-                {1, I3D_FLOAT, 2, 8, false, 0},
+                {0, I3D_FLOAT, 2,  0, false, 0},
+                {1, I3D_FLOAT, 2,  8, false, 0},
+                {2, I3D_FLOAT, 4, 16, false, 0},
             };
             m_va->setAttributes(*m_vbo, sizeof(VertexT), descs, _countof(descs));
         }
@@ -313,7 +319,6 @@ public:
         m_ps = CreatePixelShaderFromString(dev, g_font_pssrc);
         m_shader = dev->createShaderProgram(ShaderProgramDesc(m_vs, m_ps));
 
-        m_renderstate.color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
         return true;
     }
 
@@ -321,9 +326,9 @@ public:
     {
         m_renderstate.matrix = glm::ortho(left, right, bottom, top);
     }
-    virtual void setColor(const vec4 &v)    { m_renderstate.color=v; }
+    virtual void setColor(const vec4 &v)    { m_fss.setColor(v); }
     virtual void setSize(float32 v)         { m_fss.setSize(v); }
-    virtual void setSpace(float32 v)        { m_fss.setSpace(v); }
+    virtual void setSpacing(float32 v)      { m_fss.setSpace(v); }
     virtual void setMonospace(bool v)       { m_fss.setMonospace(v); }
 
     virtual void addText(const vec2 &pos, const char *text, size_t len)
@@ -361,10 +366,10 @@ public:
                 const vec2 pos_max = quad.pos + quad.size;
                 const vec2 tex_min = quad.uv_pos;
                 const vec2 tex_max = quad.uv_pos + quad.uv_size;
-                v[0] = VertexT(vec2(pos_min.x, pos_min.y), vec2(tex_min.x, tex_min.y));
-                v[1] = VertexT(vec2(pos_min.x, pos_max.y), vec2(tex_min.x, tex_max.y));
-                v[2] = VertexT(vec2(pos_max.x, pos_max.y), vec2(tex_max.x, tex_max.y));
-                v[3] = VertexT(vec2(pos_max.x, pos_min.y), vec2(tex_max.x, tex_min.y));
+                v[0] = VertexT(vec2(pos_min.x, pos_min.y), vec2(tex_min.x, tex_min.y), quad.color);
+                v[1] = VertexT(vec2(pos_min.x, pos_max.y), vec2(tex_min.x, tex_max.y), quad.color);
+                v[2] = VertexT(vec2(pos_max.x, pos_max.y), vec2(tex_max.x, tex_max.y), quad.color);
+                v[3] = VertexT(vec2(pos_max.x, pos_min.y), vec2(tex_max.x, tex_min.y), quad.color);
             }
             m_vbo->unmap();
         }

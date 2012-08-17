@@ -1,8 +1,8 @@
 ﻿#include "istPCH.h"
 #ifdef __ist_with_OpenGL__
 #include "ist/Base.h"
-#include "i3duglCamera.h"
-#include <glm/gtc/matrix_transform.hpp>
+#include "ist/GraphicsGL/i3duglCamera.h"
+#include "ist/GraphicsGL/i3dglTypes.h"
 
 namespace ist {
 namespace i3dgl {

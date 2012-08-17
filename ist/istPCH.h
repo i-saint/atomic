@@ -42,6 +42,8 @@ namespace stl = std;
 #   include <GL/glew.h>
 #   ifdef istWindows
 #       include <GL/wglew.h>
+#       pragma comment(lib, "glew32.lib")
+#       pragma comment(lib, "opengl32.lib")
 #   endif // istWindows
 #endif // __ist_with_OpenGL__
 

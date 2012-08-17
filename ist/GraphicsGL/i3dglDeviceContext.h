@@ -14,6 +14,7 @@ class DeviceContext
 {
 I3DGL_DECLARE_DEVICE_RESOURCE(DeviceContext);
 public:
+    void setViewport(const Viewport &vp);
     void setVertexArray(VertexArray *va);
     void setIndexBuffer(Buffer *v, I3D_TYPE format);
     void setShader(ShaderProgram *v);

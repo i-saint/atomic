@@ -13,11 +13,11 @@ public:
     virtual void setScreen(float32 left, float32 right, float32 bottom, float32 top)=0;
     virtual void setColor(const vec4 &v)=0;
     virtual void setSize(float32 v)=0;
-    virtual void setSpace(float32 v)=0; // 文字幅の倍率
+    virtual void setSpacing(float32 v)=0; // 文字幅の倍率
     virtual void setMonospace(bool v)=0; // 等幅にするか
 
-    virtual void addText(const vec2 &pos, const char *text, size_t len)=0;
-    virtual void addText(const vec2 &pos, const wchar_t *text, size_t len)=0; // こっちの方が速いのでできるだけこっち使いましょう
+    virtual void addText(const vec2 &pos, const char *text, size_t len)=0;      // len==0 だと strlen で自動的に計算します
+    virtual void addText(const vec2 &pos, const wchar_t *text, size_t len)=0;   // wchar_t 版。こっちの方が速いのでできるだけこっち使いましょう
     virtual void flush(DeviceContext *dc)=0;
 };
 

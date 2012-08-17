@@ -995,9 +995,9 @@ bool Image::loadDDS( IBinaryStream &f, const IOConfig &conf )
     case gli::RGBA8I:   setup(IF_RGBA8I, dim.x, dim.y, tex[0].capacity()); break;
     case gli::RGBA32F:  setup(IF_RGBA32F, dim.x, dim.y, tex[0].capacity()); break;
 
-    case gli::DXT1:     setup(IF_DXT1, dim.x, dim.y, tex[0].capacity()); break;
-    case gli::DXT3:     setup(IF_DXT3, dim.x, dim.y, tex[0].capacity()); break;
-    case gli::DXT5:     setup(IF_DXT5, dim.x, dim.y, tex[0].capacity()); break;
+    case gli::DXT1:     setup(IF_RGBA_DXT1, dim.x, dim.y, tex[0].capacity()); break;
+    case gli::DXT3:     setup(IF_RGBA_DXT3, dim.x, dim.y, tex[0].capacity()); break;
+    case gli::DXT5:     setup(IF_RGBA_DXT5, dim.x, dim.y, tex[0].capacity()); break;
 
     default: return false;
     }

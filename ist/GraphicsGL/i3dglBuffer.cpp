@@ -85,7 +85,7 @@ void VertexArray::setAttributes( Buffer& vb, size_t stride, const VertexDesc *de
         const VertexDesc& desc = descs[i];
         glEnableVertexAttribArray(desc.location);
         // float type
-        if(desc.type==I3D_HALF || desc.type==I3D_FLOAT || desc.type==I3D_DOUBLE) {
+        if(desc.type==I3D_HALF || desc.type==I3D_FLOAT || desc.type==I3D_DOUBLE || desc.normalize) {
             glVertexAttribPointer(desc.location, desc.num_elements, desc.type, desc.normalize, stride, (GLvoid*)desc.offset);
         }
         // integer type

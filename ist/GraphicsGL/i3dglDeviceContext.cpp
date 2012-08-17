@@ -23,6 +23,11 @@ DeviceContext::~DeviceContext()
 {
 }
 
+void DeviceContext::setViewport( const Viewport &vp )
+{
+    vp.bind();
+}
+
 void DeviceContext::setVertexArray( VertexArray *va )
 {
     m_vertex_array = va;
@@ -54,7 +59,7 @@ void DeviceContext::setShader( ShaderProgram *v )
         m_shader->bind();
     }
     else {
-        m_shader->unbind();
+        glUseProgram(0);
     }
 }
 
@@ -65,7 +70,7 @@ void DeviceContext::setRenderTarget( RenderTarget *rt )
         m_render_target->bind();
     }
     else {
-        m_render_target->unbind();
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 }
 
