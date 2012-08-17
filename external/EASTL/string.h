@@ -696,6 +696,16 @@ namespace eastl
         return pDestination + n;
     }
 
+#if _MSC_VER==1600
+    inline wchar_t* CharStringUninitializedFillN(wchar_t* pDestination, size_t n, const wchar_t c)
+    {
+        wchar_t* pDest16          = pDestination;
+        const wchar_t* const pEnd = pDestination + n;
+        while(pDest16 < pEnd)
+            *pDest16++ = c;
+        return pDestination + n;
+    }
+#endif
 
 
     inline char8_t* CharTypeAssignN(char8_t* pDestination, size_t n, char8_t c)

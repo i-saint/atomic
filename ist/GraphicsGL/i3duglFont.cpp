@@ -343,7 +343,7 @@ public:
         stl::wstring wtext;
         wtext.resize(wlen);
         mbstowcs(&wtext[0], tmp.c_str(), wlen);
-        addText(x,y, wtext.c_str(), wlen);
+        addText(pos, wtext.c_str(), wlen);
     }
 
     virtual void addText(const vec2 &pos, const wchar_t *text, size_t len)
