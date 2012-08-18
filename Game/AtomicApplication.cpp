@@ -280,7 +280,7 @@ void AtomicApplication::updateInput()
     m_inputs.setButtons(buttons);
 }
 
-int AtomicApplication::handleWindowMessage(const ist::WindowMessage& wm)
+bool AtomicApplication::handleWindowMessage(const ist::WindowMessage& wm)
 {
     switch(wm.type)
     {
@@ -288,7 +288,7 @@ int AtomicApplication::handleWindowMessage(const ist::WindowMessage& wm)
         {
             m_request_exit = true;
         }
-        return 0;
+        return true;
 
     case ist::WindowMessage::MES_KEYBOARD:
         {
@@ -297,21 +297,21 @@ int AtomicApplication::handleWindowMessage(const ist::WindowMessage& wm)
                 m_request_exit = true;
             }
         }
-        return 0;
+        return true;
 
     case ist::WindowMessage::MES_WINDOW_SIZE:
         {
             const ist::WM_WindowSize& m = static_cast<const ist::WM_WindowSize&>(wm);
             m_config.window_size = m.window_size;
         }
-        return 0;
+        return true;
 
     case ist::WindowMessage::MES_WINDOW_MOVE:
         {
             const ist::WM_WindowMove& m = static_cast<const ist::WM_WindowMove&>(wm);
             m_config.window_pos = m.window_pos;
         }
-        return 0;
+        return true;
 
     case ist::WindowMessage::MES_IME_RESULT:
         {
@@ -319,7 +319,7 @@ int AtomicApplication::handleWindowMessage(const ist::WindowMessage& wm)
             stl::wstring str(m.text, m.text_len);
             handleCommandLine(str);
         }
-        return 0;
+        return true;
 
     case ist::WindowMessage::MES_IME_BEGIN:
         {
@@ -340,7 +340,7 @@ int AtomicApplication::handleWindowMessage(const ist::WindowMessage& wm)
         break;
     }
 
-    return 0;
+    return false;
 }
 
 void AtomicApplication::handleError(ATOMIC_ERROR e)

@@ -17,18 +17,18 @@ namespace ist
 
     typedef int (*AssertHandler)();
     typedef int (*PanicHandler)();
-    void SetAssertHandler(AssertHandler handler);
-    void SetPanicHandler(PanicHandler handler);
+    istInterModule void SetAssertHandler(AssertHandler handler);
+    istInterModule void SetPanicHandler(PanicHandler handler);
 
-    void DebugPrint(const char* file, int line, const char* fmt, ...);
-    void DebugPrintV(const char* file, int line, const char* fmt, va_list vl);
-    void DebugPrint(const char* file, int line, const wchar_t* fmt, ...);
-    void DebugPrintV(const char* file, int line, const wchar_t* fmt, va_list vl);
+    istInterModule void DebugPrint(const char* file, int line, const char* fmt, ...);
+    istInterModule void DebugPrintV(const char* file, int line, const char* fmt, va_list vl);
+    istInterModule void DebugPrint(const char* file, int line, const wchar_t* fmt, ...);
+    istInterModule void DebugPrintV(const char* file, int line, const wchar_t* fmt, va_list vl);
 
-    int DebugAssert(const char* file, int line, const char* fmt, ...);
-    int DebugAssertV(const char* file, int line, const char* fmt, va_list vl);
-    int DebugAssert(const char* file, int line, const wchar_t* fmt, ...);
-    int DebugAssertV(const char* file, int line, const wchar_t* fmt, va_list vl);
+    istInterModule int DebugAssert(const char* file, int line, const char* fmt, ...);
+    istInterModule int DebugAssertV(const char* file, int line, const char* fmt, va_list vl);
+    istInterModule int DebugAssert(const char* file, int line, const wchar_t* fmt, ...);
+    istInterModule int DebugAssertV(const char* file, int line, const wchar_t* fmt, va_list vl);
 
 } // namespace ist
 

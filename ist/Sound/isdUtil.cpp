@@ -53,16 +53,6 @@ Stream* CreateStreamFromOggFile(const char* filepath)
 }
 
 
-ReferenceCounter::ReferenceCounter() : m_reference_count(0) {}
-uint32 ReferenceCounter::getRef() const { return m_reference_count; }
-uint32 ReferenceCounter::addRef() { return ++m_reference_count; }
-uint32 ReferenceCounter::release()
-{
-    if(--m_reference_count==0) {
-        istDelete(this);
-    }
-    return m_reference_count;
-}
 
 } // namespace isd
 } // namespace ist

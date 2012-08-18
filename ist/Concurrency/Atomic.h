@@ -5,7 +5,7 @@
 namespace ist {
 
 #if defined(istWindows)
-class atomic_int32
+class istInterModule atomic_int32
 {
 public:
     atomic_int32() : m_value(0) {}
@@ -26,7 +26,7 @@ private:
     volatile LONG m_value;
 };
 
-class atomic_int64
+class istInterModule atomic_int64
 {
 public:
     atomic_int64() : m_value(0) {}
@@ -55,7 +55,7 @@ typedef atomic_int32 atomic_ptr;
 
 #else
 
-class atomic_int32
+class istInterModule atomic_int32
 {
 public:
     atomic_int32() : m_value(0) {}
@@ -76,7 +76,7 @@ private:
     int32 m_value;
 };
 
-typedef atomic_int32 atomic_ptr;
+typedef istInterModule atomic_int32 atomic_ptr;
 
 #endif // istWindows
 

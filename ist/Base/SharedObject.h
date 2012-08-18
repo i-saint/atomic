@@ -7,9 +7,7 @@
 
 namespace ist {
 
-    // この class はモジュール別に独立した実装を持っている必要がある
-    // (==istIntermodule つけてはならない)
-    class SharedObject
+    class istInterModule SharedObject
     {
     public:
         SharedObject() : m_ref_counter(0) {}

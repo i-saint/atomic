@@ -22,7 +22,7 @@ enum KEY {
 };
 
 
-class KeyboardState
+class istInterModule KeyboardState
 {
 private:
     unsigned char   m_keystate[2][256];
@@ -35,7 +35,7 @@ public:
     bool isKeyTriggered(int v) const { return (m_keystate[0][v] & 0x80)!=0 && (m_keystate[1][v] & 0x80)==0; }
 };
 
-class MouseState
+class istInterModule MouseState
 {
 public:
     enum BUTTON
@@ -62,7 +62,7 @@ public:
     void setY(int v) { m_y=v; }
 };
 
-class JoyState
+class istInterModule JoyState
 {
 private:
     int m_x;
@@ -100,7 +100,7 @@ public:
 };
 
 
-struct DisplaySetting
+struct istInterModule DisplaySetting
 {
 private:
     ivec2 m_resolution;

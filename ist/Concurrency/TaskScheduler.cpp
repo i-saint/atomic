@@ -27,7 +27,7 @@ void Task::wait()
 }
 
 
-class TaskStream : public SharedObject
+class TaskStream
 {
 public:
     void enqueue(Task *v);
@@ -196,8 +196,10 @@ TaskScheduler::~TaskScheduler()
         m_workers[i]->join();
     }
     // ここまできたら worker を delete しても大丈夫なはず
+    for(size_t i=0; i<m_workers.size(); ++i) { istDelete(m_workers[i]); }
     m_workers.clear();
 
+    for(size_t i=0; i<m_taskstream.size(); ++i) { istDelete(m_taskstream[i]); }
     m_taskstream.clear();
 
     g_task_scheduler = NULL;

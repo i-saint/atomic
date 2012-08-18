@@ -7,13 +7,13 @@ namespace ist {
 namespace isd {
 
 typedef uint32 ResourceHandle;
-class Device;
-class DeviceResource;
-class Buffer;
-class Source;
-class Listener;
+class istInterModule Device;
+class istInterModule DeviceResource;
+class istInterModule Buffer;
+class istInterModule Source;
+class istInterModule Listener;
 
-class Stream;
+class istInterModule Stream;
 
 } // namespace isd
 } // namespace ist

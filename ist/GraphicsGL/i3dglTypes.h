@@ -147,7 +147,7 @@ class GeometryShader;
 class ShaderProgtam;
 
 
-struct VertexDesc
+struct istInterModule VertexDesc
 {
     GLuint location;        // shader value location
     I3D_TYPE type;          // value type
@@ -157,7 +157,7 @@ struct VertexDesc
     GLuint divisor; // 0: per vertex, other: per n instance
 };
 
-struct BufferDesc
+struct istInterModule BufferDesc
 {
     I3D_BUFFER_TYPE type;
     I3D_USAGE usage;
@@ -173,7 +173,7 @@ struct BufferDesc
     {}
 };
 
-struct SamplerDesc
+struct istInterModule SamplerDesc
 {
     I3D_TEXTURE_CLAMP wrap_s;
     I3D_TEXTURE_CLAMP wrap_t;
@@ -189,7 +189,7 @@ struct SamplerDesc
     {}
 };
 
-struct Texture1DDesc
+struct istInterModule Texture1DDesc
 {
     I3D_COLOR_FORMAT format;
     uint32 size;
@@ -206,7 +206,7 @@ struct Texture1DDesc
     {}
 };
 
-struct Texture2DDesc
+struct istInterModule Texture2DDesc
 {
     I3D_COLOR_FORMAT format;
     uvec2 size;
@@ -223,7 +223,7 @@ struct Texture2DDesc
     {}
 };
 
-struct Texture3DDesc
+struct istInterModule Texture3DDesc
 {
     I3D_COLOR_FORMAT format;
     uvec3 size;
@@ -240,7 +240,7 @@ struct Texture3DDesc
     {}
 };
 
-struct ShaderDesc
+struct istInterModule ShaderDesc
 {
     const char *source;
     uint32 source_len;
@@ -251,7 +251,7 @@ typedef ShaderDesc VertexShaderDesc;
 typedef ShaderDesc GeometryShaderDesc;
 typedef ShaderDesc PixelShaderDesc;
 
-struct ShaderProgramDesc
+struct istInterModule ShaderProgramDesc
 {
     VertexShader    *vs;
     PixelShader     *ps;
@@ -263,7 +263,7 @@ struct ShaderProgramDesc
 };
 
 
-class Viewport
+class istInterModule Viewport
 {
 private:
     ivec2 m_pos;

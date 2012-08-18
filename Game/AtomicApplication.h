@@ -59,7 +59,7 @@ public:
     virtual void mainLoop();
     virtual void updateInput();
 
-    virtual int handleWindowMessage(const ist::WindowMessage& wm);
+    virtual bool handleWindowMessage(const ist::WindowMessage& wm);
     void handleError(ATOMIC_ERROR e);
     int32 handleCommandLine(const stl::wstring &command);
 

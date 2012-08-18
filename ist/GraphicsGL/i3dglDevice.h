@@ -10,7 +10,7 @@
 namespace ist {
 namespace i3dgl {
 
-class Device
+class istInterModule Device
 {
 private:
 #ifdef istWindows

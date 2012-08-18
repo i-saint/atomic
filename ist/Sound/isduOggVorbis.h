@@ -9,7 +9,7 @@ namespace isd {
 
 
 // .ogg ファイルのストリーミング再生を実現。
-class OggVorbisFileStream : public Stream
+class istInterModule OggVorbisFileStream : public Stream
 {
 private:
     FILE *m_file;
@@ -37,7 +37,7 @@ public:
 };
 
 // .ogg ファイルの内容をメモリに配置して、それをストリーミング再生する機能を実現
-class OggVorbisMemoryStream : public Stream
+class istInterModule OggVorbisMemoryStream : public Stream
 {
 private:
     void *m_data;

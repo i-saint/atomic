@@ -15,7 +15,16 @@ struct TR
     };
     TR<T>() : r(0) {}
     TR<T>(T _r) : r(_r) {}
+    TR<T> operator + (TR<T> &t) const { return TR<T>(r+t.r); }
+    TR<T> operator - (TR<T> &t) const { return TR<T>(r-t.r); }
+    TR<T> operator * (TR<T> &t) const { return TR<T>(r*t.r); }
+    TR<T> operator / (TR<T> &t) const { return TR<T>(r/t.r); }
+    TR<T>& operator +=(TR<T> &t) { *this=*this+t; return *this; }
+    TR<T>& operator -=(TR<T> &t) { *this=*this-t; return *this; }
+    TR<T>& operator *=(TR<T> &t) { *this=*this*t; return *this; }
+    TR<T>& operator /=(TR<T> &t) { *this=*this/t; return *this; }
     bool operator ==(const TR<T> &t) const { return (r==t.r); }
+    bool operator !=(const TR<T> &t) const { return !(*this==t); }
     T& operator [](int32 i) { return v[i]; }
     const T& operator [](int32 i) const { return v[i]; }
 };
@@ -29,7 +38,16 @@ struct TRG
     };
     TRG<T>() : r(0), g(0) {}
     TRG<T>(T _r, T _g) : r(_r), g(_g) {}
+    TRG<T> operator + (TRG<T> &t) const { return TRG<T>(r+t.r, g+t.g); }
+    TRG<T> operator - (TRG<T> &t) const { return TRG<T>(r-t.r, g-t.g); }
+    TRG<T> operator * (TRG<T> &t) const { return TRG<T>(r*t.r, g*t.g); }
+    TRG<T> operator / (TRG<T> &t) const { return TRG<T>(r/t.r, g/t.g); }
+    TRG<T>& operator +=(TRG<T> &t) { *this=*this+t; return *this; }
+    TRG<T>& operator -=(TRG<T> &t) { *this=*this-t; return *this; }
+    TRG<T>& operator *=(TRG<T> &t) { *this=*this*t; return *this; }
+    TRG<T>& operator /=(TRG<T> &t) { *this=*this/t; return *this; }
     bool operator ==(const TRG<T> &t) const { return (r==t.r && g==t.g); }
+    bool operator !=(const TRG<T> &t) const { return !(*this==t); }
     T& operator [](int32 i) { return v[i]; }
     const T& operator [](int32 i) const { return v[i]; }
 };
@@ -43,7 +61,16 @@ struct TRGB
     };
     TRGB<T>() : r(0), g(0), b(0) {}
     TRGB<T>(T _r, T _g, T _b) : r(_r), g(_g), b(_b) {}
+    TRGB<T> operator + (TRGB<T> &t) const { return TRGB<T>(r+t.r, g+t.g, b+t.b); }
+    TRGB<T> operator - (TRGB<T> &t) const { return TRGB<T>(r-t.r, g-t.g, b-t.b); }
+    TRGB<T> operator * (TRGB<T> &t) const { return TRGB<T>(r*t.r, g*t.g, b*t.b); }
+    TRGB<T> operator / (TRGB<T> &t) const { return TRGB<T>(r/t.r, g/t.g, b/t.b); }
+    TRGB<T>& operator +=(TRGB<T> &t) { *this=*this+t; return *this; }
+    TRGB<T>& operator -=(TRGB<T> &t) { *this=*this-t; return *this; }
+    TRGB<T>& operator *=(TRGB<T> &t) { *this=*this*t; return *this; }
+    TRGB<T>& operator /=(TRGB<T> &t) { *this=*this/t; return *this; }
     bool operator ==(const TRGB<T> &t) const { return (r==t.r && g==t.g && b==t.b); }
+    bool operator !=(const TRGB<T> &t) const { return !(*this==t); }
     T& operator [](int32 i) { return v[i]; }
     const T& operator [](int32 i) const { return v[i]; }
 };
@@ -57,7 +84,16 @@ struct TRGBA
     };
     TRGBA<T>() : r(0), g(0), b(0), a(0) {}
     TRGBA<T>(T _r, T _g, T _b, T _a) : r(_r), g(_g), b(_b), a(_a) {}
+    TRGBA<T> operator + (TRGBA<T> &t) const { return TRGBA<T>(r+t.r, g+t.g, b+t.b, a+t.a ); }
+    TRGBA<T> operator - (TRGBA<T> &t) const { return TRGBA<T>(r-t.r, g-t.g, b-t.b, a-t.a ); }
+    TRGBA<T> operator * (TRGBA<T> &t) const { return TRGBA<T>(r*t.r, g*t.g, b*t.b, a*t.a ); }
+    TRGBA<T> operator / (TRGBA<T> &t) const { return TRGBA<T>(r/t.r, g/t.g, b/t.b, a/t.a ); }
+    TRGBA<T>& operator +=(TRGBA<T> &t) { *this=*this+t; return *this; }
+    TRGBA<T>& operator -=(TRGBA<T> &t) { *this=*this-t; return *this; }
+    TRGBA<T>& operator *=(TRGBA<T> &t) { *this=*this*t; return *this; }
+    TRGBA<T>& operator /=(TRGBA<T> &t) { *this=*this/t; return *this; }
     bool operator ==(const TRGBA<T> &t) const { return (r==t.r && g==t.g && b==t.b && a==t.a); }
+    bool operator !=(const TRGBA<T> &t) const { return !(*this==t); }
     T& operator [](int32 i) { return v[i]; }
     const T& operator [](int32 i) const { return v[i]; }
 };

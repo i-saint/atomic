@@ -10,26 +10,26 @@ namespace ist {
 namespace i3dgl {
 
 // 画像ファイル/ストリームからテクスチャ生成
-Texture2D* CreateTexture2DFromFile(Device *dev, const char *filename, I3D_COLOR_FORMAT format=I3D_COLOR_UNKNOWN);
-Texture2D* CreateTexture2DFromStream(Device *dev, IBinaryStream &st, I3D_COLOR_FORMAT format=I3D_COLOR_UNKNOWN);
-Texture2D* CreateTexture2DFromImage(Device *dev, Image &img, I3D_COLOR_FORMAT format=I3D_COLOR_UNKNOWN);
+istInterModule Texture2D* CreateTexture2DFromFile(Device *dev, const char *filename, I3D_COLOR_FORMAT format=I3D_COLOR_UNKNOWN);
+istInterModule Texture2D* CreateTexture2DFromStream(Device *dev, IBinaryStream &st, I3D_COLOR_FORMAT format=I3D_COLOR_UNKNOWN);
+istInterModule Texture2D* CreateTexture2DFromImage(Device *dev, Image &img, I3D_COLOR_FORMAT format=I3D_COLOR_UNKNOWN);
 
 // 乱数テクスチャ生成
-Texture2D* GenerateRandomTexture(Device *dev, const uvec2 &size, I3D_COLOR_FORMAT format);
-Texture2D* GenerateRandomTexture(Device *dev, const uvec2 &size, I3D_COLOR_FORMAT format, SFMT& random);
+istInterModule Texture2D* GenerateRandomTexture(Device *dev, const uvec2 &size, I3D_COLOR_FORMAT format);
+istInterModule Texture2D* GenerateRandomTexture(Device *dev, const uvec2 &size, I3D_COLOR_FORMAT format, SFMT& random);
 
 // ファイル/ストリームから各種シェーダ生成
-VertexShader*   CreateVertexShaderFromFile(Device *dev, const char *filename);
-GeometryShader* CreateGeometryShaderFromFile(Device *dev, const char *filename);
-PixelShader*    CreatePixelShaderFromFile(Device *dev, const char *filename);
+istInterModule VertexShader*   CreateVertexShaderFromFile(Device *dev, const char *filename);
+istInterModule GeometryShader* CreateGeometryShaderFromFile(Device *dev, const char *filename);
+istInterModule PixelShader*    CreatePixelShaderFromFile(Device *dev, const char *filename);
 
-VertexShader*   CreateVertexShaderFromStream(Device *dev, IBinaryStream &st);
-GeometryShader* CreateGeometryShaderFromStream(Device *dev, IBinaryStream &st);
-PixelShader*    CreatePixelShaderFromStream(Device *dev, IBinaryStream &st);
+istInterModule VertexShader*   CreateVertexShaderFromStream(Device *dev, IBinaryStream &st);
+istInterModule GeometryShader* CreateGeometryShaderFromStream(Device *dev, IBinaryStream &st);
+istInterModule PixelShader*    CreatePixelShaderFromStream(Device *dev, IBinaryStream &st);
 
-VertexShader*   CreateVertexShaderFromString(Device *dev, const stl::string &source);
-GeometryShader* CreateGeometryShaderFromString(Device *dev, const stl::string &source);
-PixelShader*    CreatePixelShaderFromString(Device *dev, const stl::string &source);
+istInterModule VertexShader*   CreateVertexShaderFromString(Device *dev, const stl::string &source);
+istInterModule GeometryShader* CreateGeometryShaderFromString(Device *dev, const stl::string &source);
+istInterModule PixelShader*    CreatePixelShaderFromString(Device *dev, const stl::string &source);
 
 
 template<class BufferObjectType>
@@ -59,22 +59,22 @@ inline bool MapAndRead(BufferObjectType& bo, void *data, size_t data_size)
 
 
 
-RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
+istInterModule RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
     I3D_COLOR_FORMAT color_format, uint32 level=0);
 
-RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
+istInterModule RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
     I3D_COLOR_FORMAT *color_formats, uint32 level=0);
 
-RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
+istInterModule RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
     I3D_COLOR_FORMAT color_format, I3D_COLOR_FORMAT depthstencil_format, uint32 level_color=0, uint32 level_depth=0);
 
-RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
+istInterModule RenderTarget* CreateRenderTarget(Device *dev, uint32 num_color_buffers, const uvec2 &size,
     I3D_COLOR_FORMAT *color_formats, I3D_COLOR_FORMAT depthstencil_format, uint32 level_color=0, uint32 level_depth=0);
 
 
-Buffer* CreateVertexBuffer(Device *dev, uint32 size, I3D_USAGE usage, void *data=NULL);
-Buffer* CreateIndexBuffer(Device *dev, uint32 size, I3D_USAGE usage, void *data=NULL);
-Buffer* CreateUniformBuffer(Device *dev, uint32 size, I3D_USAGE usage, void *data=NULL);
+istInterModule Buffer* CreateVertexBuffer(Device *dev, uint32 size, I3D_USAGE usage, void *data=NULL);
+istInterModule Buffer* CreateIndexBuffer(Device *dev, uint32 size, I3D_USAGE usage, void *data=NULL);
+istInterModule Buffer* CreateUniformBuffer(Device *dev, uint32 size, I3D_USAGE usage, void *data=NULL);
 
 } // namespace i3d
 } // namespace ist

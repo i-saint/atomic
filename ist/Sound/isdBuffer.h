@@ -7,7 +7,7 @@ namespace ist {
 namespace isd {
 
 
-class Buffer : public DeviceResource
+class istInterModule Buffer : public DeviceResource
 {
 ISD_DECLARE_DEVICE_RESOURCE(Buffer);
 private:

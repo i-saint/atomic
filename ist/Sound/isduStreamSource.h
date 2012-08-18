@@ -6,7 +6,7 @@
 namespace ist {
 namespace isd {
 
-class SourceAdapter
+class istInterModule SourceAdapter
 {
 private:
     Source *m_src;
@@ -57,7 +57,7 @@ public:
 };
 
 
-class StreamSource : public SourceAdapter, public ReferenceCounter
+class istInterModule StreamSource : public SourceAdapter, public SharedObject
 {
 public:
     typedef stl::vector<char> DataCont;
@@ -86,7 +86,7 @@ public:
 
 
 template<class SourceType>
-class TSourceSet : public ReferenceCounter
+class istInterModule TSourceSet : public SharedObject
 {
 public:
     typedef stl::vector<SourceType*> SourceCont;
@@ -158,7 +158,7 @@ public:
 };
 typedef TSourceSet<Source> SourceSet;
 
-class StreamSourceSet : public TSourceSet<StreamSource>
+class istInterModule StreamSourceSet : public TSourceSet<StreamSource>
 {
 public:
 

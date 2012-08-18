@@ -7,8 +7,15 @@
 
 namespace ist {
 
+class istInterModule WMhandler
+{
+public:
+    virtual ~WMhandler() {}
+    virtual bool handleWindowMessage(const WindowMessage& wm)=0;
+};
 
-class Application
+
+class istInterModule Application
 {
 public:
     enum DLG_TYPE {
@@ -41,19 +48,6 @@ public:
         DLGRET_CONTINUE = 11,
     };
 
-private:
-    static const int MAX_JOYSTICK_NUM = 4;
-
-    HWND        m_hwnd;
-    DEVMODE     m_devmode;
-    bool        m_fullscreen;
-
-    KeyboardState   m_keyboard_state;
-    MouseState      m_mouse_state;
-    JoyState        m_joy_state[MAX_JOYSTICK_NUM];
-
-    uvec2   m_window_size;
-
 public:
     static Application* getInstance();
 
@@ -64,7 +58,7 @@ public:
     virtual void finalize();
 
     virtual void mainLoop()=0;
-    virtual int handleWindowMessage(const WindowMessage& wm)=0;
+    virtual bool handleWindowMessage(const WindowMessage& wm)=0;
 
     // 入力情報の更新は時間がかかることに注意。(おそらく GPU リソースのようにロックが入るのだと思われる)
     // また、初期化したスレッドからでないと正常に更新できない？ようで、非同期に更新する際は、
@@ -85,9 +79,32 @@ public:
     DisplaySetting getCurrentDisplaySetting() const;
     void getAvalableDisplaySettings(DisplaySetting*& settings, int& num_settings) const;
 
+    void addHandler(WMhandler *wmh);
+    void eraseHandler(WMhandler *wmh);
+
 #ifdef istWindows
     HWND getWindowHandle() const { return m_hwnd; }
 #endif // istWindows
+
+
+private:
+    static const int MAX_JOYSTICK_NUM = 4;
+
+#ifdef istWindows
+    bool _handleWindowMessage(const WindowMessage& wm);
+    friend LRESULT CALLBACK istWndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lParam);
+
+    HWND        m_hwnd;
+    DEVMODE     m_devmode;
+#endif // istWindows
+    bool        m_fullscreen;
+
+    KeyboardState   m_keyboard_state;
+    MouseState      m_mouse_state;
+    JoyState        m_joy_state[MAX_JOYSTICK_NUM];
+
+    uvec2   m_window_size;
+    stl::vector<WMhandler*> m_wmhandlers;
 };
 
 } // namespace ist

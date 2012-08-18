@@ -6,7 +6,7 @@ namespace ist {
 // 何でも収容するよ型
 // 収容されたオブジェクトはデストラクタは呼ばれないので注意
 template<size_t Size>
-class TVariant
+class istInterModule TVariant
 {
 private:
     char m_buf[Size];

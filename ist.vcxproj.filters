@@ -1,431 +1,400 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="ist">
-      <UniqueIdentifier>{de1f77c6-1d9f-4a6b-a9a2-963401c1cff4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ist\Window">
-      <UniqueIdentifier>{3eb5e79f-47ec-4ef2-b908-2bd9959e3cc0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ist\Base">
+    <Filter Include="Base">
       <UniqueIdentifier>{511b13ca-18d1-40ab-9559-62d3a257ff5b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ist\Math">
-      <UniqueIdentifier>{6388680b-1e3a-4959-91f5-9d74fc4f980d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ist\Math\SFMT">
-      <UniqueIdentifier>{748bb4b7-9620-4cc0-9662-567ef1dc295f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ist\Sound">
-      <UniqueIdentifier>{875e69cf-538c-4299-a022-a3d49cc01212}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ist\GraphicsGL">
-      <UniqueIdentifier>{ab829834-012b-47ea-ba10-02454853a8c9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ist\Base\Half">
+    <Filter Include="Base\Half">
       <UniqueIdentifier>{95a3805f-13e4-40a2-bd50-1641dfc66287}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ist\Concurrency">
+    <Filter Include="Concurrency">
       <UniqueIdentifier>{90f1a0bc-d173-46c3-829c-0c11c05c994e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ist\Debug">
+    <Filter Include="Debug">
       <UniqueIdentifier>{6e02f437-b545-4ff3-8ff0-ad62f9fb4549}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ist\GraphicsCommon">
+    <Filter Include="GraphicsCommon">
       <UniqueIdentifier>{04d216b3-a933-42ca-b73d-01a270a54827}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphicsGL">
+      <UniqueIdentifier>{ab829834-012b-47ea-ba10-02454853a8c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math">
+      <UniqueIdentifier>{6388680b-1e3a-4959-91f5-9d74fc4f980d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math\SFMT">
+      <UniqueIdentifier>{748bb4b7-9620-4cc0-9662-567ef1dc295f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sound">
+      <UniqueIdentifier>{875e69cf-538c-4299-a022-a3d49cc01212}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Window">
+      <UniqueIdentifier>{3eb5e79f-47ec-4ef2-b908-2bd9959e3cc0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ist\Base.h">
-      <Filter>ist</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Graphics.h">
-      <Filter>ist</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GraphicsUtil.h">
-      <Filter>ist</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\ist.h">
-      <Filter>ist</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Math.h">
-      <Filter>ist</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Sound.h">
-      <Filter>ist</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Window.h">
-      <Filter>ist</Filter>
-    </ClInclude>
     <ClInclude Include="ist\Window\Application.h">
-      <Filter>ist\Window</Filter>
+      <Filter>Window</Filter>
     </ClInclude>
     <ClInclude Include="ist\Window\InputState.h">
-      <Filter>ist\Window</Filter>
+      <Filter>Window</Filter>
     </ClInclude>
     <ClInclude Include="ist\Window\WindowMessage.h">
-      <Filter>ist\Window</Filter>
+      <Filter>Window</Filter>
     </ClInclude>
     <ClInclude Include="ist\Base\Allocator.h">
-      <Filter>ist\Base</Filter>
+      <Filter>Base</Filter>
     </ClInclude>
     <ClInclude Include="ist\Base\Assert.h">
-      <Filter>ist\Base</Filter>
+      <Filter>Base</Filter>
     </ClInclude>
     <ClInclude Include="ist\Base\BinaryStream.h">
-      <Filter>ist\Base</Filter>
+      <Filter>Base</Filter>
     </ClInclude>
     <ClInclude Include="ist\Base\ClassInfo.h">
-      <Filter>ist\Base</Filter>
+      <Filter>Base</Filter>
     </ClInclude>
     <ClInclude Include="ist\Base\FileLoader.h">
-      <Filter>ist\Base</Filter>
+      <Filter>Base</Filter>
     </ClInclude>
     <ClInclude Include="ist\Base\New.h">
-      <Filter>ist\Base</Filter>
+      <Filter>Base</Filter>
     </ClInclude>
     <ClInclude Include="ist\Base\Types.h">
-      <Filter>ist\Base</Filter>
+      <Filter>Base</Filter>
     </ClInclude>
     <ClInclude Include="ist\Base\Variant.h">
-      <Filter>ist\Base</Filter>
+      <Filter>Base</Filter>
     </ClInclude>
     <ClInclude Include="ist\Math\Constants.h">
-      <Filter>ist\Math</Filter>
+      <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="ist\Math\Linear.h">
-      <Filter>ist\Math</Filter>
+      <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="ist\Math\SFMT\SFMT-alti.h">
-      <Filter>ist\Math\SFMT</Filter>
+      <Filter>Math\SFMT</Filter>
     </ClInclude>
     <ClInclude Include="ist\Math\SFMT\SFMT-params.h">
-      <Filter>ist\Math\SFMT</Filter>
+      <Filter>Math\SFMT</Filter>
     </ClInclude>
     <ClInclude Include="ist\Math\SFMT\SFMT-params11213.h">
-      <Filter>ist\Math\SFMT</Filter>
+      <Filter>Math\SFMT</Filter>
     </ClInclude>
     <ClInclude Include="ist\Math\SFMT\SFMT-params1279.h">
-      <Filter>ist\Math\SFMT</Filter>
+      <Filter>Math\SFMT</Filter>
     </ClInclude>
     <ClInclude Include="ist\Math\SFMT\SFMT-params132049.h">
-      <Filter>ist\Math\SFMT</Filter>
+      <Filter>Math\SFMT</Filter>
     </ClInclude>
     <ClInclude Include="ist\Math\SFMT\SFMT-params19937.h">
-      <Filter>ist\Math\SFMT</Filter>
+      <Filter>Math\SFMT</Filter>
     </ClInclude>
     <ClInclude Include="ist\Math\SFMT\SFMT-params216091.h">
-      <Filter>ist\Math\SFMT</Filter>
+      <Filter>Math\SFMT</Filter>
     </ClInclude>
     <ClInclude Include="ist\Math\SFMT\SFMT-params2281.h">
-      <Filter>ist\Math\SFMT</Filter>
+      <Filter>Math\SFMT</Filter>
     </ClInclude>
     <ClInclude Include="ist\Math\SFMT\SFMT-params4253.h">
-      <Filter>ist\Math\SFMT</Filter>
+      <Filter>Math\SFMT</Filter>
     </ClInclude>
     <ClInclude Include="ist\Math\SFMT\SFMT-params44497.h">
-      <Filter>ist\Math\SFMT</Filter>
+      <Filter>Math\SFMT</Filter>
     </ClInclude>
     <ClInclude Include="ist\Math\SFMT\SFMT-params607.h">
-      <Filter>ist\Math\SFMT</Filter>
+      <Filter>Math\SFMT</Filter>
     </ClInclude>
     <ClInclude Include="ist\Math\SFMT\SFMT-params86243.h">
-      <Filter>ist\Math\SFMT</Filter>
+      <Filter>Math\SFMT</Filter>
     </ClInclude>
     <ClInclude Include="ist\Math\SFMT\SFMT-sse2.h">
-      <Filter>ist\Math\SFMT</Filter>
+      <Filter>Math\SFMT</Filter>
     </ClInclude>
     <ClInclude Include="ist\Math\SFMT\SFMT.h">
-      <Filter>ist\Math\SFMT</Filter>
+      <Filter>Math\SFMT</Filter>
     </ClInclude>
     <ClInclude Include="ist\Sound\isdBuffer.h">
-      <Filter>ist\Sound</Filter>
+      <Filter>Sound</Filter>
     </ClInclude>
     <ClInclude Include="ist\Sound\isdDevice.h">
-      <Filter>ist\Sound</Filter>
+      <Filter>Sound</Filter>
     </ClInclude>
     <ClInclude Include="ist\Sound\isdDeviceResource.h">
-      <Filter>ist\Sound</Filter>
+      <Filter>Sound</Filter>
     </ClInclude>
     <ClInclude Include="ist\Sound\isdListener.h">
-      <Filter>ist\Sound</Filter>
+      <Filter>Sound</Filter>
     </ClInclude>
     <ClInclude Include="ist\Sound\isdSource.h">
-      <Filter>ist\Sound</Filter>
+      <Filter>Sound</Filter>
     </ClInclude>
     <ClInclude Include="ist\Sound\isdTypes.h">
-      <Filter>ist\Sound</Filter>
+      <Filter>Sound</Filter>
     </ClInclude>
     <ClInclude Include="ist\Sound\isduOggVorbis.h">
-      <Filter>ist\Sound</Filter>
+      <Filter>Sound</Filter>
     </ClInclude>
     <ClInclude Include="ist\Sound\isduStream.h">
-      <Filter>ist\Sound</Filter>
+      <Filter>Sound</Filter>
     </ClInclude>
     <ClInclude Include="ist\Sound\isduStreamSource.h">
-      <Filter>ist\Sound</Filter>
+      <Filter>Sound</Filter>
     </ClInclude>
     <ClInclude Include="ist\Sound\isdUtil.h">
-      <Filter>ist\Sound</Filter>
+      <Filter>Sound</Filter>
     </ClInclude>
     <ClInclude Include="ist\GraphicsGL\i3dglAssert.h">
-      <Filter>ist\GraphicsGL</Filter>
+      <Filter>GraphicsGL</Filter>
     </ClInclude>
     <ClInclude Include="ist\GraphicsGL\i3dglBuffer.h">
-      <Filter>ist\GraphicsGL</Filter>
+      <Filter>GraphicsGL</Filter>
     </ClInclude>
     <ClInclude Include="ist\GraphicsGL\i3dglDevice.h">
-      <Filter>ist\GraphicsGL</Filter>
+      <Filter>GraphicsGL</Filter>
     </ClInclude>
     <ClInclude Include="ist\GraphicsGL\i3dglDeviceContext.h">
-      <Filter>ist\GraphicsGL</Filter>
+      <Filter>GraphicsGL</Filter>
     </ClInclude>
     <ClInclude Include="ist\GraphicsGL\i3dglDeviceResource.h">
-      <Filter>ist\GraphicsGL</Filter>
+      <Filter>GraphicsGL</Filter>
     </ClInclude>
     <ClInclude Include="ist\GraphicsGL\i3dglRenderTarget.h">
-      <Filter>ist\GraphicsGL</Filter>
+      <Filter>GraphicsGL</Filter>
     </ClInclude>
     <ClInclude Include="ist\GraphicsGL\i3dglShader.h">
-      <Filter>ist\GraphicsGL</Filter>
+      <Filter>GraphicsGL</Filter>
     </ClInclude>
     <ClInclude Include="ist\GraphicsGL\i3dglTypes.h">
-      <Filter>ist\GraphicsGL</Filter>
+      <Filter>GraphicsGL</Filter>
     </ClInclude>
     <ClInclude Include="ist\GraphicsGL\i3dglUtil.h">
-      <Filter>ist\GraphicsGL</Filter>
+      <Filter>GraphicsGL</Filter>
     </ClInclude>
     <ClInclude Include="ist\GraphicsGL\i3duglCamera.h">
-      <Filter>ist\GraphicsGL</Filter>
+      <Filter>GraphicsGL</Filter>
     </ClInclude>
     <ClInclude Include="ist\GraphicsGL\i3duglFont.h">
-      <Filter>ist\GraphicsGL</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\targetver.h">
-      <Filter>ist</Filter>
+      <Filter>GraphicsGL</Filter>
     </ClInclude>
     <ClInclude Include="ist\Base\Half\eLut.h">
-      <Filter>ist\Base\Half</Filter>
+      <Filter>Base\Half</Filter>
     </ClInclude>
     <ClInclude Include="ist\Base\Half\half.h">
-      <Filter>ist\Base\Half</Filter>
+      <Filter>Base\Half</Filter>
     </ClInclude>
     <ClInclude Include="ist\Base\Half\halfFunction.h">
-      <Filter>ist\Base\Half</Filter>
+      <Filter>Base\Half</Filter>
     </ClInclude>
     <ClInclude Include="ist\Base\Half\halfLimits.h">
-      <Filter>ist\Base\Half</Filter>
+      <Filter>Base\Half</Filter>
     </ClInclude>
     <ClInclude Include="ist\Base\Half\toFloat.h">
-      <Filter>ist\Base\Half</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\GPGPU.h">
-      <Filter>ist</Filter>
+      <Filter>Base\Half</Filter>
     </ClInclude>
     <ClInclude Include="ist\GraphicsGL\i3dgl.h">
-      <Filter>ist\GraphicsGL</Filter>
+      <Filter>GraphicsGL</Filter>
     </ClInclude>
     <ClInclude Include="ist\GraphicsGL\i3dglTexture.h">
-      <Filter>ist\GraphicsGL</Filter>
+      <Filter>GraphicsGL</Filter>
     </ClInclude>
     <ClInclude Include="ist\Math\FrustumCulling.h">
-      <Filter>ist\Math</Filter>
+      <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="ist\Base\Serialize.h">
-      <Filter>ist\Base</Filter>
+      <Filter>Base</Filter>
     </ClInclude>
     <ClInclude Include="ist\Base\SharedObject.h">
-      <Filter>ist\Base</Filter>
+      <Filter>Base</Filter>
     </ClInclude>
     <ClInclude Include="ist\Concurrency\Atomic.h">
-      <Filter>ist\Concurrency</Filter>
+      <Filter>Concurrency</Filter>
     </ClInclude>
     <ClInclude Include="ist\Concurrency\TaskScheduler.h">
-      <Filter>ist\Concurrency</Filter>
+      <Filter>Concurrency</Filter>
     </ClInclude>
     <ClInclude Include="ist\Concurrency\TaskUtil.h">
-      <Filter>ist\Concurrency</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Concurrency.h">
-      <Filter>ist</Filter>
+      <Filter>Concurrency</Filter>
     </ClInclude>
     <ClInclude Include="ist\Concurrency\AsyncFunction.h">
-      <Filter>ist\Concurrency</Filter>
+      <Filter>Concurrency</Filter>
     </ClInclude>
     <ClInclude Include="ist\Concurrency\ParallelAlgorithm.h">
-      <Filter>ist\Concurrency</Filter>
+      <Filter>Concurrency</Filter>
     </ClInclude>
     <ClInclude Include="ist\Base\Generics.h">
-      <Filter>ist\Base</Filter>
+      <Filter>Base</Filter>
     </ClInclude>
     <ClInclude Include="ist\Base\Decl.h">
-      <Filter>ist\Base</Filter>
+      <Filter>Base</Filter>
     </ClInclude>
     <ClInclude Include="ist\Concurrency\Mutex.h">
-      <Filter>ist\Concurrency</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Config.h">
-      <Filter>ist</Filter>
+      <Filter>Concurrency</Filter>
     </ClInclude>
     <ClInclude Include="ist\Concurrency\Thread.h">
-      <Filter>ist\Concurrency</Filter>
+      <Filter>Concurrency</Filter>
     </ClInclude>
     <ClInclude Include="ist\Math\simdvec.h">
-      <Filter>ist\Math</Filter>
+      <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="ist\Math\simdvec_permute.h">
-      <Filter>ist\Math</Filter>
+      <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="ist\Math\soavec.h">
-      <Filter>ist\Math</Filter>
+      <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="ist\Concurrency\Condition.h">
-      <Filter>ist\Concurrency</Filter>
+      <Filter>Concurrency</Filter>
     </ClInclude>
     <ClInclude Include="ist\Concurrency\ThreadCommon.h">
-      <Filter>ist\Concurrency</Filter>
+      <Filter>Concurrency</Filter>
     </ClInclude>
     <ClInclude Include="ist\Debug\ParamTree.h">
-      <Filter>ist\Debug</Filter>
+      <Filter>Debug</Filter>
     </ClInclude>
     <ClInclude Include="ist\Math\Misc.h">
-      <Filter>ist\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Debug.h">
-      <Filter>ist</Filter>
+      <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="ist\GraphicsCommon\Image.h">
-      <Filter>ist\GraphicsCommon</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\istPCH.h">
-      <Filter>ist</Filter>
+      <Filter>GraphicsCommon</Filter>
     </ClInclude>
     <ClInclude Include="ist\Base\CRTex.h">
-      <Filter>ist\Base</Filter>
+      <Filter>Base</Filter>
     </ClInclude>
+    <ClInclude Include="ist\Window.h" />
+    <ClInclude Include="ist\Base.h" />
+    <ClInclude Include="ist\Concurrency.h" />
+    <ClInclude Include="ist\Config.h" />
+    <ClInclude Include="ist\Debug.h" />
+    <ClInclude Include="ist\GPGPU.h" />
+    <ClInclude Include="ist\Graphics.h" />
+    <ClInclude Include="ist\GraphicsUtil.h" />
+    <ClInclude Include="ist\ist.h" />
+    <ClInclude Include="ist\istPCH.h" />
+    <ClInclude Include="ist\Math.h" />
+    <ClInclude Include="ist\Sound.h" />
+    <ClInclude Include="ist\targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ist\Window\Application.cpp">
-      <Filter>ist\Window</Filter>
+      <Filter>Window</Filter>
     </ClCompile>
     <ClCompile Include="ist\Base\Allocator.cpp">
-      <Filter>ist\Base</Filter>
+      <Filter>Base</Filter>
     </ClCompile>
     <ClCompile Include="ist\Base\Assert.cpp">
-      <Filter>ist\Base</Filter>
+      <Filter>Base</Filter>
     </ClCompile>
     <ClCompile Include="ist\Base\ClassInfo.cpp">
-      <Filter>ist\Base</Filter>
+      <Filter>Base</Filter>
     </ClCompile>
     <ClCompile Include="ist\Base\FileLoader.cpp">
-      <Filter>ist\Base</Filter>
+      <Filter>Base</Filter>
     </ClCompile>
     <ClCompile Include="ist\Math\Constants.cpp">
-      <Filter>ist\Math</Filter>
+      <Filter>Math</Filter>
     </ClCompile>
     <ClCompile Include="ist\Math\Linear.cpp">
-      <Filter>ist\Math</Filter>
+      <Filter>Math</Filter>
     </ClCompile>
     <ClCompile Include="ist\Math\SFMT\SFMT.cpp">
-      <Filter>ist\Math\SFMT</Filter>
+      <Filter>Math\SFMT</Filter>
     </ClCompile>
     <ClCompile Include="ist\Sound\isdBuffer.cpp">
-      <Filter>ist\Sound</Filter>
+      <Filter>Sound</Filter>
     </ClCompile>
     <ClCompile Include="ist\Sound\isdDevice.cpp">
-      <Filter>ist\Sound</Filter>
+      <Filter>Sound</Filter>
     </ClCompile>
     <ClCompile Include="ist\Sound\isdDeviceResource.cpp">
-      <Filter>ist\Sound</Filter>
+      <Filter>Sound</Filter>
     </ClCompile>
     <ClCompile Include="ist\Sound\isdListener.cpp">
-      <Filter>ist\Sound</Filter>
+      <Filter>Sound</Filter>
     </ClCompile>
     <ClCompile Include="ist\Sound\isdSource.cpp">
-      <Filter>ist\Sound</Filter>
+      <Filter>Sound</Filter>
     </ClCompile>
     <ClCompile Include="ist\Sound\isduOggVorbis.cpp">
-      <Filter>ist\Sound</Filter>
+      <Filter>Sound</Filter>
     </ClCompile>
     <ClCompile Include="ist\Sound\isduStream.cpp">
-      <Filter>ist\Sound</Filter>
+      <Filter>Sound</Filter>
     </ClCompile>
     <ClCompile Include="ist\Sound\isduStreamSource.cpp">
-      <Filter>ist\Sound</Filter>
+      <Filter>Sound</Filter>
     </ClCompile>
     <ClCompile Include="ist\Sound\isdUtil.cpp">
-      <Filter>ist\Sound</Filter>
+      <Filter>Sound</Filter>
     </ClCompile>
     <ClCompile Include="ist\GraphicsGL\i3dglAssert.cpp">
-      <Filter>ist\GraphicsGL</Filter>
+      <Filter>GraphicsGL</Filter>
     </ClCompile>
     <ClCompile Include="ist\GraphicsGL\i3dglBuffer.cpp">
-      <Filter>ist\GraphicsGL</Filter>
+      <Filter>GraphicsGL</Filter>
     </ClCompile>
     <ClCompile Include="ist\GraphicsGL\i3dglDevice.cpp">
-      <Filter>ist\GraphicsGL</Filter>
+      <Filter>GraphicsGL</Filter>
     </ClCompile>
     <ClCompile Include="ist\GraphicsGL\i3dglDeviceContext.cpp">
-      <Filter>ist\GraphicsGL</Filter>
+      <Filter>GraphicsGL</Filter>
     </ClCompile>
     <ClCompile Include="ist\GraphicsGL\i3dglDeviceResource.cpp">
-      <Filter>ist\GraphicsGL</Filter>
+      <Filter>GraphicsGL</Filter>
     </ClCompile>
     <ClCompile Include="ist\GraphicsGL\i3dglRenderTarget.cpp">
-      <Filter>ist\GraphicsGL</Filter>
+      <Filter>GraphicsGL</Filter>
     </ClCompile>
     <ClCompile Include="ist\GraphicsGL\i3dglShader.cpp">
-      <Filter>ist\GraphicsGL</Filter>
+      <Filter>GraphicsGL</Filter>
     </ClCompile>
     <ClCompile Include="ist\GraphicsGL\i3dglUtil.cpp">
-      <Filter>ist\GraphicsGL</Filter>
+      <Filter>GraphicsGL</Filter>
     </ClCompile>
     <ClCompile Include="ist\GraphicsGL\i3duglCamera.cpp">
-      <Filter>ist\GraphicsGL</Filter>
+      <Filter>GraphicsGL</Filter>
     </ClCompile>
     <ClCompile Include="ist\GraphicsGL\i3duglFont.cpp">
-      <Filter>ist\GraphicsGL</Filter>
+      <Filter>GraphicsGL</Filter>
     </ClCompile>
     <ClCompile Include="ist\Base\New.cpp">
-      <Filter>ist\Base</Filter>
+      <Filter>Base</Filter>
     </ClCompile>
     <ClCompile Include="ist\Base\Half\half.cpp">
-      <Filter>ist\Base\Half</Filter>
+      <Filter>Base\Half</Filter>
     </ClCompile>
     <ClCompile Include="ist\GraphicsGL\i3dglTexture.cpp">
-      <Filter>ist\GraphicsGL</Filter>
+      <Filter>GraphicsGL</Filter>
     </ClCompile>
     <ClCompile Include="ist\Base\Serialize.cpp">
-      <Filter>ist\Base</Filter>
+      <Filter>Base</Filter>
     </ClCompile>
     <ClCompile Include="ist\Concurrency\TaskScheduler.cpp">
-      <Filter>ist\Concurrency</Filter>
+      <Filter>Concurrency</Filter>
     </ClCompile>
     <ClCompile Include="ist\Concurrency\TaskUtil.cpp">
-      <Filter>ist\Concurrency</Filter>
+      <Filter>Concurrency</Filter>
     </ClCompile>
     <ClCompile Include="ist\Concurrency\Thread.cpp">
-      <Filter>ist\Concurrency</Filter>
+      <Filter>Concurrency</Filter>
     </ClCompile>
     <ClCompile Include="ist\Concurrency\Condition.cpp">
-      <Filter>ist\Concurrency</Filter>
+      <Filter>Concurrency</Filter>
     </ClCompile>
     <ClCompile Include="ist\Concurrency\Mutex.cpp">
-      <Filter>ist\Concurrency</Filter>
+      <Filter>Concurrency</Filter>
     </ClCompile>
     <ClCompile Include="ist\GraphicsCommon\Image.cpp">
-      <Filter>ist\GraphicsCommon</Filter>
-    </ClCompile>
-    <ClCompile Include="ist\istPCH.cpp">
-      <Filter>ist</Filter>
+      <Filter>GraphicsCommon</Filter>
     </ClCompile>
     <ClCompile Include="ist\Base\BinaryStream.cpp">
-      <Filter>ist\Base</Filter>
+      <Filter>Base</Filter>
     </ClCompile>
+    <ClCompile Include="ist\istPCH.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ist\Math\FrustumCulling.inl">
-      <Filter>ist\Math</Filter>
+      <Filter>Math</Filter>
     </None>
   </ItemGroup>
 </Project>

@@ -7,7 +7,7 @@ namespace ist {
 namespace isd {
 
 
-class Source : public DeviceResource
+class istInterModule Source : public DeviceResource
 {
 ISD_DECLARE_DEVICE_RESOURCE(Source);
 protected:

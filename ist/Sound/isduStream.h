@@ -7,7 +7,7 @@ namespace ist {
 namespace isd {
 
 
-class Stream : public ReferenceCounter
+class istInterModule Stream : public SharedObject
 {
 public:
     typedef stl::vector<char> DataCont;
@@ -39,7 +39,7 @@ public:
 
 
 
-class WaveStream : public Stream
+class istInterModule WaveStream : public Stream
 {
 public:
     struct riff_header {

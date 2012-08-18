@@ -46,7 +46,7 @@ namespace ist {
         virtual size_t printValue(char *buf, size_t buf_size) const=0;
 
     public:
-        virtual ~IParamNode()=0;
+        virtual ~IParamNode() {}
         virtual void setOpened(bool v)=0;
         virtual void setParent(IParamNode *parent)=0;
         virtual void eraseChild(IParamNode *node)=0;

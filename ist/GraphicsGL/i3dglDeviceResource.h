@@ -6,10 +6,10 @@
 namespace ist {
 namespace i3dgl {
 
-class Device;
+class istInterModule Device;
 
 
-class DeviceResource : public SharedObject
+class istInterModule DeviceResource : public SharedObject
 {
 istMakeDestructable;
 friend class Device;

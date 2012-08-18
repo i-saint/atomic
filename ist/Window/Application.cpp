@@ -10,7 +10,7 @@ Application *g_the_app = NULL;
 HINSTANCE g_hinstance = NULL;
 
 
-LRESULT CALLBACK WndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lParam)
+LRESULT CALLBACK istWndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lParam)
 {
     Application *app = g_the_app;
 
@@ -24,7 +24,7 @@ LRESULT CALLBACK WndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lPara
             WM_Active wm;
             wm.type = WindowMessage::MES_ACTIVE;
             wm.state = wParam==TRUE ? WM_Active::ST_ACTIVATED : WM_Active::ST_DEACTIVATED;
-            app->handleWindowMessage(wm);
+            app->_handleWindowMessage(wm);
         }
         return 0;
 
@@ -40,7 +40,7 @@ LRESULT CALLBACK WndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lPara
             case WM_KEYUP:      wm.action=WM_Keyboard::ACT_KEYUP; break;
             case WM_CHAR:       wm.action=WM_Keyboard::ACT_CHAR; break;
             }
-            app->handleWindowMessage(wm);
+            app->_handleWindowMessage(wm);
         }
         return 0;
 
@@ -61,7 +61,7 @@ LRESULT CALLBACK WndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lPara
             wm.text_len = ::ImmGetCompositionString(himc, GCS_RESULTSTR, imebuf, _countof(imebuf)) / sizeof(wchar_t);
             if(wm.text_len!=_countof(imebuf)) { imebuf[wm.text_len]=L'\0'; }
             wm.text = imebuf;
-            app->handleWindowMessage(wm);
+            app->_handleWindowMessage(wm);
         }
         if(lParam & GCS_COMPSTR) {
             WM_IME wm; wm.initialize();
@@ -69,13 +69,13 @@ LRESULT CALLBACK WndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lPara
             wm.text_len = ::ImmGetCompositionString(himc, GCS_COMPSTR, imebuf, _countof(imebuf)) / sizeof(wchar_t);
             if(wm.text_len!=_countof(imebuf)) { imebuf[wm.text_len]=L'\0'; }
             wm.text = imebuf;
-            app->handleWindowMessage(wm);
+            app->_handleWindowMessage(wm);
         }
         if(lParam & GCS_CURSORPOS) {
             WM_IME wm; wm.initialize();
             wm.type = WindowMessage::MES_IME_CURSOR_MOVE;
             wm.cursor_pos = ::ImmGetCompositionString(himc, GCS_CURSORPOS, imebuf, _countof(imebuf));
-            app->handleWindowMessage(wm);
+            app->_handleWindowMessage(wm);
         }
         return ::DefWindowProc(hwnd, message, wParam, lParam);
         break;
@@ -90,7 +90,7 @@ LRESULT CALLBACK WndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lPara
             wm.type = WindowMessage::MES_IME_CHAR;
             wm.text_len = ::ImmGetCompositionString(himc, GCS_COMPSTR, imebuf, _countof(imebuf));
             wm.text = imebuf;
-            app->handleWindowMessage(wm);
+            app->_handleWindowMessage(wm);
         }
         return ::DefWindowProc(hwnd, message, wParam, lParam);
         break;
@@ -99,7 +99,7 @@ LRESULT CALLBACK WndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lPara
         {
             WM_IME wm; wm.initialize();
             wm.type = WindowMessage::MES_IME_BEGIN;
-            app->handleWindowMessage(wm);
+            app->_handleWindowMessage(wm);
         }
         return ::DefWindowProc(hwnd, message, wParam, lParam);
         break;
@@ -108,7 +108,7 @@ LRESULT CALLBACK WndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lPara
         {
             WM_IME wm; wm.initialize();
             wm.type = WindowMessage::MES_IME_END;
-            app->handleWindowMessage(wm);
+            app->_handleWindowMessage(wm);
         }
         return ::DefWindowProc(hwnd, message, wParam, lParam);
         break;
@@ -124,7 +124,7 @@ LRESULT CALLBACK WndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lPara
         {
             WM_Mouse wm;
             wm.type = WindowMessage::MES_MOUSE;
-            app->handleWindowMessage(wm);
+            app->_handleWindowMessage(wm);
         }
         return 0;
 
@@ -135,7 +135,7 @@ LRESULT CALLBACK WndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lPara
             wm.type = WindowMessage::MES_WINDOW_SIZE;
             wm.window_size.x = LOWORD(lParam);
             wm.window_size.y = HIWORD(lParam);
-            app->handleWindowMessage(wm);
+            app->_handleWindowMessage(wm);
         }
         return 0;
 
@@ -145,7 +145,7 @@ LRESULT CALLBACK WndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lPara
             wm.type = WindowMessage::MES_WINDOW_MOVE;
             wm.window_pos.x = LOWORD(lParam);
             wm.window_pos.y = HIWORD(lParam);
-            app->handleWindowMessage(wm);
+            app->_handleWindowMessage(wm);
         }
         return 0;
 
@@ -159,7 +159,7 @@ LRESULT CALLBACK WndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lPara
         {
             WM_Close wm;
             wm.type = WindowMessage::MES_CLOSE;
-            app->handleWindowMessage(wm);
+            app->_handleWindowMessage(wm);
 
             return ::DefWindowProc(hwnd, message, wParam, lParam);
         }
@@ -214,7 +214,7 @@ bool Application::initialize(ivec2 wpos, ivec2 wsize, const wchar_t *title, bool
     WNDCLASSEX wc;
     wc.cbSize        = sizeof(wc);
     wc.style         = CS_HREDRAW | CS_VREDRAW;
-    wc.lpfnWndProc   = &WndProc;
+    wc.lpfnWndProc   = &istWndProc;
     wc.cbClsExtra    = 0;
     wc.cbWndExtra    = 0;
     wc.hInstance     = g_hinstance;
@@ -344,6 +344,27 @@ void Application::getAvalableDisplaySettings( DisplaySetting*& settings, int& nu
     }
     settings = &dsv[0];
     num_settings = dsv.size();
+}
+
+void Application::addHandler( WMhandler *wmh )
+{
+    m_wmhandlers.push_back(wmh);
+}
+
+void Application::eraseHandler( WMhandler *wmh )
+{
+    m_wmhandlers.erase(
+        stl::find(m_wmhandlers.begin(), m_wmhandlers.end(), wmh));
+}
+
+bool Application::_handleWindowMessage( const WindowMessage& wm )
+{
+    for(size_t i=0; i<m_wmhandlers.size(); ++i) {
+        if(m_wmhandlers[i]->handleWindowMessage(wm)) {
+            return true;
+        }
+    }
+    return handleWindowMessage(wm);
 }
 
 } // namespace ist

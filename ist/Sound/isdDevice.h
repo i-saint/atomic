@@ -6,7 +6,7 @@
 namespace ist {
 namespace isd {
 
-class Device
+class istInterModule Device
 {
 private:
     ALCdevice *m_device;

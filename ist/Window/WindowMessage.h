@@ -2,7 +2,7 @@
 #define __ist_Application_WindowMessage__
 namespace ist {
 
-struct WindowMessage
+struct istInterModule WindowMessage
 {
     enum TYPE
     {
@@ -27,11 +27,11 @@ struct WindowMessage
     int type;
 };
 
-struct WM_Close : public WindowMessage
+struct istInterModule WM_Close : public WindowMessage
 {
 };
 
-struct WM_Active : public WindowMessage
+struct istInterModule WM_Active : public WindowMessage
 {
     enum STATE
     {
@@ -41,18 +41,18 @@ struct WM_Active : public WindowMessage
     short state;
 };
 
-struct WM_WindowSize : public WindowMessage
+struct istInterModule WM_WindowSize : public WindowMessage
 {
     ivec2 window_size;
 };
 
-struct WM_WindowMove : public WindowMessage
+struct istInterModule WM_WindowMove : public WindowMessage
 {
     ivec2 window_pos;
 };
 
 
-struct WM_Keyboard : public WindowMessage
+struct istInterModule WM_Keyboard : public WindowMessage
 {
     enum ACTION
     {
@@ -65,7 +65,7 @@ struct WM_Keyboard : public WindowMessage
     short key;
 };
 
-struct WM_Mouse : public WindowMessage
+struct istInterModule WM_Mouse : public WindowMessage
 {
     enum ACTION
     {
@@ -95,7 +95,7 @@ struct WM_Mouse : public WindowMessage
 
 
 // MES_IME_CHAR, MES_IME_RESULT のとき、text, text_len に入力データが入っている
-struct WM_IME : public WindowMessage
+struct istInterModule WM_IME : public WindowMessage
 {
     size_t text_len;
     size_t num_candidates;
