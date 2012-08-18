@@ -48,9 +48,9 @@ private:
 };
 
 #if defined(istWin64)
-typedef atomic_int64 atomic_ptr;
+typedef atomic_int64 atomic_ptrint;
 #elif defined(istWin32)
-typedef atomic_int32 atomic_ptr;
+typedef atomic_int32 atomic_ptrint;
 #endif
 
 #else
@@ -76,7 +76,7 @@ private:
     int32 m_value;
 };
 
-typedef istInterModule atomic_int32 atomic_ptr;
+typedef atomic_int32 atomic_ptr;
 
 #endif // istWindows
 

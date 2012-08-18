@@ -2,10 +2,14 @@
 #define __ist_UI_iuiCommon_h__
 #include "ist/Base.h"
 #include "ist/Math.h"
-#include "ist/GraphicsCommon/Image.h"
+#include "ist/Graphics.h"
 
 namespace ist {
 namespace iui {
+
+    // とりあえず
+    namespace i3d = ::ist::i3dgl;
+
 
     typedef float32 Float;
     typedef RGBA_32F Color;

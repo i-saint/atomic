@@ -12,6 +12,14 @@
 
 namespace ist {
 namespace i3dgl {
+
+
+IFontRenderer::IFontRenderer()
+{
+    setRef(1);
+}
+
+
 #ifdef istWindows
 
 static const int g_list_base = 0;
@@ -419,12 +427,13 @@ IFontRenderer* CreateSpriteFont(Device *device, const char *path_to_sff, const c
 
 IFontRenderer* CreateSpriteFont(Device *device, IBinaryStream &sff, IBinaryStream &img)
 {
-    SpriteFontRenderer *r = new SpriteFontRenderer();
+    SpriteFontRenderer *r = istNew(SpriteFontRenderer)();
     if(!r->initialize(device, sff, img)) {
         return NULL;
     }
     return r;
 }
+
 
 } // namespace i3d
 } // namespace ist

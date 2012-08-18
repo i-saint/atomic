@@ -102,13 +102,13 @@ void AtomicRenderingThread::exec()
 {
     ist::Thread::setNameToCurrentThread("AtomicRenderingThread");
 
-    m_device = istNew(i3d::Device)(atomicGetApplication()->getWindowHandle());
+    m_device = i3d::CreateDevice(atomicGetApplication()->getWindowHandle());
     if(!GLEW_VERSION_3_3) {
         m_error = ATERR_OPENGL_330_IS_NOT_SUPPORTED;
         m_cond_initialize_complete.signalOne();
         goto finalize_section;
     }
-    m_context = m_device->getContext();
+    m_context = m_device->createContext();
 
 #ifdef istWindows
     wglSwapIntervalEXT(atomicGetConfig()->vsync);
@@ -139,7 +139,11 @@ void AtomicRenderingThread::exec()
     GraphicResourceManager::finalizeInstance();
 
 finalize_section:
-    istSafeDelete(m_device);
+    istSafeRelease(m_context);
+#ifdef __i3d_enable_resource_leak_check__
+    m_device->printLeakInfo();
+#endif // __i3d_enable_leak_check__
+    istSafeRelease(m_device);
 }
 
 void AtomicRenderingThread::doRender()

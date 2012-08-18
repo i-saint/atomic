@@ -1,9 +1,15 @@
 ﻿#ifndef __ist_Config_h__
 
-#define __ist_enable_assert__
-#define __ist_enable_graphics_assert__
+#ifndef istMasterBuild
+#   define __ist_enable_assert__
+#   define __i3d_enable_assert__
+#endif // istMasterBuild
+#ifdef istDebugBuild
+#   define __ist_enable_memory_leak_check__
+#   define __i3d_enable_resource_leak_check__
+#endif // istDebugBuild
 
-#define __ist_with_EASTL__
+//#define __ist_with_EASTL__
 #define __ist_with_OpenGL__
 //#define __ist_with_OpenGLES__
 //#define __ist_with_DirectX11__

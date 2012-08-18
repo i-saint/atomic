@@ -87,5 +87,78 @@ private:
     FixedAllocator& operator=(const FixedAllocator&);
 };
 
+
+
+
+// leak check 用にアロケート時のコールスタックを stl::map で保存したいが、その map にデフォルトのアロケータが使われると無限再起してしまう。
+// なので、malloc()/free() を呼ぶだけのアロケータを用意する。
+
+#ifdef __ist_with_EASTL__
+
+class DebugAllocator
+{
+public:
+    DebugAllocator(const char* pName="") {}
+    DebugAllocator(const DebugAllocator& x) {}
+    DebugAllocator(const DebugAllocator& x, const char* pName) {}
+
+    DebugAllocator& operator=(const DebugAllocator& x) { return *this=x; return *this; }
+
+    void* allocate(size_t n, int flags = 0) { return malloc(n); }
+    void* allocate(size_t n, size_t alignment, size_t offset, int flags = 0) { return malloc(n); }
+    void  deallocate(void* p, size_t n) { free(p); }
+
+    const char* get_name() const { return NULL; }
+    void        set_name(const char* pName) {}
+};
+bool operator==(const DebugAllocator& a, const DebugAllocator& b);
+bool operator!=(const DebugAllocator& a, const DebugAllocator& b);
+
+#else // __ist_with_EASTL__
+
+template<typename T>
+class DebugAllocator {
+public : 
+    //    typedefs
+    typedef T value_type;
+    typedef value_type* pointer;
+    typedef const value_type* const_pointer;
+    typedef value_type& reference;
+    typedef const value_type& const_reference;
+    typedef std::size_t size_type;
+    typedef std::ptrdiff_t difference_type;
+
+public : 
+    //    convert an allocator<T> to allocator<U>
+    template<typename U>
+    struct rebind {
+        typedef DebugAllocator<U> other;
+    };
+
+public : 
+    DebugAllocator() {}
+    DebugAllocator(const DebugAllocator&) {}
+    template<typename U> DebugAllocator(const DebugAllocator<U>&) {}
+    ~DebugAllocator() {}
+
+    pointer address(reference r) { return &r; }
+    const_pointer address(const_reference r) { return &r; }
+
+    pointer allocate(size_type cnt, const void *p=NULL) {  return (pointer)malloc(cnt * sizeof(T)); }
+    void deallocate(pointer p, size_type) {  free(p); }
+
+    size_type max_size() const { return std::numeric_limits<size_type>::max() / sizeof(T); }
+
+    void construct(pointer p, const T& t) { new(p) T(t); }
+    void destroy(pointer p) { p->~T(); }
+
+    bool operator==(DebugAllocator const&) { return true; }
+    bool operator!=(DebugAllocator const& a) { return !operator==(a); }
+};
+template<class T> inline bool operator==(const DebugAllocator<T>& l, const DebugAllocator<T>& r) { return (l.equals(r)); }
+template<class T> inline bool operator!=(const DebugAllocator<T>& l, const DebugAllocator<T>& r) { return (!(l == r)); }
+
+#endif // __ist_with_EASTL__
+
 } // namespace ist
 #endif // __ist_Base_Allocator__

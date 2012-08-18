@@ -1,7 +1,7 @@
 ﻿#include "istPCH.h"
-#include "../Base.h"
-#include "../Sound.h"
-#include "../Window.h"
+#include "ist/Base.h"
+#include "ist/Debug.h"
+#include "ist/Window.h"
 
 namespace ist
 {
@@ -370,20 +370,50 @@ bool Application::_handleWindowMessage( const WindowMessage& wm )
 } // namespace ist
 
 
+namespace {
+
+    void PreMain()
+    {
+        ::setlocale(LC_ALL, "");
+#ifdef istDebugBuild
+        ist::InitializeSymbol();
+#endif // istDebugBuild
+#ifdef __ist_enable_memory_leak_check__
+        ist::InitializeMemoryLeakChecker();
+#endif // __ist_enable_memory_leak_check__
+    }
+
+    void PostMain()
+    {
+#ifdef __ist_enable_memory_leak_check__
+        ist::PrintMemoryLeakInfo();
+        ist::FinalizeMemoryLeakChecker();
+#endif // __ist_enable_memory_leak_check__
+#ifdef istDebugBuild
+        ist::FinalizeSymbol();
+#endif // istDebugBuild
+    }
+
+} // namespace
+
 
 extern int istmain(int argc, char* argv[]);
 
 int main(int argc, char* argv[])
 {
-    ::setlocale(LC_ALL, "");
-    return istmain(argc, argv);
+    PreMain();
+    int r = istmain(argc, argv);
+    PostMain();
+    return r;
 }
 
 #ifdef istWindows
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prev, LPSTR cmd, int show)
 {
-    ::setlocale(LC_ALL, "");
     ist::g_hinstance = hInstance;
-    return istmain(__argc, __argv);
+    PreMain();
+    int r = istmain(__argc, __argv);
+    PostMain();
+    return r;
 }
 #endif // istWindows

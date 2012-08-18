@@ -11,7 +11,7 @@
 namespace ist {
 
 
-static const int DPRINTF_MES_LENGTH  = 1024;
+static const int DPRINTF_MES_LENGTH  = 4096;
 
 
 namespace
@@ -83,9 +83,9 @@ void DebugPrintV(const char* file, int line, const char* fmt, va_list vl)
 {
 #ifdef istWindows
     char buf[DPRINTF_MES_LENGTH];
-    istsprintf(buf, "%s:%d - ", file, line);
-    ::OutputDebugStringA(buf);
-    WriteLogFile(buf);
+    //istsprintf(buf, "%s:%d - ", file, line);
+    //::OutputDebugStringA(buf);
+    //WriteLogFile(buf);
     istvsprintf(buf, fmt, vl);
     ::OutputDebugStringA(buf);
     WriteLogFile(buf);
@@ -106,11 +106,11 @@ void DebugPrint(const char* file, int line, const wchar_t* fmt, ...)
 void DebugPrintV(const char* file, int line, const wchar_t* fmt, va_list vl)
 {
 #ifdef istWindows
-    char buf[DPRINTF_MES_LENGTH];
     wchar_t wbuf[DPRINTF_MES_LENGTH];
-    istsprintf(buf, "%s:%d - ", file, line);
-    ::OutputDebugStringA(buf);
-    WriteLogFile(buf);
+    //char buf[DPRINTF_MES_LENGTH];
+    //istsprintf(buf, "%s:%d - ", file, line);
+    //::OutputDebugStringA(buf);
+    //WriteLogFile(buf);
     istvsprintf(wbuf, fmt, vl);
     ::OutputDebugStringW(wbuf);
     WriteLogFile(wbuf);

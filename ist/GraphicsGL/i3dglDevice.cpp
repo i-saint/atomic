@@ -9,9 +9,13 @@ namespace i3dgl {
 
 #ifdef istWindows
 
-Device::Device(HWND hwnd) : m_hwnd(hwnd), m_context(NULL)
+Device::Device(HWND hwnd) : m_hwnd(hwnd)
 {
+    setRef(1);
     m_hdc = ::GetDC(m_hwnd);
+#ifdef __i3d_enable_resource_leak_check__
+
+#endif // __i3d_enable_leak_check__
 
     int pixelformat;
     static PIXELFORMATDESCRIPTOR pfd = {
@@ -47,15 +51,12 @@ Device::Device(HWND hwnd) : m_hwnd(hwnd), m_context(NULL)
         const GLubyte *vendor = glGetString(GL_VENDOR);
         istPrint("OpenGL version: %s, vendor: %s\n", version, vendor);
     }
-
-    m_context = istNew(DeviceContext)(this);
 }
 
 Device::~Device()
 {
-    istSafeDelete(m_context);
     for(uint32 i=0; i<m_resources.size(); ++i) {
-        istSafeDelete(m_resources[i]);
+        istSafeRelease(m_resources[i]);
     }
     m_resources.clear();
 
@@ -92,6 +93,12 @@ void Device::deleteResource( ResourceHandle v )
 {
     istSafeDelete(m_resources[v]);
     m_vacant.push_back(v);
+}
+
+DeviceContext* Device::createContext()
+{
+    DeviceContext *r = istNew(DeviceContext)(this);
+    return r;
 }
 
 Buffer* Device::createBuffer(const BufferDesc &desc)
@@ -171,9 +178,30 @@ RenderTarget* Device::createRenderTarget()
     return r;
 }
 
+
+#ifdef __i3d_enable_resource_leak_check__
+void Device::printLeakInfo()
+{
+    for(size_t i=0; i<m_resources.size(); ++i) {
+        if(m_resources[i]==NULL) { continue; }
+        istPrint("i3dgl::Device: resource leak %p\n", m_resources[i]);
+        m_resources[i]->printLeakInfo();
+        istPrint("\n");
+    }
+}
+#endif // __i3d_enable_leak_check__
+
+
+
+
 void Device::swapBuffers()
 {
     ::SwapBuffers(m_hdc);
+}
+
+Device* CreateDevice( HWND hwnd )
+{
+    return istNew(Device)(hwnd);
 }
 
 } // namespace i3d

@@ -10,7 +10,7 @@
 namespace ist {
 namespace i3dgl {
 
-class DeviceContext
+class DeviceContext : public SharedObject
 {
 I3DGL_DECLARE_DEVICE_RESOURCE(DeviceContext);
 public:
@@ -35,7 +35,6 @@ public:
 private:
     DeviceContext(Device *dev);
     ~DeviceContext();
-
 
 private:
     Device         *m_device;

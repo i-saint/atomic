@@ -10,6 +10,7 @@ namespace i3dgl {
 class IFontRenderer : public SharedObject
 {
 public:
+    IFontRenderer();
     virtual void setScreen(float32 left, float32 right, float32 bottom, float32 top)=0;
     virtual void setColor(const vec4 &v)=0;
     virtual void setSize(float32 v)=0;

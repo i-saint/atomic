@@ -27,6 +27,7 @@ namespace iui {
 
     private:
         Widgets m_children;
+        Widget *m_parent;
         Style *m_style;
         Position m_pos;
         Size m_size;
@@ -38,11 +39,15 @@ namespace iui {
     {
     public:
         Style();
-        ~Style();
+        virtual ~Style();
 
-        virtual void render();
+        const Widget* getWidget() const { return m_widget; }
+        void setWidget(const Widget *w) { m_widget=w; }
+
+        virtual void draw() const;
 
     private:
+        const Widget *m_widget;
     };
 
 } // namespace iui

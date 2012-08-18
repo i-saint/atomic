@@ -1,5 +1,5 @@
-﻿#ifndef __ist__
-#define __ist__
+﻿#ifndef __ist_h__
+#define __ist_h__
 
 #pragma comment(lib, "ist.lib")
 
@@ -14,4 +14,4 @@
 #include "Window.h"
 #include "GPGPU.h"
 
-#endif // __ist__
+#endif // __ist_h__

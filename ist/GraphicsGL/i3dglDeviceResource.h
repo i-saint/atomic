@@ -9,20 +9,13 @@ namespace i3dgl {
 class istInterModule Device;
 
 
+
 class istInterModule DeviceResource : public SharedObject
 {
 istMakeDestructable;
 friend class Device;
-private:
-    Device *m_owner_device;
-    ResourceHandle m_dr_handle;
-
-protected:
-    GLuint m_handle;
-
-private:
-    ResourceHandle getDeviceResourceHandle() const;
-    void setDeviceResourceHandle(ResourceHandle v);
+public:
+    GLuint getHandle() const;
 
 protected:
     DeviceResource(Device *dev);
@@ -30,8 +23,22 @@ protected:
     virtual void onZeroRef();
     Device* getOwnerDevice();
 
+    GLuint m_handle;
+
+private:
+    Device *m_device;
+    ResourceHandle m_dr_handle;
+
+    // non-copyable
+    ResourceHandle getDeviceResourceHandle() const;
+    void setDeviceResourceHandle(ResourceHandle v);
+
+#ifdef __i3d_enable_resource_leak_check__
 public:
-    GLuint getHandle() const;
+    int32 m_callstack_size;
+    void *m_stack[16];
+    void printLeakInfo();
+#endif // __i3d_enable_leak_check__
 };
 
 } // namespace i3d

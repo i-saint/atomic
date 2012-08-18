@@ -56,9 +56,9 @@ namespace ist {
     // ここから下の class はモジュールを跨いではならない。
     // モジュールを跨いでいいのは IParamNode だけとする。
 
-    IParamNode* GetChildByPath(IParamNode *node, const char *name);
+    istInterModule IParamNode* GetChildByPath(IParamNode *node, const char *name);
 
-    class ParamNodeBase : public IParamNode
+    class istInterModule ParamNodeBase : public IParamNode
     {
     istMakeDestructable;
     public:
@@ -82,7 +82,7 @@ namespace ist {
         }
 
 
-        virtual bool handleAction()             { return false; }
+        virtual bool handleAction(Option o)     { return false; }
         virtual bool handleForward(Option o)    { return false; }
         virtual bool handleBackward(Option o)   { return false; }
         virtual bool handleFocus()              { return false; }
@@ -112,7 +112,7 @@ namespace ist {
                     if(selected) { selected->handleEvent(e, o); }
                     return true;
                 case Event_Action:
-                    if(selected) { selected->handleEvent(e); }
+                    if(selected) { selected->handleEvent(e, o); }
                     return true;
                 case Event_Cancel:
                     setOpened(false);
@@ -127,7 +127,7 @@ namespace ist {
                 case Event_Defocus: return handleDefocus();
                 case Event_Action:
                     if(!m_children.empty()) { setOpened(true); }
-                    return handleAction();
+                    return handleAction(o);
                 }
             }
             return false;
@@ -158,7 +158,7 @@ namespace ist {
     };
 
     template<class T>
-    class ArithmeticParamNode : public ParamNodeBase
+    class istInterModule ArithmeticParamNode : public ParamNodeBase
     {
     public:
         typedef T ValueT;

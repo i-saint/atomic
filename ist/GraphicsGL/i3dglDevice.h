@@ -10,26 +10,27 @@
 namespace ist {
 namespace i3dgl {
 
-class istInterModule Device
+class istInterModule Device : public SharedObject
 {
+istMakeDestructable;
 private:
 #ifdef istWindows
     HWND    m_hwnd;
     HDC     m_hdc;
     HGLRC   m_hglrc;
 #endif // istWindows
-    DeviceContext *m_context;
-
     stl::vector<DeviceResource*>    m_resources;
     stl::vector<ResourceHandle>     m_vacant;
     void addResource(DeviceResource *v);
 
-public:
 #ifdef istWindows
     Device(HWND hwnd);
+    friend Device* CreateDevice(HWND hwnd);
+#else // istWindows
 #endif // istWindows
     ~Device();
-    DeviceContext* getContext() { return m_context; }
+public:
+    DeviceContext*  createContext();
 
     Buffer*         createBuffer(const BufferDesc &desc);
     VertexArray*    createVertexArray();
@@ -53,9 +54,17 @@ public:
     HDC getHDC() { return m_hdc; }
     HGLRC getHGLRC() { return m_hglrc; }
 #endif // istWindows
+#ifdef __i3d_enable_resource_leak_check__
+    void printLeakInfo();
+#endif // __i3d_enable_leak_check__
 };
 
-} // namespace i3d
+#ifdef istWindows
+Device* CreateDevice(HWND hwnd);
+#else // istWindows
+#endif // istWindows
+
+} // namespace i3dgl
 } // namespace ist
 
 #endif // __ist_i3dgl_Device__

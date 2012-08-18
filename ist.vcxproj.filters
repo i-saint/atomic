@@ -274,6 +274,9 @@
     <ClInclude Include="ist\Math.h" />
     <ClInclude Include="ist\Sound.h" />
     <ClInclude Include="ist\targetver.h" />
+    <ClInclude Include="ist\Debug\Callstack.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ist\Window\Application.cpp">
@@ -391,6 +394,9 @@
       <Filter>Base</Filter>
     </ClCompile>
     <ClCompile Include="ist\istPCH.cpp" />
+    <ClCompile Include="ist\Debug\Callstack.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ist\Math\FrustumCulling.inl">

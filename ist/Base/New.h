@@ -55,5 +55,13 @@ void operator delete[](void* p);
 #define istSafeFreeA(Obj, A)                if(Obj){A.deallocate(Obj); Obj=NULL;}
 
 
+#ifdef __ist_enable_memory_leak_check__
+namespace ist {
+    void InitializeMemoryLeakChecker();
+    void FinalizeMemoryLeakChecker();
+    void PrintMemoryLeakInfo();
+} // namespace ist
+#endif // __ist_enable_memory_leak_check__
+
 #endif // __ist_Base_New__
 #include "ist/Base/Allocator.h"

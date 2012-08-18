@@ -11,11 +11,11 @@ namespace ist {
     {
     public:
         SharedObject() : m_ref_counter(0) {}
-        virtual ~SharedObject() {}
-        void addRef()           { ++m_ref_counter; }
-        void release()          { if(--m_ref_counter==0) { onZeroRef(); } }
-        void setRef(int32 v)    { m_ref_counter=v; }
-        int32 getRef() const    { return m_ref_counter; }
+        virtual ~SharedObject()     {}
+        virtual void addRef()       { ++m_ref_counter; }
+        virtual void release()      { if(--m_ref_counter==0) { onZeroRef(); } }
+        virtual void setRef(int32 v){ m_ref_counter=v; }
+        int32 getRef() const        { return m_ref_counter; }
 
     protected:
         virtual void onZeroRef() { istDelete(this); }

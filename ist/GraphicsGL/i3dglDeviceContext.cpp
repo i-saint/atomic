@@ -17,10 +17,13 @@ DeviceContext::DeviceContext( Device *dev )
 
     , m_shader(NULL)
 {
+    setRef(1);
+    istSafeAddRef(m_device);
 }
 
 DeviceContext::~DeviceContext()
 {
+    istSafeRelease(m_device);
 }
 
 void DeviceContext::setViewport( const Viewport &vp )
