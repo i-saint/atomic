@@ -41,7 +41,7 @@ void Source::set3F(ALenum param, const vec3& v)
 }
 
 
-Source::Source()
+Source::Source(Device *dev) : super(dev)
 {
     alGenSources(1, &m_handle);
 }

@@ -13,6 +13,7 @@ public:
     typedef stl::vector<char> DataCont;
 
 public:
+    Stream();
     virtual ~Stream();
 
     virtual size_t getChannels() const=0;

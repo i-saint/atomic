@@ -60,8 +60,12 @@
 #pragma warning(disable: 4819) // コードページ問題 (glm)
 #pragma warning(disable: 4251) // __export つけろ問題
 
+
 #include <stdint.h>
 #include <stdio.h>
+#include <boost/intrusive_ptr.hpp>
+#include <boost/noncopyable.hpp>
+#include <boost/static_assert.hpp>
 
 #ifdef __ist_with_EASTL__
 #   include <EASTL/algorithm.h>

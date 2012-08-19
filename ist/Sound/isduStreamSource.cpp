@@ -13,6 +13,7 @@ namespace isd {
 SourceAdapter::SourceAdapter()
     : m_src(NULL)
 {
+    setRef(1);
 }
 
 SourceAdapter::~SourceAdapter()

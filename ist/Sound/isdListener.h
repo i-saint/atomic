@@ -10,6 +10,7 @@ namespace isd {
 class istInterModule Listener : public DeviceResource
 {
 ISD_DECLARE_DEVICE_RESOURCE(Listener);
+typedef DeviceResource super;
 private:
 
 protected:
@@ -20,7 +21,7 @@ protected:
     void setF(ALenum param, float v);
     void set3F(ALenum param, const vec3& v);
 
-    Listener();
+    Listener(Device *dev);
     virtual ~Listener();
 
 public:

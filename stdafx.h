@@ -36,10 +36,6 @@
 #include <emmintrin.h>
 #include <pmmintrin.h>
 #include <tmmintrin.h>
-#include <boost/noncopyable.hpp>
-#include <boost/static_assert.hpp>
-#include <boost/mem_fn.hpp>
-#include <boost/function.hpp>
 
 #include <tbb/tbb.h>
 #include <iostream>

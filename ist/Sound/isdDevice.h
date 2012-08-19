@@ -6,8 +6,10 @@
 namespace ist {
 namespace isd {
 
-class istInterModule Device
+class istInterModule Device : public SharedObject
 {
+istMakeDestructable;
+friend Device* CreateDevice();
 private:
     ALCdevice *m_device;
     ALCcontext *m_context;
@@ -16,16 +18,17 @@ private:
 
     void addResource(DeviceResource *v);
 
-public:
     Device();
     ~Device();
 
+public:
     Buffer* createBuffer();
     Source* createSource();
     Listener* createListener();
 
     void deleteResource(ResourceHandle v);
 };
+Device* CreateDevice();
 
 } // namespace isd
 } // namespace ist

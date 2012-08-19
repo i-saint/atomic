@@ -41,7 +41,7 @@ void Listener::set3F(ALenum param, const vec3& v)
 }
 
 
-Listener::Listener(){}
+Listener::Listener(Device *dev) : super(dev) {}
 Listener::~Listener() {}
 
 float Listener::getGain() const { return getF(AL_GAIN); }

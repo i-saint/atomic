@@ -101,7 +101,7 @@ SoundThread::~SoundThread()
 
 void SoundThread::initialize()
 {
-    m_device = istNew(isd::Device)();
+    m_device = isd::CreateDevice();
 
     m_listener = m_device->createListener();
     for(uint32 i=0; i<_countof(m_se_sources); ++i)  { m_se_sources[i] = m_device->createSource(); }
@@ -133,14 +133,14 @@ void SoundThread::initialize()
 
 void SoundThread::finalize()
 {
-    istDelete(m_stream);
+    istSafeRelease(m_stream);
 
     for(uint32 i=0; i<_countof(m_se_data); ++i)     { istSafeRelease(m_se_data[i]); }
     for(uint32 i=0; i<_countof(m_se_sources); ++i)  { istSafeRelease(m_se_sources[i]); }
     istSafeRelease(m_bgm_source);
     istSafeRelease(m_listener);
 
-    istSafeDelete(m_device);
+    istSafeRelease(m_device);
 }
 
 

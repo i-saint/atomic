@@ -1,9 +1,6 @@
 ﻿#ifndef __ist_Concurrency_TashScheduler_h__
 #define __ist_Concurrency_TashScheduler_h__
 
-#include <vector>
-#include <deque>
-#include <boost/intrusive_ptr.hpp>
 #include "ist/Base/Types.h"
 #include "ist/Base/SharedObject.h"
 #include "ist/Concurrency/Atomic.h"

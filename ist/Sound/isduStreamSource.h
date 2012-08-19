@@ -6,7 +6,7 @@
 namespace ist {
 namespace isd {
 
-class istInterModule SourceAdapter
+class istInterModule SourceAdapter : public SharedObject
 {
 private:
     Source *m_src;
@@ -57,7 +57,7 @@ public:
 };
 
 
-class istInterModule StreamSource : public SourceAdapter, public SharedObject
+class istInterModule StreamSource : public SourceAdapter
 {
 public:
     typedef stl::vector<char> DataCont;

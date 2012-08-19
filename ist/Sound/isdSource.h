@@ -10,6 +10,7 @@ namespace isd {
 class istInterModule Source : public DeviceResource
 {
 ISD_DECLARE_DEVICE_RESOURCE(Source);
+typedef DeviceResource super;
 protected:
     int getI(ALenum param) const;
     float getF(ALenum param) const;
@@ -26,7 +27,7 @@ public:
         STATE_STOPPED   = AL_STOPPED,
     };
 
-    Source();
+    Source(Device *dev);
     virtual ~Source();
 
 public:

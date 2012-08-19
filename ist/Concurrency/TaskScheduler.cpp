@@ -2,6 +2,7 @@
 #include "ist/Base/New.h"
 #include "ist/Base/Assert.h"
 #include "ist/Concurrency/TaskScheduler.h"
+#include <deque> // deque は EASTL にはないので標準のを
 
 namespace ist {
 

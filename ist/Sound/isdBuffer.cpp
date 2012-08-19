@@ -18,7 +18,8 @@ int Buffer::getI(ALenum param) const
 }
 
 
-Buffer::Buffer()
+Buffer::Buffer(Device *dev)
+    : super(dev)
 {
     initialize();
 }

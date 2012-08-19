@@ -13,15 +13,16 @@ class istInterModule DeviceResource : public SharedObject
 istMakeDestructable;
 friend class Device;
 public:
+    virtual void onZeroRef();
+
     Device* getOwnerDevice();
-    void setOwnerDevice(Device *v);
     ResourceHandle getDeviceResourceHandle() const;
     void setDeviceResourceHandle(ResourceHandle v);
 
     ALuint getHandle() const;
 
 protected:
-    DeviceResource();
+    DeviceResource(Device *v);
     virtual ~DeviceResource();
 
     ALuint m_handle;
@@ -31,7 +32,7 @@ private:
     DeviceResource(const DeviceResource&);
     DeviceResource& operator=(const DeviceResource&);
 
-    Device *m_owner_device;
+    Device *m_device;
     ResourceHandle m_dr_handle;
 };
 

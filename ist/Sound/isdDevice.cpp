@@ -10,6 +10,7 @@ Device::Device()
     : m_device(NULL)
     , m_context(NULL)
 {
+    setRef(1);
     m_device = alcOpenDevice(NULL);
     if(!m_device) {
         istPrint("alcOpenDevice() failed");
@@ -29,8 +30,9 @@ Device::Device()
 Device::~Device()
 {
     for(uint32 i=0; i<m_resources.size(); ++i) {
-        istSafeDelete(m_resources[i]);
+        istSafeRelease(m_resources[i]);
     }
+    m_resources.clear();
 
     alcMakeContextCurrent(0);
     alcDestroyContext(m_context);
@@ -41,7 +43,6 @@ void Device::addResource( DeviceResource *v )
 {
     if(!v) { return; }
 
-    v->setOwnerDevice(this);
     if(!m_vacant.empty()) {
         ResourceHandle drh = m_vacant.back();
         m_vacant.pop_back();
@@ -62,23 +63,28 @@ void Device::deleteResource( ResourceHandle v )
 
 Buffer* Device::createBuffer()
 {
-    Buffer *r = istNew(Buffer);
+    Buffer *r = istNew(Buffer)(this);
     addResource(r);
     return r;
 }
 
 Source* Device::createSource()
 {
-    Source *r = istNew(Source);
+    Source *r = istNew(Source)(this);
     addResource(r);
     return r;
 }
 
 Listener* Device::createListener()
 {
-    Listener *r = istNew(Listener);
+    Listener *r = istNew(Listener)(this);
     addResource(r);
     return r;
+}
+
+Device* CreateDevice()
+{
+    return istNew(Device)();
 }
 
 } // namespace isd

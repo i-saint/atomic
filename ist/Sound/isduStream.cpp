@@ -4,6 +4,12 @@
 
 namespace ist {
 namespace isd {
+    
+Stream::Stream()
+{
+    setRef(1);
+}
+
 
 Stream::~Stream() {}
 

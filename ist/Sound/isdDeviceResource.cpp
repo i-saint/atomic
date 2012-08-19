@@ -5,26 +5,28 @@
 namespace ist {
 namespace isd {
 
-DeviceResource::DeviceResource()
-    : m_owner_device(NULL)
+DeviceResource::DeviceResource(Device *v)
+    : m_device(v)
     , m_dr_handle(0)
     , m_handle(0)
 {
     setRef(1);
+    istSafeAddRef(m_device);
 }
 
 DeviceResource::~DeviceResource()
 {
+    istSafeRelease(m_device);
+}
+
+void DeviceResource::onZeroRef()
+{
+    m_device->deleteResource(getDeviceResourceHandle());
 }
 
 Device* DeviceResource::getOwnerDevice()
 {
-    return m_owner_device;
-}
-
-void DeviceResource::setOwnerDevice( Device *v )
-{
-    m_owner_device = v;
+    return m_device;
 }
 
 ResourceHandle DeviceResource::getDeviceResourceHandle() const

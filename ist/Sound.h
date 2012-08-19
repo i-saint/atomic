@@ -3,9 +3,6 @@
 
 #include <AL/al.h>
 #include <AL/alc.h>
-#include <vector>
-#include <deque>
-#include <boost/shared_ptr.hpp>
 
 #include "Config.h"
 #include "Base.h"
