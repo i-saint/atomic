@@ -69,7 +69,7 @@ public:
     void* allocate();
     void defrag();
 
-    virtual void* allocate(size_t size, size_t aligm);
+    virtual void* allocate(size_t size, size_t align);
     virtual void deallocate(void* p);
 
 private:
@@ -88,6 +88,15 @@ private:
 };
 
 
+// leak check 用にアロケート時のコールスタックを stl::map で保存したいが、その map にデフォルトのアロケータが使われると無限再起してしまう。
+// なので、malloc()/free() を呼ぶだけのアロケータを用意する。
+class istInterModule DebugAllocator : public IAllocator
+{
+public:
+    void* allocate(size_t size, size_t align) { return malloc(size); }
+    void  deallocate(void* p) { free(p); }
+};
+
 
 
 // leak check 用にアロケート時のコールスタックを stl::map で保存したいが、その map にデフォルトのアロケータが使われると無限再起してしまう。
@@ -95,14 +104,15 @@ private:
 
 #ifdef __ist_with_EASTL__
 
-class DebugAllocator
+template<class Alloc>
+class _STLAllocatorAdapter
 {
 public:
-    DebugAllocator(const char* pName="") {}
-    DebugAllocator(const DebugAllocator& x) {}
-    DebugAllocator(const DebugAllocator& x, const char* pName) {}
+    _STLAllocatorAdapter(const char* pName="") {}
+    _STLAllocatorAdapter(const _STLAllocatorAdapter& x) {}
+    _STLAllocatorAdapter(const _STLAllocatorAdapter& x, const char* pName) {}
 
-    DebugAllocator& operator=(const DebugAllocator& x) { return *this=x; return *this; }
+    _STLAllocatorAdapter& operator=(const _STLAllocatorAdapter& x) { return *this=x; return *this; }
 
     void* allocate(size_t n, int flags = 0) { return malloc(n); }
     void* allocate(size_t n, size_t alignment, size_t offset, int flags = 0) { return malloc(n); }
@@ -110,14 +120,20 @@ public:
 
     const char* get_name() const { return NULL; }
     void        set_name(const char* pName) {}
+    Alloc& getActualAllocator() { return m_alloc; }
+
+private:
+    Alloc m_alloc;
 };
-bool operator==(const DebugAllocator& a, const DebugAllocator& b);
-bool operator!=(const DebugAllocator& a, const DebugAllocator& b);
+template<class Alloc> bool operator==(const _STLAllocatorAdapter<Alloc>& a, const _STLAllocatorAdapter<Alloc>& b);
+template<class Alloc> bool operator!=(const _STLAllocatorAdapter<Alloc>& a, const _STLAllocatorAdapter<Alloc>& b);
+
+#define STLAllocatorAdapter(A, ...) _STLAllocatorAdapter<A>
 
 #else // __ist_with_EASTL__
 
-template<typename T>
-class DebugAllocator {
+template<typename T, typename Alloc>
+class _STLAllocatorAdapter {
 public : 
     //    typedefs
     typedef T value_type;
@@ -132,31 +148,37 @@ public :
     //    convert an allocator<T> to allocator<U>
     template<typename U>
     struct rebind {
-        typedef DebugAllocator<U> other;
+        typedef _STLAllocatorAdapter<U, Alloc> other;
     };
 
 public : 
-    DebugAllocator() {}
-    DebugAllocator(const DebugAllocator&) {}
-    template<typename U> DebugAllocator(const DebugAllocator<U>&) {}
-    ~DebugAllocator() {}
+    _STLAllocatorAdapter() {}
+    _STLAllocatorAdapter(const _STLAllocatorAdapter&) {}
+    template<typename U> _STLAllocatorAdapter(const _STLAllocatorAdapter<U, Alloc>&) {}
+    ~_STLAllocatorAdapter() {}
 
     pointer address(reference r) { return &r; }
     const_pointer address(const_reference r) { return &r; }
 
-    pointer allocate(size_type cnt, const void *p=NULL) {  return (pointer)malloc(cnt * sizeof(T)); }
-    void deallocate(pointer p, size_type) {  free(p); }
+    pointer allocate(size_type cnt, const void *p=NULL) {  return (pointer)m_alloc.allocate(cnt * sizeof(T)); }
+    void deallocate(pointer p, size_type) {  m_alloc.deallocate(p); }
 
     size_type max_size() const { return std::numeric_limits<size_type>::max() / sizeof(T); }
 
     void construct(pointer p, const T& t) { new(p) T(t); }
     void destroy(pointer p) { p->~T(); }
+    Alloc& getActualAllocator() { return m_alloc; }
 
-    bool operator==(DebugAllocator const&) { return true; }
-    bool operator!=(DebugAllocator const& a) { return !operator==(a); }
+    bool operator==(_STLAllocatorAdapter const&) { return true; }
+    bool operator!=(_STLAllocatorAdapter const& a) { return !operator==(a); }
+
+private:
+    Alloc m_alloc;
 };
-template<class T> inline bool operator==(const DebugAllocator<T>& l, const DebugAllocator<T>& r) { return (l.equals(r)); }
-template<class T> inline bool operator!=(const DebugAllocator<T>& l, const DebugAllocator<T>& r) { return (!(l == r)); }
+template<class T, typename Alloc> inline bool operator==(const _STLAllocatorAdapter<T, Alloc>& l, const _STLAllocatorAdapter<T, Alloc>& r) { return (l.equals(r)); }
+template<class T, typename Alloc> inline bool operator!=(const _STLAllocatorAdapter<T, Alloc>& l, const _STLAllocatorAdapter<T, Alloc>& r) { return (!(l == r)); }
+
+#define STLAllocatorAdapter(A, V) _STLAllocatorAdapter<A, V>
 
 #endif // __ist_with_EASTL__
 

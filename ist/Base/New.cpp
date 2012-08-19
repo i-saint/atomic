@@ -46,11 +46,7 @@ public:
     }
 
 private:
-#ifdef __ist_with_EASTL__
-    typedef stl::map<void*, AllocInfo, stl::less<void*>, DebugAllocator > DataTable;
-#else // __ist_with_EASTL__
-    typedef stl::map<void*, AllocInfo, stl::less<void*>, DebugAllocator< stl::pair<const void*, AllocInfo> > > DataTable;
-#endif // __ist_with_EASTL__
+    typedef stl::map<void*, AllocInfo, stl::less<void*>, STLAllocatorAdapter(DebugAllocator, stl::pair<const void*, AllocInfo>) > DataTable;
     DataTable m_leakinfo;
     Mutex m_mutex;
 };

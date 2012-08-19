@@ -140,7 +140,7 @@ void FixedAllocator::defrag()
     stl::stable_sort(m_unused+m_used, m_unused+m_max_element);
 }
 
-void* FixedAllocator::allocate(size_t size, size_t aligm)
+void* FixedAllocator::allocate(size_t size, size_t align)
 {
     return allocate();
 }

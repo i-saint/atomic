@@ -9,7 +9,7 @@
 #   define __i3d_enable_resource_leak_check__
 #endif // istDebugBuild
 
-//#define __ist_with_EASTL__
+#define __ist_with_EASTL__
 #define __ist_with_OpenGL__
 //#define __ist_with_OpenGLES__
 //#define __ist_with_DirectX11__
