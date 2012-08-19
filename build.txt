@@ -5,10 +5,6 @@
 - http://developer.nvidia.com/cuda-toolkit-40
 - CUDA 4.0 (cudatoolkit_4.0.17_win_64.msi と gpucomputingsdk_4.0.19_win_64.exe) を想定
 
-・boost のインストール
-- http://www.boost.org/
-- 自力でビルドしてもいいですが、インストーラを利用すると楽です。 http://www.boostpro.com/download/ BoostPro 1.47.0 Installer を想定
-- 環境変数 BOOST_INCLUDE, BOOST_LIBRARY にそれぞれ boost のインクルード/ライブラリのディレクトリを設定。 (例: C:\Program Files (x86)\boost\boost_1_47, C:\Program Files (x86)\boost\boost_1_47\lib)
 
 ・cygwin
 - カスタムビルドステップで cygwin 上の ruby を使っているため、cygwin のインストールが必要です。
