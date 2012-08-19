@@ -85,23 +85,27 @@ void StackAllocator::clear()
 
 
 
-FixedAllocator::FixedAllocator()
-    : m_memory(NULL)
-    , m_unused(NULL)
-    , m_used(0)
-    , m_size_element(0)
-    , m_max_element(0)
-    , m_alignment(0)
-    , m_parent(NULL)
+template<class T>
+TFixedAllocator<T>::TFixedAllocator( size_t size_element, size_t max_elements, size_t alignment, IAllocator *parent )
 {
+    m_memory = NULL;
+    m_used = NULL;
+    m_element_size = size_element;
+    m_max_elements = max_elements;
+    m_alignment = alignment;
+    m_parent = parent;
+
+    void** unused = (void**)parent->allocate(sizeof(void*)*max_elements, DefaultAlignment);
+    void* mem = parent->allocate(size_element*max_elements, alignment);
+    for(size_t i=0; i<max_elements; ++i) {
+        unused[i] = (char*)mem + (size_element*i);
+    }
+    m_unused = unused;
+    m_memory = mem;
 }
 
-FixedAllocator::FixedAllocator( size_t size_element, size_t num_element, size_t alignment, IAllocator *parent )
-{
-    initialize(size_element, num_element, alignment, parent);
-}
-
-FixedAllocator::~FixedAllocator()
+template<class T>
+TFixedAllocator<T>::~TFixedAllocator()
 {
     if(m_parent) {
         m_parent->deallocate(m_memory);
@@ -109,45 +113,113 @@ FixedAllocator::~FixedAllocator()
     }
 }
 
-void FixedAllocator::initialize( size_t size_element, size_t num_element, size_t alignment, IAllocator *parent )
+template<class T>
+void* TFixedAllocator<T>::allocate()
 {
-    m_memory = NULL;
-    m_used = NULL;
-    m_size_element = size_element;
-    m_max_element = num_element;
-    m_alignment = alignment;
-    m_parent = parent;
-
-    void** unused = (void**)parent->allocate(sizeof(void*)*num_element, DefaultAlignment);
-    void* mem = parent->allocate(size_element*num_element, alignment);
-    for(size_t i=0; i<num_element; ++i) {
-        unused[i] = (char*)mem + (size_element*i);
+    int32 i = m_used++;
+    if(i >= (int32)m_max_elements) {
+        --m_used;
+        return NULL;
     }
-    m_unused = unused;
-    m_memory = mem;
+    return m_unused[i];
 }
 
-void* FixedAllocator::allocate()
+template<class T>
+bool TFixedAllocator<T>::canDeallocate( void *p ) const
 {
-    if(m_used==m_max_element) {
-        BadAllocHandler(this);
-    }
-    return m_unused[m_used++];
+    return p>=m_memory && p<((char*)m_memory+(m_element_size*m_max_elements));
 }
 
-void FixedAllocator::defrag()
+template<class T>
+void TFixedAllocator<T>::defrag()
 {
-    stl::stable_sort(m_unused+m_used, m_unused+m_max_element);
+    stl::sort(m_unused+m_used, m_unused+m_max_elements);
 }
 
-void* FixedAllocator::allocate(size_t size, size_t align)
+template<class T>
+void* TFixedAllocator<T>::allocate(size_t size, size_t align)
 {
     return allocate();
 }
 
-void FixedAllocator::deallocate(void* p)
+template<class T>
+void TFixedAllocator<T>::deallocate(void* p)
 {
     m_unused[--m_used] = p;
 }
+
+
+
+
+template<class T>
+TChainedFixedAllocator<T>::TChainedFixedAllocator(size_t element_size, size_t max_elements, size_t alignment, IAllocator *parent)
+    : m_block(NULL)
+    , m_next(NULL)
+{
+    m_block = istNewA(BlockT, parent)(element_size, max_elements, alignment, parent);
+}
+
+template<class T>
+TChainedFixedAllocator<T>::~TChainedFixedAllocator()
+{
+    istSafeDeleteA(m_next, m_block->getParent());
+    istSafeDeleteA(m_block, m_block->getParent());
+}
+
+template<class T>
+void* TChainedFixedAllocator<T>::allocate()
+{
+    void *r = m_block->allocate();
+    // allocate に失敗した場合、次の block からの確保を試みる。
+    // この時、block が未構築であれば lock して構築する必要がある。
+    if(r==NULL) {
+        if(m_next==NULL) {
+            Mutex::ScopedLock l(m_mutex);
+            if(m_next==NULL) { // 別のスレッドが既に構築した可能性があるので、再チェックが必要
+                m_next = istNewA(TChainedFixedAllocator, m_block->getParent())(
+                    m_block->getElementSize(), m_block->getMaxElements(), m_block->getAlignment(), m_block->getParent() );
+            }
+        }
+        r = m_next->allocate();
+    }
+    return r;
+}
+
+template<class T>
+bool TChainedFixedAllocator<T>::canDelete(void *p) const
+{
+    if(!m_block->canDeallocate(p)) {
+        if(m_next!=NULL) {
+            return m_next->canDelete(p);
+        }
+    }
+    return false;
+}
+
+template<class T>
+void* TChainedFixedAllocator<T>::allocate(size_t size, size_t align)
+{
+    return allocate();
+}
+
+template<class T>
+void TChainedFixedAllocator<T>::deallocate(void* p)
+{
+    if(m_block->canDeallocate(p)) {
+        m_block->deallocate(p);
+    }
+    else if(m_next!=NULL) {
+        m_next->deallocate(p);
+    }
+    else {
+        istAssert(0, "TChainedFixedAllocator::deallocate()\n");
+    }
+}
+
+template TFixedAllocator<Allocator_SingleThreadPolicy>;
+template TFixedAllocator<Allocator_MultiThreadPolicy>;
+template TChainedFixedAllocator<Allocator_SingleThreadPolicy>;
+template TChainedFixedAllocator<Allocator_MultiThreadPolicy>;
+
 
 } // namespace ist

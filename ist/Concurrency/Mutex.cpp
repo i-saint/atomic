@@ -29,5 +29,4 @@ namespace ist {
 
 #endif // __ist_env_Windows__
 
-
 } // namespace ist

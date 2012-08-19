@@ -212,9 +212,9 @@ public:
     typedef stl::vector<CollideMessage>     MessageCont;
 
 private:
-    ist::FixedAllocator m_plane_allocator;
-    ist::FixedAllocator m_sphere_allocator;
-    ist::FixedAllocator m_box_allocator;
+    ist::ChainedFixedAllocator m_plane_allocator;
+    ist::ChainedFixedAllocator m_sphere_allocator;
+    ist::ChainedFixedAllocator m_box_allocator;
 
     CollisionGrid   m_grid;
     TaskCont        m_tasks;

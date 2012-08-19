@@ -421,9 +421,9 @@ uint32 CollisionSet::collide(CollisionEntity *sender, MessageCont &m, HandleCont
 
 
 CollisionSet::CollisionSet()
-    : m_plane_allocator(sizeof(CollisionPlane), 64, 16, ist::GetDefaultAllocator())
-    , m_sphere_allocator(sizeof(CollisionSphere), 65536, 16, ist::GetDefaultAllocator())
-    , m_box_allocator(sizeof(CollisionBox), 1024, 16, ist::GetDefaultAllocator())
+    : m_plane_allocator(sizeof(CollisionPlane), 64)
+    , m_sphere_allocator(sizeof(CollisionSphere), 2048)
+    , m_box_allocator(sizeof(CollisionBox), 1024)
     , m_active_tasks(0)
 {
     m_tasks.reserve(32);

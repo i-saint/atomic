@@ -35,6 +35,8 @@ void operator delete[](void* p);
     void operator delete[](void* p) { istRawFree(p); }
 
 
+template<class T> T& depointer(T &a) { return a; }
+template<class T> T& depointer(T *a) { return *a; }
 
 #define istNew(Type)                    new(ist::GetDefaultAllocator()->allocate(sizeof(Type), ist::DefaultAlignment))Type
 #define istAlignedNew(Type, Align)      new(ist::GetDefaultAllocator()->allocate(sizeof(Type), Align))Type
@@ -45,14 +47,14 @@ void operator delete[](void* p);
 #define istFree(Obj)                    ist::GetDefaultAllocator()->deallocate(Obj)
 #define istSafeFree(Obj)                if(Obj){ist::GetDefaultAllocator()->deallocate(Obj, 0); Obj=NULL;}
 
-#define istNewA(Type, A)                    new(A.allocate(sizeof(Type), ist::DefaultAlignment))Type
-#define istAlignedNewA(Type, Align, A)      new(A.allocate(sizeof(Type), Align))Type
-#define istDeleteA(Obj, A)                  A.deallocate(call_destructor(Obj))
+#define istNewA(Type, A)                    new(depointer(A).allocate(sizeof(Type), ist::DefaultAlignment))Type
+#define istAlignedNewA(Type, Align, A)      new(depointer(A).allocate(sizeof(Type), Align))Type
+#define istDeleteA(Obj, A)                  depointer(A).deallocate(call_destructor(Obj))
 #define istSafeDeleteA(Obj, A)              if(Obj){istDeleteA(Obj, A); Obj=NULL;}
-#define istMallocA(Size, A)                 A.allocate(Size, ist::DefaultAlignment)
-#define istAlignedMallocA(Size, Align, A)   A.allocate(Size, Align)
-#define istFreeA(Obj, A)                    A.deallocate(Obj)
-#define istSafeFreeA(Obj, A)                if(Obj){A.deallocate(Obj); Obj=NULL;}
+#define istMallocA(Size, A)                 depointer(A).allocate(Size, ist::DefaultAlignment)
+#define istAlignedMallocA(Size, Align, A)   depointer(A).allocate(Size, Align)
+#define istFreeA(Obj, A)                    depointer(A).deallocate(Obj)
+#define istSafeFreeA(Obj, A)                if(Obj){depointer(A).deallocate(Obj); Obj=NULL;}
 
 
 #ifdef __ist_enable_memory_leak_check__

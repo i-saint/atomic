@@ -82,6 +82,20 @@ private:
 };
 
 
+// 何もしないダミー実装
+// policy base の実装でマルチスレッド対応/非対応 指定したい場合これが欲しくなる状況がある
+class istInterModule DummyMutex
+{
+public:
+    typedef ScopedLock<DummyMutex> ScopedLock;
+
+    DummyMutex()    {}
+    ~DummyMutex()   {}
+    void lock()     {}
+    bool tryLock()  { return true; }
+    void unlock()   {}
+};
+
 } // namespace ist
 
 #endif // __ist_Concurrency_Mutex_h__

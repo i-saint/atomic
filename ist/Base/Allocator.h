@@ -2,6 +2,9 @@
 #define __ist_Base_Allocator__
 
 #include "ist/Base/Decl.h"
+#include "ist/Base/Assert.h"
+#include "ist/Concurrency/Atomic.h"
+#include "ist/Concurrency/Mutex.h"
 
 
 namespace ist {
@@ -16,6 +19,21 @@ class IAllocator;
 istInterModule IAllocator* GetDefaultAllocator();
 
 
+struct istInterModule Allocator_SingleThreadPolicy
+{
+    typedef int32       IndexT;
+    typedef DummyMutex  MutexT;
+};
+
+struct istInterModule Allocator_MultiThreadPolicy
+{
+    typedef atomic_int32    IndexT;
+    typedef Mutex           MutexT;
+};
+
+
+
+
 class istInterModule IAllocator
 {
 public:
@@ -28,8 +46,8 @@ public:
 class istInterModule HeapAllocator : public IAllocator
 {
 public:
-    virtual void* allocate(size_t size, size_t align);
-    virtual void deallocate(void* p);
+    virtual void* allocate(size_t size, size_t align); // thread safe
+    virtual void deallocate(void* p); // thread safe
 };
 
 
@@ -43,7 +61,7 @@ public:
     void initialize(size_t block_size, size_t alignment=DefaultAlignment, IAllocator *parent=GetDefaultAllocator());
     void clear();
 
-    virtual void* allocate(size_t size, size_t alignment);
+    virtual void* allocate(size_t size, size_t alignment); // !thread unsafe!
     virtual void deallocate(void* p);
 
 private:
@@ -58,16 +76,26 @@ private:
 };
 
 
-class istInterModule FixedAllocator : public IAllocator
+// 固定サイズ (size_element) のブロックを max_elements 分事前に確保しておき、高速に割り当てるアロケータ。
+// ブロックが尽きたら場合 allocate() は NULL を返す。
+// ThreadPolicy: Allocator_MultiThreadPolicy であれば allocate()/deallocate() は thread safe
+template<class ThreadPolicy>
+class istInterModule TFixedAllocator : public IAllocator
 {
 public:
-    FixedAllocator();
-    FixedAllocator( size_t size_element, size_t num_element, size_t alignment=DefaultAlignment, IAllocator *parent=GetDefaultAllocator() );
-    ~FixedAllocator();
+    typedef typename ThreadPolicy::IndexT IndexT;
 
-    void initialize( size_t size_element, size_t num_element, size_t alignment=DefaultAlignment, IAllocator *parent=GetDefaultAllocator() );
+    TFixedAllocator( size_t size_element, size_t max_elements, size_t alignment=DefaultAlignment, IAllocator *parent=GetDefaultAllocator() );
+    ~TFixedAllocator();
+
+    size_t getElementSize() const { return m_element_size; }
+    size_t getMaxElements() const { return m_max_elements; }
+    size_t getAlignment() const { return m_alignment; }
+    IAllocator* getParent() const { return m_parent; }
+
     void* allocate();
-    void defrag();
+    bool canDeallocate( void *p ) const;
+    void defrag(); // thread unsafe!
 
     virtual void* allocate(size_t size, size_t align);
     virtual void deallocate(void* p);
@@ -75,17 +103,51 @@ public:
 private:
     void *m_memory;
     void **m_unused;
-    size_t m_used;
+    IndexT m_used;
 
-    size_t m_size_element;
-    size_t m_max_element;
+    size_t m_element_size;
+    size_t m_max_elements;
     size_t m_alignment;
     IAllocator* m_parent;
 
     // non copyable
-    FixedAllocator(const FixedAllocator&);
-    FixedAllocator& operator=(const FixedAllocator&);
+    TFixedAllocator(const TFixedAllocator&);
+    TFixedAllocator& operator=(const TFixedAllocator&);
 };
+typedef TFixedAllocator<Allocator_SingleThreadPolicy>   FixedAllocatorST; // !thread unsafe!
+typedef TFixedAllocator<Allocator_MultiThreadPolicy>    FixedAllocator; // thread safe
+
+
+// TFixedAllocator と大体同じ動作だが、ブロックが尽きた場合同サイズの TFixedAllocator を割り当ててそちらから確保を試みる
+// ThreadPolicy: Allocator_MultiThreadPolicy であれば allocate()/deallocate() は thread safe
+template<class ThreadPolicy>
+class istInterModule TChainedFixedAllocator
+{
+public:
+    typedef TFixedAllocator<ThreadPolicy> BlockT;
+    typedef typename ThreadPolicy::MutexT MutexT;
+
+    TChainedFixedAllocator(size_t element_size, size_t max_elements, size_t alignment=DefaultAlignment, IAllocator *parent=GetDefaultAllocator());
+    ~TChainedFixedAllocator();
+
+    void* allocate();
+    bool canDelete(void *p) const;
+
+    virtual void* allocate(size_t size, size_t align);
+    virtual void deallocate(void* p);
+
+private:
+    BlockT *m_block;
+    TChainedFixedAllocator *m_next;
+    Mutex m_mutex;
+
+    // non copyable
+    TChainedFixedAllocator(const TChainedFixedAllocator&);
+    TChainedFixedAllocator& operator=(const TChainedFixedAllocator&);
+};
+typedef TChainedFixedAllocator<Allocator_SingleThreadPolicy> ChainedFixedAllocatorST; // !thread unsafe!
+typedef TChainedFixedAllocator<Allocator_MultiThreadPolicy>  ChainedFixedAllocator; // thread safe
+
 
 
 // leak check 用にアロケート時のコールスタックを stl::map で保存したいが、その map にデフォルトのアロケータが使われると無限再起してしまう。
@@ -96,11 +158,6 @@ public:
     void* allocate(size_t size, size_t align) { return malloc(size); }
     void  deallocate(void* p) { free(p); }
 };
-
-
-
-// leak check 用にアロケート時のコールスタックを stl::map で保存したいが、その map にデフォルトのアロケータが使われると無限再起してしまう。
-// なので、malloc()/free() を呼ぶだけのアロケータを用意する。
 
 #ifdef __ist_with_EASTL__
 
