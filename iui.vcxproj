@@ -15,154 +15,35 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ist\Base.h" />
-    <ClInclude Include="ist\Base\Allocator.h" />
-    <ClInclude Include="ist\Base\Assert.h" />
-    <ClInclude Include="ist\Base\BinaryStream.h" />
-    <ClInclude Include="ist\Base\ClassInfo.h" />
-    <ClInclude Include="ist\Base\CRTex.h" />
-    <ClInclude Include="ist\Base\Decl.h" />
-    <ClInclude Include="ist\Base\FileLoader.h" />
-    <ClInclude Include="ist\Base\Generics.h" />
-    <ClInclude Include="ist\Base\Half\eLut.h" />
-    <ClInclude Include="ist\Base\Half\half.h" />
-    <ClInclude Include="ist\Base\Half\halfFunction.h" />
-    <ClInclude Include="ist\Base\Half\halfLimits.h" />
-    <ClInclude Include="ist\Base\Half\toFloat.h" />
-    <ClInclude Include="ist\Base\New.h" />
-    <ClInclude Include="ist\Base\Serialize.h" />
-    <ClInclude Include="ist\Base\SharedObject.h" />
-    <ClInclude Include="ist\Base\Types.h" />
-    <ClInclude Include="ist\Base\Variant.h" />
-    <ClInclude Include="ist\Concurrency.h" />
-    <ClInclude Include="ist\Concurrency\AsyncFunction.h" />
-    <ClInclude Include="ist\Concurrency\Atomic.h" />
-    <ClInclude Include="ist\Concurrency\Condition.h" />
-    <ClInclude Include="ist\Concurrency\Mutex.h" />
-    <ClInclude Include="ist\Concurrency\ParallelAlgorithm.h" />
-    <ClInclude Include="ist\Concurrency\TaskScheduler.h" />
-    <ClInclude Include="ist\Concurrency\TaskUtil.h" />
-    <ClInclude Include="ist\Concurrency\Thread.h" />
-    <ClInclude Include="ist\Concurrency\ThreadCommon.h" />
-    <ClInclude Include="ist\Config.h" />
-    <ClInclude Include="ist\Debug.h" />
-    <ClInclude Include="ist\Debug\Callstack.h" />
-    <ClInclude Include="ist\Debug\ParamTree.h" />
-    <ClInclude Include="ist\GPGPU.h" />
-    <ClInclude Include="ist\Graphics.h" />
-    <ClInclude Include="ist\GraphicsCommon\Image.h" />
-    <ClInclude Include="ist\GraphicsGL\i3dgl.h" />
-    <ClInclude Include="ist\GraphicsGL\i3dglAssert.h" />
-    <ClInclude Include="ist\GraphicsGL\i3dglBuffer.h" />
-    <ClInclude Include="ist\GraphicsGL\i3dglDevice.h" />
-    <ClInclude Include="ist\GraphicsGL\i3dglDeviceContext.h" />
-    <ClInclude Include="ist\GraphicsGL\i3dglDeviceResource.h" />
-    <ClInclude Include="ist\GraphicsGL\i3dglRenderTarget.h" />
-    <ClInclude Include="ist\GraphicsGL\i3dglShader.h" />
-    <ClInclude Include="ist\GraphicsGL\i3dglTexture.h" />
-    <ClInclude Include="ist\GraphicsGL\i3dglTypes.h" />
-    <ClInclude Include="ist\GraphicsGL\i3dglUtil.h" />
-    <ClInclude Include="ist\GraphicsGL\i3duglCamera.h" />
-    <ClInclude Include="ist\GraphicsGL\i3duglFont.h" />
-    <ClInclude Include="ist\GraphicsUtil.h" />
-    <ClInclude Include="ist\ist.h" />
-    <ClInclude Include="ist\istPCH.h" />
-    <ClInclude Include="ist\Math.h" />
-    <ClInclude Include="ist\Math\Constants.h" />
-    <ClInclude Include="ist\Math\FrustumCulling.h" />
-    <ClInclude Include="ist\Math\Linear.h" />
-    <ClInclude Include="ist\Math\Misc.h" />
-    <ClInclude Include="ist\Math\SFMT\SFMT-alti.h" />
-    <ClInclude Include="ist\Math\SFMT\SFMT-params.h" />
-    <ClInclude Include="ist\Math\SFMT\SFMT-params11213.h" />
-    <ClInclude Include="ist\Math\SFMT\SFMT-params1279.h" />
-    <ClInclude Include="ist\Math\SFMT\SFMT-params132049.h" />
-    <ClInclude Include="ist\Math\SFMT\SFMT-params19937.h" />
-    <ClInclude Include="ist\Math\SFMT\SFMT-params216091.h" />
-    <ClInclude Include="ist\Math\SFMT\SFMT-params2281.h" />
-    <ClInclude Include="ist\Math\SFMT\SFMT-params4253.h" />
-    <ClInclude Include="ist\Math\SFMT\SFMT-params44497.h" />
-    <ClInclude Include="ist\Math\SFMT\SFMT-params607.h" />
-    <ClInclude Include="ist\Math\SFMT\SFMT-params86243.h" />
-    <ClInclude Include="ist\Math\SFMT\SFMT-sse2.h" />
-    <ClInclude Include="ist\Math\SFMT\SFMT.h" />
-    <ClInclude Include="ist\Math\simdvec.h" />
-    <ClInclude Include="ist\Math\simdvec_permute.h" />
-    <ClInclude Include="ist\Math\soavec.h" />
-    <ClInclude Include="ist\Sound.h" />
-    <ClInclude Include="ist\Sound\isdBuffer.h" />
-    <ClInclude Include="ist\Sound\isdDevice.h" />
-    <ClInclude Include="ist\Sound\isdDeviceResource.h" />
-    <ClInclude Include="ist\Sound\isdListener.h" />
-    <ClInclude Include="ist\Sound\isdSource.h" />
-    <ClInclude Include="ist\Sound\isdTypes.h" />
-    <ClInclude Include="ist\Sound\isduOggVorbis.h" />
-    <ClInclude Include="ist\Sound\isduStream.h" />
-    <ClInclude Include="ist\Sound\isduStreamSource.h" />
-    <ClInclude Include="ist\Sound\isdUtil.h" />
-    <ClInclude Include="ist\targetver.h" />
-    <ClInclude Include="ist\Window.h" />
-    <ClInclude Include="ist\Window\Application.h" />
-    <ClInclude Include="ist\Window\InputState.h" />
-    <ClInclude Include="ist\Window\WindowMessage.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="ist\Base\Allocator.cpp" />
-    <ClCompile Include="ist\Base\Assert.cpp" />
-    <ClCompile Include="ist\Base\BinaryStream.cpp" />
-    <ClCompile Include="ist\Base\ClassInfo.cpp" />
-    <ClCompile Include="ist\Base\FileLoader.cpp" />
-    <ClCompile Include="ist\Base\Half\half.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="ist\Base\New.cpp" />
-    <ClCompile Include="ist\Base\Serialize.cpp" />
-    <ClCompile Include="ist\Concurrency\Condition.cpp" />
-    <ClCompile Include="ist\Concurrency\Mutex.cpp" />
-    <ClCompile Include="ist\Concurrency\TaskScheduler.cpp" />
-    <ClCompile Include="ist\Concurrency\TaskUtil.cpp" />
-    <ClCompile Include="ist\Concurrency\Thread.cpp" />
-    <ClCompile Include="ist\Debug\Callstack.cpp" />
-    <ClCompile Include="ist\GraphicsCommon\Image.cpp" />
-    <ClCompile Include="ist\GraphicsGL\i3dglAssert.cpp" />
-    <ClCompile Include="ist\GraphicsGL\i3dglBuffer.cpp" />
-    <ClCompile Include="ist\GraphicsGL\i3dglDevice.cpp" />
-    <ClCompile Include="ist\GraphicsGL\i3dglDeviceContext.cpp" />
-    <ClCompile Include="ist\GraphicsGL\i3dglDeviceResource.cpp" />
-    <ClCompile Include="ist\GraphicsGL\i3dglRenderTarget.cpp" />
-    <ClCompile Include="ist\GraphicsGL\i3dglShader.cpp" />
-    <ClCompile Include="ist\GraphicsGL\i3dglTexture.cpp" />
-    <ClCompile Include="ist\GraphicsGL\i3dglUtil.cpp" />
-    <ClCompile Include="ist\GraphicsGL\i3duglCamera.cpp" />
-    <ClCompile Include="ist\GraphicsGL\i3duglFont.cpp" />
-    <ClCompile Include="ist\istPCH.cpp">
+    <ClCompile Include="ist\iuiPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">iuiPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">iuiPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">iuiPCH.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="ist\Math\Constants.cpp" />
-    <ClCompile Include="ist\Math\Linear.cpp" />
-    <ClCompile Include="ist\Math\SFMT\SFMT.cpp" />
-    <ClCompile Include="ist\Sound\isdBuffer.cpp" />
-    <ClCompile Include="ist\Sound\isdDevice.cpp" />
-    <ClCompile Include="ist\Sound\isdDeviceResource.cpp" />
-    <ClCompile Include="ist\Sound\isdListener.cpp" />
-    <ClCompile Include="ist\Sound\isdSource.cpp" />
-    <ClCompile Include="ist\Sound\isduOggVorbis.cpp" />
-    <ClCompile Include="ist\Sound\isduStream.cpp" />
-    <ClCompile Include="ist\Sound\isduStreamSource.cpp" />
-    <ClCompile Include="ist\Sound\isdUtil.cpp" />
-    <ClCompile Include="ist\Window\Application.cpp" />
+    <ClCompile Include="ist\UI\iuiButton.cpp" />
+    <ClCompile Include="ist\UI\iuiPanel.cpp" />
+    <ClCompile Include="ist\UI\iuiRenderer.cpp" />
+    <ClCompile Include="ist\UI\iuiSystem.cpp" />
+    <ClCompile Include="ist\UI\iuiWidget.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ist\Math\FrustumCulling.inl" />
+    <ClInclude Include="ist\iui.h" />
+    <ClInclude Include="ist\iuiPCH.h" />
+    <ClInclude Include="ist\UI\iuiButton.h" />
+    <ClInclude Include="ist\UI\iuiCommon.h" />
+    <ClInclude Include="ist\UI\iuiPanel.h" />
+    <ClInclude Include="ist\UI\iuiRenderer.h" />
+    <ClInclude Include="ist\UI\iuiSystem.h" />
+    <ClInclude Include="ist\UI\iuiTypes.h" />
+    <ClInclude Include="ist\UI\iuiWidget.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{8D4B1790-F166-4122-9CE6-8AF10214ED82}</ProjectGuid>
+    <ProjectGuid>{7674C6F9-A478-46C7-BF6C-13674B96C396}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>ist</RootNamespace>
+    <RootNamespace>iui</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -228,7 +109,7 @@
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>./;external;$(CUDA_INC_PATH);$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;$(NVSDKCOMPUTE_ROOT)/C/common/inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MinimalRebuild>false</MinimalRebuild>
-      <PrecompiledHeaderFile>istPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>iuiPCH.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -246,7 +127,7 @@
       <PreprocessorDefinitions>_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>./;external;$(CUDA_INC_PATH);$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;$(NVSDKCOMPUTE_ROOT)/C/common/inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PrecompiledHeaderFile>istPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>iuiPCH.h</PrecompiledHeaderFile>
       <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
@@ -266,7 +147,7 @@
       <PreprocessorDefinitions>__ist_env_MasterBuild__;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>./;external;$(CUDA_INC_PATH);$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;$(NVSDKCOMPUTE_ROOT)/C/common/inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PrecompiledHeaderFile>istPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>iuiPCH.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

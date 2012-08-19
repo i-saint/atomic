@@ -1,5 +1,5 @@
-﻿#ifndef __ist_Base__
-#define __ist_Base__
+﻿#ifndef __ist_Base_h__
+#define __ist_Base_h__
 
 #include <stdint.h>
 #include "Base/Decl.h"
@@ -16,4 +16,4 @@
 #include "Base/Generics.h"
 #include "Base/SharedObject.h"
 
-#endif // __ist_Base__
+#endif // __ist_Base_h__

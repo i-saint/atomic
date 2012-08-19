@@ -1,5 +1,5 @@
-﻿#ifndef __ist_Sound__
-#define __ist_Sound__
+﻿#ifndef __ist_Sound_h__
+#define __ist_Sound_h__
 
 #include <AL/al.h>
 #include <AL/alc.h>
@@ -30,4 +30,4 @@
 #pragma comment(lib, "OpenAL32.lib")
 //#pragma comment(lib, "EFX-Util.lib")
 
-#endif // __ist_Sound__
+#endif // __ist_Sound_h__

@@ -14,20 +14,20 @@ class istInterModule Device : public SharedObject
 {
 istMakeDestructable;
 private:
-#ifdef istWindows
+#ifdef __ist_env_Windows__
     HWND    m_hwnd;
     HDC     m_hdc;
     HGLRC   m_hglrc;
-#endif // istWindows
+#endif // __ist_env_Windows__
     stl::vector<DeviceResource*>    m_resources;
     stl::vector<ResourceHandle>     m_vacant;
     void addResource(DeviceResource *v);
 
-#ifdef istWindows
+#ifdef __ist_env_Windows__
     Device(HWND hwnd);
     friend Device* CreateDevice(HWND hwnd);
-#else // istWindows
-#endif // istWindows
+#else // __ist_env_Windows__
+#endif // __ist_env_Windows__
     ~Device();
 public:
     DeviceContext*  createContext();
@@ -50,19 +50,19 @@ public:
 
     void swapBuffers();
 
-#ifdef istWindows
+#ifdef __ist_env_Windows__
     HDC getHDC() { return m_hdc; }
     HGLRC getHGLRC() { return m_hglrc; }
-#endif // istWindows
+#endif // __ist_env_Windows__
 #ifdef __i3d_enable_resource_leak_check__
     void printLeakInfo();
 #endif // __i3d_enable_leak_check__
 };
 
-#ifdef istWindows
+#ifdef __ist_env_Windows__
 Device* CreateDevice(HWND hwnd);
-#else // istWindows
-#endif // istWindows
+#else // __ist_env_Windows__
+#endif // __ist_env_Windows__
 
 } // namespace i3dgl
 } // namespace ist

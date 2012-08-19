@@ -3,7 +3,7 @@
 
 namespace ist {
 
-#ifdef istWindows
+#ifdef __ist_env_Windows__
 
     Mutex::Mutex()          { InitializeCriticalSection(&m_lockobj); }
     Mutex::~Mutex()         { DeleteCriticalSection(&m_lockobj); }
@@ -11,7 +11,7 @@ namespace ist {
     bool Mutex::tryLock()   { return TryEnterCriticalSection(&m_lockobj)==TRUE; }
     void Mutex::unlock()    { LeaveCriticalSection(&m_lockobj); }
 
-#else // istWindows
+#else // __ist_env_Windows__
 
     Mutex::Mutex()
     {
@@ -27,7 +27,7 @@ namespace ist {
     bool Mutex::tryLock()   { return pthread_mutex_trylock.(&m_lockobj); }
     void Mutex::unlock()    { pthread_mutex_unlock(&m_lockobj); }
 
-#endif // istWindows
+#endif // __ist_env_Windows__
 
 
 } // namespace ist

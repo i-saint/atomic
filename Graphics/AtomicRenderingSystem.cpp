@@ -110,9 +110,9 @@ void AtomicRenderingThread::exec()
     }
     m_context = m_device->createContext();
 
-#ifdef istWindows
+#ifdef __ist_env_Windows__
     wglSwapIntervalEXT(atomicGetConfig()->vsync);
-#endif // istWindows
+#endif // __ist_env_Windows__
     GraphicResourceManager::intializeInstance();
     AtomicRenderer::initializeInstance();
     m_cond_initialize_complete.signalOne();

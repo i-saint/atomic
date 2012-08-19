@@ -1,14 +1,5 @@
 ﻿#ifndef __ist_Config_h__
 
-#ifndef istMasterBuild
-#   define __ist_enable_assert__
-#   define __i3d_enable_assert__
-#endif // istMasterBuild
-#ifdef istDebugBuild
-#   define __ist_enable_memory_leak_check__
-#   define __i3d_enable_resource_leak_check__
-#endif // istDebugBuild
-
 #define __ist_with_EASTL__
 #define __ist_with_OpenGL__
 //#define __ist_with_OpenGLES__
@@ -20,18 +11,27 @@
 #define __ist_with_OpenAL__
 #define __ist_with_oggvorbis__
 
+#ifndef __ist_env_MasterBuild__
+#   define __ist_enable_assert__
+#   define __i3d_enable_assert__
+#endif // __ist_env_MasterBuild__
+#ifdef __ist_env_DebugBuild__
+#   define __ist_enable_memory_leak_check__
+// memory_leak_check は resource_leak_check も兼ねるがパフォーマンス低下が著しいので一応別に用意
+//#   define __i3d_enable_resource_leak_check__
+#endif // __ist_env_DebugBuild__
+#define ist_leak_check_max_callstack_size 32
+
 #if defined(_WIN64)
-#   define istWindows
-#   define istWin64
-#   define istx86
-#   define istx86_64
+#   define __ist_env_Windows__
+#   define __ist_env_x86__
+#   define __ist_env_x64__
 #elif defined(_WIN32)
-#   define istWindows
-#   define istWin32
-#   define istx86
+#   define __ist_env_Windows__
+#   define __ist_env_x86__
 #elif defined(__ANDROID__)
-#   define istAndroid
-#   define istARM
+#   define __ist_env_Android__
+#   define __ist_env_ARM__
 #else
 #   error
 #endif
@@ -39,7 +39,7 @@
 
 //#define istExportSymbols
 
-#ifdef istWindows
+#ifdef __ist_env_Windows__
 #   if defined(istExportSymbols)
 #       define istInterModule __declspec(dllexport)
 #   elif defined(istImportSymbols)
@@ -47,9 +47,9 @@
 #   else
 #       define istInterModule
 #   endif // istExportSymbols
-#else // istWindows
+#else // __ist_env_Windows__
 #   define istInterModule
-#endif // istWindows
+#endif // __ist_env_Windows__
 
 
 
@@ -88,11 +88,11 @@ namespace stl = std;
 
 #ifdef __ist_with_OpenGL__
 #   include <GL/glew.h>
-#   ifdef istWindows
+#   ifdef __ist_env_Windows__
 #       include <GL/wglew.h>
 #       pragma comment(lib, "glew32.lib")
 #       pragma comment(lib, "opengl32.lib")
-#   endif // istWindows
+#   endif // __ist_env_Windows__
 #endif // __ist_with_OpenGL__
 
 #ifdef __ist_with_zlib__

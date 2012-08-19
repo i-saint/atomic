@@ -56,11 +56,15 @@ void operator delete[](void* p);
 
 
 #ifdef __ist_enable_memory_leak_check__
-namespace ist {
-    void InitializeMemoryLeakChecker();
-    void FinalizeMemoryLeakChecker();
-    void PrintMemoryLeakInfo();
-} // namespace ist
+    istInterModule void istMemoryLeakCheckerInitialize();
+    istInterModule void istMemoryLeakCheckerFinalize();
+    istInterModule void istMemoryLeakCheckerPrint();
+    istInterModule void istMemoryLeakCheckerEnable(bool v);
+#else // __ist_enable_memory_leak_check__
+#   define istMemoryLeakCheckerInitialize()
+#   define istMemoryLeakCheckerFinalize()
+#   define istMemoryLeakCheckerPrint()
+#   define istMemoryLeakCheckerEnable(...)
 #endif // __ist_enable_memory_leak_check__
 
 #endif // __ist_Base_New__

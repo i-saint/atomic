@@ -1,5 +1,5 @@
-﻿#ifndef __ist_Math__
-#define __ist_Math__
+﻿#ifndef __ist_Math_h__
+#define __ist_Math_h__
 
 #include "Config.h"
 #include "Base.h"
@@ -10,4 +10,4 @@
 #include "Math/SFMT/SFMT.h"
 #include "Math/FrustumCulling.h"
 
-#endif // __ist_Math__
+#endif // __ist_Math_h__

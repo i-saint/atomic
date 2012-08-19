@@ -20,7 +20,7 @@ IFontRenderer::IFontRenderer()
 }
 
 
-#ifdef istWindows
+#ifdef __ist_env_Windows__
 
 static const int g_list_base = 0;
 
@@ -83,7 +83,7 @@ IFontRenderer* CreateSystemFont(Device *device, void *hdc)
     return istNew(SystemFont)((HDC)hdc);
 }
 
-#endif // istWindows
+#endif // __ist_env_Windows__
 
 
 

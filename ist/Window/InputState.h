@@ -1,5 +1,5 @@
-﻿#ifndef __ist_Application_InputState__
-#define __ist_Application_InputState__
+﻿#ifndef __ist_Application_InputState_h__
+#define __ist_Application_InputState_h__
 namespace ist {
 
 enum KEY {
@@ -117,4 +117,4 @@ public:
 };
 
 } // namspace ist
-#endif // __ist_Application_InputState__
+#endif // __ist_Application_InputState_h__

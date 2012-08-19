@@ -1,5 +1,5 @@
-﻿#ifndef __ist_Application__
-#define __ist_Application__
+﻿#ifndef __ist_Application_h__
+#define __ist_Application_h__
 
 #include "WindowMessage.h"
 #include "InputState.h"
@@ -82,21 +82,21 @@ public:
     void addHandler(WMhandler *wmh);
     void eraseHandler(WMhandler *wmh);
 
-#ifdef istWindows
+#ifdef __ist_env_Windows__
     HWND getWindowHandle() const { return m_hwnd; }
-#endif // istWindows
+#endif // __ist_env_Windows__
 
 
 private:
     static const int MAX_JOYSTICK_NUM = 4;
 
-#ifdef istWindows
+#ifdef __ist_env_Windows__
     bool _handleWindowMessage(const WindowMessage& wm);
     friend LRESULT CALLBACK istWndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lParam);
 
     HWND        m_hwnd;
     DEVMODE     m_devmode;
-#endif // istWindows
+#endif // __ist_env_Windows__
     bool        m_fullscreen;
 
     KeyboardState   m_keyboard_state;
@@ -114,4 +114,4 @@ private:
 #define istShowMessageDialog(mes, cap, dtype) istGetAplication()->showMessageDialog(mes, cap, dtype)
 
 
-#endif // __ist_Application__
+#endif // __ist_Application_h__

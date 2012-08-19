@@ -63,11 +63,11 @@ class istInterModule Mutex
 {
 public:
     typedef ScopedLock<Mutex> ScopedLock;
-#ifdef istWindows
+#ifdef __ist_env_Windows__
     typedef CRITICAL_SECTION Handle;
 #else
     typedef pthread_mutex_t Handle;
-#endif // istWindows
+#endif // __ist_env_Windows__
 
     Mutex();
     ~Mutex();

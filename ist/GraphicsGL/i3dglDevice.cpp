@@ -7,7 +7,7 @@
 namespace ist {
 namespace i3dgl {
 
-#ifdef istWindows
+#ifdef __ist_env_Windows__
 
 Device::Device(HWND hwnd) : m_hwnd(hwnd)
 {
@@ -70,7 +70,7 @@ Device::~Device()
         m_hdc = NULL;
     }
 }
-#endif // istWindows
+#endif // __ist_env_Windows__
 
 
 void Device::addResource( DeviceResource *v )

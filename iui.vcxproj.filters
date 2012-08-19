@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="UI">
+      <UniqueIdentifier>{cea413bc-f040-4c91-9b74-6dd37190d841}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ist\UI\iuiPanel.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\UI\iuiRenderer.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\UI\iuiSystem.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\UI\iuiWidget.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\iuiPCH.cpp" />
+    <ClCompile Include="ist\UI\iuiButton.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ist\UI\iuiCommon.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\UI\iuiPanel.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\UI\iuiRenderer.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\UI\iuiSystem.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\UI\iuiTypes.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\UI\iuiWidget.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\iuiPCH.h" />
+    <ClInclude Include="ist\UI\iuiButton.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\iui.h" />
+  </ItemGroup>
+</Project>

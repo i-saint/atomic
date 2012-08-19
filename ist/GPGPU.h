@@ -1,5 +1,5 @@
-﻿#ifndef __ist_GPGPU__
-#define __ist_GPGPU__
+﻿#ifndef __ist_GPGPU_h__
+#define __ist_GPGPU_h__
 
 #include "Base/Types.h"
 
@@ -8,4 +8,4 @@
 #include "GPUCL/gpuclDevice.h"
 #endif // __ist_with_OpenCL__
 
-#endif // __ist_GPGPU__
+#endif // __ist_GPGPU_h__

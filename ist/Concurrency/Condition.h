@@ -2,20 +2,20 @@
 #define __ist_Concurrency_Condition_h__
 
 #include "ist/Concurrency/ThreadCommon.h"
-#ifndef istWindows
+#ifndef __ist_env_Windows__
 #include "ist/Concurrency/Mutex.h"
-#endif // istWindows
+#endif // __ist_env_Windows__
 
 namespace ist {
 
 class istInterModule Condition
 {
 public:
-#ifdef istWindows
+#ifdef __ist_env_Windows__
     typedef HANDLE Handle;
 #else
     typedef pthread_cond_t Handle;
-#endif // istWindows
+#endif // __ist_env_Windows__
 
     Condition();
     ~Condition();
@@ -30,13 +30,13 @@ public:
     Handle& getHandle() { return m_lockobj; }
 
 private:
-#ifdef istWindows
+#ifdef __ist_env_Windows__
     Handle m_lockobj;
 #else
     Handle m_lockobj;
     Mutex m_mutex;
     atomic_int32 m_signal;
-#endif // istWindows
+#endif // __ist_env_Windows__
 };
 
 } // namespace ist

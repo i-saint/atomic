@@ -1,5 +1,5 @@
-﻿#ifndef __ist_Application_WindowMessage__
-#define __ist_Application_WindowMessage__
+﻿#ifndef __ist_Application_WindowMessage_h__
+#define __ist_Application_WindowMessage_h__
 namespace ist {
 
 struct istInterModule WindowMessage
@@ -116,4 +116,4 @@ struct istInterModule WM_IME : public WindowMessage
 
 
 } // namspace ist
-#endif // __ist_Application_WindowMessage__
+#endif // __ist_Application_WindowMessage_h__

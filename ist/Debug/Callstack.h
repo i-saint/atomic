@@ -2,8 +2,8 @@
 #define __ist_Debug_Callstack_h__
 namespace ist {
 
-    istInterModule bool InitializeSymbol();
-    istInterModule void FinalizeSymbol();
+    istInterModule bool InitializeDebugSymbol();
+    istInterModule void FinalizeDebugSymbol();
 
     istInterModule int GetCallstack(void **callstack, int callstack_size, int skip_size=0);
     istInterModule stl::string AddressToSymbolName(void *address);

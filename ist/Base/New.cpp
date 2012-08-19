@@ -11,17 +11,25 @@ namespace ist {
 
 struct AllocInfo
 {
-    void *stack[16];
+    void *stack[ist_leak_check_max_callstack_size];
     int32 depth;
 };
 
 class MemoryLeakChecker
 {
 public:
+    MemoryLeakChecker() : m_enabled(true)
+    {
+    }
+
+    void enableLeakCheck(bool v) { m_enabled=v; }
+
     void addAllocationInfo(void *p)
     {
+        if(!m_enabled) { return; }
+
         AllocInfo cs;
-        cs.depth = GetCallstack(cs.stack, _countof(cs.stack));
+        cs.depth = GetCallstack(cs.stack, _countof(cs.stack), 3);
         {
             Mutex::ScopedLock l(m_mutex);
             m_leakinfo[p] = cs;
@@ -49,27 +57,33 @@ private:
     typedef stl::map<void*, AllocInfo, stl::less<void*>, STLAllocatorAdapter(DebugAllocator, stl::pair<const void*, AllocInfo>) > DataTable;
     DataTable m_leakinfo;
     Mutex m_mutex;
+    bool m_enabled;
 };
 
-MemoryLeakChecker *g_memory_leak_checker = NULL;
+} // namespace iat
 
-void InitializeMemoryLeakChecker()
+ist::MemoryLeakChecker *g_memory_leak_checker = NULL;
+
+void istMemoryLeakCheckerInitialize()
 {
-    g_memory_leak_checker = new MemoryLeakChecker();
+    g_memory_leak_checker = new ist::MemoryLeakChecker();
 }
 
-void FinalizeMemoryLeakChecker()
+void istMemoryLeakCheckerFinalize()
 {
     delete g_memory_leak_checker;
     g_memory_leak_checker = NULL;
 }
 
-void PrintMemoryLeakInfo()
+void istMemoryLeakCheckerPrint()
 {
     g_memory_leak_checker->printLeakInfo();
 }
 
-} // namespace ist
+void istMemoryLeakCheckerEnable( bool v )
+{
+    g_memory_leak_checker->enableLeakCheck(v);
+}
 
 #endif // __ist_enable_memory_leak_check__
 
@@ -78,15 +92,15 @@ void PrintMemoryLeakInfo()
 
 void* istRawMalloc(size_t size, size_t align)
 {
-#ifdef istWindows
+#ifdef __ist_env_Windows__
     void *p = ::_aligned_malloc(size, align);
-#elif // istWindows
+#elif // __ist_env_Windows__
     void *p = memalign(align, size);
-#endif // istWindows
+#endif // __ist_env_Windows__
 
 #ifdef __ist_enable_memory_leak_check__
-    if(ist::g_memory_leak_checker) {
-        ist::g_memory_leak_checker->addAllocationInfo(p);
+    if(g_memory_leak_checker) {
+        g_memory_leak_checker->addAllocationInfo(p);
     }
 #endif // __ist_enable_memory_leak_check__
 
@@ -96,24 +110,24 @@ void* istRawMalloc(size_t size, size_t align)
 void istRawFree(void* p)
 {
 #ifdef __ist_enable_memory_leak_check__
-    if(ist::g_memory_leak_checker) {
-        ist::g_memory_leak_checker->eraseAllocationInfo(p);
+    if(g_memory_leak_checker) {
+        g_memory_leak_checker->eraseAllocationInfo(p);
     }
 #endif // __ist_enable_memory_leak_check__
 
-#ifdef istWindows
+#ifdef __ist_env_Windows__
     ::_aligned_free(p);
-#elif // istWindows
+#elif // __ist_env_Windows__
     free(p);
-#endif // istWindows
+#endif // __ist_env_Windows__
 }
 
 void* istRawAlloca( size_t size )
 {
-#ifdef istWindows
+#ifdef __ist_env_Windows__
     return _alloca(size);
-#elif // istWindows
+#elif // __ist_env_Windows__
     return alloca(size);
-#endif // istWindows
+#endif // __ist_env_Windows__
 }
 

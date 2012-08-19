@@ -1,21 +1,21 @@
 ﻿#ifndef __ist_Base_CRTex_h__
 #define __ist_Base_CRTex_h__
 
-#ifdef istWindows
+#ifdef __ist_env_Windows__
 
 #define istsnprintf(buf, count, format, ...)    _snprintf(buf, count, format, __VA_ARGS__)
 #define istsnwprintf(buf, count, format, ...)   _snwprintf(buf, count, format, __VA_ARGS__)
 #define istvsnprintf(buf, count, format, va)    _vsnprintf(buf, count, format, va)
 #define istvsnwprintf(buf, count, format, va)   _vsnwprintf(buf, count, format, va)
 
-#else // istWindows
+#else // __ist_env_Windows__
 
 #define istsnprintf(buf, count, format, ...)    snprintf(buf, count, format, __VA_ARGS__)
 #define istsnwprintf(buf, count, format, ...)   snwprintf(buf, count, format, __VA_ARGS__)
 #define istvsnprintf(buf, count, format, va)    vsnprintf(buf, count, format, va)
 #define istvsnwprintf(buf, count, format, va)   vsnwprintf(buf, count, format, va)
 
-#endif // istWindows
+#endif // __ist_env_Windows__
 
 template<size_t N>
 inline int istsprintf(char (&buf)[N], const char *format, ...)

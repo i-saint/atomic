@@ -3,7 +3,7 @@
 
 namespace ist {
 
-#if defined(istWindows)
+#if defined(__ist_env_Windows__)
 
     #define SSE_SHUFFLE(w,x,y,z) _MM_SHUFFLE(z,y,x,w)
 

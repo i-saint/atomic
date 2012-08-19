@@ -375,23 +375,19 @@ namespace {
     void PreMain()
     {
         ::setlocale(LC_ALL, "");
-#ifdef istDebugBuild
-        ist::InitializeSymbol();
-#endif // istDebugBuild
-#ifdef __ist_enable_memory_leak_check__
-        ist::InitializeMemoryLeakChecker();
-#endif // __ist_enable_memory_leak_check__
+#ifdef __ist_env_DebugBuild__
+        ist::InitializeDebugSymbol();
+#endif // __ist_env_DebugBuild__
+        istMemoryLeakCheckerInitialize();
     }
 
     void PostMain()
     {
-#ifdef __ist_enable_memory_leak_check__
-        ist::PrintMemoryLeakInfo();
-        ist::FinalizeMemoryLeakChecker();
-#endif // __ist_enable_memory_leak_check__
-#ifdef istDebugBuild
-        ist::FinalizeSymbol();
-#endif // istDebugBuild
+        istMemoryLeakCheckerPrint();
+        istMemoryLeakCheckerFinalize();
+#ifdef __ist_env_DebugBuild__
+        ist::FinalizeDebugSymbol();
+#endif // __ist_env_DebugBuild__
     }
 
 } // namespace
@@ -407,7 +403,7 @@ int main(int argc, char* argv[])
     return r;
 }
 
-#ifdef istWindows
+#ifdef __ist_env_Windows__
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prev, LPSTR cmd, int show)
 {
     ist::g_hinstance = hInstance;
@@ -416,4 +412,4 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prev, LPSTR cmd, int show)
     PostMain();
     return r;
 }
-#endif // istWindows
+#endif // __ist_env_Windows__
