@@ -15,11 +15,9 @@ void* operator new[](size_t size, const char* pName, int flags, unsigned debugFl
 void* operator new[](size_t size, size_t alignment, size_t alignmentOffset, const char* pName, int flags, unsigned debugFlags, const char* file, int line);
 void operator delete[](void* p);
 
-#define istImplementNew()\
-    void* operator new[](size_t size)\
-    {\
-        return istRawMalloc(size);\
-    }\
+#define istImplementOperatorNewDelete()\
+    void* operator new(size_t size)     { return istRawMalloc(size); }\
+    void* operator new[](size_t size)   { return istRawMalloc(size); }\
     void* operator new[](size_t size, const char* pName, int flags, unsigned debugFlags, const char* file, int line)\
     {\
         void* p = istRawMalloc(size, MinimumAlignment);\
@@ -29,23 +27,22 @@ void operator delete[](void* p);
     {\
         void* p = istRawMalloc(size, alignment);\
         return p;\
-    }
-
-#define istImplementDelete()\
+    }\
+    void operator delete(void* p)   { istRawFree(p); }\
     void operator delete[](void* p) { istRawFree(p); }
 
 
-template<class T> T& unpointer(T &a) { return a; }
-template<class T> T& unpointer(T *a) { return *a; }
+template<class T> inline T& unpointer(T &a) { return a; }
+template<class T> inline T& unpointer(T *a) { return *a; }
 
-#define istNew(Type)                    new(ist::GetDefaultAllocator()->allocate(sizeof(Type), ist::DefaultAlignment))Type
-#define istAlignedNew(Type, Align)      new(ist::GetDefaultAllocator()->allocate(sizeof(Type), Align))Type
-#define istDelete(Obj)                  ist::GetDefaultAllocator()->deallocate(call_destructor(Obj))
-#define istSafeDelete(Obj)              if(Obj){istDelete(Obj); Obj=NULL;}
-#define istMalloc(Size)                 ist::GetDefaultAllocator()->allocate(Size, ist::DefaultAlignment)
-#define istAlignedMalloc(Size, Align)   ist::GetDefaultAllocator()->allocate(Size, Align)
-#define istFree(Obj)                    ist::GetDefaultAllocator()->deallocate(Obj)
-#define istSafeFree(Obj)                if(Obj){ist::GetDefaultAllocator()->deallocate(Obj, 0); Obj=NULL;}
+#define istNew(Type)                        new(ist::GetDefaultAllocator()->allocate(sizeof(Type), ist::DefaultAlignment))Type
+#define istAlignedNew(Type, Align)          new(ist::GetDefaultAllocator()->allocate(sizeof(Type), Align))Type
+#define istDelete(Obj)                      ist::GetDefaultAllocator()->deallocate(call_destructor(Obj))
+#define istSafeDelete(Obj)                  if(Obj){istDelete(Obj); Obj=NULL;}
+#define istMalloc(Size)                     ist::GetDefaultAllocator()->allocate(Size, ist::DefaultAlignment)
+#define istAlignedMalloc(Size, Align)       ist::GetDefaultAllocator()->allocate(Size, Align)
+#define istFree(Obj)                        ist::GetDefaultAllocator()->deallocate(Obj)
+#define istSafeFree(Obj)                    if(Obj){ist::GetDefaultAllocator()->deallocate(Obj, 0); Obj=NULL;}
 
 #define istNewA(Type, A)                    new(unpointer(A).allocate(sizeof(Type), ist::DefaultAlignment))Type
 #define istAlignedNewA(Type, Align, A)      new(unpointer(A).allocate(sizeof(Type), Align))Type

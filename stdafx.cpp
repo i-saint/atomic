@@ -4,5 +4,4 @@
 
 #include "stdafx.h"
 
-istImplementNew()
-istImplementDelete()
+istImplementOperatorNewDelete()

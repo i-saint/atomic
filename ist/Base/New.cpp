@@ -66,12 +66,13 @@ ist::MemoryLeakChecker *g_memory_leak_checker = NULL;
 
 void istMemoryLeakCheckerInitialize()
 {
-    g_memory_leak_checker = new ist::MemoryLeakChecker();
+    g_memory_leak_checker = new (malloc(sizeof(ist::MemoryLeakChecker))) ist::MemoryLeakChecker();
 }
 
 void istMemoryLeakCheckerFinalize()
 {
-    delete g_memory_leak_checker;
+    g_memory_leak_checker->~MemoryLeakChecker();
+    free(g_memory_leak_checker);
     g_memory_leak_checker = NULL;
 }
 

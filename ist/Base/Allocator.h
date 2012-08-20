@@ -127,6 +127,7 @@ template<class ThreadPolicy>
 class istInterModule TChainedFixedAllocator
 {
 public:
+    typedef TChainedFixedAllocator<ThreadPolicy> ThisT;
     typedef TFixedAllocator<ThreadPolicy> BlockT;
     typedef typename ThreadPolicy::MutexT MutexT;
 
@@ -148,8 +149,8 @@ public:
 
 private:
     BlockT *m_block;
-    TChainedFixedAllocator *m_next;
-    Mutex m_mutex;
+    ThisT  *m_next;
+    MutexT  m_mutex;
 
     // non copyable
     TChainedFixedAllocator(const TChainedFixedAllocator&);

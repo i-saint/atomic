@@ -32,8 +32,8 @@ RigidDataSet *h_rigid = NULL;
 ForceDataSet *h_forces = NULL;
 
 sphStates h_states;
-thrust::host_vector<sphFluidParticle>       h_fluid_append;
-thrust::host_vector<sphFluidMessage>        h_fluid_message;
+thrust::host_vector<sphFluidParticle>       *h_fluid_append = NULL;
+thrust::host_vector<sphFluidMessage>        *h_fluid_message = NULL;
 
 DeviceBufferObject h_fluid_gl;
 
@@ -64,6 +64,9 @@ void SPHInitialize(const sphParams &sph_params)
     h_fluid = new FluidDataSet();
     h_rigid = new RigidDataSet();
     h_forces = new ForceDataSet();
+
+    h_fluid_append = new thrust::host_vector<sphFluidParticle>();
+    h_fluid_message = new thrust::host_vector<sphFluidMessage>();
 
     {
 #ifdef __atomic_enable_distance_field__
@@ -111,6 +114,9 @@ void SPHFinalize()
         CUDA_SAFE_CALL( cudaUnbindTexture(d_distance_field) );
         CUDA_SAFE_CALL( cudaFreeArray(d_distance_field_array) );
 #endif // __atomic_enable_distance_field__
+    delete h_fluid_append;  h_fluid_append=NULL;
+    delete h_fluid_message; h_fluid_message=NULL;
+
     delete h_forces;h_forces=NULL;
     delete h_rigid; h_rigid=NULL;
     delete h_fluid; h_fluid=NULL;
@@ -186,7 +192,7 @@ void SPHUpdateFluid()
     thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(num_particles), _FluidComputeDensity(dfd));
     thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(num_particles), _FluidComputeForce(dfd));
     thrust::for_each( thrust::make_counting_iterator(0), thrust::make_counting_iterator(num_particles), _FluidIntegrate(dfd, drd, dgd));
-    h_fluid_message = h_fluid->message;
+    *h_fluid_message = h_fluid->message;
 
     sphStates stat = h_fluid->states[0];
     h_states.fluid_num_particles = stat.fluid_alive_any==0 ? 0 : stat.fluid_num_particles;
@@ -211,5 +217,5 @@ const sphStates& SPHGetStates()
 
 const thrust::host_vector<sphFluidMessage>& SPHGetFluidMessage()
 {
-    return h_fluid_message;
+    return *h_fluid_message;
 }

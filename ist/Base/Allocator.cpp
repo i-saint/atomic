@@ -175,7 +175,7 @@ void* TChainedFixedAllocator<T>::allocate()
     // この時、block が未構築であれば lock して構築する必要がある。
     if(r==NULL) {
         if(m_next==NULL) {
-            Mutex::ScopedLock l(m_mutex);
+            MutexT::ScopedLock l(m_mutex);
             if(m_next==NULL) { // 別のスレッドが既に構築した可能性があるので、再チェックが必要
                 m_next = istNewA(TChainedFixedAllocator, m_block->getParent())(
                     m_block->getElementSize(), m_block->getMaxElements(), m_block->getAlignment(), m_block->getParent() );
