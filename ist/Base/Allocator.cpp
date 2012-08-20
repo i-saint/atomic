@@ -139,6 +139,7 @@ void TFixedAllocator<T>::defrag()
 template<class T>
 void* TFixedAllocator<T>::allocate(size_t size, size_t align)
 {
+    istAssert(size <= getElementSize(), "TChainedFixedAllocator::allocate()\n");
     return allocate();
 }
 
@@ -199,6 +200,7 @@ bool TChainedFixedAllocator<T>::canDelete(void *p) const
 template<class T>
 void* TChainedFixedAllocator<T>::allocate(size_t size, size_t align)
 {
+    istAssert(size <= m_block->getElementSize(), "TChainedFixedAllocator::allocate()\n");
     return allocate();
 }
 
@@ -216,6 +218,7 @@ void TChainedFixedAllocator<T>::deallocate(void* p)
     }
 }
 
+// explicit instanciation
 template TFixedAllocator<Allocator_SingleThreadPolicy>;
 template TFixedAllocator<Allocator_MultiThreadPolicy>;
 template TChainedFixedAllocator<Allocator_SingleThreadPolicy>;

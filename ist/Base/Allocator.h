@@ -40,6 +40,9 @@ public:
     virtual ~IAllocator() {}
     virtual void* allocate(size_t size, size_t align)=0;
     virtual void deallocate(void* p)=0;
+
+    // for debug
+    //virtual void printStatus()=0;
 };
 
 
@@ -77,8 +80,8 @@ private:
 
 
 // 固定サイズ (size_element) のブロックを max_elements 分事前に確保しておき、高速に割り当てるアロケータ。
-// ブロックが尽きたら場合 allocate() は NULL を返す。
-// ThreadPolicy: Allocator_MultiThreadPolicy であれば allocate()/deallocate() は thread safe
+// ブロックが尽きた場合 allocate() は NULL を返す。
+// ThreadPolicy==Allocator_MultiThreadPolicy であれば allocate()/deallocate() は thread safe
 template<class ThreadPolicy>
 class istInterModule TFixedAllocator : public IAllocator
 {
@@ -88,10 +91,10 @@ public:
     TFixedAllocator( size_t size_element, size_t max_elements, size_t alignment=DefaultAlignment, IAllocator *parent=GetDefaultAllocator() );
     ~TFixedAllocator();
 
-    size_t getElementSize() const { return m_element_size; }
-    size_t getMaxElements() const { return m_max_elements; }
-    size_t getAlignment() const { return m_alignment; }
-    IAllocator* getParent() const { return m_parent; }
+    size_t getElementSize() const   { return m_element_size; }
+    size_t getMaxElements() const   { return m_max_elements; }
+    size_t getAlignment() const     { return m_alignment; }
+    IAllocator* getParent() const   { return m_parent; }
 
     void* allocate();
     bool canDeallocate( void *p ) const;
@@ -119,7 +122,7 @@ typedef TFixedAllocator<Allocator_MultiThreadPolicy>    FixedAllocator; // threa
 
 
 // TFixedAllocator と大体同じ動作だが、ブロックが尽きた場合同サイズの TFixedAllocator を割り当ててそちらから確保を試みる
-// ThreadPolicy: Allocator_MultiThreadPolicy であれば allocate()/deallocate() は thread safe
+// ThreadPolicy==Allocator_MultiThreadPolicy であれば allocate()/deallocate() は thread safe
 template<class ThreadPolicy>
 class istInterModule TChainedFixedAllocator
 {
@@ -129,6 +132,13 @@ public:
 
     TChainedFixedAllocator(size_t element_size, size_t max_elements, size_t alignment=DefaultAlignment, IAllocator *parent=GetDefaultAllocator());
     ~TChainedFixedAllocator();
+
+    size_t getElementSize() const   { return m_block->getElementSize(); }
+    size_t getMaxElements() const   { return m_block->getMaxElements(); }
+    size_t getAlignment() const     { return m_block->getAlignment(); }
+    IAllocator* getParent() const   { return m_block->getParent(); }
+    BlockT* getBlock() const        { return m_block; }
+    TChainedFixedAllocator* getNext() const { return m_next; }
 
     void* allocate();
     bool canDelete(void *p) const;
