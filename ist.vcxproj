@@ -20,6 +20,7 @@
     <ClInclude Include="ist\Base\Assert.h" />
     <ClInclude Include="ist\Base\BinaryStream.h" />
     <ClInclude Include="ist\Base\ClassInfo.h" />
+    <ClInclude Include="ist\Base\Container.h" />
     <ClInclude Include="ist\Base\CRTex.h" />
     <ClInclude Include="ist\Base\Decl.h" />
     <ClInclude Include="ist\Base\FileLoader.h" />

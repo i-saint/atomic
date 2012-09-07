@@ -375,9 +375,9 @@ namespace {
     void PreMain()
     {
         ::setlocale(LC_ALL, "");
-#ifdef __ist_env_DebugBuild__
+#ifndef __ist_env_MasterBuild__
         ist::InitializeDebugSymbol();
-#endif // __ist_env_DebugBuild__
+#endif // __ist_env_MasterBuild__
         istMemoryLeakCheckerInitialize();
     }
 
@@ -385,9 +385,10 @@ namespace {
     {
         istMemoryLeakCheckerPrint();
         istMemoryLeakCheckerFinalize();
-#ifdef __ist_env_DebugBuild__
-        ist::FinalizeDebugSymbol();
-#endif // __ist_env_DebugBuild__
+        // 他のモジュールがまだシンボル情報を使う可能性があるので敢えて呼ばない
+//#ifndef __ist_env_MasterBuild__
+//        ist::FinalizeDebugSymbol();
+//#endif // __ist_env_MasterBuild__
     }
 
 } // namespace

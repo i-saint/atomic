@@ -277,6 +277,9 @@
     <ClInclude Include="ist\Debug\Callstack.h">
       <Filter>Debug</Filter>
     </ClInclude>
+    <ClInclude Include="ist\Base\Container.h">
+      <Filter>Base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ist\Window\Application.cpp">

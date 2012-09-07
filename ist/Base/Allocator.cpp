@@ -86,19 +86,19 @@ void StackAllocator::clear()
 
 
 template<class T>
-TFixedAllocator<T>::TFixedAllocator( size_t size_element, size_t max_elements, size_t alignment, IAllocator *parent )
+TFixedAllocator<T>::TFixedAllocator( size_t element_size, size_t max_elements, size_t alignment, IAllocator *parent )
 {
     m_memory = NULL;
     m_used = NULL;
-    m_element_size = size_element;
+    m_element_size = element_size;
     m_max_elements = max_elements;
     m_alignment = alignment;
     m_parent = parent;
 
     void** unused = (void**)parent->allocate(sizeof(void*)*max_elements, DefaultAlignment);
-    void* mem = parent->allocate(size_element*max_elements, alignment);
+    void* mem = parent->allocate(element_size*max_elements, alignment);
     for(size_t i=0; i<max_elements; ++i) {
-        unused[i] = (char*)mem + (size_element*i);
+        unused[i] = (char*)mem + (element_size*i);
     }
     m_unused = unused;
     m_memory = mem;
@@ -157,7 +157,7 @@ TChainedFixedAllocator<T>::TChainedFixedAllocator(size_t element_size, size_t ma
     : m_block(NULL)
     , m_next(NULL)
 {
-    m_block = istNewA(BlockT, parent)(element_size, max_elements, alignment, parent);
+    m_block = istNew(BlockT)(element_size, max_elements, alignment, parent);
 }
 
 template<class T>

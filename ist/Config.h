@@ -16,7 +16,7 @@
 #   define __i3d_enable_assert__
 #endif // __ist_env_MasterBuild__
 #ifdef __ist_env_DebugBuild__
-#   define __ist_enable_memory_leak_check__
+//#   define __ist_enable_memory_leak_check__
 // memory_leak_check は resource_leak_check も兼ねるがパフォーマンス低下が著しいので一応別に用意
 //#   define __i3d_enable_resource_leak_check__
 #endif // __ist_env_DebugBuild__

@@ -1,20 +1,10 @@
-﻿#ifndef __ist_Base_New__
-#define __ist_Base_New__
+﻿#ifndef __ist_Base_New_h__
+#define __ist_Base_New_h__
 
-template<class T> inline T* call_destructor(T* p) { p->~T(); return p; }
-#define istMakeDestructable template<class T> friend T* ::call_destructor(T *v)
-
-const size_t MinimumAlignment = 16;
-
-istInterModule void* istRawMalloc(size_t size, size_t align=MinimumAlignment);
-istInterModule void istRawFree(void* p);
-istInterModule void* istRawAlloca(size_t size);
-
-void* operator new[](size_t size);
-void* operator new[](size_t size, const char* pName, int flags, unsigned debugFlags, const char* file, int line);
-void* operator new[](size_t size, size_t alignment, size_t alignmentOffset, const char* pName, int flags, unsigned debugFlags, const char* file, int line);
-void operator delete[](void* p);
-
+// .lib 内に operator delete を定義した場合、CRT の同名シンボルと競合して曖昧なシンボルエラーになってしまう。
+// そのため、以下のマクロをアプリケーション側コードのどこかに書いて定義してやる必要がある。
+// (.lib の中だろうとそうでなかろうと競合するのは変わらないはずだが、operator new/delete はリンカからの扱いが特殊なのだと予想される)
+// 引数がやたら多い new[] 2 つは EASTL 用。
 #define istImplementOperatorNewDelete()\
     void* operator new(size_t size)     { return istRawMalloc(size); }\
     void* operator new[](size_t size)   { return istRawMalloc(size); }\
@@ -30,6 +20,17 @@ void operator delete[](void* p);
     }\
     void operator delete(void* p)   { istRawFree(p); }\
     void operator delete[](void* p) { istRawFree(p); }
+
+
+
+template<class T> inline T* call_destructor(T* p) { p->~T(); return p; }
+#define istMakeDestructable template<class T> friend T* ::call_destructor(T *v)
+
+const size_t MinimumAlignment = 16;
+
+istInterModule void* istRawMalloc(size_t size, size_t align=MinimumAlignment);
+istInterModule void istRawFree(void* p);
+istInterModule void* istRawAlloca(size_t size);
 
 
 template<class T> inline T& unpointer(T &a) { return a; }
@@ -66,5 +67,5 @@ template<class T> inline T& unpointer(T *a) { return *a; }
 #   define istMemoryLeakCheckerEnable(...)
 #endif // __ist_enable_memory_leak_check__
 
-#endif // __ist_Base_New__
+#endif // __ist_Base_New_h__
 #include "ist/Base/Allocator.h"

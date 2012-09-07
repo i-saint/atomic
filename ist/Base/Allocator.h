@@ -10,6 +10,7 @@
 namespace ist {
 
 const size_t DefaultAlignment = 16;
+const uint32 FlagNotUsed = 0x4453554E; // "NUSD"
 
 void BadAllocHandlerGeneric(const void* allocator_ptr);
 template <typename Allocator>
@@ -88,13 +89,16 @@ class istInterModule TFixedAllocator : public IAllocator
 public:
     typedef typename ThreadPolicy::IndexT IndexT;
 
-    TFixedAllocator( size_t size_element, size_t max_elements, size_t alignment=DefaultAlignment, IAllocator *parent=GetDefaultAllocator() );
+    TFixedAllocator( size_t element_size, size_t max_elements, size_t alignment=DefaultAlignment, IAllocator *parent=GetDefaultAllocator() );
     ~TFixedAllocator();
 
     size_t getElementSize() const   { return m_element_size; }
     size_t getMaxElements() const   { return m_max_elements; }
     size_t getAlignment() const     { return m_alignment; }
     IAllocator* getParent() const   { return m_parent; }
+
+    size_t getUsedCount() const { return m_used; }
+    void* getUsedBlock(size_t i) const { return (char*)m_memory + (m_element_size*i); }
 
     void* allocate();
     bool canDeallocate( void *p ) const;

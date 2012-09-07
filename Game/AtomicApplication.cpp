@@ -116,6 +116,7 @@ AtomicApplication::~AtomicApplication()
 
 bool AtomicApplication::initialize(int argc, char *argv[])
 {
+    TaskScheduler::initializeInstance();
     InitializeText();
 
 
@@ -132,8 +133,6 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     {
         return false;
     }
-    TaskScheduler::initializeInstance();
-
 
     // initialize CUDA
     {
@@ -180,15 +179,14 @@ void AtomicApplication::finalize()
 {
     m_config.writeToFile(ATOMIC_CONFIG_FILE_PATH);
 
-    AtomicRenderingSystem::finalizeInstance();
-    AtomicSound::finalizeInstance();
-
     istSafeDelete(m_game);
 
+    AtomicRenderingSystem::finalizeInstance();
+    AtomicSound::finalizeInstance();
     TaskScheduler::finalizeInstance();
-    super::finalize();
-
     FinalizeText();
+
+    super::finalize();
 }
 
 void AtomicApplication::mainLoop()

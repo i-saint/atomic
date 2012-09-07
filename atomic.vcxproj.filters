@@ -108,6 +108,7 @@
     <ClCompile Include="Graphics\Renderer_Postprocess.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="MemoryLeakBuster2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h">
