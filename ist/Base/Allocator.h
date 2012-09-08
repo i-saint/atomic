@@ -108,8 +108,10 @@ public:
     virtual void deallocate(void* p);
 
 private:
-    void *m_memory;
-    void **m_unused;
+    struct Node { char *pNext; };
+
+    char *m_memory;
+    char *m_unused;
     IndexT m_used;
 
     size_t m_element_size;

@@ -88,6 +88,7 @@ void StackAllocator::clear()
 template<class T>
 TFixedAllocator<T>::TFixedAllocator( size_t element_size, size_t max_elements, size_t alignment, IAllocator *parent )
 {
+    istAssert(element_size>=sizeof(void*), "element_size must be at least sizeof(void*)");
     m_memory = NULL;
     m_used = NULL;
     m_element_size = element_size;
@@ -95,12 +96,12 @@ TFixedAllocator<T>::TFixedAllocator( size_t element_size, size_t max_elements, s
     m_alignment = alignment;
     m_parent = parent;
 
-    void** unused = (void**)parent->allocate(sizeof(void*)*max_elements, DefaultAlignment);
-    void* mem = parent->allocate(element_size*max_elements, alignment);
-    for(size_t i=0; i<max_elements; ++i) {
-        unused[i] = (char*)mem + (element_size*i);
+    char* mem = (char*)parent->allocate(element_size*max_elements, alignment);
+    m_unused = mem;
+    for(size_t i=0; i<max_elements-1; ++i) {
+        reinterpret_cast<Node*>(mem + element_size*i)->pNext = mem + element_size*(i+1);
     }
-    m_unused = unused;
+    reinterpret_cast<Node*>(mem + element_size*(max_elements-1))->pNext = NULL;
     m_memory = mem;
 }
 
@@ -109,7 +110,6 @@ TFixedAllocator<T>::~TFixedAllocator()
 {
     if(m_parent) {
         m_parent->deallocate(m_memory);
-        m_parent->deallocate(m_unused);
     }
 }
 
@@ -121,7 +121,9 @@ void* TFixedAllocator<T>::allocate()
         --m_used;
         return NULL;
     }
-    return m_unused[i];
+    void *ret = m_unused;
+    m_unused = reinterpret_cast<Node*>(m_unused)->pNext;
+    return ret;
 }
 
 template<class T>
@@ -146,7 +148,9 @@ void* TFixedAllocator<T>::allocate(size_t size, size_t align)
 template<class T>
 void TFixedAllocator<T>::deallocate(void* p)
 {
-    m_unused[--m_used] = p;
+    Node *node = reinterpret_cast<Node*>(p);
+    node->pNext = m_unused;
+    m_unused = (char*)node;
 }
 
 
