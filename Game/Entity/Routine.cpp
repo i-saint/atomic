@@ -53,6 +53,11 @@ private:
     vec4 m_target_pos;
 
 public:
+    atomicECallBlock(
+        atomicECallSuper(mhandler)
+    )
+
+public:
     Routine_HomingPlayer() {}
 
     void update(float32 dt)
@@ -82,11 +87,6 @@ public:
         float32 len = glm::length(m_vel);
         const float32 max_speed = 0.01f;
         if(len > max_speed) { m_vel = m_vel / len * max_speed; }
-    }
-
-    virtual bool call(uint32 call_id, const variant &v)
-    {
-        return mhandler::call(call_id, v);
     }
 };
 atomicImplementRoutine(Routine_HomingPlayer, ROUTINE_HOMING_PLAYER);

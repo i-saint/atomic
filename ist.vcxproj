@@ -33,6 +33,7 @@
     <ClInclude Include="ist\Base\New.h" />
     <ClInclude Include="ist\Base\Serialize.h" />
     <ClInclude Include="ist\Base\SharedObject.h" />
+    <ClInclude Include="ist\Base\StringSymbol.h" />
     <ClInclude Include="ist\Base\Types.h" />
     <ClInclude Include="ist\Base\Variant.h" />
     <ClInclude Include="ist\Concurrency.h" />

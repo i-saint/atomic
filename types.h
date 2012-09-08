@@ -2,6 +2,7 @@
 #define __atomic_Types__
 
 #include "ist/ist.h"
+#include "FunctionID.h"
 
 namespace atomic {
 
@@ -55,7 +56,6 @@ using namespace ist::i3dgl;
 
 typedef uint32 EntityHandle;
 typedef uint32 CollisionHandle;
-
 
 enum ATOMIC_ERROR {
     ATERR_NOERROR,

@@ -35,8 +35,8 @@ public:
     virtual void asyncupdate(float32 dt){}
     virtual void draw() {}
 
-    virtual bool call(uint32 call_id, const variant &v) { return false; }
-    virtual bool query(uint32 query_id, variant &v) const { return false; }
+    virtual bool call(FunctionID call_id, const variant &v) { return false; }
+    virtual bool query(FunctionID query_id, variant &v) const { return false; }
 };
 
 

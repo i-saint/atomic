@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="features.h" />
+    <ClInclude Include="FunctionID.h" />
     <ClInclude Include="Game\AtomicApplication.h" />
     <ClInclude Include="Game\AtomicGame.h" />
     <ClInclude Include="Game\Collision.h" />

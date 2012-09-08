@@ -1,10 +1,6 @@
 ﻿#ifndef __ist_Base_Serialize__
 #define __ist_Base_Serialize__
 
-#include <cstdlib>
-#include <vector>
-#include <algorithm>
-
 #define istIntrospectionBlock(...) \
     static const ist::MemberInfoCollection& _GetMemberInfo() { \
         static bool initialized = false;\

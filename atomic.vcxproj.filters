@@ -220,6 +220,7 @@
     <ClInclude Include="Graphics\Renderer_Postprocess.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="FunctionID.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GPGPU\SPH_internal.cuh">
