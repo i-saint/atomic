@@ -1,6 +1,7 @@
 ﻿#ifndef __atomic_Game_EntityQuery__
 #define __atomic_Game_EntityQuery__
 
+#include "FunctionID.h"
 
 
 #define atomicECall(funcname)         \
