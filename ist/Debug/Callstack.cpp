@@ -4,8 +4,8 @@
 
 #ifdef __ist_env_Windows__
 #   include <windows.h>
-#   include <imagehlp.h>
-#   pragma comment(lib, "imagehlp.lib")
+#   include <dbghelp.h>
+#   pragma comment(lib, "dbghelp.lib")
 #endif // __ist_env_Windows__
 
 namespace ist {
