@@ -2,48 +2,48 @@
 #include "ist/Base/CRTex.h"
 #include "Callstack.h"
 
-#ifdef __ist_env_Windows__
+#ifdef ist_env_Windows
 #   include <windows.h>
 #   include <dbghelp.h>
 #   pragma comment(lib, "dbghelp.lib")
-#endif // __ist_env_Windows__
+#endif // ist_env_Windows
 
 namespace ist {
 
 bool InitializeDebugSymbol()
 {
-#ifdef __ist_env_Windows__
+#ifdef ist_env_Windows
     if(!::SymInitialize(::GetCurrentProcess(), NULL, TRUE)) {
         return false;
     }
     ::SymSetOptions(SYMOPT_DEFERRED_LOADS | SYMOPT_LOAD_LINES);
 
     return true;
-#else // __ist_env_Windows__
+#else // ist_env_Windows
     return false;
-#endif // __ist_env_Windows__
+#endif // ist_env_Windows
 }
 
 void FinalizeDebugSymbol()
 {
-#ifdef __ist_env_Windows__
+#ifdef ist_env_Windows
     ::SymCleanup(::GetCurrentProcess());
-#else // __ist_env_Windows__
-#endif // __ist_env_Windows__
+#else // ist_env_Windows
+#endif // ist_env_Windows
 }
 
 
 int GetCallstack(void **callstack, int callstack_size, int skip_size)
 {
-#ifdef __ist_env_Windows__
+#ifdef ist_env_Windows
     return CaptureStackBackTrace(skip_size, callstack_size, callstack, NULL);
-#else // __ist_env_Windows__
-#endif // __ist_env_Windows__
+#else // ist_env_Windows
+#endif // ist_env_Windows
 }
 
 stl::string AddressToSymbolName(void *address)
 {
-#ifdef __ist_env_Windows__
+#ifdef ist_env_Windows
 
 #ifdef _WIN64
     typedef DWORD64 DWORDX;
@@ -80,14 +80,14 @@ stl::string AddressToSymbolName(void *address)
     }
     return buf;
 
-#else // __ist_env_Windows__
+#else // ist_env_Windows
     return "";
-#endif // __ist_env_Windows__
+#endif // ist_env_Windows
 }
 
 stl::string CallstackToSymbolNames(void **callstack, int callstack_size, int clamp_head, int clamp_tail, const char *indent)
 {
-#ifdef __ist_env_Windows__
+#ifdef ist_env_Windows
     stl::string tmp;
     int begin = stl::max<int>(0, clamp_head);
     int end = stl::max<int>(0, callstack_size-clamp_tail);
@@ -96,10 +96,10 @@ stl::string CallstackToSymbolNames(void **callstack, int callstack_size, int cla
         tmp += AddressToSymbolName(callstack[i]);
     }
     return tmp;
-#else // __ist_env_Windows__
+#else // ist_env_Windows
 
     return "";
-#endif // __ist_env_Windows__
+#endif // ist_env_Windows
 }
 
 } // namespace ist

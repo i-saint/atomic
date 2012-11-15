@@ -5,7 +5,7 @@
 #include "ist/Concurrency/Mutex.h"
 
 
-#ifdef __ist_enable_memory_leak_check__
+#ifdef ist_enable_memory_leak_check
 namespace ist {
 
 
@@ -86,49 +86,49 @@ void istMemoryLeakCheckerEnable( bool v )
     g_memory_leak_checker->enableLeakCheck(v);
 }
 
-#endif // __ist_enable_memory_leak_check__
+#endif // ist_enable_memory_leak_check
 
 
 
 
 void* istRawMalloc(size_t size, size_t align)
 {
-#ifdef __ist_env_Windows__
+#ifdef ist_env_Windows
     void *p = ::_aligned_malloc(size, align);
-#elif // __ist_env_Windows__
+#elif // ist_env_Windows
     void *p = memalign(align, size);
-#endif // __ist_env_Windows__
+#endif // ist_env_Windows
 
-#ifdef __ist_enable_memory_leak_check__
+#ifdef ist_enable_memory_leak_check
     if(g_memory_leak_checker) {
         g_memory_leak_checker->addAllocationInfo(p);
     }
-#endif // __ist_enable_memory_leak_check__
+#endif // ist_enable_memory_leak_check
 
     return p;
 }
 
 void istRawFree(void* p)
 {
-#ifdef __ist_enable_memory_leak_check__
+#ifdef ist_enable_memory_leak_check
     if(g_memory_leak_checker) {
         g_memory_leak_checker->eraseAllocationInfo(p);
     }
-#endif // __ist_enable_memory_leak_check__
+#endif // ist_enable_memory_leak_check
 
-#ifdef __ist_env_Windows__
+#ifdef ist_env_Windows
     ::_aligned_free(p);
-#elif // __ist_env_Windows__
+#elif // ist_env_Windows
     free(p);
-#endif // __ist_env_Windows__
+#endif // ist_env_Windows
 }
 
 void* istRawAlloca( size_t size )
 {
-#ifdef __ist_env_Windows__
+#ifdef ist_env_Windows
     return _alloca(size);
-#elif // __ist_env_Windows__
+#elif // ist_env_Windows
     return alloca(size);
-#endif // __ist_env_Windows__
+#endif // ist_env_Windows
 }
 

@@ -1,6 +1,6 @@
 ﻿#ifndef __ist_i3dgl__
 #define __ist_i3dgl__
-#ifdef __ist_with_OpenGL__
+#ifdef ist_with_OpenGL
 
 #include <GL/glew.h>
 #include <GL/wglew.h>
@@ -15,5 +15,5 @@
 #include "i3duglCamera.h"
 #include "i3duglFont.h"
 
-#endif // __ist_with_OpenGL__
+#endif // ist_with_OpenGL
 #endif // __ist_i3dgl__

@@ -375,9 +375,9 @@ namespace {
     void PreMain()
     {
         ::setlocale(LC_ALL, "");
-#ifndef __ist_env_MasterBuild__
+#ifndef ist_env_Master
         ist::InitializeDebugSymbol();
-#endif // __ist_env_MasterBuild__
+#endif // ist_env_Master
         istMemoryLeakCheckerInitialize();
     }
 
@@ -386,9 +386,9 @@ namespace {
         istMemoryLeakCheckerPrint();
         istMemoryLeakCheckerFinalize();
         // 他のモジュールがまだシンボル情報を使う可能性があるので敢えて呼ばない
-//#ifndef __ist_env_MasterBuild__
+//#ifndef ist_env_Master
 //        ist::FinalizeDebugSymbol();
-//#endif // __ist_env_MasterBuild__
+//#endif // ist_env_Master
     }
 
 } // namespace
@@ -404,7 +404,7 @@ int main(int argc, char* argv[])
     return r;
 }
 
-#ifdef __ist_env_Windows__
+#ifdef ist_env_Windows
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prev, LPSTR cmd, int show)
 {
     ist::g_hinstance = hInstance;
@@ -413,4 +413,4 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prev, LPSTR cmd, int show)
     PostMain();
     return r;
 }
-#endif // __ist_env_Windows__
+#endif // ist_env_Windows

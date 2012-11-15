@@ -116,9 +116,9 @@ struct tsoavec4x
     istForceInline void v(size_t i, const simdvec &_v) { sv[i]=_v; }
 };
 
-typedef __declspec(align(16)) tsoavec2x<simdvec4> soavec24;
-typedef __declspec(align(16)) tsoavec3x<simdvec4> soavec34;
-typedef __declspec(align(16)) tsoavec4x<simdvec4> soavec44;
+typedef istAlign(16) tsoavec2x<simdvec4> soavec24;
+typedef istAlign(16) tsoavec3x<simdvec4> soavec34;
+typedef istAlign(16) tsoavec4x<simdvec4> soavec44;
 #ifdef __ist_enable_soavec8__
 typedef __declspec(align(32)) tsoavec2x<simdvec8> soavec28;
 typedef __declspec(align(32)) tsoavec3x<simdvec8> soavec38;
@@ -316,7 +316,7 @@ istForceInline soavec44 soa_transpose44(const simdvec4 &v0, const simdvec4 &v1, 
         _mm_shuffle_ps(r3, r4, SSE_SHUFFLE(0,1,0,1)),
         _mm_shuffle_ps(r3, r4, SSE_SHUFFLE(2,3,2,3)) );
 }
-#elif defined(__ist_env_ARM__)
+#elif defined(ist_env_ARM32)
 #endif
 
 #ifdef __ist_enable_soavec8__

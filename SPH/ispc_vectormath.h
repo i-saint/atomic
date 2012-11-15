@@ -5,32 +5,33 @@ typedef float<2> vec2;
 typedef float<3> vec3;
 typedef float<4> vec4;
 
+
 static inline float dot3(vec3 a, vec3 b)
 {
-    return a.x * b.x + a.y * b.y + a.z * b.z;
+    return a.x*b.x + a.y*b.y + a.z*b.z;
 }
 
 static inline uniform float dot3(uniform vec3 a, uniform vec3 b)
 {
-    return a.x * b.x + a.y * b.y + a.z * b.z;
+    return a.x*b.x + a.y*b.y + a.z*b.z;
 }
 
 
 static inline vec3 cross3(vec3 v0, vec3 v1)
 {
     vec3 ret;
-    ret.x = v0.y * v1.z - v0.z * v1.y;
-    ret.y = v0.z * v1.x - v0.x * v1.z;
-    ret.z = v0.x * v1.y - v0.y * v1.x;
+    ret.x = v0.y*v1.z - v0.z*v1.y;
+    ret.y = v0.z*v1.x - v0.x*v1.z;
+    ret.z = v0.x*v1.y - v0.y*v1.x;
     return ret;
 }
 
 static inline uniform vec3 cross3(uniform vec3 v0, uniform vec3 v1)
 {
     uniform vec3 ret;
-    ret.x = v0.y * v1.z - v0.z * v1.y;
-    ret.y = v0.z * v1.x - v0.x * v1.z;
-    ret.z = v0.x * v1.y - v0.y * v1.x;
+    ret.x = v0.y*v1.z - v0.z*v1.y;
+    ret.y = v0.z*v1.x - v0.x*v1.z;
+    ret.z = v0.x*v1.y - v0.y*v1.x;
     return ret;
 }
 

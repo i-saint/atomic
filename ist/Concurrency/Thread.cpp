@@ -1,7 +1,7 @@
 ﻿#include "istPCH.h"
 #include "ist/Concurrency/Thread.h"
 
-#if defined(__ist_env_Windows__)
+#if defined(ist_env_Windows)
 #include <process.h>
 
 const DWORD MS_VC_EXCEPTION=0x406D1388;
@@ -16,18 +16,18 @@ typedef struct tagTHREADNAME_INFO
 } THREADNAME_INFO;
 #pragma pack(pop)
 
-#elif defined(__ist_env_Android__)
+#elif defined(ist_env_Android)
 
 #include <cpu-features.h>
 
-#endif // __ist_env_Windows__
+#endif // ist_env_Windows
 
 
 namespace ist {
 
 void Thread::setNameToCurrentThread( const char* name )
 {
-#ifdef __ist_env_Windows__
+#ifdef ist_env_Windows
     THREADNAME_INFO info;
     info.dwType = 0x1000;
     info.szName = name;
@@ -40,14 +40,14 @@ void Thread::setNameToCurrentThread( const char* name )
     __except(EXCEPTION_EXECUTE_HANDLER)
     {
     }
-#endif // __ist_env_Windows__
+#endif // ist_env_Windows
 }
 
 void Thread::setAffinityMaskToCurrentThread( size_t mask )
 {
-#if defined(__ist_env_Windows__)
+#if defined(ist_env_Windows)
     ::SetThreadAffinityMask(::GetCurrentThread(), mask);
-#elif defined(__ist_env_Android__)
+#elif defined(ist_env_Android)
     int err, syscallres;
     syscallres = ::syscall(__NR_sched_setaffinity, ::gettid(), sizeof(mask), &mask);
     if (syscallres)
@@ -69,7 +69,7 @@ void Thread::setAffinityMaskToCurrentThread( size_t mask )
 
 void Thread::setPriorityToCurrentThread( int priority )
 {
-#if defined(__ist_env_Windows__)
+#if defined(ist_env_Windows)
     ::SetThreadPriority(::GetCurrentThread(), priority);
 #else
 #endif
@@ -77,11 +77,11 @@ void Thread::setPriorityToCurrentThread( int priority )
 
 size_t Thread::getLogicalCpuCount()
 {
-#if defined(__ist_env_Windows__)
+#if defined(ist_env_Windows)
     SYSTEM_INFO info={{0}};
     ::GetSystemInfo(&info);
     return info.dwNumberOfProcessors;
-#elif defined(__ist_env_Android__)
+#elif defined(ist_env_Android)
     return ::android_getCpuCount();
 #else
     return ::get_nprocs();
@@ -90,29 +90,29 @@ size_t Thread::getLogicalCpuCount()
 
 Thread::Handle Thread::getCurrentThread()
 {
-#ifdef __ist_env_Windows__
+#ifdef ist_env_Windows
     return ::GetCurrentThread();
-#else // __ist_env_Windows__
+#else // ist_env_Windows
     return ::pthread_self();
-#endif // __ist_env_Windows__
+#endif // ist_env_Windows
 }
 
 
-#ifdef __ist_env_Windows__
+#ifdef ist_env_Windows
 unsigned int __stdcall _EntryPoint(void *arg)
 {
     static_cast<Thread*>(arg)->setParams();
     static_cast<Thread*>(arg)->exec();
     return 0;
 }
-#else // __ist_env_Windows__
+#else // ist_env_Windows
 void* _EntryPoint(void *arg)
 {
     static_cast<Thread*>(arg)->setParams();
     static_cast<Thread*>(arg)->exec();
     return NULL;
 }
-#endif // __ist_env_Windows__
+#endif // ist_env_Windows
 
 Thread::Thread()
     : m_stacksize(0)
@@ -125,32 +125,32 @@ Thread::Thread()
 
 Thread::~Thread()
 {
-#ifdef __ist_env_Windows__
-#else // __ist_env_Windows__
-#endif // __ist_env_Windows__
+#ifdef ist_env_Windows
+#else // ist_env_Windows
+#endif // ist_env_Windows
 }
 
 void Thread::run()
 {
-#ifdef __ist_env_Windows__
+#ifdef ist_env_Windows
     m_handle = (Handle)_beginthreadex(NULL, m_stacksize, _EntryPoint, this, 0, NULL);
-#else // __ist_env_Windows__
+#else // ist_env_Windows
     pthread_attr_t attr;
     pthread_attr_init(&attr);
     pthread_attr_setstacksize(&attr, m_stacksize);
     pthread_create(&m_handle, &attr, _EntryPoint, this);
     pthread_attr_destroy(&attr);
-#endif // __ist_env_Windows__
+#endif // ist_env_Windows
 }
 
 void Thread::join()
 {
-#ifdef __ist_env_Windows__
+#ifdef ist_env_Windows
     ::WaitForSingleObject(m_handle, INFINITE);
-#else // __ist_env_Windows__
+#else // ist_env_Windows
     void *ret = NULL;
     pthread_join(m_handle, &ret);
-#endif // __ist_env_Windows__
+#endif // ist_env_Windows
 }
 
 void Thread::setParams()

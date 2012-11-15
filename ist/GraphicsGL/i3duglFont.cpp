@@ -1,5 +1,5 @@
 ﻿#include "istPCH.h"
-#ifdef __ist_with_OpenGL__
+#ifdef ist_with_OpenGL
 #include <wingdi.h>
 #include "ist/Base.h"
 #include "ist/Window.h"
@@ -20,7 +20,7 @@ IFontRenderer::IFontRenderer()
 }
 
 
-#ifdef __ist_env_Windows__
+#ifdef ist_env_Windows
 
 static const int g_list_base = 0;
 
@@ -83,7 +83,7 @@ IFontRenderer* CreateSystemFont(Device *device, void *hdc)
     return istNew(SystemFont)((HDC)hdc);
 }
 
-#endif // __ist_env_Windows__
+#endif // ist_env_Windows
 
 
 
@@ -437,4 +437,4 @@ IFontRenderer* CreateSpriteFont(Device *device, IBinaryStream &sff, IBinaryStrea
 
 } // namespace i3d
 } // namespace ist
-#endif // __ist_with_OpenGL__
+#endif // ist_with_OpenGL

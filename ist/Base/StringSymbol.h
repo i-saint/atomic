@@ -1,5 +1,5 @@
-﻿#ifndef __ist_Base_StringSymbol_h__
-#define __ist_Base_StringSymbol_h__
+﻿#ifndef ist_Base_StringSymbol_h
+#define ist_Base_StringSymbol_h
 
 namespace ist {
 
@@ -51,4 +51,4 @@ private:
 
 } // namespace ist
 
-#endif // __ist_Base_StringSymbol_h__
+#endif // ist_Base_StringSymbol_h

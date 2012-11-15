@@ -1,57 +1,79 @@
-﻿#ifndef __ist_Config_h__
+﻿#ifndef ist_Config_h
 
-#define __ist_with_EASTL__
-#define __ist_with_OpenGL__
-//#define __ist_with_OpenGLES__
-//#define __ist_with_DirectX11__
-#define __ist_with_zlib__
-#define __ist_with_png__
-//#define __ist_with_jpeg__
-#define __ist_with_gli__ // dds ファイル対応
-#define __ist_with_OpenAL__
-#define __ist_with_oggvorbis__
+#define ist_with_EASTL
+#define ist_with_OpenGL
+//#define ist_with_OpenGLES
+//#define ist_with_DirectX11
+#define ist_with_zlib
+#define ist_with_png
+//#define ist_with_jpeg
+#define ist_with_gli // dds ファイル対応
+#define ist_with_OpenAL
+#define ist_with_oggvorbis
 
-#ifndef __ist_env_MasterBuild__
-#   define __ist_enable_assert__
-#   define __i3d_enable_assert__
-#endif // __ist_env_MasterBuild__
-#ifdef __ist_env_DebugBuild__
-//#   define __ist_enable_memory_leak_check__
+#ifndef ist_env_Master
+#   define ist_enable_assert
+#   define i3d_enable_assert
+#endif // ist_env_Master
+#ifdef ist_env_Debug
+//#   define ist_enable_memory_leak_check
 // memory_leak_check は resource_leak_check も兼ねるがパフォーマンス低下が著しいので一応別に用意
-//#   define __i3d_enable_resource_leak_check__
-#endif // __ist_env_DebugBuild__
+//#   define i3d_enable_resource_leak_check
+#endif // ist_env_Debug
 #define ist_leak_check_max_callstack_size 32
 
+
+#if defined(_MSC_VER)
+#   define ist_env_MSVC
+#elif defined(__GNUC__)
+#   define ist_env_GCC
+#elif defined(__clang__)
+#   define ist_env_LLVM
+#endif
+
 #if defined(_WIN64)
-#   define __ist_env_Windows__
-#   define __ist_env_x86__
-#   define __ist_env_x64__
+#   define ist_env_Windows
+#   define ist_env_x86
+#   define ist_env_x64
 #elif defined(_WIN32)
-#   define __ist_env_Windows__
-#   define __ist_env_x86__
+#   define ist_env_Windows
+#   define ist_env_x86
 #elif defined(__ANDROID__)
-#   define __ist_env_Android__
-#   define __ist_env_ARM__
+#   define ist_env_Android
+#   define ist_env_ARM32
 #else
 #   error
 #endif
 
 
+
+#if defined(ist_env_MSVC)
+#   define istForceInline   __forceinline
+#   define istThreadLocal   __declspec(thread)
+#   define istDLLExport     __declspec(dllexport)
+#   define istDLLImport     __declspec(dllimport)
+#   define istAlign(N)      __declspec(align(N))
+#else
+#   define istForceInline   inline
+#   define istThreadLocal   __thread
+#   define istDLLExport     __attribute__((visibility("default")))
+#   define istDLLImport 
+#   define istAlign(N)      __attribute__((aligned(N)))
+#endif
+
+
 //#define istExportSymbols
 
-#ifdef __ist_env_Windows__
-#   if defined(istExportSymbols)
-#       define istInterModule __declspec(dllexport)
-#   elif defined(istImportSymbols)
-#       define istInterModule __declspec(dllimport)
-#   else
-#       define istInterModule
-#   endif // istExportSymbols
-#else // __ist_env_Windows__
+#if defined(istExportSymbols)
+#   define istInterModule istDLLExport
+#elif defined(istImportSymbols)
+#   define istInterModule istDLLImport
+#else
 #   define istInterModule
-#endif // __ist_env_Windows__
+#endif // istExportSymbols
 
 
+#ifdef ist_env_MSVC
 
 #define WIN32_LEAN_AND_MEAN             // Windows ヘッダーから使用されていない部分を除外します。
 #define _SCL_SECURE_NO_WARNINGS
@@ -60,6 +82,7 @@
 #pragma warning(disable: 4819) // コードページ問題 (glm)
 #pragma warning(disable: 4251) // __export つけろ問題
 
+#endif // ist_env_MSVC
 
 #include <stdint.h>
 #include <stdio.h>
@@ -67,7 +90,7 @@
 #include <boost/noncopyable.hpp>
 #include <boost/static_assert.hpp>
 
-#ifdef __ist_with_EASTL__
+#ifdef ist_with_EASTL
 #   include <EASTL/algorithm.h>
 #   include <EASTL/sort.h>
 #   include <EASTL/vector.h>
@@ -76,52 +99,51 @@
 #   include <EASTL/map.h>
 #   include <EASTL/string.h>
 namespace stl = eastl;
-#else // __ist_with_EASTL__
+#else // ist_with_EASTL
 #   include <vector>
 #   include <list>
 #   include <map>
 #   include <string>
 #   include <algorithm>
 namespace stl = std;
-#endif // __ist_with_EASTL__
+#endif // ist_with_EASTL
 
-#ifdef __ist_with_DirectX11__
+#ifdef ist_with_DirectX11
 #   include <D3D11.h>
 #   include <D3DX11.h>
-#endif // __ist_with_DirectX11__
+#endif // ist_with_DirectX11
 
-#ifdef __ist_with_OpenGL__
+#ifdef ist_with_OpenGL
 #   include <GL/glew.h>
-#   ifdef __ist_env_Windows__
+#   ifdef ist_env_Windows
 #       include <GL/wglew.h>
 #       pragma comment(lib, "glew32.lib")
 #       pragma comment(lib, "opengl32.lib")
-#   endif // __ist_env_Windows__
-#endif // __ist_with_OpenGL__
+#   endif // ist_env_Windows
+#endif // ist_with_OpenGL
 
-#ifdef __ist_with_zlib__
+#ifdef ist_with_zlib
 #   define ZLIB_DLL
 #   include "zlib/zlib.h"
 #   pragma comment(lib, "zdll.lib")
-#endif // __ist_with_zlib__
+#endif // ist_with_zlib
 
-#ifdef __ist_with_png__
+#ifdef ist_with_png
 #   include <libpng/png.h>
 #   pragma comment(lib,"libpng15.lib")
-#endif // __ist_with_png__
+#endif // ist_with_png
 
-#ifdef __ist_with_jpeg__
+#ifdef ist_with_jpeg
 #   include <jpeglib.h>
 #   include <jerror.h>
 #   pragma comment(lib,"libjpeg.lib")
-#endif // __ist_with_jpeg__
+#endif // ist_with_jpeg
 
-#ifdef __ist_with_OpenAL__
+#ifdef ist_with_OpenAL
 #   include <AL/al.h>
 #   include <AL/alc.h>
-#endif // __ist_with_OpenAL__
+#endif // ist_with_OpenAL
 
-#include "ist/Base/Decl.h"
 #include "ist/Base/Types.h"
 
-#endif // __ist_Config_h__
+#endif // ist_Config_h

@@ -1,5 +1,5 @@
-﻿#ifndef __ist_Base_Container_h__
-#define __ist_Base_Container_h__
+﻿#ifndef ist_Base_Container_h
+#define ist_Base_Container_h
 #include "ist/Base/Allocator.h"
 
 namespace ist {
@@ -35,4 +35,4 @@ private:
 
 
 } // namespace ist
-#endif // __ist_Base_Container_h__
+#endif // ist_Base_Container_h

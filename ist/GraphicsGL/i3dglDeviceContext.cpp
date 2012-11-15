@@ -1,5 +1,5 @@
 ﻿#include "istPCH.h"
-#ifdef __ist_with_OpenGL__
+#ifdef ist_with_OpenGL
 #include "ist/Base.h"
 #include "i3dglDevice.h"
 #include "i3dglDeviceContext.h"
@@ -152,4 +152,4 @@ void DeviceContext::clearStencil( RenderTarget *rt, int32 stencil )
 
 } // namespace i3dgl
 } // namespace ist
-#endif // __ist_with_OpenGL__
+#endif // ist_with_OpenGL

@@ -1,5 +1,5 @@
-﻿#ifndef __ist_BinaryStream__
-#define __ist_BinaryStream__
+﻿#ifndef ist_Base_BinaryStream_h
+#define ist_Base_BinaryStream_h
 namespace ist {
 
 class istInterModule IBinaryStream
@@ -169,7 +169,7 @@ inline ist::IBinaryStream& operator>>(ist::IBinaryStream &s, T (&v)[N])
 
 namespace ist {
 
-#ifdef __ist_with_zlib__
+#ifdef ist_with_zlib
 class istInterModule GZFileStream : public IBinaryStream
 {
 public:
@@ -198,8 +198,8 @@ private:
     GZFileStream(const GZFileStream&);
     GZFileStream& operator=(const GZFileStream&);
 };
-#endif // __ist_with_zlib__
+#endif // ist_with_zlib
 
 } // namespace ist
 
-#endif // __ist_BinaryStream__
+#endif // ist_Base_BinaryStream_h

@@ -135,7 +135,7 @@ inline bool TestFrustumAABB(const FrustumPlanes &frustum, const AABB &aabb)
         const simdvec4_t pos    = select(aabb_min, aabb_max, gt_zero);
         const simdvec4_t r      = dot(pos, plane);
 
-        __declspec(align(16)) float rv[4];
+        istAlign(16) float rv[4];
         _mm_store_ss(rv, r);
         if(rv[0] < 0.0f) { return false; }
     }

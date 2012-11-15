@@ -131,7 +131,7 @@ typedef struct W128_T w128_t;
 
 namespace ist {
 
-class __declspec(align(16)) SFMT
+class istAlign(16) SFMT
 {
 private:
     /*--------------------------------------

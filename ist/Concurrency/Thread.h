@@ -10,13 +10,13 @@ class istInterModule Thread : public SharedObject
 {
 public:
     typedef void(*EntryPoint)(void*);
-#ifdef __ist_env_Windows__
+#ifdef ist_env_Windows
     typedef HANDLE Handle;
-#else // __ist_env_Windows__
+#else // ist_env_Windows
     typedef pthread_t Handle;
-#endif // __ist_env_Windows__
+#endif // ist_env_Windows
     enum Priority {
-#ifdef __ist_env_Windows__
+#ifdef ist_env_Windows
         Priority_Low    = THREAD_PRIORITY_LOWEST,
         Priority_Normal = THREAD_PRIORITY_NORMAL,
         Priority_High   = THREAD_PRIORITY_HIGHEST,

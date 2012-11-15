@@ -1,5 +1,5 @@
-﻿#ifndef __ist_Base_Generics_h__
-#define __ist_Base_Generics_h__
+﻿#ifndef ist_Base_Generics_h
+#define ist_Base_Generics_h
 
 namespace ist {
 
@@ -17,4 +17,4 @@ namespace ist {
 
 } // namespace ist
 
-#endif // __ist_Base_Generics_h__
+#endif // ist_Base_Generics_h

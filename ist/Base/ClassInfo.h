@@ -1,7 +1,7 @@
-﻿#ifndef __ist_Base_ClassInfo__
-#define __ist_Base_ClassInfo__
+﻿#ifndef ist_Base_ClassInfo_h
+#define ist_Base_ClassInfo_h
 
-#include "ist/Base/Decl.h"
+#include "ist/Config.h"
 
 namespace ist {
 
@@ -36,4 +36,4 @@ template<> struct ClassInfo<classname>                      \
 int ClassInfo<classname>::s_classid=g_classidgen++;         \
 }
 
-#endif // __ist_Base_ClassInfo__
+#endif // ist_Base_ClassInfo_h

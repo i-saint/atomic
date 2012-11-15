@@ -6,16 +6,16 @@
 #include "Math.h"
 #include "GraphicsCommon/Image.h"
 
-#ifdef __ist_with_OpenGL__
+#ifdef ist_with_OpenGL
 #include "GraphicsGL/i3dgl.h"
-#endif // __ist_with_OpenGL__
+#endif // ist_with_OpenGL
 
-#ifdef __ist_with_OpenGLES__
+#ifdef ist_with_OpenGLES
 #include "GraphicsGLES/i3dgles.h"
-#endif // __ist_with_OpenGL__
+#endif // ist_with_OpenGL
 
-#ifdef __ist_with_DirectX11__
+#ifdef ist_with_DirectX11
 #include "GraphicsDX11//i3ddx11.h"
-#endif // __ist_with_DirectX11__
+#endif // ist_with_DirectX11
 
 #endif // __ist_Graphics_h__

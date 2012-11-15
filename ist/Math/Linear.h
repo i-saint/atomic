@@ -6,7 +6,7 @@ namespace ist {
 
 // union に入れたいなどのシチュエーションが予想されるため、コンストラクタを持たない構造にしています
 
-struct __declspec(align(16)) Point
+struct istAlign(16) Point
 {
     vec4 v;
 
@@ -18,7 +18,7 @@ struct __declspec(align(16)) Point
 };
 
 
-struct __declspec(align(16)) Sphere
+struct istAlign(16) Sphere
 {
     vec4 v;
 
@@ -32,7 +32,7 @@ struct __declspec(align(16)) Sphere
 };
 
 
-struct __declspec(align(16)) Segment
+struct istAlign(16) Segment
 {
     Point begin_pos;
     Point end_pos;
@@ -45,7 +45,7 @@ struct __declspec(align(16)) Segment
 };
 
 
-struct __declspec(align(16)) Capsule
+struct istAlign(16) Capsule
 {
     Sphere begin_pos;
     Point end_pos;
@@ -59,7 +59,7 @@ struct __declspec(align(16)) Capsule
 };
 
 
-struct __declspec(align(16)) Plane
+struct istAlign(16) Plane
 {
     vec4 v;
 
@@ -68,7 +68,7 @@ struct __declspec(align(16)) Plane
 };
 
 
-struct __declspec(align(16)) Triangle
+struct istAlign(16) Triangle
 {
     Point pos[3];
 
@@ -77,7 +77,7 @@ struct __declspec(align(16)) Triangle
 };
 
 
-struct __declspec(align(16)) AABB
+struct istAlign(16) AABB
 {
     Point ur;
     Point bl;
@@ -88,7 +88,7 @@ struct __declspec(align(16)) AABB
 
 
 
-struct __declspec(align(16)) OBB
+struct istAlign(16) OBB
 {
     AABB aabb;
     mat4 mat;
@@ -99,7 +99,7 @@ struct __declspec(align(16)) OBB
 };
 
 
-struct __declspec(align(16)) Frustum
+struct istAlign(16) Frustum
 {
     mat4 m_mat;
 };

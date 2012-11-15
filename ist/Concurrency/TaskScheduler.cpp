@@ -167,12 +167,12 @@ TaskScheduler::TaskScheduler( uint32 num_threads )
 
     // task worker 作成
     int processors = Thread::getLogicalCpuCount();
-#ifdef __ist_env_Windows__
+#ifdef ist_env_Windows
     SYSTEM_INFO info;
     GetSystemInfo(&info);
     processors = info.dwNumberOfProcessors;
     SetThreadAffinityMask(GetCurrentThread(), 1);
-#endif // __ist_env_Windows__
+#endif // ist_env_Windows
     if(num_threads == -1) { num_threads = processors; }
 
     for(size_t i=1; i<num_threads; ++i)

@@ -23,13 +23,37 @@ struct Box
 };
 
 
+struct PointForce
+{
+    float x, y, z;
+    float strength;
+};
+
+struct DirectionalForce
+{
+    float nx, ny, nz;
+    float strength;
+};
+
+struct BoxForce
+{
+    float nx, ny, nz;
+    float strength;
+    Box box;
+};
+
+
 struct Particle
 {
     float   x, y, z;
     float   vx, vy, vz;
     float   density;
-    int16   hit;
-    int16   flag_live;
+    int32   hit;
+};
+
+struct Force
+{
+    float ax, ay, az;
 };
 
 struct GridData
@@ -40,66 +64,15 @@ struct GridData
 };
 
 
+// struct ÇÃéQè∆ìnÇµÇ™Ç≈Ç´Ç»Ç¢Ç¡Ç€Ç¢ÇÃÇ≈ macro Ç≈...
+// ï°êîÇÃå^Ç…ëŒâûÇ≈Ç´ÇÈÇÃÇ≈ÇﬁÇµÇÎÇ±Ç¡ÇøÇÃÇ™Ç¢Ç¢ÇÃÇ©Ç‡
+#define get_pos(p)      {p.x, p.y, p.z}
+#define get_vel(p)      {p.vx, p.vy, p.vz}
+#define get_normal(p)   {p.nx, p.ny, p.nz}
+#define get_accel(p)    {p.ax, p.ay, p.az}
+#define set_pos(p, v)   p.x=v.x; p.y=v.y; p.z=v.z;
+#define set_vel(p, v)   p.vx=v.x; p.vy=v.y; p.vz=v.z;
+#define set_accel(p, v) p.ax=v.x; p.ay=v.y; p.az=v.z;
 
-
-inline void TestCollide(
-    soa<8> Particle particles[],
-    uniform int32 particle_num,
-    uniform Sphere shape )
-{
-    uniform vec3 sphere_pos = {shape.x, shape.y, shape.z};
-    uniform float sphere_radius_sq = shape.radius * shape.radius;
-    uniform float particle_radius_sp = SPH_PARTICLE_SIZE*SPH_PARTICLE_SIZE;
-    foreach(i=0 ... particle_num) {
-        vec3 particles_pos = {particles[i].x, particles[i].y, particles[i].z};
-        vec3 diff = sphere_pos - particles_pos;
-        float distance_sq = dot3(diff, diff);
-        if(distance_sq <= particle_radius_sp) {
-            particles[i].hit++;
-        }
-    }
-}
-
-
-inline void TestCollide(
-    soa<8> Particle particles[],
-    uniform int32 particle_num,
-    uniform Plane shape )
-{
-    uniform vec3 plane_normal = {shape.nx, shape.ny, shape.nz};
-    uniform float plane_distance = shape.distance;
-    uniform float particle_radius = SPH_PARTICLE_SIZE;
-    foreach(i=0 ... particle_num) {
-        vec3 particles_pos = {particles[i].x, particles[i].y, particles[i].z};
-        float d = dot3(particles_pos, (varying vec3)plane_normal);
-        if(d <= particle_radius) {
-            particles[i].hit++;
-        }
-    }
-}
-
-
-inline void TestCollide(
-    soa<8> Particle particles[],
-    uniform int32 particle_num,
-    uniform Box shape )
-{
-    uniform float particle_radius = SPH_PARTICLE_SIZE;
-    foreach(i=0 ... particle_num) {
-        vec3 particles_pos = {particles[i].x, particles[i].y, particles[i].z};
-        int32 inside = 0;
-        for(uniform int32 p=0; p<6; ++p) {
-            uniform vec3 plane_normal = {shape.planes[p].nx, shape.planes[p].ny, shape.planes[p].nz};
-            uniform float plane_distance = shape.planes[p].distance;
-            float d = dot3(particles_pos, (varying vec3)plane_normal);
-            if(d <= particle_radius) {
-                inside++;
-            }
-        }
-        if(inside==6) {
-            particles[i].hit++;
-        }
-    }
-}
 
 #endif // __SPH_collision_h__

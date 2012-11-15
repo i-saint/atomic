@@ -3,21 +3,32 @@
 namespace ist {
 namespace iui {
 
-IRenderCommand::IRenderCommand()
+
+void RCRect::create( RCRect &out, const Rect &shape, const Color &color )
 {
+    out.ctype = RC_Rect;
+    out.shape = shape;
+    out.color = color;
 }
 
-IRenderCommand::~IRenderCommand()
+
+void RCLine::create( RCLine &out, Line &shape, const Color &color )
 {
+    out.ctype = RC_Line;
+    out.shape = shape;
+    out.color = color;
 }
 
-RCRect::RCRect( const Rect &s, const Color &c, FillMode f )
-    : shape(s), color(c), fillmode(f)
-{}
 
-RCRect* RCRect::create( const Rect &s, const Color &c, FillMode f )
+void RCText::create( RCText &out, const char *text, size_t textlen, const Color &color, Float size, Float spacing, bool monospace )
 {
-     return istNew(RCRect)(s, c, f);
+    out.ctype = RC_Text;
+    out.text = text;
+    out.textlen = textlen;
+    out.color = color;
+    out.size = size;
+    out.spacing = spacing;
+    out.monospace = monospace;
 }
 
 
@@ -27,30 +38,92 @@ UIRenderer::UIRenderer( i3d::Device *dev, i3d::DeviceContext *dc )
     , m_dc(dc)
     , m_vbo(NULL)
 {
+    m_text.reserve(1024*4);
 }
 
 UIRenderer::~UIRenderer()
 {
-    releaseAllCommands();
 }
 
-void UIRenderer::addCommand( IRenderCommand *command )
-{
-    m_commands.push_back(command);
-}
-
-void UIRenderer::flush()
+void UIRenderer::begin()
 {
 
 }
 
-void UIRenderer::releaseAllCommands()
+void UIRenderer::end()
 {
-    for(size_t i=0; i<m_commands.size(); ++i) {
-        istDelete(m_commands[i]);
+    for(size_t i=0; i<m_commands.size(); /**/) {
+        RCType type = *reinterpret_cast<RCType*>(&m_commands[i]);
+        switch(type) {
+        case RC_Rect:
+            {
+                draw( *reinterpret_cast<const RCRect*>(&m_commands[i]) );
+            }
+            i += sizeof(RCRect);
+            break;
+
+        case RC_Line:
+            {
+                draw( *reinterpret_cast<const RCLine*>(&m_commands[i]) );
+            }
+            i += sizeof(RCLine);
+            break;
+
+        case RC_Text:
+            {
+                draw( *reinterpret_cast<const RCText*>(&m_commands[i]) );
+            }
+            i += sizeof(RCText);
+            break;
+        }
     }
+
     m_commands.clear();
+    m_text.clear();
 }
+
+void UIRenderer::addCommand( const RCRect &command )
+{
+    const char *data = reinterpret_cast<const char*>(&command);
+    m_commands.insert(m_commands.end(), data, data+sizeof(RCRect));
+}
+
+void UIRenderer::addCommand( const RCLine &command )
+{
+    const char *data = reinterpret_cast<const char*>(&command);
+    m_commands.insert(m_commands.end(), data, data+sizeof(RCLine));
+}
+
+void UIRenderer::addCommand( const RCText &_command )
+{
+    // 文字列のコピーを挟む必要がある
+    // ここで一旦 RCText::text を m_text[n] の n の値に置き換える
+    // (ポインタだと m_text に追加があった時無効になる可能性があるため)
+
+    RCText command = _command;
+    command.text = reinterpret_cast<char*>(m_text.size());
+    m_text.insert(m_text.end(), _command.text, _command.text+_command.textlen);
+
+    const char *data = reinterpret_cast<const char*>(&command);
+    m_commands.insert(m_commands.end(), data, data+sizeof(RCText));
+}
+
+
+void UIRenderer::draw( const RCRect &command )
+{
+
+}
+
+void UIRenderer::draw( const RCLine &command )
+{
+
+}
+
+void UIRenderer::draw( const RCText &command )
+{
+
+}
+
 
 
 } // namespace iui

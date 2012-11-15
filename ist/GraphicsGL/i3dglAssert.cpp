@@ -1,4 +1,4 @@
 ﻿#include "istPCH.h"
-#ifdef __ist_with_OpenGL__
+#ifdef ist_with_OpenGL
 #include "i3dglAssert.h"
-#endif // __ist_with_OpenGL__
+#endif // ist_with_OpenGL

@@ -82,21 +82,21 @@ public:
     void addHandler(WMhandler *wmh);
     void eraseHandler(WMhandler *wmh);
 
-#ifdef __ist_env_Windows__
+#ifdef ist_env_Windows
     HWND getWindowHandle() const { return m_hwnd; }
-#endif // __ist_env_Windows__
+#endif // ist_env_Windows
 
 
 private:
     static const int MAX_JOYSTICK_NUM = 4;
 
-#ifdef __ist_env_Windows__
+#ifdef ist_env_Windows
     bool _handleWindowMessage(const WindowMessage& wm);
     friend LRESULT CALLBACK istWndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lParam);
 
     HWND        m_hwnd;
     DEVMODE     m_devmode;
-#endif // __ist_env_Windows__
+#endif // ist_env_Windows
     bool        m_fullscreen;
 
     KeyboardState   m_keyboard_state;

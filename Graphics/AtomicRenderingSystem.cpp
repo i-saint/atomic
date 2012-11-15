@@ -110,9 +110,9 @@ void AtomicRenderingThread::exec()
     }
     m_context = m_device->createContext();
 
-#ifdef __ist_env_Windows__
+#ifdef ist_env_Windows
     wglSwapIntervalEXT(atomicGetConfig()->vsync);
-#endif // __ist_env_Windows__
+#endif // ist_env_Windows
     GraphicResourceManager::intializeInstance();
     AtomicRenderer::initializeInstance();
     m_cond_initialize_complete.signalOne();
@@ -140,7 +140,7 @@ void AtomicRenderingThread::exec()
 
 finalize_section:
     istSafeRelease(m_context);
-#ifdef __i3d_enable_resource_leak_check__
+#ifdef i3d_enable_resource_leak_check
     m_device->printLeakInfo();
 #endif // __i3d_enable_leak_check__
     istSafeRelease(m_device);

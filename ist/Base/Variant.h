@@ -1,5 +1,5 @@
-﻿#ifndef __ist_Base_Variant__
-#define __ist_Base_Variant__
+﻿#ifndef ist_Base_Variant_h
+#define ist_Base_Variant_h
 namespace ist {
 
 
@@ -57,10 +57,10 @@ public:
     }
 };
 
-typedef TVariant<4>   Variant4;
-typedef TVariant<8>   Variant8;
-typedef TVariant<16>  Variant16;
-typedef TVariant<32>  Variant32;
+typedef istAlign(4) TVariant<4>     Variant4;
+typedef istAlign(8) TVariant<8>     Variant8;
+typedef istAlign(16) TVariant<16>   Variant16;
+typedef istAlign(32) TVariant<32>   Variant32;
 typedef TVariant<64>  Variant64;
 typedef TVariant<128> Variant128;
 
@@ -68,4 +68,4 @@ template<size_t B, size_t A> inline TVariant<B>& variant_cast(TVariant<A> &a) { 
 template<size_t B, size_t A> inline const TVariant<B>& variant_cast(const TVariant<A> &a) { return (const TVariant<B>&)a; }
 
 } // namespace ist
-#endif // __ist_Base_Variant__
+#endif // ist_Base_Variant_h

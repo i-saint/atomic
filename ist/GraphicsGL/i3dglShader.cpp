@@ -1,5 +1,5 @@
 ﻿#include "istPCH.h"
-#ifdef __ist_with_OpenGL__
+#ifdef ist_with_OpenGL
 #include "ist/Base.h"
 #include "i3dglShader.h"
 
@@ -222,4 +222,4 @@ void ShaderProgram::setSubroutinePS(GLsizei count, GLuint *indices) { glUniformS
 
 } // namespace i3d
 } // namespace ist
-#endif // __ist_with_OpenGL__
+#endif // ist_with_OpenGL

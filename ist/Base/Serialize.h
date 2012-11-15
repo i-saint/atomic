@@ -1,5 +1,5 @@
-﻿#ifndef __ist_Base_Serialize__
-#define __ist_Base_Serialize__
+﻿#ifndef ist_Base_Serialize_h
+#define ist_Base_Serialize_h
 
 #define istIntrospectionBlock(...) \
     static const ist::MemberInfoCollection& _GetMemberInfo() { \
@@ -137,4 +137,4 @@ namespace ist {
     }
 
 } // namespace ist
-#endif // __ist_Base_Serialize__
+#endif // ist_Base_Serialize_h

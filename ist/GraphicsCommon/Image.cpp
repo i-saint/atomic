@@ -1,6 +1,6 @@
 ﻿#include "istPCH.h"
 #include "ist/GraphicsCommon/Image.h"
-#ifdef __ist_with_gli__
+#ifdef ist_with_gli
 #include "gli/gli.hpp"
 #include "gli/gtx/loader.hpp"
 #endif // __ist_with_gli__
@@ -445,7 +445,7 @@ bool Image::saveTGA(IBinaryStream &bf, const Image::IOConfig &conf) const
 
 // PNG
 
-#ifdef __ist_with_png__
+#ifdef ist_with_png
 namespace
 {
     void png_streambuf_read(png_structp png_ptr, png_bytep data, png_size_t length)
@@ -464,11 +464,11 @@ namespace
     {
     }
 } // namespace
-#endif // __ist_with_png__
+#endif // ist_with_png
 
 bool Image::loadPNG(IBinaryStream &f, const IOConfig &conf)
 {
-#ifdef __ist_with_png__
+#ifdef ist_with_png
     png_structp png_ptr = ::png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
     if(png_ptr==0)
     {
@@ -547,12 +547,12 @@ bool Image::loadPNG(IBinaryStream &f, const IOConfig &conf)
 #else
     istPrint("失敗: png 使用を無効化した設定でビルドされています。\n");
     return false;
-#endif // __ist_with_png__
+#endif // ist_with_png
 }
 
 bool Image::savePNG(IBinaryStream &f, const Image::IOConfig &conf) const
 {
-#ifdef __ist_with_png__
+#ifdef ist_with_png
     png_structp png_ptr = ::png_create_write_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
     if(png_ptr==0)
     {
@@ -589,13 +589,13 @@ bool Image::savePNG(IBinaryStream &f, const Image::IOConfig &conf) const
 #else
     istPrint("失敗: png 使用を無効化した設定でビルドされています。");
     return false;
-#endif // __ist_with_png__
+#endif // ist_with_png
 }
 
 
 // JPG
 
-#ifdef __ist_with_jpeg__
+#ifdef ist_with_jpeg
 namespace
 {
 
@@ -770,14 +770,14 @@ namespace
     }
 
 } // namespace
-#endif // __ist_with_jpeg__
+#endif // ist_with_jpeg
 
 
 bool Image::loadJPG(IBinaryStream &f, const IOConfig &conf)
 {
     clear();
 
-#ifdef __ist_with_jpeg__
+#ifdef ist_with_jpeg
     jpeg_decompress_struct cinfo;
     my_error_mgr jerr;
     JSAMPARRAY buffer;
@@ -818,12 +818,12 @@ bool Image::loadJPG(IBinaryStream &f, const IOConfig &conf)
 #else
     istPrint("失敗: jpg 使用を無効化した設定でビルドされています。");
     return false;
-#endif // __ist_with_jpeg__
+#endif // ist_with_jpeg
 }
 
 bool Image::saveJPG(IBinaryStream &f, const IOConfig &conf) const
 {
-#ifdef __ist_with_jpeg__
+#ifdef ist_with_jpeg
     jpeg_compress_struct cinfo;
     jpeg_error_mgr jerr;
     JSAMPROW row_pointer[1];
@@ -864,16 +864,16 @@ bool Image::saveJPG(IBinaryStream &f, const IOConfig &conf) const
     jpeg_destroy_compress(&cinfo);
     return true;
 
-#else // __ist_with_jpeg__
+#else // ist_with_jpeg
     istPrint("失敗: jpg 使用を無効化した設定でビルドされています。");
     return false;
-#endif // __ist_with_jpeg__
+#endif // ist_with_jpeg
 }
 
 } // namespace ist
 
 
-#ifdef __ist_with_gli__
+#ifdef ist_with_gli
 namespace gli {
 namespace gtx {
 namespace loader_dds10{
@@ -978,7 +978,7 @@ namespace ist {
 
 bool Image::loadDDS( IBinaryStream &f, const IOConfig &conf )
 {
-#ifdef __ist_with_gli__
+#ifdef ist_with_gli
     gli::texture2D tex = gli::gtx::loader_dds10::detail::loadDDS10_ex(f);
     ivec2 dim = ivec2(tex[0].dimensions().x, tex[0].dimensions().y);
     switch(tex.format()) {

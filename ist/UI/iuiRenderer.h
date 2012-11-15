@@ -6,89 +6,49 @@
 namespace ist {
 namespace iui {
 
-
-enum RenderCommandType {
+// render command
+enum RCType {
     RC_Rect,
-    RC_Circle,
     RC_Line,
     RC_Text,
 };
-enum FillMode {
-    FM_Fill,
-    FM_Line,
-};
-struct RCTextOption
+
+
+struct istAlign(16) RCRect
 {
-    Color color;
-    Float size;
-    Float spacing;
-    bool monospace;
-};
+    static void create(RCRect &out, const Rect &rect, const Color &color);
 
-class UIRenderer;
-class IRenderCommand;
-typedef stl::vector<IRenderCommand*> RenderCommands;
-
-
-class istInterModule IRenderCommand
-{
-istMakeDestructable;
-friend class UIRenderer;
-protected:
-    IRenderCommand();
-    virtual ~IRenderCommand();
-public:
-    virtual RenderCommandType getType() const=0;
-};
-
-class istInterModule RCRect : public IRenderCommand
-{
-private:
-    RCRect(const Rect &s, const Color &c, FillMode f);
-public:
-    static RCRect* create(const Rect &r, const Color &c, FillMode f);
-    virtual RenderCommandType getType() const { return RC_Rect; }
-
+    RCType ctype;
     Rect shape;
     Color color;
-    FillMode fillmode;
 };
 
-class istInterModule RCCircle : public IRenderCommand
+struct istAlign(16) RCLine
 {
-private:
-    RCCircle();
-public:
-    static RCCircle* create(const Circle &s, const Color &c, FillMode f);
-    virtual RenderCommandType getType() const { return RC_Circle; }
+    static void create(RCLine &out, Line &shape, const Color &color);
 
-    Circle shape;
-    Color color;
-    FillMode fillmode;
-};
-
-class istInterModule RCLine : public IRenderCommand
-{
-private:
-    RCLine() {}
-public:
-    static RCLine* create(const Line &s, const Color &c);
-    virtual RenderCommandType getType() const { return RC_Line; }
-
+    RCType ctype;
     Line shape;
     Color color;
 };
 
-class istInterModule RCText : public IRenderCommand
+struct istAlign(16) RCText
 {
-private:
-    RCText() {}
-public:
-    static RCText* create();
-    virtual RenderCommandType getType() const { return RC_Text; }
+    static void create(RCText &out,
+        const char *text,
+        size_t textlen,
+        const Color &color,
+        Float size,
+        Float spacing,
+        bool monospace );
 
-    String text;
-    RCTextOption option;
+    RCType ctype;
+    const char *text;
+    uint32 textlen;
+    Color color;
+    Float size;
+    Float spacing;
+    bool monospace;
 };
 
 
@@ -96,9 +56,9 @@ public:
 
 struct VertexT
 {
-    vec2 pos;
-    vec2 texcoord;
+    vec4 pos;
     vec4 color;
+    vec2 texcoord;
 };
 
 class istInterModule UIRenderer : public SharedObject
@@ -107,16 +67,17 @@ public:
     UIRenderer(i3d::Device *dev, i3d::DeviceContext *dc);
     ~UIRenderer();
 
-    void addCommand(IRenderCommand *command);
-    void flush();
-
-    void draw(const RCRect &command);
-    void draw(const RCCircle &command);
-    void draw(const RCLine &command);
-    void draw(const RCText &command);
+    /// 全て thread unsafe です。専用のスレッドで処理する必要があります
+    void begin(); /// 描画コマンド発行の前に呼びます
+    void addCommand(const RCRect &command); /// begin() の後、end() の前に呼ぶ必要があります
+    void addCommand(const RCLine &command); /// begin() の後、end() の前に呼ぶ必要があります
+    void addCommand(const RCText &command); /// begin() の後、end() の前に呼ぶ必要があります
+    void end(); /// この中で実際の描画 (DeviceContext へのコマンドの発行) が行われます
 
 private:
-    void releaseAllCommands();
+    void draw(const RCRect &command);
+    void draw(const RCLine &command);
+    void draw(const RCText &command);
 
     i3d::Device *m_dev;
     i3d::DeviceContext *m_dc;
@@ -130,7 +91,8 @@ private:
     i3d::ShaderProgram *m_shader;
     GLint m_uniform_loc;
 
-    RenderCommands m_commands;
+    stl::vector<char> m_commands;
+    stl::string m_text;
 };
 
 

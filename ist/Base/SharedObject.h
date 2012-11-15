@@ -1,5 +1,5 @@
-﻿#ifndef __ist_Base_SharedObject_h__
-#define __ist_Base_SharedObject_h__
+﻿#ifndef ist_Base_SharedObject_h_
+#define ist_Base_SharedObject_h_
 
 #include "ist/Base/Types.h"
 #include "ist/Base/New.h"
@@ -39,4 +39,4 @@ namespace ist {
 #define istSafeRelease(Obj)             if(Obj){Obj->release();Obj=NULL;}
 #define istSafeAddRef(Obj)              if(Obj){Obj->addRef();}
 
-#endif // __ist_Base_SharedObject_h__
+#endif // ist_Base_SharedObject_h_

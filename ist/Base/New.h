@@ -1,5 +1,5 @@
-﻿#ifndef __ist_Base_New_h__
-#define __ist_Base_New_h__
+﻿#ifndef ist_Base_New_h
+#define ist_Base_New_h
 
 // .lib 内に operator delete を定義した場合、CRT の同名シンボルと競合して曖昧なシンボルエラーになってしまう。
 // そのため、以下のマクロをアプリケーション側コードのどこかに書いて定義してやる必要がある。
@@ -55,17 +55,17 @@ template<class T> inline T& unpointer(T *a) { return *a; }
 #define istSafeFreeA(Obj, A)                if(Obj){unpointer(A).deallocate(Obj); Obj=NULL;}
 
 
-#ifdef __ist_enable_memory_leak_check__
+#ifdef ist_enable_memory_leak_check
     istInterModule void istMemoryLeakCheckerInitialize();
     istInterModule void istMemoryLeakCheckerFinalize();
     istInterModule void istMemoryLeakCheckerPrint();
     istInterModule void istMemoryLeakCheckerEnable(bool v);
-#else // __ist_enable_memory_leak_check__
+#else // ist_enable_memory_leak_check
 #   define istMemoryLeakCheckerInitialize()
 #   define istMemoryLeakCheckerFinalize()
 #   define istMemoryLeakCheckerPrint()
 #   define istMemoryLeakCheckerEnable(...)
-#endif // __ist_enable_memory_leak_check__
+#endif // ist_enable_memory_leak_check
 
-#endif // __ist_Base_New_h__
+#endif // ist_Base_New_h
 #include "ist/Base/Allocator.h"

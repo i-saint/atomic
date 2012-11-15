@@ -33,7 +33,7 @@ private:
     ResourceHandle getDeviceResourceHandle() const;
     void setDeviceResourceHandle(ResourceHandle v);
 
-#ifdef __i3d_enable_resource_leak_check__
+#ifdef i3d_enable_resource_leak_check
 public:
     int32 m_callstack_size;
     void *m_stack[ist_leak_check_max_callstack_size];

@@ -4,7 +4,7 @@
 
 namespace ist {
 
-#if defined(__ist_env_Windows__)
+#if defined(ist_env_Windows)
 
     Condition::Condition()
     {

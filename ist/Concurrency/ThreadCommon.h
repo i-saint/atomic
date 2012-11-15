@@ -1,10 +1,10 @@
 ﻿#ifndef __ist_Concurrency_ThreadCommon_h__
 #define __ist_Concurrency_ThreadCommon_h__
 
-#ifdef __ist_env_Windows__
+#ifdef ist_env_Windows
 #   include <windows.h>
-#else // __ist_env_Windows__
+#else // ist_env_Windows
 #   include <pthread.h>
-#endif // __ist_env_Windows__
+#endif // ist_env_Windows
 
 #endif // __ist_Concurrency_ThreadCommon_h__

@@ -4,7 +4,7 @@
 #ifdef GLSL
     #define ALIGN16 
 #else // GLSL
-    #define ALIGN16 __declspec(align(16))
+    #define ALIGN16 istAlign(16)
 #endif // GLSL
 
 #ifndef GLSL

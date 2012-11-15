@@ -14,7 +14,7 @@
 #include "Sound/isdUtil.h"
 #include "Sound/isduStream.h"
 #include "Sound/isduStreamSource.h"
-#ifdef __ist_with_oggvorbis__
+#ifdef ist_with_oggvorbis
     #include <vorbis/vorbisfile.h>
     #include "Sound/isduOggVorbis.h"
     #pragma comment(lib, "libogg.lib")

@@ -178,7 +178,7 @@ uint64 STDStream::getWritePos() const               { return m_io.pubseekoff(0, 
 void STDStream::setWritePos(uint64 pos, SeekDir dir){ m_io.pubseekoff(pos, GetSTDSeekDir(dir), std::ios::out); }
 
 
-#ifdef __ist_with_zlib__
+#ifdef ist_with_zlib
 GZFileStream::GZFileStream() : m_gz(NULL)
 {
 }
@@ -218,6 +218,6 @@ void GZFileStream::setWritePos(uint64 p, SeekDir dir)    { gzseek(m_gz, (uint32)
 uint64 GZFileStream::read(void* p, uint64 s)        { return gzread(m_gz, p, (uint32)s); }
 uint64 GZFileStream::getReadPos() const                  { return gztell(m_gz); }
 void GZFileStream::setReadPos(uint64 p, SeekDir dir)    { gzseek(m_gz, (uint32)p, GetCRTSeekDir(dir)); }
-#endif // __ist_with_zlib__
+#endif // ist_with_zlib
 
 } // namespace ist

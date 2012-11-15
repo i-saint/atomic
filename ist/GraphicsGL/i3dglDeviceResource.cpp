@@ -1,5 +1,5 @@
 ﻿#include "istPCH.h"
-#ifdef __ist_with_OpenGL__
+#ifdef ist_with_OpenGL
 #include "ist/Base.h"
 #include "ist/Debug.h"
 #include "i3dglTypes.h"
@@ -17,7 +17,7 @@ DeviceResource::DeviceResource(Device *dev)
 {
     setRef(1);
     istSafeAddRef(m_device);
-#ifdef __i3d_enable_resource_leak_check__
+#ifdef i3d_enable_resource_leak_check
     m_callstack_size = GetCallstack(m_stack, _countof(m_stack), 3);
 #endif // __i3d_enable_leak_check__
 }
@@ -53,7 +53,7 @@ GLuint DeviceResource::getHandle() const
 }
 
 
-#ifdef __i3d_enable_resource_leak_check__
+#ifdef i3d_enable_resource_leak_check
 void DeviceResource::printLeakInfo()
 {
     stl::string text = CallstackToSymbolNames(m_stack, m_callstack_size);
@@ -63,4 +63,4 @@ void DeviceResource::printLeakInfo()
 
 } // namespace i3d
 } // namespace ist
-#endif // __ist_with_OpenGL__
+#endif // ist_with_OpenGL

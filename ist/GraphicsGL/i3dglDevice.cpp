@@ -1,5 +1,5 @@
 ﻿#include "istPCH.h"
-#ifdef __ist_with_OpenGL__
+#ifdef ist_with_OpenGL
 #include "ist/Base.h"
 #include "i3dglDevice.h"
 #include "i3dglDeviceContext.h"
@@ -7,13 +7,13 @@
 namespace ist {
 namespace i3dgl {
 
-#ifdef __ist_env_Windows__
+#ifdef ist_env_Windows
 
 Device::Device(HWND hwnd) : m_hwnd(hwnd)
 {
     setRef(1);
     m_hdc = ::GetDC(m_hwnd);
-#ifdef __i3d_enable_resource_leak_check__
+#ifdef i3d_enable_resource_leak_check
 
 #endif // __i3d_enable_leak_check__
 
@@ -70,7 +70,7 @@ Device::~Device()
         m_hdc = NULL;
     }
 }
-#endif // __ist_env_Windows__
+#endif // ist_env_Windows
 
 
 void Device::addResource( DeviceResource *v )
@@ -179,7 +179,7 @@ RenderTarget* Device::createRenderTarget()
 }
 
 
-#ifdef __i3d_enable_resource_leak_check__
+#ifdef i3d_enable_resource_leak_check
 void Device::printLeakInfo()
 {
     for(size_t i=0; i<m_resources.size(); ++i) {
@@ -206,4 +206,4 @@ Device* CreateDevice( HWND hwnd )
 
 } // namespace i3d
 } // namespace ist
-#endif // __ist_with_OpenGL__
+#endif // ist_with_OpenGL

@@ -9,7 +9,7 @@
 
 #ifdef _MASTER
 #else // _MASTER
-    #define __ist_enable_assert__
+    #define ist_enable_assert
     #define __atomic_enable_debug_feature__
     #define __atomic_enable_debug_console__
     #define __atomic_enable_debug_strict_handle_check__

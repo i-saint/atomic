@@ -1,5 +1,5 @@
-﻿#ifndef __ist_TaskScheduler__
-#define __ist_TaskScheduler__
+﻿#ifndef ist_Base_FileIO_h
+#define ist_Base_FileIO_h
 
 
 namespace ist {
@@ -49,4 +49,4 @@ public:
 
 } // namespace ist
 
-#endif // __ist_TaskScheduler__
+#endif // ist_Base_FileIO_h

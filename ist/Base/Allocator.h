@@ -1,7 +1,7 @@
-﻿#ifndef __ist_Base_Allocator__
-#define __ist_Base_Allocator__
+﻿#ifndef ist_Base_Allocator
+#define ist_Base_Allocator
 
-#include "ist/Base/Decl.h"
+#include "ist/Config.h"
 #include "ist/Base/Assert.h"
 #include "ist/Concurrency/Atomic.h"
 #include "ist/Concurrency/Mutex.h"
@@ -176,7 +176,7 @@ public:
     void  deallocate(void* p) { free(p); }
 };
 
-#ifdef __ist_with_EASTL__
+#ifdef ist_with_EASTL
 
 template<class Alloc>
 class _STLAllocatorAdapter
@@ -204,7 +204,7 @@ template<class Alloc> bool operator!=(const _STLAllocatorAdapter<Alloc>& a, cons
 
 #define STLAllocatorAdapter(A, ...) _STLAllocatorAdapter<A>
 
-#else // __ist_with_EASTL__
+#else // ist_with_EASTL
 
 template<typename T, typename Alloc>
 class _STLAllocatorAdapter {
@@ -254,7 +254,7 @@ template<class T, typename Alloc> inline bool operator!=(const _STLAllocatorAdap
 
 #define STLAllocatorAdapter(A, V) _STLAllocatorAdapter<A, V>
 
-#endif // __ist_with_EASTL__
+#endif // ist_with_EASTL
 
 } // namespace ist
-#endif // __ist_Base_Allocator__
+#endif // ist_Base_Allocator

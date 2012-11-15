@@ -1,27 +1,27 @@
 #ifndef __ist_Math_simdvec_h__
 #define __ist_Math_simdvec_h__
 
-#if defined(__ist_env_Windows__)
+#if defined(ist_env_Windows)
 #include <xmmintrin.h>
 #include <emmintrin.h>
 #include <pmmintrin.h>
 #include <tmmintrin.h>
-#elif defined(__ist_env_Android__)
+#elif defined(ist_env_Android)
 #endif
 
 namespace ist {
 
-#if defined(__ist_env_x86__)
+#if defined(ist_env_x86)
     typedef __m128  simdvec4;
     typedef __m128i simdvec4i;
     typedef __m256  simdvec8;
     typedef __m256i simdvec8i;
-#elif defined(__ist_env_ARM__)
+#elif defined(ist_env_ARM32)
     typedef float32x4   simdvec4;
     typedef int32x4     simdvec4i;
 #endif
 
-#if defined(__ist_env_x86__)
+#if defined(ist_env_x86)
     istForceInline simdvec4 simdvec4_set() { return _mm_set1_ps(0.0f); }
     istForceInline simdvec4 simdvec4_set(float v) { return _mm_set1_ps(v); }
     istForceInline simdvec4 simdvec4_set(float _x, float _y, float _z, float _w) { return _mm_set_ps(_x, _y, _z, _w); }
@@ -64,7 +64,7 @@ namespace ist {
     istForceInline simdvec4i simd_max(simdvec4i a, simdvec4i b)                 { return _mm_max_epi32(a, b); }
     istForceInline simdvec4i simd_abs(simdvec4i a)                              { return _mm_abs_epi32(a); }
 
-#elif defined(__ist_env_ARM__)
+#elif defined(ist_env_ARM32)
     istForceInline simdvec4 operator+(simdvec4 a, simdvec4 b)               { return vaddq_f32(a, b); }
     istForceInline simdvec4 operator-(simdvec4 a, simdvec4 b)               { return vsubq_f32(a, b); }
     istForceInline simdvec4 operator*(simdvec4 a, simdvec4 b)               { return vmulq_f32(a, b); }

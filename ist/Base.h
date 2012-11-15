@@ -2,7 +2,7 @@
 #define __ist_Base_h__
 
 #include <stdint.h>
-#include "Base/Decl.h"
+#include "Config.h"
 #include "Base/CRTex.h"
 #include "Base/Types.h"
 #include "Base/Allocator.h"

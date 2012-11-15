@@ -225,9 +225,6 @@
     <ClInclude Include="ist\Base\Generics.h">
       <Filter>Base</Filter>
     </ClInclude>
-    <ClInclude Include="ist\Base\Decl.h">
-      <Filter>Base</Filter>
-    </ClInclude>
     <ClInclude Include="ist\Concurrency\Mutex.h">
       <Filter>Concurrency</Filter>
     </ClInclude>

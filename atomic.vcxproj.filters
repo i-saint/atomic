@@ -19,6 +19,9 @@
     <Filter Include="Game\Entity">
       <UniqueIdentifier>{1f1a3bf3-079c-4653-90b2-5e697bd4f0df}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DynamicObjLoader">
+      <UniqueIdentifier>{95f71aba-a2cf-41ed-b005-48da179efb62}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game\AtomicApplication.cpp">
@@ -109,6 +112,9 @@
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="MemoryLeakBuster2.cpp" />
+    <ClCompile Include="DynamicObjLoader\DynamicObjLoader.cpp">
+      <Filter>DynamicObjLoader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h">
@@ -221,6 +227,9 @@
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="FunctionID.h" />
+    <ClInclude Include="DynamicObjLoader\DynamicObjLoader.h">
+      <Filter>DynamicObjLoader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="GPGPU\SPH_internal.cuh">

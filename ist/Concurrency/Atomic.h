@@ -4,7 +4,7 @@
 
 namespace ist {
 
-#if defined(__ist_env_Windows__)
+#if defined(ist_env_Windows)
 class istInterModule atomic_int32
 {
 public:
@@ -51,9 +51,9 @@ private:
     volatile LONGLONG m_value;
 };
 
-#if defined(__ist_env_x64__)
+#if defined(ist_env_x64)
 typedef atomic_int64 atomic_ptrint;
-#elif defined(__ist_env_x86__)
+#elif defined(ist_env_x86)
 typedef atomic_int32 atomic_ptrint;
 #endif
 
@@ -84,7 +84,7 @@ private:
 
 typedef atomic_int32 atomic_ptr;
 
-#endif // __ist_env_Windows__
+#endif // ist_env_Windows
 
 } // namespace ist
 

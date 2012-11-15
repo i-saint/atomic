@@ -15,7 +15,7 @@ namespace atomic {
 
 void CreateFloorQuad( VertexArray *va, Buffer *&vbo, vec4 pos, vec4 size )
 {
-    struct __declspec(align(16)) vertex_t
+    struct istAlign(16) vertex_t
     {
         vec4 pos;
         vec4 normal;
@@ -45,7 +45,7 @@ void CreateSphere(
     VertexArray *va, Buffer *&vbo, Buffer *&ibo,
     float32 radius, uint32 div_xz, uint32 div_y)
 {
-    struct __declspec(align(16)) vertex_t
+    struct istAlign(16) vertex_t
     {
         vec4 pos;
         vec4 normal;
@@ -98,7 +98,7 @@ void CreateSphere(
 
 void CreateScreenQuad( VertexArray *va, Buffer *&vbo )
 {
-    struct __declspec(align(16)) vertex_t
+    struct istAlign(16) vertex_t
     {
         vec2 pos;
         vec2 tex;
@@ -120,7 +120,7 @@ void CreateScreenQuad( VertexArray *va, Buffer *&vbo )
 
 void CreateBloomLuminanceQuads( VertexArray *va, Buffer *&vbo )
 {
-    struct __declspec(align(16)) vertex_t
+    struct istAlign(16) vertex_t
     {
         vec2 pos;
         vec2 tex;
@@ -160,7 +160,7 @@ void CreateBloomBlurQuads( VertexArray *va, Buffer *&vbo )
     const vec2 tp[4] = {vec2(0.0, 0.0), vec2(0.5,  0.0), vec2(0.75,  0.0 ), vec2(0.875,  0.0)};
     const vec2 ts[4] = {vec2(0.5, 1.0), vec2(0.25, 0.5), vec2(0.125, 0.25), vec2(0.0625, 0.125)};
 
-    struct __declspec(align(16)) vertex_t
+    struct istAlign(16) vertex_t
     {
         vec2 pos;
         vec2 tex;
@@ -204,7 +204,7 @@ void CreateBloomCompositeQuad( VertexArray *va, Buffer *&vbo )
     const vec2 tp[4] = {vec2(0.0, 0.0), vec2(0.5,  0.0), vec2(0.75,  0.0 ), vec2(0.875,  0.0)};
     const vec2 ts[4] = {vec2(0.5, 1.0), vec2(0.25, 0.5), vec2(0.125, 0.25), vec2(0.0625, 0.125)};
 
-    struct __declspec(align(16)) vertex_t
+    struct istAlign(16) vertex_t
     {
         vec2 pos;
         vec2 tex[4];
@@ -241,7 +241,7 @@ void CreateCube( VertexArray *va, Buffer *&vbo, float32 half_len )
         vec4( 0.0f, 0.0f,-1.0f, 0.0f),
     };
 
-    struct __declspec(align(16)) vertex_t
+    struct istAlign(16) vertex_t
     {
         vec4 pos;
         vec4 normal;
@@ -344,7 +344,7 @@ void CreateDistanceFieldQuads( VertexArray *va, Buffer *&quad_model, Buffer *&qu
     vec3 cell   = size / div;
 
     {
-        struct __declspec(align(16)) vertex_t
+        struct istAlign(16) vertex_t
         {
             vec4 pos;
         } vertices[4] = {

@@ -1,7 +1,7 @@
 ﻿#ifndef __ist_i3dgl_Assert__
 #define __ist_i3dgl_Assert__
 
-#ifdef __i3d_enable_assert__
+#ifdef i3d_enable_assert
     #include "../Base/Assert.h"
 
     #define istCheckGLError() \

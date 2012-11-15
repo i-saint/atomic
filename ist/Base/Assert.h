@@ -1,7 +1,7 @@
-﻿#ifndef __ist_Assert__
-#define __ist_Assert__
+﻿#ifndef ist_Base_Assert_h
+#define ist_Base_Assert_h
 
-#ifdef __ist_enable_assert__
+#ifdef ist_enable_assert
 
 #define istPrint(...) ist::DebugPrint(__FILE__, __LINE__, __VA_ARGS__)
 #define istAssert(expression, ...)\
@@ -32,12 +32,12 @@ namespace ist
 
 } // namespace ist
 
-#else // __ist_enable_assert__
+#else // ist_enable_assert
 
 #define istPuts(str)
 #define istPrint(...)
 #define istAssert(...)
 
-#endif // __ist_enable_assert__
+#endif // ist_enable_assert
 
-#endif // __ist_Assert__
+#endif // ist_Base_Assert_h

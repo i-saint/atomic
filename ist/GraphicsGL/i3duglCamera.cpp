@@ -1,5 +1,5 @@
 ﻿#include "istPCH.h"
-#ifdef __ist_with_OpenGL__
+#ifdef ist_with_OpenGL
 #include "ist/Base.h"
 #include "ist/GraphicsGL/i3duglCamera.h"
 #include "ist/GraphicsGL/i3dglTypes.h"
@@ -41,4 +41,4 @@ void PerspectiveCamera::updateMatrix()
 
 } // namespace i3d
 } // namespace ist
-#endif // __ist_with_OpenGL__
+#endif // ist_with_OpenGL

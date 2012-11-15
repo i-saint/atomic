@@ -6,21 +6,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SPH_world.cpp">
-      <Filter>SPH</Filter>
-    </ClCompile>
     <ClCompile Include="tasksys.cpp">
       <Filter>SPH</Filter>
     </ClCompile>
     <ClCompile Include="SPH_types.cpp">
       <Filter>SPH</Filter>
     </ClCompile>
+    <ClCompile Include="SPH_dol.cpp">
+      <Filter>SPH</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SPH_data.h">
-      <Filter>SPH</Filter>
-    </ClInclude>
-    <ClInclude Include="SPH_world.h">
       <Filter>SPH</Filter>
     </ClInclude>
     <ClInclude Include="ispc_vectormath.h">

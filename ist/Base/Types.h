@@ -1,5 +1,5 @@
-﻿#ifndef __ist_Base_Types__
-#define __ist_Base_Types__
+﻿#ifndef ist_Base_Types_h
+#define ist_Base_Types_h
 
 #define GLM_FORCE_SSE2
 #include <glm/glm.hpp>
@@ -40,4 +40,4 @@ typedef glm::simdMat4   simdmat4;
 
 } // namespace ist
 
-#endif // __ist_Base_Types__
+#endif // ist_Base_Types_h
