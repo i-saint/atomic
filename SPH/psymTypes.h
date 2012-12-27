@@ -35,16 +35,14 @@ struct Particle
 {
     simdvec4 position;
     simdvec4 velocity;
-    union {
-        struct {
-            float32 density;
-            uint32 hash;
-            int32 hit;
-            float32 lifetime;
-        } params;
-        simdvec4 paramsv;
+    struct {
+        float32 energy;
+        float32 density;
+        uint32 hash;
+        uint32 hit_to;
     };
 };
+
 
 __declspec(align(16)) 
 class World
@@ -63,8 +61,8 @@ public:
     void addForce(const BoxForce &v);
     void addParticles(const Particle *p, size_t num_particles);
 
-    Particle* getParticles();
-    size_t getNumParticles();
+    const Particle* getParticles() const;
+    size_t getNumParticles() const;
 
 public:
     Particle particles[PSYM_MAX_PARTICLE_NUM];

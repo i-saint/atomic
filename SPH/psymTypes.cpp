@@ -66,8 +66,8 @@ void SoAnize( int32 num, const Particle *particles, ispc::Particle_SOA8 *out )
         simd_store(out[bi].vy+4, soav.y());
         simd_store(out[bi].vz+4, soav.z());
 
-        simd_store(out[bi].hit+0, _mm_set1_epi32(0));
-        simd_store(out[bi].hit+4, _mm_set1_epi32(0));
+        simd_store(out[bi].hit_to+0, _mm_set1_epi32(0));
+        simd_store(out[bi].hit_to+4, _mm_set1_epi32(0));
 
         //// 不要
         //soas = simdvec4_set(particles[i+0].params.density, particles[i+1].params.density, particles[i+2].params.density, particles[i+3].params.density);
@@ -111,8 +111,8 @@ void AoSnize( int32 num, const ispc::Particle_SOA8 *particles, Particle *out )
         for(int32 ei=0; ei<e; ++ei) {
             out[i+ei].position = aos_pos[ei/4][ei%4];
             out[i+ei].velocity = aos_vel[ei/4][ei%4];
-            out[i+ei].params.density = particles[bi].density[ei];
-            out[i+ei].params.hit = particles[bi].hit[ei];
+            out[i+ei].density = particles[bi].density[ei];
+            out[i+ei].hit_to = particles[bi].hit_to[ei];
         }
     }
 }
@@ -124,7 +124,7 @@ inline uint32 GenHash(const Particle &particle)
     const float *pos4 = (const float*)&particle.position;
     uint32 r=(clamp<int32>(int32((pos4[0]-PSYM_GRID_POS)*rcpcellsize), 0, (PSYM_GRID_DIV-1)) << (PSYM_GRID_DIV_BITS*0)) |
              (clamp<int32>(int32((pos4[1]-PSYM_GRID_POS)*rcpcellsize), 0, (PSYM_GRID_DIV-1)) << (PSYM_GRID_DIV_BITS*1));
-    if(particle.params.lifetime==0.0f) { r |= 0x80000000; }
+    if(particle.energy==0.0f) { r |= 0x80000000; }
     return r;
 }
 
@@ -139,7 +139,7 @@ World::World()
     , particle_lifetime(1800.0f)
 {
     for(uint32 i=0; i<_countof(particles); ++i) {
-        particles[i].params.lifetime = 0.0f;
+        particles[i].energy = 0.0f;
     }
 }
 
@@ -168,14 +168,14 @@ void World::update(float32 dt)
     tbb::parallel_for(tbb::blocked_range<int>(0, (int32)num_active_particles, 1024),
         [&](const tbb::blocked_range<int> &r) {
             for(int i=r.begin(); i!=r.end(); ++i) {
-                particles[i].params.lifetime = std::max<float32>(particles[i].params.lifetime-dt, 0.0f);
-                particles[i].params.hash = GenHash(particles[i]);
+                particles[i].energy = std::max<float32>(particles[i].energy-dt, 0.0f);
+                particles[i].hash = GenHash(particles[i]);
             }
         });
 
     // パーティクルを hash で sort
     tbb::parallel_sort(particles, particles+num_active_particles, 
-        [&](const Particle &a, const Particle &b) { return a.params.hash < b.params.hash; } );
+        [&](const Particle &a, const Particle &b) { return a.hash < b.hash; } );
 
     // パーティクルがどの grid に入っているかを算出
     tbb::parallel_for(tbb::blocked_range<int>(0, (int32)num_active_particles, 1024),
@@ -185,9 +185,9 @@ void World::update(float32 dt)
                 uint32 G_ID_PREV = G_ID-1;
                 uint32 G_ID_NEXT = G_ID+1;
 
-                uint32 cell = particles[G_ID].params.hash;
-                uint32 cell_prev = (G_ID_PREV==-1) ? -1 : particles[G_ID_PREV].params.hash;
-                uint32 cell_next = (G_ID_NEXT==PSYM_MAX_PARTICLE_NUM) ? -2 : particles[G_ID_NEXT].params.hash;
+                uint32 cell = particles[G_ID].hash;
+                uint32 cell_prev = (G_ID_PREV==-1) ? -1 : particles[G_ID_PREV].hash;
+                uint32 cell_next = (G_ID_NEXT==PSYM_MAX_PARTICLE_NUM) ? -2 : particles[G_ID_NEXT].hash;
                 if((cell & 0x80000000) != 0) { // 最上位 bit が立っていたら死んでいる扱い
                     if((cell_prev & 0x80000000) == 0) { // 
                         num_active_particles = G_ID;
@@ -204,10 +204,10 @@ void World::update(float32 dt)
             }
     });
     {
-        if( (particles[0].params.hash & 0x80000000) != 0 ) {
+        if( (particles[0].hash & 0x80000000) != 0 ) {
             num_active_particles = 0;
         }
-        else if( (particles[PSYM_MAX_PARTICLE_NUM-1].params.hash & 0x80000000) == 0 ) {
+        else if( (particles[PSYM_MAX_PARTICLE_NUM-1].hash & 0x80000000) == 0 ) {
             num_active_particles = PSYM_MAX_PARTICLE_NUM;
         }
     }
@@ -356,13 +356,13 @@ void World::addParticles( const Particle *p, size_t num )
     num = std::min<size_t>(num, PSYM_MAX_PARTICLE_NUM-num_active_particles);
     for(size_t i=0; i<num; ++i) {
         particles[num_active_particles+i] = p[i];
-        particles[num_active_particles+i].params.lifetime = particle_lifetime;
+        particles[num_active_particles+i].energy = particle_lifetime;
     }
     num_active_particles += num;
 }
 
-Particle* World::getParticles() { return particles; }
-size_t World::getNumParticles() { return num_active_particles; }
+const Particle* World::getParticles() const { return particles; }
+size_t World::getNumParticles() const       { return num_active_particles; }
 
 
 } // namespace psym

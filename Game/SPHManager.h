@@ -51,6 +51,10 @@ public:
     void addFluid(PSET_RID psid, const mat4 &t);
 };
 
+class Task_FractionUpdateAsync2;
+class Task_FractionDraw2;
+class Task_FractionUpdateAsync2;
+
 class SPHManager2 : public IAtomicGameModule
 {
 public:
@@ -70,15 +74,19 @@ public:
     void taskAsyncupdate(float32 dt);
 
     // rigid/force は毎フレームクリアされるので、毎フレーム突っ込む必要がある
-    void addRigid(const psym::RigidPlane &s);
-    void addRigid(const psym::RigidSphere &s);
-    void addRigid(const psym::RigidBox &s);
+    void addRigid(const CollisionEntity &v);
+    void addRigid(const psym::RigidPlane &v);
+    void addRigid(const psym::RigidSphere &v);
+    void addRigid(const psym::RigidBox &v);
     void addForce(const psym::PointForce &v);
     void addFluid(const psym::Particle *particles, uint32 num);
     void addFluid(PSET_RID psid, const mat4 &t);
 
 private:
     psym::World m_world;
+    stl::vector<Task*>  m_fluid_tasks;
+    Task*               m_asyncupdate_task;
+    uint32              m_current_fluid_task;
 };
 
 

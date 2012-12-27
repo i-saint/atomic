@@ -4,25 +4,24 @@
 namespace ist {
 namespace iui {
 
-    class UIRenderer;
+class UIRenderer;
 
+class istInterModule UISystem : public SharedObject
+{
+public:
+    UISystem();
+    ~UISystem();
 
-    class istInterModule UISystem : public SharedObject
-    {
-    public:
-        UISystem();
-        ~UISystem();
+    void update(Float dt);
+    void draw();
 
-        void update(Float dt);
-        void draw();
+    UIRenderer* getRenderer() const { return m_renderer; }
+    Widget* getWidget() const { return m_widget; }
 
-        UIRenderer* getRenderer() const { return m_renderer; }
-        Widget* getWidget() const { return m_widget; }
-
-    private:
-        UIRenderer *m_renderer;
-        Widget *m_widget;
-    };
+private:
+    UIRenderer *m_renderer;
+    Widget *m_widget;
+};
 
 } // namespace iui
 } // namespace ist

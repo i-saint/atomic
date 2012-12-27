@@ -174,22 +174,74 @@ void SPHManager::addFluid(PSET_RID psid, const mat4 &t)
 
 
 
+
+
+
+class ComputeFluidParticle2 : public AtomicTask
+{
+private:
+    PSET_RID m_psid;
+    mat4 m_mat;
+    stl::vector<psym::Particle> m_fluid;
+
+public:
+    void setup(PSET_RID psid, const mat4 &m)
+    {
+        m_psid = psid;
+        m_mat = m;
+    }
+
+    void exec()
+    {
+        const ParticleSet *rc = atomicGetParticleSet(m_psid);
+        uint32 num_particles            = rc->getNumParticles();
+        const PSetParticle *particles   = rc->getParticleData();
+        m_fluid.resize(num_particles);
+
+        simdvec4 zero(vec4(0.0f, 0.0f, 0.0f, 0.0f));
+        simdmat4 t(m_mat);
+        for(uint32 i=0; i<num_particles; ++i) {
+            simdvec4 p(vec4(particles[i].position, 1.0f));
+            vec4 pos = glm::vec4_cast(t * p);
+            pos.z = stl::max<float32>(pos.z, 0.0f);
+            m_fluid[i].position = reinterpret_cast<const psym::simdvec4&>(pos);
+            m_fluid[i].velocity = reinterpret_cast<const psym::simdvec4&>(zero);
+            m_fluid[i].energy   = 100.0f;
+            m_fluid[i].density  = 0.0f;
+        }
+    }
+
+    const stl::vector<psym::Particle>& getData() { return m_fluid; }
+};
+
+class SPHAsyncUpdateTask2 : public AtomicTask
+{
+private:
+    SPHManager2 *m_obj;
+    float32 m_arg;
+
+public:
+    SPHAsyncUpdateTask2(SPHManager2 *v) : m_obj(v) {}
+    void setup(float32 v) { m_arg=v; }
+
+    void exec()
+    {
+        m_obj->taskAsyncupdate(m_arg);
+    }
+};
+
 SPHManager2::SPHManager2()
+    : m_current_fluid_task(0)
+    , m_asyncupdate_task(NULL)
 {
 
 }
 
 SPHManager2::~SPHManager2()
 {
-
-}
-
-void SPHManager2::serialize( Serializer& s ) const
-{
-}
-
-void SPHManager2::deserialize( Deserializer& s )
-{
+    for(uint32 i=0; i<m_fluid_tasks.size(); ++i) {
+        istDelete(m_fluid_tasks[i]);
+    }
 }
 
 void SPHManager2::frameBegin()
@@ -199,11 +251,20 @@ void SPHManager2::frameBegin()
 
 void SPHManager2::update( float32 dt )
 {
+    const psym::Particle *feedback = m_world.getParticles();
+    uint32 n = m_world.getNumParticles();
+    for(uint32 i=0; i<n; ++i) {
+        const psym::Particle &m = feedback[i];
+        if(IEntity *e = atomicGetEntity(m.hit_to)) {
+            atomicCall(e, eventFluid, &m);
+        }
+    }
 }
 
 void SPHManager2::asyncupdate( float32 dt )
 {
-    m_world.update(dt);
+    static_cast<SPHAsyncUpdateTask*>(m_asyncupdate_task)->setup(dt);
+    TaskScheduler::getInstance()->enqueue(m_asyncupdate_task);
 }
 
 void SPHManager2::draw()
@@ -213,17 +274,27 @@ void SPHManager2::draw()
 
 void SPHManager2::frameEnd()
 {
-
+    m_asyncupdate_task->wait();
 }
 
 void SPHManager2::copyParticlesToGL()
 {
-
+    // todo
 }
 
 void SPHManager2::taskAsyncupdate( float32 dt )
 {
+    for(uint32 i=0; i<m_current_fluid_task; ++i) {
+        m_fluid_tasks[i]->wait();
+        const stl::vector<psym::Particle> &fluid = static_cast<ComputeFluidParticle2*>(m_fluid_tasks[i])->getData();
+        m_world.addParticles(&fluid[0], fluid.size());
+    }
+    m_world.update(dt);
+}
 
+void SPHManager2::addRigid(const CollisionEntity &v)
+{
+    // todo
 }
 
 void SPHManager2::addRigid( const psym::RigidPlane &v )     { m_world.addRigid(v); }
@@ -238,7 +309,12 @@ void SPHManager2::addFluid( const psym::Particle *particles, uint32 num )
 
 void SPHManager2::addFluid(PSET_RID psid, const mat4 &t)
 {
-
+    while(m_fluid_tasks.size()<=m_current_fluid_task) {
+        m_fluid_tasks.push_back( istNew(ComputeFluidParticle)() );
+    }
+    ComputeFluidParticle *task = static_cast<ComputeFluidParticle*>(m_fluid_tasks[m_current_fluid_task++]);
+    task->setup(psid, t);
+    TaskScheduler::getInstance()->enqueue(task);
 }
 
 } // namespace atomic

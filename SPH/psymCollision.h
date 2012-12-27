@@ -3,23 +3,41 @@
 
 #include "ispc_vectormath.h"
 #include "psymConst.h"
+typedef unsigned int32 uint32;
 
 
-struct RigidSphere
+struct BoundingBox
 {
-    float x, y, z;
-    float radius;
+    float bl_x, bl_y, bl_z;
+    float ur_x, ur_y, ur_z;
 };
-
-struct RigidPlane
-{
+struct Plane {
     float nx, ny, nz;
     float distance;
 };
 
+
+struct RigidSphere
+{
+    uint32 id;
+    BoundingBox bb;
+    float x, y, z;
+    float radius;
+};
+
 struct RigidBox
 {
-    RigidPlane planes[6];
+    uint32 id;
+    BoundingBox bb;
+    Plane planes[6];
+};
+
+struct RigidPlane
+{
+    uint32 id;
+    BoundingBox bb;
+    float nx, ny, nz;
+    float distance;
 };
 
 
@@ -39,7 +57,7 @@ struct BoxForce
 {
     float nx, ny, nz;
     float strength;
-    RigidBox box;
+    Plane planes[6];
 };
 
 
@@ -48,7 +66,7 @@ struct Particle
     float   x, y, z;
     float   vx, vy, vz;
     float   density;
-    int32   hit;
+    uint32  hit_to;
 };
 
 struct Force

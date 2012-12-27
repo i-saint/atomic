@@ -3,8 +3,10 @@
 
 #include "Util.h"
 #include "Game/Collision.h"
+#include "SPH/psymTypes.h"
 
 struct sphFluidMessage;
+typedef psym::Particle FluidMessage;
 
 namespace atomic {
 

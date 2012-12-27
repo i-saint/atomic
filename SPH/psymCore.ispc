@@ -8,7 +8,6 @@
 #include "ispc_vectormath.h"
 #include "psymConst.h"
 #include "psymCollision.h"
-typedef unsigned int32 uint32;
 
 
 #define SPH_PRESSURE_STIFFNESS 200.0f
@@ -37,13 +36,15 @@ static soa<8> Force g_forces[PSYM_MAX_PARTICLE_NUM];
 
 
 
-#define repulse(p, f, n, d)\
+#define repulse(p, f, n, d, shape)\
     {\
-        p.hit++;\
+        p.hit_to = shape.id;\
         vec3 accel = get_accel(f);\
         accel += n * (-d * PSYM_WALL_STIFFNESS);\
         set_accel(f, accel);\
     }
+
+export void Dummy(uniform Plane planes[]) {}
 
 export void sphProcessCollision(
     soa<8> Particle all_particles[],
@@ -74,7 +75,7 @@ export void sphProcessCollision(
             float distance = length3(diff) - sphere_radius;
             if(distance < 0.0f) {
                 vec3 dir = diff / distance;
-                repulse(particles[i], forces[i], dir, distance);
+                repulse(particles[i], forces[i], dir, distance, shape);
             }
         }
     }
@@ -88,7 +89,7 @@ export void sphProcessCollision(
             vec3 particles_pos = get_pos(particles[i]);
             float distance = dot3(particles_pos, plane_normal) + plane_distance;
             if(distance < 0.0f) {
-                repulse(particles[i], forces[i], plane_normal, distance);
+                repulse(particles[i], forces[i], plane_normal, distance, shape);
             }
         }
     }
@@ -114,7 +115,7 @@ export void sphProcessCollision(
                 }
             }
             if(inside==6) {
-                repulse(particles[i], forces[i], min_normal, min_distance);
+                repulse(particles[i], forces[i], min_normal, min_distance, shape);
             }
         }
     }
