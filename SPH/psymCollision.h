@@ -2,24 +2,24 @@
 #define __SPH_collision_h__
 
 #include "ispc_vectormath.h"
-#include "SPH_const.h"
+#include "psymConst.h"
 
 
-struct Sphere
+struct RigidSphere
 {
     float x, y, z;
     float radius;
 };
 
-struct Plane
+struct RigidPlane
 {
     float nx, ny, nz;
     float distance;
 };
 
-struct Box
+struct RigidBox
 {
-    Plane planes[6];
+    RigidPlane planes[6];
 };
 
 
@@ -39,7 +39,7 @@ struct BoxForce
 {
     float nx, ny, nz;
     float strength;
-    Box box;
+    RigidBox box;
 };
 
 

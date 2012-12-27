@@ -4,6 +4,7 @@
 #include "GPGPU/SPH.cuh"
 #include "Task.h"
 #include "Graphics/ResourceManager.h"
+#include "SPH/psymTypes.h"
 
 namespace atomic {
 
@@ -50,6 +51,35 @@ public:
     void addFluid(PSET_RID psid, const mat4 &t);
 };
 
+class SPHManager2 : public IAtomicGameModule
+{
+public:
+    SPHManager2();
+    ~SPHManager2();
+
+    void serialize(Serializer& s) const;
+    void deserialize(Deserializer& s);
+
+    void frameBegin();
+    void update(float32 dt);
+    void asyncupdate(float32 dt);
+    void draw();
+    void frameEnd();
+
+    void copyParticlesToGL();
+    void taskAsyncupdate(float32 dt);
+
+    // rigid/force は毎フレームクリアされるので、毎フレーム突っ込む必要がある
+    void addRigid(const psym::RigidPlane &s);
+    void addRigid(const psym::RigidSphere &s);
+    void addRigid(const psym::RigidBox &s);
+    void addForce(const psym::PointForce &v);
+    void addFluid(const psym::Particle *particles, uint32 num);
+    void addFluid(PSET_RID psid, const mat4 &t);
+
+private:
+    psym::World m_world;
+};
 
 
 

@@ -124,6 +124,17 @@
       <Emulation Condition="'$(Configuration)|$(Platform)'=='Intel_SSA|Win32'">false</Emulation>
     </CudaCompile>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="ist.vcxproj">
+      <Project>{8d4b1790-f166-4122-9ce6-8af10214ed82}</Project>
+    </ProjectReference>
+    <ProjectReference Include="shader.vcxproj">
+      <Project>{9ef1b96e-375a-46d3-9181-882e6eb3da6a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="SPH\SPH.vcxproj">
+      <Project>{8835b2e2-7ee3-4705-b31c-15c7c5091d34}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A8F5B4BE-0942-4A93-BBFE-0716BEAC2551}</ProjectGuid>
     <RootNamespace>atomic_cuda</RootNamespace>
@@ -202,7 +213,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>./;external;external/tbb/include;$(TargetDir);$(CUDA_INC_PATH);$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;$(NVSDKCOMPUTE_ROOT)/C/common/inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./;$(TargetDir);external;external/tbb/include;$(TargetDir);$(CUDA_INC_PATH);$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;$(NVSDKCOMPUTE_ROOT)/C/common/inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <MinimalRebuild>false</MinimalRebuild>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
@@ -262,7 +273,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>./;external;external/tbb/include;$(TargetDir);$(CUDA_INC_PATH);$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;$(NVSDKCOMPUTE_ROOT)/C/common/inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./;$(IntDir);external;external/tbb/include;$(TargetDir);$(CUDA_INC_PATH);$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;$(NVSDKCOMPUTE_ROOT)/C/common/inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -297,7 +308,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>./;external;external/tbb/include;$(TargetDir);$(CUDA_INC_PATH);$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;$(NVSDKCOMPUTE_ROOT)/C/common/inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./;$(TargetDir);external;external/tbb/include;$(TargetDir);$(CUDA_INC_PATH);$(NVSDKCOMPUTE_ROOT)/CUDALibraries/common/inc;$(NVSDKCOMPUTE_ROOT)/C/common/inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PreprocessorDefinitions>DisableMemoryLeakBuster;ist_env_Master;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>

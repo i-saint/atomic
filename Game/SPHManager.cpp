@@ -8,8 +8,8 @@
 #include "Game/World.h"
 #include "Game/EntityQuery.h"
 #include "Game/Entity.h"
-#include "Game/SPHManager.h"
 #include "Game/Collision.h"
+#include "Game/SPHManager.h"
 
 namespace atomic {
 
@@ -169,6 +169,76 @@ void SPHManager::addFluid(PSET_RID psid, const mat4 &t)
     ComputeFluidParticle *task = static_cast<ComputeFluidParticle*>(m_fluid_tasks[m_current_fluid_task++]);
     task->setup(psid, t);
     TaskScheduler::getInstance()->enqueue(task);
+}
+
+
+
+
+SPHManager2::SPHManager2()
+{
+
+}
+
+SPHManager2::~SPHManager2()
+{
+
+}
+
+void SPHManager2::serialize( Serializer& s ) const
+{
+}
+
+void SPHManager2::deserialize( Deserializer& s )
+{
+}
+
+void SPHManager2::frameBegin()
+{
+    m_world.clearRigidsAndForces();
+}
+
+void SPHManager2::update( float32 dt )
+{
+}
+
+void SPHManager2::asyncupdate( float32 dt )
+{
+    m_world.update(dt);
+}
+
+void SPHManager2::draw()
+{
+
+}
+
+void SPHManager2::frameEnd()
+{
+
+}
+
+void SPHManager2::copyParticlesToGL()
+{
+
+}
+
+void SPHManager2::taskAsyncupdate( float32 dt )
+{
+
+}
+
+void SPHManager2::addRigid( const psym::RigidPlane &v )     { m_world.addRigid(v); }
+void SPHManager2::addRigid( const psym::RigidSphere &v )    { m_world.addRigid(v); }
+void SPHManager2::addRigid( const psym::RigidBox &v )       { m_world.addRigid(v); }
+void SPHManager2::addForce( const psym::PointForce &v )     { m_world.addForce(v); }
+
+void SPHManager2::addFluid( const psym::Particle *particles, uint32 num )
+{
+    m_world.addParticles(particles, num);
+}
+
+void SPHManager2::addFluid(PSET_RID psid, const mat4 &t)
+{
+
 }
 
 } // namespace atomic

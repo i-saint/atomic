@@ -1,7 +1,8 @@
-#include "SPH_types.h"
-
+#include "psymTypes.h"
 
 DOL_Module
+
+namespace psym {
 
 DOL_Export void impIntegrateDOL(ispc::Particle * all_particles, ispc::GridData * grid, int32_t xi, int32_t yi)
 {
@@ -25,9 +26,9 @@ DOL_Export void sphIntegrateDOL(ispc::Particle * all_particles, ispc::GridData *
 
 DOL_Export void sphProcessCollisionDOL(
     ispc::Particle * all_particles, ispc::GridData * grid, int32_t xi, int32_t yi,
-    ispc::Sphere * spheres, int32_t num_spheres,
-    ispc::Plane * planes, int32_t num_planes,
-    ispc::Box * boxes, int32_t num_boxes )
+    ispc::RigidSphere * spheres, int32_t num_spheres,
+    ispc::RigidPlane * planes, int32_t num_planes,
+    ispc::RigidBox * boxes, int32_t num_boxes )
 {
     ispc::sphProcessCollision(all_particles, grid, xi, yi, spheres, num_spheres, planes, num_planes, boxes, num_boxes);
 }
@@ -50,6 +51,8 @@ DOL_Export void sphUpdateForceDOL(ispc::Particle * all_particles, ispc::GridData
 {
     ispc::sphUpdateForce(all_particles, grid, xi, yi);
 }
+
+} // namespace psym
 
 
 DOL_OnLoad({

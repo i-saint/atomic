@@ -1,4 +1,7 @@
-﻿#include <windows.h>
+﻿#ifndef ist_Math_soavec_h
+#define ist_Math_soavec_h
+
+#include <windows.h>
 #include "ist/Base.h"
 
 #define SSE_SHUFFLE(w,x,y,z) _MM_SHUFFLE(z,y,x,w)
@@ -853,3 +856,4 @@ template<class T> istForceInline soavec48 soa_normalize48(const T &a) { return s
 #undef DECLARE_SOATYPES
 
 } // namespace ist
+#endif // ist_Math_soavec_h

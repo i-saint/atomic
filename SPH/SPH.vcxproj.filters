@@ -1,41 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="SPH">
-      <UniqueIdentifier>{9794e2c2-9438-4866-9af6-b11c99a9f380}</UniqueIdentifier>
-    </Filter>
+    <ClCompile Include="psymDOL.cpp" />
+    <ClCompile Include="psymTypes.cpp" />
+    <ClCompile Include="tasksys.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="tasksys.cpp">
-      <Filter>SPH</Filter>
-    </ClCompile>
-    <ClCompile Include="SPH_types.cpp">
-      <Filter>SPH</Filter>
-    </ClCompile>
-    <ClCompile Include="SPH_dol.cpp">
-      <Filter>SPH</Filter>
-    </ClCompile>
+    <ClInclude Include="psymSoA.h" />
+    <ClInclude Include="psymCollision.h" />
+    <ClInclude Include="psymConst.h" />
+    <ClInclude Include="psymTypes.h" />
+    <ClInclude Include="ispc_vectormath.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SPH_data.h">
-      <Filter>SPH</Filter>
-    </ClInclude>
-    <ClInclude Include="ispc_vectormath.h">
-      <Filter>SPH</Filter>
-    </ClInclude>
-    <ClInclude Include="SPH_const.h">
-      <Filter>SPH</Filter>
-    </ClInclude>
-    <ClInclude Include="SPH_types.h">
-      <Filter>SPH</Filter>
-    </ClInclude>
-    <ClInclude Include="SPH_collision.h">
-      <Filter>SPH</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="SPH_core.ispc">
-      <Filter>SPH</Filter>
-    </CustomBuild>
+    <CustomBuild Include="psymCore.ispc" />
   </ItemGroup>
 </Project>

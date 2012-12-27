@@ -1,10 +1,7 @@
+#ifndef psym_SOA_h
+#define psym_SOA_h
+
 #include <intrin.h>
-#include <xmmintrin.h>
-#include <emmintrin.h>
-#include <pmmintrin.h>
-#include <tmmintrin.h>
-#include <windows.h>
-#include <xnamath.h>
 
 #define SSE_SHUFFLE(x,y,z,w) _MM_SHUFFLE(w,z,y,x)
 #define istForceInline __forceinline
@@ -13,7 +10,7 @@
 
 
 
-namespace ist {
+namespace psym {
 
 typedef __m128  simdvec4;
 typedef __m128i simdvec4i;
@@ -66,21 +63,6 @@ istForceInline simdvec4 rsqrt4(simdvec4 v1)
 istForceInline simdvec4 sqrt4(simdvec4 v1)
 {
     return _mm_sqrt_ps(v1);
-}
-
-istForceInline simdvec4 dot4(simdvec4 v1, simdvec4 v2)
-{
-    return XMVector4Dot(v1, v2);
-}
-
-istForceInline simdvec4 length_sq4(simdvec4 v1)
-{
-    return XMVector4LengthSq(v1);
-}
-
-istForceInline simdvec4 length4(simdvec4 v1)
-{
-    return XMVector4LengthEst(v1);
 }
 
 
@@ -488,4 +470,5 @@ istForceInline simdvec4 length3(const soavec44 &v1) { return sqrt4(dot3(v1, v1))
 istForceInline simdvec4 length4(const soavec44 &v1) { return sqrt4(dot4(v1, v1)); }
 
 
-} // namespace ist
+} // namespace psym
+#endif // psym_SOA_h
