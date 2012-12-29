@@ -1,7 +1,7 @@
 ﻿#ifndef __atomic_Graphics_AtomicGraphics__
 #define __atomic_Graphics_AtomicGraphics__
 
-#include "psym/psymTypes.h"
+#include "psym/psym.h"
 
 namespace atomic {
 

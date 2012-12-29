@@ -3,7 +3,7 @@
 
 #include "Task.h"
 #include "Graphics/ResourceManager.h"
-#include "psym/psymTypes.h"
+#include "psym/psym.h"
 
 namespace atomic {
 //
@@ -54,11 +54,11 @@ class Task_FractionUpdateAsync2;
 class Task_FractionDraw2;
 class Task_FractionUpdateAsync2;
 
-class SPHManager2 : public IAtomicGameModule
+class SPHManager : public IAtomicGameModule
 {
 public:
-    SPHManager2();
-    ~SPHManager2();
+    SPHManager();
+    ~SPHManager();
 
     void serialize(Serializer& s) const;
     void deserialize(Deserializer& s);
@@ -77,7 +77,7 @@ public:
     // rigid/force は毎フレームクリアされるので、毎フレーム突っ込む必要がある
     void addRigid(const CollisionEntity &v);
     void addForce(const psym::PointForce &v);
-    void addFluid(const psym::Particle *particles, uint32 num);
+    void addFluid(psym::Particle *particles, uint32 num);
     void addFluid(PSET_RID psid, const mat4 &t);
 
 private:

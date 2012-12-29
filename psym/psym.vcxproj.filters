@@ -2,15 +2,15 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="psymDOL.cpp" />
-    <ClCompile Include="psymTypes.cpp" />
     <ClCompile Include="tasksys.cpp" />
+    <ClCompile Include="psym.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="psymSoA.h" />
-    <ClInclude Include="psymCollision.h" />
     <ClInclude Include="psymConst.h" />
-    <ClInclude Include="psymTypes.h" />
     <ClInclude Include="ispc_vectormath.h" />
+    <ClInclude Include="ispc_collision.h" />
+    <ClInclude Include="psym.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="psymCore.ispc" />

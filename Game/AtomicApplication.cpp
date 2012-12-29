@@ -172,7 +172,7 @@ void AtomicApplication::mainLoop()
         translateMessage();
 
         PerformanceCounter pc;
-        float dt = 0.0f;
+        float dt = 1.0f;
         if(m_game) {
             m_game->frameBegin();
             m_game->update(dt);

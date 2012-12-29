@@ -266,6 +266,11 @@ public:
 
     void level1()
     {
+        //// 敵テスト用
+        //if(m_frame==1) {
+        //    IEntity *e = putLargeEnemy();
+        //}
+
         if(m_frame < 1200) {
             //if(m_frame % 1 == 0) {
             //    putPinballEnemy();
@@ -273,9 +278,6 @@ public:
             //}
             if(m_frame % 50 == 0) {
                 IEntity *e = putSmallEnemy();
-            }
-            if(m_frame==1) {
-                //IEntity *e = putLargeEnemy();
             }
         }
         else if(isAllDead()) {

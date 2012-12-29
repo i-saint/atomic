@@ -7,7 +7,7 @@ namespace atomic {
 
 class EntitySet;
 class CollisionSet;
-class SPHManager2;
+class SPHManager;
 class VFXSet;
 
 
@@ -15,7 +15,7 @@ class World : public IAtomicGameModule
 {
 private:
     CollisionSet    *m_collision_set;
-    SPHManager2     *m_sph;
+    SPHManager     *m_sph;
     EntitySet       *m_entity_set;
     VFXSet          *m_vfx;
     typedef stl::vector<IAtomicGameModule*> ModuleCont;
@@ -56,7 +56,7 @@ public:
 
     EntitySet*      getEntitySet()      { return m_entity_set; }
     CollisionSet*   getCollisionSet()   { return m_collision_set; }
-    SPHManager2*    getFractionSet()    { return m_sph; }
+    SPHManager*    getFractionSet()    { return m_sph; }
 };
 
 

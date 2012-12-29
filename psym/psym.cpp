@@ -1,5 +1,5 @@
 //#include "stdafx.h"
-#include "psymTypes.h"
+#include "psym.h"
 #include <tbb/tbb.h>
 #include <algorithm>
 
@@ -124,7 +124,7 @@ inline uint32 GenHash(const Particle &particle)
     const float *pos4 = (const float*)&particle.position;
     uint32 r=(clamp<int32>(int32((pos4[0]-PSYM_GRID_POS)*rcpcellsize), 0, (PSYM_GRID_DIV-1)) << (PSYM_GRID_DIV_BITS*0)) |
              (clamp<int32>(int32((pos4[1]-PSYM_GRID_POS)*rcpcellsize), 0, (PSYM_GRID_DIV-1)) << (PSYM_GRID_DIV_BITS*1));
-    if(particle.energy==0.0f) { r |= 0x80000000; }
+    if(particle.energy == 0.0f) { r |= 0x80000000; }
     return r;
 }
 
@@ -136,7 +136,7 @@ inline void GenIndex(uint32 hash, int32 &xi, int32 &yi)
 
 World::World()
     : num_active_particles(0)
-    , particle_lifetime(1800.0f)
+    , particle_lifetime(1000.0f)
 {
     for(uint32 i=0; i<_countof(particles); ++i) {
         particles[i].energy = 0.0f;
@@ -358,7 +358,6 @@ void World::addParticles( const Particle *p, size_t num )
     num = std::min<size_t>(num, PSYM_MAX_PARTICLE_NUM-num_active_particles);
     for(size_t i=0; i<num; ++i) {
         particles[num_active_particles+i] = p[i];
-        particles[num_active_particles+i].energy = particle_lifetime;
     }
     num_active_particles += num;
 }

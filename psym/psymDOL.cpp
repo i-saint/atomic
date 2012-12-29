@@ -1,4 +1,4 @@
-#include "psymTypes.h"
+#include "psym.h"
 
 DOL_Module
 

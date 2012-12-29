@@ -5,7 +5,7 @@
 #include "Graphics/AtomicRenderingSystem.h"
 #include "Graphics/ResourceManager.h"
 #include "Graphics/Light.h"
-#include "psym/psymTypes.h"
+#include "psym/psym.h"
 #include "shader/glsl_source.h"
 
 namespace atomic {

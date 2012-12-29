@@ -7,7 +7,7 @@
 #include "Graphics/ParticleSet.h"
 #include "Graphics/CreateModelData.h"
 #include "shader/Semantics.h"
-#include "psym/psymTypes.h"
+#include "psym/psym.h"
 #include <math.h>
 
 

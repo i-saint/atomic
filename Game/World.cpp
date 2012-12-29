@@ -31,7 +31,7 @@ World::World()
     m_collision_set = istNew(CollisionSet)();
     m_modules.push_back(m_collision_set);
 
-    m_sph = istNew(SPHManager2)();
+    m_sph = istNew(SPHManager)();
     m_modules.push_back(m_sph);
 
     m_entity_set = istNew(EntitySet)();

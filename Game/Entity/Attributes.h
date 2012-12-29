@@ -3,7 +3,7 @@
 
 #include "Util.h"
 #include "Game/Collision.h"
-#include "psym/psymTypes.h"
+#include "psym/psym.h"
 
 struct sphFluidMessage;
 typedef psym::Particle FluidMessage;

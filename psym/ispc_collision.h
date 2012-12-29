@@ -93,5 +93,8 @@ struct GridData
 #define set_vel(p, v)   p.vx=v.x; p.vy=v.y; p.vz=v.z;
 #define set_accel(p, v) p.ax=v.x; p.ay=v.y; p.az=v.z;
 
+#define get_bl(p)       {p.bl_x, p.bl_y, p.bl_z}
+#define get_ur(p)       {p.ur_x, p.ur_y, p.ur_z}
+
 
 #endif // __SPH_collision_h__

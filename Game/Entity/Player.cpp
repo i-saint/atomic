@@ -108,7 +108,7 @@ public:
             force.x = pos.x;
             force.y = pos.y;
             force.z = pos.z;
-            force.strength = 2.0f;
+            force.strength = 2.4f;
             atomicGetSPHManager()->addForce(force);
         }
         if(atomicGetSPHManager()->getNumParticles()<10000) {
@@ -160,7 +160,7 @@ public:
         {
             PointLight l;
             l.setPosition(getPosition()+vec4(0.0f, 0.0f, 0.3f, 0.0f));
-            l.setColor(vec4(0.1f, 0.2f, 1.0f, 1.0f));
+            l.setColor(vec4(0.3f, 0.2f, 1.0f, 1.0f));
             l.setRadius(1.0f);
             atomicGetLights()->addLight(l);
         }

@@ -6,8 +6,8 @@
 
 
 #include "ispc_vectormath.h"
+#include "ispc_collision.h"
 #include "psymConst.h"
-#include "psymCollision.h"
 
 
 #define SPH_SMOOTH_LEN          0.02f
@@ -20,7 +20,7 @@
 #define IMP_PRESSURE_STIFFNESS 50.0f
 
 #define SPH_TIMESTEP 0.01f
-#define SPH_DECELERATE 0.999f
+#define SPH_DECELERATE 0.996f
 
 
 static uniform float SPH_DENSITY_COEF;
@@ -63,6 +63,10 @@ export void sphProcessCollision(
 
     uniform float particle_radius = SPH_SMOOTH_LEN;
 
+    foreach(i=0 ... particle_num) {
+        particles[i].hit_to = 0;
+    }
+
     // 適切に関数に分けたかったが、struct の参照渡しができないとか謎のコンパイラクラッシュとかで断念。
     // 全部 inline で書きます。
 
@@ -83,15 +87,18 @@ export void sphProcessCollision(
     // RigidSphere
     for(uniform int32 s=0; s<num_spheres; ++s) {
         uniform const RigidSphere &shape = spheres[s];
-        uniform const vec3 sphere_pos = get_pos(shape);
-        uniform const float sphere_radius = shape.radius;
+        uniform const vec3 shape_pos = get_pos(shape);
+        uniform const float r = shape.radius;
+        uniform const float r_sq = r*r;
         foreach(i=0 ... particle_num) {
             vec3 particles_pos = get_pos(particles[i]);
-            vec3 diff = sphere_pos - particles_pos;
-            float distance = length3(diff) - sphere_radius;
-            if(distance < 0.0f) {
-                vec3 dir = diff / distance;
-                repulse(particles[i], forces[i], dir, distance, shape);
+            vec3 diff = shape_pos - particles_pos;
+            float d_sq = length_sq3(diff);
+            if(d_sq < r_sq) {
+                float d = sqrt(d_sq);
+                vec3 dir = diff / d;
+                float pierce = d - r;
+                repulse(particles[i], forces[i], dir, -pierce, shape);
             }
         }
     }
@@ -102,24 +109,32 @@ export void sphProcessCollision(
         uniform vec3 box_pos = get_pos(shape);
         foreach(i=0 ... particle_num) {
             vec3 particles_pos = get_pos(particles[i]);
-            particles_pos -= box_pos;
+            vec3 bb_bl = get_bl(shape.bb);
+            vec3 bb_ur = get_ur(shape.bb);
+            if(particles_pos.x < bb_bl.x || particles_pos.y < bb_bl.y || particles_pos.z < bb_bl.z ||
+               particles_pos.x > bb_ur.x || particles_pos.y > bb_ur.y || particles_pos.z > bb_ur.z )
+            {
+                continue;
+            }
+
             int32 inside = 0;
-            float min_distance = 99999999.0f;
-            vec3 min_normal;
+            float closest_distance = -9999.0f;
+            vec3 closest_normal;
+            vec3 ppos = particles_pos - box_pos;
             for(uniform int32 p=0; p<6; ++p) {
                 uniform const vec3 plane_normal = get_normal(shape.planes[p]);
                 uniform const float plane_distance = shape.planes[p].distance;
-                float distance = dot3(particles_pos, plane_normal) + plane_distance;
+                float distance = dot3(ppos, plane_normal) + plane_distance;
                 if(distance < 0.0f) {
                     inside++;
-                    if(distance < min_distance) {
-                        min_distance = distance;
-                        min_normal = plane_normal;
+                    if(distance > closest_distance) {
+                        closest_distance = distance;
+                        closest_normal = plane_normal;
                     }
                 }
             }
             if(inside==6) {
-                repulse(particles[i], forces[i], min_normal, min_distance, shape);
+                repulse(particles[i], forces[i], closest_normal, closest_distance, shape);
             }
         }
     }
@@ -400,8 +415,8 @@ export void sphIntegrate(
         vel *= SPH_DECELERATE;
         {
             float d = dot3(vel, vel);
-            if(d > 9.0f) {
-                vel = vel * rsqrt(d) * 3.0f;
+            if(d > 16.0f) {
+                vel = vel * rsqrt(d) * 4.0f;
             }
         }
 

@@ -15,12 +15,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="psym.cpp" />
     <ClCompile Include="psymDOL.cpp" />
-    <ClCompile Include="psymTypes.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="tasksys.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -28,11 +24,11 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ispc_collision.h" />
     <ClInclude Include="ispc_vectormath.h" />
+    <ClInclude Include="psym.h" />
     <ClInclude Include="psymSoA.h" />
-    <ClInclude Include="psymCollision.h" />
     <ClInclude Include="psymConst.h" />
-    <ClInclude Include="psymTypes.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="psymCore.ispc">
