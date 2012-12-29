@@ -26,12 +26,14 @@ void main()
 ps_out(0) vec4 ps_FlagColor;
 ps_out(1) vec4 ps_FragNormal;
 ps_out(2) vec4 ps_FragPosition;
+ps_out(3) vec4 ps_FragGlow;
 
 void main()
 {
     ps_FlagColor    = vs_VertexColor;
     ps_FragNormal   = vs_VertexNormal;
     ps_FragPosition = vs_VertexPosition;
+    ps_FragGlow     = vec4(0.0, 0.0, 0.0, 0.0);
 }
 
 #endif

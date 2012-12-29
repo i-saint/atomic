@@ -113,6 +113,9 @@
     <ProjectReference Include="ist.vcxproj">
       <Project>{8d4b1790-f166-4122-9ce6-8af10214ed82}</Project>
     </ProjectReference>
+    <ProjectReference Include="iui.vcxproj">
+      <Project>{7674c6f9-a478-46c7-bf6c-13674b96c396}</Project>
+    </ProjectReference>
     <ProjectReference Include="psym\psym.vcxproj">
       <Project>{8835b2e2-7ee3-4705-b31c-15c7c5091d34}</Project>
     </ProjectReference>

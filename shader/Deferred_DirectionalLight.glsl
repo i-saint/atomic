@@ -51,7 +51,7 @@ void main()
     vec3 h          = normalize(EyeDir + LightDir);
     float nh        = max(dot(Normal, h), 0.0);
     float Specular  = pow(nh, Shininess);
-    float Intensity = max(dot(Normal, LightDir), 0.0) * 1.5;
+    float Intensity = max(dot(Normal, LightDir), 0.0);
 
     vec3 Ambient    = vs_LightAmbient.rgb;
     vec4 Result = vec4(0.0, 0.0, 0.0, 1.0);
