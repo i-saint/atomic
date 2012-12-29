@@ -1,12 +1,13 @@
 ﻿#include "stdafx.h"
 #include "ist/ist.h"
 #include "types.h"
+#include "Util.h"
 #include "Graphics/AtomicRenderingSystem.h"
 #include "Graphics/ResourceID.h"
 #include "Graphics/ParticleSet.h"
 #include "Graphics/CreateModelData.h"
-#include "GPGPU/SPH.cuh"
 #include "shader/Semantics.h"
+#include "psym/psymTypes.h"
 #include <math.h>
 
 
@@ -296,11 +297,11 @@ void CreateFieldGridLines( VertexArray *va, Buffer *&vbo )
     };
     stl::vector<vertex_t> vertices;
 
-    vec3 div    = vec3(SPH_DISTANCE_FIELD_DIV_X, SPH_DISTANCE_FIELD_DIV_Y, SPH_DISTANCE_FIELD_DIV_Z);
-    vec3 bl     = vec3(-SPH_GRID_SIZE*0.5f, -SPH_GRID_SIZE*0.5f, 0.0f);
-    vec3 size   = vec3(SPH_GRID_SIZE);
+    vec3 div    = vec3(PSYM_GRID_DIV, PSYM_GRID_DIV, PSYM_GRID_DIV);
+    vec3 bl     = vec3(-PSYM_GRID_SIZE*0.5f, -PSYM_GRID_SIZE*0.5f, 0.0f);
+    vec3 size   = vec3(PSYM_GRID_SIZE);
     vec3 cell   = size / div;
-    vertices.reserve((SPH_DISTANCE_FIELD_DIV_X+1) * (SPH_DISTANCE_FIELD_DIV_Y+1) * 2);
+    vertices.reserve((PSYM_GRID_DIV+1) * (PSYM_GRID_DIV+1) * 2);
 
     vec4 color1 = vec4(0.25f, 0.5f, 1.0f, 0.1f);
     vec4 color2 = vec4(0.25f, 0.5f, 1.0f, 0.15f);
@@ -338,9 +339,9 @@ void CreateFieldGridLines( VertexArray *va, Buffer *&vbo )
 
 void CreateDistanceFieldQuads( VertexArray *va, Buffer *&quad_model, Buffer *&quad_pos, Buffer *&quad_dist )
 {
-    vec3 div    = vec3(SPH_DISTANCE_FIELD_DIV_X, SPH_DISTANCE_FIELD_DIV_Y, SPH_DISTANCE_FIELD_DIV_Z);
-    vec3 bl     = vec3(-SPH_GRID_SIZE*0.5f, -SPH_GRID_SIZE*0.5f, 0.0f);
-    vec3 size   = vec3(SPH_GRID_SIZE);
+    vec3 div    = vec3(PSYM_GRID_DIV, PSYM_GRID_DIV, PSYM_GRID_DIV);
+    vec3 bl     = vec3(-PSYM_GRID_SIZE*0.5f, -PSYM_GRID_SIZE*0.5f, 0.0f);
+    vec3 size   = vec3(PSYM_GRID_SIZE);
     vec3 cell   = size / div;
 
     {
@@ -368,7 +369,7 @@ void CreateDistanceFieldQuads( VertexArray *va, Buffer *&quad_model, Buffer *&qu
             vec4 pos;
         };
         stl::vector<vertex_t> vertices;
-        vertices.reserve(SPH_DISTANCE_FIELD_DIV_X*SPH_DISTANCE_FIELD_DIV_Y);
+        vertices.reserve(PSYM_GRID_DIV*PSYM_GRID_DIV);
         for(uint32 yi=0; yi<div.y; ++yi) {
             for(uint32 xi=0; xi<div.x; ++xi) {
                 vertex_t t = { vec4(bl+vec3(cell.x*xi, cell.y*yi, 0.0f), 0.0f) };
@@ -382,21 +383,6 @@ void CreateDistanceFieldQuads( VertexArray *va, Buffer *&quad_model, Buffer *&qu
         i3d::Device *dev = atomicGetGLDevice();
         quad_pos = CreateVertexBuffer(dev, sizeof(vertex_t)*vertices.size(), I3D_USAGE_STATIC, &vertices[0]);
         va->setAttributes(*quad_pos, sizeof(vertex_t), descs, _countof(descs));
-    }
-
-    {
-        stl::vector<vec4> vertices;
-        vertices.resize(SPH_DISTANCE_FIELD_DIV_Z*SPH_DISTANCE_FIELD_DIV_Y*SPH_DISTANCE_FIELD_DIV_X);
-        for(uint32 i=0; i<vertices.size(); ++i) {
-            vertices[i] = vec4(0.0f, 0.0f, 0.0f, 1.0f);
-        }
-        VertexDesc descs[] = {
-            {GLSL_INSTANCE_PARAM, I3D_FLOAT,4, 0, false, 1},
-        };
-
-        i3d::Device *dev = atomicGetGLDevice();
-        quad_dist = CreateVertexBuffer(dev, sizeof(vec4)*vertices.size(), I3D_USAGE_DYNAMIC, &vertices[0]);
-        va->setAttributes(*quad_dist, sizeof(vec4), descs, _countof(descs));
     }
 }
 
@@ -444,7 +430,7 @@ bool CreateCubeParticleSet( ParticleSet &pset, RigidInfo &ri, float32 half_len )
     }
 
     pset.setData(particles);
-    ri.box_size = make_float4(half_len, half_len, half_len, 0.0f);
+    assign_float4(ri.box_size, half_len, half_len, half_len, 0.0f);
     return true;
 }
 

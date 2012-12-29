@@ -10,15 +10,17 @@
 #include "psymCollision.h"
 
 
-#define SPH_PRESSURE_STIFFNESS 200.0f
-#define SPH_REST_DENSITY 1000.0f
-#define SPH_PARTICLE_MASS 0.002f
-#define SPH_PARTICLE_VISCOSITY 0.1f
+#define SPH_SMOOTH_LEN          0.02f
+#define SPH_PRESSURE_STIFFNESS  50.0f
+#define SPH_REST_DENSITY        500.0f
+#define SPH_PARTICLE_MASS       0.001f
+#define SPH_PARTICLE_VISCOSITY  0.2f
+#define SPH_WALL_STIFFNESS      3000.0f
 
 #define IMP_PRESSURE_STIFFNESS 50.0f
 
 #define SPH_TIMESTEP 0.01f
-#define SPH_DECELERATE 0.9925f
+#define SPH_DECELERATE 0.999f
 
 
 static uniform float SPH_DENSITY_COEF;
@@ -27,9 +29,9 @@ static uniform float SPH_LAP_VISCOSITY_COEF;
 
 export void sphInitializeConstants()
 {
-    SPH_DENSITY_COEF = SPH_PARTICLE_MASS * 315.0f / (64.0f * PI * pow(PSYM_PARTICLE_SIZE, 9));
-    SPH_GRAD_PRESSURE_COEF = SPH_PARTICLE_MASS * -45.0f / (PI * pow(PSYM_PARTICLE_SIZE, 6));
-    SPH_LAP_VISCOSITY_COEF = SPH_PARTICLE_MASS * SPH_PARTICLE_VISCOSITY * 45.0f / (PI * pow(PSYM_PARTICLE_SIZE, 6));
+    SPH_DENSITY_COEF = SPH_PARTICLE_MASS * 315.0f / (64.0f * PI * pow(SPH_SMOOTH_LEN, 9));
+    SPH_GRAD_PRESSURE_COEF = SPH_PARTICLE_MASS * -45.0f / (PI * pow(SPH_SMOOTH_LEN, 6));
+    SPH_LAP_VISCOSITY_COEF = SPH_PARTICLE_MASS * SPH_PARTICLE_VISCOSITY * 45.0f / (PI * pow(SPH_SMOOTH_LEN, 6));
 }
 
 static soa<8> Force g_forces[PSYM_MAX_PARTICLE_NUM];
@@ -40,7 +42,7 @@ static soa<8> Force g_forces[PSYM_MAX_PARTICLE_NUM];
     {\
         p.hit_to = shape.id;\
         vec3 accel = get_accel(f);\
-        accel += n * (-d * PSYM_WALL_STIFFNESS);\
+        accel += n * (-d * SPH_WALL_STIFFNESS);\
         set_accel(f, accel);\
     }
 
@@ -59,10 +61,24 @@ export void sphProcessCollision(
     soa<8> Particle * uniform particles = &all_particles[gd.soai*8];
     soa<8> Force * uniform forces = &g_forces[gd.soai*8];
 
-    uniform float particle_radius = PSYM_PARTICLE_SIZE;
+    uniform float particle_radius = SPH_SMOOTH_LEN;
 
     // 適切に関数に分けたかったが、struct の参照渡しができないとか謎のコンパイラクラッシュとかで断念。
     // 全部 inline で書きます。
+
+    // RigidPlane
+    for(uniform int32 s=0; s<num_planes; ++s) {
+        uniform const RigidPlane &shape = planes[s];
+        uniform const vec3 plane_normal = get_normal(shape);
+        uniform const float plane_distance = shape.distance;
+        foreach(i=0 ... particle_num) {
+            vec3 particles_pos = get_pos(particles[i]);
+            float distance = dot3(particles_pos, plane_normal) + plane_distance;
+            if(distance < 0.0f) {
+                repulse(particles[i], forces[i], plane_normal, distance, shape);
+            }
+        }
+    }
 
     // RigidSphere
     for(uniform int32 s=0; s<num_spheres; ++s) {
@@ -80,25 +96,13 @@ export void sphProcessCollision(
         }
     }
 
-    // RigidPlane
-    for(uniform int32 s=0; s<num_planes; ++s) {
-        uniform const RigidPlane &shape = planes[s];
-        uniform const vec3 plane_normal = get_normal(shape);
-        uniform const float plane_distance = shape.distance;
-        foreach(i=0 ... particle_num) {
-            vec3 particles_pos = get_pos(particles[i]);
-            float distance = dot3(particles_pos, plane_normal) + plane_distance;
-            if(distance < 0.0f) {
-                repulse(particles[i], forces[i], plane_normal, distance, shape);
-            }
-        }
-    }
-
     // RigidBox
     for(uniform int32 s=0; s<num_boxes; ++s) {
         uniform const RigidBox &shape = boxes[s];
+        uniform vec3 box_pos = get_pos(shape);
         foreach(i=0 ... particle_num) {
             vec3 particles_pos = get_pos(particles[i]);
+            particles_pos -= box_pos;
             int32 inside = 0;
             float min_distance = 99999999.0f;
             vec3 min_normal;
@@ -135,7 +139,7 @@ export void sphProcessExternalForce(
     soa<8> Particle * uniform particles = &all_particles[gd.soai*8];
     soa<8> Force * uniform forces = &g_forces[gd.soai*8];
 
-    uniform float particle_radius = PSYM_PARTICLE_SIZE;
+    uniform float particle_radius = SPH_SMOOTH_LEN;
 
     // Point
     for(uniform int32 s=0; s<num_pforce; ++s) {
@@ -147,7 +151,7 @@ export void sphProcessExternalForce(
             vec3 diff = particles_pos - force_pos;
             vec3 dir = normalize3(diff);
             vec3 accel = get_accel(forces[i]);
-            accel += dir * strength;
+            accel -= dir * strength;
             set_accel(forces[i], accel);
         }
     }
@@ -178,7 +182,7 @@ static inline float sphComputeDensity(
     vec3 pos1,
     vec3 pos2 )
 {
-    static uniform const float h_sq = PSYM_PARTICLE_SIZE * PSYM_PARTICLE_SIZE;
+    static uniform const float h_sq = SPH_SMOOTH_LEN * SPH_SMOOTH_LEN;
     vec3 diff = pos2 - pos1;
     float r_sq = dot3(diff, diff);
     if(r_sq < h_sq) {
@@ -286,7 +290,7 @@ static inline uniform float sphCalculatePressure(uniform float density)
 
 static inline vec3 sphCalculateGradPressure(float r, float P_pressure, float N_pressure, float N_density, vec3 diff)
 {
-    const float h = PSYM_PARTICLE_SIZE;
+    const float h = SPH_SMOOTH_LEN;
     float avg_pressure = 0.5f * (N_pressure + P_pressure);
     // Implements this equation:
     // W_spkiey(r, h) = 15 / (pi * h^6) * (h - r)^3
@@ -297,7 +301,7 @@ static inline vec3 sphCalculateGradPressure(float r, float P_pressure, float N_p
 
 static inline vec3 sphCalculateLapVelocity(float r, vec3 P_velocity, vec3 N_velocity, float N_density)
 {
-    const float h = PSYM_PARTICLE_SIZE;
+    const float h = SPH_SMOOTH_LEN;
     vec3 vel_diff = N_velocity - P_velocity;
     // Implements this equation:
     // W_viscosity(r, h) = 15 / (2 * pi * h^3) * (-r^3 / (2 * h^3) + r^2 / h^2 + h / (2 * r) - 1)
@@ -306,28 +310,19 @@ static inline vec3 sphCalculateLapVelocity(float r, vec3 P_velocity, vec3 N_velo
     return  (SPH_LAP_VISCOSITY_COEF / N_density * (h - r)) * vel_diff;
 }
 
-static inline float sphCalculateDensity(float r_sq)
-{
-    const float h_sq = PSYM_PARTICLE_SIZE * PSYM_PARTICLE_SIZE;
-    // Implements this equation:
-    // W_poly6(r, h) = 315 / (64 * pi * h^9) * (h^2 - r^2)^3
-    // g_fDensityCoef = fParticleMass * 315.0f / (64.0f * PI * fSmoothlen^9)
-    return SPH_DENSITY_COEF * (h_sq - r_sq) * (h_sq - r_sq) * (h_sq - r_sq);
-}
-
 static inline vec3 sphComputeAccel(
     vec3 pos1,
     vec3 pos2,
     vec3 vel1,
     vec3 vel2,
     float pressure1,
-    float density2 )
+    float density2)
 {
-    static uniform const float h_sq = PSYM_PARTICLE_SIZE * PSYM_PARTICLE_SIZE;
+    static uniform const float h_sq = SPH_SMOOTH_LEN * SPH_SMOOTH_LEN;
     vec3 accel = {0.0f, 0.0f, 0.0f};
     vec3 diff = pos2 - pos1;
     float r_sq = dot3(diff, diff);
-    if(r_sq < h_sq && r_sq > 0.0f) {
+    if(r_sq < h_sq && r_sq>0.0f) {
         float pressure2 = sphCalculatePressure(density2);
         float r = sqrt(r_sq);
 
@@ -376,9 +371,10 @@ export void sphUpdateForce(
             }
         }
 
-        forces[i].ax = reduce_add(accel.x);
-        forces[i].ay = reduce_add(accel.y);
-        forces[i].az = reduce_add(accel.z);
+        uniform float rcp_density1 = 1.0f / density1;
+        forces[i].ax = reduce_add(accel.x) * rcp_density1;
+        forces[i].ay = reduce_add(accel.y) * rcp_density1;
+        forces[i].az = reduce_add(accel.z) * rcp_density1;
     }
 }
 
@@ -402,6 +398,12 @@ export void sphIntegrate(
         vel += accel * timestep;
         // 自然減速
         vel *= SPH_DECELERATE;
+        {
+            float d = dot3(vel, vel);
+            if(d > 9.0f) {
+                vel = vel * rsqrt(d) * 3.0f;
+            }
+        }
 
         pos += vel * timestep;
 
@@ -418,12 +420,12 @@ static inline void impComputeParticleInteraction(
     vec3 pos2,
     vec3 &accel )
 {
-    const uniform float SPH_RCP_PARTICLE_SIZE2 = 1.0f/(PSYM_PARTICLE_SIZE*2.0f);
+    const uniform float SPH_RCP_PARTICLE_SIZE2 = 1.0f/(SPH_SMOOTH_LEN*2.0f);
     vec3 diff = pos2 - pos1;    
     float d = length3(diff); // float d = length3est(diff); // 何故か est の方が遅くなる
     if(d > 0.0f) { // d==0: 衝突元＆衝突相手が同一
         vec3 dir = diff * SPH_RCP_PARTICLE_SIZE2; // vec3 dir = diff / d;
-        accel += dir * (min(0.0f, d-(PSYM_PARTICLE_SIZE*2.0f)) * IMP_PRESSURE_STIFFNESS);
+        accel += dir * (min(0.0f, d-(SPH_SMOOTH_LEN*2.0f)) * IMP_PRESSURE_STIFFNESS);
     }
 }
 
@@ -483,6 +485,12 @@ export void impIntegrate(
         vel += accel * timestep;
         // 自然減速
         vel *= SPH_DECELERATE;
+                {
+            float d = dot3(vel, vel);
+            if(d > 16.0f) {
+                vel = vel * rsqrt(d) * 4.0f;
+            }
+        }
 
         pos += vel * timestep;
         set_pos(particles[i], pos);

@@ -2,11 +2,9 @@
 #define __atomic_Graphics_ResourceManager__
 
 #include "Graphics/Shader.h"
-#include "Graphics/CudaBuffer.h"
 #include "Graphics/ParticleSet.h"
 #include "Graphics/ResourceID.h"
 #include "Graphics/CreateModelData.h"
-#include "GPGPU/SPH.cuh"
 
 namespace atomic {
 

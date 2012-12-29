@@ -12,7 +12,7 @@ struct BloodstainParticle
         struct {
             float32 lifetime; // 1.0-0.0
         };
-        float4 params;
+        float params[4];
     };
 };
 struct BloodstainParticle_IsDead
@@ -60,7 +60,7 @@ struct PSetUpdateInfo
             PSET_RID psid;
             uint32 instanceid;
         };
-        float4 padding;
+        float padding[4];
     };
 };
 
@@ -83,11 +83,11 @@ struct RigidInfo
             float sphere_radius;
         };
         struct {
-            float4 box_size;
+            float box_size[4];
         };
         struct {
-            float4 beam_begin; // w = radius
-            float4 beam_end;
+            float beam_begin[4]; // w = radius
+            float beam_end[4];
         };
     };
 };

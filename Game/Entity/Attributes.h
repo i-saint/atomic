@@ -3,7 +3,7 @@
 
 #include "Util.h"
 #include "Game/Collision.h"
-#include "SPH/psymTypes.h"
+#include "psym/psymTypes.h"
 
 struct sphFluidMessage;
 typedef psym::Particle FluidMessage;
@@ -521,7 +521,7 @@ public:
 
 
     virtual void eventCollide(const CollideMessage *m)  {}
-    virtual void eventFluid(const sphFluidMessage *m)   {}
+    virtual void eventFluid(const FluidMessage *m)   {}
     virtual void eventDamage(const DamageMessage *m)    {}
     virtual void eventDestroy(const DestroyMessage *m)  {}
     virtual void eventKill(const KillMessage *m)        {}

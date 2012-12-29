@@ -29,6 +29,7 @@ struct RigidBox
 {
     uint32 id;
     BoundingBox bb;
+    float x, y, z;
     Plane planes[6];
 };
 

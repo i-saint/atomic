@@ -9,7 +9,6 @@
 #include "Game/SPHManager.h"
 #include "Game/Collision.h"
 #include "Game/Message.h"
-#include "GPGPU/SPH.cuh"
 #include "Util.h"
 #include "Enemy.h"
 #include "Routine.h"
@@ -49,7 +48,7 @@ public:
     {
         super::initialize();
 
-        const vec4 field_size = vec4(SPH_GRID_SIZE*0.5f);
+        const vec4 field_size = vec4(PSYM_GRID_SIZE*0.5f);
         atomicGetWorld()->setFieldSize(field_size);
 
         vec4 planes[] = {
@@ -252,7 +251,7 @@ public:
     void level0()
     {
         {
-            SPHPutParticles(30000);
+            //SPHPutParticles(30000);
             IEntity *e = atomicCreateEntity(Player);
             m_player = e->getHandle();
             atomicCall(e, setPosition, vec4(0.0f, 0.0f, 0.0f, 1.0f));

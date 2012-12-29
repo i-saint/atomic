@@ -7,6 +7,7 @@
 #include "Game/World.h"
 #include "Sound/AtomicSound.h"
 #include "Graphics/Renderer.h"
+#include "Util.h"
 
 #define ATOMIC_CONFIG_FILE_PATH "atomic.conf"
 
@@ -132,31 +133,6 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     if(!super::initialize(wpos, wsize, L"atomic", m_config.fullscreen))
     {
         return false;
-    }
-
-    // initialize CUDA
-    {
-        cudaError_t e;
-        int dev_count;
-        e = cudaGetDeviceCount(&dev_count);
-        if(e==cudaErrorNoDevice) {
-            handleError(ATERR_CUDA_NO_DEVICE);
-            return false;
-        }
-        else if(e==cudaErrorInsufficientDriver) {
-            handleError(ATERR_CUDA_INSUFFICIENT_DRIVER);
-            return false;
-        }
-
-        for(int32 i=0; i<dev_count; ++i) {
-            cudaDeviceProp dev;
-            cudaGetDeviceProperties(&dev, i);
-            istPrint("CUDA device %d: %s\n", i, dev.name);
-        }
-
-        int device_id = cutGetMaxGflopsDeviceId();
-        CUDA_SAFE_CALL( cudaSetDevice(device_id) );
-        CUDA_SAFE_CALL( cudaGLSetGLDevice(device_id) );
     }
 
     // start rendering thread

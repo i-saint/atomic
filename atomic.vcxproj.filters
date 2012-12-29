@@ -13,9 +13,6 @@
     <Filter Include="Sound">
       <UniqueIdentifier>{ae8965f0-cc3f-4ee1-bf6e-87b420fdae61}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GPGPU">
-      <UniqueIdentifier>{52955f27-e438-4826-83dd-8b9437ee15cc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Game\Entity">
       <UniqueIdentifier>{1f1a3bf3-079c-4653-90b2-5e697bd4f0df}</UniqueIdentifier>
     </Filter>
@@ -61,9 +58,6 @@
     </ClCompile>
     <ClCompile Include="Game\DebugConsole.cpp">
       <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\CudaBuffer.cpp">
-      <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Game\Entity.cpp">
       <Filter>Game</Filter>
@@ -146,9 +140,6 @@
     </ClInclude>
     <ClInclude Include="types.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="GPGPU\SPH.cuh">
-      <Filter>GPGPU</Filter>
-    </ClInclude>
     <ClInclude Include="Sound\AtomicSound.h">
       <Filter>Sound</Filter>
     </ClInclude>
@@ -160,9 +151,6 @@
     </ClInclude>
     <ClInclude Include="Game\DebugConsole.h">
       <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\CudaBuffer.h">
-      <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Game\Entity.h">
       <Filter>Game</Filter>
@@ -230,27 +218,5 @@
     <ClInclude Include="DynamicObjLoader\DynamicObjLoader.h">
       <Filter>DynamicObjLoader</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="GPGPU\SPH_internal.cuh">
-      <Filter>GPGPU</Filter>
-    </None>
-    <None Include="GPGPU\SPHRigid.cuh">
-      <Filter>GPGPU</Filter>
-    </None>
-    <None Include="GPGPU\SPHFluid.cuh">
-      <Filter>GPGPU</Filter>
-    </None>
-    <None Include="GPGPU\SPHForce.cuh">
-      <Filter>GPGPU</Filter>
-    </None>
-    <None Include="GPGPU\SPH.cl">
-      <Filter>GPGPU</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <CudaCompile Include="GPGPU\SPH.cu">
-      <Filter>GPGPU</Filter>
-    </CudaCompile>
   </ItemGroup>
 </Project>

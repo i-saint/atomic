@@ -36,7 +36,7 @@ public:
         for(uint32 i=0; i<num_particles; ++i) {
             simdvec4 p(bsp[i].position);
             m_bsp_out[i].position = glm::vec4_cast(t * p);
-            m_bsp_out[i].params   = bsp[i].params;
+            assign_float4(m_bsp_out[i].params, bsp[i].params);
         }
     }
 };

@@ -32,7 +32,7 @@ private:
             float m_radius;
             float m_rcp_radius;
         };
-        float4 padding;
+        float padding[4];
     };
 
 public:

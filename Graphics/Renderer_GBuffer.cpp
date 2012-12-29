@@ -4,7 +4,6 @@
 #include "Game/AtomicGame.h"
 #include "Game/World.h"
 #include "Game/SPHManager.h"
-#include "GPGPU/SPH.cuh"
 #include "AtomicRenderingSystem.h"
 #include "Renderer.h"
 #include "Util.h"
@@ -161,21 +160,20 @@ void PassGBuffer_SPH::draw()
         // 並列頂点更新開始
         ist::EnqueueTasks(&m_tasks[0], num_tasks);
     }
-    // copy fluid particles (CUDA -> GL)
+    // copy fluid particles (ispc -> GL)
     atomicGetSPHManager()->copyParticlesToGL();
-    const sphStates& sphs = SPHGetStates();
 
 
     // fluid particle
     {
-        const uint32 num_particles = sphs.fluid_num_particles;
+        const uint32 num_particles = atomicGetSPHManager()->getNumParticles();
         const VertexDesc descs[] = {
-            {GLSL_INSTANCE_PARAM,    I3D_FLOAT,4,  0, false, 1},
-            {GLSL_INSTANCE_POSITION, I3D_FLOAT,4, 16, false, 1},
-            {GLSL_INSTANCE_VELOCITY, I3D_FLOAT,4, 32, false, 1},
+            {GLSL_INSTANCE_POSITION, I3D_FLOAT,4,  0, false, 1},
+            {GLSL_INSTANCE_VELOCITY, I3D_FLOAT,4, 16, false, 1},
+            {GLSL_INSTANCE_PARAM,    I3D_FLOAT,4, 32, false, 1},
         };
 
-        m_va_cube->setAttributes(*m_vbo_fluid, sizeof(sphFluidParticle), descs, _countof(descs));
+        m_va_cube->setAttributes(*m_vbo_fluid, sizeof(psym::Particle), descs, _countof(descs));
 
         m_sh_fluid->assign(dc);
         dc->setVertexArray(m_va_cube);

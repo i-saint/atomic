@@ -8,6 +8,7 @@
 #pragma warning(disable: 4819)
 
 #define _SCL_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
 
 #define GLM_FORCE_SSE2
 
@@ -18,24 +19,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <cuda.h>
-#include <cudaGL.h>
-#include <cuda_runtime.h>
-#include <cudaGL.h>
-#include <cuda_gl_interop.h>
-#include <cutil.h>
-#include <cutil_math.h>
-#include <cutil_inline_runtime.h>
-#include <math_constants.h>
-
-#include <thrust/host_vector.h>
-
 #include <mmsystem.h>
 #include <stdlib.h>
-#include <xmmintrin.h>
-#include <emmintrin.h>
-#include <pmmintrin.h>
-#include <tmmintrin.h>
+#include <intrin.h>
 
 #include <tbb/tbb.h>
 #include <iostream>

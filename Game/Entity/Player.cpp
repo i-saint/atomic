@@ -10,7 +10,6 @@
 #include "Game/SPHManager.h"
 #include "Game/Collision.h"
 #include "Game/Message.h"
-#include "GPGPU/SPH.cuh"
 #include "Enemy.h"
 
 namespace atomic {
@@ -104,10 +103,24 @@ public:
     {
         super::update(dt);
         {
-            sphForcePointGravity pg;
-            pg.position = (const float4&)getPosition();
-            pg.strength = 2.0f;
-            atomicGetSPHManager()->addForce(pg);
+            const vec4 &pos = getPosition();
+            psym::PointForce force;
+            force.x = pos.x;
+            force.y = pos.y;
+            force.z = pos.z;
+            force.strength = 2.0f;
+            atomicGetSPHManager()->addForce(force);
+        }
+        if(atomicGetSPHManager()->getNumParticles()<10000) {
+            psym::Particle particles[16];
+            for(size_t i=0; i<_countof(particles); ++i) {
+                vec4 rd = glm::normalize(vec4(atomicGenRandFloat()-0.5f, atomicGenRandFloat()-0.5f, 0.0f, 0.0f));
+                istAlign(16) vec4 pos = getPosition() + (rd * (atomicGenRandFloat()*0.2f+0.4f));
+                psym::simdvec4 poss = (psym::simdvec4&)pos;
+                particles[i].position = poss;
+                particles[i].velocity = _mm_set1_ps(0.0f);
+            }
+            atomicGetSPHManager()->addFluid(&particles[0], _countof(particles));
         }
     }
 

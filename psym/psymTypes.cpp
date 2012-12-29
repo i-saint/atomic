@@ -20,7 +20,7 @@ DOL_ImportFunction(void, sphProcessExternalForceDOL, (
     ispc::DirectionalForce * dforce, int32_t num_dforce,
     ispc::BoxForce * bforce, int32_t num_bforce ));
 DOL_ImportFunction(void, sphUpdateDensityDOL, (ispc::Particle * all_particles, ispc::GridData * grid, int32_t xi, int32_t yi));
-
+DOL_ImportFunction(void, sphUpdateForceDOL, (ispc::Particle * all_particles, ispc::GridData * grid, int32_t xi, int32_t yi));
 
 
 const int32 SIMD_LANES = 8;
@@ -96,15 +96,15 @@ void AoSnize( int32 num, const ispc::Particle_SOA8 *particles, Particle *out )
         };
         soavec44 aos_vel[2] = {
             soa_transpose44(
-                _mm_load_ps(particles[bi].vx + 0),
-                _mm_load_ps(particles[bi].vy + 0),
-                _mm_load_ps(particles[bi].vz + 0),
-                _mm_set1_ps(0.0f) ),
+            _mm_load_ps(particles[bi].vx + 0),
+            _mm_load_ps(particles[bi].vy + 0),
+            _mm_load_ps(particles[bi].vz + 0),
+            _mm_set1_ps(0.0f) ),
             soa_transpose44(
-                _mm_load_ps(particles[bi].vx + 4),
-                _mm_load_ps(particles[bi].vy + 4),
-                _mm_load_ps(particles[bi].vz + 4),
-                _mm_set1_ps(0.0f) ),
+            _mm_load_ps(particles[bi].vx + 4),
+            _mm_load_ps(particles[bi].vy + 4),
+            _mm_load_ps(particles[bi].vz + 4),
+            _mm_set1_ps(0.0f) ),
         };
 
         int32 e = std::min<int32>(SIMD_LANES, num-i);
@@ -119,7 +119,7 @@ void AoSnize( int32 num, const ispc::Particle_SOA8 *particles, Particle *out )
 
 inline uint32 GenHash(const Particle &particle)
 {
-    static const float32 rcpcellsize = 1.0f/PSYM_GRID_CELL_SIZE;
+    static const float32 rcpcellsize = 1.0f/(PSYM_GRID_SIZE/PSYM_GRID_DIV);
 
     const float *pos4 = (const float*)&particle.position;
     uint32 r=(clamp<int32>(int32((pos4[0]-PSYM_GRID_POS)*rcpcellsize), 0, (PSYM_GRID_DIV-1)) << (PSYM_GRID_DIV_BITS*0)) |
@@ -232,61 +232,8 @@ void World::update(float32 dt)
             }
     });
 
-//    // SPH
-//    tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, 128),
-//        [&](const tbb::blocked_range<int> &r) {
-//            for(int i=r.begin(); i!=r.end(); ++i) {
-//                int32 n = ce[i].end - ce[i].begin;
-//                if(n == 0) { continue; }
-//                int xi, yi;
-//                GenIndex(i, xi, yi);
-//                sphUpdateDensityDOL((ispc::Particle*)particles_soa, ce, xi, yi);
-//            }
-//    });
-//#ifdef SPH_enable_neighbor_density_estimation
-//    tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, 128),
-//        [&](const tbb::blocked_range<int> &r) {
-//            for(int i=r.begin(); i!=r.end(); ++i) {
-//                int32 n = ce[i].end - ce[i].begin;
-//                if(n == 0) { continue; }
-//                int xi, yi;
-//                GenIndex(i, xi, yi);
-//                sphUpdateDensity2DOL((ispc::Particle*)particles_soa, ce, xi, yi);
-//            }
-//    });
-//#endif // SPH_enable_neighbor_density_estimation
-//    tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, 128),
-//        [&](const tbb::blocked_range<int> &r) {
-//            for(int i=r.begin(); i!=r.end(); ++i) {
-//                int32 n = ce[i].end - ce[i].begin;
-//                if(n == 0) { continue; }
-//                int xi, yi;
-//                GenIndex(i, xi, yi);
-//                sphUpdateForceDOL((ispc::Particle*)particles_soa, ce, xi, yi);
-//            }
-//    });
-//    tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, 128),
-//        [&](const tbb::blocked_range<int> &r) {
-//            for(int i=r.begin(); i!=r.end(); ++i) {
-//                int32 n = ce[i].end - ce[i].begin;
-//                if(n == 0) { continue; }
-//                int xi, yi;
-//                GenIndex(i, xi, yi);
-//                sphProcessExternalForceDOL(
-//                    (ispc::Particle*)particles_soa, ce, xi, yi,
-//                    &force_point[0],        (int32)force_point.size(),
-//                    &force_directional[0],  (int32)force_directional.size(),
-//                    &force_box[0],          (int32)force_box.size() );
-//                sphProcessCollisionDOL(
-//                    (ispc::Particle*)particles_soa, ce, xi, yi,
-//                    &collision_spheres[0],  (int32)collision_spheres.size(),
-//                    &collision_planes[0],   (int32)collision_planes.size(),
-//                    &collision_boxes[0],    (int32)collision_boxes.size() );
-//                sphIntegrateDOL((ispc::Particle*)particles_soa, ce, xi, yi);
-//            }
-//    });
 
-    // impulse
+    // SPH
     tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, 128),
         [&](const tbb::blocked_range<int> &r) {
             for(int i=r.begin(); i!=r.end(); ++i) {
@@ -294,7 +241,29 @@ void World::update(float32 dt)
                 if(n == 0) { continue; }
                 int xi, yi;
                 GenIndex(i, xi, yi);
-                impUpdateVelocityDOL((ispc::Particle*)particles_soa, ce, xi, yi);
+                sphUpdateDensityDOL((ispc::Particle*)particles_soa, ce, xi, yi);
+            }
+    });
+#ifdef SPH_enable_neighbor_density_estimation
+    tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, 128),
+        [&](const tbb::blocked_range<int> &r) {
+            for(int i=r.begin(); i!=r.end(); ++i) {
+                int32 n = ce[i].end - ce[i].begin;
+                if(n == 0) { continue; }
+                int xi, yi;
+                GenIndex(i, xi, yi);
+                sphUpdateDensity2DOL((ispc::Particle*)particles_soa, ce, xi, yi);
+            }
+    });
+#endif // SPH_enable_neighbor_density_estimation
+    tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, 128),
+        [&](const tbb::blocked_range<int> &r) {
+            for(int i=r.begin(); i!=r.end(); ++i) {
+                int32 n = ce[i].end - ce[i].begin;
+                if(n == 0) { continue; }
+                int xi, yi;
+                GenIndex(i, xi, yi);
+                sphUpdateForceDOL((ispc::Particle*)particles_soa, ce, xi, yi);
             }
     });
     tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, 128),
@@ -306,17 +275,50 @@ void World::update(float32 dt)
                 GenIndex(i, xi, yi);
                 sphProcessExternalForceDOL(
                     (ispc::Particle*)particles_soa, ce, xi, yi,
-                    point_f, (int32)force_point.size(),
-                    dir_f,   (int32)force_directional.size(),
-                    box_f,   (int32)force_box.size() );
+                    point_f,    (int32)force_point.size(),
+                    dir_f,      (int32)force_directional.size(),
+                    box_f,      (int32)force_box.size() );
                 sphProcessCollisionDOL(
                     (ispc::Particle*)particles_soa, ce, xi, yi,
-                    point_c, (int32)collision_spheres.size(),
-                    plane_c, (int32)collision_planes.size(),
-                    box_c,   (int32)collision_boxes.size() );
-                impIntegrateDOL((ispc::Particle*)particles_soa, ce, xi, yi);
+                    point_c,    (int32)collision_spheres.size(),
+                    plane_c,    (int32)collision_planes.size(),
+                    box_c,      (int32)collision_boxes.size() );
+                sphIntegrateDOL((ispc::Particle*)particles_soa, ce, xi, yi);
             }
     });
+
+
+    //// impulse
+    //tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, 128),
+    //    [&](const tbb::blocked_range<int> &r) {
+    //        for(int i=r.begin(); i!=r.end(); ++i) {
+    //            int32 n = ce[i].end - ce[i].begin;
+    //            if(n == 0) { continue; }
+    //            int xi, yi;
+    //            GenIndex(i, xi, yi);
+    //            impUpdateVelocityDOL((ispc::Particle*)particles_soa, ce, xi, yi);
+    //        }
+    //});
+    //tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, 128),
+    //    [&](const tbb::blocked_range<int> &r) {
+    //        for(int i=r.begin(); i!=r.end(); ++i) {
+    //            int32 n = ce[i].end - ce[i].begin;
+    //            if(n == 0) { continue; }
+    //            int xi, yi;
+    //            GenIndex(i, xi, yi);
+    //            sphProcessExternalForceDOL(
+    //                (ispc::Particle*)particles_soa, ce, xi, yi,
+    //                point_f, (int32)force_point.size(),
+    //                dir_f,   (int32)force_directional.size(),
+    //                box_f,   (int32)force_box.size() );
+    //            sphProcessCollisionDOL(
+    //                (ispc::Particle*)particles_soa, ce, xi, yi,
+    //                point_c, (int32)collision_spheres.size(),
+    //                plane_c, (int32)collision_planes.size(),
+    //                box_c,   (int32)collision_boxes.size() );
+    //            impIntegrateDOL((ispc::Particle*)particles_soa, ce, xi, yi);
+    //        }
+    //});
 
     // SoA -> AoS
     tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, 128),

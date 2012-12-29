@@ -10,7 +10,6 @@
 #include "Game/SPHManager.h"
 #include "Game/Collision.h"
 #include "Game/Message.h"
-#include "GPGPU/SPH.cuh"
 #include "Routine.h"
 #include "Enemy.h"
 
@@ -189,10 +188,10 @@ public:
         atomicPlaySE(SE_CHANNEL3, m_explosion_se, getPosition(), true);
     }
 
-    virtual void eventFluid(const sphFluidMessage *m)
+    virtual void eventFluid(const FluidMessage *m)
     {
         addBloodstain(getInverseTransform() * (vec4&)m->position);
-        damage(length(m->velocity3)*0.002f);
+        damage(glm::length((const vec3&)m->velocity)*0.002f);
     }
 };
 atomicImplementEntity(Enemy_Test, ECID_Enemy);

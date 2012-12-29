@@ -24,6 +24,13 @@ namespace atomic {
     template<class T>
     inline T clamp(T v, T vmin, T vmax) { return stl::min<T>(stl::max<T>(v, vmin), vmax); }
 
+    inline void assign_float2(float32 (&dst)[2], const float32 (&src)[2]) { for(size_t i=0; i<2; ++i) { dst[i]=src[i]; } }
+    inline void assign_float3(float32 (&dst)[3], const float32 (&src)[3]) { for(size_t i=0; i<3; ++i) { dst[i]=src[i]; } }
+    inline void assign_float4(float32 (&dst)[4], const float32 (&src)[4]) { for(size_t i=0; i<4; ++i) { dst[i]=src[i]; } }
+    inline void assign_float2(float32 (&dst)[2], float32 x, float32 y) { dst[0]=x; dst[1]=y; }
+    inline void assign_float3(float32 (&dst)[3], float32 x, float32 y, float32 z) { dst[0]=x; dst[1]=y; dst[2]=z; }
+    inline void assign_float4(float32 (&dst)[4], float32 x, float32 y, float32 z, float32 w) { dst[0]=x; dst[1]=y; dst[2]=z; dst[3]=w; }
+
     // 同一値が並ぶコンテナを巡回する際、同じ数値の連続をスキップする iterator adapter
     // (例: {1,2,2,3,3,3,1,1} を巡回すると 1,2,3,1,end の順に結果が返る)
     // 巡回のみの場合、遅い stl::unique() のそこそこ高速な代替手段となる

@@ -9,7 +9,6 @@
 #include "Game/EntityQuery.h"
 #include "Game/SPHManager.h"
 #include "Collision.h"
-#include "GPGPU/SPH.cuh"
 
 namespace atomic {
 
@@ -169,141 +168,12 @@ bool Collide(const CollisionEntity *sender, const CollisionEntity *receiver, Col
 
 
 
-const ivec3 DistanceField::grid_div  = ivec3(SPH_DISTANCE_FIELD_DIV_X, SPH_DISTANCE_FIELD_DIV_Y, SPH_DISTANCE_FIELD_DIV_Z);
-const ivec3 DistanceField::block_size= ivec3(16, 16, 8);
-const ivec3 DistanceField::block_num = grid_div/block_size;
-const vec3 DistanceField::grid_size  = vec3(SPH_GRID_SIZE, SPH_GRID_SIZE, 0.32f);
-const vec3 DistanceField::grid_pos   = vec3(-SPH_GRID_SIZE*0.5f, -SPH_GRID_SIZE*0.5f, 0.0f);
-const vec3 DistanceField::cell_size  = grid_size/vec3(grid_div);
-
-ivec3 DistanceField::getDistanceFieldCoord( const vec3 &pos )
-{
-    ivec3 fc = ivec3((pos-grid_pos) / cell_size);
-    return glm::min(grid_div-ivec3(1,1,1), glm::max(ivec3(0,0,0), fc));
-}
-
-class DistanceTask : public AtomicTask
-{
-private:
-    typedef stl::vector<CollisionEntity*>   EntityCont;
-
-    ivec3               m_bl, m_ur;
-    DistanceField       *m_df;
-    EntityCont          *m_entities;
-
-public:
-    DistanceTask(DistanceField *df) : m_df(df) { setPriority(Task::Priority_Low); }
-    void setup(const ivec3 &bl, const ivec3 &ur, EntityCont &ec) { m_bl=bl; m_ur=ur; m_entities=&ec; }
-
-    void getOverlaped(const BoundingBox &bb, ivec3 &out_ubl, ivec3 &out_uur)
-    {
-        ivec3 ubl = DistanceField::getDistanceFieldCoord(vec3(bb.bl));
-        ivec3 uur = DistanceField::getDistanceFieldCoord(vec3(bb.ur)) + ivec3(1,1,1);
-        out_ubl = uvec3(stl::max<int32>(ubl.x, out_ubl.x), stl::max<int32>(ubl.y, out_ubl.y), stl::max<int32>(ubl.z, out_ubl.z));
-        out_uur = uvec3(stl::min<int32>(uur.x, out_uur.x), stl::min<int32>(uur.y, out_uur.y), stl::min<int32>(uur.z, out_uur.z));
-    }
-
-    void doCollide(const CollisionEntity *ce, const ivec3 &ubl, const ivec3 &uur)
-    {
-        vec4 *dist = m_df->getDistances();
-        EntityHandle *entities = m_df->getEntities();
-
-        for(int32 zi=ubl.z; zi<uur.z; ++zi) {
-            for(int32 yi=ubl.y; yi<uur.y; ++yi) {
-                for(int32 xi=ubl.x; xi<uur.x; ++xi) {
-                    int32 gi = DistanceField::grid_div.y*DistanceField::grid_div.x*zi + DistanceField::grid_div.x*yi + xi;
-                    vec3 center = DistanceField::grid_pos + DistanceField::cell_size*(vec3(xi, yi, zi)+vec3(0.5f));
-                    CollisionSphere s;
-                    s.pos_r = vec4(center, DistanceField::cell_size.x*0.5f);
-                    s.updateBoundingBox();
-                    CollideMessage m;
-                    if(Collide(ce, &s, m)) {
-                        dist[gi] = vec4(vec3(m.direction), -m.direction.w);
-                        entities[gi] = ce->getGObjHandle();
-                    }
-                }
-            }
-        }
-    }
-
-    void clearBlock()
-    {
-        vec4 *dist = m_df->getDistances();
-        EntityHandle *entities = m_df->getEntities();
-
-        for(int32 zi=m_bl.z; zi<m_ur.z; ++zi) {
-            for(int32 yi=m_bl.y; yi<m_ur.y; ++yi) {
-                for(int32 xi=m_bl.x; xi<m_ur.x; ++xi) {
-                    int32 gi = DistanceField::grid_div.y*DistanceField::grid_div.x*zi + DistanceField::grid_div.x*yi + xi;
-                    dist[gi] = vec4(0.0f, 0.0f, 0.0f, 1.0f);
-                    entities[gi] = 0;
-                }
-            }
-        }
-    }
-
-    void exec()
-    {
-        clearBlock();
-        for(uint32 ci=0; ci<m_entities->size(); ++ci) {
-            const CollisionEntity *ce = (*m_entities)[ci];
-            if(!ce) { continue; }
-
-            ivec3 ubl = m_bl;
-            ivec3 uur = m_ur;
-            switch(ce->getShape()) {
-            case CS_BOX:
-                getOverlaped(static_cast<const CollisionBox*>(ce)->bb, ubl, uur);
-                doCollide(ce, ubl, uur);
-                break;
-
-            case CS_SPHERE:
-                getOverlaped(static_cast<const CollisionSphere*>(ce)->bb, ubl, uur);
-                doCollide(ce, ubl, uur);
-                break;
-            }
-            
-        }
-    }
-};
-
-
-DistanceField::DistanceField()
-{
-    stl::fill_n(m_handle, _countof(m_handle), 0);
-    for(int32 i=0; i<block_num.x*block_num.y; ++i) {
-        m_tasks.push_back( istNew(DistanceTask)(this) );
-    }
-}
-
-DistanceField::~DistanceField()
-{
-    for(uint32 i=0; i<m_tasks.size(); ++i) { istDelete(m_tasks[i]); }
-}
-
-void DistanceField::updateBegin( EntityCont &v )
-{
-    for(int32 yi=0; yi<block_num.y; ++yi) {
-        for(int32 xi=0; xi<block_num.x; ++xi) {
-            const ivec3 bl = ivec3(block_size.x*xi, block_size.y*yi, 0);
-            const ivec3 ur = ivec3(block_size.x*(xi+1), block_size.y*(yi+1), SPH_DISTANCE_FIELD_DIV_Z);
-            DistanceTask *dt = m_tasks[block_num.x*yi + xi];
-            dt->setup(bl, ur, v);
-        }
-    }
-    ist::EnqueueTasks(&m_tasks[0], m_tasks.size());
-}
-
-void DistanceField::updateEnd()
-{
-    ist::WaitTasks(&m_tasks[0], m_tasks.size());
-}
 
 
 
 
 const ivec2 CollisionGrid::GRID_DIV = ivec2(32, 32);
-const vec2 CollisionGrid::CELL_SIZE = vec2(SPH_GRID_SIZE / GRID_DIV.x, SPH_GRID_SIZE / GRID_DIV.y);
+const vec2 CollisionGrid::CELL_SIZE = vec2(PSYM_GRID_SIZE / GRID_DIV.x, PSYM_GRID_SIZE / GRID_DIV.y);
 
 CollisionGrid::CollisionGrid()
 {
@@ -339,7 +209,7 @@ void CollisionGrid::updateGrid( stl::vector<CollisionEntity*> &entities )
 
 ivec2 CollisionGrid::getGridCoord( const vec4 &pos )
 {
-    const vec2 grid_pos = vec2(-SPH_GRID_SIZE*0.5f, -SPH_GRID_SIZE*0.5f);
+    const vec2 grid_pos = vec2(-PSYM_GRID_SIZE*0.5f, -PSYM_GRID_SIZE*0.5f);
     const ivec2 grid_coord = ivec2((vec2(pos)-grid_pos)/CELL_SIZE);
     return glm::max(glm::min(grid_coord, GRID_DIV-ivec2(1,1)), ivec2(0,0));
 }
@@ -503,7 +373,7 @@ void CollisionSet::frameEnd()
 #endif // __atomic_enable_distance_field__
 }
 
-void CollisionSet::copyRigitsToGPU()
+void CollisionSet::copyRigitsToPSym()
 {
 #ifdef __atomic_enable_distance_field__
     m_df[m_df_current]->updateBegin(m_entities);
@@ -514,13 +384,7 @@ void CollisionSet::copyRigitsToGPU()
     for(uint32 i=0; i<num; ++i) {
         const CollisionEntity *ce = m_entities[i];
         if(!ce || (ce->getFlags() & CF_SPH_SENDER)==0) { continue; }
-
-        // SPH 側の剛体情報とメモリレイアウト同じにしてるので強引に突っ込む
-        switch(ce->getShape()) {
-        case CS_PLANE:  atomicGetSPHManager()->addRigid(reinterpret_cast<const sphRigidPlane&>(*ce)); break;
-        case CS_SPHERE: atomicGetSPHManager()->addRigid(reinterpret_cast<const sphRigidSphere&>(*ce)); break;
-        case CS_BOX:    atomicGetSPHManager()->addRigid(reinterpret_cast<const sphRigidBox&>(*ce)); break;
-        }
+        atomicGetSPHManager()->addRigid(*ce);
     }
 }
 
@@ -587,14 +451,6 @@ void CollisionSet::deleteEntity(CollisionEntity *e)
 CollisionGrid* CollisionSet::getCollisionGrid()
 {
     return &m_grid;
-}
-
-DistanceField* CollisionSet::getDistanceField()
-{
-#ifdef __atomic_enable_distance_field__
-    return m_df[m_df_current];
-#endif // __atomic_enable_distance_field__
-    return NULL;
 }
 
 } // namespace atomic

@@ -5,9 +5,14 @@
 #include "Graphics/AtomicRenderingSystem.h"
 #include "Graphics/ResourceManager.h"
 #include "Graphics/Light.h"
+#include "psym/psymTypes.h"
 #include "shader/glsl_source.h"
 
 namespace atomic {
+
+const int MAX_RIGID_PARTICLES = 65536 * 4;
+const int MAX_EFFECT_PARTICLES = 65536 * 4;
+const int MAX_BLOODSTAIN_PARTICLES = 65536 * 4;
 
 uvec2 CalcFrameBufferSize()
 {
@@ -69,7 +74,7 @@ bool GraphicResourceManager::initialize()
     }
 
     {
-        CreateFloorQuad(m_va[VA_FLOOR_QUAD], m_vbo[VBO_FLOOR_QUAD], vec4(-SPH_GRID_SIZE*0.5f, -SPH_GRID_SIZE*0.5f, -0.15f, 0.0f), vec4(SPH_GRID_SIZE, SPH_GRID_SIZE, 0.0f, 0.0f));
+        CreateFloorQuad(m_va[VA_FLOOR_QUAD], m_vbo[VBO_FLOOR_QUAD], vec4(-PSYM_GRID_SIZE*0.5f, -PSYM_GRID_SIZE*0.5f, -0.15f, 0.0f), vec4(PSYM_GRID_SIZE, PSYM_GRID_SIZE, 0.0f, 0.0f));
         CreateScreenQuad(m_va[VA_SCREEN_QUAD], m_vbo[VBO_SCREEN_QUAD]);
         CreateBloomLuminanceQuads(m_va[VA_BLOOM_LUMINANCE_QUADS], m_vbo[VBO_BLOOM_LUMINANCE_QUADS]);
         CreateBloomBlurQuads(m_va[VA_BLOOM_BLUR_QUADS], m_vbo[VBO_BLOOM_BLUR_QUADS]);
@@ -84,12 +89,12 @@ bool GraphicResourceManager::initialize()
         CreateDistanceFieldQuads(m_va[VA_DISTANCE_FIELD],
             m_vbo[VBO_DISTANCE_FIELD_QUAD], m_vbo[VBO_DISTANCE_FIELD_POS], m_vbo[VBO_DISTANCE_FIELD_DIST]);
 
-        m_vbo[VBO_FLUID_PARTICLES]      = CreateVertexBuffer(dev, sizeof(sphFluidParticle)*SPH_MAX_FLUID_PARTICLES, I3D_USAGE_DYNAMIC);
-        m_vbo[VBO_RIGID_PARTICLES]      = CreateVertexBuffer(dev, sizeof(PSetParticle)*SPH_MAX_RIGID_PARTICLES, I3D_USAGE_DYNAMIC);
-        m_vbo[VBO_PARTICLES]            = CreateVertexBuffer(dev, sizeof(IndivisualParticle)*SPH_MAX_INDIVISUAL_PARTICLES, I3D_USAGE_DYNAMIC);
+        m_vbo[VBO_FLUID_PARTICLES]      = CreateVertexBuffer(dev, sizeof(psym::Particle)*PSYM_MAX_PARTICLE_NUM, I3D_USAGE_DYNAMIC);
+        m_vbo[VBO_RIGID_PARTICLES]      = CreateVertexBuffer(dev, sizeof(PSetParticle)*MAX_RIGID_PARTICLES, I3D_USAGE_DYNAMIC);
+        m_vbo[VBO_PARTICLES]            = CreateVertexBuffer(dev, sizeof(IndivisualParticle)*MAX_EFFECT_PARTICLES, I3D_USAGE_DYNAMIC);
         m_vbo[VBO_DIRECTIONALLIGHT_INSTANCES] = CreateVertexBuffer(dev, sizeof(DirectionalLight)*ATOMIC_MAX_DIRECTIONAL_LIGHTS, I3D_USAGE_DYNAMIC);
         m_vbo[VBO_POINTLIGHT_INSTANCES] = CreateVertexBuffer(dev, sizeof(PointLight)*ATOMIC_MAX_POINT_LIGHTS, I3D_USAGE_DYNAMIC);
-        m_vbo[VBO_BLOODSTAIN_PARTICLES] = CreateVertexBuffer(dev, sizeof(BloodstainParticle)*SPH_MAX_FLUID_PARTICLES, I3D_USAGE_DYNAMIC);
+        m_vbo[VBO_BLOODSTAIN_PARTICLES] = CreateVertexBuffer(dev, sizeof(BloodstainParticle)*MAX_BLOODSTAIN_PARTICLES, I3D_USAGE_DYNAMIC);
     }
     {
         m_ubo[UBO_RENDERSTATES_3D]          = CreateUniformBuffer(dev, sizeof(RenderStates), I3D_USAGE_DYNAMIC);
@@ -152,20 +157,6 @@ bool GraphicResourceManager::initialize()
     }
 
     {
-        sphParams sph_params;
-        sph_params.smooth_len           = 0.02f;
-        sph_params.pressure_stiffness   = 50.0f;
-        sph_params.rest_density         = 500.0f;
-        sph_params.particle_mass        = 0.001f;
-        sph_params.viscosity            = 0.2f;
-        sph_params.density_coef         = sph_params.particle_mass * 315.0f / (64.0f * CUDART_PI_F * pow(sph_params.smooth_len, 9));
-        sph_params.grad_pressure_coef   = sph_params.particle_mass * -45.0f / (CUDART_PI_F * pow(sph_params.smooth_len, 6));
-        sph_params.lap_viscosity_coef   = sph_params.particle_mass * sph_params.viscosity * 45.0f / (CUDART_PI_F * pow(sph_params.smooth_len, 6));
-        sph_params.wall_stiffness       = 3000.0f;
-        SPHInitialize(sph_params);
-        SPHInitializeGLBuffers( m_vbo[VBO_FLUID_PARTICLES]->getHandle() );
-    }
-    {
         CreateCubeParticleSet(m_pset[PSET_CUBE_SMALL],  m_rinfo[PSET_CUBE_SMALL],  0.1f);
         CreateCubeParticleSet(m_pset[PSET_CUBE_MEDIUM], m_rinfo[PSET_CUBE_MEDIUM], 0.2f);
         CreateCubeParticleSet(m_pset[PSET_CUBE_LARGE],  m_rinfo[PSET_CUBE_LARGE],  0.4f);
@@ -192,9 +183,6 @@ bool GraphicResourceManager::initialize()
 
 void GraphicResourceManager::finalize()
 {
-    SPHFinalizeGLBuffers();
-    SPHFinalize();
-
     for(uint32 i=0; i<_countof(m_shader); ++i)  { if(m_shader[i]) { atomicSafeRelease( m_shader[i] ); } }
     for(uint32 i=0; i<_countof(m_rt); ++i)      { if(m_rt[i]) { atomicSafeRelease( m_rt[i] ); } }
     for(uint32 i=0; i<_countof(m_ubo); ++i)     { if(m_ubo[i]) { atomicSafeRelease( m_ubo[i] ); } }

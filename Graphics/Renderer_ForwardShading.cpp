@@ -4,7 +4,6 @@
 #include "Game/AtomicGame.h"
 #include "Game/World.h"
 #include "Game/Collision.h"
-#include "GPGPU/SPH.cuh"
 #include "AtomicRenderingSystem.h"
 #include "Renderer.h"
 #include "Util.h"
@@ -46,7 +45,7 @@ void PassForwardShading_DistanceField::draw()
     if(atomicGetConfig()->debug_show_grid) {
         m_sh_grid->bind();
         m_va_grid->bind();
-        glDrawArrays(GL_LINES, 0, (SPH_DISTANCE_FIELD_DIV_X+1) * (SPH_DISTANCE_FIELD_DIV_Y+1) * 2);
+        glDrawArrays(GL_LINES, 0, (PSYM_GRID_DIV+1) * (PSYM_GRID_DIV+1) * 2);
         m_va_grid->unbind();
         m_sh_grid->unbind();
     }

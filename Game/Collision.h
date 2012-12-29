@@ -1,8 +1,6 @@
 ﻿#ifndef __atomic_Game_Collision__
 #define __atomic_Game_Collision__
 
-#include "GPGPU/SPH.cuh"
-
 namespace atomic {
 
 enum COLLISION_SHAPE {
@@ -10,7 +8,6 @@ enum COLLISION_SHAPE {
     CS_PLANE,
     CS_SPHERE,
     CS_BOX,
-    CS_BEAM,
     CS_END,
 };
 enum COLLISION_FLAG {
@@ -59,7 +56,7 @@ private:
             EntityHandle    m_gobj_handle;
             int32           m_flags; // COLLISION_FLAG
         };
-        float4 padding;
+        float padding[4];
     };
 
     void setCollisionHandle(CollisionHandle v) { m_col_handle=v; }
@@ -124,7 +121,7 @@ struct CollideMessage
             CollisionHandle cfrom;
             CollisionHandle cto;
         };
-        float4 padding;
+        float padding[4];
     };
     vec4 direction; // w=めり込み量
 
@@ -135,37 +132,6 @@ struct CollideMessage
 class CollideTask;
 class DistanceTask;
 
-
-
-class DistanceField
-{
-public:
-    static const ivec3 grid_div;
-    static const ivec3 block_size;
-    static const ivec3 block_num;
-    static const vec3 grid_size;
-    static const vec3 grid_pos;
-    static const vec3 cell_size;
-
-    static ivec3 getDistanceFieldCoord(const vec3 &pos);
-
-private:
-    typedef stl::vector<DistanceTask*>      TaskCont;
-    typedef stl::vector<CollisionEntity*>   EntityCont;
-
-    vec4            m_dist[SPH_DISTANCE_FIELD_DIV_Z*SPH_DISTANCE_FIELD_DIV_Y*SPH_DISTANCE_FIELD_DIV_X];
-    EntityHandle    m_handle[SPH_DISTANCE_FIELD_DIV_Z*SPH_DISTANCE_FIELD_DIV_Y*SPH_DISTANCE_FIELD_DIV_X];
-    TaskCont        m_tasks;
-
-public:
-    DistanceField();
-    ~DistanceField();
-
-    vec4* getDistances()            { return m_dist; }
-    CollisionHandle* getEntities()  { return m_handle; }
-    void updateBegin(EntityCont &v);
-    void updateEnd();
-};
 
 class CollisionGrid
 {
@@ -239,7 +205,7 @@ public:
     void draw();
     void frameEnd();
 
-    void copyRigitsToGPU();
+    void copyRigitsToPSym();
 
     CollisionEntity* getEntity(CollisionHandle h);
     template<class T> T* createEntity();
@@ -249,7 +215,6 @@ public:
     uint32 collide(CollisionEntity *e, MessageCont &m, HandleCont &neighbors_placeholder);
 
     CollisionGrid* getCollisionGrid();
-    DistanceField* getDistanceField();
 };
 
 
