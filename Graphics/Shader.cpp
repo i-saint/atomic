@@ -34,6 +34,7 @@ bool AtomicShader::loadFromMemory( const char* src )
     i3d::Device *dev = atomicGetGLDevice();
     {
         stl::string source;
+		source += "#version 330 core\n";
         source += "#define GLSL\n";
         source += "#define GLSL_VS\n";
         source += src;
@@ -42,6 +43,7 @@ bool AtomicShader::loadFromMemory( const char* src )
     }
     {
         stl::string source;
+		source += "#version 330 core\n";
         source += "#define GLSL\n";
         source += "#define GLSL_PS\n";
         source += src;

@@ -1,4 +1,3 @@
-#version 330 core
 #pragma include("Common.h")
 
 #ifdef GLSL_VS

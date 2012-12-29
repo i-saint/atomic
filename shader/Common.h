@@ -2,7 +2,6 @@
 #pragma include("Semantics.h")
 
 
-#ifdef GLSL
     layout(std140) uniform render_states
     {
         RenderStates u_RS;

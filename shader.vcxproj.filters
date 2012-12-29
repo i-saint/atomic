@@ -79,6 +79,9 @@
     <None Include="shader\GBuffer_ParticleSpherical.glsl">
       <Filter>shader</Filter>
     </None>
+    <None Include="shader\GBuffer_Floor.glsl">
+      <Filter>shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shader\Fxaa3_11.h">
