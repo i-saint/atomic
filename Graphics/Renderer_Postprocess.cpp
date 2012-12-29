@@ -183,7 +183,7 @@ void PassPostprocess_Bloom::draw()
         dc->setVertexArray(m_va_composite);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-        dc->draw(I3D_QUADS, 0, 16);
+        dc->draw(I3D_QUADS, 0, 4);
         glDisable(GL_BLEND);
         dc->setTexture(GLSL_COLOR_BUFFER, NULL);
         dc->setRenderTarget(NULL);
