@@ -89,7 +89,7 @@ bool AtomicConfig::writeToFile( const char* filepath )
     fprintf(f, "multiresolution = %d\n",        multiresolution);
     fprintf(f, "show_text = %d\n",              show_text);
     fprintf(f, "show_bloodstain = %d\n",        show_bloodstain);
-    fprintf(f, "ouput_replay = %d\n",           output_replay);
+    fprintf(f, "output_replay = %d\n",          output_replay);
     fprintf(f, "debug_show_grid = %d\n",        debug_show_grid);
     fprintf(f, "debug_show_distance = %d\n",    debug_show_distance);
     fprintf(f, "debug_show_resolution = %d\n",  debug_show_resolution);

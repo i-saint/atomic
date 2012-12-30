@@ -218,7 +218,9 @@ void PassGBuffer_SPH::addPSetInstance( PSET_RID psid, const PSetInstance inst )
 {
     {
         const ParticleSet *rc = atomicGetParticleSet(psid);
-        simdvec4 pos = simdvec4(inst.translate[3]);
+        vec4 posf = inst.translate[3];
+        posf.w = 0.0f;
+        simdvec4 pos = simdvec4(posf);
         AABB aabb = rc->getAABB();
         aabb[0] = (simdvec4(aabb[0])+pos).Data;
         aabb[1] = (simdvec4(aabb[1])+pos).Data;

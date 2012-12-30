@@ -20,6 +20,7 @@ DOL_ImportFunction(void, sphProcessExternalForceDOL, (
     ispc::DirectionalForce * dforce, int32_t num_dforce,
     ispc::BoxForce * bforce, int32_t num_bforce ));
 DOL_ImportFunction(void, sphUpdateDensityDOL, (ispc::Particle * all_particles, ispc::GridData * grid, int32_t xi, int32_t yi));
+DOL_ImportFunction(void, sphUpdateDensity2DOL, (ispc::Particle * all_particles, ispc::GridData * grid, int32_t xi, int32_t yi));
 DOL_ImportFunction(void, sphUpdateForceDOL, (ispc::Particle * all_particles, ispc::GridData * grid, int32_t xi, int32_t yi));
 
 
@@ -244,7 +245,7 @@ void World::update(float32 dt)
                 sphUpdateDensityDOL((ispc::Particle*)particles_soa, ce, xi, yi);
             }
     });
-#ifdef SPH_enable_neighbor_density_estimation
+#ifdef psym_enable_neighbor_density_estimation
     tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, 128),
         [&](const tbb::blocked_range<int> &r) {
             for(int i=r.begin(); i!=r.end(); ++i) {
@@ -255,7 +256,7 @@ void World::update(float32 dt)
                 sphUpdateDensity2DOL((ispc::Particle*)particles_soa, ce, xi, yi);
             }
     });
-#endif // SPH_enable_neighbor_density_estimation
+#endif // psym_enable_neighbor_density_estimation
     tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, 128),
         [&](const tbb::blocked_range<int> &r) {
             for(int i=r.begin(); i!=r.end(); ++i) {

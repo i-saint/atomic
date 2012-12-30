@@ -47,6 +47,13 @@ DOL_Export void sphUpdateDensityDOL(ispc::Particle * all_particles, ispc::GridDa
     ispc::sphUpdateDensity(all_particles, grid, xi, yi);
 }
 
+#ifdef psym_enable_neighbor_density_estimation
+DOL_Export void sphUpdateDensity2DOL(ispc::Particle * all_particles, ispc::GridData * grid, int32_t xi, int32_t yi)
+{
+    ispc::sphUpdateDensity2(all_particles, grid, xi, yi);
+}
+#endif // psym_enable_neighbor_density_estimation
+
 DOL_Export void sphUpdateForceDOL(ispc::Particle * all_particles, ispc::GridData * grid, int32_t xi, int32_t yi)
 {
     ispc::sphUpdateForce(all_particles, grid, xi, yi);

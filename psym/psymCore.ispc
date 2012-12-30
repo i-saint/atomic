@@ -232,7 +232,7 @@ export void sphUpdateDensity(
     uniform const int32 particle_num = gd.end - gd.begin;
     soa<8> Particle * uniform particles = &all_particles[gd.soai*8];
 
-#ifdef SPH_enable_neighbor_density_estimation
+#ifdef psym_enable_neighbor_density_estimation
     for(uniform int32 i=0; i<particle_num; ++i) {
         uniform vec3 pos1 = get_pos(particles[i]);
         float density = 0.0f;
@@ -276,10 +276,10 @@ export void sphUpdateDensity(
         }
         particles[i].density = reduce_add(density);
     }
-#endif // SPH_enable_neighbor_density_estimation
+#endif // psym_enable_neighbor_density_estimation
 }
 
-#ifdef SPH_enable_neighbor_density_estimation
+#ifdef psym_enable_neighbor_density_estimation
 export void sphUpdateDensity2(
     soa<8> Particle all_particles[],
     GridData uniform grid[],
@@ -303,7 +303,7 @@ export void sphUpdateDensity2(
         }
     }
 }
-#endif // SPH_enable_neighbor_density_estimation
+#endif // psym_enable_neighbor_density_estimation
 
 static inline float sphCalculatePressure(float density)
 {
