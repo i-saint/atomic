@@ -76,6 +76,8 @@ istInterModule Buffer* CreateVertexBuffer(Device *dev, uint32 size, I3D_USAGE us
 istInterModule Buffer* CreateIndexBuffer(Device *dev, uint32 size, I3D_USAGE usage, void *data=NULL);
 istInterModule Buffer* CreateUniformBuffer(Device *dev, uint32 size, I3D_USAGE usage, void *data=NULL);
 
+istInterModule void EnableVSync(bool v);
+
 } // namespace i3d
 } // namespace ist
 #endif // __ist_i3dgl_Util__

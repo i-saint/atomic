@@ -22,7 +22,8 @@ AtomicConfig::AtomicConfig()
     window_pos              = ivec2(0, 0);
     window_size             = ivec2(1024, 768);
     fullscreen              = false;
-    vsync                   = true;
+    vsync                   = false;
+    unlimit_gamespeed       = false;
     pause                   = false;
     posteffect_microscopic  = false;
     posteffect_bloom        = true;
@@ -30,6 +31,7 @@ AtomicConfig::AtomicConfig()
     multiresolution         = false;
     show_text               = true;
     show_bloodstain         = false;
+    output_replay           = false;
     debug_show_grid         = false;
     debug_show_distance     = false;
     debug_show_gbuffer      = 0;
@@ -54,12 +56,13 @@ bool AtomicConfig::readFromFile( const char* filepath )
         if(sscanf(buf, "window_size = %d, %d", &itmp.x, &itmp.y)==2){ window_size.x=itmp.x; window_size.y=itmp.y; }
         if(sscanf(buf, "fullscreen = %d", &itmp.x)==1)              { fullscreen=itmp.x!=0; }
         if(sscanf(buf, "vsync = %d", &itmp.x)==1)                   { vsync=itmp.x!=0; }
-        if(sscanf(buf, "posteffect_microscopic = %d", &itmp.x)==1)  { posteffect_microscopic=(itmp.x!=0); }
+        if(sscanf(buf, "unlimit_gamespeed = %d", &itmp.x)==1)       { unlimit_gamespeed=itmp.x!=0; }
         if(sscanf(buf, "posteffect_bloom = %d", &itmp.x)==1)        { posteffect_bloom=(itmp.x!=0); }
         if(sscanf(buf, "posteffect_antialias = %d", &itmp.x)==1)    { posteffect_antialias=(itmp.x!=0); }
         if(sscanf(buf, "multiresolution = %d", &itmp.x)==1)         { multiresolution=(itmp.x!=0); }
         if(sscanf(buf, "show_text = %d", &itmp.x)==1)               { show_text=(itmp.x!=0); }
         if(sscanf(buf, "show_bloodstain = %d", &itmp.x)==1)         { show_bloodstain=(itmp.x!=0); }
+        if(sscanf(buf, "output_replay = %d", &itmp.x)==1)           { output_replay=(itmp.x!=0); }
         if(sscanf(buf, "debug_show_grid = %d", &itmp.x)==1)         { debug_show_grid=(itmp.x!=0); }
         if(sscanf(buf, "debug_show_distance = %d", &itmp.x)==1)     { debug_show_distance=(itmp.x!=0); }
         if(sscanf(buf, "debug_show_resolution = %d", &itmp.x)==1)   { debug_show_resolution=(itmp.x!=0); }
@@ -80,12 +83,13 @@ bool AtomicConfig::writeToFile( const char* filepath )
     fprintf(f, "window_size = %d, %d\n",        window_size.x, window_size.y);
     fprintf(f, "fullscreen = %d\n",             fullscreen);
     fprintf(f, "vsync = %d\n",                  vsync);
-    fprintf(f, "posteffect_microscopic = %d\n", posteffect_microscopic);
+    fprintf(f, "unlimit_gamespeed = %d\n",      unlimit_gamespeed);
     fprintf(f, "posteffect_bloom = %d\n",       posteffect_bloom);
     fprintf(f, "posteffect_antialias = %d\n",   posteffect_antialias);
     fprintf(f, "multiresolution = %d\n",        multiresolution);
     fprintf(f, "show_text = %d\n",              show_text);
     fprintf(f, "show_bloodstain = %d\n",        show_bloodstain);
+    fprintf(f, "ouput_replay = %d\n",           output_replay);
     fprintf(f, "debug_show_grid = %d\n",        debug_show_grid);
     fprintf(f, "debug_show_distance = %d\n",    debug_show_distance);
     fprintf(f, "debug_show_resolution = %d\n",  debug_show_resolution);
@@ -167,12 +171,26 @@ void AtomicApplication::finalize()
 
 void AtomicApplication::mainLoop()
 {
+#ifdef _WIN64
+#   define MSBUILD_OPTION "atomic.vcxproj /m /p:Configuration=Release;Platform=x64 /t:ClCompile"
+#   define BUILD_TARGET "x64\\Release"
+#else // _WIN64
+#   define MSBUILD_OPTION "atomic.vcxproj /m /p:Configuration=Release;Platform=Win32 /t:ClCompile"
+#   define BUILD_TARGET "Release"
+#endif // _WIN64
+    DOL_AddSourceDirectory("Game\\Entity");
+    DOL_StartAutoRecompile(MSBUILD_OPTION, true);
+    DOL_Load(BUILD_TARGET);
+    DOL_Link();
+
+    PerformanceCounter pc;
+    float dt = 1.0f;
+
     while(!m_request_exit)
     {
+        DOL_Update();
         translateMessage();
 
-        PerformanceCounter pc;
-        float dt = 1.0f;
         if(m_game) {
             m_game->frameBegin();
             m_game->update(dt);
@@ -181,7 +199,18 @@ void AtomicApplication::mainLoop()
             m_game->asyncupdateEnd();
             m_game->draw();
             m_game->frameEnd();
-            dt = pc.getElapsedMillisecond();
+            if(!atomicGetConfig()->unlimit_gamespeed && !atomicGetConfig()->vsync) {
+                for(;;) {
+                    const float32 threshold = 16.66f;
+                    float32 elapsed = pc.getElapsedMillisecond();
+                    if(elapsed>=threshold) {
+                        break;
+                    }
+                    else if(threshold - elapsed > 2.0f) {
+                        ::Sleep(DWORD(threshold - elapsed));
+                    }
+                }
+            }
             pc.reset();
         }
     }

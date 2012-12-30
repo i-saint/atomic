@@ -123,7 +123,5 @@ public:
     template<class T> IEntity* createEntity();
 };
 
-
-
 } // namespace atomic
 #endif // __atomic_Game_Entity__

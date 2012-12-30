@@ -241,6 +241,11 @@ Buffer* CreateUniformBuffer( Device *dev, uint32 size, I3D_USAGE usage, void *da
     return dev->createBuffer(desc);
 }
 
+void EnableVSync( bool v )
+{
+    wglSwapIntervalEXT(v);
+}
+
 
 } // namespace i3d
 } // namespace ist

@@ -13,6 +13,7 @@ struct AtomicConfig
     ivec2 window_size;
     bool fullscreen;
     bool vsync;
+    bool unlimit_gamespeed;
     bool pause;
     bool posteffect_microscopic;
     bool posteffect_bloom;
@@ -20,6 +21,7 @@ struct AtomicConfig
     bool multiresolution;
     bool show_text;
     bool show_bloodstain;
+    bool output_replay;
     bool debug_show_grid;
     bool debug_show_distance;
     int32 debug_show_gbuffer;

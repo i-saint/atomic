@@ -29,7 +29,9 @@ AtomicGame::AtomicGame()
 
 AtomicGame::~AtomicGame()
 {
-    if(m_input_server->getClassID()==IInputServer::IS_LOCAL) {
+    if(m_input_server->getClassID()==IInputServer::IS_LOCAL &&
+       atomicGetConfig()->output_replay)
+    {
         char path[128];
         char date[128];
         CreateDateString(date, _countof(date));

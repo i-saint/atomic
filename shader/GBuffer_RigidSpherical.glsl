@@ -81,8 +81,9 @@ void main()
         if(d > ar_sq) {
             discard;
         }
-        float c = max(0.0, 1.0f - (ar_sq-d)*100.0);
-        glow += vec4(1.0, 0.1, 0.15, 1.0) * c;
+        float cr = max(0.0, 1.0f - (ar_sq-d)*100.0);
+        float co = max(0.0, 1.0f - (ar_sq-d)*200.0);
+        glow += vec4(1.0, 0.6, 0.7, 0.0) * vec4(cr, co, co, 0.0);
     }
 
     vec3 n = normalize(vs_VertexPosition.xyz - vs_InstancePosition.xyz);
