@@ -69,7 +69,7 @@ public:
     void draw();
     void frameEnd();
 
-    void copyParticlesToGL();
+    size_t copyParticlesToGL();
     void taskAsyncupdate(float32 dt);
 
     size_t getNumParticles() const;
@@ -82,6 +82,8 @@ public:
 
 private:
     psym::World m_world;
+    ist::Mutex m_mutex_particles;
+    stl::vector<psym::Particle> m_particles; // GPU 転送用
     stl::vector<Task*>  m_fluid_tasks;
     Task*               m_asyncupdate_task;
     uint32              m_current_fluid_task;

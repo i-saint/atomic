@@ -43,10 +43,7 @@ private:
     stl::vector<PSetUpdateInfo> m_rupdateinfo;
     stl::vector<PSetParticle>   m_rparticles;
     stl::vector<PSetInstance>   m_rinstances;
-    stl::vector<Task*>                  m_tasks;
     stl::vector<UpdateRigidParticle>    m_updater;
-
-    void resizeTasks(uint32 n);
 
 public:
     PassGBuffer_SPH();

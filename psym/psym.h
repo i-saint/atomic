@@ -65,11 +65,10 @@ public:
     size_t getNumParticles() const;
 
 public:
-    Particle particles[PSYM_MAX_PARTICLE_NUM];
     Particle_SOA8 particles_soa[PSYM_MAX_PARTICLE_NUM];
     GridData cell[PSYM_GRID_DIV][PSYM_GRID_DIV];
+    Particle particles[PSYM_MAX_PARTICLE_NUM];
     size_t num_active_particles;
-    float32 particle_lifetime;
 
     std::vector<RigidSphere>   collision_spheres;
     std::vector<RigidPlane>    collision_planes;

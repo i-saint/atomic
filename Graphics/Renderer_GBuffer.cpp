@@ -102,10 +102,6 @@ PassGBuffer_SPH::PassGBuffer_SPH()
 
 PassGBuffer_SPH::~PassGBuffer_SPH()
 {
-    for(uint32 i=0; i<m_tasks.size(); ++i) {
-        istDelete(m_tasks[i]);
-    }
-    m_tasks.clear();
 }
 
 void PassGBuffer_SPH::beforeDraw()
@@ -134,54 +130,41 @@ void PassGBuffer_SPH::draw()
         // 並列更新に必要な情報を設定
         size_t n = 0;
         for(uint32 ri=0; ri<num_rigids; ++ri) {
-            m_updater.push_back( UpdateRigidParticle(m_rupdateinfo[ri], &m_rparticles[n]) );
+            const ParticleSet *rc = atomicGetParticleSet(m_rupdateinfo[ri].psid);
+            uint32 num_particles            = rc->getNumParticles();
+            const PSetParticle *particles   = rc->getParticleData();
+            for(uint32 i=0; i<num_particles; ++i) {
+                uint32 pi = n+i;
+                m_rparticles[pi].position     = particles[i].position;
+                m_rparticles[pi].normal       = particles[i].normal;
+                m_rparticles[pi].instanceid   = m_rupdateinfo[ri].instanceid;
+            }
             n += atomicGetParticleSet(m_rupdateinfo[ri].psid)->getNumParticles();
         }
-
-        // 並列更新の粒度を設定 (一定頂点数でタスクを分割)
-        const uint32 minimum_particles_in_task = 10000;
-        UpdateRigidParticle *last = &m_updater[0];
-        uint32 particles_in_task = 0;
-        for(uint32 ri=0; ri<num_rigids; ++ri) {
-            particles_in_task += atomicGetParticleSet(m_rupdateinfo[ri].psid)->getNumParticles();
-            if(particles_in_task > minimum_particles_in_task || ri+1==num_rigids) {
-                UpdateRigidParticle *current = &m_updater[0]+(ri+1);
-                resizeTasks(num_tasks+1);
-                static_cast<UpdateRigidParticleTask*>(m_tasks[num_tasks])->setup(last, current);
-                last = current;
-                ++num_tasks;
-                particles_in_task = 0;
-            }
-        }
-
-        // 並列頂点更新開始
-        ist::EnqueueTasks(&m_tasks[0], num_tasks);
     }
-    // copy fluid particles (ispc -> GL)
-    atomicGetSPHManager()->copyParticlesToGL();
 
 
     // fluid particle
     {
-        const uint32 num_particles = atomicGetSPHManager()->getNumParticles();
-        const VertexDesc descs[] = {
-            {GLSL_INSTANCE_POSITION, I3D_FLOAT,4,  0, false, 1},
-            {GLSL_INSTANCE_VELOCITY, I3D_FLOAT,4, 16, false, 1},
-            {GLSL_INSTANCE_PARAM,    I3D_FLOAT,4, 32, false, 1},
-        };
-
-        m_va_cube->setAttributes(*m_vbo_fluid, sizeof(psym::Particle), descs, _countof(descs));
-
-        m_sh_fluid->assign(dc);
-        dc->setVertexArray(m_va_cube);
-        dc->drawInstanced(I3D_QUADS, 0, 24, num_particles);
+        // copy fluid particles (ispc -> GL)
+        const uint32 num_particles = atomicGetSPHManager()->copyParticlesToGL();
+        if(num_particles > 0) {
+            const VertexDesc descs[] = {
+                {GLSL_INSTANCE_POSITION, I3D_FLOAT,4,  0, false, 1},
+                {GLSL_INSTANCE_VELOCITY, I3D_FLOAT,4, 16, false, 1},
+                {GLSL_INSTANCE_PARAM,    I3D_FLOAT,4, 32, false, 1},
+            };
+            m_va_cube->setAttributes(*m_vbo_fluid, sizeof(psym::Particle), descs, _countof(descs));
+            m_sh_fluid->assign(dc);
+            dc->setVertexArray(m_va_cube);
+            dc->drawInstanced(I3D_QUADS, 0, 24, num_particles);
+        }
     }
 
     // rigid particle
     Texture2D *param_texture = atomicGetTexture2D(TEX2D_ENTITY_PARAMS);
     {
         param_texture->copy(0, uvec2(0,0), uvec2(sizeof(PSetInstance)/sizeof(vec4), m_rinstances.size()), I3D_RGBA32F, &m_rinstances[0]);
-        ist::WaitTasks(&m_tasks[0], num_tasks);
         MapAndWrite(*m_vbo_rigid, &m_rparticles[0], sizeof(PSetParticle)*num_rigid_particles);
     }
     {
@@ -204,13 +187,6 @@ void PassGBuffer_SPH::draw()
         sh_floor->assign(dc);
         dc->setVertexArray(va_floor);
         dc->draw(I3D_QUADS, 0, 4);
-    }
-}
-
-void PassGBuffer_SPH::resizeTasks( uint32 n )
-{
-    while(m_tasks.size() < n) {
-        m_tasks.push_back( istNew(UpdateRigidParticleTask)() );
     }
 }
 

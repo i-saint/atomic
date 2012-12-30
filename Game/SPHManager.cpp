@@ -129,6 +129,9 @@ void SPHManager::update( float32 dt )
 
 void SPHManager::asyncupdate( float32 dt )
 {
+    m_particles.clear();
+    m_mutex_particles.lock();
+
     static_cast<SPHAsyncUpdateTask*>(m_asyncupdate_task)->setup(dt);
     TaskScheduler::getInstance()->enqueue(m_asyncupdate_task);
 }
@@ -143,11 +146,12 @@ void SPHManager::frameEnd()
     m_asyncupdate_task->wait();
 }
 
-void SPHManager::copyParticlesToGL()
+size_t SPHManager::copyParticlesToGL()
 {
-    m_asyncupdate_task->wait();
+    ist::ScopedLock<ist::Mutex> l(m_mutex_particles);
     Buffer *vb = atomicGetVertexBuffer(VBO_FLUID_PARTICLES);
-    MapAndWrite(*vb, m_world.getParticles(), m_world.getNumParticles()*sizeof(psym::Particle));
+    MapAndWrite(*vb, &m_particles[0], m_particles.size()*sizeof(psym::Particle));
+    return m_particles.size();
 }
 
 void SPHManager::taskAsyncupdate( float32 dt )
@@ -157,6 +161,8 @@ void SPHManager::taskAsyncupdate( float32 dt )
         stl::vector<psym::Particle> &fluid = static_cast<ComputeFluidParticle*>(m_fluid_tasks[i])->getData();
         addFluid(&fluid[0], fluid.size());
     }
+    m_particles.insert(m_particles.end(), m_world.getParticles(), m_world.getParticles()+m_world.getNumParticles());
+    m_mutex_particles.unlock();
     m_world.update(dt);
 }
 
@@ -243,7 +249,8 @@ void SPHManager::addForce( const psym::PointForce &v )
 void SPHManager::addFluid( psym::Particle *particles, uint32 num )
 {
     for(uint32 i=0; i<num; ++i) {
-        particles[i].energy = 2400.0f + (atomicGenRandFloat()*300.0f);
+        particles[i].energy = 2700.0f + (atomicGenRandFloat()*300.0f);
+        particles[i].density = 0.0f;
     }
     m_world.addParticles(particles, num);
 }
