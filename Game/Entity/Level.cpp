@@ -153,7 +153,7 @@ public:
         case 1: atomicCall(e, setModel, PSET_SPHERE_LARGE); atomicCall(e, setCollisionShape, CS_SPHERE); break;
         }
         atomicCall(e, setPosition, GenRandomVector2() * 1.5f);
-        atomicCall(e, setHealth, 1800.0f * getLoopBoost());
+        atomicCall(e, setHealth, 1200.0f * getLoopBoost());
         atomicCall(e, setAxis1, GenRandomUnitVector3());
         atomicCall(e, setAxis2, GenRandomUnitVector3());
         atomicCall(e, setRotateSpeed1, 0.1f);

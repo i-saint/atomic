@@ -297,8 +297,6 @@ void AtomicRenderer::passOutput()
 
     istsprintf(buf, "Multiresolution Threshold: %.3f ([8]<- [9]->)", atomicGetLights()->getMultiresolutionParams().Threshold.x);
     m_stext->addText(vec2(5.0f, 210.0f), buf);
-    istsprintf(buf, "やったー！日本語出たよー！");
-    m_stext->addText(vec2(5.0f, 230.0f), buf);
 
     m_stext->draw();
 }

@@ -412,12 +412,10 @@ export void sphIntegrate(
 
         vel += accel * timestep;
         // Ž©‘RŒ¸‘¬
-        vel *= SPH_DECELERATE;
         {
-            float d = dot3(vel, vel);
-            if(d > 16.0f) {
-                vel = vel * rsqrt(d) * 4.0f;
-            }
+            float d = length3(vel) * 0.075;
+            float c = max(1.0f - d*d, 0.01);
+            vel *= c;
         }
 
         pos += vel * timestep;
@@ -500,12 +498,6 @@ export void impIntegrate(
         vel += accel * timestep;
         // Ž©‘RŒ¸‘¬
         vel *= SPH_DECELERATE;
-                {
-            float d = dot3(vel, vel);
-            if(d > 16.0f) {
-                vel = vel * rsqrt(d) * 4.0f;
-            }
-        }
 
         pos += vel * timestep;
         set_pos(particles[i], pos);

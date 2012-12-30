@@ -243,7 +243,7 @@ void SPHManager::addForce( const psym::PointForce &v )
 void SPHManager::addFluid( psym::Particle *particles, uint32 num )
 {
     for(uint32 i=0; i<num; ++i) {
-        particles[i].energy = 3600.0f;
+        particles[i].energy = 2400.0f + (atomicGenRandFloat()*300.0f);
     }
     m_world.addParticles(particles, num);
 }
