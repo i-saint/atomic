@@ -20,7 +20,7 @@ namespace atomic {
 AtomicConfig::AtomicConfig()
 {
     window_pos              = ivec2(0, 0);
-    window_size             = ivec2(1024, 768);
+    window_size             = ivec2(1280, 768);
     fullscreen              = false;
     vsync                   = false;
     unlimit_gamespeed       = false;
@@ -38,8 +38,8 @@ AtomicConfig::AtomicConfig()
     debug_show_lights       = -1;
     debug_show_resolution   = 0;
     sound_enable            = true;
-    bgm_volume              = 0.5;
-    se_volume               = 0.5;
+    bgm_volume              = 0.3;
+    se_volume               = 0.3;
     language                = LANG_JP;
 }
 
