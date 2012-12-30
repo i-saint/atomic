@@ -8,7 +8,9 @@ ia_out(GLSL_INSTANCE_NORMAL)    vec4 ia_InstanceNormal;
 ia_out(GLSL_INSTANCE_PARAM)     int  ia_InstanceID;
 #endif
 #if defined(GLSL_VS) || defined(GLSL_PS)
+vs_out vec4 vs_PSetPosition;
 vs_out vec4 vs_InstancePosition;
+vs_out vec4 vs_InstanceParams;      // x: elapsed frame, y: appear_radius
 vs_out vec4 vs_VertexPosition;      // w = affect bloodstain
 vs_out vec4 vs_VertexNormal;        // w = fresnel
 vs_out vec4 vs_VertexColor;         // w = shininess
@@ -23,12 +25,14 @@ void main()
     vec4 ia_InstanceColor   = texelFetch(u_ParamBuffer, ivec2(0, ia_InstanceID), 0);
     vec4 ia_InstanceGlow    = texelFetch(u_ParamBuffer, ivec2(1, ia_InstanceID), 0);
     vec4 ia_InstanceFlash   = texelFetch(u_ParamBuffer, ivec2(2, ia_InstanceID), 0);
+    vs_InstanceParams = texelFetch(u_ParamBuffer, ivec2(3, ia_InstanceID), 0);
 
     mat4 trans;
     trans[0] = texelFetch(u_ParamBuffer, ivec2(4, ia_InstanceID), 0);
     trans[1] = texelFetch(u_ParamBuffer, ivec2(5, ia_InstanceID), 0);
     trans[2] = texelFetch(u_ParamBuffer, ivec2(6, ia_InstanceID), 0);
     trans[3] = texelFetch(u_ParamBuffer, ivec2(7, ia_InstanceID), 0);
+    vs_PSetPosition = trans[3];
 
     vec4 instancePos = trans * vec4(ia_InstancePosition, 1.0);
     vec4 vert = ia_VertexPosition+instancePos;
@@ -58,17 +62,34 @@ ps_out(3) vec4 ps_FragGlow;
 void main()
 {
     const float radius = 0.015f;
-    vec2 pos2 = vs_VertexPosition.xy - vs_InstancePosition.xy;
-    if(dot(pos2, pos2) > radius*radius) {
+    vec2 diff2 = vs_VertexPosition.xy - vs_InstancePosition.xy;
+    if(dot(diff2, diff2) > radius*radius) {
         discard;
     }
-    float z = sqrt(radius*radius - pos2.x*pos2.x - pos2.y*pos2.y);
+
+    float z = sqrt(radius*radius - diff2.x*diff2.x - diff2.y*diff2.y);
+    vec4 flag_pos = vs_InstancePosition + vec4(diff2, z, 0.0);
+    vec4 glow = vec4(vs_Glow.rgb + vs_Flash.rgb, 1.0);
+
+    {
+        // 出現エフェクト
+        float ar = vs_InstanceParams.y;
+        float ar_sq = ar*ar;
+        vec3 psetpos = vs_PSetPosition.xyz;
+        vec3 diff3 = flag_pos.xyz - psetpos;
+        float d = dot(diff3, diff3);
+        if(d > ar_sq) {
+            discard;
+        }
+        float c = max(0.0, 1.0f - (ar_sq-d)*100.0);
+        glow += vec4(1.0, 0.1, 0.15, 1.0) * c;
+    }
 
     vec3 n = normalize(vs_VertexPosition.xyz - vs_InstancePosition.xyz);
     ps_FlagColor    = vs_VertexColor + vs_Glow;
     ps_FragNormal   = vec4(n, vs_VertexNormal.w);
-    ps_FragPosition = vs_InstancePosition + vec4(pos2, z, 0.0);
-    ps_FragGlow     = vec4(vs_Glow.rgb + vs_Flash.rgb, 1.0);
+    ps_FragPosition = flag_pos;
+    ps_FragGlow     = glow;
 }
 
 #endif

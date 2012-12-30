@@ -18,7 +18,7 @@ void main()
     vs_VertexPosition = ia_VertexPosition;
     vs_VertexNormal = ia_VertexNormal;
     vs_VertexColor = vec4(0.2, 0.2, 0.2, 120.0);
-    gl_Position = u_RS.ModelViewProjectionMatrix * vs_VertexPosition;
+    gl_Position = u_RS.ModelViewProjectionMatrix * vec4(vs_VertexPosition.xyz, 1.0);
 }
 
 #elif defined(GLSL_PS)

@@ -24,10 +24,10 @@ void CreateFloorQuad( VertexArray *va, Buffer *&vbo, vec4 pos, vec4 size )
     };
 
     vertex_t vertices[4] = {
-        {vec4( size.x, size.y, size.z, 1.0f)+pos, vec4(0.0f, 0.0f, 1.0f, 0.0f), vec2(1.0f, 1.0f)},
-        {vec4(   0.0f, size.y, size.z, 1.0f)+pos, vec4(0.0f, 0.0f, 1.0f, 0.0f), vec2(0.0f, 1.0f)},
-        {vec4(   0.0f,   0.0f, size.z, 1.0f)+pos, vec4(0.0f, 0.0f, 1.0f, 0.0f), vec2(0.0f, 0.0f)},
-        {vec4( size.x,   0.0f, size.z, 1.0f)+pos, vec4(0.0f, 0.0f, 1.0f, 0.0f), vec2(1.0f, 0.0f)},
+        {vec4( size.x, size.y, size.z, 0.0f)+pos, vec4(0.0f, 0.0f, 1.0f, 0.0f), vec2(1.0f, 1.0f)},
+        {vec4(   0.0f, size.y, size.z, 0.0f)+pos, vec4(0.0f, 0.0f, 1.0f, 0.0f), vec2(0.0f, 1.0f)},
+        {vec4(   0.0f,   0.0f, size.z, 0.0f)+pos, vec4(0.0f, 0.0f, 1.0f, 0.0f), vec2(0.0f, 0.0f)},
+        {vec4( size.x,   0.0f, size.z, 0.0f)+pos, vec4(0.0f, 0.0f, 1.0f, 0.0f), vec2(1.0f, 0.0f)},
     };
 
     VertexDesc descs[] = {

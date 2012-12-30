@@ -178,6 +178,7 @@ public:
             inst.glow = vec4(0.2f, 0.0f, 1.0f, 0.0f);
             inst.flash = vec4();
             inst.elapsed = (float32)getPastFrame();
+            inst.appear_radius = 1000.0f;
             inst.translate = getTransform();
             atomicGetSPHRenderer()->addPSetInstance(pset_id, inst);
         }
