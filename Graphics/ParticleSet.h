@@ -49,12 +49,12 @@ struct PSetInstance
     float32 elapsed;
     float32 appear_radius;
     float32 padding[2];
+    mat4 translate;
 };
 BOOST_STATIC_ASSERT(sizeof(PSetInstance)%16==0);
 
 struct PSetUpdateInfo
 {
-    mat4 transform;
     union {
         struct {
             PSET_RID psid;
@@ -69,11 +69,24 @@ class ParticleSet
 {
 private:
     stl::vector<PSetParticle> m_particles;
+    AABB m_aabb;
 
 public:
-    void setData(const stl::vector<PSetParticle> &v) { m_particles=v; }
+    void setData(const stl::vector<PSetParticle> &v)
+    {
+        m_particles = v;
+        simdvec4 bb_min = simdvec4( 9999.0f,  9999.0f,  9999.0f, 1.0f);
+        simdvec4 bb_max = simdvec4(-9999.0f, -9999.0f, -9999.0f, 1.0f);
+        for(size_t i=0; i<v.size(); ++i) {
+            simdvec4 pos = simdvec4(v[i].position, 1.0f);
+            bb_min = glm::min(bb_min, pos);
+            bb_max = glm::max(bb_max, pos);
+        }
+        m_aabb = AABB(bb_min.Data, bb_max.Data);
+    }
     uint32 getNumParticles() const { return m_particles.size(); }
     const PSetParticle* getParticleData() const { return &m_particles[0]; }
+    const AABB& getAABB() const { return m_aabb; }
 };
 
 struct RigidInfo

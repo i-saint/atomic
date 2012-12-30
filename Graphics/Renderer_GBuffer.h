@@ -54,7 +54,7 @@ public:
     void beforeDraw();
     void draw();
 
-    void addPSetInstance(PSET_RID psid, const mat4 &t, const PSetInstance inst);
+    void addPSetInstance(PSET_RID psid, const PSetInstance inst);
 };
 
 } // namespace atomic

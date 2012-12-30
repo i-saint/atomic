@@ -24,7 +24,13 @@ void main()
     vec4 ia_InstanceGlow    = texelFetch(u_ParamBuffer, ivec2(1, ia_InstanceID), 0);
     vec4 ia_InstanceFlash   = texelFetch(u_ParamBuffer, ivec2(2, ia_InstanceID), 0);
 
-    vec4 instancePos = vec4(ia_InstancePosition, 1.0);
+    mat4 trans;
+    trans[0] = texelFetch(u_ParamBuffer, ivec2(4, ia_InstanceID), 0);
+    trans[1] = texelFetch(u_ParamBuffer, ivec2(5, ia_InstanceID), 0);
+    trans[2] = texelFetch(u_ParamBuffer, ivec2(6, ia_InstanceID), 0);
+    trans[3] = texelFetch(u_ParamBuffer, ivec2(7, ia_InstanceID), 0);
+
+    vec4 instancePos = trans * vec4(ia_InstancePosition, 1.0);
     vec4 vert = ia_VertexPosition+instancePos;
     vert.w = 1.0;
 

@@ -178,7 +178,8 @@ public:
             inst.glow = vec4(0.2f, 0.0f, 1.0f, 0.0f);
             inst.flash = vec4();
             inst.elapsed = (float32)getPastFrame();
-            atomicGetSPHRenderer()->addPSetInstance(pset_id, getTransform(), inst);
+            inst.translate = getTransform();
+            atomicGetSPHRenderer()->addPSetInstance(pset_id, inst);
         }
         //{
         //    IndivisualParticle particles;

@@ -318,7 +318,8 @@ public:
         inst.glow = glow;
         inst.flash = vec4();
         inst.elapsed = (float32)m_past_frame;
-        atomicGetSPHRenderer()->addPSetInstance(getModel(), getTransform(), inst);
+        inst.translate = getTransform();
+        atomicGetSPHRenderer()->addPSetInstance(getModel(), inst);
     }
 
     virtual void eventCollide(const CollideMessage *m)

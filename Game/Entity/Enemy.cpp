@@ -175,7 +175,8 @@ public:
             inst.glow = glow;
             inst.flash = getFlashColor();
             inst.elapsed = (float32)getPastFrame();
-            atomicGetSPHRenderer()->addPSetInstance(getModel(), getTransform(), inst);
+            inst.translate = getTransform();
+            atomicGetSPHRenderer()->addPSetInstance(getModel(), inst);
             atomicGetBloodstainRenderer()->addBloodstainParticles(getTransform(), getBloodStainParticles(), getNumBloodstainParticles());
         }
     }

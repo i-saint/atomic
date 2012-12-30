@@ -67,12 +67,9 @@ void UpdateRigidParticle::exec()
     const ParticleSet *rc = atomicGetParticleSet(m_rinst->psid);
     uint32 num_particles            = rc->getNumParticles();
     const PSetParticle *particles   = rc->getParticleData();
-    simdmat4 t(m_rinst->transform);
     for(uint32 i=0; i<num_particles; ++i) {
-        simdvec4 p(vec4(particles[i].position, 1.0f));
-        simdvec4 n((vec4&)particles[i].normal);
-        m_particles[i].position     = vec3(glm::vec4_cast(t * p));
-        m_particles[i].normal       = glm::vec4_cast(t * n);
+        m_particles[i].position     = particles[i].position;
+        m_particles[i].normal       = particles[i].normal;
         m_particles[i].instanceid   = m_rinst->instanceid;
     }
 }
@@ -142,7 +139,7 @@ void PassGBuffer_SPH::draw()
         }
 
         // 並列更新の粒度を設定 (一定頂点数でタスクを分割)
-        const uint32 minimum_particles_in_task = 5000;
+        const uint32 minimum_particles_in_task = 10000;
         UpdateRigidParticle *last = &m_updater[0];
         uint32 particles_in_task = 0;
         for(uint32 ri=0; ri<num_rigids; ++ri) {
@@ -217,12 +214,14 @@ void PassGBuffer_SPH::resizeTasks( uint32 n )
     }
 }
 
-void PassGBuffer_SPH::addPSetInstance( PSET_RID psid, const mat4 &t, const PSetInstance inst )
+void PassGBuffer_SPH::addPSetInstance( PSET_RID psid, const PSetInstance inst )
 {
-    // todo: AABB 適切に設定
     {
-        simdvec4 pos = simdvec4(t[3]);
-        AABB aabb = AABB(pos.Data);
+        const ParticleSet *rc = atomicGetParticleSet(psid);
+        simdvec4 pos = simdvec4(inst.translate[3]);
+        AABB aabb = rc->getAABB();
+        aabb[0] = (simdvec4(aabb[0])+pos).Data;
+        aabb[1] = (simdvec4(aabb[1])+pos).Data;
         if(!ist::TestFrustumAABB(*atomicGetViewFrustum(), aabb)) {
             return;
         }
@@ -231,7 +230,6 @@ void PassGBuffer_SPH::addPSetInstance( PSET_RID psid, const mat4 &t, const PSetI
     PSetUpdateInfo tmp;
     tmp.psid        = psid;
     tmp.instanceid  = m_rinstances.size();
-    tmp.transform   = t;
     m_rupdateinfo.push_back(tmp);
     m_rinstances.push_back(inst);
 }

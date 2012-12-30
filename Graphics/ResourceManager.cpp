@@ -141,7 +141,7 @@ bool GraphicResourceManager::initialize()
     {
         // create textures
         m_tex2d[TEX2D_RANDOM] = GenerateRandomTexture(dev, uvec2(64, 64), I3D_RGB8);
-        m_tex2d[TEX2D_ENTITY_PARAMS] = dev->createTexture2D(Texture2DDesc(I3D_RGBA32F, uvec2(4, 4096*2)));
+        m_tex2d[TEX2D_ENTITY_PARAMS] = dev->createTexture2D(Texture2DDesc(I3D_RGBA32F, uvec2(8, 4096)));
     }
     {
         // create render targets
