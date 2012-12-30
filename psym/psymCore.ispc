@@ -58,10 +58,14 @@ export void sphProcessCollision(
 {
     uniform const GridData &gd = grid[yi*PSYM_GRID_DIV + xi];
     uniform const int32 particle_num = gd.end - gd.begin;
+    if(particle_num==0) { return; }
     soa<8> Particle * uniform particles = &all_particles[gd.soai*8];
     soa<8> Force * uniform forces = &g_forces[gd.soai*8];
 
     uniform float particle_radius = SPH_SMOOTH_LEN;
+    uniform float cell_size = PSYM_GRID_SIZE / PSYM_GRID_DIV;
+    uniform vec2 grid_bl = {PSYM_GRID_POS + cell_size*xi, PSYM_GRID_POS + cell_size*yi };
+    uniform vec2 grid_ur = {PSYM_GRID_POS + cell_size*(xi+1), PSYM_GRID_POS + cell_size*(yi+1) };
 
     foreach(i=0 ... particle_num) {
         particles[i].hit_to = 0;
@@ -87,6 +91,14 @@ export void sphProcessCollision(
     // RigidSphere
     for(uniform int32 s=0; s<num_spheres; ++s) {
         uniform const RigidSphere &shape = spheres[s];
+        uniform vec3 bb_bl = get_bl(shape.bb);
+        uniform vec3 bb_ur = get_ur(shape.bb);
+        if(grid_ur.x < bb_bl.x || grid_ur.y < bb_bl.y ||
+           grid_bl.x > bb_ur.x || grid_bl.y > bb_ur.y )
+        {
+            continue;
+        }
+
         uniform const vec3 shape_pos = get_pos(shape);
         uniform const float r = shape.radius;
         uniform const float r_sq = r*r;
@@ -106,16 +118,17 @@ export void sphProcessCollision(
     // RigidBox
     for(uniform int32 s=0; s<num_boxes; ++s) {
         uniform const RigidBox &shape = boxes[s];
+        uniform vec3 bb_bl = get_bl(shape.bb);
+        uniform vec3 bb_ur = get_ur(shape.bb);
+        if(grid_ur.x < bb_bl.x || grid_ur.y < bb_bl.y ||
+           grid_bl.x > bb_ur.x || grid_bl.y > bb_ur.y )
+        {
+            continue;
+        }
+
         uniform vec3 box_pos = get_pos(shape);
         foreach(i=0 ... particle_num) {
             vec3 particles_pos = get_pos(particles[i]);
-            vec3 bb_bl = get_bl(shape.bb);
-            vec3 bb_ur = get_ur(shape.bb);
-            if(particles_pos.x < bb_bl.x || particles_pos.y < bb_bl.y || particles_pos.z < bb_bl.z ||
-               particles_pos.x > bb_ur.x || particles_pos.y > bb_ur.y || particles_pos.z > bb_ur.z )
-            {
-                continue;
-            }
 
             int32 inside = 0;
             float closest_distance = -9999.0f;
@@ -151,6 +164,7 @@ export void sphProcessExternalForce(
 {
     uniform const GridData &gd = grid[yi*PSYM_GRID_DIV + xi];
     uniform const int32 particle_num = gd.end - gd.begin;
+    if(particle_num==0) { return; }
     soa<8> Particle * uniform particles = &all_particles[gd.soai*8];
     soa<8> Force * uniform forces = &g_forces[gd.soai*8];
 
