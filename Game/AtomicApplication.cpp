@@ -31,15 +31,15 @@ AtomicConfig::AtomicConfig()
     multiresolution         = false;
     show_text               = true;
     show_bloodstain         = false;
-    output_replay           = false;
+    output_replay           = true;
     debug_show_grid         = false;
     debug_show_distance     = false;
     debug_show_gbuffer      = 0;
     debug_show_lights       = -1;
     debug_show_resolution   = 0;
     sound_enable            = true;
-    bgm_volume              = 0.3;
-    se_volume               = 0.3;
+    bgm_volume              = 0.3f;
+    se_volume               = 0.3f;
     language                = LANG_JP;
 }
 

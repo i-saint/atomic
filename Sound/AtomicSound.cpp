@@ -157,6 +157,7 @@ void SoundThread::addRequest(const SoundRequest & v)
 void SoundThread::exec()
 {
     ist::Thread::setNameToCurrentThread("AtomicSoundThread");
+    setPriority(Thread::Priority_High);
 
     initialize();
     m_initialization_complete = true;
@@ -170,7 +171,7 @@ void SoundThread::exec()
         if(m_bgm_source->eof()) {
             m_bgm_source->seek(0);
         }
-        m_cond_request.wait();
+        m_cond_request.timedWait(10);
     }
 
     finalize();

@@ -78,8 +78,7 @@ TaskWorker::TaskWorker( int32 cpu_index )
 {
     setName("ist::TaskWorker");
     setAffinityMask(1<<cpu_index);
-    setPriority(Thread::Priority_High);
-    //setPriority();
+    //setPriority(Thread::Priority_High);
     run();
 }
 

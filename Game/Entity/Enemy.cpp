@@ -104,6 +104,7 @@ public:
             }
             if(m_st_frame==FADEOUT_TIME) {
                 atomicDeleteEntity(getHandle());
+                return;
             }
         }
     }

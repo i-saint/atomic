@@ -20,6 +20,7 @@ public:
     Condition();
     ~Condition();
     void wait();
+    void timedWait(uint32 millisec);
     /// 誰も待っていない状態で signalOne() した場合、signal 状態が継続します。(Windows の Event 方式)
     /// * 非 Windows の場合、2 つのスレッドに signal が伝わってしまう可能性があります。
     ///   遺憾ですが、1 つのスレッドしか起きないという前提のコードは書かないでください。

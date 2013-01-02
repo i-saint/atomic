@@ -138,9 +138,9 @@ inline void GenIndex(uint32 hash, int32 &xi, int32 &yi)
 World::World()
     :  num_active_particles(0)
 {
-    for(uint32 i=0; i<_countof(particles); ++i) {
-        particles[i].energy = 0.0f;
-    }
+    memset(particles_soa, 0, sizeof(particles_soa));
+    memset(cell, 0, sizeof(cell));
+    memset(particles, 0, sizeof(particles));
 }
 
 void World::update(float32 dt)
