@@ -347,7 +347,7 @@ void SystemTextRenderer::addText(const vec2 &pos, const char *text)
 
 
 
-#ifdef __atomic_enable_debug_feature__
+#ifdef atomic_enable_debug_feature
 
 void PassHUD_DebugShowBuffer::drawColorBuffer( const DebugShowBufferParams &params )
 {
@@ -405,7 +405,7 @@ PassHUD_DebugShowBuffer::PassHUD_DebugShowBuffer()
 
 void PassHUD_DebugShowBuffer::draw()
 {
-#ifdef __atomic_enable_debug_feature__
+#ifdef atomic_enable_debug_feature
     DebugShowBufferParams params;
     params.BottomLeft = vec2(-1.0f, -1.0f);
     params.UpperRight = vec2( 1.0f,  1.0f);

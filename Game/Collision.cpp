@@ -299,19 +299,19 @@ CollisionSet::CollisionSet()
     m_tasks.reserve(32);
     m_entities.reserve(1024);
     m_vacant.reserve(1024);
-#ifdef __atomic_enable_distance_field__
+#ifdef atomic_enable_distance_field
     for(uint32 i=0; i<_countof(m_df); ++i) {
         m_df[i] = istNew(DistanceField)();
     }
     m_df_current = 0;
-#endif // __atomic_enable_distance_field__
+#endif // atomic_enable_distance_field
 }
 
 CollisionSet::~CollisionSet()
 {
-#ifdef __atomic_enable_distance_field__
+#ifdef atomic_enable_distance_field
     for(uint32 i=0; i<_countof(m_df); ++i)      { istSafeDelete(m_df[i]); }
-#endif // __atomic_enable_distance_field__
+#endif // atomic_enable_distance_field
     for(uint32 i=0; i<m_tasks.size(); ++i)      { istSafeDelete(m_tasks[i]); }
     for(uint32 i=0; i<m_entities.size(); ++i)   { deleteEntity(m_entities[i]); }
     m_tasks.clear();
@@ -359,26 +359,26 @@ void CollisionSet::asyncupdate(float32 dt)
 
 void CollisionSet::draw()
 {
-#ifdef __atomic_enable_distance_field__
+#ifdef atomic_enable_distance_field
     m_df[(m_df_current+1) % _countof(m_df)]->updateEnd();
-#endif // __atomic_enable_distance_field__
+#endif // atomic_enable_distance_field
 }
 
 void CollisionSet::frameEnd()
 {
     ist::WaitTasks(&m_tasks[0], m_tasks.size());
 
-#ifdef __atomic_enable_distance_field__
+#ifdef atomic_enable_distance_field
     m_df[(m_df_current+1) % _countof(m_df)]->updateEnd();
-#endif // __atomic_enable_distance_field__
+#endif // atomic_enable_distance_field
 }
 
 void CollisionSet::copyRigitsToPSym()
 {
-#ifdef __atomic_enable_distance_field__
+#ifdef atomic_enable_distance_field
     m_df[m_df_current]->updateBegin(m_entities);
     m_df_current = (m_df_current+1) % _countof(m_df);
-#endif // __atomic_enable_distance_field__
+#endif // atomic_enable_distance_field
 
     uint32 num = m_entities.size();
     for(uint32 i=0; i<num; ++i) {
@@ -406,6 +406,7 @@ void CollisionSet::addEntity(CollisionEntity *e)
 CollisionEntity* CollisionSet::getEntity(CollisionHandle h)
 {
     //if(h==0) { return NULL; }
+    if(h >= m_entities.size()) { return NULL; }
     return m_entities[h];
 }
 
@@ -451,6 +452,20 @@ void CollisionSet::deleteEntity(CollisionEntity *e)
 CollisionGrid* CollisionSet::getCollisionGrid()
 {
     return &m_grid;
+}
+
+
+
+vec4 GetCollisionPosition( CollisionEntity *ce )
+{
+    if(ce) {
+        switch(ce->getShape()) {
+        case CS_PLANE:  static_cast<CollisionPlane*>(ce); break;
+        case CS_SPHERE: return static_cast<CollisionSphere*>(ce)->pos_r; break;
+        case CS_BOX:    return static_cast<CollisionBox*>(ce)->position; break;
+        }
+    }
+    return vec4();
 }
 
 } // namespace atomic

@@ -30,7 +30,7 @@ void PassForwardShading_DistanceField::beforeDraw()
 
 void PassForwardShading_DistanceField::draw()
 {
-#ifdef __atomic_enable_distance_field__
+#ifdef atomic_enable_distance_field
     if(atomicGetConfig()->debug_show_distance) {
         MapAndWrite(*m_vbo_cell_dist, atomicGetCollisionSet()->getDistanceField()->getDistances(),
             sizeof(vec4) * SPH_DISTANCE_FIELD_DIV_X * SPH_DISTANCE_FIELD_DIV_Y);
@@ -40,7 +40,7 @@ void PassForwardShading_DistanceField::draw()
         m_va_cell->unbind();
         m_sh_cell->unbind();
     }
-#endif // __atomic_enable_distance_field__
+#endif // atomic_enable_distance_field
 
     if(atomicGetConfig()->debug_show_grid) {
         m_sh_grid->bind();

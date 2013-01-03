@@ -187,10 +187,10 @@ private:
     EntityCont      m_entities;
     HandleCont      m_vacant;
     uint32          m_active_tasks;
-#ifdef __atomic_enable_distance_field__
+#ifdef atomic_enable_distance_field
     DistanceField   *m_df[2];
     uint32          m_df_current;
-#endif // __atomic_enable_distance_field__
+#endif // atomic_enable_distance_field
 
     void addEntity(CollisionEntity *e);
     void resizeTasks(uint32 n);
@@ -217,6 +217,8 @@ public:
     CollisionGrid* getCollisionGrid();
 };
 
+
+vec4 GetCollisionPosition(CollisionEntity *ce);
 
 
 } // namespace atomic

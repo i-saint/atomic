@@ -68,7 +68,7 @@ void UpdateCollisionSphere(CollisionSphere &o, const vec4& pos, float32 r)
 
 void UpdateCollisionBox(CollisionBox &o, const mat4& t, const vec4 &size)
 {
-    const vec4 pos = t*vec4(0.0f,0.0f,0.0f,1.0f);
+    const vec4 pos = t[3];
     const float r = glm::length(size);
     const vec4 planes[6] = {
         vec4( 1.0f, 0.0f, 0.0f, 0.0f),

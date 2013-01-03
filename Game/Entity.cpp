@@ -132,6 +132,7 @@ void EntitySet::update( float32 dt )
 
 
     // asyncupdate
+    atomicLockRandom();
     ist::parallel_for(
         size_t(0), m_all.size(), 32,
         [&](size_t first, size_t last) {
@@ -141,6 +142,7 @@ void EntitySet::update( float32 dt )
                 }
             }
         });
+    atomicUnlockRandom();
 }
 
 void EntitySet::asyncupdate(float32 dt)

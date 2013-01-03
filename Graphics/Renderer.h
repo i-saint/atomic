@@ -131,7 +131,7 @@ public:
 class PassHUD_DebugShowBuffer : public IRenderer
 {
 private:
-#ifdef __atomic_enable_debug_feature__
+#ifdef atomic_enable_debug_feature
     void drawColorBuffer(const DebugShowBufferParams &params);
     void drawNormalBuffer(const DebugShowBufferParams &params);
     void drawPositionBuffer(const DebugShowBufferParams &params);

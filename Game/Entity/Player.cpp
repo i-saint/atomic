@@ -206,7 +206,8 @@ public:
         if( m->cfrom==m_barrier.getCollisionHandle() ||
             m->cto==m_barrier.getCollisionHandle()) { return; }
 
-        vec4 v = m->direction * m->direction.w * 0.2f;
+        // 押し返し
+        vec4 v = m->direction * (m->direction.w * 0.2f);
         m_vel += v;
         m_vel.z = 0.0f;
         m_vel.w = 0.0f;

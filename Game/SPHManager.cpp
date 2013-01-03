@@ -66,11 +66,14 @@ public:
     }
 };
 
+
+
 SPHManager::SPHManager()
     : m_current_fluid_task(0)
     , m_asyncupdate_task(NULL)
 {
     m_asyncupdate_task = istNew(SPHAsyncUpdateTask)(this);
+    m_rand.initialize(0);
 }
 
 SPHManager::~SPHManager()
@@ -158,7 +161,8 @@ void SPHManager::taskAsyncupdate( float32 dt )
 {
     for(uint32 i=0; i<m_current_fluid_task; ++i) {
         m_fluid_tasks[i]->wait();
-        stl::vector<psym::Particle> &fluid = static_cast<ComputeFluidParticle*>(m_fluid_tasks[i])->getData();
+        ComputeFluidParticle *cfp = static_cast<ComputeFluidParticle*>(m_fluid_tasks[i]);
+        stl::vector<psym::Particle> &fluid = cfp->getData();
         addFluid(&fluid[0], fluid.size());
     }
     m_particles.insert(m_particles.end(), m_world.getParticles(), m_world.getParticles()+m_world.getNumParticles());
@@ -248,8 +252,10 @@ void SPHManager::addForce( const psym::PointForce &v )
 
 void SPHManager::addFluid( psym::Particle *particles, uint32 num )
 {
+    const float32 enery_base = 2700.0f;
+    const float32 enery_diffuse = 300.0f;
     for(uint32 i=0; i<num; ++i) {
-        particles[i].energy = 2700.0f + (atomicGenRandFloat()*300.0f);
+        particles[i].energy = enery_base + (m_rand.genFloat32()*enery_diffuse);
         particles[i].density = 0.0f;
     }
     m_world.addParticles(particles, num);

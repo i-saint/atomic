@@ -109,9 +109,12 @@ void AoSnize( int32 num, const ispc::Particle_SOA8 *particles, Particle *out )
         };
 
         int32 e = std::min<int32>(SIMD_LANES, num-i);
+        const uint32 mask = 0xffffff00;
+        __declspec(align(16)) const uint32 maskv[4] = {mask, mask, mask, mask};
+        const simdvec4 masksv = _mm_load_ps((const float*)maskv);
         for(int32 ei=0; ei<e; ++ei) {
-            out[i+ei].position = aos_pos[ei/4][ei%4];
-            out[i+ei].velocity = aos_vel[ei/4][ei%4];
+            out[i+ei].position = _mm_and_ps(aos_pos[ei/4][ei%4], masksv);
+            out[i+ei].velocity = _mm_and_ps(aos_vel[ei/4][ei%4], masksv);
             out[i+ei].density = particles[bi].density[ei];
             out[i+ei].hit_to = particles[bi].hit_to[ei];
         }

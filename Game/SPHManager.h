@@ -87,6 +87,7 @@ private:
     stl::vector<Task*>  m_fluid_tasks;
     Task*               m_asyncupdate_task;
     uint32              m_current_fluid_task;
+    SFMT                m_rand;
 };
 
 

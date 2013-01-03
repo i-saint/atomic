@@ -41,6 +41,7 @@ private:
     STATE m_state;
     int32 m_st_frame;
     float32 m_light_radius;
+    float32 m_delta_fluid_damage;
     SE_CHANNEL m_explosion_channel;
     SE_RID m_explosion_se;
 
@@ -64,7 +65,7 @@ public:
     )
 
 public:
-    Enemy_Test() : m_state(ST_FADEIN), m_st_frame(0), m_light_radius(0.5f)
+    Enemy_Test() : m_state(ST_FADEIN), m_st_frame(0), m_light_radius(0.5f), m_delta_fluid_damage(0.0f)
         , m_explosion_channel(SE_CHANNEL3), m_explosion_se(SE_EXPLOSION3)
     {
     }
@@ -89,6 +90,9 @@ public:
     virtual void update(float32 dt)
     {
         super::update(dt);
+
+        damage(m_delta_fluid_damage);
+        m_delta_fluid_damage = 0.0f;
 
         ++m_st_frame;
         float32 rigid_scale = 1.0f;
@@ -145,8 +149,6 @@ public:
 
     virtual void draw()
     {
-        //return;
-
         vec4 diffuse = getDiffuseColor();
         vec4 glow = getGlowColor();
         vec4 light = vec4(0.8f, 0.1f, 0.2f, 1.0f);
@@ -188,13 +190,13 @@ public:
         setState(ST_FADEOUT);
         setRoutine(ROUTINE_NULL);
         atomicGetSPHManager()->addFluid(getModel(), getTransform());
-        atomicPlaySE(SE_CHANNEL3, m_explosion_se, getPosition(), true);
+        atomicPlaySE(m_explosion_channel, m_explosion_se, getPosition(), true);
     }
 
     virtual void eventFluid(const FluidMessage *m)
     {
         addBloodstain(getInverseTransform() * (vec4&)m->position);
-        damage(glm::length((const vec3&)m->velocity)*0.002f);
+        m_delta_fluid_damage += glm::length((const vec3&)m->velocity)*0.002f;
     }
 };
 atomicImplementEntity(Enemy_Test, ECID_Enemy);

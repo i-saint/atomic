@@ -49,6 +49,10 @@ private:
 
     bool m_request_exit;
 
+#ifdef atomic_enable_debug_log
+    FILE *m_log;
+#endif // atomic_enable_debug_log
+
 public:
     static AtomicApplication* getInstance();
 
@@ -72,6 +76,10 @@ public:
     AtomicGame* getGame()                       { return m_game; }
     const InputState* getSystemInputs() const   { return &m_inputs; }
     AtomicConfig* getConfig()                   { return &m_config; }
+
+#ifdef atomic_enable_debug_log
+    void printDebugLog(const char *format, ...);
+#endif // atomic_enable_debug_log
 };
 
 
@@ -81,6 +89,12 @@ public:
 
 #define atomicGetConfig()               atomicGetApplication()->getConfig()
 #define atomicGetWindowSize()           atomicGetApplication()->getWindowSize()
+
+#ifdef atomic_enable_debug_log
+#   define atomicDebugLog(...)          atomicGetApplication()->printDebugLog(__VA_ARGS__)
+#else  // atomic_enable_debug_log
+#   define atomicDebugLog(...)          
+#endif // atomic_enable_debug_log
 
 } // namespace atomic
 #endif __atomic_Game_AtomicApplication__

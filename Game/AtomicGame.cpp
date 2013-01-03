@@ -16,6 +16,9 @@ AtomicGame::AtomicGame()
 : m_world(NULL)
 , m_input_server(NULL)
 {
+#ifdef atomic_enable_debug_rand_lock
+    m_rand_lock = false;
+#endif // __atomic_enable_debug_rand_lock__
     MessageRouter::initializeInstance();
 
     m_input_server = istNew(InputServerLocal)();
@@ -77,6 +80,7 @@ void AtomicGame::update(float32 dt)
 
 void AtomicGame::asyncupdateBegin(float32 dt)
 {
+    atomicLockRandom();
     if(atomicGetConfig()->pause) { return; }
 
     m_world->asyncupdateBegin(dt);
@@ -85,6 +89,7 @@ void AtomicGame::asyncupdateBegin(float32 dt)
 void AtomicGame::asyncupdateEnd()
 {
     m_world->asyncupdateEnd();
+    atomicUnlockRandom();
 }
 
 

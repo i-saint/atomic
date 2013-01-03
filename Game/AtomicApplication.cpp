@@ -30,7 +30,7 @@ AtomicConfig::AtomicConfig()
     posteffect_antialias    = false;
     multiresolution         = false;
     show_text               = true;
-    show_bloodstain         = false;
+    show_bloodstain         = true;
     output_replay           = true;
     debug_show_grid         = false;
     debug_show_distance     = false;
@@ -112,10 +112,20 @@ AtomicApplication::AtomicApplication()
     istAssert(g_appinst==NULL, "already initialized");
     g_appinst = this;
 
+#ifdef atomic_enable_debug_log
+    char filename[128];
+    sprintf(filename, "%d.level.log", ::time(NULL));
+    m_log = fopen(filename, "wb");
+#endif // atomic_enable_debug_log
 }
 
 AtomicApplication::~AtomicApplication()
 {
+#ifdef atomic_enable_debug_log
+    if(m_log!=NULL) {
+        fclose(m_log);
+    }
+#endif // atomic_enable_debug_log
     if(g_appinst==this) { g_appinst=NULL; }
 }
 
@@ -453,6 +463,18 @@ int32 AtomicApplication::handleCommandLine( const stl::wstring &command )
     }
     return 0;
 }
+
+#ifdef atomic_enable_debug_log
+void AtomicApplication::printDebugLog( const char *format, ... )
+{
+    if(m_log==NULL) { return; }
+    va_list vl;
+    va_start(vl, format);
+    fprintf(m_log, "%d ", (int)atomicGetFrame());
+    vfprintf(m_log, format, vl);
+    va_end(vl);
+}
+#endif // atomic_enable_debug_log
 
 
 } // namespace atomic

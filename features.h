@@ -9,12 +9,14 @@
 
 #ifdef _MASTER
 #else // _MASTER
-    #define ist_enable_assert
-    #define __atomic_enable_debug_feature__
-    #define __atomic_enable_debug_console__
-    #define __atomic_enable_debug_strict_handle_check__
+#   define ist_enable_assert
+#   define atomic_enable_debug_feature
+#   define atomic_enable_debug_console
+#   define atomic_enable_debug_strict_handle_check
+#   define atomic_enable_debug_log
+#   define atomic_enable_debug_rand_lock
 #endif // _MASTER
 
-//#define __atomic_enable_distance_field__
+//#define atomic_enable_distance_field
 
 #endif //__atomic_features__
