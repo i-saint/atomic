@@ -14,9 +14,6 @@
 namespace atomic {
 
 
-
-
-
 AtomicConfig::AtomicConfig()
 {
     window_pos              = ivec2(0, 0);

@@ -14,7 +14,7 @@
 #   define atomic_enable_debug_console
 #   define atomic_enable_debug_strict_handle_check
 #   define atomic_enable_debug_log
-#   define atomic_enable_debug_rand_lock
+#   define atomic_enable_sync_lock
 #endif // _MASTER
 
 //#define atomic_enable_distance_field

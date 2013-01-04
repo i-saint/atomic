@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Game_AtomicGame__
-#define __atomic_Game_AtomicGame__
+﻿#ifndef atomic_Game_AtomicGame_h
+#define atomic_Game_AtomicGame_h
 #include "Input.h"
 #include "AtomicApplication.h"
 
@@ -15,9 +15,9 @@ private:
     IInputServer    *m_input_server;
     World           *m_world;
     SFMT            m_rand;
-#ifdef atomic_enable_debug_rand_lock
-    bool m_rand_lock;
-#endif // __atomic_enable_debug_rand_lock__
+#ifdef atomic_enable_sync_lock
+    bool m_sync_lock;
+#endif // atomic_enable_sync_lock
 
 public:
     AtomicGame();
@@ -39,31 +39,28 @@ public:
 
     const InputState* getIngameInputs() const { return m_input_server->getInput(); }
     World* getWorld()   { return m_world; }
-    SFMT* getRandom()
-    {
-#ifdef atomic_enable_debug_rand_lock
-        istAssert(m_rand_lock==false, "getRandom() is called from asycupdate.\n");
-#endif // __atomic_enable_debug_rand_lock__
-        return &m_rand;
-    }
+    SFMT* getRandom();
 
-#ifdef atomic_enable_debug_rand_lock
-    void lockRandom()   { m_rand_lock=true; }
-    void unlockRandom() { m_rand_lock=false; }
-#endif // __atomic_enable_debug_rand_lock__
+#ifdef atomic_enable_sync_lock
+    void lockSyncMethods()              { m_sync_lock=true; }
+    void unlockSyncMethods()            { m_sync_lock=false; }
+    bool isSyncMethodsEnabled() const   { return m_sync_lock; }
+#endif // atomic_enable_sync_lock
 };
 
 #define atomicGetWorld()            atomicGetGame()->getWorld()
 #define atomicGetIngameInputs()     atomicGetGame()->getIngameInputs()
 #define atomicGetRandom()           atomicGetGame()->getRandom()
 
-#ifdef atomic_enable_debug_rand_lock
-#   define  atomicLockRandom()      atomicGetGame()->lockRandom()
-#   define  atomicUnlockRandom()    atomicGetGame()->unlockRandom()
+#ifdef atomic_enable_sync_lock
+#   define  atomicLockSyncMethods()     atomicGetGame()->lockSyncMethods()
+#   define  atomicUnlockSyncMethods()   atomicGetGame()->unlockSyncMethods()
+#   define  atomicAssertSyncLock(...)   istAssert(!atomicGetGame()->isSyncMethodsEnabled(), __VA_ARGS__)
 #else
-#   define  atomicLockRandom()      
-#   define  atomicUnlockRandom()    
-#endif // __atomic_enable_debug_rand_lock__
+#   define  atomicLockSyncMethods()     
+#   define  atomicUnlockSyncMethods()   
+#   define  atomicAssertSyncLock(...)   
+#endif // atomic_enable_sync_lock
 
 } // namespace atomic
-#endif __atomic_Game_AtomicGame__
+#endif atomic_Game_AtomicGame_h

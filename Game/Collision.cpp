@@ -412,18 +412,21 @@ CollisionEntity* CollisionSet::getEntity(CollisionHandle h)
 
 template<> CollisionPlane* CollisionSet::createEntity<CollisionPlane>()
 {
+    atomicAssertSyncLock("");
     CollisionPlane *e = istNewA(CollisionPlane, m_plane_allocator)();
     addEntity(e);
     return e;
 }
 template<> CollisionSphere* CollisionSet::createEntity<CollisionSphere>()
 {
+    atomicAssertSyncLock("");
     CollisionSphere *e = istNewA(CollisionSphere, m_sphere_allocator)();
     addEntity(e);
     return e;
 }
 template<> CollisionBox* CollisionSet::createEntity<CollisionBox>()
 {
+    atomicAssertSyncLock("");
     CollisionBox *e = istNewA(CollisionBox, m_box_allocator)();
     addEntity(e);
     return e;
@@ -431,6 +434,7 @@ template<> CollisionBox* CollisionSet::createEntity<CollisionBox>()
 
 void CollisionSet::deleteEntity(CollisionHandle h)
 {
+    atomicAssertSyncLock("");
     CollisionEntity *&ce = m_entities[h];
     if(ce) {
         switch(ce->getShape()) {
@@ -444,6 +448,7 @@ void CollisionSet::deleteEntity(CollisionHandle h)
 
 void CollisionSet::deleteEntity(CollisionEntity *e)
 {
+    atomicAssertSyncLock("");
     if(e != NULL) {
         deleteEntity(e->getCollisionHandle());
     }

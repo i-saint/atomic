@@ -16,9 +16,9 @@ AtomicGame::AtomicGame()
 : m_world(NULL)
 , m_input_server(NULL)
 {
-#ifdef atomic_enable_debug_rand_lock
-    m_rand_lock = false;
-#endif // __atomic_enable_debug_rand_lock__
+#ifdef atomic_enable_sync_lock
+    m_sync_lock = false;
+#endif // atomic_enable_sync_lock
     MessageRouter::initializeInstance();
 
     m_input_server = istNew(InputServerLocal)();
@@ -80,16 +80,18 @@ void AtomicGame::update(float32 dt)
 
 void AtomicGame::asyncupdateBegin(float32 dt)
 {
-    atomicLockRandom();
     if(atomicGetConfig()->pause) { return; }
 
+    atomicLockSyncMethods();
     m_world->asyncupdateBegin(dt);
 }
 
 void AtomicGame::asyncupdateEnd()
 {
+    if(atomicGetConfig()->pause) { return; }
+
     m_world->asyncupdateEnd();
-    atomicUnlockRandom();
+    atomicUnlockSyncMethods();
 }
 
 
@@ -112,6 +114,8 @@ void AtomicGame::draw()
 
 void AtomicGame::frameEnd()
 {
+    if(atomicGetConfig()->pause) { return; }
+
     m_world->frameEnd();
 }
 
@@ -131,6 +135,12 @@ void AtomicGame::drawCallback()
         m_world->draw();
     }
     AtomicRenderer::getInstance()->draw();
+}
+
+SFMT* AtomicGame::getRandom()
+{
+    atomicAssertSyncLock("getRandom() is called from asycupdate.\n");
+    return &m_rand;
 }
 
 } // namespace atomic

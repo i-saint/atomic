@@ -26,7 +26,7 @@ LRESULT CALLBACK istWndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lP
             wm.state = wParam==TRUE ? WM_Active::ST_ACTIVATED : WM_Active::ST_DEACTIVATED;
             app->_handleWindowMessage(wm);
         }
-        return 0;
+        break;
 
     case WM_KEYDOWN:    // fall through
     case WM_KEYUP:      // 
@@ -42,16 +42,14 @@ LRESULT CALLBACK istWndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lP
             }
             app->_handleWindowMessage(wm);
         }
-        return 0;
+        break;
 
 
     case WM_IME_SETCONTEXT:
         himc = ImmGetContext(app->getWindowHandle());
-        return ::DefWindowProc(hwnd, message, wParam, lParam);
         break;
 
     case WM_IME_CHAR:
-        return ::DefWindowProc(hwnd, message, wParam, lParam);
         break;
 
     case WM_IME_COMPOSITION:
@@ -77,11 +75,9 @@ LRESULT CALLBACK istWndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lP
             wm.cursor_pos = ::ImmGetCompositionString(himc, GCS_CURSORPOS, imebuf, _countof(imebuf));
             app->_handleWindowMessage(wm);
         }
-        return ::DefWindowProc(hwnd, message, wParam, lParam);
         break;
 
     case WM_IME_CONTROL:
-        return ::DefWindowProc(hwnd, message, wParam, lParam);
         break;
 
     case WM_IME_NOTIFY:
@@ -92,7 +88,6 @@ LRESULT CALLBACK istWndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lP
             wm.text = imebuf;
             app->_handleWindowMessage(wm);
         }
-        return ::DefWindowProc(hwnd, message, wParam, lParam);
         break;
 
     case WM_IME_STARTCOMPOSITION:
@@ -101,7 +96,6 @@ LRESULT CALLBACK istWndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lP
             wm.type = WindowMessage::MES_IME_BEGIN;
             app->_handleWindowMessage(wm);
         }
-        return ::DefWindowProc(hwnd, message, wParam, lParam);
         break;
 
     case WM_IME_ENDCOMPOSITION:
@@ -110,7 +104,6 @@ LRESULT CALLBACK istWndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lP
             wm.type = WindowMessage::MES_IME_END;
             app->_handleWindowMessage(wm);
         }
-        return ::DefWindowProc(hwnd, message, wParam, lParam);
         break;
 
 
@@ -126,7 +119,7 @@ LRESULT CALLBACK istWndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lP
             wm.type = WindowMessage::MES_MOUSE;
             app->_handleWindowMessage(wm);
         }
-        return 0;
+        break;
 
 
     case WM_SIZE:
@@ -137,7 +130,7 @@ LRESULT CALLBACK istWndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lP
             wm.window_size.y = HIWORD(lParam);
             app->_handleWindowMessage(wm);
         }
-        return 0;
+        break;
 
     case WM_MOVE:
         {
@@ -147,30 +140,28 @@ LRESULT CALLBACK istWndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lP
             wm.window_pos.y = HIWORD(lParam);
             app->_handleWindowMessage(wm);
         }
-        return 0;
+        break;
 
     case WM_CREATE:
         {
             ::timeBeginPeriod(1);
         }
-        return 0;
+        break;
 
     case WM_CLOSE:
         {
             WM_Close wm;
             wm.type = WindowMessage::MES_CLOSE;
             app->_handleWindowMessage(wm);
-
-            return ::DefWindowProc(hwnd, message, wParam, lParam);
         }
-        return 0;
+        break;
 
     case WM_DESTROY:
         {
             ::timeEndPeriod(1);
             ::PostQuitMessage(0);
         }
-        return 0;
+        break;
     }
     return ::DefWindowProc(hwnd, message, wParam, lParam);
 }

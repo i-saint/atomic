@@ -45,6 +45,7 @@ public:
 
 void EntitySet::addEntity( uint32 categoryid, uint32 classid, IEntity *e )
 {
+    atomicAssertSyncLock("");
     EntityCont &entities = m_entities[categoryid][classid];
     HandleCont &vacant = m_vacant[categoryid][classid];
     EntityHandle h = 0;
@@ -132,7 +133,7 @@ void EntitySet::update( float32 dt )
 
 
     // asyncupdate
-    atomicLockRandom();
+    atomicLockSyncMethods();
     ist::parallel_for(
         size_t(0), m_all.size(), 32,
         [&](size_t first, size_t last) {
@@ -142,7 +143,7 @@ void EntitySet::update( float32 dt )
                 }
             }
         });
-    atomicUnlockRandom();
+    atomicUnlockSyncMethods();
 }
 
 void EntitySet::asyncupdate(float32 dt)
@@ -183,6 +184,7 @@ IEntity* EntitySet::getEntity( EntityHandle h )
 
 void EntitySet::deleteEntity( EntityHandle h )
 {
+    atomicAssertSyncLock("");
     uint32 cid = EntityGetCategory(h);
     uint32 sid = EntityGetClass(h);
     uint32 iid = EntityGetID(h);
