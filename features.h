@@ -1,22 +1,22 @@
-﻿#ifndef __atomic_features__
-#define __atomic_features__
+﻿#ifndef atomic_features_h
+#define atomic_features_h
 
-#define __atomic_version__ 1
-#define __atomic_version_string__ "0.01"
-#define __atomic_replay_version__ 1
+#define atomic_version 1
+#define atomic_version_string "0.01"
+#define atomic_replay_version 1
 
 
 
-#ifdef _MASTER
-#else // _MASTER
+#ifdef ist_env_Master
+#else // ist_env_Master
 #   define ist_enable_assert
-#   define atomic_enable_debug_feature
 #   define atomic_enable_debug_console
 #   define atomic_enable_debug_strict_handle_check
 #   define atomic_enable_debug_log
 #   define atomic_enable_sync_lock
-#endif // _MASTER
+#   define atomic_enable_debug_show_gbuffer
+#endif // ist_env_Master
 
 //#define atomic_enable_distance_field
 
-#endif //__atomic_features__
+#endif //atomic_features_h

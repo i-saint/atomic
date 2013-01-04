@@ -50,7 +50,9 @@ private:
     PassPostprocess_Fade                    *m_renderer_fade;
     PassPostprocess_Microscopic             *m_renderer_microscopic;
     PassForwardShading_DistanceField        *m_renderer_distance_field;
+#ifdef atomic_enable_debug_show_gbuffer
     PassHUD_DebugShowBuffer                 *m_debug_show_gbuffer;
+#endif // atomic_enable_debug_show_gbuffer
     stl::vector<IRenderer*>                 m_renderers[PASS_END];
 
     SystemTextRenderer                      *m_stext;
@@ -128,15 +130,14 @@ public:
     void addText(const vec2 &pos, const char *text);
 };
 
+#ifdef atomic_enable_debug_show_gbuffer
 class PassHUD_DebugShowBuffer : public IRenderer
 {
 private:
-#ifdef atomic_enable_debug_feature
     void drawColorBuffer(const DebugShowBufferParams &params);
     void drawNormalBuffer(const DebugShowBufferParams &params);
     void drawPositionBuffer(const DebugShowBufferParams &params);
     void drawGlowBuffer(const DebugShowBufferParams &params);
-#endif // __atomic_enable_debug_feature__
 
 public:
     RenderTarget *m_rt;
@@ -149,6 +150,7 @@ public:
     PassHUD_DebugShowBuffer();
     void draw();
 };
+#endif // atomic_enable_debug_show_gbuffer
 
 } // namespace atomic
 

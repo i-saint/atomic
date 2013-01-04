@@ -44,7 +44,9 @@ AtomicRenderer::AtomicRenderer()
     m_renderer_bloom            = istNew(PassPostprocess_Bloom)();
     m_renderer_fade             = istNew(PassPostprocess_Fade)();
     m_renderer_distance_field   = istNew(PassForwardShading_DistanceField)();
+#ifdef atomic_enable_debug_show_gbuffer
     m_debug_show_gbuffer        = istNew(PassHUD_DebugShowBuffer)();
+#endif // atomic_enable_debug_show_gbuffer
 
     m_stext = istNew(SystemTextRenderer)();
 
@@ -57,7 +59,9 @@ AtomicRenderer::AtomicRenderer()
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_microscopic);
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_bloom);
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_fade);
+#ifdef atomic_enable_debug_show_gbuffer
     m_renderers[PASS_HUD].push_back(m_debug_show_gbuffer);
+#endif // atomic_enable_debug_show_gbuffer
 
     m_default_viewport = Viewport(ivec2(0), atomicGetWindowSize());
 }
@@ -65,7 +69,9 @@ AtomicRenderer::AtomicRenderer()
 AtomicRenderer::~AtomicRenderer()
 {
     istSafeDelete(m_stext);
+#ifdef atomic_enable_debug_show_gbuffer
     istSafeDelete(m_debug_show_gbuffer);
+#endif // atomic_enable_debug_show_gbuffer
     istSafeDelete(m_renderer_distance_field);
     istSafeDelete(m_renderer_fade);
     istSafeDelete(m_renderer_bloom);
@@ -347,7 +353,7 @@ void SystemTextRenderer::addText(const vec2 &pos, const char *text)
 
 
 
-#ifdef atomic_enable_debug_feature
+#ifdef atomic_enable_debug_show_gbuffer
 
 void PassHUD_DebugShowBuffer::drawColorBuffer( const DebugShowBufferParams &params )
 {
@@ -401,11 +407,9 @@ PassHUD_DebugShowBuffer::PassHUD_DebugShowBuffer()
     m_ub_params = atomicGetUniformBuffer(UBO_DEBUG_SHOW_BUFFER_PARAMS);
     m_loc_params = m_sh_rgb->getUniformBlockIndex("debug_params");
 }
-#endif // __atomic_enable_debug_feature__
 
 void PassHUD_DebugShowBuffer::draw()
 {
-#ifdef atomic_enable_debug_feature
     DebugShowBufferParams params;
     params.BottomLeft = vec2(-1.0f, -1.0f);
     params.UpperRight = vec2( 1.0f,  1.0f);
@@ -460,7 +464,7 @@ void PassHUD_DebugShowBuffer::draw()
     }
 
     m_rt->unbind();
-#endif // __atomic_enable_debug_feature__
 }
+#endif // atomic_enable_debug_show_gbuffer
 
 } // namespace atomic

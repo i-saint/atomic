@@ -31,13 +31,13 @@ void RawInputHeader::initialize()
 {
     memset(this, 0, sizeof(*this));
     memcpy(magic, magic_string, sizeof(magic));
-    version = __atomic_replay_version__;
+    version = atomic_replay_version;
 }
 
 bool RawInputHeader::isValid()
 {
     if( memcmp(magic, magic_string, sizeof(magic))==0 &&
-        version==__atomic_replay_version__)
+        version==atomic_replay_version)
     {
         return true;
     }
