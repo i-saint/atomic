@@ -44,13 +44,18 @@ class TaskWorker : public Thread
 public:
     TaskWorker(int32 cpu_index);
     ~TaskWorker();
-    void requestExit() { m_flag_exit.swap(1); }
-    bool getExitFlag() { return m_flag_exit.compare_and_swap(m_flag_exit, m_flag_exit)!=0; }
+    void requestExit()          { m_flag_exit = true; }
+    bool getExitFlag()          { return m_flag_exit; }
+    void waitUntilCompleteTask(){ m_mutex.lock(); m_mutex.unlock(); }
+    bool isWorking()            { return m_mutex.tryLock()==false; }
+    bool isCompleted()          { return m_flag_complete; }
 
     void exec();
 
 private:
-    atomic_int32 m_flag_exit;
+    volatile bool m_flag_exit;
+    volatile bool m_flag_complete;
+    Mutex m_mutex;
 };
 
 
@@ -75,6 +80,8 @@ Task* TaskStream::dequeue()
 
 
 TaskWorker::TaskWorker( int32 cpu_index )
+    : m_flag_exit(false)
+    , m_flag_complete(false)
 {
     setName("ist::TaskWorker");
     setAffinityMask(1<<cpu_index);
@@ -91,14 +98,15 @@ void TaskWorker::exec()
 {
     TaskScheduler *scheduler = TaskScheduler::getInstance();
     for(;;) {
-        while(scheduler->processOneTask()) {}
-
-        scheduler->incrementHungryWorker();
+        {
+            ScopedLock<Mutex> l(m_mutex);
+            while(scheduler->processOneTask()) {}
+        }
         scheduler->waitForNewTask();
         bool flag_exit = getExitFlag();
-        scheduler->decrementHungryWorker();
         if(flag_exit) { break; }
     }
+    m_flag_complete = true;
 }
 
 
@@ -149,7 +157,9 @@ bool TaskScheduler::processOneTask()
 void TaskScheduler::waitForAll()
 {
     while(processOneTask()) {}
-    while(getHungryWorkerCount()!=m_workers.size()) {}
+    for(size_t i=0; i<m_workers.size(); ++i) {
+        m_workers[i]->waitUntilCompleteTask();
+    }
 }
 
 TaskScheduler::TaskScheduler( uint32 num_threads )
@@ -189,8 +199,10 @@ TaskScheduler::~TaskScheduler()
     for(size_t i=0; i<m_workers.size(); ++i) {
         m_workers[i]->requestExit();
     }
-    while(getHungryWorkerCount()>0) {
-        advertiseNewTask();
+    for(size_t i=0; i<m_workers.size(); ++i) {
+        while(!m_workers[i]->isCompleted()) {
+            advertiseNewTask();
+        }
     }
     for(size_t i=0; i<m_workers.size(); ++i) {
         m_workers[i]->join();
@@ -223,8 +235,7 @@ void TaskScheduler::waitForNewTask()
 
 void TaskScheduler::advertiseNewTask()
 {
-    int32 n = getHungryWorkerCount();
-    for(int32 i=0; i<n; ++i) {
+    for(size_t i=0; i<m_workers.size(); ++i) {
         m_cond_new_task.signalOne();
     }
 }

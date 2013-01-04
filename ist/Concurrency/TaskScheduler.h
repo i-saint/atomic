@@ -77,15 +77,11 @@ private:
     Task* dequeue();
     void waitForNewTask();
     void advertiseNewTask();
-    int32 getHungryWorkerCount() { return m_num_hungry_worker; }
-    int32 incrementHungryWorker() { return ++m_num_hungry_worker; }
-    int32 decrementHungryWorker() { return --m_num_hungry_worker; }
 
 private:
     stl::vector< TaskStream* > m_taskstream;
     stl::vector< TaskWorker* > m_workers;
     Condition m_cond_new_task;
-    atomic_int32 m_num_hungry_worker;
 };
 
 } // namespace ist

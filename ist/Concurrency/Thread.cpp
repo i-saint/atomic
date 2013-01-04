@@ -97,6 +97,15 @@ Thread::Handle Thread::getCurrentThread()
 #endif // ist_env_Windows
 }
 
+void Thread::yieldProcessor()
+{
+#ifdef ist_env_Windows
+    return ::YieldProcessor();
+#else // ist_env_Windows
+    return ::pthread_yield();
+#endif // ist_env_Windows
+}
+
 
 #ifdef ist_env_Windows
 unsigned int __stdcall _EntryPoint(void *arg)

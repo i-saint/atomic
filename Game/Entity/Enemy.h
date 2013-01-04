@@ -130,7 +130,6 @@ public:
             m_health -= d;
             m_delta_damage += d;
             if(m_health <= 0.0f) {
-                destroy();
                 vec4 pos = atomicQuery(this, getPosition, vec4);
                 vec4 cpos;
                 CollisionHandle ch = atomicQuery(this, getCollisionHandle, CollisionHandle);
@@ -138,6 +137,7 @@ public:
                     cpos = GetCollisionPosition(ce);
                 }
                 atomicDebugLog("Breakable::damage(): lethal %f, pos: %f %f cpos: %f %f\n", d, pos.x, pos.y, cpos.x, cpos.y);
+                destroy();
             }
         }
     }
