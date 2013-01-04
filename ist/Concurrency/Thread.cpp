@@ -106,6 +106,15 @@ void Thread::yieldProcessor()
 #endif // ist_env_Windows
 }
 
+void Thread::sleep( uint32 millisec )
+{
+#ifdef ist_env_Windows
+    return ::Sleep(millisec);
+#else // ist_env_Windows
+    return ::pthread_yield();
+#endif // ist_env_Windows
+}
+
 
 #ifdef ist_env_Windows
 unsigned int __stdcall _EntryPoint(void *arg)

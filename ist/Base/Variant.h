@@ -2,6 +2,13 @@
 #define ist_Base_Variant_h
 namespace ist {
 
+    template<size_t S> inline void _ZeroClear(char (&buf)[S]) { memset(buf, 0, S); }
+    template<> inline void _ZeroClear<1>(char (&buf)[1]) { buf[0]=0; }
+    template<> inline void _ZeroClear<2>(char (&buf)[2]) { reinterpret_cast<int16&>(*buf)=0; }
+    template<> inline void _ZeroClear<4>(char (&buf)[4]) { reinterpret_cast<int32&>(*buf)=0; }
+    template<> inline void _ZeroClear<8>(char (&buf)[8]) { reinterpret_cast<int64&>(*buf)=0; }
+    template<> inline void _ZeroClear<16>(char (&buf)[16]) { reinterpret_cast<__m128i&>(*buf)=_mm_set1_epi32(0); }
+
 
 // 何でも収容するよ型
 // 収容されたオブジェクトはデストラクタは呼ばれないので注意
@@ -12,7 +19,7 @@ private:
     char m_buf[Size];
 
 public:
-    TVariant() {}
+    TVariant() { _ZeroClear(m_buf); }
 
     template<class T>
     TVariant(const T& v)

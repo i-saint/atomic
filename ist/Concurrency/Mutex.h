@@ -1,6 +1,7 @@
 ﻿#ifndef __ist_Concurrency_Mutex_h__
 #define __ist_Concurrency_Mutex_h__
 
+#include "ist/Base/NonCopyable.h"
 #include "ist/Concurrency/Atomic.h"
 #include "ist/Concurrency/ThreadCommon.h"
 
@@ -33,8 +34,13 @@ private:
 /// android で有効に機能することがあるか検証して、だめなら消した方がいいと思われます。
 class istInterModule SpinMutex
 {
+istNonCopyable(SpinMutex);
 public:
     typedef ScopedLock<SpinMutex> ScopedLock;
+
+    SpinMutex()
+    {
+    }
 
     void lock()
     {
@@ -61,6 +67,7 @@ private:
 /// recursive 対応
 class istInterModule Mutex
 {
+istNonCopyable(Mutex);
 public:
     typedef ScopedLock<Mutex> ScopedLock;
 #ifdef ist_env_Windows
@@ -86,6 +93,7 @@ private:
 // policy base の実装でマルチスレッド対応/非対応 指定したい場合これが欲しくなる状況がある
 class istInterModule DummyMutex
 {
+istNonCopyable(DummyMutex);
 public:
     typedef ScopedLock<DummyMutex> ScopedLock;
 

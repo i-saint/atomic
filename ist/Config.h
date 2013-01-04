@@ -53,12 +53,14 @@
 #   define istDLLExport     __declspec(dllexport)
 #   define istDLLImport     __declspec(dllimport)
 #   define istAlign(N)      __declspec(align(N))
+#   define istRestrict      __restrict
 #else
 #   define istForceInline   inline
 #   define istThreadLocal   __thread
 #   define istDLLExport     __attribute__((visibility("default")))
 #   define istDLLImport 
 #   define istAlign(N)      __attribute__((aligned(N)))
+#   define istRestrict      __restrict
 #endif
 
 

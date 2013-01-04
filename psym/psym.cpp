@@ -2,6 +2,9 @@
 #include "psym.h"
 #include <tbb/tbb.h>
 #include <algorithm>
+#include "parallel_deterministic_sort.h"
+
+#define PSYM_TASK_GRANULARITY 256
 
 namespace psym {
 
@@ -157,10 +160,11 @@ void World::update(float32 dt)
     ispc::RigidPlane   *plane_c = collision_planes.empty() ? NULL : &collision_planes[0];
     ispc::RigidBox     *box_c   = collision_boxes.empty() ? NULL : &collision_boxes[0];
 
+
     sphInitializeConstantsDOL();
 
     // clear grid
-    tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, 128),
+    tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, PSYM_TASK_GRANULARITY),
         [&](const tbb::blocked_range<int> &r) {
             for(int i=r.begin(); i!=r.end(); ++i) {
                 ce[i].begin = ce[i].end = 0;
@@ -177,16 +181,18 @@ void World::update(float32 dt)
         });
 
     // パーティクルを hash で sort
-    tbb::parallel_sort(particles, particles+num_active_particles, 
+    // tbb:parallel_sort() は non-stable で、毎回結果が変わる可能性があるため、自前の sort。
+    // こちらも non-stable だが、tbb:parallel_sort() と違い、データが同じなら結果も同じ。
+    parallel_deterministic_sort(particles, particles+num_active_particles, 
         [&](const Particle &a, const Particle &b) { return a.hash < b.hash; } );
 
     // パーティクルがどの grid に入っているかを算出
     tbb::parallel_for(tbb::blocked_range<int>(0, (int32)num_active_particles, 1024),
         [&](const tbb::blocked_range<int> &r) {
             for(int i=r.begin(); i!=r.end(); ++i) {
-                const uint32 G_ID = i;
-                uint32 G_ID_PREV = G_ID-1;
-                uint32 G_ID_NEXT = G_ID+1;
+                const int32 G_ID = i;
+                int32 G_ID_PREV = G_ID-1;
+                int32 G_ID_NEXT = G_ID+1;
 
                 uint32 cell = particles[G_ID].hash;
                 uint32 cell_prev = (G_ID_PREV==-1) ? -1 : particles[G_ID_PREV].hash;
@@ -224,7 +230,7 @@ void World::update(float32 dt)
     }
 
     // AoS -> SoA
-    tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, 128),
+    tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, PSYM_TASK_GRANULARITY),
         [&](const tbb::blocked_range<int> &r) {
             for(int i=r.begin(); i!=r.end(); ++i) {
                 int32 n = ce[i].end - ce[i].begin;
@@ -237,7 +243,7 @@ void World::update(float32 dt)
 
 
     // SPH
-    tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, 128),
+    tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, PSYM_TASK_GRANULARITY),
         [&](const tbb::blocked_range<int> &r) {
             for(int i=r.begin(); i!=r.end(); ++i) {
                 int32 n = ce[i].end - ce[i].begin;
@@ -248,7 +254,7 @@ void World::update(float32 dt)
             }
     });
 #ifdef psym_enable_neighbor_density_estimation
-    tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, 128),
+    tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, PSYM_TASK_GRANULARITY),
         [&](const tbb::blocked_range<int> &r) {
             for(int i=r.begin(); i!=r.end(); ++i) {
                 int32 n = ce[i].end - ce[i].begin;
@@ -259,7 +265,7 @@ void World::update(float32 dt)
             }
     });
 #endif // psym_enable_neighbor_density_estimation
-    tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, 128),
+    tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, PSYM_TASK_GRANULARITY),
         [&](const tbb::blocked_range<int> &r) {
             for(int i=r.begin(); i!=r.end(); ++i) {
                 int32 n = ce[i].end - ce[i].begin;
@@ -269,7 +275,7 @@ void World::update(float32 dt)
                 sphUpdateForceDOL((ispc::Particle*)particles_soa, ce, xi, yi);
             }
     });
-    tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, 128),
+    tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, PSYM_TASK_GRANULARITY),
         [&](const tbb::blocked_range<int> &r) {
             for(int i=r.begin(); i!=r.end(); ++i) {
                 int32 n = ce[i].end - ce[i].begin;
@@ -292,7 +298,7 @@ void World::update(float32 dt)
 
 
     //// impulse
-    //tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, 128),
+    //tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, PSYM_TASK_GRANULARITY),
     //    [&](const tbb::blocked_range<int> &r) {
     //        for(int i=r.begin(); i!=r.end(); ++i) {
     //            int32 n = ce[i].end - ce[i].begin;
@@ -302,7 +308,7 @@ void World::update(float32 dt)
     //            impUpdateVelocityDOL((ispc::Particle*)particles_soa, ce, xi, yi);
     //        }
     //});
-    //tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, 128),
+    //tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, PSYM_TASK_GRANULARITY),
     //    [&](const tbb::blocked_range<int> &r) {
     //        for(int i=r.begin(); i!=r.end(); ++i) {
     //            int32 n = ce[i].end - ce[i].begin;
@@ -324,7 +330,7 @@ void World::update(float32 dt)
     //});
 
     // SoA -> AoS
-    tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, 128),
+    tbb::parallel_for(tbb::blocked_range<int>(0, PSYM_GRID_CELL_NUM, PSYM_TASK_GRANULARITY),
         [&](const tbb::blocked_range<int> &r) {
             for(int i=r.begin(); i!=r.end(); ++i) {
                 int32 n = ce[i].end - ce[i].begin;

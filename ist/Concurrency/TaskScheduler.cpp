@@ -23,7 +23,9 @@ void Task::setState(State v)
 void Task::wait()
 {
     while(getState()!=State_Completed) {
-        TaskScheduler::getInstance()->processOneTask();
+        if(!TaskScheduler::getInstance()->processOneTask()) {
+            Thread::sleep(1);
+        }
     }
 }
 
@@ -137,6 +139,12 @@ void TaskScheduler::enqueue( Task *task )
     if(task==NULL) { return; }
     assert( task->getPriority()<=Task::Priority_Max );
     assert( task->getState()!=Task::State_Ready && task->getState()!=Task::State_Running );
+    if(m_workers.empty()) {
+        task->setState(Task::State_Running);
+        task->exec();
+        task->setState(Task::State_Completed);
+        return;
+    }
 
     task->setState(Task::State_Ready);
     m_taskstream[task->getPriority()]->enqueue(task);

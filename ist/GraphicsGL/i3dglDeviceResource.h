@@ -12,6 +12,7 @@ class istInterModule Device;
 
 class istInterModule DeviceResource : public SharedObject
 {
+istNonCopyable(DeviceResource);
 istMakeDestructable;
 friend class Device;
 public:

@@ -11,6 +11,7 @@
     <ClInclude Include="ispc_vectormath.h" />
     <ClInclude Include="ispc_collision.h" />
     <ClInclude Include="psym.h" />
+    <ClInclude Include="parallel_deterministic_sort.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="psymCore.ispc" />

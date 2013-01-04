@@ -98,10 +98,6 @@ public:
         atomicCall(e, setRoutine, ROUTINE_HOMING_PLAYER);
         atomicCall(e, setLightRadius, 0.5f);
         m_small_enemies.push_back(e->getHandle());
-        {
-            vec4 pos = atomicQuery(e, getPosition, vec4);
-            atomicDebugLog("putSmallEnemy() %.2f, %.2f\n", pos.x, pos.y);
-        }
         return e;
     }
 
@@ -123,11 +119,6 @@ public:
         atomicCall(e, setVelocity, (vec4(0.0f, -0.99f, 0.0f, 0.0f))*0.005f);
         //atomicCall(e, setAccel, GenRandomUnitVector2()*0.00005f);
         atomicCall(e, setAccel, vec4(0.0f, -1.0f, 0.0f, 0.0f)*0.00005f);
-        m_small_enemies.push_back(e->getHandle());
-        {
-            vec4 pos = atomicQuery(e, getPosition, vec4);
-            atomicDebugLog("putPinballEnemy() %.2f, %.2f\n", pos.x, pos.y);
-        }
         return e;
     }
 
@@ -149,10 +140,6 @@ public:
         atomicCall(e, setExplosionSE, SE_EXPLOSION4);
         atomicCall(e, setExplosionChannel, SE_CHANNEL4);
         m_medium_enemies.push_back(e->getHandle());
-        {
-            vec4 pos = atomicQuery(e, getPosition, vec4);
-            atomicDebugLog("putMediumEnemy() %.2f, %.2f\n", pos.x, pos.y);
-        }
         return e;
     }
 
@@ -175,10 +162,6 @@ public:
         atomicCall(e, setExplosionSE, SE_EXPLOSION5);
         atomicCall(e, setExplosionChannel, SE_CHANNEL5);
         m_large_enemies.push_back(e->getHandle());
-        {
-            vec4 pos = atomicQuery(e, getPosition, vec4);
-            atomicDebugLog("putLargeEnemy() %.2f, %.2f\n", pos.x, pos.y);
-        }
         return e;
     }
 

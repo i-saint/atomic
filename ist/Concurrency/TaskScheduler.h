@@ -2,6 +2,7 @@
 #define __ist_Concurrency_TashScheduler_h__
 
 #include "ist/Base/Types.h"
+#include "ist/Base/NonCopyable.h"
 #include "ist/Base/SharedObject.h"
 #include "ist/Concurrency/Atomic.h"
 #include "ist/Concurrency/Mutex.h"
@@ -11,9 +12,16 @@
 
 namespace ist {
 
+class Task;
+class TaskWorker;
+class TaskStream;
+class TaskScheduler;
+
+
 class istInterModule Task
 {
 friend class TaskScheduler;
+friend class TaskWorker;
 public:
     enum Priority {
         Priority_Low    = 0,
@@ -54,11 +62,10 @@ private:
 };
 
 
-class TaskWorker;
-class TaskStream;
 
 class istInterModule TaskScheduler
 {
+istNonCopyable(TaskScheduler);
 istMakeDestructable;
 friend class TaskWorker;
 public:

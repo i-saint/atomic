@@ -1,6 +1,7 @@
 ﻿#ifndef __ist_Concurrency_Thread_h__
 #define __ist_Concurrency_Thread_h__
 
+#include "ist/Base/NonCopyable.h"
 #include "ist/Base/SharedObject.h"
 #include "ist/Concurrency/ThreadCommon.h"
 
@@ -8,6 +9,7 @@ namespace ist {
 
 class istInterModule Thread : public SharedObject
 {
+istNonCopyable(Thread);
 public:
     typedef void(*EntryPoint)(void*);
 #ifdef ist_env_Windows
@@ -33,6 +35,7 @@ public:
     static void setAffinityMaskToCurrentThread(size_t mask);
     static void setPriorityToCurrentThread(int priority);
     static void yieldProcessor();
+    static void sleep(uint32 millisec);
 
 public:
     Thread();

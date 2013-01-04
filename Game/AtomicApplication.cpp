@@ -178,7 +178,6 @@ void AtomicApplication::finalize()
 
 void AtomicApplication::mainLoop()
 {
-    tbb::task_scheduler_init tbbinit;
 #ifdef _WIN64
 #   define MSBUILD_OPTION "atomic.vcxproj /m /p:Configuration=Release;Platform=x64 /t:ClCompile"
 #   define BUILD_TARGET "x64\\Release"

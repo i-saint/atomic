@@ -12,6 +12,7 @@ namespace i3dgl {
 
 class istInterModule Device : public SharedObject
 {
+istNonCopyable(Device);
 istMakeDestructable;
 private:
 #ifdef ist_env_Windows

@@ -3,6 +3,7 @@
 
 #include "ist/Base/New.h"
 #include "ist/Base/SharedObject.h"
+#include "ist/Base/NonCopyable.h"
 
 namespace ist {
 namespace i3dgl {

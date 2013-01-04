@@ -237,13 +237,13 @@ bool Application::initialize(ivec2 wpos, ivec2 wsize, const wchar_t *title, bool
         ReleaseDC(0,hdc);
         devmode_sav.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
 
-        ::SetWindowPos(m_hwnd,(HWND)-1, 0,0, wsize.x,wsize.y, SWP_SHOWWINDOW);
+        ::SetWindowPos(m_hwnd,0, 0,0, wsize.x,wsize.y, SWP_SHOWWINDOW);
         if(::ChangeDisplaySettings(&devmode_sav,CDS_FULLSCREEN)!=DISP_CHANGE_SUCCESSFUL) {
             return false;
         }
     }
     else {
-        ::SetWindowPos(m_hwnd,(HWND)-1, wpos.x,wpos.y, wsize.x,wsize.y, SWP_SHOWWINDOW);
+        ::SetWindowPos(m_hwnd,0, wpos.x,wpos.y, wsize.x,wsize.y, SWP_SHOWWINDOW);
     }
 
     for(uint32 i=0; i<0; ++i) {

@@ -390,6 +390,7 @@ void CollisionSet::copyRigitsToPSym()
 
 void CollisionSet::addEntity(CollisionEntity *e)
 {
+    atomicAssertSyncLock("");
     CollisionHandle h = 0;
     if(!m_vacant.empty()) {
         h = m_vacant.back();
