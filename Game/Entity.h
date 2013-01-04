@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Game_Entity__
-#define __atomic_Game_Entity__
+﻿#ifndef atomic_Game_Entity_h
+#define atomic_Game_Entity_h
 
 #include "EntityClass.h"
 
@@ -124,4 +124,4 @@ public:
 };
 
 } // namespace atomic
-#endif // __atomic_Game_Entity__
+#endif // atomic_Game_Entity_h

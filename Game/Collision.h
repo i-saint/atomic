@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Game_Collision__
-#define __atomic_Game_Collision__
+﻿#ifndef atomic_Game_Collision_h
+#define atomic_Game_Collision_h
 
 namespace atomic {
 
@@ -222,4 +222,4 @@ vec4 GetCollisionPosition(CollisionEntity *ce);
 
 
 } // namespace atomic
-#endif //__atomic_Game_Collision__
+#endif //atomic_Game_Collision_h

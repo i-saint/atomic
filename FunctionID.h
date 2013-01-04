@@ -1,5 +1,5 @@
-﻿#ifndef _atomic_FunctionID_h_
-#define _atomic_FunctionID_h_
+﻿#ifndef atomic_FunctionID_h
+#define atomic_FunctionID_h
 
 namespace atomic {
 
@@ -73,4 +73,4 @@ enum FunctionID
 
 } // namespace atomic
 
-#endif _atomic_FunctionID_h_
+#endif atomic_FunctionID_h

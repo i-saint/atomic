@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Game_Character_Attributes__
-#define __atomic_Game_Character_Attributes__
+﻿#ifndef atomic_Game_Entity_Attributes_h
+#define atomic_Game_Entity_Attributes_h
 
 #include "Util.h"
 #include "Game/Collision.h"
@@ -581,4 +581,4 @@ public:
 };
 
 } // namespace atomic
-#endif // __atomic_Game_Character_Attributes__
+#endif // atomic_Game_Entity_Attributes_h

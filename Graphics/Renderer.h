@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Graphics_Renderer__
-#define __atomic_Graphics_Renderer__
+﻿#ifndef atomic_Graphics_Renderer_h
+#define atomic_Graphics_Renderer_h
 
 #include "ResourceManager.h"
 #include "Light.h"
@@ -50,9 +50,9 @@ private:
     PassPostprocess_Fade                    *m_renderer_fade;
     PassPostprocess_Microscopic             *m_renderer_microscopic;
     PassForwardShading_DistanceField        *m_renderer_distance_field;
-#ifdef atomic_enable_debug_show_gbuffer
+#ifdef atomic_enable_gbuffer_viewer
     PassHUD_DebugShowBuffer                 *m_debug_show_gbuffer;
-#endif // atomic_enable_debug_show_gbuffer
+#endif // atomic_enable_gbuffer_viewer
     stl::vector<IRenderer*>                 m_renderers[PASS_END];
 
     SystemTextRenderer                      *m_stext;
@@ -130,7 +130,7 @@ public:
     void addText(const vec2 &pos, const char *text);
 };
 
-#ifdef atomic_enable_debug_show_gbuffer
+#ifdef atomic_enable_gbuffer_viewer
 class PassHUD_DebugShowBuffer : public IRenderer
 {
 private:
@@ -150,7 +150,7 @@ public:
     PassHUD_DebugShowBuffer();
     void draw();
 };
-#endif // atomic_enable_debug_show_gbuffer
+#endif // atomic_enable_gbuffer_viewer
 
 } // namespace atomic
 
@@ -159,4 +159,4 @@ public:
 #include "Renderer_ForwardShading.h"
 #include "Renderer_Postprocess.h"
 
-#endif // __atomic_Graphics_Renderer__
+#endif // atomic_Graphics_Renderer_h

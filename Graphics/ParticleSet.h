@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Graphics_ParticleSet__
-#define __atomic_Graphics_ParticleSet__
+﻿#ifndef atomic_Graphics_ParticleSet_h
+#define atomic_Graphics_ParticleSet_h
 
 #include "ResourceID.h"
 
@@ -107,4 +107,4 @@ struct RigidInfo
 
 
 } // namespace atomic
-#endif // __atomic_Graphics_ParticleSet__
+#endif // atomic_Graphics_ParticleSet_h

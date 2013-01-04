@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Graphics_Shader_h__
-#define __atomic_Graphics_Shader_h__
+﻿#ifndef atomic_Graphics_Shader_h
+#define atomic_Graphics_Shader_h
 
 #include "shader/Semantics.h"
 #include "shader/RenderStates.h"
@@ -32,4 +32,4 @@ public:
 
 
 } // namespace atomic
-#endif // __atomic_Graphics_Shader_h__
+#endif // atomic_Graphics_Shader_h

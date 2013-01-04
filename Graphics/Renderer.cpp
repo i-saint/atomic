@@ -44,9 +44,9 @@ AtomicRenderer::AtomicRenderer()
     m_renderer_bloom            = istNew(PassPostprocess_Bloom)();
     m_renderer_fade             = istNew(PassPostprocess_Fade)();
     m_renderer_distance_field   = istNew(PassForwardShading_DistanceField)();
-#ifdef atomic_enable_debug_show_gbuffer
+#ifdef atomic_enable_gbuffer_viewer
     m_debug_show_gbuffer        = istNew(PassHUD_DebugShowBuffer)();
-#endif // atomic_enable_debug_show_gbuffer
+#endif // atomic_enable_gbuffer_viewer
 
     m_stext = istNew(SystemTextRenderer)();
 
@@ -59,9 +59,9 @@ AtomicRenderer::AtomicRenderer()
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_microscopic);
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_bloom);
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_fade);
-#ifdef atomic_enable_debug_show_gbuffer
+#ifdef atomic_enable_gbuffer_viewer
     m_renderers[PASS_HUD].push_back(m_debug_show_gbuffer);
-#endif // atomic_enable_debug_show_gbuffer
+#endif // atomic_enable_gbuffer_viewer
 
     m_default_viewport = Viewport(ivec2(0), atomicGetWindowSize());
 }
@@ -69,9 +69,9 @@ AtomicRenderer::AtomicRenderer()
 AtomicRenderer::~AtomicRenderer()
 {
     istSafeDelete(m_stext);
-#ifdef atomic_enable_debug_show_gbuffer
+#ifdef atomic_enable_gbuffer_viewer
     istSafeDelete(m_debug_show_gbuffer);
-#endif // atomic_enable_debug_show_gbuffer
+#endif // atomic_enable_gbuffer_viewer
     istSafeDelete(m_renderer_distance_field);
     istSafeDelete(m_renderer_fade);
     istSafeDelete(m_renderer_bloom);
@@ -353,7 +353,7 @@ void SystemTextRenderer::addText(const vec2 &pos, const char *text)
 
 
 
-#ifdef atomic_enable_debug_show_gbuffer
+#ifdef atomic_enable_gbuffer_viewer
 
 void PassHUD_DebugShowBuffer::drawColorBuffer( const DebugShowBufferParams &params )
 {
@@ -465,6 +465,6 @@ void PassHUD_DebugShowBuffer::draw()
 
     m_rt->unbind();
 }
-#endif // atomic_enable_debug_show_gbuffer
+#endif // atomic_enable_gbuffer_viewer
 
 } // namespace atomic

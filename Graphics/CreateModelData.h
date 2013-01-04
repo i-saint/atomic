@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Graphics_CreateModelData__
-#define __atomic_Graphics_CreateModelData__
+﻿#ifndef atomic_Graphics_CreateModelData_h
+#define atomic_Graphics_CreateModelData_h
 
 namespace atomic {
 
@@ -18,4 +18,4 @@ namespace atomic {
     bool CreateBulletParticleSet(ParticleSet &pset, RigidInfo &ri);
 
 } // namespace atomic
-#endif // __atomic_Graphics_ModelData_h__
+#endif // atomic_Graphics_CreateModelData_h

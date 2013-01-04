@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Game_Input__
-#define __atomic_Game_Input__
+﻿#ifndef atomic_Game_Input_h
+#define atomic_Game_Input_h
 namespace atomic {
 
 class InputState
@@ -86,4 +86,4 @@ public:
 
 
 } // namespace atomic
-#endif // __atomic_Game_Input__
+#endif // atomic_Game_Input_h

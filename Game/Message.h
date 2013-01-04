@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Message_h__
-#define __atomic_Message_h__
+﻿#ifndef atomic_Message_h
+#define atomic_Message_h
 
 namespace atomic {
 
@@ -71,4 +71,4 @@ public:
 };
 
 } // namespace atomic
-#endif // __atomic_Message_h__
+#endif // atomic_Message_h

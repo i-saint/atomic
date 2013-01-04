@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Graphics_Renderer_Postprocess__
-#define __atomic_Graphics_Renderer_Postprocess__
+﻿#ifndef atomic_Graphics_Renderer_Postprocess_h
+#define atomic_Graphics_Renderer_Postprocess_h
 namespace atomic {
 
     
@@ -76,4 +76,4 @@ public:
 };
 
 } // namespace atomic
-#endif // __atomic_Graphics_Renderer_Postprocess__
+#endif // atomic_Graphics_Renderer_Postprocess_h

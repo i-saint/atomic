@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Graphics_AtomicGraphics__
-#define __atomic_Graphics_AtomicGraphics__
+﻿#ifndef atomic_Graphics_AtomicRenderingSystem_h
+#define atomic_Graphics_AtomicRenderingSystem_h
 
 #include "psym/psym.h"
 
@@ -44,4 +44,4 @@ public:
 #define atomicGetGLDevice()                     atomicGetRenderingSystem()->getDevice()
 #define atomicGetGLDeviceContext()              atomicGetRenderingSystem()->getDeviceContext()
 
-#endif // __atomic_Graphics_AtomicGraphics__
+#endif // atomic_Graphics_AtomicRenderingSystem_h

@@ -5,7 +5,7 @@
 #include "Entity.h"
 #include "Task.h"
 
-#ifdef __atomic_enable_strict_handle_check__
+#ifdef atomic_enable_strict_handle_check
     #define atomicStrictHandleCheck(h) if(!isValidHandle(h)) { istAssert("invalid entity handle\n"); }
 #else
     #define atomicStrictHandleCheck(h)

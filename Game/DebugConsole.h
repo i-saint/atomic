@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Game_DebugConsole__
-#define __atomic_Game_DebugConsole__
+﻿#ifndef atomic_Game_DebugConsole_h
+#define atomic_Game_DebugConsole_h
 namespace atomic {
 
     class DebugConsole
@@ -14,4 +14,4 @@ namespace atomic {
     };
 
 } // namespace atomic
-#endif // __atomic_Game_DebugConsole__
+#endif // atomic_Game_DebugConsole_h

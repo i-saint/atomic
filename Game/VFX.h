@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Game_VFX__
-#define __atomic_Game_VFX__
+﻿#ifndef atomic_Game_VFX_h
+#define atomic_Game_VFX_h
 namespace atomic {
 
 struct VFXScintillaSpawnData
@@ -83,4 +83,4 @@ public:
 };
 
 } // namespace atomic
-#endif // __atomic_Game_VFX__
+#endif // atomic_Game_VFX_h

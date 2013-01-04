@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Game_EntityClass__
-#define __atomic_Game_EntityClass__
+﻿#ifndef atomic_Game_EntityClass_h
+#define atomic_Game_EntityClass_h
 
 namespace atomic {
     enum ENTITY_CATEGORY_ID
@@ -78,4 +78,4 @@ namespace atomic {
     class Level_Test;
 
 } // namespace atomic
-#endif //__atomic_Game_EntityClass__
+#endif //atomic_Game_EntityClass_h

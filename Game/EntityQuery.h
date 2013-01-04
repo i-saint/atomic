@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Game_EntityQuery__
-#define __atomic_Game_EntityQuery__
+﻿#ifndef atomic_Game_EntityQuery_h
+#define atomic_Game_EntityQuery_h
 
 #include "FunctionID.h"
 
@@ -68,4 +68,4 @@ inline T _atomicQuery(IEntity *e, FunctionID qid)
 #define atomicQuery(entity, funcname, T) _atomicQuery<T>(entity, FID_##funcname)
 
 } // namespace atomic
-#endif // __atomic_Game_EntityQuery__
+#endif // atomic_Game_EntityQuery_h

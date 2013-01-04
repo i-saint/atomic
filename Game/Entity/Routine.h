@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Game_Character_Routine__
-#define __atomic_Game_Character_Routine__
+﻿#ifndef atomic_Game_Entity_Routine_h
+#define atomic_Game_Entity_Routine_h
 namespace atomic {
 
 enum ROUTINE_CLASSID
@@ -54,4 +54,4 @@ template<class RoutineType> class AddRoutineTable;
 
 
 } // namespace atomic
-#endif // __atomic_Game_Character_Routine__
+#endif // atomic_Game_Entity_Routine_h

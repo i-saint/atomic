@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Graphics_ResourceID__
-#define __atomic_Graphics_ResourceID__
+﻿#ifndef atomic_Graphics_ResourceID_h
+#define atomic_Graphics_ResourceID_h
 namespace atomic {
 
 const size_t ATOMIC_MAX_CHARACTERS = 256;
@@ -135,4 +135,4 @@ enum PSET_RID {
 };
 
 } // namespace atomic
-#endif //__atomic_Graphics_ResourceID__
+#endif //atomic_Graphics_ResourceID_h

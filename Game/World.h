@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Game_World_h__
-#define __atomic_Game_World_h__
+﻿#ifndef atomic_Game_World_h
+#define atomic_Game_World_h
 
 #include "Task.h"
 
@@ -79,4 +79,4 @@ public:
 
 
 } // namespace atomic
-#endif // __atomic_Game_World_h__
+#endif // atomic_Game_World_h

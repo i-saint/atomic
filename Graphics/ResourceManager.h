@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Graphics_ResourceManager__
-#define __atomic_Graphics_ResourceManager__
+﻿#ifndef atomic_Graphics_ResourceManager_h
+#define atomic_Graphics_ResourceManager_h
 
 #include "Graphics/Shader.h"
 #include "Graphics/ParticleSet.h"
@@ -84,4 +84,4 @@ public:
 #define atomicGetRigidInfo(i)       atomicGetResourceManager()->getRigidInfo(i)
 
 } // namespace atomic
-#endif // __atomic_Graphics_ResourceManager__
+#endif // atomic_Graphics_ResourceManager_h

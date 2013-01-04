@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Util__
-#define __atomic_Util__
+﻿#ifndef atomic_Util_h
+#define atomic_Util_h
 
 
 namespace atomic {
@@ -96,4 +96,4 @@ __forceinline fvec4SIMD operator* (fmat4x4SIMD const & M, fvec4SIMD const & V)
 } // namespace detail
 } // namespace glm
 
-#endif // __atomic_Util__
+#endif // atomic_Util_h

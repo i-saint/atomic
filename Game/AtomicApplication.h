@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Game_AtomicApplication__
-#define __atomic_Game_AtomicApplication__
+﻿#ifndef atomic_Game_AtomicApplication_h
+#define atomic_Game_AtomicApplication_h
 #include "Input.h"
 
 namespace atomic {
@@ -97,4 +97,4 @@ public:
 #endif // atomic_enable_debug_log
 
 } // namespace atomic
-#endif __atomic_Game_AtomicApplication__
+#endif atomic_Game_AtomicApplication_h

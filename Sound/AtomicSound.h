@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Sound_AtomicSound__
-#define __atomic_Sound_AtomicSound__
+﻿#ifndef atomic_Sound_AtomicSound_h
+#define atomic_Sound_AtomicSound_h
 
 #include "SoundResourceID.h"
 
@@ -49,4 +49,4 @@ public:
 #define atomicIsBGMPlaying(channel)                 atomicGetSound()->isBGMPlaying(channel)
 
 } //namespace atomic
-#endif // __atomic_Sound_AtomicSound__
+#endif // atomic_Sound_AtomicSound_h

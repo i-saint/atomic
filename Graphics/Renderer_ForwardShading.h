@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Graphics_Renderer_ForwardShading__
-#define __atomic_Graphics_Renderer_ForwardShading__
+﻿#ifndef atomic_Graphics_Renderer_ForwardShading_h
+#define atomic_Graphics_Renderer_ForwardShading_h
 namespace atomic {
 
 
@@ -22,4 +22,4 @@ public:
 
 
 } // namespace atomic
-#endif // __atomic_Graphics_Renderer_ForwardShading__
+#endif // atomic_Graphics_Renderer_ForwardShading_h

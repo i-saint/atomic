@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Graphics_Renderer_GBuffer__
-#define __atomic_Graphics_Renderer_GBuffer__
+﻿#ifndef atomic_Graphics_Renderer_GBuffer_h
+#define atomic_Graphics_Renderer_GBuffer_h
 namespace atomic {
 
 class UpdateRigidParticle
@@ -55,4 +55,4 @@ public:
 };
 
 } // namespace atomic
-#endif // __atomic_Graphics_Renderer_GBuffer__
+#endif // atomic_Graphics_Renderer_GBuffer_h

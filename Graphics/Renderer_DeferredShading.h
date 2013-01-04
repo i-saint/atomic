@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Graphics_Renderer_DeferredShading__
-#define __atomic_Graphics_Renderer_DeferredShading__
+﻿#ifndef atomic_Graphics_Renderer_DeferredShading_h
+#define atomic_Graphics_Renderer_DeferredShading_h
 namespace atomic {
 
 
@@ -65,4 +65,4 @@ public:
 };
 
 } // namespace atomic
-#endif // __atomic_Graphics_Renderer_DeferredShading__
+#endif // atomic_Graphics_Renderer_DeferredShading_h

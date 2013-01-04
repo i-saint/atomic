@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Sound_SoundResourceID__
-#define __atomic_Sound_SoundResourceID__
+﻿#ifndef atomic_Sound_SoundResourceID_h
+#define atomic_Sound_SoundResourceID_h
 
 namespace atomic {
 
@@ -45,4 +45,4 @@ namespace atomic {
     };
 
 } // namespacr atomic
-#endif // __atomic_Sound_SoundResourceID__
+#endif // atomic_Sound_SoundResourceID_h

@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Types__
-#define __atomic_Types__
+﻿#ifndef atomic_Types_h
+#define atomic_Types_h
 
 #include "ist/ist.h"
 
@@ -156,4 +156,4 @@ public:
 
 #define atomicSafeRelease(Obj) if(Obj){Obj->release();Obj=NULL;}
 
-#endif // __atomic_Types__
+#endif // atomic_Types_h

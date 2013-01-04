@@ -1,7 +1,7 @@
-﻿#ifndef __atomic_Game_Character_Level__
-#define __atomic_Game_Character_Level__
+﻿#ifndef atomic_Game_Entity_Level_h
+#define atomic_Game_Entity_Level_h
 namespace atomic {
 
 
 } // namespace atomic
-#endif // __atomic_Game_Character_Level__
+#endif // atomic_Game_Entity_Level_h

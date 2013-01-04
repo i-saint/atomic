@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Graphics_Light__
-#define __atomic_Graphics_Light__
+﻿#ifndef atomic_Graphics_Light_h
+#define atomic_Graphics_Light_h
 namespace atomic {
 
 const int ATOMIC_MAX_DIRECTIONAL_LIGHTS = 16;
@@ -47,4 +47,4 @@ public:
 BOOST_STATIC_ASSERT(sizeof(PointLight)==sizeof(vec4)*3);
 
 } // namespace atomic
-#endif // __atomic_Graphics_Light__
+#endif // atomic_Graphics_Light_h

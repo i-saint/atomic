@@ -1,5 +1,5 @@
-﻿#ifndef __atomic_Game_Character_Enemy__
-#define __atomic_Game_Character_Enemy__
+﻿#ifndef atomic_Game_Entity_Enemy_h
+#define atomic_Game_Entity_Enemy_h
 
 #include "Game/Entity.h"
 #include "Game/EntityQuery.h"
@@ -150,4 +150,4 @@ public:
 
 
 } // namespace atomic
-#endif // __atomic_Game_Character_Enemy__
+#endif // atomic_Game_Entity_Enemy_h
