@@ -82,6 +82,7 @@ private:
     TaskScheduler( uint32 num_threads );
     ~TaskScheduler();
     Task* dequeue();
+    void processOneTask(Task *task);
     void waitForNewTask();
     void advertiseNewTask();
 

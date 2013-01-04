@@ -1,6 +1,5 @@
-
-#ifndef __TBB_parallel_stable_sort_H
-#define __TBB_parallel_stable_sort_H
+#ifndef psym_parallel_deterministic_sort_h
+#define psym_parallel_deterministic_sort_h
 
 #include <tbb/tbb.h>
 
@@ -27,7 +26,7 @@ namespace detail {
             if( m_last > m_first ) {
                 size_t dist = std::distance(m_first, m_last);
                 if(dist < cutoff_elem || m_depth>=cutoff_depth) { 
-                    std::stable_sort(m_first, m_last, *m_compare);
+                    std::sort(m_first, m_last, *m_compare);
                 }
                 else {
                     Iterator mid = m_first;

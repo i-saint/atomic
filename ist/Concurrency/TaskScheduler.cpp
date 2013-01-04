@@ -7,29 +7,6 @@
 namespace ist {
 
 
-Task::Task()
-    : m_priority(Priority_Default)
-    , m_state(State_Completed)
-{}
-
-Task::~Task()
-{}
-
-void Task::setState(State v)
-{
-    m_state = v;
-}
-
-void Task::wait()
-{
-    while(getState()!=State_Completed) {
-        if(!TaskScheduler::getInstance()->processOneTask()) {
-            Thread::sleep(1);
-        }
-    }
-}
-
-
 class TaskStream
 {
 public:
@@ -47,18 +24,44 @@ public:
     TaskWorker(int32 cpu_index);
     ~TaskWorker();
     void requestExit()          { m_flag_exit = true; }
-    bool getExitFlag()          { return m_flag_exit; }
-    void waitUntilCompleteTask(){ m_mutex.lock(); m_mutex.unlock(); }
-    bool isWorking()            { return m_mutex.tryLock()==false; }
-    bool isCompleted()          { return m_flag_complete; }
+    bool getExitFlag() const    { return m_flag_exit; }
+    void waitUntilCompleteTask(){ if(!m_mutex.tryLock()) { m_mutex.lock(); m_mutex.unlock(); } }
+    bool isWorking() const      { return m_mutex.tryLock()==false; }
+    bool isCompleted() const    { return m_flag_complete; }
+    Task* getCurrentTask() const{ return m_current_task; }
 
     void exec();
 
 private:
     volatile bool m_flag_exit;
     volatile bool m_flag_complete;
-    Mutex m_mutex;
+    mutable Mutex m_mutex;
+    Task *m_current_task;
 };
+
+
+
+Task::Task()
+    : m_priority(Priority_Default)
+    , m_state(State_Completed)
+{}
+
+Task::~Task()
+{}
+
+void Task::setState(State v)
+{
+    m_state = v;
+}
+
+void Task::wait()
+{
+    while(getState()!=State_Completed) {
+        if(!TaskScheduler::getInstance()->processOneTask()) {
+            Thread::yieldProcessor();
+        }
+    }
+}
 
 
 void TaskStream::enqueue( Task *v )
@@ -140,9 +143,7 @@ void TaskScheduler::enqueue( Task *task )
     assert( task->getPriority()<=Task::Priority_Max );
     assert( task->getState()!=Task::State_Ready && task->getState()!=Task::State_Running );
     if(m_workers.empty()) {
-        task->setState(Task::State_Running);
-        task->exec();
-        task->setState(Task::State_Completed);
+        processOneTask(task);
         return;
     }
 
@@ -154,12 +155,17 @@ void TaskScheduler::enqueue( Task *task )
 bool TaskScheduler::processOneTask()
 {
     if(Task *task=dequeue()) {
-        task->setState(Task::State_Running);
-        task->exec();
-        task->setState(Task::State_Completed);
+        processOneTask(task);
         return true;
     }
     return false;
+}
+
+void TaskScheduler::processOneTask( Task *task )
+{
+    task->setState(Task::State_Running);
+    task->exec();
+    task->setState(Task::State_Completed);
 }
 
 void TaskScheduler::waitForAll()

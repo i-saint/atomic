@@ -100,9 +100,10 @@ Thread::Handle Thread::getCurrentThread()
 void Thread::yieldProcessor()
 {
 #ifdef ist_env_Windows
-    return ::YieldProcessor();
+    //::YieldProcessor();
+    ::SwitchToThread();
 #else // ist_env_Windows
-    return ::pthread_yield();
+    ::pthread_yield();
 #endif // ist_env_Windows
 }
 
