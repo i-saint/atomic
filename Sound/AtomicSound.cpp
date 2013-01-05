@@ -157,7 +157,6 @@ void SoundThread::addRequest(const SoundRequest & v)
 void SoundThread::exec()
 {
     ist::Thread::setNameToCurrentThread("AtomicSoundThread");
-    setPriority(Thread::Priority_High);
 
     initialize();
     m_initialization_complete = true;
