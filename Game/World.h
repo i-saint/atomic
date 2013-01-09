@@ -25,7 +25,8 @@ private:
     typedef stl::vector<ModuleAsyncupdate> ModuleAsyncupdateCont;
     ModuleAsyncupdateCont m_module_asyncupdates;
 
-    PerspectiveCamera m_camera;
+    PerspectiveCamera m_camera_game;
+    PerspectiveCamera m_camera_bg;
     FrustumPlanes m_frustum;
     vec4 m_field_size;
 
@@ -47,7 +48,8 @@ public:
     void draw();
     void frameEnd();
 
-    PerspectiveCamera* getCamera()      { return &m_camera; }
+    PerspectiveCamera* getGameCamera()  { return &m_camera_game; }
+    PerspectiveCamera* getBGCamera()    { return &m_camera_bg; }
     const FrustumPlanes* getViewFrustum() const { return &m_frustum; }
     const vec4& getFieldSize() const    { return m_field_size; }
     float32 getFrame() const            { return m_frame; }
@@ -61,7 +63,8 @@ public:
 
 
 #define atomicGetFrame()        atomicGetWorld()->getFrame()
-#define atomicGetCamera()       atomicGetWorld()->getCamera()
+#define atomicGetGameCamera()   atomicGetWorld()->getGameCamera()
+#define atomicGetBGCamera()     atomicGetWorld()->getBGCamera()
 #define atomicGetViewFrustum()  atomicGetWorld()->getViewFrustum()
 #define atomicGenRandFloat()    atomicGetRandom()->genFloat32()
 

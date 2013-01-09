@@ -21,6 +21,13 @@ void Camera::updateMatrix()
     m_v_matrix = glm::lookAt(vec3(m_position), vec3(m_target), vec3(m_up));
 }
 
+vec4 Camera::getDirection() const
+{
+     vec4 tmp = m_target-m_position;
+     tmp.w = 0.0f;
+     return glm::normalize(tmp);
+}
+
 
 void OrthographicCamera::updateMatrix()
 {

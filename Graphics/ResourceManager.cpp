@@ -98,6 +98,7 @@ bool GraphicResourceManager::initialize()
     }
     {
         m_ubo[UBO_RENDERSTATES_3D]          = CreateUniformBuffer(dev, sizeof(RenderStates), I3D_USAGE_DYNAMIC);
+        m_ubo[UBO_RENDERSTATES_BG]          = CreateUniformBuffer(dev, sizeof(RenderStates), I3D_USAGE_DYNAMIC);
         m_ubo[UBO_RENDERSTATES_2D]          = CreateUniformBuffer(dev, sizeof(RenderStates), I3D_USAGE_DYNAMIC);
         m_ubo[UBO_FXAA_PARAMS]              = CreateUniformBuffer(dev, sizeof(FXAAParams), I3D_USAGE_DYNAMIC);
         m_ubo[UBO_FADE_PARAMS]              = CreateUniformBuffer(dev, sizeof(FadeParams), I3D_USAGE_DYNAMIC);
@@ -132,6 +133,8 @@ bool GraphicResourceManager::initialize()
         m_shader[SH_OUTPUT]             = CreateAtomicShader(g_Out_glsl);
         m_shader[SH_DEBUG_SHOW_RGB]     = CreateAtomicShader(g_Debug_ShowRGB_glsl);
         m_shader[SH_DEBUG_SHOW_AAA]     = CreateAtomicShader(g_Debug_ShowAAA_glsl);
+
+        m_shader[SH_BG1]    = CreateAtomicShader(g_GBuffer_BG1_glsl);
     }
     {
         // samplers

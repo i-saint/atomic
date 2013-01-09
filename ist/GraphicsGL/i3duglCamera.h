@@ -7,12 +7,6 @@ namespace i3dgl {
 
 class istInterModule Camera
 {
-private:
-    mat4 m_v_matrix;
-    vec4 m_position;
-    vec4 m_target;
-    vec4 m_up;
-
 public:
     Camera()
     {
@@ -23,14 +17,20 @@ public:
 
     void setPosition(const vec4& v)     { m_position=v; }
     void setTarget(const vec4& v)       { m_target=v; }
-    void setDirection(const vec4& v)    { m_up=v; }
 
     const vec4& getPosition() const     { return m_position; }
     const vec4& getTarget() const       { return m_target; }
     const vec4& getUp() const           { return m_up; }
     const mat4& getViewMatrix() const   { return m_v_matrix; }
 
+    vec4 getDirection() const;
     void updateMatrix();
+
+private:
+    mat4 m_v_matrix;
+    vec4 m_position;
+    vec4 m_target;
+    vec4 m_up;
 };
 
 

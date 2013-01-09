@@ -16,9 +16,9 @@ public:
 };
 
 
-class PassGBuffer_SPH;
+class PassGBuffer_Fluid;
 class PassGBuffer_Particle;
-class PassGBuffer_ParticleSet;
+class PassGBuffer_BG;
 class PassDeferredShading_Bloodstain;
 class PassDeferredShading_Lights;
 class PassPostprocess_Microscopic;
@@ -41,8 +41,9 @@ private:
     RenderTarget    *m_rt_out[2];
 
     // internal resources
-    PassGBuffer_SPH                         *m_renderer_sph;
+    PassGBuffer_Fluid                       *m_renderer_fluid;
     PassGBuffer_Particle                    *m_renderer_particle;
+    PassGBuffer_BG                          *m_renderer_bg;
     PassDeferredShading_Bloodstain          *m_renderer_bloodstain;
     PassDeferredShading_Lights              *m_renderer_lights;
     PassPostprocess_FXAA                    *m_renderer_fxaa;
@@ -59,6 +60,7 @@ private:
 
     Viewport   m_default_viewport;
     RenderStates    m_rstates3d;
+    RenderStates    m_rstatesBG;
     RenderStates    m_rstates2d;
 
 private:
@@ -85,7 +87,7 @@ public:
     const Viewport* getDefaultViewport() const              { return &m_default_viewport; }
     RenderStates* getRenderStates3D()                       { return &m_rstates3d; }
     RenderStates* getRenderStates2D()                       { return &m_rstates2d; }
-    PassGBuffer_SPH* getSPHRenderer()                       { return m_renderer_sph; }
+    PassGBuffer_Fluid* getSPHRenderer()                       { return m_renderer_fluid; }
     PassGBuffer_Particle* getParticleRenderer()             { return m_renderer_particle; }
     PassDeferredShading_Bloodstain* getBloodStainRenderer() { return m_renderer_bloodstain; }
     PassDeferredShading_Lights* getLights()                 { return m_renderer_lights; }

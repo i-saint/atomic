@@ -4,24 +4,18 @@ namespace atomic {
 
 class UpdateRigidParticle
 {
-private:
-    const PSetUpdateInfo *m_rinst;
-    PSetParticle *m_particles;
-
 public:
     UpdateRigidParticle(const PSetUpdateInfo &ri, PSetParticle *p);
     void exec();
+
+private:
+    const PSetUpdateInfo *m_rinst;
+    PSetParticle *m_particles;
 };
 
 
 class PassGBuffer_Particle : public IRenderer
 {
-private:
-    VertexArray     *m_va_cube;
-    Buffer          *m_vbo;
-    AtomicShader    *m_sh;
-    stl::vector<IndivisualParticle> m_particles;
-
 public:
     PassGBuffer_Particle();
     ~PassGBuffer_Particle();
@@ -29,10 +23,24 @@ public:
     void draw();
 
     void addParticle(const IndivisualParticle *particles, uint32 num);
+
+private:
+    VertexArray     *m_va_cube;
+    Buffer          *m_vbo;
+    AtomicShader    *m_sh;
+    stl::vector<IndivisualParticle> m_particles;
 };
 
-class PassGBuffer_SPH : public IRenderer
+class PassGBuffer_Fluid : public IRenderer
 {
+public:
+    PassGBuffer_Fluid();
+    ~PassGBuffer_Fluid();
+    void beforeDraw();
+    void draw();
+
+    void addPSetInstance(PSET_RID psid, const PSetInstance inst);
+
 private:
     VertexArray     *m_va_cube;
     Buffer          *m_vbo_fluid;
@@ -44,14 +52,17 @@ private:
     stl::vector<PSetParticle>   m_rparticles;
     stl::vector<PSetInstance>   m_rinstances;
     stl::vector<UpdateRigidParticle>    m_updater;
+};
 
+
+class PassGBuffer_BG : public IRenderer
+{
 public:
-    PassGBuffer_SPH();
-    ~PassGBuffer_SPH();
+    PassGBuffer_BG();
     void beforeDraw();
     void draw();
 
-    void addPSetInstance(PSET_RID psid, const PSetInstance inst);
+private:
 };
 
 } // namespace atomic

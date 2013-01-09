@@ -91,7 +91,7 @@ public:
 
 
 
-PassGBuffer_SPH::PassGBuffer_SPH()
+PassGBuffer_Fluid::PassGBuffer_Fluid()
 {
     m_va_cube       = atomicGetVertexArray(VA_FLUID_CUBE);
     m_sh_fluid      = atomicGetShader(SH_GBUFFER_FLUID);
@@ -100,18 +100,18 @@ PassGBuffer_SPH::PassGBuffer_SPH()
     m_vbo_rigid     = atomicGetVertexBuffer(VBO_RIGID_PARTICLES);
 }
 
-PassGBuffer_SPH::~PassGBuffer_SPH()
+PassGBuffer_Fluid::~PassGBuffer_Fluid()
 {
 }
 
-void PassGBuffer_SPH::beforeDraw()
+void PassGBuffer_Fluid::beforeDraw()
 {
     m_rupdateinfo.clear();
     m_rparticles.clear();
     m_rinstances.clear();
 }
 
-void PassGBuffer_SPH::draw()
+void PassGBuffer_Fluid::draw()
 {
     i3d::DeviceContext *dc = atomicGetGLDeviceContext();
 
@@ -157,6 +157,7 @@ void PassGBuffer_SPH::draw()
             m_va_cube->setAttributes(*m_vbo_fluid, sizeof(psym::Particle), descs, _countof(descs));
             m_sh_fluid->assign(dc);
             dc->setVertexArray(m_va_cube);
+            glStencilFunc(GL_ALWAYS, STENCIL_FLUID, ~0);
             dc->drawInstanced(I3D_QUADS, 0, 24, num_particles);
         }
     }
@@ -177,20 +178,22 @@ void PassGBuffer_SPH::draw()
 
         m_sh_rigid->assign(dc);
         dc->setTexture(GLSL_PARAM_BUFFER, param_texture);
+        glStencilFunc(GL_ALWAYS, STENCIL_RIGID, ~0);
         dc->drawInstanced(I3D_QUADS, 0, 24, num_rigid_particles);
+        glStencilFunc(GL_ALWAYS, 0, ~0);
     }
 
-    // floor
-    {
-        AtomicShader *sh_floor = atomicGetShader(SH_GBUFFER_FLOOR);
-        VertexArray *va_floor = atomicGetVertexArray(VA_FLOOR_QUAD);
-        sh_floor->assign(dc);
-        dc->setVertexArray(va_floor);
-        dc->draw(I3D_QUADS, 0, 4);
-    }
+    //// floor
+    //{
+    //    AtomicShader *sh_floor = atomicGetShader(SH_GBUFFER_FLOOR);
+    //    VertexArray *va_floor = atomicGetVertexArray(VA_FLOOR_QUAD);
+    //    sh_floor->assign(dc);
+    //    dc->setVertexArray(va_floor);
+    //    dc->draw(I3D_QUADS, 0, 4);
+    //}
 }
 
-void PassGBuffer_SPH::addPSetInstance( PSET_RID psid, const PSetInstance inst )
+void PassGBuffer_Fluid::addPSetInstance( PSET_RID psid, const PSetInstance inst )
 {
     {
         const ParticleSet *rc = atomicGetParticleSet(psid);
@@ -214,5 +217,30 @@ void PassGBuffer_SPH::addPSetInstance( PSET_RID psid, const PSetInstance inst )
 
 
 
+
+
+PassGBuffer_BG::PassGBuffer_BG()
+{
+}
+
+void PassGBuffer_BG::beforeDraw()
+{
+}
+
+void PassGBuffer_BG::draw()
+{
+    AtomicShader *sh_bg     = atomicGetShader(SH_BG1);
+    VertexArray *va_quad    = atomicGetVertexArray(VA_SCREEN_QUAD);
+
+    va_quad->bind();
+    sh_bg->bind();
+    glStencilFunc(GL_EQUAL, 0, ~0);
+    glDisable(GL_DEPTH_TEST);
+    glDrawArrays(GL_QUADS, 0, 4);
+    glStencilFunc(GL_ALWAYS, 0, ~0);
+    glEnable(GL_DEPTH_TEST);
+    sh_bg->unbind();
+    va_quad->unbind();
+}
 
 } // namespace atomic

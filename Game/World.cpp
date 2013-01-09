@@ -43,7 +43,7 @@ World::World()
     m_module_asyncupdates.resize( m_modules.size() );
 
     const uvec2 &wsize = atomicGetWindowSize();
-    m_camera.setAspect((float32)wsize.x/(float32)wsize.y);
+    m_camera_game.setAspect((float32)wsize.x/(float32)wsize.y);
 }
 
 World::~World()
@@ -56,9 +56,9 @@ World::~World()
 
 void World::initialize()
 {
-    m_camera.setPosition(vec4(0.0f, 0.0f, 3.0f, 0.0f));
-    m_camera.setZNear(0.01f);
-    m_camera.setZFar(10.0f);
+    m_camera_game.setPosition(vec4(0.0f, 0.0f, 3.0f, 0.0f));
+    m_camera_game.setZNear(0.01f);
+    m_camera_game.setZFar(10.0f);
 }
 
 
@@ -81,8 +81,8 @@ void World::update(float32 dt)
         (*i)->update(dt);
     }
 
-    m_camera.updateMatrix();
-    m_frustum.constructFromViewProjectionMatrix(m_camera.getViewProjectionMatrix());
+    m_camera_game.updateMatrix();
+    m_frustum.constructFromViewProjectionMatrix(m_camera_game.getViewProjectionMatrix());
 }
 
 void World::asyncupdateBegin(float32 dt)

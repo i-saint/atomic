@@ -29,6 +29,15 @@ enum SH_RID {
     SH_OUTPUT,
     SH_DEBUG_SHOW_RGB,
     SH_DEBUG_SHOW_AAA,
+    SH_BG1,
+    SH_BG2,
+    SH_BG3,
+    SH_BG4,
+    SH_BG5,
+    SH_BG6,
+    SH_BG7,
+    SH_BG8,
+    SH_BG9,
     SH_END,
 };
 
@@ -112,6 +121,7 @@ enum IBO_RID {
 
 enum UBO_RID {
     UBO_RENDERSTATES_3D,
+    UBO_RENDERSTATES_BG,
     UBO_RENDERSTATES_2D,
     UBO_FXAA_PARAMS,
     UBO_FADE_PARAMS,
@@ -132,6 +142,12 @@ enum PSET_RID {
     PSET_SPHERE_BULLET,
     PSET_INSTANCE,
     PSET_END,
+};
+
+enum STENCIL_ID {
+    STENCIL_FLUID   = 1,
+    STENCIL_RIGID   = 2,
+    STENCIL_BG      = 4,
 };
 
 } // namespace atomic

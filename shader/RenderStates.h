@@ -1,5 +1,5 @@
-#ifndef __atomic_RenderStates__
-#define __atomic_RenderStates__
+#ifndef atomic_RenderStates_h
+#define atomic_RenderStates_h
 
 #ifdef GLSL
     #define ALIGN16 
@@ -15,6 +15,7 @@ struct ALIGN16 RenderStates
 {
     mat4 ModelViewProjectionMatrix;
     vec4 CameraPosition;
+    vec4 CameraDirection;
     vec4 Color;
 
     vec2 ScreenTexcoord;
@@ -70,4 +71,4 @@ struct ALIGN16 DebugShowBufferParams
 } // namespace atomic
 #endif // GLSL
 #undef ALIGN16
-#endif // __atomic_RenderStates__
+#endif // atomic_RenderStates_h

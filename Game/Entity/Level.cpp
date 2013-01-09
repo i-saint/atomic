@@ -200,7 +200,7 @@ public:
 
     void updateCamera()
     {
-        PerspectiveCamera *pcam = atomicGetCamera();
+        PerspectiveCamera *pcam = atomicGetGameCamera();
         if(IEntity *player = atomicGetEntity(m_player)) {
             vec4 player_pos = atomicQuery(player, getPosition, vec4);
             vec4 cpos       = pcam->getPosition();
@@ -211,6 +211,9 @@ public:
             tpos2.z = tpos.z;
             pcam->setPosition(cpos2);
             pcam->setTarget(tpos2);
+
+            PerspectiveCamera *bgcam = atomicGetBGCamera();
+            *bgcam = *pcam;
 
             atomicSetListenerPosition(cpos2);
         }

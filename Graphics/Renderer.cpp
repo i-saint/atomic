@@ -35,8 +35,9 @@ AtomicRenderer::AtomicRenderer()
     m_rt_out[1]     = atomicGetRenderTarget(RT_OUTPUT1);
 
     // 追加の際はデストラクタでの消去処理も忘れずに
-    m_renderer_sph              = istNew(PassGBuffer_SPH)();
+    m_renderer_fluid            = istNew(PassGBuffer_Fluid)();
     m_renderer_particle         = istNew(PassGBuffer_Particle)();
+    m_renderer_bg               = istNew(PassGBuffer_BG);
     m_renderer_bloodstain       = istNew(PassDeferredShading_Bloodstain)();
     m_renderer_lights           = istNew(PassDeferredShading_Lights)();
     m_renderer_microscopic      = istNew(PassPostprocess_Microscopic)();
@@ -50,8 +51,9 @@ AtomicRenderer::AtomicRenderer()
 
     m_stext = istNew(SystemTextRenderer)();
 
-    m_renderers[PASS_GBUFFER].push_back(m_renderer_sph);
+    m_renderers[PASS_GBUFFER].push_back(m_renderer_fluid);
     m_renderers[PASS_GBUFFER].push_back(m_renderer_particle);
+    m_renderers[PASS_GBUFFER].push_back(m_renderer_bg);
     m_renderers[PASS_DEFERRED].push_back(m_renderer_bloodstain);
     m_renderers[PASS_DEFERRED].push_back(m_renderer_lights);
     m_renderers[PASS_FORWARD].push_back(m_renderer_distance_field);
@@ -79,8 +81,9 @@ AtomicRenderer::~AtomicRenderer()
     istSafeDelete(m_renderer_microscopic);
     istSafeDelete(m_renderer_lights);
     istSafeDelete(m_renderer_bloodstain);
+    istSafeDelete(m_renderer_bg);
     istSafeDelete(m_renderer_particle);
-    istSafeDelete(m_renderer_sph);
+    istSafeDelete(m_renderer_fluid);
 }
 
 void AtomicRenderer::beforeDraw()
@@ -104,11 +107,12 @@ void AtomicRenderer::draw()
     glEnable(GL_CULL_FACE);
 
     {
-        PerspectiveCamera *camera   = atomicGetCamera();
+        PerspectiveCamera *camera   = atomicGetGameCamera();
         Buffer *ubo_rs              = atomicGetUniformBuffer(UBO_RENDERSTATES_3D);
         const uvec2 &wsize          = atomicGetWindowSize();
         m_rstates3d.ModelViewProjectionMatrix = camera->getViewProjectionMatrix();
         m_rstates3d.CameraPosition  = camera->getPosition();
+        m_rstates3d.CameraDirection = camera->getDirection();
         m_rstates3d.ScreenSize      = vec2(atomicGetWindowSize());
         m_rstates3d.RcpScreenSize   = vec2(1.0f, 1.0f) / m_rstates3d.ScreenSize;
         m_rstates3d.AspectRatio     = (float32)wsize.x / (float32)wsize.y;
@@ -116,6 +120,10 @@ void AtomicRenderer::draw()
         m_rstates3d.ScreenTexcoord  = m_rstates3d.ScreenSize / vec2(m_rt_gbuffer->getColorBuffer(0)->getDesc().size);
         m_rstates3d.Color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
         MapAndWrite(*ubo_rs, &m_rstates3d, sizeof(m_rstates3d));
+
+        ubo_rs              = atomicGetUniformBuffer(UBO_RENDERSTATES_BG);
+        m_rstatesBG = m_rstates3d;
+        MapAndWrite(*ubo_rs, &m_rstatesBG, sizeof(m_rstatesBG));
     }
     {
         Buffer *ubo_rs      = atomicGetUniformBuffer(UBO_RENDERSTATES_2D);
@@ -156,7 +164,7 @@ void AtomicRenderer::passShadow()
 void AtomicRenderer::passGBuffer()
 {
     i3d::DeviceContext *dc = atomicGetGLDeviceContext();
-    const PerspectiveCamera *camera = atomicGetCamera();
+    const PerspectiveCamera *camera = atomicGetGameCamera();
 
     dc->clearColor(m_rt_gbuffer, vec4(0.0f,0.0f,0.0f,1.0f));
     dc->clearDepth(m_rt_gbuffer, 1.0f);
@@ -165,8 +173,8 @@ void AtomicRenderer::passGBuffer()
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_STENCIL_TEST);
-    glStencilFunc(GL_ALWAYS, 1, ~0);
-    glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+    glStencilFunc(GL_ALWAYS, 0, ~0);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
     uint32 num_renderers = m_renderers[PASS_GBUFFER].size();
     for(uint32 i=0; i<num_renderers; ++i) {
@@ -203,11 +211,11 @@ void AtomicRenderer::passDeferredShading()
 
     glEnable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_STENCIL_TEST);
+    //glEnable(GL_STENCIL_TEST);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     glDepthMask(GL_FALSE);
-    glStencilFunc(GL_EQUAL, 1, ~0);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+    //glStencilFunc( GL_NOTEQUAL, 0, ~0);
+    //glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
     uint32 num_renderers = m_renderers[PASS_DEFERRED].size();
     for(uint32 i=0; i<num_renderers; ++i) {
