@@ -23,7 +23,69 @@ float sdCross( in vec3 p )
     return min(da,min(db,dc));
 }
 
+float fractal1(vec3 p)
+{
+    const float bailout = 1000.0;
+    const float scale = 2;
+    const vec3 offset = vec3(1.0);
+    float r = dot(p, p);
+    int i;
+    for(i=0; i<10 && r<bailout; i++){
+        //p = abs(p);
+        if(p.x+p.y<0) { p.xy = -p.yx; }
+        if(p.x+p.z<0) { p.xz = -p.zx; }
+        if(p.y+p.z<0) { p.zy = -p.yz; }
+        p = scale*p - offset*(scale-1);
+        r = dot(p, p);
+    }
+    return (sqrt(r)-1.0) * pow(scale, -i);
+}
+
+
+void sphereFold(inout vec3 z, inout float dz)
+{
+    const float fixedRadius2 = 1.0;
+    const float minRadius2 = 0.5;
+    float r2 = dot(z,z);
+    if (r2<minRadius2) { 
+        // linear inner scaling
+        float temp = (fixedRadius2/minRadius2);
+        z *= temp;
+        dz*= temp;
+    } else if (r2<fixedRadius2) { 
+        // this is the actual sphere inversion
+        float temp =(fixedRadius2/r2);
+        z *= temp;
+        dz*= temp;
+    }
+}
+void boxFold(inout vec3 z, inout float dz)
+{
+    const float foldingLimit = 2.0;
+    z = clamp(z, -foldingLimit, foldingLimit) * 2.0 - z;
+}
+float fractal2(vec3 z)
+{
+    const float Scale = 1.8;
+    z.z += 20;
+    vec3 offset = z;
+    float dr = 1.0;
+    for(int n = 0; n<16; n++) {
+        boxFold(z,dr);
+        sphereFold(z,dr);
+        z = Scale*z + offset;
+        dr = dr*abs(Scale)+1.0;
+    }
+    float r = length(z);
+    return r/abs(dr);
+}
+
 float map(vec3 p)
+{
+    return fractal2(p);
+}
+
+float map_(vec3 p)
 {
     float d3 = p.z - 0.3;
 
@@ -102,7 +164,7 @@ void main()
     for(0; i<MAX_MARCH; ++i) {
         d = map(ray);
         ray += rayDir * (d*0.9);
-        if(d<0.002) { break; }
+        if(d<0.001) { break; }
         if(d>5000.0) { i=MAX_MARCH; break; }
     }
     vec3 normal = genNormal(ray);
