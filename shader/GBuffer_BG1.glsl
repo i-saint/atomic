@@ -1,4 +1,5 @@
 #pragma include("Common.h")
+#pragma include("DistanceFunctions.h")
 
 #ifdef GLSL_VS
 ia_out(GLSL_POSITION)           vec2 ia_VertexPosition;
@@ -13,17 +14,6 @@ void main()
 
 #elif defined(GLSL_PS)
 
-float sdBox( vec3 p, vec3 b )
-{
-  vec3 d = abs(p) - b;
-  return min(max(d.x,max(d.y,d.z)),0.0) + length(max(d,0.0));
-}
-
-float sdBox( vec2 p, vec2 b )
-{
-  vec2 d = abs(p) - b;
-  return min(max(d.x,d.y),0.0) + length(max(d,0.0));
-}
 
 float sdCross( in vec3 p )
 {
@@ -32,9 +22,26 @@ float sdCross( in vec3 p )
     float dc = sdBox(p.zx,vec2(1.0));
     return min(da,min(db,dc));
 }
+
 float map(vec3 p)
 {
-    p.z += 0.5;
+    float d3 = p.z - 0.3;
+
+    p = mod(p, vec3(3.0)) - vec3(1.5);
+    float sr = sin(radians(45.0));
+    float cr = cos(radians(45.0));
+    mat3 rotz = mat3(
+        cr, sr, 0,
+        sr,-cr, 0,
+         0,  0, 1 );
+    mat3 roty = mat3(
+      cr, 0, sr,
+       0, 1,  0,
+     -sr, 0, cr );
+    p = rotz * p;
+    p = roty * p;
+
+    p.z += 0.7;
     float d = sdBox(p,vec3(1.0));
 
     float s = 1.0;
@@ -48,7 +55,19 @@ float map(vec3 p)
        d = max(d,-c);
     }
 
-    return d;
+    return max(d, d3);
+}
+
+float map1(vec3 p)
+{
+    p.z += 0.7;
+    vec3 p1 = mod(p + vec3(0, u_RS.Frame*0.001, 0.0), 0.2)-0.1;
+    vec3 p2 = mod(p + vec3(0, u_RS.Frame*0.003, 0.0), 0.8)-0.4;
+    float d1 = udBox(p1, vec3(0.05, 0.07, 0.05));
+    float d2 = udBox(p2, vec3(0.075, 0.1, 0.075));
+    float d3 = p.z - 1.2;
+
+    return max(min(d1, d2), d3);
 }
 
 vec3 genNormal(vec3 p)
@@ -79,9 +98,12 @@ void main()
     vec3 ray = camPos;
     int i = 0;
     float d = 0.0;
-    for(0; i<32; ++i) {
+    const int MAX_MARCH = 64;
+    for(0; i<MAX_MARCH; ++i) {
         d = map(ray);
-        ray += rayDir * (d * 0.8);
+        ray += rayDir * (d*0.9);
+        if(d<0.002) { break; }
+        if(d>5000.0) { i=MAX_MARCH; break; }
     }
     vec3 normal = genNormal(ray);
 
@@ -89,7 +111,8 @@ void main()
     ps_FlagColor    = vec4(0.6, 0.6, 0.8, 70.0);
     ps_FragNormal   = vec4(normal, 0.0);
     ps_FragPosition = vec4(ray, 1.0);
-    ps_FragGlow     = vec4(0.0, 0.0, 0.0, 0.0);
+    const float fog = 1.0 / MAX_MARCH;
+    ps_FragGlow     = min(vec4(fog*i*1.2, fog*i*1.2, fog*i*2.5, i), 1.0) * 0.5;
 }
 
 #endif

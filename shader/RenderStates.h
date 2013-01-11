@@ -23,6 +23,7 @@ struct ALIGN16 RenderStates
     vec2 RcpScreenSize;
     float AspectRatio;
     float RcpAspectRatio;
+    float Frame;
     int Level;
 };
 
