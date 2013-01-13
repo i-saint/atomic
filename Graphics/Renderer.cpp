@@ -149,16 +149,13 @@ void AtomicRenderer::draw()
 
 void AtomicRenderer::passShadow()
 {
-    //glClear(GL_DEPTH_BUFFER_BIT);
     glFrontFace(GL_CW);
-    glEnable(GL_DEPTH_TEST);
 
     uint32 num_renderers = m_renderers[PASS_SHADOW_DEPTH].size();
     for(uint32 i=0; i<num_renderers; ++i) {
         m_renderers[PASS_SHADOW_DEPTH][i]->draw();
     }
 
-    glDisable(GL_DEPTH_TEST);
     glFrontFace(GL_CCW);
 }
 
@@ -171,18 +168,12 @@ void AtomicRenderer::passGBuffer()
     dc->clearDepthStencil(m_rt_gbuffer, 1.0f, 0);
     dc->setRenderTarget(m_rt_gbuffer);
 
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_STENCIL_TEST);
-    glStencilFunc(GL_ALWAYS, 0, ~0);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-
     uint32 num_renderers = m_renderers[PASS_GBUFFER].size();
     for(uint32 i=0; i<num_renderers; ++i) {
         m_renderers[PASS_GBUFFER][i]->draw();
     }
 
-    glDisable(GL_STENCIL_TEST);
-    glDisable(GL_DEPTH_TEST);
+    dc->setDepthStencilState(atomicGetDepthStencilState(DS_NO_DEPTH_NO_STENCIL));
     m_rt_gbuffer->unbind();
 
     if(atomicGetConfig()->multiresolution) {
@@ -209,23 +200,15 @@ void AtomicRenderer::passDeferredShading()
     dc->setTexture(GLSL_BACK_BUFFER, brt->getColorBuffer(0));
     dc->setTexture(GLSL_RANDOM_BUFFER, atomicGetTexture2D(TEX2D_RANDOM));
 
-    glEnable(GL_BLEND);
-    glEnable(GL_DEPTH_TEST);
-    //glEnable(GL_STENCIL_TEST);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-    glDepthMask(GL_FALSE);
-    //glStencilFunc( GL_NOTEQUAL, 0, ~0);
-    //glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+    dc->setBlendState(atomicGetBlendState(BS_BLEND_ADD));
+    dc->setDepthStencilState(atomicGetDepthStencilState(DS_LIGHTING_FRONT));
 
     uint32 num_renderers = m_renderers[PASS_DEFERRED].size();
     for(uint32 i=0; i<num_renderers; ++i) {
         m_renderers[PASS_DEFERRED][i]->draw();
     }
-
-    glDepthMask(GL_TRUE);
-    glDisable(GL_STENCIL_TEST);
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_BLEND);
+    dc->setDepthStencilState(atomicGetDepthStencilState(DS_NO_DEPTH_NO_STENCIL));
+    dc->setBlendState(atomicGetBlendState(BS_NO_BLEND));
 
     rt->setDepthStencilBuffer(NULL);
 }
@@ -238,17 +221,12 @@ void AtomicRenderer::passForwardShading()
 
     rt->setDepthStencilBuffer(m_rt_gbuffer->getDepthStencilBuffer());
     dc->setRenderTarget(rt);
-    glEnable(GL_BLEND);
-    glEnable(GL_DEPTH_TEST);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     uint32 num_renderers = m_renderers[PASS_FORWARD].size();
     for(uint32 i=0; i<num_renderers; ++i) {
         m_renderers[PASS_FORWARD][i]->draw();
     }
 
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_BLEND);
     rt->setDepthStencilBuffer(NULL);
 }
 
@@ -286,31 +264,31 @@ void AtomicRenderer::passOutput()
     istsprintf(buf, "Particles: %d", atomicGetSPHManager()->getNumParticles());
     m_stext->addText(vec2(5.0f, 25.0f), buf);
 
-    //istsprintf(buf, "Bloom: [F2]");
-    //m_stext->addText(vec2(5.0f, 45.0f), buf);
-    //{
-    //    const char names[6][32] = {
-    //        "hidden",
-    //        "color",
-    //        "normal",
-    //        "position",
-    //        "glow",
-    //        "all",
-    //    };
-    //    istsprintf(buf, "GBuffer: %s [F3/F4]", names[std::abs(atomicGetConfig()->debug_show_gbuffer)%6]);
-    //}
-    //m_stext->addText(vec2(5.0f, 110.0f), buf);
-    //istsprintf(buf, "Lights: %d [F5/F6]", atomicGetConfig()->debug_show_lights);
-    //m_stext->addText(vec2(5.0f, 130.0f), buf);
-    //istsprintf(buf, "Pause: [F7]");
-    //m_stext->addText(vec2(5.0f, 150.0f), buf);
-    //istsprintf(buf, "Toggle Multiresolution: [F8]");
-    //m_stext->addText(vec2(5.0f, 170.0f), buf);
-    //istsprintf(buf, "Show Multiresolution Level: [F9]");
-    //m_stext->addText(vec2(5.0f, 190.0f), buf);
+    istsprintf(buf, "Bloom: [F2]");
+    m_stext->addText(vec2(5.0f, 45.0f), buf);
+    {
+        const char names[6][32] = {
+            "hidden",
+            "color",
+            "normal",
+            "position",
+            "glow",
+            "all",
+        };
+        istsprintf(buf, "GBuffer: %s [F3/F4]", names[std::abs(atomicGetConfig()->debug_show_gbuffer)%6]);
+    }
+    m_stext->addText(vec2(5.0f, 110.0f), buf);
+    istsprintf(buf, "Lights: %d [F5/F6]", atomicGetConfig()->debug_show_lights);
+    m_stext->addText(vec2(5.0f, 130.0f), buf);
+    istsprintf(buf, "Pause: [F7]");
+    m_stext->addText(vec2(5.0f, 150.0f), buf);
+    istsprintf(buf, "Toggle Multiresolution: [F8]");
+    m_stext->addText(vec2(5.0f, 170.0f), buf);
+    istsprintf(buf, "Show Multiresolution Level: [F9]");
+    m_stext->addText(vec2(5.0f, 190.0f), buf);
 
-    //istsprintf(buf, "Multiresolution Threshold: %.3f ([8]<- [9]->)", atomicGetLights()->getMultiresolutionParams().Threshold.x);
-    //m_stext->addText(vec2(5.0f, 210.0f), buf);
+    istsprintf(buf, "Multiresolution Threshold: %.3f ([8]<- [9]->)", atomicGetLights()->getMultiresolutionParams().Threshold.x);
+    m_stext->addText(vec2(5.0f, 210.0f), buf);
 
     m_stext->draw();
 }
@@ -333,6 +311,7 @@ void SystemTextRenderer::beforeDraw()
 void SystemTextRenderer::draw()
 {
     if(!atomicGetConfig()->show_text) { return; }
+    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
 
     {
         const vec2 &wsize   = vec2(atomicGetWindowSize());
@@ -345,10 +324,10 @@ void SystemTextRenderer::draw()
         const Text &t = m_texts[i];
         atomicGetFont()->addText(t.pos, t.text, strnlen(t.text, _countof(t.text)));
     }
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    dc->setBlendState(atomicGetBlendState(BS_BLEND_ALPHA));
     atomicGetFont()->flush(atomicGetGLDeviceContext());
-    glDisable(GL_BLEND);
+    dc->setBlendState(atomicGetBlendState(BS_NO_BLEND));
 }
 
 void SystemTextRenderer::addText(const vec2 &pos, const char *text)
@@ -365,45 +344,49 @@ void SystemTextRenderer::addText(const vec2 &pos, const char *text)
 
 void PassHUD_DebugShowBuffer::drawColorBuffer( const DebugShowBufferParams &params )
 {
+    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
     MapAndWrite(*m_ub_params, &params, sizeof(params));
 
     m_sh_rgb->bind();
     m_gbuffer->getColorBuffer(GBUFFER_COLOR)->bind(GLSL_COLOR_BUFFER);
     m_sh_rgb->setUniformBlock(m_loc_params, GLSL_DEBUG_BUFFER_BINDING, m_ub_params->getHandle());
-    glDrawArrays(GL_QUADS, 0, 4);
+    dc->draw(I3D_QUADS, 0, 4);
     m_sh_rgb->unbind();
 }
 
 void PassHUD_DebugShowBuffer::drawNormalBuffer( const DebugShowBufferParams &params )
 {
+    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
     MapAndWrite(*m_ub_params, &params, sizeof(params));
 
     m_sh_rgb->bind();
     m_gbuffer->getColorBuffer(GBUFFER_NORMAL)->bind(GLSL_COLOR_BUFFER);
     m_sh_rgb->setUniformBlock(m_loc_params, GLSL_DEBUG_BUFFER_BINDING, m_ub_params->getHandle());
-    glDrawArrays(GL_QUADS, 0, 4);
+    dc->draw(I3D_QUADS, 0, 4);
     m_sh_rgb->unbind();
 }
 
 void PassHUD_DebugShowBuffer::drawPositionBuffer( const DebugShowBufferParams &params )
 {
+    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
     MapAndWrite(*m_ub_params, &params, sizeof(params));
 
     m_sh_rgb->bind();
     m_gbuffer->getColorBuffer(GBUFFER_POSITION)->bind(GLSL_COLOR_BUFFER);
     m_sh_rgb->setUniformBlock(m_loc_params, GLSL_DEBUG_BUFFER_BINDING, m_ub_params->getHandle());
-    glDrawArrays(GL_QUADS, 0, 4);
+    dc->draw(I3D_QUADS, 0, 4);
     m_sh_rgb->unbind();
 }
 
 void PassHUD_DebugShowBuffer::drawGlowBuffer( const DebugShowBufferParams &params )
 {
+    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
     MapAndWrite(*m_ub_params, &params, sizeof(params));
 
     m_sh_rgb->bind();
     m_gbuffer->getColorBuffer(GBUFFER_GLOW)->bind(GLSL_COLOR_BUFFER);
     m_sh_rgb->setUniformBlock(m_loc_params, GLSL_DEBUG_BUFFER_BINDING, m_ub_params->getHandle());
-    glDrawArrays(GL_QUADS, 0, 4);
+    dc->draw(I3D_QUADS, 0, 4);
     m_sh_rgb->unbind();
 }
 

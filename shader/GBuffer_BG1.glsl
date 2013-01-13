@@ -66,8 +66,22 @@ void boxFold(inout vec3 z, inout float dz)
 }
 float fractal2(vec3 z)
 {
-    const float Scale = 1.8;
-    z.z += 20;
+    float sr = sin(radians(u_RS.Frame*0.05));
+    float cr = cos(radians(u_RS.Frame*0.05));
+    mat3 rotz = mat3(
+        cr, sr, 0,
+        sr,-cr, 0,
+         0,  0, 1 );
+    mat3 roty = mat3(
+      cr, 0, sr,
+       0, 1,  0,
+     -sr, 0, cr );
+    //z = rotz * z;
+    z = roty * z;
+
+
+    const float Scale = -2.5;
+    z.z += 4;
     vec3 offset = z;
     float dr = 1.0;
     for(int n = 0; n<16; n++) {
@@ -159,15 +173,27 @@ void main()
 
     vec3 ray = camPos;
     int i = 0;
-    float d = 0.0;
+    float d = 0.0, total_d = 0.0;
     const int MAX_MARCH = 64;
+    const float MAX_DISTANCE = 1000.0;
     for(0; i<MAX_MARCH; ++i) {
         d = map(ray);
-        ray += rayDir * (d*0.9);
+        total_d += d;
+        ray += rayDir * d;
         if(d<0.001) { break; }
-        if(d>5000.0) { i=MAX_MARCH; break; }
+        if(total_d>MAX_DISTANCE) {
+            i = MAX_MARCH;
+            ray = camPos + rayDir*MAX_DISTANCE;
+            break;
+        }
     }
-    vec3 normal = genNormal(ray);
+    vec3 normal;
+    if(total_d>MAX_DISTANCE) {
+        normal = -rayDir;
+    }
+    else {
+        normal = genNormal(ray);
+    }
 
 
     ps_FlagColor    = vec4(0.6, 0.6, 0.8, 70.0);

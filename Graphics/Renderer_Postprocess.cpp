@@ -76,7 +76,7 @@ void PassPostprocess_FXAA::draw()
         m_sh_FXAA_luma->bind();
         brt->getColorBuffer(GBUFFER_COLOR)->bind(GLSL_COLOR_BUFFER);
         m_va_quad->bind();
-        glDrawArrays(GL_QUADS, 0, 4);
+        dc->draw(I3D_QUADS, 0, 4);
         m_sh_FXAA_luma->unbind();
         rt->unbind();
     }
@@ -91,7 +91,7 @@ void PassPostprocess_FXAA::draw()
         m_sh_FXAA->setUniformBlock(m_loc_fxaa_param, GLSL_FXAA_BINDING, ubo_fxaa->getHandle());
         brt->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
         m_va_quad->bind();
-        glDrawArrays(GL_QUADS, 0, 4);
+        dc->draw(I3D_QUADS, 0, 4);
         m_sh_FXAA_luma->unbind();
         rt->unbind();
     }
@@ -181,10 +181,9 @@ void PassPostprocess_Bloom::draw()
         m_sh_composite->assign(dc);
         dc->setTexture(GLSL_COLOR_BUFFER, m_rt_gauss1->getColorBuffer(GBUFFER_COLOR));
         dc->setVertexArray(m_va_composite);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+        dc->setBlendState(atomicGetBlendState(BS_BLEND_ADD));
         dc->draw(I3D_QUADS, 0, 4);
-        glDisable(GL_BLEND);
+        dc->setBlendState(atomicGetBlendState(BS_NO_BLEND));
         dc->setTexture(GLSL_COLOR_BUFFER, NULL);
         dc->setRenderTarget(NULL);
     }
@@ -215,6 +214,7 @@ void PassPostprocess_Fade::draw()
 {
     if(m_params.Color.a==0.0f) { return; }
 
+    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
     MapAndWrite(*m_ubo_fade, &m_params, sizeof(m_params));
 
     RenderTarget *brt = atomicGetBackRenderTarget();
@@ -223,10 +223,9 @@ void PassPostprocess_Fade::draw()
     m_sh_fade->bind();
     m_sh_fade->setUniformBlock(m_loc_fade_param, GLSL_FADE_BINDING, m_ubo_fade->getHandle());
     m_va_quad->bind();
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glDrawArrays(GL_QUADS, 0, 4);
-    glDisable(GL_BLEND);
+    dc->setBlendState(atomicGetBlendState(BS_BLEND_ALPHA));
+    dc->draw(I3D_QUADS, 0, 4);
+    dc->setBlendState(atomicGetBlendState(BS_NO_BLEND));
     m_sh_fade->unbind();
     brt->unbind();
 }

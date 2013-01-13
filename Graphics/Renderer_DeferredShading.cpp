@@ -242,6 +242,7 @@ void PassDeferredShading_Lights::debugShowResolution( int32 level )
 
 void PassDeferredShading_Lights::upsampling(int32 level)
 {
+    i3d::DeviceContext *dc = atomicGetGLDeviceContext();
     AtomicShader *sh_upsampling = atomicGetShader(SH_UPSAMPLING);
     VertexArray *va_quad        = atomicGetVertexArray(VA_SCREEN_QUAD);
     Buffer *ubo_mrp             = atomicGetUniformBuffer(UBO_MULTIRESOLUTION_PARAMS);
@@ -275,7 +276,7 @@ void PassDeferredShading_Lights::upsampling(int32 level)
     sh_upsampling->setUniformBlock(mr_params_loc, GLSL_MULTIRESOLUTION_BINDING, ubo_mrp->getHandle());
     lower_resolution->bind(GLSL_BACK_BUFFER);
     va_quad->bind();
-    glDrawArrays(GL_QUADS, 0, 4);
+    dc->draw(I3D_QUADS, 0, 4);
     va_quad->unbind();
     sh_upsampling->unbind();
 

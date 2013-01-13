@@ -157,7 +157,7 @@ void PassGBuffer_Fluid::draw()
             m_va_cube->setAttributes(*m_vbo_fluid, sizeof(psym::Particle), descs, _countof(descs));
             m_sh_fluid->assign(dc);
             dc->setVertexArray(m_va_cube);
-            glStencilFunc(GL_ALWAYS, STENCIL_FLUID, ~0);
+            dc->setDepthStencilState(atomicGetDepthStencilState(DS_GBUFFER_FLUID));
             dc->drawInstanced(I3D_QUADS, 0, 24, num_particles);
         }
     }
@@ -178,9 +178,9 @@ void PassGBuffer_Fluid::draw()
 
         m_sh_rigid->assign(dc);
         dc->setTexture(GLSL_PARAM_BUFFER, param_texture);
-        glStencilFunc(GL_ALWAYS, STENCIL_RIGID, ~0);
+        dc->setDepthStencilState(atomicGetDepthStencilState(DS_GBUFFER_RIGID));
         dc->drawInstanced(I3D_QUADS, 0, 24, num_rigid_particles);
-        glStencilFunc(GL_ALWAYS, 0, ~0);
+        dc->setDepthStencilState(atomicGetDepthStencilState(DS_GBUFFER_BG));
     }
 
     //// floor
@@ -232,13 +232,11 @@ void PassGBuffer_BG::draw()
     AtomicShader *sh_bg     = atomicGetShader(SH_BG1);
     VertexArray *va_quad    = atomicGetVertexArray(VA_SCREEN_QUAD);
 
+    i3d::DeviceContext *dc = atomicGetGLDeviceContext();
     va_quad->bind();
     sh_bg->bind();
-    glStencilFunc(GL_EQUAL, 0, ~0);
-    glDisable(GL_DEPTH_TEST);
-    glDrawArrays(GL_QUADS, 0, 4);
-    glStencilFunc(GL_ALWAYS, 0, ~0);
-    glEnable(GL_DEPTH_TEST);
+    dc->setDepthStencilState(atomicGetDepthStencilState(DS_GBUFFER_BG));
+    dc->draw(I3D_QUADS, 0, 4);
     sh_bg->unbind();
     va_quad->unbind();
 }

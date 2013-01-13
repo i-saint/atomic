@@ -30,18 +30,20 @@ enum GBUFFER {
 class GraphicResourceManager : boost::noncopyable
 {
 private:
-    IFontRenderer   *m_font;
-    Sampler         *m_sampler[SAMPLER_END];
-    Texture1D       *m_tex1d[TEX1D_END];
-    Texture2D       *m_tex2d[TEX2D_END];
-    VertexArray     *m_va[VA_END];
-    Buffer          *m_vbo[VBO_END];
-    Buffer          *m_ibo[IBO_END];
-    Buffer          *m_ubo[UBO_END];
-    RenderTarget    *m_rt[RT_END];
-    AtomicShader    *m_shader[SH_END];
-    ParticleSet     m_pset[PSET_END];
-    RigidInfo       m_rinfo[PSET_END];
+    IFontRenderer       *m_font;
+    Sampler             *m_sampler[SAMPLER_END];
+    Texture1D           *m_tex1d[TEX1D_END];
+    Texture2D           *m_tex2d[TEX2D_END];
+    VertexArray         *m_va[VA_END];
+    Buffer              *m_vbo[VBO_END];
+    Buffer              *m_ibo[IBO_END];
+    Buffer              *m_ubo[UBO_END];
+    RenderTarget        *m_rt[RT_END];
+    AtomicShader        *m_shader[SH_END];
+    ParticleSet         m_pset[PSET_END];
+    RigidInfo           m_rinfo[PSET_END];
+    BlendState          *m_blend_states[BS_END];
+    DepthStencilState   *m_depth_states[DS_END];
 
 private:
     static GraphicResourceManager* s_inst;
@@ -53,18 +55,20 @@ public:
     static void intializeInstance();
     static void finalizeInstance();
 
-    IFontRenderer*  getFont()                   { return m_font; }
-    Sampler*        getSampler(SAMPLER_RID i)   { return m_sampler[i]; }
-    Texture1D*      getTexture1D(TEX1D_RID i)   { return m_tex1d[i]; }
-    Texture2D*      getTexture2D(TEX2D_RID i)   { return m_tex2d[i]; }
-    VertexArray*    getVertexArray(VA_RID i)    { return m_va[i]; }
-    Buffer*         getVertexBuffer(VBO_RID i)  { return m_vbo[i]; }
-    Buffer*         getIndexBuffer(IBO_RID i)   { return m_ibo[i]; }
-    Buffer*         getUniformBuffer(UBO_RID i) { return m_ubo[i]; }
-    AtomicShader*   getShader(SH_RID i)         { return m_shader[i]; }
-    RenderTarget*   getRenderTarget(RT_RID i)   { return m_rt[i]; }
-    ParticleSet*    getParticleSet(PSET_RID i)  { return &m_pset[i]; }
-    RigidInfo*      getRigidInfo(PSET_RID i)    { return &m_rinfo[i]; }
+    IFontRenderer*      getFont()                   { return m_font; }
+    Sampler*            getSampler(SAMPLER_RID i)   { return m_sampler[i]; }
+    Texture1D*          getTexture1D(TEX1D_RID i)   { return m_tex1d[i]; }
+    Texture2D*          getTexture2D(TEX2D_RID i)   { return m_tex2d[i]; }
+    VertexArray*        getVertexArray(VA_RID i)    { return m_va[i]; }
+    Buffer*             getVertexBuffer(VBO_RID i)  { return m_vbo[i]; }
+    Buffer*             getIndexBuffer(IBO_RID i)   { return m_ibo[i]; }
+    Buffer*             getUniformBuffer(UBO_RID i) { return m_ubo[i]; }
+    AtomicShader*       getShader(SH_RID i)         { return m_shader[i]; }
+    RenderTarget*       getRenderTarget(RT_RID i)   { return m_rt[i]; }
+    ParticleSet*        getParticleSet(PSET_RID i)  { return &m_pset[i]; }
+    RigidInfo*          getRigidInfo(PSET_RID i)    { return &m_rinfo[i]; }
+    BlendState*         getBlendState(BLEND_RID i)          { return m_blend_states[i]; }
+    DepthStencilState*  getDepthStencilState(DEPTH_RID i)   { return m_depth_states[i]; }
 };
 
 
@@ -82,6 +86,8 @@ public:
 #define atomicGetRenderTarget(i)    atomicGetResourceManager()->getRenderTarget(i)
 #define atomicGetParticleSet(i)     atomicGetResourceManager()->getParticleSet(i)
 #define atomicGetRigidInfo(i)       atomicGetResourceManager()->getRigidInfo(i)
+#define atomicGetBlendState(i)          atomicGetResourceManager()->getBlendState(i)
+#define atomicGetDepthStencilState(i)   atomicGetResourceManager()->getDepthStencilState(i)
 
 } // namespace atomic
 #endif // atomic_Graphics_ResourceManager_h

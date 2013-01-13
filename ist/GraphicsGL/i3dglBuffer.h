@@ -11,20 +11,20 @@ class istInterModule Buffer : public DeviceResource
 {
 I3DGL_DECLARE_DEVICE_RESOURCE(Buffer);
 typedef DeviceResource super;
-protected:
-    BufferDesc m_desc;
-
-    Buffer(Device *dev, const BufferDesc &desc);
-    ~Buffer();
-
+friend class VertexArray;
 public:
-    void bind() const;
-    void unbind() const;
-
     void* map(I3D_MAP_MODE mode);
     void unmap();
 
     const BufferDesc& getDesc() const { return m_desc; }
+
+protected:
+    Buffer(Device *dev, const BufferDesc &desc);
+    ~Buffer();
+    void bind() const;
+    void unbind() const;
+
+    BufferDesc m_desc;
 };
 
 

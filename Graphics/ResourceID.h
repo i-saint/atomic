@@ -4,6 +4,23 @@ namespace atomic {
 
 const size_t ATOMIC_MAX_CHARACTERS = 256;
 
+enum BLEND_RID {
+    BS_NO_BLEND,
+    BS_BLEND_ALPHA,
+    BS_BLEND_ADD,
+    BS_END,
+};
+
+enum DEPTH_RID {
+    DS_NO_DEPTH_NO_STENCIL,
+    DS_GBUFFER_FLUID,
+    DS_GBUFFER_RIGID,
+    DS_GBUFFER_BG,
+    DS_LIGHTING_FRONT,
+    DS_LIGHTING_BACK,
+    DS_END,
+};
+
 enum SH_RID {
     SH_GBUFFER_FLOOR,
     SH_GBUFFER_PARTICLES,

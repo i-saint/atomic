@@ -49,6 +49,8 @@ inline AtomicShader* CreateAtomicShader(const char* source)
 bool GraphicResourceManager::initialize()
 {
     m_font = NULL;
+    stl::fill_n(m_blend_states, _countof(m_blend_states), (BlendState*)NULL);
+    stl::fill_n(m_depth_states, _countof(m_depth_states), (DepthStencilState*)NULL);
     stl::fill_n(m_sampler, _countof(m_sampler), (Sampler*)NULL);
     stl::fill_n(m_tex1d, _countof(m_tex1d), (Texture1D*)NULL);
     stl::fill_n(m_tex2d, _countof(m_tex2d), (Texture2D*)NULL);
@@ -66,13 +68,50 @@ bool GraphicResourceManager::initialize()
     // initialize opengl resources
     i3d::Device *dev = atomicGetGLDevice();
     {
-        //m_font = CreateSystemFont(atomicGetGLDevice(), dev->getHDC());
         m_font = CreateSpriteFont(atomicGetGLDevice(), "Resources/font.sff", "Resources/font.png");
     }
     for(uint32 i=0; i<_countof(m_va); ++i) {
         m_va[i] = dev->createVertexArray();
     }
 
+    {
+        BlendStateDesc desc;
+        m_blend_states[BS_NO_BLEND]     = dev->createBlendState(desc);
+
+        desc.enable_blend = true;
+        desc.func_src_rgb = desc.func_src_a = I3D_BLEND_SRC_ALPHA;
+        desc.func_dst_rgb = desc.func_dst_a = I3D_BLEND_INV_SRC_ALPHA;
+        m_blend_states[BS_BLEND_ALPHA]  = dev->createBlendState(desc);
+
+        desc.func_src_rgb = desc.func_src_a = I3D_BLEND_SRC_ALPHA;
+        desc.func_dst_rgb = desc.func_dst_a = I3D_BLEND_ONE;
+        m_blend_states[BS_BLEND_ADD]    = dev->createBlendState(desc);
+    }
+    {
+        DepthStencilStateDesc desc;
+        m_depth_states[DS_NO_DEPTH_NO_STENCIL]  = dev->createDepthStencilState(desc);
+
+        desc.depth_enable = true;
+        desc.stencil_enable = true;
+        desc.stencil_op_onpass = I3D_STENCIL_REPLACE;
+        desc.stencil_ref = STENCIL_FLUID;
+        m_depth_states[DS_GBUFFER_FLUID]        = dev->createDepthStencilState(desc);
+
+        desc.stencil_ref = STENCIL_RIGID;
+        m_depth_states[DS_GBUFFER_RIGID]        = dev->createDepthStencilState(desc);
+
+        desc.depth_enable = false;
+        desc.stencil_ref = 0;
+        desc.stencil_func = I3D_STENCIL_EQUAL;
+        m_depth_states[DS_GBUFFER_BG]           = dev->createDepthStencilState(desc);
+
+        desc.depth_enable = true;
+        desc.depth_write = false;
+        desc.stencil_enable = false;
+        desc.stencil_func = I3D_STENCIL_ALWAYS;
+        m_depth_states[DS_LIGHTING_FRONT]       = dev->createDepthStencilState(desc);
+        m_depth_states[DS_LIGHTING_BACK]        = dev->createDepthStencilState(desc);
+    }
     {
         CreateFloorQuad(m_va[VA_FLOOR_QUAD], m_vbo[VBO_FLOOR_QUAD], vec4(-PSYM_GRID_SIZE*0.5f, -PSYM_GRID_SIZE*0.5f, -0.15f, 0.0f), vec4(PSYM_GRID_SIZE, PSYM_GRID_SIZE, 0.0f, 0.0f));
         CreateScreenQuad(m_va[VA_SCREEN_QUAD], m_vbo[VBO_SCREEN_QUAD]);
@@ -195,6 +234,8 @@ void GraphicResourceManager::finalize()
     for(uint32 i=0; i<_countof(m_tex2d); ++i)   { if(m_tex2d[i]) { atomicSafeRelease( m_tex2d[i] ); } }
     for(uint32 i=0; i<_countof(m_tex1d); ++i)   { if(m_tex1d[i]) { atomicSafeRelease( m_tex1d[i] ); } }
     for(uint32 i=0; i<_countof(m_sampler); ++i) { if(m_sampler[i]) { atomicSafeRelease( m_sampler[i] ); } }
+    for(uint32 i=0; i<_countof(m_depth_states); ++i) { if(m_depth_states[i]) { atomicSafeRelease( m_depth_states[i] ); } }
+    for(uint32 i=0; i<_countof(m_blend_states); ++i) { if(m_blend_states[i]) { atomicSafeRelease( m_blend_states[i] ); } }
     atomicSafeRelease(m_font);
 }
 

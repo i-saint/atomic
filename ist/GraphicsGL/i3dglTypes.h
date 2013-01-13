@@ -8,6 +8,15 @@
 namespace ist {
 namespace i3dgl {
 
+enum I3D_CONSTANTS
+{
+    I3D_MAX_RENDER_TARGETS  = 8,
+    I3D_MAX_VERTEX_BUFFERS  = 8,
+    I3D_MAX_VERTEX_DESCS    = 32,
+    I3D_MAX_TEXTURE_SLOTS   = 16,
+};
+
+
 enum I3D_DEVICE_RESOURCE_TYPE {
     I3D_TEXTURE,
     I3D_BUFFER,
@@ -101,13 +110,6 @@ enum I3D_BUFFER_TYPE
     I3D_UNIFORM_BUFFER      = GL_UNIFORM_BUFFER,
     I3D_PIXEL_PACK_BUFFER   = GL_PIXEL_PACK_BUFFER,
     I3D_PIXEL_UNPACK_BUFFER = GL_PIXEL_UNPACK_BUFFER,
-};
-
-enum I3D_CONSTANTS
-{
-    I3D_MAX_RENDER_TARGETS  = 8,
-    I3D_MAX_VERTEX_BUFFERS  = 8,
-    I3D_MAX_VERTEX_DESCS    = 32,
 };
 
 enum I3D_TEXTURE_CLAMP
@@ -324,6 +326,17 @@ struct istInterModule ShaderProgramDesc
     {}
 };
 
+union ColorMask
+{
+    struct {
+        uint8 red   : 1;
+        uint8 green : 1;
+        uint8 blue  : 1;
+        uint8 alpha : 1;
+    };
+    uint8 mask;
+};
+
 struct istInterModule BlendStateDesc
 {
     BlendStateDesc()
@@ -331,6 +344,7 @@ struct istInterModule BlendStateDesc
         , equation_rgb(I3D_BLEND_ADD), equation_a(I3D_BLEND_ADD)
         , func_src_rgb(I3D_BLEND_ONE), func_src_a(I3D_BLEND_ONE), func_dst_rgb(I3D_BLEND_ZERO), func_dst_a(I3D_BLEND_ZERO)
     {
+        for(int i=0; i<_countof(masks); ++i) { masks[i].mask=0xff; }
     }
 
     bool enable_blend;
@@ -340,18 +354,20 @@ struct istInterModule BlendStateDesc
     I3D_BLEND_FUNC func_src_a;
     I3D_BLEND_FUNC func_dst_rgb;
     I3D_BLEND_FUNC func_dst_a;
+    ColorMask masks[I3D_MAX_RENDER_TARGETS];
 };
 
 struct istInterModule DepthStencilStateDesc
 {
     DepthStencilStateDesc()
-        : depth_enable(false), depth_func(I3D_DEPTH_LESS)
+        : depth_enable(false), depth_write(true), depth_func(I3D_DEPTH_LESS)
         , stencil_enable(false), stencil_func(I3D_STENCIL_ALWAYS), stencil_ref(0), stencil_mask(~0)
         , stencil_op_onsfail(I3D_STENCIL_KEEP), stencil_op_ondfail(I3D_STENCIL_KEEP), stencil_op_onpass(I3D_STENCIL_KEEP)
     {
     }
 
     bool                depth_enable;
+    bool                depth_write;
     I3D_DEPTH_FUNC      depth_func;
 
     bool                stencil_enable;
