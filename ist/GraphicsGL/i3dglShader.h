@@ -1,5 +1,5 @@
-﻿#ifndef __ist_i3dgl_Shader__
-#define __ist_i3dgl_Shader__
+﻿#ifndef ist_i3dgl_Shader_h
+#define ist_i3dgl_Shader_h
 
 #include "i3dglDeviceResource.h"
 
@@ -121,4 +121,4 @@ public:
 
 } // namespace i3d
 } // namespace ist
-#endif // __ist_i3dgl_Shader__
+#endif // ist_i3dgl_Shader_h

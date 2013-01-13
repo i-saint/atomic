@@ -128,6 +128,65 @@ enum I3D_TEXTURE_FILTER
     I3D_LINEAR_MIPMAP_LINEAR    = GL_LINEAR_MIPMAP_LINEAR,
 };
 
+enum I3D_BLEND_EQUATION
+{
+    I3D_BLEND_ADD               = GL_FUNC_ADD,
+    I3D_BLEND_SUBTRACT          = GL_FUNC_SUBTRACT,
+    I3D_BLEND_REVERSE_SUBTRACT  = GL_FUNC_REVERSE_SUBTRACT,
+    I3D_BLEND_MIN               = GL_MIN,
+    I3D_BLEND_MAX               = GL_MAX,
+};
+
+enum I3D_BLEND_FUNC
+{
+    I3D_BLEND_ZERO              = GL_ZERO,
+    I3D_BLEND_ONE               = GL_ONE,
+    I3D_BLEND_SRC_COLOR         = GL_SRC_COLOR,
+    I3D_BLEND_SRC_ALPHA         = GL_SRC_ALPHA,
+    I3D_BLEND_INV_SRC_COLOR     = GL_ONE_MINUS_SRC_COLOR,
+    I3D_BLEND_INV_SRC_ALPHA     = GL_ONE_MINUS_SRC_ALPHA,
+    I3D_BLEND_DST_COLOR         = GL_DST_COLOR,
+    I3D_BLEND_DST_ALPHA         = GL_DST_ALPHA,
+    I3D_BLEND_INV_DST_COLOR     = GL_ONE_MINUS_DST_COLOR,
+    I3D_BLEND_INV_DST_ALPHA     = GL_ONE_MINUS_DST_ALPHA,
+};
+
+enum I3D_DEPTH_FUNC
+{
+    I3D_DEPTH_NEVER         = GL_NEVER,
+    I3D_DEPTH_ALWAYS        = GL_ALWAYS,
+    I3D_DEPTH_LESS          = GL_LESS,
+    I3D_DEPTH_LESS_EQUAL    = GL_LEQUAL,
+    I3D_DEPTH_GREATER       = GL_GREATER,
+    I3D_DEPTH_GREATER_EQUAL = GL_GEQUAL,
+    I3D_DEPTH_EQUAL         = GL_EQUAL,
+    I3D_DEPTH_NOT_EQUAL     = GL_NOTEQUAL,
+};
+
+enum I3D_STENCIL_FUNC
+{
+    I3D_STENCIL_NEVER           = GL_NEVER,
+    I3D_STENCIL_ALWAYS          = GL_ALWAYS,
+    I3D_STENCIL_LESS            = GL_LESS,
+    I3D_STENCIL_LESS_EQUAL      = GL_LEQUAL,
+    I3D_STENCIL_GREATER         = GL_GREATER,
+    I3D_STENCIL_GREATER_EQUAL   = GL_GEQUAL,
+    I3D_STENCIL_EQUAL           = GL_EQUAL,
+    I3D_STENCIL_NOT_EQUAL       = GL_NOTEQUAL,
+};
+
+enum I3D_STENCIL_OP
+{
+    I3D_STENCIL_KEEP            = GL_KEEP,
+    I3D_STENCIL_ZERO            = GL_ZERO,
+    I3D_STENCIL_REPLACE         = GL_REPLACE,
+    I3D_STENCIL_INCREMENT       = GL_INCR,
+    I3D_STENCIL_INCREMENT_WRAP  = GL_INCR_WRAP,
+    I3D_STENCIL_DECREMENT       = GL_DECR,
+    I3D_STENCIL_DECREMENT_WRAP  = GL_DECR_WRAP,
+    I3D_STENCIL_INVERT          = GL_INVERT,
+};
+
 
 typedef uint32 ResourceHandle;
 class Device;
@@ -146,6 +205,8 @@ class VertexShader;
 class PixelShader;
 class GeometryShader;
 class ShaderProgtam;
+class BlendState;
+class DepthStencilState;
 
 
 struct istInterModule VertexDesc
@@ -263,13 +324,48 @@ struct istInterModule ShaderProgramDesc
     {}
 };
 
+struct istInterModule BlendStateDesc
+{
+    BlendStateDesc()
+        : enable_blend(false)
+        , equation_rgb(I3D_BLEND_ADD), equation_a(I3D_BLEND_ADD)
+        , func_src_rgb(I3D_BLEND_ONE), func_src_a(I3D_BLEND_ONE), func_dst_rgb(I3D_BLEND_ZERO), func_dst_a(I3D_BLEND_ZERO)
+    {
+    }
+
+    bool enable_blend;
+    I3D_BLEND_EQUATION equation_rgb;
+    I3D_BLEND_EQUATION equation_a;
+    I3D_BLEND_FUNC func_src_rgb;
+    I3D_BLEND_FUNC func_src_a;
+    I3D_BLEND_FUNC func_dst_rgb;
+    I3D_BLEND_FUNC func_dst_a;
+};
+
+struct istInterModule DepthStencilStateDesc
+{
+    DepthStencilStateDesc()
+        : depth_enable(false), depth_func(I3D_DEPTH_LESS)
+        , stencil_enable(false), stencil_func(I3D_STENCIL_ALWAYS), stencil_ref(0), stencil_mask(~0)
+        , stencil_op_onsfail(I3D_STENCIL_KEEP), stencil_op_ondfail(I3D_STENCIL_KEEP), stencil_op_onpass(I3D_STENCIL_KEEP)
+    {
+    }
+
+    bool                depth_enable;
+    I3D_DEPTH_FUNC      depth_func;
+
+    bool                stencil_enable;
+    I3D_STENCIL_FUNC    stencil_func;
+    int32               stencil_ref;
+    uint32              stencil_mask;
+    I3D_STENCIL_OP      stencil_op_onsfail;
+    I3D_STENCIL_OP      stencil_op_ondfail;
+    I3D_STENCIL_OP      stencil_op_onpass;
+};
+
 
 class istInterModule Viewport
 {
-private:
-    ivec2 m_pos;
-    uvec2 m_size;
-
 public:
     Viewport() : m_pos(0,0), m_size(100,100) {}
     Viewport(const ivec2 pos, const uvec2 &size) : m_pos(pos), m_size(size) {}
@@ -277,10 +373,15 @@ public:
     const ivec2& getPosition() const{ return m_pos; }
     const uvec2& getSize() const    { return m_size; }
     float32 getAspectRatio() const  { return (float32)m_size.x/(float32)m_size.y; }
+
     void setPosition(const ivec2 v) { m_pos=v; }
     void setSize(const ivec2 v)     { m_size=v; }
 
-    bool bind() const;
+    bool operator==(const Viewport &v) const { return  memcmp(this, &v, sizeof(*this))==0; }
+
+private:
+    ivec2 m_pos;
+    uvec2 m_size;
 };
 
 
@@ -291,7 +392,7 @@ private:\
     friend class DeviceContext;
 
 
-} // namespace i3d
+} // namespace i3dgl
 } // namespace ist
 
 #endif // __ist_i3dgl_Types__

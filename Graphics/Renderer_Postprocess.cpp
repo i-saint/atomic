@@ -134,7 +134,7 @@ void PassPostprocess_Bloom::draw()
 
     i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
     Viewport vp(ivec2(), m_rt_gauss0->getColorBuffer(0)->getDesc().size);
-    vp.bind();
+    dc->setViewport(vp);
 
     // 輝度抽出
     {

@@ -178,6 +178,20 @@ RenderTarget* Device::createRenderTarget()
     return r;
 }
 
+BlendState* Device::createBlendState( const BlendStateDesc &desc )
+{
+    BlendState *r = istNew(BlendState)(this, desc);
+    addResource(r);
+    return r;
+}
+
+DepthStencilState* Device::createDepthStencilState( const DepthStencilStateDesc &desc )
+{
+    DepthStencilState *r = istNew(DepthStencilState)(this, desc);
+    addResource(r);
+    return r;
+}
+
 
 #ifdef i3d_enable_resource_leak_check
 void Device::printLeakInfo()

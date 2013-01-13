@@ -8,12 +8,6 @@ namespace ist {
 namespace i3dgl {
 
 
-bool Viewport::bind() const
-{
-    glViewport(m_pos.x, m_pos.y, m_size.x, m_size.y);
-    return true;
-}
-
 
 
 void Camera::updateMatrix()

@@ -21,6 +21,8 @@ public:
     void setRenderTarget(RenderTarget *rt);
     void setSampler(uint32 i, Sampler *smp);
     void setTexture(uint32 i, Texture *tex);
+    void setBlendState(BlendState *state);
+    void setDepthStencilState(DepthStencilState *state);
 
     void draw(I3D_TOPOLOGY topology, uint32 first_vertex, uint32 num_vertices);
     void drawIndexed(I3D_TOPOLOGY topology, uint32 first_vertex, uint32 num_indices);
@@ -29,8 +31,7 @@ public:
     void applyRenderStates();
 
     void clearColor(RenderTarget *rt, vec4 color);
-    void clearDepth(RenderTarget *rt, float32 depth);
-    void clearStencil(RenderTarget *rt, int32 stencil);
+    void clearDepthStencil(RenderTarget *rt, float32 depth, int32 stencil);
 
 private:
     DeviceContext(Device *dev);
@@ -39,12 +40,19 @@ private:
 private:
     Device         *m_device;
 
-    RenderTarget   *m_render_target;
-    VertexArray    *m_vertex_array;
-    ShaderProgram  *m_shader;
+    struct RenderStates
+    {
+        RenderTarget        *render_target;
+        VertexArray         *vertex_array;
+        ShaderProgram       *shader;
+        Buffer              *index_buffer;
+        I3D_TYPE            index_format;
+        BlendState          *blend_state;
+        DepthStencilState   *depthstencil_state;
+    };
+    RenderStates m_prev;
+    RenderStates m_current;
 
-    Buffer         *m_index_buffer;
-    I3D_TYPE        m_index_format;
 };
 
 } // namespace i3d

@@ -168,8 +168,7 @@ void AtomicRenderer::passGBuffer()
     const PerspectiveCamera *camera = atomicGetGameCamera();
 
     dc->clearColor(m_rt_gbuffer, vec4(0.0f,0.0f,0.0f,1.0f));
-    dc->clearDepth(m_rt_gbuffer, 1.0f);
-    dc->clearStencil(m_rt_gbuffer, 0);
+    dc->clearDepthStencil(m_rt_gbuffer, 1.0f, 0);
     dc->setRenderTarget(m_rt_gbuffer);
 
     glEnable(GL_DEPTH_TEST);

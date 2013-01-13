@@ -1,5 +1,5 @@
-﻿#ifndef __ist_GraphicsCommon_Image_h__
-#define __ist_GraphicsCommon_Image_h__
+﻿#ifndef ist_GraphicsCommon_Image_h
+#define ist_GraphicsCommon_Image_h
 
 #include "ist/Base.h"
 
@@ -315,4 +315,4 @@ inline bool ExtractRed(const Image &src, Image &dst)
 
 } // namespace ist
 
-#endif // __ist_GraphicsCommon_Image_h__
+#endif // ist_GraphicsCommon_Image_h

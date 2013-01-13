@@ -9,13 +9,6 @@ namespace i3dgl {
 
 DeviceContext::DeviceContext( Device *dev )
     : m_device(dev)
-    , m_vertex_array(NULL)
-    , m_render_target(NULL)
-
-    , m_index_buffer(NULL)
-    , m_index_format(I3D_UINT)
-
-    , m_shader(NULL)
 {
     setRef(1);
     istSafeAddRef(m_device);
@@ -28,38 +21,40 @@ DeviceContext::~DeviceContext()
 
 void DeviceContext::setViewport( const Viewport &vp )
 {
-    vp.bind();
+    const ivec2 &pos = vp.getPosition();
+    const uvec2 &size = vp.getSize();
+    glViewport(pos.x, pos.y, size.x, size.y);
 }
 
 void DeviceContext::setVertexArray( VertexArray *va )
 {
-    m_vertex_array = va;
-    if(m_vertex_array) {
-        m_vertex_array->bind();
+    m_current.vertex_array = va;
+    if(m_current.vertex_array) {
+        m_current.vertex_array->bind();
     }
     else {
-        m_vertex_array->unbind();
+        m_current.vertex_array->unbind();
     }
 }
 
 void DeviceContext::setIndexBuffer( Buffer *v, I3D_TYPE format )
 {
-    m_index_buffer = v;
-    m_index_format = format;
+    m_current.index_buffer = v;
+    m_current.index_format = format;
 
-    if(m_index_buffer != NULL) {
-        m_index_buffer->bind();
+    if(m_current.index_buffer != NULL) {
+        m_current.index_buffer->bind();
     }
     else {
-        m_index_buffer->unbind();
+        m_current.index_buffer->unbind();
     }
 }
 
 void DeviceContext::setShader( ShaderProgram *v )
 {
-    m_shader = v;
-    if(m_shader != NULL) {
-        m_shader->bind();
+    m_current.shader = v;
+    if(m_current.shader != NULL) {
+        m_current.shader->bind();
     }
     else {
         glUseProgram(0);
@@ -68,9 +63,9 @@ void DeviceContext::setShader( ShaderProgram *v )
 
 void DeviceContext::setRenderTarget( RenderTarget *rt )
 {
-    m_render_target = rt;
-    if(m_render_target != NULL) {
-        m_render_target->bind();
+    m_current.render_target = rt;
+    if(m_current.render_target != NULL) {
+        m_current.render_target->bind();
     }
     else {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -98,6 +93,18 @@ void DeviceContext::setTexture( uint32 i, Texture *tex )
     }
 }
 
+void DeviceContext::setBlendState( BlendState *state )
+{
+    m_current.blend_state = state;
+    state->apply();
+}
+
+void DeviceContext::setDepthStencilState( DepthStencilState *state )
+{
+    m_current.depthstencil_state = state;
+    state->apply();
+}
+
 
 void DeviceContext::draw( I3D_TOPOLOGY topology, uint32 first_vertex, uint32 num_vertices )
 {
@@ -120,7 +127,7 @@ void DeviceContext::drawInstanced( I3D_TOPOLOGY topology, uint32 first_vertex, u
 void DeviceContext::drawIndexedInstanced( I3D_TOPOLOGY topology, uint32 first_vertex, uint32 num_indices, uint32 num_instances )
 {
     applyRenderStates();
-    glDrawElementsInstancedBaseVertex(topology, num_indices, m_index_format, NULL, num_instances, first_vertex);
+    glDrawElementsInstancedBaseVertex(topology, num_indices, m_current.index_format, NULL, num_instances, first_vertex);
 }
 
 void DeviceContext::applyRenderStates()
@@ -136,18 +143,12 @@ void DeviceContext::clearColor( RenderTarget *rt, vec4 color )
 
 }
 
-void DeviceContext::clearDepth( RenderTarget *rt, float32 depth )
+void DeviceContext::clearDepthStencil( RenderTarget *rt, float32 depth, int32 stencil )
 {
     rt->bind();
     glClearDepth(depth);
-    glClear(GL_DEPTH_BUFFER_BIT);
-}
-
-void DeviceContext::clearStencil( RenderTarget *rt, int32 stencil )
-{
-    rt->bind();
     glClearStencil(stencil);
-    glClear(GL_STENCIL_BUFFER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
 } // namespace i3dgl

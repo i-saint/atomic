@@ -6,6 +6,7 @@
 #include "i3dglTexture.h"
 #include "i3dglRenderTarget.h"
 #include "i3dglShader.h"
+#include "i3dglRenderStates.h"
 
 namespace ist {
 namespace i3dgl {
@@ -46,6 +47,9 @@ public:
     Texture2D*      createTexture2D(const Texture2DDesc &desc);
     Texture3D*      createTexture3D(const Texture3DDesc &desc);
     RenderTarget*   createRenderTarget();
+
+    BlendState*         createBlendState(const BlendStateDesc &desc);
+    DepthStencilState*  createDepthStencilState(const DepthStencilStateDesc &desc);
 
     void deleteResource(ResourceHandle v);
 
