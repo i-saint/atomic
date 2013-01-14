@@ -25,7 +25,8 @@ AtomicConfig::AtomicConfig()
     posteffect_microscopic  = false;
     posteffect_bloom        = true;
     posteffect_antialias    = false;
-    multiresolution         = false;
+    bg_multiresolution      = false;
+    light_multiresolution   = false;
     show_text               = true;
     show_bloodstain         = true;
     output_replay           = true;
@@ -56,7 +57,8 @@ bool AtomicConfig::readFromFile( const char* filepath )
         if(sscanf(buf, "unlimit_gamespeed = %d", &itmp.x)==1)       { unlimit_gamespeed=itmp.x!=0; }
         if(sscanf(buf, "posteffect_bloom = %d", &itmp.x)==1)        { posteffect_bloom=(itmp.x!=0); }
         if(sscanf(buf, "posteffect_antialias = %d", &itmp.x)==1)    { posteffect_antialias=(itmp.x!=0); }
-        if(sscanf(buf, "multiresolution = %d", &itmp.x)==1)         { multiresolution=(itmp.x!=0); }
+        if(sscanf(buf, "bg_multiresolution = %d", &itmp.x)==1)      { bg_multiresolution=(itmp.x!=0); }
+        if(sscanf(buf, "light_multiresolution = %d", &itmp.x)==1)   { light_multiresolution=(itmp.x!=0); }
         if(sscanf(buf, "show_text = %d", &itmp.x)==1)               { show_text=(itmp.x!=0); }
         if(sscanf(buf, "show_bloodstain = %d", &itmp.x)==1)         { show_bloodstain=(itmp.x!=0); }
         if(sscanf(buf, "output_replay = %d", &itmp.x)==1)           { output_replay=(itmp.x!=0); }
@@ -83,7 +85,8 @@ bool AtomicConfig::writeToFile( const char* filepath )
     fprintf(f, "unlimit_gamespeed = %d\n",      unlimit_gamespeed);
     fprintf(f, "posteffect_bloom = %d\n",       posteffect_bloom);
     fprintf(f, "posteffect_antialias = %d\n",   posteffect_antialias);
-    fprintf(f, "multiresolution = %d\n",        multiresolution);
+    fprintf(f, "bg_multiresolution = %d\n",     bg_multiresolution);
+    fprintf(f, "light_multiresolution = %d\n",  light_multiresolution);
     fprintf(f, "show_text = %d\n",              show_text);
     fprintf(f, "show_bloodstain = %d\n",        show_bloodstain);
     fprintf(f, "output_replay = %d\n",          output_replay);
@@ -266,7 +269,7 @@ void AtomicApplication::updateInput()
         m_config.pause = !m_config.pause;
     }
     if(getKeyboardState().isKeyTriggered(ist::KEY_F8)) {
-        m_config.multiresolution = !m_config.multiresolution;
+        m_config.bg_multiresolution = !m_config.bg_multiresolution;
     }
     if(getKeyboardState().isKeyTriggered(ist::KEY_F9)) {
         m_config.debug_show_resolution = !m_config.debug_show_resolution;
@@ -405,7 +408,7 @@ void cmd_set_posteffect_antialias(const stl::wstring &value) {
 void cmd_set_multiresolution(const stl::wstring &value) {
     int v;
     if( swscanf(value.c_str(), L"%d", &v) ) {
-        atomicGetConfig()->multiresolution = v!=0;
+        atomicGetConfig()->light_multiresolution = v!=0;
     }
 }
 

@@ -38,18 +38,21 @@ public:
     virtual void flush()=0;
 };
 
-class PrimitiveDrawer
+class PrimitiveDrawer : public IPrimitiveDrawer
 {
 public:
     PrimitiveDrawer();
-    virtual ~IPrimitiveDrawer();
+    virtual ~PrimitiveDrawer();
     virtual void draw(const PrimitiveDrawStates &states, i3d::I3D_TOPOLOGY topology, const VertexP2T2C4 *vertices, uint32 num_vertices);
     virtual void flush();
 
 private:
     struct DrawCommand
     {
-
+        PrimitiveDrawStates states;
+        I3D_TOPOLOGY topology;
+        uint32 vertex_start;
+        uint32 vertex_num;
     };
 
     stl::vector<VertexP2T2C4> m_vertices_p2t2c4;

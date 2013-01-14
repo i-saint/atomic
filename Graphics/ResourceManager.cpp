@@ -100,13 +100,18 @@ bool GraphicResourceManager::initialize()
         desc.stencil_ref = STENCIL_RIGID;
         m_depth_states[DS_GBUFFER_RIGID]        = dev->createDepthStencilState(desc);
 
-        desc.depth_enable = false;
+        desc.depth_enable = true;
         desc.stencil_ref = 0;
         desc.stencil_func = I3D_STENCIL_EQUAL;
         m_depth_states[DS_GBUFFER_BG]           = dev->createDepthStencilState(desc);
 
         desc.depth_enable = true;
+        desc.depth_func = I3D_DEPTH_ALWAYS;
+        m_depth_states[DS_GBUFFER_UPSAMPLING]   = dev->createDepthStencilState(desc);
+
+        desc.depth_enable = false;
         desc.depth_write = false;
+        desc.depth_func = I3D_DEPTH_LESS;
         desc.stencil_enable = false;
         desc.stencil_func = I3D_STENCIL_ALWAYS;
         m_depth_states[DS_LIGHTING_FRONT]       = dev->createDepthStencilState(desc);
@@ -154,6 +159,7 @@ bool GraphicResourceManager::initialize()
         //m_shader[SH_GBUFFER_FLUID]      = CreateAtomicShader(g_GBuffer_FluidSpherical_glsl);
         m_shader[SH_GBUFFER_RIGID]      = CreateAtomicShader(g_GBuffer_RigidSpherical_glsl);
         m_shader[SH_GBUFFER_PARTICLES]  = CreateAtomicShader(g_GBuffer_ParticleSpherical_glsl);
+        m_shader[SH_GBUFFER_UPSAMPLING] = CreateAtomicShader(g_GBuffer_Upsampling_glsl);
         m_shader[SH_BLOODSTAIN]         = CreateAtomicShader(g_Deferred_Bloodstain_glsl);
         m_shader[SH_UPSAMPLING]         = CreateAtomicShader(g_Deferred_Upsampling_glsl);
         m_shader[SH_POINTLIGHT]         = CreateAtomicShader(g_Deferred_PointLight_glsl);

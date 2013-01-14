@@ -229,16 +229,70 @@ void PassGBuffer_BG::beforeDraw()
 
 void PassGBuffer_BG::draw()
 {
-    AtomicShader *sh_bg     = atomicGetShader(SH_BG1);
-    VertexArray *va_quad    = atomicGetVertexArray(VA_SCREEN_QUAD);
-
     i3d::DeviceContext *dc = atomicGetGLDeviceContext();
-    va_quad->bind();
-    sh_bg->bind();
-    dc->setDepthStencilState(atomicGetDepthStencilState(DS_GBUFFER_BG));
-    dc->draw(I3D_QUADS, 0, 4);
-    sh_bg->unbind();
-    va_quad->unbind();
+    AtomicShader *sh_bg     = atomicGetShader(SH_BG1);
+    AtomicShader *sh_up     = atomicGetShader(SH_GBUFFER_UPSAMPLING);
+    VertexArray *va_quad    = atomicGetVertexArray(VA_SCREEN_QUAD);
+    RenderTarget *gbuffer   = atomicGetRenderTarget(RT_GBUFFER);
+
+    Buffer *ubo_rs          = atomicGetUniformBuffer(UBO_RENDERSTATES_3D);
+    RenderStates *rs        = atomicGetRenderStates();
+
+
+    if(atomicGetConfig()->bg_multiresolution) {
+        // 1/4 の解像度で raymarching
+        rs->ScreenSize      = vec2(atomicGetWindowSize())/4.0f;
+        rs->RcpScreenSize   = vec2(1.0f, 1.0f) / rs->ScreenSize;
+        MapAndWrite(*ubo_rs, rs, sizeof(*rs));
+
+        dc->setViewport(Viewport(ivec2(), gbuffer->getColorBuffer(0)->getDesc().size/4U));
+        gbuffer->unbind();
+        gbuffer->getDepthStencilBuffer()->generateMipmap();
+        gbuffer->setMipmapLevel(2);
+        gbuffer->bind();
+
+        va_quad->bind();
+        sh_bg->bind();
+        dc->setDepthStencilState(atomicGetDepthStencilState(DS_GBUFFER_BG));
+        dc->draw(I3D_QUADS, 0, 4);
+        sh_bg->unbind();
+        va_quad->unbind();
+
+        gbuffer->unbind();
+        gbuffer->setMipmapLevel(0);
+        gbuffer->bind();
+        dc->setViewport(Viewport(ivec2(), gbuffer->getColorBuffer(0)->getDesc().size));
+
+        rs->ScreenSize      = vec2(atomicGetWindowSize());
+        rs->RcpScreenSize   = vec2(1.0f, 1.0f) / rs->ScreenSize;
+        MapAndWrite(*ubo_rs, rs, sizeof(*rs));
+
+
+        // 変化量少ない部分を upsampling
+        dc->setTexture(GLSL_COLOR_BUFFER, gbuffer->getColorBuffer(GBUFFER_COLOR));
+        dc->setTexture(GLSL_NORMAL_BUFFER, gbuffer->getColorBuffer(GBUFFER_NORMAL));
+        dc->setTexture(GLSL_POSITION_BUFFER, gbuffer->getColorBuffer(GBUFFER_POSITION));
+        dc->setTexture(GLSL_GLOW_BUFFER, gbuffer->getColorBuffer(GBUFFER_GLOW));
+        va_quad->bind();
+        sh_up->bind();
+        dc->setDepthStencilState(atomicGetDepthStencilState(DS_GBUFFER_UPSAMPLING));
+        dc->draw(I3D_QUADS, 0, 4);
+        sh_up->unbind();
+        va_quad->unbind();
+        dc->setTexture(GLSL_COLOR_BUFFER, NULL);
+        dc->setTexture(GLSL_NORMAL_BUFFER, NULL);
+        dc->setTexture(GLSL_POSITION_BUFFER, NULL);
+        dc->setTexture(GLSL_GLOW_BUFFER, NULL);
+    }
+
+    {
+        va_quad->bind();
+        sh_bg->bind();
+        dc->setDepthStencilState(atomicGetDepthStencilState(DS_GBUFFER_BG));
+        dc->draw(I3D_QUADS, 0, 4);
+        sh_bg->unbind();
+        va_quad->unbind();
+    }
 }
 
 } // namespace atomic

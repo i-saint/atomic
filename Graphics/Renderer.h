@@ -86,6 +86,7 @@ public:
 
     const Viewport* getDefaultViewport() const              { return &m_default_viewport; }
     RenderStates* getRenderStates3D()                       { return &m_rstates3d; }
+    RenderStates* getRenderStatesBG()                       { return &m_rstatesBG; }
     RenderStates* getRenderStates2D()                       { return &m_rstates2d; }
     PassGBuffer_Fluid* getSPHRenderer()                       { return m_renderer_fluid; }
     PassGBuffer_Particle* getParticleRenderer()             { return m_renderer_particle; }
@@ -101,6 +102,7 @@ public:
 
 #define atomicGetRenderer()             AtomicRenderer::getInstance()
 #define atomicGetRenderStates()         atomicGetRenderer()->getRenderStates3D()
+#define atomicGetRenderStatesBG()       atomicGetRenderer()->getRenderStatesBG()
 #define atomicGetDefaultViewport()      atomicGetRenderer()->getDefaultViewport()
 #define atomicGetBloodstainRenderer()   atomicGetRenderer()->getBloodStainRenderer()
 #define atomicGetSPHRenderer()          atomicGetRenderer()->getSPHRenderer()

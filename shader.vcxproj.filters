@@ -85,6 +85,9 @@
     <None Include="shader\GBuffer_BG1.glsl">
       <Filter>shader</Filter>
     </None>
+    <None Include="shader\GBuffer_Upsampling.glsl">
+      <Filter>shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shader\Fxaa3_11.h">

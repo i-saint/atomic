@@ -173,6 +173,19 @@ void RenderTarget::setDepthStencilBuffer(Texture2D *rb, uint32 level)
     m_depthstencil = rb;
 }
 
+void RenderTarget::setMipmapLevel( int32 level )
+{
+    for(int32 i=0; i<_countof(m_color_buffers); ++i) {
+        if(m_color_buffers[i]) {
+            setColorBuffer(i, m_color_buffers[i], level);
+        }
+    }
+    if(m_depthstencil) {
+        setDepthStencilBuffer(m_depthstencil, level);
+    }
+}
+
+
 uint32 RenderTarget::getNumColorBuffers() const
 {
     return m_num_color_buffers;

@@ -163,7 +163,7 @@ void PassDeferredShading_Lights::beforeDraw()
 void PassDeferredShading_Lights::draw()
 {
     updateConstantBuffers();
-    if(atomicGetConfig()->multiresolution) {
+    if(atomicGetConfig()->light_multiresolution) {
         drawMultiResolution();
     }
     else {

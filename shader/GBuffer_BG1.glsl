@@ -9,7 +9,7 @@ ia_out(GLSL_POSITION)           vec2 ia_VertexPosition;
 
 void main()
 {
-    gl_Position = vec4(ia_VertexPosition, 0.0, 1.0);
+    gl_Position = vec4(ia_VertexPosition, 0.99, 1.0);
 }
 
 #elif defined(GLSL_PS)
@@ -84,7 +84,7 @@ float fractal2(vec3 z)
     z.z += 4;
     vec3 offset = z;
     float dr = 1.0;
-    for(int n = 0; n<16; n++) {
+    for(int n = 0; n<12; n++) {
         boxFold(z,dr);
         sphereFold(z,dr);
         z = Scale*z + offset;
@@ -148,7 +148,7 @@ float map1(vec3 p)
 
 vec3 genNormal(vec3 p)
 {
-    const float d = 0.0001;
+    const float d = 0.01;
     return normalize( vec3(
         map(p+vec3(  d,0.0,0.0))-map(p+vec3( -d,0.0,0.0)),
         map(p+vec3(0.0,  d,0.0))-map(p+vec3(0.0, -d,0.0)),
@@ -175,13 +175,14 @@ void main()
     int i = 0;
     float d = 0.0, total_d = 0.0;
     const int MAX_MARCH = 64;
-    const float MAX_DISTANCE = 1000.0;
+    const float MAX_DISTANCE = 750.0;
     for(0; i<MAX_MARCH; ++i) {
         d = map(ray);
         total_d += d;
         ray += rayDir * d;
         if(d<0.001) { break; }
         if(total_d>MAX_DISTANCE) {
+            total_d = MAX_DISTANCE;
             i = MAX_MARCH;
             ray = camPos + rayDir*MAX_DISTANCE;
             break;
@@ -198,7 +199,7 @@ void main()
 
     ps_FlagColor    = vec4(0.6, 0.6, 0.8, 70.0);
     ps_FragNormal   = vec4(normal, 0.0);
-    ps_FragPosition = vec4(ray, 1.0);
+    ps_FragPosition = vec4(ray, total_d);
     const float fog = 1.0 / MAX_MARCH;
     ps_FragGlow     = min(vec4(fog*i*1.2, fog*i*1.2, fog*i*2.5, i), 1.0) * 0.5;
 }
