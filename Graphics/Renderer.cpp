@@ -26,6 +26,8 @@ void AtomicRenderer::finalizeInstance()
 
 AtomicRenderer::AtomicRenderer()
 {
+    memset(&m_rstates3d, 0, sizeof(m_rstates3d));
+
     s_inst = this;
     m_va_screenquad = atomicGetVertexArray(VA_SCREEN_QUAD);
     m_sh_out        = atomicGetShader(SH_OUTPUT);
@@ -267,31 +269,31 @@ void AtomicRenderer::passOutput()
     istsprintf(buf, "Particles: %d", atomicGetSPHManager()->getNumParticles());
     m_stext->addText(vec2(5.0f, 25.0f), buf);
 
-    istsprintf(buf, "Bloom: [F2]");
-    m_stext->addText(vec2(5.0f, 45.0f), buf);
-    {
-        const char names[6][32] = {
-            "hidden",
-            "color",
-            "normal",
-            "position",
-            "glow",
-            "all",
-        };
-        istsprintf(buf, "GBuffer: %s [F3/F4]", names[std::abs(atomicGetConfig()->debug_show_gbuffer)%6]);
-    }
-    m_stext->addText(vec2(5.0f, 110.0f), buf);
-    istsprintf(buf, "Lights: %d [F5/F6]", atomicGetConfig()->debug_show_lights);
-    m_stext->addText(vec2(5.0f, 130.0f), buf);
-    istsprintf(buf, "Pause: [F7]");
-    m_stext->addText(vec2(5.0f, 150.0f), buf);
-    istsprintf(buf, "Toggle Multiresolution: [F8]");
-    m_stext->addText(vec2(5.0f, 170.0f), buf);
-    istsprintf(buf, "Show Multiresolution Level: [F9]");
-    m_stext->addText(vec2(5.0f, 190.0f), buf);
+    //istsprintf(buf, "Bloom: [F2]");
+    //m_stext->addText(vec2(5.0f, 45.0f), buf);
+    //{
+    //    const char names[6][32] = {
+    //        "hidden",
+    //        "color",
+    //        "normal",
+    //        "position",
+    //        "glow",
+    //        "all",
+    //    };
+    //    istsprintf(buf, "GBuffer: %s [F3/F4]", names[std::abs(atomicGetConfig()->debug_show_gbuffer)%6]);
+    //}
+    //m_stext->addText(vec2(5.0f, 110.0f), buf);
+    //istsprintf(buf, "Lights: %d [F5/F6]", atomicGetConfig()->debug_show_lights);
+    //m_stext->addText(vec2(5.0f, 130.0f), buf);
+    //istsprintf(buf, "Pause: [F7]");
+    //m_stext->addText(vec2(5.0f, 150.0f), buf);
+    //istsprintf(buf, "Toggle Multiresolution: [F8]");
+    //m_stext->addText(vec2(5.0f, 170.0f), buf);
+    //istsprintf(buf, "Show Multiresolution Level: [F9]");
+    //m_stext->addText(vec2(5.0f, 190.0f), buf);
 
-    istsprintf(buf, "Multiresolution Threshold: %.3f ([8]<- [9]->)", atomicGetLights()->getMultiresolutionParams().Threshold.x);
-    m_stext->addText(vec2(5.0f, 210.0f), buf);
+    //istsprintf(buf, "Multiresolution Threshold: %.3f ([8]<- [9]->)", atomicGetLights()->getMultiresolutionParams().Threshold.x);
+    //m_stext->addText(vec2(5.0f, 210.0f), buf);
 
     m_stext->draw();
 }

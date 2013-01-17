@@ -274,6 +274,9 @@ void AtomicApplication::updateInput()
     if(getKeyboardState().isKeyTriggered(ist::KEY_F9)) {
         m_config.debug_show_resolution = !m_config.debug_show_resolution;
     }
+    if(getKeyboardState().isKeyTriggered('7')) {
+        atomicGetRenderStates()->ShowMultiresolution = !atomicGetRenderStates()->ShowMultiresolution;
+    }
     if(getKeyboardState().isKeyPressed('8')) {
         float &p = atomicGetLights()->getMultiresolutionParams().Threshold.x;
         p = clamp(p-0.001f, 0.0f, 1.0f);

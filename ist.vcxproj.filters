@@ -412,6 +412,9 @@
     <ClCompile Include="ist\GraphicsGL\i3dglRenderStates.cpp">
       <Filter>GraphicsGL</Filter>
     </ClCompile>
+    <ClCompile Include="ist\Debug\ParamTree.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ist\Math\FrustumCulling.inl">

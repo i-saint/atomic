@@ -30,7 +30,7 @@ void main()
     ivec2 coord = ivec2(gl_FragCoord.x*0.25, gl_FragCoord.y*0.25);
     vec4 pos1 = texelFetch(u_PositionBuffer, coord+ivec2( 0,0), level);
     vec4 pos2 = texelFetch(u_PositionBuffer, coord+ivec2( 1,0), level);
-    vec4 pos3 = texelFetch(u_PositionBuffer, coord+ivec2(-1,0), level);
+    vec4 pos3 = texelFetch(u_PositionBuffer, coord+ivec2( 0,1), level);
     if(abs(pos2.w-pos1.w) > diff || abs(pos3.w-pos1.w) > diff) {
         discard;
     }
@@ -41,7 +41,9 @@ void main()
     ps_FragPosition = texelFetch(u_PositionBuffer, coord, level);
 
     vec4 g = texelFetch(u_GlowBuffer, coord, level);
-    //g = vec4(0.5, 0.0, 0.0, 0.0);
+    if(u_RS.ShowMultiresolution!=0) {
+        g = vec4(0.5, 0.0, 0.0, 0.0);
+    }
     ps_FragGlow     = g;
 }
 

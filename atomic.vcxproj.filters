@@ -109,6 +109,9 @@
     <ClCompile Include="DynamicObjLoader\DynamicObjLoader.cpp">
       <Filter>DynamicObjLoader</Filter>
     </ClCompile>
+    <ClCompile Include="Game\DebugMenu.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h">
@@ -217,6 +220,9 @@
     <ClInclude Include="FunctionID.h" />
     <ClInclude Include="DynamicObjLoader\DynamicObjLoader.h">
       <Filter>DynamicObjLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\DebugMenu.h">
+      <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -25,6 +25,7 @@ struct ALIGN16 RenderStates
     float RcpAspectRatio;
     float Frame;
     int Level;
+    int ShowMultiresolution;
 };
 
 

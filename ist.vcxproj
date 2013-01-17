@@ -128,6 +128,7 @@
     <ClCompile Include="ist\Concurrency\TaskUtil.cpp" />
     <ClCompile Include="ist\Concurrency\Thread.cpp" />
     <ClCompile Include="ist\Debug\Callstack.cpp" />
+    <ClCompile Include="ist\Debug\ParamTree.cpp" />
     <ClCompile Include="ist\GraphicsCommon\Image.cpp" />
     <ClCompile Include="ist\GraphicsCommon\PrimitiveDrawer.cpp" />
     <ClCompile Include="ist\GraphicsGL\i3dglAssert.cpp" />

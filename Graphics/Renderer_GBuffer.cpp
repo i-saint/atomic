@@ -249,6 +249,7 @@ void PassGBuffer_BG::draw()
         gbuffer->unbind();
         gbuffer->getDepthStencilBuffer()->generateMipmap();
         gbuffer->setMipmapLevel(2);
+        //dc->clearDepthStencil(gbuffer, 1.0f, 0);
         gbuffer->bind();
 
         va_quad->bind();
