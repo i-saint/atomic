@@ -10,6 +10,7 @@
 #ifdef ist_env_Master
 #else // ist_env_Master
 #   define ist_enable_assert
+#   define atomic_enable_debug_menu
 #   define atomic_enable_debug_console
 #   define atomic_enable_strict_handle_check
 #   define atomic_enable_debug_log

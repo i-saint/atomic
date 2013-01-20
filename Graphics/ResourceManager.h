@@ -55,7 +55,7 @@ public:
     static void intializeInstance();
     static void finalizeInstance();
 
-    IFontRenderer*      getFont()                   { return m_font; }
+    IFontRenderer*      getFontRenderer()           { return m_font; }
     Sampler*            getSampler(SAMPLER_RID i)   { return m_sampler[i]; }
     Texture1D*          getTexture1D(TEX1D_RID i)   { return m_tex1d[i]; }
     Texture2D*          getTexture2D(TEX2D_RID i)   { return m_tex2d[i]; }
@@ -74,7 +74,7 @@ public:
 
 #define atomicGetResourceManager()   GraphicResourceManager::getInstance()
 
-#define atomicGetFont()             atomicGetResourceManager()->getFont()
+#define atomicGetFontRenderer()     atomicGetResourceManager()->getFontRenderer()
 #define atomicGetSampler(i)         atomicGetResourceManager()->getSampler(i)
 #define atomicGetTexture1D(i)       atomicGetResourceManager()->getTexture1D(i)
 #define atomicGetTexture2D(i)       atomicGetResourceManager()->getTexture2D(i)

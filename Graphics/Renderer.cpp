@@ -320,18 +320,18 @@ void SystemTextRenderer::draw()
 
     {
         const vec2 &wsize   = vec2(atomicGetWindowSize());
-        atomicGetFont()->setScreen(0.0f, wsize.x, wsize.y, 0.0f);
-        atomicGetFont()->setSize(18.0f);
-        atomicGetFont()->setMonospace(true);
-        atomicGetFont()->setSpacing(0.75f);
+        atomicGetFontRenderer()->setScreen(0.0f, wsize.x, wsize.y, 0.0f);
+        atomicGetFontRenderer()->setSize(18.0f);
+        atomicGetFontRenderer()->setMonospace(true);
+        atomicGetFontRenderer()->setSpacing(0.75f);
     }
     for(uint32 i=0; i<m_texts.size(); ++i) {
         const Text &t = m_texts[i];
-        atomicGetFont()->addText(t.pos, t.text, strnlen(t.text, _countof(t.text)));
+        atomicGetFontRenderer()->addText(t.pos, t.text, strnlen(t.text, _countof(t.text)));
     }
 
     dc->setBlendState(atomicGetBlendState(BS_BLEND_ALPHA));
-    atomicGetFont()->flush(atomicGetGLDeviceContext());
+    atomicGetFontRenderer()->flush(atomicGetGLDeviceContext());
     dc->setBlendState(atomicGetBlendState(BS_NO_BLEND));
 }
 

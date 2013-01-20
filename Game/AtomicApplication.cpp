@@ -5,6 +5,7 @@
 #include "Text.h"
 #include "Graphics/AtomicRenderingSystem.h"
 #include "Game/World.h"
+#include "Game/DebugMenu.h"
 #include "Sound/AtomicSound.h"
 #include "Graphics/Renderer.h"
 #include "Util.h"
@@ -134,7 +135,6 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     TaskScheduler::initializeInstance();
     InitializeText();
 
-
     m_config.readFromFile(ATOMIC_CONFIG_FILE_PATH);
     if(m_config.window_pos.x >= 30000) { m_config.window_pos.x = 0; }
     if(m_config.window_pos.y >= 30000) { m_config.window_pos.y = 0; }
@@ -155,6 +155,7 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     // initialize sound
     AtomicSound::initializeInstance();
 
+    atomicDbgInitializeDebugMenu();
 
     // create game
     m_game = istNew(AtomicGame)();
@@ -173,9 +174,9 @@ void AtomicApplication::finalize()
 
     AtomicRenderingSystem::finalizeInstance();
     AtomicSound::finalizeInstance();
+    atomicDbgFinalizeDebugMenu();
     TaskScheduler::finalizeInstance();
     FinalizeText();
-
     super::finalize();
 }
 

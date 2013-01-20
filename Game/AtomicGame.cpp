@@ -82,7 +82,7 @@ void AtomicGame::asyncupdateBegin(float32 dt)
 {
     if(atomicGetConfig()->pause) { return; }
 
-    atomicLockSyncMethods();
+    atomicDbgLockSyncMethods();
     m_world->asyncupdateBegin(dt);
 }
 
@@ -91,7 +91,7 @@ void AtomicGame::asyncupdateEnd()
     if(atomicGetConfig()->pause) { return; }
 
     m_world->asyncupdateEnd();
-    atomicUnlockSyncMethods();
+    atomicDbgUnlockSyncMethods();
 }
 
 
@@ -139,7 +139,7 @@ void AtomicGame::drawCallback()
 
 SFMT* AtomicGame::getRandom()
 {
-    atomicAssertSyncLock("getRandom() is called from asycupdate.\n");
+    atomicDbgAssertSyncLock("getRandom() is called from asycupdate.\n");
     return &m_rand;
 }
 

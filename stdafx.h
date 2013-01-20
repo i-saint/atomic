@@ -41,3 +41,4 @@
 #include "ist/Graphics.h"
 #include "ist/Sound.h"
 #include "features.h"
+#include "types.h"

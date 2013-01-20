@@ -42,9 +42,9 @@ public:
     SFMT* getRandom();
 
 #ifdef atomic_enable_sync_lock
-    void lockSyncMethods()              { m_sync_lock=true; }
-    void unlockSyncMethods()            { m_sync_lock=false; }
-    bool isSyncMethodsEnabled() const   { return m_sync_lock; }
+    void dbgLockSyncMethods()               { m_sync_lock=true; }
+    void dbgUnlockSyncMethods()             { m_sync_lock=false; }
+    bool dbgIsSyncMethodsEnabled() const    { return m_sync_lock; }
 #endif // atomic_enable_sync_lock
 };
 
@@ -53,13 +53,13 @@ public:
 #define atomicGetRandom()           atomicGetGame()->getRandom()
 
 #ifdef atomic_enable_sync_lock
-#   define  atomicLockSyncMethods()     atomicGetGame()->lockSyncMethods()
-#   define  atomicUnlockSyncMethods()   atomicGetGame()->unlockSyncMethods()
-#   define  atomicAssertSyncLock(...)   istAssert(!atomicGetGame()->isSyncMethodsEnabled(), __VA_ARGS__)
+#   define  atomicDbgLockSyncMethods()      atomicGetGame()->dbgLockSyncMethods()
+#   define  atomicDbgUnlockSyncMethods()    atomicGetGame()->dbgUnlockSyncMethods()
+#   define  atomicDbgAssertSyncLock(...)    istAssert(!atomicGetGame()->dbgIsSyncMethodsEnabled(), __VA_ARGS__)
 #else
-#   define  atomicLockSyncMethods()     
-#   define  atomicUnlockSyncMethods()   
-#   define  atomicAssertSyncLock(...)   
+#   define  atomicDbgLockSyncMethods()      
+#   define  atomicDbgUnlockSyncMethods()    
+#   define  atomicDbgAssertSyncLock(...)    
 #endif // atomic_enable_sync_lock
 
 } // namespace atomic
