@@ -73,6 +73,16 @@ public:
         glCallLists(len, GL_UNSIGNED_SHORT, text);
     }
 
+    vec2 computeTextSize(const char *text, size_t len=0)
+    {
+        return vec2();
+    }
+
+    vec2 computeTextSize(const wchar_t *text, size_t len=0)
+    {
+        return vec2();
+    }
+
     void flush(DeviceContext *dc)
     {
     }
@@ -167,6 +177,32 @@ public:
         m_data = (const SFF_DATA*)(&m_buf[0]+sizeof(SFF_HEAD));
         if(m_size==0.0f) { m_size=getFontSize(); }
         return true;
+    }
+
+    vec2 computeTextSize(const wchar_t *text, size_t len)
+    {
+        if(m_header==NULL) { return vec2(); }
+
+        const float32 base_size = (float32)m_header->FontSize;
+        const float32 scale = m_size / base_size;
+        vec2 base;
+        vec2 quad_pos;
+        vec2 quad_size;
+        for(size_t i=0; i<len; ++i) {
+            uint32 di = m_header->IndexTbl[text[i]];
+            float advance = (text[i] <= 0xff ? base_size*0.5f : base_size) * scale * m_spacing;
+            if(di!=0xffff) {
+                const SFF_DATA &cdata = m_data[di];
+                vec2 wh = vec2(cdata.w, cdata.h);
+                vec2 scaled_wh = wh * scale;
+                vec2 scaled_offset = vec2(float32(cdata.Offset) * scale, 0.0f);
+                quad_pos = base+scaled_offset;
+                quad_size = scaled_wh;
+                if(!m_monospace) { advance = (scaled_wh.x + scaled_offset.x) * m_spacing; }
+            }
+            base.x += advance;
+        }
+        return quad_pos+quad_size;
     }
 
     void makeQuads(const vec2 &pos, const wchar_t *text, size_t len, stl::vector<FontQuad> &quads) const
@@ -359,6 +395,25 @@ public:
     virtual void addText(const vec2 &pos, const wchar_t *text, size_t len)
     {
         m_fss.makeQuads(pos, text, len, m_quads);
+    }
+
+    virtual vec2 computeTextSize(const char *text, size_t len=0)
+    {
+        if(len==0) { len = strlen(text); }
+        stl::string tmp(text, len);
+
+        size_t wlen = mbstowcs(NULL, tmp.c_str(), 0);
+        if(wlen==size_t(-1)) { return vec2(); }
+
+        stl::wstring wtext;
+        wtext.resize(wlen);
+        mbstowcs(&wtext[0], tmp.c_str(), wlen);
+        return computeTextSize(wtext.c_str(), wlen);
+    }
+
+    virtual vec2 computeTextSize(const wchar_t *text, size_t len=0)
+    {
+        return m_fss.computeTextSize(text, len);
     }
 
     virtual void flush(DeviceContext *dc)

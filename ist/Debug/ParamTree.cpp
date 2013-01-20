@@ -4,7 +4,46 @@
 
 namespace ist {
 
-ParamNodeBase::~ParamNodeBase()                    {}
+
+template<> uint32 TPrintValue<int32>(char *buf, uint32 buf_size, int32 value)
+{
+    return istsnprintf(buf, buf_size, "%d", value);
+}
+
+template<> uint32 TPrintValue<uint32>(char *buf, uint32 buf_size, uint32 value)
+{
+    return istsnprintf(buf, buf_size, "%u", value);
+}
+
+template<> uint32 TPrintValue<float32>(char *buf, uint32 buf_size, float32 value)
+{
+    return istsnprintf(buf, buf_size, "%.3f", value);
+}
+
+template<> uint32 TPrintValue<bool>(char *buf, uint32 buf_size, bool value)
+{
+    return istsnprintf(buf, buf_size, "s", (value ? "true" : "false"));
+}
+
+
+bool IParamNode::isSelected() const
+{
+    if(IParamNode *parent = getParent()) {
+        return parent->getChild(parent->getSelection())==this;
+    }
+    return false;
+}
+
+
+ParamNodeBase::ParamNodeBase()
+    : m_parent(NULL)
+    , m_selection(0)
+    , m_opened(false)
+{
+}
+
+ParamNodeBase::~ParamNodeBase()
+{}
 
 void ParamNodeBase::release()
 {
@@ -105,9 +144,9 @@ bool ParamNodeBase::handleEvent(EventCode e, OptionCode o)
         switch(e) {
         case Event_Up:
             {
-                int32 next_s = m_selection-1;
+                int32 next_s = std::max<int32>(m_selection-1, 0);
                 IParamNode *next = getChild(next_s);
-                if(selected!=next) {
+                if(next && selected!=next) {
                     m_selection = next_s;
                     selected->handleEvent(Event_Defocus);
                     next->handleEvent(Event_Focus);
@@ -116,9 +155,9 @@ bool ParamNodeBase::handleEvent(EventCode e, OptionCode o)
             }
         case Event_Down:
             {
-                int32 next_s = m_selection+1;
+                int32 next_s = std::min<int32>(m_selection+1, m_children.size());
                 IParamNode *next = getChild(next_s);
-                if(selected!=next) {
+                if(next && selected!=next) {
                     m_selection = next_s;
                     selected->handleEvent(Event_Defocus);
                     next->handleEvent(Event_Focus);
@@ -168,12 +207,12 @@ uint32 ParamNodeBase::printName( char *buf, uint32 buf_size ) const
 
 uint32 ParamNodeBase::printValue(char *buf, uint32 buf_size) const
 {
-    return 0;
+    return istsnprintf(buf, buf_size, "");
 }
 
 IParamNode* ParamNodeBase::getSelectedItem()
 {
-    if(m_selection<static_cast<int32>(m_children.size())) {
+    if(m_selection < static_cast<int32>(m_children.size())) {
         return m_children[m_selection];
     }
     return NULL;

@@ -174,7 +174,7 @@ void main()
     vec3 ray = camPos;
     int i = 0;
     float d = 0.0, total_d = 0.0;
-    const int MAX_MARCH = 64;
+    const int MAX_MARCH = 32;
     const float MAX_DISTANCE = 750.0;
     for(0; i<MAX_MARCH; ++i) {
         d = map(ray);

@@ -18,11 +18,14 @@ public:
     void update();
     void draw();
 
+    bool isActive() const { return m_active; }
     ist::IParamNode* getRoot();
 
 private:
     static DebugMenu *s_inst;
+
     ist::IParamNode *m_root;
+    bool m_active;
 };
 
 } // namespace atomic
@@ -30,10 +33,13 @@ private:
 #define atomicDbgInitializeDebugMenu()                          DebugMenu::initializeInstance()
 #define atomicDbgFinalizeDebugMenu()                            DebugMenu::finalizeInstance()
 #define atomicDbgGetDebugMenu()                                 DebugMenu::getInstance()
-#define atomicDbgAddParamNode_F32(Name, Ptr, Min, Max, Step)    
-#define atomicDbgAddParamNode_I32(Name, Ptr, Min, Max, Step)    
-#define atomicDbgAddParamNode_U32(Name, Ptr, Min, Max, Step)    
-#define atomicDbgAddParamNode_Bool(Name, Ptr)                   
+#define atomicDbgDebugMenuUpdate()                              DebugMenu::getInstance()->update()
+#define atomicDbgDebugMenuDraw()                                DebugMenu::getInstance()->draw()
+#define atomicDbgDebugMenuIsActive()                            DebugMenu::getInstance()->isActive()
+#define atomicDbgAddParamNode_F32(Name, Ptr, Min, Max, Step)    DebugMenu::getInstance()->getRoot()->addChildByPath(Name, istNew(ist::ParamNodeF32)("", Ptr, Min, Max, Step))
+#define atomicDbgAddParamNode_I32(Name, Ptr, Min, Max, Step)    DebugMenu::getInstance()->getRoot()->addChildByPath(Name, istNew(ist::ParamNodeI32)("", Ptr, Min, Max, Step))
+#define atomicDbgAddParamNode_U32(Name, Ptr, Min, Max, Step)    DebugMenu::getInstance()->getRoot()->addChildByPath(Name, istNew(ist::ParamNodeU32)("", Ptr, Min, Max, Step))
+#define atomicDbgAddParamNode_Bool(Name, Ptr)                   DebugMenu::getInstance()->getRoot()->addChildByPath(Name, istNew(ist::ParamNodeBool)("", Ptr))
 #define atomicDbgAddFunctionNode()                              
 
 #else // atomic_enable_debug_menu
@@ -41,6 +47,9 @@ private:
 #define atomicDbgInitializeDebugMenu()                          
 #define atomicDbgFinalizeDebugMenu()                            
 #define atomicDbgGetDebugMenu()                                 
+#define atomicDbgDebugMenuUpdate()                              
+#define atomicDbgDebugMenuDraw()                                
+#define atomicDbgDebugMenuIsActive()                            false
 #define atomicDbgAddParamNode_F32(Name, Ptr, Min, Max, Step)    
 #define atomicDbgAddParamNode_I32(Name, Ptr, Min, Max, Step)    
 #define atomicDbgAddParamNode_U32(Name, Ptr, Min, Max, Step)    

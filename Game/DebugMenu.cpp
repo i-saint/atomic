@@ -1,5 +1,6 @@
 ﻿#include "stdafx.h"
 #include "DebugMenu.h"
+#include "Game/AtomicApplication.h"
 #include "Graphics/Renderer.h"
 
 #ifdef atomic_enable_debug_menu
@@ -26,6 +27,8 @@ DebugMenu* DebugMenu::getInstance()
 }
 
 DebugMenu::DebugMenu()
+    : m_root(NULL)
+    , m_active(false)
 {
     m_root = istNew(ist::ParamNodeBase)();
 }
@@ -37,12 +40,66 @@ DebugMenu::~DebugMenu()
 
 void DebugMenu::update()
 {
+    const ist::KeyboardState &kb = atomicGetApplication()->getKeyboardState();
+    if(kb.isKeyTriggered(ist::KEY_F1)) {
+        m_active = !m_active;
+    }
 
+    if(isActive()) {
+        const InputState &is = *atomicGetSystemInputs();
+        if(is.isButtonTriggered(0)) {
+            m_root->handleEvent(ist::IParamNode::Event_Action);
+        }
+        if(is.isButtonTriggered(1)) {
+            m_root->handleEvent(ist::IParamNode::Event_Cancel);
+        }
+        if(is.isDirectionTriggered(InputState::DIR_DOWN)) {
+            m_root->handleEvent(ist::IParamNode::Event_Down);
+        }
+        if(is.isDirectionTriggered(InputState::DIR_UP)) {
+            m_root->handleEvent(ist::IParamNode::Event_Up);
+        }
+        if(is.isDirectionPressed(InputState::DIR_LEFT)) {
+            m_root->handleEvent(ist::IParamNode::Event_Backward);
+        }
+        if(is.isDirectionPressed(InputState::DIR_RIGHT)) {
+            m_root->handleEvent(ist::IParamNode::Event_Forward);
+        }
+    }
 }
 
 void DebugMenu::draw()
 {
+    if(!isActive()) { return; }
+
     IFontRenderer *fr = atomicGetFontRenderer();
+    ist::IParamNode *node = getRoot();
+    vec2 base = vec2(10.0f, 100.0f);
+    char buf_name[128];
+    char buf_value[128];
+    while(node) {
+        ist::IParamNode *next_node = NULL;
+        for(uint32 i=0; i<node->getChildrenCount(); ++i) {
+            ist::IParamNode *c = node->getChild(i);
+            vec4 color = vec4(1.0f, 1.0f, 1.0f, 0.5f);
+            if(c->isOpened()) {
+                next_node = c;
+                color = vec4(1.0f, 1.0f, 1.0f, 0.9f);
+            }
+            else if(c->isSelected()) {
+                color = vec4(1.0f, 1.0f, 1.0f, 0.9f);
+            }
+
+            c->printName(buf_name, _countof(buf_name));
+            c->printValue(buf_value, _countof(buf_value));
+            vec2 s = fr->computeTextSize(buf_value);
+            fr->setColor(color);
+            fr->addText(base+vec2(0.0f, 20.0f*i), buf_name);
+            fr->addText(base+vec2(240.0f-s.x, 20.0f*i), buf_value);
+        }
+        node = next_node;
+        base += vec2(250.0f, 0.0f);
+    }
 }
 
 ist::IParamNode* DebugMenu::getRoot()

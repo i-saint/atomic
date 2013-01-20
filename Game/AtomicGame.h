@@ -2,6 +2,7 @@
 #define atomic_Game_AtomicGame_h
 #include "Input.h"
 #include "AtomicApplication.h"
+#include "Game/DebugMenu.h"
 
 
 namespace atomic {

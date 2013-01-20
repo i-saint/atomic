@@ -42,6 +42,7 @@ namespace ist {
         virtual const char* getName() const=0; // dll å◊ÇÆâ¬î\ê´ÇçlÇ¶ÇÈÇ∆ stl::string ÇÕï‘ÇµÇΩÇ≠Ç»Ç¢
         virtual int32       getSelection() const=0;
         virtual bool        isOpened() const=0;
+        virtual bool        isSelected() const;
 
         virtual IParamNode* getParent() const=0;
         virtual uint32      getChildrenCount() const=0;
@@ -63,6 +64,7 @@ namespace ist {
     {
     istMakeDestructable;
     public:
+        ParamNodeBase();
         virtual ~ParamNodeBase();
         virtual void release();
         virtual void setName(const char *name, uint32 len=0);
@@ -95,11 +97,14 @@ namespace ist {
 
     private:
         stl::vector<IParamNode*> m_children;
-        IParamNode *m_parent;
         stl::string m_name;
+        IParamNode *m_parent;
         int32 m_selection;
         bool m_opened;
     };
+
+    template<class T>
+    uint32 TPrintValue(char *buf, uint32 buf_size, T value);
 
     template<class T>
     class istInterModule TParamNode : public ParamNodeBase
@@ -110,7 +115,13 @@ namespace ist {
         TParamNode() : m_param(NULL), m_min(), m_max(), m_step()
         {}
 
-        void SetValue(ValueT *p, ValueT _min, ValueT _max, ValueT step)
+        TParamNode(const char *name, ValueT *p, ValueT _min, ValueT _max, ValueT step) : m_param(NULL), m_min(), m_max(), m_step()
+        {
+            setName(name);
+            setValue(p, _min, _max, step);
+        }
+
+        void setValue(ValueT *p, ValueT _min, ValueT _max, ValueT step)
         {
             m_param = p;
             m_min = _min;
@@ -118,10 +129,10 @@ namespace ist {
             m_step = step;
         }
 
-        ValueT& GetValue() const{ return *m_param; }
-        ValueT GetMin() const   { return m_min; }
-        ValueT GetMax() const   { return m_max; }
-        ValueT GetStep() const  { return m_step; }
+        ValueT& getValue() const{ return *m_param; }
+        ValueT getMin() const   { return m_min; }
+        ValueT getMax() const   { return m_max; }
+        ValueT getStep() const  { return m_step; }
 
         virtual bool handleForward(OptionCode o)
         {
@@ -133,6 +144,11 @@ namespace ist {
         {
             *m_param = clamp(*m_param-m_step, m_min, m_max);
             return true;
+        }
+
+        virtual uint32 printValue(char *buf, uint32 buf_size) const
+        {
+            return TPrintValue(buf, buf_size, *m_param);
         }
 
     private:
@@ -151,7 +167,7 @@ namespace ist {
         ParamNodeBool() : m_param(NULL)
         {}
 
-        void SetValue(bool *p)
+        void setValue(bool *p)
         {
             m_param = p;
         }

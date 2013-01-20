@@ -260,7 +260,7 @@ public:
             IEntity *e = atomicCreateEntity(Player);
             m_player = e->getHandle();
             atomicCall(e, setPosition, vec4(0.0f, 0.0f, 0.0f, 1.0f));
-            //atomicCall(e, setHealth, 100000000.0f);
+            atomicCall(e, setHealth, 100000000.0f);
         }
         {
             atomicGetFader()->setColor(vec4(0.0f, 0.0f, 0.0f, 1.0f));
@@ -271,23 +271,23 @@ public:
 
     void level1()
     {
-        //// 敵テスト用
-        //if(m_frame==1) {
-        //    IEntity *e = putLargeEnemy();
-        //}
+        // 敵テスト用
+        if(m_frame==1) {
+            IEntity *e = putLargeEnemy();
+        }
 
-        if(m_frame < 1200) {
-            //if(m_frame % 1 == 0) {
-            //    putPinballEnemy();
-            //    putPinballEnemy();
-            //}
-            if(m_frame % 50 == 0) {
-                IEntity *e = putSmallEnemy();
-            }
-        }
-        else if(isAllDead()) {
-            goNextLevel();
-        }
+        //if(m_frame < 1200) {
+        //    //if(m_frame % 1 == 0) {
+        //    //    putPinballEnemy();
+        //    //    putPinballEnemy();
+        //    //}
+        //    if(m_frame % 50 == 0) {
+        //        IEntity *e = putSmallEnemy();
+        //    }
+        //}
+        //else if(isAllDead()) {
+        //    goNextLevel();
+        //}
     }
 
     void level2()

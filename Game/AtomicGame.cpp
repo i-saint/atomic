@@ -74,7 +74,10 @@ void AtomicGame::update(float32 dt)
 {
     if(atomicGetConfig()->pause) { return; }
 
-    m_input_server->update(*atomicGetSystemInputs());
+    atomicDbgDebugMenuUpdate();
+    if(!atomicDbgDebugMenuIsActive()) {
+        m_input_server->update(*atomicGetSystemInputs());
+    }
     m_world->update(1.0f);
 }
 
@@ -134,6 +137,7 @@ void AtomicGame::drawCallback()
     if(m_world) {
         m_world->draw();
     }
+    atomicDbgDebugMenuDraw();
     AtomicRenderer::getInstance()->draw();
 }
 

@@ -78,6 +78,10 @@ public:
             m_lightpos[i] = GenRandomVector3() * 1.0f;
             m_lightpos[i].z = std::abs(m_lightpos[i].z);
         }
+
+        atomicDbgAddParamNode_F32("Entity/Player/vel.x", &m_vel.x, 0.0f, 1.0f, 0.02f);
+        atomicDbgAddParamNode_F32("Entity/Player/vel.y", &m_vel.y, 0.0f, 1.0f, 0.02f);
+        atomicDbgAddParamNode_F32("Entity/Player/vel.z", &m_vel.z, 0.0f, 1.0f, 0.02f);
     }
 
     void move()
@@ -112,18 +116,18 @@ public:
             atomicGetSPHManager()->addForce(force);
         }
 
-        // 流体パーティクルが 10000 以下なら追加
-        if(atomicGetSPHManager()->getNumParticles()<10000) {
-            psym::Particle particles[16];
-            for(size_t i=0; i<_countof(particles); ++i) {
-                vec4 rd = glm::normalize(vec4(atomicGenRandFloat()-0.5f, atomicGenRandFloat()-0.5f, 0.0f, 0.0f));
-                istAlign(16) vec4 pos = getPosition() + (rd * (atomicGenRandFloat()*0.2f+0.4f));
-                psym::simdvec4 poss = (psym::simdvec4&)pos;
-                particles[i].position = poss;
-                particles[i].velocity = _mm_set1_ps(0.0f);
-            }
-            atomicGetSPHManager()->addFluid(&particles[0], _countof(particles));
-        }
+        //// 流体パーティクルが 10000 以下なら追加
+        //if(atomicGetSPHManager()->getNumParticles()<10000) {
+        //    psym::Particle particles[16];
+        //    for(size_t i=0; i<_countof(particles); ++i) {
+        //        vec4 rd = glm::normalize(vec4(atomicGenRandFloat()-0.5f, atomicGenRandFloat()-0.5f, 0.0f, 0.0f));
+        //        istAlign(16) vec4 pos = getPosition() + (rd * (atomicGenRandFloat()*0.2f+0.4f));
+        //        psym::simdvec4 poss = (psym::simdvec4&)pos;
+        //        particles[i].position = poss;
+        //        particles[i].velocity = _mm_set1_ps(0.0f);
+        //    }
+        //    atomicGetSPHManager()->addFluid(&particles[0], _countof(particles));
+        //}
     }
 
     void asyncupdate(float32 dt)
