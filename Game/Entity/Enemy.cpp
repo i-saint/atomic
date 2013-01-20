@@ -76,7 +76,7 @@ public:
         setModel(PSET_CUBE_MEDIUM);
         setDiffuseColor(vec4(0.6f, 0.6f, 0.6f, 50.0f));
         setGlowColor(vec4(1.0f, 0.0f, 0.2f, 0.0f));
-        setHealth(100.0f);
+        setLife(100.0f);
         collision::initializeCollision(getHandle());
     }
 

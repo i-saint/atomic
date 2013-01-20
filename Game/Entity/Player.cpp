@@ -68,7 +68,7 @@ public:
         m_barrier.setCollisionShape(CS_SPHERE);
         m_barrier.setCollisionFlags(CF_SPH_SENDER);
 
-        setHealth(500.0f);
+        setLife(500.0f);
         setAxis1(GenRandomUnitVector3());
         setAxis2(GenRandomUnitVector3());
         setRotateSpeed1(1.4f);
@@ -79,9 +79,7 @@ public:
             m_lightpos[i].z = std::abs(m_lightpos[i].z);
         }
 
-        atomicDbgAddParamNode_F32("Entity/Player/vel.x", &m_vel.x, 0.0f, 1.0f, 0.02f);
-        atomicDbgAddParamNode_F32("Entity/Player/vel.y", &m_vel.y, 0.0f, 1.0f, 0.02f);
-        atomicDbgAddParamNode_F32("Entity/Player/vel.z", &m_vel.z, 0.0f, 1.0f, 0.02f);
+        atomicDbgAddParamNodeMF("Entity/Player/life", float32, this, &Player::getLife, &Player::setLife, 0.0f, 1000000.0f, 0.02f, std::bind(&Player::damage, this, 1000.0f));
     }
 
     void move()

@@ -5,25 +5,17 @@
 namespace ist {
 
 
-template<> uint32 TPrintValue<int32>(char *buf, uint32 buf_size, int32 value)
-{
-    return istsnprintf(buf, buf_size, "%d", value);
-}
-
-template<> uint32 TPrintValue<uint32>(char *buf, uint32 buf_size, uint32 value)
-{
-    return istsnprintf(buf, buf_size, "%u", value);
-}
-
-template<> uint32 TPrintValue<float32>(char *buf, uint32 buf_size, float32 value)
-{
-    return istsnprintf(buf, buf_size, "%.3f", value);
-}
-
-template<> uint32 TPrintValue<bool>(char *buf, uint32 buf_size, bool value)
-{
-    return istsnprintf(buf, buf_size, "s", (value ? "true" : "false"));
-}
+template<> uint32 TPrintValue<float32>(char *buf, uint32 buf_size, float32 value)   { return istsnprintf(buf, buf_size, "%.3f",  value); }
+template<> uint32 TPrintValue<float64>(char *buf, uint32 buf_size, float64 value)   { return istsnprintf(buf, buf_size, "%.3lf", value); }
+template<> uint32 TPrintValue<  int8>(char *buf, uint32 buf_size,   int8 value)     { return istsnprintf(buf, buf_size, "%d", static_cast< int32>(value)); }
+template<> uint32 TPrintValue< uint8>(char *buf, uint32 buf_size,  uint8 value)     { return istsnprintf(buf, buf_size, "%u", static_cast<uint32>(value)); }
+template<> uint32 TPrintValue< int16>(char *buf, uint32 buf_size,  int16 value)     { return istsnprintf(buf, buf_size, "%d", static_cast< int32>(value)); }
+template<> uint32 TPrintValue<uint16>(char *buf, uint32 buf_size, uint16 value)     { return istsnprintf(buf, buf_size, "%u", static_cast<uint32>(value)); }
+template<> uint32 TPrintValue< int32>(char *buf, uint32 buf_size,  int32 value)     { return istsnprintf(buf, buf_size, "%d", value); }
+template<> uint32 TPrintValue<uint32>(char *buf, uint32 buf_size, uint32 value)     { return istsnprintf(buf, buf_size, "%u", value); }
+template<> uint32 TPrintValue< int64>(char *buf, uint32 buf_size,  int64 value)     { return istsnprintf(buf, buf_size, "%lld", value); }
+template<> uint32 TPrintValue<uint64>(char *buf, uint32 buf_size, uint64 value)     { return istsnprintf(buf, buf_size, "%llu", value); }
+template<> uint32 TPrintValue<  bool>(char *buf, uint32 buf_size,   bool value)     { return istsnprintf(buf, buf_size, "s", (value ? "true" : "false")); }
 
 
 bool IParamNode::isSelected() const
@@ -35,15 +27,19 @@ bool IParamNode::isSelected() const
 }
 
 
-ParamNodeBase::ParamNodeBase()
+ParamNodeBase::ParamNodeBase(const char *name, INodeFunctor *functor)
     : m_parent(NULL)
+    , m_functor(functor)
     , m_selection(0)
     , m_opened(false)
 {
+    setName(name);
 }
 
 ParamNodeBase::~ParamNodeBase()
-{}
+{
+    if(m_functor) { m_functor->release(); }
+}
 
 void ParamNodeBase::release()
 {
@@ -64,16 +60,17 @@ void ParamNodeBase::setName( const char *name, uint32 len )
     }
 }
 
-void ParamNodeBase::setOpened(bool v)               { m_opened=v; }
-void ParamNodeBase::setParent(IParamNode *parent)   { m_parent=parent; }
-void ParamNodeBase::eraseChild(IParamNode *node)    { m_children.erase(stl::find(m_children.begin(), m_children.end(), node)); }
+void ParamNodeBase::setFunctor( INodeFunctor *func )    { m_functor=func; }
+void ParamNodeBase::setOpened(bool v)                   { if(v==false && !getParent()) { return; } m_opened=v; }
+void ParamNodeBase::setParent(IParamNode *parent)       { m_parent=parent; }
 
-const char* ParamNodeBase::getName() const             { return m_name.c_str(); }
-int32       ParamNodeBase::getSelection() const        { return m_selection; }
-bool        ParamNodeBase::isOpened() const            { return m_opened; }
-IParamNode* ParamNodeBase::getParent() const           { return m_parent; }
-uint32      ParamNodeBase::getChildrenCount() const    { return static_cast<uint32>(m_children.size()); }
-IParamNode* ParamNodeBase::getChild(uint32 i) const    { return i<m_children.size() ? m_children[i] : NULL; }
+const char*     ParamNodeBase::getName() const          { return m_name.c_str(); }
+INodeFunctor*   ParamNodeBase::getFunctor() const       { return m_functor; }
+int32           ParamNodeBase::getSelection() const     { return m_selection; }
+bool            ParamNodeBase::isOpened() const         { return m_opened; }
+IParamNode*     ParamNodeBase::getParent() const        { return m_parent; }
+uint32          ParamNodeBase::getChildrenCount() const { return static_cast<uint32>(m_children.size()); }
+IParamNode*     ParamNodeBase::getChild(uint32 i) const { return i<m_children.size() ? m_children[i] : NULL; }
 
 IParamNode* ParamNodeBase::getChildByPath( const char *path ) const
 {
@@ -128,8 +125,37 @@ void ParamNodeBase::addChildByPath( const char *path, IParamNode *node )
     }
 }
 
+void ParamNodeBase::eraseChild(IParamNode *node)
+{
+    m_children.erase(stl::find(m_children.begin(), m_children.end(), node));
+}
 
-bool ParamNodeBase::handleAction(OptionCode o)     { return false; }
+void ParamNodeBase::releaseChildByPath(const char *path)
+{
+    uint32 len = 0;
+    bool leaf = false;
+    for(;;) {
+        if(path[len]=='\0') { leaf=true; break; }
+        if(path[len]=='/')  { break; }
+        ++len;
+    }
+    for(size_t i=0; i<m_children.size(); ++i) {
+        if(strncmp(path, m_children[i]->getName(), len)==0) {
+            if(leaf) { m_children[i]->release(); }
+            else { m_children[i]->releaseChildByPath(path+(len+1)); }
+        }
+    }
+}
+
+
+bool ParamNodeBase::handleAction(OptionCode o)
+{
+    if(m_functor) {
+        m_functor->exec();
+        return true;
+    }
+    return false;
+}
 bool ParamNodeBase::handleForward(OptionCode o)    { return false; }
 bool ParamNodeBase::handleBackward(OptionCode o)   { return false; }
 bool ParamNodeBase::handleFocus()                  { return false; }
@@ -217,5 +243,6 @@ IParamNode* ParamNodeBase::getSelectedItem()
     }
     return NULL;
 }
+
 
 } // namespace ist

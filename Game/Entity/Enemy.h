@@ -39,7 +39,7 @@ public:
     atomicECallBlock(
         atomicECallDelegate(m_routine)
         atomicMethodBlock(
-        atomicECall(setHealth)
+        atomicECall(setLife)
         atomicECall(setRoutine)
         atomicECall(damage)
         )
@@ -49,7 +49,7 @@ public:
     atomicEQueryBlock(
         atomicEQueryDelegate(m_routine)
         atomicMethodBlock(
-        atomicEQuery(getHealth)
+        atomicEQuery(getLife)
         )
     )
 
@@ -63,12 +63,12 @@ public:
         istSafeDelete(m_routine);
     }
 
-    float32     getHealth() const           { return m_health; }
+    float32     getLife() const             { return m_health; }
     IRoutine*   getRoutine()                { return m_routine; }
     const vec4& getFlashColor() const       { return m_flash_color; }
     int32       getPastFrame() const        { return m_past_frame; }
 
-    void setHealth(float32 v)       { m_health=v; }
+    void setLife(float32 v)       { m_health=v; }
     void setRoutine(ROUTINE_CLASSID rcid)
     {
         istSafeDelete(m_routine);

@@ -31,6 +31,7 @@ DebugMenu::DebugMenu()
     , m_active(false)
 {
     m_root = istNew(ist::ParamNodeBase)();
+    m_root->setOpened(true);
 }
 
 DebugMenu::~DebugMenu()
@@ -95,10 +96,10 @@ void DebugMenu::draw()
             vec2 s = fr->computeTextSize(buf_value);
             fr->setColor(color);
             fr->addText(base+vec2(0.0f, 20.0f*i), buf_name);
-            fr->addText(base+vec2(240.0f-s.x, 20.0f*i), buf_value);
+            fr->addText(base+vec2(200.0f-s.x, 20.0f*i), buf_value);
         }
         node = next_node;
-        base += vec2(250.0f, 0.0f);
+        base += vec2(210.0f, 0.0f);
     }
 }
 

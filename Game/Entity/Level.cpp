@@ -90,7 +90,7 @@ public:
         atomicCall(e, setCollisionShape, CS_SPHERE);
         atomicCall(e, setModel, PSET_SPHERE_SMALL);
         atomicCall(e, setPosition, GenRandomVector2() * 2.2f);
-        atomicCall(e, setHealth, 15.0f * getLoopBoost());
+        atomicCall(e, setLife, 15.0f * getLoopBoost());
         atomicCall(e, setAxis1, GenRandomUnitVector3());
         atomicCall(e, setAxis2, GenRandomUnitVector3());
         atomicCall(e, setRotateSpeed1, 2.4f);
@@ -109,7 +109,7 @@ public:
         atomicCall(e, setCollisionFlags, CF_RECEIVER|CF_SENDER);
         atomicCall(e, setModel, PSET_SPHERE_BULLET);
         atomicCall(e, setPosition, GenRandomVector2() * 0.5f + vec4(1.5f, 1.5f, 0.0f, 0.0f));
-        atomicCall(e, setHealth, 5.0f * getLoopBoost());
+        atomicCall(e, setLife, 5.0f * getLoopBoost());
         atomicCall(e, setAxis1, GenRandomUnitVector3());
         atomicCall(e, setAxis2, GenRandomUnitVector3());
         atomicCall(e, setRotateSpeed1, 2.4f);
@@ -130,7 +130,7 @@ public:
         case 1: atomicCall(e, setModel, PSET_SPHERE_MEDIUM);atomicCall(e, setCollisionShape, CS_SPHERE); break;
         }
         atomicCall(e, setPosition, GenRandomVector2() * 2.1f);
-        atomicCall(e, setHealth, 100.0f * getLoopBoost());
+        atomicCall(e, setLife, 100.0f * getLoopBoost());
         atomicCall(e, setAxis1, GenRandomUnitVector3());
         atomicCall(e, setAxis2, GenRandomUnitVector3());
         atomicCall(e, setRotateSpeed1, 0.4f);
@@ -152,7 +152,7 @@ public:
         case 1: atomicCall(e, setModel, PSET_SPHERE_LARGE); atomicCall(e, setCollisionShape, CS_SPHERE); break;
         }
         atomicCall(e, setPosition, GenRandomVector2() * 1.5f);
-        atomicCall(e, setHealth, 1200.0f * getLoopBoost());
+        atomicCall(e, setLife, 1200.0f * getLoopBoost());
         atomicCall(e, setAxis1, GenRandomUnitVector3());
         atomicCall(e, setAxis2, GenRandomUnitVector3());
         atomicCall(e, setRotateSpeed1, 0.1f);
@@ -260,7 +260,7 @@ public:
             IEntity *e = atomicCreateEntity(Player);
             m_player = e->getHandle();
             atomicCall(e, setPosition, vec4(0.0f, 0.0f, 0.0f, 1.0f));
-            atomicCall(e, setHealth, 100000000.0f);
+            atomicCall(e, setLife, 100000000.0f);
         }
         {
             atomicGetFader()->setColor(vec4(0.0f, 0.0f, 0.0f, 1.0f));
@@ -378,7 +378,7 @@ public:
 
         float32 health = 0.0f;
         if(IEntity *e = atomicGetEntity(m_player)) {
-            health = atomicQuery(e, getHealth, float32);
+            health = atomicQuery(e, getLife, float32);
         }
 
         char buf[64];
