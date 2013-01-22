@@ -87,16 +87,16 @@ GLint AtomicShader::getUniformBlockIndex(const char *name) const
     return m_shader->getUniformBlockIndex(name);
 }
 
-void AtomicShader::setUniformBlock(GLuint uniformBlockIndex, GLuint uniformBindingIndex, GLuint uniformBufferHandle)
+void AtomicShader::setUniformBlock(GLuint uniformBlockIndex, GLuint uniformBindingIndex, Buffer *buffer)
 {
-    m_shader->setUniformBlock(uniformBlockIndex, uniformBindingIndex, uniformBufferHandle);
+    i3d::DeviceContext *dc = atomicGetGLDeviceContext();
+    dc->setUniformBuffer(uniformBlockIndex, uniformBindingIndex, buffer);
 }
 
 void AtomicShader::bind()
 {
-    i3d::DeviceContext *ctx = atomicGetGLDeviceContext();
-    ctx->setShader(m_shader);
-    m_shader->setUniformBlock(m_loc_renderstates, GLSL_RENDERSTATE_BINDING, atomicGetUniformBuffer(UBO_RENDERSTATES_3D)->getHandle());
+    i3d::DeviceContext *dc = atomicGetGLDeviceContext();
+    assign(dc);
 }
 
 void AtomicShader::unbind()
@@ -108,7 +108,7 @@ void AtomicShader::unbind()
 void AtomicShader::assign( i3d::DeviceContext *dc )
 {
     dc->setShader(m_shader);
-    m_shader->setUniformBlock(m_loc_renderstates, GLSL_RENDERSTATE_BINDING, atomicGetUniformBuffer(UBO_RENDERSTATES_3D)->getHandle());
+    dc->setUniformBuffer(m_loc_renderstates, GLSL_RENDERSTATE_BINDING, atomicGetUniformBuffer(UBO_RENDERSTATES_3D));
 }
 
 

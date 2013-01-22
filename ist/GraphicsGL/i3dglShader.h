@@ -60,17 +60,19 @@ typedef DeviceResource super;
 public:
     GLint getUniformLocation(const char *name) const;
     GLint getAttribLocation(const char *name) const;
-
     GLint getUniformBlockIndex(const char *name) const;
-    void setUniformBlock(GLuint uniformBlockIndex, GLuint uniformBindingIndex, GLuint uniformBufferHandle);
 
-    void setSampler(GLint al, GLint v);
+    void setSampler(GLint loc, GLint tex);
 
 private:
     void bind();
     void unbind();
+    void setUniformBlock(GLuint uniformBlockIndex, GLuint uniformBindingIndex, GLuint uniformBufferHandle);
     ShaderProgram(Device *dev, const ShaderProgramDesc &desc);
     ~ShaderProgram();
+
+private:
+    ShaderProgramDesc m_desc;
 };
 
 

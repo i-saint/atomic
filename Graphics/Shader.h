@@ -24,7 +24,7 @@ public:
     bool loadFromMemory(const char* src);
 
     GLint getUniformBlockIndex(const char *name) const;
-    void setUniformBlock(GLuint uniformBlockIndex, GLuint uniformBindingIndex, GLuint uniformBufferHandle);
+    void setUniformBlock(GLuint uniformBlockIndex, GLuint uniformBindingIndex, Buffer *buffer);
     void bind();
     void unbind();
     void assign(i3d::DeviceContext *dc);

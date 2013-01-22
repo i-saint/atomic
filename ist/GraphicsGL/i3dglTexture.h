@@ -12,15 +12,17 @@ class Sampler : public DeviceResource
 I3DGL_DECLARE_DEVICE_RESOURCE(Sampler)
 typedef DeviceResource super;
 friend class DeviceContext;
-private:
-    SamplerDesc m_desc;
+public:
+    const SamplerDesc& getDesc() const { return m_desc; }
 
+private:
     Sampler(Device *dev, const SamplerDesc &desc);
     ~Sampler();
-
-public:
     void bind(uint32 slot);
     void unbind(uint32 slot);
+
+private:
+    SamplerDesc m_desc;
 };
 
 

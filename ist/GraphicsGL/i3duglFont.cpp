@@ -358,7 +358,7 @@ public:
                 {1, I3D_FLOAT, 2,  8, false, 0},
                 {2, I3D_FLOAT, 4, 16, false, 0},
             };
-            m_va->setAttributes(*m_vbo, sizeof(VertexT), descs, _countof(descs));
+            m_va->setAttributes(0, m_vbo, sizeof(VertexT), descs, _countof(descs));
         }
         m_vs = CreateVertexShaderFromString(dev, g_font_vssrc);
         m_ps = CreatePixelShaderFromString(dev, g_font_pssrc);
@@ -420,7 +420,7 @@ public:
     {
         if(m_quads.empty()) { return; }
 
-        m_shader->setUniformBlock(m_uniform_loc, 0, m_ubo->getHandle());
+        dc->setUniformBuffer(m_uniform_loc, 0, m_ubo);
         dc->setVertexArray(m_va);
         dc->setShader(m_shader);
         dc->setSampler(0, m_sampler);
@@ -431,7 +431,7 @@ public:
             size_t num_quad = stl::min<size_t>(m_quads.size()-drawn_quads, MaxCharsPerDraw);
             size_t num_vertex = num_quad*4;
             {
-                VertexT *vertex = (VertexT*)m_vbo->map(I3D_MAP_WRITE);
+                VertexT *vertex = (VertexT*)dc->map(m_vbo, I3D_MAP_WRITE);
                 for(size_t qi=0; qi<num_quad; ++qi) {
                     const FontQuad &quad = m_quads[qi+drawn_quads];
                     VertexT *v = &vertex[qi*4];
@@ -444,7 +444,7 @@ public:
                     v[2] = VertexT(vec2(pos_max.x, pos_max.y), vec2(tex_max.x, tex_max.y), quad.color);
                     v[3] = VertexT(vec2(pos_max.x, pos_min.y), vec2(tex_max.x, tex_min.y), quad.color);
                 }
-                m_vbo->unmap();
+                dc->unmap(m_vbo);
             }
             MapAndWrite(dc, m_ubo, &m_renderstate, sizeof(m_renderstate));
 

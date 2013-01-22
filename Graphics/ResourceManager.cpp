@@ -67,6 +67,7 @@ bool GraphicResourceManager::initialize()
 
     // initialize opengl resources
     i3d::Device *dev = atomicGetGLDevice();
+    i3d::DeviceContext *dc = atomicGetGLDeviceContext();
     {
         m_font = CreateSpriteFont(atomicGetGLDevice(), "Resources/font.sff", "Resources/font.png");
     }
@@ -218,13 +219,13 @@ bool GraphicResourceManager::initialize()
     {
         Sampler *smp_gb = atomicGetSampler(SAMPLER_GBUFFER);
         Sampler *smp_tex = atomicGetSampler(SAMPLER_TEXTURE_DEFAULT);
-        smp_tex->bind(GLSL_COLOR_BUFFER);
-        smp_gb->bind(GLSL_NORMAL_BUFFER);
-        smp_gb->bind(GLSL_POSITION_BUFFER);
-        smp_tex->bind(GLSL_GLOW_BUFFER);
-        smp_tex->bind(GLSL_BACK_BUFFER);
-        smp_tex->bind(GLSL_RANDOM_BUFFER);
-        smp_tex->bind(GLSL_PARAM_BUFFER);
+        dc->setSampler(GLSL_COLOR_BUFFER, smp_tex);
+        dc->setSampler(GLSL_NORMAL_BUFFER, smp_gb);
+        dc->setSampler(GLSL_POSITION_BUFFER, smp_gb);
+        dc->setSampler(GLSL_GLOW_BUFFER, smp_tex);
+        dc->setSampler(GLSL_BACK_BUFFER, smp_tex);
+        dc->setSampler(GLSL_RANDOM_BUFFER, smp_tex);
+        dc->setSampler(GLSL_PARAM_BUFFER, smp_tex);
    }
     return true;
 }

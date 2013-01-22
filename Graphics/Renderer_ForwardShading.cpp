@@ -45,9 +45,9 @@ void PassForwardShading_DistanceField::draw()
 
     if(atomicGetConfig()->debug_show_grid) {
         m_sh_grid->bind();
-        m_va_grid->bind();
+        dc->setVertexArray(m_va_grid);
         dc->draw(I3D_LINES, 0, (PSYM_GRID_DIV+1) * (PSYM_GRID_DIV+1) * 2);
-        m_va_grid->unbind();
+        dc->setVertexArray(NULL);
         m_sh_grid->unbind();
     }
 }

@@ -17,6 +17,7 @@ public:
     void setViewport(const Viewport &vp);
     void setVertexArray(VertexArray *va);
     void setIndexBuffer(Buffer *v, I3D_TYPE format);
+    void setUniformBuffer(int32 loc, int32 bind, Buffer *buf);
     void setShader(ShaderProgram *v);
     void setRenderTarget(RenderTarget *rt);
     void setSampler(uint32 slot, Sampler *smp);
@@ -52,14 +53,40 @@ private:
         RenderTarget        *render_target;
         VertexArray         *vertex_array;
         ShaderProgram       *shader;
-        Buffer              *index_buffer;
-        I3D_TYPE            index_format;
+        struct {
+            Buffer          *buffer;
+            I3D_TYPE        format;
+        } index;
+        struct {
+            Buffer          *buffer;
+            int32           bind;
+            bool            dirty;
+        } uniform[8];
+        Sampler             *samplers[16];
+        Texture             *textures[16];
         BlendState          *blend_state;
         DepthStencilState   *depthstencil_state;
+
+        RenderStates() { memset(this, 0, sizeof(*this)); }
+    };
+    union DirtyFlags
+    {
+        struct {
+            uint32 render_target:1;
+            uint32 vertex_array:1;
+            uint32 shader:1;
+            uint32 index:1;
+            uint32 uniform:1;
+            uint32 samplers:1;
+            uint32 textures:1;
+            uint32 blend_state:1;
+            uint32 depthstencil_state:1;
+        };
+        uint32 flags;
     };
     RenderStates m_prev;
     RenderStates m_current;
-
+    DirtyFlags m_dirty;
 };
 
 } // namespace i3d

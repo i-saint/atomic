@@ -247,10 +247,6 @@ void AtomicRenderer::passPostprocess()
 
 void AtomicRenderer::passHUD()
 {
-    uint32 num_renderers = m_renderers[PASS_HUD].size();
-    for(uint32 i=0; i<num_renderers; ++i) {
-        m_renderers[PASS_HUD][i]->draw();
-    }
 }
 
 void AtomicRenderer::passOutput()
@@ -262,6 +258,12 @@ void AtomicRenderer::passOutput()
     dc->setVertexArray(m_va_screenquad);
     dc->draw(I3D_QUADS, 0, 4);
 
+    {
+        uint32 num_renderers = m_renderers[PASS_HUD].size();
+        for(uint32 i=0; i<num_renderers; ++i) {
+            m_renderers[PASS_HUD][i]->draw();
+        }
+    }
 
     // texts 
 
@@ -356,7 +358,7 @@ void PassHUD_DebugShowBuffer::drawColorBuffer( const DebugShowBufferParams &para
 
     m_sh_rgb->bind();
     dc->setTexture(GLSL_COLOR_BUFFER, m_gbuffer->getColorBuffer(GBUFFER_COLOR));
-    m_sh_rgb->setUniformBlock(m_loc_params, GLSL_DEBUG_BUFFER_BINDING, m_ub_params->getHandle());
+    m_sh_rgb->setUniformBlock(m_loc_params, GLSL_DEBUG_BUFFER_BINDING, m_ub_params);
     dc->draw(I3D_QUADS, 0, 4);
     m_sh_rgb->unbind();
 }
@@ -368,7 +370,7 @@ void PassHUD_DebugShowBuffer::drawNormalBuffer( const DebugShowBufferParams &par
 
     m_sh_rgb->bind();
     dc->setTexture(GLSL_COLOR_BUFFER, m_gbuffer->getColorBuffer(GBUFFER_NORMAL));
-    m_sh_rgb->setUniformBlock(m_loc_params, GLSL_DEBUG_BUFFER_BINDING, m_ub_params->getHandle());
+    m_sh_rgb->setUniformBlock(m_loc_params, GLSL_DEBUG_BUFFER_BINDING, m_ub_params);
     dc->draw(I3D_QUADS, 0, 4);
     m_sh_rgb->unbind();
 }
@@ -380,7 +382,7 @@ void PassHUD_DebugShowBuffer::drawPositionBuffer( const DebugShowBufferParams &p
 
     m_sh_rgb->bind();
     dc->setTexture(GLSL_COLOR_BUFFER, m_gbuffer->getColorBuffer(GBUFFER_POSITION));
-    m_sh_rgb->setUniformBlock(m_loc_params, GLSL_DEBUG_BUFFER_BINDING, m_ub_params->getHandle());
+    m_sh_rgb->setUniformBlock(m_loc_params, GLSL_DEBUG_BUFFER_BINDING, m_ub_params);
     dc->draw(I3D_QUADS, 0, 4);
     m_sh_rgb->unbind();
 }
@@ -392,7 +394,7 @@ void PassHUD_DebugShowBuffer::drawGlowBuffer( const DebugShowBufferParams &param
 
     m_sh_rgb->bind();
     dc->setTexture(GLSL_COLOR_BUFFER, m_gbuffer->getColorBuffer(GBUFFER_GLOW));
-    m_sh_rgb->setUniformBlock(m_loc_params, GLSL_DEBUG_BUFFER_BINDING, m_ub_params->getHandle());
+    m_sh_rgb->setUniformBlock(m_loc_params, GLSL_DEBUG_BUFFER_BINDING, m_ub_params);
     dc->draw(I3D_QUADS, 0, 4);
     m_sh_rgb->unbind();
 }
@@ -413,8 +415,8 @@ void PassHUD_DebugShowBuffer::draw()
     params.UpperRight = vec2( 1.0f,  1.0f);
     params.ColorRange = vec2( 0.0f, 1.0f);
 
-    m_rt = atomicGetBackRenderTarget();
-    m_rt->bind();
+    //m_rt = atomicGetBackRenderTarget();
+    //m_rt->bind();
 
     int32 cmd = std::abs(atomicGetConfig()->debug_show_gbuffer) % 6;
     switch(cmd) {
@@ -461,7 +463,7 @@ void PassHUD_DebugShowBuffer::draw()
         break;
     }
 
-    m_rt->unbind();
+    //m_rt->unbind();
 }
 #endif // atomic_enable_gbuffer_viewer
 

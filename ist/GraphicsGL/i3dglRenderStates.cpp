@@ -24,7 +24,8 @@ void BlendState::apply()
 
 
 DepthStencilState::DepthStencilState( Device *dev, const DepthStencilStateDesc &desc )
-    : super(dev), m_desc(desc)
+    : super(dev)
+    , m_desc(desc)
 {
 }
 

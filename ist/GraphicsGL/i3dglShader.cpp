@@ -86,12 +86,16 @@ GeometryShader::~GeometryShader()
 
 ShaderProgram::ShaderProgram(Device *dev, const ShaderProgramDesc &desc)
     : super(dev)
+    , m_desc(desc)
 {
-    m_handle = glCreateProgram();
+    istSafeAddRef(m_desc.vs);
+    istSafeAddRef(m_desc.gs);
+    istSafeAddRef(m_desc.ps);
 
-    if(desc.vs) { glAttachShader(m_handle, desc.vs->getHandle()); }
-    if(desc.gs) { glAttachShader(m_handle, desc.gs->getHandle()); }
-    if(desc.ps) { glAttachShader(m_handle, desc.ps->getHandle()); }
+    m_handle = glCreateProgram();
+    if(m_desc.vs) { glAttachShader(m_handle, m_desc.vs->getHandle()); }
+    if(m_desc.gs) { glAttachShader(m_handle, m_desc.gs->getHandle()); }
+    if(m_desc.ps) { glAttachShader(m_handle, m_desc.ps->getHandle()); }
     glLinkProgram(m_handle);
 
     // get errors
@@ -117,6 +121,9 @@ ShaderProgram::~ShaderProgram()
         glDeleteProgram(m_handle);
         m_handle = 0;
     }
+    istSafeRelease(m_desc.ps);
+    istSafeRelease(m_desc.gs);
+    istSafeRelease(m_desc.vs);
 }
 
 
@@ -169,7 +176,7 @@ void ShaderProgram::setUniformBlock(GLuint uniformBlockIndex, GLuint uniformBind
     glUniformBlockBinding(m_handle, uniformBlockIndex, uniformBindingIndex);
 }
 
-void ShaderProgram::setSampler(GLint al, GLint v) { glUniform1i(al, v); }
+void ShaderProgram::setSampler(GLint loc, GLint tex) { glUniform1i(loc, tex); }
 
 //// uniform variable
 //// int

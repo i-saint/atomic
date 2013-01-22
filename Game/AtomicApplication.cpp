@@ -201,6 +201,7 @@ void AtomicApplication::mainLoop()
     {
         DOL_Update();
         translateMessage();
+        sysUpdate();
 
         if(m_game) {
             m_game->frameBegin();
@@ -227,30 +228,8 @@ void AtomicApplication::mainLoop()
     }
 }
 
-void AtomicApplication::updateInput()
+void AtomicApplication::sysUpdate()
 {
-    super::updateInput();
-
-    vec2 move = vec2(0.0f);
-    int buttons = getJoyState().getButtons();
-
-    const ist::MouseState &mouse = getMouseState();
-    if((mouse.getButtonState() & ist::MouseState::BU_LEFT)!=0)  { buttons = buttons |= 1<<0; }
-    if((mouse.getButtonState() & ist::MouseState::BU_RIGHT)!=0) { buttons = buttons |= 1<<1; }
-    if((mouse.getButtonState() & ist::MouseState::BU_MIDDLE)!=0){ buttons = buttons |= 1<<2; }
-
-    const ist::KeyboardState &kb = getKeyboardState();
-    if(kb.isKeyPressed('Z')){ buttons = buttons |= 1<<0; }
-    if(kb.isKeyPressed('X')){ buttons = buttons |= 1<<1; }
-    if(kb.isKeyPressed('C')){ buttons = buttons |= 1<<2; }
-    if(kb.isKeyPressed('V')){ buttons = buttons |= 1<<3; }
-    if(kb.isKeyPressed(ist::KEY_RIGHT)  || kb.isKeyPressed('D')){ move.x = 1.0f; }
-    if(kb.isKeyPressed(ist::KEY_LEFT)   || kb.isKeyPressed('A')){ move.x =-1.0f; }
-    if(kb.isKeyPressed(ist::KEY_UP)     || kb.isKeyPressed('W')){ move.y = 1.0f; }
-    if(kb.isKeyPressed(ist::KEY_DOWN)   || kb.isKeyPressed('S')){ move.y =-1.0f; }
-    if(kb.isKeyTriggered(ist::KEY_F1)) {
-        m_config.posteffect_antialias = !m_config.posteffect_antialias;
-    }
     if(getKeyboardState().isKeyTriggered(ist::KEY_F2)) {
         m_config.posteffect_bloom = !m_config.posteffect_bloom;
     }
@@ -285,6 +264,35 @@ void AtomicApplication::updateInput()
     if(getKeyboardState().isKeyPressed('9')) {
         float &p = atomicGetLights()->getMultiresolutionParams().Threshold.x;
         p = clamp(p+0.001f, 0.0f, 1.0f);
+    }
+
+    atomicDbgDebugMenuUpdate();
+}
+
+
+void AtomicApplication::updateInput()
+{
+    super::updateInput();
+
+    vec2 move = vec2(0.0f);
+    int buttons = getJoyState().getButtons();
+
+    const ist::MouseState &mouse = getMouseState();
+    if((mouse.getButtonState() & ist::MouseState::BU_LEFT)!=0)  { buttons = buttons |= 1<<0; }
+    if((mouse.getButtonState() & ist::MouseState::BU_RIGHT)!=0) { buttons = buttons |= 1<<1; }
+    if((mouse.getButtonState() & ist::MouseState::BU_MIDDLE)!=0){ buttons = buttons |= 1<<2; }
+
+    const ist::KeyboardState &kb = getKeyboardState();
+    if(kb.isKeyPressed('Z')){ buttons = buttons |= 1<<0; }
+    if(kb.isKeyPressed('X')){ buttons = buttons |= 1<<1; }
+    if(kb.isKeyPressed('C')){ buttons = buttons |= 1<<2; }
+    if(kb.isKeyPressed('V')){ buttons = buttons |= 1<<3; }
+    if(kb.isKeyPressed(ist::KEY_RIGHT)  || kb.isKeyPressed('D')){ move.x = 1.0f; }
+    if(kb.isKeyPressed(ist::KEY_LEFT)   || kb.isKeyPressed('A')){ move.x =-1.0f; }
+    if(kb.isKeyPressed(ist::KEY_UP)     || kb.isKeyPressed('W')){ move.y = 1.0f; }
+    if(kb.isKeyPressed(ist::KEY_DOWN)   || kb.isKeyPressed('S')){ move.y =-1.0f; }
+    if(kb.isKeyTriggered(ist::KEY_F1)) {
+        m_config.posteffect_antialias = !m_config.posteffect_antialias;
     }
 
     {

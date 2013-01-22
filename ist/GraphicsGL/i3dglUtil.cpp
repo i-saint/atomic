@@ -4,6 +4,7 @@
 #include "ist/Math.h"
 #include "ist/GraphicsCommon/Image.h"
 #include "i3dglDevice.h"
+#include "i3dglDeviceContext.h"
 #include "i3dglShader.h"
 #include "i3dglUtil.h"
 #include <string>
@@ -250,9 +251,9 @@ bool MapAndWrite( DeviceContext *ctx, Buffer *bo, const void *data, size_t data_
 {
     istAssert(data_size<=bo->getDesc().size, "exceeded buffer size.\n");
 
-    if(void *p = bo->map(I3D_MAP_WRITE)) {
+    if(void *p = ctx->map(bo, I3D_MAP_WRITE)) {
         ::memcpy(p, data, data_size);
-        bo->unmap();
+        ctx->unmap(bo);
         return true;
     }
     return false;
@@ -262,9 +263,9 @@ bool MapAndRead( DeviceContext *ctx, Buffer *bo, void *data, size_t data_size )
 {
     istAssert(data_size<=bo->getDesc().size, "exceeded buffer size.\n");
 
-    if(void *p = bo->map(I3D_MAP_READ)) {
+    if(void *p = ctx->map(bo, I3D_MAP_READ)) {
         ::memcpy(data, p, data_size);
-        bo->unmap();
+        ctx->unmap(bo);
         return true;
     }
     return false;

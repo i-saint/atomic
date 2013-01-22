@@ -276,18 +276,18 @@ public:
             IEntity *e = putLargeEnemy();
         }
 
-        //if(m_frame < 1200) {
-        //    //if(m_frame % 1 == 0) {
-        //    //    putPinballEnemy();
-        //    //    putPinballEnemy();
-        //    //}
-        //    if(m_frame % 50 == 0) {
-        //        IEntity *e = putSmallEnemy();
-        //    }
-        //}
-        //else if(isAllDead()) {
-        //    goNextLevel();
-        //}
+        if(m_frame < 1200) {
+            //if(m_frame % 1 == 0) {
+            //    putPinballEnemy();
+            //    putPinballEnemy();
+            //}
+            if(m_frame % 50 == 0) {
+                IEntity *e = putSmallEnemy();
+            }
+        }
+        else if(isAllDead()) {
+            goNextLevel();
+        }
     }
 
     void level2()

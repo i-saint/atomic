@@ -7,11 +7,15 @@
 namespace ist {
 namespace i3dgl {
 
+#define immediate
+
 DeviceContext::DeviceContext( Device *dev )
     : m_device(dev)
 {
     setRef(1);
     istSafeAddRef(m_device);
+
+    m_dirty.flags = 0;
 }
 
 DeviceContext::~DeviceContext()
@@ -28,81 +32,69 @@ void DeviceContext::setViewport( const Viewport &vp )
 
 void DeviceContext::setVertexArray( VertexArray *va )
 {
+    m_dirty.vertex_array = 1;
     m_current.vertex_array = va;
-    if(m_current.vertex_array) {
-        m_current.vertex_array->bind();
-    }
-    else {
-        m_current.vertex_array->unbind();
-    }
 }
 
 void DeviceContext::setIndexBuffer( Buffer *v, I3D_TYPE format )
 {
-    m_current.index_buffer = v;
-    m_current.index_format = format;
+    m_dirty.index = 1;
+    m_current.index.buffer = v;
+    m_current.index.format = format;
+}
 
-    if(m_current.index_buffer != NULL) {
-        m_current.index_buffer->bind();
-    }
-    else {
-        m_current.index_buffer->unbind();
-    }
+void DeviceContext::setUniformBuffer( int32 loc, int32 bind, Buffer *buf )
+{
+    istAssert(loc<_countof(m_current.uniform), "");
+    m_dirty.uniform = 1;
+    m_current.uniform[loc].buffer = buf;
+    m_current.uniform[loc].bind = bind;
+    m_current.uniform[loc].dirty = true;
 }
 
 void DeviceContext::setShader( ShaderProgram *v )
 {
+    m_dirty.shader = 1;
     m_current.shader = v;
+#ifdef immediate
     if(m_current.shader != NULL) {
         m_current.shader->bind();
     }
     else {
         glUseProgram(0);
     }
+#endif // immediate
 }
 
 void DeviceContext::setRenderTarget( RenderTarget *rt )
 {
+    m_dirty.render_target = 1;
     m_current.render_target = rt;
-    if(m_current.render_target != NULL) {
-        m_current.render_target->bind();
-    }
-    else {
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    }
 }
 
 void DeviceContext::setSampler( uint32 slot, Sampler *smp )
 {
-    if(smp!=NULL) {
-        smp->bind(slot);
-    }
-    else {
-        glBindSampler(slot, 0);
-    }
+    m_dirty.samplers = 1;
+    m_current.samplers[slot] = smp;
 }
 
 void DeviceContext::setTexture( uint32 slot, Texture *tex )
 {
-    if(tex!=NULL) {
-        tex->bind(slot);
-    }
-    else {
-        glActiveTexture(GL_TEXTURE0+slot);
-        glBindTexture(GL_TEXTURE_2D, 0);
-    }
+    istAssert(slot<_countof(m_current.textures), "");
+    m_dirty.textures = 1;
+    m_current.textures[slot] = tex;
 }
 
 void DeviceContext::setBlendState( BlendState *state )
 {
+    m_dirty.blend_state = 1;
     m_current.blend_state = state;
-    state->apply();
 }
 
 void DeviceContext::setDepthStencilState( DepthStencilState *state )
 {
+    m_dirty.depthstencil_state = 1;
     m_current.depthstencil_state = state;
-    state->apply();
 }
 
 
@@ -127,7 +119,7 @@ void DeviceContext::drawInstanced( I3D_TOPOLOGY topology, uint32 first_vertex, u
 void DeviceContext::drawIndexedInstanced( I3D_TOPOLOGY topology, uint32 first_vertex, uint32 num_indices, uint32 num_instances )
 {
     applyRenderStates();
-    glDrawElementsInstancedBaseVertex(topology, num_indices, m_current.index_format, NULL, num_instances, first_vertex);
+    glDrawElementsInstancedBaseVertex(topology, num_indices, m_current.index.format, NULL, num_instances, first_vertex);
 }
 
 void* DeviceContext::map(Buffer *buffer, I3D_MAP_MODE mode)
@@ -174,17 +166,14 @@ void DeviceContext::updateResource(Texture3D *tex, uint32 mip, uvec3 pos, uvec3 
 void DeviceContext::generateMips( Texture *tex )
 {
     if(tex) {
+        applyRenderStates();
         tex->generateMips();
     }
 }
 
-void DeviceContext::applyRenderStates()
-{
-    // todo: render state の変更要求はバッファリングして実際の変更はここでやる
-}
-
 void DeviceContext::clearColor( RenderTarget *rt, vec4 color )
 {
+    applyRenderStates();
     rt->bind();
     glClearColor(color.x, color.y, color.z, color.w);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -193,10 +182,124 @@ void DeviceContext::clearColor( RenderTarget *rt, vec4 color )
 
 void DeviceContext::clearDepthStencil( RenderTarget *rt, float32 depth, int32 stencil )
 {
+    applyRenderStates();
     rt->bind();
     glClearDepth(depth);
     glClearStencil(stencil);
     glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+}
+
+void DeviceContext::applyRenderStates()
+{
+    if(m_dirty.flags==0) { return; }
+
+#ifndef immediate
+    if( m_dirty.shader && 
+        m_current.shader!=m_prev.shader)
+    {
+        if(m_current.shader != NULL) {
+            m_current.shader->bind();
+        }
+        else {
+            glUseProgram(0);
+        }
+    }
+#endif // immediate
+
+
+    // render target 更新と被らないよう、先にテクスチャの解除だけ行う
+    if(m_dirty.textures && m_dirty.render_target) {
+        for(size_t i=0; i<_countof(m_current.textures); ++i) {
+            glActiveTexture(GL_TEXTURE0+i);
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
+    }
+
+    if( m_dirty.render_target &&
+        m_current.render_target!=m_prev.render_target)
+    {
+        if(m_current.render_target != NULL) {
+            m_current.render_target->bind();
+        }
+        else {
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        }
+    }
+
+    if( m_dirty.vertex_array &&
+        (m_current.vertex_array!=m_prev.vertex_array || (m_current.vertex_array && m_current.vertex_array->isDirty())) )
+    {
+        if(m_current.vertex_array) {
+            m_current.vertex_array->bind();
+        }
+        else {
+            glBindVertexArray(0);
+        }
+    }
+
+    if( m_dirty.index &&
+        m_current.index.buffer!=m_prev.index.buffer)
+    {
+        if(m_current.index.buffer != NULL) {
+            m_current.index.buffer->bind();
+        }
+        else {
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        }
+    }
+
+    if(m_dirty.uniform && m_current.shader) {
+        for(size_t i=0; i<_countof(m_current.uniform); ++i) {
+            if(!m_current.uniform[i].dirty) { continue; }
+            m_current.uniform[i].dirty = false;
+            if(m_current.uniform[i].buffer!=NULL) {
+                m_current.shader->setUniformBlock(i, m_current.uniform[i].bind, m_current.uniform[i].buffer->getHandle());
+            }
+            else {
+                m_current.shader->setUniformBlock(i, m_current.uniform[i].bind, 0);
+            }
+        }
+    }
+
+    if(m_dirty.samplers) {
+        for(size_t i=0; i<_countof(m_current.samplers); ++i) {
+            if(m_prev.samplers[i]==m_current.samplers[i]) { continue; }
+            if(m_current.samplers[i]!=NULL) {
+                m_current.samplers[i]->bind(i);
+            }
+            else {
+                glBindSampler(i, 0);
+            }
+        }
+    }
+
+    if(m_dirty.textures) {
+        for(size_t i=0; i<_countof(m_current.textures); ++i) {
+            if(m_prev.textures[i]==m_current.textures[i]) { continue; }
+            if(m_current.textures[i]!=NULL) {
+                m_current.textures[i]->bind(i);
+            }
+            else {
+                glActiveTexture(GL_TEXTURE0+i);
+                glBindTexture(GL_TEXTURE_2D, 0);
+            }
+        }
+    }
+
+    if( m_dirty.blend_state &&
+        m_current.blend_state!=m_prev.blend_state)
+    {
+        m_current.blend_state->apply();
+    }
+
+    if(m_dirty.depthstencil_state &&
+       m_current.depthstencil_state!=m_prev.depthstencil_state )
+    {
+        m_current.depthstencil_state->apply();
+    }
+
+    m_prev = m_current;
+    m_dirty.flags = 0;
 }
 
 } // namespace i3dgl

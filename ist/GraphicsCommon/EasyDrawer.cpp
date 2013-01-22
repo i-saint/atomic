@@ -64,6 +64,8 @@ public:
     virtual void draw(const EasyDrawStates &states, I3D_TOPOLOGY topology, const VertexP3T2C4 *vertices, uint32 num_vertices);
     virtual void flush();
 
+    void updateBuffers();
+
 private:
     struct DrawCommand
     {
@@ -77,8 +79,10 @@ private:
     stl::vector<DrawCommand> m_commands;
     Device *m_dev;
     DeviceContext *m_ctx;
-    Buffer *m_vertex_buffer;
+    Buffer *m_vbo;
+    Buffer *m_ubo;
     ShaderProgram *m_shader;
+    GLint m_uniform_loc;
 };
 
 IEasyDrawer* CreateEasyDrawer(Device *dev, DeviceContext *ctx)
@@ -89,15 +93,30 @@ IEasyDrawer* CreateEasyDrawer(Device *dev, DeviceContext *ctx)
 EasyDrawer::EasyDrawer(Device *dev, DeviceContext *ctx)
     : m_dev(dev)
     , m_ctx(ctx)
-    , m_vertex_buffer(NULL)
+    , m_vbo(NULL)
+    , m_ubo(NULL)
     , m_shader(NULL)
+    , m_uniform_loc(0)
 {
+    istSafeAddRef(m_dev);
+    istSafeAddRef(m_ctx);
+    m_ubo = CreateUniformBuffer(m_dev, 256, I3D_USAGE_DYNAMIC);
+
+    VertexShader *vs = CreateVertexShaderFromString(m_dev, g_vs);
+    PixelShader *ps = CreatePixelShaderFromString(m_dev, g_ps);
+    m_shader = m_dev->createShaderProgram(ShaderProgramDesc(vs, ps));
+    istSafeRelease(vs);
+    istSafeRelease(ps);
+    m_uniform_loc = m_shader->getUniformBlockIndex("render_states");
 }
 
 EasyDrawer::~EasyDrawer()
 {
     istSafeRelease(m_shader);
-    istSafeRelease(m_vertex_buffer);
+    istSafeRelease(m_ubo);
+    istSafeRelease(m_vbo);
+    istSafeRelease(m_ctx);
+    istSafeRelease(m_dev);
 }
 
 void EasyDrawer::release()
@@ -121,7 +140,26 @@ void EasyDrawer::draw( const EasyDrawStates &states, I3D_TOPOLOGY topology, cons
 
 void EasyDrawer::flush()
 {
+    updateBuffers();
+    m_ctx->setShader(m_shader);
+    //m_ctx->setVertexArray();
+    for(size_t i=0; i<m_commands.size(); ++i) {
+        DrawCommand &cmd = m_commands[i];
+        m_ctx->draw(cmd.topology, cmd.vertex_start/sizeof(VertexP3T2C4), cmd.vertex_num);
+    }
 
+    m_commands.clear();
+    m_raw_vertices.clear();
+}
+
+void EasyDrawer::updateBuffers()
+{
+    uint32 vb_size = std::max<uint32>((uint32)m_raw_vertices.size(), 1024*8);
+    if(!m_vbo || m_vbo->getDesc().size<vb_size) {
+        istSafeRelease(m_vbo);
+        m_vbo = CreateVertexBuffer(m_dev, vb_size*2, I3D_USAGE_DYNAMIC);
+    }
+    MapAndWrite(m_ctx, m_vbo, &m_raw_vertices, m_raw_vertices.size());
 }
 
 } // namespace i3d*

@@ -55,7 +55,9 @@ void Buffer::unmap()
 
 VertexArray::VertexArray(Device *dev)
     : super(dev)
+    , m_dirty(false)
 {
+    memset(m_stream_descs, 0, sizeof(m_stream_descs));
     glGenVertexArrays(1, &m_handle);
 }
 
@@ -69,7 +71,26 @@ VertexArray::~VertexArray()
 
 void VertexArray::bind() const
 {
+    m_dirty = false;
     glBindVertexArray(m_handle);
+    for(size_t si=0; si<MAX_VERTEX_STREAM; ++si) {
+        const VertexStreamDesc &vsd = m_stream_descs[si];
+        if(!vsd.buffer) { continue; }
+        vsd.buffer->bind();
+        for(size_t vi=0; vi<vsd.num_vertex_descs; ++vi) {
+            const VertexDesc& desc = vsd.vertex_descs[vi];
+            glEnableVertexAttribArray(desc.location);
+            // float type
+            if(desc.type==I3D_HALF || desc.type==I3D_FLOAT || desc.type==I3D_DOUBLE || desc.normalize) {
+                glVertexAttribPointer(desc.location, desc.num_elements, desc.type, desc.normalize, vsd.stride, (GLvoid*)desc.offset);
+            }
+            // integer type
+            else {
+                glVertexAttribIPointer(desc.location, desc.num_elements, desc.type, vsd.stride, (GLvoid*)desc.offset);
+            }
+            glVertexAttribDivisor(desc.location, desc.divisor);
+        }
+    }
 }
 
 void VertexArray::unbind() const
@@ -77,24 +98,16 @@ void VertexArray::unbind() const
     glBindVertexArray(0);
 }
 
-void VertexArray::setAttributes( Buffer& vb, size_t stride, const VertexDesc *descs, size_t num_descs )
+void VertexArray::setAttributes( uint32 vb_slot, Buffer* vb, uint32 stride, const VertexDesc *descs, uint32 num_descs )
 {
-    glBindVertexArray(m_handle);
-    vb.bind();
-    for(size_t i=0; i<num_descs; ++i) {
-        const VertexDesc& desc = descs[i];
-        glEnableVertexAttribArray(desc.location);
-        // float type
-        if(desc.type==I3D_HALF || desc.type==I3D_FLOAT || desc.type==I3D_DOUBLE || desc.normalize) {
-            glVertexAttribPointer(desc.location, desc.num_elements, desc.type, desc.normalize, stride, (GLvoid*)desc.offset);
-        }
-        // integer type
-        else {
-            glVertexAttribIPointer(desc.location, desc.num_elements, desc.type, stride, (GLvoid*)desc.offset);
-        }
-        glVertexAttribDivisor(desc.location, desc.divisor);
-    }
-    vb.unbind();
+    istAssert(vb_slot<MAX_VERTEX_STREAM, "");
+    istAssert(num_descs<MAX_VERTEX_DESC, "");
+    m_dirty = true;
+    VertexStreamDesc &vsd = m_stream_descs[vb_slot];
+    vsd.stride = stride;
+    vsd.num_vertex_descs = num_descs;
+    vsd.buffer = vb;
+    std::copy(descs, descs+num_descs, vsd.vertex_descs);
 }
 
 

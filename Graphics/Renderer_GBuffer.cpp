@@ -41,7 +41,7 @@ void PassGBuffer_Particle::draw()
             {GLSL_INSTANCE_GLOW,     I3D_FLOAT,4, 32, false, 1},
             {GLSL_INSTANCE_PARAM,    I3D_FLOAT,4, 48, false, 1},
         };
-        m_va_cube->setAttributes(*m_vbo, sizeof(IndivisualParticle), descs, _countof(descs));
+        m_va_cube->setAttributes(1, m_vbo, sizeof(IndivisualParticle), descs, _countof(descs));
 
         dc->setVertexArray(m_va_cube);
         m_sh->assign(dc);
@@ -154,11 +154,12 @@ void PassGBuffer_Fluid::draw()
                 {GLSL_INSTANCE_VELOCITY, I3D_FLOAT,4, 16, false, 1},
                 {GLSL_INSTANCE_PARAM,    I3D_FLOAT,4, 32, false, 1},
             };
-            m_va_cube->setAttributes(*m_vbo_fluid, sizeof(psym::Particle), descs, _countof(descs));
+            m_va_cube->setAttributes(1, m_vbo_fluid, sizeof(psym::Particle), descs, _countof(descs));
             m_sh_fluid->assign(dc);
             dc->setVertexArray(m_va_cube);
             dc->setDepthStencilState(atomicGetDepthStencilState(DS_GBUFFER_FLUID));
             dc->drawInstanced(I3D_QUADS, 0, 24, num_particles);
+            dc->setVertexArray(NULL);
         }
     }
 
@@ -174,13 +175,16 @@ void PassGBuffer_Fluid::draw()
             {GLSL_INSTANCE_POSITION, I3D_FLOAT,3, 16, false, 1},
             {GLSL_INSTANCE_PARAM,    I3D_INT,  1, 28, false, 1},
         };
-        m_va_cube->setAttributes(*m_vbo_rigid, sizeof(PSetParticle), descs, _countof(descs));
+        m_va_cube->setAttributes(1, m_vbo_rigid, sizeof(PSetParticle), descs, _countof(descs));
 
         m_sh_rigid->assign(dc);
         dc->setTexture(GLSL_PARAM_BUFFER, param_texture);
+        dc->setVertexArray(m_va_cube);
         dc->setDepthStencilState(atomicGetDepthStencilState(DS_GBUFFER_RIGID));
         dc->drawInstanced(I3D_QUADS, 0, 24, num_rigid_particles);
         dc->setDepthStencilState(atomicGetDepthStencilState(DS_GBUFFER_BG));
+        dc->setVertexArray(NULL);
+        dc->setTexture(GLSL_PARAM_BUFFER, NULL);
     }
 
     //// floor
@@ -252,12 +256,11 @@ void PassGBuffer_BG::draw()
         //dc->clearDepthStencil(gbuffer, 1.0f, 0);
         gbuffer->bind();
 
-        va_quad->bind();
         sh_bg->bind();
+        dc->setVertexArray(va_quad);
         dc->setDepthStencilState(atomicGetDepthStencilState(DS_GBUFFER_BG));
         dc->draw(I3D_QUADS, 0, 4);
         sh_bg->unbind();
-        va_quad->unbind();
 
         gbuffer->unbind();
         gbuffer->setMipmapLevel(0);
@@ -274,12 +277,11 @@ void PassGBuffer_BG::draw()
         dc->setTexture(GLSL_NORMAL_BUFFER, gbuffer->getColorBuffer(GBUFFER_NORMAL));
         dc->setTexture(GLSL_POSITION_BUFFER, gbuffer->getColorBuffer(GBUFFER_POSITION));
         dc->setTexture(GLSL_GLOW_BUFFER, gbuffer->getColorBuffer(GBUFFER_GLOW));
-        va_quad->bind();
+        dc->setVertexArray(va_quad);
         sh_up->bind();
         dc->setDepthStencilState(atomicGetDepthStencilState(DS_GBUFFER_UPSAMPLING));
         dc->draw(I3D_QUADS, 0, 4);
         sh_up->unbind();
-        va_quad->unbind();
         dc->setTexture(GLSL_COLOR_BUFFER, NULL);
         dc->setTexture(GLSL_NORMAL_BUFFER, NULL);
         dc->setTexture(GLSL_POSITION_BUFFER, NULL);
@@ -287,12 +289,11 @@ void PassGBuffer_BG::draw()
     }
 
     {
-        va_quad->bind();
         sh_bg->bind();
+        dc->setVertexArray(va_quad);
         dc->setDepthStencilState(atomicGetDepthStencilState(DS_GBUFFER_BG));
         dc->draw(I3D_QUADS, 0, 4);
         sh_bg->unbind();
-        va_quad->unbind();
     }
 }
 

@@ -74,7 +74,6 @@ void AtomicGame::update(float32 dt)
 {
     if(atomicGetConfig()->pause) { return; }
 
-    atomicDbgDebugMenuUpdate();
     if(!atomicDbgDebugMenuIsActive()) {
         m_input_server->update(*atomicGetSystemInputs());
     }

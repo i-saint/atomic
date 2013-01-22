@@ -65,6 +65,7 @@ public:
 
     virtual void mainLoop();
     virtual void updateInput();
+    virtual void sysUpdate();
 
     virtual bool handleWindowMessage(const ist::WindowMessage& wm);
     void handleError(ATOMIC_ERROR e);

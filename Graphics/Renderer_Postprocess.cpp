@@ -74,7 +74,7 @@ void PassPostprocess_FXAA::draw()
         rt->bind();
         m_sh_FXAA_luma->bind();
         dc->setTexture(GLSL_COLOR_BUFFER, brt->getColorBuffer(GBUFFER_COLOR));
-        m_va_quad->bind();
+        dc->setVertexArray(m_va_quad);
         dc->draw(I3D_QUADS, 0, 4);
         m_sh_FXAA_luma->unbind();
         rt->unbind();
@@ -87,9 +87,9 @@ void PassPostprocess_FXAA::draw()
 
         rt->bind();
         m_sh_FXAA->bind();
-        m_sh_FXAA->setUniformBlock(m_loc_fxaa_param, GLSL_FXAA_BINDING, ubo_fxaa->getHandle());
+        m_sh_FXAA->setUniformBlock(m_loc_fxaa_param, GLSL_FXAA_BINDING, ubo_fxaa);
         dc->setTexture(GLSL_COLOR_BUFFER, brt->getColorBuffer(0));
-        m_va_quad->bind();
+        dc->setVertexArray(m_va_quad);
         dc->draw(I3D_QUADS, 0, 4);
         m_sh_FXAA_luma->unbind();
         rt->unbind();
@@ -220,8 +220,8 @@ void PassPostprocess_Fade::draw()
 
     brt->bind();
     m_sh_fade->bind();
-    m_sh_fade->setUniformBlock(m_loc_fade_param, GLSL_FADE_BINDING, m_ubo_fade->getHandle());
-    m_va_quad->bind();
+    m_sh_fade->setUniformBlock(m_loc_fade_param, GLSL_FADE_BINDING, m_ubo_fade);
+    dc->setVertexArray(m_va_quad);
     dc->setBlendState(atomicGetBlendState(BS_BLEND_ALPHA));
     dc->draw(I3D_QUADS, 0, 4);
     dc->setBlendState(atomicGetBlendState(BS_NO_BLEND));

@@ -28,8 +28,8 @@ void FillScreen( const vec4 &color )
     MapAndWrite(dc, ubo_params, &params, sizeof(params));
 
     sh_fill->bind();
-    sh_fill->setUniformBlock(location, GLSL_FILL_BINDING, ubo_params->getHandle());
-    va_quad->bind();
+    sh_fill->setUniformBlock(location, GLSL_FILL_BINDING, ubo_params);
+    dc->setVertexArray(va_quad);
     dc->draw(i3d::I3D_QUADS, 0, 4);
     sh_fill->unbind();
 }
