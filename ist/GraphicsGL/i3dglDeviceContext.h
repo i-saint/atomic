@@ -19,8 +19,8 @@ public:
     void setIndexBuffer(Buffer *v, I3D_TYPE format);
     void setShader(ShaderProgram *v);
     void setRenderTarget(RenderTarget *rt);
-    void setSampler(uint32 i, Sampler *smp);
-    void setTexture(uint32 i, Texture *tex);
+    void setSampler(uint32 slot, Sampler *smp);
+    void setTexture(uint32 slot, Texture *tex);
     void setBlendState(BlendState *state);
     void setDepthStencilState(DepthStencilState *state);
 
@@ -28,10 +28,17 @@ public:
     void drawIndexed(I3D_TOPOLOGY topology, uint32 first_vertex, uint32 num_indices);
     void drawInstanced(I3D_TOPOLOGY topology, uint32 first_vertex, uint32 num_vertices, uint32 num_instances);
     void drawIndexedInstanced(I3D_TOPOLOGY topology, uint32 first_vertex, uint32 num_indices, uint32 num_instances);
-    void applyRenderStates();
-
     void clearColor(RenderTarget *rt, vec4 color);
     void clearDepthStencil(RenderTarget *rt, float32 depth, int32 stencil);
+
+    void* map(Buffer *buffer, I3D_MAP_MODE mode);
+    void unmap(Buffer *buffer);
+    void updateResource(Texture1D *tex, uint32 mip, uint32 pos, uint32 size, void *data); // size: 0 なら全領域。たぶんそのほうが速い
+    void updateResource(Texture2D *tex, uint32 mip,  uvec2 pos,  uvec2 size, void *data); // 
+    void updateResource(Texture3D *tex, uint32 mip,  uvec3 pos,  uvec3 size, void *data); // 
+    void generateMips(Texture *tex);
+
+    void applyRenderStates();
 
 private:
     DeviceContext(Device *dev);

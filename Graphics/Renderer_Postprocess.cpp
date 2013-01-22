@@ -46,7 +46,6 @@ PassPostprocess_FXAA::PassPostprocess_FXAA()
     m_sh_FXAA_luma  = atomicGetShader(SH_FXAA_LUMA);
     m_sh_FXAA       = atomicGetShader(SH_FXAA);
     m_va_quad       = atomicGetVertexArray(VA_SCREEN_QUAD);
-
     m_loc_fxaa_param = m_sh_FXAA->getUniformBlockIndex("fxaa_params");
 }
 
@@ -64,7 +63,7 @@ void PassPostprocess_FXAA::draw()
     m_fxaaparams.fxaaQualitySubpix          = 0.75f;
     m_fxaaparams.fxaaQualityEdgeThreshold   = 0.166f;
     m_fxaaparams.fxaaQualityEdgeThresholdMin= 0.0833f;
-    MapAndWrite(*ubo_fxaa, &m_fxaaparams, sizeof(m_fxaaparams));
+    MapAndWrite(dc, ubo_fxaa, &m_fxaaparams, sizeof(m_fxaaparams));
 
     // 輝度抽出
     {
@@ -74,7 +73,7 @@ void PassPostprocess_FXAA::draw()
 
         rt->bind();
         m_sh_FXAA_luma->bind();
-        brt->getColorBuffer(GBUFFER_COLOR)->bind(GLSL_COLOR_BUFFER);
+        dc->setTexture(GLSL_COLOR_BUFFER, brt->getColorBuffer(GBUFFER_COLOR));
         m_va_quad->bind();
         dc->draw(I3D_QUADS, 0, 4);
         m_sh_FXAA_luma->unbind();
@@ -89,7 +88,7 @@ void PassPostprocess_FXAA::draw()
         rt->bind();
         m_sh_FXAA->bind();
         m_sh_FXAA->setUniformBlock(m_loc_fxaa_param, GLSL_FXAA_BINDING, ubo_fxaa->getHandle());
-        brt->getColorBuffer(0)->bind(GLSL_COLOR_BUFFER);
+        dc->setTexture(GLSL_COLOR_BUFFER, brt->getColorBuffer(0));
         m_va_quad->bind();
         dc->draw(I3D_QUADS, 0, 4);
         m_sh_FXAA_luma->unbind();
@@ -215,7 +214,7 @@ void PassPostprocess_Fade::draw()
     if(m_params.Color.a==0.0f) { return; }
 
     i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
-    MapAndWrite(*m_ubo_fade, &m_params, sizeof(m_params));
+    MapAndWrite(dc, m_ubo_fade, &m_params, sizeof(m_params));
 
     RenderTarget *brt = atomicGetBackRenderTarget();
 

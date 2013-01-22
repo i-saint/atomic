@@ -246,6 +246,30 @@ void EnableVSync( bool v )
     wglSwapIntervalEXT(v);
 }
 
+bool MapAndWrite( DeviceContext *ctx, Buffer *bo, const void *data, size_t data_size )
+{
+    istAssert(data_size<=bo->getDesc().size, "exceeded buffer size.\n");
+
+    if(void *p = bo->map(I3D_MAP_WRITE)) {
+        ::memcpy(p, data, data_size);
+        bo->unmap();
+        return true;
+    }
+    return false;
+}
+
+bool MapAndRead( DeviceContext *ctx, Buffer *bo, void *data, size_t data_size )
+{
+    istAssert(data_size<=bo->getDesc().size, "exceeded buffer size.\n");
+
+    if(void *p = bo->map(I3D_MAP_READ)) {
+        ::memcpy(data, p, data_size);
+        bo->unmap();
+        return true;
+    }
+    return false;
+}
+
 
 } // namespace i3d
 } // namespace ist

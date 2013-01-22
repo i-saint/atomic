@@ -34,7 +34,7 @@ bool AtomicShader::loadFromMemory( const char* src )
     i3d::Device *dev = atomicGetGLDevice();
     {
         stl::string source;
-		source += "#version 330 core\n";
+        source += "#version 330 core\n";
         source += "#define GLSL\n";
         source += "#define GLSL_VS\n";
         source += src;
@@ -43,7 +43,7 @@ bool AtomicShader::loadFromMemory( const char* src )
     }
     {
         stl::string source;
-		source += "#version 330 core\n";
+        source += "#version 330 core\n";
         source += "#define GLSL\n";
         source += "#define GLSL_PS\n";
         source += src;
@@ -66,8 +66,9 @@ bool AtomicShader::loadFromMemory( const char* src )
 
     m_loc_renderstates = m_shader->getUniformBlockIndex("render_states");
 
-#define SetSampler(name, value) { GLint l=m_shader->getUniformLocation(name); if(l!=-1){ m_shader->setUniform1i(l, value); }}
-    m_shader->bind();
+    i3d::DeviceContext *ctx = atomicGetGLDeviceContext();
+#define SetSampler(name, value) { GLint l=m_shader->getUniformLocation(name); if(l!=-1){ m_shader->setSampler(l, value); }}
+    ctx->setShader(m_shader);
     SetSampler("u_ColorBuffer",     GLSL_COLOR_BUFFER);
     SetSampler("u_NormalBuffer",    GLSL_NORMAL_BUFFER);
     SetSampler("u_PositionBuffer",  GLSL_POSITION_BUFFER);
@@ -75,7 +76,7 @@ bool AtomicShader::loadFromMemory( const char* src )
     SetSampler("u_BackBuffer",      GLSL_BACK_BUFFER);
     SetSampler("u_RandomBuffer",    GLSL_RANDOM_BUFFER);
     SetSampler("u_ParamBuffer",     GLSL_PARAM_BUFFER);
-    m_shader->unbind();
+    ctx->setShader(NULL);
 #undef SetSampler
 
     return true;
@@ -93,19 +94,21 @@ void AtomicShader::setUniformBlock(GLuint uniformBlockIndex, GLuint uniformBindi
 
 void AtomicShader::bind()
 {
-    m_shader->bind();
+    i3d::DeviceContext *ctx = atomicGetGLDeviceContext();
+    ctx->setShader(m_shader);
     m_shader->setUniformBlock(m_loc_renderstates, GLSL_RENDERSTATE_BINDING, atomicGetUniformBuffer(UBO_RENDERSTATES_3D)->getHandle());
 }
 
 void AtomicShader::unbind()
 {
-    m_shader->unbind();
+    i3d::DeviceContext *ctx = atomicGetGLDeviceContext();
+    ctx->setShader(NULL);
 }
 
 void AtomicShader::assign( i3d::DeviceContext *dc )
 {
-    m_shader->setUniformBlock(m_loc_renderstates, GLSL_RENDERSTATE_BINDING, atomicGetUniformBuffer(UBO_RENDERSTATES_3D)->getHandle());
     dc->setShader(m_shader);
+    m_shader->setUniformBlock(m_loc_renderstates, GLSL_RENDERSTATE_BINDING, atomicGetUniformBuffer(UBO_RENDERSTATES_3D)->getHandle());
 }
 
 

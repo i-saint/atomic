@@ -446,7 +446,7 @@ public:
                 }
                 m_vbo->unmap();
             }
-            MapAndWrite(*m_ubo, &m_renderstate, sizeof(m_renderstate));
+            MapAndWrite(dc, m_ubo, &m_renderstate, sizeof(m_renderstate));
 
             dc->draw(I3D_QUADS, 0, num_vertex);
 

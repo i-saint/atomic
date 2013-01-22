@@ -169,55 +169,57 @@ void ShaderProgram::setUniformBlock(GLuint uniformBlockIndex, GLuint uniformBind
     glUniformBlockBinding(m_handle, uniformBlockIndex, uniformBindingIndex);
 }
 
-// uniform variable
-// int
-void ShaderProgram::setUniform1i(GLint al, GLint v) { glUniform1i(al, v); }
-void ShaderProgram::setUniform2i(GLint al, const ivec2& v) { glUniform2i(al, v.x, v.y); }
-void ShaderProgram::setUniform3i(GLint al, const ivec3& v) { glUniform3i(al, v.x, v.y, v.z); }
-void ShaderProgram::setUniform4i(GLint al, const ivec4& v) { glUniform4i(al, v.x, v.y, v.z, v.w); }
+void ShaderProgram::setSampler(GLint al, GLint v) { glUniform1i(al, v); }
 
-// float
-void ShaderProgram::setUniform1f(GLint al, GLfloat v0) { glUniform1f(al, v0); }
-void ShaderProgram::setUniform2f(GLint al, const vec2& v) { glUniform2f(al, v.x, v.y); }
-void ShaderProgram::setUniform3f(GLint al, const vec3& v) { glUniform3f(al, v.x, v.y, v.z); }
-void ShaderProgram::setUniform4f(GLint al, const vec4& v) { glUniform4f(al, v.x, v.y, v.z, v.w); }
-
-// int array
-void ShaderProgram::setUniform1iv(GLint al, GLuint count, const GLint *v) { glUniform1iv(al, count, v); }
-void ShaderProgram::setUniform2iv(GLint al, GLuint count, const GLint *v) { glUniform2iv(al, count, v); }
-void ShaderProgram::setUniform3iv(GLint al, GLuint count, const GLint *v) { glUniform3iv(al, count, v); }
-void ShaderProgram::setUniform4iv(GLint al, GLuint count, const GLint *v) { glUniform4iv(al, count, v); }
-
-// float array
-void ShaderProgram::setUniform1fv(GLint al, GLuint count, const GLfloat *v) { glUniform1fv(al, count, v); }
-void ShaderProgram::setUniform2fv(GLint al, GLuint count, const GLfloat *v) { glUniform2fv(al, count, v); }
-void ShaderProgram::setUniform3fv(GLint al, GLuint count, const GLfloat *v) { glUniform3fv(al, count, v); }
-void ShaderProgram::setUniform4fv(GLint al, GLuint count, const GLfloat *v) { glUniform4fv(al, count, v); }
-
-// matrix
-void ShaderProgram::setUniformMatrix2fv(GLint al, GLuint count, GLboolean transpose, const GLfloat *v) { glUniformMatrix2fv(al, count, transpose, v); }
-void ShaderProgram::setUniformMatrix3fv(GLint al, GLuint count, GLboolean transpose, const GLfloat *v) { glUniformMatrix3fv(al, count, transpose, v); }
-void ShaderProgram::setUniformMatrix4fv(GLint al, GLuint count, GLboolean transpose, const GLfloat *v) { glUniformMatrix4fv(al, count, transpose, v); }
-
-// attribute variable
-// float
-void ShaderProgram::setVertexAttrib1f(GLint al, GLfloat v0) { glVertexAttrib1f(al, v0); }
-void ShaderProgram::setVertexAttrib2f(GLint al, GLfloat v0, GLfloat v1) { glVertexAttrib2f(al, v0, v1); }
-void ShaderProgram::setVertexAttrib3f(GLint al, GLfloat v0, GLfloat v1, GLfloat v2) { glVertexAttrib3f(al, v0, v1, v2); }
-void ShaderProgram::setVertexAttrib4f(GLint al, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3) { glVertexAttrib4f(al, v0, v1, v2, v3); }
-
-// float array
-void ShaderProgram::setVertexAttrib1fv(GLint al, const GLfloat *v) { glVertexAttrib1fv(al, v); }
-void ShaderProgram::setVertexAttrib2fv(GLint al, const GLfloat *v) { glVertexAttrib2fv(al, v); }
-void ShaderProgram::setVertexAttrib3fv(GLint al, const GLfloat *v) { glVertexAttrib3fv(al, v); }
-void ShaderProgram::setVertexAttrib4fv(GLint al, const GLfloat *v) { glVertexAttrib4fv(al, v); }
-
-GLuint ShaderProgram::getSubroutineIndexVS(const char *name) { return glGetSubroutineIndex(m_handle, GL_VERTEX_SHADER, name); }
-GLuint ShaderProgram::getSubroutineIndexGS(const char *name) { return glGetSubroutineIndex(m_handle, GL_GEOMETRY_SHADER, name); }
-GLuint ShaderProgram::getSubroutineIndexPS(const char *name) { return glGetSubroutineIndex(m_handle, GL_FRAGMENT_SHADER, name); }
-void ShaderProgram::setSubroutineVS(GLsizei count, GLuint *indices) { glUniformSubroutinesuiv(GL_VERTEX_SHADER, count, indices); }
-void ShaderProgram::setSubroutineGS(GLsizei count, GLuint *indices) { glUniformSubroutinesuiv(GL_GEOMETRY_SHADER, count, indices); }
-void ShaderProgram::setSubroutinePS(GLsizei count, GLuint *indices) { glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, count, indices); }
+//// uniform variable
+//// int
+//void ShaderProgram::setUniform1i(GLint al, GLint v) { glUniform1i(al, v); }
+//void ShaderProgram::setUniform2i(GLint al, const ivec2& v) { glUniform2i(al, v.x, v.y); }
+//void ShaderProgram::setUniform3i(GLint al, const ivec3& v) { glUniform3i(al, v.x, v.y, v.z); }
+//void ShaderProgram::setUniform4i(GLint al, const ivec4& v) { glUniform4i(al, v.x, v.y, v.z, v.w); }
+//
+//// float
+//void ShaderProgram::setUniform1f(GLint al, GLfloat v0) { glUniform1f(al, v0); }
+//void ShaderProgram::setUniform2f(GLint al, const vec2& v) { glUniform2f(al, v.x, v.y); }
+//void ShaderProgram::setUniform3f(GLint al, const vec3& v) { glUniform3f(al, v.x, v.y, v.z); }
+//void ShaderProgram::setUniform4f(GLint al, const vec4& v) { glUniform4f(al, v.x, v.y, v.z, v.w); }
+//
+//// int array
+//void ShaderProgram::setUniform1iv(GLint al, GLuint count, const GLint *v) { glUniform1iv(al, count, v); }
+//void ShaderProgram::setUniform2iv(GLint al, GLuint count, const GLint *v) { glUniform2iv(al, count, v); }
+//void ShaderProgram::setUniform3iv(GLint al, GLuint count, const GLint *v) { glUniform3iv(al, count, v); }
+//void ShaderProgram::setUniform4iv(GLint al, GLuint count, const GLint *v) { glUniform4iv(al, count, v); }
+//
+//// float array
+//void ShaderProgram::setUniform1fv(GLint al, GLuint count, const GLfloat *v) { glUniform1fv(al, count, v); }
+//void ShaderProgram::setUniform2fv(GLint al, GLuint count, const GLfloat *v) { glUniform2fv(al, count, v); }
+//void ShaderProgram::setUniform3fv(GLint al, GLuint count, const GLfloat *v) { glUniform3fv(al, count, v); }
+//void ShaderProgram::setUniform4fv(GLint al, GLuint count, const GLfloat *v) { glUniform4fv(al, count, v); }
+//
+//// matrix
+//void ShaderProgram::setUniformMatrix2fv(GLint al, GLuint count, GLboolean transpose, const GLfloat *v) { glUniformMatrix2fv(al, count, transpose, v); }
+//void ShaderProgram::setUniformMatrix3fv(GLint al, GLuint count, GLboolean transpose, const GLfloat *v) { glUniformMatrix3fv(al, count, transpose, v); }
+//void ShaderProgram::setUniformMatrix4fv(GLint al, GLuint count, GLboolean transpose, const GLfloat *v) { glUniformMatrix4fv(al, count, transpose, v); }
+//
+//// attribute variable
+//// float
+//void ShaderProgram::setVertexAttrib1f(GLint al, GLfloat v0) { glVertexAttrib1f(al, v0); }
+//void ShaderProgram::setVertexAttrib2f(GLint al, GLfloat v0, GLfloat v1) { glVertexAttrib2f(al, v0, v1); }
+//void ShaderProgram::setVertexAttrib3f(GLint al, GLfloat v0, GLfloat v1, GLfloat v2) { glVertexAttrib3f(al, v0, v1, v2); }
+//void ShaderProgram::setVertexAttrib4f(GLint al, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3) { glVertexAttrib4f(al, v0, v1, v2, v3); }
+//
+//// float array
+//void ShaderProgram::setVertexAttrib1fv(GLint al, const GLfloat *v) { glVertexAttrib1fv(al, v); }
+//void ShaderProgram::setVertexAttrib2fv(GLint al, const GLfloat *v) { glVertexAttrib2fv(al, v); }
+//void ShaderProgram::setVertexAttrib3fv(GLint al, const GLfloat *v) { glVertexAttrib3fv(al, v); }
+//void ShaderProgram::setVertexAttrib4fv(GLint al, const GLfloat *v) { glVertexAttrib4fv(al, v); }
+//
+//GLuint ShaderProgram::getSubroutineIndexVS(const char *name) { return glGetSubroutineIndex(m_handle, GL_VERTEX_SHADER, name); }
+//GLuint ShaderProgram::getSubroutineIndexGS(const char *name) { return glGetSubroutineIndex(m_handle, GL_GEOMETRY_SHADER, name); }
+//GLuint ShaderProgram::getSubroutineIndexPS(const char *name) { return glGetSubroutineIndex(m_handle, GL_FRAGMENT_SHADER, name); }
+//void ShaderProgram::setSubroutineVS(GLsizei count, GLuint *indices) { glUniformSubroutinesuiv(GL_VERTEX_SHADER, count, indices); }
+//void ShaderProgram::setSubroutineGS(GLsizei count, GLuint *indices) { glUniformSubroutinesuiv(GL_GEOMETRY_SHADER, count, indices); }
+//void ShaderProgram::setSubroutinePS(GLsizei count, GLuint *indices) { glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, count, indices); }
 
 
 } // namespace i3d

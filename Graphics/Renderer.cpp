@@ -102,6 +102,7 @@ void AtomicRenderer::beforeDraw()
 
 void AtomicRenderer::draw()
 {
+    i3d::DeviceContext *dc = atomicGetGLDeviceContext();
     PerformanceCounter timer;
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glCullFace(GL_BACK);
@@ -122,18 +123,18 @@ void AtomicRenderer::draw()
         m_rstates3d.ScreenTexcoord  = m_rstates3d.ScreenSize / vec2(m_rt_gbuffer->getColorBuffer(0)->getDesc().size);
         m_rstates3d.Color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
         m_rstates3d.Frame = atomicGetFrame();
-        MapAndWrite(*ubo_rs, &m_rstates3d, sizeof(m_rstates3d));
+        MapAndWrite(dc, ubo_rs, &m_rstates3d, sizeof(m_rstates3d));
 
         ubo_rs              = atomicGetUniformBuffer(UBO_RENDERSTATES_BG);
         m_rstatesBG = m_rstates3d;
-        MapAndWrite(*ubo_rs, &m_rstatesBG, sizeof(m_rstatesBG));
+        MapAndWrite(dc, ubo_rs, &m_rstatesBG, sizeof(m_rstatesBG));
     }
     {
         Buffer *ubo_rs      = atomicGetUniformBuffer(UBO_RENDERSTATES_2D);
         const vec2 &wsize   = vec2(atomicGetWindowSize());
         m_rstates2d         = m_rstates3d;
         m_rstates2d.ModelViewProjectionMatrix = glm::ortho(0.0f, wsize.x, wsize.y, 0.0f);
-        MapAndWrite(*ubo_rs, &m_rstates2d, sizeof(m_rstates2d));
+        MapAndWrite(dc, ubo_rs, &m_rstates2d, sizeof(m_rstates2d));
     }
 
     passShadow();
@@ -179,9 +180,10 @@ void AtomicRenderer::passGBuffer()
     m_rt_gbuffer->unbind();
 
     if(atomicGetConfig()->light_multiresolution) {
-        m_rt_gbuffer->getColorBuffer(GBUFFER_COLOR)->generateMipmap();
-        m_rt_gbuffer->getColorBuffer(GBUFFER_NORMAL)->generateMipmap();
-        m_rt_gbuffer->getColorBuffer(GBUFFER_POSITION)->generateMipmap();
+        dc->generateMips(m_rt_gbuffer->getColorBuffer(GBUFFER_COLOR));
+        dc->generateMips(m_rt_gbuffer->getColorBuffer(GBUFFER_COLOR));
+        dc->generateMips(m_rt_gbuffer->getColorBuffer(GBUFFER_NORMAL));
+        dc->generateMips(m_rt_gbuffer->getColorBuffer(GBUFFER_POSITION));
     }
 }
 
@@ -350,10 +352,10 @@ void SystemTextRenderer::addText(const vec2 &pos, const char *text)
 void PassHUD_DebugShowBuffer::drawColorBuffer( const DebugShowBufferParams &params )
 {
     i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
-    MapAndWrite(*m_ub_params, &params, sizeof(params));
+    MapAndWrite(dc, m_ub_params, &params, sizeof(params));
 
     m_sh_rgb->bind();
-    m_gbuffer->getColorBuffer(GBUFFER_COLOR)->bind(GLSL_COLOR_BUFFER);
+    dc->setTexture(GLSL_COLOR_BUFFER, m_gbuffer->getColorBuffer(GBUFFER_COLOR));
     m_sh_rgb->setUniformBlock(m_loc_params, GLSL_DEBUG_BUFFER_BINDING, m_ub_params->getHandle());
     dc->draw(I3D_QUADS, 0, 4);
     m_sh_rgb->unbind();
@@ -362,10 +364,10 @@ void PassHUD_DebugShowBuffer::drawColorBuffer( const DebugShowBufferParams &para
 void PassHUD_DebugShowBuffer::drawNormalBuffer( const DebugShowBufferParams &params )
 {
     i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
-    MapAndWrite(*m_ub_params, &params, sizeof(params));
+    MapAndWrite(dc, m_ub_params, &params, sizeof(params));
 
     m_sh_rgb->bind();
-    m_gbuffer->getColorBuffer(GBUFFER_NORMAL)->bind(GLSL_COLOR_BUFFER);
+    dc->setTexture(GLSL_COLOR_BUFFER, m_gbuffer->getColorBuffer(GBUFFER_NORMAL));
     m_sh_rgb->setUniformBlock(m_loc_params, GLSL_DEBUG_BUFFER_BINDING, m_ub_params->getHandle());
     dc->draw(I3D_QUADS, 0, 4);
     m_sh_rgb->unbind();
@@ -374,10 +376,10 @@ void PassHUD_DebugShowBuffer::drawNormalBuffer( const DebugShowBufferParams &par
 void PassHUD_DebugShowBuffer::drawPositionBuffer( const DebugShowBufferParams &params )
 {
     i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
-    MapAndWrite(*m_ub_params, &params, sizeof(params));
+    MapAndWrite(dc, m_ub_params, &params, sizeof(params));
 
     m_sh_rgb->bind();
-    m_gbuffer->getColorBuffer(GBUFFER_POSITION)->bind(GLSL_COLOR_BUFFER);
+    dc->setTexture(GLSL_COLOR_BUFFER, m_gbuffer->getColorBuffer(GBUFFER_POSITION));
     m_sh_rgb->setUniformBlock(m_loc_params, GLSL_DEBUG_BUFFER_BINDING, m_ub_params->getHandle());
     dc->draw(I3D_QUADS, 0, 4);
     m_sh_rgb->unbind();
@@ -386,10 +388,10 @@ void PassHUD_DebugShowBuffer::drawPositionBuffer( const DebugShowBufferParams &p
 void PassHUD_DebugShowBuffer::drawGlowBuffer( const DebugShowBufferParams &params )
 {
     i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
-    MapAndWrite(*m_ub_params, &params, sizeof(params));
+    MapAndWrite(dc, m_ub_params, &params, sizeof(params));
 
     m_sh_rgb->bind();
-    m_gbuffer->getColorBuffer(GBUFFER_GLOW)->bind(GLSL_COLOR_BUFFER);
+    dc->setTexture(GLSL_COLOR_BUFFER, m_gbuffer->getColorBuffer(GBUFFER_GLOW));
     m_sh_rgb->setUniformBlock(m_loc_params, GLSL_DEBUG_BUFFER_BINDING, m_ub_params->getHandle());
     dc->draw(I3D_QUADS, 0, 4);
     m_sh_rgb->unbind();

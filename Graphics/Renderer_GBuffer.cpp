@@ -33,7 +33,7 @@ void PassGBuffer_Particle::draw()
 
     i3d::DeviceContext *dc = atomicGetGLDeviceContext();
 
-    MapAndWrite(*m_vbo, &m_particles[0], sizeof(IndivisualParticle)*m_particles.size());
+    MapAndWrite(dc, m_vbo, &m_particles[0], sizeof(IndivisualParticle)*m_particles.size());
     {
         const VertexDesc descs[] = {
             {GLSL_INSTANCE_POSITION, I3D_FLOAT,4,  0, false, 1},
@@ -165,8 +165,8 @@ void PassGBuffer_Fluid::draw()
     // rigid particle
     Texture2D *param_texture = atomicGetTexture2D(TEX2D_ENTITY_PARAMS);
     {
-        param_texture->copy(0, uvec2(0,0), uvec2(sizeof(PSetInstance)/sizeof(vec4), m_rinstances.size()), I3D_RGBA32F, &m_rinstances[0]);
-        MapAndWrite(*m_vbo_rigid, &m_rparticles[0], sizeof(PSetParticle)*num_rigid_particles);
+        dc->updateResource(param_texture, 0, uvec2(0,0), uvec2(sizeof(PSetInstance)/sizeof(vec4), m_rinstances.size()), &m_rinstances[0]);
+        MapAndWrite(dc, m_vbo_rigid, &m_rparticles[0], sizeof(PSetParticle)*num_rigid_particles);
     }
     {
         const VertexDesc descs[] = {
@@ -243,11 +243,11 @@ void PassGBuffer_BG::draw()
         // 1/4 の解像度で raymarching
         rs->ScreenSize      = vec2(atomicGetWindowSize())/4.0f;
         rs->RcpScreenSize   = vec2(1.0f, 1.0f) / rs->ScreenSize;
-        MapAndWrite(*ubo_rs, rs, sizeof(*rs));
+        MapAndWrite(dc, ubo_rs, rs, sizeof(*rs));
 
         dc->setViewport(Viewport(ivec2(), gbuffer->getColorBuffer(0)->getDesc().size/4U));
         gbuffer->unbind();
-        gbuffer->getDepthStencilBuffer()->generateMipmap();
+        dc->generateMips(gbuffer->getDepthStencilBuffer());
         gbuffer->setMipmapLevel(2);
         //dc->clearDepthStencil(gbuffer, 1.0f, 0);
         gbuffer->bind();
@@ -266,7 +266,7 @@ void PassGBuffer_BG::draw()
 
         rs->ScreenSize      = vec2(atomicGetWindowSize());
         rs->RcpScreenSize   = vec2(1.0f, 1.0f) / rs->ScreenSize;
-        MapAndWrite(*ubo_rs, rs, sizeof(*rs));
+        MapAndWrite(dc, ubo_rs, rs, sizeof(*rs));
 
 
         // 変化量少ない部分を upsampling

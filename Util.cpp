@@ -9,6 +9,7 @@
 #include "Game/EntityClass.h"
 #include "Game/EntityQuery.h"
 #include "Graphics/ResourceManager.h"
+#include "Graphics/Renderer.h"
 #include "Graphics/Shader.h"
 #include "Util.h"
 
@@ -16,6 +17,7 @@ namespace atomic {
 
 void FillScreen( const vec4 &color )
 {
+    i3d::DeviceContext *dc = atomicGetGLDeviceContext();
     AtomicShader *sh_fill   = atomicGetShader(SH_FILL);
     VertexArray *va_quad    = atomicGetVertexArray(VA_SCREEN_QUAD);
     Buffer *ubo_params      = atomicGetUniformBuffer(UBO_FILL_PARAMS);
@@ -23,12 +25,12 @@ void FillScreen( const vec4 &color )
 
     FillParams params;
     params.Color = color;
-    MapAndWrite(*ubo_params, &params, sizeof(params));
+    MapAndWrite(dc, ubo_params, &params, sizeof(params));
 
     sh_fill->bind();
     sh_fill->setUniformBlock(location, GLSL_FILL_BINDING, ubo_params->getHandle());
     va_quad->bind();
-    glDrawArrays(GL_QUADS, 0, 4);
+    dc->draw(i3d::I3D_QUADS, 0, 4);
     sh_fill->unbind();
 }
 

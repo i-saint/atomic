@@ -280,11 +280,11 @@
     <ClInclude Include="ist\Base\StringSymbol.h">
       <Filter>Base</Filter>
     </ClInclude>
-    <ClInclude Include="ist\GraphicsCommon\PrimitiveDrawer.h">
-      <Filter>GraphicsCommon</Filter>
-    </ClInclude>
     <ClInclude Include="ist\GraphicsGL\i3dglRenderStates.h">
       <Filter>GraphicsGL</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\GraphicsCommon\EasyDrawer.h">
+      <Filter>GraphicsCommon</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -406,14 +406,14 @@
     <ClCompile Include="ist\Debug\Callstack.cpp">
       <Filter>Debug</Filter>
     </ClCompile>
-    <ClCompile Include="ist\GraphicsCommon\PrimitiveDrawer.cpp">
-      <Filter>GraphicsCommon</Filter>
-    </ClCompile>
     <ClCompile Include="ist\GraphicsGL\i3dglRenderStates.cpp">
       <Filter>GraphicsGL</Filter>
     </ClCompile>
     <ClCompile Include="ist\Debug\ParamTree.cpp">
       <Filter>Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\GraphicsCommon\EasyDrawer.cpp">
+      <Filter>GraphicsCommon</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

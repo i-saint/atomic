@@ -152,8 +152,9 @@ void SPHManager::frameEnd()
 size_t SPHManager::copyParticlesToGL()
 {
     ist::ScopedLock<ist::Mutex> l(m_mutex_particles);
+    i3d::DeviceContext *dc = atomicGetGLDeviceContext();
     Buffer *vb = atomicGetVertexBuffer(VBO_FLUID_PARTICLES);
-    MapAndWrite(*vb, &m_particles[0], m_particles.size()*sizeof(psym::Particle));
+    MapAndWrite(dc, vb, &m_particles[0], m_particles.size()*sizeof(psym::Particle));
     return m_particles.size();
 }
 

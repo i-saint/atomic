@@ -227,6 +227,11 @@ public:
         setUpdater(p);
     }
 
+    ~TParamNode()
+    {
+        istSafeRelease(m_param);
+    }
+
     virtual void setUpdater(UpdaterT *p)
     {
         m_param = p;

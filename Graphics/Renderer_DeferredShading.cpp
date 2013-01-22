@@ -88,7 +88,7 @@ void PassDeferredShading_Bloodstain::draw()
     ist::EnqueueTasks(&m_tasks[0], num_instances);
     ist::WaitTasks(&m_tasks[0], num_instances);
 
-    MapAndWrite(*m_vbo_bloodstain, &m_particles[0], sizeof(BloodstainParticle)*num_particles);
+    MapAndWrite(dc, m_vbo_bloodstain, &m_particles[0], sizeof(BloodstainParticle)*num_particles);
 
     // RT_GBUFFER のカラーバッファを更新する。
     // そのため、GLSL_COLOR_BUFFER は一時的に unbind
@@ -265,7 +265,7 @@ void PassDeferredShading_Lights::upsampling(int32 level)
 
     {
         m_mr_params.Level.x = level;
-        MapAndWrite(*ubo_mrp, &m_mr_params, sizeof(m_mr_params));
+        MapAndWrite(dc, ubo_mrp, &m_mr_params, sizeof(m_mr_params));
     }
     
     glDepthFunc(GL_ALWAYS);
@@ -274,7 +274,7 @@ void PassDeferredShading_Lights::upsampling(int32 level)
 
     sh_upsampling->bind();
     sh_upsampling->setUniformBlock(mr_params_loc, GLSL_MULTIRESOLUTION_BINDING, ubo_mrp->getHandle());
-    lower_resolution->bind(GLSL_BACK_BUFFER);
+    dc->setTexture(GLSL_BACK_BUFFER, lower_resolution);
     va_quad->bind();
     dc->draw(I3D_QUADS, 0, 4);
     va_quad->unbind();
@@ -287,15 +287,16 @@ void PassDeferredShading_Lights::upsampling(int32 level)
 
 void PassDeferredShading_Lights::updateConstantBuffers()
 {
+    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
     {
         Buffer *vbo_instance    = atomicGetVertexBuffer(VBO_DIRECTIONALLIGHT_INSTANCES);
         int32 num_lights = m_directional_lights.size();
-        MapAndWrite(*vbo_instance, &m_directional_lights[0], sizeof(DirectionalLight)*num_lights);
+        MapAndWrite(dc, vbo_instance, &m_directional_lights[0], sizeof(DirectionalLight)*num_lights);
     }
     {
         Buffer *vbo_instance    = atomicGetVertexBuffer(VBO_POINTLIGHT_INSTANCES);
         int32 num_lights = m_point_lights.size();
-        MapAndWrite(*vbo_instance, &m_point_lights[0], sizeof(PointLight)*num_lights);
+        MapAndWrite(dc, vbo_instance, &m_point_lights[0], sizeof(PointLight)*num_lights);
     }
 }
 

@@ -79,19 +79,19 @@ Texture1D::~Texture1D()
     }
 }
 
-void Texture1D::copy(uint32 mip_level, uint32 pos, uint32 size, I3D_COLOR_FORMAT fmt, void *data)
+void Texture1D::update(uint32 mip_level, uint32 pos, uint32 size, void *data)
 {
     GLint internal_format = 0;
     GLint format = 0;
     GLint type = 0;
-    DetectGLFormat(fmt, internal_format, format, type);
+    DetectGLFormat(m_desc.format, internal_format, format, type);
 
     bind();
     glTexSubImage1D(TEXTURE_TYPE, mip_level, pos, size, format, type, data);
     unbind();
 }
 
-void Texture1D::generateMipmap()
+void Texture1D::generateMips()
 {
     bind();
     glGenerateMipmap(TEXTURE_TYPE);
@@ -157,7 +157,7 @@ Texture2D::~Texture2D()
     }
 }
 
-void Texture2D::copy(uint32 mip_level, const uvec2 &pos, const uvec2 &size, I3D_COLOR_FORMAT fmt, void *data)
+void Texture2D::update(uint32 mip_level, const uvec2 &pos, const uvec2 &size, void *data)
 {
     if(size.x-pos.x > m_desc.size.x || size.y-pos.y > m_desc.size.y) {
         istAssert(false, "exceeded texture size.\n");
@@ -165,14 +165,14 @@ void Texture2D::copy(uint32 mip_level, const uvec2 &pos, const uvec2 &size, I3D_
     GLint internal_format = 0;
     GLint format = 0;
     GLint type = 0;
-    DetectGLFormat(fmt, internal_format, format, type);
+    DetectGLFormat(m_desc.format, internal_format, format, type);
 
     bind();
     glTexSubImage2D(TEXTURE_TYPE, mip_level, pos.x, pos.y, size.x, size.y, format, type, data);
     unbind();
 }
 
-void Texture2D::generateMipmap()
+void Texture2D::generateMips()
 {
     bind();
     glGenerateMipmap(TEXTURE_TYPE);
@@ -238,7 +238,7 @@ Texture3D::~Texture3D()
     }
 }
 
-void Texture3D::copy(uint32 mip_level, const uvec3 &pos, const uvec3 &size, I3D_COLOR_FORMAT fmt, void *data)
+void Texture3D::update(uint32 mip_level, const uvec3 &pos, const uvec3 &size, void *data)
 {
     if(size.x-pos.x > m_desc.size.x || size.y-pos.y > m_desc.size.y || size.z-pos.z > m_desc.size.z) {
         istAssert(false, "exceeded texture size.\n");
@@ -246,14 +246,14 @@ void Texture3D::copy(uint32 mip_level, const uvec3 &pos, const uvec3 &size, I3D_
     GLint internal_format = 0;
     GLint format = 0;
     GLint type = 0;
-    DetectGLFormat(fmt, internal_format, format, type);
+    DetectGLFormat(m_desc.format, internal_format, format, type);
 
     bind();
     glTexSubImage3D(TEXTURE_TYPE, mip_level, pos.x, pos.y, pos.z, size.x, size.y, size.z, format, type, data);
     unbind();
 }
 
-void Texture3D::generateMipmap()
+void Texture3D::generateMips()
 {
     bind();
     glGenerateMipmap(TEXTURE_TYPE);

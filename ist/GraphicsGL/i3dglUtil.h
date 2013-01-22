@@ -32,30 +32,8 @@ istInterModule GeometryShader* CreateGeometryShaderFromString(Device *dev, const
 istInterModule PixelShader*    CreatePixelShaderFromString(Device *dev, const stl::string &source);
 
 
-template<class BufferObjectType>
-inline bool MapAndWrite(BufferObjectType& bo, const void *data, size_t data_size)
-{
-    istAssert(data_size<=bo.getDesc().size, "exceeded buffer size.\n");
-
-    if(void *p = bo.map(I3D_MAP_WRITE)) {
-        ::memcpy(p, data, data_size);
-        bo.unmap();
-        return true;
-    }
-    return false;
-}
-template<class BufferObjectType>
-inline bool MapAndRead(BufferObjectType& bo, void *data, size_t data_size)
-{
-    istAssert(data_size<=bo.getDesc().size, "exceeded buffer size.\n");
-
-    if(void *p = bo.map(I3D_MAP_READ)) {
-        ::memcpy(data, p, data_size);
-        bo.unmap();
-        return true;
-    }
-    return false;
-}
+bool MapAndWrite(DeviceContext *ctx, Buffer *bo, const void *data, size_t data_size);
+bool MapAndRead(DeviceContext *ctx, Buffer *bo, void *data, size_t data_size);
 
 
 

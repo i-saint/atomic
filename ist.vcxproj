@@ -51,8 +51,8 @@
     <ClInclude Include="ist\Debug\ParamTree.h" />
     <ClInclude Include="ist\GPGPU.h" />
     <ClInclude Include="ist\Graphics.h" />
+    <ClInclude Include="ist\GraphicsCommon\EasyDrawer.h" />
     <ClInclude Include="ist\GraphicsCommon\Image.h" />
-    <ClInclude Include="ist\GraphicsCommon\PrimitiveDrawer.h" />
     <ClInclude Include="ist\GraphicsGL\i3dgl.h" />
     <ClInclude Include="ist\GraphicsGL\i3dglAssert.h" />
     <ClInclude Include="ist\GraphicsGL\i3dglBuffer.h" />
@@ -129,8 +129,8 @@
     <ClCompile Include="ist\Concurrency\Thread.cpp" />
     <ClCompile Include="ist\Debug\Callstack.cpp" />
     <ClCompile Include="ist\Debug\ParamTree.cpp" />
+    <ClCompile Include="ist\GraphicsCommon\EasyDrawer.cpp" />
     <ClCompile Include="ist\GraphicsCommon\Image.cpp" />
-    <ClCompile Include="ist\GraphicsCommon\PrimitiveDrawer.cpp" />
     <ClCompile Include="ist\GraphicsGL\i3dglAssert.cpp" />
     <ClCompile Include="ist\GraphicsGL\i3dglBuffer.cpp" />
     <ClCompile Include="ist\GraphicsGL\i3dglDevice.cpp" />

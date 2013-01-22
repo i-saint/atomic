@@ -38,15 +38,17 @@ ParamNodeBase::ParamNodeBase(const char *name, INodeFunctor *functor)
 
 ParamNodeBase::~ParamNodeBase()
 {
-    if(m_functor) { m_functor->release(); }
+    istSafeRelease(m_functor);
+    for(size_t i=0; i<m_children.size(); ++i) {
+        istSafeRelease(m_children[i]);
+    }
+    if(IParamNode *parent=getParent()) {
+        parent->eraseChild(this);
+    }
 }
 
 void ParamNodeBase::release()
 {
-    for(size_t i=0; i<m_children.size(); ++i) {
-        m_children[i]->release();
-    }
-    getParent()->eraseChild(this);
     istDelete(this);
 }
 

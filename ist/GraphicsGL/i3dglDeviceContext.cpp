@@ -72,23 +72,23 @@ void DeviceContext::setRenderTarget( RenderTarget *rt )
     }
 }
 
-void DeviceContext::setSampler( uint32 i, Sampler *smp )
+void DeviceContext::setSampler( uint32 slot, Sampler *smp )
 {
     if(smp!=NULL) {
-        smp->bind(i);
+        smp->bind(slot);
     }
     else {
-        glBindSampler(i, 0);
+        glBindSampler(slot, 0);
     }
 }
 
-void DeviceContext::setTexture( uint32 i, Texture *tex )
+void DeviceContext::setTexture( uint32 slot, Texture *tex )
 {
     if(tex!=NULL) {
-        tex->bind(i);
+        tex->bind(slot);
     }
     else {
-        glActiveTexture(GL_TEXTURE0+i);
+        glActiveTexture(GL_TEXTURE0+slot);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 }
@@ -128,6 +128,54 @@ void DeviceContext::drawIndexedInstanced( I3D_TOPOLOGY topology, uint32 first_ve
 {
     applyRenderStates();
     glDrawElementsInstancedBaseVertex(topology, num_indices, m_current.index_format, NULL, num_instances, first_vertex);
+}
+
+void* DeviceContext::map(Buffer *buffer, I3D_MAP_MODE mode)
+{
+    if(buffer) {
+        applyRenderStates();
+        return buffer->map(mode);
+    }
+    return NULL;
+}
+
+void DeviceContext::unmap(Buffer *buffer)
+{
+    if(buffer) {
+        applyRenderStates();
+        buffer->unmap();
+    }
+}
+
+void DeviceContext::updateResource(Texture1D *tex, uint32 mip, uint32 pos, uint32 size, void *data)
+{
+    if(tex) {
+        applyRenderStates();
+        tex->update(mip, pos, size, data);
+    }
+}
+
+void DeviceContext::updateResource(Texture2D *tex, uint32 mip, uvec2 pos, uvec2 size, void *data)
+{
+    if(tex) {
+        applyRenderStates();
+        tex->update(mip, pos, size, data);
+    }
+}
+
+void DeviceContext::updateResource(Texture3D *tex, uint32 mip, uvec3 pos, uvec3 size, void *data)
+{
+    if(tex) {
+        applyRenderStates();
+        tex->update(mip, pos, size, data);
+    }
+}
+
+void DeviceContext::generateMips( Texture *tex )
+{
+    if(tex) {
+        tex->generateMips();
+    }
 }
 
 void DeviceContext::applyRenderStates()

@@ -1,6 +1,7 @@
 ﻿#ifndef atomic_Graphics_Renderer_h
 #define atomic_Graphics_Renderer_h
 
+#include "AtomicRenderingSystem.h"
 #include "ResourceManager.h"
 #include "Light.h"
 
