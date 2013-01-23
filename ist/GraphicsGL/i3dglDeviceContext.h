@@ -62,7 +62,7 @@ private:
             int32           bind;
             bool            dirty;
         } uniform[8];
-        Sampler             *samplers[16];
+        Sampler             *samplers[8];
         Texture             *textures[16];
         BlendState          *blend_state;
         DepthStencilState   *depthstencil_state;

@@ -1,6 +1,6 @@
 ﻿#include "istPCH.h"
-#ifdef ist_with_OpenGL
 #include "ist/Base.h"
+#ifdef ist_with_OpenGL
 #include "i3dglShader.h"
 
 namespace ist {
@@ -176,7 +176,11 @@ void ShaderProgram::setUniformBlock(GLuint uniformBlockIndex, GLuint uniformBind
     glUniformBlockBinding(m_handle, uniformBlockIndex, uniformBindingIndex);
 }
 
-void ShaderProgram::setSampler(GLint loc, GLint tex) { glUniform1i(loc, tex); }
+void ShaderProgram::setSampler(GLint loc, GLint tex)
+{
+    bind();
+    glUniform1i(loc, tex);
+}
 
 //// uniform variable
 //// int

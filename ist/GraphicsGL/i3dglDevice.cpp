@@ -1,6 +1,6 @@
 ﻿#include "istPCH.h"
-#ifdef ist_with_OpenGL
 #include "ist/Base.h"
+#ifdef ist_with_OpenGL
 #include "i3dglDevice.h"
 #include "i3dglDeviceContext.h"
 

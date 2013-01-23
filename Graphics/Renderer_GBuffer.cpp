@@ -250,11 +250,11 @@ void PassGBuffer_BG::draw()
         MapAndWrite(dc, ubo_rs, rs, sizeof(*rs));
 
         dc->setViewport(Viewport(ivec2(), gbuffer->getColorBuffer(0)->getDesc().size/4U));
-        gbuffer->unbind();
+        dc->setRenderTarget(NULL);
         dc->generateMips(gbuffer->getDepthStencilBuffer());
         gbuffer->setMipmapLevel(2);
         //dc->clearDepthStencil(gbuffer, 1.0f, 0);
-        gbuffer->bind();
+        dc->setRenderTarget(gbuffer);
 
         sh_bg->bind();
         dc->setVertexArray(va_quad);
@@ -262,9 +262,9 @@ void PassGBuffer_BG::draw()
         dc->draw(I3D_QUADS, 0, 4);
         sh_bg->unbind();
 
-        gbuffer->unbind();
+        dc->setRenderTarget(NULL);
         gbuffer->setMipmapLevel(0);
-        gbuffer->bind();
+        dc->setRenderTarget(gbuffer);
         dc->setViewport(Viewport(ivec2(), gbuffer->getColorBuffer(0)->getDesc().size));
 
         rs->ScreenSize      = vec2(atomicGetWindowSize());

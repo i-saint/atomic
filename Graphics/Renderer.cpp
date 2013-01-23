@@ -177,7 +177,7 @@ void AtomicRenderer::passGBuffer()
     }
 
     dc->setDepthStencilState(atomicGetDepthStencilState(DS_NO_DEPTH_NO_STENCIL));
-    m_rt_gbuffer->unbind();
+    dc->setRenderTarget(NULL);
 
     if(atomicGetConfig()->light_multiresolution) {
         dc->generateMips(m_rt_gbuffer->getColorBuffer(GBUFFER_COLOR));
@@ -202,7 +202,6 @@ void AtomicRenderer::passDeferredShading()
     dc->setTexture(GLSL_GLOW_BUFFER, m_rt_gbuffer->getColorBuffer(GBUFFER_GLOW));
     dc->setTexture(GLSL_BACK_BUFFER, brt->getColorBuffer(0));
     dc->setTexture(GLSL_RANDOM_BUFFER, atomicGetTexture2D(TEX2D_RANDOM));
-
     dc->setBlendState(atomicGetBlendState(BS_BLEND_ADD));
     dc->setDepthStencilState(atomicGetDepthStencilState(DS_LIGHTING_FRONT));
 

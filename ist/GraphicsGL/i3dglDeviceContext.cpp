@@ -1,13 +1,11 @@
 ﻿#include "istPCH.h"
-#ifdef ist_with_OpenGL
 #include "ist/Base.h"
+#ifdef ist_with_OpenGL
 #include "i3dglDevice.h"
 #include "i3dglDeviceContext.h"
 
 namespace ist {
 namespace i3dgl {
-
-#define immediate
 
 DeviceContext::DeviceContext( Device *dev )
     : m_device(dev)
@@ -56,14 +54,6 @@ void DeviceContext::setShader( ShaderProgram *v )
 {
     m_dirty.shader = 1;
     m_current.shader = v;
-#ifdef immediate
-    if(m_current.shader != NULL) {
-        m_current.shader->bind();
-    }
-    else {
-        glUseProgram(0);
-    }
-#endif // immediate
 }
 
 void DeviceContext::setRenderTarget( RenderTarget *rt )
@@ -178,6 +168,9 @@ void DeviceContext::clearColor( RenderTarget *rt, vec4 color )
     glClearColor(color.x, color.y, color.z, color.w);
     glClear(GL_COLOR_BUFFER_BIT);
 
+    if(m_current.render_target) { m_current.render_target->bind(); }
+    else { m_current.render_target->unbind(); }
+
 }
 
 void DeviceContext::clearDepthStencil( RenderTarget *rt, float32 depth, int32 stencil )
@@ -187,13 +180,19 @@ void DeviceContext::clearDepthStencil( RenderTarget *rt, float32 depth, int32 st
     glClearDepth(depth);
     glClearStencil(stencil);
     glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    if(m_current.render_target) { m_current.render_target->bind(); }
+    else { m_current.render_target->unbind(); }
 }
+
+
+// template 関数だと private メソッドにアクセスできないのでマクロで…
+#define IsDirty(Obj) (Obj && Obj->isDirty())
 
 void DeviceContext::applyRenderStates()
 {
     if(m_dirty.flags==0) { return; }
 
-#ifndef immediate
     if( m_dirty.shader && 
         m_current.shader!=m_prev.shader)
     {
@@ -204,19 +203,19 @@ void DeviceContext::applyRenderStates()
             glUseProgram(0);
         }
     }
-#endif // immediate
-
 
     // render target 更新と被らないよう、先にテクスチャの解除だけ行う
-    if(m_dirty.textures && m_dirty.render_target) {
+    if( m_dirty.textures &&
+        (m_dirty.render_target || IsDirty(m_current.render_target)) )
+    {
         for(size_t i=0; i<_countof(m_current.textures); ++i) {
             glActiveTexture(GL_TEXTURE0+i);
             glBindTexture(GL_TEXTURE_2D, 0);
+            m_prev.textures[i] = NULL;
         }
     }
 
-    if( m_dirty.render_target &&
-        m_current.render_target!=m_prev.render_target)
+    if( m_dirty.render_target || IsDirty(m_current.render_target) )
     {
         if(m_current.render_target != NULL) {
             m_current.render_target->bind();
@@ -226,8 +225,7 @@ void DeviceContext::applyRenderStates()
         }
     }
 
-    if( m_dirty.vertex_array &&
-        (m_current.vertex_array!=m_prev.vertex_array || (m_current.vertex_array && m_current.vertex_array->isDirty())) )
+    if( m_dirty.vertex_array || IsDirty(m_current.vertex_array) )
     {
         if(m_current.vertex_array) {
             m_current.vertex_array->bind();
@@ -237,8 +235,7 @@ void DeviceContext::applyRenderStates()
         }
     }
 
-    if( m_dirty.index &&
-        m_current.index.buffer!=m_prev.index.buffer)
+    if( m_dirty.index )
     {
         if(m_current.index.buffer != NULL) {
             m_current.index.buffer->bind();
@@ -248,7 +245,7 @@ void DeviceContext::applyRenderStates()
         }
     }
 
-    if(m_dirty.uniform && m_current.shader) {
+    if( m_dirty.uniform ) {
         for(size_t i=0; i<_countof(m_current.uniform); ++i) {
             if(!m_current.uniform[i].dirty) { continue; }
             m_current.uniform[i].dirty = false;
@@ -261,7 +258,7 @@ void DeviceContext::applyRenderStates()
         }
     }
 
-    if(m_dirty.samplers) {
+    if( m_dirty.samplers ) {
         for(size_t i=0; i<_countof(m_current.samplers); ++i) {
             if(m_prev.samplers[i]==m_current.samplers[i]) { continue; }
             if(m_current.samplers[i]!=NULL) {
@@ -273,7 +270,7 @@ void DeviceContext::applyRenderStates()
         }
     }
 
-    if(m_dirty.textures) {
+    if( m_dirty.textures ) {
         for(size_t i=0; i<_countof(m_current.textures); ++i) {
             if(m_prev.textures[i]==m_current.textures[i]) { continue; }
             if(m_current.textures[i]!=NULL) {
@@ -286,14 +283,12 @@ void DeviceContext::applyRenderStates()
         }
     }
 
-    if( m_dirty.blend_state &&
-        m_current.blend_state!=m_prev.blend_state)
+    if( m_dirty.blend_state && m_current.blend_state!=m_prev.blend_state )
     {
         m_current.blend_state->apply();
     }
 
-    if(m_dirty.depthstencil_state &&
-       m_current.depthstencil_state!=m_prev.depthstencil_state )
+    if(m_dirty.depthstencil_state && m_current.depthstencil_state!=m_prev.depthstencil_state )
     {
         m_current.depthstencil_state->apply();
     }

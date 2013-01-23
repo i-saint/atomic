@@ -1,6 +1,7 @@
 ﻿#include "istPCH.h"
-#include "i3dglRenderStates.h"
+#include "ist/Base.h"
 #ifdef ist_with_OpenGL
+#include "i3dglRenderStates.h"
 
 namespace ist {
 namespace i3dgl {

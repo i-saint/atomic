@@ -1,7 +1,7 @@
 ﻿#include "istPCH.h"
-#ifdef ist_with_OpenGL
 #include "ist/Base.h"
 #include "ist/Debug.h"
+#ifdef ist_with_OpenGL
 #include "i3dglTypes.h"
 #include "i3dglDeviceResource.h"
 #include "i3dglDevice.h"

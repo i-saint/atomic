@@ -98,9 +98,7 @@ void PassDeferredShading_Bloodstain::draw()
     dc->setTexture(GLSL_COLOR_BUFFER, NULL);
     grt->setColorBuffer(0, gbuffer->getColorBuffer(GBUFFER_COLOR));
     grt->setDepthStencilBuffer(gbuffer->getDepthStencilBuffer());
-
-    glDisable(GL_BLEND);
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    dc->setBlendState(atomicGetBlendState(BS_NO_BLEND));
 
 
     const VertexDesc descs[] = {
@@ -109,15 +107,13 @@ void PassDeferredShading_Bloodstain::draw()
     };
     m_va_sphere->setAttributes(1, m_vbo_bloodstain, sizeof(BloodstainParticle), descs, _countof(descs));
 
-    dc->setRenderTarget(grt);
     m_sh->assign(dc);
     dc->setRenderTarget(grt);
     dc->setVertexArray(m_va_sphere);
     dc->setIndexBuffer(m_ibo_sphere, I3D_UINT);
     dc->drawIndexedInstanced(I3D_QUADS, 0, (8-1)*(8)*4, num_particles);
-
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-    glEnable(GL_BLEND);
+    dc->setIndexBuffer(NULL, I3D_UINT);
+    dc->setBlendState(atomicGetBlendState(BS_BLEND_ADD));
 
     dc->setRenderTarget(atomicGetFrontRenderTarget());
     dc->setTexture(GLSL_COLOR_BUFFER, gbuffer->getColorBuffer(GBUFFER_COLOR));
@@ -187,12 +183,11 @@ void PassDeferredShading_Lights::drawMultiResolution()
         dc->setViewport(vp);
 
         rt_quarter->setDepthStencilBuffer(rt_gbuffer->getDepthStencilBuffer(), 2);
-        rt_quarter->bind();
-        glClear(GL_COLOR_BUFFER_BIT);
-
+        dc->setRenderTarget(rt_quarter);
+        dc->clearColor(rt_quarter, vec4());
         drawLights();
         debugShowResolution(2);
-        rt_quarter->unbind();
+        dc->setRenderTarget(NULL);
     }
 
     // 1/2
@@ -201,20 +196,18 @@ void PassDeferredShading_Lights::drawMultiResolution()
         dc->setViewport(vp);
 
         rt_half->setDepthStencilBuffer(rt_gbuffer->getDepthStencilBuffer(), 1);
-        rt_half->bind();
-        glClear(GL_COLOR_BUFFER_BIT);
-
+        dc->setRenderTarget(rt_half);
+        dc->clearColor(rt_half, vec4());
         upsampling(2);
         drawLights();
         debugShowResolution(1);
-
-        rt_half->unbind();
+        dc->setRenderTarget(NULL);
     }
 
     // 1/1
     {
         dc->setViewport(*atomicGetDefaultViewport());
-        rt_original->bind();
+        dc->setRenderTarget(rt_original);
 
         upsampling(1);
         drawLights();
@@ -228,15 +221,16 @@ void PassDeferredShading_Lights::drawMultiResolution()
 
 void PassDeferredShading_Lights::debugShowResolution( int32 level )
 {
+    i3d::DeviceContext *dc = atomicGetGLDeviceContext();
     static const vec4 colors[] = {
         vec4(0.8f, 0.0f, 0.0f, 0.7f),
         vec4(0.5f, 0.0f, 0.0f, 0.7f),
         vec4(0.2f, 0.0f, 0.0f, 0.7f),
     };
     if(atomicGetConfig()->debug_show_resolution) {
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        dc->setBlendState(atomicGetBlendState(BS_BLEND_ALPHA));
         FillScreen(colors[level]);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+        dc->setBlendState(atomicGetBlendState(BS_BLEND_ADD));
     }
 }
 

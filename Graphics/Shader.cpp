@@ -66,9 +66,9 @@ bool AtomicShader::loadFromMemory( const char* src )
 
     m_loc_renderstates = m_shader->getUniformBlockIndex("render_states");
 
-    i3d::DeviceContext *ctx = atomicGetGLDeviceContext();
+    i3d::DeviceContext *dc = atomicGetGLDeviceContext();
 #define SetSampler(name, value) { GLint l=m_shader->getUniformLocation(name); if(l!=-1){ m_shader->setSampler(l, value); }}
-    ctx->setShader(m_shader);
+    dc->setShader(m_shader);
     SetSampler("u_ColorBuffer",     GLSL_COLOR_BUFFER);
     SetSampler("u_NormalBuffer",    GLSL_NORMAL_BUFFER);
     SetSampler("u_PositionBuffer",  GLSL_POSITION_BUFFER);
@@ -76,7 +76,7 @@ bool AtomicShader::loadFromMemory( const char* src )
     SetSampler("u_BackBuffer",      GLSL_BACK_BUFFER);
     SetSampler("u_RandomBuffer",    GLSL_RANDOM_BUFFER);
     SetSampler("u_ParamBuffer",     GLSL_PARAM_BUFFER);
-    ctx->setShader(NULL);
+    dc->setShader(NULL);
 #undef SetSampler
 
     return true;

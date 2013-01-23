@@ -71,13 +71,13 @@ void PassPostprocess_FXAA::draw()
         RenderTarget *rt = atomicGetFrontRenderTarget();
         atomicSwapOutputRenderTarget();
 
-        rt->bind();
-        m_sh_FXAA_luma->bind();
+        dc->setRenderTarget(rt);
+        m_sh_FXAA_luma->assign(dc);
         dc->setTexture(GLSL_COLOR_BUFFER, brt->getColorBuffer(GBUFFER_COLOR));
         dc->setVertexArray(m_va_quad);
         dc->draw(I3D_QUADS, 0, 4);
-        m_sh_FXAA_luma->unbind();
-        rt->unbind();
+        dc->setShader(NULL);
+        dc->setRenderTarget(NULL);
     }
     // FXAA
     {
@@ -85,14 +85,14 @@ void PassPostprocess_FXAA::draw()
         RenderTarget *rt = atomicGetFrontRenderTarget();
         atomicSwapOutputRenderTarget();
 
-        rt->bind();
-        m_sh_FXAA->bind();
+        dc->setRenderTarget(rt);
+        m_sh_FXAA->assign(dc);
         m_sh_FXAA->setUniformBlock(m_loc_fxaa_param, GLSL_FXAA_BINDING, ubo_fxaa);
         dc->setTexture(GLSL_COLOR_BUFFER, brt->getColorBuffer(0));
         dc->setVertexArray(m_va_quad);
         dc->draw(I3D_QUADS, 0, 4);
-        m_sh_FXAA_luma->unbind();
-        rt->unbind();
+        dc->setShader(NULL);
+        dc->setRenderTarget(NULL);
     }
 }
 
@@ -218,15 +218,15 @@ void PassPostprocess_Fade::draw()
 
     RenderTarget *brt = atomicGetBackRenderTarget();
 
-    brt->bind();
-    m_sh_fade->bind();
+    dc->setRenderTarget(brt);
+    m_sh_fade->assign(dc);
     m_sh_fade->setUniformBlock(m_loc_fade_param, GLSL_FADE_BINDING, m_ubo_fade);
     dc->setVertexArray(m_va_quad);
     dc->setBlendState(atomicGetBlendState(BS_BLEND_ALPHA));
     dc->draw(I3D_QUADS, 0, 4);
     dc->setBlendState(atomicGetBlendState(BS_NO_BLEND));
-    m_sh_fade->unbind();
-    brt->unbind();
+    dc->setShader(NULL);
+    dc->setRenderTarget(NULL);
 }
 
 void PassPostprocess_Fade::setFade(const vec4 &v, float32 frame)
