@@ -82,7 +82,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #pragma warning(disable: 4819) // コードページ問題 (glm)
-#pragma warning(disable: 4251) // __export つけろ問題
 
 #endif // ist_env_MSVC
 
