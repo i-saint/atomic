@@ -14,6 +14,7 @@ public:
     ~AtomicShader();
     void release();
 
+    void clearShaders();
     bool createShaders(const char* filename);
 
     GLint getUniformBlockIndex(const char *name) const;
@@ -24,11 +25,16 @@ public:
 
 protected:
     ShaderProgram   *m_shader;
-    VertexShader    *m_vs;
-    PixelShader     *m_ps;
-    GeometryShader  *m_gs;
     int32 m_loc_renderstates;
+
 #ifdef atomic_enable_shader_live_edit
+public:
+    bool needsRecompile();
+    bool recompile();
+
+private:
+    stl::string m_glsl_filename;
+    Poco::Timestamp m_timestamp;
 #endif // atomic_enable_shader_live_edit
 
 };

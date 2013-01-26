@@ -1,5 +1,5 @@
-﻿#ifndef __ist_Concurrency_Thread_h__
-#define __ist_Concurrency_Thread_h__
+﻿#ifndef ist_Concurrency_Thread_h
+#define ist_Concurrency_Thread_h
 
 #include "ist/Base/NonCopyable.h"
 #include "ist/Base/SharedObject.h"
@@ -68,6 +68,27 @@ private:
     int     m_priority;
 };
 
+
+template<class FuncT>
+class FunctorThread : public Thread
+{
+typedef Thread Super;
+public:
+    void run(const FuncT &f)
+    {
+        m_func = f;
+        Super::run();
+    }
+
+    void exec()
+    {
+        m_func();
+    }
+
+private:
+    FuncT m_func;
+};
+
 } // namepspace ist
 
-#endif // __ist_Concurrency_Thread_h__
+#endif // ist_Concurrency_Thread_h

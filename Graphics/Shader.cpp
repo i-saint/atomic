@@ -10,18 +10,16 @@ namespace atomic {
 
 AtomicShader::AtomicShader()
 : m_shader(NULL)
-, m_vs(NULL)
-, m_ps(NULL)
-, m_gs(NULL)
 , m_loc_renderstates(0)
+#ifdef atomic_enable_shader_live_edit
+, m_timestamp(0)
+#endif // atomic_enable_shader_live_edit
 {
 }
 
 AtomicShader::~AtomicShader()
 {
-    atomicSafeRelease(m_shader);
-    atomicSafeRelease(m_vs);
-    atomicSafeRelease(m_ps);
+    clearShaders();
 }
 
 void AtomicShader::release()
@@ -29,32 +27,65 @@ void AtomicShader::release()
     istDelete(this);
 }
 
+void AtomicShader::clearShaders()
+{
+    atomicSafeRelease(m_shader);
+    m_loc_renderstates = 0;
+}
+
 bool AtomicShader::createShaders( const char *filename )
 {
     i3d::Device *dev = atomicGetGLDevice();
+    ShaderProgramDesc sh_desc;
+
 #ifdef atomic_enable_shader_live_edit
+    m_glsl_filename = filename;
+    static const char s_glsl_path[] = "shader/";
     static const char s_shader_path[] = "shader/tmp/";
     {
-        stl::string path = stl::string(s_shader_path)+filename+".vs";
-        stl::string source;
-        if(!ist::FileToString(path, source)) { istAssert(false, ""); }
-        VertexShaderDesc desc = VertexShaderDesc(source.c_str(), source.size());
-        m_vs = dev->createVertexShader(desc);
+        Poco::File glsl((stl::string(s_glsl_path)+filename+".glsl").c_str());
+        m_timestamp = glsl.getLastModified();
     }
     {
-        stl::string path = stl::string(s_shader_path)+filename+".ps";
-        stl::string source;
-        if(!ist::FileToString(path, source)) { istAssert(false, ""); }
-        PixelShaderDesc desc = PixelShaderDesc(source.c_str(), source.size());
-        m_ps = dev->createPixelShader(desc);
+        stl::string vs_path = stl::string(s_shader_path)+filename+".vs";
+        stl::string vs_src;
+        if(!ist::FileToString(vs_path, vs_src)) { istAssert(false, ""); return false; }
+
+        stl::string ps_path = stl::string(s_shader_path)+filename+".ps";
+        stl::string ps_src;
+        if(!ist::FileToString(ps_path, ps_src)) { istAssert(false, ""); return false; }
+
+        sh_desc.vs = dev->createVertexShader( VertexShaderDesc(vs_src.c_str(), vs_src.size()) );
+        sh_desc.ps = dev->createPixelShader( PixelShaderDesc(ps_src.c_str(), ps_src.size()) );
+        if(!sh_desc.vs || !sh_desc.ps) { return false; }
+    }
+#else // atomic_enable_shader_live_edit
+    // todo: shader ファイルをアーカイブにまとめる
+    static const char s_glsl_path[] = "shader/";
+    static const char s_shader_path[] = "shader/tmp/";
+    {
+        stl::string vs_path = stl::string(s_shader_path)+filename+".vs";
+        stl::string vs_src;
+        if(!ist::FileToString(vs_path, vs_src)) { istAssert(false, ""); return false; }
+
+        stl::string ps_path = stl::string(s_shader_path)+filename+".ps";
+        stl::string ps_src;
+        if(!ist::FileToString(ps_path, ps_src)) { istAssert(false, ""); return false; }
+
+        sh_desc.vs = dev->createVertexShader( VertexShaderDesc(vs_src.c_str(), vs_src.size()) );
+        sh_desc.ps = dev->createPixelShader( PixelShaderDesc(ps_src.c_str(), ps_src.size()) );
+        if(!sh_desc.vs || !sh_desc.ps) { return false; }
     }
 #endif // atomic_enable_shader_live_edit
-    {
-        ShaderProgramDesc desc(m_vs, m_ps, m_gs);
-        m_shader = dev->createShaderProgram(desc);
-    }
 
+    ShaderProgram *shader = dev->createShaderProgram(sh_desc);
+    istSafeRelease(sh_desc.vs);
+    istSafeRelease(sh_desc.ps);
+    if(!shader) { istAssert(false, ""); return false; }
 
+    clearShaders();
+
+    m_shader = shader;
     m_loc_renderstates = m_shader->getUniformBlockIndex("render_states");
 
     i3d::DeviceContext *dc = atomicGetGLDeviceContext();
@@ -102,6 +133,24 @@ void AtomicShader::assign( i3d::DeviceContext *dc )
     dc->setUniformBuffer(m_loc_renderstates, GLSL_RENDERSTATE_BINDING, atomicGetUniformBuffer(UBO_RENDERSTATES_3D));
 }
 
+#ifdef atomic_enable_shader_live_edit
+bool AtomicShader::needsRecompile()
+{
+    static const char s_glsl_path[] = "shader/";
+    if(m_shader) {
+        Poco::File glsl((stl::string(s_glsl_path)+m_glsl_filename+".glsl").c_str());
+        Poco::Timestamp lm = glsl.getLastModified();
+        if(lm > m_timestamp) {
+            return true;
+        }
+    }
+    return false;
+}
 
+bool AtomicShader::recompile()
+{
+    return createShaders(m_glsl_filename.c_str());
+}
+#endif // atomic_enable_shader_live_edit
 
 } // namespace atomic

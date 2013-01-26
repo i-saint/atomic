@@ -12,7 +12,6 @@
 
 #define GLM_FORCE_SSE2
 
-#include <windows.h>
 #include <stdio.h>
 #include <GL/glew.h>
 #include <GL/wglew.h>
@@ -28,18 +27,14 @@
 #include <iostream>
 
 
-#include <windows.h>
-#include <windowsx.h>
-
-// leak check on Debug configuration
-#ifdef _DEBUG
-#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#include <crtdbg.h>
-#endif // _DEBUG
-
 #include "ist/ist.h"
 #include "ist/Graphics.h"
 #include "ist/Sound.h"
 #include "features.h"
 #include "types.h"
+
+#define POCO_STATIC
+#include "Poco/Path.h"
+#include "Poco/File.h"
+#include "Poco/FileStream.h"
+//#include "Poco/Net/HTTPClientSession.h"

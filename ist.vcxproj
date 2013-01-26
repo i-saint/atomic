@@ -41,6 +41,7 @@
     <ClInclude Include="ist\Concurrency\Condition.h" />
     <ClInclude Include="ist\Concurrency\Mutex.h" />
     <ClInclude Include="ist\Concurrency\ParallelAlgorithm.h" />
+    <ClInclude Include="ist\Concurrency\Process.h" />
     <ClInclude Include="ist\Concurrency\TaskScheduler.h" />
     <ClInclude Include="ist\Concurrency\TaskUtil.h" />
     <ClInclude Include="ist\Concurrency\Thread.h" />
@@ -124,6 +125,7 @@
     <ClCompile Include="ist\Base\Serialize.cpp" />
     <ClCompile Include="ist\Concurrency\Condition.cpp" />
     <ClCompile Include="ist\Concurrency\Mutex.cpp" />
+    <ClCompile Include="ist\Concurrency\Process.cpp" />
     <ClCompile Include="ist\Concurrency\TaskScheduler.cpp" />
     <ClCompile Include="ist\Concurrency\TaskUtil.cpp" />
     <ClCompile Include="ist\Concurrency\Thread.cpp" />

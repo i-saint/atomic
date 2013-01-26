@@ -148,6 +148,7 @@ finalize_section:
 
 void AtomicRenderingThread::doRender()
 {
+    atomicGetGraphicsResourceManager()->update();
     atomicGetApplication()->drawCallback();
     m_cond_callback_complete.signalOne();
     m_device->swapBuffers();

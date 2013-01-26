@@ -1,6 +1,7 @@
-﻿#ifndef __ist_Concurrency_Atomic_h__
-#define __ist_Concurrency_Atomic_h__
+﻿#ifndef ist_Concurrency_Atomic_h
+#define ist_Concurrency_Atomic_h
 
+#include "../Config.h"
 
 namespace ist {
 
@@ -28,6 +29,7 @@ private:
     volatile LONG m_value;
 };
 
+#if defined(ist_env_x64)
 class istInterModule atomic_int64
 {
 public:
@@ -50,6 +52,7 @@ public:
 private:
     volatile LONGLONG m_value;
 };
+#endif // ist_env_x64
 
 #if defined(ist_env_x64)
 typedef atomic_int64 atomic_ptrint;
@@ -57,7 +60,7 @@ typedef atomic_int64 atomic_ptrint;
 typedef atomic_int32 atomic_ptrint;
 #endif
 
-#else
+#else // ist_env_Windows
 
 class istInterModule atomic_int32
 {
@@ -88,4 +91,4 @@ typedef atomic_int32 atomic_ptr;
 
 } // namespace ist
 
-#endif // __ist_Concurrency_Atomic_h__
+#endif // ist_Concurrency_Atomic_h

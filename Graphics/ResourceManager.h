@@ -29,6 +29,7 @@ enum GBUFFER {
 
 class GraphicResourceManager : boost::noncopyable
 {
+istMakeDestructable;
 public:
     static GraphicResourceManager* getInstance() { return s_inst; }
     static void intializeInstance();
@@ -57,6 +58,10 @@ private:
     void finalize();
 
 private:
+    GraphicResourceManager();
+    ~GraphicResourceManager();
+
+    bool m_flag_exit;
     IFontRenderer       *m_font;
     Sampler             *m_sampler[SAMPLER_END];
     Texture1D           *m_tex1d[TEX1D_END];
@@ -71,25 +76,32 @@ private:
     RigidInfo           m_rinfo[PSET_END];
     BlendState          *m_blend_states[BS_END];
     DepthStencilState   *m_depth_states[DS_END];
+
+#ifdef atomic_enable_shader_live_edit
+    void watchGLSLFiles();
+    bool                m_glsl_modified;
+    HANDLE              m_glsl_notifier;
+    ist::FunctorThread<std::function<void ()> > m_glsl_watcher;
+#endif // atomic_enable_shader_live_edit
 };
 
 
-#define atomicGetResourceManager()   GraphicResourceManager::getInstance()
+#define atomicGetGraphicsResourceManager()   GraphicResourceManager::getInstance()
 
-#define atomicGetFontRenderer()     atomicGetResourceManager()->getFontRenderer()
-#define atomicGetSampler(i)         atomicGetResourceManager()->getSampler(i)
-#define atomicGetTexture1D(i)       atomicGetResourceManager()->getTexture1D(i)
-#define atomicGetTexture2D(i)       atomicGetResourceManager()->getTexture2D(i)
-#define atomicGetVertexArray(i)     atomicGetResourceManager()->getVertexArray(i)
-#define atomicGetVertexBuffer(i)    atomicGetResourceManager()->getVertexBuffer(i)
-#define atomicGetIndexBuffer(i)     atomicGetResourceManager()->getIndexBuffer(i)
-#define atomicGetUniformBuffer(i)   atomicGetResourceManager()->getUniformBuffer(i)
-#define atomicGetShader(i)          atomicGetResourceManager()->getShader(i)
-#define atomicGetRenderTarget(i)    atomicGetResourceManager()->getRenderTarget(i)
-#define atomicGetParticleSet(i)     atomicGetResourceManager()->getParticleSet(i)
-#define atomicGetRigidInfo(i)       atomicGetResourceManager()->getRigidInfo(i)
-#define atomicGetBlendState(i)          atomicGetResourceManager()->getBlendState(i)
-#define atomicGetDepthStencilState(i)   atomicGetResourceManager()->getDepthStencilState(i)
+#define atomicGetFontRenderer()     atomicGetGraphicsResourceManager()->getFontRenderer()
+#define atomicGetSampler(i)         atomicGetGraphicsResourceManager()->getSampler(i)
+#define atomicGetTexture1D(i)       atomicGetGraphicsResourceManager()->getTexture1D(i)
+#define atomicGetTexture2D(i)       atomicGetGraphicsResourceManager()->getTexture2D(i)
+#define atomicGetVertexArray(i)     atomicGetGraphicsResourceManager()->getVertexArray(i)
+#define atomicGetVertexBuffer(i)    atomicGetGraphicsResourceManager()->getVertexBuffer(i)
+#define atomicGetIndexBuffer(i)     atomicGetGraphicsResourceManager()->getIndexBuffer(i)
+#define atomicGetUniformBuffer(i)   atomicGetGraphicsResourceManager()->getUniformBuffer(i)
+#define atomicGetShader(i)          atomicGetGraphicsResourceManager()->getShader(i)
+#define atomicGetRenderTarget(i)    atomicGetGraphicsResourceManager()->getRenderTarget(i)
+#define atomicGetParticleSet(i)     atomicGetGraphicsResourceManager()->getParticleSet(i)
+#define atomicGetRigidInfo(i)       atomicGetGraphicsResourceManager()->getRigidInfo(i)
+#define atomicGetBlendState(i)          atomicGetGraphicsResourceManager()->getBlendState(i)
+#define atomicGetDepthStencilState(i)   atomicGetGraphicsResourceManager()->getDepthStencilState(i)
 
 } // namespace atomic
 #endif // atomic_Graphics_ResourceManager_h

@@ -1,6 +1,7 @@
 ﻿#ifndef ist_Base_FileIO_h
 #define ist_Base_FileIO_h
 
+#include "../Config.h"
 
 namespace ist {
 

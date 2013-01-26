@@ -245,10 +245,58 @@ void GraphicResourceManager::finalize()
     atomicSafeRelease(m_font);
 }
 
+GraphicResourceManager::GraphicResourceManager()
+    : m_flag_exit(false)
+{
+#ifdef atomic_enable_shader_live_edit
+    m_glsl_modified = false;
+    m_glsl_watcher.setName("GLSL Watcher");
+    m_glsl_watcher.run( std::bind(&GraphicResourceManager::watchGLSLFiles, this) );
+#endif // atomic_enable_shader_live_edit
+}
+
+GraphicResourceManager::~GraphicResourceManager()
+{
+    m_flag_exit = true;
+#ifdef atomic_enable_shader_live_edit
+    m_glsl_watcher.join();
+#endif // atomic_enable_shader_live_edit
+}
+
 void GraphicResourceManager::update()
 {
-
+#ifdef atomic_enable_shader_live_edit
+    if(m_glsl_modified) {
+        m_glsl_modified = false;
+        for(size_t i=0; i<_countof(m_shader); ++i) {
+            if(m_shader[i] && m_shader[i]->needsRecompile()) {
+                m_shader[i]->recompile();
+            }
+        }
+    }
+#endif // atomic_enable_shader_live_edit
 }
+
+#ifdef atomic_enable_shader_live_edit
+
+
+void GraphicResourceManager::watchGLSLFiles()
+{
+    const char glsl_dir[] = "shader";
+    char abs_path[MAX_PATH];
+    ::GetFullPathNameA(glsl_dir, MAX_PATH, abs_path, NULL);
+
+    m_glsl_notifier = ::FindFirstChangeNotificationA(abs_path, TRUE, FILE_NOTIFY_CHANGE_LAST_WRITE);
+    while(!m_flag_exit) {
+        if(::WaitForSingleObject(m_glsl_notifier, 1000)==WAIT_OBJECT_0) {
+            ist::ExecVCTool("msbuild shader.vcxproj");
+            m_glsl_modified = true;
+            ::FindCloseChangeNotification(m_glsl_notifier);
+            m_glsl_notifier = ::FindFirstChangeNotificationA(glsl_dir, TRUE, FILE_NOTIFY_CHANGE_LAST_WRITE);
+        }
+    }
+}
+#endif // atomic_enable_shader_live_edit
 
 
 } // namespace atomic

@@ -20,7 +20,7 @@
 // memory_leak_check は resource_leak_check も兼ねるがパフォーマンス低下が著しいので一応別に用意
 //#   define i3d_enable_resource_leak_check
 #endif // ist_env_Debug
-#define ist_leak_check_max_callstack_size 32
+#define ist_leak_check_max_callstack_size 64
 
 
 #if defined(_MSC_VER)
@@ -111,6 +111,8 @@ namespace stl = std;
 #endif // ist_with_EASTL
 #include <functional>
 
+#ifdef ist_with_poco
+#endif // ist_with_poco
 
 #ifdef ist_with_DirectX11
 #   include <D3D11.h>

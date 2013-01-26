@@ -1,18 +1,17 @@
 ﻿#include "istPCH.h"
 #include "FileLoader.h"
-#include <fstream>
 
 namespace ist {
 
 bool ist::FileToString( const char *path, stl::string &out )
 {
-    std::fstream fin(path, std::ios::in | std::ios::binary);
+    FILE *fin = fopen(path, "rb");
     if(!fin) { return false; }
-    fin.seekg(0, std::ios::end);
-    out.resize((size_t)fin.tellg());
-    fin.seekg(0, std::ios::beg);
-    fin.read(&out[0], out.size());
-    fin.close();
+    fseek(fin, 0, SEEK_END);
+    out.resize((size_t)ftell(fin));
+    fseek(fin, 0, SEEK_SET);
+    fread(&out[0], 1, out.size(), fin);
+    fclose(fin);
     return true;
 }
 

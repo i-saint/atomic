@@ -9,5 +9,6 @@
 #include "Concurrency/TaskUtil.h"
 #include "Concurrency/AsyncFunction.h"
 #include "Concurrency/ParallelAlgorithm.h"
+#include "Concurrency/Process.h"
 
 #endif // __ist_Concurrency_h__

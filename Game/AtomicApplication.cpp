@@ -132,6 +132,9 @@ AtomicApplication::~AtomicApplication()
 
 bool AtomicApplication::initialize(int argc, char *argv[])
 {
+#ifdef atomic_enable_shader_live_edit
+    ::AllocConsole();
+#endif // atomic_enable_shader_live_edit
     TaskScheduler::initializeInstance();
     InitializeText();
 

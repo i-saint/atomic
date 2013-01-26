@@ -16,8 +16,8 @@
 #   define atomic_enable_debug_log
 #   define atomic_enable_sync_lock
 #   define atomic_enable_gbuffer_viewer
+#   define atomic_enable_shader_live_edit
 #endif // ist_env_Master
-#define atomic_enable_shader_live_edit
 
 //#define atomic_enable_distance_field
 
