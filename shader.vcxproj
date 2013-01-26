@@ -37,8 +37,9 @@
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
     <NMakeBuildCommandLine>cd shader &amp;&amp; c:\cygwin\bin\ruby shader.rb</NMakeBuildCommandLine>
     <NMakeReBuildCommandLine>cd shader &amp;&amp; c:\cygwin\bin\ruby shader.rb</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine />
-    <NMakeOutput>glsl_source.h;glsl_source.cpp</NMakeOutput>
+    <NMakeCleanCommandLine>rm shader/tmp/*</NMakeCleanCommandLine>
+    <NMakeOutput>
+    </NMakeOutput>
   </PropertyGroup>
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
@@ -75,6 +76,7 @@
   <ItemGroup>
     <ClInclude Include="shader\Bloom.h" />
     <ClInclude Include="shader\Common.h" />
+    <ClInclude Include="shader\DistanceFunctions.h" />
     <ClInclude Include="shader\Fxaa3_11.h" />
     <ClInclude Include="shader\RenderStates.h" />
     <ClInclude Include="shader\Semantics.h" />

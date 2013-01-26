@@ -109,6 +109,8 @@ namespace stl = eastl;
 #   include <algorithm>
 namespace stl = std;
 #endif // ist_with_EASTL
+#include <functional>
+
 
 #ifdef ist_with_DirectX11
 #   include <D3D11.h>

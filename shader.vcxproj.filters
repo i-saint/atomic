@@ -105,5 +105,8 @@
     <ClInclude Include="shader\Semantics.h">
       <Filter>shader</Filter>
     </ClInclude>
+    <ClInclude Include="shader\DistanceFunctions.h">
+      <Filter>shader</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

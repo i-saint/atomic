@@ -4,9 +4,9 @@
 #include "Shader.h"
 #include "Renderer.h"
 #include "AtomicRenderingSystem.h"
-#include "shader/glsl_source.h"
 
 namespace atomic {
+
 
 AtomicShader::AtomicShader()
 : m_shader(NULL)
@@ -29,35 +29,26 @@ void AtomicShader::release()
     istDelete(this);
 }
 
-bool AtomicShader::loadFromMemory( const char* src )
+bool AtomicShader::createShaders( const char *filename )
 {
     i3d::Device *dev = atomicGetGLDevice();
+#ifdef atomic_enable_shader_live_edit
+    static const char s_shader_path[] = "shader/tmp/";
     {
+        stl::string path = stl::string(s_shader_path)+filename+".vs";
         stl::string source;
-        source += "#version 330 core\n";
-        source += "#define GLSL\n";
-        source += "#define GLSL_VS\n";
-        source += src;
+        if(!ist::FileToString(path, source)) { istAssert(false, ""); }
         VertexShaderDesc desc = VertexShaderDesc(source.c_str(), source.size());
         m_vs = dev->createVertexShader(desc);
     }
     {
+        stl::string path = stl::string(s_shader_path)+filename+".ps";
         stl::string source;
-        source += "#version 330 core\n";
-        source += "#define GLSL\n";
-        source += "#define GLSL_PS\n";
-        source += src;
+        if(!ist::FileToString(path, source)) { istAssert(false, ""); }
         PixelShaderDesc desc = PixelShaderDesc(source.c_str(), source.size());
         m_ps = dev->createPixelShader(desc);
     }
-    //{
-    //    stl::string source;
-    //    source += "#define GLSL\n";
-    //    source += "#define GLSL_GS\n";
-    //    source += src;
-    //    GeometryShaderDesc desc = GeometryShaderDesc(source.c_str(), source.size());
-    //    m_gs = dev->createGeometryShader(desc);
-    //}
+#endif // atomic_enable_shader_live_edit
     {
         ShaderProgramDesc desc(m_vs, m_ps, m_gs);
         m_shader = dev->createShaderProgram(desc);

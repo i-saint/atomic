@@ -1,9 +1,9 @@
-#pragma include("Common.h")
+#include "Common.h"
 
 #define FXAA_PC 1
 #define FXAA_GLSL_130 1
 #define FXAA_QUALITY__PRESET 12
-#pragma include("Fxaa3_11.h")
+#include "Fxaa3_11.h"
 
 
 layout(std140) uniform fxaa_params

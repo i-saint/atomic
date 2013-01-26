@@ -1,4 +1,4 @@
-#pragma include("Common.h")
+#include "Common.h"
 
 layout(std140) uniform fade_params
 {

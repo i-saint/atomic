@@ -58,8 +58,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="shader\glsl_source.cpp" />
     <ClCompile Include="Sound\AtomicSound.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -104,7 +104,6 @@
     <ClInclude Include="Graphics\ResourceID.h" />
     <ClInclude Include="Graphics\ResourceManager.h" />
     <ClInclude Include="Graphics\Shader.h" />
-    <ClInclude Include="shader\glsl_source.h" />
     <ClInclude Include="Sound\AtomicSound.h" />
     <ClInclude Include="Sound\SoundResourceID.h" />
     <ClInclude Include="stdafx.h" />

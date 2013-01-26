@@ -7,9 +7,6 @@
     <Filter Include="Graphics">
       <UniqueIdentifier>{4befe200-1d0b-45fa-bf70-3fa44710a14a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shader">
-      <UniqueIdentifier>{6def42b1-51b3-412a-bee1-1d0a462e2416}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Sound">
       <UniqueIdentifier>{ae8965f0-cc3f-4ee1-bf6e-87b420fdae61}</UniqueIdentifier>
     </Filter>
@@ -44,9 +41,6 @@
     </ClCompile>
     <ClCompile Include="Graphics\Shader.cpp">
       <Filter>Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="shader\glsl_source.cpp">
-      <Filter>Shader</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="stdafx.cpp" />
@@ -137,9 +131,6 @@
     </ClInclude>
     <ClInclude Include="Graphics\Shader.h">
       <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="shader\glsl_source.h">
-      <Filter>Shader</Filter>
     </ClInclude>
     <ClInclude Include="types.h" />
     <ClInclude Include="stdafx.h" />

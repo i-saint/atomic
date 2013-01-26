@@ -9,25 +9,28 @@ namespace atomic {
 class AtomicShader
 {
 typedef ShaderProgram super;
-protected:
-    ShaderProgram   *m_shader;
-    VertexShader    *m_vs;
-    PixelShader     *m_ps;
-    GeometryShader  *m_gs;
-    int32 m_loc_renderstates;
-
 public:
     AtomicShader();
     ~AtomicShader();
     void release();
 
-    bool loadFromMemory(const char* src);
+    bool createShaders(const char* filename);
 
     GLint getUniformBlockIndex(const char *name) const;
     void setUniformBlock(GLuint uniformBlockIndex, GLuint uniformBindingIndex, Buffer *buffer);
     void bind();
     void unbind();
     void assign(i3d::DeviceContext *dc);
+
+protected:
+    ShaderProgram   *m_shader;
+    VertexShader    *m_vs;
+    PixelShader     *m_ps;
+    GeometryShader  *m_gs;
+    int32 m_loc_renderstates;
+#ifdef atomic_enable_shader_live_edit
+#endif // atomic_enable_shader_live_edit
+
 };
 
 

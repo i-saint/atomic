@@ -1,5 +1,5 @@
-#pragma include("Common.h")
-#pragma include("DistanceFunctions.h")
+#include "Common.h"
+#include "DistanceFunctions.h"
 
 #ifdef GLSL_VS
 ia_out(GLSL_POSITION)           vec2 ia_VertexPosition;

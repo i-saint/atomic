@@ -6,7 +6,6 @@
 #include "Graphics/ResourceManager.h"
 #include "Graphics/Light.h"
 #include "psym/psym.h"
-#include "shader/glsl_source.h"
 
 namespace atomic {
 
@@ -38,10 +37,10 @@ void GraphicResourceManager::finalizeInstance()
     istSafeDelete(s_inst);
 }
 
-inline AtomicShader* CreateAtomicShader(const char* source)
+inline AtomicShader* CreateAtomicShader(const char* filename)
 {
     AtomicShader *sh = istNew(AtomicShader)();
-    sh->loadFromMemory(source);
+    sh->createShaders(filename);
     return sh;
 }
 
@@ -153,34 +152,34 @@ bool GraphicResourceManager::initialize()
     }
     {
         // create shaders
-        m_shader[SH_GBUFFER_FLOOR]      = CreateAtomicShader(g_GBuffer_Floor_glsl);
-        //m_shader[SH_GBUFFER_FLUID]      = CreateAtomicShader(g_GBuffer_Fluid_glsl);
-        //m_shader[SH_GBUFFER_RIGID]      = CreateAtomicShader(g_GBuffer_Rigid_glsl);
-        m_shader[SH_GBUFFER_FLUID]      = CreateAtomicShader(g_GBuffer_FluidBlood_glsl);
-        //m_shader[SH_GBUFFER_FLUID]      = CreateAtomicShader(g_GBuffer_FluidSpherical_glsl);
-        m_shader[SH_GBUFFER_RIGID]      = CreateAtomicShader(g_GBuffer_RigidSpherical_glsl);
-        m_shader[SH_GBUFFER_PARTICLES]  = CreateAtomicShader(g_GBuffer_ParticleSpherical_glsl);
-        m_shader[SH_GBUFFER_UPSAMPLING] = CreateAtomicShader(g_GBuffer_Upsampling_glsl);
-        m_shader[SH_BLOODSTAIN]         = CreateAtomicShader(g_Deferred_Bloodstain_glsl);
-        m_shader[SH_UPSAMPLING]         = CreateAtomicShader(g_Deferred_Upsampling_glsl);
-        m_shader[SH_POINTLIGHT]         = CreateAtomicShader(g_Deferred_PointLight_glsl);
-        m_shader[SH_DIRECTIONALLIGHT]   = CreateAtomicShader(g_Deferred_DirectionalLight_glsl);
-        m_shader[SH_MICROSCOPIC]        = CreateAtomicShader(g_Postprocess_Microscopic_glsl);
-        m_shader[SH_FXAA_LUMA]          = CreateAtomicShader(g_FXAA_luma_glsl);
-        m_shader[SH_FXAA]               = CreateAtomicShader(g_FXAA_glsl);
-        m_shader[SH_BLOOM_LUMINANCE]    = CreateAtomicShader(g_Bloom_Luminance_glsl);
-        m_shader[SH_BLOOM_HBLUR]        = CreateAtomicShader(g_Bloom_HBlur_glsl);
-        m_shader[SH_BLOOM_VBLUR]        = CreateAtomicShader(g_Bloom_VBlur_glsl);
-        m_shader[SH_BLOOM_COMPOSITE]    = CreateAtomicShader(g_Bloom_Composite_glsl);
-        m_shader[SH_FADE]               = CreateAtomicShader(g_Fade_glsl);
-        m_shader[SH_FILL]               = CreateAtomicShader(g_Fill_glsl);
-        m_shader[SH_FILL_INSTANCED]     = CreateAtomicShader(g_FillInstanced_glsl);
-        m_shader[SH_DISTANCE_FIELD]     = CreateAtomicShader(g_DistanceField_glsl);
-        m_shader[SH_OUTPUT]             = CreateAtomicShader(g_Out_glsl);
-        m_shader[SH_DEBUG_SHOW_RGB]     = CreateAtomicShader(g_Debug_ShowRGB_glsl);
-        m_shader[SH_DEBUG_SHOW_AAA]     = CreateAtomicShader(g_Debug_ShowAAA_glsl);
+        m_shader[SH_GBUFFER_FLOOR]      = CreateAtomicShader("GBuffer_Floor");
+        //m_shader[SH_GBUFFER_FLUID]      = CreateAtomicShader("GBuffer_Fluid");
+        //m_shader[SH_GBUFFER_RIGID]      = CreateAtomicShader("GBuffer_Rigid");
+        m_shader[SH_GBUFFER_FLUID]      = CreateAtomicShader("GBuffer_FluidBlood");
+        //m_shader[SH_GBUFFER_FLUID]      = CreateAtomicShader("GBuffer_FluidSpherical");
+        m_shader[SH_GBUFFER_RIGID]      = CreateAtomicShader("GBuffer_RigidSpherical");
+        m_shader[SH_GBUFFER_PARTICLES]  = CreateAtomicShader("GBuffer_ParticleSpherical");
+        m_shader[SH_GBUFFER_UPSAMPLING] = CreateAtomicShader("GBuffer_Upsampling");
+        m_shader[SH_BLOODSTAIN]         = CreateAtomicShader("Deferred_Bloodstain");
+        m_shader[SH_UPSAMPLING]         = CreateAtomicShader("Deferred_Upsampling");
+        m_shader[SH_POINTLIGHT]         = CreateAtomicShader("Deferred_PointLight");
+        m_shader[SH_DIRECTIONALLIGHT]   = CreateAtomicShader("Deferred_DirectionalLight");
+        m_shader[SH_MICROSCOPIC]        = CreateAtomicShader("Postprocess_Microscopic");
+        m_shader[SH_FXAA_LUMA]          = CreateAtomicShader("FXAA_luma");
+        m_shader[SH_FXAA]               = CreateAtomicShader("FXAA");
+        m_shader[SH_BLOOM_LUMINANCE]    = CreateAtomicShader("Bloom_Luminance");
+        m_shader[SH_BLOOM_HBLUR]        = CreateAtomicShader("Bloom_HBlur");
+        m_shader[SH_BLOOM_VBLUR]        = CreateAtomicShader("Bloom_VBlur");
+        m_shader[SH_BLOOM_COMPOSITE]    = CreateAtomicShader("Bloom_Composite");
+        m_shader[SH_FADE]               = CreateAtomicShader("Fade");
+        m_shader[SH_FILL]               = CreateAtomicShader("Fill");
+        m_shader[SH_FILL_INSTANCED]     = CreateAtomicShader("FillInstanced");
+        m_shader[SH_DISTANCE_FIELD]     = CreateAtomicShader("DistanceField");
+        m_shader[SH_OUTPUT]             = CreateAtomicShader("Out");
+        m_shader[SH_DEBUG_SHOW_RGB]     = CreateAtomicShader("Debug_ShowRGB");
+        m_shader[SH_DEBUG_SHOW_AAA]     = CreateAtomicShader("Debug_ShowAAA");
 
-        m_shader[SH_BG1]    = CreateAtomicShader(g_GBuffer_BG1_glsl);
+        m_shader[SH_BG1]    = CreateAtomicShader("GBuffer_BG1");
     }
     {
         // samplers
@@ -244,6 +243,11 @@ void GraphicResourceManager::finalize()
     for(uint32 i=0; i<_countof(m_depth_states); ++i) { if(m_depth_states[i]) { atomicSafeRelease( m_depth_states[i] ); } }
     for(uint32 i=0; i<_countof(m_blend_states); ++i) { if(m_blend_states[i]) { atomicSafeRelease( m_blend_states[i] ); } }
     atomicSafeRelease(m_font);
+}
+
+void GraphicResourceManager::update()
+{
+
 }
 
 

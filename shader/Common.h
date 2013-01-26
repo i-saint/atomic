@@ -1,5 +1,6 @@
-#pragma include("RenderStates.h")
-#pragma include("Semantics.h")
+#pragma version 330 core
+#include "RenderStates.h"
+#include "Semantics.h"
 
 
     layout(std140) uniform render_states

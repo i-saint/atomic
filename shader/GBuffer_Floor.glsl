@@ -1,4 +1,4 @@
-#pragma include("Common.h")
+#include "Common.h"
 
 #ifdef GLSL_VS
 ia_out(GLSL_POSITION)           vec4 ia_VertexPosition;

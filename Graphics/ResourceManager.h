@@ -29,31 +29,12 @@ enum GBUFFER {
 
 class GraphicResourceManager : boost::noncopyable
 {
-private:
-    IFontRenderer       *m_font;
-    Sampler             *m_sampler[SAMPLER_END];
-    Texture1D           *m_tex1d[TEX1D_END];
-    Texture2D           *m_tex2d[TEX2D_END];
-    VertexArray         *m_va[VA_END];
-    Buffer              *m_vbo[VBO_END];
-    Buffer              *m_ibo[IBO_END];
-    Buffer              *m_ubo[UBO_END];
-    RenderTarget        *m_rt[RT_END];
-    AtomicShader        *m_shader[SH_END];
-    ParticleSet         m_pset[PSET_END];
-    RigidInfo           m_rinfo[PSET_END];
-    BlendState          *m_blend_states[BS_END];
-    DepthStencilState   *m_depth_states[DS_END];
-
-private:
-    static GraphicResourceManager* s_inst;
-    bool initialize();
-    void finalize();
-
 public:
     static GraphicResourceManager* getInstance() { return s_inst; }
     static void intializeInstance();
     static void finalizeInstance();
+
+    void update();
 
     IFontRenderer*      getFontRenderer()           { return m_font; }
     Sampler*            getSampler(SAMPLER_RID i)   { return m_sampler[i]; }
@@ -69,6 +50,27 @@ public:
     RigidInfo*          getRigidInfo(PSET_RID i)    { return &m_rinfo[i]; }
     BlendState*         getBlendState(BLEND_RID i)          { return m_blend_states[i]; }
     DepthStencilState*  getDepthStencilState(DEPTH_RID i)   { return m_depth_states[i]; }
+
+private:
+    static GraphicResourceManager* s_inst;
+    bool initialize();
+    void finalize();
+
+private:
+    IFontRenderer       *m_font;
+    Sampler             *m_sampler[SAMPLER_END];
+    Texture1D           *m_tex1d[TEX1D_END];
+    Texture2D           *m_tex2d[TEX2D_END];
+    VertexArray         *m_va[VA_END];
+    Buffer              *m_vbo[VBO_END];
+    Buffer              *m_ibo[IBO_END];
+    Buffer              *m_ubo[UBO_END];
+    RenderTarget        *m_rt[RT_END];
+    AtomicShader        *m_shader[SH_END];
+    ParticleSet         m_pset[PSET_END];
+    RigidInfo           m_rinfo[PSET_END];
+    BlendState          *m_blend_states[BS_END];
+    DepthStencilState   *m_depth_states[DS_END];
 };
 
 
