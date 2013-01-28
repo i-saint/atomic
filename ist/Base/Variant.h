@@ -15,9 +15,6 @@ namespace ist {
 template<size_t Size>
 class istInterModule TVariant
 {
-private:
-    char m_buf[Size];
-
 public:
     TVariant() { _ZeroClear(m_buf); }
 
@@ -62,6 +59,9 @@ public:
         BOOST_STATIC_ASSERT(sizeof(T)<=Size);
         return *reinterpret_cast<const T*>(m_buf);
     }
+
+private:
+    char m_buf[Size];
 };
 
 typedef istAlign(4) TVariant<4>     Variant4;

@@ -60,6 +60,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Network\GameServer.cpp" />
+    <ClCompile Include="Network\LevelEditorServer.cpp" />
     <ClCompile Include="Sound\AtomicSound.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -71,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DynamicObjLoader\DynamicObjLoader.h" />
+    <ClInclude Include="externals.h" />
     <ClInclude Include="features.h" />
     <ClInclude Include="FunctionID.h" />
     <ClInclude Include="Game\AtomicApplication.h" />
@@ -104,6 +107,8 @@
     <ClInclude Include="Graphics\ResourceID.h" />
     <ClInclude Include="Graphics\ResourceManager.h" />
     <ClInclude Include="Graphics\Shader.h" />
+    <ClInclude Include="Network\GameServer.h" />
+    <ClInclude Include="Network\LevelEditorServer.h" />
     <ClInclude Include="Sound\AtomicSound.h" />
     <ClInclude Include="Sound\SoundResourceID.h" />
     <ClInclude Include="stdafx.h" />

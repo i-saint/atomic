@@ -8,6 +8,8 @@
 #include "Game/DebugMenu.h"
 #include "Sound/AtomicSound.h"
 #include "Graphics/Renderer.h"
+#include "Network/LevelEditorServer.h"
+#include "Network/GameServer.h"
 #include "Util.h"
 
 #define ATOMIC_CONFIG_FILE_PATH "atomic.conf"
@@ -158,6 +160,7 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     // initialize sound
     AtomicSound::initializeInstance();
 
+    // initialize debug menu
     atomicDbgInitializeDebugMenu();
 
     // create game
@@ -166,6 +169,9 @@ bool AtomicApplication::initialize(int argc, char *argv[])
         m_game->readReplayFromFile(argv[1]);
     }
 
+    // start leveleditor
+    LevelEditorServer::initializeInstance();
+
     return true;
 }
 
@@ -173,6 +179,7 @@ void AtomicApplication::finalize()
 {
     m_config.writeToFile(ATOMIC_CONFIG_FILE_PATH);
 
+    LevelEditorServer::finalizeInstance();
     istSafeDelete(m_game);
 
     AtomicRenderingSystem::finalizeInstance();
