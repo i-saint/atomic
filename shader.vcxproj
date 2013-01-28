@@ -37,7 +37,7 @@
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
     <NMakeBuildCommandLine>cd shader &amp;&amp; c:\cygwin\bin\ruby shader.rb</NMakeBuildCommandLine>
     <NMakeReBuildCommandLine>cd shader &amp;&amp; c:\cygwin\bin\ruby shader.rb</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine>rm shader/tmp/*</NMakeCleanCommandLine>
+    <NMakeCleanCommandLine>del /Q shader\tmp\*</NMakeCleanCommandLine>
     <NMakeOutput>
     </NMakeOutput>
   </PropertyGroup>

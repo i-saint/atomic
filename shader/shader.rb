@@ -1,5 +1,8 @@
 #!/usr/bin/ruby
 
+require 'fileutils'
+include FileUtils
+
 SH_PREPROCESS_VS = "cl /EP /u /DGLSL /DGLSL_VS "
 SH_PREPROCESS_PS = "cl /EP /u /DGLSL /DGLSL_PS "
 
@@ -9,6 +12,7 @@ def sh_strip(src)
 end
 
 def sh_update()
+  mkpath("tmp")
   Dir.foreach(".") do |f|
     next if !f.match(/\.glsl$/)
 
