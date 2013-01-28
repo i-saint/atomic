@@ -5,6 +5,25 @@ namespace atomic {
 
 using namespace Poco;
 using namespace Poco::Net;
+const char s_fileserver_base_dir[] = "editor";
+
+
+class FileRequestHandler: public HTTPRequestHandler
+{
+public:
+    FileRequestHandler(const std::string &path)
+        : m_path(path)
+    {
+    }
+
+    void handleRequest(HTTPServerRequest &request, HTTPServerResponse &response)
+    {
+        response.sendFile(m_path, "text/html");
+    }
+
+private:
+    std::string m_path;
+};
 
 class LevelEditorRequestHandler: public HTTPRequestHandler
 {
@@ -13,14 +32,13 @@ public:
     {
     }
 
-    void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response)
+    void handleRequest(HTTPServerRequest &request, HTTPServerResponse &response)
     {
-        Timestamp now;
-
         response.setChunkedTransferEncoding(true);
         response.setContentType("text/html");
 
-        std::ostream& ostr = response.send();
+        Timestamp now;
+        std::ostream &ostr = response.send();
         ostr << "<html><head><title>HTTPTimeServer powered by POCO C++ Libraries</title>";
         ostr << "<meta http-equiv=\"refresh\" content=\"1\"></head>";
         ostr << "<body><p style=\"text-align: center; font-size: 48px;\">";
@@ -31,24 +49,28 @@ public:
 private:
 };
 
-class LevelEditorRequestHandlerFactory: public HTTPRequestHandlerFactory
+class LevelEditorRequestHandlerFactory : public HTTPRequestHandlerFactory
 {
 public:
-    LevelEditorRequestHandlerFactory()
-    {
-    }
-
-    virtual HTTPRequestHandler* createRequestHandler(const HTTPServerRequest& request)
+    virtual HTTPRequestHandler* createRequestHandler(const HTTPServerRequest &request)
     {
         if(request.getURI() == "/") {
+            return new FileRequestHandler(std::string(s_fileserver_base_dir)+"/index.html");
+        }
+        else if(request.getURI() == "/command") {
             return new LevelEditorRequestHandler();
         }
         else {
-            return 0;
+            std::string path = std::string(s_fileserver_base_dir)+request.getURI();
+            Poco::File file(path);
+            if(file.exists()) {
+                return new FileRequestHandler(path);
+            }
+            else {
+                return 0;
+            }
         }
     }
-
-private:
 };
 
 
@@ -58,7 +80,6 @@ LevelEditorServerConfig::LevelEditorServerConfig()
     , max_threads(4)
 {
 }
-
 
 
 LevelEditorServer::LevelEditorServer()
@@ -81,7 +102,7 @@ void LevelEditorServer::start()
 
         ServerSocket svs(m_conf.port);
 
-        m_server = new Poco::Net::HTTPServer(new LevelEditorRequestHandlerFactory(), svs, pParams);
+        m_server = new HTTPServer(new LevelEditorRequestHandlerFactory(), svs, pParams);
         m_server->start();
     }
 }

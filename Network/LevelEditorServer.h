@@ -47,8 +47,13 @@ struct LevelEditorServerConfig
     LevelEditorServerConfig();
 };
 
+class LevelEditorRequestHandler;
+class LevelEditorRequestHandlerFactory;
+
 class LevelEditorServer
 {
+friend class LevelEditorRequestHandler;
+friend class LevelEditorRequestHandlerFactory;
 public:
     static void initializeInstance();
     static void finalizeInstance();
@@ -63,10 +68,12 @@ public:
 
 
 private:
-    typedef stl::vector<variant32> CommandCont;
-
     LevelEditorServer();
     ~LevelEditorServer();
+    void pushCommand(const variant32 &cmd);
+
+private:
+    typedef stl::vector<variant32> CommandCont;
 
     static LevelEditorServer *s_inst;
     Poco::Net::HTTPServer *m_server;
