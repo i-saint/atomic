@@ -18,12 +18,14 @@ public:
 
     void handleRequest(HTTPServerRequest &request, HTTPServerResponse &response)
     {
+        // todo: 拡張子に合わせてメディアタイプ変更
         response.sendFile(m_path, "text/html");
     }
 
 private:
     std::string m_path;
 };
+
 
 class LevelEditorRequestHandler: public HTTPRequestHandler
 {
@@ -37,17 +39,13 @@ public:
         response.setChunkedTransferEncoding(true);
         response.setContentType("text/html");
 
-        Timestamp now;
         std::ostream &ostr = response.send();
-        ostr << "<html><head><title>HTTPTimeServer powered by POCO C++ Libraries</title>";
-        ostr << "<meta http-equiv=\"refresh\" content=\"1\"></head>";
-        ostr << "<body><p style=\"text-align: center; font-size: 48px;\">";
-        ostr << now.epochMicroseconds();
-        ostr << "</p></body></html>";
+        // todo:
     }
 
 private:
 };
+
 
 class LevelEditorRequestHandlerFactory : public HTTPRequestHandlerFactory
 {
