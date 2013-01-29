@@ -39,8 +39,8 @@ ParamNodeBase::ParamNodeBase(const char *name, INodeFunctor *functor)
 ParamNodeBase::~ParamNodeBase()
 {
     istSafeRelease(m_functor);
-    for(size_t i=0; i<m_children.size(); ++i) {
-        istSafeRelease(m_children[i]);
+    while(m_children.empty()) {
+        istSafeRelease(m_children.front());
     }
     if(IParamNode *parent=getParent()) {
         parent->eraseChild(this);

@@ -34,6 +34,7 @@ struct AtomicConfig
     int language;
 
     AtomicConfig();
+    void setup();
     bool readFromFile(const char* filepath);
     bool writeToFile(const char* filepath);
 };

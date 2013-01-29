@@ -103,6 +103,14 @@ bool AtomicConfig::writeToFile( const char* filepath )
     return true;
 }
 
+void AtomicConfig::setup()
+{
+    atomicDbgAddParamNodePBool("Config/VSync",                  &vsync);
+    atomicDbgAddParamNodePBool("Config/Unlimit Game Speed",     &unlimit_gamespeed);
+    atomicDbgAddParamNodePBool("Config/PostEffect Bloom",       &posteffect_bloom);
+    atomicDbgAddParamNodePBool("Config/PostEffect Antialias",   &posteffect_antialias);
+}
+
 
 AtomicApplication *g_appinst = NULL;
 
@@ -140,6 +148,10 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     TaskScheduler::initializeInstance();
     InitializeText();
 
+    // initialize debug menu
+    atomicDbgInitializeDebugMenu();
+
+    m_config.setup();
     m_config.readFromFile(ATOMIC_CONFIG_FILE_PATH);
     if(m_config.window_pos.x >= 30000) { m_config.window_pos.x = 0; }
     if(m_config.window_pos.y >= 30000) { m_config.window_pos.y = 0; }
@@ -152,9 +164,6 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     {
         return false;
     }
-
-    // initialize debug menu
-    atomicDbgInitializeDebugMenu();
 
     // start rendering thread
     AtomicRenderingSystem::initializeInstance();
@@ -222,8 +231,8 @@ void AtomicApplication::mainLoop()
             m_game->draw();
             m_game->frameEnd();
             if(!atomicGetConfig()->unlimit_gamespeed && !atomicGetConfig()->vsync) {
-                float32 elapsed = pc.getElapsedMillisec();
-                ist::Thread::microSleep((uint32)std::max<float32>(delay-elapsed, 0.0f));
+                float32 remain = delay-pc.getElapsedMillisec();
+                ist::Thread::microSleep((uint32)std::max<float32>(remain*1000.0f, 0.0f));
             }
             pc.reset();
         }
