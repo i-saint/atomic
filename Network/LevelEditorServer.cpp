@@ -58,6 +58,9 @@ public:
         else if(request.getURI() == "/command") {
             return new LevelEditorRequestHandler();
         }
+        else if(request.getURI() == "/state") {
+            return new LevelEditorRequestHandler();
+        }
         else {
             std::string path = std::string(s_fileserver_base_dir)+request.getURI();
             Poco::File file(path);

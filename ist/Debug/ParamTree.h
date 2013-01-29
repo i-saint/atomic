@@ -66,6 +66,17 @@ public:
 // ÉÇÉWÉÖÅ[ÉãÇå◊Ç¢Ç≈Ç¢Ç¢ÇÃÇÕ IParamNode ÇæÇØÇ∆Ç∑ÇÈÅB
 
 template<class T> uint32 TPrintValue(char *buf, uint32 buf_size, T value);
+template<> uint32 TPrintValue<float32>(char *buf, uint32 buf_size, float32 value);
+template<> uint32 TPrintValue<float64>(char *buf, uint32 buf_size, float64 value);
+template<> uint32 TPrintValue<  int8>(char *buf, uint32 buf_size,   int8 value);
+template<> uint32 TPrintValue< uint8>(char *buf, uint32 buf_size,  uint8 value);
+template<> uint32 TPrintValue< int16>(char *buf, uint32 buf_size,  int16 value);
+template<> uint32 TPrintValue<uint16>(char *buf, uint32 buf_size, uint16 value);
+template<> uint32 TPrintValue< int32>(char *buf, uint32 buf_size,  int32 value);
+template<> uint32 TPrintValue<uint32>(char *buf, uint32 buf_size, uint32 value);
+template<> uint32 TPrintValue< int64>(char *buf, uint32 buf_size,  int64 value);
+template<> uint32 TPrintValue<uint64>(char *buf, uint32 buf_size, uint64 value);
+template<> uint32 TPrintValue<  bool>(char *buf, uint32 buf_size,   bool value);
 template<class T> class ITValueUpdater;
 class INodeFunctor;
 
@@ -250,6 +261,11 @@ public:
     {
         setValue(false);
         return true;
+    }
+
+    virtual uint32 printValue(char *buf, uint32 buf_size) const
+    {
+        return TPrintValue(buf, buf_size, getValue());
     }
 
 private:

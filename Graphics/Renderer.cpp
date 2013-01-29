@@ -103,7 +103,6 @@ void AtomicRenderer::beforeDraw()
 void AtomicRenderer::draw()
 {
     i3d::DeviceContext *dc = atomicGetGLDeviceContext();
-    PerformanceCounter timer;
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
@@ -146,8 +145,6 @@ void AtomicRenderer::draw()
     passOutput();
 
     //glFinish();
-
-    timer.count();
 }
 
 void AtomicRenderer::passShadow()
@@ -267,7 +264,7 @@ void AtomicRenderer::passOutput()
     // texts 
 
     char buf[64];
-    istsprintf(buf, "FPS: %.0f", atomicGetRenderingSystem()->getAverageFPS());
+    istsprintf(buf, "FPS: %u", atomicGetRenderingSystem()->getAverageFPS());
     m_stext->addText(vec2(5.0f, 5.0f), buf);
     istsprintf(buf, "Particles: %d", atomicGetSPHManager()->getNumParticles());
     m_stext->addText(vec2(5.0f, 25.0f), buf);

@@ -46,6 +46,7 @@
     <ClInclude Include="ist\Concurrency\TaskUtil.h" />
     <ClInclude Include="ist\Concurrency\Thread.h" />
     <ClInclude Include="ist\Concurrency\ThreadCommon.h" />
+    <ClInclude Include="ist\Concurrency\Timer.h" />
     <ClInclude Include="ist\Config.h" />
     <ClInclude Include="ist\Debug.h" />
     <ClInclude Include="ist\Debug\Callstack.h" />
@@ -129,6 +130,7 @@
     <ClCompile Include="ist\Concurrency\TaskScheduler.cpp" />
     <ClCompile Include="ist\Concurrency\TaskUtil.cpp" />
     <ClCompile Include="ist\Concurrency\Thread.cpp" />
+    <ClCompile Include="ist\Concurrency\Timer.cpp" />
     <ClCompile Include="ist\Debug\Callstack.cpp" />
     <ClCompile Include="ist\Debug\ParamTree.cpp" />
     <ClCompile Include="ist\GraphicsCommon\EasyDrawer.cpp" />

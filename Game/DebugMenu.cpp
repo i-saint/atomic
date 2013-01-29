@@ -60,10 +60,10 @@ void DebugMenu::update()
         if(is.isDirectionTriggered(InputState::DIR_UP)) {
             m_root->handleEvent(ist::IParamNode::Event_Up);
         }
-        if(is.isDirectionPressed(InputState::DIR_LEFT)) {
+        if(is.isDirectionTriggered(InputState::DIR_LEFT)) {
             m_root->handleEvent(ist::IParamNode::Event_Backward);
         }
-        if(is.isDirectionPressed(InputState::DIR_RIGHT)) {
+        if(is.isDirectionTriggered(InputState::DIR_RIGHT)) {
             m_root->handleEvent(ist::IParamNode::Event_Forward);
         }
     }

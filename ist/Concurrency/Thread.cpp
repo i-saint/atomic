@@ -1,5 +1,6 @@
 ﻿#include "istPCH.h"
 #include "ist/Concurrency/Thread.h"
+#include "ist/Concurrency/Timer.h"
 
 #if defined(ist_env_Windows)
 #include <process.h>
@@ -107,13 +108,25 @@ void Thread::yieldProcessor()
 #endif // ist_env_Windows
 }
 
-void Thread::sleep( uint32 millisec )
+void Thread::milliSleep( uint32 millisec )
 {
 #ifdef ist_env_Windows
     return ::Sleep(millisec);
 #else // ist_env_Windows
     return ::pthread_yield();
 #endif // ist_env_Windows
+}
+
+void Thread::microSleep( uint32 microsec )
+{
+    if(microsec==0) { return; }
+
+    Timer timer;
+    uint32 milli = microsec / 1000;
+    if(milli>1) { milliSleep(milli); }
+    while(uint32(timer.getElapsedMillisec()*1000.0f)<microsec) {
+        yieldProcessor();
+    }
 }
 
 

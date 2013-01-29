@@ -44,7 +44,9 @@ private:
     stl::vector<RenderingRequest> m_requests;
     stl::vector<RenderingRequest> m_requests_temp;
 
-    PerformanceCounter m_fps_counter;
+    ist::Timer m_fps_timer;
+    uint32 m_fps_count;
+    uint32 m_fps_avg;
 
 public:
     AtomicRenderingThread();
@@ -61,7 +63,7 @@ public:
     void doRender();
 
     ATOMIC_ERROR getError() const { return m_error; }
-    float32 getAverageFPS() const { return m_fps_counter.getAverageFPS(); }
+    uint32 getAverageFPS() const { return m_fps_avg; }
     i3d::Device* getDevice() { return m_device; }
     i3d::DeviceContext* getDeviceContext() { return m_context; }
 };
@@ -70,6 +72,8 @@ AtomicRenderingThread::AtomicRenderingThread()
     : m_device(NULL)
     , m_context(NULL)
     , m_error(ATERR_NOERROR)
+    , m_fps_count(0)
+    , m_fps_avg(0)
 {
 }
 
@@ -117,6 +121,7 @@ void AtomicRenderingThread::exec()
     AtomicRenderer::initializeInstance();
     m_cond_initialize_complete.signalOne();
 
+    m_fps_timer.reset();
     bool end_flag = false;
     while(!end_flag) {
         m_cond_request.wait();
@@ -133,6 +138,15 @@ void AtomicRenderingThread::exec()
             }
         }
         m_requests_temp.clear();
+
+        {
+            float32 elap = m_fps_timer.getElapsedMillisec();
+            if(elap>1000.0f) {
+                m_fps_avg = m_fps_count;
+                m_fps_count = 0;
+                m_fps_timer.reset();
+            }
+        }
     }
 
     AtomicRenderer::finalizeInstance();
@@ -152,7 +166,7 @@ void AtomicRenderingThread::doRender()
     atomicGetApplication()->drawCallback();
     m_cond_callback_complete.signalOne();
     m_device->swapBuffers();
-    m_fps_counter.count();
+    ++m_fps_count;
 }
 
 
@@ -207,7 +221,7 @@ void AtomicRenderingSystem::kickDraw()
     m_render_thread->pushRequest(RenderingRequest::createRenderRequest());
 }
 
-float32 AtomicRenderingSystem::getAverageFPS() const
+uint32 AtomicRenderingSystem::getAverageFPS() const
 {
     return m_render_thread->getAverageFPS();
 }

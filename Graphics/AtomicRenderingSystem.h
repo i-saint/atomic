@@ -28,7 +28,7 @@ public:
     void waitUntilDrawCallbackComplete();
     void kickDraw();
 
-    float32 getAverageFPS() const;
+    uint32 getAverageFPS() const;
 
     // 以下レンダリングスレッドからのみアクセス可
     i3d::Device* getDevice();

@@ -59,10 +59,12 @@ class PassGBuffer_BG : public IRenderer
 {
 public:
     PassGBuffer_BG();
+    ~PassGBuffer_BG();
     void beforeDraw();
     void draw();
 
 private:
+    bool m_enabled;
 };
 
 } // namespace atomic

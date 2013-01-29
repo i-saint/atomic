@@ -145,7 +145,6 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     if(m_config.window_pos.y >= 30000) { m_config.window_pos.y = 0; }
     if(m_config.window_size.x < 320 || m_config.window_size.x < 240) { m_config.window_size = ivec2(1024, 768); }
 
-
     // create window
     ivec2 wpos = m_config.window_pos;
     ivec2 wsize = m_config.window_size;
@@ -154,14 +153,14 @@ bool AtomicApplication::initialize(int argc, char *argv[])
         return false;
     }
 
+    // initialize debug menu
+    atomicDbgInitializeDebugMenu();
+
     // start rendering thread
     AtomicRenderingSystem::initializeInstance();
 
     // initialize sound
     AtomicSound::initializeInstance();
-
-    // initialize debug menu
-    atomicDbgInitializeDebugMenu();
 
     // create game
     m_game = istNew(AtomicGame)();
@@ -204,8 +203,9 @@ void AtomicApplication::mainLoop()
     DOL_Load(BUILD_TARGET);
     DOL_Link();
 
-    PerformanceCounter pc;
-    float dt = 1.0f;
+    ist::Timer pc;
+    const float32 delay = 16.666f;
+    const float32 dt = 1.0f;
 
     while(!m_request_exit)
     {
@@ -222,16 +222,8 @@ void AtomicApplication::mainLoop()
             m_game->draw();
             m_game->frameEnd();
             if(!atomicGetConfig()->unlimit_gamespeed && !atomicGetConfig()->vsync) {
-                for(;;) {
-                    const float32 threshold = 16.66f;
-                    float32 elapsed = pc.getElapsedMillisecond();
-                    if(elapsed>=threshold) {
-                        break;
-                    }
-                    else if(threshold - elapsed > 2.0f) {
-                        ::Sleep(DWORD(threshold - elapsed));
-                    }
-                }
+                float32 elapsed = pc.getElapsedMillisec();
+                ist::Thread::microSleep((uint32)std::max<float32>(delay-elapsed, 0.0f));
             }
             pc.reset();
         }

@@ -224,7 +224,14 @@ void PassGBuffer_Fluid::addPSetInstance( PSET_RID psid, const PSetInstance inst 
 
 
 PassGBuffer_BG::PassGBuffer_BG()
+    : m_enabled(true)
 {
+    atomicDbgAddParamNodePBool("Rendering/BG/Enable", &m_enabled);
+}
+
+PassGBuffer_BG::~PassGBuffer_BG()
+{
+    atomicDbgDeleteParamNode("Rendering/BG");
 }
 
 void PassGBuffer_BG::beforeDraw()
@@ -233,6 +240,8 @@ void PassGBuffer_BG::beforeDraw()
 
 void PassGBuffer_BG::draw()
 {
+    if(!m_enabled) { return; }
+
     i3d::DeviceContext *dc = atomicGetGLDeviceContext();
     AtomicShader *sh_bg     = atomicGetShader(SH_BG1);
     AtomicShader *sh_up     = atomicGetShader(SH_GBUFFER_UPSAMPLING);

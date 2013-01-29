@@ -15,7 +15,7 @@ template<> uint32 TPrintValue< int32>(char *buf, uint32 buf_size,  int32 value) 
 template<> uint32 TPrintValue<uint32>(char *buf, uint32 buf_size, uint32 value)     { return istsnprintf(buf, buf_size, "%u", value); }
 template<> uint32 TPrintValue< int64>(char *buf, uint32 buf_size,  int64 value)     { return istsnprintf(buf, buf_size, "%lld", value); }
 template<> uint32 TPrintValue<uint64>(char *buf, uint32 buf_size, uint64 value)     { return istsnprintf(buf, buf_size, "%llu", value); }
-template<> uint32 TPrintValue<  bool>(char *buf, uint32 buf_size,   bool value)     { return istsnprintf(buf, buf_size, "s", (value ? "true" : "false")); }
+template<> uint32 TPrintValue<  bool>(char *buf, uint32 buf_size,   bool value)     { return istsnprintf(buf, buf_size, "%s", (value ? "true" : "false")); }
 
 
 bool IParamNode::isSelected() const

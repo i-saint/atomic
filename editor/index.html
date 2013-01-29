@@ -20,7 +20,7 @@ var mouseDy = 0;
 
 
 
-function updateFPS() { // updates every second
+function updateFPS() {
 	document.getElementById("fps").textContent = frame;
 	frame = 0;
 }
@@ -38,7 +38,8 @@ function load()
 	var c = document.getElementById("c");
 	try {
 		gl = c.getContext("experimental-webgl", { depth: false });
-	} catch(e) {
+	}
+	catch(e) {
 	}
 	if (!gl) {
 		alert("WebGL is not supported on this browser.");
