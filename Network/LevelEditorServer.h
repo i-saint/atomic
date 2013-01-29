@@ -15,25 +15,35 @@ enum LevelEditorCommandID
 struct LevelEditorCommand
 {
     LevelEditorCommandID command;
+
+    LevelEditorCommand() : command(LEC_Unknown) {}
 };
 
 struct LevelEditorCommand_Create
 {
     LevelEditorCommandID command;
     uint32 entity_typeid;
+
+    LevelEditorCommand_Create() : command(LEC_Create) {}
 };
 
 struct LevelEditorCommand_Delete
 {
     LevelEditorCommandID command;
-    uint32 entity_typeid;
+    uint32 entity_id;
+
+    LevelEditorCommand_Delete() : command(LEC_Delete) {}
 };
 
 struct LevelEditorCommand_Call
 {
     LevelEditorCommandID command;
+    uint32 entity_id;
     uint32 function_id;
+    uint32 dummy;
     variant arg;
+
+    LevelEditorCommand_Call() : command(LEC_Call) {}
 };
 
 
@@ -63,7 +73,7 @@ public:
     void stop();
     void restart();
 
-    typedef std::function<void (const LevelEditorCommand*)> CommandProcessor;
+    typedef std::function<void (const LevelEditorCommand&)> CommandProcessor;
     void handleCommands(const CommandProcessor &proc);
 
 
@@ -78,6 +88,7 @@ private:
     static LevelEditorServer *s_inst;
     Poco::Net::HTTPServer *m_server;
     LevelEditorServerConfig m_conf;
+    ist::Mutex m_mutex;
     CommandCont m_commands;
     CommandCont m_commands_tmp;
 };

@@ -5,6 +5,9 @@
 
 <script type="text/javascript" src="prototype.js"></script>
 <script type="text/javascript">
+var FieldX = 2.56;
+var FieldY = 2.56;
+
 var gl;
 var ext;
 var timer;
@@ -19,6 +22,13 @@ var mouseDx = 0;
 var mouseDy = 0;
 
 
+function bool_s(v) { return "bool("+v.toString()+")"; }
+function int_s(v) { return "int("+v.toString()+")"; }
+function float_s(v) { return "float("+v.toString()+")"; }
+function vec2_s(x,y) { return "vec2("+x.toString()+","+y.toString()+")"; }
+function vec3_s(x,y,z) { return "vec3("+x.toString()+","+y.toString()+","+z.toString()+")"; }
+function vec4_s(x,y,z,w) { return "vec4("+x.toString()+","+y.toString()+","+z.toString()+","+w.toString()+")"; }
+function string_s(v) { return "string(\""+v+"\")"; }
 
 function updateFPS() {
 	document.getElementById("fps").textContent = frame;
@@ -51,11 +61,13 @@ function load()
 		mouseY = evt.pageY / c.height;
 	};
 
-	document.onclick = function(evt) {
+	c.onclick = function(evt) {
 		mouseX = evt.pageX / c.width;
-		mouseY = evt.pageY / c.height;
+		mouseY = 1.0 - (evt.pageY / c.height);
 		if(mouseX<=1.0 && mouseY<=1.0) {
-			postCommand("/command", {});
+			var fx = FieldX * (mouseX-0.5)*2.0;
+			var fy = FieldY * (mouseY-0.5)*2.0;
+			postCommand("/command", {command:"create", pos:vec2_s(fx, fy)});
 		}
 	};
 
@@ -87,7 +99,7 @@ function postCommand(url, values)
 	var ajax = new Ajax.Request("/command",
 	{
 		method: "post",
-		parameters: "command=create",
+		parameters: values,
 		onComplete: function(req) {
 		}
 	});

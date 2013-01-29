@@ -188,6 +188,7 @@ void AtomicApplication::finalize()
     m_config.writeToFile(ATOMIC_CONFIG_FILE_PATH);
 
     LevelEditorServer::finalizeInstance();
+    Poco::ThreadPool::defaultPool().joinAll();
     istSafeDelete(m_game);
 
     AtomicRenderingSystem::finalizeInstance();

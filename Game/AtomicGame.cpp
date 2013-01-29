@@ -8,6 +8,8 @@
 #include "Game/Message.h"
 #include "Game/World.h"
 #include "Util.h"
+#include "Game/Entity.h"
+#include "Game/EntityQuery.h"
 
 namespace atomic {
 
@@ -77,6 +79,9 @@ void AtomicGame::update(float32 dt)
     if(!atomicDbgDebugMenuIsActive()) {
         m_input_server->update(*atomicGetSystemInputs());
     }
+
+    LevelEditorServer::getInstance()->handleCommands(
+        std::bind(&AtomicGame::handleLevelEditorCommand, this, std::placeholders::_1) );
     m_world->update(1.0f);
 }
 
@@ -144,6 +149,29 @@ SFMT* AtomicGame::getRandom()
 {
     atomicDbgAssertSyncLock("getRandom() is called from asycupdate.\n");
     return &m_rand;
+}
+
+void AtomicGame::handleLevelEditorCommand( const LevelEditorCommand &c )
+{
+    static IEntity *s_last_entity;
+    if(c.command==LEC_Create) {
+        const LevelEditorCommand_Create &cmd = reinterpret_cast<const LevelEditorCommand_Create&>(c);
+        s_last_entity = atomicGetEntitySet()->createEntity<Enemy_Test>();
+    }
+    else if(c.command==LEC_Delete) {
+        const LevelEditorCommand_Delete &cmd = reinterpret_cast<const LevelEditorCommand_Delete&>(c);
+        IEntity *e = cmd.entity_id==uint32(-1) ? s_last_entity : atomicGetEntity(cmd.entity_id);
+        if(e) {
+            atomicCall(e, kill, 0);
+        }
+    }
+    else if(c.command==LEC_Call) {
+        const LevelEditorCommand_Call &cmd = reinterpret_cast<const LevelEditorCommand_Call&>(c);
+        IEntity *e = cmd.entity_id==uint32(-1) ? s_last_entity : atomicGetEntity(cmd.entity_id);
+        if(e) {
+            e->call((FunctionID)cmd.function_id, cmd.arg);
+        }
+    }
 }
 
 } // namespace atomic

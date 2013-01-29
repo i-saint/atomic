@@ -22,6 +22,7 @@
 #include "Poco/File.h"
 #include "Poco/FileStream.h"
 #include "Poco/Timestamp.h"
+#include "Poco/URI.h"
 #include "Poco/Net/HTTPServer.h"
 #include "Poco/Net/HTTPRequestHandler.h"
 #include "Poco/Net/HTTPRequestHandlerFactory.h"

@@ -3,6 +3,7 @@
 #include "Input.h"
 #include "AtomicApplication.h"
 #include "Game/DebugMenu.h"
+#include "Network/LevelEditorServer.h"
 
 
 namespace atomic {
@@ -12,14 +13,6 @@ class AtomicRenderer;
 
 class AtomicGame
 {
-private:
-    IInputServer    *m_input_server;
-    World           *m_world;
-    SFMT            m_rand;
-#ifdef atomic_enable_sync_lock
-    bool m_sync_lock;
-#endif // atomic_enable_sync_lock
-
 public:
     AtomicGame();
     ~AtomicGame();
@@ -36,6 +29,7 @@ public:
     // 描画スレッドから呼ばれる
     void drawCallback();
 
+    void handleLevelEditorCommand(const LevelEditorCommand &cmd);
     int handleCommandLine(const stl::wstring &command);
 
     const InputState* getIngameInputs() const { return m_input_server->getInput(); }
@@ -46,6 +40,14 @@ public:
     void dbgLockSyncMethods()               { m_sync_lock=true; }
     void dbgUnlockSyncMethods()             { m_sync_lock=false; }
     bool dbgIsSyncMethodsEnabled() const    { return m_sync_lock; }
+#endif // atomic_enable_sync_lock
+
+private:
+    IInputServer    *m_input_server;
+    World           *m_world;
+    SFMT            m_rand;
+#ifdef atomic_enable_sync_lock
+    bool m_sync_lock;
 #endif // atomic_enable_sync_lock
 };
 
