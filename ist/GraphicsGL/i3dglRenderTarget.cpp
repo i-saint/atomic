@@ -53,7 +53,7 @@ bool DetectGLFormat(I3D_COLOR_FORMAT fmt, GLint &internal_format, GLint &format,
     case I3D_RGBA_DXT5: internal_format=GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;       break;
     case I3D_SRGBA_DXT5:internal_format=GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT; break;
     default:
-        istAssert(false, "unknown format: %d", fmt);
+        istAssert(false);
         return false;
     }
     return true;
@@ -137,7 +137,7 @@ void RenderTarget::setNumColorBuffers(uint32 v)
 
 void RenderTarget::setColorBuffer(uint32 slot, Texture2D *color, uint32 level)
 {
-    istAssert(slot<_countof(m_color_buffers), "");
+    istAssert(slot<_countof(m_color_buffers));
 
     istSafeAddRef(color);
     istSafeRelease(m_color_buffers[slot]);

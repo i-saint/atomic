@@ -369,13 +369,10 @@ namespace {
 #ifndef ist_env_Master
         ist::InitializeDebugSymbol();
 #endif // ist_env_Master
-        istMemoryLeakCheckerInitialize();
     }
 
     void PostMain()
     {
-        istMemoryLeakCheckerPrint();
-        istMemoryLeakCheckerFinalize();
         // 他のモジュールがまだシンボル情報を使う可能性があるので敢えて呼ばない
 //#ifndef ist_env_Master
 //        ist::FinalizeDebugSymbol();

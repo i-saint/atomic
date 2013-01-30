@@ -45,7 +45,7 @@ public:
 
 void EntitySet::addEntity( uint32 categoryid, uint32 classid, IEntity *e )
 {
-    atomicDbgAssertSyncLock("");
+    atomicDbgAssertSyncLock();
     EntityCont &entities = m_entities[categoryid][classid];
     HandleCont &vacant = m_vacant[categoryid][classid];
     EntityHandle h = 0;
@@ -184,7 +184,7 @@ IEntity* EntitySet::getEntity( EntityHandle h )
 
 void EntitySet::deleteEntity( EntityHandle h )
 {
-    atomicDbgAssertSyncLock("");
+    atomicDbgAssertSyncLock();
     uint32 cid = EntityGetCategory(h);
     uint32 sid = EntityGetClass(h);
     uint32 iid = EntityGetID(h);

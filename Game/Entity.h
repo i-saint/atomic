@@ -30,7 +30,6 @@ template<class T> struct EntityTraits;
 
 
 
-
 class IEntity
 {
 typedef IEntity this_t;

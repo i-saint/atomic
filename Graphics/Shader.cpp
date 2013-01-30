@@ -49,11 +49,11 @@ bool AtomicShader::createShaders( const char *filename )
     {
         stl::string vs_path = stl::string(s_shader_path)+filename+".vs";
         stl::string vs_src;
-        if(!ist::FileToString(vs_path, vs_src)) { istAssert(false, ""); return false; }
+        if(!ist::FileToString(vs_path, vs_src)) { istAssert(false); return false; }
 
         stl::string ps_path = stl::string(s_shader_path)+filename+".ps";
         stl::string ps_src;
-        if(!ist::FileToString(ps_path, ps_src)) { istAssert(false, ""); return false; }
+        if(!ist::FileToString(ps_path, ps_src)) { istAssert(false); return false; }
 
         sh_desc.vs = dev->createVertexShader( VertexShaderDesc(vs_src.c_str(), vs_src.size()) );
         sh_desc.ps = dev->createPixelShader( PixelShaderDesc(ps_src.c_str(), ps_src.size()) );
@@ -66,11 +66,11 @@ bool AtomicShader::createShaders( const char *filename )
     {
         stl::string vs_path = stl::string(s_shader_path)+filename+".vs";
         stl::string vs_src;
-        if(!ist::FileToString(vs_path, vs_src)) { istAssert(false, ""); return false; }
+        if(!ist::FileToString(vs_path, vs_src)) { istAssert(false); return false; }
 
         stl::string ps_path = stl::string(s_shader_path)+filename+".ps";
         stl::string ps_src;
-        if(!ist::FileToString(ps_path, ps_src)) { istAssert(false, ""); return false; }
+        if(!ist::FileToString(ps_path, ps_src)) { istAssert(false); return false; }
 
         sh_desc.vs = dev->createVertexShader( VertexShaderDesc(vs_src.c_str(), vs_src.size()) );
         sh_desc.ps = dev->createPixelShader( PixelShaderDesc(ps_src.c_str(), ps_src.size()) );
@@ -81,7 +81,7 @@ bool AtomicShader::createShaders( const char *filename )
     ShaderProgram *shader = dev->createShaderProgram(sh_desc);
     istSafeRelease(sh_desc.vs);
     istSafeRelease(sh_desc.ps);
-    if(!shader) { istAssert(false, ""); return false; }
+    if(!shader) { istAssert(false); return false; }
 
     clearShaders();
 

@@ -4,11 +4,11 @@
 #ifdef ist_enable_assert
 
 #define istPrint(...) ist::DebugPrint(__FILE__, __LINE__, __VA_ARGS__)
-#define istAssert(expression, ...)\
+#define istAssert(expression)\
     if(!(expression)) {\
         static int s_enable=1;\
         if(s_enable) {\
-            s_enable = ist::DebugAssert(__FILE__, __LINE__, __VA_ARGS__);\
+            s_enable = ist::DebugAssert(__FILE__, __LINE__, #expression);\
         }\
     }
 

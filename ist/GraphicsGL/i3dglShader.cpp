@@ -39,7 +39,7 @@ bool ShaderObject<ShaderType>::compile( const char *src, int length )
             GLchar *info_log = new GLchar[length];
             glGetShaderInfoLog(m_handle, length, &l, info_log);
             istPrint(info_log);
-            istAssert(false, "compile failed.");
+            istAssert(false);
             delete[] info_log;
         }
         return false;
@@ -109,7 +109,7 @@ ShaderProgram::ShaderProgram(Device *dev, const ShaderProgramDesc &desc)
             GLchar *info_log = new GLchar[length];
             glGetProgramInfoLog(m_handle, length, &l, info_log);
             istPrint(info_log);
-            istAssert(false, "link failed.");
+            istAssert(false);
             delete[] info_log;
         }
     }

@@ -79,7 +79,7 @@ public:
             m_lightpos[i].z = std::abs(m_lightpos[i].z);
         }
 
-        atomicDbgAddParamNodeMF("Entity/Player/life", float32, this, &Player::getLife, &Player::setLife, 0.0f, 1000000.0f, 0.02f, std::bind(&Player::damage, this, 1000.0f));
+        atomicDbgAddParamNodeM("Entity/Player/life", float32, this, &Player::getLife, &Player::setLife, 0.0f, 1000000.0f, 0.02f, std::bind(&Player::damage, this, 1000.0f));
     }
 
     void move()

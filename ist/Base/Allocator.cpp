@@ -19,12 +19,12 @@ IAllocator* GetDefaultAllocator()
 
 void* HeapAllocator::allocate(size_t size, size_t align)
 {
-    return istRawMalloc(size, align);
+    return istAlignedMalloc(size, align);
 }
 
 void HeapAllocator::deallocate(void* p)
 {
-    istRawFree(p);
+    istAlignedFree(p);
 }
 
 
@@ -88,7 +88,7 @@ void StackAllocator::clear()
 template<class T>
 TFixedAllocator<T>::TFixedAllocator( size_t element_size, size_t max_elements, size_t alignment, IAllocator *parent )
 {
-    istAssert(element_size>=sizeof(void*), "element_size must be at least sizeof(void*)");
+    istAssert(element_size>=sizeof(void*)); // element_size must be at least sizeof(void*)
     m_memory = NULL;
     m_used = NULL;
     m_element_size = element_size;
@@ -141,7 +141,7 @@ void TFixedAllocator<T>::defrag()
 template<class T>
 void* TFixedAllocator<T>::allocate(size_t size, size_t align)
 {
-    istAssert(size <= getElementSize(), "TChainedFixedAllocator::allocate()\n");
+    istAssert(size <= getElementSize());
     return allocate();
 }
 
@@ -204,7 +204,7 @@ bool TChainedFixedAllocator<T>::canDelete(void *p) const
 template<class T>
 void* TChainedFixedAllocator<T>::allocate(size_t size, size_t align)
 {
-    istAssert(size <= m_block->getElementSize(), "TChainedFixedAllocator::allocate()\n");
+    istAssert(size <= m_block->getElementSize());
     return allocate();
 }
 
@@ -218,7 +218,7 @@ void TChainedFixedAllocator<T>::deallocate(void* p)
         m_next->deallocate(p);
     }
     else {
-        istAssert(0, "TChainedFixedAllocator::deallocate()\n");
+        istAssert(false);
     }
 }
 

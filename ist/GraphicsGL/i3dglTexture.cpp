@@ -160,7 +160,7 @@ Texture2D::~Texture2D()
 void Texture2D::update(uint32 mip_level, const uvec2 &pos, const uvec2 &size, void *data)
 {
     if(size.x-pos.x > m_desc.size.x || size.y-pos.y > m_desc.size.y) {
-        istAssert(false, "exceeded texture size.\n");
+        istAssert(false);
     }
     GLint internal_format = 0;
     GLint format = 0;
@@ -241,7 +241,7 @@ Texture3D::~Texture3D()
 void Texture3D::update(uint32 mip_level, const uvec3 &pos, const uvec3 &size, void *data)
 {
     if(size.x-pos.x > m_desc.size.x || size.y-pos.y > m_desc.size.y || size.z-pos.z > m_desc.size.z) {
-        istAssert(false, "exceeded texture size.\n");
+        istAssert(false);
     }
     GLint internal_format = 0;
     GLint format = 0;

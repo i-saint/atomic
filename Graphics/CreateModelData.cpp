@@ -93,8 +93,8 @@ void CreateSphere(
     ibo = CreateIndexBuffer(dev, index_size, I3D_USAGE_STATIC, index);
     va->setAttributes(0, vbo, sizeof(vertex_t), descs, _countof(descs));
 
-    istFree(index);
-    istFree(vert);
+    istAlignedFree(index);
+    istAlignedFree(vert);
 }
 
 void CreateScreenQuad( VertexArray *va, Buffer *&vbo )

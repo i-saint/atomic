@@ -113,7 +113,7 @@ void ParamNodeBase::addChildByPath( const char *path, IParamNode *node )
 
 void ParamNodeBase::deleteChildByIndex( uint32 i )
 {
-    istAssert(i<getNumChildren(), "");
+    istAssert(i<getNumChildren());
     m_children[i]->release();
     m_children.erase(m_children.begin()+i);
     m_selection = std::min<int32>(m_selection, m_children.size());

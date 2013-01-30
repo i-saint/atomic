@@ -8,12 +8,23 @@
 #define istvsnprintf(buf, count, format, va)    _vsnprintf(buf, count, format, va)
 #define istvsnwprintf(buf, count, format, va)   _vsnwprintf(buf, count, format, va)
 
+#define istMalloc(size)                 malloc(size)
+#define istFree(ptr)                    free(ptr)
+#define istAlignedMalloc(size, align)   _aligned_malloc(size, align)
+#define istAlignedFree(ptr)             _aligned_free(ptr)
+
+
 #else // ist_env_Windows
 
 #define istsnprintf(buf, count, format, ...)    snprintf(buf, count, format, __VA_ARGS__)
 #define istsnwprintf(buf, count, format, ...)   snwprintf(buf, count, format, __VA_ARGS__)
 #define istvsnprintf(buf, count, format, va)    vsnprintf(buf, count, format, va)
 #define istvsnwprintf(buf, count, format, va)   vsnwprintf(buf, count, format, va)
+
+#define istMalloc(size)                 malloc(size)
+#define istFree(ptr)                    free(ptr)
+#define istAlignedMalloc(size, align)   memalign(align, size)
+#define istAlignedFree(ptr)             free(ptr)
 
 #endif // ist_env_Windows
 

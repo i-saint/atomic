@@ -147,7 +147,7 @@ void AtomicGame::drawCallback()
 
 SFMT* AtomicGame::getRandom()
 {
-    atomicDbgAssertSyncLock("getRandom() is called from asycupdate.\n");
+    atomicDbgAssertSyncLock();
     return &m_rand;
 }
 

@@ -37,20 +37,14 @@ private:
 #define atomicDbgDebugMenuDraw()                                DebugMenu::getInstance()->draw()
 #define atomicDbgDebugMenuIsActive()                            DebugMenu::getInstance()->isActive()
 #define atomicDbgDeleteParamNode(Name)                          DebugMenu::getInstance()->getRoot()->deleteChildByPath(Name);
-#define atomicDbgAddParamNode(Name, Node)\
-    DebugMenu::getInstance()->getRoot()->addChildByPath(Name, istNew(ist::ParamNodeBase)())
-#define atomicDbgAddParamNodeP(Name, Type, Ptr, Min, Max, Step)\
-    DebugMenu::getInstance()->getRoot()->addChildByPath(Name, istNew(ist::TParamNode<Type>)(istNew(ist::TValueUpdaterP<Type>)(Ptr), Min, Max, Step))
-#define atomicDbgAddParamNodePBool(Name, Ptr)\
-    DebugMenu::getInstance()->getRoot()->addChildByPath(Name, istNew(ist::TParamNode<bool>)(istNew(ist::TValueUpdaterP<bool>)(Ptr)))
-#define atomicDbgAddParamNodeM(Name, Type, Obj, Getter, Setter, Min, Max, Step)\
-    DebugMenu::getInstance()->getRoot()->addChildByPath(Name, istNew(ist::TParamNode<Type>)(istNew(ist::TValueUpdaterM<Type>)(std::bind(Getter, Obj), std::bind(Setter, Obj, std::placeholders::_1)), Min, Max, Step))
-#define atomicDbgAddParamNodeF(Name, Node, Func)\
-    DebugMenu::getInstance()->getRoot()->addChildByPath(Name, istNew(ist::ParamNodeBase)(Func))
-#define atomicDbgAddParamNodePF(Name, Type, Ptr, Min, Max, Step, Func)\
-    DebugMenu::getInstance()->getRoot()->addChildByPath(Name, istNew(ist::TParamNode<Type>)(istNew(ist::TValueUpdaterP<Type>)(Ptr), Min, Max, Step, Func))
-#define atomicDbgAddParamNodeMF(Name, Type, Obj, Getter, Setter, Min, Max, Step, Func)\
-    DebugMenu::getInstance()->getRoot()->addChildByPath(Name, istNew(ist::TParamNode<Type>)(istNew(ist::TValueUpdaterM<Type>)(std::bind(Getter, Obj), std::bind(Setter, Obj, std::placeholders::_1)), Min, Max, Step, Func))
+#define atomicDbgAddParamNode(Name, Node, ...)\
+    DebugMenu::getInstance()->getRoot()->addChildByPath(Name, istNew(ist::ParamNodeBase)(__VA_ARGS__))
+#define atomicDbgAddParamNodeP(Name, Type, Ptr, Min, Max, Step, ...)\
+    DebugMenu::getInstance()->getRoot()->addChildByPath(Name, istNew(ist::TParamNode<Type>)(istNew(ist::TValueUpdaterP<Type>)(Ptr), Min, Max, Step, __VA_ARGS__))
+#define atomicDbgAddParamNodePBool(Name, Ptr, ...)\
+    DebugMenu::getInstance()->getRoot()->addChildByPath(Name, istNew(ist::TParamNode<bool>)(istNew(ist::TValueUpdaterP<bool>)(Ptr), __VA_ARGS__))
+#define atomicDbgAddParamNodeM(Name, Type, Obj, Getter, Setter, Min, Max, Step, ...)\
+    DebugMenu::getInstance()->getRoot()->addChildByPath(Name, istNew(ist::TParamNode<Type>)(istNew(ist::TValueUpdaterM<Type>)(std::bind(Getter, Obj), std::bind(Setter, Obj, std::placeholders::_1)), Min, Max, Step, __VA_ARGS__))
 #define atomicDbgAddFunctionNode()                              
 
 #else // atomic_enable_debug_menu
@@ -65,9 +59,6 @@ private:
 #define atomicDbgAddParamNode(...)                              
 #define atomicDbgAddParamNodeP(...)                             
 #define atomicDbgAddParamNodeM(...)                             
-#define atomicDbgAddParamNodeF(...)                             
-#define atomicDbgAddParamNodePF(...)                            
-#define atomicDbgAddParamNodeMF(...)                            
 #define atomicDbgAddFunctionNode()                              
 
 #endif // atomic_enable_debug_menu

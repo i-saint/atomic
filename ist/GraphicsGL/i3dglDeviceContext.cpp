@@ -43,7 +43,7 @@ void DeviceContext::setIndexBuffer( Buffer *v, I3D_TYPE format )
 
 void DeviceContext::setUniformBuffer( int32 loc, int32 bind, Buffer *buf )
 {
-    istAssert(loc<_countof(m_current.uniform), "");
+    istAssert(loc<_countof(m_current.uniform));
     m_dirty.uniform = 1;
     m_current.uniform[loc].buffer = buf;
     m_current.uniform[loc].bind = bind;
@@ -70,7 +70,7 @@ void DeviceContext::setSampler( uint32 slot, Sampler *smp )
 
 void DeviceContext::setTexture( uint32 slot, Texture *tex )
 {
-    istAssert(slot<_countof(m_current.textures), "");
+    istAssert(slot<_countof(m_current.textures));
     m_dirty.textures = 1;
     m_current.textures[slot] = tex;
 }

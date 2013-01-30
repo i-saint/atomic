@@ -242,7 +242,7 @@ void SPHManager::addRigid(const CollisionEntity &v)
         break;
 
     default:
-        istAssert(false, "unknown collision shape\n");
+        istAssert(false);
     }
 }
 

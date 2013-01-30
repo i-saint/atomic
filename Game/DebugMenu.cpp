@@ -11,13 +11,13 @@ DebugMenu * DebugMenu::s_inst = NULL;
 
 void DebugMenu::initializeInstance()
 {
-    istAssert(s_inst==NULL, "");
+    istAssert(s_inst==NULL);
     s_inst = istNew(DebugMenu)();
 }
 
 void DebugMenu::finalizeInstance()
 {
-    istAssert(s_inst!=NULL, "");
+    istAssert(s_inst!=NULL);
     istSafeDelete(s_inst);
 }
 

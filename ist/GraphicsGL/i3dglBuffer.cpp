@@ -39,7 +39,7 @@ void* Buffer::map(I3D_MAP_MODE mode)
 {
     glBindBuffer(m_desc.type, m_handle);
     void *r = glMapBuffer(m_desc.type, mode);
-    istAssert(r!=NULL, "BufferObject::map() failed\n");
+    istAssert(r!=NULL);
     glBindBuffer(m_desc.type, 0);
     return r;
 }
@@ -100,8 +100,8 @@ void VertexArray::unbind() const
 
 void VertexArray::setAttributes( uint32 vb_slot, Buffer* vb, uint32 stride, const VertexDesc *descs, uint32 num_descs )
 {
-    istAssert(vb_slot<MAX_VERTEX_STREAM, "");
-    istAssert(num_descs<MAX_VERTEX_DESC, "");
+    istAssert(vb_slot<MAX_VERTEX_STREAM);
+    istAssert(num_descs<MAX_VERTEX_DESC);
     m_dirty = true;
     VertexStreamDesc &vsd = m_stream_descs[vb_slot];
     vsd.stride = stride;

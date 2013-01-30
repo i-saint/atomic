@@ -15,7 +15,7 @@ AtomicRenderer* AtomicRenderer::s_inst = NULL;
 
 void AtomicRenderer::initializeInstance()
 {
-    istAssert(s_inst==NULL, "already initialized");
+    istAssert(s_inst==NULL);
     s_inst = istNew(AtomicRenderer) ();
 }
 

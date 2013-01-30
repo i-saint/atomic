@@ -390,7 +390,7 @@ void CollisionSet::copyRigitsToPSym()
 
 void CollisionSet::addEntity(CollisionEntity *e)
 {
-    atomicDbgAssertSyncLock("");
+    atomicDbgAssertSyncLock();
     CollisionHandle h = 0;
     if(!m_vacant.empty()) {
         h = m_vacant.back();
@@ -413,21 +413,21 @@ CollisionEntity* CollisionSet::getEntity(CollisionHandle h)
 
 template<> CollisionPlane* CollisionSet::createEntity<CollisionPlane>()
 {
-    atomicDbgAssertSyncLock("");
+    atomicDbgAssertSyncLock();
     CollisionPlane *e = istNewA(CollisionPlane, m_plane_allocator)();
     addEntity(e);
     return e;
 }
 template<> CollisionSphere* CollisionSet::createEntity<CollisionSphere>()
 {
-    atomicDbgAssertSyncLock("");
+    atomicDbgAssertSyncLock();
     CollisionSphere *e = istNewA(CollisionSphere, m_sphere_allocator)();
     addEntity(e);
     return e;
 }
 template<> CollisionBox* CollisionSet::createEntity<CollisionBox>()
 {
-    atomicDbgAssertSyncLock("");
+    atomicDbgAssertSyncLock();
     CollisionBox *e = istNewA(CollisionBox, m_box_allocator)();
     addEntity(e);
     return e;
@@ -435,7 +435,7 @@ template<> CollisionBox* CollisionSet::createEntity<CollisionBox>()
 
 void CollisionSet::deleteEntity(CollisionHandle h)
 {
-    atomicDbgAssertSyncLock("");
+    atomicDbgAssertSyncLock();
     CollisionEntity *&ce = m_entities[h];
     if(ce) {
         switch(ce->getShape()) {
@@ -449,7 +449,7 @@ void CollisionSet::deleteEntity(CollisionHandle h)
 
 void CollisionSet::deleteEntity(CollisionEntity *e)
 {
-    atomicDbgAssertSyncLock("");
+    atomicDbgAssertSyncLock();
     if(e != NULL) {
         deleteEntity(e->getCollisionHandle());
     }

@@ -58,11 +58,11 @@ private:
 #ifdef atomic_enable_sync_lock
 #   define  atomicDbgLockSyncMethods()      atomicGetGame()->dbgLockSyncMethods()
 #   define  atomicDbgUnlockSyncMethods()    atomicGetGame()->dbgUnlockSyncMethods()
-#   define  atomicDbgAssertSyncLock(...)    istAssert(!atomicGetGame()->dbgIsSyncMethodsEnabled(), __VA_ARGS__)
+#   define  atomicDbgAssertSyncLock()       istAssert(!atomicGetGame()->dbgIsSyncMethodsEnabled())
 #else
 #   define  atomicDbgLockSyncMethods()      
 #   define  atomicDbgUnlockSyncMethods()    
-#   define  atomicDbgAssertSyncLock(...)    
+#   define  atomicDbgAssertSyncLock()       
 #endif // atomic_enable_sync_lock
 
 } // namespace atomic

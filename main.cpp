@@ -9,10 +9,6 @@ int istmain(int argc, char* argv[])
         app.mainLoop();
     }
     app.finalize();
-
-#ifdef _DEBUG
-    _CrtDumpMemoryLeaks();
-#endif // _DEBUG
     return 0;
 }
 

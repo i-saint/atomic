@@ -102,7 +102,7 @@ Texture2D* GenerateRandomTexture(Device *dev, const uvec2 &size, I3D_COLOR_FORMA
         }
     }
     else {
-        istAssert(false, "not implemented");
+        istAssert(false); // not implemented
     }
 
     Texture2DDesc desc = Texture2DDesc(format, size, 0, &buffer[0]);
@@ -145,7 +145,7 @@ inline ShaderType* CreateShaderFromFile(Device *dev, const char *filename)
 {
     FileStream  st(filename, "rb");
     if(!st.isOpened()) {
-        istAssert("file not found %s", filename);
+        istAssert(false);
         return NULL;
     }
     return CreateShaderFromStream<ShaderType>(dev, st);
@@ -249,7 +249,7 @@ void EnableVSync( bool v )
 
 bool MapAndWrite( DeviceContext *ctx, Buffer *bo, const void *data, size_t data_size )
 {
-    istAssert(data_size<=bo->getDesc().size, "exceeded buffer size.\n");
+    istAssert(data_size<=bo->getDesc().size);
 
     if(void *p = ctx->map(bo, I3D_MAP_WRITE)) {
         ::memcpy(p, data, data_size);
@@ -261,7 +261,7 @@ bool MapAndWrite( DeviceContext *ctx, Buffer *bo, const void *data, size_t data_
 
 bool MapAndRead( DeviceContext *ctx, Buffer *bo, void *data, size_t data_size )
 {
-    istAssert(data_size<=bo->getDesc().size, "exceeded buffer size.\n");
+    istAssert(data_size<=bo->getDesc().size);
 
     if(void *p = ctx->map(bo, I3D_MAP_READ)) {
         ::memcpy(data, p, data_size);

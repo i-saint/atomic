@@ -120,7 +120,7 @@ AtomicApplication::AtomicApplication()
     : m_request_exit(false)
     , m_game(NULL)
 {
-    istAssert(g_appinst==NULL, "already initialized");
+    istAssert(g_appinst==NULL);
     g_appinst = this;
 
 #ifdef atomic_enable_debug_log

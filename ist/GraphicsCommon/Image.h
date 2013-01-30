@@ -216,7 +216,7 @@ public:
 
     template<class T> T& get(uint32 y, uint32 x)
     {
-        istAssert(GetImageFotmatID<T>::Result==m_format, "フォーマット指定ミス\n");
+        istAssert(GetImageFotmatID<T>::Result==m_format);
         return ((T*)data())[width()*y + x];
     }
 

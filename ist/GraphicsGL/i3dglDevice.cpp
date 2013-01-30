@@ -41,7 +41,8 @@ Device::Device(HWND hwnd) : m_hwnd(hwnd)
     // glew 用の仮のコンテキスト生成
     if(((pixelformat = ::ChoosePixelFormat(m_hdc, &pfd)) == 0)
         || ((::SetPixelFormat(m_hdc, pixelformat, &pfd) == FALSE))
-        || (!(m_hglrc=::wglCreateContext(m_hdc)))) {
+        || (!(m_hglrc=::wglCreateContext(m_hdc))))
+    {
             istPrint("OpenGL initialization failed");
     }
     wglMakeCurrent(m_hdc, m_hglrc);

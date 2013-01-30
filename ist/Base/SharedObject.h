@@ -20,7 +20,7 @@ namespace ist {
         virtual void release()
         {
             int32 ref = --m_ref_counter;
-            istAssert(ref>=0, "");
+            istAssert(ref>=0);
             if(ref==0) { onZeroRef(); }
         }
 
