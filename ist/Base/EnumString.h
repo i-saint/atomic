@@ -49,7 +49,8 @@ struct equal_str
         __VA_ARGS__\
     };\
     const char* Get##TypeName##String(TypeName num);\
-    TypeName Get##TypeName##Num(const char *str);
+    TypeName Get##TypeName##Num(const char *str);\
+    void TypeName##EachPair(const std::function<void (const ist::EnumStr&)> &f);
 
 #define istSEnum(Elem) Elem
 #define istSEnumEq(Elem, Eq) Elem = Eq
@@ -72,6 +73,12 @@ struct equal_str
         const ist::EnumStr *end = g_pairs_##TypeName+_countof(g_pairs_##TypeName);\
         const ist::EnumStr *res = std::find_if(beg, end, ist::equal_str(str));\
         return TypeName(res==end ? 0 : res->num);\
+    }\
+    void TypeName##EachPair(const std::function<void (const ist::EnumStr&)> &f)\
+    {\
+        const ist::EnumStr *beg = g_pairs_##TypeName;\
+        const ist::EnumStr *end = g_pairs_##TypeName+_countof(g_pairs_##TypeName);\
+        std::for_each(beg, end, f);\
     }\
 
 #define istSEnum(Elem)       {(int32)Elem, #Elem}

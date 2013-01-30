@@ -66,7 +66,7 @@ istSEnumBlock(FunctionID,
     istSEnum(FID_getDirection),
     istSEnum(FID_getSpeed),
     istSEnum(FID_getRotateSpeed),
-    istSEnumEq(FID_getRotateSpeed1, FID_setRotateSpeed),
+    istSEnumEq(FID_getRotateSpeed1, FID_getRotateSpeed),
     istSEnum(FID_getRotateSpeed2),
 
     istSEnum(FID_End),
