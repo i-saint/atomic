@@ -291,10 +291,7 @@ uint32 CollisionSet::collide(CollisionEntity *sender, MessageCont &m, HandleCont
 
 
 CollisionSet::CollisionSet()
-    : m_plane_allocator(sizeof(CollisionPlane), 64)
-    , m_sphere_allocator(sizeof(CollisionSphere), 2048)
-    , m_box_allocator(sizeof(CollisionBox), 1024)
-    , m_active_tasks(0)
+    : m_active_tasks(0)
 {
     m_tasks.reserve(32);
     m_entities.reserve(1024);
@@ -414,21 +411,21 @@ CollisionEntity* CollisionSet::getEntity(CollisionHandle h)
 template<> CollisionPlane* CollisionSet::createEntity<CollisionPlane>()
 {
     atomicDbgAssertSyncLock();
-    CollisionPlane *e = istNewA(CollisionPlane, m_plane_allocator)();
+    CollisionPlane *e = istNew(CollisionPlane)();
     addEntity(e);
     return e;
 }
 template<> CollisionSphere* CollisionSet::createEntity<CollisionSphere>()
 {
     atomicDbgAssertSyncLock();
-    CollisionSphere *e = istNewA(CollisionSphere, m_sphere_allocator)();
+    CollisionSphere *e = istNew(CollisionSphere)();
     addEntity(e);
     return e;
 }
 template<> CollisionBox* CollisionSet::createEntity<CollisionBox>()
 {
     atomicDbgAssertSyncLock();
-    CollisionBox *e = istNewA(CollisionBox, m_box_allocator)();
+    CollisionBox *e = istNew(CollisionBox)();
     addEntity(e);
     return e;
 }
@@ -439,10 +436,12 @@ void CollisionSet::deleteEntity(CollisionHandle h)
     CollisionEntity *&ce = m_entities[h];
     if(ce) {
         switch(ce->getShape()) {
-        case CS_PLANE:  istSafeDeleteA(ce, m_plane_allocator); break;
-        case CS_SPHERE: istSafeDeleteA(ce, m_sphere_allocator); break;
-        case CS_BOX:    istSafeDeleteA(ce, m_box_allocator); break;
+        case CS_PLANE:  istDelete(static_cast<CollisionPlane*>(ce)); break;
+        case CS_SPHERE: istDelete(static_cast<CollisionSphere*>(ce)); break;
+        case CS_BOX:    istDelete(static_cast<CollisionBox*>(ce)); break;
+        default: istAssert(false); break;
         }
+        ce = NULL;
         m_vacant.push_back(h);
     }
 }

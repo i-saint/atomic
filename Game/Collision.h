@@ -82,6 +82,7 @@ struct LessCollisionHandle { bool operator()(CollisionEntity *a, CollisionEntity
 
 struct CollisionPlane : public CollisionEntity
 {
+istDefinePoolNewST(CollisionPlane);
 public:
     vec4 plane;
 
@@ -91,6 +92,7 @@ public:
 
 struct CollisionSphere : public CollisionEntity
 {
+istDefinePoolNewST(CollisionSphere);
 public:
     vec4 pos_r; // w=radius
 
@@ -104,6 +106,7 @@ public:
 
 struct CollisionBox : public CollisionEntity
 {
+istDefinePoolNewST(CollisionBox);
 public:
     vec4 position;
     vec4 planes[6];
@@ -178,10 +181,6 @@ public:
     typedef stl::vector<CollideMessage>     MessageCont;
 
 private:
-    ist::ChainedFixedAllocator m_plane_allocator;
-    ist::ChainedFixedAllocator m_sphere_allocator;
-    ist::ChainedFixedAllocator m_box_allocator;
-
     CollisionGrid   m_grid;
     TaskCont        m_tasks;
     EntityCont      m_entities;

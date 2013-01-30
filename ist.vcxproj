@@ -30,6 +30,7 @@
     <ClInclude Include="ist\Base\Half\halfLimits.h" />
     <ClInclude Include="ist\Base\Half\toFloat.h" />
     <ClInclude Include="ist\Base\New.h" />
+    <ClInclude Include="ist\Base\PoolNew.h" />
     <ClInclude Include="ist\Base\Serialize.h" />
     <ClInclude Include="ist\Base\SharedObject.h" />
     <ClInclude Include="ist\Base\StringSymbol.h" />
@@ -123,6 +124,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ist\Base\New.cpp" />
+    <ClCompile Include="ist\Base\PoolNew.cpp" />
     <ClCompile Include="ist\Base\Serialize.cpp" />
     <ClCompile Include="ist\Concurrency\Condition.cpp" />
     <ClCompile Include="ist\Concurrency\Mutex.cpp" />

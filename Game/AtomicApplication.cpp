@@ -196,6 +196,7 @@ void AtomicApplication::finalize()
     atomicDbgFinalizeDebugMenu();
     TaskScheduler::finalizeInstance();
     FinalizeText();
+    ist::PoolNewManager::freeAll();
     super::finalize();
 }
 

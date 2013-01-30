@@ -206,7 +206,7 @@ void LevelEditorServer::start()
 void LevelEditorServer::stop()
 {
     if(m_server) {
-        m_server->stopAll(true);
+        m_server->stopAll(false);
         delete m_server;
         m_server = NULL;
     }

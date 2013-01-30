@@ -7,6 +7,7 @@
 #include "Base/Types.h"
 #include "Base/Allocator.h"
 #include "Base/New.h"
+#include "Base/PoolNew.h"
 #include "Base/ClassInfo.h"
 #include "Base/Variant.h"
 #include "Base/Assert.h"
