@@ -115,6 +115,7 @@
     <ClCompile Include="Network\LevelEditorServer.cpp">
       <Filter>Network</Filter>
     </ClCompile>
+    <ClCompile Include="FunctionID.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h">

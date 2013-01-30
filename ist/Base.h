@@ -17,5 +17,6 @@
 #include "Base/Generics.h"
 #include "Base/SharedObject.h"
 #include "Base/StringSymbol.h"
+#include "Base/EnumString.h"
 
 #endif // __ist_Base_h__
