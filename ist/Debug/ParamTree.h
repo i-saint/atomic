@@ -40,21 +40,18 @@ public:
     virtual void        release() { istDelete(this); }
     virtual void        setName(const char *name, uint32 len=0)=0;
     virtual void        setOpened(bool v)=0;
-    virtual void        setParent(IParamNode *parent)=0;
 
     virtual const char* getName() const=0; // dll 跨ぐ可能性を考えると stl::string は返したくない
     virtual int32       getSelection() const=0;
     virtual bool        isOpened() const=0;
-    virtual bool        isSelected() const;
 
-    virtual IParamNode* getParent() const=0;
-    virtual uint32      getChildrenCount() const=0;
+    virtual uint32      getNumChildren() const=0;
     virtual IParamNode* getChild(uint32 i) const=0;
     virtual IParamNode* getChildByPath(const char *path) const=0;
     virtual void        addChild(IParamNode *node)=0;
     virtual void        addChildByPath(const char *path, IParamNode *node)=0;
-    virtual void        eraseChild(IParamNode *node)=0;
-    virtual void        releaseChildByPath(const char *path)=0;
+    virtual void        deleteChildByIndex(uint32 i)=0;
+    virtual void        deleteChildByPath(const char *path)=0;
 
     virtual uint32      printName(char *buf, uint32 buf_size) const=0;
     virtual uint32      printValue(char *buf, uint32 buf_size) const=0;
@@ -78,17 +75,8 @@ template<> uint32 TPrintValue< int64>(char *buf, uint32 buf_size,  int64 value);
 template<> uint32 TPrintValue<uint64>(char *buf, uint32 buf_size, uint64 value);
 template<> uint32 TPrintValue<  bool>(char *buf, uint32 buf_size,   bool value);
 template<class T> class ITValueUpdater;
-class INodeFunctor;
+typedef std::function<void ()> NodeFunctor;
 
-
-// ParamNodeBase から呼ばれる関数オブジェクト的なもの
-class INodeFunctor
-{
-public:
-    virtual ~INodeFunctor() {}
-    virtual void release() { istDelete(this); }
-    virtual void exec()=0;
-};
 
 // TParamNode から操作され、実際に値を変更する役割を担う
 // 値はポインタ経由で直接弄るかもしれないし、Hoge::getValue()/Hoge::setValue() のようなメンバ関数経由で弄るかもしれない。
@@ -108,26 +96,24 @@ class ParamNodeBase : public IParamNode
 {
 istMakeDestructable;
 public:
-    ParamNodeBase(const char *name="", INodeFunctor *functor=NULL);
+    ParamNodeBase(NodeFunctor functor=NodeFunctor());
     virtual ~ParamNodeBase();
     virtual void release();
     virtual void setName(const char *name, uint32 len=0);
-    virtual void setFunctor(INodeFunctor *func);
+    virtual void setFunctor(NodeFunctor func);
     virtual void setOpened(bool v);
-    virtual void setParent(IParamNode *parent);
 
     virtual const char* getName() const;
-    virtual INodeFunctor* getFunctor() const;
+    virtual const NodeFunctor& getFunctor() const;
     virtual int32       getSelection() const;
     virtual bool        isOpened() const;
-    virtual IParamNode* getParent() const;
-    virtual uint32      getChildrenCount() const;
+    virtual uint32      getNumChildren() const;
     virtual IParamNode* getChild(uint32 i) const;
     virtual IParamNode* getChildByPath(const char *path) const;
     virtual void addChild(IParamNode *node);
     virtual void addChildByPath(const char *path, IParamNode *node);
-    virtual void eraseChild(IParamNode *node);
-    virtual void releaseChildByPath(const char *path);
+    virtual void deleteChildByIndex(uint32 i);
+    virtual void deleteChildByPath(const char *path);
 
     virtual bool handleAction(OptionCode o);
     virtual bool handleForward(OptionCode o);
@@ -144,8 +130,7 @@ public:
 private:
     stl::vector<IParamNode*> m_children;
     stl::string m_name;
-    IParamNode *m_parent;
-    INodeFunctor *m_functor;
+    NodeFunctor m_functor;
     int32 m_selection;
     bool m_opened;
 };
@@ -162,8 +147,8 @@ public:
     TParamNode() : m_param(NULL), m_min(), m_max(), m_step()
     {}
 
-    TParamNode(const char *name, UpdaterT *p, ValueT _min, ValueT _max, ValueT step, INodeFunctor *functor=NULL)
-        : super(name, functor), m_param(NULL), m_min(), m_max(), m_step()
+    TParamNode(UpdaterT *p, ValueT _min, ValueT _max, ValueT step, NodeFunctor functor=NodeFunctor())
+        : super(functor), m_param(NULL), m_min(), m_max(), m_step()
     {
         setUpdater(p, _min, _max, step);
     }
@@ -232,8 +217,8 @@ public:
     TParamNode() : m_param(NULL)
     {}
 
-    TParamNode(const char *name, UpdaterT *p, INodeFunctor *functor=NULL)
-        : super(name, functor), m_param(NULL)
+    TParamNode(UpdaterT *p, NodeFunctor functor=NodeFunctor())
+        : super(functor), m_param(NULL)
     {
         setUpdater(p);
     }
@@ -272,20 +257,6 @@ private:
     UpdaterT *m_param;
 };
 typedef TParamNode<bool>    ParamNodeBool;
-
-
-
-// 関数オブジェクトをそのまま呼ぶ
-// ex: TParamNodeFunction(std::bind(&Hoge::doSomething, hoge))
-template<class Func=std::function<void ()>>
-class TNodeFunctor : public INodeFunctor
-{
-public:
-    TNodeFunctor(Func v) : m_func(v) {}
-    virtual void exec() { m_func(); }
-private:
-    Func m_func;
-};
 
 
 // ポインタを直接弄る系

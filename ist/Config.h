@@ -109,6 +109,7 @@ namespace stl = eastl;
 namespace stl = std;
 #endif // ist_with_EASTL
 #include <functional>
+#include <regex>
 
 #ifdef ist_with_poco
 #endif // ist_with_poco

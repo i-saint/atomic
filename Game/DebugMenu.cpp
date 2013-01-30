@@ -80,14 +80,14 @@ void DebugMenu::draw()
     char buf_value[128];
     while(node) {
         ist::IParamNode *next_node = NULL;
-        for(uint32 i=0; i<node->getChildrenCount(); ++i) {
+        for(uint32 i=0; i<node->getNumChildren(); ++i) {
             ist::IParamNode *c = node->getChild(i);
             vec4 color = vec4(1.0f, 1.0f, 1.0f, 0.5f);
             if(c->isOpened()) {
                 next_node = c;
                 color = vec4(1.0f, 1.0f, 1.0f, 0.9f);
             }
-            else if(c->isSelected()) {
+            else if(i==node->getSelection()) {
                 color = vec4(1.0f, 1.0f, 1.0f, 0.9f);
             }
 
