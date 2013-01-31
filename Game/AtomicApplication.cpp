@@ -105,10 +105,10 @@ bool AtomicConfig::writeToFile( const char* filepath )
 
 void AtomicConfig::setup()
 {
-    atomicDbgAddParamNodePBool("Config/VSync",                  &vsync);
-    atomicDbgAddParamNodePBool("Config/Unlimit Game Speed",     &unlimit_gamespeed);
-    atomicDbgAddParamNodePBool("Config/PostEffect Bloom",       &posteffect_bloom);
-    atomicDbgAddParamNodePBool("Config/PostEffect Antialias",   &posteffect_antialias);
+    atomicDbgAddParamNodeP("Config/VSync",                bool, &vsync);
+    atomicDbgAddParamNodeP("Config/Unlimit Game Speed",   bool, &unlimit_gamespeed);
+    atomicDbgAddParamNodeP("Config/PostEffect Bloom",     bool, &posteffect_bloom);
+    atomicDbgAddParamNodeP("Config/PostEffect Antialias", bool, &posteffect_antialias);
 }
 
 

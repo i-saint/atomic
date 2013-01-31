@@ -226,7 +226,7 @@ void PassGBuffer_Fluid::addPSetInstance( PSET_RID psid, const PSetInstance inst 
 PassGBuffer_BG::PassGBuffer_BG()
     : m_enabled(true)
 {
-    atomicDbgAddParamNodePBool("Rendering/BG/Enable", &m_enabled);
+    atomicDbgAddParamNodeP("Rendering/BG/Enable", bool, &m_enabled);
 }
 
 PassGBuffer_BG::~PassGBuffer_BG()
