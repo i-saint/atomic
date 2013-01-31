@@ -1,6 +1,6 @@
 ﻿#ifndef ist_Config_h
 
-#define ist_with_EASTL
+//#define ist_with_EASTL
 #define ist_with_OpenGL
 //#define ist_with_OpenGLES
 //#define ist_with_DirectX11
@@ -112,9 +112,7 @@ namespace stl = std;
 #endif // ist_with_EASTL
 #include <functional>
 #include <regex>
-
-#ifdef ist_with_poco
-#endif // ist_with_poco
+#include "ist/stdex/stdex_vector.h"
 
 #ifdef ist_with_DirectX11
 #   include <D3D11.h>
@@ -151,6 +149,9 @@ namespace stl = std;
 #   include <AL/al.h>
 #   include <AL/alc.h>
 #endif // ist_with_OpenAL
+
+#ifdef ist_with_poco
+#endif // ist_with_poco
 
 #include "ist/Base/Types.h"
 

@@ -83,7 +83,7 @@ private:
     void pushCommand(const variant32 &cmd);
 
 private:
-    typedef stl::vector<variant32> CommandCont;
+    typedef stdex::vector<variant32> CommandCont;
 
     static LevelEditorServer *s_inst;
     Poco::Net::HTTPServer *m_server;

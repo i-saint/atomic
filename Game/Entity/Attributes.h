@@ -577,7 +577,7 @@ public:
     }
 
     uint32 getNumBloodstainParticles() const { return m_bloodstain.size(); }
-    const BloodstainParticle* getBloodStainParticles() const { return &m_bloodstain[0]; }
+    const BloodstainParticle* getBloodStainParticles() const { return m_bloodstain.empty() ? NULL : &m_bloodstain[0]; }
 };
 
 } // namespace atomic

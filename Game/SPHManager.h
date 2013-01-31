@@ -8,6 +8,7 @@
 namespace atomic {
 
 struct CollisionEntity;
+typedef stdex::vector<psym::Particle> ParticleCont;
 
 class SPHManager : public IAtomicGameModule
 {
@@ -38,7 +39,7 @@ public:
 private:
     psym::World m_world;
     ist::Mutex m_mutex_particles;
-    stl::vector<psym::Particle> m_particles; // GPU 転送用
+    ParticleCont        m_particles; // GPU 転送用
     stl::vector<Task*>  m_fluid_tasks;
     Task*               m_asyncupdate_task;
     uint32              m_current_fluid_task;

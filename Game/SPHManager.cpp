@@ -20,7 +20,7 @@ class ComputeFluidParticle : public AtomicTask
 private:
     PSET_RID m_psid;
     mat4 m_mat;
-    stl::vector<psym::Particle> m_fluid;
+    ParticleCont m_fluid;
 
 public:
     void setup(PSET_RID psid, const mat4 &m)
@@ -47,7 +47,7 @@ public:
         }
     }
 
-    stl::vector<psym::Particle>& getData() { return m_fluid; }
+    ParticleCont& getData() { return m_fluid; }
 };
 
 class SPHAsyncUpdateTask : public AtomicTask
@@ -151,6 +151,8 @@ void SPHManager::frameEnd()
 
 size_t SPHManager::copyParticlesToGL()
 {
+    if(m_particles.empty()) { return 0; }
+
     ist::ScopedLock<ist::Mutex> l(m_mutex_particles);
     i3d::DeviceContext *dc = atomicGetGLDeviceContext();
     Buffer *vb = atomicGetVertexBuffer(VBO_FLUID_PARTICLES);
@@ -163,7 +165,7 @@ void SPHManager::taskAsyncupdate( float32 dt )
     for(uint32 i=0; i<m_current_fluid_task; ++i) {
         m_fluid_tasks[i]->wait();
         ComputeFluidParticle *cfp = static_cast<ComputeFluidParticle*>(m_fluid_tasks[i]);
-        stl::vector<psym::Particle> &fluid = cfp->getData();
+        ParticleCont &fluid = cfp->getData();
         addFluid(&fluid[0], fluid.size());
     }
     m_particles.insert(m_particles.end(), m_world.getParticles(), m_world.getParticles()+m_world.getNumParticles());
