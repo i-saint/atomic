@@ -134,7 +134,7 @@ void EntitySet::update( float32 dt )
 
     // asyncupdate
     atomicDbgLockSyncMethods();
-    ist::parallel_for(
+    ist::ParallelFor(
         size_t(0), m_all.size(), 32,
         [&](size_t first, size_t last) {
             for(size_t i=first; i!=last; ++i) {

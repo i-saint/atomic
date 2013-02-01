@@ -1,32 +1,33 @@
-﻿#ifndef __ist_Concurrency_ParallelAlgorithm_h__
-#define __ist_Concurrency_ParallelAlgorithm_h__
+﻿#ifndef ist_Concurrency_ParallelAlgorithm_h
+#define ist_Concurrency_ParallelAlgorithm_h
 
+#include "ist/Concurrency/TaskScheduler.h"
 #include "ist/Concurrency/AsyncFunction.h"
 
 namespace ist {
 
 template<class F1, class F2>
-inline void parallel_invoke(const F1 &f1, const F2 &f2)
+inline void ParallelInvoke(const F1 &f1, const F2 &f2)
 {
-    AsyncFunctor<F1> tf1(f1, true);
-    AsyncFunctor<F2> tf2(f2, true);
+    AsyncFunction<F1> af1(f1); af1.start();
+    AsyncFunction<F2> af2(f2); af2.start();
 }
 
 template<class F1, class F2, class F3>
-inline void parallel_invoke(const F1 &f1, const F2 &f2, const F3 &f3)
+inline void ParallelInvoke(const F1 &f1, const F2 &f2, const F3 &f3)
 {
-    AsyncFunctor<F1> tf1(f1, true);
-    AsyncFunctor<F2> tf2(f2, true);
-    AsyncFunctor<F3> tf3(f3, true);
+    AsyncFunction<F1> af1(f1); af1.start();
+    AsyncFunction<F2> af2(f2); af2.start();
+    AsyncFunction<F3> af3(f3); af3.start();
 }
 
 template<class F1, class F2, class F3, class F4>
-inline void parallel_invoke(const F1 &f1, const F2 &f2, const F3 &f3, const F4 &f4)
+inline void ParallelInvoke(const F1 &f1, const F2 &f2, const F3 &f3, const F4 &f4)
 {
-    AsyncFunctor<F1> tf1(f1, true);
-    AsyncFunctor<F2> tf2(f2, true);
-    AsyncFunctor<F3> tf3(f3, true);
-    AsyncFunctor<F4> tf4(f4, true);
+    AsyncFunction<F1> af1(f1); af1.start();
+    AsyncFunction<F2> af2(f2); af2.start();
+    AsyncFunction<F3> af3(f3); af3.start();
+    AsyncFunction<F4> af4(f4); af4.start();
 }
 
 
@@ -60,7 +61,7 @@ private:
 };
 
 template<class Index, class Step, class Body>
-inline void parallel_for(Index first, Index last, Step step, const Body &body)
+inline void ParallelFor(Index first, Index last, Step step, const Body &body)
 {
     typedef ParallelForTask<Index, Body> Task;
     Task tasks[128];
@@ -73,7 +74,7 @@ inline void parallel_for(Index first, Index last, Step step, const Body &body)
 }
 
 template<class Index, class Body>
-inline void parallel_for(Index first, Index last, const Body &body)
+inline void ParallelFor(Index first, Index last, const Body &body)
 {
     parallel_for<Index, int32, Body>(first, last, 1, body);
 }
@@ -107,7 +108,7 @@ public:
                 Iterator mid = m_first;
                 stl::advance(mid, dist/2);
                 stl::nth_element(m_first, mid, m_last, *m_compare);
-                parallel_invoke(
+                ParallelInvoke(
                     ParallelSortFunc(m_first, mid, *m_compare, m_depth+1),
                     ParallelSortFunc(mid, m_last, *m_compare, m_depth+1) );
             }
@@ -122,14 +123,14 @@ private:
 };
 
 template<class Iterator, class Compare>
-inline void parallel_sort(Iterator begin, Iterator end, const Compare &comp)
+inline void ParallelSort(Iterator begin, Iterator end, const Compare &comp)
 {
     ParallelSortFunc<Iterator, Compare> func(begin, end, comp, 0);
     func();
 }
 
 template<class Iterator>
-inline void parallel_sort(Iterator begin, Iterator end)
+inline void ParallelSort(Iterator begin, Iterator end)
 {
     typedef stl::less<typename stl::iterator_traits<Iterator>::value_type> Compare;
     ParallelSortFunc<Iterator, Compare> func(begin, end, Compare(), 0);
@@ -139,4 +140,4 @@ inline void parallel_sort(Iterator begin, Iterator end)
 
 } // namespace ist
 
-#endif // __ist_Concurrency_ParallelAlgorithm_h__
+#endif // ist_Concurrency_ParallelAlgorithm_h

@@ -1,29 +1,65 @@
-﻿#ifndef __ist_Concurrency_AsyncFunction_h__
-#define __ist_Concurrency_AsyncFunction_h__
+﻿#ifndef ist_Concurrency_AsyncFunction_h
+#define ist_Concurrency_AsyncFunction_h
 
+#include <functional>
 #include "ist/Base/Generics.h"
 #include "ist/Concurrency/TaskScheduler.h"
 
 namespace ist {
 
-class AsyncFunctionBase : public Task
+// std::function<result_t, ()>、もしくはこの互換オブジェクト (result_t が typedef されている functor) を非同期実行
+template<class Func, class ResultT=typename Func::result_type>
+class AsyncFunction : public Task
 {
 public:
-    // デストラクタで wait() を入れたいところだが、ここでやると pure virtual function call になる可能性があるため、
-    // 継承先で個別に実装してやる必要がある。
+    AsyncFunction() : m_result() {}
+    AsyncFunction(const Func &f) : m_func(f), m_result() {}
+    ~AsyncFunction() { wait(); }
 
+    void setFunction(const Func &f) { m_func=f; }
     void start() { TaskScheduler::getInstance()->enqueue(this); }
+    Func& getFunction() { return m_func; }
+    ResultT getResult() { wait(); return m_result; }
+
+    virtual void exec() { m_result=m_func(); }
+
+private:
+    Func m_func;
+    ResultT m_result;
 };
 
-template<class Ret=void, class Arg1=void, class Arg2=void, class Arg3=void, class Arg4=void>
-class AsyncFunction;
+// result_t==void 用の特殊化
+template<class Func>
+class AsyncFunction<Func, void> : public Task
+{
+public:
+    AsyncFunction() {}
+    AsyncFunction(const Func &f) : m_func(f) {}
+    ~AsyncFunction() { wait(); }
 
-template<class Class, class Ret=void, class Arg1=void, class Arg2=void, class Arg3=void, class Arg4=void>
-class AsyncMethod;
+    void setFunction(const Func &f) { m_func=f; }
+    void start() { TaskScheduler::getInstance()->enqueue(this); }
+    Func& getFunction() { return m_func; }
 
-template<class Class, class Ret=void, class Arg1=void, class Arg2=void, class Arg3=void, class Arg4=void>
-class AsyncConstMethod;
+    virtual void exec() { m_func(); }
 
+private:
+    Func m_func;
+};
+
+
+// std::function は引数だけ差し替えて再利用ができないので、
+// std::function の生成すら惜しい時用の軽量汎用関数オブジェクトを用意
+
+
+template<class Ret=void, class Arg1=void, class Arg2=void, class Arg3=void>
+class Function;
+
+template<class Class, class Ret=void, class Arg1=void, class Arg2=void, class Arg3=void>
+class Method;
+
+template<class Class, class Ret=void, class Arg1=void, class Arg2=void, class Arg3=void>
+class ConstMethod;
 
 template<class Arg>
 struct ArgHolder
@@ -59,254 +95,93 @@ struct ArgHolder<const Arg&>
 };
 
 
-// async functor
-template<class Func>
-class AsyncFunctor : public AsyncFunctionBase
+template<class Res>
+class Function<Res>
 {
 public:
-    AsyncFunctor() : m_func(NULL) {}
-    AsyncFunctor(const Func &f, bool run=false) { setup(f); if(run){start();} }
-    ~AsyncFunctor() { wait(); }
-    void setup(const Func &f) { m_func=&f; }
-    void exec() { (*m_func)(); }
-private:
-    const Func *m_func;
-};
-
-
-// async function: arg 0
-template<class Ret>
-class AsyncFunction<Ret> : public AsyncFunctionBase
-{
-public:
-    typedef Ret (*Func)();
-    typedef ArgHolder<Ret> RetH;
-
-    AsyncFunction() {}
-    AsyncFunction(Func f, bool run=false) { setup(f); if(run){start();} }
-    ~AsyncFunction() { wait(); }
-    void setup(Func f) { m_func=f; }
-    void exec() { m_ret=m_func(); }
-    Ret getValue() { wait(); return m_ret; }
-private:
-    Func m_func;
-    RetH m_ret;
-};
-
-template<>
-class AsyncFunction<> : public AsyncFunctionBase
-{
-public:
-    typedef void (*Func)();
-
-    AsyncFunction() {}
-    AsyncFunction(Func f, bool run=false) { setup(f); if(run){start();} }
-    ~AsyncFunction() { wait(); }
-    void setup(Func f) { m_func=f; }
-    void exec() { m_func(); }
-    void getValue() { wait(); }
+    typedef Res result_type;
+    typedef Res (*Func)();
+    Function() : m_func(NULL) {}
+    Function(Func f) : m_func(f) {}
+    Res operator()() const { return m_func(); }
 private:
     Func m_func;
 };
-
-// async function: arg 1
-template<class Ret, class Arg1>
-class AsyncFunction<Ret, Arg1> : public AsyncFunctionBase
+template<class Res, class Arg1>
+class Function<Res, Arg1>
 {
 public:
-    typedef Ret (*Func)(Arg1);
-    typedef ArgHolder<Ret> RetH;
+    typedef Res result_type;
+    typedef Res (*Func)(Arg1);
     typedef ArgHolder<Arg1> Arg1H;
-
-    AsyncFunction() {}
-    AsyncFunction(Func f, Arg1 a1, bool run=false) { setup(f, a1); if(run){start();} }
-    ~AsyncFunction() { wait(); }
-    void setup(Func f, Arg1 a1) { m_func=f; m_arg=a1; }
-    void exec() { m_ret=m_func(m_arg1); }
-    Ret getValue() { wait(); return m_ret; }
-private:
-    Func m_func;
-    RetH m_ret; Arg1H m_arg1;
-};
-
-template<class Arg1>
-class AsyncFunction<void, Arg1> : public AsyncFunctionBase
-{
-public:
-    typedef void (*Func)(Arg1);
-    typedef ArgHolder<Arg1> Arg1H;
-
-    AsyncFunction() {}
-    AsyncFunction(Func f, Arg1 a1, bool run=false) { setup(f, a1); if(run){start();} }
-    ~AsyncFunction() { wait(); }
-    void setup(Func f, Arg1 a1) { m_func=f; m_arg=a1; }
-    void exec() { m_func(m_arg1); }
-    void getValue() { wait(); }
+    Function() : m_func(NULL){}
+    Function(Func f, Arg1 a1) : m_func(f), m_arg1(a1) {}
+    Res operator()() const { return m_func(m_arg1); }
 private:
     Func m_func;
     Arg1H m_arg1;
 };
 
 
-// async method: arg 0
-template<class Class, class Ret>
-class AsyncMethod<Class, Ret> : public AsyncFunctionBase
+template<class Class, class Res>
+class Method<Class, Res>
 {
 public:
-    typedef Ret (Class::*Func)();
-    typedef ArgHolder<Ret> RetH;
-
-    AsyncMethod() {}
-    AsyncMethod(Func f, Class &o, bool run=false) { setup(f, o); if(run){start();} }
-    ~AsyncMethod() { wait(); }
-   void setup(Func f, Class &o) { m_func=f; m_obj=&o; }
-    void exec() { m_ret=(m_obj->*m_func)(); }
-    Ret getValue() { wait(); return m_ret; }
+    typedef Res result_type;
+    typedef Res (Class::*Func)();
+    Method() : m_func(NULL), m_inst(NULL) {}
+    Method(Func f, Class &i) : m_func(f), m_inst(&i) {}
+    Res operator()() const { return (m_inst->*m_func)(); }
 private:
     Func m_func;
-    Class *m_obj;
-    RetH m_ret;
+    Class *m_inst;
 };
-
-template<class Class>
-class AsyncMethod<Class, void> : public AsyncFunctionBase
+template<class Class, class Res, class Arg1>
+class Method<Class, Res, Arg1>
 {
 public:
-    typedef void (Class::*Func)();
-
-    AsyncMethod() {}
-    AsyncMethod(Func f, Class &o, bool run=false) { setup(f, o); if(run){start();} }
-    ~AsyncMethod() { wait(); }
-    void setup(Func f, Class &o) { m_func=f; m_obj=&o; }
-    void exec() { (m_obj->*m_func)(); }
-    void getValue() { wait(); }
-private:
-    Func m_func;
-    Class *m_obj;
-};
-
-
-// async method: arg 1
-template<class Class, class Ret, class Arg1>
-class AsyncMethod<Class, Ret, Arg1> : public AsyncFunctionBase
-{
-public:
-    typedef Ret (Class::*Func)(Arg1);
-    typedef ArgHolder<Ret> RetH;
+    typedef Res result_type;
+    typedef Res (Class::*Func)(Arg1);
     typedef ArgHolder<Arg1> Arg1H;
-
-    AsyncMethod() {}
-    AsyncMethod(Func f, Class &o, Arg1 a1, bool run=false) { setup(f, o, a1); if(run){start();} }
-    ~AsyncMethod() { wait(); }
-    void setup(Func f, Class &o, Arg1 a1) { m_func=f; m_obj=&o; m_arg1=a1; }
-    void exec() { m_ret=(m_obj->*m_func)(m_arg1); }
-    Ret getValue() { wait(); return m_ret; }
+    Method() : m_func(NULL), m_inst(NULL) {}
+    Method(Func f, Class &i, Arg1 a1) : m_func(f), m_inst(&i), m_arg1(a1) {}
+    Res operator()() const { return (m_inst->*m_func)(m_arg1); }
 private:
     Func m_func;
-    Class *m_obj;
-    RetH m_ret; Arg1H m_arg1;
-};
-
-template<class Class, class Arg1>
-class AsyncMethod<Class, void, Arg1> : public AsyncFunctionBase
-{
-public:
-    typedef void (Class::*Func)(Arg1);
-    typedef ArgHolder<Arg1> Arg1H;
-
-    AsyncMethod() {}
-    AsyncMethod(Func f, Class &o, Arg1 a1, bool run=false) { setup(f, o, a1); if(run){start();} }
-    ~AsyncMethod() { wait(); }
-    void setup(Func f, Class &o, Arg1 a1) { m_func=f; m_obj=&o; m_arg1=a1; }
-    void exec() { (m_obj->*m_func)(m_arg1); }
-    void getValue() { wait(); }
-private:
-    Func m_func;
-    Class *m_obj;
+    Class *m_inst;
     Arg1H m_arg1;
 };
 
 
-// async const method: arg 0
-template<class Class, class Ret>
-class AsyncConstMethod<Class, Ret> : public AsyncFunctionBase
+template<class Class, class Res>
+class ConstMethod<Class, Res>
 {
 public:
-    typedef Ret (Class::*Func)() const;
-    typedef ArgHolder<Ret> RetH;
-
-    AsyncConstMethod() {}
-    AsyncConstMethod(Func f, const Class &o, bool run=false) { setup(f, o); if(run){start();} }
-    ~AsyncConstMethod() { wait(); }
-    void setup(Func f, const Class &o) { m_func=f; m_obj=&o; }
-    void exec() { m_ret=(m_obj->*m_func)(); }
-    Ret getValue() { wait(); return m_ret; }
+    typedef Res result_type;
+    typedef Res (Class::*Func)() const;
+    ConstMethod() : m_func(NULL), m_inst(NULL) {}
+    ConstMethod(Func f, Class &i) : m_func(f), m_inst(&i) {}
+    Res operator()() { return (m_inst->*m_func)(); }
 private:
     Func m_func;
-    const Class *m_obj;
-    RetH m_ret;
+    Class *m_inst;
 };
-
-template<class Class>
-class AsyncConstMethod<Class, void> : public AsyncFunctionBase
+template<class Class, class Res, class Arg1>
+class ConstMethod<Class, Res, Arg1>
 {
 public:
-    typedef void (Class::*Func)() const;
-
-    AsyncConstMethod() {}
-    AsyncConstMethod(Func f, const Class &o, bool run=false) { setup(f, o); if(run){start();} }
-    ~AsyncConstMethod() { wait(); }
-    void setup(Func f, const Class &o) { m_func=f; m_obj=&o; }
-    void exec() { (m_obj->*m_func)(); }
-    void getValue() { wait(); }
-private:
-    Func m_func;
-    const Class *m_obj;
-};
-
-
-// async const method: arg 1
-template<class Class, class Ret, class Arg1>
-class AsyncConstMethod<Class, Ret, Arg1> : public AsyncFunctionBase
-{
-public:
-    typedef Ret (Class::*Func)(Arg1) const;
-    typedef ArgHolder<Ret> RetH;
+    typedef Res result_type;
+    typedef Res (Class::*Func)(Arg1) const;
     typedef ArgHolder<Arg1> Arg1H;
-
-    AsyncConstMethod() {}
-    AsyncConstMethod(Func f, const Class &o, Arg1 a1, bool run=false) { setup(f, o, a1); if(run){start();} }
-    ~AsyncConstMethod() { wait(); }
-    void setup(Func f, const Class &o, Arg1 a1) { m_func=f; m_obj=&o; m_arg1=a1; }
-    void exec() { m_ret=(m_obj->*m_func)(m_arg1); }
-    Ret getValue() { wait(); return m_ret; }
+    ConstMethod() : m_func(NULL), m_inst(NULL) {}
+    ConstMethod(Func f, Class &i, Arg1 a1) : m_func(f), m_inst(&i), m_arg1(a1) {}
+    Res operator()() { return (m_inst->*m_func)(m_arg1); }
 private:
     Func m_func;
-    const Class *m_obj;
-    RetH m_ret; Arg1H m_arg1;
-};
-
-template<class Class, class Arg1>
-class AsyncConstMethod<Class, void, Arg1> : public AsyncFunctionBase
-{
-public:
-    typedef void (Class::*Func)(Arg1) const;
-    typedef ArgHolder<Arg1> Arg1H;
-
-    AsyncConstMethod() {}
-    AsyncConstMethod(Func f, const Class &o, Arg1 a1, bool run=false) { setup(f, o, a1); if(run){start();} }
-    ~AsyncConstMethod() { wait(); }
-    void setup(Func f, const Class &o, Arg1 a1) { m_func=f; m_obj=&o; m_arg1=a1; }
-    void exec() { (m_obj->*m_func)(m_arg1); }
-    void getValue() { wait(); }
-private:
-    Func m_func;
-    const Class *m_obj;
+    Class *m_inst;
     Arg1H m_arg1;
 };
-
-
 
 } // namespace ist
 
-#endif // __ist_Concurrency_AsyncFunction_h__
+#endif // ist_Concurrency_AsyncFunction_h

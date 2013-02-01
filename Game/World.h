@@ -21,9 +21,10 @@ private:
     typedef stl::vector<IAtomicGameModule*> ModuleCont;
     ModuleCont      m_modules;
 
-    typedef ist::AsyncMethod<IAtomicGameModule, void, float> ModuleAsyncupdate;
-    typedef stl::vector<ModuleAsyncupdate> ModuleAsyncupdateCont;
-    ModuleAsyncupdateCont m_module_asyncupdates;
+    typedef ist::Method<IAtomicGameModule, void, float32> ModuleAsyncupdateFunc;
+    typedef ist::AsyncFunction<ModuleAsyncupdateFunc> ModuleAsyncupdateTask;
+    typedef stl::vector<ModuleAsyncupdateTask> ModuleAsyncupdateTaskCont;
+    ModuleAsyncupdateTaskCont m_module_asyncupdates;
 
     PerspectiveCamera m_camera_game;
     PerspectiveCamera m_camera_bg;
