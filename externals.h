@@ -17,6 +17,7 @@
 #include <tbb/tbb.h>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 #define POCO_STATIC
 #include "Poco/Path.h"
