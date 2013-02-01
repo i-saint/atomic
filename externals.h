@@ -35,6 +35,7 @@
 #include "Poco/Net/HTMLForm.h"
 #include "Poco/Net/PartHandler.h"
 #include "Poco/Net/PartSource.h"
+#include "Poco/Net/FilePartSource.h"
 #include "Poco/Net/MessageHeader.h"
 #include "Poco/Net/ServerSocket.h"
 

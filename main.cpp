@@ -12,7 +12,6 @@ void ExecApp(int argc, char* argv[])
 {
     atomic::AtomicApplication app;
     if(app.initialize(argc, argv)) {
-        static_cast<atomic::AtomicApplication*>(NULL)->initialize(argc, argv);
         app.mainLoop();
     }
     app.finalize();

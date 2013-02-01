@@ -9,34 +9,6 @@ using namespace Poco;
 using namespace Poco::Net;
 
 
-class HTMLFormFileSource : public Poco::Net::PartSource
-{
-typedef Poco::Net::PartSource super;
-public:
-    HTMLFormFileSource(const std::string media_type) : super(media_type) {}
-    ~HTMLFormFileSource()
-    {
-        if(!m_filename.empty()) {
-            m_stream.close();
-            std::remove(m_filename.c_str());
-        }
-    }
-
-    virtual std::istream& stream() { return m_stream; }
-    virtual const std::string& filename() { return m_filename; }
-
-    bool openFile(const char *path)
-    {
-        m_stream.open(path, std::ios::in|std::ios::binary);
-        m_filename = path;
-        return true;
-    }
-
-private:
-    std::string m_filename;
-    std::ifstream m_stream;
-};
-
 class CrashReporter
 {
 public:
@@ -49,18 +21,19 @@ private:
 
 void CrashReporter::report( const char *path_to_dmp )
 {
-    HTMLFormFileSource *src = new HTMLFormFileSource("application/octet-stream");
-    if(!src->openFile(path_to_dmp)) {
-        delete src;
-        return;
-    }
+    FilePartSource *dump = new FilePartSource(path_to_dmp);
+    // todo:
+    //FilePartSource *log = new FilePartSource(path_to_log);
+    //FilePartSource *replay = new FilePartSource(path_to_replay);
 
     URI uri(g_crash_report_uri);
     m_session = new HTTPClientSession(uri.getHost(), uri.getPort());
 
-    HTTPRequest request(HTTPRequest::HTTP_GET, uri.getPathAndQuery(), HTTPMessage::HTTP_1_1);
+    HTTPRequest request(HTTPRequest::HTTP_POST, uri.getPathAndQuery(), HTTPMessage::HTTP_1_1);
     HTMLForm form("multipart/form-data");
-    form.addPart("report", src);
+    form.addPart("dump", dump);
+    //form.addPart("log", log);
+    //form.addPart("replay", replay);
     form.prepareSubmit(request);
     m_session->sendRequest(request);
 }

@@ -14,12 +14,12 @@
 namespace ist {
     typedef std::function<void (const char *path)> DumpFileHandler;
     void SetDumpFileHandler(const DumpFileHandler &dh);
-    void HandleCrash(EXCEPTION_POINTERS* ep);
+    int HandleCrash(EXCEPTION_POINTERS* ep);
 } // namespace ist
 
 #define istSetDumpFileHanlder(v)    ist::SetDumpFileHandler(v)
 #define istCrashReportBegin         __try {
-#define istCrashReportRescue        } __except( ist::HandleCrash( GetExceptionInformation() ), EXCEPTION_EXECUTE_HANDLER ) {
+#define istCrashReportRescue        } __except( ist::HandleCrash(GetExceptionInformation()) ) {
 #define istCrashReportEnd           }
 
 #else // defined(ist_enable_CrashReport) && defined(ist_env_Windows)
