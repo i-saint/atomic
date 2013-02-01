@@ -1,7 +1,7 @@
 ﻿#ifndef ist_Base_Assert_h
 #define ist_Base_Assert_h
 
-#ifdef ist_enable_assert
+#ifdef ist_enable_Assert
 
 #define istPrint(...) ist::DebugPrint(__FILE__, __LINE__, __VA_ARGS__)
 #define istAssert(expression)\

@@ -1,5 +1,5 @@
-#ifndef __ist_Debug_ParamTree__
-#define __ist_Debug_ParamTree__
+#ifndef ist_Debug_ParamTree_h
+#define ist_Debug_ParamTree_h
 
 #include "ist/Base/New.h"
 #include "ist/Math/Misc.h" // clamp
@@ -287,4 +287,4 @@ private:
 };
 
 } // namespace ist
-#endif // __ist_Debug_ParamTree__
+#endif // ist_Debug_ParamTree_h

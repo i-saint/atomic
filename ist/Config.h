@@ -12,7 +12,7 @@
 #define ist_with_oggvorbis
 
 #ifndef ist_env_Master
-#   define ist_enable_assert
+#   define ist_enable_Assert
 #   define i3d_enable_assert
 #endif // ist_env_Master
 #ifdef ist_env_Debug
@@ -20,6 +20,7 @@
 // memory_leak_check は resource_leak_check も兼ねるがパフォーマンス低下が著しいので一応別に用意
 //#   define i3d_enable_resource_leak_check
 #endif // ist_env_Debug
+#define ist_enable_CrashReport
 #define ist_leak_check_max_callstack_size 64
 
 

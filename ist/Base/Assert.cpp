@@ -6,7 +6,7 @@
     #include <windows.h>
 #endif // ist_env_Windows
 
-#ifdef ist_enable_assert
+#ifdef ist_enable_Assert
 
 namespace ist {
 

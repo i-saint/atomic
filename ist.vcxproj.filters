@@ -295,6 +295,9 @@
     <ClInclude Include="ist\Base\PoolNew.h">
       <Filter>Base</Filter>
     </ClInclude>
+    <ClInclude Include="ist\Debug\CrashDump.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ist\Window\Application.cpp">
@@ -432,6 +435,9 @@
     </ClCompile>
     <ClCompile Include="ist\Base\PoolNew.cpp">
       <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Debug\CrashDump.cpp">
+      <Filter>Debug</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

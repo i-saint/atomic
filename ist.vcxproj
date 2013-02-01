@@ -51,6 +51,7 @@
     <ClInclude Include="ist\Config.h" />
     <ClInclude Include="ist\Debug.h" />
     <ClInclude Include="ist\Debug\Callstack.h" />
+    <ClInclude Include="ist\Debug\CrashDump.h" />
     <ClInclude Include="ist\Debug\ParamTree.h" />
     <ClInclude Include="ist\GPGPU.h" />
     <ClInclude Include="ist\Graphics.h" />
@@ -134,6 +135,7 @@
     <ClCompile Include="ist\Concurrency\Thread.cpp" />
     <ClCompile Include="ist\Concurrency\Timer.cpp" />
     <ClCompile Include="ist\Debug\Callstack.cpp" />
+    <ClCompile Include="ist\Debug\CrashDump.cpp" />
     <ClCompile Include="ist\Debug\ParamTree.cpp" />
     <ClCompile Include="ist\GraphicsCommon\EasyDrawer.cpp" />
     <ClCompile Include="ist\GraphicsCommon\Image.cpp" />

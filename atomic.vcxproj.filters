@@ -116,6 +116,7 @@
       <Filter>Network</Filter>
     </ClCompile>
     <ClCompile Include="EnumStrings.cpp" />
+    <ClCompile Include="CrashReport.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h">

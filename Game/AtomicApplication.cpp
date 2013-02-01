@@ -16,6 +16,9 @@
 
 namespace atomic {
 
+void InitializeCrashReporter();
+void FinalizeCrashReporter();
+
 
 AtomicConfig::AtomicConfig()
 {
@@ -146,7 +149,6 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     ::AllocConsole();
 #endif // atomic_enable_shader_live_edit
     TaskScheduler::initializeInstance();
-    InitializeText();
 
     // initialize debug menu
     atomicDbgInitializeDebugMenu();
@@ -197,6 +199,7 @@ void AtomicApplication::finalize()
     TaskScheduler::finalizeInstance();
     FinalizeText();
     ist::PoolNewManager::freeAll();
+    FinalizeCrashReporter();
     super::finalize();
 }
 

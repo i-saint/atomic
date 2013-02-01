@@ -16,6 +16,7 @@
 
 #include <tbb/tbb.h>
 #include <iostream>
+#include <fstream>
 
 #define POCO_STATIC
 #include "Poco/Path.h"
@@ -30,6 +31,11 @@
 #include "Poco/Net/HTTPServerRequest.h"
 #include "Poco/Net/HTTPServerResponse.h"
 #include "Poco/Net/HTTPServerParams.h"
+#include "Poco/Net/HTTPClientSession.h"
+#include "Poco/Net/HTMLForm.h"
+#include "Poco/Net/PartHandler.h"
+#include "Poco/Net/PartSource.h"
+#include "Poco/Net/MessageHeader.h"
 #include "Poco/Net/ServerSocket.h"
 
 #include "ist/ist.h"
