@@ -29,18 +29,18 @@ public:
 
     void handleRequest(HTTPServerRequest &request, HTTPServerResponse &response)
     {
-        const char *ext = ".txt";
-        const char *media_type = NULL;
+        const char *ext = s_mime_types[0].ext;
+        const char *mime = s_mime_types[0].type;
         size_t epos = m_path.find_last_of(".");
         if(epos!=std::string::npos) {
             ext = &m_path[epos];
-        }
-        for(size_t i=0; i<_countof(s_mime_types); ++i) {
-            if(strcmp(ext, s_mime_types[i].ext)==0) {
-                media_type = s_mime_types[i].type;
+            for(size_t i=0; i<_countof(s_mime_types); ++i) {
+                if(strcmp(ext, s_mime_types[i].ext)==0) {
+                    mime = s_mime_types[i].type;
+                }
             }
         }
-        response.sendFile(m_path, media_type);
+        response.sendFile(m_path, mime);
     }
 
 private:

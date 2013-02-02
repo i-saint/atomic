@@ -10,6 +10,7 @@
 #define ist_with_gli // dds ファイル対応
 #define ist_with_OpenAL
 #define ist_with_oggvorbis
+#define ist_with_boost_serialization
 
 #ifndef ist_env_Master
 #   define ist_enable_Assert
@@ -20,8 +21,10 @@
 // memory_leak_check は resource_leak_check も兼ねるがパフォーマンス低下が著しいので一応別に用意
 //#   define i3d_enable_resource_leak_check
 #endif // ist_env_Debug
-#define ist_enable_CrashReport
 #define ist_leak_check_max_callstack_size 64
+#ifdef ist_env_Master
+#   define ist_enable_CrashReport
+#endif // ist_env_Master
 
 
 #if defined(_MSC_VER)
@@ -153,6 +156,15 @@ namespace stl = std;
 
 #ifdef ist_with_poco
 #endif // ist_with_poco
+
+#ifdef ist_with_boost_serialization
+#pragma warning(push)
+#pragma warning(disable: 4244)
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/export.hpp>
+#pragma warning(pop)
+#endif // ist_with_boost_serialization
 
 #include "ist/Base/Types.h"
 

@@ -10,6 +10,7 @@ enum LevelEditorCommandID
     LEC_Create,
     LEC_Delete,
     LEC_Call,
+    LEC_Query,
 };
 
 struct LevelEditorCommand
@@ -44,6 +45,21 @@ struct LevelEditorCommand_Call
     variant arg;
 
     LevelEditorCommand_Call() : command(LEC_Call) {}
+};
+
+struct LevelEditorCommand_Query
+{
+    enum QueryID {
+        Q_Entities,
+        Q_Entity,
+        Q_Players,
+    };
+
+    LevelEditorCommandID command;
+    QueryID query;
+    uint32 optional;
+
+    LevelEditorCommand_Query() : command(LEC_Query) {}
 };
 
 
