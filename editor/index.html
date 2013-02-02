@@ -4,13 +4,15 @@
 <title>atomic: level editor</title>
 
 <script type="x-shader/x-vertex" id="vs_simple"> 
-attribute vec3 ia_position;
+attribute vec2 ia_position;
 uniform vec4 u_color;
 varying vec4 vs_color;
+const float u_rcp_field = 1.0/(2.56*2.0);
 void main()
 {
-    vs_color = u_color;
-    gl_Position = vec4(ia_position, 1.0);
+    //vs_color = u_color;
+    vs_color = vec4(1.0, 1.0, 1.0, 0.5);
+    gl_Position = vec4(ia_position*u_rcp_field, 0.0, 1.0);
 }
 </script>
 
@@ -44,7 +46,8 @@ var oldMouseY = 0;
 var mouseDx = 0;
 var mouseDy = 0;
 
-var shader;
+var sh_simple;
+var loc_ia_position;
 var vb_quad;
 var ib_quad;
 var ib_quad_line;
@@ -167,21 +170,54 @@ function onLoad()
     EntitiesTimer = setInterval(updateEntities, 1000);
     time = new Date().getTime() - starttime;
 
-    shader = createShaderProgram("vs_simple", "ps_simple");
+    sh_simple = createShaderProgram("vs_simple", "ps_simple");
+    loc_ia_position = gl.getAttribLocation(sh_simple, "ia_position");
 
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-    gl.clearColor(0, 0, 0, 1);
+    var quad_vertices = new Float32Array([
+        -1.0, -1.0,
+        -1.0,  1.0,
+         1.0,  1.0,
+         1.0, -1.0
+    ]);
+    vb_quad = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vb_quad);
+    gl.bufferData(gl.ARRAY_BUFFER, quad_vertices, gl.STATIC_DRAW);
 
-    anim();
+    var quad_indices = new Int16Array([0,1,2, 2,3,0]);
+    ib_quad = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib_quad);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, quad_indices, gl.STATIC_DRAW);
+
+    var quad_line_indices = new Int16Array([0,1, 1,2, 2,3, 3,0]);
+    ib_quad_line = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib_quad_line);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, quad_line_indices, gl.STATIC_DRAW);
+
+
+    draw();
 }
 
-function anim()
+function draw()
 {
-    gl.clearColor(0, 0, 0, 1);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+
+    gl.useProgram(sh_simple);
+    gl.bindBuffer(gl.ARRAY_BUFFER, vb_quad);
+    gl.enableVertexAttribArray(loc_ia_position);
+    gl.vertexAttribPointer(loc_ia_position, 2, gl.FLOAT, gl.FALSE, 8, 0);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib_quad);
+    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib_quad_line);
+    gl.drawElements(gl.LINES, 8, gl.UNSIGNED_SHORT, 0);
+
+    gl.flush();
 
     frame++;
-    setTimeout("requestAnimFrame(anim)", delay);
+    setTimeout("requestAnimFrame(draw)", delay);
 
     oldMouseX = mouseX;
     oldMouseY = mouseY;

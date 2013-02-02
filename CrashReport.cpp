@@ -3,15 +3,13 @@
 
 namespace atomic {
 
-const char g_crash_report_uri[] = "http://primitive-games.jp/atomic/crash_report/post";
-
 using namespace Poco;
 using namespace Poco::Net;
 
 
 void SendReport( const char *path_to_dmp )
 {
-    URI uri(g_crash_report_uri);
+    URI uri(atomic_crash_report_url);
     HTTPRequest request(HTTPRequest::HTTP_POST, uri.getPathAndQuery(), HTTPMessage::HTTP_1_0);
 
     FilePartSource *dump = new FilePartSource(path_to_dmp);

@@ -4,7 +4,8 @@
 #define atomic_version 1
 #define atomic_version_string "0.01"
 #define atomic_replay_version 1
-
+#define atomic_crash_report_url "http://primitive-games.jp/atomic/crash_report/post"
+#define atomic_patch_url        "http://primitive-games.jp/atomic/update/"
 
 
 #ifdef ist_env_Master
