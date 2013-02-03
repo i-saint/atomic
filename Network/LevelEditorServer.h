@@ -110,6 +110,7 @@ private:
     ~LevelEditorServer();
     void pushCommand(const variant32 &cmd);
     void pushQuery(LevelEditorQuery &q);
+    void clearQuery();
 
 private:
     typedef stdex::vector<variant32> CommandCont;

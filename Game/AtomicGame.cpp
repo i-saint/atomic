@@ -11,6 +11,9 @@
 #include "Game/Entity.h"
 #include "Game/EntityQuery.h"
 
+#include "Collision.h"
+#include "Entity/Routine.h"
+
 namespace atomic {
 
 
@@ -152,7 +155,18 @@ void AtomicGame::handleLevelEditorCommands( const LevelEditorCommand &c )
     static IEntity *s_last_entity;
     if(c.type==LEC_Create) {
         const LevelEditorCommand_Create &cmd = reinterpret_cast<const LevelEditorCommand_Create&>(c);
-        s_last_entity = atomicGetEntitySet()->createEntity<Enemy_Test>();
+        IEntity *e = atomicGetEntitySet()->createEntity<Enemy_Test>();
+        s_last_entity = e;
+        atomicCall(e, setCollisionShape, CS_SPHERE);
+        atomicCall(e, setModel, PSET_SPHERE_SMALL);
+        atomicCall(e, setPosition, GenRandomVector2() * 2.2f);
+        atomicCall(e, setLife, 15.0f);
+        atomicCall(e, setAxis1, GenRandomUnitVector3());
+        atomicCall(e, setAxis2, GenRandomUnitVector3());
+        atomicCall(e, setRotateSpeed1, 2.4f);
+        atomicCall(e, setRotateSpeed2, 2.4f);
+        atomicCall(e, setRoutine, ROUTINE_HOMING_PLAYER);
+        atomicCall(e, setLightRadius, 0.5f);
     }
     else if(c.type==LEC_Delete) {
         const LevelEditorCommand_Delete &cmd = reinterpret_cast<const LevelEditorCommand_Delete&>(c);

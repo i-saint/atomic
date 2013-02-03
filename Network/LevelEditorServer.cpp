@@ -155,8 +155,7 @@ public:
         if(request.getURI() == "/state/entities") {
             q.type = LEQ_Entities;
             LevelEditorServer::getInstance()->pushQuery(q);
-            for(int i=0; i<5; ++i) {
-                if(q.completed) { break; }
+            while(!q.completed) {
                 ist::Thread::milliSleep(10);
             }
         }
@@ -234,6 +233,7 @@ void LevelEditorServer::start()
 void LevelEditorServer::stop()
 {
     if(m_server) {
+        clearQuery();
         m_server->stopAll(false);
         delete m_server;
         m_server = NULL;
@@ -282,14 +282,16 @@ void LevelEditorServer::pushCommand( const variant32 &cmd )
 void LevelEditorServer::pushQuery( LevelEditorQuery &q )
 {
     ist::Mutex::ScopedLock lock(m_mutex_queries);
-    // 溜まりすぎてたらクリア
-    if(m_queries.size()>32) {
-        for(size_t i=0; i<m_queries.size(); ++i) {
-            m_queries[i]->completed = true;
-        }
-        m_queries.clear();
-    }
     m_queries.push_back(&q);
+}
+
+void LevelEditorServer::clearQuery()
+{
+    ist::Mutex::ScopedLock lock(m_mutex_queries);
+    for(size_t i=0; i<m_queries.size(); ++i) {
+        m_queries[i]->completed = true;
+    }
+    m_queries.clear();
 }
 
 
