@@ -5,14 +5,17 @@
 
 <script type="x-shader/x-vertex" id="vs_simple"> 
 attribute vec2 ia_position;
+uniform vec2 u_position;
+uniform vec2 u_scale;
 uniform vec4 u_color;
 varying vec4 vs_color;
-const float u_rcp_field = 1.0/(2.56*2.0);
+const float u_rcp_field = 1.0/(2.56);
+const float u_rcp_field2 = 1.0/(2.56*2.0);
 void main()
 {
-    //vs_color = u_color;
-    vs_color = vec4(1.0, 1.0, 1.0, 0.5);
-    gl_Position = vec4(ia_position*u_rcp_field, 0.0, 1.0);
+    vs_color = u_color;
+    vec2 pos = (ia_position*u_rcp_field2) * u_scale + (u_position*u_rcp_field);
+    gl_Position = vec4(pos, 0.0, 1.0);
 }
 </script>
 
@@ -27,6 +30,21 @@ void main()
 
 <script type="text/javascript" src="prototype.js"></script>
 <script type="text/javascript">
+
+var EntityClassID = {
+    Unknown : 0,
+    Player : 1,
+    Enemy : 2,
+    Bullet : 3,
+    Obstacle : 4,
+};
+var EntityClassColor = [
+    [0.0, 0.0, 0.0, 0.0],
+    [0.2, 0.2, 1.0, 0.5],
+    [1.0, 0.2, 0.2, 0.5],
+    [0.8, 0.0, 0.8, 0.5],
+    [0.3, 0.3, 0.3, 0.5],
+];
 
 var FieldX = 2.56;
 var FieldY = 2.56;
@@ -47,7 +65,6 @@ var mouseDx = 0;
 var mouseDy = 0;
 
 var sh_simple;
-var loc_ia_position;
 var vb_quad;
 var ib_quad;
 var ib_quad_line;
@@ -78,44 +95,43 @@ function updateEntities()
         method: "get",
         onComplete: function(res) {
             loading = false;
-            eval(res.responseText);
+            entities = res.responseText.evalJSON();
         }
     });
 }
 
 function createShader(id)
 {
-  var shaderScript = document.getElementById(id);
-  if (!shaderScript) {
-      return null;
-  }
+    var shaderScript = document.getElementById(id);
+    if(!shaderScript) { return null; }
 
-  var str = "";
-  var k = shaderScript.firstChild;
-  while (k) {
-      if (k.nodeType == 3)
-          str += k.textContent;
-      k = k.nextSibling;
-  }
+    var str = "";
+    var k = shaderScript.firstChild;
+    while (k) {
+        if (k.nodeType == 3) {
+            str += k.textContent;
+        }
+        k = k.nextSibling;
+    }
 
-  var shader;
-  if (shaderScript.type == "x-shader/x-fragment") {
-      shader = gl.createShader(gl.FRAGMENT_SHADER);
-  } else if (shaderScript.type == "x-shader/x-vertex") {
-      shader = gl.createShader(gl.VERTEX_SHADER);
-  } else {
-      return null;
-  }
+    var shader;
+    if(shaderScript.type == "x-shader/x-fragment") {
+        shader = gl.createShader(gl.FRAGMENT_SHADER);
+    }
+    else if(shaderScript.type == "x-shader/x-vertex") {
+        shader = gl.createShader(gl.VERTEX_SHADER);
+    }
+    else {
+        return null;
+    }
 
-  gl.shaderSource(shader, str);
-  gl.compileShader(shader);
-
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-      alert(gl.getShaderInfoLog(shader));
-      return null;
-  }
-
-  return shader;
+    gl.shaderSource(shader, str);
+    gl.compileShader(shader);
+    if(!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        alert(gl.getShaderInfoLog(shader));
+        return null;
+    }
+    return shader;
 }
 
 function createShaderProgram(vsid, psid)
@@ -127,11 +143,9 @@ function createShaderProgram(vsid, psid)
     return program;
 }
 
-requestAnimFrame = (function() {
+var requestDraw = (function() {
     return window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame ||
-    function(callback, element) {
-        setTimeout(callback, delay);
-    };
+        function(callback, t) { setTimeout(callback, t); };
 })();
 
 
@@ -167,11 +181,14 @@ function onLoad()
 
 
     FPSTimer = setInterval(updateFPS, 1000);
-    EntitiesTimer = setInterval(updateEntities, 1000);
+    EntitiesTimer = setInterval(updateEntities, 200);
     time = new Date().getTime() - starttime;
 
     sh_simple = createShaderProgram("vs_simple", "ps_simple");
-    loc_ia_position = gl.getAttribLocation(sh_simple, "ia_position");
+    sh_simple.ia_position = gl.getAttribLocation(sh_simple, "ia_position");
+    sh_simple.u_position = gl.getUniformLocation(sh_simple, "u_position");
+    sh_simple.u_scale = gl.getUniformLocation(sh_simple, "u_scale");
+    sh_simple.u_color = gl.getUniformLocation(sh_simple, "u_color");
 
     var quad_vertices = new Float32Array([
         -1.0, -1.0,
@@ -194,11 +211,18 @@ function onLoad()
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, quad_line_indices, gl.STATIC_DRAW);
 
 
+    entities.ids = []
+    entities.types = []
+    entities.sizes = []
+    entities.positions = []
+
     draw();
 }
 
 function draw()
 {
+    var t = (new Date().getTime() - starttime)*0.001;
+
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
@@ -206,18 +230,27 @@ function draw()
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 
     gl.useProgram(sh_simple);
-    gl.bindBuffer(gl.ARRAY_BUFFER, vb_quad);
-    gl.enableVertexAttribArray(loc_ia_position);
-    gl.vertexAttribPointer(loc_ia_position, 2, gl.FLOAT, gl.FALSE, 8, 0);
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib_quad);
-    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib_quad_line);
-    gl.drawElements(gl.LINES, 8, gl.UNSIGNED_SHORT, 0);
 
+    gl.bindBuffer(gl.ARRAY_BUFFER, vb_quad);
+    gl.enableVertexAttribArray(sh_simple.ia_position);
+    gl.vertexAttribPointer(sh_simple.ia_position, 2, gl.FLOAT, gl.FALSE, 8, 0);
+
+    for(var i=0; i<entities.ids.length; ++i) {
+        var color = EntityClassColor[entities.types[i]];
+        gl.uniform2f(sh_simple.u_position, entities.positions[i*2+0], entities.positions[i*2+1]);
+        gl.uniform2f(sh_simple.u_scale, entities.sizes[i*2+0], entities.sizes[i*2+1]);
+        gl.uniform4f(sh_simple.u_color, color[0], color[1], color[2], color[3]);
+
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib_quad);
+        gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib_quad_line);
+        gl.drawElements(gl.LINES, 8, gl.UNSIGNED_SHORT, 0);
+    }
+    
     gl.flush();
 
     frame++;
-    setTimeout("requestAnimFrame(draw)", delay);
+    setTimeout("requestDraw(draw)", delay);
 
     oldMouseX = mouseX;
     oldMouseY = mouseY;
@@ -239,8 +272,8 @@ function postCommand(url, values)
 
 <body onload="onLoad()">
 <canvas id="c" width="1024" height="1024" style="position:absolute; left:0px; top:0px;"></canvas>
-<div id="desc" style="position:absolute; left:1024px; top:10px;">
-<span id="fps"></span>
+<div id="desc" style="position:absolute; left:1024px; top:10px; with:200px;">
+<span id="fps">  </span>
 <a href="http://primitive-games.jp/atomic/">about atomic</a>
 </div>
 </body>

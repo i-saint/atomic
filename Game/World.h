@@ -60,6 +60,8 @@ public:
     EntitySet*      getEntitySet()      { return m_entity_set; }
     CollisionSet*   getCollisionSet()   { return m_collision_set; }
     SPHManager*    getFractionSet()    { return m_sph; }
+
+    void jsonizeEntities(JsonizeEntitiesContext &ctx);
 };
 
 

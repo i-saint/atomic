@@ -120,6 +120,9 @@ public:
     IEntity* getEntity(EntityHandle h);
     void deleteEntity(EntityHandle h);
     template<class T> IEntity* createEntity();
+
+
+    void jsonizeEntities(JsonizeEntitiesContext &ctx);
 };
 
 } // namespace atomic

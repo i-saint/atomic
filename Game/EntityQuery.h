@@ -59,7 +59,7 @@ inline T _atomicQuery(IEntity *e, FunctionID qid)
 {
     variant v;
     if(!e->query(qid, v)) {
-        istPrint("query failed. entity: 0x%x query: %d\n", e->getHandle(), qid);
+        //istPrint("query failed. entity: 0x%x query: %d\n", e->getHandle(), qid);
     }
     return v.cast<T>();
 }

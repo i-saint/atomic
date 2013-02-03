@@ -10,6 +10,9 @@ namespace atomic {
 
 void ExecApp(int argc, char* argv[])
 {
+    // クラッシュさせるテスト
+    //*static_cast<int*>(NULL) = 0;
+
     atomic::AtomicApplication app;
     if(app.initialize(argc, argv)) {
         app.mainLoop();

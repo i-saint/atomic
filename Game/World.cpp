@@ -121,5 +121,10 @@ void World::frameEnd()
     }
 }
 
+void World::jsonizeEntities( JsonizeEntitiesContext &ctx )
+{
+    m_entity_set->jsonizeEntities(ctx);
+}
+
 
 } // namespace atomic

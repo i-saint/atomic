@@ -7,11 +7,10 @@ namespace atomic {
         ECID_Unknown,
         ECID_Player,
         ECID_Enemy,
-        ECID_Obstruct,
         ECID_Bullet,
+        ECID_Obstacle,
         ECID_Level,
         ECID_VFX,
-
         ECID_End,
     };
 

@@ -34,8 +34,7 @@ AtomicGame::AtomicGame()
 
 AtomicGame::~AtomicGame()
 {
-    if(m_input_server->getClassID()==IInputServer::IS_LOCAL &&
-       atomicGetConfig()->output_replay)
+    if(m_input_server->getClassID()==IInputServer::IS_LOCAL && atomicGetConfig()->output_replay)
     {
         char path[128];
         char date[128];
@@ -74,15 +73,12 @@ void AtomicGame::frameBegin()
 
 void AtomicGame::update(float32 dt)
 {
-    if(atomicGetConfig()->pause) { return; }
-
-    if(!atomicDbgDebugMenuIsActive()) {
-        m_input_server->update(*atomicGetSystemInputs());
+    if(!atomicDbgDebugMenuIsActive()) { m_input_server->update(*atomicGetSystemInputs()); }
+    LevelEditorServer::getInstance()->handleCommands(std::bind(&AtomicGame::handleLevelEditorCommands, this, std::placeholders::_1) );
+    LevelEditorServer::getInstance()->handleQueries(std::bind(&AtomicGame::handleLevelEditorQueries, this, std::placeholders::_1) );
+    if(!atomicGetConfig()->pause) {
+        m_world->update(1.0f);
     }
-
-    LevelEditorServer::getInstance()->handleCommands(
-        std::bind(&AtomicGame::handleLevelEditorCommand, this, std::placeholders::_1) );
-    m_world->update(1.0f);
 }
 
 void AtomicGame::asyncupdateBegin(float32 dt)
@@ -151,27 +147,68 @@ SFMT* AtomicGame::getRandom()
     return &m_rand;
 }
 
-void AtomicGame::handleLevelEditorCommand( const LevelEditorCommand &c )
+void AtomicGame::handleLevelEditorCommands( const LevelEditorCommand &c )
 {
     static IEntity *s_last_entity;
-    if(c.command==LEC_Create) {
+    if(c.type==LEC_Create) {
         const LevelEditorCommand_Create &cmd = reinterpret_cast<const LevelEditorCommand_Create&>(c);
         s_last_entity = atomicGetEntitySet()->createEntity<Enemy_Test>();
     }
-    else if(c.command==LEC_Delete) {
+    else if(c.type==LEC_Delete) {
         const LevelEditorCommand_Delete &cmd = reinterpret_cast<const LevelEditorCommand_Delete&>(c);
         IEntity *e = cmd.entity_id==uint32(-1) ? s_last_entity : atomicGetEntity(cmd.entity_id);
         if(e) {
             atomicCall(e, kill, 0);
         }
     }
-    else if(c.command==LEC_Call) {
+    else if(c.type==LEC_Call) {
         const LevelEditorCommand_Call &cmd = reinterpret_cast<const LevelEditorCommand_Call&>(c);
         IEntity *e = cmd.entity_id==uint32(-1) ? s_last_entity : atomicGetEntity(cmd.entity_id);
         if(e) {
             e->call((FunctionID)cmd.function_id, cmd.arg);
         }
     }
+}
+
+void AtomicGame::handleLevelEditorQueries( LevelEditorQuery &cmd )
+{
+    if(cmd.type==LEQ_Entities) {
+        jsonizeEntities(cmd.response);
+    }
+}
+
+void AtomicGame::jsonizeEntities( std::string &out )
+{
+    m_ctx_jsonize_entities.entities.clear();
+    m_world->jsonizeEntities(m_ctx_jsonize_entities);
+
+    char buf[64];
+    auto &entities = m_ctx_jsonize_entities.entities;
+    out += "{\"ids\":[";
+    for(size_t i=0; i<entities.size(); ++i) {
+        istsprintf(buf, "%d,", entities[i].id);
+        out+=buf;
+    }
+    out.pop_back();
+    out += "], \"types\":[";
+    for(size_t i=0; i<entities.size(); ++i) {
+        istsprintf(buf, "%d,", entities[i].type);
+        out+=buf;
+    }
+    out.pop_back();
+    out += "], \"sizes\":[";
+    for(size_t i=0; i<entities.size(); ++i) {
+        istsprintf(buf, "%.2f,%.2f,", entities[i].size.x, entities[i].size.y);
+        out+=buf;
+    }
+    out.pop_back();
+    out += "], \"positions\":[";
+    for(size_t i=0; i<entities.size(); ++i) {
+        istsprintf(buf, "%.2f,%.2f,", entities[i].pos.x, entities[i].pos.y);
+        out+=buf;
+    }
+    out.pop_back();
+    out += "]}";
 }
 
 } // namespace atomic

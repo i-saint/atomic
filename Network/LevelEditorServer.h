@@ -4,62 +4,71 @@
 
 namespace atomic {
 
-enum LevelEditorCommandID
+// Level Editor Commans
+enum LEC_Type
 {
     LEC_Unknown,
     LEC_Create,
     LEC_Delete,
     LEC_Call,
-    LEC_Query,
 };
+
+// Level Editor Query
+enum LEQ_Type
+{
+    LEQ_Unknown,
+    LEQ_Entities,
+    LEQ_Entity,
+    LEQ_Players,
+};
+
 
 struct LevelEditorCommand
 {
-    LevelEditorCommandID command;
+    LEC_Type type;
 
-    LevelEditorCommand() : command(LEC_Unknown) {}
+    LevelEditorCommand() : type(LEC_Unknown) {}
 };
 
 struct LevelEditorCommand_Create
 {
-    LevelEditorCommandID command;
+    LEC_Type type;
     uint32 entity_typeid;
 
-    LevelEditorCommand_Create() : command(LEC_Create) {}
+    LevelEditorCommand_Create() : type(LEC_Create) {}
 };
 
 struct LevelEditorCommand_Delete
 {
-    LevelEditorCommandID command;
+    LEC_Type type;
     uint32 entity_id;
 
-    LevelEditorCommand_Delete() : command(LEC_Delete) {}
+    LevelEditorCommand_Delete() : type(LEC_Delete) {}
 };
 
 struct LevelEditorCommand_Call
 {
-    LevelEditorCommandID command;
+    LEC_Type type;
     uint32 entity_id;
     uint32 function_id;
     uint32 dummy;
     variant arg;
 
-    LevelEditorCommand_Call() : command(LEC_Call) {}
+    LevelEditorCommand_Call() : type(LEC_Call) {}
 };
 
-struct LevelEditorCommand_Query
+struct LevelEditorQuery
 {
-    enum QueryID {
-        Q_Entities,
-        Q_Entity,
-        Q_Players,
-    };
-
-    LevelEditorCommandID command;
-    QueryID query;
+    LEQ_Type type;
     uint32 optional;
 
-    LevelEditorCommand_Query() : command(LEC_Query) {}
+    std::string response;
+    bool completed;
+
+    LevelEditorQuery()
+        : optional(0)
+        , completed(false)
+    {}
 };
 
 
@@ -73,12 +82,13 @@ struct LevelEditorServerConfig
     LevelEditorServerConfig();
 };
 
-class LevelEditorRequestHandler;
+class LevelEditorCommandHandler;
 class LevelEditorRequestHandlerFactory;
 
 class LevelEditorServer
 {
-friend class LevelEditorRequestHandler;
+friend class LevelEditorCommandHandler;
+friend class LevelEditorQueryHandler;
 friend class LevelEditorRequestHandlerFactory;
 public:
     static void initializeInstance();
@@ -90,23 +100,32 @@ public:
     void restart();
 
     typedef std::function<void (const LevelEditorCommand&)> CommandProcessor;
+    typedef std::function<void (LevelEditorQuery&)> QueryProcessor;
     void handleCommands(const CommandProcessor &proc);
+    void handleQueries(const QueryProcessor &proc);
 
 
 private:
     LevelEditorServer();
     ~LevelEditorServer();
     void pushCommand(const variant32 &cmd);
+    void pushQuery(LevelEditorQuery &q);
 
 private:
     typedef stdex::vector<variant32> CommandCont;
+    typedef stdex::vector<LevelEditorQuery*> QueryCont;
 
     static LevelEditorServer *s_inst;
     Poco::Net::HTTPServer *m_server;
     LevelEditorServerConfig m_conf;
-    ist::Mutex m_mutex;
+
+    ist::Mutex m_mutex_commands;
     CommandCont m_commands;
     CommandCont m_commands_tmp;
+
+    ist::Mutex m_mutex_queries;
+    QueryCont m_queries;
+    QueryCont m_queries_tmp;
 };
 
 } // namespace atomic

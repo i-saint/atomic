@@ -52,12 +52,17 @@ public:
     atomicEQueryBlock(
         atomicEQuerySuper(super)
         atomicEQuerySuper(transform)
+        atomicMethodBlock(
+        atomicEQuery(getCollisionHandle)
+        )
     )
 
 public:
     Player() : m_cooldown(0)
     {
     }
+
+    CollisionHandle getCollisionHandle() const { return m_collision.getCollisionHandle(); }
 
     virtual void initialize()
     {

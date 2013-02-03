@@ -102,6 +102,18 @@ public:
 };
 
 
+struct JsonizeEntitiesContext
+{
+    struct Record
+    {
+        uint32 id;
+        uint32 type;
+        vec2 size;
+        vec2 pos;
+    };
+    stl::vector<Record> entities;
+};
+
 } // namespace atomic
 
 #define atomicSafeRelease(Obj) if(Obj){Obj->release();Obj=NULL;}

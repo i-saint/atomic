@@ -29,8 +29,11 @@ public:
     // 描画スレッドから呼ばれる
     void drawCallback();
 
-    void handleLevelEditorCommand(const LevelEditorCommand &cmd);
+    void handleLevelEditorCommands(const LevelEditorCommand &cmd);
+    void handleLevelEditorQueries(LevelEditorQuery &cmd);
     int handleCommandLine(const stl::wstring &command);
+
+    void jsonizeEntities(std::string &out);
 
     const InputState* getIngameInputs() const { return m_input_server->getInput(); }
     World* getWorld()   { return m_world; }
@@ -46,6 +49,7 @@ private:
     IInputServer    *m_input_server;
     World           *m_world;
     SFMT            m_rand;
+    JsonizeEntitiesContext m_ctx_jsonize_entities;
 #ifdef atomic_enable_sync_lock
     bool m_sync_lock;
 #endif // atomic_enable_sync_lock

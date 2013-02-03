@@ -3,6 +3,9 @@
 #include "AtomicGame.h"
 #include "Graphics/ResourceManager.h"
 #include "Entity.h"
+#include "EntityQuery.h"
+#include "Collision.h"
+#include "World.h"
 #include "Task.h"
 
 #ifdef atomic_enable_strict_handle_check
@@ -193,6 +196,32 @@ void EntitySet::deleteEntity( EntityHandle h )
     entities[iid]->finalize();
     istSafeDelete(entities[iid]);
     vacants.push_back(h);
+}
+
+void EntitySet::jsonizeEntities( JsonizeEntitiesContext &ctx )
+{
+    uint32 num_entities = m_all.size();
+    for(uint32 i=0; i<num_entities; ++i) {
+        EntityHandle handle = m_all[i];
+        IEntity *entity = getEntity(handle);
+        if(entity) {
+            variant var;
+            if(!entity->query(FID_getCollisionHandle, var)) { continue; }
+            JsonizeEntitiesContext::Record rec;
+            CollisionHandle ch = var.cast<CollisionHandle>();
+            CollisionEntity *ce = atomicGetCollision(ch);
+            if(ce) {
+                const BoundingBox &bb = ce->bb;
+                vec4 bb_size = bb.ur - bb.bl;
+                vec4 bb_pos = (bb.ur + bb.bl) * 0.5f;
+                rec.id = entity->getHandle();
+                rec.type = EntityGetCategory(entity->getHandle());
+                rec.size = vec2(bb_size);
+                rec.pos = vec2(bb_pos);
+                ctx.entities.push_back(rec);
+            }
+        }
+    }
 }
 
 } // namespace atomic

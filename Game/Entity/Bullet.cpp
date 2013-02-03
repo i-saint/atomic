@@ -126,6 +126,7 @@ public:
         )
         atomicEQuerySuper(super)
         atomicEQuerySuper(transform)
+        atomicEQuerySuper(collision)
     )
 
 public:
@@ -243,6 +244,7 @@ public:
         atomicEQuerySuper(super)
         atomicEQuerySuper(transform)
         atomicEQuerySuper(model)
+        atomicEQuerySuper(collision)
     )
 
 public:

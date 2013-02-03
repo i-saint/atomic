@@ -79,10 +79,10 @@ void EachFormData(const std::string &form_fata, const Func &f)
 }
 
 
-class LevelEditorRequestHandler: public HTTPRequestHandler
+class LevelEditorCommandHandler : public HTTPRequestHandler
 {
 public:
-    LevelEditorRequestHandler()
+    LevelEditorCommandHandler()
     {
     }
 
@@ -100,14 +100,14 @@ public:
             handleCallRequest(data);
         }
 
-        response.setChunkedTransferEncoding(true);
-        response.setContentType("text/html");
+        response.setContentType("text/plain");
         std::ostream &ostr = response.send();
+        ostr.write("ok", 3);
 
         // todo:
     }
 
-    void handleCreateRequest(std::string &data)
+    bool handleCreateRequest(std::string &data)
     {
         vec2 pos;
         EachFormData(data, [&](const char *str, size_t size){
@@ -126,20 +126,48 @@ public:
             cmd.arg = vec3(pos, 0.0f);
             LevelEditorServer::getInstance()->pushCommand(cmd);
         }
+        return true;
     }
 
-    void handleDeleteRequest(std::string &data)
+    bool handleDeleteRequest(std::string &data)
     {
+        return true;
     }
 
-    void handleCallRequest(std::string &data)
+    bool handleCallRequest(std::string &data)
     {
+        return true;
     }
-
 
 private:
 };
 
+class LevelEditorQueryHandler : public HTTPRequestHandler
+{
+public:
+    LevelEditorQueryHandler()
+    {
+    }
+
+    void handleRequest(HTTPServerRequest &request, HTTPServerResponse &response)
+    {
+        LevelEditorQuery q;
+        if(request.getURI() == "/state/entities") {
+            q.type = LEQ_Entities;
+            LevelEditorServer::getInstance()->pushQuery(q);
+            for(int i=0; i<5; ++i) {
+                if(q.completed) { break; }
+                ist::Thread::milliSleep(10);
+            }
+        }
+
+        response.setChunkedTransferEncoding(true);
+        response.setContentType("application/json");
+        std::ostream &ostr = response.send();
+        ostr << q.response;
+    }
+
+};
 
 class LevelEditorRequestHandlerFactory : public HTTPRequestHandlerFactory
 {
@@ -150,10 +178,10 @@ public:
             return new FileRequestHandler(std::string(s_fileserver_base_dir)+"/index.html");
         }
         else if(request.getURI() == "/command") {
-            return new LevelEditorRequestHandler();
+            return new LevelEditorCommandHandler();
         }
-        else if(request.getURI() == "/state") {
-            return new LevelEditorRequestHandler();
+        else if(request.getURI().find("/state")==0) {
+            return new LevelEditorQueryHandler();
         }
         else {
             std::string path = std::string(s_fileserver_base_dir)+request.getURI();
@@ -221,7 +249,7 @@ void LevelEditorServer::restart()
 void LevelEditorServer::handleCommands( const CommandProcessor &proc )
 {
     {
-        ist::Mutex::ScopedLock lock(m_mutex);
+        ist::Mutex::ScopedLock lock(m_mutex_commands);
         m_commands_tmp = m_commands;
         m_commands.clear();
     }
@@ -231,10 +259,37 @@ void LevelEditorServer::handleCommands( const CommandProcessor &proc )
     m_commands_tmp.clear();
 }
 
+void LevelEditorServer::handleQueries( const QueryProcessor &proc )
+{
+    {
+        ist::Mutex::ScopedLock lock(m_mutex_queries);
+        m_queries_tmp = m_queries;
+        m_queries.clear();
+    }
+    for(size_t i=0; i<m_queries_tmp.size(); ++i) {
+        proc(*m_queries_tmp[i]);
+        m_queries_tmp[i]->completed = true;
+    }
+    m_commands_tmp.clear();
+}
+
 void LevelEditorServer::pushCommand( const variant32 &cmd )
 {
-    ist::Mutex::ScopedLock lock(m_mutex);
+    ist::Mutex::ScopedLock lock(m_mutex_commands);
     m_commands.push_back(cmd);
+}
+
+void LevelEditorServer::pushQuery( LevelEditorQuery &q )
+{
+    ist::Mutex::ScopedLock lock(m_mutex_queries);
+    // 溜まりすぎてたらクリア
+    if(m_queries.size()>32) {
+        for(size_t i=0; i<m_queries.size(); ++i) {
+            m_queries[i]->completed = true;
+        }
+        m_queries.clear();
+    }
+    m_queries.push_back(&q);
 }
 
 
