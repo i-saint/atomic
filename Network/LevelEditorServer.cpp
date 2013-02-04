@@ -112,19 +112,19 @@ public:
         vec2 pos;
         EachFormData(data, [&](const char *str, size_t size){
             vec2 t;
-            if(sscanf(str, "pos=vec2(%f,%f)", &t.x, &t.y)==2) { pos=t; }
+            if(sscanf(str, "pos=vec2(%f,%f)", &t.x, &t.y)==2) { pos = t+LevelEditorServer::getInstance()->randomVec2()*0.01f; }
         });
 
         {
             LevelEditorCommand_Create cmd;
-            LevelEditorServer::getInstance()->pushCommand(cmd);
+            LevelEditorServer::getInstance()->pushCommand(reinterpret_cast<LevelEditorCommand&>(cmd));
         }
         {
             LevelEditorCommand_Call cmd;
             cmd.entity_id = uint32(-1);
             cmd.function_id = FID_setPosition;
             cmd.arg = vec3(pos, 0.0f);
-            LevelEditorServer::getInstance()->pushCommand(cmd);
+            LevelEditorServer::getInstance()->pushCommand(reinterpret_cast<LevelEditorCommand&>(cmd));
         }
         return true;
     }
@@ -206,12 +206,15 @@ LevelEditorServerConfig::LevelEditorServerConfig()
 
 LevelEditorServer::LevelEditorServer()
     : m_server(NULL)
+    , m_accept_request(true)
 {
+    m_rand.initialize(0);
     m_commands.reserve(128);
 }
 
 LevelEditorServer::~LevelEditorServer()
 {
+    m_accept_request = false;
     stop();
 }
 
@@ -254,7 +257,7 @@ void LevelEditorServer::handleCommands( const CommandProcessor &proc )
         m_commands.clear();
     }
     for(size_t i=0; i<m_commands_tmp.size(); ++i) {
-        proc(m_commands_tmp[i].cast<LevelEditorCommand>());
+        proc(m_commands_tmp[i]);
     }
     m_commands_tmp.clear();
 }
@@ -273,14 +276,16 @@ void LevelEditorServer::handleQueries( const QueryProcessor &proc )
     m_commands_tmp.clear();
 }
 
-void LevelEditorServer::pushCommand( const variant32 &cmd )
+void LevelEditorServer::pushCommand( const LevelEditorCommand &cmd )
 {
+    if(!m_accept_request) { return; }
     ist::Mutex::ScopedLock lock(m_mutex_commands);
     m_commands.push_back(cmd);
 }
 
 void LevelEditorServer::pushQuery( LevelEditorQuery &q )
 {
+    if(!m_accept_request) { return; }
     ist::Mutex::ScopedLock lock(m_mutex_queries);
     m_queries.push_back(&q);
 }
@@ -316,6 +321,11 @@ void LevelEditorServer::finalizeInstance()
 LevelEditorServer* LevelEditorServer::getInstance()
 {
     return s_inst;
+}
+
+vec2 LevelEditorServer::randomVec2()
+{
+    return (vec2(m_rand.genFloat32(), m_rand.genFloat32())-vec2(0.5f, 0.5f)) * 2.0f;
 }
 
 } // namespace atomic

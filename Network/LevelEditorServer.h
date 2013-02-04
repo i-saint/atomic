@@ -23,39 +23,48 @@ enum LEQ_Type
 };
 
 
-struct LevelEditorCommand
+union istAlign(16) LevelEditorCommand
 {
-    LEC_Type type;
+    struct {
+        LEC_Type type;
+        uint32 frame;
+    };
+    uint32 dummy[8];
 
     LevelEditorCommand() : type(LEC_Unknown) {}
 };
 
-struct LevelEditorCommand_Create
+struct istAlign(16) LevelEditorCommand_Create
 {
     LEC_Type type;
+    uint32 frame;
     uint32 entity_typeid;
 
     LevelEditorCommand_Create() : type(LEC_Create) {}
 };
+BOOST_STATIC_ASSERT(sizeof(LevelEditorCommand_Create)<=sizeof(LevelEditorCommand));
 
-struct LevelEditorCommand_Delete
+struct istAlign(16) LevelEditorCommand_Delete
 {
     LEC_Type type;
+    uint32 frame;
     uint32 entity_id;
 
     LevelEditorCommand_Delete() : type(LEC_Delete) {}
 };
+BOOST_STATIC_ASSERT(sizeof(LevelEditorCommand_Delete)<=sizeof(LevelEditorCommand));
 
-struct LevelEditorCommand_Call
+struct istAlign(16) LevelEditorCommand_Call
 {
     LEC_Type type;
+    uint32 frame;
     uint32 entity_id;
     uint32 function_id;
-    uint32 dummy;
     variant arg;
 
     LevelEditorCommand_Call() : type(LEC_Call) {}
 };
+BOOST_STATIC_ASSERT(sizeof(LevelEditorCommand_Call)<=sizeof(LevelEditorCommand));
 
 struct LevelEditorQuery
 {
@@ -108,17 +117,21 @@ public:
 private:
     LevelEditorServer();
     ~LevelEditorServer();
-    void pushCommand(const variant32 &cmd);
+    void pushCommand(const LevelEditorCommand &cmd);
     void pushQuery(LevelEditorQuery &q);
     void clearQuery();
 
+    vec2 randomVec2();
+
 private:
-    typedef stdex::vector<variant32> CommandCont;
+    typedef stdex::vector<LevelEditorCommand> CommandCont;
     typedef stdex::vector<LevelEditorQuery*> QueryCont;
 
     static LevelEditorServer *s_inst;
     Poco::Net::HTTPServer *m_server;
     LevelEditorServerConfig m_conf;
+    SFMT m_rand;
+    bool m_accept_request;
 
     ist::Mutex m_mutex_commands;
     CommandCont m_commands;
