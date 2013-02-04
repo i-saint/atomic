@@ -498,7 +498,7 @@ void AtomicApplication::printDebugLog( const char *format, ... )
     if(m_log==NULL) { return; }
     va_list vl;
     va_start(vl, format);
-    fprintf(m_log, "%d ", (int)atomicGetFrame());
+    fprintf(m_log, "%d ", (uint32)atomicGetFrame());
     vfprintf(m_log, format, vl);
     va_end(vl);
 }

@@ -7,6 +7,8 @@
 #define atomic_crash_report_url "http://primitive-games.jp/atomic/crash_report/post"
 #define atomic_patch_url        "http://primitive-games.jp/atomic/update/"
 
+#define atomic_MaxPlayerNum 4
+
 
 #ifdef ist_env_Master
 #else // ist_env_Master

@@ -27,6 +27,7 @@ AtomicGame::AtomicGame()
     MessageRouter::initializeInstance();
 
     m_input_server = istNew(InputServerLocal)();
+    m_input_server->addPlayer(0, "test", 0);
 
     m_world = istNew(World)();
     m_world->initialize();
@@ -37,7 +38,7 @@ AtomicGame::AtomicGame()
 
 AtomicGame::~AtomicGame()
 {
-    if(m_input_server->getClassID()==IInputServer::IS_LOCAL && atomicGetConfig()->output_replay)
+    if(m_input_server->getTypeID()==IInputServer::IS_Local && atomicGetConfig()->output_replay)
     {
         char path[128];
         char date[128];
@@ -76,9 +77,16 @@ void AtomicGame::frameBegin()
 
 void AtomicGame::update(float32 dt)
 {
-    if(!atomicDbgDebugMenuIsActive()) { m_input_server->update(*atomicGetSystemInputs()); }
-    LevelEditorServer::getInstance()->handleCommands(std::bind(&AtomicGame::handleLevelEditorCommands, this, std::placeholders::_1) );
+    if(!atomicDbgDebugMenuIsActive()) {
+        m_input_server->pushInput(0, *atomicGetSystemInputs());
+    }
+    else {
+        m_input_server->pushInput(0, InputState());
+    }
+
+    LevelEditorServer::getInstance()->handleCommands(std::bind(&IInputServer::pushLevelEditorCommand, m_input_server, std::placeholders::_1));
     LevelEditorServer::getInstance()->handleQueries(std::bind(&AtomicGame::handleLevelEditorQueries, this, std::placeholders::_1) );
+    m_input_server->update();
     if(!atomicGetConfig()->pause) {
         m_world->update(1.0f);
     }
@@ -105,7 +113,7 @@ void AtomicGame::draw()
 {
     // todo: フレームスキップ処理
 
-    if(m_input_server->getClassID()==IInputServer::IS_REPLAY) {
+    if(m_input_server->getTypeID()==IInputServer::IS_Replay) {
         static uint32 f;
         const InputState *is = atomicGetSystemInputs();
         ++f;
@@ -129,7 +137,7 @@ void AtomicGame::frameEnd()
 void AtomicGame::drawCallback()
 {
     AtomicRenderer::getInstance()->beforeDraw();
-    if(m_input_server->getClassID()==IInputServer::IS_REPLAY) {
+    if(m_input_server->getTypeID()==IInputServer::IS_Replay) {
         const uvec2 &wsize = atomicGetWindowSize();
         uint32 len  = static_cast<InputServerReplay*>(m_input_server)->getReplayLength();
         uint32 pos  = static_cast<InputServerReplay*>(m_input_server)->getReplayPosition();
@@ -177,7 +185,7 @@ void AtomicGame::handleLevelEditorCommands( const LevelEditorCommand &c )
     }
     else if(c.type==LEC_Call) {
         const LevelEditorCommand_Call &cmd = reinterpret_cast<const LevelEditorCommand_Call&>(c);
-        IEntity *e = cmd.entity_id==uint32(-1) ? s_last_entity : atomicGetEntity(cmd.entity_id);
+        IEntity *e = cmd.entity_id==0 ? s_last_entity : atomicGetEntity(cmd.entity_id);
         if(e) {
             e->call((FunctionID)cmd.function_id, cmd.arg);
         }

@@ -121,7 +121,7 @@ public:
         }
         {
             LevelEditorCommand_Call cmd;
-            cmd.entity_id = uint32(-1);
+            cmd.entity_id = 0;
             cmd.function_id = FID_setPosition;
             cmd.arg = vec3(pos, 0.0f);
             LevelEditorServer::getInstance()->pushCommand(reinterpret_cast<LevelEditorCommand&>(cmd));
@@ -214,7 +214,6 @@ LevelEditorServer::LevelEditorServer()
 
 LevelEditorServer::~LevelEditorServer()
 {
-    m_accept_request = false;
     stop();
 }
 
@@ -226,18 +225,26 @@ void LevelEditorServer::start()
         pParams->setMaxThreads(m_conf.max_threads);
         ThreadPool::defaultPool().addCapacity(m_conf.max_threads);
 
-        ServerSocket svs(m_conf.port);
-
-        m_server = new HTTPServer(new LevelEditorRequestHandlerFactory(), svs, pParams);
-        m_server->start();
+        try {
+            ServerSocket svs(m_conf.port);
+            m_server = new HTTPServer(new LevelEditorRequestHandlerFactory(), svs, pParams);
+            m_server->start();
+        }
+        catch(Poco::IOException &e) {
+            istAssert(e.what());
+        }
     }
 }
 
 void LevelEditorServer::stop()
 {
     if(m_server) {
+        m_accept_request = false;
         clearQuery();
         m_server->stopAll(false);
+        while(m_server->currentConnections()>0 || m_server->currentThreads()>0) {
+            ist::Thread::milliSleep(5);
+        }
         delete m_server;
         m_server = NULL;
     }
@@ -266,14 +273,12 @@ void LevelEditorServer::handleQueries( const QueryProcessor &proc )
 {
     {
         ist::Mutex::ScopedLock lock(m_mutex_queries);
-        m_queries_tmp = m_queries;
+        for(size_t i=0; i<m_queries.size(); ++i) {
+            proc(*m_queries[i]);
+            m_queries[i]->completed = true;
+        }
         m_queries.clear();
     }
-    for(size_t i=0; i<m_queries_tmp.size(); ++i) {
-        proc(*m_queries_tmp[i]);
-        m_queries_tmp[i]->completed = true;
-    }
-    m_commands_tmp.clear();
 }
 
 void LevelEditorServer::pushCommand( const LevelEditorCommand &cmd )

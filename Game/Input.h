@@ -2,6 +2,9 @@
 #define atomic_Game_Input_h
 namespace atomic {
 
+union LevelEditorCommand;
+
+
 class InputState
 {
 public:
@@ -47,65 +50,136 @@ private:
     int32 m_buttons[2];
 };
 
-
-class IInputServer
+struct RepHeader
 {
-public:
-    enum IS_CLASS {
-        IS_LOCAL,
-        IS_REPLAY,
-        IS_NET_SERVER,
-        IS_NET_CLIENT,
+    struct {
+        char magic[8];
+        uint32 version;
+        uint32 random_seed;
+        uint32 total_frame;
+        uint32 num_players;
+        uint32 num_lecs;
     };
 
-    virtual ~IInputServer() {}
-    virtual IS_CLASS getClassID() const=0;
-    virtual void update(const InputState &is)=0;
-    virtual const InputState* getInput() const=0;
+    RepHeader();
+    bool isValid();
 };
 
+struct RepPlayer
+{
+    char name[32];
+    uint32 equip;
+    uint32 begin_frame;
+    uint32 num_frame;
 
+    RepPlayer();
+};
 
-struct RawInputData
+struct RepInput
 {
     vec2 move;
     int32 buttons;
 };
 
 
+class IInputServer
+{
+public:
+    enum IS_TypeID {
+        IS_Local,
+        IS_Replay,
+        IS_Network,
+    };
+
+    virtual ~IInputServer() {}
+    virtual IS_TypeID getTypeID() const=0;
+
+    virtual void update()=0;
+    virtual void addPlayer(uint32 pid, const char *name, uint32 equip)=0;
+    virtual void erasePlayer(uint32 pid)=0;
+    virtual void pushInput(uint32 pid, const InputState &v)=0;
+    virtual void pushLevelEditorCommand(const LevelEditorCommand &v)=0;
+    virtual const InputState* getInput(uint32 pid) const=0;
+};
+
+
+
+
 class InputServerLocal : public IInputServer
 {
-private:
-    stl::vector<RawInputData> m_data;
-    InputState m_is;
-
 public:
     InputServerLocal();
-    IS_CLASS getClassID() const;
-    void update(const InputState &is);
-    const InputState* getInput() const;
+    virtual IS_TypeID getTypeID() const;
+
+    virtual void update();
+    virtual void addPlayer(uint32 pid, const char *name, uint32 equip);
+    virtual void erasePlayer(uint32 pid);
+    virtual void pushInput(uint32 pid, const InputState &is);
+    virtual void pushLevelEditorCommand(const LevelEditorCommand &v);
+    virtual const InputState* getInput(uint32 pid) const;
 
     bool writeToFile(const char *path);
+
+private:
+    typedef stdex::vector<RepPlayer> PlayerCont;
+    typedef stdex::vector<RepInput> InputCont;
+    typedef stdex::vector<InputCont> InputConts;
+    typedef stdex::vector<LevelEditorCommand> LECCont;
+
+    PlayerCont m_playes;
+    InputConts m_inputs;
+    LECCont m_lecs;
+
+    InputState m_is;
 };
 
 class InputServerReplay : public IInputServer
 {
-private:
-    stl::vector<RawInputData> m_data;
-    InputState m_is;
-    uint32 m_pos;
-
 public:
     InputServerReplay();
-    IS_CLASS getClassID() const;
-    void update(const InputState &is);
-    const InputState* getInput() const;
+    virtual IS_TypeID getTypeID() const;
+
+    virtual void update();
+    virtual void addPlayer(uint32 pid, const char *name, uint32 equip);
+    virtual void erasePlayer(uint32 pid);
+    virtual void pushInput(uint32 pid, const InputState &is);
+    virtual void pushLevelEditorCommand(const LevelEditorCommand &v);
+    virtual const InputState* getInput(uint32 pid) const;
 
     bool readFromFile(const char *path);
-    uint32 getReplayLength() const  { return m_data.size(); }
+    uint32 getReplayLength() const  { return m_header.total_frame; }
     uint32 getReplayPosition() const{ return m_pos; }
+
+private:
+    typedef stdex::vector<RepPlayer> PlayerCont;
+    typedef stdex::vector<RepInput> InputCont;
+    typedef stdex::vector<InputCont> InputConts;
+    typedef stdex::vector<LevelEditorCommand> LECCont;
+
+    RepHeader m_header;
+    PlayerCont m_players;
+    InputConts m_inputs;
+    LECCont m_lecs;
+
+    InputState m_is[atomic_MaxPlayerNum];
+    uint32 m_pos;
 };
 
+class InputServerNetwork : public IInputServer
+{
+public:
+    InputServerNetwork();
+    virtual IS_TypeID getTypeID() const;
+
+    virtual void update();
+    virtual void addPlayer(uint32 id, const char *name, uint32 equip);
+    virtual void erasePlayer(uint32 id);
+    virtual void pushInput(uint32 pid, const InputState &is);
+    virtual void pushLevelEditorCommand(const LevelEditorCommand &v);
+    virtual const InputState* getInput() const;
+
+private:
+};
 
 } // namespace atomic
 #endif // atomic_Game_Input_h

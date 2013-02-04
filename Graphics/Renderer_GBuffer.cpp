@@ -240,6 +240,7 @@ void PassGBuffer_BG::beforeDraw()
 
 void PassGBuffer_BG::draw()
 {
+    return;
     if(!m_enabled) { return; }
 
     i3d::DeviceContext *dc = atomicGetGLDeviceContext();

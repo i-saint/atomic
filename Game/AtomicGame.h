@@ -35,7 +35,7 @@ public:
 
     void jsonizeEntities(std::string &out);
 
-    const InputState* getIngameInputs() const { return m_input_server->getInput(); }
+    const InputState* getIngameInputs() const { return m_input_server->getInput(0); }
     World* getWorld()   { return m_world; }
     SFMT* getRandom();
 

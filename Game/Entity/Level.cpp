@@ -244,7 +244,7 @@ public:
     void goNextLevel()
     {
         {
-            atomicDebugLog("goNextLevel(): %f\n", atomicGetFrame());
+            atomicDebugLog("goNextLevel(): %d\n", (uint32)atomicGetFrame());
         }
         ++m_level;
         m_frame = 0;

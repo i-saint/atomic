@@ -121,7 +121,7 @@ void AtomicRenderer::draw()
         m_rstates3d.RcpAspectRatio  = 1.0f / m_rstates3d.AspectRatio;
         m_rstates3d.ScreenTexcoord  = m_rstates3d.ScreenSize / vec2(m_rt_gbuffer->getColorBuffer(0)->getDesc().size);
         m_rstates3d.Color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-        m_rstates3d.Frame = atomicGetFrame();
+        m_rstates3d.Frame = (float32)atomicGetFrame();
         MapAndWrite(dc, ubo_rs, &m_rstates3d, sizeof(m_rstates3d));
 
         ubo_rs              = atomicGetUniformBuffer(UBO_RENDERSTATES_BG);

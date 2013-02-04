@@ -31,7 +31,10 @@ union istAlign(16) LevelEditorCommand
     };
     uint32 dummy[8];
 
-    LevelEditorCommand() : type(LEC_Unknown) {}
+    LevelEditorCommand() : type(LEC_Unknown), frame(0)
+    {
+        std::fill_n(dummy, _countof(dummy), 0);
+    }
 };
 
 struct istAlign(16) LevelEditorCommand_Create
@@ -39,8 +42,12 @@ struct istAlign(16) LevelEditorCommand_Create
     LEC_Type type;
     uint32 frame;
     uint32 entity_typeid;
+    uint32 dummy[5];
 
-    LevelEditorCommand_Create() : type(LEC_Create) {}
+    LevelEditorCommand_Create() : type(LEC_Create), frame(0), entity_typeid(0)
+    {
+        std::fill_n(dummy, _countof(dummy), 0);
+    }
 };
 BOOST_STATIC_ASSERT(sizeof(LevelEditorCommand_Create)<=sizeof(LevelEditorCommand));
 
@@ -49,8 +56,12 @@ struct istAlign(16) LevelEditorCommand_Delete
     LEC_Type type;
     uint32 frame;
     uint32 entity_id;
+    uint32 dummy[5];
 
-    LevelEditorCommand_Delete() : type(LEC_Delete) {}
+    LevelEditorCommand_Delete() : type(LEC_Delete), frame(0), entity_id(0)
+    {
+        std::fill_n(dummy, _countof(dummy), 0);
+    }
 };
 BOOST_STATIC_ASSERT(sizeof(LevelEditorCommand_Delete)<=sizeof(LevelEditorCommand));
 
@@ -65,6 +76,7 @@ struct istAlign(16) LevelEditorCommand_Call
     LevelEditorCommand_Call() : type(LEC_Call) {}
 };
 BOOST_STATIC_ASSERT(sizeof(LevelEditorCommand_Call)<=sizeof(LevelEditorCommand));
+
 
 struct LevelEditorQuery
 {
@@ -139,7 +151,6 @@ private:
 
     ist::Mutex m_mutex_queries;
     QueryCont m_queries;
-    QueryCont m_queries_tmp;
 };
 
 } // namespace atomic

@@ -26,7 +26,7 @@ World::World()
 , m_entity_set(NULL)
 , m_sph(NULL)
 , m_vfx(NULL)
-, m_frame(0.0f)
+, m_frame(0)
 {
     m_collision_set = istNew(CollisionSet)();
     m_modules.push_back(m_collision_set);

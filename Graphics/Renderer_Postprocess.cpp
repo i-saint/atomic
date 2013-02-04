@@ -200,7 +200,7 @@ PassPostprocess_Fade::PassPostprocess_Fade()
 
 void PassPostprocess_Fade::beforeDraw()
 {
-    float32 frame = atomicGetFrame();
+    float32 frame = (float32)atomicGetFrame();
     if(frame > m_end_frame) { return; }
 
     vec4 diff = m_end_color-m_begin_color;
@@ -233,7 +233,7 @@ void PassPostprocess_Fade::setFade(const vec4 &v, float32 frame)
 {
     m_begin_color = m_params.Color;
     m_end_color = v;
-    m_begin_frame = atomicGetFrame();
+    m_begin_frame = (float32)atomicGetFrame();
     m_end_frame = m_begin_frame+frame;
 }
 
