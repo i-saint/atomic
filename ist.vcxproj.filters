@@ -31,6 +31,9 @@
     <Filter Include="Window">
       <UniqueIdentifier>{3eb5e79f-47ec-4ef2-b908-2bd9959e3cc0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="stdex">
+      <UniqueIdentifier>{e7c346e2-26e8-400b-87fb-ddf5384ca898}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ist\Window\Application.h">
@@ -255,9 +258,6 @@
     <ClInclude Include="ist\GraphicsCommon\Image.h">
       <Filter>GraphicsCommon</Filter>
     </ClInclude>
-    <ClInclude Include="ist\Base\CRTex.h">
-      <Filter>Base</Filter>
-    </ClInclude>
     <ClInclude Include="ist\Window.h" />
     <ClInclude Include="ist\Base.h" />
     <ClInclude Include="ist\Concurrency.h" />
@@ -297,6 +297,18 @@
     </ClInclude>
     <ClInclude Include="ist\Debug\CrashDump.h">
       <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\stdex\crtex.h">
+      <Filter>stdex</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\stdex\ist_raw_vector.h">
+      <Filter>stdex</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\stdex\ist_vector.h">
+      <Filter>stdex</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\stdex\ist_aligned_allocator.h">
+      <Filter>stdex</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

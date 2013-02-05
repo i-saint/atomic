@@ -21,7 +21,6 @@
     <ClInclude Include="ist\Base\BinaryStream.h" />
     <ClInclude Include="ist\Base\ClassInfo.h" />
     <ClInclude Include="ist\Base\Container.h" />
-    <ClInclude Include="ist\Base\CRTex.h" />
     <ClInclude Include="ist\Base\FileLoader.h" />
     <ClInclude Include="ist\Base\Generics.h" />
     <ClInclude Include="ist\Base\Half\eLut.h" />
@@ -107,6 +106,10 @@
     <ClInclude Include="ist\Sound\isduStream.h" />
     <ClInclude Include="ist\Sound\isduStreamSource.h" />
     <ClInclude Include="ist\Sound\isdUtil.h" />
+    <ClInclude Include="ist\stdex\crtex.h" />
+    <ClInclude Include="ist\stdex\ist_aligned_allocator.h" />
+    <ClInclude Include="ist\stdex\ist_raw_vector.h" />
+    <ClInclude Include="ist\stdex\ist_vector.h" />
     <ClInclude Include="ist\targetver.h" />
     <ClInclude Include="ist\Window.h" />
     <ClInclude Include="ist\Window\Application.h" />

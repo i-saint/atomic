@@ -100,6 +100,12 @@ public:
     virtual void pushInput(uint32 pid, const InputState &v)=0;
     virtual void pushLevelEditorCommand(const LevelEditorCommand &v)=0;
     virtual const InputState* getInput(uint32 pid) const=0;
+
+protected:
+    typedef ist::vector<RepPlayer> PlayerCont;
+    typedef ist::vector<RepInput> InputCont;
+    typedef ist::vector<InputCont> InputConts;
+    typedef ist::vector<LevelEditorCommand> LECCont;
 };
 
 
@@ -121,11 +127,6 @@ public:
     bool writeToFile(const char *path);
 
 private:
-    typedef stdex::vector<RepPlayer> PlayerCont;
-    typedef stdex::vector<RepInput> InputCont;
-    typedef stdex::vector<InputCont> InputConts;
-    typedef stdex::vector<LevelEditorCommand> LECCont;
-
     PlayerCont m_playes;
     InputConts m_inputs;
     LECCont m_lecs;
@@ -151,11 +152,6 @@ public:
     uint32 getReplayPosition() const{ return m_pos; }
 
 private:
-    typedef stdex::vector<RepPlayer> PlayerCont;
-    typedef stdex::vector<RepInput> InputCont;
-    typedef stdex::vector<InputCont> InputConts;
-    typedef stdex::vector<LevelEditorCommand> LECCont;
-
     RepHeader m_header;
     PlayerCont m_players;
     InputConts m_inputs;

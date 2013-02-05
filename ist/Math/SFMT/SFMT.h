@@ -127,7 +127,7 @@ typedef struct W128_T w128_t;
 #endif
 
 
-#include "ist/Base/CRTex.h"
+#include "ist/stdex/crtex.h"
 #include "SFMT-params.h"
 
 namespace ist {

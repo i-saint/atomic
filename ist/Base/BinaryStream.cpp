@@ -1,5 +1,5 @@
 ﻿#include "istPCH.h"
-#include "ist/Base/CRTex.h"
+#include "ist/stdex/crtex.h"
 #include "ist/Base/BinaryStream.h"
 #include "ist/Math/Misc.h"
 

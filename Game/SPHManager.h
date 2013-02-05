@@ -8,7 +8,7 @@
 namespace atomic {
 
 struct CollisionEntity;
-typedef stdex::vector<psym::Particle> ParticleCont;
+typedef ist::raw_vector<psym::Particle> ParticleCont;
 
 class SPHManager : public IAtomicGameModule
 {

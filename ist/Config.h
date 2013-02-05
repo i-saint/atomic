@@ -116,7 +116,6 @@ namespace stl = std;
 #endif // ist_with_EASTL
 #include <functional>
 #include <regex>
-#include "ist/stdex/stdex_vector.h"
 
 #ifdef ist_with_DirectX11
 #   include <D3D11.h>

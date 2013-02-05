@@ -136,8 +136,8 @@ private:
     vec2 randomVec2();
 
 private:
-    typedef stdex::vector<LevelEditorCommand> CommandCont;
-    typedef stdex::vector<LevelEditorQuery*> QueryCont;
+    typedef ist::vector<LevelEditorCommand> CommandCont;
+    typedef ist::vector<LevelEditorQuery*> QueryCont;
 
     static LevelEditorServer *s_inst;
     Poco::Net::HTTPServer *m_server;

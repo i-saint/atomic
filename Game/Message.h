@@ -26,8 +26,8 @@ struct DamageMessage
 class MessageRouter : boost::noncopyable
 {
 public:
-    typedef stdex::vector<CallInfo>    MessageBlock;
-    typedef stdex::vector<MessageBlock*>  MessageBlockCont;
+    typedef ist::vector<CallInfo>       MessageBlock;
+    typedef ist::vector<MessageBlock*>  MessageBlockCont;
 
 private:
     static MessageRouter *s_instance;

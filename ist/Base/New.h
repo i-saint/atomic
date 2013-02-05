@@ -1,7 +1,7 @@
 ﻿#ifndef ist_Base_New_h
 #define ist_Base_New_h
 
-#include "ist/Base/CRTex.h"
+#include "ist/stdex/crtex.h"
 
 // .lib 内に operator delete を定義した場合、CRT の同名シンボルと競合して曖昧なシンボルエラーになってしまう。
 // そのため、以下のマクロをアプリケーション側コードのどこかに書いて定義してやる必要がある。

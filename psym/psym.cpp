@@ -3,7 +3,7 @@
 #include <tbb/tbb.h>
 #include <algorithm>
 #include "parallel_deterministic_sort.h"
-#include "ist/Base/CRTex.h"
+#include "ist/stdex/crtex.h"
 
 #define PSYM_TASK_GRANULARITY 256
 

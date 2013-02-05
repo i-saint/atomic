@@ -1,5 +1,5 @@
-﻿#ifndef ist_Base_CRTex_h
-#define ist_Base_CRTex_h
+﻿#ifndef ist_stdex_crtex_h
+#define ist_stdex_crtex_h
 
 #include "ist/Config.h"
 
@@ -73,4 +73,4 @@ inline int istVSprintf(wchar_t (&buf)[N], const wchar_t *format, va_list vl)
     return istVSNWPrintf(buf, N, format, vl);
 }
 
-#endif // ist_Base_CRTex_h
+#endif // ist_stdex_crtex_h

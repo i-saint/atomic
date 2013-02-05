@@ -1,9 +1,8 @@
-﻿#ifndef __ist_Base_h__
-#define __ist_Base_h__
+﻿#ifndef ist_Base_h
+#define ist_Base_h
 
 #include <stdint.h>
 #include "Config.h"
-#include "Base/CRTex.h"
 #include "Base/Types.h"
 #include "Base/Allocator.h"
 #include "Base/New.h"
@@ -18,5 +17,8 @@
 #include "Base/SharedObject.h"
 #include "Base/StringSymbol.h"
 #include "Base/EnumString.h"
+#include "stdex/crtex.h"
+#include "stdex/ist_vector.h"
+#include "stdex/ist_raw_vector.h"
 
-#endif // __ist_Base_h__
+#endif // ist_Base_h

@@ -1,5 +1,5 @@
 ﻿#include "istPCH.h"
-#include "ist/Base/CRTex.h"
+#include "ist/stdex/crtex.h"
 #include "CrashDump.h"
 
 #if defined(ist_enable_CrashReport) && defined(ist_env_Windows)

@@ -1,6 +1,6 @@
 ﻿#ifndef ist_Base_Variant_h
 #define ist_Base_Variant_h
-#include "ist/Base/CRTex.h"
+#include "ist/stdex/crtex.h"
 
 namespace ist {
 
