@@ -1,4 +1,5 @@
 ﻿#include "istPCH.h"
+#include "ist/Base/CRTex.h"
 #include "ist/Base/BinaryStream.h"
 #include "ist/Math/Misc.h"
 
@@ -68,7 +69,7 @@ MemoryStream::~MemoryStream() {}
 uint64 MemoryStream::read(void* p, uint64 s)
 {
     size_t actual_size = stl::min<size_t>(m_buffer.size()-m_readpos, (size_t)s);
-    memcpy(p, &m_buffer[0]+m_readpos, (size_t)actual_size);
+    istMemcpy(p, &m_buffer[0]+m_readpos, (size_t)actual_size);
     m_readpos += actual_size;
     return actual_size;
 }
@@ -91,7 +92,7 @@ uint64 MemoryStream::write(const void* p, uint64 s)
 {
     size_t after = m_writepos+(size_t)s;
     m_buffer.resize(after);
-    memcpy(&m_buffer[0]+m_writepos, p, (size_t)s);
+    istMemcpy(&m_buffer[0]+m_writepos, p, (size_t)s);
     return s;
 }
 uint64 MemoryStream::getWritePos() const { return m_writepos; }
@@ -126,7 +127,7 @@ const char* IntrusiveMemoryStream::data() const { return m_memory; }
 uint64 IntrusiveMemoryStream::read(void* p, uint64 s)
 {
     size_t actual_size = stl::min<size_t>(m_size-m_readpos, (size_t)s);
-    memcpy(p, m_memory+m_readpos, (size_t)actual_size);
+    istMemcpy(p, m_memory+m_readpos, (size_t)actual_size);
     m_readpos += actual_size;
     return actual_size;
 }
@@ -147,7 +148,7 @@ void IntrusiveMemoryStream::setReadPos(uint64 pos, SeekDir dir)
 uint64 IntrusiveMemoryStream::write(const void* p, uint64 s)
 {
     size_t actual_size = stl::min<size_t>(m_size-m_writepos, (size_t)s);
-    memcpy(m_memory+m_writepos, p, actual_size);
+    istMemcpy(m_memory+m_writepos, p, actual_size);
     return actual_size;
 }
 uint64 IntrusiveMemoryStream::getWritePos() const { return m_writepos; }

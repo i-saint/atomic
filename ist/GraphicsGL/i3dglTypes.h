@@ -393,7 +393,7 @@ public:
     void setPosition(const ivec2 v) { m_pos=v; }
     void setSize(const ivec2 v)     { m_size=v; }
 
-    bool operator==(const Viewport &v) const { return  memcmp(this, &v, sizeof(*this))==0; }
+    bool operator==(const Viewport &v) const { return  istMemcmp(this, &v, sizeof(*this))==0; }
 
 private:
     ivec2 m_pos;

@@ -1,4 +1,5 @@
 ﻿#include "istPCH.h"
+#include "ist/Base/CRTex.h"
 #include "Process.h"
 
 namespace ist {
@@ -43,8 +44,8 @@ bool ExecVCTool( const char *params )
     stl::string command = vcvars + params;
     STARTUPINFOA si; 
     PROCESS_INFORMATION pi; 
-    memset(&si, 0, sizeof(si)); 
-    memset(&pi, 0, sizeof(pi)); 
+    istMemset(&si, 0, sizeof(si)); 
+    istMemset(&pi, 0, sizeof(pi)); 
     si.cb = sizeof(si);
     if(::CreateProcessA(NULL, (LPSTR)command.c_str(), NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)==TRUE) {
         DWORD exit_code = 0;

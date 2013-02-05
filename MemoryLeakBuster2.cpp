@@ -77,7 +77,7 @@ BOOL WINAPI HeapFree_Hooked( HANDLE hHeap, DWORD dwFlags, LPVOID lpMem );
 
 
 template<size_t N>
-inline int istsprintf(char (&buf)[N], const char *format, ...)
+inline int istSPrintf(char (&buf)[N], const char *format, ...)
 {
     va_list vl;
     va_start(vl, format);
@@ -87,7 +87,7 @@ inline int istsprintf(char (&buf)[N], const char *format, ...)
 }
 
 template<size_t N>
-inline int istvsprintf(char (&buf)[N], const char *format, va_list vl)
+inline int istVSprintf(char (&buf)[N], const char *format, va_list vl)
 {
     return _vsnprintf(buf, N, format, vl);
 }
@@ -101,7 +101,7 @@ void DebugPrintV(const char* /*file*/, int /*line*/, const char* fmt, va_list vl
     //istsprintf(buf, "%s:%d - ", file, line);
     //::OutputDebugStringA(buf);
     //WriteLogFile(buf);
-    istvsprintf(buf, fmt, vl);
+    istVSprintf(buf, fmt, vl);
     ::OutputDebugStringA(buf);
 }
 
@@ -159,16 +159,16 @@ stl::string AddressToSymbolName(void *address, HANDLE proc=::GetCurrentProcess()
     imageSymbol->MaxNameLength = MAX_PATH;
 
     if(!::SymGetModuleInfo(process, (DWORDX)address, &imageModule)) {
-        istsprintf(buf, "[0x%p]\n", address);
+        istSPrintf(buf, "[0x%p]\n", address);
     }
     else if(!::SymGetSymFromAddr(process, (DWORDX)address, &dispSym, imageSymbol)) {
-        istsprintf(buf, "%s + 0x%x [0x%p]\n", imageModule.ModuleName, ((size_t)address-(size_t)imageModule.BaseOfImage), address);
+        istSPrintf(buf, "%s + 0x%x [0x%p]\n", imageModule.ModuleName, ((size_t)address-(size_t)imageModule.BaseOfImage), address);
     }
     else if(!::SymGetLineFromAddr(process, (DWORDX)address, &dispLine, &line)) {
-        istsprintf(buf, "%s!%s + 0x%x [0x%p]\n", imageModule.ModuleName, imageSymbol->Name, ((size_t)address-(size_t)imageSymbol->Address), address);
+        istSPrintf(buf, "%s!%s + 0x%x [0x%p]\n", imageModule.ModuleName, imageSymbol->Name, ((size_t)address-(size_t)imageSymbol->Address), address);
     }
     else {
-        istsprintf(buf, "%s(%d): %s!%s + 0x%x [0x%p]\n", line.FileName, line.LineNumber,
+        istSPrintf(buf, "%s(%d): %s!%s + 0x%x [0x%p]\n", line.FileName, line.LineNumber,
             imageModule.ModuleName, imageSymbol->Name, ((size_t)address-(size_t)imageSymbol->Address), address);
     }
     return buf;

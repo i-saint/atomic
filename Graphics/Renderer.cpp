@@ -26,7 +26,7 @@ void AtomicRenderer::finalizeInstance()
 
 AtomicRenderer::AtomicRenderer()
 {
-    memset(&m_rstates3d, 0, sizeof(m_rstates3d));
+    istMemset(&m_rstates3d, 0, sizeof(m_rstates3d));
 
     s_inst = this;
     m_va_screenquad = atomicGetVertexArray(VA_SCREEN_QUAD);
@@ -264,9 +264,9 @@ void AtomicRenderer::passOutput()
     // texts 
 
     char buf[64];
-    istsprintf(buf, "FPS: %u", atomicGetRenderingSystem()->getAverageFPS());
+    istSPrintf(buf, "FPS: %u", atomicGetRenderingSystem()->getAverageFPS());
     m_stext->addText(vec2(5.0f, 5.0f), buf);
-    istsprintf(buf, "Particles: %d", atomicGetSPHManager()->getNumParticles());
+    istSPrintf(buf, "Particles: %d", atomicGetSPHManager()->getNumParticles());
     m_stext->addText(vec2(5.0f, 25.0f), buf);
 
     //istsprintf(buf, "Bloom: [F2]");

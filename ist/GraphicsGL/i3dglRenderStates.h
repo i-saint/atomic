@@ -13,7 +13,7 @@ class istInterModule BlendState : public DeviceResource
 I3DGL_DECLARE_DEVICE_RESOURCE(BlendState);
 typedef DeviceResource super;
 public:
-    bool operator==(const BlendState &v) const { return  memcmp(&m_desc, &v.m_desc, sizeof(m_desc))==0; }
+    bool operator==(const BlendState &v) const { return  istMemcmp(&m_desc, &v.m_desc, sizeof(m_desc))==0; }
     const BlendStateDesc& getDesc() const { return m_desc; }
 
 private:
@@ -29,7 +29,7 @@ class istInterModule DepthStencilState : public DeviceResource
 I3DGL_DECLARE_DEVICE_RESOURCE(DepthStencilState);
 typedef DeviceResource super;
 public:
-    bool operator==(const DepthStencilState &v) const { return  memcmp(&m_desc, &v.m_desc, sizeof(m_desc))==0; }
+    bool operator==(const DepthStencilState &v) const { return  istMemcmp(&m_desc, &v.m_desc, sizeof(m_desc))==0; }
     const DepthStencilStateDesc& getDesc() const { return m_desc; }
 
 private:

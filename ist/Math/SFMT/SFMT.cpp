@@ -503,7 +503,7 @@ void SFMT::init_by_array(uint32_t *init_key, int key_length) {
     }
     mid = (size - lag) / 2;
 
-    memset(m_sfmt, 0x8b, sizeof(m_sfmt));
+    istMemset(m_sfmt, 0x8b, sizeof(m_sfmt));
     if (key_length + 1 > N32) {
 	count = key_length + 1;
     } else {

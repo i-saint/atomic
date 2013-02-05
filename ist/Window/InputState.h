@@ -28,8 +28,8 @@ private:
     unsigned char   m_keystate[2][256];
 
 public:
-    KeyboardState()     { memset(this, 0, sizeof(*this)); }
-    void copyToBack()   { memcpy(m_keystate[1], m_keystate[0], 256); }
+    KeyboardState()     { istMemset(this, 0, sizeof(*this)); }
+    void copyToBack()   { istMemcpy(m_keystate[1], m_keystate[0], 256); }
     unsigned char* getRawKeyState() { return m_keystate[0]; }
     bool isKeyPressed(int v) const { return (m_keystate[0][v] & 0x80)!=0; }
     bool isKeyTriggered(int v) const { return (m_keystate[0][v] & 0x80)!=0 && (m_keystate[1][v] & 0x80)==0; }
@@ -51,7 +51,7 @@ private:
     int m_y;
 
 public:
-    MouseState() { memset(this, 0, sizeof(*this)); }
+    MouseState() { istMemset(this, 0, sizeof(*this)); }
 
     int getButtonState() const { return m_button; }
     int getX() const { return m_x; }
@@ -75,7 +75,7 @@ private:
     int m_buttons;
 
 public:
-    JoyState() { memset(this, 0, sizeof(*this)); }
+    JoyState() { istMemset(this, 0, sizeof(*this)); }
     int getX() const { return m_x; } // -32768 ～ 32767
     int getY() const { return m_y; } // -32768 ～ 32767
     int getZ() const { return m_z; } // -32768 ～ 32767

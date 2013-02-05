@@ -127,6 +127,7 @@ typedef struct W128_T w128_t;
 #endif
 
 
+#include "ist/Base/CRTex.h"
 #include "SFMT-params.h"
 
 namespace ist {
@@ -266,8 +267,8 @@ public:
 
     SFMT& operator=(const SFMT& v)
     {
-        memcpy(m_sfmt, v.m_sfmt, sizeof(m_sfmt));
-        memcpy(m_parity, v.m_parity, sizeof(m_parity));
+        istMemcpy(m_sfmt, v.m_sfmt, sizeof(m_sfmt));
+        istMemcpy(m_parity, v.m_parity, sizeof(m_parity));
         m_idx = v.m_idx;
         m_initialized = v.m_initialized;
 

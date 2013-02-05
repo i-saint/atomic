@@ -5,17 +5,17 @@
 namespace ist {
 
 
-template<> uint32 TPrintValue<float32>(char *buf, uint32 buf_size, float32 value)   { return istsnprintf(buf, buf_size, "%.3f",  value); }
-template<> uint32 TPrintValue<float64>(char *buf, uint32 buf_size, float64 value)   { return istsnprintf(buf, buf_size, "%.3lf", value); }
-template<> uint32 TPrintValue<  int8>(char *buf, uint32 buf_size,   int8 value)     { return istsnprintf(buf, buf_size, "%d", static_cast< int32>(value)); }
-template<> uint32 TPrintValue< uint8>(char *buf, uint32 buf_size,  uint8 value)     { return istsnprintf(buf, buf_size, "%u", static_cast<uint32>(value)); }
-template<> uint32 TPrintValue< int16>(char *buf, uint32 buf_size,  int16 value)     { return istsnprintf(buf, buf_size, "%d", static_cast< int32>(value)); }
-template<> uint32 TPrintValue<uint16>(char *buf, uint32 buf_size, uint16 value)     { return istsnprintf(buf, buf_size, "%u", static_cast<uint32>(value)); }
-template<> uint32 TPrintValue< int32>(char *buf, uint32 buf_size,  int32 value)     { return istsnprintf(buf, buf_size, "%d", value); }
-template<> uint32 TPrintValue<uint32>(char *buf, uint32 buf_size, uint32 value)     { return istsnprintf(buf, buf_size, "%u", value); }
-template<> uint32 TPrintValue< int64>(char *buf, uint32 buf_size,  int64 value)     { return istsnprintf(buf, buf_size, "%lld", value); }
-template<> uint32 TPrintValue<uint64>(char *buf, uint32 buf_size, uint64 value)     { return istsnprintf(buf, buf_size, "%llu", value); }
-template<> uint32 TPrintValue<  bool>(char *buf, uint32 buf_size,   bool value)     { return istsnprintf(buf, buf_size, "%s", (value ? "true" : "false")); }
+template<> uint32 TPrintValue<float32>(char *buf, uint32 buf_size, float32 value)   { return istSNPrintf(buf, buf_size, "%.3f",  value); }
+template<> uint32 TPrintValue<float64>(char *buf, uint32 buf_size, float64 value)   { return istSNPrintf(buf, buf_size, "%.3lf", value); }
+template<> uint32 TPrintValue<  int8>(char *buf, uint32 buf_size,   int8 value)     { return istSNPrintf(buf, buf_size, "%d", static_cast< int32>(value)); }
+template<> uint32 TPrintValue< uint8>(char *buf, uint32 buf_size,  uint8 value)     { return istSNPrintf(buf, buf_size, "%u", static_cast<uint32>(value)); }
+template<> uint32 TPrintValue< int16>(char *buf, uint32 buf_size,  int16 value)     { return istSNPrintf(buf, buf_size, "%d", static_cast< int32>(value)); }
+template<> uint32 TPrintValue<uint16>(char *buf, uint32 buf_size, uint16 value)     { return istSNPrintf(buf, buf_size, "%u", static_cast<uint32>(value)); }
+template<> uint32 TPrintValue< int32>(char *buf, uint32 buf_size,  int32 value)     { return istSNPrintf(buf, buf_size, "%d", value); }
+template<> uint32 TPrintValue<uint32>(char *buf, uint32 buf_size, uint32 value)     { return istSNPrintf(buf, buf_size, "%u", value); }
+template<> uint32 TPrintValue< int64>(char *buf, uint32 buf_size,  int64 value)     { return istSNPrintf(buf, buf_size, "%lld", value); }
+template<> uint32 TPrintValue<uint64>(char *buf, uint32 buf_size, uint64 value)     { return istSNPrintf(buf, buf_size, "%llu", value); }
+template<> uint32 TPrintValue<  bool>(char *buf, uint32 buf_size,   bool value)     { return istSNPrintf(buf, buf_size, "%s", (value ? "true" : "false")); }
 
 ParamNodeBase::ParamNodeBase(NodeFunctor functor)
     : m_functor(functor)
@@ -217,12 +217,12 @@ bool ParamNodeBase::handleEvent(EventCode e, OptionCode o)
 
 uint32 ParamNodeBase::printName( char *buf, uint32 buf_size ) const
 {
-    return istsnprintf(buf, buf_size, "%s", getName());
+    return istSNPrintf(buf, buf_size, "%s", getName());
 }
 
 uint32 ParamNodeBase::printValue(char *buf, uint32 buf_size) const
 {
-    return istsnprintf(buf, buf_size, "");
+    return istSNPrintf(buf, buf_size, "");
 }
 
 IParamNode* ParamNodeBase::getSelectedItem()

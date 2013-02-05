@@ -183,7 +183,7 @@ size_t OggVorbisMemoryStream::read( void* buffer, size_t block_size, size_t bloc
     OggVorbisMemoryStream *p = static_cast<OggVorbisMemoryStream*>(stream);
     int remain_size = p->m_datasize - p->m_position;
     int read_size = stl::min<int>(block_size*block_count, remain_size);
-    ::memcpy( buffer, static_cast<char*>(p->m_data) + p->m_position, read_size );
+    istMemcpy( buffer, static_cast<char*>(p->m_data) + p->m_position, read_size );
     p->m_position += read_size;
     return read_size;
 }

@@ -21,7 +21,7 @@ int HandleCrash(EXCEPTION_POINTERS* ep)
     //}
 
     char filename[128];
-    istsnprintf(filename, _countof(filename), "crashdump_%u.dmp", (uint32)::time(0));
+    istSNPrintf(filename, _countof(filename), "crashdump_%u.dmp", (uint32)::time(0));
     HANDLE hFile = ::CreateFileA(filename, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
 
     if(hFile!=NULL && hFile!=INVALID_HANDLE_VALUE) {

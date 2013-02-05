@@ -3,6 +3,7 @@
 #include <tbb/tbb.h>
 #include <algorithm>
 #include "parallel_deterministic_sort.h"
+#include "ist/Base/CRTex.h"
 
 #define PSYM_TASK_GRANULARITY 256
 
@@ -144,9 +145,9 @@ inline void GenIndex(uint32 hash, int32 &xi, int32 &yi)
 World::World()
     :  num_active_particles(0)
 {
-    memset(particles_soa, 0, sizeof(particles_soa));
-    memset(cell, 0, sizeof(cell));
-    memset(particles, 0, sizeof(particles));
+    istMemset(particles_soa, 0, sizeof(particles_soa));
+    istMemset(cell, 0, sizeof(cell));
+    istMemset(particles, 0, sizeof(particles));
 }
 
 void World::update(float32 dt)

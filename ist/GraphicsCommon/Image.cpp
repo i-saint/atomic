@@ -1,4 +1,5 @@
 ﻿#include "istPCH.h"
+#include "ist/Base.h"
 #include "ist/GraphicsCommon/Image.h"
 #ifdef ist_with_gli
 #include "gli/gli.hpp"
@@ -19,7 +20,7 @@ struct BMPHEAD
 
     BMPHEAD()
     {
-        memset(this, 0, sizeof(*this));
+        istMemset(this, 0, sizeof(*this));
         B = 'B';
         M = 'M';
         offset = 54;
@@ -42,7 +43,7 @@ struct BMPINFOHEAD
 
     BMPINFOHEAD()
     {
-        memset(this, 0, sizeof(*this));
+        istMemset(this, 0, sizeof(*this));
         header_size=sizeof(*this);
         plane = 1;
         bits = 24;
@@ -64,7 +65,7 @@ struct TGAHEAD
 
     TGAHEAD()
     {
-        memset(this, 0, sizeof(*this));
+        istMemset(this, 0, sizeof(*this));
         pixel = 32;
         IDesc_Type = 8;
     }
@@ -954,7 +955,7 @@ inline texture2D loadDDS10_ex( ist::IBinaryStream &bin )
             MipmapSize = Width * Height * Loader.BlockSize;
         std::vector<glm::byte> MipmapData(MipmapSize, 0);
 
-        memcpy(&MipmapData[0], &Data[0] + Offset, MipmapSize);
+        istMemcpy(&MipmapData[0], &Data[0] + Offset, MipmapSize);
 
         texture2D::dimensions_type Dimensions(Width, Height);
         Image[Level] = texture2D::image(Dimensions, Format, MipmapData);
@@ -1001,7 +1002,7 @@ bool Image::loadDDS( IBinaryStream &f, const IOConfig &conf )
 
     default: return false;
     }
-    memcpy(data(), tex[0].data(), tex[0].capacity());
+    istMemcpy(data(), tex[0].data(), tex[0].capacity());
     return true;
 #endif // __ist_with_gli__
     return false;

@@ -66,16 +66,16 @@ stl::string AddressToSymbolName(void *address)
     imageSymbol->MaxNameLength = MAX_PATH;
 
     if(!::SymGetModuleInfo(process, (DWORDX)address, &imageModule)) {
-        istsprintf(buf, "[0x%p]\n", address);
+        istSPrintf(buf, "[0x%p]\n", address);
     }
     else if(!::SymGetSymFromAddr(process, (DWORDX)address, &dispSym, imageSymbol)) {
-        istsprintf(buf, "%s + 0x%x [0x%p]\n", imageModule.ModuleName, ((size_t)address-(size_t)imageModule.BaseOfImage), address);
+        istSPrintf(buf, "%s + 0x%x [0x%p]\n", imageModule.ModuleName, ((size_t)address-(size_t)imageModule.BaseOfImage), address);
     }
     else if(!::SymGetLineFromAddr(process, (DWORDX)address, &dispLine, &line)) {
-        istsprintf(buf, "%s!%s + 0x%x [0x%p]\n", imageModule.ModuleName, imageSymbol->Name, ((size_t)address-(size_t)imageSymbol->Address), address);
+        istSPrintf(buf, "%s!%s + 0x%x [0x%p]\n", imageModule.ModuleName, imageSymbol->Name, ((size_t)address-(size_t)imageSymbol->Address), address);
     }
     else {
-        istsprintf(buf, "%s(%d): %s!%s + 0x%x [0x%p]\n", line.FileName, line.LineNumber,
+        istSPrintf(buf, "%s(%d): %s!%s + 0x%x [0x%p]\n", line.FileName, line.LineNumber,
             imageModule.ModuleName, imageSymbol->Name, ((size_t)address-(size_t)imageSymbol->Address), address);
     }
     return buf;

@@ -15,21 +15,21 @@ namespace  {
 
 RepHeader::RepHeader()
 {
-    memset(this, 0, sizeof(*this));
-    memcpy(magic, magic_string, sizeof(magic));
+    istMemset(this, 0, sizeof(*this));
+    istMemcpy(magic, magic_string, sizeof(magic));
     version = atomic_replay_version;
 }
 
 bool RepHeader::isValid()
 {
-    if( memcmp(magic, magic_string, sizeof(magic))==0 && version==atomic_replay_version)
+    if( istMemcmp(magic, magic_string, sizeof(magic))==0 && version==atomic_replay_version)
     {
         return true;
     }
     return false;
 }
 
-RepPlayer::RepPlayer() { memset(this, 0, sizeof(*this)); }
+RepPlayer::RepPlayer() { istMemset(this, 0, sizeof(*this)); }
 
 
 

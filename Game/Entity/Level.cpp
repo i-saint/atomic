@@ -382,7 +382,7 @@ public:
         }
 
         char buf[64];
-        istsprintf(buf, "life: %.0f", health);
+        istSPrintf(buf, "life: %.0f", health);
         atomicGetSystemTextRenderer()->addText(vec2(5.0f, 60.0f), buf);
     }
 };

@@ -252,7 +252,7 @@ bool MapAndWrite( DeviceContext *ctx, Buffer *bo, const void *data, size_t data_
     istAssert(data_size<=bo->getDesc().size);
 
     if(void *p = ctx->map(bo, I3D_MAP_WRITE)) {
-        ::memcpy(p, data, data_size);
+        istMemcpy(p, data, data_size);
         ctx->unmap(bo);
         return true;
     }
@@ -264,7 +264,7 @@ bool MapAndRead( DeviceContext *ctx, Buffer *bo, void *data, size_t data_size )
     istAssert(data_size<=bo->getDesc().size);
 
     if(void *p = ctx->map(bo, I3D_MAP_READ)) {
-        ::memcpy(data, p, data_size);
+        istMemcpy(data, p, data_size);
         ctx->unmap(bo);
         return true;
     }

@@ -127,9 +127,7 @@ AtomicApplication::AtomicApplication()
     g_appinst = this;
 
 #ifdef atomic_enable_debug_log
-    char filename[128];
-    sprintf(filename, "%d.level.log", ::time(NULL));
-    m_log = fopen(filename, "wb");
+    m_log = fopen("atomic.log", "wb");
 #endif // atomic_enable_debug_log
 }
 

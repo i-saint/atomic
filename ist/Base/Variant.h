@@ -1,8 +1,10 @@
 ﻿#ifndef ist_Base_Variant_h
 #define ist_Base_Variant_h
+#include "ist/Base/CRTex.h"
+
 namespace ist {
 
-    template<size_t S> inline void _ZeroClear(char (&buf)[S]) { memset(buf, 0, S); }
+    template<size_t S> inline void _ZeroClear(char (&buf)[S]) { istMemset(buf, 0, S); }
     template<> inline void _ZeroClear<1>(char (&buf)[1]) { buf[0]=0; }
     template<> inline void _ZeroClear<2>(char (&buf)[2]) { reinterpret_cast<int16&>(*buf)=0; }
     template<> inline void _ZeroClear<4>(char (&buf)[4]) { reinterpret_cast<int32&>(*buf)=0; }

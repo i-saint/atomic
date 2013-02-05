@@ -67,7 +67,7 @@ private:
         BlendState          *blend_state;
         DepthStencilState   *depthstencil_state;
 
-        RenderStates() { memset(this, 0, sizeof(*this)); }
+        RenderStates() { istMemset(this, 0, sizeof(*this)); }
     };
     union DirtyFlags
     {

@@ -121,7 +121,7 @@ void CreateDateString(char *buf, uint32 len)
 {
     time_t t = ::time(0);
     tm *l = ::localtime(&t);
-    istsnprintf(buf, len, "%d/%02d/%02d %02d:%02d:%02d",
+    istSNPrintf(buf, len, "%d/%02d/%02d %02d:%02d:%02d",
         l->tm_year+1900, l->tm_mon+1, l->tm_mday, l->tm_hour, l->tm_min, l->tm_sec);
 }
 

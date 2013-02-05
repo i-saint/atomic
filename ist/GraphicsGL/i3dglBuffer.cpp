@@ -57,7 +57,7 @@ VertexArray::VertexArray(Device *dev)
     : super(dev)
     , m_dirty(false)
 {
-    memset(m_stream_descs, 0, sizeof(m_stream_descs));
+    istMemset(m_stream_descs, 0, sizeof(m_stream_descs));
     glGenVertexArrays(1, &m_handle);
 }
 

@@ -43,7 +43,7 @@ AtomicGame::~AtomicGame()
         char path[128];
         char date[128];
         CreateDateString(date, _countof(date));
-        istsprintf(path, "%s.replay", date);
+        istSPrintf(path, "%s.replay", date);
         for(size_t i=0; i<_countof(path); ++i) { if(path[i]=='/' || path[i]==':') { path[i]='-'; } }
         static_cast<InputServerLocal*>(m_input_server)->writeToFile(path);
     }
@@ -142,7 +142,7 @@ void AtomicGame::drawCallback()
         uint32 len  = static_cast<InputServerReplay*>(m_input_server)->getReplayLength();
         uint32 pos  = static_cast<InputServerReplay*>(m_input_server)->getReplayPosition();
         char buf[128];
-        istsprintf(buf, "Replay %d / %d", pos, len);
+        istSPrintf(buf, "Replay %d / %d", pos, len);
         atomicGetSystemTextRenderer()->addText(vec2(5.0f, (float32)wsize.y), buf);
     }
     if(m_world) {
@@ -208,25 +208,25 @@ void AtomicGame::jsonizeEntities( std::string &out )
     auto &entities = m_ctx_jsonize_entities.entities;
     out += "{\"ids\":[";
     for(size_t i=0; i<entities.size(); ++i) {
-        istsprintf(buf, "%d,", entities[i].id);
+        istSPrintf(buf, "%d,", entities[i].id);
         out+=buf;
     }
     out.pop_back();
     out += "], \"types\":[";
     for(size_t i=0; i<entities.size(); ++i) {
-        istsprintf(buf, "%d,", entities[i].type);
+        istSPrintf(buf, "%d,", entities[i].type);
         out+=buf;
     }
     out.pop_back();
     out += "], \"sizes\":[";
     for(size_t i=0; i<entities.size(); ++i) {
-        istsprintf(buf, "%.2f,%.2f,", entities[i].size.x, entities[i].size.y);
+        istSPrintf(buf, "%.2f,%.2f,", entities[i].size.x, entities[i].size.y);
         out+=buf;
     }
     out.pop_back();
     out += "], \"positions\":[";
     for(size_t i=0; i<entities.size(); ++i) {
-        istsprintf(buf, "%.2f,%.2f,", entities[i].pos.x, entities[i].pos.y);
+        istSPrintf(buf, "%.2f,%.2f,", entities[i].pos.x, entities[i].pos.y);
         out+=buf;
     }
     out.pop_back();
