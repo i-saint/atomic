@@ -4,8 +4,6 @@
 
 namespace atomic {
 
-using namespace Poco;
-using namespace Poco::Net;
 const char s_fileserver_base_dir[] = "editor";
 
 struct MIME { const char *ext; const char *type; };
@@ -19,7 +17,7 @@ static const MIME s_mime_types[] = {
 };
 
 
-class FileRequestHandler: public HTTPRequestHandler
+class FileRequestHandler: public Poco::Net::HTTPRequestHandler
 {
 public:
     FileRequestHandler(const std::string &path)
@@ -27,7 +25,7 @@ public:
     {
     }
 
-    void handleRequest(HTTPServerRequest &request, HTTPServerResponse &response)
+    void handleRequest(Poco::Net::HTTPServerRequest &request, Poco::Net::HTTPServerResponse &response)
     {
         const char *ext = s_mime_types[0].ext;
         const char *mime = s_mime_types[0].type;
@@ -48,7 +46,7 @@ private:
 };
 
 
-void GetDecodedRequestBody(HTTPServerRequest &request, std::string &out)
+void GetDecodedRequestBody(Poco::Net::HTTPServerRequest &request, std::string &out)
 {
     if(!request.hasContentLength() || request.getContentLength()>1024*64) {
         return;
@@ -58,7 +56,7 @@ void GetDecodedRequestBody(HTTPServerRequest &request, std::string &out)
     std::string encoded_data;
     encoded_data.resize(size);
     stream.read(&encoded_data[0], size);
-    URI::decode(encoded_data, out);
+    Poco::URI::decode(encoded_data, out);
 }
 
 template<class Func>
@@ -79,14 +77,14 @@ void EachFormData(const std::string &form_fata, const Func &f)
 }
 
 
-class LevelEditorCommandHandler : public HTTPRequestHandler
+class LevelEditorCommandHandler : public Poco::Net::HTTPRequestHandler
 {
 public:
     LevelEditorCommandHandler()
     {
     }
 
-    void handleRequest(HTTPServerRequest &request, HTTPServerResponse &response)
+    void handleRequest(Poco::Net::HTTPServerRequest &request, Poco::Net::HTTPServerResponse &response)
     {
         std::string data;
         GetDecodedRequestBody(request, data);
@@ -142,14 +140,14 @@ public:
 private:
 };
 
-class LevelEditorQueryHandler : public HTTPRequestHandler
+class LevelEditorQueryHandler : public Poco::Net::HTTPRequestHandler
 {
 public:
     LevelEditorQueryHandler()
     {
     }
 
-    void handleRequest(HTTPServerRequest &request, HTTPServerResponse &response)
+    void handleRequest(Poco::Net::HTTPServerRequest &request, Poco::Net::HTTPServerResponse &response)
     {
         LevelEditorQuery q;
         if(request.getURI() == "/state/entities") {
@@ -168,10 +166,10 @@ public:
 
 };
 
-class LevelEditorRequestHandlerFactory : public HTTPRequestHandlerFactory
+class LevelEditorRequestHandlerFactory : public Poco::Net::HTTPRequestHandlerFactory
 {
 public:
-    virtual HTTPRequestHandler* createRequestHandler(const HTTPServerRequest &request)
+    virtual Poco::Net::HTTPRequestHandler* createRequestHandler(const Poco::Net::HTTPServerRequest &request)
     {
         if(request.getURI() == "/") {
             return new FileRequestHandler(std::string(s_fileserver_base_dir)+"/index.html");
@@ -196,13 +194,38 @@ public:
 };
 
 
+
+
+LevelEditorServer * LevelEditorServer::s_inst;
+
+void LevelEditorServer::initializeInstance()
+{
+    if(!s_inst) {
+        s_inst = new LevelEditorServer();
+        s_inst->start();
+    }
+}
+
+void LevelEditorServer::finalizeInstance()
+{
+    if(s_inst) {
+        delete s_inst;
+        s_inst = NULL;
+    }
+}
+
+LevelEditorServer* LevelEditorServer::getInstance()
+{
+    return s_inst;
+}
+
+
 LevelEditorServerConfig::LevelEditorServerConfig()
     : port(10050)
     , max_queue(100)
     , max_threads(4)
 {
 }
-
 
 LevelEditorServer::LevelEditorServer()
     : m_server(NULL)
@@ -220,14 +243,14 @@ LevelEditorServer::~LevelEditorServer()
 void LevelEditorServer::start()
 {
     if(!m_server) {
-        HTTPServerParams* pParams = new HTTPServerParams;
-        pParams->setMaxQueued(m_conf.max_queue);
-        pParams->setMaxThreads(m_conf.max_threads);
-        ThreadPool::defaultPool().addCapacity(m_conf.max_threads);
+        Poco::Net::HTTPServerParams* params = new Poco::Net::HTTPServerParams;
+        params->setMaxQueued(m_conf.max_queue);
+        params->setMaxThreads(m_conf.max_threads);
+        params->setThreadIdleTime(Poco::Timespan(3, 0));
 
         try {
-            ServerSocket svs(m_conf.port);
-            m_server = new HTTPServer(new LevelEditorRequestHandlerFactory(), svs, pParams);
+            Poco::Net::ServerSocket svs(m_conf.port);
+            m_server = new Poco::Net::HTTPServer(new LevelEditorRequestHandlerFactory(), svs, params);
             m_server->start();
         }
         catch(Poco::IOException &e) {
@@ -304,33 +327,10 @@ void LevelEditorServer::clearQuery()
     m_queries.clear();
 }
 
-
-LevelEditorServer * LevelEditorServer::s_inst;
-
-void LevelEditorServer::initializeInstance()
-{
-    if(!s_inst) {
-        s_inst = new LevelEditorServer();
-        s_inst->start();
-    }
-}
-
-void LevelEditorServer::finalizeInstance()
-{
-    if(s_inst) {
-        delete s_inst;
-        s_inst = NULL;
-    }
-}
-
-LevelEditorServer* LevelEditorServer::getInstance()
-{
-    return s_inst;
-}
-
 vec2 LevelEditorServer::randomVec2()
 {
     return (vec2(m_rand.genFloat32(), m_rand.genFloat32())-vec2(0.5f, 0.5f)) * 2.0f;
 }
+
 
 } // namespace atomic

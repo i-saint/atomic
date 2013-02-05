@@ -177,7 +177,9 @@ bool AtomicApplication::initialize(int argc, char *argv[])
         m_game->readReplayFromFile(argv[1]);
     }
 
-    // start leveleditor
+    // start server
+    Poco::ThreadPool::defaultPool().addCapacity(8);
+    GameServer::initializeInstance();
     LevelEditorServer::initializeInstance();
 
     return true;
@@ -188,7 +190,9 @@ void AtomicApplication::finalize()
     m_config.writeToFile(ATOMIC_CONFIG_FILE_PATH);
 
     LevelEditorServer::finalizeInstance();
+    GameServer::finalizeInstance();
     Poco::ThreadPool::defaultPool().joinAll();
+
     istSafeDelete(m_game);
 
     AtomicRenderingSystem::finalizeInstance();

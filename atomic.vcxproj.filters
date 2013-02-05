@@ -117,6 +117,9 @@
     </ClCompile>
     <ClCompile Include="EnumStrings.cpp" />
     <ClCompile Include="CrashReport.cpp" />
+    <ClCompile Include="Network\GameSession.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h">
@@ -233,5 +236,11 @@
       <Filter>Network</Filter>
     </ClInclude>
     <ClInclude Include="externals.h" />
+    <ClInclude Include="Network\Protocol.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\GameSession.h">
+      <Filter>Network</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
