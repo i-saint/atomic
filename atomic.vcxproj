@@ -62,8 +62,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Network\GameClientSession.cpp" />
     <ClCompile Include="Network\GameServer.cpp" />
-    <ClCompile Include="Network\GameSession.cpp" />
+    <ClCompile Include="Network\GameServerSession.cpp" />
+    <ClCompile Include="Network\InputServerLocal.cpp" />
+    <ClCompile Include="Network\InputServerNetwork.cpp" />
+    <ClCompile Include="Network\InputServerReplay.cpp" />
     <ClCompile Include="Network\LevelEditorServer.cpp" />
     <ClCompile Include="Sound\AtomicSound.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -110,8 +114,11 @@
     <ClInclude Include="Graphics\ResourceID.h" />
     <ClInclude Include="Graphics\ResourceManager.h" />
     <ClInclude Include="Graphics\Shader.h" />
+    <ClInclude Include="Network\GameClientSession.h" />
     <ClInclude Include="Network\GameServer.h" />
-    <ClInclude Include="Network\GameSession.h" />
+    <ClInclude Include="Network\GameServerSession.h" />
+    <ClInclude Include="Network\InputServer.h" />
+    <ClInclude Include="Network\InputServerInternal.h" />
     <ClInclude Include="Network\LevelEditorServer.h" />
     <ClInclude Include="Network\Protocol.h" />
     <ClInclude Include="Sound\AtomicSound.h" />

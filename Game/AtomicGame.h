@@ -4,6 +4,7 @@
 #include "AtomicApplication.h"
 #include "Game/DebugMenu.h"
 #include "Network/LevelEditorServer.h"
+#include "Network/InputServer.h"
 
 
 namespace atomic {

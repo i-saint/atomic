@@ -26,7 +26,7 @@ AtomicGame::AtomicGame()
 #endif // atomic_enable_sync_lock
     MessageRouter::initializeInstance();
 
-    m_input_server = istNew(InputServerLocal)();
+    m_input_server = CreateInputServerLocal();
     m_input_server->addPlayer(0, "test", 0);
 
     m_world = istNew(World)();
@@ -45,7 +45,7 @@ AtomicGame::~AtomicGame()
         CreateDateString(date, _countof(date));
         istSPrintf(path, "%s.replay", date);
         for(size_t i=0; i<_countof(path); ++i) { if(path[i]=='/' || path[i]==':') { path[i]='-'; } }
-        static_cast<InputServerLocal*>(m_input_server)->writeToFile(path);
+        m_input_server->save(path);
     }
 
     istSafeDelete(m_world);
@@ -56,8 +56,8 @@ AtomicGame::~AtomicGame()
 
 bool AtomicGame::readReplayFromFile(const char *path)
 {
-    InputServerReplay *ris = istNew(InputServerReplay)();
-    if(ris->readFromFile(path)) {
+    IInputServer *ris = CreateInputServerReplay();
+    if(ris->load(path)) {
         istDelete(m_input_server);
         m_input_server = ris;
         return true;
@@ -139,8 +139,8 @@ void AtomicGame::drawCallback()
     AtomicRenderer::getInstance()->beforeDraw();
     if(m_input_server->getTypeID()==IInputServer::IS_Replay) {
         const uvec2 &wsize = atomicGetWindowSize();
-        uint32 len  = static_cast<InputServerReplay*>(m_input_server)->getReplayLength();
-        uint32 pos  = static_cast<InputServerReplay*>(m_input_server)->getReplayPosition();
+        uint32 len  = m_input_server->getPlayLength();
+        uint32 pos  = m_input_server->getPlayPosition();
         char buf[128];
         istSPrintf(buf, "Replay %d / %d", pos, len);
         atomicGetSystemTextRenderer()->addText(vec2(5.0f, (float32)wsize.y), buf);

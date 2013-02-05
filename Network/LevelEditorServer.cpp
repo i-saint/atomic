@@ -263,8 +263,8 @@ void LevelEditorServer::stop()
 {
     if(m_server) {
         m_accept_request = false;
-        clearQuery();
         m_server->stopAll(false);
+        clearQuery();
         while(m_server->currentConnections()>0 || m_server->currentThreads()>0) {
             ist::Thread::milliSleep(5);
         }

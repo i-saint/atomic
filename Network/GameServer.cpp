@@ -1,20 +1,8 @@
 ﻿#include "stdafx.h"
 #include "GameServer.h"
-#include "GameSession.h"
+#include "GameServerSession.h"
 
 namespace atomic {
-
-
-
-
-class GameSessionFactory : public Poco::Net::TCPServerConnectionFactory
-{
-public:
-    virtual Poco::Net::TCPServerConnection* createConnection(const Poco::Net::StreamSocket& socket)
-    {
-        return new GameSession(socket);
-    }
-};
 
 
 GameServer* GameServer::s_inst;
@@ -61,7 +49,7 @@ void GameServer::start()
 
         try {
             Poco::Net::ServerSocket svs(10051);
-            m_server = new Poco::Net::TCPServer(new GameSessionFactory(), svs, params);
+            m_server = new Poco::Net::TCPServer(new GameServerSessionFactory(), svs, params);
             m_server->start();
         }
         catch(Poco::IOException &e) {

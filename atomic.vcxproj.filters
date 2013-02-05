@@ -117,7 +117,19 @@
     </ClCompile>
     <ClCompile Include="EnumStrings.cpp" />
     <ClCompile Include="CrashReport.cpp" />
-    <ClCompile Include="Network\GameSession.cpp">
+    <ClCompile Include="Network\GameServerSession.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\GameClientSession.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\InputServerLocal.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\InputServerNetwork.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\InputServerReplay.cpp">
       <Filter>Network</Filter>
     </ClCompile>
   </ItemGroup>
@@ -239,7 +251,16 @@
     <ClInclude Include="Network\Protocol.h">
       <Filter>Network</Filter>
     </ClInclude>
-    <ClInclude Include="Network\GameSession.h">
+    <ClInclude Include="Network\GameServerSession.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\GameClientSession.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\InputServer.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\InputServerInternal.h">
       <Filter>Network</Filter>
     </ClInclude>
   </ItemGroup>
