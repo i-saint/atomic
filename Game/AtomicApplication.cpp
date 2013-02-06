@@ -10,6 +10,7 @@
 #include "Graphics/Renderer.h"
 #include "Network/LevelEditorServer.h"
 #include "Network/GameServer.h"
+#include "Network/GameClient.h"
 #include "Util.h"
 
 #define ATOMIC_CONFIG_FILE_PATH "atomic.conf"
@@ -180,6 +181,7 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     // start server
     Poco::ThreadPool::defaultPool().addCapacity(8);
     GameServer::initializeInstance();
+    GameClient::initializeInstance();
     LevelEditorServer::initializeInstance();
 
     return true;
@@ -190,6 +192,7 @@ void AtomicApplication::finalize()
     m_config.writeToFile(ATOMIC_CONFIG_FILE_PATH);
 
     LevelEditorServer::finalizeInstance();
+    GameClient::finalizeInstance();
     GameServer::finalizeInstance();
     Poco::ThreadPool::defaultPool().joinAll();
 

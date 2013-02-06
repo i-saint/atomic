@@ -1,6 +1,6 @@
 ﻿#include "stdafx.h"
 #include "InputServerInternal.h"
-#include "LevelEditorServer.h"
+#include "LevelEditorCommand.h"
 #include "Game/AtomicApplication.h"
 #include "Game/AtomicGame.h"
 #include "Game/World.h"

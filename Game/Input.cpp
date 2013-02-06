@@ -5,7 +5,7 @@
 #include "AtomicApplication.h"
 #include "AtomicGame.h"
 #include "World.h"
-#include "Network/LevelEditorServer.h"
+#include "Network/LevelEditorCommand.h"
 
 namespace atomic {
 

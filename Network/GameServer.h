@@ -8,6 +8,11 @@ namespace atomic {
 class GameServer
 {
 public:
+    enum ErrorCode {
+        ER_Ok,
+        ER_StartFailed,
+    };
+
     static void initializeInstance();
     static void finalizeInstance();
     static GameServer* getInstance();

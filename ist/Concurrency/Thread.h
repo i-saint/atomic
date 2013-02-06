@@ -70,11 +70,14 @@ private:
 };
 
 
-template<class FuncT>
+template<class FuncT=std::function<void ()> >
 class FunctorThread : public Thread
 {
 typedef Thread Super;
 public:
+    FunctorThread() {}
+    FunctorThread(const FuncT &f) { run(f); }
+
     void run(const FuncT &f)
     {
         m_func = f;

@@ -120,9 +120,6 @@
     <ClCompile Include="Network\GameServerSession.cpp">
       <Filter>Network</Filter>
     </ClCompile>
-    <ClCompile Include="Network\GameClientSession.cpp">
-      <Filter>Network</Filter>
-    </ClCompile>
     <ClCompile Include="Network\InputServerLocal.cpp">
       <Filter>Network</Filter>
     </ClCompile>
@@ -130,6 +127,9 @@
       <Filter>Network</Filter>
     </ClCompile>
     <ClCompile Include="Network\InputServerReplay.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\GameClient.cpp">
       <Filter>Network</Filter>
     </ClCompile>
   </ItemGroup>
@@ -254,13 +254,16 @@
     <ClInclude Include="Network\GameServerSession.h">
       <Filter>Network</Filter>
     </ClInclude>
-    <ClInclude Include="Network\GameClientSession.h">
-      <Filter>Network</Filter>
-    </ClInclude>
     <ClInclude Include="Network\InputServer.h">
       <Filter>Network</Filter>
     </ClInclude>
     <ClInclude Include="Network\InputServerInternal.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\LevelEditorCommand.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\GameClient.h">
       <Filter>Network</Filter>
     </ClInclude>
   </ItemGroup>
