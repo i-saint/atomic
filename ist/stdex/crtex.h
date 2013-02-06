@@ -41,6 +41,7 @@
 
 #endif // ist_env_Windows
 
+
 template<size_t N>
 inline int istSPrintf(char (&buf)[N], const char *format, ...)
 {
@@ -72,5 +73,60 @@ inline int istVSprintf(wchar_t (&buf)[N], const wchar_t *format, va_list vl)
 {
     return istVSNWPrintf(buf, N, format, vl);
 }
+
+
+istForceInline void istMemset128(ist::uint128 *dst, ist::uint128 pattern, size_t size_byte)
+{
+    // これ書いてる時点では以下のコードは std::fill_n (rep movsd) より速い結果が出ているが、
+    // プラットフォームや CPU 次第では std::fill_n の方が速いコードになる可能性アリ。要実測。
+
+    // 可能であれば 128 byte 一気に埋める 
+    size_t n = size_byte >> 4;
+    size_t blocks = n >> 3;
+    for(size_t i=0; i<blocks; ++i) {
+        ist::uint128 *d = dst+(i*8);
+        d[0] = pattern;
+        d[1] = pattern;
+        d[2] = pattern;
+        d[3] = pattern;
+        d[4] = pattern;
+        d[5] = pattern;
+        d[6] = pattern;
+        d[7] = pattern;
+    }
+
+    // 余った領域を埋める
+    size_t remain = n & 7;
+    ist::uint128 *d = dst + (n & ~7);
+    for(size_t i=0; i<remain; ++i) {
+        d[i] = pattern;
+    }
+}
+
+istForceInline void istMemset64(ist::uint64 *dst, ist::uint64 pattern, size_t size_byte)
+{
+    // 可能な部分は memset128 で埋める
+    ist::uint128 *dst128 = (ist::uint128*)(((size_t)dst + 0xf) & ~0xf);
+    size_t gap = (size_t)dst128-(size_t)dst;
+    istAlign(16) ist::uint64 pattern128[2] = {pattern, pattern};
+    istMemset128(dst128, (ist::uint128&)pattern128, size_byte-gap);
+
+    // 最初と最後の要素が埋まってない可能性があるので埋める
+    dst[0] = pattern;
+    dst[(size_byte>>3)-1] = pattern;
+}
+
+istForceInline void istMemset32(ist::uint32 *dst, ist::uint32 pattern, size_t size_byte)
+{
+    // std::fill_n は 32bit 以下の型だと rep stos に化けて、これは SSE レジスタ使う fill より速い
+    std::fill_n(dst, size_byte/sizeof(ist::uint32), pattern);
+}
+
+istForceInline void istMemset16(ist::uint16 *dst, ist::uint16 pattern, size_t size_byte)
+{
+    // 同上
+    std::fill_n(dst, size_byte/sizeof(ist::uint16), pattern);
+}
+
 
 #endif // ist_stdex_crtex_h
