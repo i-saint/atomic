@@ -1,5 +1,5 @@
-#ifndef _SPH_types_h_
-#define _SPH_types_h_
+#ifndef SPH_types_h
+#define SPH_types_h
 
 #include <vector>
 #include "psymConst.h"
@@ -80,4 +80,4 @@ public:
 };
 
 } // namespace psym
-#endif // _SPH_types_h_
+#endif // SPH_types_h

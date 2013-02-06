@@ -69,6 +69,7 @@
     <ClCompile Include="Network\InputServerNetwork.cpp" />
     <ClCompile Include="Network\InputServerReplay.cpp" />
     <ClCompile Include="Network\LevelEditorServer.cpp" />
+    <ClCompile Include="Network\Protocol.cpp" />
     <ClCompile Include="Sound\AtomicSound.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

@@ -37,6 +37,8 @@ union istAlign(16) LevelEditorCommand
         std::fill_n(dummy, _countof(dummy), 0);
     }
 };
+#define LEC_Ensure(T) BOOST_STATIC_ASSERT(sizeof(T)<=sizeof(LevelEditorCommand))
+
 
 struct istAlign(16) LevelEditorCommand_Create
 {
@@ -50,7 +52,8 @@ struct istAlign(16) LevelEditorCommand_Create
         std::fill_n(dummy, _countof(dummy), 0);
     }
 };
-BOOST_STATIC_ASSERT(sizeof(LevelEditorCommand_Create)<=sizeof(LevelEditorCommand));
+LEC_Ensure(LevelEditorCommand_Create);
+
 
 struct istAlign(16) LevelEditorCommand_Delete
 {
@@ -64,7 +67,8 @@ struct istAlign(16) LevelEditorCommand_Delete
         std::fill_n(dummy, _countof(dummy), 0);
     }
 };
-BOOST_STATIC_ASSERT(sizeof(LevelEditorCommand_Delete)<=sizeof(LevelEditorCommand));
+LEC_Ensure(LevelEditorCommand_Delete);
+
 
 struct istAlign(16) LevelEditorCommand_Call
 {
@@ -76,7 +80,9 @@ struct istAlign(16) LevelEditorCommand_Call
 
     LevelEditorCommand_Call() : type(LEC_Call) {}
 };
-BOOST_STATIC_ASSERT(sizeof(LevelEditorCommand_Call)<=sizeof(LevelEditorCommand));
+LEC_Ensure(LevelEditorCommand_Call);
+
+#undef LEC_Ensure
 
 
 struct LevelEditorQuery

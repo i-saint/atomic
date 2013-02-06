@@ -132,6 +132,9 @@
     <ClCompile Include="Network\GameClient.cpp">
       <Filter>Network</Filter>
     </ClCompile>
+    <ClCompile Include="Network\Protocol.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h">

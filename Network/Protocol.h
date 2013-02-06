@@ -1,100 +1,133 @@
-﻿#ifndef atomic_Network_Protocol_h
-#define atomic_Network_Protocol_h
+﻿#ifndef atomic_Network_PMessage_h
+#define atomic_Network_PMessage_h
 #include "externals.h"
 
 namespace atomic {
 
-enum PTCL_Type
+// パケットは以下の構造とする
+// 
+// char[8] magic;           // "atomic\0\0"
+// uint32 length_in_byte;
+// uint32 num_message;
+// PMessage messages[num_message];
+// (可変長メッセージの場合ここに追加データ)
+
+
+static const char PM_message_header[8] = "atomic\0";
+
+enum PM_Type
 {
-    PTCL_Unknown,
-    PTCL_Ping,
-    PTCL_Pong,
-    PTCL_Join,
-    PTCL_Accepted,
-    PTCL_Rejected,
-    PTCL_Leave,
-    PTCL_Update,
-    PTCL_Text,
-    PTCL_Sync,
+    PM_Unknown,
+    PM_Ping,
+    PM_Pong,
+    PM_Join,
+    PM_Accepted,
+    PM_Rejected,
+    PM_Leave,
+    PM_Update,
+    PM_Text,
+    PM_Sync,
 };
 
-union Protocol
+union istAlign(16) PMessage
 {
     struct {
-        PTCL_Type type;
+        PM_Type type;
     };
     uint32 dummy[8];
 
-    Protocol() : type(PTCL_Unknown) {}
+    PMessage() : type(PM_Unknown) {}
+    void destroy(); // デストラクタ代わり。可変長系メッセージのメモリの開放はこれで行う
 };
+#define PM_Ensure(T) BOOST_STATIC_ASSERT(sizeof(T)<=sizeof(PMessage))
 
-struct Protocol_Ping
+
+struct istAlign(16) PMessage_Ping
 {
-    PTCL_Type type;
+    PM_Type type;
 
-    Protocol_Ping() : type(PTCL_Ping) {}
+    PMessage_Ping() : type(PM_Ping) {}
 };
+PM_Ensure(PMessage_Ping);
 
-struct Protocol_Pong
+
+struct istAlign(16) PMessage_Pong
 {
-    PTCL_Type type;
+    PM_Type type;
 
-    Protocol_Pong() : type(PTCL_Pong) {}
+    PMessage_Pong() : type(PM_Pong) {}
 };
+PM_Ensure(PMessage_Pong);
 
-struct Protocol_Join
+
+struct istAlign(16) PMessage_Join
 {
-    PTCL_Type type;
+    PM_Type type;
 
-    Protocol_Join() : type(PTCL_Join) {}
+    PMessage_Join() : type(PM_Join) {}
 };
+PM_Ensure(PMessage_Join);
 
-struct Protocol_Accepted
+
+struct istAlign(16) PMessage_Accepted
 {
-    PTCL_Type type;
+    PM_Type type;
     uint32 uid;
 
-    Protocol_Accepted() : type(PTCL_Accepted), uid(0) {}
+    PMessage_Accepted() : type(PM_Accepted), uid(0) {}
 };
+PM_Ensure(PMessage_Accepted);
 
-struct Protocol_Rejected
+
+struct istAlign(16) PMessage_Rejected
 {
-    PTCL_Type type;
+    PM_Type type;
 
-    Protocol_Rejected() : type(PTCL_Rejected) {}
+    PMessage_Rejected() : type(PM_Rejected) {}
 };
+PM_Ensure(PMessage_Rejected);
 
-struct Protocol_Leave
+
+struct istAlign(16) PMessage_Leave
 {
-    PTCL_Type type;
+    PM_Type type;
 
-    Protocol_Leave() : type(PTCL_Leave) {}
+    PMessage_Leave() : type(PM_Leave) {}
 };
+PM_Ensure(PMessage_Leave);
 
-struct Protocol_Update
+
+struct istAlign(16) PMessage_Update
 {
-    PTCL_Type type;
+    PM_Type type;
 
-    Protocol_Update() : type(PTCL_Update) {}
+    PMessage_Update() : type(PM_Update) {}
 };
+PM_Ensure(PMessage_Update);
 
-struct Protocol_Text
+
+struct istAlign(16) PMessage_Text
 {
-    PTCL_Type type;
+    PM_Type type;
 
-    Protocol_Text() : type(PTCL_Text) {}
+    PMessage_Text() : type(PM_Text) {}
 };
+PM_Ensure(PMessage_Text);
 
-struct Protocol_Sync
+
+struct istAlign(16) PMessage_Sync
 {
-    PTCL_Type type;
+    PM_Type type;
     uint32 data_size;
     void *data;
 
-    Protocol_Sync() : type(PTCL_Sync), data_size(0), data(NULL) {}
+    PMessage_Sync() : type(PM_Sync), data_size(0), data(NULL) {}
 };
+PM_Ensure(PMessage_Sync);
 
+
+#undef PM_Ensure
 
 } // namespace atomic
 
-#endif // atomic_Network_Protocol_h
+#endif // atomic_Network_PMessage_h

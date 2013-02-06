@@ -16,7 +16,9 @@ public:
         EV_End,             // 切断したとき
     };
     typedef std::function<void (GameClient*, Event)> EventHandler;
-    typedef ist::vector<Protocol> MessageCont;
+    typedef std::function<void (const PMessage &)> MessageHandler;
+    typedef ist::raw_vector<PMessage> MessageCont;
+    typedef ist::raw_vector<char> MessageBuffer;
 
     static void initializeInstance();
     static void finalizeInstance();
@@ -37,11 +39,14 @@ public:
     // 実際に接続が閉じた時はイベントハンドラにイベントが飛ぶ
     void close();
 
-    void pushCommand(const Protocol &p);
+    void sendMessage(const PMessage &p);
+    void handleReceivedMessage(const MessageHandler &h);
 
 private:
     void shutdown();
     void handleEvent(Event e);
+    void sendMessage();
+    void recvMessage();
     void networkLoop();
 
 private:
@@ -52,8 +57,15 @@ private:
     EventHandler m_handler;
     ist::Thread *m_thread;
 
-    ist::Mutex m_mutex;
-    MessageCont m_message;
+    ist::Mutex m_mutex_send;
+    MessageCont m_message_send;
+    MessageCont m_message_send_tmp;
+    MessageBuffer m_buffer_send;
+
+    ist::Mutex m_mutex_recv;
+    MessageCont m_message_recv;
+    MessageCont m_message_recv_tmp;
+    MessageBuffer m_buffer_recv;
 };
 
 } // namespace atomic

@@ -56,11 +56,43 @@ void GameClient::close()
     m_end_flag = true;
 }
 
-void GameClient::pushCommand( const Protocol &p )
+void GameClient::sendMessage( const PMessage &p )
 {
-    ist::Mutex::ScopedLock lock(m_mutex);
-    m_message.push_back(p);
+    ist::Mutex::ScopedLock lock(m_mutex_send);
+    m_message_send.push_back(p);
 }
+
+void GameClient::handleReceivedMessage( const MessageHandler &h )
+{
+    {
+        ist::Mutex::ScopedLock lock(m_mutex_recv);
+        m_message_recv_tmp = m_message_recv;
+        m_message_recv.clear();
+    }
+    for(size_t i=0; i<m_message_recv_tmp.size(); ++i) {
+        h(m_message_recv_tmp[i]);
+    }
+}
+
+void GameClient::sendMessage()
+{
+    {
+        ist::Mutex::ScopedLock lock(m_mutex_send);
+        m_message_send_tmp = m_message_send;
+        m_message_send.clear();
+    }
+}
+
+void GameClient::recvMessage()
+{
+    {
+        ist::Mutex::ScopedLock lock(m_mutex_recv);
+        m_message_recv = m_message_recv_tmp;
+    }
+    m_message_recv_tmp.clear();
+}
+
+
 
 void GameClient::shutdown()
 {
@@ -118,7 +150,7 @@ void GameClient::networkLoop()
     }
 
     // todo:
-    // stream->write(PTCL_Leave);
+    // stream->write(PM_Leave);
     handleEvent(EV_End);
 
     sock->shutdown();
