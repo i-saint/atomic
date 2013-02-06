@@ -7,7 +7,11 @@ namespace atomic {
 void PMessage::destroy()
 {
     switch(type) {
+    case PM_Sync:
+        break;
 
+    default:
+        break;
     }
 }
 
