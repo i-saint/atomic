@@ -68,4 +68,69 @@ void DestructMessages( PMessageCont &messages )
     messages.clear();
 }
 
+
+
+
+
+PMessenger::~PMessenger()
+{
+    clearAllMessage();
+}
+
+void PMessenger::queueMessage( const PMessage &p )
+{
+    ist::Mutex::ScopedLock lock(m_mutex_send);
+    m_message_send.push_back(p);
+}
+
+void PMessenger::queueMessage( const PMessage *p, size_t num )
+{
+    ist::Mutex::ScopedLock lock(m_mutex_send);
+    m_message_send.insert(m_message_send.end(), p, p+num);
+}
+
+void PMessenger::handleReceivedMessage( const MessageHandler &h )
+{
+    {
+        ist::Mutex::ScopedLock lock(m_mutex_recv);
+        m_message_consuming = m_message_recv;
+        m_message_recv.clear();
+    }
+    for(size_t i=0; i<m_message_consuming.size(); ++i) {
+        h(m_message_consuming[i]);
+    }
+    DestructMessages(m_message_consuming);
+}
+
+bool PMessenger::sendMessage(Poco::Net::StreamSocket *stream)
+{
+    {
+        ist::Mutex::ScopedLock lock(m_mutex_send);
+        m_message_sending = m_message_send;
+        m_message_send.clear();
+    }
+    bool ret = SendPMessages(stream, m_message_buffer, m_message_sending);
+    DestructMessages(m_message_sending);
+    return ret;
+}
+
+bool PMessenger::recvMessage(Poco::Net::StreamSocket *stream)
+{
+    bool ret = RecvPMessages(stream, m_message_buffer, m_message_receiving);
+    {
+        ist::Mutex::ScopedLock lock(m_mutex_recv);
+        m_message_recv.insert(m_message_recv.end(), m_message_receiving.begin(), m_message_receiving.end());
+    }
+    m_message_receiving.clear();
+    return ret;
+}
+
+void PMessenger::clearAllMessage()
+{
+    ist::Mutex::ScopedLock slock(m_mutex_send);
+    ist::Mutex::ScopedLock rlock(m_mutex_recv);
+    DestructMessages(m_message_send);
+    DestructMessages(m_message_recv);
+}
+
 } // namespace atomic

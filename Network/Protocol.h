@@ -178,8 +178,37 @@ struct istAlign(16) PMessage_Sync
 };
 PM_Ensure(PMessage_Sync);
 
-
 #undef PM_Ensure
+
+
+
+class PMessenger
+{
+public:
+    typedef std::function<void (const PMessage &)> MessageHandler;
+
+    virtual ~PMessenger();
+    void queueMessage(const PMessage &p);
+    void queueMessage(const PMessage *p, size_t num);
+    void handleReceivedMessage(const MessageHandler &h);
+
+protected:
+    bool sendMessage(Poco::Net::StreamSocket *stream);
+    bool recvMessage(Poco::Net::StreamSocket *stream);
+    void clearAllMessage();
+
+protected:
+    PMessageBuffer m_message_buffer;
+
+    ist::Mutex m_mutex_send;
+    PMessageCont m_message_send;
+    PMessageCont m_message_sending;
+
+    ist::Mutex m_mutex_recv;
+    PMessageCont m_message_recv;
+    PMessageCont m_message_receiving;
+    PMessageCont m_message_consuming;
+};
 
 } // namespace atomic
 

@@ -5,8 +5,11 @@
 
 namespace atomic {
 
-class GameClient
+
+
+class GameClient : public PMessenger
 {
+typedef PMessenger super;
 public:
     enum Event {
         EV_Unknown,
@@ -16,7 +19,7 @@ public:
         EV_End,             // 切断したとき
     };
     typedef std::function<void (GameClient*, Event)> EventHandler;
-    typedef std::function<void (const PMessage &)> MessageHandler;
+    using super::MessageHandler;
 
     static void initializeInstance();
     static void finalizeInstance();
@@ -37,14 +40,12 @@ public:
     // 実際に接続が閉じた時はイベントハンドラにイベントが飛ぶ
     void close();
 
-    void sendMessage(const PMessage &p);
-    void handleReceivedMessage(const MessageHandler &h);
+    using super::sendMessage;
+    using super::handleReceivedMessage;
 
 private:
     void shutdown();
     void handleEvent(Event e);
-    bool sendMessage(Poco::Net::StreamSocket *stream);
-    bool recvMessage(Poco::Net::StreamSocket *stream);
     void networkLoop();
 
 private:
@@ -54,17 +55,6 @@ private:
     Poco::Net::SocketAddress m_address;
     EventHandler m_handler;
     ist::Thread *m_thread;
-
-    PMessageBuffer m_message_buffer;
-
-    ist::Mutex m_mutex_send;
-    PMessageCont m_message_send;
-    PMessageCont m_message_sending;
-
-    ist::Mutex m_mutex_recv;
-    PMessageCont m_message_recv;
-    PMessageCont m_message_receiving;
-    PMessageCont m_message_consuming;
 };
 
 } // namespace atomic
