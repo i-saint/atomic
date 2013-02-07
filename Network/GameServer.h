@@ -5,6 +5,8 @@
 
 namespace atomic {
 
+#ifdef atomic_enable_GameServer
+
 class GameServer
 {
 public:
@@ -29,6 +31,16 @@ private:
     static GameServer *s_inst;
     Poco::Net::TCPServer *m_server;
 };
+
+#define atomicGameServerInitialize()    GameServer::initializeInstance()
+#define atomicGameServerFinalize()      GameServer::finalizeInstance()
+
+#else // atomic_enable_GameServer
+
+#define atomicGameServerInitialize()    
+#define atomicGameServerFinalize()      
+
+#endif // atomic_enable_GameServer
 
 } // namespace atomic
 #endif // atomic_Network_GameServer_h

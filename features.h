@@ -9,6 +9,9 @@
 
 #define atomic_MaxPlayerNum 4
 
+#define atomic_enable_LevelEditorServer
+#define atomic_enable_GameServer
+#define atomic_enable_GameClient
 
 #ifdef ist_env_Master
 #else // ist_env_Master

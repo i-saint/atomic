@@ -4,6 +4,8 @@
 
 namespace atomic {
 
+#ifdef atomic_enable_GameClient
+
 GameClient * GameClient::s_inst;
 
 void GameClient::initializeInstance()
@@ -122,5 +124,8 @@ Cleanup:
     delete sock;
     m_end_flag = false;
 }
+
+#else // atomic_enable_GameClient
+#endif // atomic_enable_GameClient
 
 } // namespace atomic

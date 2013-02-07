@@ -4,6 +4,8 @@
 
 namespace atomic {
 
+#ifdef atomic_enable_LevelEditorServer
+
 const char s_fileserver_base_dir[] = "editor";
 
 struct MIME { const char *ext; const char *type; };
@@ -331,6 +333,9 @@ vec2 LevelEditorServer::randomVec2()
 {
     return (vec2(m_rand.genFloat32(), m_rand.genFloat32())-vec2(0.5f, 0.5f)) * 2.0f;
 }
+
+#else // atomic_enable_LevelEditorServer
+#endif // atomic_enable_LevelEditorServer
 
 
 } // namespace atomic

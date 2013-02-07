@@ -4,6 +4,7 @@
 
 namespace atomic {
 
+#ifdef atomic_enable_GameServer
 
 GameServer* GameServer::s_inst;
 
@@ -75,5 +76,8 @@ void GameServer::restart()
     stop();
     start();
 }
+
+#else // atomic_enable_GameServer
+#endif // atomic_enable_GameServer
 
 } // namespace atomic

@@ -5,7 +5,7 @@
 
 namespace atomic {
 
-
+#ifdef atomic_enable_GameClient
 
 class GameClient : public PMessenger
 {
@@ -56,6 +56,17 @@ private:
     EventHandler m_handler;
     ist::Thread *m_thread;
 };
+
+
+#define atomicGameClientInitialize()    GameClient::initializeInstance()
+#define atomicGameClientFinalize()      GameClient::finalizeInstance()
+
+#else // atomic_enable_GameClient
+
+#define atomicGameClientInitialize()    
+#define atomicGameClientFinalize()      
+
+#endif // atomic_enable_GameClient
 
 } // namespace atomic
 #endif // atomic_Network_GameClient_h

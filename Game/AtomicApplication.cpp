@@ -180,9 +180,9 @@ bool AtomicApplication::initialize(int argc, char *argv[])
 
     // start server
     Poco::ThreadPool::defaultPool().addCapacity(8);
-    GameServer::initializeInstance();
-    GameClient::initializeInstance();
-    LevelEditorServer::initializeInstance();
+    atomicGameServerInitialize();
+    atomicGameClientInitialize();
+    atomicLevelEditorServerInitialize();
 
     return true;
 }
@@ -191,9 +191,9 @@ void AtomicApplication::finalize()
 {
     m_config.writeToFile(ATOMIC_CONFIG_FILE_PATH);
 
-    LevelEditorServer::finalizeInstance();
-    GameClient::finalizeInstance();
-    GameServer::finalizeInstance();
+    atomicLevelEditorServerFinalize();
+    atomicGameClientFinalize();
+    atomicGameServerFinalize();
     Poco::ThreadPool::defaultPool().joinAll();
 
     istSafeDelete(m_game);

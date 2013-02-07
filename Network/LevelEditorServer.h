@@ -5,6 +5,7 @@
 
 namespace atomic {
 
+#ifdef atomic_enable_LevelEditorServer
 
 struct LevelEditorServerConfig
 {
@@ -69,6 +70,20 @@ private:
     ist::Mutex m_mutex_queries;
     QueryCont m_queries;
 };
+
+#define atomicLevelEditorServerInitialize()     LevelEditorServer::initializeInstance()
+#define atomicLevelEditorServerFinalize()       LevelEditorServer::finalizeInstance()
+#define atomicLevelEditorHandleCommands(...)    LevelEditorServer::getInstance()->handleCommands(__VA_ARGS__)
+#define atomicLevelEditorHandleQueries(...)     LevelEditorServer::getInstance()->handleQueries(__VA_ARGS__)
+
+#else // atomic_enable_LevelEditorServer
+
+#define atomicLevelEditorServerInitialize()     
+#define atomicLevelEditorServerFinalize()       
+#define atomicLevelEditorHandleCommands(H)      
+#define atomicLevelEditorHandleQueries(H)       
+
+#endif // atomic_enable_LevelEditorServer
 
 } // namespace atomic
 #endif // atomic_Network_LevelEditorServer_h

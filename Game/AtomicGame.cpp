@@ -85,8 +85,8 @@ void AtomicGame::update(float32 dt)
         m_input_server->pushInput(0, InputState());
     }
 
-    LevelEditorServer::getInstance()->handleCommands(std::bind(&IInputServer::pushLevelEditorCommand, m_input_server, std::placeholders::_1));
-    LevelEditorServer::getInstance()->handleQueries(std::bind(&AtomicGame::handleLevelEditorQueries, this, std::placeholders::_1) );
+    atomicLevelEditorHandleCommands( std::bind(&IInputServer::pushLevelEditorCommand, m_input_server, std::placeholders::_1));
+    atomicLevelEditorHandleQueries( std::bind(&AtomicGame::handleLevelEditorQueries, this, std::placeholders::_1) );
     m_input_server->update();
     if(!atomicGetConfig()->pause) {
         m_world->update(1.0f);
