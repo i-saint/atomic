@@ -66,30 +66,36 @@ void GameClient::handleReceivedMessage( const MessageHandler &h )
 {
     {
         ist::Mutex::ScopedLock lock(m_mutex_recv);
-        m_message_recv_tmp = m_message_recv;
+        m_message_consuming = m_message_recv;
         m_message_recv.clear();
     }
-    for(size_t i=0; i<m_message_recv_tmp.size(); ++i) {
-        h(m_message_recv_tmp[i]);
+    for(size_t i=0; i<m_message_consuming.size(); ++i) {
+        h(m_message_consuming[i]);
     }
+    DestructMessages(m_message_consuming);
 }
 
-void GameClient::sendMessage()
+bool GameClient::sendMessage(Poco::Net::StreamSocket *stream)
 {
     {
         ist::Mutex::ScopedLock lock(m_mutex_send);
-        m_message_send_tmp = m_message_send;
+        m_message_sending = m_message_send;
         m_message_send.clear();
     }
+    bool ret = SendPMessages(stream, m_message_buffer, m_message_sending);
+    DestructMessages(m_message_sending);
+    return ret;
 }
 
-void GameClient::recvMessage()
+bool GameClient::recvMessage(Poco::Net::StreamSocket *stream)
 {
+    bool ret = RecvPMessages(stream, m_message_buffer, m_message_receiving);
     {
         ist::Mutex::ScopedLock lock(m_mutex_recv);
-        m_message_recv = m_message_recv_tmp;
+        m_message_recv.insert(m_message_recv.end(), m_message_receiving.begin(), m_message_receiving.end());
     }
-    m_message_recv_tmp.clear();
+    m_message_receiving.clear();
+    return ret;
 }
 
 
@@ -113,18 +119,22 @@ void GameClient::handleEvent( Event e )
 void GameClient::networkLoop()
 {
     Poco::Net::StreamSocket *sock = NULL;
-    Poco::Net::SocketStream *stream = NULL;
     try {
         sock = new Poco::Net::StreamSocket(m_address);
         sock->setNoDelay(true);
         sock->setBlocking(true);
         sock->setReceiveTimeout(Poco::Timespan(3, 0));
         sock->setSendTimeout(Poco::Timespan(3, 0));
-
-        // todo:
-        // greeting
-        // stream->write();
-        // stream->read();
+        {
+            // todo:
+            // greeting
+            ist::Mutex::ScopedLock slock(m_mutex_send);
+            ist::Mutex::ScopedLock rlock(m_mutex_recv);
+            m_message_send.clear();
+            m_message_recv.clear();
+            sendMessage(sock);
+            recvMessage(sock);
+        }
     }
     catch(Poco::Exception &) {
         handleEvent(EV_ConnectionFailed);
@@ -132,13 +142,11 @@ void GameClient::networkLoop()
     }
     handleEvent(EV_Connected);
 
-    stream = new Poco::Net::SocketStream(*sock);
     while(!m_end_flag) {
         size_t received = 0;
         try {
-            // todo:
-            // stream->write();
-            // stream->read();
+            sendMessage(sock);
+            recvMessage(sock);
         }
         catch(Poco::Exception &) {
             // おそらく connection time out
@@ -155,7 +163,6 @@ void GameClient::networkLoop()
 
     sock->shutdown();
 Cleanup:
-    delete stream;
     delete sock;
     m_end_flag = false;
 }

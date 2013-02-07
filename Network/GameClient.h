@@ -17,8 +17,6 @@ public:
     };
     typedef std::function<void (GameClient*, Event)> EventHandler;
     typedef std::function<void (const PMessage &)> MessageHandler;
-    typedef ist::raw_vector<PMessage> MessageCont;
-    typedef ist::raw_vector<char> MessageBuffer;
 
     static void initializeInstance();
     static void finalizeInstance();
@@ -45,8 +43,8 @@ public:
 private:
     void shutdown();
     void handleEvent(Event e);
-    void sendMessage();
-    void recvMessage();
+    bool sendMessage(Poco::Net::StreamSocket *stream);
+    bool recvMessage(Poco::Net::StreamSocket *stream);
     void networkLoop();
 
 private:
@@ -57,15 +55,16 @@ private:
     EventHandler m_handler;
     ist::Thread *m_thread;
 
+    PMessageBuffer m_message_buffer;
+
     ist::Mutex m_mutex_send;
-    MessageCont m_message_send;
-    MessageCont m_message_send_tmp;
-    MessageBuffer m_buffer_send;
+    PMessageCont m_message_send;
+    PMessageCont m_message_sending;
 
     ist::Mutex m_mutex_recv;
-    MessageCont m_message_recv;
-    MessageCont m_message_recv_tmp;
-    MessageBuffer m_buffer_recv;
+    PMessageCont m_message_recv;
+    PMessageCont m_message_receiving;
+    PMessageCont m_message_consuming;
 };
 
 } // namespace atomic

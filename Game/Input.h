@@ -81,7 +81,7 @@ struct RepHeader
 
 struct RepPlayer
 {
-    char name[32];
+    wchar_t name[16];
     uint32 equip;
     uint32 begin_frame;
     uint32 num_frame;

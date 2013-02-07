@@ -17,7 +17,7 @@ public:
     virtual IS_TypeID getTypeID() const;
 
     virtual void update();
-    virtual void addPlayer(uint32 pid, const char *name, uint32 equip);
+    virtual void addPlayer(uint32 pid, const name_t &name, uint32 equip);
     virtual void erasePlayer(uint32 pid);
     virtual void pushInput(uint32 pid, const InputState &is);
     virtual void pushLevelEditorCommand(const LevelEditorCommand &v);
@@ -71,7 +71,7 @@ void InputServerReplay::update()
     ++m_pos;
 }
 
-void InputServerReplay::addPlayer( uint32 id, const char *name, uint32 equip )
+void InputServerReplay::addPlayer( uint32 id, const name_t &name, uint32 equip )
 {
 }
 

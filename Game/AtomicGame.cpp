@@ -26,8 +26,9 @@ AtomicGame::AtomicGame()
 #endif // atomic_enable_sync_lock
     MessageRouter::initializeInstance();
 
+    wchar_t name[16] = L"test";
     m_input_server = CreateInputServerLocal();
-    m_input_server->addPlayer(0, "test", 0);
+    m_input_server->addPlayer(0, name, 0);
 
     m_world = istNew(World)();
     m_world->initialize();

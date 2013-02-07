@@ -16,7 +16,7 @@ public:
     virtual IS_TypeID getTypeID() const;
 
     virtual void update();
-    virtual void addPlayer(uint32 pid, const char *name, uint32 equip);
+    virtual void addPlayer(uint32 pid, const name_t &name, uint32 equip);
     virtual void erasePlayer(uint32 pid);
     virtual void pushInput(uint32 pid, const InputState &is);
     virtual void pushLevelEditorCommand(const LevelEditorCommand &v);
@@ -48,13 +48,13 @@ void InputServerLocal::update()
 {
 }
 
-void InputServerLocal::addPlayer( uint32 pid, const char *name, uint32 equip )
+void InputServerLocal::addPlayer( uint32 pid, const name_t &name, uint32 equip )
 {
     RepPlayer t;
     while(m_playes.size()<=pid) { m_playes.push_back(t); }
     while(m_inputs.size()<=pid) { m_inputs.push_back(InputCont()); }
 
-    strncpy(t.name, name, _countof(t.name));
+    wcsncpy(t.name, name, _countof(t.name));
     t.name[_countof(t.name)-1] = '\0';
     t.equip = equip;
     t.begin_frame = atomicGetGame() ? atomicGetFrame() : 0;
