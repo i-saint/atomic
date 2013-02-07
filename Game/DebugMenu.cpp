@@ -54,16 +54,16 @@ void DebugMenu::update()
         if(is.isButtonTriggered(1)) {
             m_root->handleEvent(ist::IParamNode::Event_Cancel);
         }
-        if(is.isDirectionTriggered(InputState::DIR_DOWN)) {
+        if(is.isDirectionTriggered(InputState::Dir_Down)) {
             m_root->handleEvent(ist::IParamNode::Event_Down);
         }
-        if(is.isDirectionTriggered(InputState::DIR_UP)) {
+        if(is.isDirectionTriggered(InputState::Dir_Up)) {
             m_root->handleEvent(ist::IParamNode::Event_Up);
         }
-        if(is.isDirectionTriggered(InputState::DIR_LEFT)) {
+        if(is.isDirectionTriggered(InputState::Dir_Left)) {
             m_root->handleEvent(ist::IParamNode::Event_Backward);
         }
-        if(is.isDirectionTriggered(InputState::DIR_RIGHT)) {
+        if(is.isDirectionTriggered(InputState::Dir_Right)) {
             m_root->handleEvent(ist::IParamNode::Event_Forward);
         }
     }

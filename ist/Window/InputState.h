@@ -1,5 +1,8 @@
-﻿#ifndef __ist_Application_InputState_h__
-#define __ist_Application_InputState_h__
+﻿#ifndef ist_Application_InputState_h
+#define ist_Application_InputState_h
+
+#include "ist/Math/Misc.h"
+
 namespace ist {
 
 enum KEY {
@@ -65,38 +68,40 @@ public:
 class istInterModule JoyState
 {
 private:
-    int m_x;
-    int m_y;
-    int m_z;
-    int m_r;
-    int m_u;
-    int m_v;
-    int m_pov;
-    int m_buttons;
+    int16 m_x;
+    int16 m_y;
+    int16 m_z;
+    int16 m_r;
+    int16 m_u;
+    int16 m_v;
+    int32 m_pov;
+    uint32 m_buttons;
 
 public:
     JoyState() { istMemset(this, 0, sizeof(*this)); }
-    int getX() const { return m_x; } // -32768 ～ 32767
-    int getY() const { return m_y; } // -32768 ～ 32767
-    int getZ() const { return m_z; } // -32768 ～ 32767
-    int getR() const { return m_r; } // -32768 ～ 32767
-    int getU() const { return m_u; } // -32768 ～ 32767
-    int getV() const { return m_v; } // -32768 ～ 32767
-    int getRoV() const { return m_pov; } // 0 ～ 35900, degree * 100
-    int getButtons() const { return m_buttons; }
+    int32 getX() const { return m_x; } // -32767 ～ 32767
+    int32 getY() const { return m_y; } // -32767 ～ 32767
+    int32 getZ() const { return m_z; } // -32767 ～ 32767
+    int32 getR() const { return m_r; } // -32767 ～ 32767
+    int32 getU() const { return m_u; } // -32767 ～ 32767
+    int32 getV() const { return m_v; } // -32767 ～ 32767
+    int32 getRoV() const { return m_pov; } // 0 ～ 35900, degree * 100
+    uint32 getButtons() const { return m_buttons; }
     bool isButtonPressed(int i) const { return (m_buttons & (1<<i))!=0; }
 
+#ifdef ist_env_Windows
     void setValue(const JOYINFOEX& v)
     {
-        m_x = v.dwXpos; m_x -= 32768;
-        m_y = v.dwYpos; m_y -= 32768;
-        m_z = v.dwZpos; m_z -= 32768;
-        m_r = v.dwRpos; m_r -= 32768;
-        m_u = v.dwUpos; m_u -= 32768;
-        m_v = v.dwVpos; m_v -= 32768;
+        m_x = ist::clamp<int16>((int32)v.dwXpos - 32768, INT16_MIN+1, INT16_MAX);
+        m_y = ist::clamp<int16>((int32)v.dwYpos - 32768, INT16_MIN+1, INT16_MAX);
+        m_z = ist::clamp<int16>((int32)v.dwZpos - 32768, INT16_MIN+1, INT16_MAX);
+        m_r = ist::clamp<int16>((int32)v.dwRpos - 32768, INT16_MIN+1, INT16_MAX);
+        m_u = ist::clamp<int16>((int32)v.dwUpos - 32768, INT16_MIN+1, INT16_MAX);
+        m_v = ist::clamp<int16>((int32)v.dwVpos - 32768, INT16_MIN+1, INT16_MAX);
         m_pov = v.dwPOV;
         m_buttons = v.dwButtons;
     }
+#endif // ist_env_Windows
 };
 
 
@@ -117,4 +122,4 @@ public:
 };
 
 } // namspace ist
-#endif // __ist_Application_InputState_h__
+#endif // ist_Application_InputState_h

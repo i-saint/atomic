@@ -52,9 +52,7 @@ void InputServerReplay::update()
         if(m_pos>=pl.begin_frame && m_pos<pl.begin_frame+pl.num_frame) {
             InputCont &inp = m_inputs[i];
             RepInput &rd = inp[m_pos-pl.begin_frame];
-            m_is[pid].copyToBack();
-            m_is[pid].setMove(rd.move);
-            m_is[pid].setButtons(rd.buttons);
+            m_is[pid].update(rd.move, rd.buttons);
             ++pid;
         }
         else if(m_pos==pl.begin_frame+pl.num_frame) {

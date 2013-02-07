@@ -17,10 +17,10 @@ int main()
     sock->setSendTimeout(Poco::Timespan(3, 0));
 
     for(;;) {
-            char message[8];
-            sock->sendBytes("ping", 5);
-            sock->sendBytes("ping", 5);
-            sock->receiveBytes(message, 5);
-            printf("%s\n", message);
+        char message[8];
+        sock->sendBytes("ping", 5);
+        sock->sendBytes("ping", 5);
+        sock->receiveBytes(message, 5);
+        printf("%s\n", message);
     }
 }

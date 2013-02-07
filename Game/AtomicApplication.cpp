@@ -295,7 +295,7 @@ void AtomicApplication::updateInput()
 {
     super::updateInput();
 
-    vec2 move = vec2(0.0f);
+    InputState::move_t move;
     int buttons = getJoyState().getButtons();
 
     const ist::MouseState &mouse = getMouseState();
@@ -308,22 +308,19 @@ void AtomicApplication::updateInput()
     if(kb.isKeyPressed('X')){ buttons = buttons |= 1<<1; }
     if(kb.isKeyPressed('C')){ buttons = buttons |= 1<<2; }
     if(kb.isKeyPressed('V')){ buttons = buttons |= 1<<3; }
-    if(kb.isKeyPressed(ist::KEY_RIGHT)  || kb.isKeyPressed('D')){ move.x = 1.0f; }
-    if(kb.isKeyPressed(ist::KEY_LEFT)   || kb.isKeyPressed('A')){ move.x =-1.0f; }
-    if(kb.isKeyPressed(ist::KEY_UP)     || kb.isKeyPressed('W')){ move.y = 1.0f; }
-    if(kb.isKeyPressed(ist::KEY_DOWN)   || kb.isKeyPressed('S')){ move.y =-1.0f; }
+    if(kb.isKeyPressed(ist::KEY_RIGHT)  || kb.isKeyPressed('D')){ move.x = INT16_MAX; }
+    if(kb.isKeyPressed(ist::KEY_LEFT)   || kb.isKeyPressed('A')){ move.x =-INT16_MAX; } // INT16_MIN じゃないのは意図的
+    if(kb.isKeyPressed(ist::KEY_UP)     || kb.isKeyPressed('W')){ move.y = INT16_MAX; }
+    if(kb.isKeyPressed(ist::KEY_DOWN)   || kb.isKeyPressed('S')){ move.y =-INT16_MAX; }
     if(kb.isKeyTriggered(ist::KEY_F1)) {
         m_config.posteffect_antialias = !m_config.posteffect_antialias;
     }
 
     {
-        vec2 jpos = vec2((float)getJoyState().getX(), -(float)getJoyState().getY());
-        jpos /= 32768.0f;
-        if(glm::length(jpos)>0.4f) { move=jpos; }
+        InputState::move_t jpos(getJoyState().getX(), -getJoyState().getY());
+        if(glm::length(jpos.toF())>0.4f) { move=jpos; }
     }
-    m_inputs.copyToBack();
-    m_inputs.setMove(move);
-    m_inputs.setButtons(buttons);
+    m_inputs.update(move, buttons);
 }
 
 bool AtomicApplication::handleWindowMessage(const ist::WindowMessage& wm)

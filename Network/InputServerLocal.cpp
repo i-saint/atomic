@@ -71,14 +71,12 @@ void InputServerLocal::pushInput(uint32 pid, const InputState &is)
     if(pid >= m_playes.size()) { istAssert(false); }
 
     RepInput rd;
-    rd.move = is.getMove();
+    rd.move = is.getRawMove();
     rd.buttons = is.getButtons();
     m_inputs[pid].push_back(rd);
     m_playes[pid].num_frame = m_inputs[pid].size();
 
-    m_is.copyToBack();
-    m_is.setMove(rd.move);
-    m_is.setButtons(rd.buttons);
+    m_is.update(rd.move, rd.buttons);
 }
 
 void InputServerLocal::pushLevelEditorCommand( const LevelEditorCommand &v )
