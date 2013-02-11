@@ -61,7 +61,7 @@ public:
     CollisionSet*   getCollisionSet()   { return m_collision_set; }
     SPHManager*    getFractionSet()    { return m_sph; }
 
-    void jsonizeEntities(JsonizeEntitiesContext &ctx);
+    void handleEntitiesQuery(EntitiesQueryContext &ctx);
 };
 
 

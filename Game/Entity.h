@@ -122,7 +122,7 @@ public:
     template<class T> IEntity* createEntity();
 
 
-    void jsonizeEntities(JsonizeEntitiesContext &ctx);
+    void handleEntitiesQuery(EntitiesQueryContext &ctx);
 };
 
 } // namespace atomic

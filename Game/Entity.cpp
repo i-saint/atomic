@@ -198,7 +198,7 @@ void EntitySet::deleteEntity( EntityHandle h )
     vacants.push_back(h);
 }
 
-void EntitySet::jsonizeEntities( JsonizeEntitiesContext &ctx )
+void EntitySet::handleEntitiesQuery( EntitiesQueryContext &ctx )
 {
     uint32 num_entities = m_all.size();
     for(uint32 i=0; i<num_entities; ++i) {
@@ -207,18 +207,16 @@ void EntitySet::jsonizeEntities( JsonizeEntitiesContext &ctx )
         if(entity) {
             variant var;
             if(!entity->query(FID_getCollisionHandle, var)) { continue; }
-            JsonizeEntitiesContext::Record rec;
             CollisionHandle ch = var.cast<CollisionHandle>();
             CollisionEntity *ce = atomicGetCollision(ch);
             if(ce) {
                 const BoundingBox &bb = ce->bb;
                 vec4 bb_size = bb.ur - bb.bl;
                 vec4 bb_pos = (bb.ur + bb.bl) * 0.5f;
-                rec.id = entity->getHandle();
-                rec.type = EntityGetCategory(entity->getHandle());
-                rec.size = vec2(bb_size);
-                rec.pos = vec2(bb_pos);
-                ctx.entities.push_back(rec);
+                ctx.id.push_back( entity->getHandle() );
+                ctx.type.push_back( EntityGetCategory(entity->getHandle()) );
+                ctx.size.push_back( vec2(bb_size) );
+                ctx.pos.push_back( vec2(bb_pos) );
             }
         }
     }

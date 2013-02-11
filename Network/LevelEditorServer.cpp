@@ -155,13 +155,17 @@ public:
         if(request.getURI() == "/state/entities") {
             q.type = LEQ_Entities;
             LevelEditorServer::getInstance()->pushQuery(q);
-            while(!q.completed) {
+            while(!q.completed && !LevelEditorServer::getInstance()->endFlag()) {
                 ist::Thread::milliSleep(10);
             }
         }
 
         response.setChunkedTransferEncoding(true);
+#ifdef atomic_enable_BinaryEntityData
+        response.setContentType("application/octet-stream");
+#else // atomic_enable_BinaryEntityData
         response.setContentType("application/json");
+#endif // atomic_enable_BinaryEntityData
         std::ostream &ostr = response.send();
         ostr << q.response;
     }
@@ -231,7 +235,7 @@ LevelEditorServerConfig::LevelEditorServerConfig()
 
 LevelEditorServer::LevelEditorServer()
     : m_server(NULL)
-    , m_accept_request(true)
+    , m_end_flag(false)
 {
     m_rand.initialize(0);
     m_commands.reserve(128);
@@ -264,7 +268,7 @@ void LevelEditorServer::start()
 void LevelEditorServer::stop()
 {
     if(m_server) {
-        m_accept_request = false;
+        m_end_flag = true;
         m_server->stopAll(false);
         clearQuery();
         while(m_server->currentConnections()>0 || m_server->currentThreads()>0) {
@@ -308,14 +312,14 @@ void LevelEditorServer::handleQueries( const QueryProcessor &proc )
 
 void LevelEditorServer::pushCommand( const LevelEditorCommand &cmd )
 {
-    if(!m_accept_request) { return; }
+    if(m_end_flag) { return; }
     ist::Mutex::ScopedLock lock(m_mutex_commands);
     m_commands.push_back(cmd);
 }
 
 void LevelEditorServer::pushQuery( LevelEditorQuery &q )
 {
-    if(!m_accept_request) { return; }
+    if(m_end_flag) { return; }
     ist::Mutex::ScopedLock lock(m_mutex_queries);
     m_queries.push_back(&q);
 }

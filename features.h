@@ -12,6 +12,7 @@
 #define atomic_enable_LevelEditorServer
 #define atomic_enable_GameServer
 #define atomic_enable_GameClient
+//#define atomic_enable_BinaryEntityData
 
 #ifdef ist_env_Master
 #else // ist_env_Master

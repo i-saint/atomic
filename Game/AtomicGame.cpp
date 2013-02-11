@@ -196,42 +196,64 @@ void AtomicGame::handleLevelEditorCommands( const LevelEditorCommand &c )
 void AtomicGame::handleLevelEditorQueries( LevelEditorQuery &cmd )
 {
     if(cmd.type==LEQ_Entities) {
-        jsonizeEntities(cmd.response);
+        handleEntitiesQuery(cmd.response);
     }
 }
 
-void AtomicGame::jsonizeEntities( std::string &out )
+void AtomicGame::handleEntitiesQuery( std::string &out )
 {
-    m_ctx_jsonize_entities.entities.clear();
-    m_world->jsonizeEntities(m_ctx_jsonize_entities);
+    m_ctx_entities_query.clear();
+    m_world->handleEntitiesQuery(m_ctx_entities_query);
+
+#ifdef atomic_enable_BinaryEntityData
+
+    uint32 num_entities = m_ctx_entities_query.id.size();
+    out.resize(sizeof(uint32)+m_ctx_entities_query.sizeByte());
+    *(uint32*)(&out[0]) = m_ctx_entities_query.id.size();
+
+    uint32 wpos = sizeof(uint32);
+    memcpy(&out[wpos], &m_ctx_entities_query.id[0], sizeof(uint32)*num_entities);
+    wpos += sizeof(uint32)*num_entities;
+    memcpy(&out[wpos], &m_ctx_entities_query.type[0], sizeof(uint32)*num_entities);
+    wpos += sizeof(uint32)*num_entities;
+    memcpy(&out[wpos], &m_ctx_entities_query.size[0], sizeof(vec2)*num_entities);
+    wpos += sizeof(vec2)*num_entities;
+    memcpy(&out[wpos], &m_ctx_entities_query.pos[0], sizeof(vec2)*num_entities);
+    wpos += sizeof(vec2)*num_entities;
+
+#else // atomic_enable_BinaryEntityData
 
     char buf[64];
-    auto &entities = m_ctx_jsonize_entities.entities;
+    auto &ids = m_ctx_entities_query.id;
+    auto &types = m_ctx_entities_query.type;
+    auto &sizes = m_ctx_entities_query.size;
+    auto &positions = m_ctx_entities_query.pos;
     out += "{\"ids\":[";
-    for(size_t i=0; i<entities.size(); ++i) {
-        istSPrintf(buf, "%d,", entities[i].id);
+    for(size_t i=0; i<ids.size(); ++i) {
+        istSPrintf(buf, "%d,", ids[i]);
         out+=buf;
     }
     out.pop_back();
     out += "], \"types\":[";
-    for(size_t i=0; i<entities.size(); ++i) {
-        istSPrintf(buf, "%d,", entities[i].type);
+    for(size_t i=0; i<types.size(); ++i) {
+        istSPrintf(buf, "%d,", types[i]);
         out+=buf;
     }
     out.pop_back();
     out += "], \"sizes\":[";
-    for(size_t i=0; i<entities.size(); ++i) {
-        istSPrintf(buf, "%.2f,%.2f,", entities[i].size.x, entities[i].size.y);
+    for(size_t i=0; i<sizes.size(); ++i) {
+        istSPrintf(buf, "%.2f,%.2f,", sizes[i].x, sizes[i].y);
         out+=buf;
     }
     out.pop_back();
     out += "], \"positions\":[";
-    for(size_t i=0; i<entities.size(); ++i) {
-        istSPrintf(buf, "%.2f,%.2f,", entities[i].pos.x, entities[i].pos.y);
+    for(size_t i=0; i<positions.size(); ++i) {
+        istSPrintf(buf, "%.2f,%.2f,", positions[i].x, positions[i].y);
         out+=buf;
     }
     out.pop_back();
     out += "]}";
+#endif // atomic_enable_BinaryEntityData
 }
 
 } // namespace atomic

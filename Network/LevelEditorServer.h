@@ -52,6 +52,7 @@ private:
     void clearQuery();
 
     vec2 randomVec2();
+    bool endFlag() const { return m_end_flag; }
 
 private:
     typedef ist::vector<LevelEditorCommand> CommandCont;
@@ -61,7 +62,7 @@ private:
     Poco::Net::HTTPServer *m_server;
     LevelEditorServerConfig m_conf;
     SFMT m_rand;
-    bool m_accept_request;
+    bool m_end_flag;
 
     ist::Mutex m_mutex_commands;
     CommandCont m_commands;

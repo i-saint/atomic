@@ -46,6 +46,13 @@ var EntityClassColor = [
     [0.3, 0.3, 0.3, 0.5],
 ];
 
+var EntityClassColor2D = [
+    "#000000",
+    "#3333FF",
+    "#FF3333",
+    "#FFFF00",
+    "#444444",
+];
 var FieldX = 2.56;
 var FieldY = 2.56;
 
@@ -98,6 +105,26 @@ function updateEntities()
             entities = res.responseText.evalJSON();
         }
     });
+
+    // var ajax = new XMLHttpRequest();
+    // ajax.open("GET", "/state/entities", true);
+    // ajax.responseType = "arraybuffer";
+    // ajax.onload = function (ev) {
+    //     loading = false;
+    //     var buf = ajax.response;
+    //     var pos = 0;
+    //     var num = new Uint32Array(buf, pos, 1)[0];
+    //     pos += 4;
+    //     entities.ids = new Uint32Array(buf, pos, num);
+    //     pos += 4 * num;
+    //     entities.types = new Uint32Array(buf, pos, num);
+    //     pos += 4 * num;
+    //     entities.sizes = new Float32Array(buf, pos, num*2);
+    //     pos += 4 * 2 * num;
+    //     entities.positions = new Float32Array(buf, pos, num*2);
+    //     pos += 4 * 2 * num;
+    // };
+    // ajax.send(null);
 }
 
 function createShader(id)
@@ -144,15 +171,13 @@ function createShaderProgram(vsid, psid)
 }
 
 var requestDraw = (function() {
-    return window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame ||
-        function(callback, t) { setTimeout(callback, t); };
+    return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function(callback) { window.setTimeout(callback, delay); };
 })();
 
 
-function onLoad()
+
+function onLoadGL()
 {
-    clearInterval(FPSTimer);
-    clearInterval(EntitiesTimer);
     var c = document.getElementById("c");
     try {
         gl = c.getContext("experimental-webgl", { depth: false });
@@ -163,26 +188,6 @@ function onLoad()
         alert("WebGL is not supported on this browser.");
         return;
     }
-
-    document.onmousemove = function(evt) {
-        mouseX = evt.pageX / c.width;
-        mouseY = evt.pageY / c.height;
-    };
-
-    c.onclick = function(evt) {
-        mouseX = evt.pageX / c.width;
-        mouseY = 1.0 - (evt.pageY / c.height);
-        if(mouseX<=1.0 && mouseY<=1.0) {
-            var fx = FieldX * (mouseX-0.5)*2.0;
-            var fy = FieldY * (mouseY-0.5)*2.0;
-            postCommand("/command", {command:"create", pos:vec2_s(fx, fy)});
-        }
-    };
-
-
-    FPSTimer = setInterval(updateFPS, 1000);
-    EntitiesTimer = setInterval(updateEntities, 200);
-    time = new Date().getTime() - starttime;
 
     sh_simple = createShaderProgram("vs_simple", "ps_simple");
     sh_simple.ia_position = gl.getAttribLocation(sh_simple, "ia_position");
@@ -209,20 +214,10 @@ function onLoad()
     ib_quad_line = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib_quad_line);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, quad_line_indices, gl.STATIC_DRAW);
-
-
-    entities.ids = []
-    entities.types = []
-    entities.sizes = []
-    entities.positions = []
-
-    draw();
 }
 
-function draw()
+function drawGL()
 {
-    var t = (new Date().getTime() - starttime)*0.001;
-
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
@@ -248,6 +243,77 @@ function draw()
     }
     
     gl.flush();
+}
+
+
+function onLoad2D()
+{
+    var c = document.getElementById("c");
+}
+
+function draw2D()
+{
+    var c = document.getElementById("c");
+    var w = c.width;
+    var h = c.height;
+    var ctx = c.getContext("2d");
+    ctx.fillStyle="#000000";
+    ctx.fillRect(0, 0, w, h);
+
+    for(var i=0; i<entities.ids.length; ++i) {
+        var color = EntityClassColor2D[entities.types[i]];
+        var center_x = (entities.positions[i*2+0] / FieldX * 0.5 + 0.5) * w;
+        var center_y = (entities.positions[i*2+1] / FieldY *-0.5 + 0.5) * h;
+        var size_x = w * (entities.sizes[i*2+0] / FieldX * 0.25);
+        var size_y = h * (entities.sizes[i*2+1] / FieldY *-0.25);
+        ctx.globalAlpha = 0.3;
+        ctx.fillStyle = color;
+        ctx.fillRect(center_x-size_x,center_y-size_y, size_x*2,size_y*2);
+        ctx.rect(center_x-size_x,center_y-size_y, size_x*2,size_y*2);
+    }
+}
+
+
+function onLoad()
+{
+    clearInterval(FPSTimer);
+    clearInterval(EntitiesTimer);
+
+    FPSTimer = setInterval(updateFPS, 1000);
+    EntitiesTimer = setInterval(updateEntities, 200);
+    time = new Date().getTime() - starttime;
+
+    document.onmousemove = function(evt) {
+        mouseX = evt.pageX / c.width;
+        mouseY = evt.pageY / c.height;
+    };
+
+    c.onclick = function(evt) {
+        mouseX = evt.pageX / c.width;
+        mouseY = 1.0 - (evt.pageY / c.height);
+        if(mouseX<=1.0 && mouseY<=1.0) {
+            var fx = FieldX * (mouseX-0.5)*2.0;
+            var fy = FieldY * (mouseY-0.5)*2.0;
+            postCommand("/command", {command:"create", pos:vec2_s(fx, fy)});
+        }
+    };
+
+    entities.ids = [];
+    entities.types = [];
+    entities.sizes = [];
+    entities.positions = [];
+
+    //onLoadGL();
+    onLoad2D();
+    draw();
+}
+
+function draw()
+{
+    var t = (new Date().getTime() - starttime)*0.001;
+
+    //drawGL();
+    draw2D();
 
     frame++;
     setTimeout("requestDraw(draw)", delay);

@@ -121,9 +121,9 @@ void World::frameEnd()
     }
 }
 
-void World::jsonizeEntities( JsonizeEntitiesContext &ctx )
+void World::handleEntitiesQuery( EntitiesQueryContext &ctx )
 {
-    m_entity_set->jsonizeEntities(ctx);
+    m_entity_set->handleEntitiesQuery(ctx);
 }
 
 

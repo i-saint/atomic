@@ -103,16 +103,29 @@ public:
 };
 
 
-struct JsonizeEntitiesContext
+struct EntitiesQueryContext
 {
-    struct Record
+    ist::raw_vector<uint32> id;
+    ist::raw_vector<uint32> type;
+    ist::raw_vector<vec2>   size;
+    ist::raw_vector<vec2>   pos;
+
+    void clear()
     {
-        uint32 id;
-        uint32 type;
-        vec2 size;
-        vec2 pos;
-    };
-    stl::vector<Record> entities;
+        id.clear();
+        type.clear();
+        size.clear();
+        pos.clear();
+    }
+
+    size_t sizeByte() const
+    {
+        return
+            id.size()*sizeof(uint32) +
+            type.size()*sizeof(uint32) +
+            size.size()*sizeof(vec2) +
+            pos.size()*sizeof(vec2);
+    }
 };
 
 } // namespace atomic
