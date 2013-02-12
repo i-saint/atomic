@@ -7,18 +7,80 @@
 
 namespace atomic {
 
+
+bool InputServerCommon::save(const char *path)
+{
+    ist::GZFileStream gzf(path, "wb");
+    if(!gzf.isOpened()) { return false; }
+
+    m_header.random_seed = atomicGetRandom()->getSeed();
+    m_header.total_frame = atomicGetFrame();
+    m_header.num_players = m_players.size();
+    m_header.num_lecs = m_lecs.size();
+    gzf.write((char*)&m_header, sizeof(m_header));
+
+    if(!m_players.empty()) {
+        gzf.write((char*)&m_players[0], sizeof(RepPlayer)*m_players.size());
+    }
+    for(size_t i=0; i<m_inputs.size(); ++i) {
+        InputCont &inp = m_inputs[i];
+        if(!inp.empty()) {
+            gzf.write((char*)&inp[0], sizeof(RepInput)*inp.size());
+        }
+    }
+    if(!m_lecs.empty()) {
+        gzf.write((char*)&m_lecs[0], sizeof(LevelEditorCommand)*m_lecs.size());
+    }
+    return true;
+}
+
+bool InputServerCommon::load(const char *path)
+{
+    ist::GZFileStream gzf;
+    gzf.open(path, "rb");
+    if(!gzf.isOpened()) { return false; }
+
+    gzf.read((char*)&m_header, sizeof(m_header));
+    if(!m_header.isValid()) { return false; }
+
+    atomicGetRandom()->initialize(m_header.random_seed);
+    m_players.resize(m_header.num_players);
+    m_inputs.resize(m_header.num_players);
+    m_lecs.resize(m_header.num_lecs);
+    if(!m_players.empty()) {
+        gzf.read((char*)&m_players[0], sizeof(RepPlayer)*m_players.size());
+    }
+    for(size_t i=0; i<m_inputs.size(); ++i) {
+        InputCont &inp = m_inputs[i];
+        inp.resize(m_players[i].num_frame);
+        if(!inp.empty()) {
+            gzf.read((char*)&inp[0], sizeof(RepInput)*inp.size());
+        }
+    }
+    if(!m_lecs.empty()) {
+        gzf.read((char*)&m_lecs[0], sizeof(LevelEditorCommand)*m_lecs.size());
+    }
+
+    return true;
+}
+
+
+
+
 class InputServerLocal
     : public IInputServer
     , public InputServerCommon
 {
+typedef InputServerCommon impl;
 public:
     InputServerLocal();
     virtual IS_TypeID getTypeID() const;
 
     virtual void update();
-    virtual void addPlayer(uint32 pid, const name_t &name, uint32 equip);
-    virtual void erasePlayer(uint32 pid);
-    virtual void pushInput(uint32 pid, const InputState &is);
+    virtual bool sync() { return true; }
+    virtual void addPlayer(PlayerID pid, const PlayerName &name, uint32 equip);
+    virtual void erasePlayer(PlayerID pid);
+    virtual void pushInput(PlayerID pid, const InputState &is);
     virtual void pushLevelEditorCommand(const LevelEditorCommand &v);
     virtual void handlePMessage(const PMessage &v);
     virtual const InputState& getInput(uint32 pid) const;
@@ -29,11 +91,6 @@ public:
      virtual uint32 getPlayPosition() const { return 0; }
 
 private:
-    PlayerCont m_playes;
-    InputConts m_inputs;
-    LECCont m_lecs;
-
-    InputState m_is[atomic_MaxPlayerNum];
 };
 
 IInputServer* CreateInputServerLocal() { return istNew(InputServerLocal)(); }
@@ -49,10 +106,10 @@ void InputServerLocal::update()
 {
 }
 
-void InputServerLocal::addPlayer( uint32 pid, const name_t &name, uint32 equip )
+void InputServerLocal::addPlayer( PlayerID pid, const PlayerName &name, uint32 equip )
 {
     RepPlayer t;
-    while(m_playes.size()<=pid) { m_playes.push_back(t); }
+    while(m_players.size()<=pid) { m_players.push_back(t); }
     while(m_inputs.size()<=pid) { m_inputs.push_back(InputCont()); }
 
     wcsncpy(t.name, name, _countof(t.name));
@@ -60,22 +117,22 @@ void InputServerLocal::addPlayer( uint32 pid, const name_t &name, uint32 equip )
     t.equip = equip;
     t.begin_frame = atomicGetGame() ? atomicGetFrame() : 0;
     t.num_frame = 0;
-    m_playes[pid] = t;
+    m_players[pid] = t;
 }
 
-void InputServerLocal::erasePlayer( uint32 id )
+void InputServerLocal::erasePlayer( PlayerID id )
 {
 }
 
-void InputServerLocal::pushInput(uint32 pid, const InputState &is)
+void InputServerLocal::pushInput(PlayerID pid, const InputState &is)
 {
-    if(pid >= m_playes.size()) { istAssert(false); }
+    if(pid >= m_players.size()) { istAssert(false); }
 
     RepInput rd;
     rd.move = is.getRawMove();
     rd.buttons = is.getButtons();
     m_inputs[pid].push_back(rd);
-    m_playes[pid].num_frame = m_inputs[pid].size();
+    m_players[pid].num_frame = m_inputs[pid].size();
 
     m_is[0].update(rd.move, rd.buttons);
 }
@@ -100,29 +157,7 @@ const InputState& InputServerLocal::getInput(uint32 pid) const
 
 bool InputServerLocal::save(const char *path)
 {
-    ist::GZFileStream gzf(path, "wb");
-    if(!gzf.isOpened()) { return false; }
-
-    RepHeader header;
-    header.random_seed = atomicGetRandom()->getSeed();
-    header.total_frame = atomicGetFrame();
-    header.num_players = m_playes.size();
-    header.num_lecs = m_lecs.size();
-    gzf.write((char*)&header, sizeof(header));
-
-    if(!m_playes.empty()) {
-        gzf.write((char*)&m_playes[0], sizeof(RepPlayer)*m_playes.size());
-    }
-    for(size_t i=0; i<m_inputs.size(); ++i) {
-        InputCont &inp = m_inputs[i];
-        if(!inp.empty()) {
-            gzf.write((char*)&inp[0], sizeof(RepInput)*inp.size());
-        }
-    }
-    if(!m_lecs.empty()) {
-        gzf.write((char*)&m_lecs[0], sizeof(LevelEditorCommand)*m_lecs.size());
-    }
-    return true;
+    return impl::save(path);
 }
 
 } // namespace atomic

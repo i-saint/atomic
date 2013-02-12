@@ -12,14 +12,16 @@ class InputServerNetwork
     : public IInputServer
     , public InputServerCommon
 {
+typedef InputServerCommon impl;
 public:
     InputServerNetwork();
     virtual IS_TypeID getTypeID() const;
 
     virtual void update();
-    virtual void addPlayer(uint32 id, const name_t &name, uint32 equip);
-    virtual void erasePlayer(uint32 id);
-    virtual void pushInput(uint32 pid, const InputState &is);
+    virtual bool sync();
+    virtual void addPlayer(PlayerID id, const PlayerName &name, uint32 equip);
+    virtual void erasePlayer(PlayerID id);
+    virtual void pushInput(PlayerID pid, const InputState &is);
     virtual void pushLevelEditorCommand(const LevelEditorCommand &v);
     virtual void handlePMessage(const PMessage &v);
     virtual const InputState& getInput() const;
@@ -45,15 +47,20 @@ void InputServerNetwork::update()
 {
 }
 
-void InputServerNetwork::addPlayer( uint32 id, const name_t &name, uint32 equip )
+bool InputServerNetwork::sync()
+{
+    return true;
+}
+
+void InputServerNetwork::addPlayer( PlayerID id, const PlayerName &name, uint32 equip )
 {
 }
 
-void InputServerNetwork::erasePlayer( uint32 id )
+void InputServerNetwork::erasePlayer( PlayerID id )
 {
 }
 
-void InputServerNetwork::pushInput( uint32 pid, const InputState &is )
+void InputServerNetwork::pushInput( PlayerID pid, const InputState &is )
 {
     PMessage_Update mes;
     mes.frame = atomicGetFrame();
@@ -80,7 +87,7 @@ const InputState& InputServerNetwork::getInput() const
 
 bool InputServerNetwork::save( const char *path )
 {
-    return false;
+    return impl::save(path);
 }
 
 //IInputServer* CreateInputServerLocal() { return istNew(InputServerNetwork)(); }

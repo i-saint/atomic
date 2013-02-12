@@ -12,16 +12,18 @@ class InputServerReplay
     : public IInputServer
     , public InputServerCommon
 {
+typedef InputServerCommon impl;
 public:
     InputServerReplay();
     virtual IS_TypeID getTypeID() const;
 
     virtual void update();
-    virtual void addPlayer(uint32 pid, const name_t &name, uint32 equip);
-    virtual void erasePlayer(uint32 pid);
-    virtual void pushInput(uint32 pid, const InputState &is);
-    virtual void pushLevelEditorCommand(const LevelEditorCommand &v);
-    virtual void handlePMessage(const PMessage &v);
+    virtual bool sync() { return true; }
+    virtual void addPlayer(PlayerID pid, const PlayerName &name, uint32 equip) {}
+    virtual void erasePlayer(PlayerID pid) {}
+    virtual void pushInput(PlayerID pid, const InputState &is) {}
+    virtual void pushLevelEditorCommand(const LevelEditorCommand &v) {}
+    virtual void handlePMessage(const PMessage &v) {}
     virtual const InputState& getInput(uint32 pid) const;
 
     virtual bool save(const char *path) { return false; }
@@ -30,12 +32,6 @@ public:
     virtual uint32 getPlayPosition() const{ return m_pos; }
 
 private:
-    RepHeader m_header;
-    PlayerCont m_players;
-    InputConts m_inputs;
-    LECCont m_lecs;
-
-    InputState m_is[atomic_MaxPlayerNum];
     uint32 m_pos;
 };
 
@@ -72,26 +68,6 @@ void InputServerReplay::update()
     ++m_pos;
 }
 
-void InputServerReplay::addPlayer( uint32 id, const name_t &name, uint32 equip )
-{
-}
-
-void InputServerReplay::erasePlayer( uint32 id )
-{
-}
-
-void InputServerReplay::pushInput(uint32 pid, const InputState &is)
-{
-}
-
-void InputServerReplay::pushLevelEditorCommand( const LevelEditorCommand &v )
-{
-}
-
-void InputServerReplay::handlePMessage(const PMessage &v)
-{
-}
-
 const InputState& InputServerReplay::getInput(uint32 pid) const
 {
     return m_is[pid];
@@ -99,32 +75,7 @@ const InputState& InputServerReplay::getInput(uint32 pid) const
 
 bool InputServerReplay::load(const char *path)
 {
-    ist::GZFileStream gzf;
-    gzf.open(path, "rb");
-    if(!gzf.isOpened()) { return false; }
-
-    gzf.read((char*)&m_header, sizeof(m_header));
-    if(!m_header.isValid()) { return false; }
-
-    atomicGetRandom()->initialize(m_header.random_seed);
-    m_players.resize(m_header.num_players);
-    m_inputs.resize(m_header.num_players);
-    m_lecs.resize(m_header.num_lecs);
-    if(!m_players.empty()) {
-        gzf.read((char*)&m_players[0], sizeof(RepPlayer)*m_players.size());
-    }
-    for(size_t i=0; i<m_inputs.size(); ++i) {
-        InputCont &inp = m_inputs[i];
-        inp.resize(m_players[i].num_frame);
-        if(!inp.empty()) {
-            gzf.read((char*)&inp[0], sizeof(RepInput)*inp.size());
-        }
-    }
-    if(!m_lecs.empty()) {
-        gzf.read((char*)&m_lecs[0], sizeof(LevelEditorCommand)*m_lecs.size());
-    }
-
-    return true;
+    return impl::load(path);
 }
 
 } // namespace atomic

@@ -33,6 +33,7 @@ GameClient* GameClient::getInstance()
 GameClient::GameClient()
     : m_end_flag(false)
     , m_thread(NULL)
+    , m_pid(0)
 {
 }
 
@@ -65,6 +66,7 @@ void GameClient::shutdown()
         m_thread->join();
         delete m_thread;
     }
+    m_pid = 0;
 }
 
 void GameClient::handleEvent( Event e )

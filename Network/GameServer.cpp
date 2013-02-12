@@ -33,6 +33,7 @@ GameServer* GameServer::getInstance()
 GameServer::GameServer()
     : m_server(NULL)
     , m_message_thread(NULL)
+    , m_pidgen(0)
 {
 }
 
@@ -93,23 +94,34 @@ void GameServer::handleMessageCont( const PMessageCont &cont )
 
 void GameServer::addSession( GameServerSession *s )
 {
-    ist::Mutex::ScopedLock l(m_mutex);
+    ist::Mutex::ScopedLock l(m_mtx_sessions);
     m_sessions.push_back(s);
 }
 
 void GameServer::eraseSession( GameServerSession *s )
 {
-    ist::Mutex::ScopedLock l(m_mutex);
+    ist::Mutex::ScopedLock l(m_mtx_sessions);
     m_sessions.erase( std::find(m_sessions.begin(), m_sessions.end(), s) );
+}
+
+void GameServer::pushMessage( PMessage &mes )
+{
+    ist::Mutex::ScopedLock l(m_mtx_messages);
+    m_mes_pushed.push_back(mes);
 }
 
 void GameServer::recvMessage()
 {
     {
-        ist::Mutex::ScopedLock l(m_mutex);
+        ist::Mutex::ScopedLock l(m_mtx_sessions);
         for(size_t i=0; i<m_sessions.size(); ++i) {
-            m_sessions[i]->handleReceivedMessageCont(m_mes_receiver);
+            m_sessions[i]->handleReceivedMessageCont(m_receiver);
         }
+    }
+    {
+        ist::Mutex::ScopedLock l(m_mtx_messages);
+        m_mes_recved.insert(m_mes_recved.end(), m_mes_pushed.begin(), m_mes_pushed.end());
+        m_mes_pushed.clear();
     }
 
     for(size_t i=0; i<m_mes_recved.size(); ++i) {
@@ -120,7 +132,7 @@ void GameServer::recvMessage()
 void GameServer::sendMessage()
 {
     {
-        ist::Mutex::ScopedLock l(m_mutex);
+        ist::Mutex::ScopedLock l(m_mtx_sessions);
         for(size_t i=0; i<m_sessions.size(); ++i) {
             m_sessions[i]->pushMessage(m_mes_send);
         }
@@ -131,7 +143,7 @@ void GameServer::sendMessage()
 void GameServer::messageLoop()
 {
     ist::Thread::setNameToCurrentThread("GameServer::messageLoop()");
-    m_mes_receiver = std::bind(&GameServer::handleMessageCont, this, std::placeholders::_1);
+    m_receiver = std::bind(&GameServer::handleMessageCont, this, std::placeholders::_1);
 
     ist::Timer timer;
     while(m_server!=NULL) {
@@ -142,6 +154,11 @@ void GameServer::messageLoop()
             ist::Thread::milliSleep(5);
         }
     }
+}
+
+uint32 GameServer::cretaePID()
+{
+    return ++m_pidgen;
 }
 
 #endif // atomic_enable_GameServer

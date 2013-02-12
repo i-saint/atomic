@@ -27,7 +27,7 @@ AtomicGame::AtomicGame()
 #endif // atomic_enable_sync_lock
     MessageRouter::initializeInstance();
 
-    wchar_t name[16] = L"test";
+    PlayerName name = L"test";
     m_input_server = CreateInputServerLocal();
     m_input_server->addPlayer(0, name, 0);
 
@@ -40,7 +40,7 @@ AtomicGame::AtomicGame()
 
 AtomicGame::~AtomicGame()
 {
-    if(m_input_server->getTypeID()==IInputServer::IS_Local && atomicGetConfig()->output_replay)
+    if(atomicGetConfig()->output_replay)
     {
         char path[128];
         char date[128];
@@ -89,8 +89,9 @@ void AtomicGame::update(float32 dt)
     atomicLevelEditorHandleCommands( std::bind(&IInputServer::pushLevelEditorCommand, m_input_server, std::placeholders::_1));
     atomicLevelEditorHandleQueries( std::bind(&AtomicGame::handleLevelEditorQueries, this, std::placeholders::_1) );
     atomicGameClientHandleMessages( std::bind(&AtomicGame::handlePMessages, this, std::placeholders::_1) );
-    m_input_server->update();
-    if(!atomicGetConfig()->pause) {
+    if(!atomicGetConfig()->pause && m_input_server->sync() )
+    {
+        m_input_server->update();
         m_world->update(1.0f);
     }
 }

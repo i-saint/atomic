@@ -9,7 +9,6 @@ namespace atomic {
 class IInputServer
 {
 public:
-    typedef wchar_t (name_t)[16];
     enum IS_TypeID {
         IS_Local,
         IS_Replay,
@@ -20,12 +19,13 @@ public:
     virtual IS_TypeID getTypeID() const=0;
 
     virtual void update()=0;
-    virtual void addPlayer(uint32 pid, const name_t &name, uint32 equip)=0;
-    virtual void erasePlayer(uint32 pid)=0;
-    virtual void pushInput(uint32 pid, const InputState &v)=0;
+    virtual bool sync()=0;
+    virtual void addPlayer(PlayerID pid, const PlayerName &name, uint32 equip)=0;
+    virtual void erasePlayer(PlayerID pid)=0;
+    virtual void pushInput(PlayerID pid, const InputState &v)=0;
     virtual void pushLevelEditorCommand(const LevelEditorCommand &v)=0;
     virtual void handlePMessage(const PMessage &v)=0;
-    virtual const InputState& getInput(uint32 pid) const=0;
+    virtual const InputState& getInput(PlayerID pid) const=0;
 
     virtual bool save(const char *path)=0;
     virtual bool load(const char *path)=0;

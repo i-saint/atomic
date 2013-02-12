@@ -17,6 +17,54 @@ void PMessage::destroy()
 
 
 
+PMessage_Ping PMessage_Ping::create()
+{
+    PMessage_Ping t;
+    t.type = PM_Ping;
+    return t;
+}
+
+PMessage_Pong PMessage_Pong::create()
+{
+    PMessage_Pong t;
+    t.type = PM_Pong;
+    return t;
+}
+
+PMessage_Accepted PMessage_Accepted::create()
+{
+    PMessage_Accepted t;
+    t.type = PM_Accepted;
+    return t;
+}
+
+PMessage_Rejected PMessage_Rejected::create()
+{
+    PMessage_Rejected t;
+    t.type = PM_Rejected;
+    return t;
+}
+
+PMessage_Join PMessage_Join::create( PlayerID pid, const PlayerName &name )
+{
+    PMessage_Join t;
+    t.type = PM_Join;
+    t.pid = pid;
+    memcpy(t.name, name, sizeof(PlayerName));
+    return t;
+}
+
+
+PMessage_Leave PMessage_Leave::create( PlayerID pid )
+{
+    PMessage_Leave t;
+    t.type = PM_Leave;
+    t.pid = pid;
+    return t;
+}
+
+
+
 bool SendPMessages( Poco::Net::StreamSocket *stream, PMessageBuffer &buf, PMessageCont &messages )
 {
     buf.clear();

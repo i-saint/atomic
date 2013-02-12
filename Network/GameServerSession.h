@@ -18,11 +18,14 @@ class GameServerSession
     : public Poco::Net::TCPServerConnection
     , public PMessenger
 {
-    typedef Poco::Net::TCPServerConnection super;
+typedef Poco::Net::TCPServerConnection super;
 public:
     GameServerSession(const Poco::Net::StreamSocket &ss);
     virtual void run();
     void messageLoop();
+
+private:
+    uint32 m_pid;
 };
 
 #endif // atomic_enable_GameServer

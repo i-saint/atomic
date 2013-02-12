@@ -8,6 +8,7 @@ namespace atomic {
 
 GameServerSession::GameServerSession( const Poco::Net::StreamSocket &_ss )
     : super(_ss)
+    , m_pid(0)
 {
     Poco::Net::StreamSocket &ss = socket();
     ss.setNoDelay(true);
@@ -30,6 +31,7 @@ void GameServerSession::run()
 void GameServerSession::messageLoop()
 {
     ist::Thread::setNameToCurrentThread("GameServerSession::messageLoop()");
+    m_pid = atomicGameServerGet()->cretaePID();
 
     Poco::Net::StreamSocket *stream = &socket();
     ist::Timer timer;

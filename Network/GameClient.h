@@ -43,6 +43,8 @@ public:
     using super::sendMessage;
     using super::handleReceivedMessage;
 
+    PlayerID getPlayerID() const { return m_pid; }
+
 private:
     void shutdown();
     void handleEvent(Event e);
@@ -52,6 +54,7 @@ private:
     static GameClient *s_inst;
 
     bool m_end_flag;
+    PlayerID m_pid;
     Poco::Net::SocketAddress m_address;
     EventHandler m_handler;
     ist::Thread *m_thread;
@@ -62,6 +65,7 @@ private:
 #define atomicGameClientFinalize()          GameClient::finalizeInstance()
 #define atomicGameClientPushMessage(m)      GameClient::getInstance()->pushMessage(PMessageCast(m))
 #define atomicGameClientHandleMessages(h)   GameClient::getInstance()->handleReceivedMessage(h)
+#define atomicGameClientGetPlayerID()       GameClient::getInstance()->getPlayerID()
 
 #else // atomic_enable_GameClient
 
@@ -69,6 +73,7 @@ private:
 #define atomicGameClientFinalize()          
 #define atomicGameClientPushMessage(...)    
 #define atomicGameClientHandleMessages(...) 
+#define atomicGameClientGetPlayerID()       
 
 #endif // atomic_enable_GameClient
 

@@ -1,5 +1,8 @@
 ﻿#ifndef atomic_Game_Input_h
 #define atomic_Game_Input_h
+
+#include "types.h"
+
 namespace atomic {
 
 union LevelEditorCommand;
@@ -81,7 +84,7 @@ struct RepHeader
 
 struct RepPlayer
 {
-    wchar_t name[16];
+    PlayerName name;
     uint32 equip;
     uint32 begin_frame;
     uint32 num_frame;

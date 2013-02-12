@@ -1,6 +1,7 @@
 ﻿#ifndef atomic_Network_PMessage_h
 #define atomic_Network_PMessage_h
 #include "externals.h"
+#include "types.h"
 #include "Game/Input.h"
 
 namespace atomic {
@@ -16,6 +17,7 @@ struct PMesBufferHeader
 
 
 static const char PM_message_header[8] = "atomic\0";
+
 
 enum PM_Type
 {
@@ -66,7 +68,7 @@ struct istAlign(16) PMessage_Ping
     PM_Type type;
     uint8 padding[60];
 
-    PMessage_Ping() : type(PM_Ping) {}
+    static PMessage_Ping create();
 };
 PM_Ensure(PMessage_Ping);
 
@@ -77,23 +79,9 @@ struct istAlign(16) PMessage_Pong
     PM_Type type;
     uint8 padding[60];
 
-    PMessage_Pong() : type(PM_Pong) {}
+    static PMessage_Pong create();
 };
 PM_Ensure(PMessage_Pong);
-
-
-
-// client -> server
-struct istAlign(16) PMessage_Join
-{
-    PM_Type type;
-    uint32 equip;
-    wchar_t name[16];
-    uint8 padding[24];
-
-    PMessage_Join() : type(PM_Join) {}
-};
-PM_Ensure(PMessage_Join);
 
 
 // client <- server
@@ -103,7 +91,7 @@ struct istAlign(16) PMessage_Accepted
     uint32 player_id;
     uint8 padding[56];
 
-    PMessage_Accepted() : type(PM_Accepted), player_id(0) {}
+    static PMessage_Accepted create();
 };
 PM_Ensure(PMessage_Accepted);
 
@@ -114,9 +102,22 @@ struct istAlign(16) PMessage_Rejected
     PM_Type type;
     uint8 padding[60];
 
-    PMessage_Rejected() : type(PM_Rejected) {}
+    static PMessage_Rejected create();
 };
 PM_Ensure(PMessage_Rejected);
+
+
+// client -> server
+struct istAlign(16) PMessage_Join
+{
+    PM_Type type;
+    PlayerID pid;
+    wchar_t name[16];
+    uint8 padding[24];
+
+    static PMessage_Join create(PlayerID pid, const PlayerName &name);
+};
+PM_Ensure(PMessage_Join);
 
 
 // client -> server
@@ -124,9 +125,10 @@ PM_Ensure(PMessage_Rejected);
 struct istAlign(16) PMessage_Leave
 {
     PM_Type type;
-    uint8 padding[60];
+    PlayerID pid;
+    uint8 padding[56];
 
-    PMessage_Leave() : type(PM_Leave) {}
+    static PMessage_Leave create(PlayerID pid);
 };
 PM_Ensure(PMessage_Leave);
 

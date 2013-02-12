@@ -32,22 +32,27 @@ private:
     void handleMessageCont(const PMessageCont &cont);
     void addSession(GameServerSession *s);
     void eraseSession(GameServerSession *s);
+    void pushMessage(PMessage &mes);
     void recvMessage();
     void sendMessage();
 
     void messageLoop();
 
+    uint32 cretaePID();
 
 private:
     typedef ist::vector<GameServerSession*> SessionCont;
     static GameServer *s_inst;
     Poco::Net::TCPServer *m_server;
     ist::Thread *m_message_thread;
+    atomic_int32 m_pidgen;
 
-    ist::Mutex m_mutex;
+    ist::Mutex m_mtx_sessions;
     SessionCont m_sessions;
 
-    PMessenger::MessageContHandler m_mes_receiver;
+    ist::Mutex m_mtx_messages;
+    PMessenger::MessageContHandler m_receiver;
+    PMessageCont m_mes_pushed;
     PMessageCont m_mes_recved;
     PMessageCont m_mes_send;
 };

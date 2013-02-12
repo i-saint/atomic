@@ -13,7 +13,16 @@ public:
     typedef ist::vector<InputCont> InputConts;
     typedef ist::vector<LevelEditorCommand> LECCont;
 
+protected:
     bool save(const char *path);
+    bool load(const char *path);
+
+protected:
+    RepHeader m_header;
+    PlayerCont m_players;
+    InputConts m_inputs;
+    LECCont m_lecs;
+    InputState m_is[atomic_MaxPlayerNum];
 };
 
 } // namespace atomic

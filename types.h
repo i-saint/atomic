@@ -38,6 +38,7 @@ using ist::simdmat4;
 using ist::soavec24;
 using ist::soavec34;
 using ist::soavec44;
+using ist::atomic_int32;
 
 typedef ist::IBinaryStream Serializer;
 typedef ist::IBinaryStream Deserializer;
@@ -61,6 +62,10 @@ using namespace ist::i3dgl;
 typedef uint32 EntityHandle;
 typedef uint32 CollisionHandle;
 enum FunctionID;
+
+typedef uint32 PlayerID;
+typedef wchar_t (PlayerName)[16];
+
 
 enum ATOMIC_ERROR {
     ATERR_NOERROR,
