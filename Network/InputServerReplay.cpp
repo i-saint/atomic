@@ -21,7 +21,8 @@ public:
     virtual void erasePlayer(uint32 pid);
     virtual void pushInput(uint32 pid, const InputState &is);
     virtual void pushLevelEditorCommand(const LevelEditorCommand &v);
-    virtual const InputState* getInput(uint32 pid) const;
+    virtual void handlePMessage(const PMessage &v);
+    virtual const InputState& getInput(uint32 pid) const;
 
     virtual bool save(const char *path) { return false; }
     virtual bool load(const char *path);
@@ -87,9 +88,13 @@ void InputServerReplay::pushLevelEditorCommand( const LevelEditorCommand &v )
 {
 }
 
-const InputState* InputServerReplay::getInput(uint32 pid) const
+void InputServerReplay::handlePMessage(const PMessage &v)
 {
-    return &m_is[pid];
+}
+
+const InputState& InputServerReplay::getInput(uint32 pid) const
+{
+    return m_is[pid];
 }
 
 bool InputServerReplay::load(const char *path)

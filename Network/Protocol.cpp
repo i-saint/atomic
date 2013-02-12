@@ -77,13 +77,13 @@ PMessenger::~PMessenger()
     clearAllMessage();
 }
 
-void PMessenger::queueMessage( const PMessage &p )
+void PMessenger::pushMessage( const PMessage &p )
 {
     ist::Mutex::ScopedLock lock(m_mutex_send);
     m_message_send.push_back(p);
 }
 
-void PMessenger::queueMessage( const PMessage *p, size_t num )
+void PMessenger::pushMessage( const PMessage *p, size_t num )
 {
     ist::Mutex::ScopedLock lock(m_mutex_send);
     m_message_send.insert(m_message_send.end(), p, p+num);

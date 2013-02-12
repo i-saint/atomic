@@ -10,6 +10,7 @@
 #include "Util.h"
 #include "Game/Entity.h"
 #include "Game/EntityQuery.h"
+#include "Network/GameCLient.h"
 
 #include "Collision.h"
 #include "Entity/Routine.h"
@@ -87,6 +88,7 @@ void AtomicGame::update(float32 dt)
 
     atomicLevelEditorHandleCommands( std::bind(&IInputServer::pushLevelEditorCommand, m_input_server, std::placeholders::_1));
     atomicLevelEditorHandleQueries( std::bind(&AtomicGame::handleLevelEditorQueries, this, std::placeholders::_1) );
+    atomicGameClientHandleMessages( std::bind(&AtomicGame::handlePMessages, this, std::placeholders::_1) );
     m_input_server->update();
     if(!atomicGetConfig()->pause) {
         m_world->update(1.0f);
@@ -254,6 +256,11 @@ void AtomicGame::handleEntitiesQuery( std::string &out )
     out.pop_back();
     out += "]}";
 #endif // atomic_enable_BinaryEntityData
+}
+
+void AtomicGame::handlePMessages( const PMessage &mes )
+{
+
 }
 
 } // namespace atomic

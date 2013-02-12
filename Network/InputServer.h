@@ -2,6 +2,7 @@
 #define atomic_Network_InputServer_h
 
 #include "Game/Input.h"
+#include "Protocol.h"
 
 namespace atomic {
 
@@ -23,7 +24,8 @@ public:
     virtual void erasePlayer(uint32 pid)=0;
     virtual void pushInput(uint32 pid, const InputState &v)=0;
     virtual void pushLevelEditorCommand(const LevelEditorCommand &v)=0;
-    virtual const InputState* getInput(uint32 pid) const=0;
+    virtual void handlePMessage(const PMessage &v)=0;
+    virtual const InputState& getInput(uint32 pid) const=0;
 
     virtual bool save(const char *path)=0;
     virtual bool load(const char *path)=0;

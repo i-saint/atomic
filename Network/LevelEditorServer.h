@@ -38,10 +38,10 @@ public:
     void stop();
     void restart();
 
-    typedef std::function<void (const LevelEditorCommand&)> CommandProcessor;
-    typedef std::function<void (LevelEditorQuery&)> QueryProcessor;
-    void handleCommands(const CommandProcessor &proc);
-    void handleQueries(const QueryProcessor &proc);
+    typedef std::function<void (const LevelEditorCommand&)> CommandHandler;
+    typedef std::function<void (LevelEditorQuery&)> QueryHandler;
+    void handleCommands(const CommandHandler &h);
+    void handleQueries(const QueryHandler &h);
 
 
 private:

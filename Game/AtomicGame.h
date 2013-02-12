@@ -5,6 +5,7 @@
 #include "Game/DebugMenu.h"
 #include "Network/LevelEditorServer.h"
 #include "Network/InputServer.h"
+#include "Network/Protocol.h"
 
 
 namespace atomic {
@@ -32,11 +33,12 @@ public:
 
     void handleLevelEditorCommands(const LevelEditorCommand &cmd);
     void handleLevelEditorQueries(LevelEditorQuery &cmd);
+    void handlePMessages(const PMessage &mes);
     int handleCommandLine(const stl::wstring &command);
 
     void handleEntitiesQuery(std::string &out);
 
-    const InputState* getIngameInputs() const { return m_input_server->getInput(0); }
+    const InputState& getIngameInputs() const { return m_input_server->getInput(0); }
     World* getWorld()   { return m_world; }
     SFMT* getRandom();
 

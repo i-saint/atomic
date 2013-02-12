@@ -58,13 +58,17 @@ private:
 };
 
 
-#define atomicGameClientInitialize()    GameClient::initializeInstance()
-#define atomicGameClientFinalize()      GameClient::finalizeInstance()
+#define atomicGameClientInitialize()        GameClient::initializeInstance()
+#define atomicGameClientFinalize()          GameClient::finalizeInstance()
+#define atomicGameClientPushMessage(m)      GameClient::getInstance()->pushMessage(PMessageCast(m))
+#define atomicGameClientHandleMessages(h)   GameClient::getInstance()->handleReceivedMessage(h)
 
 #else // atomic_enable_GameClient
 
-#define atomicGameClientInitialize()    
-#define atomicGameClientFinalize()      
+#define atomicGameClientInitialize()        
+#define atomicGameClientFinalize()          
+#define atomicGameClientPushMessage(...)    
+#define atomicGameClientHandleMessages(...) 
 
 #endif // atomic_enable_GameClient
 

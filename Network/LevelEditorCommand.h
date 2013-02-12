@@ -37,7 +37,7 @@ union istAlign(16) LevelEditorCommand
         std::fill_n(dummy, _countof(dummy), 0);
     }
 };
-#define LEC_Ensure(T) BOOST_STATIC_ASSERT(sizeof(T)<=sizeof(LevelEditorCommand))
+#define LEC_Ensure(T) BOOST_STATIC_ASSERT(sizeof(T)==sizeof(LevelEditorCommand))
 
 
 struct istAlign(16) LevelEditorCommand_Create

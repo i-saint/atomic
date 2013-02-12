@@ -12,6 +12,8 @@ public:
     typedef ist::vector<RepInput> InputCont;
     typedef ist::vector<InputCont> InputConts;
     typedef ist::vector<LevelEditorCommand> LECCont;
+
+    bool save(const char *path);
 };
 
 } // namespace atomic

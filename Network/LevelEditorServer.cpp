@@ -285,7 +285,7 @@ void LevelEditorServer::restart()
     start();
 }
 
-void LevelEditorServer::handleCommands( const CommandProcessor &proc )
+void LevelEditorServer::handleCommands( const CommandHandler &h )
 {
     {
         ist::Mutex::ScopedLock lock(m_mutex_commands);
@@ -293,17 +293,17 @@ void LevelEditorServer::handleCommands( const CommandProcessor &proc )
         m_commands.clear();
     }
     for(size_t i=0; i<m_commands_tmp.size(); ++i) {
-        proc(m_commands_tmp[i]);
+        h(m_commands_tmp[i]);
     }
     m_commands_tmp.clear();
 }
 
-void LevelEditorServer::handleQueries( const QueryProcessor &proc )
+void LevelEditorServer::handleQueries( const QueryHandler &h )
 {
     {
         ist::Mutex::ScopedLock lock(m_mutex_queries);
         for(size_t i=0; i<m_queries.size(); ++i) {
-            proc(*m_queries[i]);
+            h(*m_queries[i]);
             m_queries[i]->completed = true;
         }
         m_queries.clear();

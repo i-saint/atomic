@@ -38,7 +38,7 @@ union istAlign(16) PMessage
     struct {
         PM_Type type;
     };
-    uint8 dummy[64];
+    uint8 padding[64];
 
     PMessage() : type(PM_Unknown) {}
     void destroy(); // デストラクタ代わり。可変長系メッセージのメモリの開放はこれで行う
@@ -50,14 +50,21 @@ bool SendPMessages(Poco::Net::StreamSocket *stream, PMessageBuffer &buf, PMessag
 bool RecvPMessages(Poco::Net::StreamSocket *stream, PMessageBuffer &buf, PMessageCont &messages);
 void DestructMessages(PMessageCont &messages);
 
+#define PM_Ensure(T) BOOST_STATIC_ASSERT(sizeof(T)==sizeof(PMessage))
 
-#define PM_Ensure(T) BOOST_STATIC_ASSERT(sizeof(T)<=sizeof(PMessage))
+template<class T>
+const PMessage& PMessageCast(const T &mes)
+{
+    PM_Ensure(T);
+    return reinterpret_cast<const PMessage&>(mes);
+}
 
 
 // client -> server
 struct istAlign(16) PMessage_Ping
 {
     PM_Type type;
+    uint8 padding[60];
 
     PMessage_Ping() : type(PM_Ping) {}
 };
@@ -68,6 +75,7 @@ PM_Ensure(PMessage_Ping);
 struct istAlign(16) PMessage_Pong
 {
     PM_Type type;
+    uint8 padding[60];
 
     PMessage_Pong() : type(PM_Pong) {}
 };
@@ -81,6 +89,7 @@ struct istAlign(16) PMessage_Join
     PM_Type type;
     uint32 equip;
     wchar_t name[16];
+    uint8 padding[24];
 
     PMessage_Join() : type(PM_Join) {}
 };
@@ -92,6 +101,7 @@ struct istAlign(16) PMessage_Accepted
 {
     PM_Type type;
     uint32 player_id;
+    uint8 padding[56];
 
     PMessage_Accepted() : type(PM_Accepted), player_id(0) {}
 };
@@ -102,6 +112,7 @@ PM_Ensure(PMessage_Accepted);
 struct istAlign(16) PMessage_Rejected
 {
     PM_Type type;
+    uint8 padding[60];
 
     PMessage_Rejected() : type(PM_Rejected) {}
 };
@@ -113,6 +124,7 @@ PM_Ensure(PMessage_Rejected);
 struct istAlign(16) PMessage_Leave
 {
     PM_Type type;
+    uint8 padding[60];
 
     PMessage_Leave() : type(PM_Leave) {}
 };
@@ -123,6 +135,7 @@ PM_Ensure(PMessage_Leave);
 struct istAlign(16) PMessage_GameStart
 {
     PM_Type type;
+    uint8 padding[60];
 
     PMessage_GameStart() : type(PM_GameStart) {}
 };
@@ -132,6 +145,7 @@ PM_Ensure(PMessage_GameStart);
 struct istAlign(16) PMessage_GameEnd
 {
     PM_Type type;
+    uint8 padding[60];
 
     PMessage_GameEnd() : type(PM_GameEnd) {}
 };
@@ -145,8 +159,9 @@ struct istAlign(16) PMessage_Update
     PM_Type type;
     uint32 player_id;
     uint32 frame;
-    float32 life;
+    uint32 sync_mark;
     RepInput input;
+    uint8 padding[40];
 
     PMessage_Update() : type(PM_Update) {}
 };
@@ -173,6 +188,7 @@ struct istAlign(16) PMessage_Sync
     PM_Type type;
     uint32 data_size;
     void *data;
+    uint8 padding[52];
 
     PMessage_Sync() : type(PM_Sync), data_size(0), data(NULL) {}
 };
@@ -188,8 +204,8 @@ public:
     typedef std::function<void (const PMessage &)> MessageHandler;
 
     virtual ~PMessenger();
-    void queueMessage(const PMessage &p);
-    void queueMessage(const PMessage *p, size_t num);
+    void pushMessage(const PMessage &p);
+    void pushMessage(const PMessage *p, size_t num);
     void handleReceivedMessage(const MessageHandler &h);
 
 protected:

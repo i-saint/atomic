@@ -20,7 +20,8 @@ public:
     virtual void erasePlayer(uint32 pid);
     virtual void pushInput(uint32 pid, const InputState &is);
     virtual void pushLevelEditorCommand(const LevelEditorCommand &v);
-    virtual const InputState* getInput(uint32 pid) const;
+    virtual void handlePMessage(const PMessage &v);
+    virtual const InputState& getInput(uint32 pid) const;
 
      virtual bool save(const char *path);
      virtual bool load(const char *path) { return false; }
@@ -32,7 +33,7 @@ private:
     InputConts m_inputs;
     LECCont m_lecs;
 
-    InputState m_is;
+    InputState m_is[atomic_MaxPlayerNum];
 };
 
 IInputServer* CreateInputServerLocal() { return istNew(InputServerLocal)(); }
@@ -76,7 +77,7 @@ void InputServerLocal::pushInput(uint32 pid, const InputState &is)
     m_inputs[pid].push_back(rd);
     m_playes[pid].num_frame = m_inputs[pid].size();
 
-    m_is.update(rd.move, rd.buttons);
+    m_is[0].update(rd.move, rd.buttons);
 }
 
 void InputServerLocal::pushLevelEditorCommand( const LevelEditorCommand &v )
@@ -87,9 +88,14 @@ void InputServerLocal::pushLevelEditorCommand( const LevelEditorCommand &v )
     m_lecs.push_back(tmp);
 }
 
-const InputState* InputServerLocal::getInput(uint32 pid) const
+void InputServerLocal::handlePMessage(const PMessage &v)
 {
-    return &m_is;
+}
+
+
+const InputState& InputServerLocal::getInput(uint32 pid) const
+{
+    return m_is[pid];
 }
 
 bool InputServerLocal::save(const char *path)
