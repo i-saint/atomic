@@ -4,17 +4,7 @@
 
 namespace atomic {
 
-class GameServerSession
-    : public Poco::Net::TCPServerConnection
-    , public PMessenger
-{
-typedef Poco::Net::TCPServerConnection super;
-public:
-    GameServerSession(const Poco::Net::StreamSocket &ss);
-    virtual void run();
-    void messageLoop();
-
-};
+#ifdef atomic_enable_GameServer
 
 GameServerSession::GameServerSession( const Poco::Net::StreamSocket &_ss )
     : super(_ss)
@@ -28,19 +18,30 @@ GameServerSession::GameServerSession( const Poco::Net::StreamSocket &_ss )
 
 void GameServerSession::run()
 {
+    atomicGameServerGet()->addSession(this);
     try {
         messageLoop();
     }
     catch(...) {
     }
+    atomicGameServerGet()->eraseSession(this);
 }
 
 void GameServerSession::messageLoop()
 {
+    ist::Thread::setNameToCurrentThread("GameServerSession::messageLoop()");
+
     Poco::Net::StreamSocket *stream = &socket();
+    ist::Timer timer;
     for(;;) {
+        timer.reset();
+
         recvMessage(stream);
         sendMessage(stream);
+
+        if(timer.getElapsedMillisec()<1.0f) {
+            ist::Thread::milliSleep(1);
+        }
    }
 }
 
@@ -49,5 +50,8 @@ Poco::Net::TCPServerConnection* GameServerSessionFactory::createConnection( cons
 {
     return new GameServerSession(ss);
 }
+
+
+#endif // atomic_enable_GameServer
 
 } // namespace atomic

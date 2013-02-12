@@ -5,6 +5,7 @@
 
 namespace atomic {
 
+#ifdef atomic_enable_GameServer
 
 class GameServerSessionFactory : public Poco::Net::TCPServerConnectionFactory
 {
@@ -12,6 +13,19 @@ public:
     virtual Poco::Net::TCPServerConnection* createConnection(const Poco::Net::StreamSocket &ss);
 };
 
+
+class GameServerSession
+    : public Poco::Net::TCPServerConnection
+    , public PMessenger
+{
+    typedef Poco::Net::TCPServerConnection super;
+public:
+    GameServerSession(const Poco::Net::StreamSocket &ss);
+    virtual void run();
+    void messageLoop();
+};
+
+#endif // atomic_enable_GameServer
 
 } // namespace atomic
 #endif // atomic_Network_GameServerSession_h

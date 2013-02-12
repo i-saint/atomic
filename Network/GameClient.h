@@ -46,7 +46,7 @@ public:
 private:
     void shutdown();
     void handleEvent(Event e);
-    void networkLoop();
+    void messageLoop();
 
 private:
     static GameClient *s_inst;

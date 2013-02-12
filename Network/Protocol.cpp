@@ -83,6 +83,12 @@ void PMessenger::pushMessage( const PMessage &p )
     m_message_send.push_back(p);
 }
 
+void PMessenger::pushMessage( const PMessageCont &p )
+{
+    if(p.empty()) { return; }
+    pushMessage(&p[0], p.size());
+}
+
 void PMessenger::pushMessage( const PMessage *p, size_t num )
 {
     ist::Mutex::ScopedLock lock(m_mutex_send);
@@ -100,6 +106,17 @@ void PMessenger::handleReceivedMessage( const MessageHandler &h )
         h(m_message_consuming[i]);
     }
     DestructMessages(m_message_consuming);
+}
+
+void PMessenger::handleReceivedMessageCont( const MessageContHandler &h )
+{
+    {
+        ist::Mutex::ScopedLock lock(m_mutex_recv);
+        m_message_consuming = m_message_recv;
+        m_message_recv.clear();
+    }
+    h(m_message_consuming);
+    m_message_consuming.clear();
 }
 
 bool PMessenger::sendMessage(Poco::Net::StreamSocket *stream)

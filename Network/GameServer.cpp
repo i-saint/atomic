@@ -32,6 +32,7 @@ GameServer* GameServer::getInstance()
 
 GameServer::GameServer()
     : m_server(NULL)
+    , m_message_thread(NULL)
 {
 }
 
@@ -52,9 +53,12 @@ void GameServer::start()
             Poco::Net::ServerSocket svs(10051);
             m_server = new Poco::Net::TCPServer(new GameServerSessionFactory(), svs, params);
             m_server->start();
+
+            m_message_thread = istNew(ist::FunctorThread<>)(std::bind(&GameServer::messageLoop, this));
         }
         catch(Poco::IOException &e) {
             istAssert(e.what());
+            stop();
         }
     }
 }
@@ -69,6 +73,11 @@ void GameServer::stop()
         delete m_server;
         m_server = NULL;
     }
+    if(m_message_thread) {
+        m_message_thread->join();
+        delete m_message_thread;
+        m_message_thread = NULL;
+    }
 }
 
 void GameServer::restart()
@@ -77,7 +86,64 @@ void GameServer::restart()
     start();
 }
 
-#else // atomic_enable_GameServer
+void GameServer::handleMessageCont( const PMessageCont &cont )
+{
+    m_mes_recved.insert(m_mes_recved.end(), cont.begin(), cont.end());
+}
+
+void GameServer::addSession( GameServerSession *s )
+{
+    ist::Mutex::ScopedLock l(m_mutex);
+    m_sessions.push_back(s);
+}
+
+void GameServer::eraseSession( GameServerSession *s )
+{
+    ist::Mutex::ScopedLock l(m_mutex);
+    m_sessions.erase( std::find(m_sessions.begin(), m_sessions.end(), s) );
+}
+
+void GameServer::recvMessage()
+{
+    {
+        ist::Mutex::ScopedLock l(m_mutex);
+        for(size_t i=0; i<m_sessions.size(); ++i) {
+            m_sessions[i]->handleReceivedMessageCont(m_mes_receiver);
+        }
+    }
+
+    for(size_t i=0; i<m_mes_recved.size(); ++i) {
+        m_mes_send.push_back(m_mes_recved[i]);
+    }
+}
+
+void GameServer::sendMessage()
+{
+    {
+        ist::Mutex::ScopedLock l(m_mutex);
+        for(size_t i=0; i<m_sessions.size(); ++i) {
+            m_sessions[i]->pushMessage(m_mes_send);
+        }
+    }
+    DestructMessages(m_mes_send);
+}
+
+void GameServer::messageLoop()
+{
+    ist::Thread::setNameToCurrentThread("GameServer::messageLoop()");
+    m_mes_receiver = std::bind(&GameServer::handleMessageCont, this, std::placeholders::_1);
+
+    ist::Timer timer;
+    while(m_server!=NULL) {
+        timer.reset();
+        recvMessage();
+        sendMessage();
+        if(timer.getElapsedMillisec() < 10.0f) {
+            ist::Thread::milliSleep(5);
+        }
+    }
+}
+
 #endif // atomic_enable_GameServer
 
 } // namespace atomic

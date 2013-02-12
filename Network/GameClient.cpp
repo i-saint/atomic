@@ -50,7 +50,7 @@ void GameClient::connect( const char *host, uint16 port )
 {
     shutdown();
     m_address = Poco::Net::SocketAddress(host, port);
-    m_thread = istNew(ist::FunctorThread<>)( std::bind(&GameClient::networkLoop, this) );
+    m_thread = istNew(ist::FunctorThread<>)( std::bind(&GameClient::messageLoop, this) );
 }
 
 void GameClient::close()
@@ -74,8 +74,10 @@ void GameClient::handleEvent( Event e )
     }
 }
 
-void GameClient::networkLoop()
+void GameClient::messageLoop()
 {
+    ist::Thread::setNameToCurrentThread("GameClient::messageLoop()");
+
     Poco::Net::StreamSocket *sock = NULL;
     try {
         sock = new Poco::Net::StreamSocket(m_address);

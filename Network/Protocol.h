@@ -202,11 +202,14 @@ class PMessenger
 {
 public:
     typedef std::function<void (const PMessage &)> MessageHandler;
+    typedef std::function<void (const PMessageCont &)> MessageContHandler;
 
     virtual ~PMessenger();
     void pushMessage(const PMessage &p);
+    void pushMessage(const PMessageCont &p);
     void pushMessage(const PMessage *p, size_t num);
     void handleReceivedMessage(const MessageHandler &h);
+    void handleReceivedMessageCont(const MessageContHandler &h);
 
 protected:
     bool sendMessage(Poco::Net::StreamSocket *stream);
