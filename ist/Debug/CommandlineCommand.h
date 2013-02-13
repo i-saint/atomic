@@ -64,18 +64,14 @@ public:
     virtual void setArg(uint32 i, const char *arg) {}
     virtual void exec()
     {
-        A0T a0 = A0T();
-        if( m_f && m_obj
-            && ( !m_args[0] || CLParseArg(m_args[0], a0) )
-            )
+        if( m_f && m_obj )
         {
-            (m_obj->*m_f)(a0);
+            (m_obj->*m_f)();
         }
     }
 private:
     Func m_f;
     C *m_obj;
-    const char *m_args[1];
 };
 
 template<class R, class C>
@@ -89,18 +85,14 @@ public:
     virtual void setArg(uint32 i, const char *arg) {}
     virtual void exec()
     {
-        A0T a0 = A0T();
-        if( m_f && m_obj
-            && ( !m_args[0] || CLParseArg(m_args[0], a0) )
-            )
+        if( m_f && m_obj )
         {
-            (m_obj->*m_f)(a0);
+            (m_obj->*m_f)();
         }
     }
 private:
     Func m_f;
     const C *m_obj;
-    const char *m_args[1];
 };
 
 template<class R, class A0>
