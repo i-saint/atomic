@@ -63,10 +63,27 @@ void Commandline::execute( const stl::string &text )
 
     ICLCommand *cmd = cmdp->second;
     for(uint32 i=0; i<cmd->getNumArgs(); ++i) {
+        while(tok!=text.end() && *tok==' ') { ++tok; }
         if(tok==text.end()) { break; }
         cmd->setArg(i, &(*tok));
+        tok = std::find(tok, text.end(), ' ');
     }
     cmd->exec();
+}
+
+void Commandline::pushCommand( const stl::string &text )
+{
+    ist::Mutex::ScopedLock l(m_mutex);
+    m_queue.push_back(text);
+}
+
+void Commandline::flush()
+{
+    ist::Mutex::ScopedLock l(m_mutex);
+    for(size_t i=0; i<m_queue.size(); ++i) {
+        execute(m_queue[i]);
+    }
+    m_queue.clear();
 }
 
 

@@ -54,6 +54,7 @@ public:
     /// run() でスレッドを生成、生成されたスレッドから exec() が呼ばれる。
     void run();
     void join();
+    void kill();
 
     /// 新規作成されたスレッドから呼ばれる。継承先で処理内容を実装
     virtual void exec()=0;

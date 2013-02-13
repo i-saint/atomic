@@ -152,6 +152,10 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     // initialize debug menu
     atomicDbgInitializeDebugMenu();
 
+    // console
+    istCommandlineInitialize();
+    istCommandlineConsoleInitialize();
+
     m_config.setup();
     m_config.readFromFile(ATOMIC_CONFIG_FILE_PATH);
     if(m_config.window_pos.x >= 30000) { m_config.window_pos.x = 0; }
@@ -200,7 +204,11 @@ void AtomicApplication::finalize()
 
     AtomicRenderingSystem::finalizeInstance();
     AtomicSound::finalizeInstance();
+
+    istCommandlineConsoleFinalize();
+    istCommandlineFinalize();
     atomicDbgFinalizeDebugMenu();
+
     TaskScheduler::finalizeInstance();
     FinalizeText();
     ist::PoolNewManager::freeAll();

@@ -6,49 +6,49 @@ namespace ist {
 bool CLParseArg( const char *str, int8 &v )
 {
     int32 t;
-    if(sscanf(str, "%hhi", &t)==1) { v=t; return true; }
+    if(sscanf(str, "int8(%hhi)", &t)==1 || sscanf(str, "%hhi", &t)==1) { v=t; return true; }
     return false;
 }
 
 bool CLParseArg( const char *str, int16 &v )
 {
     int32 t;
-    if(sscanf(str, "%hi", &t)==1) { v=t; return true; }
+    if(sscanf(str, "int16(%hi)", &t)==1 || sscanf(str, "%hi", &t)==1) { v=t; return true; }
     return false;
 }
 
 bool CLParseArg( const char *str, int32 &v )
 {
     int32 t;
-    if(sscanf(str, "%i", &t)==1) { v=t; return true; }
+    if(sscanf(str, "int32(%i)", &t)==1 || sscanf(str, "%i", &t)==1) { v=t; return true; }
     return false;
 }
 
 bool CLParseArg( const char *str, uint8 &v )
 {
     uint32 t;
-    if(sscanf(str, "%hhu", &t)==1) { v=t; return true; }
+    if(sscanf(str, "uint8(%hhu)", &t)==1 || sscanf(str, "%hhu", &t)==1) { v=t; return true; }
     return false;
 }
 
 bool CLParseArg( const char *str, uint16 &v )
 {
     uint32 t;
-    if(sscanf(str, "%hu", &t)==1) { v=t; return true; }
+    if(sscanf(str, "uint16(%hu)", &t)==1 || sscanf(str, "%hu", &t)==1) { v=t; return true; }
     return false;
 }
 
 bool CLParseArg( const char *str, uint32 &v )
 {
     uint32 t;
-    if(sscanf(str, "%u", &t)==1) { v=t; return true; }
+    if(sscanf(str, "uint32(%u)", &t)==1 || sscanf(str, "%u", &t)==1) { v=t; return true; }
     return false;
 }
 
 bool CLParseArg( const char *str, float32 &v )
 {
     float32 t;
-    if(sscanf(str, "%f", &t)==1) { v=t; return true; }
+    if(sscanf(str, "float32(%f)", &t)==1 || sscanf(str, "%f", &t)==1) { v=t; return true; }
     return false;
 }
 
@@ -98,6 +98,17 @@ bool CLParseArg(const char *str, ivec4 &v)
     if(sscanf(str, "ivec4(%d,%d,%d,%d)", &t.x, &t.y, &t.z, &t.w)==4) { v=t; return true; }
     else if(sscanf(str, "ivec4(%d)", &t.x)==1) { v=ivec4(t.x); return true; }
     return false;
+}
+
+bool CLParseArg( const char *str, Variant16 &v )
+{
+    return
+        CLParseArg(str, v.cast<vec4>()) ||
+        CLParseArg(str, v.cast<vec3>()) ||
+        CLParseArg(str, v.cast<vec2>()) ||
+        CLParseArg(str, v.cast<float32>()) ||
+        CLParseArg(str, v.cast<int32>()) ||
+        CLParseArg(str, v.cast<uint32>());
 }
 
 } // namespace ist

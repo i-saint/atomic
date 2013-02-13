@@ -86,6 +86,7 @@ void AtomicGame::update(float32 dt)
         m_input_server->pushInput(0, InputState());
     }
 
+    istCommandlineFlush();
     atomicLevelEditorHandleCommands( std::bind(&IInputServer::pushLevelEditorCommand, m_input_server, std::placeholders::_1));
     atomicLevelEditorHandleQueries( std::bind(&AtomicGame::handleLevelEditorQueries, this, std::placeholders::_1) );
     atomicGameClientHandleMessages( std::bind(&AtomicGame::handlePMessages, this, std::placeholders::_1) );

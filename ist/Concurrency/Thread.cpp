@@ -185,6 +185,15 @@ void Thread::join()
 #endif // ist_env_Windows
 }
 
+void Thread::kill()
+{
+#ifdef ist_env_Windows
+    ::TerminateThread(m_handle, 0);
+#else // ist_env_Windows
+    pthread_cancel(m_handle);
+#endif // ist_env_Windows
+}
+
 void Thread::setParams()
 {
     setNameToCurrentThread(m_name);

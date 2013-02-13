@@ -28,7 +28,7 @@ public:
     CLFunctionCommand#{num_args}(Func f) : m_f(f) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
-    void clearArgs() { std::fill_n(m_args, _countof(m_args)); }
+    void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
     virtual void exec()
     {
 #{tmp_arg_decls.join("\n")}
@@ -55,7 +55,7 @@ public:
     CLMemFnCommand#{num_args}(Func f, C *o) : m_f(f), m_obj(o) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
-    void clearArgs() { std::fill_n(m_args, _countof(m_args)); }
+    void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
     virtual void exec()
     {
 #{tmp_arg_decls.join("\n")}
@@ -83,7 +83,7 @@ public:
     CLCMemFnCommand#{num_args}(Func f, const C *o) : m_f(f), m_obj(o) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
-    void clearArgs() { std::fill_n(m_args, _countof(m_args)); }
+    void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
     virtual void exec()
     {
 #{tmp_arg_decls.join("\n")}

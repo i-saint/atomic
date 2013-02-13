@@ -30,6 +30,8 @@ const size_t MinimumAlignment = 16;
 template<class T> inline T& unpointer(T &a) { return a; }
 template<class T> inline T& unpointer(T *a) { return *a; }
 
+#define istTypeJoin(...)                    __VA_ARGS__
+
 #define istNew(Type)                        new Type
 #define istAlignedNew(Type, Align)          new(Align) Type
 #define istDelete(Obj)                      delete Obj

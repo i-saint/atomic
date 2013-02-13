@@ -44,10 +44,14 @@ World::World()
 
     const uvec2 &wsize = atomicGetWindowSize();
     m_camera_game.setAspect((float32)wsize.x/(float32)wsize.y);
+
+    istCommandlineRegister("setCameraFovy", &i3d::PerspectiveCamera::setFovy, &m_camera_game);
 }
 
 World::~World()
 {
+    istCommandlineUnregister("setCameraFovy");
+
     m_module_asyncupdates.clear();
     for(ModuleCont::reverse_iterator i=m_modules.rbegin(); i!=m_modules.rend(); ++i) {
         istDelete(*i);

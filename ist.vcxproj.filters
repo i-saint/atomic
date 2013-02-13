@@ -310,6 +310,15 @@
     <ClInclude Include="ist\stdex\ist_aligned_allocator.h">
       <Filter>stdex</Filter>
     </ClInclude>
+    <ClInclude Include="ist\Debug\Commandline.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Debug\CommandlineCommand.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Debug\Commandline_ConsoleFrontend.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ist\Window\Application.cpp">
@@ -449,6 +458,15 @@
       <Filter>Base</Filter>
     </ClCompile>
     <ClCompile Include="ist\Debug\CrashDump.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Debug\CommandlineCommand.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Debug\Commandline.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Debug\Commandline_ConsoleFrontend.cpp">
       <Filter>Debug</Filter>
     </ClCompile>
   </ItemGroup>
