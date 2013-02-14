@@ -69,6 +69,7 @@ void Commandline::execute( const stl::string &text )
         tok = std::find(tok, text.end(), ' ');
     }
     cmd->exec();
+    cmd->clearArgs();
 }
 
 void Commandline::pushCommand( const stl::string &text )

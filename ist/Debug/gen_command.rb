@@ -19,16 +19,16 @@ def gen_command(num_args)
     end
     puts <<END
 template<class R, #{class_args.join(", ")}>
-class CLFunctionCommand#{num_args} : public ICLCommand
+class CLCFunction#{num_args} : public ICLCommand
 {
 public:
     typedef R (*Func)(#{args.join(", ")});
 #{arg_typedefs.join("\n")}
 
-    CLFunctionCommand#{num_args}(Func f) : m_f(f) { clearArgs(); }
+    CLCFunction#{num_args}(Func f) : m_f(f) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
-    void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
+    virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
     virtual void exec()
     {
 #{tmp_arg_decls.join("\n")}
@@ -38,7 +38,6 @@ public:
         {
             m_f(#{tmp_args.join(", ")});
         }
-        clearArgs();
     }
 private:
     Func m_f;
@@ -46,16 +45,16 @@ private:
 };
 
 template<class R, class C, #{class_args.join(", ")}>
-class CLMemFnCommand#{num_args} : public ICLCommand
+class CLCMemFn#{num_args} : public ICLCommand
 {
 public:
     typedef R (C::*Func)(#{args.join(", ")});
 #{arg_typedefs.join("\n")}
 
-    CLMemFnCommand#{num_args}(Func f, C *o) : m_f(f), m_obj(o) { clearArgs(); }
+    CLCMemFn#{num_args}(Func f, C *o) : m_f(f), m_obj(o) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
-    void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
+    virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
     virtual void exec()
     {
 #{tmp_arg_decls.join("\n")}
@@ -65,7 +64,6 @@ public:
         {
             (m_obj->*m_f)(#{tmp_args.join(", ")});
         }
-        clearArgs();
     }
 private:
     Func m_f;
@@ -74,16 +72,16 @@ private:
 };
 
 template<class R, class C, #{class_args.join(", ")}>
-class CLCMemFnCommand#{num_args} : public ICLCommand
+class CLCConstMemFn#{num_args} : public ICLCommand
 {
 public:
     typedef R (C::*Func)(#{args.join(", ")}) const;
 #{arg_typedefs.join("\n")}
 
-    CLCMemFnCommand#{num_args}(Func f, const C *o) : m_f(f), m_obj(o) { clearArgs(); }
+    CLCConstMemFn#{num_args}(Func f, const C *o) : m_f(f), m_obj(o) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
-    void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
+    virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
     virtual void exec()
     {
 #{tmp_arg_decls.join("\n")}
@@ -93,7 +91,6 @@ public:
         {
             (m_obj->*m_f)(#{tmp_args.join(", ")});
         }
-        clearArgs();
     }
 private:
     Func m_f;
@@ -113,16 +110,16 @@ def gen_creator(num_args)
     end
     puts <<END
 template<class R, #{class_args.join(", ")}>
-ICLCommand* CreateCLCommand(R (*f)(#{args.join(", ")}))
-{ return istNew(istTypeJoin(CLFunctionCommand#{num_args}<R, #{args.join(", ")}>))(f); }
+CLCFunction#{num_args}<R, #{args.join(", ")}>* CreateCLCommand(R (*f)(#{args.join(", ")}))
+{ return istNew(istTypeJoin(CLCFunction#{num_args}<R, #{args.join(", ")}>))(f); }
 
 template<class R, class C, #{class_args.join(", ")}>
-ICLCommand* CreateCLCommand(R (C::*f)(#{args.join(", ")}), C *obj)
-{ return istNew(istTypeJoin(CLMemFnCommand#{num_args}<R, C, #{args.join(", ")}>))(f, obj); }
+CLCMemFn#{num_args}<R, C, #{args.join(", ")}>* CreateCLCommand(R (C::*f)(#{args.join(", ")}), C *obj)
+{ return istNew(istTypeJoin(CLCMemFn#{num_args}<R, C, #{args.join(", ")}>))(f, obj); }
 
 template<class R, class C, #{class_args.join(", ")}>
-ICLCommand* CreateCLCommand(R (C::*f)(#{args.join(", ")}) const, C *obj)
-{ return istNew(istTypeJoin(CLCMemFnCommand#{num_args}<R, C, #{args.join(", ")}>))(f, obj); }
+CLCConstMemFn#{num_args}<R, C, #{args.join(", ")}>* CreateCLCommand(R (C::*f)(#{args.join(", ")}) const, C *obj)
+{ return istNew(istTypeJoin(CLCConstMemFn#{num_args}<R, C, #{args.join(", ")}>))(f, obj); }
 
 END
 end

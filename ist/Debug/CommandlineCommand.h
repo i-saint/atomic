@@ -14,10 +14,12 @@ public:
     virtual void release() { istDelete(this); }
     virtual uint32 getNumArgs() const=0;
     virtual void setArg(uint32 i, const char *arg)=0;
+    virtual void clearArgs()=0;
     virtual void exec()=0;
 };
 
 
+bool CLParseArg(const char *str, bool &v);
 bool CLParseArg(const char *str, int8 &v);
 bool CLParseArg(const char *str, int16 &v);
 bool CLParseArg(const char *str, int32 &v);
@@ -34,15 +36,37 @@ bool CLParseArg(const char *str, ivec4 &v);
 bool CLParseArg(const char *str, Variant16 &v);
 
 
+template<class V>
+class CLCValue : public ICLCommand
+{
+public:
+    CLCValue(V *v) : m_v(v) {}
+    virtual uint32 getNumArgs() const { return _countof(m_args); }
+    virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
+    virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
+    virtual void exec()
+    {
+        V a = V();
+        if(m_v && (!m_args[0] || CLParseArg(m_args[0], a))) {
+            m_v = a;
+        }
+    }
+private:
+    V *m_v;
+    const char *m_args[1];
+};
+
+
 template<class R>
-class CLFunctionCommand0 : public ICLCommand
+class CLCFunction0 : public ICLCommand
 {
 public:
     typedef R (*Func)();
 
-    CLFunctionCommand0(Func f) : m_f(f) {}
+    CLCFunction0(Func f) : m_f(f) {}
     virtual uint32 getNumArgs() const { return 0; }
     virtual void setArg(uint32 i, const char *arg) {}
+    virtual void clearArgs() {}
     virtual void exec()
     {
         if(m_f) {
@@ -54,14 +78,15 @@ private:
 };
 
 template<class R, class C>
-class CLMemFnCommand0 : public ICLCommand
+class CLCMemFn0 : public ICLCommand
 {
 public:
     typedef R (C::*Func)();
 
-    CLMemFnCommand0(Func f, C *o) : m_f(f), m_obj(o) {}
+    CLCMemFn0(Func f, C *o) : m_f(f), m_obj(o) {}
     virtual uint32 getNumArgs() const { return 0; }
     virtual void setArg(uint32 i, const char *arg) {}
+    virtual void clearArgs() {}
     virtual void exec()
     {
         if( m_f && m_obj )
@@ -75,14 +100,15 @@ private:
 };
 
 template<class R, class C>
-class CLCMemFnCommand0 : public ICLCommand
+class CLCConstMemFn0 : public ICLCommand
 {
 public:
     typedef R (C::*Func)() const;
 
-    CLCMemFnCommand0(Func f, const C *o) : m_f(f), m_obj(o) {}
+    CLCConstMemFn0(Func f, const C *o) : m_f(f), m_obj(o) {}
     virtual uint32 getNumArgs() const { return 0; }
     virtual void setArg(uint32 i, const char *arg) {}
+    virtual void clearArgs() {}
     virtual void exec()
     {
         if( m_f && m_obj )
@@ -96,26 +122,25 @@ private:
 };
 
 template<class R, class A0>
-class CLFunctionCommand1 : public ICLCommand
+class CLCFunction1 : public ICLCommand
 {
 public:
     typedef R (*Func)(A0);
     typedef typename std::remove_const<typename std::remove_reference<A0>::type>::type A0T;
 
-    CLFunctionCommand1(Func f) : m_f(f) { clearArgs(); }
+    CLCFunction1(Func f) : m_f(f) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
-    void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
+    virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
     virtual void exec()
     {
         A0T a0 = A0T();
         if( m_f
-            && ( !m_args[0] || CLParseArg(m_args[0], a0) )
+                        && ( !m_args[0] || CLParseArg(m_args[0], a0) )
             )
         {
             m_f(a0);
         }
-        clearArgs();
     }
 private:
     Func m_f;
@@ -123,26 +148,25 @@ private:
 };
 
 template<class R, class C, class A0>
-class CLMemFnCommand1 : public ICLCommand
+class CLCMemFn1 : public ICLCommand
 {
 public:
     typedef R (C::*Func)(A0);
     typedef typename std::remove_const<typename std::remove_reference<A0>::type>::type A0T;
 
-    CLMemFnCommand1(Func f, C *o) : m_f(f), m_obj(o) { clearArgs(); }
+    CLCMemFn1(Func f, C *o) : m_f(f), m_obj(o) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
-    void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
+    virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
     virtual void exec()
     {
         A0T a0 = A0T();
         if( m_f && m_obj
-            && ( !m_args[0] || CLParseArg(m_args[0], a0) )
+                        && ( !m_args[0] || CLParseArg(m_args[0], a0) )
             )
         {
             (m_obj->*m_f)(a0);
         }
-        clearArgs();
     }
 private:
     Func m_f;
@@ -151,16 +175,16 @@ private:
 };
 
 template<class R, class C, class A0>
-class CLCMemFnCommand1 : public ICLCommand
+class CLCConstMemFn1 : public ICLCommand
 {
 public:
     typedef R (C::*Func)(A0) const;
     typedef typename std::remove_const<typename std::remove_reference<A0>::type>::type A0T;
 
-    CLCMemFnCommand1(Func f, const C *o) : m_f(f), m_obj(o) { clearArgs(); }
+    CLCConstMemFn1(Func f, const C *o) : m_f(f), m_obj(o) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
-    void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
+    virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
     virtual void exec()
     {
         A0T a0 = A0T();
@@ -170,7 +194,6 @@ public:
         {
             (m_obj->*m_f)(a0);
         }
-        clearArgs();
     }
 private:
     Func m_f;
@@ -179,29 +202,28 @@ private:
 };
 
 template<class R, class A0, class A1>
-class CLFunctionCommand2 : public ICLCommand
+class CLCFunction2 : public ICLCommand
 {
 public:
     typedef R (*Func)(A0, A1);
     typedef typename std::remove_const<typename std::remove_reference<A0>::type>::type A0T;
     typedef typename std::remove_const<typename std::remove_reference<A1>::type>::type A1T;
 
-    CLFunctionCommand2(Func f) : m_f(f) { clearArgs(); }
+    CLCFunction2(Func f) : m_f(f) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
-    void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
+    virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
     virtual void exec()
     {
         A0T a0 = A0T();
         A1T a1 = A1T();
         if( m_f
-            && ( !m_args[0] || CLParseArg(m_args[0], a0) )
+                        && ( !m_args[0] || CLParseArg(m_args[0], a0) )
             && ( !m_args[1] || CLParseArg(m_args[1], a1) )
             )
         {
             m_f(a0, a1);
         }
-        clearArgs();
     }
 private:
     Func m_f;
@@ -209,29 +231,28 @@ private:
 };
 
 template<class R, class C, class A0, class A1>
-class CLMemFnCommand2 : public ICLCommand
+class CLCMemFn2 : public ICLCommand
 {
 public:
     typedef R (C::*Func)(A0, A1);
     typedef typename std::remove_const<typename std::remove_reference<A0>::type>::type A0T;
     typedef typename std::remove_const<typename std::remove_reference<A1>::type>::type A1T;
 
-    CLMemFnCommand2(Func f, C *o) : m_f(f), m_obj(o) { clearArgs(); }
+    CLCMemFn2(Func f, C *o) : m_f(f), m_obj(o) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
-    void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
+    virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
     virtual void exec()
     {
         A0T a0 = A0T();
         A1T a1 = A1T();
         if( m_f && m_obj
-            && ( !m_args[0] || CLParseArg(m_args[0], a0) )
+                        && ( !m_args[0] || CLParseArg(m_args[0], a0) )
             && ( !m_args[1] || CLParseArg(m_args[1], a1) )
             )
         {
             (m_obj->*m_f)(a0, a1);
         }
-        clearArgs();
     }
 private:
     Func m_f;
@@ -240,17 +261,17 @@ private:
 };
 
 template<class R, class C, class A0, class A1>
-class CLCMemFnCommand2 : public ICLCommand
+class CLCConstMemFn2 : public ICLCommand
 {
 public:
     typedef R (C::*Func)(A0, A1) const;
     typedef typename std::remove_const<typename std::remove_reference<A0>::type>::type A0T;
     typedef typename std::remove_const<typename std::remove_reference<A1>::type>::type A1T;
 
-    CLCMemFnCommand2(Func f, const C *o) : m_f(f), m_obj(o) { clearArgs(); }
+    CLCConstMemFn2(Func f, const C *o) : m_f(f), m_obj(o) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
-    void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
+    virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
     virtual void exec()
     {
         A0T a0 = A0T();
@@ -262,7 +283,6 @@ public:
         {
             (m_obj->*m_f)(a0, a1);
         }
-        clearArgs();
     }
 private:
     Func m_f;
@@ -271,7 +291,7 @@ private:
 };
 
 template<class R, class A0, class A1, class A2>
-class CLFunctionCommand3 : public ICLCommand
+class CLCFunction3 : public ICLCommand
 {
 public:
     typedef R (*Func)(A0, A1, A2);
@@ -279,24 +299,23 @@ public:
     typedef typename std::remove_const<typename std::remove_reference<A1>::type>::type A1T;
     typedef typename std::remove_const<typename std::remove_reference<A2>::type>::type A2T;
 
-    CLFunctionCommand3(Func f) : m_f(f) { clearArgs(); }
+    CLCFunction3(Func f) : m_f(f) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
-    void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
+    virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
     virtual void exec()
     {
         A0T a0 = A0T();
         A1T a1 = A1T();
         A2T a2 = A2T();
         if( m_f
-            && ( !m_args[0] || CLParseArg(m_args[0], a0) )
+                        && ( !m_args[0] || CLParseArg(m_args[0], a0) )
             && ( !m_args[1] || CLParseArg(m_args[1], a1) )
             && ( !m_args[2] || CLParseArg(m_args[2], a2) )
             )
         {
             m_f(a0, a1, a2);
         }
-        clearArgs();
     }
 private:
     Func m_f;
@@ -304,7 +323,7 @@ private:
 };
 
 template<class R, class C, class A0, class A1, class A2>
-class CLMemFnCommand3 : public ICLCommand
+class CLCMemFn3 : public ICLCommand
 {
 public:
     typedef R (C::*Func)(A0, A1, A2);
@@ -312,24 +331,23 @@ public:
     typedef typename std::remove_const<typename std::remove_reference<A1>::type>::type A1T;
     typedef typename std::remove_const<typename std::remove_reference<A2>::type>::type A2T;
 
-    CLMemFnCommand3(Func f, C *o) : m_f(f), m_obj(o) { clearArgs(); }
+    CLCMemFn3(Func f, C *o) : m_f(f), m_obj(o) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
-    void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
+    virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
     virtual void exec()
     {
         A0T a0 = A0T();
         A1T a1 = A1T();
         A2T a2 = A2T();
         if( m_f && m_obj
-            && ( !m_args[0] || CLParseArg(m_args[0], a0) )
+                        && ( !m_args[0] || CLParseArg(m_args[0], a0) )
             && ( !m_args[1] || CLParseArg(m_args[1], a1) )
             && ( !m_args[2] || CLParseArg(m_args[2], a2) )
             )
         {
             (m_obj->*m_f)(a0, a1, a2);
         }
-        clearArgs();
     }
 private:
     Func m_f;
@@ -338,7 +356,7 @@ private:
 };
 
 template<class R, class C, class A0, class A1, class A2>
-class CLCMemFnCommand3 : public ICLCommand
+class CLCConstMemFn3 : public ICLCommand
 {
 public:
     typedef R (C::*Func)(A0, A1, A2) const;
@@ -346,10 +364,10 @@ public:
     typedef typename std::remove_const<typename std::remove_reference<A1>::type>::type A1T;
     typedef typename std::remove_const<typename std::remove_reference<A2>::type>::type A2T;
 
-    CLCMemFnCommand3(Func f, const C *o) : m_f(f), m_obj(o) { clearArgs(); }
+    CLCConstMemFn3(Func f, const C *o) : m_f(f), m_obj(o) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
-    void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
+    virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
     virtual void exec()
     {
         A0T a0 = A0T();
@@ -363,7 +381,6 @@ public:
         {
             (m_obj->*m_f)(a0, a1, a2);
         }
-        clearArgs();
     }
 private:
     Func m_f;
@@ -372,7 +389,7 @@ private:
 };
 
 template<class R, class A0, class A1, class A2, class A3>
-class CLFunctionCommand4 : public ICLCommand
+class CLCFunction4 : public ICLCommand
 {
 public:
     typedef R (*Func)(A0, A1, A2, A3);
@@ -381,10 +398,10 @@ public:
     typedef typename std::remove_const<typename std::remove_reference<A2>::type>::type A2T;
     typedef typename std::remove_const<typename std::remove_reference<A3>::type>::type A3T;
 
-    CLFunctionCommand4(Func f) : m_f(f) { clearArgs(); }
+    CLCFunction4(Func f) : m_f(f) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
-    void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
+    virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
     virtual void exec()
     {
         A0T a0 = A0T();
@@ -392,7 +409,7 @@ public:
         A2T a2 = A2T();
         A3T a3 = A3T();
         if( m_f
-            && ( !m_args[0] || CLParseArg(m_args[0], a0) )
+                        && ( !m_args[0] || CLParseArg(m_args[0], a0) )
             && ( !m_args[1] || CLParseArg(m_args[1], a1) )
             && ( !m_args[2] || CLParseArg(m_args[2], a2) )
             && ( !m_args[3] || CLParseArg(m_args[3], a3) )
@@ -400,7 +417,6 @@ public:
         {
             m_f(a0, a1, a2, a3);
         }
-        clearArgs();
     }
 private:
     Func m_f;
@@ -408,7 +424,7 @@ private:
 };
 
 template<class R, class C, class A0, class A1, class A2, class A3>
-class CLMemFnCommand4 : public ICLCommand
+class CLCMemFn4 : public ICLCommand
 {
 public:
     typedef R (C::*Func)(A0, A1, A2, A3);
@@ -417,10 +433,10 @@ public:
     typedef typename std::remove_const<typename std::remove_reference<A2>::type>::type A2T;
     typedef typename std::remove_const<typename std::remove_reference<A3>::type>::type A3T;
 
-    CLMemFnCommand4(Func f, C *o) : m_f(f), m_obj(o) { clearArgs(); }
+    CLCMemFn4(Func f, C *o) : m_f(f), m_obj(o) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
-    void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
+    virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
     virtual void exec()
     {
         A0T a0 = A0T();
@@ -428,7 +444,7 @@ public:
         A2T a2 = A2T();
         A3T a3 = A3T();
         if( m_f && m_obj
-            && ( !m_args[0] || CLParseArg(m_args[0], a0) )
+                        && ( !m_args[0] || CLParseArg(m_args[0], a0) )
             && ( !m_args[1] || CLParseArg(m_args[1], a1) )
             && ( !m_args[2] || CLParseArg(m_args[2], a2) )
             && ( !m_args[3] || CLParseArg(m_args[3], a3) )
@@ -436,7 +452,6 @@ public:
         {
             (m_obj->*m_f)(a0, a1, a2, a3);
         }
-        clearArgs();
     }
 private:
     Func m_f;
@@ -445,7 +460,7 @@ private:
 };
 
 template<class R, class C, class A0, class A1, class A2, class A3>
-class CLCMemFnCommand4 : public ICLCommand
+class CLCConstMemFn4 : public ICLCommand
 {
 public:
     typedef R (C::*Func)(A0, A1, A2, A3) const;
@@ -454,10 +469,10 @@ public:
     typedef typename std::remove_const<typename std::remove_reference<A2>::type>::type A2T;
     typedef typename std::remove_const<typename std::remove_reference<A3>::type>::type A3T;
 
-    CLCMemFnCommand4(Func f, const C *o) : m_f(f), m_obj(o) { clearArgs(); }
+    CLCConstMemFn4(Func f, const C *o) : m_f(f), m_obj(o) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
-    void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
+    virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
     virtual void exec()
     {
         A0T a0 = A0T();
@@ -473,7 +488,6 @@ public:
         {
             (m_obj->*m_f)(a0, a1, a2, a3);
         }
-        clearArgs();
     }
 private:
     Func m_f;
@@ -483,65 +497,71 @@ private:
 
 
 
+template<class V>
+CLCValue<V>* CreateCommand(V *v)
+{ return istNew(istTypeJoin(CLCValue<V>))(v); }
+
+
 template<class R>
-ICLCommand* CreateCommand(R (*f)())
-{ return istNew(CLFunctionCommand0<R>)(f); }
+CLCFunction0<R>* CreateCommand(R (*f)())
+{ return istNew(istTypeJoin(CLCFunction0<R>))(f); }
 
 template<class R, class C>
-ICLCommand* CreateCommand(R (C::*f)(), C *obj)
-{ return istNew(CLMemFnCommand0<R>)(f, obj); }
+CLCMemFn0<R, C>* CreateCommand(R (C::*f)(), C *obj)
+{ return istNew(istTypeJoin(CLCMemFn0<R, C>))(f, obj); }
 
 template<class R, class C>
-ICLCommand* CreateCommand(R (C::*f)() const, C *obj)
-{ return istNew(CLCMemFnCommand0<R>)(f, obj); }
+CLCConstMemFn0<R, C>* CreateCommand(R (C::*f)() const, C *obj)
+{ return istNew(istTypeJoin(CLCConstMemFn0<R, C>))(f, obj); }
+
 
 template<class R, class A0>
-ICLCommand* CreateCLCommand(R (*f)(A0))
-{ return istNew(istTypeJoin(CLFunctionCommand1<R, A0>))(f); }
+CLCFunction1<R, A0>* CreateCLCommand(R (*f)(A0))
+{ return istNew(istTypeJoin(CLCFunction1<R, A0>))(f); }
 
 template<class R, class C, class A0>
-ICLCommand* CreateCLCommand(R (C::*f)(A0), C *obj)
-{ return istNew(istTypeJoin(CLMemFnCommand1<R, C, A0>))(f, obj); }
+CLCMemFn1<R, C, A0>* CreateCLCommand(R (C::*f)(A0), C *obj)
+{ return istNew(istTypeJoin(CLCMemFn1<R, C, A0>))(f, obj); }
 
 template<class R, class C, class A0>
-ICLCommand* CreateCLCommand(R (C::*f)(A0) const, C *obj)
-{ return istNew(istTypeJoin(CLCMemFnCommand1<R, C, A0>))(f, obj); }
+CLCConstMemFn1<R, C, A0>* CreateCLCommand(R (C::*f)(A0) const, C *obj)
+{ return istNew(istTypeJoin(CLCConstMemFn1<R, C, A0>))(f, obj); }
 
 template<class R, class A0, class A1>
-ICLCommand* CreateCLCommand(R (*f)(A0, A1))
-{ return istNew(istTypeJoin(CLFunctionCommand2<R, A0, A1>))(f); }
+CLCFunction2<R, A0, A1>* CreateCLCommand(R (*f)(A0, A1))
+{ return istNew(istTypeJoin(CLCFunction2<R, A0, A1>))(f); }
 
 template<class R, class C, class A0, class A1>
-ICLCommand* CreateCLCommand(R (C::*f)(A0, A1), C *obj)
-{ return istNew(istTypeJoin(CLMemFnCommand2<R, C, A0, A1>))(f, obj); }
+CLCMemFn2<R, C, A0, A1>* CreateCLCommand(R (C::*f)(A0, A1), C *obj)
+{ return istNew(istTypeJoin(CLCMemFn2<R, C, A0, A1>))(f, obj); }
 
 template<class R, class C, class A0, class A1>
-ICLCommand* CreateCLCommand(R (C::*f)(A0, A1) const, C *obj)
-{ return istNew(istTypeJoin(CLCMemFnCommand2<R, C, A0, A1>))(f, obj); }
+CLCConstMemFn2<R, C, A0, A1>* CreateCLCommand(R (C::*f)(A0, A1) const, C *obj)
+{ return istNew(istTypeJoin(CLCConstMemFn2<R, C, A0, A1>))(f, obj); }
 
 template<class R, class A0, class A1, class A2>
-ICLCommand* CreateCLCommand(R (*f)(A0, A1, A2))
-{ return istNew(istTypeJoin(CLFunctionCommand3<R, A0, A1, A2>))(f); }
+CLCFunction3<R, A0, A1, A2>* CreateCLCommand(R (*f)(A0, A1, A2))
+{ return istNew(istTypeJoin(CLCFunction3<R, A0, A1, A2>))(f); }
 
 template<class R, class C, class A0, class A1, class A2>
-ICLCommand* CreateCLCommand(R (C::*f)(A0, A1, A2), C *obj)
-{ return istNew(istTypeJoin(CLMemFnCommand3<R, C, A0, A1, A2>))(f, obj); }
+CLCMemFn3<R, C, A0, A1, A2>* CreateCLCommand(R (C::*f)(A0, A1, A2), C *obj)
+{ return istNew(istTypeJoin(CLCMemFn3<R, C, A0, A1, A2>))(f, obj); }
 
 template<class R, class C, class A0, class A1, class A2>
-ICLCommand* CreateCLCommand(R (C::*f)(A0, A1, A2) const, C *obj)
-{ return istNew(istTypeJoin(CLCMemFnCommand3<R, C, A0, A1, A2>))(f, obj); }
+CLCConstMemFn3<R, C, A0, A1, A2>* CreateCLCommand(R (C::*f)(A0, A1, A2) const, C *obj)
+{ return istNew(istTypeJoin(CLCConstMemFn3<R, C, A0, A1, A2>))(f, obj); }
 
 template<class R, class A0, class A1, class A2, class A3>
-ICLCommand* CreateCLCommand(R (*f)(A0, A1, A2, A3))
-{ return istNew(istTypeJoin(CLFunctionCommand4<R, A0, A1, A2, A3>))(f); }
+CLCFunction4<R, A0, A1, A2, A3>* CreateCLCommand(R (*f)(A0, A1, A2, A3))
+{ return istNew(istTypeJoin(CLCFunction4<R, A0, A1, A2, A3>))(f); }
 
 template<class R, class C, class A0, class A1, class A2, class A3>
-ICLCommand* CreateCLCommand(R (C::*f)(A0, A1, A2, A3), C *obj)
-{ return istNew(istTypeJoin(CLMemFnCommand4<R, C, A0, A1, A2, A3>))(f, obj); }
+CLCMemFn4<R, C, A0, A1, A2, A3>* CreateCLCommand(R (C::*f)(A0, A1, A2, A3), C *obj)
+{ return istNew(istTypeJoin(CLCMemFn4<R, C, A0, A1, A2, A3>))(f, obj); }
 
 template<class R, class C, class A0, class A1, class A2, class A3>
-ICLCommand* CreateCLCommand(R (C::*f)(A0, A1, A2, A3) const, C *obj)
-{ return istNew(istTypeJoin(CLCMemFnCommand4<R, C, A0, A1, A2, A3>))(f, obj); }
+CLCConstMemFn4<R, C, A0, A1, A2, A3>* CreateCLCommand(R (C::*f)(A0, A1, A2, A3) const, C *obj)
+{ return istNew(istTypeJoin(CLCConstMemFn4<R, C, A0, A1, A2, A3>))(f, obj); }
 
 
 } // namespace ist
