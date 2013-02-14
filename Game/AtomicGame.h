@@ -41,6 +41,8 @@ public:
     const InputState& getIngameInputs() const { return m_input_server->getInput(0); }
     World* getWorld()   { return m_world; }
     SFMT* getRandom();
+    uint32 getFrame() const                 { return m_frame; }
+    PlayerID getPlayerID() const            { return m_player_id; }
 
 #ifdef atomic_enable_sync_lock
     void dbgLockSyncMethods()               { m_sync_lock=true; }
@@ -52,6 +54,8 @@ private:
     IInputServer    *m_input_server;
     World           *m_world;
     SFMT            m_rand;
+    uint32          m_frame;
+    PlayerID        m_player_id;
     EntitiesQueryContext m_ctx_entities_query;
 #ifdef atomic_enable_sync_lock
     bool m_sync_lock;
@@ -61,6 +65,7 @@ private:
 #define atomicGetWorld()            atomicGetGame()->getWorld()
 #define atomicGetIngameInputs()     atomicGetGame()->getIngameInputs()
 #define atomicGetRandom()           atomicGetGame()->getRandom()
+#define atomicGetFrame()            atomicGetGame()->getFrame()
 
 #ifdef atomic_enable_sync_lock
 #   define  atomicDbgLockSyncMethods()      atomicGetGame()->dbgLockSyncMethods()

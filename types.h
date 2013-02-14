@@ -50,11 +50,11 @@ using ist::TaskScheduler;
 using ist::SFMT;
 using ist::FrustumPlanes;
 using ist::AABB;
-typedef ist::Variant16 variant;
-typedef ist::Variant16 variant16;
-typedef ist::Variant32 variant32;
-typedef ist::Variant64 variant64;
-typedef ist::Variant128 variant128;
+typedef ist::variant16 variant;
+typedef ist::variant16 variant16;
+typedef ist::variant32 variant32;
+typedef ist::variant64 variant64;
+typedef ist::variant128 variant128;
 
 namespace i3d = ist::i3dgl;
 using namespace ist::i3dgl;

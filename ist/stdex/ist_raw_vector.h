@@ -63,6 +63,11 @@ public:
         m_size = m_size==0 ? 0 : m_size-1;
     }
 
+    void insert(iterator pos, const_reference v)
+    {
+        insert(pos, &v, &v+1);
+    }
+
     void insert(iterator pos, const_iterator first, const_iterator last)
     {
         size_t pos_i = (m_data==NULL && pos==NULL) ? 0 : std::distance(m_data, pos);

@@ -51,7 +51,7 @@ void GameServer::start()
         params->setThreadIdleTime(Poco::Timespan(3, 0));
 
         try {
-            Poco::Net::ServerSocket svs(10051);
+            Poco::Net::ServerSocket svs(atomic_GameServer_DefaultPort);
             m_server = new Poco::Net::TCPServer(new GameServerSessionFactory(), svs, params);
             m_server->start();
 
@@ -158,7 +158,7 @@ void GameServer::messageLoop()
 
 uint32 GameServer::cretaePID()
 {
-    return ++m_pidgen;
+    return m_pidgen++;
 }
 
 #endif // atomic_enable_GameServer

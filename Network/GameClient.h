@@ -53,7 +53,7 @@ private:
 private:
     static GameClient *s_inst;
 
-    bool m_end_flag;
+    bool m_stop;
     PlayerID m_pid;
     Poco::Net::SocketAddress m_address;
     EventHandler m_handler;
@@ -63,6 +63,7 @@ private:
 
 #define atomicGameClientInitialize()        GameClient::initializeInstance()
 #define atomicGameClientFinalize()          GameClient::finalizeInstance()
+#define atomicGameClientConnect(Host,Port)  GameClient::getInstance()->connect(Host,Port)
 #define atomicGameClientPushMessage(m)      GameClient::getInstance()->pushMessage(PMessageCast(m))
 #define atomicGameClientHandleMessages(h)   GameClient::getInstance()->handleReceivedMessage(h)
 #define atomicGameClientGetPlayerID()       GameClient::getInstance()->getPlayerID()

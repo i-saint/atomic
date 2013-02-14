@@ -19,8 +19,9 @@ namespace atomic {
 
 
 AtomicGame::AtomicGame()
-: m_world(NULL)
-, m_input_server(NULL)
+: m_input_server(NULL)
+, m_world(NULL)
+, m_frame(0)
 {
 #ifdef atomic_enable_sync_lock
     m_sync_lock = false;
@@ -29,6 +30,7 @@ AtomicGame::AtomicGame()
 
     PlayerName name = L"test";
     m_input_server = CreateInputServerLocal();
+    //m_input_server = CreateInputServerNetwork();
     m_input_server->addPlayer(0, name, 0);
 
     m_world = istNew(World)();
@@ -80,10 +82,10 @@ void AtomicGame::frameBegin()
 void AtomicGame::update(float32 dt)
 {
     if(!atomicDbgDebugMenuIsActive()) {
-        m_input_server->pushInput(0, *atomicGetSystemInputs());
+        m_input_server->pushInput(0, atomicGetSystemInputs()->getRawInput());
     }
     else {
-        m_input_server->pushInput(0, InputState());
+        m_input_server->pushInput(0, RepInput());
     }
 
     istCommandlineFlush();
@@ -136,6 +138,7 @@ void AtomicGame::frameEnd()
     if(atomicGetConfig()->pause) { return; }
 
     m_world->frameEnd();
+    ++m_frame;
 }
 
 
@@ -262,7 +265,21 @@ void AtomicGame::handleEntitiesQuery( std::string &out )
 
 void AtomicGame::handlePMessages( const PMessage &mes )
 {
+    m_input_server->handlePMessage(mes);
 
+    switch(mes.type) {
+    case PM_Accepted:
+        {
+            auto &m = reinterpret_cast<const PMessage_Accepted&>(mes);
+            m_player_id = m.player_id;
+        }
+        break;
+    case PM_Rejected:
+        {
+            istAssert(false);
+        }
+        break;
+    }
 }
 
 } // namespace atomic

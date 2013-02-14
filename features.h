@@ -9,6 +9,15 @@
 
 #define atomic_MaxPlayerNum 4
 
+#ifdef ist_env_Master
+#   define atomic_NetworkTimeout 3
+#else
+#   define atomic_NetworkTimeout 180
+#endif 
+#define atomic_Leveleditor_DefaultPort 10050
+#define atomic_GameServer_DefaultPort 10051
+
+
 #define atomic_enable_LevelEditorServer
 #define atomic_enable_GameServer
 #define atomic_enable_GameClient

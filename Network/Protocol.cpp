@@ -20,6 +20,7 @@ void PMessage::destroy()
 PMessage_Ping PMessage_Ping::create()
 {
     PMessage_Ping t;
+    istMemset(&t, 0, sizeof(t));
     t.type = PM_Ping;
     return t;
 }
@@ -27,20 +28,24 @@ PMessage_Ping PMessage_Ping::create()
 PMessage_Pong PMessage_Pong::create()
 {
     PMessage_Pong t;
+    istMemset(&t, 0, sizeof(t));
     t.type = PM_Pong;
     return t;
 }
 
-PMessage_Accepted PMessage_Accepted::create()
+PMessage_Accepted PMessage_Accepted::create(PlayerID pid)
 {
     PMessage_Accepted t;
+    istMemset(&t, 0, sizeof(t));
     t.type = PM_Accepted;
+    t.player_id = pid;
     return t;
 }
 
 PMessage_Rejected PMessage_Rejected::create()
 {
     PMessage_Rejected t;
+    istMemset(&t, 0, sizeof(t));
     t.type = PM_Rejected;
     return t;
 }
@@ -48,8 +53,10 @@ PMessage_Rejected PMessage_Rejected::create()
 PMessage_Join PMessage_Join::create( PlayerID pid, const PlayerName &name )
 {
     PMessage_Join t;
+    istMemset(&t, 0, sizeof(t));
     t.type = PM_Join;
-    t.pid = pid;
+    t.player_id = pid;
+    t.frame = 0;
     memcpy(t.name, name, sizeof(PlayerName));
     return t;
 }
@@ -58,10 +65,23 @@ PMessage_Join PMessage_Join::create( PlayerID pid, const PlayerName &name )
 PMessage_Leave PMessage_Leave::create( PlayerID pid )
 {
     PMessage_Leave t;
+    istMemset(&t, 0, sizeof(t));
     t.type = PM_Leave;
-    t.pid = pid;
+    t.player_id = pid;
     return t;
 }
+
+PMessage_Update PMessage_Update::create( PlayerID pid, uint32 frame, const RepInput &inp )
+{
+    PMessage_Update t;
+    istMemset(&t, 0, sizeof(t));
+    t.type = PM_Update;
+    t.player_id = pid;
+    t.frame = frame;
+    t.input = inp;
+    return t;
+}
+
 
 
 
@@ -99,7 +119,9 @@ bool RecvPMessages( Poco::Net::StreamSocket *stream, PMessageBuffer &buf, PMessa
     if(stream->receiveBytes(&buf[0], buf.size())==0) { return false; }
 
     PMesBufferHeader header = *(PMesBufferHeader*)&buf[0];
+    if(header.length_in_byte==0) { return true; }
     buf.resize(header.length_in_byte);
+
     if(stream->receiveBytes(&buf[0], buf.size())==0) { return false; }
     const PMessage *pmes = (PMessage*)(&buf[0]);
     for(size_t i=0; i<header.num_message; ++i) {
@@ -182,6 +204,9 @@ bool PMessenger::sendMessage(Poco::Net::StreamSocket *stream)
 bool PMessenger::recvMessage(Poco::Net::StreamSocket *stream)
 {
     bool ret = RecvPMessages(stream, m_message_buffer, m_message_receiving);
+    if(ret && !m_message_receiving.empty()) {
+        processReceivingMessage(m_message_receiving);
+    }
     {
         ist::Mutex::ScopedLock lock(m_mutex_recv);
         m_message_recv.insert(m_message_recv.end(), m_message_receiving.begin(), m_message_receiving.end());

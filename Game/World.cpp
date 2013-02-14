@@ -26,7 +26,6 @@ World::World()
 , m_entity_set(NULL)
 , m_sph(NULL)
 , m_vfx(NULL)
-, m_frame(0)
 {
     m_collision_set = istNew(CollisionSet)();
     m_modules.push_back(m_collision_set);
@@ -75,9 +74,7 @@ void World::frameBegin()
 
 void World::update(float32 dt)
 {
-    ++m_frame;
-
-    if(m_frame==1) {
+    if(atomicGetFrame()==0) {
         m_entity_set->createEntity<Level_Test>();
     }
 

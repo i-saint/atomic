@@ -31,8 +31,6 @@ private:
     FrustumPlanes m_frustum;
     vec4 m_field_size;
 
-    uint32 m_frame;
-
 public:
     World();
     ~World();
@@ -53,7 +51,6 @@ public:
     PerspectiveCamera* getBGCamera()    { return &m_camera_bg; }
     const FrustumPlanes* getViewFrustum() const { return &m_frustum; }
     const vec4& getFieldSize() const    { return m_field_size; }
-    uint32 getFrame() const             { return m_frame; }
 
     void setFieldSize(const vec4 &v)    { m_field_size=v; }
 
@@ -65,7 +62,6 @@ public:
 };
 
 
-#define atomicGetFrame()        atomicGetWorld()->getFrame()
 #define atomicGetGameCamera()   atomicGetWorld()->getGameCamera()
 #define atomicGetBGCamera()     atomicGetWorld()->getBGCamera()
 #define atomicGetViewFrustum()  atomicGetWorld()->getViewFrustum()

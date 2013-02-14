@@ -43,8 +43,21 @@ union istAlign(16) PMessage
     uint8 padding[64];
 
     PMessage() : type(PM_Unknown) {}
+    void share();
     void destroy(); // デストラクタ代わり。可変長系メッセージのメモリの開放はこれで行う
 };
+
+struct PBuffer
+{
+    int32 ref_count;
+    uint32 data_size;
+
+    static PBuffer* construct(void *mem, uint32 size); // size: この構造体自身は含まないサイズ
+    static void destruct(void *mem);
+    char* getData() { return reinterpret_cast<char*>(this+1); }
+    const char* getData() const { return reinterpret_cast<const char*>(this+1); }
+};
+
 typedef ist::raw_vector<PMessage> PMessageCont;
 typedef ist::raw_vector<char> PMessageBuffer;
 
@@ -69,6 +82,7 @@ struct istAlign(16) PMessage_Ping
     uint8 padding[60];
 
     static PMessage_Ping create();
+    operator const PMessage&() const { return reinterpret_cast<const PMessage&>(*this); }
 };
 PM_Ensure(PMessage_Ping);
 
@@ -80,6 +94,7 @@ struct istAlign(16) PMessage_Pong
     uint8 padding[60];
 
     static PMessage_Pong create();
+    operator const PMessage&() const { return reinterpret_cast<const PMessage&>(*this); }
 };
 PM_Ensure(PMessage_Pong);
 
@@ -88,10 +103,11 @@ PM_Ensure(PMessage_Pong);
 struct istAlign(16) PMessage_Accepted
 {
     PM_Type type;
-    uint32 player_id;
+    PlayerID player_id;
     uint8 padding[56];
 
-    static PMessage_Accepted create();
+    static PMessage_Accepted create(PlayerID pid);
+    operator const PMessage&() const { return reinterpret_cast<const PMessage&>(*this); }
 };
 PM_Ensure(PMessage_Accepted);
 
@@ -103,6 +119,7 @@ struct istAlign(16) PMessage_Rejected
     uint8 padding[60];
 
     static PMessage_Rejected create();
+    operator const PMessage&() const { return reinterpret_cast<const PMessage&>(*this); }
 };
 PM_Ensure(PMessage_Rejected);
 
@@ -111,11 +128,13 @@ PM_Ensure(PMessage_Rejected);
 struct istAlign(16) PMessage_Join
 {
     PM_Type type;
-    PlayerID pid;
+    PlayerID player_id;
+    uint32 frame;
     wchar_t name[16];
-    uint8 padding[24];
+    uint8 padding[20];
 
     static PMessage_Join create(PlayerID pid, const PlayerName &name);
+    operator const PMessage&() const { return reinterpret_cast<const PMessage&>(*this); }
 };
 PM_Ensure(PMessage_Join);
 
@@ -125,10 +144,11 @@ PM_Ensure(PMessage_Join);
 struct istAlign(16) PMessage_Leave
 {
     PM_Type type;
-    PlayerID pid;
+    PlayerID player_id;
     uint8 padding[56];
 
     static PMessage_Leave create(PlayerID pid);
+    operator const PMessage&() const { return reinterpret_cast<const PMessage&>(*this); }
 };
 PM_Ensure(PMessage_Leave);
 
@@ -140,6 +160,7 @@ struct istAlign(16) PMessage_GameStart
     uint8 padding[60];
 
     PMessage_GameStart() : type(PM_GameStart) {}
+    operator const PMessage&() const { return reinterpret_cast<const PMessage&>(*this); }
 };
 PM_Ensure(PMessage_GameStart);
 
@@ -150,6 +171,7 @@ struct istAlign(16) PMessage_GameEnd
     uint8 padding[60];
 
     PMessage_GameEnd() : type(PM_GameEnd) {}
+    operator const PMessage&() const { return reinterpret_cast<const PMessage&>(*this); }
 };
 PM_Ensure(PMessage_GameEnd);
 
@@ -159,13 +181,15 @@ PM_Ensure(PMessage_GameEnd);
 struct istAlign(16) PMessage_Update
 {
     PM_Type type;
-    uint32 player_id;
+    PlayerID player_id;
     uint32 frame;
     uint32 sync_mark;
     RepInput input;
     uint8 padding[40];
 
     PMessage_Update() : type(PM_Update) {}
+    static PMessage_Update create(PlayerID pid, uint32 frame, const RepInput &inp);
+    operator const PMessage&() const { return reinterpret_cast<const PMessage&>(*this); }
 };
 PM_Ensure(PMessage_Update);
 
@@ -179,6 +203,7 @@ struct istAlign(16) PMessage_Text
     wchar_t text[28];
 
     PMessage_Text() : type(PM_Text) {}
+    operator const PMessage&() const { return reinterpret_cast<const PMessage&>(*this); }
 };
 PM_Ensure(PMessage_Text);
 
@@ -193,6 +218,7 @@ struct istAlign(16) PMessage_Sync
     uint8 padding[52];
 
     PMessage_Sync() : type(PM_Sync), data_size(0), data(NULL) {}
+    operator const PMessage&() const { return reinterpret_cast<const PMessage&>(*this); }
 };
 PM_Ensure(PMessage_Sync);
 
@@ -214,6 +240,8 @@ public:
     void handleReceivedMessageCont(const MessageContHandler &h);
 
 protected:
+    virtual void processReceivingMessage(PMessageCont &mes) {}
+
     bool sendMessage(Poco::Net::StreamSocket *stream);
     bool recvMessage(Poco::Net::StreamSocket *stream);
     void clearAllMessage();

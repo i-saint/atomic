@@ -1,6 +1,7 @@
 ﻿#include "stdafx.h"
 #include "GameServer.h"
 #include "GameClient.h"
+#include "Game/AtomicApplication.h"
 
 namespace atomic {
 
@@ -31,7 +32,7 @@ GameClient* GameClient::getInstance()
 
 
 GameClient::GameClient()
-    : m_end_flag(false)
+    : m_stop(false)
     , m_thread(NULL)
     , m_pid(0)
 {
@@ -56,7 +57,7 @@ void GameClient::connect( const char *host, uint16 port )
 
 void GameClient::close()
 {
-    m_end_flag = true;
+    m_stop = true;
 }
 
 void GameClient::shutdown()
@@ -67,6 +68,7 @@ void GameClient::shutdown()
         delete m_thread;
     }
     m_pid = 0;
+    m_stop = false;
 }
 
 void GameClient::handleEvent( Event e )
@@ -79,24 +81,18 @@ void GameClient::handleEvent( Event e )
 void GameClient::messageLoop()
 {
     ist::Thread::setNameToCurrentThread("GameClient::messageLoop()");
+    {
+        ist::Mutex::ScopedLock slock(m_mutex_send);
+        m_message_send.insert(m_message_send.begin(), PMessage_Join::create(0, atomicGetConfig()->name));
+    }
 
     Poco::Net::StreamSocket *sock = NULL;
     try {
         sock = new Poco::Net::StreamSocket(m_address);
         sock->setNoDelay(true);
         sock->setBlocking(true);
-        sock->setReceiveTimeout(Poco::Timespan(3, 0));
-        sock->setSendTimeout(Poco::Timespan(3, 0));
-        {
-            // todo:
-            // greeting
-            ist::Mutex::ScopedLock slock(m_mutex_send);
-            ist::Mutex::ScopedLock rlock(m_mutex_recv);
-            m_message_send.clear();
-            m_message_recv.clear();
-            sendMessage(sock);
-            recvMessage(sock);
-        }
+        sock->setReceiveTimeout(Poco::Timespan(atomic_NetworkTimeout, 0));
+        sock->setSendTimeout(Poco::Timespan(atomic_NetworkTimeout, 0));
     }
     catch(Poco::Exception &) {
         handleEvent(EV_ConnectionFailed);
@@ -104,18 +100,18 @@ void GameClient::messageLoop()
     }
     handleEvent(EV_Connected);
 
-    while(!m_end_flag) {
-        size_t received = 0;
+    while(!m_stop) {
         try {
             sendMessage(sock);
             recvMessage(sock);
         }
-        catch(Poco::Exception &) {
-            // おそらく connection time out
-        }
-        if(received==0) {
+        catch(Poco::TimeoutException &) {
+            m_stop = true;
             handleEvent(EV_Diconnected);
-            goto Cleanup;
+        }
+        catch(Poco::Exception &) {
+            m_stop = true;
+            handleEvent(EV_Diconnected);
         }
     }
 
@@ -126,7 +122,7 @@ void GameClient::messageLoop()
     sock->shutdown();
 Cleanup:
     delete sock;
-    m_end_flag = false;
+    m_stop = false;
 }
 
 #else // atomic_enable_GameClient

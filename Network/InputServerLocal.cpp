@@ -80,10 +80,10 @@ public:
     virtual bool sync() { return true; }
     virtual void addPlayer(PlayerID pid, const PlayerName &name, uint32 equip);
     virtual void erasePlayer(PlayerID pid);
-    virtual void pushInput(PlayerID pid, const InputState &is);
+    virtual void pushInput(PlayerID pid, const RepInput &is);
     virtual void pushLevelEditorCommand(const LevelEditorCommand &v);
     virtual void handlePMessage(const PMessage &v);
-    virtual const InputState& getInput(uint32 pid) const;
+    virtual const InputState& getInput(PlayerID pid) const;
 
      virtual bool save(const char *path);
      virtual bool load(const char *path) { return false; }
@@ -124,17 +124,14 @@ void InputServerLocal::erasePlayer( PlayerID id )
 {
 }
 
-void InputServerLocal::pushInput(PlayerID pid, const InputState &is)
+void InputServerLocal::pushInput(PlayerID pid, const RepInput &is)
 {
     if(pid >= m_players.size()) { istAssert(false); }
 
-    RepInput rd;
-    rd.move = is.getRawMove();
-    rd.buttons = is.getButtons();
-    m_inputs[pid].push_back(rd);
+    m_inputs[pid].push_back(is);
     m_players[pid].num_frame = m_inputs[pid].size();
 
-    m_is[0].update(rd.move, rd.buttons);
+    m_is[0].update(is);
 }
 
 void InputServerLocal::pushLevelEditorCommand( const LevelEditorCommand &v )
@@ -150,7 +147,7 @@ void InputServerLocal::handlePMessage(const PMessage &v)
 }
 
 
-const InputState& InputServerLocal::getInput(uint32 pid) const
+const InputState& InputServerLocal::getInput(PlayerID pid) const
 {
     return m_is[pid];
 }

@@ -66,12 +66,12 @@ private:
     char m_buf[Size];
 };
 
-typedef istAlign(4) TVariant<4>     Variant4;
-typedef istAlign(8) TVariant<8>     Variant8;
-typedef istAlign(16) TVariant<16>   Variant16;
-typedef istAlign(32) TVariant<32>   Variant32;
-typedef TVariant<64>  Variant64;
-typedef TVariant<128> Variant128;
+typedef istAlign(4) TVariant<4>     variant4;
+typedef istAlign(8) TVariant<8>     variant8;
+typedef istAlign(16) TVariant<16>   variant16;
+typedef istAlign(32) TVariant<32>   variant32;
+typedef TVariant<64>  variant64;
+typedef TVariant<128> variant128;
 
 template<size_t B, size_t A> inline TVariant<B>& variant_cast(TVariant<A> &a) { return (TVariant<B>&)a; }
 template<size_t B, size_t A> inline const TVariant<B>& variant_cast(const TVariant<A> &a) { return (const TVariant<B>&)a; }

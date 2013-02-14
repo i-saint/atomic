@@ -108,7 +108,7 @@ bool CLParseArg(const char *str, ivec4 &v)
     return false;
 }
 
-bool CLParseArg( const char *str, Variant16 &v )
+bool CLParseArg( const char *str, variant16 &v )
 {
     return
         CLParseArg(str, v.cast<vec4>()) ||

@@ -32,6 +32,7 @@ struct AtomicConfig
     float32 bgm_volume;
     float32 se_volume;
     int language;
+    PlayerName name;
 
     AtomicConfig();
     void setup();

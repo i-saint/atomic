@@ -22,7 +22,7 @@ public:
     virtual bool sync()=0;
     virtual void addPlayer(PlayerID pid, const PlayerName &name, uint32 equip)=0;
     virtual void erasePlayer(PlayerID pid)=0;
-    virtual void pushInput(PlayerID pid, const InputState &v)=0;
+    virtual void pushInput(PlayerID pid, const RepInput &v)=0;
     virtual void pushLevelEditorCommand(const LevelEditorCommand &v)=0;
     virtual void handlePMessage(const PMessage &v)=0;
     virtual const InputState& getInput(PlayerID pid) const=0;

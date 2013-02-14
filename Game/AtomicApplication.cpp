@@ -46,6 +46,7 @@ AtomicConfig::AtomicConfig()
     bgm_volume              = 0.3f;
     se_volume               = 0.3f;
     language                = LANG_JP;
+    wcscpy(name, L"atom");
 }
 
 bool AtomicConfig::readFromFile( const char* filepath )
@@ -188,6 +189,8 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     atomicGameClientInitialize();
     atomicLevelEditorServerInitialize();
 
+    atomicGameClientConnect("localhost", atomic_GameServer_DefaultPort);
+
     return true;
 }
 
@@ -303,7 +306,7 @@ void AtomicApplication::updateInput()
 {
     super::updateInput();
 
-    InputState::move_t move;
+    RepMove move;
     int buttons = getJoyState().getButtons();
 
     const ist::MouseState &mouse = getMouseState();
@@ -325,10 +328,10 @@ void AtomicApplication::updateInput()
     }
 
     {
-        InputState::move_t jpos(getJoyState().getX(), -getJoyState().getY());
+        RepMove jpos(getJoyState().getX(), -getJoyState().getY());
         if(glm::length(jpos.toF())>0.4f) { move=jpos; }
     }
-    m_inputs.update(move, buttons);
+    m_inputs.update(RepInput(move, buttons));
 }
 
 bool AtomicApplication::handleWindowMessage(const ist::WindowMessage& wm)

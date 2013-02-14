@@ -25,6 +25,8 @@ public:
     void messageLoop();
 
 private:
+    void processReceivingMessage(PMessageCont &mes);
+
     uint32 m_pid;
 };
 

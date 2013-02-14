@@ -21,7 +21,7 @@ public:
     virtual bool sync() { return true; }
     virtual void addPlayer(PlayerID pid, const PlayerName &name, uint32 equip) {}
     virtual void erasePlayer(PlayerID pid) {}
-    virtual void pushInput(PlayerID pid, const InputState &is) {}
+    virtual void pushInput(PlayerID pid, const RepInput &is) {}
     virtual void pushLevelEditorCommand(const LevelEditorCommand &v) {}
     virtual void handlePMessage(const PMessage &v) {}
     virtual const InputState& getInput(uint32 pid) const;
@@ -49,7 +49,7 @@ void InputServerReplay::update()
         if(m_pos>=pl.begin_frame && m_pos<pl.begin_frame+pl.num_frame) {
             InputCont &inp = m_inputs[i];
             RepInput &rd = inp[m_pos-pl.begin_frame];
-            m_is[pid].update(rd.move, rd.buttons);
+            m_is[pid].update(rd);
             ++pid;
         }
         else if(m_pos==pl.begin_frame+pl.num_frame) {

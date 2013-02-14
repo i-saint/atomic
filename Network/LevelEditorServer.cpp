@@ -227,7 +227,7 @@ LevelEditorServer* LevelEditorServer::getInstance()
 
 
 LevelEditorServerConfig::LevelEditorServerConfig()
-    : port(10050)
+    : port(atomic_Leveleditor_DefaultPort)
     , max_queue(100)
     , max_threads(4)
 {

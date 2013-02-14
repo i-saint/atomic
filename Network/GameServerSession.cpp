@@ -13,8 +13,8 @@ GameServerSession::GameServerSession( const Poco::Net::StreamSocket &_ss )
     Poco::Net::StreamSocket &ss = socket();
     ss.setNoDelay(true);
     ss.setBlocking(true);
-    ss.setReceiveTimeout(Poco::Timespan(3, 0));
-    ss.setSendTimeout(Poco::Timespan(3, 0));
+    ss.setReceiveTimeout(Poco::Timespan(atomic_NetworkTimeout, 0));
+    ss.setSendTimeout(Poco::Timespan(atomic_NetworkTimeout, 0));
 }
 
 void GameServerSession::run()
@@ -32,6 +32,10 @@ void GameServerSession::messageLoop()
 {
     ist::Thread::setNameToCurrentThread("GameServerSession::messageLoop()");
     m_pid = atomicGameServerGet()->cretaePID();
+    {
+        ist::Mutex::ScopedLock slock(m_mutex_send);
+        m_message_send.insert(m_message_send.begin(), PMessage_Accepted::create(m_pid));
+    }
 
     Poco::Net::StreamSocket *stream = &socket();
     ist::Timer timer;
@@ -45,6 +49,26 @@ void GameServerSession::messageLoop()
             ist::Thread::milliSleep(1);
         }
    }
+}
+
+void GameServerSession::processReceivingMessage( PMessageCont &cont )
+{
+    for(size_t i=0; i<cont.size(); ++i) {
+        PMessage &mes = cont[i];
+        switch(mes.type) {
+        case PM_Join:
+            {
+                reinterpret_cast<PMessage_Join&>(mes).player_id = m_pid;
+            }
+            break;
+        case PM_Update:
+            {
+                reinterpret_cast<PMessage_Update&>(mes).player_id = m_pid;
+            }
+            break;
+        }
+
+    }
 }
 
 

@@ -351,7 +351,9 @@ void CollisionSet::asyncupdate(float32 dt)
     for(uint32 i=0; i<m_active_tasks; ++i) {
         m_tasks[i]->setup(m_entities.begin()+(block_size*i), m_entities.begin()+stl::min<uint32>(block_size*(i+1), m_entities.size()));
     }
-    ist::EnqueueTasks(&m_tasks[0], m_tasks.size());
+    if(!m_tasks.empty()) {
+        ist::EnqueueTasks(&m_tasks[0], m_tasks.size());
+    }
 }
 
 void CollisionSet::draw()
@@ -363,7 +365,9 @@ void CollisionSet::draw()
 
 void CollisionSet::frameEnd()
 {
-    ist::WaitTasks(&m_tasks[0], m_tasks.size());
+    if(!m_tasks.empty()) {
+        ist::WaitTasks(&m_tasks[0], m_tasks.size());
+    }
 
 #ifdef atomic_enable_distance_field
     m_df[(m_df_current+1) % _countof(m_df)]->updateEnd();

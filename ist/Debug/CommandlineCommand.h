@@ -33,7 +33,7 @@ bool CLParseArg(const char *str, vec4 &v);
 bool CLParseArg(const char *str, ivec2 &v);
 bool CLParseArg(const char *str, ivec3 &v);
 bool CLParseArg(const char *str, ivec4 &v);
-bool CLParseArg(const char *str, Variant16 &v);
+bool CLParseArg(const char *str, variant16 &v);
 
 
 template<class V>

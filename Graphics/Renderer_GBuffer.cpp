@@ -165,7 +165,7 @@ void PassGBuffer_Fluid::draw()
 
     // rigid particle
     Texture2D *param_texture = atomicGetTexture2D(TEX2D_ENTITY_PARAMS);
-    {
+    if(!m_rinstances.empty()) {
         dc->updateResource(param_texture, 0, uvec2(0,0), uvec2(sizeof(PSetInstance)/sizeof(vec4), m_rinstances.size()), &m_rinstances[0]);
         MapAndWrite(dc, m_vbo_rigid, &m_rparticles[0], sizeof(PSetParticle)*num_rigid_particles);
     }

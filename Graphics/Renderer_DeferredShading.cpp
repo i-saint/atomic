@@ -282,12 +282,12 @@ void PassDeferredShading_Lights::upsampling(int32 level)
 void PassDeferredShading_Lights::updateConstantBuffers()
 {
     i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
-    {
+    if(!m_directional_lights.empty()) {
         Buffer *vbo_instance    = atomicGetVertexBuffer(VBO_DIRECTIONALLIGHT_INSTANCES);
         int32 num_lights = m_directional_lights.size();
         MapAndWrite(dc, vbo_instance, &m_directional_lights[0], sizeof(DirectionalLight)*num_lights);
     }
-    {
+    if(!m_point_lights.empty()) {
         Buffer *vbo_instance    = atomicGetVertexBuffer(VBO_POINTLIGHT_INSTANCES);
         int32 num_lights = m_point_lights.size();
         MapAndWrite(dc, vbo_instance, &m_point_lights[0], sizeof(PointLight)*num_lights);
