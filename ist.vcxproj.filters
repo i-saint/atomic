@@ -319,6 +319,9 @@
     <ClInclude Include="ist\Debug\Commandline_ConsoleFrontend.h">
       <Filter>Debug</Filter>
     </ClInclude>
+    <ClInclude Include="ist\Base\Stringnize.h">
+      <Filter>Base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ist\Window\Application.cpp">
@@ -460,14 +463,14 @@
     <ClCompile Include="ist\Debug\CrashDump.cpp">
       <Filter>Debug</Filter>
     </ClCompile>
-    <ClCompile Include="ist\Debug\CommandlineCommand.cpp">
-      <Filter>Debug</Filter>
-    </ClCompile>
     <ClCompile Include="ist\Debug\Commandline.cpp">
       <Filter>Debug</Filter>
     </ClCompile>
     <ClCompile Include="ist\Debug\Commandline_ConsoleFrontend.cpp">
       <Filter>Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Base\Stringnize.cpp">
+      <Filter>Base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

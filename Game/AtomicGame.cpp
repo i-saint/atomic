@@ -11,6 +11,7 @@
 #include "Game/Entity.h"
 #include "Game/EntityQuery.h"
 #include "Network/GameCLient.h"
+#include "Network/LevelEditorServer.h"
 
 #include "Collision.h"
 #include "Entity/Routine.h"

@@ -52,6 +52,15 @@ public:
         m_size = s;
     }
 
+    void resize(size_type s, const_reference v)
+    {
+        size_type before = m_size;
+        resize(s);
+        if(s > before) {
+            std::fill_n(m_data+before, m_data+s, v);
+        }
+    }
+
     void push_back(const_reference v)
     {
         resize(m_size+1);

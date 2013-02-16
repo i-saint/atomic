@@ -3,7 +3,7 @@
 #include "Input.h"
 #include "AtomicApplication.h"
 #include "Game/DebugMenu.h"
-#include "Network/LevelEditorServer.h"
+#include "Network/LevelEditorCommand.h"
 #include "Network/InputServer.h"
 #include "Network/Protocol.h"
 

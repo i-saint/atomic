@@ -32,6 +32,7 @@
     <ClInclude Include="ist\Base\PoolNew.h" />
     <ClInclude Include="ist\Base\Serialize.h" />
     <ClInclude Include="ist\Base\SharedObject.h" />
+    <ClInclude Include="ist\Base\Stringnize.h" />
     <ClInclude Include="ist\Base\StringSymbol.h" />
     <ClInclude Include="ist\Base\Types.h" />
     <ClInclude Include="ist\Base\Variant.h" />
@@ -133,6 +134,7 @@
     <ClCompile Include="ist\Base\New.cpp" />
     <ClCompile Include="ist\Base\PoolNew.cpp" />
     <ClCompile Include="ist\Base\Serialize.cpp" />
+    <ClCompile Include="ist\Base\Stringnize.cpp" />
     <ClCompile Include="ist\Concurrency\Condition.cpp" />
     <ClCompile Include="ist\Concurrency\Mutex.cpp" />
     <ClCompile Include="ist\Concurrency\Process.cpp" />
@@ -142,7 +144,6 @@
     <ClCompile Include="ist\Concurrency\Timer.cpp" />
     <ClCompile Include="ist\Debug\Callstack.cpp" />
     <ClCompile Include="ist\Debug\Commandline.cpp" />
-    <ClCompile Include="ist\Debug\CommandlineCommand.cpp" />
     <ClCompile Include="ist\Debug\Commandline_ConsoleFrontend.cpp" />
     <ClCompile Include="ist\Debug\CrashDump.cpp" />
     <ClCompile Include="ist\Debug\ParamTree.cpp" />

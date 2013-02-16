@@ -2,7 +2,7 @@
 #define ist_Debug_CommandlineCommand_h
 #include "ist/Base/Types.h"
 #include "ist/Base/New.h"
-#include "ist/Base/Variant.h"
+#include "ist/Base/Stringnize.h"
 
 namespace ist {
 
@@ -15,25 +15,11 @@ public:
     virtual uint32 getNumArgs() const=0;
     virtual void setArg(uint32 i, const char *arg)=0;
     virtual void clearArgs()=0;
-    virtual void exec()=0;
+    virtual void stringnizeResult(stl::string &str)=0;
+    virtual bool exec()=0;
 };
 
-
-bool CLParseArg(const char *str, bool &v);
-bool CLParseArg(const char *str, int8 &v);
-bool CLParseArg(const char *str, int16 &v);
-bool CLParseArg(const char *str, int32 &v);
-bool CLParseArg(const char *str, uint8 &v);
-bool CLParseArg(const char *str, uint16 &v);
-bool CLParseArg(const char *str, uint32 &v);
-bool CLParseArg(const char *str, float32 &v);
-bool CLParseArg(const char *str, vec2 &v);
-bool CLParseArg(const char *str, vec3 &v);
-bool CLParseArg(const char *str, vec4 &v);
-bool CLParseArg(const char *str, ivec2 &v);
-bool CLParseArg(const char *str, ivec3 &v);
-bool CLParseArg(const char *str, ivec4 &v);
-bool CLParseArg(const char *str, variant16 &v);
+#define RemoveCR(T) typename std::remove_const<typename std::remove_reference<T>::type>::type
 
 
 template<class V>
@@ -44,12 +30,15 @@ public:
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
     virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
-    virtual void exec()
+    virtual void stringnizeResult(stl::string &str) { str="void"; }
+    virtual bool exec()
     {
         V a = V();
-        if(m_v && (!m_args[0] || CLParseArg(m_args[0], a))) {
+        if(m_v && (!m_args[0] || Parse(m_args[0], a))) {
             m_v = a;
         }
+        else { return false; }
+        return true;
     }
 private:
     V *m_v;
@@ -62,16 +51,43 @@ class CLCFunction0 : public ICLCommand
 {
 public:
     typedef R (*Func)();
+    typedef RemoveCR(R) RT;
 
     CLCFunction0(Func f) : m_f(f) {}
     virtual uint32 getNumArgs() const { return 0; }
     virtual void setArg(uint32 i, const char *arg) {}
     virtual void clearArgs() {}
-    virtual void exec()
+    virtual void stringnizeResult(stl::string &str) { Stringnize(m_r, str); }
+    virtual bool exec()
+    {
+        if(m_f) {
+            m_r = m_f();
+        }
+        else { return false; }
+        return true;
+    }
+private:
+    Func m_f;
+    RT m_r;
+};
+template<>
+class CLCFunction0<void> : public ICLCommand
+{
+public:
+    typedef void (*Func)();
+
+    CLCFunction0(Func f) : m_f(f) {}
+    virtual uint32 getNumArgs() const { return 0; }
+    virtual void setArg(uint32 i, const char *arg) {}
+    virtual void clearArgs() {}
+    virtual void stringnizeResult(stl::string &str) { str="void"; }
+    virtual bool exec()
     {
         if(m_f) {
             m_f();
         }
+        else { return false; }
+        return true;
     }
 private:
     Func m_f;
@@ -82,17 +98,46 @@ class CLCMemFn0 : public ICLCommand
 {
 public:
     typedef R (C::*Func)();
+    typedef RemoveCR(R) RT;
 
     CLCMemFn0(Func f, C *o) : m_f(f), m_obj(o) {}
     virtual uint32 getNumArgs() const { return 0; }
     virtual void setArg(uint32 i, const char *arg) {}
     virtual void clearArgs() {}
-    virtual void exec()
+    virtual void stringnizeResult(stl::string &str) { Stringnize(m_r, str); }
+    virtual bool exec()
+    {
+        if( m_f && m_obj )
+        {
+            m_r = (m_obj->*m_f)();
+        }
+        else { return false; }
+        return true;
+    }
+private:
+    Func m_f;
+    C *m_obj;
+    RT m_r;
+};
+template<class C>
+class CLCMemFn0<void, C> : public ICLCommand
+{
+public:
+    typedef void (C::*Func)();
+
+    CLCMemFn0(Func f, C *o) : m_f(f), m_obj(o) {}
+    virtual uint32 getNumArgs() const { return 0; }
+    virtual void setArg(uint32 i, const char *arg) {}
+    virtual void clearArgs() {}
+    virtual void stringnizeResult(stl::string &str) { str="void"; }
+    virtual bool exec()
     {
         if( m_f && m_obj )
         {
             (m_obj->*m_f)();
         }
+        else { return false; }
+        return true;
     }
 private:
     Func m_f;
@@ -104,17 +149,46 @@ class CLCConstMemFn0 : public ICLCommand
 {
 public:
     typedef R (C::*Func)() const;
+    typedef RemoveCR(R) RT;
 
     CLCConstMemFn0(Func f, const C *o) : m_f(f), m_obj(o) {}
     virtual uint32 getNumArgs() const { return 0; }
     virtual void setArg(uint32 i, const char *arg) {}
     virtual void clearArgs() {}
-    virtual void exec()
+    virtual void stringnizeResult(stl::string &str) { Stringnize(m_r, str); }
+    virtual bool exec()
+    {
+        if( m_f && m_obj )
+        {
+            m_r = (m_obj->*m_f)();
+        }
+        else { return false; }
+        return true;
+    }
+private:
+    Func m_f;
+    const C *m_obj;
+    RT m_r;
+};
+template<class C>
+class CLCConstMemFn0<void, C> : public ICLCommand
+{
+public:
+    typedef void (C::*Func)() const;
+
+    CLCConstMemFn0(Func f, const C *o) : m_f(f), m_obj(o) {}
+    virtual uint32 getNumArgs() const { return 0; }
+    virtual void setArg(uint32 i, const char *arg) {}
+    virtual void clearArgs() {}
+    virtual void stringnizeResult(stl::string &str) { str="void"; }
+    virtual bool exec()
     {
         if( m_f && m_obj )
         {
             (m_obj->*m_f)();
         }
+        else { return false; }
+        return true;
     }
 private:
     Func m_f;
@@ -126,21 +200,54 @@ class CLCFunction1 : public ICLCommand
 {
 public:
     typedef R (*Func)(A0);
-    typedef typename std::remove_const<typename std::remove_reference<A0>::type>::type A0T;
+    typedef RemoveCR(R) RT;
+    typedef RemoveCR(A0) A0T;
 
     CLCFunction1(Func f) : m_f(f) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
     virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
-    virtual void exec()
+    virtual void stringnizeResult(stl::string &str) { Stringnize(m_r, str); }
+    virtual bool exec()
     {
         A0T a0 = A0T();
         if( m_f
-                        && ( !m_args[0] || CLParseArg(m_args[0], a0) )
+            && ( !m_args[0] || Parse(m_args[0], a0) )
+            )
+        {
+            m_r = m_f(a0);
+        }
+        else { return false; }
+        return true;
+    }
+private:
+    Func m_f;
+    RT m_r;
+    const char *m_args[1];
+};
+template<class A0>
+class CLCFunction1<void, A0> : public ICLCommand
+{
+public:
+    typedef void (*Func)(A0);
+    typedef RemoveCR(A0) A0T;
+
+    CLCFunction1(Func f) : m_f(f) { clearArgs(); }
+    virtual uint32 getNumArgs() const { return _countof(m_args); }
+    virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
+    virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
+    virtual void stringnizeResult(stl::string &str) { Stringnize(m_r, str); }
+    virtual bool exec()
+    {
+        A0T a0 = A0T();
+        if( m_f
+            && ( !m_args[0] || Parse(m_args[0], a0) )
             )
         {
             m_f(a0);
         }
+        else { return false; }
+        return true;
     }
 private:
     Func m_f;
@@ -152,21 +259,55 @@ class CLCMemFn1 : public ICLCommand
 {
 public:
     typedef R (C::*Func)(A0);
-    typedef typename std::remove_const<typename std::remove_reference<A0>::type>::type A0T;
+    typedef RemoveCR(R) RT;
+    typedef RemoveCR(A0) A0T;
 
     CLCMemFn1(Func f, C *o) : m_f(f), m_obj(o) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
     virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
-    virtual void exec()
+    virtual void stringnizeResult(stl::string &str) { Stringnize(m_r, str); }
+    virtual bool exec()
     {
         A0T a0 = A0T();
         if( m_f && m_obj
-                        && ( !m_args[0] || CLParseArg(m_args[0], a0) )
+            && ( !m_args[0] || Parse(m_args[0], a0) )
+            )
+        {
+            m_r = (m_obj->*m_f)(a0);
+        }
+        else { return false; }
+        return true;
+    }
+private:
+    Func m_f;
+    C *m_obj;
+    RT m_r;
+    const char *m_args[1];
+};
+template<class C, class A0>
+class CLCMemFn1<void, C, A0> : public ICLCommand
+{
+public:
+    typedef void (C::*Func)(A0);
+    typedef RemoveCR(A0) A0T;
+
+    CLCMemFn1(Func f, C *o) : m_f(f), m_obj(o) { clearArgs(); }
+    virtual uint32 getNumArgs() const { return _countof(m_args); }
+    virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
+    virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
+    virtual void stringnizeResult(stl::string &str) { str="void"; }
+    virtual bool exec()
+    {
+        A0T a0 = A0T();
+        if( m_f && m_obj
+            && ( !m_args[0] || Parse(m_args[0], a0) )
             )
         {
             (m_obj->*m_f)(a0);
         }
+        else { return false; }
+        return true;
     }
 private:
     Func m_f;
@@ -179,21 +320,55 @@ class CLCConstMemFn1 : public ICLCommand
 {
 public:
     typedef R (C::*Func)(A0) const;
-    typedef typename std::remove_const<typename std::remove_reference<A0>::type>::type A0T;
+    typedef RemoveCR(R) RT;
+    typedef RemoveCR(A0) A0T;
 
     CLCConstMemFn1(Func f, const C *o) : m_f(f), m_obj(o) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
     virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
-    virtual void exec()
+    virtual void stringnizeResult(stl::string &str) { Stringnize(m_r, str); }
+    virtual bool exec()
     {
         A0T a0 = A0T();
         if( m_f && m_obj
-            && ( !m_args[0] || CLParseArg(m_args[0], a0) )
+            && ( !m_args[0] || Parse(m_args[0], a0) )
+            )
+        {
+            m_r = (m_obj->*m_f)(a0);
+        }
+        else { return false; }
+        return true;
+    }
+private:
+    Func m_f;
+    const C *m_obj;
+    RT m_r;
+    const char *m_args[1];
+};
+template<class C, class A0>
+class CLCConstMemFn1<void, C, A0> : public ICLCommand
+{
+public:
+    typedef void (C::*Func)(A0) const;
+    typedef RemoveCR(A0) A0T;
+
+    CLCConstMemFn1(Func f, const C *o) : m_f(f), m_obj(o) { clearArgs(); }
+    virtual uint32 getNumArgs() const { return _countof(m_args); }
+    virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
+    virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
+    virtual void stringnizeResult(stl::string &str) { str="void"; }
+    virtual bool exec()
+    {
+        A0T a0 = A0T();
+        if( m_f && m_obj
+            && ( !m_args[0] || Parse(m_args[0], a0) )
             )
         {
             (m_obj->*m_f)(a0);
         }
+        else { return false; }
+        return true;
     }
 private:
     Func m_f;
@@ -206,24 +381,60 @@ class CLCFunction2 : public ICLCommand
 {
 public:
     typedef R (*Func)(A0, A1);
-    typedef typename std::remove_const<typename std::remove_reference<A0>::type>::type A0T;
-    typedef typename std::remove_const<typename std::remove_reference<A1>::type>::type A1T;
+    typedef RemoveCR(R) RT;
+    typedef RemoveCR(A0) A0T;
+    typedef RemoveCR(A1) A1T;
 
     CLCFunction2(Func f) : m_f(f) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
     virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
-    virtual void exec()
+    virtual void stringnizeResult(stl::string &str) { Stringnize(m_r, str); }
+    virtual bool exec()
     {
         A0T a0 = A0T();
         A1T a1 = A1T();
         if( m_f
-                        && ( !m_args[0] || CLParseArg(m_args[0], a0) )
-            && ( !m_args[1] || CLParseArg(m_args[1], a1) )
+            && ( !m_args[0] || Parse(m_args[0], a0) )
+            && ( !m_args[1] || Parse(m_args[1], a1) )
+            )
+        {
+            m_r = m_f(a0, a1);
+        }
+        else { return false; }
+        return true;
+    }
+private:
+    Func m_f;
+    RT m_r;
+    const char *m_args[2];
+};
+template<class A0, class A1>
+class CLCFunction2<void, A0, A1> : public ICLCommand
+{
+public:
+    typedef void (*Func)(A0, A1);
+    typedef RemoveCR(A0) A0T;
+    typedef RemoveCR(A1) A1T;
+
+    CLCFunction2(Func f) : m_f(f) { clearArgs(); }
+    virtual uint32 getNumArgs() const { return _countof(m_args); }
+    virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
+    virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
+    virtual void stringnizeResult(stl::string &str) { Stringnize(m_r, str); }
+    virtual bool exec()
+    {
+        A0T a0 = A0T();
+        A1T a1 = A1T();
+        if( m_f
+            && ( !m_args[0] || Parse(m_args[0], a0) )
+            && ( !m_args[1] || Parse(m_args[1], a1) )
             )
         {
             m_f(a0, a1);
         }
+        else { return false; }
+        return true;
     }
 private:
     Func m_f;
@@ -235,24 +446,61 @@ class CLCMemFn2 : public ICLCommand
 {
 public:
     typedef R (C::*Func)(A0, A1);
-    typedef typename std::remove_const<typename std::remove_reference<A0>::type>::type A0T;
-    typedef typename std::remove_const<typename std::remove_reference<A1>::type>::type A1T;
+    typedef RemoveCR(R) RT;
+    typedef RemoveCR(A0) A0T;
+    typedef RemoveCR(A1) A1T;
 
     CLCMemFn2(Func f, C *o) : m_f(f), m_obj(o) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
     virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
-    virtual void exec()
+    virtual void stringnizeResult(stl::string &str) { Stringnize(m_r, str); }
+    virtual bool exec()
     {
         A0T a0 = A0T();
         A1T a1 = A1T();
         if( m_f && m_obj
-                        && ( !m_args[0] || CLParseArg(m_args[0], a0) )
-            && ( !m_args[1] || CLParseArg(m_args[1], a1) )
+            && ( !m_args[0] || Parse(m_args[0], a0) )
+            && ( !m_args[1] || Parse(m_args[1], a1) )
+            )
+        {
+            m_r = (m_obj->*m_f)(a0, a1);
+        }
+        else { return false; }
+        return true;
+    }
+private:
+    Func m_f;
+    C *m_obj;
+    RT m_r;
+    const char *m_args[2];
+};
+template<class C, class A0, class A1>
+class CLCMemFn2<void, C, A0, A1> : public ICLCommand
+{
+public:
+    typedef void (C::*Func)(A0, A1);
+    typedef RemoveCR(A0) A0T;
+    typedef RemoveCR(A1) A1T;
+
+    CLCMemFn2(Func f, C *o) : m_f(f), m_obj(o) { clearArgs(); }
+    virtual uint32 getNumArgs() const { return _countof(m_args); }
+    virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
+    virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
+    virtual void stringnizeResult(stl::string &str) { str="void"; }
+    virtual bool exec()
+    {
+        A0T a0 = A0T();
+        A1T a1 = A1T();
+        if( m_f && m_obj
+            && ( !m_args[0] || Parse(m_args[0], a0) )
+            && ( !m_args[1] || Parse(m_args[1], a1) )
             )
         {
             (m_obj->*m_f)(a0, a1);
         }
+        else { return false; }
+        return true;
     }
 private:
     Func m_f;
@@ -265,24 +513,61 @@ class CLCConstMemFn2 : public ICLCommand
 {
 public:
     typedef R (C::*Func)(A0, A1) const;
-    typedef typename std::remove_const<typename std::remove_reference<A0>::type>::type A0T;
-    typedef typename std::remove_const<typename std::remove_reference<A1>::type>::type A1T;
+    typedef RemoveCR(R) RT;
+    typedef RemoveCR(A0) A0T;
+    typedef RemoveCR(A1) A1T;
 
     CLCConstMemFn2(Func f, const C *o) : m_f(f), m_obj(o) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
     virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
-    virtual void exec()
+    virtual void stringnizeResult(stl::string &str) { Stringnize(m_r, str); }
+    virtual bool exec()
     {
         A0T a0 = A0T();
         A1T a1 = A1T();
         if( m_f && m_obj
-            && ( !m_args[0] || CLParseArg(m_args[0], a0) )
-            && ( !m_args[1] || CLParseArg(m_args[1], a1) )
+            && ( !m_args[0] || Parse(m_args[0], a0) )
+            && ( !m_args[1] || Parse(m_args[1], a1) )
+            )
+        {
+            m_r = (m_obj->*m_f)(a0, a1);
+        }
+        else { return false; }
+        return true;
+    }
+private:
+    Func m_f;
+    const C *m_obj;
+    RT m_r;
+    const char *m_args[2];
+};
+template<class C, class A0, class A1>
+class CLCConstMemFn2<void, C, A0, A1> : public ICLCommand
+{
+public:
+    typedef void (C::*Func)(A0, A1) const;
+    typedef RemoveCR(A0) A0T;
+    typedef RemoveCR(A1) A1T;
+
+    CLCConstMemFn2(Func f, const C *o) : m_f(f), m_obj(o) { clearArgs(); }
+    virtual uint32 getNumArgs() const { return _countof(m_args); }
+    virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
+    virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
+    virtual void stringnizeResult(stl::string &str) { str="void"; }
+    virtual bool exec()
+    {
+        A0T a0 = A0T();
+        A1T a1 = A1T();
+        if( m_f && m_obj
+            && ( !m_args[0] || Parse(m_args[0], a0) )
+            && ( !m_args[1] || Parse(m_args[1], a1) )
             )
         {
             (m_obj->*m_f)(a0, a1);
         }
+        else { return false; }
+        return true;
     }
 private:
     Func m_f;
@@ -295,27 +580,66 @@ class CLCFunction3 : public ICLCommand
 {
 public:
     typedef R (*Func)(A0, A1, A2);
-    typedef typename std::remove_const<typename std::remove_reference<A0>::type>::type A0T;
-    typedef typename std::remove_const<typename std::remove_reference<A1>::type>::type A1T;
-    typedef typename std::remove_const<typename std::remove_reference<A2>::type>::type A2T;
+    typedef RemoveCR(R) RT;
+    typedef RemoveCR(A0) A0T;
+    typedef RemoveCR(A1) A1T;
+    typedef RemoveCR(A2) A2T;
 
     CLCFunction3(Func f) : m_f(f) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
     virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
-    virtual void exec()
+    virtual void stringnizeResult(stl::string &str) { Stringnize(m_r, str); }
+    virtual bool exec()
     {
         A0T a0 = A0T();
         A1T a1 = A1T();
         A2T a2 = A2T();
         if( m_f
-                        && ( !m_args[0] || CLParseArg(m_args[0], a0) )
-            && ( !m_args[1] || CLParseArg(m_args[1], a1) )
-            && ( !m_args[2] || CLParseArg(m_args[2], a2) )
+            && ( !m_args[0] || Parse(m_args[0], a0) )
+            && ( !m_args[1] || Parse(m_args[1], a1) )
+            && ( !m_args[2] || Parse(m_args[2], a2) )
+            )
+        {
+            m_r = m_f(a0, a1, a2);
+        }
+        else { return false; }
+        return true;
+    }
+private:
+    Func m_f;
+    RT m_r;
+    const char *m_args[3];
+};
+template<class A0, class A1, class A2>
+class CLCFunction3<void, A0, A1, A2> : public ICLCommand
+{
+public:
+    typedef void (*Func)(A0, A1, A2);
+    typedef RemoveCR(A0) A0T;
+    typedef RemoveCR(A1) A1T;
+    typedef RemoveCR(A2) A2T;
+
+    CLCFunction3(Func f) : m_f(f) { clearArgs(); }
+    virtual uint32 getNumArgs() const { return _countof(m_args); }
+    virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
+    virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
+    virtual void stringnizeResult(stl::string &str) { Stringnize(m_r, str); }
+    virtual bool exec()
+    {
+        A0T a0 = A0T();
+        A1T a1 = A1T();
+        A2T a2 = A2T();
+        if( m_f
+            && ( !m_args[0] || Parse(m_args[0], a0) )
+            && ( !m_args[1] || Parse(m_args[1], a1) )
+            && ( !m_args[2] || Parse(m_args[2], a2) )
             )
         {
             m_f(a0, a1, a2);
         }
+        else { return false; }
+        return true;
     }
 private:
     Func m_f;
@@ -327,27 +651,67 @@ class CLCMemFn3 : public ICLCommand
 {
 public:
     typedef R (C::*Func)(A0, A1, A2);
-    typedef typename std::remove_const<typename std::remove_reference<A0>::type>::type A0T;
-    typedef typename std::remove_const<typename std::remove_reference<A1>::type>::type A1T;
-    typedef typename std::remove_const<typename std::remove_reference<A2>::type>::type A2T;
+    typedef RemoveCR(R) RT;
+    typedef RemoveCR(A0) A0T;
+    typedef RemoveCR(A1) A1T;
+    typedef RemoveCR(A2) A2T;
 
     CLCMemFn3(Func f, C *o) : m_f(f), m_obj(o) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
     virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
-    virtual void exec()
+    virtual void stringnizeResult(stl::string &str) { Stringnize(m_r, str); }
+    virtual bool exec()
     {
         A0T a0 = A0T();
         A1T a1 = A1T();
         A2T a2 = A2T();
         if( m_f && m_obj
-                        && ( !m_args[0] || CLParseArg(m_args[0], a0) )
-            && ( !m_args[1] || CLParseArg(m_args[1], a1) )
-            && ( !m_args[2] || CLParseArg(m_args[2], a2) )
+            && ( !m_args[0] || Parse(m_args[0], a0) )
+            && ( !m_args[1] || Parse(m_args[1], a1) )
+            && ( !m_args[2] || Parse(m_args[2], a2) )
+            )
+        {
+            m_r = (m_obj->*m_f)(a0, a1, a2);
+        }
+        else { return false; }
+        return true;
+    }
+private:
+    Func m_f;
+    C *m_obj;
+    RT m_r;
+    const char *m_args[3];
+};
+template<class C, class A0, class A1, class A2>
+class CLCMemFn3<void, C, A0, A1, A2> : public ICLCommand
+{
+public:
+    typedef void (C::*Func)(A0, A1, A2);
+    typedef RemoveCR(A0) A0T;
+    typedef RemoveCR(A1) A1T;
+    typedef RemoveCR(A2) A2T;
+
+    CLCMemFn3(Func f, C *o) : m_f(f), m_obj(o) { clearArgs(); }
+    virtual uint32 getNumArgs() const { return _countof(m_args); }
+    virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
+    virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
+    virtual void stringnizeResult(stl::string &str) { str="void"; }
+    virtual bool exec()
+    {
+        A0T a0 = A0T();
+        A1T a1 = A1T();
+        A2T a2 = A2T();
+        if( m_f && m_obj
+            && ( !m_args[0] || Parse(m_args[0], a0) )
+            && ( !m_args[1] || Parse(m_args[1], a1) )
+            && ( !m_args[2] || Parse(m_args[2], a2) )
             )
         {
             (m_obj->*m_f)(a0, a1, a2);
         }
+        else { return false; }
+        return true;
     }
 private:
     Func m_f;
@@ -360,27 +724,67 @@ class CLCConstMemFn3 : public ICLCommand
 {
 public:
     typedef R (C::*Func)(A0, A1, A2) const;
-    typedef typename std::remove_const<typename std::remove_reference<A0>::type>::type A0T;
-    typedef typename std::remove_const<typename std::remove_reference<A1>::type>::type A1T;
-    typedef typename std::remove_const<typename std::remove_reference<A2>::type>::type A2T;
+    typedef RemoveCR(R) RT;
+    typedef RemoveCR(A0) A0T;
+    typedef RemoveCR(A1) A1T;
+    typedef RemoveCR(A2) A2T;
 
     CLCConstMemFn3(Func f, const C *o) : m_f(f), m_obj(o) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
     virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
-    virtual void exec()
+    virtual void stringnizeResult(stl::string &str) { Stringnize(m_r, str); }
+    virtual bool exec()
     {
         A0T a0 = A0T();
         A1T a1 = A1T();
         A2T a2 = A2T();
         if( m_f && m_obj
-            && ( !m_args[0] || CLParseArg(m_args[0], a0) )
-            && ( !m_args[1] || CLParseArg(m_args[1], a1) )
-            && ( !m_args[2] || CLParseArg(m_args[2], a2) )
+            && ( !m_args[0] || Parse(m_args[0], a0) )
+            && ( !m_args[1] || Parse(m_args[1], a1) )
+            && ( !m_args[2] || Parse(m_args[2], a2) )
+            )
+        {
+            m_r = (m_obj->*m_f)(a0, a1, a2);
+        }
+        else { return false; }
+        return true;
+    }
+private:
+    Func m_f;
+    const C *m_obj;
+    RT m_r;
+    const char *m_args[3];
+};
+template<class C, class A0, class A1, class A2>
+class CLCConstMemFn3<void, C, A0, A1, A2> : public ICLCommand
+{
+public:
+    typedef void (C::*Func)(A0, A1, A2) const;
+    typedef RemoveCR(A0) A0T;
+    typedef RemoveCR(A1) A1T;
+    typedef RemoveCR(A2) A2T;
+
+    CLCConstMemFn3(Func f, const C *o) : m_f(f), m_obj(o) { clearArgs(); }
+    virtual uint32 getNumArgs() const { return _countof(m_args); }
+    virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
+    virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
+    virtual void stringnizeResult(stl::string &str) { str="void"; }
+    virtual bool exec()
+    {
+        A0T a0 = A0T();
+        A1T a1 = A1T();
+        A2T a2 = A2T();
+        if( m_f && m_obj
+            && ( !m_args[0] || Parse(m_args[0], a0) )
+            && ( !m_args[1] || Parse(m_args[1], a1) )
+            && ( !m_args[2] || Parse(m_args[2], a2) )
             )
         {
             (m_obj->*m_f)(a0, a1, a2);
         }
+        else { return false; }
+        return true;
     }
 private:
     Func m_f;
@@ -393,30 +797,72 @@ class CLCFunction4 : public ICLCommand
 {
 public:
     typedef R (*Func)(A0, A1, A2, A3);
-    typedef typename std::remove_const<typename std::remove_reference<A0>::type>::type A0T;
-    typedef typename std::remove_const<typename std::remove_reference<A1>::type>::type A1T;
-    typedef typename std::remove_const<typename std::remove_reference<A2>::type>::type A2T;
-    typedef typename std::remove_const<typename std::remove_reference<A3>::type>::type A3T;
+    typedef RemoveCR(R) RT;
+    typedef RemoveCR(A0) A0T;
+    typedef RemoveCR(A1) A1T;
+    typedef RemoveCR(A2) A2T;
+    typedef RemoveCR(A3) A3T;
 
     CLCFunction4(Func f) : m_f(f) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
     virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
-    virtual void exec()
+    virtual void stringnizeResult(stl::string &str) { Stringnize(m_r, str); }
+    virtual bool exec()
     {
         A0T a0 = A0T();
         A1T a1 = A1T();
         A2T a2 = A2T();
         A3T a3 = A3T();
         if( m_f
-                        && ( !m_args[0] || CLParseArg(m_args[0], a0) )
-            && ( !m_args[1] || CLParseArg(m_args[1], a1) )
-            && ( !m_args[2] || CLParseArg(m_args[2], a2) )
-            && ( !m_args[3] || CLParseArg(m_args[3], a3) )
+            && ( !m_args[0] || Parse(m_args[0], a0) )
+            && ( !m_args[1] || Parse(m_args[1], a1) )
+            && ( !m_args[2] || Parse(m_args[2], a2) )
+            && ( !m_args[3] || Parse(m_args[3], a3) )
+            )
+        {
+            m_r = m_f(a0, a1, a2, a3);
+        }
+        else { return false; }
+        return true;
+    }
+private:
+    Func m_f;
+    RT m_r;
+    const char *m_args[4];
+};
+template<class A0, class A1, class A2, class A3>
+class CLCFunction4<void, A0, A1, A2, A3> : public ICLCommand
+{
+public:
+    typedef void (*Func)(A0, A1, A2, A3);
+    typedef RemoveCR(A0) A0T;
+    typedef RemoveCR(A1) A1T;
+    typedef RemoveCR(A2) A2T;
+    typedef RemoveCR(A3) A3T;
+
+    CLCFunction4(Func f) : m_f(f) { clearArgs(); }
+    virtual uint32 getNumArgs() const { return _countof(m_args); }
+    virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
+    virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
+    virtual void stringnizeResult(stl::string &str) { Stringnize(m_r, str); }
+    virtual bool exec()
+    {
+        A0T a0 = A0T();
+        A1T a1 = A1T();
+        A2T a2 = A2T();
+        A3T a3 = A3T();
+        if( m_f
+            && ( !m_args[0] || Parse(m_args[0], a0) )
+            && ( !m_args[1] || Parse(m_args[1], a1) )
+            && ( !m_args[2] || Parse(m_args[2], a2) )
+            && ( !m_args[3] || Parse(m_args[3], a3) )
             )
         {
             m_f(a0, a1, a2, a3);
         }
+        else { return false; }
+        return true;
     }
 private:
     Func m_f;
@@ -428,30 +874,73 @@ class CLCMemFn4 : public ICLCommand
 {
 public:
     typedef R (C::*Func)(A0, A1, A2, A3);
-    typedef typename std::remove_const<typename std::remove_reference<A0>::type>::type A0T;
-    typedef typename std::remove_const<typename std::remove_reference<A1>::type>::type A1T;
-    typedef typename std::remove_const<typename std::remove_reference<A2>::type>::type A2T;
-    typedef typename std::remove_const<typename std::remove_reference<A3>::type>::type A3T;
+    typedef RemoveCR(R) RT;
+    typedef RemoveCR(A0) A0T;
+    typedef RemoveCR(A1) A1T;
+    typedef RemoveCR(A2) A2T;
+    typedef RemoveCR(A3) A3T;
 
     CLCMemFn4(Func f, C *o) : m_f(f), m_obj(o) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
     virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
-    virtual void exec()
+    virtual void stringnizeResult(stl::string &str) { Stringnize(m_r, str); }
+    virtual bool exec()
     {
         A0T a0 = A0T();
         A1T a1 = A1T();
         A2T a2 = A2T();
         A3T a3 = A3T();
         if( m_f && m_obj
-                        && ( !m_args[0] || CLParseArg(m_args[0], a0) )
-            && ( !m_args[1] || CLParseArg(m_args[1], a1) )
-            && ( !m_args[2] || CLParseArg(m_args[2], a2) )
-            && ( !m_args[3] || CLParseArg(m_args[3], a3) )
+            && ( !m_args[0] || Parse(m_args[0], a0) )
+            && ( !m_args[1] || Parse(m_args[1], a1) )
+            && ( !m_args[2] || Parse(m_args[2], a2) )
+            && ( !m_args[3] || Parse(m_args[3], a3) )
+            )
+        {
+            m_r = (m_obj->*m_f)(a0, a1, a2, a3);
+        }
+        else { return false; }
+        return true;
+    }
+private:
+    Func m_f;
+    C *m_obj;
+    RT m_r;
+    const char *m_args[4];
+};
+template<class C, class A0, class A1, class A2, class A3>
+class CLCMemFn4<void, C, A0, A1, A2, A3> : public ICLCommand
+{
+public:
+    typedef void (C::*Func)(A0, A1, A2, A3);
+    typedef RemoveCR(A0) A0T;
+    typedef RemoveCR(A1) A1T;
+    typedef RemoveCR(A2) A2T;
+    typedef RemoveCR(A3) A3T;
+
+    CLCMemFn4(Func f, C *o) : m_f(f), m_obj(o) { clearArgs(); }
+    virtual uint32 getNumArgs() const { return _countof(m_args); }
+    virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
+    virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
+    virtual void stringnizeResult(stl::string &str) { str="void"; }
+    virtual bool exec()
+    {
+        A0T a0 = A0T();
+        A1T a1 = A1T();
+        A2T a2 = A2T();
+        A3T a3 = A3T();
+        if( m_f && m_obj
+            && ( !m_args[0] || Parse(m_args[0], a0) )
+            && ( !m_args[1] || Parse(m_args[1], a1) )
+            && ( !m_args[2] || Parse(m_args[2], a2) )
+            && ( !m_args[3] || Parse(m_args[3], a3) )
             )
         {
             (m_obj->*m_f)(a0, a1, a2, a3);
         }
+        else { return false; }
+        return true;
     }
 private:
     Func m_f;
@@ -464,30 +953,73 @@ class CLCConstMemFn4 : public ICLCommand
 {
 public:
     typedef R (C::*Func)(A0, A1, A2, A3) const;
-    typedef typename std::remove_const<typename std::remove_reference<A0>::type>::type A0T;
-    typedef typename std::remove_const<typename std::remove_reference<A1>::type>::type A1T;
-    typedef typename std::remove_const<typename std::remove_reference<A2>::type>::type A2T;
-    typedef typename std::remove_const<typename std::remove_reference<A3>::type>::type A3T;
+    typedef RemoveCR(R) RT;
+    typedef RemoveCR(A0) A0T;
+    typedef RemoveCR(A1) A1T;
+    typedef RemoveCR(A2) A2T;
+    typedef RemoveCR(A3) A3T;
 
     CLCConstMemFn4(Func f, const C *o) : m_f(f), m_obj(o) { clearArgs(); }
     virtual uint32 getNumArgs() const { return _countof(m_args); }
     virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
     virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
-    virtual void exec()
+    virtual void stringnizeResult(stl::string &str) { Stringnize(m_r, str); }
+    virtual bool exec()
     {
         A0T a0 = A0T();
         A1T a1 = A1T();
         A2T a2 = A2T();
         A3T a3 = A3T();
         if( m_f && m_obj
-            && ( !m_args[0] || CLParseArg(m_args[0], a0) )
-            && ( !m_args[1] || CLParseArg(m_args[1], a1) )
-            && ( !m_args[2] || CLParseArg(m_args[2], a2) )
-            && ( !m_args[3] || CLParseArg(m_args[3], a3) )
+            && ( !m_args[0] || Parse(m_args[0], a0) )
+            && ( !m_args[1] || Parse(m_args[1], a1) )
+            && ( !m_args[2] || Parse(m_args[2], a2) )
+            && ( !m_args[3] || Parse(m_args[3], a3) )
+            )
+        {
+            m_r = (m_obj->*m_f)(a0, a1, a2, a3);
+        }
+        else { return false; }
+        return true;
+    }
+private:
+    Func m_f;
+    const C *m_obj;
+    RT m_r;
+    const char *m_args[4];
+};
+template<class C, class A0, class A1, class A2, class A3>
+class CLCConstMemFn4<void, C, A0, A1, A2, A3> : public ICLCommand
+{
+public:
+    typedef void (C::*Func)(A0, A1, A2, A3) const;
+    typedef RemoveCR(A0) A0T;
+    typedef RemoveCR(A1) A1T;
+    typedef RemoveCR(A2) A2T;
+    typedef RemoveCR(A3) A3T;
+
+    CLCConstMemFn4(Func f, const C *o) : m_f(f), m_obj(o) { clearArgs(); }
+    virtual uint32 getNumArgs() const { return _countof(m_args); }
+    virtual void setArg(uint32 i, const char *arg) { m_args[i]=arg; }
+    virtual void clearArgs() { std::fill_n(m_args, _countof(m_args), (char*)NULL); }
+    virtual void stringnizeResult(stl::string &str) { str="void"; }
+    virtual bool exec()
+    {
+        A0T a0 = A0T();
+        A1T a1 = A1T();
+        A2T a2 = A2T();
+        A3T a3 = A3T();
+        if( m_f && m_obj
+            && ( !m_args[0] || Parse(m_args[0], a0) )
+            && ( !m_args[1] || Parse(m_args[1], a1) )
+            && ( !m_args[2] || Parse(m_args[2], a2) )
+            && ( !m_args[3] || Parse(m_args[3], a3) )
             )
         {
             (m_obj->*m_f)(a0, a1, a2, a3);
         }
+        else { return false; }
+        return true;
     }
 private:
     Func m_f;
@@ -495,6 +1027,7 @@ private:
     const char *m_args[4];
 };
 
+#undef RemoveCR
 
 
 template<class V>
