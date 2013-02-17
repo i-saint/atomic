@@ -1,6 +1,8 @@
 ﻿#include "istPCH.h"
 #include "ist/Concurrency/TaskUtil.h"
 
+#ifndef ist_with_tbb
+
 namespace ist {
 
 TreeTask::TreeTask()
@@ -30,3 +32,5 @@ void TreeTask::waitChildren()
 }
 
 } // namespace ist
+
+#endif // ist_with_tbb

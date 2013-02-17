@@ -2,6 +2,10 @@
 #include "ist/Base/New.h"
 #include "ist/Base/Assert.h"
 #include "ist/Concurrency/TaskScheduler.h"
+
+#ifdef ist_with_tbb
+#else // ist_with_tbb
+
 #include <deque> // deque は EASTL にはないので標準のを
 
 namespace ist {
@@ -254,5 +258,6 @@ void TaskScheduler::advertiseNewTask()
     }
 }
 
-
 } // namespace ist
+
+#endif // ist_with_tbb

@@ -13,6 +13,15 @@ typedef ist::raw_vector<psym::Particle> ParticleCont;
 class SPHManager : public IAtomicGameModule
 {
 public:
+    struct AddFluidContext
+    {
+        PSET_RID psid;
+        mat4 mat;
+        uint32 index;
+    };
+    typedef stl::vector<AddFluidContext> AddFluidCtxCont;
+
+public:
     SPHManager();
     ~SPHManager();
 
@@ -39,11 +48,12 @@ public:
 private:
     psym::World m_world;
     ist::Mutex m_mutex_particles;
-    ParticleCont        m_particles; // GPU 転送用
-    stl::vector<Task*>  m_fluid_tasks;
-    Task*               m_asyncupdate_task;
+    ParticleCont        m_particles_to_gpu; // GPU 転送用
     uint32              m_current_fluid_task;
     SFMT                m_rand;
+
+    ParticleCont        m_new_fluid;
+    AddFluidCtxCont     m_new_fluid_ctx;
 };
 
 

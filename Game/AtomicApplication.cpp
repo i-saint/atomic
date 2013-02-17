@@ -148,7 +148,7 @@ bool AtomicApplication::initialize(int argc, char *argv[])
 #ifdef atomic_enable_shader_live_edit
     ::AllocConsole();
 #endif // atomic_enable_shader_live_edit
-    TaskScheduler::initializeInstance();
+    istTaskSchedulerInitialize();
 
     // initialize debug menu
     atomicDbgInitializeDebugMenu();
@@ -212,7 +212,7 @@ void AtomicApplication::finalize()
     istCommandlineFinalize();
     atomicDbgFinalizeDebugMenu();
 
-    TaskScheduler::finalizeInstance();
+    istTaskSchedulerFinalize();
     FinalizeText();
     ist::PoolNewManager::freeAll();
     FinalizeCrashReporter();
@@ -247,9 +247,8 @@ void AtomicApplication::mainLoop()
             m_game->frameBegin();
             m_game->update(dt);
             m_game->asyncupdateBegin(dt);
-            updateInput();
-            m_game->asyncupdateEnd();
             m_game->draw();
+            m_game->asyncupdateEnd();
             m_game->frameEnd();
             if(!atomicGetConfig()->unlimit_gamespeed && !atomicGetConfig()->vsync) {
                 float32 remain = delay-pc.getElapsedMillisec();
@@ -262,6 +261,7 @@ void AtomicApplication::mainLoop()
 
 void AtomicApplication::sysUpdate()
 {
+    updateInput();
     if(getKeyboardState().isKeyTriggered(ist::KEY_F2)) {
         m_config.posteffect_bloom = !m_config.posteffect_bloom;
     }

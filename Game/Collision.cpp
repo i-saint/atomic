@@ -179,7 +179,7 @@ CollisionGrid::CollisionGrid()
 {
 }
 
-void CollisionGrid::updateGrid( stl::vector<CollisionEntity*> &entities )
+void CollisionGrid::updateGrid( ist::vector<CollisionEntity*> &entities )
 {
     for(int32 yi=0; yi<GRID_DIV.y; ++yi) {
         for(int32 xi=0; xi<GRID_DIV.x; ++xi) {
@@ -220,8 +220,10 @@ void CollisionGrid::getGridRange( const BoundingBox &bb, ivec2 &out_bl, ivec2 &o
     out_ur = getGridCoord(bb.ur) + ivec2(1,1);
 }
 
-void CollisionGrid::getEntities( const BoundingBox &bb, stl::vector<CollisionHandle> &out_entities )
+void CollisionGrid::getEntities( const BoundingBox &bb, ist::vector<CollisionHandle> &out_entities )
 {
+    out_entities.clear();
+
     ivec2 bl, ur;
     getGridRange(bb, bl, ur);
     for(int32 yi=bl.y; yi<ur.y; ++yi) {
@@ -234,34 +236,6 @@ void CollisionGrid::getEntities( const BoundingBox &bb, stl::vector<CollisionHan
 }
 
 
-
-class CollideTask : public AtomicTask
-{
-private:
-    typedef stl::vector<CollisionHandle> HandleCont;
-    typedef stl::vector<CollisionEntity*> EntityCont;
-    typedef EntityCont::iterator CollisionIterator;
-    typedef stl::vector<CollideMessage> MessageCont;
-    CollisionSet        *m_manager;
-    HandleCont          m_neighbors;
-    MessageCont         m_messages;
-    CollisionIterator   m_begin;
-    CollisionIterator   m_end;
-
-public:
-    CollideTask(CollisionSet *m) : m_manager(m) {}
-    void setup(CollisionIterator begin, CollisionIterator end) { m_begin=begin; m_end=end; }
-
-    void exec()
-    {
-        m_messages.clear();
-        for(CollisionIterator i=m_begin; i!=m_end; ++i) {
-            m_manager->collide(*i, m_messages, m_neighbors);
-        }
-    }
-
-    MessageCont& getMessages() { return m_messages; }
-};
 
 uint32 CollisionSet::collide(CollisionEntity *sender, MessageCont &m, HandleCont &neighbors)
 {
@@ -284,16 +258,13 @@ uint32 CollisionSet::collide(CollisionEntity *sender, MessageCont &m, HandleCont
             ++n;
         }
     }
-    neighbors.clear();
 
     return n;
 }
 
 
 CollisionSet::CollisionSet()
-    : m_active_tasks(0)
 {
-    m_tasks.reserve(32);
     m_entities.reserve(1024);
     m_vacant.reserve(1024);
 #ifdef atomic_enable_distance_field
@@ -309,9 +280,7 @@ CollisionSet::~CollisionSet()
 #ifdef atomic_enable_distance_field
     for(uint32 i=0; i<_countof(m_df); ++i)      { istSafeDelete(m_df[i]); }
 #endif // atomic_enable_distance_field
-    for(uint32 i=0; i<m_tasks.size(); ++i)      { istSafeDelete(m_tasks[i]); }
     for(uint32 i=0; i<m_entities.size(); ++i)   { deleteEntity(m_entities[i]); }
-    m_tasks.clear();
     m_entities.clear();
     m_vacant.clear();
 }
@@ -322,21 +291,15 @@ void CollisionSet::frameBegin()
 
 void CollisionSet::update(float32 dt)
 {
-    for(uint32 ti=0; ti<m_active_tasks; ++ti) {
-        const MessageCont &messages = m_tasks[ti]->getMessages();
+    for(uint32 ti=0; ti<m_acons.size(); ++ti) {
+        MessageCont &messages = m_acons[ti].messages;
         uint32 num_messages = messages.size();
         for(uint32 mi=0; mi<num_messages; ++mi) {
             if(IEntity *e = atomicGetEntity(messages[mi].to)) {
                 atomicCall(e, eventCollide, static_cast<const CollideMessage*>(&messages[mi]));
             }
         }
-    }
-}
-
-void CollisionSet::resizeTasks(uint32 n)
-{
-    while(m_tasks.size() < n) {
-        m_tasks.push_back(istNew(CollideTask)(this));
+        messages.clear();
     }
 }
 
@@ -346,14 +309,20 @@ void CollisionSet::asyncupdate(float32 dt)
 
     const uint32 block_size = 256;
     uint32 num_entities = m_entities.size();
-    m_active_tasks = num_entities / block_size + (num_entities%block_size==0 ? 0 : 1);
-    resizeTasks(m_active_tasks);
-    for(uint32 i=0; i<m_active_tasks; ++i) {
-        m_tasks[i]->setup(m_entities.begin()+(block_size*i), m_entities.begin()+stl::min<uint32>(block_size*(i+1), m_entities.size()));
-    }
-    if(!m_tasks.empty()) {
-        ist::EnqueueTasks(&m_tasks[0], m_tasks.size());
-    }
+    if(num_entities==0) { return; }
+
+    uint32 num_tasks = (num_entities / block_size) + (num_entities%block_size==0 ? 0 : 1);
+    m_acons.resize(std::max<size_t>(num_tasks, m_acons.size()));
+    ist::parallel_for(ist::size_range(0, num_entities, block_size),
+        [&](const ist::size_range &r) {
+            uint32 first = r.begin();
+            uint32 last = r.end();
+            AsyncContext &ctx = m_acons[first / block_size];
+            ctx.messages.clear();
+            for(uint32 i=first; i!=last; ++i) {
+                collide(m_entities[i], ctx.messages, ctx.neighbors);
+            }
+        });
 }
 
 void CollisionSet::draw()
@@ -365,10 +334,6 @@ void CollisionSet::draw()
 
 void CollisionSet::frameEnd()
 {
-    if(!m_tasks.empty()) {
-        ist::WaitTasks(&m_tasks[0], m_tasks.size());
-    }
-
 #ifdef atomic_enable_distance_field
     m_df[(m_df_current+1) % _countof(m_df)]->updateEnd();
 #endif // atomic_enable_distance_field

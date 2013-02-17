@@ -17,34 +17,6 @@
 namespace atomic {
 
 
-class EntityUpdateTask : public AtomicTask
-{
-private:
-    EntitySet *m_eset;
-    EntityHandle *m_begin, *m_end;
-    float32 m_dt;
-
-public:
-    EntityUpdateTask(EntitySet *eset) : m_eset(eset) {}
-    void setup(EntityHandle *begin, EntityHandle *end, float32 dt)
-    {
-        m_begin = begin;
-        m_end = end;
-        m_dt = dt;
-    }
-
-    void exec()
-    {
-        const float32 dt = m_dt;
-        for(EntityHandle *i=m_begin; i!=m_end; ++i) {
-            if(IEntity *e=m_eset->getEntity(*i)) {
-                e->asyncupdate(dt);
-            }
-        }
-    }
-};
-
-
 
 void EntitySet::addEntity( uint32 categoryid, uint32 classid, IEntity *e )
 {
@@ -63,13 +35,6 @@ void EntitySet::addEntity( uint32 categoryid, uint32 classid, IEntity *e )
     e->initialize();
     entities.push_back(NULL); // reserve
     m_new_entities.push_back(e);
-}
-
-void EntitySet::resizeTasks( uint32 n )
-{
-    while(m_tasks.size() < n) {
-        m_tasks.push_back( istNew(EntityUpdateTask)(this) );
-    }
 }
 
 EntitySet::EntitySet()
@@ -91,11 +56,6 @@ EntitySet::~EntitySet()
         }
     }
     m_all.clear();
-
-    for(uint32 i=0; i<m_tasks.size(); ++i) {
-        istSafeDelete(m_tasks[i]);
-    }
-    m_tasks.clear();
 }
 
 void EntitySet::frameBegin()
@@ -137,10 +97,10 @@ void EntitySet::update( float32 dt )
 
     // asyncupdate
     atomicDbgLockSyncMethods();
-    ist::ParallelFor(
-        size_t(0), m_all.size(), 32,
-        [&](size_t first, size_t last) {
-            for(size_t i=first; i!=last; ++i) {
+    ist::parallel_for(
+        ist::size_range(size_t(0), m_all.size(), 32),
+        [&](const ist::size_range &r) {
+            for(size_t i=r.begin(); i!=r.end(); ++i) {
                 if(IEntity *e=getEntity(m_all[i])) {
                     e->asyncupdate(dt);
                 }

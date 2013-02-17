@@ -160,14 +160,14 @@ private:
 
 public:
     CollisionGrid();
-    void updateGrid(stl::vector<CollisionEntity*> &entities);
+    void updateGrid(ist::vector<CollisionEntity*> &entities);
     ivec2 getGridCoord(const vec4 &pos);
     void getGridRange(const BoundingBox &bb, ivec2 &out_bl, ivec2 &out_ur);
 
     // BoundingBox の範囲のセルの要素を取得。
     // 注意: out_handles の結果はソートされているが、同じ要素が複数入っている可能性がある。
     //       atomic::unique_iterator で重複要素を回避しながら巡回すること。(stl::unique() が非常に遅いため、こうなっている)
-    void getEntities(const BoundingBox &bb, stl::vector<CollisionHandle> &out_handles);
+    void getEntities(const BoundingBox &bb, ist::vector<CollisionHandle> &out_handles);
 };
 
 
@@ -175,24 +175,16 @@ class CollisionSet : public IAtomicGameModule
 {
 friend class CollideTask;
 public:
-    typedef stl::vector<CollideTask*>       TaskCont;
-    typedef stl::vector<CollisionHandle>    HandleCont;
-    typedef stl::vector<CollisionEntity*>   EntityCont;
-    typedef stl::vector<CollideMessage>     MessageCont;
+    typedef ist::vector<CollisionHandle>    HandleCont;
+    typedef ist::vector<CollisionEntity*>   EntityCont;
+    typedef ist::vector<CollideMessage>     MessageCont;
 
-private:
-    CollisionGrid   m_grid;
-    TaskCont        m_tasks;
-    EntityCont      m_entities;
-    HandleCont      m_vacant;
-    uint32          m_active_tasks;
-#ifdef atomic_enable_distance_field
-    DistanceField   *m_df[2];
-    uint32          m_df_current;
-#endif // atomic_enable_distance_field
-
-    void addEntity(CollisionEntity *e);
-    void resizeTasks(uint32 n);
+    struct AsyncContext
+    {
+        HandleCont  neighbors;
+        MessageCont messages;
+    };
+    typedef ist::vector<AsyncContext> AsyncCtxCont;
 
 public:
     CollisionSet();
@@ -211,9 +203,21 @@ public:
     void deleteEntity(CollisionHandle e);
     void deleteEntity(CollisionEntity *e);
 
+    CollisionGrid* getCollisionGrid();
+
+private:
+    void addEntity(CollisionEntity *e);
+
     uint32 collide(CollisionEntity *e, MessageCont &m, HandleCont &neighbors_placeholder);
 
-    CollisionGrid* getCollisionGrid();
+    CollisionGrid   m_grid;
+    EntityCont      m_entities;
+    HandleCont      m_vacant;
+    AsyncCtxCont    m_acons;
+#ifdef atomic_enable_distance_field
+    DistanceField   *m_df[2];
+    uint32          m_df_current;
+#endif // atomic_enable_distance_field
 };
 
 

@@ -13,24 +13,6 @@ class VFXSet;
 
 class World : public IAtomicGameModule
 {
-private:
-    CollisionSet    *m_collision_set;
-    SPHManager     *m_sph;
-    EntitySet       *m_entity_set;
-    VFXSet          *m_vfx;
-    typedef stl::vector<IAtomicGameModule*> ModuleCont;
-    ModuleCont      m_modules;
-
-    typedef ist::Method<IAtomicGameModule, void, float32> ModuleAsyncupdateFunc;
-    typedef ist::AsyncFunction<ModuleAsyncupdateFunc> ModuleAsyncupdateTask;
-    typedef stl::vector<ModuleAsyncupdateTask> ModuleAsyncupdateTaskCont;
-    ModuleAsyncupdateTaskCont m_module_asyncupdates;
-
-    PerspectiveCamera m_camera_game;
-    PerspectiveCamera m_camera_bg;
-    FrustumPlanes m_frustum;
-    vec4 m_field_size;
-
 public:
     World();
     ~World();
@@ -59,6 +41,21 @@ public:
     SPHManager*    getFractionSet()    { return m_sph; }
 
     void handleEntitiesQuery(EntitiesQueryContext &ctx);
+
+private:
+    typedef ist::vector<IAtomicGameModule*> ModuleCont;
+
+    CollisionSet    *m_collision_set;
+    SPHManager      *m_sph;
+    EntitySet       *m_entity_set;
+    VFXSet          *m_vfx;
+    ModuleCont      m_modules;
+    TaskGroup       m_asyncupdate;
+
+    PerspectiveCamera m_camera_game;
+    PerspectiveCamera m_camera_bg;
+    FrustumPlanes m_frustum;
+    vec4 m_field_size;
 };
 
 

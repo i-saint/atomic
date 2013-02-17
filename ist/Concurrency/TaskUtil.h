@@ -1,7 +1,9 @@
-﻿#ifndef __ist_Concurrency_TaskUtil_h__
-#define __ist_Concurrency_TaskUtil_h__
+﻿#ifndef ist_Concurrency_TaskUtil_h
+#define ist_Concurrency_TaskUtil_h
 
 #include "ist/Concurrency/TaskScheduler.h"
+
+#ifndef ist_with_tbb
 
 namespace ist {
 
@@ -44,4 +46,5 @@ private:
 
 } // namepspace ist
 
-#endif // __ist_Concurrency_TaskUtil_h__
+#endif // ist_with_tbb
+#endif // ist_Concurrency_TaskUtil_h

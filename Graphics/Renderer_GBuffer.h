@@ -2,16 +2,6 @@
 #define atomic_Graphics_Renderer_GBuffer_h
 namespace atomic {
 
-class UpdateRigidParticle
-{
-public:
-    UpdateRigidParticle(const PSetUpdateInfo &ri, PSetParticle *p);
-    void exec();
-
-private:
-    const PSetUpdateInfo *m_rinst;
-    PSetParticle *m_particles;
-};
 
 
 class PassGBuffer_Particle : public IRenderer
@@ -51,7 +41,6 @@ private:
     stl::vector<PSetUpdateInfo> m_rupdateinfo;
     stl::vector<PSetParticle>   m_rparticles;
     stl::vector<PSetInstance>   m_rinstances;
-    stl::vector<UpdateRigidParticle>    m_updater;
 };
 
 

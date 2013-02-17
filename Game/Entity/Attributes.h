@@ -536,7 +536,7 @@ private:
     // 血痕を残す頻度。流体がこの回数衝突したとき残す。
     static const uint32 bloodstain_frequency = 128;
 
-    stl::vector<BloodstainParticle> m_bloodstain;
+    ist::raw_vector<BloodstainParticle> m_bloodstain;
     uint32 m_bloodstain_hitcount;
 
 public:

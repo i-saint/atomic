@@ -85,6 +85,8 @@ template<class Iterator, class Compare>
 class ParallelSortFunc
 {
 public:
+    typedef void result_type;
+
     ParallelSortFunc(Iterator begin, Iterator end, const Compare &compare, int32 depth)
         : m_first(begin)
         , m_last(end)

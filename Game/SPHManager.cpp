@@ -15,74 +15,15 @@
 namespace atomic {
 
 
-class ComputeFluidParticle : public AtomicTask
-{
-private:
-    PSET_RID m_psid;
-    mat4 m_mat;
-    ParticleCont m_fluid;
-
-public:
-    void setup(PSET_RID psid, const mat4 &m)
-    {
-        m_psid = psid;
-        m_mat = m;
-    }
-
-    void exec()
-    {
-        const ParticleSet *rc = atomicGetParticleSet(m_psid);
-        uint32 num_particles            = rc->getNumParticles();
-        const PSetParticle *particles   = rc->getParticleData();
-        m_fluid.resize(num_particles);
-
-        simdvec4 zero(vec4(0.0f, 0.0f, 0.0f, 0.0f));
-        simdmat4 t(m_mat);
-        for(uint32 i=0; i<num_particles; ++i) {
-            simdvec4 p(vec4(particles[i].position, 1.0f));
-            istAlign(16) vec4 pos = glm::vec4_cast(t * p);
-            pos.z = stl::max<float32>(pos.z, 0.0f);
-            m_fluid[i].position = reinterpret_cast<const psym::simdvec4&>(pos);
-            m_fluid[i].velocity = reinterpret_cast<const psym::simdvec4&>(zero);
-        }
-    }
-
-    ParticleCont& getData() { return m_fluid; }
-};
-
-class SPHAsyncUpdateTask : public AtomicTask
-{
-private:
-    SPHManager *m_obj;
-    float32 m_arg;
-
-public:
-    SPHAsyncUpdateTask(SPHManager *v) : m_obj(v) {}
-    void setup(float32 v) { m_arg=v; }
-
-    void exec()
-    {
-        m_obj->taskAsyncupdate(m_arg);
-    }
-};
-
-
 
 SPHManager::SPHManager()
     : m_current_fluid_task(0)
-    , m_asyncupdate_task(NULL)
 {
-    m_asyncupdate_task = istNew(SPHAsyncUpdateTask)(this);
     m_rand.initialize(0);
 }
 
 SPHManager::~SPHManager()
 {
-    for(uint32 i=0; i<m_fluid_tasks.size(); ++i) {
-        istDelete(m_fluid_tasks[i]);
-    }
-    m_fluid_tasks.clear();
-    istSafeDelete(m_asyncupdate_task);
 }
 
 void SPHManager::frameBegin()
@@ -132,11 +73,35 @@ void SPHManager::update( float32 dt )
 
 void SPHManager::asyncupdate( float32 dt )
 {
-    m_particles.clear();
     m_mutex_particles.lock();
+    m_particles_to_gpu.clear();
 
-    static_cast<SPHAsyncUpdateTask*>(m_asyncupdate_task)->setup(dt);
-    TaskScheduler::getInstance()->enqueue(m_asyncupdate_task);
+    ist::parallel_for(size_t(0), m_new_fluid_ctx.size(),
+        [&](size_t i){
+            AddFluidContext &ctx = m_new_fluid_ctx[i];
+            const ParticleSet *rc           = atomicGetParticleSet(ctx.psid);
+            uint32 num_particles            = rc->getNumParticles();
+            const PSetParticle *fluid_in    = rc->getParticleData();
+            psym::Particle *fluid_out       = &m_new_fluid[ctx.index];
+
+            simdvec4 zero(vec4(0.0f, 0.0f, 0.0f, 0.0f));
+            simdmat4 t(ctx.mat);
+            for(uint32 i=0; i<num_particles; ++i) {
+                simdvec4 p(vec4(fluid_in[i].position, 1.0f));
+                istAlign(16) vec4 pos = glm::vec4_cast(t * p);
+                pos.z = stl::max<float32>(pos.z, 0.0f);
+                fluid_out[i].position = reinterpret_cast<const psym::simdvec4&>(pos);
+                fluid_out[i].velocity = reinterpret_cast<const psym::simdvec4&>(zero);
+            }
+        });
+    addFluid(&m_new_fluid[0], m_new_fluid.size());
+    m_new_fluid_ctx.clear();
+    m_new_fluid.clear();
+
+    m_particles_to_gpu.insert(m_particles_to_gpu.end(), m_world.getParticles(), m_world.getParticles()+m_world.getNumParticles());
+    m_mutex_particles.unlock();
+
+    m_world.update(dt);
 }
 
 void SPHManager::draw()
@@ -146,31 +111,17 @@ void SPHManager::draw()
 
 void SPHManager::frameEnd()
 {
-    m_asyncupdate_task->wait();
 }
 
 size_t SPHManager::copyParticlesToGL()
 {
-    if(m_particles.empty()) { return 0; }
+    if(m_particles_to_gpu.empty()) { return 0; }
 
     ist::ScopedLock<ist::Mutex> l(m_mutex_particles);
     i3d::DeviceContext *dc = atomicGetGLDeviceContext();
     Buffer *vb = atomicGetVertexBuffer(VBO_FLUID_PARTICLES);
-    MapAndWrite(dc, vb, &m_particles[0], m_particles.size()*sizeof(psym::Particle));
-    return m_particles.size();
-}
-
-void SPHManager::taskAsyncupdate( float32 dt )
-{
-    for(uint32 i=0; i<m_current_fluid_task; ++i) {
-        m_fluid_tasks[i]->wait();
-        ComputeFluidParticle *cfp = static_cast<ComputeFluidParticle*>(m_fluid_tasks[i]);
-        ParticleCont &fluid = cfp->getData();
-        addFluid(&fluid[0], fluid.size());
-    }
-    m_particles.insert(m_particles.end(), m_world.getParticles(), m_world.getParticles()+m_world.getNumParticles());
-    m_mutex_particles.unlock();
-    m_world.update(dt);
+    MapAndWrite(dc, vb, &m_particles_to_gpu[0], m_particles_to_gpu.size()*sizeof(psym::Particle));
+    return m_particles_to_gpu.size();
 }
 
 size_t SPHManager::getNumParticles() const
@@ -266,12 +217,13 @@ void SPHManager::addFluid( psym::Particle *particles, uint32 num )
 
 void SPHManager::addFluid(PSET_RID psid, const mat4 &t)
 {
-    while(m_fluid_tasks.size()<=m_current_fluid_task) {
-        m_fluid_tasks.push_back( istNew(ComputeFluidParticle)() );
-    }
-    ComputeFluidParticle *task = static_cast<ComputeFluidParticle*>(m_fluid_tasks[m_current_fluid_task++]);
-    task->setup(psid, t);
-    TaskScheduler::getInstance()->enqueue(task);
+    const ParticleSet *pset = atomicGetParticleSet(psid);
+    AddFluidContext ctx;
+    ctx.psid = psid;
+    ctx.mat = t;
+    ctx.index = m_new_fluid.size();
+    m_new_fluid.resize(m_new_fluid.size()+pset->getNumParticles());
+    m_new_fluid_ctx.push_back(ctx);
 }
 
 } // namespace atomic

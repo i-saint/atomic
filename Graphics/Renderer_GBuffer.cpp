@@ -56,40 +56,6 @@ void PassGBuffer_Particle::addParticle( const IndivisualParticle *particles, uin
 
 
 
-UpdateRigidParticle::UpdateRigidParticle(const PSetUpdateInfo &ri, PSetParticle *p)
-{
-    m_rinst = &ri;
-    m_particles = p;
-}
-
-void UpdateRigidParticle::exec()
-{
-    const ParticleSet *rc = atomicGetParticleSet(m_rinst->psid);
-    uint32 num_particles            = rc->getNumParticles();
-    const PSetParticle *particles   = rc->getParticleData();
-    for(uint32 i=0; i<num_particles; ++i) {
-        m_particles[i].position     = particles[i].position;
-        m_particles[i].normal       = particles[i].normal;
-        m_particles[i].instanceid   = m_rinst->instanceid;
-    }
-}
-
-class UpdateRigidParticleTask : public AtomicDrawTask
-{
-private:
-    UpdateRigidParticle *m_begin, *m_end;
-
-public:
-    void setup(UpdateRigidParticle *begin, UpdateRigidParticle *end) { m_begin=begin; m_end=end; }
-    void exec()
-    {
-        for(UpdateRigidParticle *i=m_begin; i!=m_end; ++i) {
-            i->exec();
-        }
-    }
-};
-
-
 
 PassGBuffer_Fluid::PassGBuffer_Fluid()
 {
@@ -116,7 +82,6 @@ void PassGBuffer_Fluid::draw()
     i3d::DeviceContext *dc = atomicGetGLDeviceContext();
 
     // update rigid particle
-    m_updater.clear();
     uint32 num_rigid_particles = 0;
     uint32 num_tasks = 0;
     {
@@ -127,7 +92,6 @@ void PassGBuffer_Fluid::draw()
         }
         m_rparticles.resize(num_rigid_particles);
 
-        // 並列更新に必要な情報を設定
         size_t n = 0;
         for(uint32 ri=0; ri<num_rigids; ++ri) {
             const ParticleSet *rc = atomicGetParticleSet(m_rupdateinfo[ri].psid);

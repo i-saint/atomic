@@ -4,6 +4,7 @@
 #define ist_with_OpenGL
 //#define ist_with_OpenGLES
 //#define ist_with_DirectX11
+#define ist_with_tbb
 #define ist_with_zlib
 #define ist_with_png
 //#define ist_with_jpeg

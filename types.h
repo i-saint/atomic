@@ -46,7 +46,7 @@ typedef ist::IBinaryStream Deserializer;
 
 using ist::SpinMutex;
 using ist::Task;
-using ist::TaskScheduler;
+using ist::TaskGroup;
 using ist::SFMT;
 using ist::FrustumPlanes;
 using ist::AABB;

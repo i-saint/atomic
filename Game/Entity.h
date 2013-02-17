@@ -91,17 +91,6 @@ typedef EntitySet this_t;
 public:
     typedef stl::vector<EntityHandle> HandleCont;
     typedef stl::vector<IEntity*> EntityCont;
-    typedef stl::vector<Task*> TaskCont;
-
-private:
-    HandleCont m_vacant[ECID_End][ESID_MAX];
-    EntityCont m_entities[ECID_End][ESID_MAX];
-    EntityCont m_new_entities;
-    HandleCont m_all;
-    TaskCont m_tasks;
-
-    void addEntity(uint32 categoryid, uint32 classid, IEntity *e);
-    void resizeTasks(uint32 n);
 
 public:
     EntitySet();
@@ -121,8 +110,16 @@ public:
     void deleteEntity(EntityHandle h);
     template<class T> IEntity* createEntity();
 
-
     void handleEntitiesQuery(EntitiesQueryContext &ctx);
+
+private:
+    HandleCont m_vacant[ECID_End][ESID_MAX];
+    EntityCont m_entities[ECID_End][ESID_MAX];
+    EntityCont m_new_entities;
+    HandleCont m_all;
+
+    void addEntity(uint32 categoryid, uint32 classid, IEntity *e);
+    void resizeTasks(uint32 n);
 };
 
 } // namespace atomic

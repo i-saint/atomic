@@ -11,36 +11,6 @@ namespace atomic {
 
 
 
-class UpdateBloodstainParticle : public AtomicDrawTask
-{
-private:
-    mat4 m_transform;
-    const BloodstainParticle *m_bsp_in;
-    BloodstainParticle *m_bsp_out;
-    uint32 m_num_bsp;
-
-public:
-    void setup(const mat4 &transform, const BloodstainParticle *bsp_in, uint32 num_bsp, BloodstainParticle *bsp_out)
-    {
-        m_transform = transform;
-        m_bsp_in    = bsp_in;
-        m_num_bsp   = num_bsp;
-        m_bsp_out   = bsp_out;
-    }
-
-    void exec()
-    {
-        uint32 num_particles            = m_num_bsp;
-        const BloodstainParticle *bsp   = m_bsp_in;
-        simdmat4 t(m_transform);
-        for(uint32 i=0; i<num_particles; ++i) {
-            simdvec4 p(bsp[i].position);
-            m_bsp_out[i].position = glm::vec4_cast(t * p);
-            assign_float4(m_bsp_out[i].params, bsp[i].params);
-        }
-    }
-};
-
 PassDeferredShading_Bloodstain::PassDeferredShading_Bloodstain()
 {
     m_ibo_sphere    = atomicGetIndexBuffer(IBO_BLOODSTAIN_SPHERE);
@@ -51,10 +21,6 @@ PassDeferredShading_Bloodstain::PassDeferredShading_Bloodstain()
 
 PassDeferredShading_Bloodstain::~PassDeferredShading_Bloodstain()
 {
-    for(uint32 i=0; i<m_tasks.size(); ++i) {
-        istDelete(m_tasks[i]);
-    }
-    m_tasks.clear();
 }
 
 void PassDeferredShading_Bloodstain::beforeDraw()
@@ -75,18 +41,27 @@ void PassDeferredShading_Bloodstain::draw()
     }
 
     m_particles.resize(num_particles);
-    resizeTasks(num_instances);
     {
         uint32 n = 0;
         for(uint32 i=0; i<m_instances.size(); ++i) {
-            const BloodstainParticleSet &bps = m_instances[i];
-            static_cast<UpdateBloodstainParticle*>(m_tasks[i])->setup(
-                bps.transform, bps.bsp_in, bps.num_bsp, &m_particles[n]);
+            BloodstainParticleSet &bps = m_instances[i];
+            bps.bp_out = &m_particles[n];
             n += bps.num_bsp;
         }
+        ist::parallel_for(size_t(0), m_instances.size(),
+            [&](size_t i){
+                BloodstainParticleSet    &bps = m_instances[i];
+                uint32                   num_particles = bps.num_bsp;
+                const BloodstainParticle *bp_in  = bps.bp_in;
+                BloodstainParticle       *bp_out = bps.bp_out;
+                simdmat4 t(bps.transform);
+                for(uint32 i=0; i<num_particles; ++i) {
+                    simdvec4 p(bp_in[i].position);
+                    bp_out[i].position = glm::vec4_cast(t * p);
+                    assign_float4(bp_out[i].params, bp_in[i].params);
+                }
+            });
     }
-    ist::EnqueueTasks(&m_tasks[0], num_instances);
-    ist::WaitTasks(&m_tasks[0], num_instances);
 
     MapAndWrite(dc, m_vbo_bloodstain, &m_particles[0], sizeof(BloodstainParticle)*num_particles);
 
@@ -119,20 +94,13 @@ void PassDeferredShading_Bloodstain::draw()
     dc->setTexture(GLSL_COLOR_BUFFER, gbuffer->getColorBuffer(GBUFFER_COLOR));
 }
 
-void PassDeferredShading_Bloodstain::resizeTasks( uint32 n )
-{
-    while(m_tasks.size() < n) {
-        m_tasks.push_back( istNew(UpdateBloodstainParticle)() );
-    }
-}
-
 void PassDeferredShading_Bloodstain::addBloodstainParticles( const mat4 &t, const BloodstainParticle *bsp, uint32 num_bsp )
 {
     if(num_bsp==0) { return; }
 
     BloodstainParticleSet tmp;
     tmp.transform   = t;
-    tmp.bsp_in      = bsp;
+    tmp.bp_in      = bsp;
     tmp.num_bsp     = num_bsp;
     m_instances.push_back(tmp);
 }

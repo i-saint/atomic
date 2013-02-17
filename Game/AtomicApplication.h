@@ -44,22 +44,9 @@ struct AtomicConfig
 class AtomicApplication : public ist::Application
 {
 typedef ist::Application super;
-private:
-    AtomicGame              *m_game;
-    InputState              m_inputs;
-
-    AtomicConfig            m_config;
-
-    bool m_request_exit;
-
-#ifdef atomic_enable_debug_log
-    FILE *m_log;
-#endif // atomic_enable_debug_log
-
 public:
     static AtomicApplication* getInstance();
 
-public:
     AtomicApplication();
     ~AtomicApplication();
     virtual bool initialize(int argc, char *argv[]);
@@ -84,6 +71,18 @@ public:
 #ifdef atomic_enable_debug_log
     void printDebugLog(const char *format, ...);
 #endif // atomic_enable_debug_log
+
+private:
+    tbb::task_scheduler_init m_tbb_init;
+    AtomicGame              *m_game;
+    InputState              m_inputs;
+    AtomicConfig            m_config;
+    bool m_request_exit;
+
+#ifdef atomic_enable_debug_log
+    FILE *m_log;
+#endif // atomic_enable_debug_log
+
 };
 
 

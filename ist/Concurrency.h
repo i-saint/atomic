@@ -1,5 +1,5 @@
-﻿#ifndef __ist_Concurrency_h__
-#define __ist_Concurrency_h__
+﻿#ifndef ist_Concurrency_h
+#define ist_Concurrency_h
 
 #include "Concurrency/Atomic.h"
 #include "Concurrency/Mutex.h"
@@ -12,4 +12,4 @@
 #include "Concurrency/Process.h"
 #include "Concurrency/Timer.h"
 
-#endif // __ist_Concurrency_h__
+#endif // ist_Concurrency_h

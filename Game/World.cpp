@@ -39,8 +39,6 @@ World::World()
     m_vfx = istNew(VFXSet)();
     m_modules.push_back(m_vfx);
 
-    m_module_asyncupdates.resize( m_modules.size() );
-
     const uvec2 &wsize = atomicGetWindowSize();
     m_camera_game.setAspect((float32)wsize.x/(float32)wsize.y);
 
@@ -51,7 +49,6 @@ World::~World()
 {
     istCommandlineUnregister("setCameraFovy");
 
-    m_module_asyncupdates.clear();
     for(ModuleCont::reverse_iterator i=m_modules.rbegin(); i!=m_modules.rend(); ++i) {
         istDelete(*i);
     }
@@ -88,24 +85,20 @@ void World::update(float32 dt)
 
 void World::asyncupdateBegin(float32 dt)
 {
-    for(uint32 i=0; i<m_module_asyncupdates.size(); ++i) {
-        m_module_asyncupdates[i].setFunction( ModuleAsyncupdateFunc(&IAtomicGameModule::asyncupdate, *m_modules[i], dt) );
-        m_module_asyncupdates[i].start();
-    }
+    m_asyncupdate.run(std::bind(&World::asyncupdate, this, dt));
 }
 
 void World::asyncupdateEnd()
 {
-    for(uint32 i=0; i<m_module_asyncupdates.size(); ++i) {
-        m_module_asyncupdates[i].wait();
-    }
+    m_asyncupdate.wait();
 }
 
 void World::asyncupdate(float32 dt)
 {
-    //mat4 rot = glm::rotate(mat4(), 0.05f, vec3(0.0f, 1.0f, 0.0f));
-    //m_camera.setPosition(rot * m_camera.getPosition());
-    //m_camera.setAspect(atomicGetWindowAspectRatio());
+    ist::parallel_for(size_t(0), m_modules.size(),
+        [&](size_t i){
+            m_modules[i]->asyncupdate(dt);
+        });
 }
 
 void World::draw()

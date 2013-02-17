@@ -1,5 +1,5 @@
-﻿#ifndef __ist_Concurrency_TashScheduler_h__
-#define __ist_Concurrency_TashScheduler_h__
+﻿#ifndef ist_Concurrency_TashScheduler_h
+#define ist_Concurrency_TashScheduler_h
 
 #include "ist/Base/Types.h"
 #include "ist/Base/NonCopyable.h"
@@ -8,6 +8,42 @@
 #include "ist/Concurrency/Mutex.h"
 #include "ist/Concurrency/Condition.h"
 #include "ist/Concurrency/Thread.h"
+
+#ifdef ist_with_tbb
+#include <tbb/tbb.h>
+
+namespace ist {
+
+typedef tbb::task Task;
+typedef tbb::task_group TaskGroup;
+typedef tbb::blocked_range<size_t> size_range;
+using tbb::parallel_for;
+
+template<class F>
+class FunctorTask : public Task
+{
+public:
+    FunctorTask(const F &f) : m_f(f) {}
+    Task* execute()
+    {
+        m_f();
+        return NULL;
+    }
+
+private:
+    F m_f;
+};
+
+} // namespace ist
+
+#define istNewRootTask(Type)        new(tbb::task::allocate_root()) Type
+#define istEnqueueTask(...)     tbb::task::spawn(__VA_ARGS__)
+#define istWaitTasks()          tbb::task::wait_for_all()
+
+#define istTaskSchedulerInitialize(...) 
+#define istTaskSchedulerFinalize()      
+
+#else // ist_with_tbb
 
 
 namespace ist {
@@ -94,4 +130,8 @@ private:
 
 } // namespace ist
 
-#endif // __ist_Concurrency_TashScheduler_h__
+#define istTaskSchedulerInitialize(...) TaskScheduler::initializeInstance(__VA_ARGS__)
+#define istTaskSchedulerFinalize()
+
+#endif // ist_with_tbb
+#endif // ist_Concurrency_TashScheduler_h
