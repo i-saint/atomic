@@ -9,6 +9,8 @@ namespace atomic {
 GameServerSession::GameServerSession( const Poco::Net::StreamSocket &_ss )
     : super(_ss)
     , m_pid(0)
+    , m_frame(0)
+    , m_ping(0)
 {
     Poco::Net::StreamSocket &ss = socket();
     ss.setNoDelay(true);
@@ -37,17 +39,16 @@ void GameServerSession::messageLoop()
         m_message_send.insert(m_message_send.begin(), PMessage_Accepted::create(m_pid));
     }
 
-    Poco::Net::StreamSocket *stream = &socket();
+    Poco::Net::SocketStream stream(socket());
     ist::Timer timer;
-    for(;;) {
+    while(!atomicGameServerGet()->getStopFlag()) {
         timer.reset();
 
-        recvMessage(stream);
-        sendMessage(stream);
+        recvMessage(&stream);
+        sendMessage(&stream);
 
-        if(timer.getElapsedMillisec()<1.0f) {
-            ist::Thread::milliSleep(1);
-        }
+        if(timer.getElapsedMillisec()<1.0f) { ist::Thread::milliSleep(1); }
+        m_ping = uint32(timer.getElapsedMillisec());
    }
 }
 
@@ -58,17 +59,32 @@ void GameServerSession::processReceivingMessage( PMessageCont &cont )
         switch(mes.type) {
         case PM_Join:
             {
-                reinterpret_cast<PMessage_Join&>(mes).player_id = m_pid;
+                auto &m = reinterpret_cast<PMessage_Join&>(mes);
+                m.player_id = m_pid;
             }
             break;
         case PM_Update:
             {
-                reinterpret_cast<PMessage_Update&>(mes).player_id = m_pid;
+                auto &m = reinterpret_cast<PMessage_Update&>(mes);
+                m.player_id = m_pid;
+                m.ping = m_ping;
+                m_frame = m.frame;
             }
             break;
         }
 
     }
+}
+
+uint32 GameServerSession::getFrame() const
+{
+    return m_frame;
+}
+
+uint32 GameServerSession::getAgeragePing() const
+{
+    // todo
+    return m_ping;
 }
 
 

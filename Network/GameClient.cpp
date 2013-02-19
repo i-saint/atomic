@@ -87,12 +87,14 @@ void GameClient::messageLoop()
     }
 
     Poco::Net::StreamSocket *sock = NULL;
+    Poco::Net::SocketStream *stream = NULL;
     try {
         sock = new Poco::Net::StreamSocket(m_address);
         sock->setNoDelay(true);
         sock->setBlocking(true);
         sock->setReceiveTimeout(Poco::Timespan(atomic_NetworkTimeout, 0));
         sock->setSendTimeout(Poco::Timespan(atomic_NetworkTimeout, 0));
+        stream = new Poco::Net::SocketStream(*sock);
     }
     catch(Poco::Exception &) {
         handleEvent(EV_ConnectionFailed);
@@ -102,8 +104,8 @@ void GameClient::messageLoop()
 
     while(!m_stop) {
         try {
-            sendMessage(sock);
-            recvMessage(sock);
+            sendMessage(stream);
+            recvMessage(stream);
         }
         catch(Poco::TimeoutException &) {
             m_stop = true;
@@ -121,6 +123,7 @@ void GameClient::messageLoop()
 
     sock->shutdown();
 Cleanup:
+    delete stream;
     delete sock;
     m_stop = false;
 }

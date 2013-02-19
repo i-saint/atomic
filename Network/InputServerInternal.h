@@ -9,9 +9,9 @@ class InputServerCommon
 {
 public:
     typedef ist::vector<RepPlayer> PlayerCont;
-    typedef ist::vector<RepInput> InputCont;
+    typedef ist::raw_vector<RepInput> InputCont;
     typedef ist::vector<InputCont> InputConts;
-    typedef ist::vector<LevelEditorCommand> LECCont;
+    typedef ist::raw_vector<LevelEditorCommand> LECCont;
 
 protected:
     bool save(const char *path);

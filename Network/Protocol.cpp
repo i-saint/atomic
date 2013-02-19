@@ -82,13 +82,22 @@ PMessage_Update PMessage_Update::create( PlayerID pid, uint32 frame, const RepIn
     return t;
 }
 
+PMessage_LEC PMessage_LEC::create( const LevelEditorCommand &lec )
+{
+    PMessage_LEC t;
+    istMemset(&t, 0, sizeof(t));
+    t.type = PM_LevelEditorCommand;
+    t.lec = lec;
+    return t;
+}
 
 
 
-bool SendPMessages( Poco::Net::StreamSocket *stream, PMessageBuffer &buf, PMessageCont &messages )
+
+bool SendPMessages( Poco::Net::SocketStream *stream, PMessageBuffer &buf, PMessageCont &messages )
 {
     buf.clear();
-    buf.resize(sizeof(PMesBufferHeader));
+    buf.resize( sizeof(PMesBufferHeader) );
     {
         PMesBufferHeader &header = *(PMesBufferHeader*)&buf[0];
         memcpy(header.magic, PM_message_header, _countof(header.magic));
@@ -108,21 +117,25 @@ bool SendPMessages( Poco::Net::StreamSocket *stream, PMessageBuffer &buf, PMessa
         PMesBufferHeader &header = *(PMesBufferHeader*)&buf[0];
         header.length_in_byte = buf.size()-sizeof(PMesBufferHeader);
     }
-    stream->sendBytes(&buf[0], buf.size());
+    stream->write(&buf[0], buf.size());
+    stream->flush();
     return true;
 }
 
-bool RecvPMessages( Poco::Net::StreamSocket *stream, PMessageBuffer &buf, PMessageCont &messages )
+bool RecvPMessages( Poco::Net::SocketStream *stream, PMessageBuffer &buf, PMessageCont &messages )
 {
     messages.clear();
     buf.resize(sizeof(PMesBufferHeader));
-    if(stream->receiveBytes(&buf[0], buf.size())==0) { return false; }
+    stream->read(&buf[0], buf.size());
+    if(stream->eof()) { return false; }
 
     PMesBufferHeader header = *(PMesBufferHeader*)&buf[0];
+    istAssert(strcmp(header.magic, "atomic")==0);
     if(header.length_in_byte==0) { return true; }
     buf.resize(header.length_in_byte);
 
-    if(stream->receiveBytes(&buf[0], buf.size())==0) { return false; }
+    stream->read(&buf[0], buf.size());
+    if(stream->eof()) { return false; }
     const PMessage *pmes = (PMessage*)(&buf[0]);
     for(size_t i=0; i<header.num_message; ++i) {
         messages.push_back(pmes[i]);
@@ -189,7 +202,7 @@ void PMessenger::handleReceivedMessageCont( const MessageContHandler &h )
     m_message_consuming.clear();
 }
 
-bool PMessenger::sendMessage(Poco::Net::StreamSocket *stream)
+bool PMessenger::sendMessage(Poco::Net::SocketStream *stream)
 {
     {
         ist::Mutex::ScopedLock lock(m_mutex_send);
@@ -201,7 +214,7 @@ bool PMessenger::sendMessage(Poco::Net::StreamSocket *stream)
     return ret;
 }
 
-bool PMessenger::recvMessage(Poco::Net::StreamSocket *stream)
+bool PMessenger::recvMessage(Poco::Net::SocketStream *stream)
 {
     bool ret = RecvPMessages(stream, m_message_buffer, m_message_receiving);
     if(ret && !m_message_receiving.empty()) {
@@ -222,5 +235,6 @@ void PMessenger::clearAllMessage()
     DestructMessages(m_message_send);
     DestructMessages(m_message_recv);
 }
+
 
 } // namespace atomic

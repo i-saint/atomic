@@ -52,14 +52,21 @@ void InputServerNetwork::update()
     uint32 pid = 0;
     for(size_t i=0; i<m_players.size(); ++i) {
         const RepPlayer &pl = m_players[i];
-        if(m_pos>=pl.begin_frame && m_pos<pl.begin_frame+pl.num_frame) {
+        if(m_pos>=pl.begin_frame && pl.num_frame==0) {
             InputCont &inp = m_inputs[i];
             RepInput &rd = inp[m_pos-pl.begin_frame];
             m_is[pid].update(rd);
             ++pid;
         }
-        else if(m_pos==pl.begin_frame+pl.num_frame) {
-            erasePlayer(i);
+    }
+
+    {
+        LevelEditorCommand s;
+        s.frame = m_pos;
+        std::pair<LECCont::iterator, LECCont::iterator> lecs
+            = std::equal_range(m_lecs.begin(), m_lecs.end(), s, [&](const LevelEditorCommand &a, const LevelEditorCommand &b){ return a.frame<b.frame; });
+        for(LECCont::iterator i=lecs.first; i!=lecs.second; ++i) {
+            atomicGetGame()->handleLevelEditorCommands(*i);
         }
     }
 
@@ -68,7 +75,7 @@ void InputServerNetwork::update()
 
 bool InputServerNetwork::sync()
 {
-    return m_pos <= m_server_frame;
+    return m_pos < m_server_frame;
 }
 
 void InputServerNetwork::addPlayer( PlayerID id, const PlayerName &name, uint32 equip )
@@ -86,7 +93,7 @@ void InputServerNetwork::pushInput( PlayerID pid, const RepInput &is )
 
 void InputServerNetwork::pushLevelEditorCommand( const LevelEditorCommand &v )
 {
-
+    atomicGameClientPushMessage( PMessage_LEC::create(v) );
 }
 
 void InputServerNetwork::handlePMessage( const PMessage &mes )
@@ -111,8 +118,18 @@ void InputServerNetwork::handlePMessage( const PMessage &mes )
         {
             auto &m = reinterpret_cast<const PMessage_Update&>(mes);
             istAssert(m.player_id < m_inputs.size());
-            m_inputs[m.player_id].push_back(m.input);
-            m_server_frame = std::max<uint32>(m_server_frame, m.frame);
+            InputCont &input = m_inputs[m.player_id];
+            if(input.size() <= m.frame) {
+                input.resize(m.frame+1, RepInput());
+                input[m.frame] = m.input;
+            }
+            m_server_frame = std::max<uint32>(m_server_frame, m.server_frame);
+        }
+        break;
+    case PM_LevelEditorCommand:
+        {
+            auto &m = reinterpret_cast<const PMessage_LEC&>(mes);
+            m_lecs.push_back(m.lec);
         }
         break;
     }

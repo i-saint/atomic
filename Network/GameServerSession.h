@@ -24,10 +24,15 @@ public:
     virtual void run();
     void messageLoop();
 
+    uint32 getFrame() const;
+    uint32 getAgeragePing() const;
+
 private:
     void processReceivingMessage(PMessageCont &mes);
 
     uint32 m_pid;
+    uint32 m_frame;
+    uint32 m_ping;
 };
 
 #endif // atomic_enable_GameServer

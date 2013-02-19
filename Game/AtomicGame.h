@@ -57,6 +57,7 @@ private:
     uint32          m_frame;
     PlayerID        m_player_id;
     EntitiesQueryContext m_ctx_entities_query;
+    bool m_pass;
 #ifdef atomic_enable_sync_lock
     bool m_sync_lock;
 #endif // atomic_enable_sync_lock

@@ -39,6 +39,7 @@ private:
     void messageLoop();
 
     uint32 cretaePID();
+    bool getStopFlag() const { return m_stop; }
 
 private:
     typedef ist::vector<GameServerSession*> SessionCont;
@@ -46,6 +47,9 @@ private:
     Poco::Net::TCPServer *m_server;
     ist::Thread *m_message_thread;
     atomic_int32 m_pidgen;
+    uint32 m_frame;
+    uint32 m_delay;
+    bool m_stop;
 
     ist::Mutex m_mtx_sessions;
     SessionCont m_sessions;

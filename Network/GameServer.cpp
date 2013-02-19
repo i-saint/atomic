@@ -34,6 +34,9 @@ GameServer::GameServer()
     : m_server(NULL)
     , m_message_thread(NULL)
     , m_pidgen(0)
+    , m_frame(0)
+    , m_delay(0)
+    , m_stop(false)
 {
 }
 
@@ -66,6 +69,7 @@ void GameServer::start()
 
 void GameServer::stop()
 {
+    m_stop = true;
     if(m_server) {
         m_server->stop();
         while(m_server->currentConnections()>0 || m_server->currentThreads()>0) {
@@ -76,9 +80,10 @@ void GameServer::stop()
     }
     if(m_message_thread) {
         m_message_thread->join();
-        delete m_message_thread;
+        istDelete(m_message_thread);
         m_message_thread = NULL;
     }
+    m_stop = false;
 }
 
 void GameServer::restart()
@@ -124,9 +129,39 @@ void GameServer::recvMessage()
         m_mes_pushed.clear();
     }
 
+    {
+        uint32 max_ping = 0;
+        uint32 min_frame = 0xffffffff;
+        for(size_t i=0; i<m_sessions.size(); ++i) {
+            max_ping = std::max<uint32>(max_ping, m_sessions[i]->getAgeragePing());
+            min_frame = std::min<uint32>(min_frame, m_sessions[i]->getFrame());
+        }
+        m_frame = min_frame;
+        m_delay = std::max<uint32>(1, max_ping / 16);
+    }
+    for(size_t i=0; i<m_mes_recved.size(); ++i) {
+        PMessage &mes = m_mes_recved[i];
+        switch(mes.type) {
+        case PM_Update:
+            {
+                auto &m = reinterpret_cast<PMessage_Update&>(mes);
+                m.frame += m_delay;
+                m.server_frame = m_frame+m_delay;
+            }
+            break;
+        case PM_LevelEditorCommand:
+            {
+                auto &m = reinterpret_cast<PMessage_LEC&>(mes);
+                m.lec.frame = m_frame+m_delay;
+            }
+            break;
+        }
+    }
+
     for(size_t i=0; i<m_mes_recved.size(); ++i) {
         m_mes_send.push_back(m_mes_recved[i]);
     }
+    m_mes_recved.clear();
 }
 
 void GameServer::sendMessage()
@@ -145,14 +180,18 @@ void GameServer::messageLoop()
     ist::Thread::setNameToCurrentThread("GameServer::messageLoop()");
     m_receiver = std::bind(&GameServer::handleMessageCont, this, std::placeholders::_1);
 
-    ist::Timer timer;
-    while(m_server!=NULL) {
-        timer.reset();
-        recvMessage();
-        sendMessage();
-        if(timer.getElapsedMillisec() < 10.0f) {
-            ist::Thread::milliSleep(5);
+    try {
+        ist::Timer timer;
+        while(m_server!=NULL) {
+            timer.reset();
+            recvMessage();
+            sendMessage();
+            if(timer.getElapsedMillisec() < 10.0f) {
+                ist::Thread::milliSleep(5);
+            }
         }
+    }
+    catch(...) {
     }
 }
 

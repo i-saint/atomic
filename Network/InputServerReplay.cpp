@@ -57,12 +57,14 @@ void InputServerReplay::update()
         }
     }
 
-    LevelEditorCommand s;
-    s.frame = m_pos;
-    std::pair<LECCont::iterator, LECCont::iterator> lecs
-        = std::equal_range(m_lecs.begin(), m_lecs.end(), s, [&](const LevelEditorCommand &a, const LevelEditorCommand &b){ return a.frame<b.frame; });
-    for(LECCont::iterator i=lecs.first; i!=lecs.second; ++i) {
-        atomicGetGame()->handleLevelEditorCommands(*i);
+    {
+        LevelEditorCommand s;
+        s.frame = m_pos;
+        std::pair<LECCont::iterator, LECCont::iterator> lecs
+            = std::equal_range(m_lecs.begin(), m_lecs.end(), s, [&](const LevelEditorCommand &a, const LevelEditorCommand &b){ return a.frame<b.frame; });
+        for(LECCont::iterator i=lecs.first; i!=lecs.second; ++i) {
+            atomicGetGame()->handleLevelEditorCommands(*i);
+        }
     }
 
     ++m_pos;

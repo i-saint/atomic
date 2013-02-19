@@ -3,6 +3,7 @@
 #include "externals.h"
 #include "types.h"
 #include "Game/Input.h"
+#include "LevelEditorCommand.h"
 
 namespace atomic {
 
@@ -33,6 +34,7 @@ enum PM_Type
     PM_Update,
     PM_Text,
     PM_Sync,
+    PM_LevelEditorCommand,
 };
 
 union istAlign(16) PMessage
@@ -61,8 +63,8 @@ struct PBuffer
 typedef ist::raw_vector<PMessage> PMessageCont;
 typedef ist::raw_vector<char> PMessageBuffer;
 
-bool SendPMessages(Poco::Net::StreamSocket *stream, PMessageBuffer &buf, PMessageCont &messages);
-bool RecvPMessages(Poco::Net::StreamSocket *stream, PMessageBuffer &buf, PMessageCont &messages);
+bool SendPMessages(Poco::Net::SocketStream *stream, PMessageBuffer &buf, PMessageCont &messages);
+bool RecvPMessages(Poco::Net::SocketStream *stream, PMessageBuffer &buf, PMessageCont &messages);
 void DestructMessages(PMessageCont &messages);
 
 #define PM_Ensure(T) BOOST_STATIC_ASSERT(sizeof(T)==sizeof(PMessage))
@@ -183,9 +185,11 @@ struct istAlign(16) PMessage_Update
     PM_Type type;
     PlayerID player_id;
     uint32 frame;
+    uint32 ping;
+    uint32 server_frame;
     uint32 sync_mark;
     RepInput input;
-    uint8 padding[40];
+    uint8 padding[32];
 
     PMessage_Update() : type(PM_Update) {}
     static PMessage_Update create(PlayerID pid, uint32 frame, const RepInput &inp);
@@ -222,6 +226,18 @@ struct istAlign(16) PMessage_Sync
 };
 PM_Ensure(PMessage_Sync);
 
+// client -> server
+// all clients <- server
+struct istAlign(16) PMessage_LEC
+{
+    PM_Type type;
+    LevelEditorCommand lec;
+    uint8 padding[16];
+
+    static PMessage_LEC create(const LevelEditorCommand &lec);
+};
+PM_Ensure(PMessage_LEC);
+
 #undef PM_Ensure
 
 
@@ -242,8 +258,8 @@ public:
 protected:
     virtual void processReceivingMessage(PMessageCont &mes) {}
 
-    bool sendMessage(Poco::Net::StreamSocket *stream);
-    bool recvMessage(Poco::Net::StreamSocket *stream);
+    bool sendMessage(Poco::Net::SocketStream *stream);
+    bool recvMessage(Poco::Net::SocketStream *stream);
     void clearAllMessage();
 
 protected:

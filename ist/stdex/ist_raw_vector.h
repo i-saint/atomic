@@ -57,7 +57,7 @@ public:
         size_type before = m_size;
         resize(s);
         if(s > before) {
-            std::fill_n(m_data+before, m_data+s, v);
+            std::fill(m_data+before, m_data+s, v);
         }
     }
 

@@ -23,6 +23,7 @@ AtomicGame::AtomicGame()
 : m_input_server(NULL)
 , m_world(NULL)
 , m_frame(0)
+, m_pass(false)
 {
 #ifdef atomic_enable_sync_lock
     m_sync_lock = false;
@@ -30,8 +31,8 @@ AtomicGame::AtomicGame()
     MessageRouter::initializeInstance();
 
     PlayerName name = L"test";
-    m_input_server = CreateInputServerLocal();
-    //m_input_server = CreateInputServerNetwork();
+    //m_input_server = CreateInputServerLocal();
+    m_input_server = CreateInputServerNetwork();
     m_input_server->addPlayer(0, name, 0);
 
     m_world = istNew(World)();
@@ -93,7 +94,8 @@ void AtomicGame::update(float32 dt)
     atomicLevelEditorHandleCommands( std::bind(&IInputServer::pushLevelEditorCommand, m_input_server, std::placeholders::_1));
     atomicLevelEditorHandleQueries( std::bind(&AtomicGame::handleLevelEditorQueries, this, std::placeholders::_1) );
     atomicGameClientHandleMessages( std::bind(&AtomicGame::handlePMessages, this, std::placeholders::_1) );
-    if(!atomicGetConfig()->pause && m_input_server->sync() )
+    m_pass = atomicGetConfig()->pause || !m_input_server->sync();
+    if(!m_pass)
     {
         m_input_server->update();
         m_world->update(1.0f);
@@ -102,7 +104,7 @@ void AtomicGame::update(float32 dt)
 
 void AtomicGame::asyncupdateBegin(float32 dt)
 {
-    if(atomicGetConfig()->pause) { return; }
+    if(m_pass) { return; }
 
     atomicDbgLockSyncMethods();
     m_world->asyncupdateBegin(dt);
@@ -110,7 +112,7 @@ void AtomicGame::asyncupdateBegin(float32 dt)
 
 void AtomicGame::asyncupdateEnd()
 {
-    if(atomicGetConfig()->pause) { return; }
+    if(m_pass) { return; }
 
     m_world->asyncupdateEnd();
     atomicDbgUnlockSyncMethods();
@@ -136,7 +138,7 @@ void AtomicGame::draw()
 
 void AtomicGame::frameEnd()
 {
-    if(atomicGetConfig()->pause) { return; }
+    if(m_pass) { return; }
 
     m_world->frameEnd();
     ++m_frame;
