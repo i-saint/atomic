@@ -13,8 +13,14 @@ bool InputServerCommon::save(const char *path)
     ist::GZFileStream gzf(path, "wb");
     if(!gzf.isOpened()) { return false; }
 
+    uint32 max_frame = 0;
+    for(size_t i=0; i<m_players.size(); ++i) {
+        m_players[i].num_frame = m_inputs[i].size();
+        max_frame = std::max<uint32>(max_frame, m_players[i].begin_frame+m_players[i].num_frame);
+    }
+
     m_header.random_seed = atomicGetRandom()->getSeed();
-    m_header.total_frame = atomicGetFrame();
+    m_header.total_frame = max_frame;
     m_header.num_players = m_players.size();
     m_header.num_lecs = m_lecs.size();
     gzf.write((char*)&m_header, sizeof(m_header));
@@ -77,6 +83,7 @@ public:
     virtual IS_TypeID getTypeID() const;
 
     virtual void update();
+    virtual void draw() {}
     virtual bool sync() { return true; }
     virtual void addPlayer(PlayerID pid, const PlayerName &name, uint32 equip);
     virtual void erasePlayer(PlayerID pid);
@@ -129,8 +136,6 @@ void InputServerLocal::pushInput(PlayerID pid, const RepInput &is)
     if(pid >= m_players.size()) { istAssert(false); }
 
     m_inputs[pid].push_back(is);
-    m_players[pid].num_frame = m_inputs[pid].size();
-
     m_is[0].update(is);
 }
 

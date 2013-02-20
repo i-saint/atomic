@@ -76,7 +76,7 @@ bool AtomicGame::readReplayFromFile(const char *path)
 
 void AtomicGame::frameBegin()
 {
-    if(atomicGetConfig()->pause) { return; }
+    if(m_pass) { return; }
 
     m_world->frameBegin();
 }
@@ -89,12 +89,12 @@ void AtomicGame::update(float32 dt)
     else {
         m_input_server->pushInput(0, RepInput());
     }
+    m_pass = atomicGetConfig()->pause || !m_input_server->sync();
 
     istCommandlineFlush();
     atomicLevelEditorHandleCommands( std::bind(&IInputServer::pushLevelEditorCommand, m_input_server, std::placeholders::_1));
     atomicLevelEditorHandleQueries( std::bind(&AtomicGame::handleLevelEditorQueries, this, std::placeholders::_1) );
     atomicGameClientHandleMessages( std::bind(&AtomicGame::handlePMessages, this, std::placeholders::_1) );
-    m_pass = atomicGetConfig()->pause || !m_input_server->sync();
     if(!m_pass)
     {
         m_input_server->update();
@@ -121,6 +121,7 @@ void AtomicGame::asyncupdateEnd()
 
 void AtomicGame::draw()
 {
+    if(m_pass) { return; }
     // todo: フレームスキップ処理
 
     if(m_input_server->getTypeID()==IInputServer::IS_Replay) {
@@ -156,6 +157,19 @@ void AtomicGame::drawCallback()
         istSPrintf(buf, "Replay %d / %d", pos, len);
         atomicGetSystemTextRenderer()->addText(vec2(5.0f, (float32)wsize.y), buf);
     }
+
+    if(auto *client=atomicGameClientGet()) {
+        uint32 i = 0;
+        auto &clients = client->getClientStates();
+        for(auto it=clients.begin(); it!=clients.end(); ++it) {
+            auto &stat = it->second;
+            wchar_t buf[128];
+            istSPrintf(buf, L"%s - ping %d", stat.name, stat.ping);
+            atomicGetSystemTextRenderer()->addText(vec2(5.0f, 20.0f*i + 80.0f), buf);
+            ++i;
+        }
+    }
+
     if(m_world) {
         m_world->draw();
     }

@@ -72,7 +72,6 @@ void GameServerSession::processReceivingMessage( PMessageCont &cont )
             }
             break;
         }
-
     }
 }
 

@@ -18,6 +18,7 @@ public:
     virtual IS_TypeID getTypeID() const;
 
     virtual void update();
+    virtual void draw() {}
     virtual bool sync();
     virtual void addPlayer(PlayerID id, const PlayerName &name, uint32 equip);
     virtual void erasePlayer(PlayerID id);
@@ -129,7 +130,7 @@ void InputServerNetwork::handlePMessage( const PMessage &mes )
     case PM_LevelEditorCommand:
         {
             auto &m = reinterpret_cast<const PMessage_LEC&>(mes);
-            m_lecs.push_back(m.lec);
+            m_lecs.insert(std::lower_bound(m_lecs.begin(), m_lecs.end(), m.lec), m.lec);
         }
         break;
     }

@@ -36,6 +36,7 @@ union istAlign(16) LevelEditorCommand
     {
         std::fill_n(dummy, _countof(dummy), 0);
     }
+    bool operator<(const LevelEditorCommand &v) const { return frame<v.frame; }
 };
 #define LEC_Ensure(T) BOOST_STATIC_ASSERT(sizeof(T)==sizeof(LevelEditorCommand))
 

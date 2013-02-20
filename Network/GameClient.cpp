@@ -78,6 +78,36 @@ void GameClient::handleEvent( Event e )
     }
 }
 
+void GameClient::processReceivingMessage( PMessageCont &cont )
+{
+    for(size_t i=0; i<cont.size(); ++i) {
+        PMessage &mes = cont[i];
+        switch(mes.type) {
+        case PM_Join:
+            {
+                auto &m = reinterpret_cast<PMessage_Join&>(mes);
+                ClientStates &cs = m_client_states[m.player_id];
+                wcscpy(cs.name, m.name);
+                cs.pid = m.player_id;
+            }
+            break;
+        case PM_Update:
+            {
+                auto &m = reinterpret_cast<PMessage_Update&>(mes);
+                ClientStates &cs = m_client_states[m.player_id];
+                cs.ping = m.ping;
+            }
+            break;
+        case PM_Leave:
+            {
+                auto &m = reinterpret_cast<PMessage_Leave&>(mes);
+                m_client_states.erase(m.player_id);
+            }
+            break;
+        }
+    }
+}
+
 void GameClient::messageLoop()
 {
     ist::Thread::setNameToCurrentThread("GameClient::messageLoop()");

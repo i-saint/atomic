@@ -18,6 +18,7 @@ public:
     virtual IS_TypeID getTypeID() const;
 
     virtual void update();
+    virtual void draw() {}
     virtual bool sync() { return true; }
     virtual void addPlayer(PlayerID pid, const PlayerName &name, uint32 equip) {}
     virtual void erasePlayer(PlayerID pid) {}

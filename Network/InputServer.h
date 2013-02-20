@@ -19,6 +19,7 @@ public:
     virtual IS_TypeID getTypeID() const=0;
 
     virtual void update()=0;
+    virtual void draw()=0;
     virtual bool sync()=0;
     virtual void addPlayer(PlayerID pid, const PlayerName &name, uint32 equip)=0;
     virtual void erasePlayer(PlayerID pid)=0;

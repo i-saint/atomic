@@ -327,7 +327,7 @@ void SystemTextRenderer::draw()
     }
     for(uint32 i=0; i<m_texts.size(); ++i) {
         const Text &t = m_texts[i];
-        atomicGetFontRenderer()->addText(t.pos, t.text, strnlen(t.text, _countof(t.text)));
+        atomicGetFontRenderer()->addText(t.pos, t.text, wcsnlen(t.text, _countof(t.text)));
     }
 
     dc->setBlendState(atomicGetBlendState(BS_BLEND_ALPHA));
@@ -338,7 +338,15 @@ void SystemTextRenderer::draw()
 void SystemTextRenderer::addText(const vec2 &pos, const char *text)
 {
     Text tmp;
-    strncpy(tmp.text, text, _countof(tmp.text));
+    mbstowcs(tmp.text, text, _countof(tmp.text));
+    tmp.pos = pos;
+    m_texts.push_back(tmp);
+}
+
+void SystemTextRenderer::addText( const vec2 &pos, const wchar_t *text )
+{
+    Text tmp;
+    wcsncpy(tmp.text, text, _countof(tmp.text));
     tmp.pos = pos;
     m_texts.push_back(tmp);
 }

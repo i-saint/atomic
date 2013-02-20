@@ -122,7 +122,7 @@ class SystemTextRenderer : public IRenderer
 {
 private:
     struct Text {
-        char text[128];
+        wchar_t text[128];
         vec2 pos;
     };
     stl::vector<Text> m_texts;
@@ -133,6 +133,7 @@ public:
     void draw();
 
     void addText(const vec2 &pos, const char *text);
+    void addText(const vec2 &pos, const wchar_t *text);
 };
 
 #ifdef atomic_enable_gbuffer_viewer

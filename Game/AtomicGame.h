@@ -43,6 +43,7 @@ public:
     SFMT* getRandom();
     uint32 getFrame() const                 { return m_frame; }
     PlayerID getPlayerID() const            { return m_player_id; }
+    bool DoesUpdatePassed() const { return m_pass; }
 
 #ifdef atomic_enable_sync_lock
     void dbgLockSyncMethods()               { m_sync_lock=true; }

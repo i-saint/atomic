@@ -11,6 +11,16 @@ class GameClient : public PMessenger
 {
 typedef PMessenger super;
 public:
+    struct ClientStates
+    {
+        PlayerName name;
+        PlayerID pid;
+        uint32 ping;
+
+        ClientStates() { istMemset(this, 0, sizeof(*this)); }
+    };
+    typedef stl::map<PlayerID, ClientStates> ClientStatesCont;
+
     enum Event {
         EV_Unknown,
         EV_Connected,       // 接続した時
@@ -45,7 +55,10 @@ public:
 
     PlayerID getPlayerID() const { return m_pid; }
 
+    ClientStatesCont& getClientStates() { return m_client_states; }
+
 private:
+    void processReceivingMessage(PMessageCont &cont);
     void shutdown();
     void handleEvent(Event e);
     void messageLoop();
@@ -58,15 +71,17 @@ private:
     Poco::Net::SocketAddress m_address;
     EventHandler m_handler;
     ist::Thread *m_thread;
+    ClientStatesCont m_client_states;
 };
 
 
 #define atomicGameClientInitialize()        GameClient::initializeInstance()
 #define atomicGameClientFinalize()          GameClient::finalizeInstance()
-#define atomicGameClientConnect(Host,Port)  GameClient::getInstance()->connect(Host,Port)
-#define atomicGameClientPushMessage(m)      GameClient::getInstance()->pushMessage(PMessageCast(m))
-#define atomicGameClientHandleMessages(h)   GameClient::getInstance()->handleReceivedMessage(h)
-#define atomicGameClientGetPlayerID()       GameClient::getInstance()->getPlayerID()
+#define atomicGameClientGet()               GameClient::getInstance()
+#define atomicGameClientConnect(Host,Port)  atomicGameClientGet()->connect(Host,Port)
+#define atomicGameClientPushMessage(m)      atomicGameClientGet()->pushMessage(PMessageCast(m))
+#define atomicGameClientHandleMessages(h)   atomicGameClientGet()->handleReceivedMessage(h)
+#define atomicGameClientGetPlayerID()       atomicGameClientGet()->getPlayerID()
 
 #else // atomic_enable_GameClient
 
