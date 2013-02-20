@@ -47,8 +47,8 @@ void GameServerSession::messageLoop()
         recvMessage(&stream);
         sendMessage(&stream);
 
-        if(timer.getElapsedMillisec()<1.0f) { ist::Thread::milliSleep(1); }
         m_ping = uint32(timer.getElapsedMillisec());
+        if(timer.getElapsedMillisec()<1.0f) { ist::Thread::milliSleep(1); }
    }
 }
 
@@ -69,6 +69,12 @@ void GameServerSession::processReceivingMessage( PMessageCont &cont )
                 m.player_id = m_pid;
                 m.ping = m_ping;
                 m_frame = m.frame;
+            }
+            break;
+        case PM_Leave:
+            {
+                auto &m = reinterpret_cast<PMessage_Leave&>(mes);
+                m.player_id = m_pid;
             }
             break;
         }

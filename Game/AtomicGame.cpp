@@ -83,18 +83,21 @@ void AtomicGame::frameBegin()
 
 void AtomicGame::update(float32 dt)
 {
-    if(!atomicDbgDebugMenuIsActive()) {
-        m_input_server->pushInput(0, atomicGetSystemInputs()->getRawInput());
+    if(!m_pass) {
+        if(!atomicDbgDebugMenuIsActive()) {
+            m_input_server->pushInput(0, atomicGetSystemInputs()->getRawInput());
+        }
+        else {
+            m_input_server->pushInput(0, RepInput());
+        }
     }
-    else {
-        m_input_server->pushInput(0, RepInput());
-    }
-    m_pass = atomicGetConfig()->pause || !m_input_server->sync();
 
     istCommandlineFlush();
     atomicLevelEditorHandleCommands( std::bind(&IInputServer::pushLevelEditorCommand, m_input_server, std::placeholders::_1));
     atomicLevelEditorHandleQueries( std::bind(&AtomicGame::handleLevelEditorQueries, this, std::placeholders::_1) );
     atomicGameClientHandleMessages( std::bind(&AtomicGame::handlePMessages, this, std::placeholders::_1) );
+
+    m_pass = atomicGetConfig()->pause || !m_input_server->sync();
     if(!m_pass)
     {
         m_input_server->update();
