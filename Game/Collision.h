@@ -39,6 +39,9 @@ struct BoundingBox
     vec4 getUBB() const { return vec4(ur.x, bl.y, bl.z, 0.0f); }
     vec4 getBBB() const { return vec4(bl.x, bl.y, bl.z, 0.0f); }
 };
+atomicInterruptNamespace(
+    istSerializeRaw(atomic::BoundingBox);
+)
 
 class CollisionSet;
 
@@ -58,6 +61,14 @@ private:
         };
         float padding[4];
     };
+public:
+    BoundingBox bb;
+
+private:
+    istSerializeBlock(
+        istSerialize(padding)
+        istSerialize(bb)
+        )
 
     void setCollisionHandle(CollisionHandle v) { m_col_handle=v; }
 
@@ -73,8 +84,6 @@ public:
 
     void setGObjHandle(EntityHandle v)  { m_gobj_handle=v; }
     void setFlags(int32 v)              { m_flags=v; }
-
-    BoundingBox bb;
 };
 
 struct LessCollisionHandle { bool operator()(CollisionEntity *a, CollisionEntity *b) { return a->getCollisionHandle() < b->getCollisionHandle(); }};
@@ -82,20 +91,33 @@ struct LessCollisionHandle { bool operator()(CollisionEntity *a, CollisionEntity
 
 struct CollisionPlane : public CollisionEntity
 {
+typedef CollisionEntity super;
 istDefinePoolNewST(CollisionPlane);
 public:
     vec4 plane;
 
-    CollisionPlane() { setShape(CS_PLANE); }
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerialize(plane)
+        )
 
+public:
+    CollisionPlane() { setShape(CS_PLANE); }
 };
 
 struct CollisionSphere : public CollisionEntity
 {
+typedef CollisionEntity super;
 istDefinePoolNewST(CollisionSphere);
 public:
     vec4 pos_r; // w=radius
 
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerialize(pos_r)
+        )
+
+public:
     CollisionSphere() { setShape(CS_SPHERE); }
     void updateBoundingBox()
     {
@@ -106,11 +128,19 @@ public:
 
 struct CollisionBox : public CollisionEntity
 {
+typedef CollisionEntity super;
 istDefinePoolNewST(CollisionBox);
 public:
     vec4 position;
     vec4 planes[6];
 
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerialize(position)
+        istSerialize(planes)
+        )
+
+public:
     CollisionBox() { setShape(CS_BOX); }
 };
 

@@ -1,4 +1,5 @@
 ﻿#include "stdafx.h"
+
 #include "types.h"
 #include "Task.h"
 #include "Util.h"
@@ -9,6 +10,10 @@
 #include "Game/EntityQuery.h"
 #include "Game/SPHManager.h"
 #include "Collision.h"
+
+istSerializeExportClass(atomic::CollisionPlane);
+istSerializeExportClass(atomic::CollisionSphere);
+istSerializeExportClass(atomic::CollisionBox);
 
 namespace atomic {
 

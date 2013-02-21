@@ -49,6 +49,9 @@ public:
     }
 };
 atomicImplementRoutine(Routine_Shoot, ROUTINE_SHOOT);
+atomicInterruptNamespace(
+    istSerializeExportClass(atomic::Routine_Shoot);
+)
 
 
 class Routine_HomingPlayer : public IRoutine, public Attr_MessageHandler
@@ -104,6 +107,9 @@ public:
     }
 };
 atomicImplementRoutine(Routine_HomingPlayer, ROUTINE_HOMING_PLAYER);
+atomicInterruptNamespace(
+    istSerializeExportClass(atomic::Routine_HomingPlayer);
+)
 
 
 class Routine_Pinball : public IRoutine, public Attr_MessageHandler
@@ -169,9 +175,8 @@ public:
     }
 };
 atomicImplementRoutine(Routine_Pinball, ROUTINE_PINBALL);
+atomicInterruptNamespace(
+    istSerializeExportClass(atomic::Routine_Pinball);
+)
 
 } // namespace atomic
-
-istSerializeExportClass(atomic::Routine_Shoot);
-istSerializeExportClass(atomic::Routine_Pinball);
-istSerializeExportClass(atomic::Routine_HomingPlayer);

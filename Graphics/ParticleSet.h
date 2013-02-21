@@ -15,6 +15,10 @@ struct BloodstainParticle
         float params[4];
     };
 };
+atomicInterruptNamespace(
+    istSerializeRaw(atomic::BloodstainParticle);
+)
+
 struct BloodstainParticle_IsDead
 {
     bool operator()(const BloodstainParticle &bsp) const
@@ -106,6 +110,5 @@ struct RigidInfo
 };
 
 } // namespace atomic
-istSerializePrimitive(atomic::BloodstainParticle)
 
 #endif // atomic_Graphics_ParticleSet_h

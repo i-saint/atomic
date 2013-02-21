@@ -21,17 +21,27 @@ class Bullet_Laser
 typedef Bullet_Laser this_t;
 typedef IEntity super;
 typedef TAttr_TransformMatrix< Attr_Translate > transform;
-private:
+public:
     struct LaserParticle
     {
         vec3 initial_pos;
         float32 elapsed;
     };
 
+private:
     stl::vector<LaserParticle> m_particles;
     vec4 m_dir;
     float32 m_speed;
     EntityHandle m_owner;
+
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerializeBase(transform)
+        istSerialize(m_particles)
+        istSerialize(m_dir)
+        istSerialize(m_speed)
+        istSerialize(m_owner)
+        )
 
 public:
     atomicECallBlock(
@@ -87,6 +97,10 @@ public:
     }
 };
 atomicImplementEntity(Bullet_Laser, ECID_Bullet);
+atomicInterruptNamespace(
+    istSerializeRaw(atomic::Bullet_Laser::LaserParticle);
+    istSerializeExportClass(atomic::Bullet_Laser);
+)
 
 
 class Bullet_Particle
@@ -106,6 +120,18 @@ private:
     float32         m_power;
     int32           m_past_frame;
     int32           m_lifetime;
+
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerializeBase(transform)
+        istSerializeBase(collision)
+        istSerializeBase(mhandler)
+        istSerialize(m_vel)
+        istSerialize(m_owner)
+        istSerialize(m_power)
+        istSerialize(m_past_frame)
+        istSerialize(m_lifetime)
+        )
 
 public:
     atomicECallBlock(
@@ -201,6 +227,9 @@ public:
     }
 };
 atomicImplementEntity(Bullet_Particle, ECID_Bullet);
+atomicInterruptNamespace(
+    istSerializeExportClass(atomic::Bullet_Particle);
+)
 
 
 class Bullet_Simple
@@ -222,6 +251,19 @@ private:
     float32         m_power;
     int32           m_past_frame;
     int32           m_lifetime;
+
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerializeBase(transform)
+        istSerializeBase(model)
+        istSerializeBase(collision)
+        istSerializeBase(mhandler)
+        istSerialize(m_vel)
+        istSerialize(m_owner)
+        istSerialize(m_power)
+        istSerialize(m_past_frame)
+        istSerialize(m_lifetime)
+        )
 
 public:
     atomicECallBlock(
@@ -338,5 +380,8 @@ public:
     }
 };
 atomicImplementEntity(Bullet_Simple, ECID_Bullet);
+atomicInterruptNamespace(
+    istSerializeExportClass(atomic::Bullet_Simple);
+)
 
 } // namespace atomic

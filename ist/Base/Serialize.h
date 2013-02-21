@@ -53,7 +53,7 @@ private:\
 #define istSerializeExportClass(ClassName)\
     BOOST_CLASS_EXPORT(ClassName)
 
-#define istSerializePrimitive(ClassName)\
+#define istSerializeRaw(ClassName)\
     BOOST_CLASS_IMPLEMENTATION(ClassName, boost::serialization::primitive_type)
 
 #define istSerializeBlockEx(ValueType, ...)\

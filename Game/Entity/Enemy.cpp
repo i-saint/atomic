@@ -213,13 +213,24 @@ public:
     }
 };
 atomicImplementEntity(Enemy_Test, ECID_Enemy);
+atomicInterruptNamespace(
+    istSerializeExportClass(atomic::Enemy_Test);
+    istImplementClassInfo(atomic::Enemy_Test);
+)
 
 
 class Routine_ChasePlayerRough : public IRoutine
 {
+typedef IRoutine super;
 private:
     vec4 m_objective;
     int32 m_count;
+
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerialize(m_objective)
+        istSerialize(m_count)
+        )
 
 public:
     Routine_ChasePlayerRough() : m_count(0)
@@ -230,9 +241,9 @@ public:
     {
     }
 };
+atomicInterruptNamespace(
+    istSerializeExportClass(atomic::Routine_ChasePlayerRough);
+)
 
 } // namespace atomic
 
-istSerializeExportClass(atomic::Enemy_Test);
-
-istImplementClassInfo(atomic::Enemy_Test);

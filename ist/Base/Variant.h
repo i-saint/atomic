@@ -80,11 +80,11 @@ template<size_t B, size_t A> inline const TVariant<B>& variant_cast(const TVaria
 } // namespace ist
 
 
-istSerializePrimitive(ist::variant4);
-istSerializePrimitive(ist::variant8);
-istSerializePrimitive(ist::variant16);
-istSerializePrimitive(ist::variant32);
-istSerializePrimitive(ist::variant64);
-istSerializePrimitive(ist::variant128);
+istSerializeRaw(ist::variant4);
+istSerializeRaw(ist::variant8);
+istSerializeRaw(ist::variant16);
+istSerializeRaw(ist::variant32);
+istSerializeRaw(ist::variant64);
+istSerializeRaw(ist::variant128);
 
 #endif // ist_Base_Variant_h

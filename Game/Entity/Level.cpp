@@ -38,6 +38,19 @@ private:
     int32 m_loop;
     STATE m_state;
 
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerialize(m_frame)
+        istSerialize(m_planes)
+        istSerialize(m_player)
+        istSerialize(m_small_enemies)
+        istSerialize(m_medium_enemies)
+        istSerialize(m_large_enemies)
+        istSerialize(m_level)
+        istSerialize(m_loop)
+        istSerialize(m_state)
+        )
+
 public:
     Level_Test() : m_frame(0), m_player(0), m_level(0), m_loop(0), m_state(ST_BEGIN)
     {
@@ -386,7 +399,9 @@ public:
         atomicGetSystemTextRenderer()->addText(vec2(5.0f, 60.0f), buf);
     }
 };
-
 atomicImplementEntity(Level_Test, ECID_Level);
+atomicInterruptNamespace(
+    istSerializeExportClass(atomic::Level_Test)
+)
 
 } // namespace atomic

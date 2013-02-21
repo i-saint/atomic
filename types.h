@@ -137,4 +137,9 @@ struct EntitiesQueryContext
 
 #define atomicSafeRelease(Obj) if(Obj){Obj->release();Obj=NULL;}
 
+#define atomicInterruptNamespace(...)\
+    }\
+    __VA_ARGS__\
+    namespace atomic {
+
 #endif // atomic_Types_h

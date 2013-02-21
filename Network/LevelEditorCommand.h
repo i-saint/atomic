@@ -38,6 +38,10 @@ union istAlign(16) LevelEditorCommand
     }
     bool operator<(const LevelEditorCommand &v) const { return frame<v.frame; }
 };
+atomicInterruptNamespace(
+    istSerializeRaw(atomic::LevelEditorCommand)
+)
+
 #define LEC_Ensure(T) istStaticAssert(sizeof(T)==sizeof(LevelEditorCommand))
 
 
