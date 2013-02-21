@@ -33,18 +33,19 @@ private:
     vec4 m_lightpos[1];
     vec4 m_lightvel[1];
 
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerializeBase(transform)
+        istSerialize(m_vel)
+        istSerialize(m_cooldown)
+        istSerialize(m_collision)
+        istSerialize(m_barrier)
+        istSerialize(m_lightpos)
+        istSerialize(m_lightvel)
+        )
+
+
 public:
-    istIntrospectionBlock(
-        istName(Player)
-        istSuper(super)
-        istSuper(transform)
-        istMember(m_vel)
-        istMember(m_cooldown)
-        istMember(m_collision)
-        istMember(m_barrier)
-        istMember(m_lightpos)
-        istMember(m_lightvel)
-    )
     atomicECallBlock(
         atomicECallSuper(super)
         atomicECallSuper(transform)

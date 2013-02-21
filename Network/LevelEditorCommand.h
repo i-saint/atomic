@@ -38,7 +38,7 @@ union istAlign(16) LevelEditorCommand
     }
     bool operator<(const LevelEditorCommand &v) const { return frame<v.frame; }
 };
-#define LEC_Ensure(T) BOOST_STATIC_ASSERT(sizeof(T)==sizeof(LevelEditorCommand))
+#define LEC_Ensure(T) istStaticAssert(sizeof(T)==sizeof(LevelEditorCommand))
 
 
 struct istAlign(16) LevelEditorCommand_Create

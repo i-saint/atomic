@@ -40,11 +40,11 @@ private:
     bool isValidHandle(EntityHandle h);
     void setHandle(uint32 h) { m_ehandle=h; }
 
-public:
-    istIntrospectionBlock(
-        istName(IEntity)
-    )
+    istSerializeBlock(
+        istSerialize(m_ehandle)
+        )
 
+public:
     // コンストラクタではメンバ変数初期化以外の処理を行なってはならない。他は initialize() で行う。
     // (ID がコンストラクタの後に決まるため、子オブジェクトの処理順などを適切に行うにはこうする必要がある)
     IEntity() : m_ehandle(0) {}

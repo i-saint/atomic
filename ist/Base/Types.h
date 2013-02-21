@@ -7,6 +7,7 @@
 #include <glm/gtx/simd_mat4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "Half/half.h"
+#include "Serialize.h"
 
 namespace ist {
 
@@ -40,5 +41,20 @@ typedef glm::simdVec4   simdvec4;
 typedef glm::simdMat4   simdmat4;
 
 } // namespace ist
+
+istSerializePrimitive(ist::vec2);
+istSerializePrimitive(ist::vec3);
+istSerializePrimitive(ist::vec4);
+istSerializePrimitive(ist::ivec2);
+istSerializePrimitive(ist::ivec3);
+istSerializePrimitive(ist::ivec4);
+istSerializePrimitive(ist::uvec2);
+istSerializePrimitive(ist::uvec3);
+istSerializePrimitive(ist::uvec4);
+istSerializePrimitive(ist::mat2);
+istSerializePrimitive(ist::mat3);
+istSerializePrimitive(ist::mat4);
+istSerializePrimitive(ist::simdvec4);
+istSerializePrimitive(ist::simdmat4);
 
 #endif // ist_Base_Types_h

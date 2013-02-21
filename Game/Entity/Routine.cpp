@@ -24,8 +24,14 @@ IRoutine* CreateRoutine(ROUTINE_CLASSID rcid)
 
 class Routine_Shoot : public IRoutine
 {
+typedef IRoutine super;
 private:
     int32 m_frame;
+
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerialize(m_frame)
+        )
 
 public:
     Routine_Shoot() : m_frame(0) {}
@@ -47,10 +53,18 @@ atomicImplementRoutine(Routine_Shoot, ROUTINE_SHOOT);
 
 class Routine_HomingPlayer : public IRoutine, public Attr_MessageHandler
 {
+typedef IRoutine super;
 typedef Attr_MessageHandler mhandler;
 private:
     vec4 m_vel;
     vec4 m_target_pos;
+
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerializeBase(mhandler)
+        istSerialize(m_vel)
+        istSerialize(m_target_pos)
+        )
 
 public:
     atomicECallBlock(
@@ -95,10 +109,18 @@ atomicImplementRoutine(Routine_HomingPlayer, ROUTINE_HOMING_PLAYER);
 class Routine_Pinball : public IRoutine, public Attr_MessageHandler
 {
 typedef Routine_Pinball this_t;
+typedef IRoutine super;
 typedef Attr_MessageHandler mhandler;
 private:
     vec4 m_vel;
     vec4 m_accel;
+
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerializeBase(mhandler)
+        istSerialize(m_vel)
+        istSerialize(m_accel)
+        )
 
 public:
     atomicECallBlock(
@@ -149,3 +171,7 @@ public:
 atomicImplementRoutine(Routine_Pinball, ROUTINE_PINBALL);
 
 } // namespace atomic
+
+istSerializeExportClass(atomic::Routine_Shoot);
+istSerializeExportClass(atomic::Routine_Pinball);
+istSerializeExportClass(atomic::Routine_HomingPlayer);

@@ -16,14 +16,13 @@ typedef Attr_RefCount this_t;
 private:
     uint32 m_ref_count;
 
+    istSerializeBlock(
+        istSerialize(m_ref_count)
+    )
 protected:
     void setRefCount(uint32 v) { m_ref_count=v; }
 
 public:
-    istIntrospectionBlock(
-        istName(Attr_RefCount)
-        istMember(m_ref_count)
-    )
     atomicECallBlock(
         atomicMethodBlock(
         atomicECall(setRefCount)
@@ -51,11 +50,10 @@ typedef Attr_Translate this_t;
 protected:
     vec4 m_pos;
 
-public:
-    istIntrospectionBlock(
-        istName(Attr_Translate)
-        istMember(m_pos)
+    istSerializeBlock(
+        istSerialize(m_pos)
     )
+public:
     atomicECallBlock(
         atomicMethodBlock(
         atomicECall(setPosition)
@@ -89,14 +87,13 @@ private:
     vec4 m_axis;
     float32 m_rot;
 
-public:
-    istIntrospectionBlock(
-        istName(Attr_Transform)
-        istMember(m_pos)
-        istMember(m_scale)
-        istMember(m_axis)
-        istMember(m_rot)
+    istSerializeBlock(
+        istSerialize(m_pos)
+        istSerialize(m_scale)
+        istSerialize(m_axis)
+        istSerialize(m_rot)
     )
+public:
     atomicECallBlock(
         atomicMethodBlock(
         atomicECall(setPosition)
@@ -155,16 +152,16 @@ private:
     float32 m_rot1;
     float32 m_rot2;
 
+    istSerializeBlock(
+        istSerialize(m_pos)
+        istSerialize(m_scale)
+        istSerialize(m_axis1)
+        istSerialize(m_axis2)
+        istSerialize(m_rot1)
+        istSerialize(m_rot2)
+        )
+
 public:
-    istIntrospectionBlock(
-        istName(Attr_DoubleAxisRotation)
-        istMember(m_pos)
-        istMember(m_scale)
-        istMember(m_axis1)
-        istMember(m_axis2)
-        istMember(m_rot1)
-        istMember(m_rot2)
-    )
     atomicECallBlock(
         atomicMethodBlock(
         atomicECall(setPosition)
@@ -229,13 +226,13 @@ private:
     float32 m_rspeed1;
     float32 m_rspeed2;
 
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerialize(m_rspeed1)
+        istSerialize(m_rspeed2)
+        )
+
 public:
-    istIntrospectionBlock(
-        istName(TAttr_RotateSpeed)
-        istSuper(super)
-        istMember(m_rspeed1)
-        istMember(m_rspeed2)
-    )
     atomicECallBlock(
         atomicMethodBlock(
         atomicECall(setRotateSpeed1)
@@ -276,13 +273,12 @@ typedef T super;
 private:
     mat4 m_transform;
 
-public:
-    istIntrospectionBlock(
-        istName(TAttr_TransformMatrix)
-        istSuper(super)
-        istMember(m_transform)
-    )
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerialize(m_transform)
+        )
 
+public:
     const mat4& getTransform() const    { return m_transform; }
 
     void setTransform(const mat4 &v) { m_transform=v; }
@@ -302,13 +298,11 @@ private:
     mat4 m_transform;
     mat4 m_itransform;
 
-public:
-    istIntrospectionBlock(
-        istName(TAttr_TransformMatrixI)
-        istSuper(super)
-        istMember(m_transform)
-        istMember(m_itransform)
-    )
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerialize(m_transform)
+        istSerialize(m_itransform)
+        )
 
 public:
     const mat4& getTransform() const        { return m_transform; }
@@ -337,13 +331,13 @@ private:
     vec4 m_glow_color;
     PSET_RID m_psetid;
 
+    istSerializeBlock(
+        istSerialize(m_diffuse_color)
+        istSerialize(m_glow_color)
+        istSerialize(m_psetid)
+        )
+
 public:
-    istIntrospectionBlock(
-        istName(Attr_ParticleSet)
-        istMember(m_diffuse_color)
-        istMember(m_glow_color)
-        istMember(m_psetid)
-    )
     atomicECallBlock(
         atomicMethodBlock(
         atomicECall(setDiffuseColor)
@@ -379,12 +373,12 @@ private:
     CollisionHandle m_collision;
     EntityHandle m_owner_handle;
 
+    istSerializeBlock(
+        istSerialize(m_collision)
+        istSerialize(m_owner_handle)
+        )
+
 public:
-    istIntrospectionBlock(
-        istName(Attr_Collision)
-        istMember(m_collision)
-        istMember(m_owner_handle)
-    )
     atomicECallBlock(
         atomicMethodBlock(
         atomicECall(setCollisionFlags)
@@ -504,11 +498,11 @@ struct KillMessage;
 
 class Attr_MessageHandler
 {
-typedef Attr_MessageHandler this_t;
+    typedef Attr_MessageHandler this_t;
+
+    istSerializeBlock()
+
 public:
-    istIntrospectionBlock(
-        istName(Attr_MessageHandler)
-    )
     atomicECallBlock(
         atomicMethodBlock(
         atomicECall(eventCollide)
@@ -518,7 +512,6 @@ public:
         atomicECall(eventKill)
         )
     )
-
 
     virtual void eventCollide(const CollideMessage *m)  {}
     virtual void eventFluid(const FluidMessage *m)   {}
@@ -539,12 +532,11 @@ private:
     ist::raw_vector<BloodstainParticle> m_bloodstain;
     uint32 m_bloodstain_hitcount;
 
-public:
-    istIntrospectionBlock(
-        istName(Attr_Bloodstain)
-        istMember(m_bloodstain)
-        istMember(m_bloodstain_hitcount)
-    )
+
+    istSerializeBlock(
+        istSerialize(m_bloodstain)
+        istSerialize(m_bloodstain_hitcount)
+        )
 
 public:
     Attr_Bloodstain() : m_bloodstain_hitcount(0)

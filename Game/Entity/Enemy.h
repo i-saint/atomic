@@ -25,17 +25,17 @@ private:
     float32     m_delta_damage;
     int32       m_past_frame;
 
+    istSerializeBlock(
+        istSerializeBase(IEntity)
+        istSerializeBase(Attr_MessageHandler)
+        istSerialize(m_flash_color)
+        istSerialize(m_routine)
+        istSerialize(m_health)
+        istSerialize(m_delta_damage)
+        istSerialize(m_past_frame)
+        )
+
 public:
-    istIntrospectionBlock(
-        istName(Breakable)
-        istSuper(IEntity)
-        istSuper(Attr_MessageHandler)
-        istMember(m_flash_color)
-        istMember(m_routine)
-        istMember(m_health)
-        istMember(m_delta_damage)
-        istMember(m_past_frame)
-    )
     atomicECallBlock(
         atomicECallDelegate(m_routine)
         atomicMethodBlock(

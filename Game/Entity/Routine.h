@@ -25,6 +25,10 @@ class IRoutine
 protected:
     IEntity *m_obj;
 
+    istSerializeBlock(
+        istSerialize(m_obj)
+        )
+
 public:
     IRoutine()  : m_obj(NULL) {}
     virtual ~IRoutine() {}

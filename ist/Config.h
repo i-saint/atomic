@@ -49,7 +49,6 @@
 #endif
 
 
-
 #if defined(ist_env_MSVC)
 #   define istForceInline   __forceinline
 #   define istThreadLocal   __declspec(thread)
@@ -161,8 +160,15 @@ namespace stl = std;
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/export.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/list.hpp>
 #pragma warning(pop)
 #endif // ist_with_boost_serialization
+
+#define istStaticAssert(...) BOOST_STATIC_ASSERT(__VA_ARGS__)
+
 
 #include "ist/Base/Types.h"
 

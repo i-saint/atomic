@@ -67,7 +67,7 @@ bool SendPMessages(Poco::Net::SocketStream *stream, PMessageBuffer &buf, PMessag
 bool RecvPMessages(Poco::Net::SocketStream *stream, PMessageBuffer &buf, PMessageCont &messages);
 void DestructMessages(PMessageCont &messages);
 
-#define PM_Ensure(T) BOOST_STATIC_ASSERT(sizeof(T)==sizeof(PMessage))
+#define PM_Ensure(T) istStaticAssert(sizeof(T)==sizeof(PMessage))
 
 template<class T>
 const PMessage& PMessageCast(const T &mes)

@@ -15,7 +15,6 @@
 
 namespace atomic {
 
-
 class Enemy_Test
     : public Breakable
     , public TAttr_TransformMatrixI< TAttr_RotateSpeed<Attr_DoubleAxisRotation> >
@@ -44,6 +43,20 @@ private:
     float32 m_delta_fluid_damage;
     SE_CHANNEL m_explosion_channel;
     SE_RID m_explosion_se;
+
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerializeBase(transform)
+        istSerializeBase(model)
+        istSerializeBase(collision)
+        istSerializeBase(bloodstain)
+        istSerialize(m_state)
+        istSerialize(m_st_frame)
+        istSerialize(m_light_radius)
+        istSerialize(m_delta_fluid_damage)
+        istSerialize(m_explosion_channel)
+        istSerialize(m_explosion_se)
+        )
 
 public:
     atomicECallBlock(
@@ -220,5 +233,6 @@ public:
 
 } // namespace atomic
 
+istSerializeExportClass(atomic::Enemy_Test);
 
 istImplementClassInfo(atomic::Enemy_Test);

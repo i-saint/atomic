@@ -1,6 +1,7 @@
 ﻿#ifndef ist_stdex_raw_vector_h
 #define ist_stdex_raw_vector_h
 
+#include "ist/Base/Serialize.h"
 #include "crtex.h"
 #include "ist_vector.h"
 #include "ist_aligned_allocator.h"
@@ -137,6 +138,20 @@ private:
     value_type *m_data;
     size_type m_size;
     size_type m_capacity;
+
+    istSerializeSaveBlock({
+        ar & m_size;
+        for(size_type i=0; i<m_size; ++i) {
+            ar & m_data[i];
+        }
+    })
+    istSerializeLoadBlock({
+        ar & m_size;
+        resize(m_size);
+        for(size_type i=0; i<m_size; ++i) {
+            ar & m_data[i];
+        }
+    })
 };
 
 } // namespace ist

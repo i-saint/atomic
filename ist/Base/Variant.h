@@ -1,5 +1,6 @@
 ﻿#ifndef ist_Base_Variant_h
 #define ist_Base_Variant_h
+#include "ist/Base/Serialize.h"
 #include "ist/stdex/crtex.h"
 
 namespace ist {
@@ -35,7 +36,7 @@ public:
     template<class T>
     TVariant& operator=(const T& v)
     {
-        BOOST_STATIC_ASSERT(sizeof(T)<=Size);
+        istStaticAssert(sizeof(T)<=Size);
         cast<T>() = v;
         return *this;
     }
@@ -43,7 +44,7 @@ public:
     template<class T, size_t S>
     TVariant& operator=(const T (&v)[S])
     {
-        BOOST_STATIC_ASSERT(sizeof(v)<=Size);
+        istStaticAssert(sizeof(v)<=Size);
         stl::copy(v, v+S, reinterpret_cast<T*>(m_buf));
         return *this;
     }
@@ -51,14 +52,14 @@ public:
     template<class T>
     T& cast()
     {
-        BOOST_STATIC_ASSERT(sizeof(T)<=Size);
+        istStaticAssert(sizeof(T)<=Size);
         return *reinterpret_cast<T*>(m_buf);
     }
 
     template<class T>
     const T& cast() const
     {
-        BOOST_STATIC_ASSERT(sizeof(T)<=Size);
+        istStaticAssert(sizeof(T)<=Size);
         return *reinterpret_cast<const T*>(m_buf);
     }
 
@@ -77,4 +78,13 @@ template<size_t B, size_t A> inline TVariant<B>& variant_cast(TVariant<A> &a) { 
 template<size_t B, size_t A> inline const TVariant<B>& variant_cast(const TVariant<A> &a) { return (const TVariant<B>&)a; }
 
 } // namespace ist
+
+
+istSerializePrimitive(ist::variant4);
+istSerializePrimitive(ist::variant8);
+istSerializePrimitive(ist::variant16);
+istSerializePrimitive(ist::variant32);
+istSerializePrimitive(ist::variant64);
+istSerializePrimitive(ist::variant128);
+
 #endif // ist_Base_Variant_h
