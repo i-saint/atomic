@@ -69,7 +69,7 @@ public:
     int32       getPastFrame() const        { return m_past_frame; }
 
     void setLife(float32 v)       { m_health=v; }
-    void setRoutine(ROUTINE_CLASSID rcid)
+    void setRoutine(RoutineClassID rcid)
     {
         istSafeDelete(m_routine);
         m_routine = CreateRoutine(rcid);

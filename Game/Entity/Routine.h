@@ -2,20 +2,33 @@
 #define atomic_Game_Entity_Routine_h
 namespace atomic {
 
-enum ROUTINE_CLASSID
+enum RoutineClassID
 {
-    ROUTINE_NULL,
-    ROUTINE_SHOOT,
-    ROUTINE_HOMING_PLAYER,
-    ROUTINE_PINBALL,
+    RCID_Null,
 
-    ROUTINE_END,
+    RCID_Routine_Shoot,
+    RCID_Routine_HomingPlayer,
+    RCID_Routine_Pinball,
+
+    RCID_End,
 };
 
 class IRoutine;
-IRoutine* CreateRoutine(ROUTINE_CLASSID rcid);
+typedef IRoutine* (*RoutineCreator)();
+typedef RoutineCreator (RoutineCreatorTable)[RCID_End];
 
+RoutineCreatorTable& GetRoutineCreatorTable();
+IRoutine* CreateRoutine(RoutineClassID rcid);
 
+template<class RoutineType> IRoutine* CreateRoutine();
+template<class RoutineType> class AddRoutineTable;
+
+#define atomicImplementRoutine(Class) \
+    template<> IRoutine* CreateRoutine<Class>() { return istNew(Class)(); } \
+    template<> struct AddRoutineTable<Class> {\
+        AddRoutineTable() { GetRoutineCreatorTable()[RCID_##Class] = &CreateRoutine<Class>; }\
+    };\
+    AddRoutineTable<Class> g_add_routine_creator_##Class;
 
 
 class IEntity;
@@ -44,17 +57,6 @@ public:
 };
 
 
-typedef IRoutine* (*RoutineCreator)();
-extern RoutineCreator g_routine_creators[ROUTINE_END];
-template<class RoutineType> IRoutine* CreateRoutine();
-template<class RoutineType> class AddRoutineTable;
-
-#define atomicImplementRoutine(RoutineClass, RoutineClassID) \
-    template<> IRoutine* CreateRoutine<RoutineClass>() { return istNew(RoutineClass)(); } \
-    template<> struct AddRoutineTable<RoutineClass> {\
-        AddRoutineTable() { g_routine_creators[RoutineClassID] = &CreateRoutine<RoutineClass>; }\
-    };\
-    AddRoutineTable<RoutineClass> g_add_##RoutineClass;
 
 
 } // namespace atomic

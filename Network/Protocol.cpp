@@ -204,9 +204,9 @@ void PMessenger::handleReceivedMessageCont( const MessageContHandler &h )
 
 bool PMessenger::sendMessage(Poco::Net::SocketStream *stream)
 {
-    for(int32 i=0; i<10; ++i) {
+    for(int32 i=0; i<1; ++i) {
         if(m_message_send.empty()) {
-            ist::Thread::milliSleep(2);
+            ist::Thread::milliSleep(1);
         }
     }
     {

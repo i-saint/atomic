@@ -11,11 +11,12 @@
 #include "Game/SPHManager.h"
 #include "Collision.h"
 
-istSerializeExportClass(atomic::CollisionPlane);
-istSerializeExportClass(atomic::CollisionSphere);
-istSerializeExportClass(atomic::CollisionBox);
-
 namespace atomic {
+
+atomicExportClass(atomic::CollisionPlane);
+atomicExportClass(atomic::CollisionSphere);
+atomicExportClass(atomic::CollisionBox);
+
 
 inline bool BoundingBoxIntersect(const BoundingBox &bb1, const vec4 &pos)
 {

@@ -38,7 +38,7 @@ union istAlign(16) LevelEditorCommand
     }
     bool operator<(const LevelEditorCommand &v) const { return frame<v.frame; }
 };
-atomicInterruptNamespace(
+atomicGlobalNamespace(
     istSerializeRaw(atomic::LevelEditorCommand)
 )
 

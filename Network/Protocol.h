@@ -48,7 +48,7 @@ union istAlign(16) PMessage
     void share();
     void destroy(); // デストラクタ代わり。可変長系メッセージのメモリの開放はこれで行う
 };
-atomicInterruptNamespace(
+atomicGlobalNamespace(
     istSerializeRaw(atomic::PMessage)
     )
 

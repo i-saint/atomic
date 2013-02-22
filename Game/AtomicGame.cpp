@@ -201,7 +201,7 @@ void AtomicGame::handleLevelEditorCommands( const LevelEditorCommand &c )
         atomicCall(e, setAxis2, GenRandomUnitVector3());
         atomicCall(e, setRotateSpeed1, 2.4f);
         atomicCall(e, setRotateSpeed2, 2.4f);
-        atomicCall(e, setRoutine, ROUTINE_HOMING_PLAYER);
+        atomicCall(e, setRoutine, RCID_Routine_HomingPlayer);
         atomicCall(e, setLightRadius, 0.5f);
     }
     else if(c.type==LEC_Delete) {

@@ -97,10 +97,8 @@ public:
     }
 };
 atomicImplementEntity(Bullet_Laser, ECID_Bullet);
-atomicInterruptNamespace(
-    istSerializeRaw(atomic::Bullet_Laser::LaserParticle);
-    istSerializeExportClass(atomic::Bullet_Laser);
-)
+atomicExportClass(atomic::Bullet_Laser);
+atomicSerializeRaw(atomic::Bullet_Laser::LaserParticle);
 
 
 class Bullet_Particle
@@ -227,9 +225,7 @@ public:
     }
 };
 atomicImplementEntity(Bullet_Particle, ECID_Bullet);
-atomicInterruptNamespace(
-    istSerializeExportClass(atomic::Bullet_Particle);
-)
+atomicExportClass(atomic::Bullet_Particle);
 
 
 class Bullet_Simple
@@ -380,8 +376,6 @@ public:
     }
 };
 atomicImplementEntity(Bullet_Simple, ECID_Bullet);
-atomicInterruptNamespace(
-    istSerializeExportClass(atomic::Bullet_Simple);
-)
+atomicExportClass(atomic::Bullet_Simple);
 
 } // namespace atomic

@@ -108,7 +108,7 @@ public:
         atomicCall(e, setAxis2, GenRandomUnitVector3());
         atomicCall(e, setRotateSpeed1, 2.4f);
         atomicCall(e, setRotateSpeed2, 2.4f);
-        atomicCall(e, setRoutine, ROUTINE_HOMING_PLAYER);
+        atomicCall(e, setRoutine, RCID_Routine_HomingPlayer);
         atomicCall(e, setLightRadius, 0.5f);
         m_small_enemies.push_back(e->getHandle());
         return e;
@@ -127,7 +127,7 @@ public:
         atomicCall(e, setAxis2, GenRandomUnitVector3());
         atomicCall(e, setRotateSpeed1, 2.4f);
         atomicCall(e, setRotateSpeed2, 2.4f);
-        atomicCall(e, setRoutine, ROUTINE_PINBALL);
+        atomicCall(e, setRoutine, RCID_Routine_Pinball);
         atomicCall(e, setLightRadius, 0.0f);
         atomicCall(e, setVelocity, (vec4(0.0f, -0.99f, 0.0f, 0.0f))*0.005f);
         //atomicCall(e, setAccel, GenRandomUnitVector2()*0.00005f);
@@ -148,7 +148,7 @@ public:
         atomicCall(e, setAxis2, GenRandomUnitVector3());
         atomicCall(e, setRotateSpeed1, 0.4f);
         atomicCall(e, setRotateSpeed2, 0.4f);
-        atomicCall(e, setRoutine, ROUTINE_SHOOT);
+        atomicCall(e, setRoutine, RCID_Routine_Shoot);
         atomicCall(e, setLightRadius, 0.8f);
         atomicCall(e, setExplosionSE, SE_EXPLOSION4);
         atomicCall(e, setExplosionChannel, SE_CHANNEL4);
@@ -170,7 +170,7 @@ public:
         atomicCall(e, setAxis2, GenRandomUnitVector3());
         atomicCall(e, setRotateSpeed1, 0.1f);
         atomicCall(e, setRotateSpeed2, 0.1f);
-        atomicCall(e, setRoutine, ROUTINE_SHOOT);
+        atomicCall(e, setRoutine, RCID_Routine_Shoot);
         atomicCall(e, setLightRadius, 1.4f);
         atomicCall(e, setExplosionSE, SE_EXPLOSION5);
         atomicCall(e, setExplosionChannel, SE_CHANNEL5);
@@ -400,8 +400,6 @@ public:
     }
 };
 atomicImplementEntity(Level_Test, ECID_Level);
-atomicInterruptNamespace(
-    istSerializeExportClass(atomic::Level_Test)
-)
+atomicExportClass(atomic::Level_Test);
 
 } // namespace atomic

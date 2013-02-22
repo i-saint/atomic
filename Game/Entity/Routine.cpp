@@ -13,12 +13,18 @@
 
 namespace atomic {
 
-RoutineCreator g_routine_creators[ROUTINE_END];
 
-IRoutine* CreateRoutine(ROUTINE_CLASSID rcid)
+RoutineCreatorTable& GetRoutineCreatorTable()
 {
-    if(rcid==ROUTINE_NULL) { return NULL; }
-    return g_routine_creators[rcid]();
+    static RoutineCreatorTable s_routine_creators;
+    return s_routine_creators;
+}
+
+
+IRoutine* CreateRoutine(RoutineClassID rcid)
+{
+    if(rcid==RCID_Null) { return NULL; }
+    return GetRoutineCreatorTable()[rcid]();
 }
 
 
@@ -48,10 +54,8 @@ public:
         }
     }
 };
-atomicImplementRoutine(Routine_Shoot, ROUTINE_SHOOT);
-atomicInterruptNamespace(
-    istSerializeExportClass(atomic::Routine_Shoot);
-)
+atomicImplementRoutine(Routine_Shoot);
+atomicExportClass(atomic::Routine_Shoot);
 
 
 class Routine_HomingPlayer : public IRoutine, public Attr_MessageHandler
@@ -106,10 +110,8 @@ public:
         if(len > max_speed) { m_vel = m_vel / len * max_speed; }
     }
 };
-atomicImplementRoutine(Routine_HomingPlayer, ROUTINE_HOMING_PLAYER);
-atomicInterruptNamespace(
-    istSerializeExportClass(atomic::Routine_HomingPlayer);
-)
+atomicImplementRoutine(Routine_HomingPlayer);
+atomicExportClass(atomic::Routine_HomingPlayer);
 
 
 class Routine_Pinball : public IRoutine, public Attr_MessageHandler
@@ -174,9 +176,7 @@ public:
         //}
     }
 };
-atomicImplementRoutine(Routine_Pinball, ROUTINE_PINBALL);
-atomicInterruptNamespace(
-    istSerializeExportClass(atomic::Routine_Pinball);
-)
+atomicImplementRoutine(Routine_Pinball);
+atomicExportClass(atomic::Routine_Pinball);
 
 } // namespace atomic

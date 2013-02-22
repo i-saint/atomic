@@ -15,7 +15,7 @@ struct BloodstainParticle
         float params[4];
     };
 };
-atomicInterruptNamespace(
+atomicGlobalNamespace(
     istSerializeRaw(atomic::BloodstainParticle);
 )
 

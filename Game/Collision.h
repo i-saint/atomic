@@ -39,7 +39,7 @@ struct BoundingBox
     vec4 getUBB() const { return vec4(ur.x, bl.y, bl.z, 0.0f); }
     vec4 getBBB() const { return vec4(bl.x, bl.y, bl.z, 0.0f); }
 };
-atomicInterruptNamespace(
+atomicGlobalNamespace(
     istSerializeRaw(atomic::BoundingBox);
 )
 

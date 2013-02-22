@@ -201,7 +201,7 @@ public:
     virtual void destroy()
     {
         setState(ST_FADEOUT);
-        setRoutine(ROUTINE_NULL);
+        setRoutine(RCID_Null);
         atomicGetSPHManager()->addFluid(getModel(), getTransform());
         atomicPlaySE(m_explosion_channel, m_explosion_se, getPosition(), true);
     }
@@ -213,10 +213,7 @@ public:
     }
 };
 atomicImplementEntity(Enemy_Test, ECID_Enemy);
-atomicInterruptNamespace(
-    istSerializeExportClass(atomic::Enemy_Test);
-    istImplementClassInfo(atomic::Enemy_Test);
-)
+atomicExportClass(atomic::Enemy_Test);
 
 
 class Routine_ChasePlayerRough : public IRoutine
@@ -241,9 +238,7 @@ public:
     {
     }
 };
-atomicInterruptNamespace(
-    istSerializeExportClass(atomic::Routine_ChasePlayerRough);
-)
+atomicExportClass(atomic::Routine_ChasePlayerRough);
 
 } // namespace atomic
 

@@ -137,9 +137,16 @@ struct EntitiesQueryContext
 
 #define atomicSafeRelease(Obj) if(Obj){Obj->release();Obj=NULL;}
 
-#define atomicInterruptNamespace(...)\
-    }\
-    __VA_ARGS__\
-    namespace atomic {
+#define atomicGlobalNamespace(...)  } __VA_ARGS__ namespace atomic {
+#define atomicExportClass(ClassName)        \
+    atomicGlobalNamespace(                  \
+        istSerializeExportClass(ClassName); \
+    )
+
+#define atomicSerializeRaw(ClassName)   \
+atomicGlobalNamespace(                  \
+    istSerializeRaw(ClassName);         \
+)
+
 
 #endif // atomic_Types_h
