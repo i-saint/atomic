@@ -251,13 +251,14 @@ void AtomicApplication::mainLoop()
             m_game->draw();
             m_game->asyncupdateEnd();
             m_game->frameEnd();
-            if(!m_game->DoesUpdatePassed()) {
-                if(!atomicGetConfig()->unlimit_gamespeed && !atomicGetConfig()->vsync) {
-                    float32 remain = delay-pc.getElapsedMillisec();
-                    ist::Thread::microSleep((uint32)std::max<float32>(remain*1000.0f, 0.0f));
-                }
+
+            if( m_game->IsWaitVSyncRequired() &&
+                (!atomicGetConfig()->unlimit_gamespeed && !atomicGetConfig()->vsync))
+            {
+                float32 remain = delay-pc.getElapsedMillisec();
+                ist::Thread::microSleep((uint32)std::max<float32>(remain*1000.0f, 0.0f));
+                pc.reset();
             }
-            pc.reset();
         }
     }
 }

@@ -44,13 +44,11 @@
 
 namespace atomic {
 
-template<class T> struct DeRef { typedef T type; };
-template<class T> struct DeRef<T&> { typedef T type; };
 
 template<class T, class Res>
 inline void MFCall( T &obj, Res (T::*mf)(), const variant &v ) { (obj.*mf)(); }
 template<class T, class Res, class Arg1>
-inline void MFCall( T &obj, Res (T::*mf)(Arg1), const variant &v ) { (obj.*mf)(v.cast<DeRef<Arg1>::type>()); }
+inline void MFCall( T &obj, Res (T::*mf)(Arg1), const variant &v ) { (obj.*mf)(v.cast<std::remove_reference<Arg1>::type>()); }
 
 
 class IEntity;

@@ -23,7 +23,7 @@ AtomicGame::AtomicGame()
 : m_input_server(NULL)
 , m_world(NULL)
 , m_frame(0)
-, m_pass(false)
+, m_skip_update(false)
 {
 #ifdef atomic_enable_sync_lock
     m_sync_lock = false;
@@ -76,14 +76,14 @@ bool AtomicGame::readReplayFromFile(const char *path)
 
 void AtomicGame::frameBegin()
 {
-    if(m_pass) { return; }
+    if(m_skip_update) { return; }
 
     m_world->frameBegin();
 }
 
 void AtomicGame::update(float32 dt)
 {
-    if(!m_pass) {
+    if(!m_skip_update) {
         if(!atomicDbgDebugMenuIsActive()) {
             m_input_server->pushInput(0, atomicGetSystemInputs()->getRawInput());
         }
@@ -97,8 +97,8 @@ void AtomicGame::update(float32 dt)
     atomicLevelEditorHandleQueries( std::bind(&AtomicGame::handleLevelEditorQueries, this, std::placeholders::_1) );
     atomicGameClientHandleMessages( std::bind(&AtomicGame::handlePMessages, this, std::placeholders::_1) );
 
-    m_pass = atomicGetConfig()->pause || !m_input_server->sync();
-    if(!m_pass)
+    m_skip_update = atomicGetConfig()->pause || !m_input_server->sync();
+    if(!m_skip_update)
     {
         m_input_server->update();
         m_world->update(1.0f);
@@ -107,7 +107,7 @@ void AtomicGame::update(float32 dt)
 
 void AtomicGame::asyncupdateBegin(float32 dt)
 {
-    if(m_pass) { return; }
+    if(m_skip_update) { return; }
 
     atomicDbgLockSyncMethods();
     m_world->asyncupdateBegin(dt);
@@ -115,7 +115,7 @@ void AtomicGame::asyncupdateBegin(float32 dt)
 
 void AtomicGame::asyncupdateEnd()
 {
-    if(m_pass) { return; }
+    if(m_skip_update) { return; }
 
     m_world->asyncupdateEnd();
     atomicDbgUnlockSyncMethods();
@@ -124,17 +124,18 @@ void AtomicGame::asyncupdateEnd()
 
 void AtomicGame::draw()
 {
-    if(m_pass) { return; }
+    if(m_skip_update) { return; }
     // todo: フレームスキップ処理
 
+    m_skip_draw = false;
     if(m_input_server->getTypeID()==IInputServer::IS_Replay) {
         static uint32 f;
         const InputState *is = atomicGetSystemInputs();
         ++f;
-        if(is->isButtonPressed(0) && f%2!=0) { return; }
-        if(is->isButtonPressed(1) && f%4!=0) { return; }
-        if(is->isButtonPressed(2) && f%8!=0) { return; }
-        if(is->isButtonPressed(3) && f%16!=0){ return; }
+        if(is->isButtonPressed(0) && f%2!=0) { m_skip_draw=true; return; }
+        if(is->isButtonPressed(1) && f%4!=0) { m_skip_draw=true; return; }
+        if(is->isButtonPressed(2) && f%8!=0) { m_skip_draw=true; return; }
+        if(is->isButtonPressed(3) && f%16!=0){ m_skip_draw=true; return; }
     }
     atomicKickDraw();
     atomicWaitUntilDrawCallbackComplete();
@@ -142,7 +143,7 @@ void AtomicGame::draw()
 
 void AtomicGame::frameEnd()
 {
-    if(m_pass) { return; }
+    if(m_skip_update) { return; }
 
     m_world->frameEnd();
     ++m_frame;

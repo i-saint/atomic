@@ -43,7 +43,9 @@ public:
     SFMT* getRandom();
     uint32 getFrame() const                 { return m_frame; }
     PlayerID getPlayerID() const            { return m_player_id; }
-    bool DoesUpdatePassed() const { return m_pass; }
+    bool IsUpdateSkipped() const            { return m_skip_update; }
+    bool IsDrawSkipped() const              { return m_skip_draw; }
+    bool IsWaitVSyncRequired() const        { return !IsUpdateSkipped() && !IsDrawSkipped(); }
 
 #ifdef atomic_enable_sync_lock
     void dbgLockSyncMethods()               { m_sync_lock=true; }
@@ -58,7 +60,8 @@ private:
     uint32          m_frame;
     PlayerID        m_player_id;
     EntitiesQueryContext m_ctx_entities_query;
-    bool m_pass;
+    bool m_skip_update;
+    bool m_skip_draw;
 #ifdef atomic_enable_sync_lock
     bool m_sync_lock;
 #endif // atomic_enable_sync_lock
