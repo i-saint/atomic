@@ -170,8 +170,8 @@ public:
     void initialize()
     {
         collision::initializeCollision(getHandle());
-        setCollisionShape(CS_SPHERE);
-        setCollisionFlags(CF_RECEIVER | CF_SPH_SENDER);
+        setCollisionShape(CS_Sphere);
+        setCollisionFlags(CF_Receiver | CF_SPH_Sender);
     }
 
     virtual void update(float32 dt)
@@ -301,8 +301,8 @@ public:
     void initialize()
     {
         collision::initializeCollision(getHandle());
-        setCollisionShape(CS_SPHERE);
-        setCollisionFlags(CF_RECEIVER | CF_SPH_SENDER);
+        setCollisionShape(CS_Sphere);
+        setCollisionFlags(CF_Receiver | CF_SPH_Sender);
 
         setModel(PSET_SPHERE_SMALL);
         setDiffuseColor(vec4(0.6f, 0.6f, 0.6f, 80.0f));

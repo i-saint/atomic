@@ -69,10 +69,10 @@ public:
     {
         super::initialize();
         m_collision.initializeCollision(getHandle());
-        m_collision.setCollisionShape(CS_SPHERE);
+        m_collision.setCollisionShape(CS_Sphere);
         m_barrier.initializeCollision(0);
-        m_barrier.setCollisionShape(CS_SPHERE);
-        m_barrier.setCollisionFlags(CF_SPH_SENDER);
+        m_barrier.setCollisionShape(CS_Sphere);
+        m_barrier.setCollisionFlags(CF_SPH_Sender);
 
         setLife(500.0f);
         setAxis1(GenRandomUnitVector3());

@@ -191,6 +191,8 @@ bool AtomicApplication::initialize(int argc, char *argv[])
 
     atomicGameClientConnect("localhost", atomic_GameServer_DefaultPort);
 
+    registerCommands();
+
     return true;
 }
 
@@ -374,7 +376,6 @@ bool AtomicApplication::handleWindowMessage(const ist::WindowMessage& wm)
         {
             const ist::WM_IME& m = static_cast<const ist::WM_IME&>(wm);
             stl::wstring str(m.text, m.text_len);
-            handleCommandLine(str);
         }
         return true;
 
@@ -419,95 +420,6 @@ void AtomicApplication::drawCallback()
 
 
 
-typedef void (*CommandLineHandler)(const stl::wstring &command);
-typedef stl::pair<stl::wstring, CommandLineHandler> CommandPair;
-typedef stl::vector<CommandPair> CommandLineHandlerTable;
-
-
-void cmd_pause(const stl::wstring &value) {
-    atomicGetConfig()->pause = !atomicGetConfig()->pause;
-}
-
-void cmd_set_posteffect_microscopic(const stl::wstring &value) {
-    int v;
-    if( swscanf(value.c_str(), L"%d", &v) ) {
-        atomicGetConfig()->posteffect_microscopic = v!=0;
-    }
-}
-
-void cmd_set_posteffect_bloom(const stl::wstring &value) {
-    int v;
-    if( swscanf(value.c_str(), L"%d", &v) ) {
-        atomicGetConfig()->posteffect_bloom = v!=0;
-    }
-}
-
-void cmd_set_posteffect_antialias(const stl::wstring &value) {
-    int v;
-    if( swscanf(value.c_str(), L"%d", &v) ) {
-        atomicGetConfig()->posteffect_antialias = v!=0;
-    }
-}
-
-void cmd_set_multiresolution(const stl::wstring &value) {
-    int v;
-    if( swscanf(value.c_str(), L"%d", &v) ) {
-        atomicGetConfig()->light_multiresolution = v!=0;
-    }
-}
-
-void cmd_set_show_text(const stl::wstring &value) {
-    int v;
-    if( swscanf(value.c_str(), L"%d", &v) ) {
-        atomicGetConfig()->show_text = v!=0;
-    }
-}
-
-void cmd_set_show_bloodstain(const stl::wstring &value) {
-    int v;
-    if( swscanf(value.c_str(), L"%d", &v) ) {
-        atomicGetConfig()->show_bloodstain = v!=0;
-    }
-}
-
-void cmd_set_debug_show_grid(const stl::wstring &value) {
-    int v;
-    if( swscanf(value.c_str(), L"%d", &v) ) {
-        atomicGetConfig()->debug_show_grid = v!=0;
-    }
-}
-
-struct equal_first {
-    const stl::wstring command;
-    equal_first(const stl::wstring &c) : command(c) {}
-    bool operator()(const CommandPair &v) const {
-        return command.find(v.first) != stl::wstring::npos;
-    }
-};
-
-int32 AtomicApplication::handleCommandLine( const stl::wstring &command )
-{
-    static CommandLineHandlerTable s_table;
-    if(s_table.empty()) {
-        s_table.push_back(CommandPair(L"pause",                     cmd_pause));
-        s_table.push_back(CommandPair(L"set posteffect_microscopic",cmd_set_posteffect_microscopic));
-        s_table.push_back(CommandPair(L"set posteffect_bloom",      cmd_set_posteffect_bloom));
-        s_table.push_back(CommandPair(L"set posteffect_antialias",  cmd_set_posteffect_antialias));
-        s_table.push_back(CommandPair(L"set multiresolution",       cmd_set_multiresolution));
-        s_table.push_back(CommandPair(L"set show_text",             cmd_set_show_text));
-        s_table.push_back(CommandPair(L"set show_bloodstain",       cmd_set_show_bloodstain));
-        s_table.push_back(CommandPair(L"set debug_show_grid",       cmd_set_debug_show_grid));
-    }
-
-    CommandLineHandlerTable::iterator p = stl::find_if(s_table.begin(), s_table.end(), equal_first(command));
-    if(p != s_table.end()) {
-        stl::wstring value(command.c_str()+(p->first.size()+1));
-        p->second(value);
-        return 1;
-    }
-    return 0;
-}
-
 #ifdef atomic_enable_debug_log
 void AtomicApplication::printDebugLog( const char *format, ... )
 {
@@ -518,6 +430,11 @@ void AtomicApplication::printDebugLog( const char *format, ... )
     vfprintf(m_log, format, vl);
     va_end(vl);
 }
+
+void AtomicApplication::registerCommands()
+{
+}
+
 #endif // atomic_enable_debug_log
 
 

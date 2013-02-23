@@ -47,6 +47,7 @@ public:
     bool IsDrawSkipped() const              { return m_skip_draw; }
     bool IsWaitVSyncRequired() const        { return !IsUpdateSkipped() && !IsDrawSkipped(); }
 
+
 #ifdef atomic_enable_sync_lock
     void dbgLockSyncMethods()               { m_sync_lock=true; }
     void dbgUnlockSyncMethods()             { m_sync_lock=false; }

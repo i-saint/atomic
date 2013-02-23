@@ -46,14 +46,23 @@ public:
     void addFluid(PSET_RID psid, const mat4 &t);
 
 private:
-    psym::World m_world;
-    ist::Mutex m_mutex_particles;
-    ParticleCont        m_particles_to_gpu; // GPU 転送用
-    uint32              m_current_fluid_task;
+    psym::World         m_world;
     SFMT                m_rand;
 
+    // 以下シリアライズ不要
+    ist::Mutex          m_mutex_particles;
+    ParticleCont        m_particles_to_gpu; // GPU 転送用
+    uint32              m_current_fluid_task;
     ParticleCont        m_new_fluid;
     AddFluidCtxCont     m_new_fluid_ctx;
+
+
+    istSerializeBlock(
+        istSerializeBase(IAtomicGameModule)
+        istSerialize(m_world)
+        istSerialize(m_rand)
+        )
+
 };
 
 

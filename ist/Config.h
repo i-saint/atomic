@@ -86,6 +86,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #pragma warning(disable: 4819) // コードページ問題 (glm)
+#pragma warning(disable: 4308) // boost serialization 対策
 
 #endif // ist_env_MSVC
 
@@ -168,7 +169,7 @@ namespace stl = std;
 #endif // ist_with_boost_serialization
 
 #define istStaticAssert(...) BOOST_STATIC_ASSERT(__VA_ARGS__)
-
+#define istGlobalNamespace(...) } __VA_ARGS__ namespace ist {
 
 #include "ist/Base/Types.h"
 

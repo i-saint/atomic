@@ -13,9 +13,11 @@
 
 namespace atomic {
 
+atomicExportClass(atomic::CollisionEntity);
 atomicExportClass(atomic::CollisionPlane);
 atomicExportClass(atomic::CollisionSphere);
 atomicExportClass(atomic::CollisionBox);
+atomicExportClass(atomic::CollisionSet);
 
 
 inline bool BoundingBoxIntersect(const BoundingBox &bb1, const vec4 &pos)
@@ -144,35 +146,32 @@ bool _Collide(const CollisionBox *sender, const CollisionBox *receiver, CollideM
 bool Collide(const CollisionEntity *sender, const CollisionEntity *receiver, CollideMessage &m)
 {
     switch(sender->getShape()) {
-    case CS_PLANE:
+    case CS_Plane:
         switch(receiver->getShape()) {
-        case CS_PLANE:  return _Collide(static_cast<const CollisionPlane*>(sender), static_cast<const CollisionPlane*>(receiver), m);
-        case CS_SPHERE: return _Collide(static_cast<const CollisionPlane*>(sender), static_cast<const CollisionSphere*>(receiver), m);
-        case CS_BOX:    return _Collide(static_cast<const CollisionPlane*>(sender), static_cast<const CollisionBox*>(receiver), m);
+        case CS_Plane:  return _Collide(static_cast<const CollisionPlane*>(sender), static_cast<const CollisionPlane*>(receiver), m);
+        case CS_Sphere: return _Collide(static_cast<const CollisionPlane*>(sender), static_cast<const CollisionSphere*>(receiver), m);
+        case CS_Box:    return _Collide(static_cast<const CollisionPlane*>(sender), static_cast<const CollisionBox*>(receiver), m);
         }
         break;
 
-    case CS_SPHERE:
+    case CS_Sphere:
         switch(receiver->getShape()) {
-        case CS_PLANE:  return _Collide(static_cast<const CollisionSphere*>(sender), static_cast<const CollisionPlane*>(receiver), m);
-        case CS_SPHERE: return _Collide(static_cast<const CollisionSphere*>(sender), static_cast<const CollisionSphere*>(receiver), m);
-        case CS_BOX:    return _Collide(static_cast<const CollisionSphere*>(sender), static_cast<const CollisionBox*>(receiver), m);
+        case CS_Plane:  return _Collide(static_cast<const CollisionSphere*>(sender), static_cast<const CollisionPlane*>(receiver), m);
+        case CS_Sphere: return _Collide(static_cast<const CollisionSphere*>(sender), static_cast<const CollisionSphere*>(receiver), m);
+        case CS_Box:    return _Collide(static_cast<const CollisionSphere*>(sender), static_cast<const CollisionBox*>(receiver), m);
         }
         break;
 
-    case CS_BOX:
+    case CS_Box:
         switch(receiver->getShape()) {
-        case CS_PLANE:  return _Collide(static_cast<const CollisionBox*>(sender), static_cast<const CollisionPlane*>(receiver), m);
-        case CS_SPHERE: return _Collide(static_cast<const CollisionBox*>(sender), static_cast<const CollisionSphere*>(receiver), m);
-        case CS_BOX:    return _Collide(static_cast<const CollisionBox*>(sender), static_cast<const CollisionBox*>(receiver), m);
+        case CS_Plane:  return _Collide(static_cast<const CollisionBox*>(sender), static_cast<const CollisionPlane*>(receiver), m);
+        case CS_Sphere: return _Collide(static_cast<const CollisionBox*>(sender), static_cast<const CollisionSphere*>(receiver), m);
+        case CS_Box:    return _Collide(static_cast<const CollisionBox*>(sender), static_cast<const CollisionBox*>(receiver), m);
         }
         break;
     }
     return false;
 }
-
-
-
 
 
 
@@ -245,14 +244,14 @@ void CollisionGrid::getEntities( const BoundingBox &bb, ist::vector<CollisionHan
 
 uint32 CollisionSet::collide(CollisionEntity *sender, MessageCont &m, HandleCont &neighbors)
 {
-    if(!sender || (sender->getFlags() & CF_SENDER)==0) { return 0; }
+    if(!sender || (sender->getFlags() & CF_Sender)==0) { return 0; }
 
     uint32 n = 0;
     m_grid.getEntities(sender->bb, neighbors);
     unique_iterator<HandleCont::iterator> iter(neighbors.begin(), neighbors.end());
     for(; iter!=neighbors.end(); ++iter) {
         CollisionEntity *receiver = getEntity(*iter);
-        if((receiver->getFlags() & CF_RECEIVER) == 0 ) { continue; }
+        if((receiver->getFlags() & CF_Receiver) == 0 ) { continue; }
         if(receiver->getGObjHandle() == sender->getGObjHandle()) { continue; }
         CollideMessage message;
         if(Collide(sender, receiver, message)) {
@@ -273,19 +272,10 @@ CollisionSet::CollisionSet()
 {
     m_entities.reserve(1024);
     m_vacant.reserve(1024);
-#ifdef atomic_enable_distance_field
-    for(uint32 i=0; i<_countof(m_df); ++i) {
-        m_df[i] = istNew(DistanceField)();
-    }
-    m_df_current = 0;
-#endif // atomic_enable_distance_field
 }
 
 CollisionSet::~CollisionSet()
 {
-#ifdef atomic_enable_distance_field
-    for(uint32 i=0; i<_countof(m_df); ++i)      { istSafeDelete(m_df[i]); }
-#endif // atomic_enable_distance_field
     for(uint32 i=0; i<m_entities.size(); ++i)   { deleteEntity(m_entities[i]); }
     m_entities.clear();
     m_vacant.clear();
@@ -333,29 +323,18 @@ void CollisionSet::asyncupdate(float32 dt)
 
 void CollisionSet::draw()
 {
-#ifdef atomic_enable_distance_field
-    m_df[(m_df_current+1) % _countof(m_df)]->updateEnd();
-#endif // atomic_enable_distance_field
 }
 
 void CollisionSet::frameEnd()
 {
-#ifdef atomic_enable_distance_field
-    m_df[(m_df_current+1) % _countof(m_df)]->updateEnd();
-#endif // atomic_enable_distance_field
 }
 
 void CollisionSet::copyRigitsToPSym()
 {
-#ifdef atomic_enable_distance_field
-    m_df[m_df_current]->updateBegin(m_entities);
-    m_df_current = (m_df_current+1) % _countof(m_df);
-#endif // atomic_enable_distance_field
-
     uint32 num = m_entities.size();
     for(uint32 i=0; i<num; ++i) {
         const CollisionEntity *ce = m_entities[i];
-        if(!ce || (ce->getFlags() & CF_SPH_SENDER)==0) { continue; }
+        if(!ce || (ce->getFlags() & CF_SPH_Sender)==0) { continue; }
         atomicGetSPHManager()->addRigid(*ce);
     }
 }
@@ -411,9 +390,9 @@ void CollisionSet::deleteEntity(CollisionHandle h)
     CollisionEntity *&ce = m_entities[h];
     if(ce) {
         switch(ce->getShape()) {
-        case CS_PLANE:  istDelete(static_cast<CollisionPlane*>(ce)); break;
-        case CS_SPHERE: istDelete(static_cast<CollisionSphere*>(ce)); break;
-        case CS_BOX:    istDelete(static_cast<CollisionBox*>(ce)); break;
+        case CS_Plane:  istDelete(static_cast<CollisionPlane*>(ce)); break;
+        case CS_Sphere: istDelete(static_cast<CollisionSphere*>(ce)); break;
+        case CS_Box:    istDelete(static_cast<CollisionBox*>(ce)); break;
         default: istAssert(false); break;
         }
         ce = NULL;
@@ -440,9 +419,9 @@ vec4 GetCollisionPosition( CollisionEntity *ce )
 {
     if(ce) {
         switch(ce->getShape()) {
-        case CS_PLANE:  static_cast<CollisionPlane*>(ce); break;
-        case CS_SPHERE: return static_cast<CollisionSphere*>(ce)->pos_r; break;
-        case CS_BOX:    return static_cast<CollisionBox*>(ce)->position; break;
+        case CS_Plane:  static_cast<CollisionPlane*>(ce); break; // 位置なし
+        case CS_Sphere: return static_cast<CollisionSphere*>(ce)->pos_r; break;
+        case CS_Box:    return static_cast<CollisionBox*>(ce)->position; break;
         }
     }
     return vec4();

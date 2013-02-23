@@ -2,10 +2,13 @@
 #define SPH_types_h
 
 #include <vector>
+#include "ist/Base.h"
 #include "psymConst.h"
 #include "psymCore_ispc.h"
 #include "psymSoA.h"
 #include "../DynamicObjLoader/DynamicObjLoader.h"
+
+#define psymGlobalNamespace(...) } __VA_ARGS__ namespace psym {
 
 namespace psym {
 
@@ -30,8 +33,8 @@ using ispc::PointForce;
 using ispc::DirectionalForce;
 using ispc::BoxForce;
 
-__declspec(align(16)) 
-struct Particle
+
+struct istAlign(16) Particle
 {
     simdvec4 position;
     simdvec4 velocity;
@@ -42,10 +45,13 @@ struct Particle
         uint32 hit_to;
     };
 };
+psymGlobalNamespace(
+    istSerializeRaw(psym::Particle);
+    )
 
 
-__declspec(align(16)) 
-class World
+
+class istAlign(16) World
 {
 public:
     World();
@@ -65,18 +71,28 @@ public:
     size_t getNumParticles() const;
 
 public:
-    Particle_SOA8 particles_soa[PSYM_MAX_PARTICLE_NUM];
-    GridData cell[PSYM_GRID_DIV][PSYM_GRID_DIV];
     Particle particles[PSYM_MAX_PARTICLE_NUM];
     size_t num_active_particles;
 
-    std::vector<RigidSphere>   collision_spheres;
-    std::vector<RigidPlane>    collision_planes;
-    std::vector<RigidBox>      collision_boxes;
+    // ˆÈ‰º‚Í serializa •s—v
+    Particle_SOA8 particles_soa[PSYM_MAX_PARTICLE_NUM];
+    GridData cell[PSYM_GRID_DIV][PSYM_GRID_DIV];
 
-    std::vector<PointForce>       force_point;
-    std::vector<DirectionalForce> force_directional;
-    std::vector<BoxForce>         force_box;
+    ist::raw_vector<RigidSphere>   collision_spheres;
+    ist::raw_vector<RigidPlane>    collision_planes;
+    ist::raw_vector<RigidBox>      collision_boxes;
+
+    ist::raw_vector<PointForce>       force_point;
+    ist::raw_vector<DirectionalForce> force_directional;
+    ist::raw_vector<BoxForce>         force_box;
+
+
+    istSerializeBlock({
+        ar & num_active_particles;
+        for(size_t i=0; i<num_active_particles; ++i) {
+            ar & particles[i];
+        }
+    })
 };
 
 } // namespace psym

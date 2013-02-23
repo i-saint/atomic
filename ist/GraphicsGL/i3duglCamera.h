@@ -1,9 +1,8 @@
-﻿#ifndef __ist_i3dugl_Camera__
-#define __ist_i3dugl_Camera__
+﻿#ifndef ist_i3dugl_Camera_h
+#define ist_i3dugl_Camera_h
 
 namespace ist {
 namespace i3dgl {
-
 
 class istInterModule Camera
 {
@@ -26,27 +25,25 @@ public:
     vec4 getDirection() const;
     void updateMatrix();
 
+
 private:
     mat4 m_v_matrix;
     vec4 m_position;
     vec4 m_target;
     vec4 m_up;
+
+    istSerializeBlock(
+        istSerialize(m_v_matrix)
+        istSerialize(m_position)
+        istSerialize(m_target)
+        istSerialize(m_up)
+        )
 };
 
 
 class istInterModule OrthographicCamera : public Camera
 {
 typedef Camera super;
-private:
-    mat4 m_p_matrix;
-    mat4 m_vp_matrix;
-    float m_left;
-    float m_right;
-    float m_bottom;
-    float m_top;
-    float m_znear;
-    float m_zfar;
-
 public:
     OrthographicCamera()
         : m_left(0.0f)
@@ -77,20 +74,34 @@ public:
     void setZFar(float v)  { m_zfar=v; }
 
     void updateMatrix();
+
+private:
+    mat4 m_p_matrix;
+    mat4 m_vp_matrix;
+    float m_left;
+    float m_right;
+    float m_bottom;
+    float m_top;
+    float m_znear;
+    float m_zfar;
+
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerialize(m_p_matrix)
+        istSerialize(m_vp_matrix)
+        istSerialize(m_left)
+        istSerialize(m_right)
+        istSerialize(m_bottom)
+        istSerialize(m_top)
+        istSerialize(m_znear)
+        istSerialize(m_zfar)
+        )
 };
 
 
 class istInterModule PerspectiveCamera : public Camera
 {
 typedef Camera super;
-private:
-    mat4 m_p_matrix;
-    mat4 m_vp_matrix;
-    float m_fovy;
-    float m_aspect;
-    float m_znear;
-    float m_zfar;
-
 public:
     PerspectiveCamera()
     : m_fovy(60.0f)
@@ -119,9 +130,28 @@ public:
     void setZFar(float v)   { m_zfar=v; }
 
     void updateMatrix();
+
+private:
+    mat4 m_p_matrix;
+    mat4 m_vp_matrix;
+    float m_fovy;
+    float m_aspect;
+    float m_znear;
+    float m_zfar;
+
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerialize(m_p_matrix)
+        istSerialize(m_vp_matrix)
+        istSerialize(m_fovy)
+        istSerialize(m_aspect)
+        istSerialize(m_znear)
+        istSerialize(m_zfar)
+        )
+
 };
 
 
 } // namespace i3d
 } // namespace ist
-#endif //__ist_i3dugl_Camera__
+#endif //ist_i3dugl_Camera_h

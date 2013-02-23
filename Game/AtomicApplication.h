@@ -58,7 +58,6 @@ public:
 
     virtual bool handleWindowMessage(const ist::WindowMessage& wm);
     void handleError(ATOMIC_ERROR e);
-    int32 handleCommandLine(const stl::wstring &command);
 
     // 描画スレッドから呼ばれる
     void drawCallback();
@@ -73,6 +72,8 @@ public:
 #endif // atomic_enable_debug_log
 
 private:
+    void registerCommands();
+
     tbb::task_scheduler_init m_tbb_init;
     AtomicGame              *m_game;
     InputState              m_inputs;

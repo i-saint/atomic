@@ -8,8 +8,6 @@ namespace ist {
 namespace i3dgl {
 
 
-
-
 void Camera::updateMatrix()
 {
     m_v_matrix = glm::lookAt(vec3(m_position), vec3(m_target), vec3(m_up));
@@ -40,6 +38,11 @@ void PerspectiveCamera::updateMatrix()
 }
 
 
-} // namespace i3d
+} // namespace i3dgl
 } // namespace ist
+
+istSerializeExportClass(ist::i3dgl::Camera);
+istSerializeExportClass(ist::i3dgl::OrthographicCamera);
+istSerializeExportClass(ist::i3dgl::PerspectiveCamera);
+
 #endif // ist_with_OpenGL

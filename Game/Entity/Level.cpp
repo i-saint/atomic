@@ -79,7 +79,7 @@ public:
         for(uint32 i=0; i<_countof(planes); ++i) {
             CollisionPlane *p = atomicCreateCollision(CollisionPlane);
             p->setGObjHandle(getHandle());
-            p->setFlags(CF_SENDER|CF_SPH_SENDER);
+            p->setFlags(CF_Sender|CF_SPH_Sender);
             p->bb = bboxes[i];
             p->plane = planes[i];
             m_planes[i] = p->getCollisionHandle();
@@ -100,7 +100,7 @@ public:
     {
         IEntity *e = NULL;
         e = atomicCreateEntity(Enemy_Test);
-        atomicCall(e, setCollisionShape, CS_SPHERE);
+        atomicCall(e, setCollisionShape, CS_Sphere);
         atomicCall(e, setModel, PSET_SPHERE_SMALL);
         atomicCall(e, setPosition, GenRandomVector2() * 2.2f);
         atomicCall(e, setLife, 15.0f * getLoopBoost());
@@ -118,8 +118,8 @@ public:
     {
         IEntity *e = NULL;
         e = atomicCreateEntity(Enemy_Test);
-        atomicCall(e, setCollisionShape, CS_SPHERE);
-        atomicCall(e, setCollisionFlags, CF_RECEIVER|CF_SENDER);
+        atomicCall(e, setCollisionShape, CS_Sphere);
+        atomicCall(e, setCollisionFlags, CF_Receiver|CF_Sender);
         atomicCall(e, setModel, PSET_SPHERE_BULLET);
         atomicCall(e, setPosition, GenRandomVector2() * 0.5f + vec4(1.5f, 1.5f, 0.0f, 0.0f));
         atomicCall(e, setLife, 5.0f * getLoopBoost());
@@ -139,8 +139,8 @@ public:
     {
         IEntity *e = atomicCreateEntity(Enemy_Test);
         switch(atomicGetRandom()->genInt32() % 2) {
-        case 0: atomicCall(e, setModel, PSET_CUBE_MEDIUM);  atomicCall(e, setCollisionShape, CS_BOX); break;
-        case 1: atomicCall(e, setModel, PSET_SPHERE_MEDIUM);atomicCall(e, setCollisionShape, CS_SPHERE); break;
+        case 0: atomicCall(e, setModel, PSET_CUBE_MEDIUM);  atomicCall(e, setCollisionShape, CS_Box); break;
+        case 1: atomicCall(e, setModel, PSET_SPHERE_MEDIUM);atomicCall(e, setCollisionShape, CS_Sphere); break;
         }
         atomicCall(e, setPosition, GenRandomVector2() * 2.1f);
         atomicCall(e, setLife, 100.0f * getLoopBoost());
@@ -161,8 +161,8 @@ public:
         IEntity *e = atomicCreateEntity(Enemy_Test);
         //atomicCall(e, setModel, PSET_CUBE_LARGE); atomicCall(e, setCollisionShape, CS_BOX);
         switch(atomicGetRandom()->genInt32() % 2) {
-        case 0: atomicCall(e, setModel, PSET_CUBE_LARGE);   atomicCall(e, setCollisionShape, CS_BOX); break;
-        case 1: atomicCall(e, setModel, PSET_SPHERE_LARGE); atomicCall(e, setCollisionShape, CS_SPHERE); break;
+        case 0: atomicCall(e, setModel, PSET_CUBE_LARGE);   atomicCall(e, setCollisionShape, CS_Box); break;
+        case 1: atomicCall(e, setModel, PSET_SPHERE_LARGE); atomicCall(e, setCollisionShape, CS_Sphere); break;
         }
         atomicCall(e, setPosition, GenRandomVector2() * 1.5f);
         atomicCall(e, setLife, 1200.0f * getLoopBoost());

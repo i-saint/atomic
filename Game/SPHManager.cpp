@@ -132,7 +132,7 @@ size_t SPHManager::getNumParticles() const
 void SPHManager::addRigid(const CollisionEntity &v)
 {
     switch(v.getShape()) {
-    case CS_SPHERE:
+    case CS_Sphere:
         {
             const CollisionSphere &src = static_cast<const CollisionSphere&>(v);
             psym::RigidSphere dst;
@@ -151,7 +151,7 @@ void SPHManager::addRigid(const CollisionEntity &v)
         }
         break;
 
-    case CS_PLANE:
+    case CS_Plane:
         {
             const CollisionPlane &src = static_cast<const CollisionPlane&>(v);
             psym::RigidPlane dst;
@@ -170,7 +170,7 @@ void SPHManager::addRigid(const CollisionEntity &v)
         }
         break;
 
-    case CS_BOX:
+    case CS_Box:
         {
             const CollisionBox &src = static_cast<const CollisionBox&>(v);
             psym::RigidBox dst;

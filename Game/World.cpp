@@ -19,6 +19,7 @@ using namespace ist::i3dgl;
 
 namespace atomic {
 
+atomicExportClass(atomic::World);
 
 
 World::World()

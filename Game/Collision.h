@@ -3,18 +3,18 @@
 
 namespace atomic {
 
-enum COLLISION_SHAPE {
-    CS_NULL,
-    CS_PLANE,
-    CS_SPHERE,
-    CS_BOX,
-    CS_END,
+enum CollisionShapeID {
+    CS_Null,
+    CS_Plane,
+    CS_Sphere,
+    CS_Box,
+    CS_End,
 };
-enum COLLISION_FLAG {
-    CF_RECEIVER     = 1 << 0,
-    CF_SENDER       = 1 << 1,
-    CF_SPH_SENDER   = 1 << 2,
-    CF_SPH_RECEIVER = 1 << 3,
+enum CollisionFlag {
+    CF_Receiver     = 1 << 0,
+    CF_Sender       = 1 << 1,
+    CF_SPH_Sender   = 1 << 2,
+    CF_SPH_Receiver = 1 << 3,
 };
 
 struct BoundingBox
@@ -39,9 +39,7 @@ struct BoundingBox
     vec4 getUBB() const { return vec4(ur.x, bl.y, bl.z, 0.0f); }
     vec4 getBBB() const { return vec4(bl.x, bl.y, bl.z, 0.0f); }
 };
-atomicGlobalNamespace(
-    istSerializeRaw(atomic::BoundingBox);
-)
+atomicSerializeRaw(atomic::BoundingBox);
 
 class CollisionSet;
 
@@ -54,7 +52,7 @@ friend class CollisionSet;
 private:
     union {
         struct {
-            COLLISION_SHAPE m_shape;
+            CollisionShapeID m_shape;
             CollisionHandle m_col_handle;
             EntityHandle    m_gobj_handle;
             int32           m_flags; // COLLISION_FLAG
@@ -73,11 +71,11 @@ private:
     void setCollisionHandle(CollisionHandle v) { m_col_handle=v; }
 
 protected:
-    void setShape(COLLISION_SHAPE v) { m_shape=v; }
+    void setShape(CollisionShapeID v) { m_shape=v; }
 
 public:
-    CollisionEntity() : m_shape(CS_NULL), m_col_handle(0), m_gobj_handle(0), m_flags(CF_RECEIVER|CF_SENDER|CF_SPH_SENDER) {}
-    COLLISION_SHAPE getShape() const            { return m_shape; }
+    CollisionEntity() : m_shape(CS_Null), m_col_handle(0), m_gobj_handle(0), m_flags(CF_Receiver|CF_Sender|CF_SPH_Sender) {}
+    CollisionShapeID getShape() const            { return m_shape; }
     CollisionHandle getCollisionHandle() const  { return m_col_handle; }
     EntityHandle    getGObjHandle() const       { return m_gobj_handle; }
     int32           getFlags() const            { return m_flags; }
@@ -102,7 +100,7 @@ public:
         )
 
 public:
-    CollisionPlane() { setShape(CS_PLANE); }
+    CollisionPlane() { setShape(CS_Plane); }
 };
 
 struct CollisionSphere : public CollisionEntity
@@ -118,7 +116,7 @@ public:
         )
 
 public:
-    CollisionSphere() { setShape(CS_SPHERE); }
+    CollisionSphere() { setShape(CS_Sphere); }
     void updateBoundingBox()
     {
         bb.ur = vec4(vec3(pos_r)+vec3(pos_r.w), 1.0f);
@@ -141,7 +139,7 @@ public:
         )
 
 public:
-    CollisionBox() { setShape(CS_BOX); }
+    CollisionBox() { setShape(CS_Box); }
 };
 
 
@@ -203,7 +201,7 @@ public:
 
 class CollisionSet : public IAtomicGameModule
 {
-friend class CollideTask;
+typedef IAtomicGameModule super;
 public:
     typedef ist::vector<CollisionHandle>    HandleCont;
     typedef ist::vector<CollisionEntity*>   EntityCont;
@@ -237,17 +235,20 @@ public:
 
 private:
     void addEntity(CollisionEntity *e);
-
     uint32 collide(CollisionEntity *e, MessageCont &m, HandleCont &neighbors_placeholder);
 
-    CollisionGrid   m_grid;
     EntityCont      m_entities;
     HandleCont      m_vacant;
+
+    // 以下 serialize 不要
+    CollisionGrid   m_grid;
     AsyncCtxCont    m_acons;
-#ifdef atomic_enable_distance_field
-    DistanceField   *m_df[2];
-    uint32          m_df_current;
-#endif // atomic_enable_distance_field
+
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerialize(m_entities)
+        istSerialize(m_vacant)
+        )
 };
 
 

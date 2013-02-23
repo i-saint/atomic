@@ -127,8 +127,11 @@ typedef struct W128_T w128_t;
 #endif
 
 
-#include "ist/stdex/crtex.h"
+#include "ist/Base.h"
 #include "SFMT-params.h"
+
+
+istSerializeRaw(w128_t)
 
 namespace ist {
 
@@ -157,6 +160,13 @@ private:
 
     uint32_t m_seed;
 
+    istSerializeBlock(
+        istSerialize(m_sfmt)
+        istSerialize(m_idx)
+        istSerialize(m_initialized)
+        istSerialize(m_parity)
+        istSerialize(m_seed)
+        )
 
 private:
     void gen_rand_all(void);

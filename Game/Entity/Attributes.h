@@ -430,18 +430,18 @@ public:
         }
     }
 
-    void setCollisionShape(COLLISION_SHAPE cs)
+    void setCollisionShape(CollisionShapeID cs)
     {
         finalizeCollision();
-        if(cs==CS_NULL) {
+        if(cs==CS_Null) {
             m_collision = 0;
             return;
         }
 
         CollisionEntity *ce = NULL;
         switch(cs) {
-        case CS_BOX:    ce = atomicCreateCollision(CollisionBox);   break;
-        case CS_SPHERE: ce = atomicCreateCollision(CollisionSphere);break;
+        case CS_Box:    ce = atomicCreateCollision(CollisionBox);   break;
+        case CS_Sphere: ce = atomicCreateCollision(CollisionSphere);break;
         default: istAssert(false); return;
         }
         ce->setGObjHandle(m_owner_handle);
@@ -457,7 +457,7 @@ public:
     {
         if(CollisionEntity *ce = atomicGetCollision(m_collision)) {
             switch(ce->getShape()) {
-            case CS_SPHERE:
+            case CS_Sphere:
                 {
                     vec4 pos = t * vec4(0.0f, 0.0f, 0.0f, 1.0f);
                     UpdateCollisionSphere(*static_cast<CollisionSphere*>(ce), pos, radius);
@@ -471,14 +471,14 @@ public:
     {
         if(CollisionEntity *ce = atomicGetCollision(m_collision)) {
             switch(ce->getShape()) {
-            case CS_SPHERE:
+            case CS_Sphere:
                 {
                     vec4 pos = t * vec4(0.0f, 0.0f, 0.0f, 1.0f);
                     float radius = atomicGetRigidInfo(psid)->sphere_radius * scale;
                     UpdateCollisionSphere(*static_cast<CollisionSphere*>(ce), pos, radius);
                 }
                 break;
-            case CS_BOX:
+            case CS_Box:
                 {
                     vec4 box_size = (vec4&)atomicGetRigidInfo(psid)->box_size * scale;
                     UpdateCollisionBox(*static_cast<CollisionBox*>(ce), t, box_size);

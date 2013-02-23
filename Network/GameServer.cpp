@@ -137,7 +137,7 @@ void GameServer::recvMessage()
             min_frame = std::min<uint32>(min_frame, m_sessions[i]->getFrame());
         }
         m_frame = min_frame;
-        m_delay = std::max<uint32>(2, (max_ping/16) + 1);
+        m_delay = std::max<uint32>(1, (max_ping/16) + 1);
     }
     for(size_t i=0; i<m_mes_recved.size(); ++i) {
         PMessage &mes = m_mes_recved[i];

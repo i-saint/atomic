@@ -1,5 +1,8 @@
-﻿#ifndef __ist_Math_FrustumCulling_h__
-#define __ist_Math_FrustumCulling_h__
+﻿#ifndef ist_Math_FrustumCulling_h
+#define ist_Math_FrustumCulling_h
+
+#include "ist/Base.h"
+
 namespace ist {
 
 typedef __m128 simdvec4_t;
@@ -43,9 +46,11 @@ typedef AxisAlignedBoundingBox AABB;
 bool TestFrustumAABB(const FrustumPlanes &frustum, const AABB &aabb);
 
 
-
 } // namespace ist
+
+istSerializeRaw(ist::FrustumPlanes);
+istSerializeRaw(ist::AxisAlignedBoundingBox);
 
 #include "FrustumCulling.inl"
 
-#endif // __ist_Math_FrustumCulling_h__
+#endif // ist_Math_FrustumCulling_h

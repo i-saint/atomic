@@ -1469,6 +1469,24 @@ protected:
         {	// orphan iterators within specified (inclusive) range
         }
  #endif /* _VECTOR_ORPHAN_RANGE */
+
+
+    istSerializeSaveBlock({
+        size_t s = size();
+        ar & s;
+        for(size_type i=0; i<s; ++i) {
+            ar & (*this)[i];
+        }
+    })
+    istSerializeLoadBlock({
+        size_t s;
+        ar & s;
+        resize(s);
+        for(size_type i=0; i<s; ++i) {
+            ar & (*this)[i];
+        }
+    })
+
     };
 
         // vector TEMPLATE OPERATORS

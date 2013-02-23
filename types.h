@@ -104,7 +104,8 @@ public:
     // 非同期更新処理がある場合、この中で完了を待つこと。(フレームを跨ぐ処理があってはならない)
     virtual void frameEnd()=0;
 
-    // todo: serialize/deserialize
+    istSerializeBlock(
+        )
 };
 
 

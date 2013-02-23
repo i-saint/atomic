@@ -42,6 +42,18 @@ public:
 
     void handleEntitiesQuery(EntitiesQueryContext &ctx);
 
+    istSerializeBlock(
+        istSerializeBase(IAtomicGameModule)
+        istSerialize(m_collision_set)
+        istSerialize(m_sph)
+        istSerialize(m_entity_set)
+        istSerialize(m_vfx)
+        istSerialize(m_modules)
+        istSerialize(m_camera_game)
+        istSerialize(m_camera_bg)
+        istSerialize(m_field_size)
+        )
+
 private:
     typedef ist::vector<IAtomicGameModule*> ModuleCont;
 
@@ -50,12 +62,14 @@ private:
     EntitySet       *m_entity_set;
     VFXSet          *m_vfx;
     ModuleCont      m_modules;
-    TaskGroup       m_asyncupdate;
 
     PerspectiveCamera m_camera_game;
     PerspectiveCamera m_camera_bg;
     FrustumPlanes m_frustum;
     vec4 m_field_size;
+
+    // non serializable
+    TaskGroup       m_asyncupdate;
 };
 
 

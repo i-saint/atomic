@@ -6,7 +6,7 @@
 
 #define SSE_SHUFFLE(w,x,y,z) _MM_SHUFFLE(z,y,x,w)
 
-//#define __ist_enable_soavec8__
+//#define ist_enable_soavec8
 
 
 
@@ -19,13 +19,13 @@ struct simdvec_traits<simdvec4>
 {
     enum{ simd_elements = 4 };
 };
-#ifdef __ist_enable_soavec8__
+#ifdef ist_enable_soavec8
 template<>
 struct soavec_traits<simdvec8>
 {
     enum{ simd_elements = 8 };
 };
-#endif // __ist_enable_soavec8__
+#endif // ist_enable_soavec8
 
 
 template<class soavec>
@@ -122,12 +122,21 @@ struct tsoavec4x
 typedef istAlign(16) tsoavec2x<simdvec4> soavec24;
 typedef istAlign(16) tsoavec3x<simdvec4> soavec34;
 typedef istAlign(16) tsoavec4x<simdvec4> soavec44;
-#ifdef __ist_enable_soavec8__
-typedef __declspec(align(32)) tsoavec2x<simdvec8> soavec28;
-typedef __declspec(align(32)) tsoavec3x<simdvec8> soavec38;
-typedef __declspec(align(32)) tsoavec4x<simdvec8> soavec48;
-#endif // __ist_enable_soavec8__
-
+istGlobalNamespace(
+    istSerializeRaw(ist::soavec24);
+    istSerializeRaw(ist::soavec34);
+    istSerializeRaw(ist::soavec44);
+    )
+#ifdef ist_enable_soavec8
+typedef istAlign(32) tsoavec2x<simdvec8> soavec28;
+typedef istAlign(32) tsoavec3x<simdvec8> soavec38;
+typedef istAlign(32) tsoavec4x<simdvec8> soavec48;
+istGlobalNamespace(
+    istSerializeRaw(ist::soavec28);
+    istSerializeRaw(ist::soavec38);
+    istSerializeRaw(ist::soavec48);
+    )
+#endif // ist_enable_soavec8
 
 namespace detail {
 
@@ -141,7 +150,7 @@ namespace detail {
         typedef soavec34 soavec3x;
         typedef soavec44 soavec4x;
     };
-#ifdef __ist_enable_soavec8__
+#ifdef ist_enable_soavec8
     template<>
     struct soa_types<8>
     {
@@ -150,7 +159,7 @@ namespace detail {
         typedef soavec38 soavec3x;
         typedef soavec48 soavec4x;
     };
-#endif // __ist_enable_soavec8__
+#endif // ist_enable_soavec8
 
 } // namespace detail
 
@@ -322,9 +331,9 @@ istForceInline soavec44 soa_transpose44(const simdvec4 &v0, const simdvec4 &v1, 
 #elif defined(ist_env_ARM32)
 #endif
 
-#ifdef __ist_enable_soavec8__
+#ifdef ist_enable_soavec8
 // todo
-#endif // __ist_enable_soavec8__
+#endif // ist_enable_soavec8
 
 
 ///////////////////////////////////////////////////////////////
@@ -404,7 +413,7 @@ istForceInline soavec44 operator+(const soavec44 &a, const soavec44 &b) { return
 istForceInline soavec24 operator+(const soavec24 &a, const simdvec4 &b) { return soa_add24(a, b); }
 istForceInline soavec34 operator+(const soavec34 &a, const simdvec4 &b) { return soa_add34(a, b); }
 istForceInline soavec44 operator+(const soavec44 &a, const simdvec4 &b) { return soa_add44(a, b); }
-#ifdef __ist_enable_soavec8__
+#ifdef ist_enable_soavec8
 template<class T, class U> istForceInline soavec28 soa_add28(const T &a, const U &b) { return detail::soa_add<T, U>::op2(a, b); }
 template<class T, class U> istForceInline soavec38 soa_add38(const T &a, const U &b) { return detail::soa_add<T, U>::op3(a, b); }
 template<class T, class U> istForceInline soavec48 soa_add48(const T &a, const U &b) { return detail::soa_add<T, U>::op4(a, b); }
@@ -414,7 +423,7 @@ istForceInline soavec48 operator+(const soavec48 &a, const soavec48 &b) { return
 istForceInline soavec28 operator+(const soavec28 &a, const simdvec8 &b) { return soa_add28(a, b); }
 istForceInline soavec38 operator+(const soavec38 &a, const simdvec8 &b) { return soa_add38(a, b); }
 istForceInline soavec48 operator+(const soavec48 &a, const simdvec8 &b) { return soa_add48(a, b); }
-#endif // __ist_enable_soavec8__
+#endif // ist_enable_soavec8
 
 
 ///////////////////////////////////////////////////////////////
@@ -494,7 +503,7 @@ istForceInline soavec44 operator-(const soavec44 &a, const soavec44 &b) { return
 istForceInline soavec24 operator-(const soavec24 &a, const simdvec4 &b) { return soa_sub24(a, b); }
 istForceInline soavec34 operator-(const soavec34 &a, const simdvec4 &b) { return soa_sub34(a, b); }
 istForceInline soavec44 operator-(const soavec44 &a, const simdvec4 &b) { return soa_sub44(a, b); }
-#ifdef __ist_enable_soavec8__
+#ifdef ist_enable_soavec8
 template<class T, class U> istForceInline soavec28 soa_sub28(const T &a, const U &b) { return detail::soa_sub<T, U>::op2(a, b); }
 template<class T, class U> istForceInline soavec38 soa_sub38(const T &a, const U &b) { return detail::soa_sub<T, U>::op3(a, b); }
 template<class T, class U> istForceInline soavec48 soa_sub48(const T &a, const U &b) { return detail::soa_sub<T, U>::op4(a, b); }
@@ -504,7 +513,7 @@ istForceInline soavec48 operator-(const soavec48 &a, const soavec48 &b) { return
 istForceInline soavec28 operator-(const soavec28 &a, const simdvec8 &b) { return soa_sub28(a, b); }
 istForceInline soavec38 operator-(const soavec38 &a, const simdvec8 &b) { return soa_sub38(a, b); }
 istForceInline soavec48 operator-(const soavec48 &a, const simdvec8 &b) { return soa_sub48(a, b); }
-#endif // __ist_enable_soavec8__
+#endif // ist_enable_soavec8
 
 
 
@@ -585,7 +594,7 @@ istForceInline soavec44 operator*(const soavec44 &a, const soavec44 &b) { return
 istForceInline soavec24 operator*(const soavec24 &a, const simdvec4 &b) { return soa_mul24(a, b); }
 istForceInline soavec34 operator*(const soavec34 &a, const simdvec4 &b) { return soa_mul34(a, b); }
 istForceInline soavec44 operator*(const soavec44 &a, const simdvec4 &b) { return soa_mul44(a, b); }
-#ifdef __ist_enable_soavec8__
+#ifdef ist_enable_soavec8
 template<class T, class U> istForceInline soavec28 soa_mul28(const T &a, const U &b) { return detail::soa_mul<T, U>::op2(a, b); }
 template<class T, class U> istForceInline soavec38 soa_mul38(const T &a, const U &b) { return detail::soa_mul<T, U>::op3(a, b); }
 template<class T, class U> istForceInline soavec48 soa_mul48(const T &a, const U &b) { return detail::soa_mul<T, U>::op4(a, b); }
@@ -595,7 +604,7 @@ istForceInline soavec48 operator*(const soavec48 &a, const soavec48 &b) { return
 istForceInline soavec28 operator*(const soavec28 &a, const simdvec8 &b) { return soa_mul28(a, b); }
 istForceInline soavec38 operator*(const soavec38 &a, const simdvec8 &b) { return soa_mul38(a, b); }
 istForceInline soavec48 operator*(const soavec48 &a, const simdvec8 &b) { return soa_mul48(a, b); }
-#endif // __ist_enable_soavec8__
+#endif // ist_enable_soavec8
 
 
 
@@ -676,7 +685,7 @@ istForceInline soavec44 operator/(const soavec44 &a, const soavec44 &b) { return
 istForceInline soavec24 operator/(const soavec24 &a, const simdvec4 &b) { return soa_div24(a, b); }
 istForceInline soavec34 operator/(const soavec34 &a, const simdvec4 &b) { return soa_div34(a, b); }
 istForceInline soavec44 operator/(const soavec44 &a, const simdvec4 &b) { return soa_div44(a, b); }
-#ifdef __ist_enable_soavec8__
+#ifdef ist_enable_soavec8
 template<class T, class U> istForceInline soavec28 soa_div28(const T &a, const U &b) { return detail::soa_div<T, U>::op2(a, b); }
 template<class T, class U> istForceInline soavec38 soa_div38(const T &a, const U &b) { return detail::soa_div<T, U>::op3(a, b); }
 template<class T, class U> istForceInline soavec48 soa_div48(const T &a, const U &b) { return detail::soa_div<T, U>::op4(a, b); }
@@ -686,7 +695,7 @@ istForceInline soavec48 operator/(const soavec48 &a, const soavec48 &b) { return
 istForceInline soavec28 operator/(const soavec28 &a, const simdvec8 &b) { return soa_div28(a, b); }
 istForceInline soavec38 operator/(const soavec38 &a, const simdvec8 &b) { return soa_div38(a, b); }
 istForceInline soavec48 operator/(const soavec48 &a, const simdvec8 &b) { return soa_div48(a, b); }
-#endif // __ist_enable_soavec8__
+#endif // ist_enable_soavec8
 
 
 
@@ -761,11 +770,11 @@ struct soa_mix<T, typename T::simdvec_t>
 template<class T, class U> istForceInline soavec24 soa_mix24(const T &a, const T &b, const U &s) { return detail::soa_mix<T, U>::op2(a, b, s); }
 template<class T, class U> istForceInline soavec34 soa_mix34(const T &a, const T &b, const U &s) { return detail::soa_mix<T, U>::op3(a, b, s); }
 template<class T, class U> istForceInline soavec44 soa_mix44(const T &a, const T &b, const U &s) { return detail::soa_mix<T, U>::op4(a, b, s); }
-#ifdef __ist_enable_soavec8__
+#ifdef ist_enable_soavec8
 template<class T, class U> istForceInline soavec28 soa_mix28(const T &a, const T &b, const U &s) { return detail::soa_mix<T, U>::op2(a, b, s); }
 template<class T, class U> istForceInline soavec38 soa_mix38(const T &a, const T &b, const U &s) { return detail::soa_mix<T, U>::op3(a, b, s); }
 template<class T, class U> istForceInline soavec48 soa_mix48(const T &a, const T &b, const U &s) { return detail::soa_mix<T, U>::op4(a, b, s); }
-#endif // __ist_enable_soavec8__
+#endif // ist_enable_soavec8
 
 
 
@@ -804,11 +813,11 @@ struct soa_dot
 template<class T, class U> istForceInline simdvec4 soa_dot24(const T &a, const U &b) { return detail::soa_dot<T, U>::op2(a, b); }
 template<class T, class U> istForceInline simdvec4 soa_dot44(const T &a, const U &b) { return detail::soa_dot<T, U>::op4(a, b); }
 template<class T, class U> istForceInline simdvec4 soa_dot34(const T &a, const U &b) { return detail::soa_dot<T, U>::op3(a, b); }
-#ifdef __ist_enable_soavec8__
+#ifdef ist_enable_soavec8
 template<class T, class U> istForceInline simdvec8 soa_dot28(const T &a, const U &b) { return detail::soa_dot<T, U>::op2(a, b); }
 template<class T, class U> istForceInline simdvec8 soa_dot48(const T &a, const U &b) { return detail::soa_dot<T, U>::op4(a, b); }
 template<class T, class U> istForceInline simdvec8 soa_dot38(const T &a, const U &b) { return detail::soa_dot<T, U>::op3(a, b); }
-#endif // __ist_enable_soavec8__
+#endif // ist_enable_soavec8
 
 
 ///////////////////////////////////////////////////////////////
@@ -818,11 +827,11 @@ template<class T, class U> istForceInline simdvec8 soa_dot38(const T &a, const U
 template<class T> istForceInline simdvec4 soa_lensq24(const T &a) { return detail::soa_dot<T, T>::op2(a, a); }
 template<class T> istForceInline simdvec4 soa_lensq34(const T &a) { return detail::soa_dot<T, T>::op3(a, a); }
 template<class T> istForceInline simdvec4 soa_lensq44(const T &a) { return detail::soa_dot<T, T>::op4(a, a); }
-#ifdef __ist_enable_soavec8__
+#ifdef ist_enable_soavec8
 template<class T> istForceInline simdvec8 soa_lensq28(const T &a) { return detail::soa_dot<T, T>::op2(a, a); }
 template<class T> istForceInline simdvec8 soa_lensq38(const T &a) { return detail::soa_dot<T, T>::op3(a, a); }
 template<class T> istForceInline simdvec8 soa_lensq48(const T &a) { return detail::soa_dot<T, T>::op4(a, a); }
-#endif // __ist_enable_soavec8__
+#endif // ist_enable_soavec8
 
 
 ///////////////////////////////////////////////////////////////
@@ -832,11 +841,11 @@ template<class T> istForceInline simdvec8 soa_lensq48(const T &a) { return detai
 template<class T> istForceInline simdvec4 soa_length24(const T &a) { return glm::sqrt(soa_lensq24<T>(a)); }
 template<class T> istForceInline simdvec4 soa_length34(const T &a) { return glm::sqrt(soa_lensq34<T>(a)); }
 template<class T> istForceInline simdvec4 soa_length44(const T &a) { return glm::sqrt(soa_lensq44<T>(a)); }
-#ifdef __ist_enable_soavec8__
+#ifdef ist_enable_soavec8
 template<class T> istForceInline simdvec8 soa_length28(const T &a) { return glm::sqrt(soa_lensq28<T>(a)); }
 template<class T> istForceInline simdvec8 soa_length38(const T &a) { return glm::sqrt(soa_lensq38<T>(a)); }
 template<class T> istForceInline simdvec8 soa_length48(const T &a) { return glm::sqrt(soa_lensq48<T>(a)); }
-#endif // __ist_enable_soavec8__
+#endif // ist_enable_soavec8
 
 
 ///////////////////////////////////////////////////////////////
@@ -846,11 +855,11 @@ template<class T> istForceInline simdvec8 soa_length48(const T &a) { return glm:
 template<class T> istForceInline soavec24 soa_normalize24(const T &a) { return soa_div24<T>(a, soa_length24<T>(a)); }
 template<class T> istForceInline soavec34 soa_normalize34(const T &a) { return soa_div34<T>(a, soa_length34<T>(a)); }
 template<class T> istForceInline soavec44 soa_normalize44(const T &a) { return soa_div44<T>(a, soa_length44<T>(a)); }
-#ifdef __ist_enable_soavec8__
+#ifdef ist_enable_soavec8
 template<class T> istForceInline soavec28 soa_normalize28(const T &a) { return soa_div28<T>(a, soa_length28<T>(a)); }
 template<class T> istForceInline soavec38 soa_normalize38(const T &a) { return soa_div38<T>(a, soa_length38<T>(a)); }
 template<class T> istForceInline soavec48 soa_normalize48(const T &a) { return soa_div48<T>(a, soa_length48<T>(a)); }
-#endif // __ist_enable_soavec8__
+#endif // ist_enable_soavec8
 
 
 #undef DECLARE_SOATYPES
