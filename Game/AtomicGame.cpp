@@ -192,7 +192,7 @@ void AtomicGame::handleLevelEditorCommands( const LevelEditorCommand &c )
     static IEntity *s_last_entity;
     if(c.type==LEC_Create) {
         const LevelEditorCommand_Create &cmd = reinterpret_cast<const LevelEditorCommand_Create&>(c);
-        IEntity *e = atomicGetEntitySet()->createEntity<Enemy_Test>();
+        IEntity *e = atomicCreateEntity(Enemy_Test);
         s_last_entity = e;
         atomicCall(e, setCollisionShape, CS_Sphere);
         atomicCall(e, setModel, PSET_SPHERE_SMALL);

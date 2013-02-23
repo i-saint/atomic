@@ -96,7 +96,7 @@ public:
     {
     }
 };
-atomicImplementEntity(Bullet_Laser, ECID_Bullet);
+atomicImplementEntity(Bullet_Laser);
 atomicExportClass(atomic::Bullet_Laser);
 atomicSerializeRaw(atomic::Bullet_Laser::LaserParticle);
 
@@ -224,7 +224,7 @@ public:
         atomicDeleteEntity(getHandle());
     }
 };
-atomicImplementEntity(Bullet_Particle, ECID_Bullet);
+atomicImplementEntity(Bullet_Particle);
 atomicExportClass(atomic::Bullet_Particle);
 
 
@@ -375,7 +375,7 @@ public:
         atomicDeleteEntity(getHandle());
     }
 };
-atomicImplementEntity(Bullet_Simple, ECID_Bullet);
+atomicImplementEntity(Bullet_Simple);
 atomicExportClass(atomic::Bullet_Simple);
 
 } // namespace atomic

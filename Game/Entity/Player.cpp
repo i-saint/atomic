@@ -223,7 +223,7 @@ public:
         damage(m->direction.w * 100.0f);
     }
 };
-atomicImplementEntity(Player, ECID_Player);
+atomicImplementEntity(Player);
 atomicExportClass(atomic::Player);
 
 } // namespace atomic

@@ -2,79 +2,79 @@
 #define atomic_Game_EntityClass_h
 
 namespace atomic {
-    enum ENTITY_CATEGORY_ID
-    {
-        ECID_Unknown,
-        ECID_Player,
-        ECID_Enemy,
-        ECID_Bullet,
-        ECID_Obstacle,
-        ECID_Level,
-        ECID_VFX,
-        ECID_End,
-    };
 
-    enum ENTITY_PLAYER_CLASS_ID
-    {
-        ESID_Player,
-        ESID_Player_End,
-    };
+enum EntityCategoryID
+{
+    ECA_Unknown,
+    ECA_Player,
+    ECA_Enemy,
+    ECA_Bullet,
+    ECA_Obstacle,
+    ECA_Level,
+    ECA_VFX,
 
-    enum ENTITY_ENEMY_CLASS_ID
-    {
-        ESID_Enemy_Test,
-        ESID_Enemy_End,
-    };
+    ECA_End,
+};
 
-    enum ENTITY_OBSTACLE_CLASS_ID
-    {
-        ESID_Obstacle,
-        ESID_Obstacle_End,
-    };
+enum EntityClassID
+{
+    EC_Unknown,
 
-    enum ENTITY_BULLET_CLASS_ID
-    {
-        ESID_Bullet_Simple,
-        ESID_Bullet_Particle,
-        ESID_Bullet_Laser,
-        ESID_Bullet_End,
-    };
+    EC_Player_Begin = ECA_Player<<9,
+    EC_Player,
+    EC_Player_End,
 
-    enum ENTITY_LEVEL_CLASS_ID
-    {
-        ESID_Level_Test,
-        ESID_Level_End,
-    };
+    EC_Enemy_Begin = ECA_Enemy<<9,
+    EC_Enemy_Test,
+    EC_Enemy_End,
 
-    enum ENTITY_VFX_CLASS_ID
-    {
-        ESID_VFX_Scintilla,
-        ESID_VFX_End,
-    };
+    EC_Bullet_Begin = ECA_Bullet<<9,
+    EC_Bullet_Simple,
+    EC_Bullet_Particle,
+    EC_Bullet_Laser,
+    EC_Bullet_End,
 
-    enum {
-        ESID_MAX = 16
-    };
-    BOOST_STATIC_ASSERT(ESID_MAX >= ESID_Player_End);
-    BOOST_STATIC_ASSERT(ESID_MAX >= ESID_Enemy_End);
-    BOOST_STATIC_ASSERT(ESID_MAX >= ESID_Obstacle_End);
-    BOOST_STATIC_ASSERT(ESID_MAX >= ESID_Bullet_End);
-    BOOST_STATIC_ASSERT(ESID_MAX >= ESID_VFX_End);
+    EC_Obstacle_Begin = ECA_Obstacle<<9,
+    EC_Obstacle_End,
 
-    // EntityHandle: 上位 4 bit がカテゴリ (ENTITY_CATEGORY_ID)、その次 8 bit がカテゴリ内種別 (ENTITY_*_CLASS_ID)、それ以下は ID のフィールド
-    inline uint32 EntityGetCategory(EntityHandle e) { return (e & 0xF0000000) >> 28; }
-    inline uint32 EntityGetClass(EntityHandle e)    { return (e & 0x0FF00000) >> 20; }
-    inline uint32 EntityGetID(EntityHandle e)       { return (e & 0x000FFFFF) >>  0; }
-    inline uint32 EntityCreateHandle(uint32 cid, uint32 sid, uint32 id) { return (cid<<28) | (sid<<20) | id; }
+    EC_Level_Begin = ECA_Level<<9,
+    EC_Level_Test,
+    EC_Level_End,
+
+    EC_VFX_Begin = ECA_VFX<<9,
+    EC_VFX_Scintilla,
+    EC_VFX_End,
+
+    EC_End,
+};
+
+// EntityHandle は
+// 上位 3bit がカテゴリ (EntityCategoryID)
+// カテゴリの 3bit も含めた上位 12 bit が class ID (EntityClassID)
+// それ以下が entity table のインデックス
+inline uint32 EntityGetCategory(EntityHandle e)     { return (e & 0xE0000000) >> 29; }
+inline uint32 EntityGetClassID(EntityHandle e)      { return (e & 0xFFF00000) >> 20; }
+inline uint32 EntityGetClassIndex(EntityHandle e)   { return (e & 0x1FF00000) >> 20; }
+inline uint32 EntityGetIndex(EntityHandle e)        { return (e & 0x000FFFFF) >>  0; }
+inline EntityHandle EntityCreateHandle(uint32 classid, uint32 index) { return (classid<<20) | index; }
 
 
-    class Player;
+class IEntity;
+typedef IEntity* (*EntityCreator)();
+EntityCreator* GetEntityCreatorTable(EntityClassID entity_classid);
+void AddEntityCreator(EntityClassID entity_classid, EntityCreator creator);
+IEntity* CreateEntity(EntityClassID entity_classid);
 
-    class Enemy_Test;
+template<class EntityType> IEntity* CreateEntity();
+template<class EntityType> class AddEntityTable;
 
-    class Bullet_Simple;
+#define atomicImplementEntity(Class) \
+    template<> IEntity* CreateEntity<Class>() { return istNew(Class)(); } \
+    template<> struct AddEntityTable<Class> {\
+        AddEntityTable() { AddEntityCreator(EC_##Class, &CreateEntity<Class>); }\
+    };\
+    AddEntityTable<Class> g_add_entity_creator_##Class;
 
-    class Level_Test;
 
 } // namespace atomic
 #endif //atomic_Game_EntityClass_h

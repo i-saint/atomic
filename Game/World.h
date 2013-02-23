@@ -78,10 +78,11 @@ private:
 #define atomicGetViewFrustum()  atomicGetWorld()->getViewFrustum()
 #define atomicGenRandFloat()    atomicGetRandom()->genFloat32()
 
-#define atomicGetEntitySet()    atomicGetWorld()->getEntitySet()
-#define atomicGetEntity(id)     atomicGetEntitySet()->getEntity(id)
-#define atomicCreateEntity(n)   atomicGetEntitySet()->createEntity<n>()
-#define atomicDeleteEntity(o)   atomicGetEntitySet()->deleteEntity(o)
+#define atomicGetEntitySet()        atomicGetWorld()->getEntitySet()
+#define atomicGetEntity(id)         atomicGetEntitySet()->getEntity(id)
+#define atomicCreateEntity(C)       atomicGetEntitySet()->createEntity(EC_##C)
+#define atomicDeleteEntity(o)       atomicGetEntitySet()->deleteEntity(o)
+#define atomicEnumlateEntity(...)   atomicGetEntitySet()->enumlateEntity(__VA_ARGS__)
 
 #define atomicGetCollisionSet()     atomicGetWorld()->getCollisionSet()
 #define atomicCreateCollision(n)    atomicGetCollisionSet()->createEntity<n>()

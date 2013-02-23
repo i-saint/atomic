@@ -17,44 +17,59 @@
 namespace atomic {
 
 
-
-void EntitySet::addEntity( uint32 categoryid, uint32 classid, IEntity *e )
+EntityCreator* GetEntityCreatorTable( EntityClassID entity_classid )
 {
-    atomicDbgAssertSyncLock();
-    EntityCont &entities = m_entities[categoryid][classid];
-    HandleCont &vacant = m_vacant[categoryid][classid];
-    EntityHandle h = 0;
-    if(!vacant.empty()) {
-        h = vacant.back();
-        vacant.pop_back();
-    }
-    else {
-        h = EntityCreateHandle(categoryid, classid, entities.size());
-    }
-    e->setHandle(h);
-    e->initialize();
-    entities.push_back(NULL); // reserve
-    m_new_entities.push_back(e);
+    static EntityCreator s_table_player[EC_Player_End & 0x1FF];
+    static EntityCreator s_table_enemy[EC_Enemy_End & 0x1FF];
+    static EntityCreator s_table_bullet[EC_Bullet_End & 0x1FF];
+    static EntityCreator s_table_obstacle[EC_Obstacle_End & 0x1FF];
+    static EntityCreator s_table_level[EC_Level_End & 0x1FF];
+    static EntityCreator s_table_vfx[EC_VFX_End & 0x1FF];
+    static EntityCreator *s_table_list[ECA_End] = {
+        NULL,
+        s_table_player,
+        s_table_enemy,
+        s_table_bullet,
+        s_table_obstacle,
+        s_table_level,
+        s_table_vfx,
+    };
+    return s_table_list[(entity_classid & 0xE00) >> 9];
 }
+
+void AddEntityCreator(EntityClassID entity_classid, EntityCreator creator)
+{
+    GetEntityCreatorTable(entity_classid)[entity_classid & 0x1FF] = creator;
+}
+
+IEntity* CreateEntity( EntityClassID entity_classid )
+{
+    return GetEntityCreatorTable(entity_classid)[entity_classid & 0x1FF]();
+}
+
+
+
+IEntity::IEntity()
+    : m_ehandle(atomicGetEntitySet()->getGeneratedHandle())
+{
+}
+
+
 
 EntitySet::EntitySet()
 {
-
 }
 
 EntitySet::~EntitySet()
 {
-    for(uint32 i=0; i<ECID_End; ++i) {
-        for(uint32 j=0; j<ESID_MAX; ++j) {
-            EntityCont &entities = m_entities[i][j];
-            uint32 s = entities.size();
-            for(uint32 k=0; k<s; ++k) {
-                istSafeDelete(entities[k]);
-            }
-            entities.clear();
-            m_vacant[i][j].clear();
-        }
+    EntityCont &entities = m_entities;
+    uint32 s = entities.size();
+    for(uint32 k=0; k<s; ++k) {
+        istSafeDelete(entities[k]);
     }
+    entities.clear();
+    m_vacant.clear();
+
     m_all.clear();
 }
 
@@ -67,9 +82,7 @@ void EntitySet::update( float32 dt )
     // update
     uint32 num_entities = m_all.size();
     for(uint32 i=0; i<num_entities; ++i) {
-        EntityHandle handle = m_all[i];
-        IEntity *entity = getEntity(handle);
-        if(entity) {
+        if(IEntity *entity = getEntity(m_all[i])) {
             entity->update(dt);
         }
         else {
@@ -84,13 +97,9 @@ void EntitySet::update( float32 dt )
     for(uint32 i=0; i<m_new_entities.size(); ++i) {
         IEntity *entity = m_new_entities[i];
         EntityHandle handle = entity->getHandle();
-        uint32 cid = EntityGetCategory(handle);
-        uint32 sid = EntityGetClass(handle);
-        uint32 iid = EntityGetID(handle);
-        EntityCont &entities = m_entities[cid][sid];
-        entities[iid] = entity;
-        entity->update(dt);
+        m_entities[EntityGetIndex(handle)] = entity;
         m_all.push_back(handle);
+        entity->update(dt);
     }
     m_new_entities.clear();
 
@@ -115,15 +124,10 @@ void EntitySet::asyncupdate(float32 dt)
 
 void EntitySet::draw()
 {
-    for(uint32 i=0; i<ECID_End; ++i) {
-        for(uint32 j=0; j<ESID_MAX; ++j) {
-            EntityCont &entities = m_entities[i][j];
-            uint32 s = entities.size();
-            for(uint32 k=0; k<s; ++k) {
-                IEntity *entity = entities[k];
-                if(entity) { entity->draw(); }
-            }
-        }
+    uint32 s = m_entities.size();
+    for(uint32 k=0; k<s; ++k) {
+        IEntity *entity = m_entities[k];
+        if(entity) { entity->draw(); }
     }
 }
 
@@ -135,28 +139,60 @@ void EntitySet::frameEnd()
 IEntity* EntitySet::getEntity( EntityHandle h )
 {
     if(h==0) { return NULL; }
-    uint32 cid = EntityGetCategory(h);
-    uint32 sid = EntityGetClass(h);
-    uint32 iid = EntityGetID(h);
+    uint32 cid = EntityGetClassID(h);
+    uint32 iid = EntityGetIndex(h);
 
-    if(iid >= m_entities[cid][sid].size()) {
+    EntityCont &entities = m_entities;
+    if(iid >= entities.size()) {
         return NULL;
     }
-    return m_entities[cid][sid][iid];
+    return entities[iid];
 }
 
 void EntitySet::deleteEntity( EntityHandle h )
 {
     atomicDbgAssertSyncLock();
-    uint32 cid = EntityGetCategory(h);
-    uint32 sid = EntityGetClass(h);
-    uint32 iid = EntityGetID(h);
-    EntityCont &entities = m_entities[cid][sid];
-    HandleCont &vacants = m_vacant[cid][sid];
+    uint32 cid = EntityGetClassID(h);
+    uint32 iid = EntityGetIndex(h);
+    EntityCont &entities = m_entities;
+    HandleCont &vacants = m_vacant;
     entities[iid]->finalize();
     istSafeDelete(entities[iid]);
-    vacants.push_back(h);
+    vacants.push_back(EntityGetIndex(h));
 }
+
+void EntitySet::generateHandle(EntityClassID classid)
+{
+    atomicDbgAssertSyncLock();
+    EntityCont &entities = m_entities;
+    HandleCont &vacant = m_vacant;
+    EntityHandle h = 0;
+    if(!vacant.empty()) {
+        h = vacant.back();
+        vacant.pop_back();
+    }
+    else {
+        h = entities.size();
+    }
+    entities.push_back(NULL); // reserve
+    h = EntityCreateHandle(classid, h);
+    m_tmp_handle = h;
+}
+
+EntityHandle EntitySet::getGeneratedHandle()
+{
+    return m_tmp_handle;
+}
+
+IEntity* EntitySet::createEntity( EntityClassID classid )
+{
+    generateHandle(classid);
+    IEntity *e = CreateEntity(classid);
+    m_new_entities.push_back(e);
+    e->initialize();
+    return e;
+}
+
 
 void EntitySet::handleEntitiesQuery( EntitiesQueryContext &ctx )
 {
@@ -181,5 +217,6 @@ void EntitySet::handleEntitiesQuery( EntitiesQueryContext &ctx )
         }
     }
 }
+
 
 } // namespace atomic

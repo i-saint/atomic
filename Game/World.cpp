@@ -73,7 +73,7 @@ void World::frameBegin()
 void World::update(float32 dt)
 {
     if(atomicGetFrame()==0) {
-        m_entity_set->createEntity<Level_Test>();
+        atomicCreateEntity(Level_Test);
     }
 
     for(ModuleCont::iterator i=m_modules.begin(); i!=m_modules.end(); ++i) {

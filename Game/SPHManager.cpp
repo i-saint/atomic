@@ -94,7 +94,9 @@ void SPHManager::asyncupdate( float32 dt )
                 fluid_out[i].velocity = reinterpret_cast<const psym::simdvec4&>(zero);
             }
         });
-    addFluid(&m_new_fluid[0], m_new_fluid.size());
+    if(!m_new_fluid.empty()) {
+        addFluid(&m_new_fluid[0], m_new_fluid.size());
+    }
     m_new_fluid_ctx.clear();
     m_new_fluid.clear();
 

@@ -399,7 +399,7 @@ public:
         atomicGetSystemTextRenderer()->addText(vec2(5.0f, 60.0f), buf);
     }
 };
-atomicImplementEntity(Level_Test, ECID_Level);
+atomicImplementEntity(Level_Test);
 atomicExportClass(atomic::Level_Test);
 
 } // namespace atomic

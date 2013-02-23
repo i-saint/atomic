@@ -212,7 +212,7 @@ public:
         m_delta_fluid_damage += glm::length((const vec3&)m->velocity)*0.002f;
     }
 };
-atomicImplementEntity(Enemy_Test, ECID_Enemy);
+atomicImplementEntity(Enemy_Test);
 atomicExportClass(atomic::Enemy_Test);
 
 
