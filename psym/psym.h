@@ -71,12 +71,12 @@ public:
     size_t getNumParticles() const;
 
 public:
-    Particle particles[PSYM_MAX_PARTICLE_NUM];
-    size_t num_active_particles;
+    Particle particles[PSYM_MAX_PARTICLE_NUM]; // need serialize
 
-    // ˆÈ‰º‚Í serializa •s—v
     Particle_SOA8 particles_soa[PSYM_MAX_PARTICLE_NUM];
     GridData cell[PSYM_GRID_DIV][PSYM_GRID_DIV];
+
+    size_t num_active_particles; // need serialize
 
     ist::raw_vector<RigidSphere>   collision_spheres;
     ist::raw_vector<RigidPlane>    collision_planes;
