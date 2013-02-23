@@ -1,11 +1,10 @@
-﻿#ifndef __ist_GPGPU_h__
-#define __ist_GPGPU_h__
+﻿#ifndef ist_GPGPU_h
+#define ist_GPGPU_h
 
 #include "Base/Types.h"
 
-#ifdef __ist_with_OpenCL__
-#pragma comment(lib, "OpenCL.lib")
+#ifdef ist_with_OpenCL
 #include "GPUCL/gpuclDevice.h"
-#endif // __ist_with_OpenCL__
+#endif // ist_with_OpenCL
 
-#endif // __ist_GPGPU_h__
+#endif // ist_GPGPU_h

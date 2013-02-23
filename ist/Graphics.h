@@ -1,5 +1,5 @@
-﻿#ifndef __ist_Graphics_h__
-#define __ist_Graphics_h__
+﻿#ifndef ist_Graphics_h
+#define ist_Graphics_h
 
 #include "Config.h"
 #include "Base.h"
@@ -18,4 +18,4 @@
 #include "GraphicsDX11//i3ddx11.h"
 #endif // ist_with_DirectX11
 
-#endif // __ist_Graphics_h__
+#endif // ist_Graphics_h

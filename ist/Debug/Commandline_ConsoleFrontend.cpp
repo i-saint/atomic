@@ -59,7 +59,9 @@ void CommandlineConsole::dialogLoop()
     char buf[512];
     while(!m_stop) {
         if(::ReadConsoleA(m_cs_in, &buf, _countof(buf)-1, &num_read, NULL) && num_read>0) {
-            buf[num_read-1] = '\0'; // buf[num_read-1] は '\r'
+            for(uint32 i=0; i<num_read; ++i) {
+                if(buf[i]=='\r' || buf[i]=='\n') { buf[i]='\0'; }
+            }
             Commandline::getInstance()->pushCommand(buf);
         }
     }

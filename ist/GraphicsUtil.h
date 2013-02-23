@@ -1,5 +1,5 @@
-﻿#ifndef __ist_GraphicsUtil_h__
-#define __ist_GraphicsUtil_h__
+﻿#ifndef ist_GraphicsUtil_h
+#define ist_GraphicsUtil_h
 
 
-#endif // __ist_GraphicsUtil_h__
+#endif // ist_GraphicsUtil_h

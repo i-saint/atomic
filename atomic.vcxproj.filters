@@ -53,9 +53,6 @@
     <ClCompile Include="Game\Text.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="Game\DebugConsole.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
     <ClCompile Include="Game\Entity.cpp">
       <Filter>Game</Filter>
     </ClCompile>
@@ -170,9 +167,6 @@
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Game\Text.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\DebugConsole.h">
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="Game\Entity.h">

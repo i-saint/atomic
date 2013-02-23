@@ -1031,20 +1031,20 @@ private:
 
 
 template<class V>
-CLCValue<V>* CreateCommand(V *v)
+CLCValue<V>* CreateCLCommand(V *v)
 { return istNew(istTypeJoin(CLCValue<V>))(v); }
 
 
 template<class R>
-CLCFunction0<R>* CreateCommand(R (*f)())
+CLCFunction0<R>* CreateCLCommand(R (*f)())
 { return istNew(istTypeJoin(CLCFunction0<R>))(f); }
 
 template<class R, class C>
-CLCMemFn0<R, C>* CreateCommand(R (C::*f)(), C *obj)
+CLCMemFn0<R, C>* CreateCLCommand(R (C::*f)(), C *obj)
 { return istNew(istTypeJoin(CLCMemFn0<R, C>))(f, obj); }
 
 template<class R, class C>
-CLCConstMemFn0<R, C>* CreateCommand(R (C::*f)() const, C *obj)
+CLCConstMemFn0<R, C>* CreateCLCommand(R (C::*f)() const, C *obj)
 { return istNew(istTypeJoin(CLCConstMemFn0<R, C>))(f, obj); }
 
 

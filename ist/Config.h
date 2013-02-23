@@ -10,6 +10,7 @@
 //#define ist_with_jpeg
 #define ist_with_gli // dds ファイル対応
 #define ist_with_OpenAL
+//#define ist_with_OpenCL
 #define ist_with_oggvorbis
 #define ist_with_boost_serialization
 
@@ -151,6 +152,11 @@ namespace stl = std;
 #   include <AL/al.h>
 #   include <AL/alc.h>
 #endif // ist_with_OpenAL
+
+#ifdef ist_with_OpenCL
+#   pragma comment(lib, "OpenCL.lib")
+#endif // ist_with_OpenCL
+
 
 #ifdef ist_with_poco
 #endif // ist_with_poco

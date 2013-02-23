@@ -433,6 +433,7 @@ void AtomicApplication::printDebugLog( const char *format, ... )
 
 void AtomicApplication::registerCommands()
 {
+    istCommandlineRegister("printPoolStates", &ist::PoolNewManager::printPoolStates);
 }
 
 #endif // atomic_enable_debug_log
