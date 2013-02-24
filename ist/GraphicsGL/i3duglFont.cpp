@@ -358,7 +358,7 @@ public:
                 {1, I3D_FLOAT, 2,  8, false, 0},
                 {2, I3D_FLOAT, 4, 16, false, 0},
             };
-            m_va->setAttributes(0, m_vbo, sizeof(VertexT), descs, _countof(descs));
+            m_va->setAttributes(0, m_vbo, 0, sizeof(VertexT), descs, _countof(descs));
         }
         m_vs = CreateVertexShaderFromString(dev, g_font_vssrc);
         m_ps = CreatePixelShaderFromString(dev, g_font_pssrc);

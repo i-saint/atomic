@@ -41,7 +41,7 @@ void PassGBuffer_Particle::draw()
             {GLSL_INSTANCE_GLOW,     I3D_FLOAT,4, 32, false, 1},
             {GLSL_INSTANCE_PARAM,    I3D_FLOAT,4, 48, false, 1},
         };
-        m_va_cube->setAttributes(1, m_vbo, sizeof(IndivisualParticle), descs, _countof(descs));
+        m_va_cube->setAttributes(1, m_vbo, 0, sizeof(IndivisualParticle), descs, _countof(descs));
 
         dc->setVertexArray(m_va_cube);
         m_sh->assign(dc);
@@ -118,7 +118,7 @@ void PassGBuffer_Fluid::draw()
                 {GLSL_INSTANCE_VELOCITY, I3D_FLOAT,4, 16, false, 1},
                 {GLSL_INSTANCE_PARAM,    I3D_FLOAT,4, 32, false, 1},
             };
-            m_va_cube->setAttributes(1, m_vbo_fluid, sizeof(psym::Particle), descs, _countof(descs));
+            m_va_cube->setAttributes(1, m_vbo_fluid, 0, sizeof(psym::Particle), descs, _countof(descs));
             m_sh_fluid->assign(dc);
             dc->setVertexArray(m_va_cube);
             dc->setDepthStencilState(atomicGetDepthStencilState(DS_GBUFFER_FLUID));
@@ -139,7 +139,7 @@ void PassGBuffer_Fluid::draw()
             {GLSL_INSTANCE_POSITION, I3D_FLOAT,3, 16, false, 1},
             {GLSL_INSTANCE_PARAM,    I3D_INT,  1, 28, false, 1},
         };
-        m_va_cube->setAttributes(1, m_vbo_rigid, sizeof(PSetParticle), descs, _countof(descs));
+        m_va_cube->setAttributes(1, m_vbo_rigid, 0, sizeof(PSetParticle), descs, _countof(descs));
 
         m_sh_rigid->assign(dc);
         dc->setTexture(GLSL_PARAM_BUFFER, param_texture);

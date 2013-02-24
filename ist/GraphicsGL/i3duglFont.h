@@ -1,5 +1,5 @@
-﻿#ifndef __ist_i3dugl_Font__
-#define __ist_i3dugl_Font__
+﻿#ifndef ist_i3dugl_Font_h
+#define ist_i3dugl_Font_h
 
 #include "i3dglDeviceResource.h"
 
@@ -30,4 +30,4 @@ IFontRenderer* CreateSpriteFont(Device *device, IBinaryStream &sff, IBinaryStrea
 
 } // namespace i3d
 } // namespace ist
-#endif __ist_i3dugl_Font__
+#endif ist_i3dugl_Font_h

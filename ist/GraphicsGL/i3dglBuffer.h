@@ -35,7 +35,7 @@ public:
     static const int MAX_VERTEX_STREAM = 4;
     static const int MAX_VERTEX_DESC = 8;
 
-    void setAttributes(uint32 vb_slot, Buffer *vbo, uint32 stride, const VertexDesc *descs, uint32 num_descs);
+    void setAttributes(uint32 vb_slot, Buffer *vbo, uint32 start, uint32 stride, const VertexDesc *descs, uint32 num_descs);
 
 private:
     VertexArray(Device *dev);
@@ -48,6 +48,7 @@ private:
     struct VertexStreamDesc {
         VertexDesc vertex_descs[MAX_VERTEX_DESC];
         uint32 num_vertex_descs;
+        uint32 start;
         uint32 stride;
         Buffer *buffer;
     };

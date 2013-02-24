@@ -82,11 +82,11 @@ void VertexArray::bind() const
             glEnableVertexAttribArray(desc.location);
             // float type
             if(desc.type==I3D_HALF || desc.type==I3D_FLOAT || desc.type==I3D_DOUBLE || desc.normalize) {
-                glVertexAttribPointer(desc.location, desc.num_elements, desc.type, desc.normalize, vsd.stride, (GLvoid*)desc.offset);
+                glVertexAttribPointer(desc.location, desc.num_elements, desc.type, desc.normalize, vsd.stride, (GLvoid*)(desc.offset+vsd.start));
             }
             // integer type
             else {
-                glVertexAttribIPointer(desc.location, desc.num_elements, desc.type, vsd.stride, (GLvoid*)desc.offset);
+                glVertexAttribIPointer(desc.location, desc.num_elements, desc.type, vsd.stride, (GLvoid*)(desc.offset+vsd.start));
             }
             glVertexAttribDivisor(desc.location, desc.divisor);
         }
@@ -98,7 +98,7 @@ void VertexArray::unbind() const
     glBindVertexArray(0);
 }
 
-void VertexArray::setAttributes( uint32 vb_slot, Buffer* vb, uint32 stride, const VertexDesc *descs, uint32 num_descs )
+void VertexArray::setAttributes( uint32 vb_slot, Buffer* vb, uint32 start, uint32 stride, const VertexDesc *descs, uint32 num_descs )
 {
     istAssert(vb_slot<MAX_VERTEX_STREAM);
     istAssert(num_descs<MAX_VERTEX_DESC);
@@ -106,6 +106,7 @@ void VertexArray::setAttributes( uint32 vb_slot, Buffer* vb, uint32 stride, cons
     VertexStreamDesc &vsd = m_stream_descs[vb_slot];
     vsd.stride = stride;
     vsd.num_vertex_descs = num_descs;
+    vsd.start = start;
     vsd.buffer = vb;
     std::copy(descs, descs+num_descs, vsd.vertex_descs);
 }

@@ -80,7 +80,7 @@ void PassDeferredShading_Bloodstain::draw()
         {GLSL_INSTANCE_POSITION, I3D_FLOAT,4,  0, false, 1},
         {GLSL_INSTANCE_PARAM,    I3D_FLOAT,4, 16, false, 1},
     };
-    m_va_sphere->setAttributes(1, m_vbo_bloodstain, sizeof(BloodstainParticle), descs, _countof(descs));
+    m_va_sphere->setAttributes(1, m_vbo_bloodstain, 0, sizeof(BloodstainParticle), descs, _countof(descs));
 
     m_sh->assign(dc);
     dc->setRenderTarget(grt);
@@ -288,7 +288,7 @@ void PassDeferredShading_Lights::drawDirectionalLights()
         {GLSL_INSTANCE_COLOR,    I3D_FLOAT,4, 16, false, 1},
         {GLSL_INSTANCE_AMBIENT,  I3D_FLOAT,4, 32, false, 1},
     };
-    va_quad->setAttributes(1, vbo_instance, sizeof(DirectionalLight), descs, _countof(descs));
+    va_quad->setAttributes(1, vbo_instance, 0, sizeof(DirectionalLight), descs, _countof(descs));
 
     shader->assign(dc);
     dc->setVertexArray(va_quad);
@@ -315,7 +315,7 @@ void PassDeferredShading_Lights::drawPointLights()
         {GLSL_INSTANCE_COLOR,   I3D_FLOAT,4,16, false, 1},
         {GLSL_INSTANCE_PARAM,   I3D_FLOAT,4,32, false, 1},
     };
-    va_sphere->setAttributes(1, vbo_instance, sizeof(PointLight), descs, _countof(descs));
+    va_sphere->setAttributes(1, vbo_instance, 0, sizeof(PointLight), descs, _countof(descs));
 
     shader->assign(dc);
     dc->setVertexArray(va_sphere);

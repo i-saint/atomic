@@ -38,7 +38,7 @@ void CreateFloorQuad( VertexArray *va, Buffer *&vbo, vec4 pos, vec4 size )
 
     i3d::Device *dev = atomicGetGLDevice();
     vbo = CreateVertexBuffer(dev, sizeof(vertex_t)*_countof(vertices), I3D_USAGE_STATIC, vertices);
-    va->setAttributes(0, vbo, sizeof(vertex_t), descs, _countof(descs));
+    va->setAttributes(0, vbo, 0, sizeof(vertex_t), descs, _countof(descs));
 }
 
 
@@ -91,7 +91,7 @@ void CreateSphere(
     i3d::Device *dev = atomicGetGLDevice();
     vbo = CreateVertexBuffer(dev, vertex_size, I3D_USAGE_STATIC, vert);
     ibo = CreateIndexBuffer(dev, index_size, I3D_USAGE_STATIC, index);
-    va->setAttributes(0, vbo, sizeof(vertex_t), descs, _countof(descs));
+    va->setAttributes(0, vbo, 0, sizeof(vertex_t), descs, _countof(descs));
 
     istAlignedFree(index);
     istAlignedFree(vert);
@@ -116,7 +116,7 @@ void CreateScreenQuad( VertexArray *va, Buffer *&vbo )
 
     i3d::Device *dev = atomicGetGLDevice();
     vbo = CreateVertexBuffer(dev, sizeof(v), I3D_USAGE_STATIC, v);
-    va->setAttributes(0, vbo, sizeof(vertex_t), descs, _countof(descs));
+    va->setAttributes(0, vbo, 0, sizeof(vertex_t), descs, _countof(descs));
 }
 
 void CreateBloomLuminanceQuads( VertexArray *va, Buffer *&vbo )
@@ -153,7 +153,7 @@ void CreateBloomLuminanceQuads( VertexArray *va, Buffer *&vbo )
 
     i3d::Device *dev = atomicGetGLDevice();
     vbo = CreateVertexBuffer(dev, sizeof(v), I3D_USAGE_STATIC, v);
-    va->setAttributes(0, vbo, sizeof(vertex_t), descs, _countof(descs));
+    va->setAttributes(0, vbo, 0, sizeof(vertex_t), descs, _countof(descs));
 }
 
 void CreateBloomBlurQuads( VertexArray *va, Buffer *&vbo )
@@ -197,7 +197,7 @@ void CreateBloomBlurQuads( VertexArray *va, Buffer *&vbo )
 
     i3d::Device *dev = atomicGetGLDevice();
     vbo = CreateVertexBuffer(dev, sizeof(v), I3D_USAGE_STATIC, v);
-    va->setAttributes(0, vbo, sizeof(vertex_t), descs, _countof(descs));
+    va->setAttributes(0, vbo, 0, sizeof(vertex_t), descs, _countof(descs));
 }
 
 void CreateBloomCompositeQuad( VertexArray *va, Buffer *&vbo )
@@ -226,7 +226,7 @@ void CreateBloomCompositeQuad( VertexArray *va, Buffer *&vbo )
 
     i3d::Device *dev = atomicGetGLDevice();
     vbo = CreateVertexBuffer(dev, sizeof(v), I3D_USAGE_STATIC, v);
-    va->setAttributes(0, vbo, sizeof(vertex_t), descs, _countof(descs));
+    va->setAttributes(0, vbo, 0, sizeof(vertex_t), descs, _countof(descs));
 }
 
 void CreateCube( VertexArray *va, Buffer *&vbo, float32 half_len )
@@ -285,7 +285,7 @@ void CreateCube( VertexArray *va, Buffer *&vbo, float32 half_len )
 
     i3d::Device *dev = atomicGetGLDevice();
     vbo = CreateVertexBuffer(dev, sizeof(v), I3D_USAGE_STATIC, v);
-    va->setAttributes(0, vbo, sizeof(vertex_t), descs, _countof(descs));
+    va->setAttributes(0, vbo, 0, sizeof(vertex_t), descs, _countof(descs));
 }
 
 void CreateFieldGridLines( VertexArray *va, Buffer *&vbo )
@@ -334,7 +334,7 @@ void CreateFieldGridLines( VertexArray *va, Buffer *&vbo )
 
     i3d::Device *dev = atomicGetGLDevice();
     vbo = CreateVertexBuffer(dev, sizeof(vertex_t)*vertices.size(), I3D_USAGE_STATIC, &vertices[0]);
-    va->setAttributes(0, vbo, sizeof(vertex_t), descs, _countof(descs));
+    va->setAttributes(0, vbo, 0, sizeof(vertex_t), descs, _countof(descs));
 }
 
 void CreateDistanceFieldQuads( VertexArray *va, Buffer *&quad_model, Buffer *&quad_pos, Buffer *&quad_dist )
@@ -360,7 +360,7 @@ void CreateDistanceFieldQuads( VertexArray *va, Buffer *&quad_model, Buffer *&qu
 
         i3d::Device *dev = atomicGetGLDevice();
         quad_model = CreateVertexBuffer(dev, sizeof(vertex_t)*_countof(vertices), I3D_USAGE_STATIC, vertices);
-        if(quad_model && va) { va->setAttributes(0, quad_model, sizeof(vertex_t), descs, _countof(descs)); }
+        if(quad_model && va) { va->setAttributes(0, quad_model, 0, sizeof(vertex_t), descs, _countof(descs)); }
     }
 
     {
@@ -382,7 +382,7 @@ void CreateDistanceFieldQuads( VertexArray *va, Buffer *&quad_model, Buffer *&qu
 
         i3d::Device *dev = atomicGetGLDevice();
         quad_pos = CreateVertexBuffer(dev, sizeof(vertex_t)*vertices.size(), I3D_USAGE_STATIC, &vertices[0]);
-        va->setAttributes(1, quad_pos, sizeof(vertex_t), descs, _countof(descs));
+        va->setAttributes(1, quad_pos, 0, sizeof(vertex_t), descs, _countof(descs));
     }
 }
 
