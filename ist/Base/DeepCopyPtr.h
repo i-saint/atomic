@@ -6,7 +6,7 @@
 namespace ist {
 
 template<class T, bool AllowCopy=true>
-class deep_copy_ptr
+class istInterModule deep_copy_ptr
 {
 public:
     deep_copy_ptr() : m_ptr(istNew(T)()) {}
@@ -26,15 +26,12 @@ private:
 };
 
 template<class T>
-class deep_copy_ptr<T, false>
+class istInterModule deep_copy_ptr<T, false>
 {
 public:
     deep_copy_ptr() : m_ptr(istNew(T)()) {}
     deep_copy_ptr(T *p) : m_ptr(p) {}
     ~deep_copy_ptr() { istDelete(m_ptr); }
-
-    deep_copy_ptr(const deep_copy_ptr &other);
-    deep_copy_ptr& operator=(const deep_copy_ptr &other);
 
     T&       operator*()        { return *m_ptr; }
     const T& operator*() const  { return *m_ptr; }
@@ -42,6 +39,9 @@ public:
     const T* operator->() const { return m_ptr; }
 
 private:
+    deep_copy_ptr(const deep_copy_ptr &other);
+    deep_copy_ptr& operator=(const deep_copy_ptr &other);
+
     T * istRestrict m_ptr;
 };
 

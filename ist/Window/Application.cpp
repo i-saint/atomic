@@ -167,6 +167,26 @@ LRESULT CALLBACK istWndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lP
 }
 
 
+struct Application::Members
+{
+    HWND        hwnd;
+    DEVMODE     devmode;
+    bool        fullscreen;
+
+    KeyboardState   keyboard_state;
+    MouseState      mouse_state;
+    JoyState        joy_state[Application::MAX_JOYSTICK_NUM];
+
+    uvec2   window_size;
+    ist::vector<WMHandler*> wmhandlers;
+
+    Members()
+        : hwnd(NULL)
+        , fullscreen(false)
+    {
+    }
+};
+
 
 Application* Application::getInstance()
 {
@@ -174,7 +194,6 @@ Application* Application::getInstance()
 }
 
 Application::Application()
-: m_hwnd(NULL)
 {
 }
 
@@ -184,6 +203,15 @@ Application::~Application()
     if(g_the_app==this) { g_the_app=NULL; }
 }
 
+
+bool Application::isFullscreen() const                      { return m->fullscreen; }
+const uvec2& Application::getWindowSize() const             { return m->window_size; }
+const KeyboardState& Application::getKeyboardState() const  { return m->keyboard_state; }
+const MouseState& Application::getMouseState() const        { return m->mouse_state; }
+const JoyState& Application::getJoyState(int i) const       { return m->joy_state[i]; }
+HWND Application::getWindowHandle() const                   { return m->hwnd; }
+
+
 bool Application::initialize(ivec2 wpos, ivec2 wsize, const wchar_t *title, bool fullscreen)
 {
     if(g_the_app) {
@@ -192,8 +220,8 @@ bool Application::initialize(ivec2 wpos, ivec2 wsize, const wchar_t *title, bool
     }
     g_the_app = this;
 
-    m_window_size = wsize;
-    m_fullscreen = fullscreen;
+    m->window_size = wsize;
+    m->fullscreen = fullscreen;
     int style = fullscreen ? WS_POPUP : WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME ^ WS_MAXIMIZEBOX;
     int flag = WS_POPUP | WS_VISIBLE;
 
@@ -220,14 +248,14 @@ bool Application::initialize(ivec2 wpos, ivec2 wsize, const wchar_t *title, bool
         return false;
     }
 
-    m_hwnd = ::CreateWindow(title, title, style, wpos.x,wpos.y, wsize.x,wsize.y, NULL, NULL, g_hinstance, NULL);
-    if(m_hwnd==NULL) {
+    m->hwnd = ::CreateWindow(title, title, style, wpos.x,wpos.y, wsize.x,wsize.y, NULL, NULL, g_hinstance, NULL);
+    if(m->hwnd==NULL) {
         istPrint("CreateWindow() failed");
         return false;
     }
 
     DEVMODE devmode_sav;
-    if(m_fullscreen) {
+    if(m->fullscreen) {
         devmode_sav.dmSize = sizeof(devmode_sav);
         devmode_sav.dmDriverExtra = 0;
         devmode_sav.dmPelsWidth = wsize.x;
@@ -237,13 +265,13 @@ bool Application::initialize(ivec2 wpos, ivec2 wsize, const wchar_t *title, bool
         ReleaseDC(0,hdc);
         devmode_sav.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
 
-        ::SetWindowPos(m_hwnd,0, 0,0, wsize.x,wsize.y, SWP_SHOWWINDOW);
+        ::SetWindowPos(m->hwnd,0, 0,0, wsize.x,wsize.y, SWP_SHOWWINDOW);
         if(::ChangeDisplaySettings(&devmode_sav,CDS_FULLSCREEN)!=DISP_CHANGE_SUCCESSFUL) {
             return false;
         }
     }
     else {
-        ::SetWindowPos(m_hwnd,0, wpos.x,wpos.y, wsize.x,wsize.y, SWP_SHOWWINDOW);
+        ::SetWindowPos(m->hwnd,0, wpos.x,wpos.y, wsize.x,wsize.y, SWP_SHOWWINDOW);
     }
 
     for(uint32 i=0; i<0; ++i) {
@@ -255,9 +283,9 @@ bool Application::initialize(ivec2 wpos, ivec2 wsize, const wchar_t *title, bool
 
 void Application::finalize()
 {
-    if(m_hwnd) {
-        ::CloseWindow(m_hwnd);
-        m_hwnd=NULL;
+    if(m->hwnd) {
+        ::CloseWindow(m->hwnd);
+        m->hwnd=NULL;
     }
 }
 
@@ -265,23 +293,23 @@ void Application::finalize()
 void Application::updateInput()
 {
     // keyboard
-    m_keyboard_state.copyToBack();
-    ::GetKeyboardState( m_keyboard_state.getRawKeyState() );
+    m->keyboard_state.copyToBack();
+    ::GetKeyboardState( m->keyboard_state.getRawKeyState() );
 
     // mouse
     {
         CURSORINFO cinfo;
         cinfo.cbSize = sizeof(cinfo);
         ::GetCursorInfo(&cinfo);
-        m_mouse_state.setX( cinfo.ptScreenPos.x );
-        m_mouse_state.setX( cinfo.ptScreenPos.y );
+        m->mouse_state.setX( cinfo.ptScreenPos.x );
+        m->mouse_state.setX( cinfo.ptScreenPos.y );
     }
     {
         short mouse_button = 0;
-        mouse_button |= m_keyboard_state.isKeyPressed(VK_LBUTTON) ? MouseState::BU_LEFT : 0;
-        mouse_button |= m_keyboard_state.isKeyPressed(VK_RBUTTON) ? MouseState::BU_RIGHT : 0;
-        mouse_button |= m_keyboard_state.isKeyPressed(VK_MBUTTON) ? MouseState::BU_MIDDLE : 0;
-        m_mouse_state.setButtonState(mouse_button);
+        mouse_button |= m->keyboard_state.isKeyPressed(VK_LBUTTON) ? MouseState::BU_LEFT : 0;
+        mouse_button |= m->keyboard_state.isKeyPressed(VK_RBUTTON) ? MouseState::BU_RIGHT : 0;
+        mouse_button |= m->keyboard_state.isKeyPressed(VK_MBUTTON) ? MouseState::BU_MIDDLE : 0;
+        m->mouse_state.setButtonState(mouse_button);
     }
 
     // joystick
@@ -290,7 +318,7 @@ void Application::updateInput()
         joyinfo.dwSize = sizeof(JOYINFOEX);
         joyinfo.dwFlags = JOY_RETURNALL;
         if(::joyGetPosEx(i, &joyinfo)==JOYERR_NOERROR){
-            m_joy_state->setValue(joyinfo);
+            m->joy_state->setValue(joyinfo);
         }
     }
 }
@@ -298,7 +326,7 @@ void Application::updateInput()
 void Application::translateMessage()
 {
     MSG msg;
-    while(::PeekMessage(&msg, m_hwnd, 0,0,PM_REMOVE)) {
+    while(::PeekMessage(&msg, m->hwnd, 0,0,PM_REMOVE)) {
         ::TranslateMessage(&msg);
         ::DispatchMessage(&msg);
     }
@@ -306,12 +334,12 @@ void Application::translateMessage()
 
 int Application::showMessageDialog( const char* message, const char* caption, int dlgtype/*=DLG_OK*/ )
 {
-    return ::MessageBoxA(m_hwnd, message, caption, dlgtype);
+    return ::MessageBoxA(m->hwnd, message, caption, dlgtype);
 }
 
 int Application::showMessageDialog( const wchar_t* message, const wchar_t* caption, int dlgtype )
 {
-    return ::MessageBoxW(m_hwnd, message, caption, dlgtype);
+    return ::MessageBoxW(m->hwnd, message, caption, dlgtype);
 }
 
 DisplaySetting Application::getCurrentDisplaySetting() const
@@ -325,7 +353,7 @@ DisplaySetting Application::getCurrentDisplaySetting() const
 
 void Application::getAvalableDisplaySettings( DisplaySetting*& settings, int& num_settings ) const
 {
-    static stl::vector<DisplaySetting> dsv;
+    static ist::vector<DisplaySetting> dsv;
     if(dsv.empty()) {
         int i = 0;
         DEVMODE mode;
@@ -337,25 +365,25 @@ void Application::getAvalableDisplaySettings( DisplaySetting*& settings, int& nu
     num_settings = dsv.size();
 }
 
-void Application::addHandler( WMhandler *wmh )
+void Application::addMessageHandler( WMHandler *wmh )
 {
-    m_wmhandlers.push_back(wmh);
+    m->wmhandlers.push_back(wmh);
 }
 
-void Application::eraseHandler( WMhandler *wmh )
+void Application::eraseMessageHandler( WMHandler *wmh )
 {
-    m_wmhandlers.erase(
-        stl::find(m_wmhandlers.begin(), m_wmhandlers.end(), wmh));
+    m->wmhandlers.erase(
+        stl::find(m->wmhandlers.begin(), m->wmhandlers.end(), wmh));
 }
 
 bool Application::_handleWindowMessage( const WindowMessage& wm )
 {
-    for(size_t i=0; i<m_wmhandlers.size(); ++i) {
-        if(m_wmhandlers[i]->handleWindowMessage(wm)) {
+    for(size_t i=0; i<m->wmhandlers.size(); ++i) {
+        if((*m->wmhandlers[i])(wm)) {
             return true;
         }
     }
-    return handleWindowMessage(wm);
+    return false;
 }
 
 } // namespace ist

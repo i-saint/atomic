@@ -7,7 +7,7 @@ namespace atomic {
 class AtomicGame;
 class SoundThread;
 
-struct AtomicConfig
+struct istInterModule AtomicConfig
 {
     ivec2 window_pos;
     ivec2 window_size;
@@ -41,7 +41,7 @@ struct AtomicConfig
 };
 
 
-class AtomicApplication : public ist::Application
+class istInterModule AtomicApplication : public ist::Application
 {
 typedef ist::Application super;
 public:
@@ -56,16 +56,16 @@ public:
     virtual void updateInput();
     virtual void sysUpdate();
 
-    virtual bool handleWindowMessage(const ist::WindowMessage& wm);
+    bool handleWindowMessage(const ist::WindowMessage& wm);
     void handleError(ATOMIC_ERROR e);
 
     // 描画スレッドから呼ばれる
     void drawCallback();
 
-    void requestExit()                          { m_request_exit=true; }
-    AtomicGame* getGame()                       { return m_game; }
-    const InputState* getSystemInputs() const   { return &m_inputs; }
-    AtomicConfig* getConfig()                   { return &m_config; }
+    void requestExit();
+    AtomicGame* getGame();
+    const InputState* getSystemInputs() const;
+    AtomicConfig* getConfig();
 
 #ifdef atomic_enable_debug_log
     void printDebugLog(const char *format, ...);
@@ -74,31 +74,22 @@ public:
 private:
     void registerCommands();
 
-    tbb::task_scheduler_init m_tbb_init;
-    AtomicGame              *m_game;
-    InputState              m_inputs;
-    AtomicConfig            m_config;
-    bool m_request_exit;
-
-#ifdef atomic_enable_debug_log
-    FILE *m_log;
-#endif // atomic_enable_debug_log
-
+    struct Members;
+    ist::deep_copy_ptr<Members, false> m;
 };
+
+} // namespace atomic
 
 
 #define atomicGetApplication()          AtomicApplication::getInstance()
 #define atomicGetGame()                 atomicGetApplication()->getGame()
 #define atomicGetSystemInputs()         atomicGetApplication()->getSystemInputs()
-
 #define atomicGetConfig()               atomicGetApplication()->getConfig()
 #define atomicGetWindowSize()           atomicGetApplication()->getWindowSize()
-
 #ifdef atomic_enable_debug_log
 #   define atomicDebugLog(...)          atomicGetApplication()->printDebugLog(__VA_ARGS__)
 #else  // atomic_enable_debug_log
 #   define atomicDebugLog(...)          
 #endif // atomic_enable_debug_log
 
-} // namespace atomic
 #endif atomic_Game_AtomicApplication_h

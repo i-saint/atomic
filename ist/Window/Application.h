@@ -7,13 +7,6 @@
 
 namespace ist {
 
-class istInterModule WMhandler
-{
-public:
-    virtual ~WMhandler() {}
-    virtual bool handleWindowMessage(const WindowMessage& wm)=0;
-};
-
 
 class istInterModule Application
 {
@@ -47,6 +40,7 @@ public:
         DLGRET_TRYAGAIN = 10,
         DLGRET_CONTINUE = 11,
     };
+    typedef std::function<bool (const WindowMessage&)> WMHandler;
 
 public:
     static Application* getInstance();
@@ -70,41 +64,33 @@ public:
     int showMessageDialog(const char* message, const char* caption, int dlgtype=DLG_OK);
     int showMessageDialog(const wchar_t* message, const wchar_t* caption, int dlgtype=DLG_OK);
 
-    bool isFullscreen() const { return m_fullscreen; }
-    const uvec2& getWindowSize() const              { return m_window_size; }
-    const KeyboardState& getKeyboardState() const   { return m_keyboard_state; }
-    const MouseState& getMouseState() const         { return m_mouse_state; }
-    const JoyState& getJoyState(int i=0) const      { return m_joy_state[i]; }
+    bool isFullscreen() const;
+    const uvec2& getWindowSize() const;
+    const KeyboardState& getKeyboardState() const;
+    const MouseState& getMouseState() const;
+    const JoyState& getJoyState(int i=0) const;
 
     DisplaySetting getCurrentDisplaySetting() const;
     void getAvalableDisplaySettings(DisplaySetting*& settings, int& num_settings) const;
 
-    void addHandler(WMhandler *wmh);
-    void eraseHandler(WMhandler *wmh);
+    void addMessageHandler(WMHandler *wmh);
+    void eraseMessageHandler(WMHandler *wmh);
 
 #ifdef ist_env_Windows
-    HWND getWindowHandle() const { return m_hwnd; }
+    HWND getWindowHandle() const;
 #endif // ist_env_Windows
 
 
 private:
     static const int MAX_JOYSTICK_NUM = 4;
 
+    struct Members;
+    deep_copy_ptr<Members> m;
+
 #ifdef ist_env_Windows
     bool _handleWindowMessage(const WindowMessage& wm);
     friend LRESULT CALLBACK istWndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lParam);
-
-    HWND        m_hwnd;
-    DEVMODE     m_devmode;
 #endif // ist_env_Windows
-    bool        m_fullscreen;
-
-    KeyboardState   m_keyboard_state;
-    MouseState      m_mouse_state;
-    JoyState        m_joy_state[MAX_JOYSTICK_NUM];
-
-    uvec2   m_window_size;
-    stl::vector<WMhandler*> m_wmhandlers;
 };
 
 } // namespace ist

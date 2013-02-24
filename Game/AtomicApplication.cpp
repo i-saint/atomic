@@ -117,30 +117,55 @@ void AtomicConfig::setup()
 }
 
 
-AtomicApplication *g_appinst = NULL;
 
-AtomicApplication* AtomicApplication::getInstance() { return g_appinst; }
+struct AtomicApplication::Members
+{
+    typedef ist::Application::WMHandler WMHandler;
+    WMHandler               wnhandler;
+    tbb::task_scheduler_init tbb_init;
+    AtomicGame              *game;
+    InputState              inputs;
+    AtomicConfig            config;
+    bool request_exit;
+#ifdef atomic_enable_debug_log
+    FILE *log;
+#endif // atomic_enable_debug_log
+
+    Members()
+        : request_exit(false)
+        , game(NULL)
+    {
+    }
+};
+
+void AtomicApplication::requestExit()                          { m->request_exit=true; }
+AtomicGame* AtomicApplication::getGame()                       { return m->game; }
+const InputState* AtomicApplication::getSystemInputs() const   { return &m->inputs; }
+AtomicConfig* AtomicApplication::getConfig()                   { return &m->config; }
+
+
+
+AtomicApplication* AtomicApplication::getInstance() { return static_cast<AtomicApplication*>(ist::Application::getInstance()); }
 
 AtomicApplication::AtomicApplication()
-    : m_request_exit(false)
-    , m_game(NULL)
 {
-    istAssert(g_appinst==NULL);
-    g_appinst = this;
+    m->wnhandler = std::bind(&AtomicApplication::handleWindowMessage, this, std::placeholders::_1);
+    addMessageHandler(&m->wnhandler);
 
 #ifdef atomic_enable_debug_log
-    m_log = fopen("atomic.log", "wb");
+    m->log = fopen("atomic.log", "wb");
 #endif // atomic_enable_debug_log
 }
 
 AtomicApplication::~AtomicApplication()
 {
 #ifdef atomic_enable_debug_log
-    if(m_log!=NULL) {
-        fclose(m_log);
+    if(m->log!=NULL) {
+        fclose(m->log);
     }
 #endif // atomic_enable_debug_log
-    if(g_appinst==this) { g_appinst=NULL; }
+
+    eraseMessageHandler(&m->wnhandler);
 }
 
 bool AtomicApplication::initialize(int argc, char *argv[])
@@ -157,16 +182,17 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     istCommandlineInitialize();
     istCommandlineConsoleInitialize();
 
-    m_config.setup();
-    m_config.readFromFile(ATOMIC_CONFIG_FILE_PATH);
-    if(m_config.window_pos.x >= 30000) { m_config.window_pos.x = 0; }
-    if(m_config.window_pos.y >= 30000) { m_config.window_pos.y = 0; }
-    if(m_config.window_size.x < 320 || m_config.window_size.x < 240) { m_config.window_size = ivec2(1024, 768); }
+    AtomicConfig &conf = m->config;
+    conf.setup();
+    conf.readFromFile(ATOMIC_CONFIG_FILE_PATH);
+    if(conf.window_pos.x >= 30000) { conf.window_pos.x = 0; }
+    if(conf.window_pos.y >= 30000) { conf.window_pos.y = 0; }
+    if(conf.window_size.x < 320 || conf.window_size.x < 240) { conf.window_size = ivec2(1024, 768); }
 
     // create window
-    ivec2 wpos = m_config.window_pos;
-    ivec2 wsize = m_config.window_size;
-    if(!super::initialize(wpos, wsize, L"atomic", m_config.fullscreen))
+    ivec2 wpos = conf.window_pos;
+    ivec2 wsize = conf.window_size;
+    if(!super::initialize(wpos, wsize, L"atomic", conf.fullscreen))
     {
         return false;
     }
@@ -178,9 +204,9 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     AtomicSound::initializeInstance();
 
     // create game
-    m_game = istNew(AtomicGame)();
+    m->game = istNew(AtomicGame)();
     if(argc > 1) {
-        m_game->readReplayFromFile(argv[1]);
+        m->game->readReplayFromFile(argv[1]);
     }
 
     // start server
@@ -198,14 +224,14 @@ bool AtomicApplication::initialize(int argc, char *argv[])
 
 void AtomicApplication::finalize()
 {
-    m_config.writeToFile(ATOMIC_CONFIG_FILE_PATH);
+    m->config.writeToFile(ATOMIC_CONFIG_FILE_PATH);
 
     atomicLevelEditorServerFinalize();
     atomicGameClientFinalize();
     atomicGameServerFinalize();
     Poco::ThreadPool::defaultPool().joinAll();
 
-    istSafeDelete(m_game);
+    istSafeDelete(m->game);
 
     AtomicRenderingSystem::finalizeInstance();
     AtomicSound::finalizeInstance();
@@ -239,22 +265,23 @@ void AtomicApplication::mainLoop()
     const float32 delay = 16.666f;
     const float32 dt = 1.0f;
 
-    while(!m_request_exit)
+    AtomicGame *game = m->game;
+    while(!m->request_exit)
     {
         DOL_Update();
         translateMessage();
         sysUpdate();
 
-        if(m_game) {
-            m_game->frameBegin();
-            m_game->update(dt);
-            m_game->asyncupdateBegin(dt);
+        if(game) {
+            game->frameBegin();
+            game->update(dt);
+            game->asyncupdateBegin(dt);
             updateInput();
-            m_game->draw();
-            m_game->asyncupdateEnd();
-            m_game->frameEnd();
+            game->draw();
+            game->asyncupdateEnd();
+            game->frameEnd();
 
-            if( m_game->IsWaitVSyncRequired() &&
+            if( game->IsWaitVSyncRequired() &&
                 (!atomicGetConfig()->unlimit_gamespeed && !atomicGetConfig()->vsync))
             {
                 float32 remain = delay-pc.getElapsedMillisec();
@@ -267,29 +294,30 @@ void AtomicApplication::mainLoop()
 
 void AtomicApplication::sysUpdate()
 {
+    AtomicConfig &conf = m->config;
     if(getKeyboardState().isKeyTriggered(ist::KEY_F2)) {
-        m_config.posteffect_bloom = !m_config.posteffect_bloom;
+        conf.posteffect_bloom = !conf.posteffect_bloom;
     }
     if(getKeyboardState().isKeyTriggered(ist::KEY_F3)) {
-        m_config.debug_show_gbuffer--;
+        conf.debug_show_gbuffer--;
     }
     if(getKeyboardState().isKeyTriggered(ist::KEY_F4)) {
-        m_config.debug_show_gbuffer++;
+        conf.debug_show_gbuffer++;
     }
     if(getKeyboardState().isKeyTriggered(ist::KEY_F5)) {
-        m_config.debug_show_lights--;
+        conf.debug_show_lights--;
     }
     if(getKeyboardState().isKeyTriggered(ist::KEY_F6)) {
-        m_config.debug_show_lights++;
+        conf.debug_show_lights++;
     }
     if(getKeyboardState().isKeyTriggered(ist::KEY_F7)) {
-        m_config.pause = !m_config.pause;
+        conf.pause = !conf.pause;
     }
     if(getKeyboardState().isKeyTriggered(ist::KEY_F8)) {
-        m_config.bg_multiresolution = !m_config.bg_multiresolution;
+        conf.bg_multiresolution = !conf.bg_multiresolution;
     }
     if(getKeyboardState().isKeyTriggered(ist::KEY_F9)) {
-        m_config.debug_show_resolution = !m_config.debug_show_resolution;
+        conf.debug_show_resolution = !conf.debug_show_resolution;
     }
     if(getKeyboardState().isKeyTriggered('7')) {
         atomicGetRenderStates()->ShowMultiresolution = !atomicGetRenderStates()->ShowMultiresolution;
@@ -311,6 +339,8 @@ void AtomicApplication::updateInput()
 {
     super::updateInput();
 
+    AtomicConfig &conf = m->config;
+
     RepMove move;
     int buttons = getJoyState().getButtons();
 
@@ -329,14 +359,14 @@ void AtomicApplication::updateInput()
     if(kb.isKeyPressed(ist::KEY_UP)     || kb.isKeyPressed('W')){ move.y = INT16_MAX; }
     if(kb.isKeyPressed(ist::KEY_DOWN)   || kb.isKeyPressed('S')){ move.y =-INT16_MAX; }
     if(kb.isKeyTriggered(ist::KEY_F1)) {
-        m_config.posteffect_antialias = !m_config.posteffect_antialias;
+        conf.posteffect_antialias = !conf.posteffect_antialias;
     }
 
     {
         RepMove jpos(getJoyState().getX(), -getJoyState().getY());
         if(glm::length(jpos.toF())>0.4f) { move=jpos; }
     }
-    m_inputs.update(RepInput(move, buttons));
+    m->inputs.update(RepInput(move, buttons));
 }
 
 bool AtomicApplication::handleWindowMessage(const ist::WindowMessage& wm)
@@ -345,37 +375,37 @@ bool AtomicApplication::handleWindowMessage(const ist::WindowMessage& wm)
     {
     case ist::WindowMessage::MES_CLOSE:
         {
-            m_request_exit = true;
+            m->request_exit = true;
         }
         return true;
 
     case ist::WindowMessage::MES_KEYBOARD:
         {
-            const ist::WM_Keyboard& m = static_cast<const ist::WM_Keyboard&>(wm);
-            if(m.action==ist::WM_Keyboard::ACT_KEYUP && m.key==ist::KEY_ESCAPE) {
-                m_request_exit = true;
+            const ist::WM_Keyboard& mes = static_cast<const ist::WM_Keyboard&>(wm);
+            if(mes.action==ist::WM_Keyboard::ACT_KEYUP && mes.key==ist::KEY_ESCAPE) {
+                m->request_exit = true;
             }
         }
         return true;
 
     case ist::WindowMessage::MES_WINDOW_SIZE:
         {
-            const ist::WM_WindowSize& m = static_cast<const ist::WM_WindowSize&>(wm);
-            m_config.window_size = m.window_size;
+            const ist::WM_WindowSize& mes = static_cast<const ist::WM_WindowSize&>(wm);
+            m->config.window_size = mes.window_size;
         }
         return true;
 
     case ist::WindowMessage::MES_WINDOW_MOVE:
         {
-            const ist::WM_WindowMove& m = static_cast<const ist::WM_WindowMove&>(wm);
-            m_config.window_pos = m.window_pos;
+            const ist::WM_WindowMove& mes = static_cast<const ist::WM_WindowMove&>(wm);
+            m->config.window_pos = mes.window_pos;
         }
         return true;
 
     case ist::WindowMessage::MES_IME_RESULT:
         {
-            const ist::WM_IME& m = static_cast<const ist::WM_IME&>(wm);
-            stl::wstring str(m.text, m.text_len);
+            const ist::WM_IME& mes = static_cast<const ist::WM_IME&>(wm);
+            stl::wstring str(mes.text, mes.text_len);
         }
         return true;
 
@@ -391,8 +421,8 @@ bool AtomicApplication::handleWindowMessage(const ist::WindowMessage& wm)
         break;
     case ist::WindowMessage::MES_IME_CHAR:
         {
-            const ist::WM_IME& m = static_cast<const ist::WM_IME&>(wm);
-            stl::wstring str(m.text, m.text_len);
+            const ist::WM_IME& mes = static_cast<const ist::WM_IME&>(wm);
+            stl::wstring str(mes.text, mes.text_len);
             istPrint(L"MES_IME_CHAR %s\n", str.c_str());
         }
         break;
@@ -415,7 +445,7 @@ void AtomicApplication::handleError(ATOMIC_ERROR e)
 
 void AtomicApplication::drawCallback()
 {
-    m_game->drawCallback();
+    m->game->drawCallback();
 }
 
 
@@ -423,11 +453,11 @@ void AtomicApplication::drawCallback()
 #ifdef atomic_enable_debug_log
 void AtomicApplication::printDebugLog( const char *format, ... )
 {
-    if(m_log==NULL) { return; }
+    if(m->log==NULL) { return; }
     va_list vl;
     va_start(vl, format);
-    fprintf(m_log, "%d ", (uint32)atomicGetFrame());
-    vfprintf(m_log, format, vl);
+    fprintf(m->log, "%d ", (uint32)atomicGetFrame());
+    vfprintf(m->log, format, vl);
     va_end(vl);
 }
 
