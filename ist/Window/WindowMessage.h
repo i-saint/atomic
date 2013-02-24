@@ -1,5 +1,5 @@
-﻿#ifndef __ist_Application_WindowMessage_h__
-#define __ist_Application_WindowMessage_h__
+﻿#ifndef ist_Application_WindowMessage_h
+#define ist_Application_WindowMessage_h
 namespace ist {
 
 struct istInterModule WindowMessage
@@ -85,11 +85,11 @@ struct istInterModule WM_Mouse : public WindowMessage
         CT_SHIFT    = 0x04,
     };
 
-    short action;
-    short button;
-    short control;
-    short x;
-    short y;
+    uint16 x;
+    uint16 y;
+    uint8 action;
+    uint8 button;
+    uint8 control;
 };
 
 
@@ -97,10 +97,10 @@ struct istInterModule WM_Mouse : public WindowMessage
 // MES_IME_CHAR, MES_IME_RESULT のとき、text, text_len に入力データが入っている
 struct istInterModule WM_IME : public WindowMessage
 {
-    size_t text_len;
-    size_t num_candidates;
-    size_t cursor_pos;
-    size_t candidate_index;
+    uint32 text_len;
+    uint32 num_candidates;
+    uint32 cursor_pos;
+    uint32 candidate_index;
     wchar_t *text;
     wchar_t *candidates;
 
@@ -116,4 +116,4 @@ struct istInterModule WM_IME : public WindowMessage
 
 
 } // namspace ist
-#endif // __ist_Application_WindowMessage_h__
+#endif // ist_Application_WindowMessage_h

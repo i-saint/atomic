@@ -322,6 +322,9 @@
     <ClInclude Include="ist\Base\Stringnize.h">
       <Filter>Base</Filter>
     </ClInclude>
+    <ClInclude Include="ist\Base\DeepCopyPtr.h">
+      <Filter>Base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ist\Window\Application.cpp">

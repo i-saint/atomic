@@ -272,6 +272,8 @@ CollisionSet::CollisionSet()
 {
     m_entities.reserve(1024);
     m_vacant.reserve(1024);
+
+    m_entities.push_back(NULL); // id:0 は無効とする
 }
 
 CollisionSet::~CollisionSet()
@@ -303,7 +305,7 @@ void CollisionSet::asyncupdate(float32 dt)
 {
     m_grid.updateGrid(m_entities);
 
-    const uint32 block_size = 256;
+    const uint32 block_size = 64;
     uint32 num_entities = m_entities.size();
     if(num_entities==0) { return; }
 
@@ -357,7 +359,6 @@ void CollisionSet::addEntity(CollisionEntity *e)
 
 CollisionEntity* CollisionSet::getEntity(CollisionHandle h)
 {
-    //if(h==0) { return NULL; }
     if(h >= m_entities.size()) { return NULL; }
     return m_entities[h];
 }

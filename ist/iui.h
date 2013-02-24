@@ -1,5 +1,5 @@
-﻿#ifndef __iui_h__
-#define __iui_h__
+﻿#ifndef iui_h
+#define iui_h
 
 #pragma comment(lib, "ist.lib")
 #pragma comment(lib, "iui.lib")
@@ -10,4 +10,4 @@
 #include "UI/iuiButton.h"
 #include "UI/iuiPanel.h"
 
-#endif // __iui_h__
+#endif // iui_h

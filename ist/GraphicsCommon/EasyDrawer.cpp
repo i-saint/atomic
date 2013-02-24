@@ -55,68 +55,62 @@ void main()\
 ";
 #endif // ist_EasyDraw_impl_GL
 
-class EasyDrawer : public IEasyDrawer
+
+struct EasyDrawer::Members
 {
-public:
-    EasyDrawer(Device *dev, DeviceContext *ctx);
-    virtual ~EasyDrawer();
-    virtual void release();
-    virtual void draw(const EasyDrawStates &states, I3D_TOPOLOGY topology, const VertexP3T2C4 *vertices, uint32 num_vertices);
-    virtual void flush();
+    typedef EasyDrawer::DrawCall DrawCall;
 
-    void updateBuffers();
+    Device          *dev;
+    DeviceContext   *ctx;
+    VertexArray     *va;
+    Buffer          *vbo;
+    Buffer          *ubo;
+    ShaderProgram   *shader;
+    GLint                   uniform_loc;
+    raw_vector<char>        vertex_data;
+    raw_vector<DrawCall>    draw_calls;
 
-private:
-    struct DrawCommand
+    Members()
+        : dev(NULL)
+        , ctx(NULL)
+        , va(NULL)
+        , vbo(NULL)
+        , ubo(NULL)
+        , shader(NULL)
+        , uniform_loc(0)
     {
-        EasyDrawStates states;
-        I3D_TOPOLOGY topology;
-        uint32 vertex_start;
-        uint32 vertex_num;
-    };
-
-    stl::vector<char> m_raw_vertices;
-    stl::vector<DrawCommand> m_commands;
-    Device *m_dev;
-    DeviceContext *m_ctx;
-    Buffer *m_vbo;
-    Buffer *m_ubo;
-    ShaderProgram *m_shader;
-    GLint m_uniform_loc;
+    }
 };
 
-IEasyDrawer* CreateEasyDrawer(Device *dev, DeviceContext *ctx)
+EasyDrawer* CreateEasyDrawer(Device *dev, DeviceContext *ctx)
 {
     return istNew(EasyDrawer)(dev, ctx);
 }
 
 EasyDrawer::EasyDrawer(Device *dev, DeviceContext *ctx)
-    : m_dev(dev)
-    , m_ctx(ctx)
-    , m_vbo(NULL)
-    , m_ubo(NULL)
-    , m_shader(NULL)
-    , m_uniform_loc(0)
 {
-    istSafeAddRef(m_dev);
-    istSafeAddRef(m_ctx);
-    m_ubo = CreateUniformBuffer(m_dev, 256, I3D_USAGE_DYNAMIC);
+    m->dev = dev;
+    m->ctx = ctx;
+    istSafeAddRef(m->dev);
+    istSafeAddRef(m->ctx);
+    m->ubo = CreateUniformBuffer(m->dev, 256, I3D_USAGE_DYNAMIC);
+    m->va = m->dev->createVertexArray();
 
-    VertexShader *vs = CreateVertexShaderFromString(m_dev, g_vs);
-    PixelShader *ps = CreatePixelShaderFromString(m_dev, g_ps);
-    m_shader = m_dev->createShaderProgram(ShaderProgramDesc(vs, ps));
+    VertexShader *vs = CreateVertexShaderFromString(m->dev, g_vs);
+    PixelShader *ps = CreatePixelShaderFromString(m->dev, g_ps);
+    m->shader = m->dev->createShaderProgram(ShaderProgramDesc(vs, ps));
     istSafeRelease(vs);
     istSafeRelease(ps);
-    m_uniform_loc = m_shader->getUniformBlockIndex("render_states");
+    m->uniform_loc = m->shader->getUniformBlockIndex("render_states");
 }
 
 EasyDrawer::~EasyDrawer()
 {
-    istSafeRelease(m_shader);
-    istSafeRelease(m_ubo);
-    istSafeRelease(m_vbo);
-    istSafeRelease(m_ctx);
-    istSafeRelease(m_dev);
+    istSafeRelease(m->shader);
+    istSafeRelease(m->ubo);
+    istSafeRelease(m->vbo);
+    istSafeRelease(m->ctx);
+    istSafeRelease(m->dev);
 }
 
 void EasyDrawer::release()
@@ -124,42 +118,48 @@ void EasyDrawer::release()
     istDelete(this);
 }
 
-void EasyDrawer::draw( const EasyDrawStates &states, I3D_TOPOLOGY topology, const VertexP3T2C4 *vertices, uint32 num_vertices )
+template<class VertexT>
+void EasyDrawer::draw( const EasyDrawState &states, I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices )
 {
-    DrawCommand tmp_cmd = {
+    DrawCall tmp_cmd = {
         states,
         topology,
-        static_cast<uint32>(m_raw_vertices.size()),
+        GetVertexType<VertexT>::result,
         num_vertices,
+        m->vertex_data.size(),
     };
-    m_commands.push_back(tmp_cmd);
+    m->draw_calls.push_back(tmp_cmd);
 
     const char *v = (const char*)vertices;
-    m_raw_vertices.insert(m_raw_vertices.end(), v, v+(sizeof(VertexP3T2C4)*num_vertices));
+    m->vertex_data.insert(m->vertex_data.end(), v, v+(sizeof(VertexT)*num_vertices));
 }
+template void EasyDrawer::draw<VertexP2C4>(const EasyDrawState &states, I3D_TOPOLOGY topology, const VertexP2C4 *vertices, uint32 num_vertices);
+template void EasyDrawer::draw<VertexP2T2C4>(const EasyDrawState &states, I3D_TOPOLOGY topology, const VertexP2T2C4 *vertices, uint32 num_vertices);
+template void EasyDrawer::draw<VertexP3T2C4>(const EasyDrawState &states, I3D_TOPOLOGY topology, const VertexP3T2C4 *vertices, uint32 num_vertices);
+
 
 void EasyDrawer::flush()
 {
     updateBuffers();
-    m_ctx->setShader(m_shader);
-    //m_ctx->setVertexArray();
-    for(size_t i=0; i<m_commands.size(); ++i) {
-        DrawCommand &cmd = m_commands[i];
-        m_ctx->draw(cmd.topology, cmd.vertex_start/sizeof(VertexP3T2C4), cmd.vertex_num);
+    m->ctx->setShader(m->shader);
+    m->ctx->setVertexArray(m->va);
+    for(size_t i=0; i<m->draw_calls.size(); ++i) {
+        DrawCall &dc = m->draw_calls[i];
+        m->ctx->draw(dc.topology, 0, dc.num_vertices);
     }
 
-    m_commands.clear();
-    m_raw_vertices.clear();
+    m->draw_calls.clear();
+    m->vertex_data.clear();
 }
 
 void EasyDrawer::updateBuffers()
 {
-    uint32 vb_size = std::max<uint32>((uint32)m_raw_vertices.size(), 1024*8);
-    if(!m_vbo || m_vbo->getDesc().size<vb_size) {
-        istSafeRelease(m_vbo);
-        m_vbo = CreateVertexBuffer(m_dev, vb_size*2, I3D_USAGE_DYNAMIC);
+    uint32 vb_size = std::max<uint32>((uint32)m->vertex_data.size(), 1024*8);
+    if(!m->vbo || m->vbo->getDesc().size<vb_size) {
+        istSafeRelease(m->vbo);
+        m->vbo = CreateVertexBuffer(m->dev, vb_size*2, I3D_USAGE_DYNAMIC);
     }
-    MapAndWrite(m_ctx, m_vbo, &m_raw_vertices, m_raw_vertices.size());
+    MapAndWrite(m->ctx, m->vbo, &m->vertex_data, m->vertex_data.size());
 }
 
 } // namespace i3d*

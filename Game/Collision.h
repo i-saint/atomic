@@ -17,7 +17,7 @@ enum CollisionFlag {
     CF_SPH_Receiver = 1 << 3,
 };
 
-struct BoundingBox
+struct istAlign(16) BoundingBox
 {
     vec4 bl;
     vec4 ur;
@@ -46,7 +46,7 @@ class CollisionSet;
 
 // virtual なデストラクタがないのは意図的。
 // これを継承するオブジェクトはデータ保持以外のことはやってはいけない。
-struct CollisionEntity
+struct istAlign(16) CollisionEntity
 {
 friend class CollisionSet;
 private:
@@ -87,7 +87,7 @@ public:
 struct LessCollisionHandle { bool operator()(CollisionEntity *a, CollisionEntity *b) { return a->getCollisionHandle() < b->getCollisionHandle(); }};
 
 
-struct CollisionPlane : public CollisionEntity
+struct istAlign(16) CollisionPlane : public CollisionEntity
 {
 typedef CollisionEntity super;
 istDefinePoolNewST(CollisionPlane);
@@ -103,7 +103,7 @@ public:
     CollisionPlane() { setShape(CS_Plane); }
 };
 
-struct CollisionSphere : public CollisionEntity
+struct istAlign(16) CollisionSphere : public CollisionEntity
 {
 typedef CollisionEntity super;
 istDefinePoolNewST(CollisionSphere);
@@ -124,7 +124,7 @@ public:
     }
 };
 
-struct CollisionBox : public CollisionEntity
+struct istAlign(16) CollisionBox : public CollisionEntity
 {
 typedef CollisionEntity super;
 istDefinePoolNewST(CollisionBox);

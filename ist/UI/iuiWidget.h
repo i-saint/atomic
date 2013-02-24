@@ -1,13 +1,19 @@
-﻿#ifndef __ist_UI_iuiWidget_h__
-#define __ist_UI_iuiWidget_h__
+﻿#ifndef iui_Widget_h
+#define iui_Widget_h
 #include "iuiCommon.h"
 namespace ist {
 namespace iui {
 
     class Widget;
-    typedef stl::vector<Widget*> Widgets;
+    typedef ist::vector<Widget*> Widgets;
     class Style;
 
+
+    class istInterModule EventHandler
+    {
+    public:
+        virtual ~EventHandler() {}
+    };
 
     class istInterModule Widget : public SharedObject
     {
@@ -52,4 +58,4 @@ namespace iui {
 
 } // namespace iui
 } // namespace ist
-#endif // __ist_UI_iuiWidget_h__
+#endif // iui_Widget_h
