@@ -2,100 +2,75 @@
 #define ist_Application_WindowMessage_h
 namespace ist {
 
-struct istInterModule WindowMessage
+enum WindowMessageType
 {
-    enum TYPE
-    {
-        MES_CLOSE,
-        MES_ACTIVE,
-        MES_KEYBOARD,
-        MES_MOUSE,
-        MES_JOYSTICK,
-        MES_WINDOW_SIZE,
-        MES_WINDOW_MOVE,
-        MES_FOCUS,
-        MES_IME_BEGIN,
-        MES_IME_END,
-        MES_IME_CANDIDATE_OPEN,
-        MES_IME_CANDIDATE_CLOSE,
-        MES_IME_CANDIDATE_CHANGE,
-        MES_IME_CURSOR_MOVE,
-        MES_IME_CHAR,
-        MES_IME_RESULT,
-    };
+    WMT_Unknown,
 
-    int type;
+    WMT_WindowOpen,
+    WMT_WindowClose,
+    WMT_WindowFocus,
+    WMT_WindowDefocus,
+    WMT_WindowSize,
+    WMT_WindowMove,
+
+    WMT_KeyDown,
+    WMT_KeyUp,
+    WMT_KeyChar,
+
+    WMT_MouseDown,
+    WMT_MouseUp,
+    WMT_MouseMove,
+    WMT_MouseWheelDown,
+    WMT_MouseWheelUp,
+    WMT_MouseWheelLeft,
+    WMT_MouseWheelRight,
+
+    WMT_IMEBegin,
+    WMT_IMEEnd,
+    WMT_IMECandidateOpen,
+    WMT_IMECandidateClose,
+    WMT_IMECandidateChange,
+    WMT_IMECursorMove,
+    WMT_IMENotify,
+    WMT_IMEChar,
+    WMT_IMEResult,
 };
 
-struct istInterModule WM_Close : public WindowMessage
+struct istInterModule WM_Base
 {
+    WindowMessageType type;
 };
 
-struct istInterModule WM_Active : public WindowMessage
-{
-    enum STATE
-    {
-        ST_ACTIVATED,
-        ST_DEACTIVATED,
-    };
-    short state;
-};
-
-struct istInterModule WM_WindowSize : public WindowMessage
+struct istInterModule WM_Window : public WM_Base
 {
     ivec2 window_size;
-};
-
-struct istInterModule WM_WindowMove : public WindowMessage
-{
     ivec2 window_pos;
 };
 
-
-struct istInterModule WM_Keyboard : public WindowMessage
+struct istInterModule WM_Keyboard : public WM_Base
 {
-    enum ACTION
-    {
-        ACT_KEYUP,
-        ACT_KEYDOWN,
-        ACT_CHAR,
-    };
+    uint16 key;
 
-    short action;
-    short key;
+    WM_Keyboard() { istMemset(this, 0, sizeof(*this)); }
 };
 
-struct istInterModule WM_Mouse : public WindowMessage
+struct istInterModule WM_Mouse : public WM_Base
 {
-    enum ACTION
-    {
-        ACT_BUTTON_UP,
-        ACT_BUTTON_DOWN,
-        ACT_MOVE,
-    };
-    enum BUTTON
-    {
-        BU_LEFT     = 0x01,
-        BU_RIGHT    = 0x02,
-        BU_MIDDLE   = 0x10,
-    };
-    enum CONTROL
-    {
-        CT_CONTROL  = 0x08,
-        CT_SHIFT    = 0x04,
-    };
+    ivec2 mouse_pos;
+    int16 wheel;
+    struct {
+        uint16 left:1;
+        uint16 right:1;
+        uint16 middle:1;
+        uint16 ctrl:1;
+        uint16 shift:1;
+    } button;
 
-    uint16 x;
-    uint16 y;
-    uint8 action;
-    uint8 button;
-    uint8 control;
+    WM_Mouse() { istMemset(this, 0, sizeof(*this)); }
 };
-
-
 
 // MES_IME_CHAR, MES_IME_RESULT のとき、text, text_len に入力データが入っている
-struct istInterModule WM_IME : public WindowMessage
+struct istInterModule WM_IME : public WM_Base
 {
     uint32 text_len;
     uint32 num_candidates;
@@ -104,7 +79,8 @@ struct istInterModule WM_IME : public WindowMessage
     wchar_t *text;
     wchar_t *candidates;
 
-    void initialize() {
+    WM_IME()
+    {
         text_len = 0;
         num_candidates = 0;
         cursor_pos = 0;

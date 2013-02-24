@@ -1,5 +1,5 @@
-﻿#ifndef __ist_UI_iuiSystem_h__
-#define __ist_UI_iuiSystem_h__
+﻿#ifndef ist_UI_iuiSystem_h
+#define ist_UI_iuiSystem_h
 #include "iuiCommon.h"
 namespace ist {
 namespace iui {
@@ -25,4 +25,4 @@ private:
 
 } // namespace iui
 } // namespace ist
-#endif // __ist_UI_iuiSystem_h__
+#endif // ist_UI_iuiSystem_h

@@ -2,12 +2,26 @@
 #include "ist/Base.h"
 #include "ist/Debug.h"
 #include "ist/Window.h"
+#include "Windowsx.h"
 
 namespace ist
 {
 
 Application *g_the_app = NULL;
 HINSTANCE g_hinstance = NULL;
+
+
+inline void SetupWMMouse(WM_Mouse &wm, WPARAM wParam , LPARAM lParam)
+{
+    if(wParam&MK_LBUTTON) { wm.button.left=1; }
+    if(wParam&MK_RBUTTON) { wm.button.right=1; }
+    if(wParam&MK_MBUTTON) { wm.button.middle=1; }
+    if(wParam&MK_CONTROL) { wm.button.ctrl=1; }
+    if(wParam&MK_MBUTTON) { wm.button.shift=1; }
+    wm.wheel = GET_WHEEL_DELTA_WPARAM(wParam);
+    wm.mouse_pos.x = GET_X_LPARAM(lParam);
+    wm.mouse_pos.y = GET_Y_LPARAM(lParam);
+}
 
 
 LRESULT CALLBACK istWndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lParam)
@@ -19,30 +33,126 @@ LRESULT CALLBACK istWndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lP
 
     switch(message)
     {
-    case WM_ACTIVATEAPP:
+    case WM_CREATE:
         {
-            WM_Active wm;
-            wm.type = WindowMessage::MES_ACTIVE;
-            wm.state = wParam==TRUE ? WM_Active::ST_ACTIVATED : WM_Active::ST_DEACTIVATED;
+            ::timeBeginPeriod(1);
+
+            WM_Window wm;
+            wm.type = WMT_WindowOpen;
             app->_handleWindowMessage(wm);
         }
         break;
+
+    case WM_CLOSE:
+        {
+            WM_Window wm;
+            wm.type = WMT_WindowClose;
+            app->_handleWindowMessage(wm);
+        }
+        break;
+
+    case WM_DESTROY:
+        {
+            ::timeEndPeriod(1);
+            ::PostQuitMessage(0);
+        }
+        break;
+
+    case WM_SIZE:
+        {
+            WM_Window wm;
+            wm.type = WMT_WindowSize;
+            wm.window_size.x = LOWORD(lParam);
+            wm.window_size.y = HIWORD(lParam);
+            app->_handleWindowMessage(wm);
+        }
+        break;
+
+    case WM_MOVE:
+        {
+            WM_Window wm;
+            wm.type = WMT_WindowMove;
+            wm.window_pos.x = LOWORD(lParam);
+            wm.window_pos.y = HIWORD(lParam);
+            app->_handleWindowMessage(wm);
+        }
+        break;
+
+    case WM_ACTIVATEAPP:
+        {
+            WM_Window wm;
+            wm.type = wParam==TRUE ? WMT_WindowFocus : WMT_WindowDefocus;
+            app->_handleWindowMessage(wm);
+        }
+        break;
+
+
 
     case WM_KEYDOWN:    // fall through
     case WM_KEYUP:      // 
     case WM_CHAR:       // 
         {
             WM_Keyboard wm;
-            wm.type = WindowMessage::MES_KEYBOARD;
-            wm.key = (short)wParam;
             switch(message) {
-            case WM_KEYDOWN:    wm.action=WM_Keyboard::ACT_KEYDOWN; break;
-            case WM_KEYUP:      wm.action=WM_Keyboard::ACT_KEYUP; break;
-            case WM_CHAR:       wm.action=WM_Keyboard::ACT_CHAR; break;
+            case WM_KEYDOWN:    wm.type=WMT_KeyDown; break;
+            case WM_KEYUP:      wm.type=WMT_KeyUp; break;
+            case WM_CHAR:       wm.type=WMT_KeyChar; break;
             }
+            wm.key = (short)wParam;
             app->_handleWindowMessage(wm);
         }
         break;
+
+
+    case WM_LBUTTONDOWN:    // fall through
+    case WM_RBUTTONDOWN:    // 
+    case WM_MBUTTONDOWN:    // 
+        {
+            WM_Mouse wm;
+            wm.type = WMT_MouseDown;
+            SetupWMMouse(wm, wParam, lParam);
+            app->_handleWindowMessage(wm);
+        }
+        break;
+
+    case WM_LBUTTONUP:      // fall through
+    case WM_RBUTTONUP:      // 
+    case WM_MBUTTONUP:      // 
+        {
+            WM_Mouse wm;
+            wm.type = WMT_MouseUp;
+            SetupWMMouse(wm, wParam, lParam);
+            app->_handleWindowMessage(wm);
+        }
+        break;
+
+    case WM_MOUSEMOVE:
+        {
+            WM_Mouse wm;
+            wm.type = WMT_MouseMove;
+            SetupWMMouse(wm, wParam, lParam);
+            app->_handleWindowMessage(wm);
+        }
+        break;
+
+    case WM_MOUSEWHEEL:
+        {
+            WM_Mouse wm;
+            SetupWMMouse(wm, wParam, lParam);
+            wm.type = wm.wheel<0 ? WMT_MouseWheelDown : WMT_MouseWheelUp;
+            app->_handleWindowMessage(wm);
+        }
+        break;
+
+    case WM_MOUSEHWHEEL:
+        {
+            WM_Mouse wm;
+            SetupWMMouse(wm, wParam, lParam);
+            wm.type = wm.wheel<0 ? WMT_MouseWheelLeft : WMT_MouseWheelRight;
+            app->_handleWindowMessage(wm);
+        }
+        break;
+
 
 
     case WM_IME_SETCONTEXT:
@@ -54,24 +164,24 @@ LRESULT CALLBACK istWndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lP
 
     case WM_IME_COMPOSITION:
         if(lParam & GCS_RESULTSTR) {
-            WM_IME wm; wm.initialize();
-            wm.type = WindowMessage::MES_IME_RESULT;
+            WM_IME wm;
+            wm.type = WMT_IMEResult;
             wm.text_len = ::ImmGetCompositionString(himc, GCS_RESULTSTR, imebuf, _countof(imebuf)) / sizeof(wchar_t);
             if(wm.text_len!=_countof(imebuf)) { imebuf[wm.text_len]=L'\0'; }
             wm.text = imebuf;
             app->_handleWindowMessage(wm);
         }
         if(lParam & GCS_COMPSTR) {
-            WM_IME wm; wm.initialize();
-            wm.type = WindowMessage::MES_IME_CHAR;
+            WM_IME wm;
+            wm.type = WMT_IMEChar;
             wm.text_len = ::ImmGetCompositionString(himc, GCS_COMPSTR, imebuf, _countof(imebuf)) / sizeof(wchar_t);
             if(wm.text_len!=_countof(imebuf)) { imebuf[wm.text_len]=L'\0'; }
             wm.text = imebuf;
             app->_handleWindowMessage(wm);
         }
         if(lParam & GCS_CURSORPOS) {
-            WM_IME wm; wm.initialize();
-            wm.type = WindowMessage::MES_IME_CURSOR_MOVE;
+            WM_IME wm;
+            wm.type = WMT_IMECursorMove;
             wm.cursor_pos = ::ImmGetCompositionString(himc, GCS_CURSORPOS, imebuf, _countof(imebuf));
             app->_handleWindowMessage(wm);
         }
@@ -82,8 +192,8 @@ LRESULT CALLBACK istWndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lP
 
     case WM_IME_NOTIFY:
         {
-            WM_IME wm; wm.initialize();
-            wm.type = WindowMessage::MES_IME_CHAR;
+            WM_IME wm;
+            wm.type = WMT_IMENotify;
             wm.text_len = ::ImmGetCompositionString(himc, GCS_COMPSTR, imebuf, _countof(imebuf));
             wm.text = imebuf;
             app->_handleWindowMessage(wm);
@@ -92,74 +202,17 @@ LRESULT CALLBACK istWndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lP
 
     case WM_IME_STARTCOMPOSITION:
         {
-            WM_IME wm; wm.initialize();
-            wm.type = WindowMessage::MES_IME_BEGIN;
+            WM_IME wm;
+            wm.type = WMT_IMEBegin;
             app->_handleWindowMessage(wm);
         }
         break;
 
     case WM_IME_ENDCOMPOSITION:
         {
-            WM_IME wm; wm.initialize();
-            wm.type = WindowMessage::MES_IME_END;
+            WM_IME wm;
+            wm.type = WMT_IMEEnd;
             app->_handleWindowMessage(wm);
-        }
-        break;
-
-
-    case WM_LBUTTONDOWN:    // fall through
-    case WM_LBUTTONUP:      // 
-    case WM_RBUTTONDOWN:    // 
-    case WM_RBUTTONUP:      // 
-    case WM_MBUTTONDOWN:    // 
-    case WM_MBUTTONUP:      // 
-    case WM_MOUSEMOVE:      // 
-        {
-            WM_Mouse wm;
-            wm.type = WindowMessage::MES_MOUSE;
-            app->_handleWindowMessage(wm);
-        }
-        break;
-
-
-    case WM_SIZE:
-        {
-            WM_WindowSize wm;
-            wm.type = WindowMessage::MES_WINDOW_SIZE;
-            wm.window_size.x = LOWORD(lParam);
-            wm.window_size.y = HIWORD(lParam);
-            app->_handleWindowMessage(wm);
-        }
-        break;
-
-    case WM_MOVE:
-        {
-            WM_WindowMove wm;
-            wm.type = WindowMessage::MES_WINDOW_MOVE;
-            wm.window_pos.x = LOWORD(lParam);
-            wm.window_pos.y = HIWORD(lParam);
-            app->_handleWindowMessage(wm);
-        }
-        break;
-
-    case WM_CREATE:
-        {
-            ::timeBeginPeriod(1);
-        }
-        break;
-
-    case WM_CLOSE:
-        {
-            WM_Close wm;
-            wm.type = WindowMessage::MES_CLOSE;
-            app->_handleWindowMessage(wm);
-        }
-        break;
-
-    case WM_DESTROY:
-        {
-            ::timeEndPeriod(1);
-            ::PostQuitMessage(0);
         }
         break;
     }
@@ -376,9 +429,9 @@ void Application::eraseMessageHandler( WMHandler *wmh )
         stl::find(m->wmhandlers.begin(), m->wmhandlers.end(), wmh));
 }
 
-bool Application::_handleWindowMessage( const WindowMessage& wm )
+bool Application::_handleWindowMessage( const WM_Base& wm )
 {
-    for(size_t i=0; i<m->wmhandlers.size(); ++i) {
+    for(int32 i=m->wmhandlers.size()-1; i>=0; --i) {
         if((*m->wmhandlers[i])(wm)) {
             return true;
         }

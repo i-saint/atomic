@@ -369,61 +369,59 @@ void AtomicApplication::updateInput()
     m->inputs.update(RepInput(move, buttons));
 }
 
-bool AtomicApplication::handleWindowMessage(const ist::WindowMessage& wm)
+bool AtomicApplication::handleWindowMessage(const ist::WM_Base& wm)
 {
     switch(wm.type)
     {
-    case ist::WindowMessage::MES_CLOSE:
+    case ist::WMT_WindowClose:
         {
             m->request_exit = true;
         }
         return true;
 
-    case ist::WindowMessage::MES_KEYBOARD:
+    case ist::WMT_KeyUp:
         {
-            const ist::WM_Keyboard& mes = static_cast<const ist::WM_Keyboard&>(wm);
-            if(mes.action==ist::WM_Keyboard::ACT_KEYUP && mes.key==ist::KEY_ESCAPE) {
+            auto &mes = static_cast<const ist::WM_Keyboard&>(wm);
+            if(mes.key==ist::KEY_ESCAPE) {
                 m->request_exit = true;
             }
         }
         return true;
 
-    case ist::WindowMessage::MES_WINDOW_SIZE:
+    case ist::WMT_WindowSize:
         {
-            const ist::WM_WindowSize& mes = static_cast<const ist::WM_WindowSize&>(wm);
+            auto &mes = static_cast<const ist::WM_Window&>(wm);
             m->config.window_size = mes.window_size;
         }
         return true;
 
-    case ist::WindowMessage::MES_WINDOW_MOVE:
+    case ist::WMT_WindowMove:
         {
-            const ist::WM_WindowMove& mes = static_cast<const ist::WM_WindowMove&>(wm);
+            auto &mes = static_cast<const ist::WM_Window&>(wm);
             m->config.window_pos = mes.window_pos;
         }
         return true;
 
-    case ist::WindowMessage::MES_IME_RESULT:
-        {
-            const ist::WM_IME& mes = static_cast<const ist::WM_IME&>(wm);
-            stl::wstring str(mes.text, mes.text_len);
-        }
-        return true;
 
-    case ist::WindowMessage::MES_IME_BEGIN:
+    case ist::WMT_IMEBegin:
         {
-            istPrint(L"MES_IME_BEGIN\n");
+            istPrint(L"WMT_IMEBegin\n");
         }
         break;
-    case ist::WindowMessage::MES_IME_END:
+    case ist::WMT_IMEEnd:
         {
-            istPrint(L"MES_IME_END\n");
+            istPrint(L"WMT_IMEEnd\n");
         }
         break;
-    case ist::WindowMessage::MES_IME_CHAR:
+    case ist::WMT_IMEChar:
+    case ist::WMT_IMEResult:
         {
-            const ist::WM_IME& mes = static_cast<const ist::WM_IME&>(wm);
+            auto &mes = static_cast<const ist::WM_IME&>(wm);
             stl::wstring str(mes.text, mes.text_len);
-            istPrint(L"MES_IME_CHAR %s\n", str.c_str());
+            switch(wm.type) {
+            case ist::WMT_IMEChar:   istPrint(L"WMT_IMEChar %s\n", str.c_str()); break;
+            case ist::WMT_IMEResult: istPrint(L"WMT_IMEResult %s\n", str.c_str()); break;
+            }
         }
         break;
     }

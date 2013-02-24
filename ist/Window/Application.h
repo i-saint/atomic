@@ -40,7 +40,7 @@ public:
         DLGRET_TRYAGAIN = 10,
         DLGRET_CONTINUE = 11,
     };
-    typedef std::function<bool (const WindowMessage&)> WMHandler;
+    typedef std::function<bool (const WM_Base&)> WMHandler;
 
 public:
     static Application* getInstance();
@@ -52,7 +52,6 @@ public:
     virtual void finalize();
 
     virtual void mainLoop()=0;
-    virtual bool handleWindowMessage(const WindowMessage& wm)=0;
 
     // 入力情報の更新は時間がかかることに注意。(おそらく GPU リソースのようにロックが入るのだと思われる)
     // また、初期化したスレッドからでないと正常に更新できない？ようで、非同期に更新する際は、
@@ -88,7 +87,7 @@ private:
     deep_copy_ptr<Members> m;
 
 #ifdef ist_env_Windows
-    bool _handleWindowMessage(const WindowMessage& wm);
+    bool _handleWindowMessage(const WM_Base& wm);
     friend LRESULT CALLBACK istWndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lParam);
 #endif // ist_env_Windows
 };

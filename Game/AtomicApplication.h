@@ -56,7 +56,7 @@ public:
     virtual void updateInput();
     virtual void sysUpdate();
 
-    bool handleWindowMessage(const ist::WindowMessage& wm);
+    bool handleWindowMessage(const ist::WM_Base& wm);
     void handleError(ATOMIC_ERROR e);
 
     // 描画スレッドから呼ばれる
