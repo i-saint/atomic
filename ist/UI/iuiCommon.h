@@ -13,11 +13,16 @@ namespace i3d = ::ist::i3dgl;
 
 
 typedef float32 Float;
-typedef RGBA_32F Color;
+typedef vec4 Color;
 typedef vec2 Position;
 typedef stl::wstring String;
 
 typedef uint32 WidgetID;
+
+class Widget;
+class Style;
+typedef ist::vector<Widget*> WidgetCont;
+typedef std::function<void (Widget*)> WidgetCallback;
 
 struct Size
 {

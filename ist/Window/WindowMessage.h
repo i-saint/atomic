@@ -57,6 +57,7 @@ struct istInterModule WM_Keyboard : public WM_Base
 struct istInterModule WM_Mouse : public WM_Base
 {
     ivec2 mouse_pos;
+    vec2 screen_pos;
     int16 wheel;
     struct {
         uint16 left:1;

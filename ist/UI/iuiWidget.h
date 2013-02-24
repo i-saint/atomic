@@ -4,10 +4,6 @@
 namespace ist {
 namespace iui {
 
-class Widget;
-typedef ist::vector<Widget*> Widgets;
-class Style;
-
 
 class istInterModule EventHandler
 {
@@ -19,41 +15,51 @@ class istInterModule Widget : public SharedObject
 {
 public:
     Widget();
-    ~Widget();
+    virtual ~Widget();
 
     virtual void update(Float dt);
-    virtual bool handleEvent();
+    virtual void draw();
+    virtual bool handleEvent(const WM_Base &wm);
 
-    Widgets&        getChildren()       { return m_children; }
-    const Widgets&  getChildren() const { return m_children; }
-    Style*          getStyle() const    { return m_style; }
-    const Position& getPosition() const { return m_pos; }
-    const Size&     getSize() const     { return m_size; }
-    const String&   getText() const     { return m_text; }
+    WidgetCont&         getChildren();
+    const WidgetCont&   getChildren() const;
+    Style*              getStyle() const;
+    const Position&     getPosition() const;
+    const Size&         getSize() const;
+    const String&       getText() const;
+    bool                isFocused() const;
+
+    void                makeFocus();
+
+protected:
+    virtual void setupStyle();
 
 private:
-    Widgets m_children;
-    Widget *m_parent;
-    Style *m_style;
-    Position m_pos;
-    Size m_size;
-    String m_text;
+    struct Members;
+    deep_copy_ptr<Members> m;
 };
 
 
 class istInterModule Style : public SharedObject
 {
 public:
-    Style();
+    Style(Widget *widget);
     virtual ~Style();
+    virtual void draw()=0;
 
-    const Widget* getWidget() const { return m_widget; }
-    void setWidget(const Widget *w) { m_widget=w; }
+    Widget* getWidget() const;
+    const Color& getFontColor() const;
+    const Color& getBGColor() const;
+    const Color& getBorderColor() const;
 
-    virtual void draw() const;
+    void setWidget(Widget *v);
+    void setFontColor(const Color &v);
+    void setBGColor(const Color &v);
+    void setBorderColor(const Color &v);
 
 private:
-    const Widget *m_widget;
+    struct Members;
+    deep_copy_ptr<Members> m;
 };
 
 } // namespace iui

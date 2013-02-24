@@ -1,7 +1,6 @@
 ﻿#ifndef ist_Base_h
 #define ist_Base_h
 
-#include <stdint.h>
 #include "Config.h"
 #include "Base/Types.h"
 #include "Base/Allocator.h"

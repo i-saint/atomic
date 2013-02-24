@@ -1,8 +1,8 @@
-﻿#ifndef __ist_Window_h__
-#define __ist_Window_h__
+﻿#ifndef ist_Window_h
+#define ist_Window_h
 
 #include <mmsystem.h>
 #include "Base.h"
 #include "Window/Application.h"
 
-#endif // __ist_Window_h__
+#endif // ist_Window_h

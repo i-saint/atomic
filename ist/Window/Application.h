@@ -1,5 +1,5 @@
-﻿#ifndef __ist_Application_h__
-#define __ist_Application_h__
+﻿#ifndef ist_Application_h
+#define ist_Application_h
 
 #include "WindowMessage.h"
 #include "InputState.h"
@@ -99,4 +99,4 @@ private:
 #define istShowMessageDialog(mes, cap, dtype) istGetAplication()->showMessageDialog(mes, cap, dtype)
 
 
-#endif // __ist_Application_h__
+#endif // ist_Application_h

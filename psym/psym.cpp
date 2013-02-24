@@ -1,10 +1,6 @@
 //#include "stdafx.h"
-#define _SCL_SECURE_NO_WARNINGS
-#include <tbb/tbb.h>
-#include <algorithm>
-#include "parallel_deterministic_sort.h"
 #include "psym.h"
-#include "ist/stdex/crtex.h"
+#include "parallel_deterministic_sort.h"
 
 #define PSYM_TASK_GRANULARITY 256
 

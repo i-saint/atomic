@@ -1,7 +1,6 @@
 #ifndef SPH_types_h
 #define SPH_types_h
 
-#include <vector>
 #include "ist/Base.h"
 #include "psymConst.h"
 #include "psymCore_ispc.h"
