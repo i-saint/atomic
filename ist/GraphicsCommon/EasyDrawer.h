@@ -71,12 +71,12 @@ public:
     void setSampler(Sampler *smp);
     void setShader(ShaderProgram *smp);
 
-    const mat4& getProjectionMatrix() const;
-    const mat4& getWorldMatrix() const;
-    Texture2D* getTexture() const;
-    Sampler* getSampler() const;
-    ShaderProgram* getShader() const;
-    uint32 getUniformLocation() const;
+    const mat4&     getProjectionMatrix() const;
+    const mat4&     getWorldMatrix() const;
+    Texture2D*      getTexture() const;
+    Sampler*        getSampler() const;
+    ShaderProgram*  getShader() const;
+    uint32          getUniformLocation() const;
 
 private:
     mat4 m_proj;
@@ -119,6 +119,8 @@ private:
 
 istInterModule EasyDrawer* CreateEasyDrawer(Device *dev);
 
+
+
 istInterModule void DrawLine(
     EasyDrawer &drawer, const EasyDrawState &state,
     const vec2 &pos1, const vec2 &pos2,
@@ -130,21 +132,26 @@ istInterModule void DrawLine(
 
 istInterModule void DrawOutlineRect(
     EasyDrawer &drawer, const EasyDrawState &state,
-    const vec2 &ur, const vec2 &ul, const vec4 &bl, const vec4 &br,
+    const vec2 &ur, const vec4 &bl,
     const vec4 &color );
 istInterModule void DrawOutlineRect(
     EasyDrawer &drawer, const EasyDrawState &state,
-    const vec2 &ur, const vec2 &ul, const vec4 &bl, const vec4 &br,
-    const vec2 &cur, const vec2 &cul, const vec4 &cbl, const vec4 &cbr );
+    const vec2 &ur, const vec2 &bl,
+    const vec4 &cur, const vec4 &cul, const vec4 &cbl, const vec4 &cbr );
 
 istInterModule void DrawRect(
     EasyDrawer &drawer, const EasyDrawState &state,
-    const vec2 &ur, const vec2 &ul, const vec4 &bl, const vec4 &br,
+    const vec2 &ur, const vec2 &bl,
     const vec4 &color );
 istInterModule void DrawRect(
     EasyDrawer &drawer, const EasyDrawState &state,
-    const vec2 &ur, const vec2 &ul, const vec4 &bl, const vec4 &br,
-    const vec2 &cur, const vec2 &cul, const vec4 &cbl, const vec4 &cbr );
+    const vec2 &ur, const vec2 &bl,
+    const vec4 &cur, const vec4 &cul, const vec4 &cbl, const vec4 &cbr );
+istInterModule void DrawRectT(
+    EasyDrawer &drawer, const EasyDrawState &state,
+    const vec2 &ur, const vec2 &bl,
+    const vec2 &tur=vec2(1.0f,1.0f), const vec2 &tbl=vec2(0.0f,0.0f),
+    const vec4 &color=vec4(1.0f) );
 
 
 

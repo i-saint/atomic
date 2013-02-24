@@ -7,8 +7,6 @@ namespace i3dgl {
 #endif // ist_EasyDraw_impl_GL
 
 
-
-
 #ifdef ist_EasyDraw_impl_GL
 const char *g_vs_p2c4 = "\
 #version 330 core\n\
@@ -52,6 +50,30 @@ void main(void)\
     vs_Texcoord = ia_VertexTexcoord;\
     vs_Color    = ia_VertexColor;\
     gl_Position = u_RS.ViewProjectionMatrix * vec4(ia_VertexPosition, 0.0f, 1.0);\
+}\
+";
+
+const char *g_vs_p3t2c4 = "\
+#version 330 core\n\
+struct RenderStates\
+{\
+    mat4 ViewProjectionMatrix;\
+};\
+layout(std140) uniform render_states\
+{\
+    RenderStates u_RS;\
+};\
+layout(location=0) in vec3 ia_VertexPosition;\
+layout(location=1) in vec2 ia_VertexTexcoord;\
+layout(location=2) in vec4 ia_VertexColor;\
+out vec2 vs_Texcoord;\
+out vec4 vs_Color;\
+\
+void main(void)\
+{\
+    vs_Texcoord = ia_VertexTexcoord;\
+    vs_Color    = ia_VertexColor;\
+    gl_Position = u_RS.ViewProjectionMatrix * vec4(ia_VertexPosition, 1.0);\
 }\
 ";
 
@@ -142,20 +164,22 @@ private:
     EasyShaders(Device *dev)
     {
         istMemset(m_shaders, 0, sizeof(m_shaders));
-        {
-            VertexShader *vs = CreateVertexShaderFromString(dev, g_vs_p2c4);
-            PixelShader  *ps = CreatePixelShaderFromString(dev, g_ps_colored);
-            m_shaders[VT_P2C4] = dev->createShaderProgram(ShaderProgramDesc(vs, ps));
-            istSafeRelease(ps);
-            istSafeRelease(vs);
-        }
-        {
-            VertexShader *vs = CreateVertexShaderFromString(dev, g_vs_p2t2c4);
-            PixelShader  *ps = CreatePixelShaderFromString(dev, g_ps_colored_textured);
-            m_shaders[VT_P2T2C4] = dev->createShaderProgram(ShaderProgramDesc(vs, ps));
-            istSafeRelease(ps);
-            istSafeRelease(vs);
-        }
+
+        VertexShader *vs_p2c4 = CreateVertexShaderFromString(dev, g_vs_p2c4);
+        VertexShader *vs_p2t2c4 = CreateVertexShaderFromString(dev, g_vs_p2t2c4);
+        VertexShader *vs_p3t2c4 = CreateVertexShaderFromString(dev, g_vs_p3t2c4);
+        PixelShader  *ps_c = CreatePixelShaderFromString(dev, g_ps_colored);
+        PixelShader  *ps_ct = CreatePixelShaderFromString(dev, g_ps_colored_textured);
+
+        m_shaders[VT_P2C4] = dev->createShaderProgram(ShaderProgramDesc(vs_p2c4, ps_c));
+        m_shaders[VT_P2T2C4] = dev->createShaderProgram(ShaderProgramDesc(vs_p2t2c4, ps_ct));
+        m_shaders[VT_P3T2C4] = dev->createShaderProgram(ShaderProgramDesc(vs_p3t2c4, ps_ct));
+
+        istSafeRelease(ps_ct);
+        istSafeRelease(ps_c);
+        istSafeRelease(vs_p3t2c4);
+        istSafeRelease(vs_p2t2c4);
+        istSafeRelease(vs_p2c4);
     }
 
     ~EasyShaders()
@@ -315,6 +339,76 @@ void EasyDrawer::updateBuffers(DeviceContext *ctx)
         m->vbo = CreateVertexBuffer(m->dev, vb_size*2, I3D_USAGE_DYNAMIC);
     }
     MapAndWrite(ctx, m->vbo, &m->vertex_data[0], m->vertex_data.size());
+}
+
+
+
+
+
+istInterModule void DrawLine( EasyDrawer &drawer, const EasyDrawState &state, const vec2 &pos1, const vec2 &pos2, const vec4 &color )
+{
+    DrawLine(drawer, state, pos1, pos2, color, color);
+}
+
+istInterModule void DrawLine( EasyDrawer &drawer, const EasyDrawState &state, const vec2 &pos1, const vec2 &pos2, const vec4 &color1, const vec4 &color2 )
+{
+    VertexP2C4 v[2] = {
+        VertexP2C4(pos1, color1),
+        VertexP2C4(pos2, color2),
+    };
+    drawer.draw(state, I3D_LINES, v, _countof(v));
+}
+
+istInterModule void DrawOutlineRect( EasyDrawer &drawer, const EasyDrawState &state, const vec2 &ur, const vec2 &bl, const vec4 &color )
+{
+    DrawOutlineRect(drawer, state, ur, bl, color, color, color, color);
+}
+
+istInterModule void DrawOutlineRect( EasyDrawer &drawer, const EasyDrawState &state, const vec2 &ur, const vec2 &bl, const vec4 &cur, const vec4 &cul, const vec4 &cbl, const vec4 &cbr )
+{
+    VertexP2C4 v[4] = {
+        VertexP2C4(vec2(ur.x, ur.y), cur),
+        VertexP2C4(vec2(bl.x, ur.y), cul),
+        VertexP2C4(vec2(bl.x, bl.y), cbl),
+        VertexP2C4(vec2(ur.x, bl.y), cbr),
+    };
+    VertexP2C4 vb[] = {
+        v[0],v[1], v[1],v[2], v[2],v[3], v[3],v[0],
+    };
+    drawer.draw(state, I3D_LINES, vb, _countof(vb));
+}
+
+istInterModule void DrawRect( EasyDrawer &drawer, const EasyDrawState &state, const vec2 &ur, const vec2 &bl, const vec4 &color )
+{
+    DrawRect(drawer, state, ur, bl, color, color, color, color);
+}
+
+istInterModule void DrawRect( EasyDrawer &drawer, const EasyDrawState &state, const vec2 &ur, const vec2 &bl, const vec4 &cur, const vec4 &cul, const vec4 &cbl, const vec4 &cbr )
+{
+    VertexP2C4 v[4] = {
+        VertexP2C4(vec2(ur.x, ur.y), cur),
+        VertexP2C4(vec2(bl.x, ur.y), cul),
+        VertexP2C4(vec2(bl.x, bl.y), cbl),
+        VertexP2C4(vec2(ur.x, bl.y), cbr),
+    };
+    VertexP2C4 vb[] = {
+        v[0],v[1],v[2], v[2],v[3],v[0],
+    };
+    drawer.draw(state, I3D_TRIANGLES, vb, _countof(vb));
+}
+
+istInterModule void DrawRectT( EasyDrawer &drawer, const EasyDrawState &state, const vec2 &ur, const vec2 &bl, const vec2 &tur, const vec2 &tbl, const vec4 &color )
+{
+    VertexP2T2C4 v[4] = {
+        VertexP2T2C4(vec2(ur.x, ur.y), vec2(tur.x, tur.y), color),
+        VertexP2T2C4(vec2(bl.x, ur.y), vec2(tbl.x, tur.y), color),
+        VertexP2T2C4(vec2(bl.x, bl.y), vec2(tbl.x, tbl.y), color),
+        VertexP2T2C4(vec2(ur.x, bl.y), vec2(tur.x, tbl.y), color),
+    };
+    VertexP2T2C4 vb[] = {
+        v[0],v[1],v[2], v[2],v[3],v[0],
+    };
+    drawer.draw(state, I3D_TRIANGLES, vb, _countof(vb));
 }
 
 } // namespace i3d*

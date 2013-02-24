@@ -289,6 +289,7 @@ public:
         size_t num_quad = m_quads.size();
         size_t num_vertex = num_quad*4;
         Vertex v[4];
+        m_vertices.resize(num_quad*6);
         for(size_t qi=0; qi<num_quad; ++qi) {
             const FontQuad &quad = m_quads[qi];
             const vec2 pos_min = quad.pos;
@@ -299,10 +300,15 @@ public:
             v[1] = Vertex(vec2(pos_min.x, pos_max.y), vec2(tex_min.x, tex_max.y), quad.color);
             v[2] = Vertex(vec2(pos_max.x, pos_max.y), vec2(tex_max.x, tex_max.y), quad.color);
             v[3] = Vertex(vec2(pos_max.x, pos_min.y), vec2(tex_max.x, tex_min.y), quad.color);
-            m_vertices.insert(m_vertices.end(), v, v+_countof(v));
+            m_vertices[qi*6 + 0] = v[0];
+            m_vertices[qi*6 + 1] = v[1];
+            m_vertices[qi*6 + 2] = v[2];
+            m_vertices[qi*6 + 3] = v[2];
+            m_vertices[qi*6 + 4] = v[3];
+            m_vertices[qi*6 + 5] = v[0];
         }
         if(!m_vertices.empty()) {
-            m_drawer->draw(m_state, I3D_QUADS, &m_vertices[0], m_vertices.size());
+            m_drawer->draw(m_state, I3D_TRIANGLES, &m_vertices[0], m_vertices.size());
             m_drawer->flush(dc);
         }
         m_quads.clear();
