@@ -55,6 +55,9 @@ template<> struct GetVertexType<VertexP2C4>     { static const VertexType result
 template<> struct GetVertexType<VertexP2T2C4>   { static const VertexType result=VT_P2T2C4; };
 template<> struct GetVertexType<VertexP3T2C4>   { static const VertexType result=VT_P3T2C4; };
 
+extern const char *g_vs_p2c4;
+extern const char *g_vs_p2t2c4;
+extern const char *g_vs_p3t2c4;
 
 class istInterModule EasyDrawState
 {
@@ -73,6 +76,7 @@ public:
     Texture2D* getTexture() const;
     Sampler* getSampler() const;
     ShaderProgram* getShader() const;
+    uint32 getUniformLocation() const;
 
 private:
     mat4 m_proj;
@@ -80,12 +84,13 @@ private:
     Texture2D *m_texture;
     Sampler *m_sampler;
     ShaderProgram *m_shader;
+    uint32 m_uniform_location;
 };
 
 
-class istInterModule EasyDrawer
+class istInterModule EasyDrawer : public boost::noncopyable
 {
-friend EasyDrawer* CreateEasyDrawer(Device *dev, DeviceContext *ctx);
+friend EasyDrawer* CreateEasyDrawer(Device *dev);
 public:
     struct DrawCall
     {
@@ -98,21 +103,21 @@ public:
 
 public:
     void release();
-    void flush();
+    void flush(DeviceContext *ctx);
 
     template<class VertexT>
     void draw(const EasyDrawState &state, I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices);
 
 private:
-    EasyDrawer(Device *dev, DeviceContext *ctx);
+    EasyDrawer(Device *dev);
     ~EasyDrawer();
-    void updateBuffers();
+    void updateBuffers(DeviceContext *ctx);
 
     struct Members;
     deep_copy_ptr<Members> m;
 };
 
-istInterModule EasyDrawer* CreateEasyDrawer(Device *dev, DeviceContext *ctx);
+istInterModule EasyDrawer* CreateEasyDrawer(Device *dev);
 
 istInterModule void DrawLine(
     EasyDrawer &drawer, const EasyDrawState &state,

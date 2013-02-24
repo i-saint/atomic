@@ -89,6 +89,7 @@ EasyDrawState::EasyDrawState()
     : m_texture(NULL)
     , m_sampler(NULL)
     , m_shader(NULL)
+    , m_uniform_location(0)
 {
 }
 
@@ -104,13 +105,20 @@ void EasyDrawState::setProjectionMatrix(const mat4 &mat){ m_proj=mat; }
 void EasyDrawState::setWorldMatrix(const mat4 &mat)     { m_world=mat; }
 void EasyDrawState::setTexture(Texture2D *tex)          { m_texture=tex; }
 void EasyDrawState::setSampler(Sampler *smp)            { m_sampler=smp; }
-void EasyDrawState::setShader(ShaderProgram *v)         { m_shader=v; }
+void EasyDrawState::setShader(ShaderProgram *v)
+{
+    m_shader = v;
+    if(m_shader) {
+        m_uniform_location = m_shader->getUniformBlockIndex("render_states");
+    }
+}
 
 const mat4&     EasyDrawState::getProjectionMatrix() const  { return m_proj; }
 const mat4&     EasyDrawState::getWorldMatrix() const       { return m_world; }
 Texture2D*      EasyDrawState::getTexture() const           { return m_texture; }
 Sampler*        EasyDrawState::getSampler() const           { return m_sampler; }
 ShaderProgram*  EasyDrawState::getShader() const            { return m_shader; }
+uint32          EasyDrawState::getUniformLocation() const   { return m_uniform_location; }
 
 
 class EasyShaders : public SharedObject
@@ -138,11 +146,15 @@ private:
             VertexShader *vs = CreateVertexShaderFromString(dev, g_vs_p2c4);
             PixelShader  *ps = CreatePixelShaderFromString(dev, g_ps_colored);
             m_shaders[VT_P2C4] = dev->createShaderProgram(ShaderProgramDesc(vs, ps));
+            istSafeRelease(ps);
+            istSafeRelease(vs);
         }
         {
             VertexShader *vs = CreateVertexShaderFromString(dev, g_vs_p2t2c4);
             PixelShader  *ps = CreatePixelShaderFromString(dev, g_ps_colored_textured);
             m_shaders[VT_P2T2C4] = dev->createShaderProgram(ShaderProgramDesc(vs, ps));
+            istSafeRelease(ps);
+            istSafeRelease(vs);
         }
     }
 
@@ -159,13 +171,13 @@ private:
     static EasyShaders *s_inst;
     ShaderProgram *m_shaders[VT_End];
 };
+EasyShaders* EasyShaders::s_inst;
 
 struct EasyDrawer::Members
 {
     typedef EasyDrawer::DrawCall DrawCall;
 
     Device          *dev;
-    DeviceContext   *ctx;
     VertexArray     *va;
     Buffer          *vbo;
     Buffer          *ubo;
@@ -175,7 +187,6 @@ struct EasyDrawer::Members
 
     Members()
         : dev(NULL)
-        , ctx(NULL)
         , va(NULL)
         , vbo(NULL)
         , ubo(NULL)
@@ -184,17 +195,15 @@ struct EasyDrawer::Members
     }
 };
 
-EasyDrawer* CreateEasyDrawer(Device *dev, DeviceContext *ctx)
+EasyDrawer* CreateEasyDrawer(Device *dev)
 {
-    return istNew(EasyDrawer)(dev, ctx);
+    return istNew(EasyDrawer)(dev);
 }
 
-EasyDrawer::EasyDrawer(Device *dev, DeviceContext *ctx)
+EasyDrawer::EasyDrawer(Device *dev)
 {
     m->dev = dev;
-    m->ctx = ctx;
     istSafeAddRef(m->dev);
-    istSafeAddRef(m->ctx);
     m->ubo = CreateUniformBuffer(m->dev, 256, I3D_USAGE_DYNAMIC);
     m->va = m->dev->createVertexArray();
     m->shaders = EasyShaders::getInstance(dev);
@@ -203,9 +212,9 @@ EasyDrawer::EasyDrawer(Device *dev, DeviceContext *ctx)
 EasyDrawer::~EasyDrawer()
 {
     istSafeRelease(m->shaders);
+    istSafeRelease(m->va);
     istSafeRelease(m->ubo);
     istSafeRelease(m->vbo);
-    istSafeRelease(m->ctx);
     istSafeRelease(m->dev);
 }
 
@@ -238,17 +247,15 @@ template void EasyDrawer::draw<VertexP2T2C4>(const EasyDrawState &states, I3D_TO
 template void EasyDrawer::draw<VertexP3T2C4>(const EasyDrawState &states, I3D_TOPOLOGY topology, const VertexP3T2C4 *vertices, uint32 num_vertices);
 
 
-void EasyDrawer::flush()
+void EasyDrawer::flush(DeviceContext *ctx)
 {
-    updateBuffers();
-
-    DeviceContext *ctx = m->ctx;
+    updateBuffers(ctx);
 
     mat4 prev_viewproj;
     for(size_t i=0; i<m->draw_calls.size(); ++i) {
         DrawCall &dc = m->draw_calls[i];
 
-        mat4 viewproj = dc.state.getProjectionMatrix();
+        mat4 viewproj = dc.state.getProjectionMatrix() * dc.state.getWorldMatrix();
         if(viewproj!=prev_viewproj) {
             prev_viewproj = viewproj;
             MapAndWrite(ctx, m->ubo, &viewproj, sizeof(viewproj));
@@ -256,7 +263,7 @@ void EasyDrawer::flush()
 
         ShaderProgram *shader = dc.state.getShader();
         ctx->setShader(shader);
-        ctx->setUniformBuffer(shader->getUniformBlockIndex("render_states"), 0, m->ubo);
+        ctx->setUniformBuffer(dc.state.getUniformLocation(), 0, m->ubo);
         ctx->setSampler(0, dc.state.getSampler());
         ctx->setTexture(0, dc.state.getTexture());
         ctx->setVertexArray(m->va);
@@ -268,7 +275,7 @@ void EasyDrawer::flush()
                     {0, I3D_FLOAT, 2,  0, false, 0},
                     {1, I3D_FLOAT, 4,  8, false, 0},
                 };
-                m->va->setAttributes(0, m->vbo, dc.buffer_index, sizeof(VertexP2T2C4), descs, _countof(descs));
+                m->va->setAttributes(0, m->vbo, dc.buffer_index, sizeof(VertexP2C4), descs, _countof(descs));
             }
             break;
         case VT_P2T2C4:
@@ -288,26 +295,26 @@ void EasyDrawer::flush()
                     {1, I3D_FLOAT, 2, 12, false, 0},
                     {2, I3D_FLOAT, 4, 20, false, 0},
                 };
-                m->va->setAttributes(0, m->vbo, dc.buffer_index, sizeof(VertexP2T2C4), descs, _countof(descs));
+                m->va->setAttributes(0, m->vbo, dc.buffer_index, sizeof(VertexP3T2C4), descs, _countof(descs));
             }
             break;
         }
 
-        m->ctx->draw(dc.topology, 0, dc.num_vertices);
+        ctx->draw(dc.topology, 0, dc.num_vertices);
     }
 
     m->draw_calls.clear();
     m->vertex_data.clear();
 }
 
-void EasyDrawer::updateBuffers()
+void EasyDrawer::updateBuffers(DeviceContext *ctx)
 {
     uint32 vb_size = std::max<uint32>((uint32)m->vertex_data.size(), 1024*8);
     if(!m->vbo || m->vbo->getDesc().size<vb_size) {
         istSafeRelease(m->vbo);
         m->vbo = CreateVertexBuffer(m->dev, vb_size*2, I3D_USAGE_DYNAMIC);
     }
-    MapAndWrite(m->ctx, m->vbo, &m->vertex_data, m->vertex_data.size());
+    MapAndWrite(ctx, m->vbo, &m->vertex_data[0], m->vertex_data.size());
 }
 
 } // namespace i3d*

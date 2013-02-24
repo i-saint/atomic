@@ -4,6 +4,7 @@
 #include "ist/Base.h"
 #include "ist/Window.h"
 #include "ist/GraphicsCommon/Image.h"
+#include "ist/GraphicsCommon/EasyDrawer.h"
 #include "ist/GraphicsGL/i3dglDevice.h"
 #include "ist/GraphicsGL/i3dglDeviceContext.h"
 #include "ist/GraphicsGL/i3duglFont.h"
@@ -18,84 +19,6 @@ IFontRenderer::IFontRenderer()
 {
     setRef(1);
 }
-
-
-#ifdef ist_env_Windows
-
-static const int g_list_base = 0;
-
-class SystemFont : public IFontRenderer
-{
-private:
-    HDC m_hdc;
-    int m_window_height;
-    int m_font_height;
-
-public:
-    SystemFont(HDC m_hdc)
-        : m_hdc(m_hdc)
-        , m_window_height(0)
-        , m_font_height(0)
-    {
-        SelectObject(m_hdc, GetStockObject(SYSTEM_FONT));
-        wglUseFontBitmapsW( m_hdc, 0, 256*32, g_list_base );
-
-        TEXTMETRIC metric;
-        GetTextMetrics(m_hdc, &metric);
-        m_font_height = metric.tmHeight;
-        m_window_height = istGetAplication()->getWindowSize().y;
-    }
-
-    ~SystemFont()
-    {
-        m_hdc = NULL;
-        m_window_height = 0;
-        m_font_height = 0;
-    }
-
-    virtual void setScreen(float32 left, float32 right, float32 bottom, float32 top) {}
-    virtual void setColor(const vec4 &v) {}
-    virtual void setSize(float32 v) {}
-    virtual void setSpacing(float32 v) {}
-    virtual void setMonospace(bool v) {}
-
-    void addText(const vec2 &pos, const char *text, size_t len)
-    {
-        glUseProgram(0);
-        glWindowPos2i((int32)pos.x, m_window_height-(int32)pos.y);
-        glCallLists(len, GL_UNSIGNED_BYTE, text);
-    }
-
-    void addText(const vec2 &pos, const wchar_t *text, size_t len)
-    {
-        glUseProgram(0);
-        glWindowPos2i((int32)pos.x, m_window_height-(int32)pos.y);
-        glCallLists(len, GL_UNSIGNED_SHORT, text);
-    }
-
-    vec2 computeTextSize(const char *text, size_t len=0)
-    {
-        return vec2();
-    }
-
-    vec2 computeTextSize(const wchar_t *text, size_t len=0)
-    {
-        return vec2();
-    }
-
-    void flush(DeviceContext *dc)
-    {
-    }
-};
-
-IFontRenderer* CreateSystemFont(Device *device, void *hdc)
-{
-    return istNew(SystemFont)((HDC)hdc);
-}
-
-#endif // ist_env_Windows
-
-
 
 
 
@@ -205,7 +128,7 @@ public:
         return quad_pos+quad_size;
     }
 
-    void makeQuads(const vec2 &pos, const wchar_t *text, size_t len, stl::vector<FontQuad> &quads) const
+    void makeQuads(const vec2 &pos, const wchar_t *text, size_t len, ist::raw_vector<FontQuad> &quads) const
     {
         if(m_header==NULL) { return; }
 
@@ -232,7 +155,7 @@ public:
     }
 
 private:
-    stl::vector<char> m_buf;
+    ist::raw_vector<char> m_buf;
     const SFF_HEAD *m_header;
     const SFF_DATA *m_data;
     vec2 m_tex_size;
@@ -245,33 +168,9 @@ private:
 };
 
 
-const char *g_font_vssrc = "\
-#version 330 core\n\
-struct RenderStates\
-{\
-    mat4 ViewProjectionMatrix;\
-};\
-layout(std140) uniform render_states\
-{\
-    RenderStates u_RS;\
-};\
-layout(location=0) in vec2 ia_VertexPosition;\
-layout(location=1) in vec2 ia_VertexTexcoord;\
-layout(location=2) in vec4 ia_VertexColor;\
-out vec2 vs_Texcoord;\
-out vec4 vs_Color;\
-\
-void main(void)\
-{\
-    vs_Texcoord = ia_VertexTexcoord;\
-    vs_Color    = ia_VertexColor;\
-    gl_Position = u_RS.ViewProjectionMatrix * vec4(ia_VertexPosition, 0.0, 1.0);\
-}\
-";
-
 const char *g_font_pssrc = "\
 #version 330 core\n\
-uniform sampler2D u_Font;\
+uniform sampler2D u_Texture;\
 in vec2 vs_Texcoord;\
 in vec4 vs_Color;\
 layout(location=0) out vec4 ps_FragColor;\
@@ -279,56 +178,36 @@ layout(location=0) out vec4 ps_FragColor;\
 void main()\
 {\
     vec4 color = vs_Color;\
-    color.a *= texture(u_Font, vs_Texcoord).r;\
-    ps_FragColor = vec4(color);\
+    color.a *= texture(u_Texture, vs_Texcoord).r;\
+    ps_FragColor = color;\
 }\
 ";
 
 class SpriteFontRenderer : public IFontRenderer
 {
 public:
-    struct VertexT
-    {
-        vec2 pos;
-        vec2 texcoord;
-        vec4 color;
-
-        VertexT() {}
-        VertexT(const vec2 &p, const vec2 &t, const vec4 &c) : pos(p), texcoord(t), color(c) {}
-    };
-    struct RenderState
-    {
-        mat4 matrix;
-    };
-
-    static const size_t MaxCharsPerDraw = 1024;
+    typedef VertexP2T2C4 Vertex;
 
 public:
     SpriteFontRenderer()
-        : m_sampler(NULL)
+        : m_drawer(NULL)
+        , m_sampler(NULL)
         , m_texture(NULL)
-        , m_vbo(NULL)
-        , m_ubo(NULL)
-        , m_vs(NULL)
-        , m_ps(NULL)
         , m_shader(NULL)
-        , m_uniform_loc(0)
     {}
 
     ~SpriteFontRenderer()
     {
         istSafeRelease(m_shader);
-        istSafeRelease(m_ps);
-        istSafeRelease(m_vs);
-        istSafeRelease(m_va);
-        istSafeRelease(m_ubo);
-        istSafeRelease(m_vbo);
         istSafeRelease(m_sampler);
         istSafeRelease(m_texture);
+        istSafeRelease(m_drawer);
     }
 
     bool initialize(Device *dev, IBinaryStream &fss_stream, IBinaryStream &img_stream)
     {
+        m_drawer = CreateEasyDrawer(dev);
+
         {
             Image img, alpha;
             if(!img.load(img_stream)) { return false; }
@@ -341,28 +220,23 @@ public:
         }
         m_fss.setTextureSize(vec2(m_texture->getDesc().size));
         m_sampler = dev->createSampler(SamplerDesc(I3D_CLAMP_TO_EDGE, I3D_CLAMP_TO_EDGE, I3D_CLAMP_TO_EDGE, I3D_LINEAR, I3D_LINEAR));
-        m_vbo = CreateVertexBuffer(dev, sizeof(VertexT)*4*MaxCharsPerDraw, I3D_USAGE_DYNAMIC);
-        m_ubo = CreateUniformBuffer(dev, sizeof(RenderState), I3D_USAGE_DYNAMIC);
-        {
-            m_va = dev->createVertexArray();
-            const VertexDesc descs[] = {
-                {0, I3D_FLOAT, 2,  0, false, 0},
-                {1, I3D_FLOAT, 2,  8, false, 0},
-                {2, I3D_FLOAT, 4, 16, false, 0},
-            };
-            m_va->setAttributes(0, m_vbo, 0, sizeof(VertexT), descs, _countof(descs));
-        }
-        m_vs = CreateVertexShaderFromString(dev, g_font_vssrc);
-        m_ps = CreatePixelShaderFromString(dev, g_font_pssrc);
-        m_shader = dev->createShaderProgram(ShaderProgramDesc(m_vs, m_ps));
-        m_uniform_loc = m_shader->getUniformBlockIndex("render_states");
+
+        VertexShader *vs = CreateVertexShaderFromString(dev, g_vs_p2t2c4);
+        PixelShader *ps  = CreatePixelShaderFromString(dev, g_font_pssrc);
+        m_shader = dev->createShaderProgram(ShaderProgramDesc(vs, ps));
+        istSafeRelease(ps);
+        istSafeRelease(vs);
+
+        m_state.setSampler(m_sampler);
+        m_state.setTexture(m_texture);
+        m_state.setShader(m_shader);
 
         return true;
     }
 
     virtual void setScreen(float32 left, float32 right, float32 bottom, float32 top)
     {
-        m_renderstate.matrix = glm::ortho(left, right, bottom, top);
+        m_state.setScreen(left, right, bottom, top);
     }
     virtual void setColor(const vec4 &v)    { m_fss.setColor(v); }
     virtual void setSize(float32 v)         { m_fss.setSize(v); }
@@ -412,55 +286,39 @@ public:
     {
         if(m_quads.empty()) { return; }
 
-        dc->setUniformBuffer(m_uniform_loc, 0, m_ubo);
-        dc->setVertexArray(m_va);
-        dc->setShader(m_shader);
-        dc->setSampler(0, m_sampler);
-        dc->setTexture(0, m_texture);
-
-        size_t drawn_quads = 0;
-        for(;;) {
-            size_t num_quad = stl::min<size_t>(m_quads.size()-drawn_quads, MaxCharsPerDraw);
-            size_t num_vertex = num_quad*4;
-            {
-                VertexT *vertex = (VertexT*)dc->map(m_vbo, I3D_MAP_WRITE);
-                for(size_t qi=0; qi<num_quad; ++qi) {
-                    const FontQuad &quad = m_quads[qi+drawn_quads];
-                    VertexT *v = &vertex[qi*4];
-                    const vec2 pos_min = quad.pos;
-                    const vec2 pos_max = quad.pos + quad.size;
-                    const vec2 tex_min = quad.uv_pos;
-                    const vec2 tex_max = quad.uv_pos + quad.uv_size;
-                    v[0] = VertexT(vec2(pos_min.x, pos_min.y), vec2(tex_min.x, tex_min.y), quad.color);
-                    v[1] = VertexT(vec2(pos_min.x, pos_max.y), vec2(tex_min.x, tex_max.y), quad.color);
-                    v[2] = VertexT(vec2(pos_max.x, pos_max.y), vec2(tex_max.x, tex_max.y), quad.color);
-                    v[3] = VertexT(vec2(pos_max.x, pos_min.y), vec2(tex_max.x, tex_min.y), quad.color);
-                }
-                dc->unmap(m_vbo);
-            }
-            MapAndWrite(dc, m_ubo, &m_renderstate, sizeof(m_renderstate));
-
-            dc->draw(I3D_QUADS, 0, num_vertex);
-
-            drawn_quads += num_quad;
-            if(drawn_quads==m_quads.size()) { break; }
+        size_t num_quad = m_quads.size();
+        size_t num_vertex = num_quad*4;
+        Vertex v[4];
+        for(size_t qi=0; qi<num_quad; ++qi) {
+            const FontQuad &quad = m_quads[qi];
+            const vec2 pos_min = quad.pos;
+            const vec2 pos_max = quad.pos + quad.size;
+            const vec2 tex_min = quad.uv_pos;
+            const vec2 tex_max = quad.uv_pos + quad.uv_size;
+            v[0] = Vertex(vec2(pos_min.x, pos_min.y), vec2(tex_min.x, tex_min.y), quad.color);
+            v[1] = Vertex(vec2(pos_min.x, pos_max.y), vec2(tex_min.x, tex_max.y), quad.color);
+            v[2] = Vertex(vec2(pos_max.x, pos_max.y), vec2(tex_max.x, tex_max.y), quad.color);
+            v[3] = Vertex(vec2(pos_max.x, pos_min.y), vec2(tex_max.x, tex_min.y), quad.color);
+            m_vertices.insert(m_vertices.end(), v, v+_countof(v));
+        }
+        if(!m_vertices.empty()) {
+            m_drawer->draw(m_state, I3D_QUADS, &m_vertices[0], m_vertices.size());
+            m_drawer->flush(dc);
         }
         m_quads.clear();
+        m_vertices.clear();
     }
 
 private:
     FSS m_fss;
-    stl::vector<FontQuad> m_quads;
+    ist::raw_vector<FontQuad> m_quads;
+    ist::raw_vector<Vertex> m_vertices;
+    EasyDrawer *m_drawer;
+    EasyDrawState m_state;
+
     Sampler *m_sampler;
     Texture2D *m_texture;
-    Buffer *m_vbo;
-    Buffer *m_ubo;
-    VertexArray *m_va;
-    VertexShader *m_vs;
-    PixelShader *m_ps;
     ShaderProgram *m_shader;
-    GLint m_uniform_loc;
-    RenderState m_renderstate;
 };
 
 IFontRenderer* CreateSpriteFont(Device *device, const char *path_to_sff, const char *path_to_img)
