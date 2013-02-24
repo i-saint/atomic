@@ -6,8 +6,11 @@ namespace ist {
 namespace i3dgl {
 #endif // ist_EasyDraw_impl_GL
 
+
+
+
 #ifdef ist_EasyDraw_impl_GL
-const char *g_vs = "\
+const char *g_vs_p2c4 = "\
 #version 330 core\n\
 struct RenderStates\
 {\
@@ -17,7 +20,28 @@ layout(std140) uniform render_states\
 {\
     RenderStates u_RS;\
 };\
-layout(location=0) in vec3 ia_VertexPosition;\
+layout(location=0) in vec2 ia_VertexPosition;\
+layout(location=1) in vec4 ia_VertexColor;\
+out vec4 vs_Color;\
+\
+void main(void)\
+{\
+    vs_Color    = ia_VertexColor;\
+    gl_Position = u_RS.ViewProjectionMatrix * vec4(ia_VertexPosition, 0.0f, 1.0);\
+}\
+";
+
+const char *g_vs_p2t2c4 = "\
+#version 330 core\n\
+struct RenderStates\
+{\
+    mat4 ViewProjectionMatrix;\
+};\
+layout(std140) uniform render_states\
+{\
+    RenderStates u_RS;\
+};\
+layout(location=0) in vec2 ia_VertexPosition;\
 layout(location=1) in vec2 ia_VertexTexcoord;\
 layout(location=2) in vec4 ia_VertexColor;\
 out vec2 vs_Texcoord;\
@@ -27,21 +51,26 @@ void main(void)\
 {\
     vs_Texcoord = ia_VertexTexcoord;\
     vs_Color    = ia_VertexColor;\
-    gl_Position = u_RS.ViewProjectionMatrix * vec4(ia_VertexPosition, 1.0);\
+    gl_Position = u_RS.ViewProjectionMatrix * vec4(ia_VertexPosition, 0.0f, 1.0);\
 }\
 ";
 
-const char *g_ps = "\
+const char *g_ps_colored = "\
 #version 330 core\n\
-struct RenderStates\
+uniform sampler2D u_Texture;\
+in vec4 vs_Color;\
+layout(location=0) out vec4 ps_FragColor;\
+\
+void main()\
 {\
-    mat4 ViewProjectionMatrix;\
-};\
-layout(std140) uniform render_states\
-{\
-    RenderStates u_RS;\
-};\
-uniform sampler2D u_Font;\
+    vec4 color = vs_Color;\
+    ps_FragColor = vec4(color);\
+}\
+";
+
+const char *g_ps_colored_textured = "\
+#version 330 core\n\
+uniform sampler2D u_Texture;\
 in vec2 vs_Texcoord;\
 in vec4 vs_Color;\
 layout(location=0) out vec4 ps_FragColor;\
@@ -49,12 +78,87 @@ layout(location=0) out vec4 ps_FragColor;\
 void main()\
 {\
     vec4 color = vs_Color;\
-    color.a *= texture(u_Font, vs_Texcoord).r;\
+    color *= texture(u_Texture, vs_Texcoord);\
     ps_FragColor = vec4(color);\
 }\
 ";
 #endif // ist_EasyDraw_impl_GL
 
+
+EasyDrawState::EasyDrawState()
+    : m_texture(NULL)
+    , m_sampler(NULL)
+    , m_shader(NULL)
+{
+}
+
+void EasyDrawState::setScreen(float32 width, float32 height)
+{
+    setScreen(0.0f, width, height, 0.0f);
+}
+void EasyDrawState::setScreen(float32 left, float32 right, float32 bottom, float32 top)
+{
+    m_proj = glm::ortho(left, right, bottom, top);
+}
+void EasyDrawState::setProjectionMatrix(const mat4 &mat){ m_proj=mat; }
+void EasyDrawState::setWorldMatrix(const mat4 &mat)     { m_world=mat; }
+void EasyDrawState::setTexture(Texture2D *tex)          { m_texture=tex; }
+void EasyDrawState::setSampler(Sampler *smp)            { m_sampler=smp; }
+void EasyDrawState::setShader(ShaderProgram *v)         { m_shader=v; }
+
+const mat4&     EasyDrawState::getProjectionMatrix() const  { return m_proj; }
+const mat4&     EasyDrawState::getWorldMatrix() const       { return m_world; }
+Texture2D*      EasyDrawState::getTexture() const           { return m_texture; }
+Sampler*        EasyDrawState::getSampler() const           { return m_sampler; }
+ShaderProgram*  EasyDrawState::getShader() const            { return m_shader; }
+
+
+class EasyShaders : public SharedObject
+{
+public:
+    static EasyShaders* getInstance(Device *dev)
+    {
+        if(s_inst==NULL) {
+            s_inst = istNew(EasyShaders)(dev);
+        }
+        s_inst->addRef();
+        return s_inst;
+    }
+
+    ShaderProgram* getShader(VertexType vt)
+    {
+        return m_shaders[vt];
+    }
+
+private:
+    EasyShaders(Device *dev)
+    {
+        istMemset(m_shaders, 0, sizeof(m_shaders));
+        {
+            VertexShader *vs = CreateVertexShaderFromString(dev, g_vs_p2c4);
+            PixelShader  *ps = CreatePixelShaderFromString(dev, g_ps_colored);
+            m_shaders[VT_P2C4] = dev->createShaderProgram(ShaderProgramDesc(vs, ps));
+        }
+        {
+            VertexShader *vs = CreateVertexShaderFromString(dev, g_vs_p2t2c4);
+            PixelShader  *ps = CreatePixelShaderFromString(dev, g_ps_colored_textured);
+            m_shaders[VT_P2T2C4] = dev->createShaderProgram(ShaderProgramDesc(vs, ps));
+        }
+    }
+
+    ~EasyShaders()
+    {
+        s_inst = NULL;
+        for(size_t i=0; i<_countof(m_shaders); ++i) {
+            if(m_shaders[i]) {
+                m_shaders[i]->release();
+            }
+        }
+    }
+
+    static EasyShaders *s_inst;
+    ShaderProgram *m_shaders[VT_End];
+};
 
 struct EasyDrawer::Members
 {
@@ -65,8 +169,7 @@ struct EasyDrawer::Members
     VertexArray     *va;
     Buffer          *vbo;
     Buffer          *ubo;
-    ShaderProgram   *shader;
-    GLint                   uniform_loc;
+    EasyShaders     *shaders;
     raw_vector<char>        vertex_data;
     raw_vector<DrawCall>    draw_calls;
 
@@ -76,8 +179,7 @@ struct EasyDrawer::Members
         , va(NULL)
         , vbo(NULL)
         , ubo(NULL)
-        , shader(NULL)
-        , uniform_loc(0)
+        , shaders(NULL)
     {
     }
 };
@@ -95,18 +197,12 @@ EasyDrawer::EasyDrawer(Device *dev, DeviceContext *ctx)
     istSafeAddRef(m->ctx);
     m->ubo = CreateUniformBuffer(m->dev, 256, I3D_USAGE_DYNAMIC);
     m->va = m->dev->createVertexArray();
-
-    VertexShader *vs = CreateVertexShaderFromString(m->dev, g_vs);
-    PixelShader *ps = CreatePixelShaderFromString(m->dev, g_ps);
-    m->shader = m->dev->createShaderProgram(ShaderProgramDesc(vs, ps));
-    istSafeRelease(vs);
-    istSafeRelease(ps);
-    m->uniform_loc = m->shader->getUniformBlockIndex("render_states");
+    m->shaders = EasyShaders::getInstance(dev);
 }
 
 EasyDrawer::~EasyDrawer()
 {
-    istSafeRelease(m->shader);
+    istSafeRelease(m->shaders);
     istSafeRelease(m->ubo);
     istSafeRelease(m->vbo);
     istSafeRelease(m->ctx);
@@ -121,13 +217,17 @@ void EasyDrawer::release()
 template<class VertexT>
 void EasyDrawer::draw( const EasyDrawState &states, I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices )
 {
+    VertexType vertex_type = GetVertexType<VertexT>::result;
     DrawCall tmp_cmd = {
         states,
         topology,
-        GetVertexType<VertexT>::result,
+        vertex_type,
         num_vertices,
         m->vertex_data.size(),
     };
+    if(tmp_cmd.state.getShader()==NULL) {
+        tmp_cmd.state.setShader(m->shaders->getShader(vertex_type));
+    }
     m->draw_calls.push_back(tmp_cmd);
 
     const char *v = (const char*)vertices;
@@ -141,10 +241,58 @@ template void EasyDrawer::draw<VertexP3T2C4>(const EasyDrawState &states, I3D_TO
 void EasyDrawer::flush()
 {
     updateBuffers();
-    m->ctx->setShader(m->shader);
-    m->ctx->setVertexArray(m->va);
+
+    DeviceContext *ctx = m->ctx;
+
+    mat4 prev_viewproj;
     for(size_t i=0; i<m->draw_calls.size(); ++i) {
         DrawCall &dc = m->draw_calls[i];
+
+        mat4 viewproj = dc.state.getProjectionMatrix();
+        if(viewproj!=prev_viewproj) {
+            prev_viewproj = viewproj;
+            MapAndWrite(ctx, m->ubo, &viewproj, sizeof(viewproj));
+        }
+
+        ShaderProgram *shader = dc.state.getShader();
+        ctx->setShader(shader);
+        ctx->setUniformBuffer(shader->getUniformBlockIndex("render_states"), 0, m->ubo);
+        ctx->setSampler(0, dc.state.getSampler());
+        ctx->setTexture(0, dc.state.getTexture());
+        ctx->setVertexArray(m->va);
+
+        switch(dc.vertex_type) {
+        case VT_P2C4:
+            {
+                const VertexDesc descs[] = {
+                    {0, I3D_FLOAT, 2,  0, false, 0},
+                    {1, I3D_FLOAT, 4,  8, false, 0},
+                };
+                m->va->setAttributes(0, m->vbo, dc.buffer_index, sizeof(VertexP2T2C4), descs, _countof(descs));
+            }
+            break;
+        case VT_P2T2C4:
+            {
+                const VertexDesc descs[] = {
+                    {0, I3D_FLOAT, 2,  0, false, 0},
+                    {1, I3D_FLOAT, 2,  8, false, 0},
+                    {2, I3D_FLOAT, 4, 16, false, 0},
+                };
+                m->va->setAttributes(0, m->vbo, dc.buffer_index, sizeof(VertexP2T2C4), descs, _countof(descs));
+            }
+            break;
+        case VT_P3T2C4:
+            {
+                const VertexDesc descs[] = {
+                    {0, I3D_FLOAT, 3,  0, false, 0},
+                    {1, I3D_FLOAT, 2, 12, false, 0},
+                    {2, I3D_FLOAT, 4, 20, false, 0},
+                };
+                m->va->setAttributes(0, m->vbo, dc.buffer_index, sizeof(VertexP2T2C4), descs, _countof(descs));
+            }
+            break;
+        }
+
         m->ctx->draw(dc.topology, 0, dc.num_vertices);
     }
 

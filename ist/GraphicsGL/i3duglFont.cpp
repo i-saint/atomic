@@ -271,14 +271,6 @@ void main(void)\
 
 const char *g_font_pssrc = "\
 #version 330 core\n\
-struct RenderStates\
-{\
-    mat4 ViewProjectionMatrix;\
-};\
-layout(std140) uniform render_states\
-{\
-    RenderStates u_RS;\
-};\
 uniform sampler2D u_Font;\
 in vec2 vs_Texcoord;\
 in vec4 vs_Color;\

@@ -48,14 +48,12 @@ enum VertexType {
     VT_P2C4,
     VT_P2T2C4,
     VT_P3T2C4,
+    VT_End,
 };
 template<class T> struct GetVertexType { static const VertexType result=VT_Unknown; };
 template<> struct GetVertexType<VertexP2C4>     { static const VertexType result=VT_P2C4; };
 template<> struct GetVertexType<VertexP2T2C4>   { static const VertexType result=VT_P2T2C4; };
 template<> struct GetVertexType<VertexP3T2C4>   { static const VertexType result=VT_P3T2C4; };
-
-
-
 
 
 class istInterModule EasyDrawState
@@ -64,9 +62,24 @@ public:
     EasyDrawState();
     void setScreen(float32 width, float32 height);
     void setScreen(float32 left, float32 right, float32 bottom, float32 top);
+    void setProjectionMatrix(const mat4 &mat);
+    void setWorldMatrix(const mat4 &mat);
+    void setTexture(Texture2D *tex);
+    void setSampler(Sampler *smp);
+    void setShader(ShaderProgram *smp);
+
+    const mat4& getProjectionMatrix() const;
+    const mat4& getWorldMatrix() const;
+    Texture2D* getTexture() const;
+    Sampler* getSampler() const;
+    ShaderProgram* getShader() const;
 
 private:
     mat4 m_proj;
+    mat4 m_world;
+    Texture2D *m_texture;
+    Sampler *m_sampler;
+    ShaderProgram *m_shader;
 };
 
 
