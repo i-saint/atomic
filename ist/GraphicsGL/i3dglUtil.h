@@ -1,5 +1,5 @@
-﻿#ifndef __ist_i3dgl_Util__
-#define __ist_i3dgl_Util__
+﻿#ifndef ist_i3dgl_Util_h
+#define ist_i3dgl_Util_h
 
 #include "i3dglShader.h"
 #include "i3dglRenderTarget.h"
@@ -58,4 +58,4 @@ istInterModule void EnableVSync(bool v);
 
 } // namespace i3d
 } // namespace ist
-#endif // __ist_i3dgl_Util__
+#endif // ist_i3dgl_Util_h

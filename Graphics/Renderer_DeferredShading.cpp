@@ -77,17 +77,17 @@ void PassDeferredShading_Bloodstain::draw()
 
 
     const VertexDesc descs[] = {
-        {GLSL_INSTANCE_POSITION, I3D_FLOAT,4,  0, false, 1},
-        {GLSL_INSTANCE_PARAM,    I3D_FLOAT,4, 16, false, 1},
+        {GLSL_INSTANCE_POSITION, I3D_FLOAT32,4,  0, false, 1},
+        {GLSL_INSTANCE_PARAM,    I3D_FLOAT32,4, 16, false, 1},
     };
     m_va_sphere->setAttributes(1, m_vbo_bloodstain, 0, sizeof(BloodstainParticle), descs, _countof(descs));
 
     m_sh->assign(dc);
     dc->setRenderTarget(grt);
     dc->setVertexArray(m_va_sphere);
-    dc->setIndexBuffer(m_ibo_sphere, I3D_UINT);
+    dc->setIndexBuffer(m_ibo_sphere, 0, I3D_UINT32);
     dc->drawIndexedInstanced(I3D_QUADS, 0, (8-1)*(8)*4, num_particles);
-    dc->setIndexBuffer(NULL, I3D_UINT);
+    dc->setIndexBuffer(NULL, 0, I3D_UINT32);
     dc->setBlendState(atomicGetBlendState(BS_BLEND_ADD));
 
     dc->setRenderTarget(atomicGetFrontRenderTarget());
@@ -284,9 +284,9 @@ void PassDeferredShading_Lights::drawDirectionalLights()
     m_rendered_lights += num_lights;
 
     const VertexDesc descs[] = {
-        {GLSL_INSTANCE_DIRECTION,I3D_FLOAT,4,  0, false, 1},
-        {GLSL_INSTANCE_COLOR,    I3D_FLOAT,4, 16, false, 1},
-        {GLSL_INSTANCE_AMBIENT,  I3D_FLOAT,4, 32, false, 1},
+        {GLSL_INSTANCE_DIRECTION,I3D_FLOAT32,4,  0, false, 1},
+        {GLSL_INSTANCE_COLOR,    I3D_FLOAT32,4, 16, false, 1},
+        {GLSL_INSTANCE_AMBIENT,  I3D_FLOAT32,4, 32, false, 1},
     };
     va_quad->setAttributes(1, vbo_instance, 0, sizeof(DirectionalLight), descs, _countof(descs));
 
@@ -311,15 +311,15 @@ void PassDeferredShading_Lights::drawPointLights()
     m_rendered_lights += num_lights;
 
     const VertexDesc descs[] = {
-        {GLSL_INSTANCE_POSITION,I3D_FLOAT,4, 0, false, 1},
-        {GLSL_INSTANCE_COLOR,   I3D_FLOAT,4,16, false, 1},
-        {GLSL_INSTANCE_PARAM,   I3D_FLOAT,4,32, false, 1},
+        {GLSL_INSTANCE_POSITION,I3D_FLOAT32,4, 0, false, 1},
+        {GLSL_INSTANCE_COLOR,   I3D_FLOAT32,4,16, false, 1},
+        {GLSL_INSTANCE_PARAM,   I3D_FLOAT32,4,32, false, 1},
     };
     va_sphere->setAttributes(1, vbo_instance, 0, sizeof(PointLight), descs, _countof(descs));
 
     shader->assign(dc);
     dc->setVertexArray(va_sphere);
-    dc->setIndexBuffer(ibo_sphere, I3D_UINT);
+    dc->setIndexBuffer(ibo_sphere, 0, I3D_UINT32);
     dc->drawIndexedInstanced(I3D_QUADS, 0, (16-1)*(32)*4, num_lights);
 }
 

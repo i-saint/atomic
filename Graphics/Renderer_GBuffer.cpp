@@ -36,10 +36,10 @@ void PassGBuffer_Particle::draw()
     MapAndWrite(dc, m_vbo, &m_particles[0], sizeof(IndivisualParticle)*m_particles.size());
     {
         const VertexDesc descs[] = {
-            {GLSL_INSTANCE_POSITION, I3D_FLOAT,4,  0, false, 1},
-            {GLSL_INSTANCE_COLOR,    I3D_FLOAT,4, 16, false, 1},
-            {GLSL_INSTANCE_GLOW,     I3D_FLOAT,4, 32, false, 1},
-            {GLSL_INSTANCE_PARAM,    I3D_FLOAT,4, 48, false, 1},
+            {GLSL_INSTANCE_POSITION, I3D_FLOAT32,4,  0, false, 1},
+            {GLSL_INSTANCE_COLOR,    I3D_FLOAT32,4, 16, false, 1},
+            {GLSL_INSTANCE_GLOW,     I3D_FLOAT32,4, 32, false, 1},
+            {GLSL_INSTANCE_PARAM,    I3D_FLOAT32,4, 48, false, 1},
         };
         m_va_cube->setAttributes(1, m_vbo, 0, sizeof(IndivisualParticle), descs, _countof(descs));
 
@@ -114,9 +114,9 @@ void PassGBuffer_Fluid::draw()
         const uint32 num_particles = atomicGetSPHManager()->copyParticlesToGL();
         if(num_particles > 0) {
             const VertexDesc descs[] = {
-                {GLSL_INSTANCE_POSITION, I3D_FLOAT,4,  0, false, 1},
-                {GLSL_INSTANCE_VELOCITY, I3D_FLOAT,4, 16, false, 1},
-                {GLSL_INSTANCE_PARAM,    I3D_FLOAT,4, 32, false, 1},
+                {GLSL_INSTANCE_POSITION, I3D_FLOAT32,4,  0, false, 1},
+                {GLSL_INSTANCE_VELOCITY, I3D_FLOAT32,4, 16, false, 1},
+                {GLSL_INSTANCE_PARAM,    I3D_FLOAT32,4, 32, false, 1},
             };
             m_va_cube->setAttributes(1, m_vbo_fluid, 0, sizeof(psym::Particle), descs, _countof(descs));
             m_sh_fluid->assign(dc);
@@ -135,9 +135,9 @@ void PassGBuffer_Fluid::draw()
     }
     {
         const VertexDesc descs[] = {
-            {GLSL_INSTANCE_NORMAL,   I3D_FLOAT,4,  0, false, 1},
-            {GLSL_INSTANCE_POSITION, I3D_FLOAT,3, 16, false, 1},
-            {GLSL_INSTANCE_PARAM,    I3D_INT,  1, 28, false, 1},
+            {GLSL_INSTANCE_NORMAL,   I3D_FLOAT32,4,  0, false, 1},
+            {GLSL_INSTANCE_POSITION, I3D_FLOAT32,3, 16, false, 1},
+            {GLSL_INSTANCE_PARAM,    I3D_INT32,  1, 28, false, 1},
         };
         m_va_cube->setAttributes(1, m_vbo_rigid, 0, sizeof(PSetParticle), descs, _countof(descs));
 

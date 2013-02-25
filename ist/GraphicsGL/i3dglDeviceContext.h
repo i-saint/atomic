@@ -1,5 +1,5 @@
-﻿#ifndef __ist_i3dgl_DeviceContext__
-#define __ist_i3dgl_DeviceContext__
+﻿#ifndef ist_i3dgl_DeviceContext_h
+#define ist_i3dgl_DeviceContext_h
 
 #include "i3dglTypes.h"
 #include "i3dglDeviceResource.h"
@@ -16,7 +16,7 @@ I3DGL_DECLARE_DEVICE_RESOURCE(DeviceContext);
 public:
     void setViewport(const Viewport &vp);
     void setVertexArray(VertexArray *va);
-    void setIndexBuffer(Buffer *v, I3D_TYPE format);
+    void setIndexBuffer(Buffer *v, size_t offset, I3D_TYPE format); // format: I3D_UBYTE/I3D_USHORT/I3D_UINT
     void setUniformBuffer(int32 loc, int32 bind, Buffer *buf);
     void setShader(ShaderProgram *v);
     void setRenderTarget(RenderTarget *rt);
@@ -26,7 +26,7 @@ public:
     void setDepthStencilState(DepthStencilState *state);
 
     void draw(I3D_TOPOLOGY topology, uint32 first_vertex, uint32 num_vertices);
-    void drawIndexed(I3D_TOPOLOGY topology, uint32 first_vertex, uint32 num_indices);
+    void drawIndexed(I3D_TOPOLOGY topology, uint32 num_indices);
     void drawInstanced(I3D_TOPOLOGY topology, uint32 first_vertex, uint32 num_vertices, uint32 num_instances);
     void drawIndexedInstanced(I3D_TOPOLOGY topology, uint32 first_vertex, uint32 num_indices, uint32 num_instances);
     void clearColor(RenderTarget *rt, vec4 color);
@@ -55,6 +55,7 @@ private:
         ShaderProgram       *shader;
         struct {
             Buffer          *buffer;
+            size_t          offset;
             I3D_TYPE        format;
         } index;
         struct {
@@ -92,4 +93,4 @@ private:
 } // namespace i3d
 } // namespace ist
 
-#endif // __ist_i3dgl_DeviceContext__
+#endif // ist_i3dgl_DeviceContext_h

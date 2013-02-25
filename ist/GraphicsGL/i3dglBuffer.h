@@ -1,5 +1,5 @@
-﻿#ifndef __ist_i3dgl_Buffer__
-#define __ist_i3dgl_Buffer__
+﻿#ifndef ist_i3dgl_Buffer_h
+#define ist_i3dgl_Buffer_h
 
 #include "i3dglTypes.h"
 #include "i3dglDeviceResource.h"
@@ -58,5 +58,5 @@ private:
 
 } // namespace i3d
 } // namespace ist
-#endif // __ist_i3dgl_Buffer__
+#endif // ist_i3dgl_Buffer_h
 

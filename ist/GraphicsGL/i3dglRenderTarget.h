@@ -1,5 +1,5 @@
-﻿#ifndef __ist_i3dgl_RenderTarget__
-#define __ist_i3dgl_RenderTarget__
+﻿#ifndef ist_i3dgl_RenderTarget_h
+#define ist_i3dgl_RenderTarget_h
 
 #include "i3dglTypes.h"
 #include "i3dglDeviceResource.h"
@@ -54,4 +54,4 @@ private:
 
 } // namespace graphics
 } // namespace ist
-#endif // __ist_i3dgl_RenderTarget__
+#endif // ist_i3dgl_RenderTarget_h

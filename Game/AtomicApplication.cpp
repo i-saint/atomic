@@ -458,13 +458,13 @@ void AtomicApplication::printDebugLog( const char *format, ... )
     vfprintf(m->log, format, vl);
     va_end(vl);
 }
+#endif // atomic_enable_debug_log
+
 
 void AtomicApplication::registerCommands()
 {
     istCommandlineRegister("printPoolStates", &ist::PoolNewManager::printPoolStates);
 }
-
-#endif // atomic_enable_debug_log
 
 
 } // namespace atomic

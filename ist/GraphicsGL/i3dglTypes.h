@@ -1,5 +1,5 @@
-﻿#ifndef __ist_i3dgl_Types__
-#define __ist_i3dgl_Types__
+﻿#ifndef ist_i3dgl_Types_h
+#define ist_i3dgl_Types_h
 
 #include "ist/Base/New.h"
 #include "ist/Base/SharedObject.h"
@@ -92,15 +92,15 @@ enum I3D_MAP_MODE
 
 enum I3D_TYPE
 {
-    I3D_BYTE    = GL_BYTE,
-    I3D_UBYTE   = GL_UNSIGNED_BYTE,
-    I3D_SHORT   = GL_SHORT,
-    I3D_USHORT  = GL_UNSIGNED_SHORT,
-    I3D_INT     = GL_INT,
-    I3D_UINT    = GL_UNSIGNED_INT,
-    I3D_HALF    = GL_HALF_FLOAT,
-    I3D_FLOAT   = GL_FLOAT,
-    I3D_DOUBLE  = GL_DOUBLE,
+    I3D_INT8    = GL_BYTE,
+    I3D_UINT8   = GL_UNSIGNED_BYTE,
+    I3D_INT16   = GL_SHORT,
+    I3D_UINT16  = GL_UNSIGNED_SHORT,
+    I3D_INT32   = GL_INT,
+    I3D_UINT32  = GL_UNSIGNED_INT,
+    I3D_FLOAT16 = GL_HALF_FLOAT,
+    I3D_FLOAT32 = GL_FLOAT,
+    I3D_FLOAT64 = GL_DOUBLE,
 };
 
 enum I3D_BUFFER_TYPE
@@ -411,4 +411,4 @@ private:\
 } // namespace i3dgl
 } // namespace ist
 
-#endif // __ist_i3dgl_Types__
+#endif // ist_i3dgl_Types_h

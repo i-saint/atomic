@@ -325,6 +325,15 @@
     <ClInclude Include="ist\Base\DeepCopyPtr.h">
       <Filter>Base</Filter>
     </ClInclude>
+    <ClInclude Include="ist\GraphicsCommon\Vertex.h">
+      <Filter>GraphicsCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\GraphicsCommon\EasyDrawerUtil.h">
+      <Filter>GraphicsCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\GraphicsCommon\EasyDrawerShaders.h">
+      <Filter>GraphicsCommon</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ist\Window\Application.cpp">
@@ -474,6 +483,9 @@
     </ClCompile>
     <ClCompile Include="ist\Base\Stringnize.cpp">
       <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\GraphicsCommon\EasyDrawerUtil.cpp">
+      <Filter>GraphicsCommon</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

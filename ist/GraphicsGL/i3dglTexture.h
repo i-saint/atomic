@@ -1,5 +1,5 @@
-﻿#ifndef __ist_i3dgl_Texture__
-#define __ist_i3dgl_Texture__
+﻿#ifndef ist_i3dgl_Texture_h
+#define ist_i3dgl_Texture_h
 
 #include "i3dglTypes.h"
 #include "i3dglDeviceResource.h"
@@ -111,4 +111,4 @@ private:
 } // namespace i3dgl
 } // namespace ist
 
-#endif // __ist_i3dgl_Texture__
+#endif // ist_i3dgl_Texture_h

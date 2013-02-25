@@ -1,5 +1,5 @@
-﻿#ifndef __ist_i3dgl_Device__
-#define __ist_i3dgl_Device__
+﻿#ifndef ist_i3dgl_Device_h
+#define ist_i3dgl_Device_h
 
 #include "i3dglBuffer.h"
 #include "i3dglDeviceResource.h"
@@ -72,4 +72,4 @@ Device* CreateDevice(HWND hwnd);
 } // namespace i3dgl
 } // namespace ist
 
-#endif // __ist_i3dgl_Device__
+#endif // ist_i3dgl_Device_h

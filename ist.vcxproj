@@ -60,7 +60,10 @@
     <ClInclude Include="ist\GPGPU.h" />
     <ClInclude Include="ist\Graphics.h" />
     <ClInclude Include="ist\GraphicsCommon\EasyDrawer.h" />
+    <ClInclude Include="ist\GraphicsCommon\EasyDrawerShaders.h" />
+    <ClInclude Include="ist\GraphicsCommon\EasyDrawerUtil.h" />
     <ClInclude Include="ist\GraphicsCommon\Image.h" />
+    <ClInclude Include="ist\GraphicsCommon\Vertex.h" />
     <ClInclude Include="ist\GraphicsGL\i3dgl.h" />
     <ClInclude Include="ist\GraphicsGL\i3dglAssert.h" />
     <ClInclude Include="ist\GraphicsGL\i3dglBuffer.h" />
@@ -149,6 +152,7 @@
     <ClCompile Include="ist\Debug\CrashDump.cpp" />
     <ClCompile Include="ist\Debug\ParamTree.cpp" />
     <ClCompile Include="ist\GraphicsCommon\EasyDrawer.cpp" />
+    <ClCompile Include="ist\GraphicsCommon\EasyDrawerUtil.cpp" />
     <ClCompile Include="ist\GraphicsCommon\Image.cpp" />
     <ClCompile Include="ist\GraphicsGL\i3dglAssert.cpp" />
     <ClCompile Include="ist\GraphicsGL\i3dglBuffer.cpp" />

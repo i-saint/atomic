@@ -34,10 +34,11 @@ void DeviceContext::setVertexArray( VertexArray *va )
     m_current.vertex_array = va;
 }
 
-void DeviceContext::setIndexBuffer( Buffer *v, I3D_TYPE format )
+void DeviceContext::setIndexBuffer( Buffer *v, size_t offset, I3D_TYPE format )
 {
     m_dirty.index = 1;
     m_current.index.buffer = v;
+    m_current.index.offset = offset;
     m_current.index.format = format;
 }
 
@@ -94,10 +95,10 @@ void DeviceContext::draw( I3D_TOPOLOGY topology, uint32 first_vertex, uint32 num
     glDrawArrays(topology, first_vertex, num_vertices);
 }
 
-void DeviceContext::drawIndexed( I3D_TOPOLOGY topology, uint32 first_vertex, uint32 num_indices )
+void DeviceContext::drawIndexed( I3D_TOPOLOGY topology, uint32 num_indices )
 {
     applyRenderStates();
-    glDrawElements(topology, first_vertex, num_indices, NULL);
+    glDrawElements(topology, num_indices, m_current.index.format, (void*)m_current.index.offset);
 }
 
 void DeviceContext::drawInstanced( I3D_TOPOLOGY topology, uint32 first_vertex, uint32 num_vertices, uint32 num_instances )
@@ -109,7 +110,7 @@ void DeviceContext::drawInstanced( I3D_TOPOLOGY topology, uint32 first_vertex, u
 void DeviceContext::drawIndexedInstanced( I3D_TOPOLOGY topology, uint32 first_vertex, uint32 num_indices, uint32 num_instances )
 {
     applyRenderStates();
-    glDrawElementsInstancedBaseVertex(topology, num_indices, m_current.index.format, NULL, num_instances, first_vertex);
+    glDrawElementsInstancedBaseVertex(topology, num_indices, m_current.index.format, (void*)m_current.index.offset, num_instances, first_vertex);
 }
 
 void* DeviceContext::map(Buffer *buffer, I3D_MAP_MODE mode)

@@ -31,9 +31,9 @@ void CreateFloorQuad( VertexArray *va, Buffer *&vbo, vec4 pos, vec4 size )
     };
 
     VertexDesc descs[] = {
-        {GLSL_POSITION, I3D_FLOAT,4,  0, false, 0},
-        {GLSL_NORMAL,   I3D_FLOAT,4, 16, false, 0},
-        {GLSL_TEXCOORD1,I3D_FLOAT,2, 32, false, 0},
+        {GLSL_POSITION, I3D_FLOAT32,4,  0, false, 0},
+        {GLSL_NORMAL,   I3D_FLOAT32,4, 16, false, 0},
+        {GLSL_TEXCOORD1,I3D_FLOAT32,2, 32, false, 0},
     };
 
     i3d::Device *dev = atomicGetGLDevice();
@@ -84,8 +84,8 @@ void CreateSphere(
     }
 
     VertexDesc descs[] = {
-        {GLSL_POSITION, I3D_FLOAT,4,  0, false, 0},
-        {GLSL_NORMAL,   I3D_FLOAT,4, 16, false, 0},
+        {GLSL_POSITION, I3D_FLOAT32,4,  0, false, 0},
+        {GLSL_NORMAL,   I3D_FLOAT32,4, 16, false, 0},
     };
 
     i3d::Device *dev = atomicGetGLDevice();
@@ -110,8 +110,8 @@ void CreateScreenQuad( VertexArray *va, Buffer *&vbo )
         {vec2( 1.0f,-1.0f), vec2(1.0, 0.0)},
     };
     VertexDesc descs[] = {
-        {GLSL_POSITION,  I3D_FLOAT,2, 0, false, 0},
-        {GLSL_TEXCOORD0, I3D_FLOAT,2, 8, false, 0},
+        {GLSL_POSITION,  I3D_FLOAT32,2, 0, false, 0},
+        {GLSL_TEXCOORD0, I3D_FLOAT32,2, 8, false, 0},
     };
 
     i3d::Device *dev = atomicGetGLDevice();
@@ -147,8 +147,8 @@ void CreateBloomLuminanceQuads( VertexArray *va, Buffer *&vbo )
         {vec2(0.875,-1.0 ), vec2(1.0, 0.0)},
     };
     VertexDesc descs[] = {
-        {GLSL_POSITION,  I3D_FLOAT,2, 0, false, 0},
-        {GLSL_TEXCOORD0, I3D_FLOAT,2, 8, false, 0},
+        {GLSL_POSITION,  I3D_FLOAT32,2, 0, false, 0},
+        {GLSL_TEXCOORD0, I3D_FLOAT32,2, 8, false, 0},
     };
 
     i3d::Device *dev = atomicGetGLDevice();
@@ -189,10 +189,10 @@ void CreateBloomBlurQuads( VertexArray *va, Buffer *&vbo )
         {vec2(0.875,-1.0 ), tp[3]+vec2(ts[3].x,0.0),tp[3], tp[3]+ts[3]},
     };
     VertexDesc descs[] = {
-        {GLSL_POSITION,  I3D_FLOAT,2, 0, false, 0},
-        {GLSL_TEXCOORD0, I3D_FLOAT,2, 8, false, 0},
-        {GLSL_TEXCOORD1, I3D_FLOAT,2,16, false, 0},
-        {GLSL_TEXCOORD2, I3D_FLOAT,2,24, false, 0},
+        {GLSL_POSITION,  I3D_FLOAT32,2, 0, false, 0},
+        {GLSL_TEXCOORD0, I3D_FLOAT32,2, 8, false, 0},
+        {GLSL_TEXCOORD1, I3D_FLOAT32,2,16, false, 0},
+        {GLSL_TEXCOORD2, I3D_FLOAT32,2,24, false, 0},
     };
 
     i3d::Device *dev = atomicGetGLDevice();
@@ -217,11 +217,11 @@ void CreateBloomCompositeQuad( VertexArray *va, Buffer *&vbo )
     };
 
     VertexDesc descs[] = {
-        {GLSL_POSITION,  I3D_FLOAT,2, 0, false, 0},
-        {GLSL_TEXCOORD0, I3D_FLOAT,2, 8, false, 0},
-        {GLSL_TEXCOORD1, I3D_FLOAT,2,16, false, 0},
-        {GLSL_TEXCOORD2, I3D_FLOAT,2,24, false, 0},
-        {GLSL_TEXCOORD3, I3D_FLOAT,2,32, false, 0},
+        {GLSL_POSITION,  I3D_FLOAT32,2, 0, false, 0},
+        {GLSL_TEXCOORD0, I3D_FLOAT32,2, 8, false, 0},
+        {GLSL_TEXCOORD1, I3D_FLOAT32,2,16, false, 0},
+        {GLSL_TEXCOORD2, I3D_FLOAT32,2,24, false, 0},
+        {GLSL_TEXCOORD3, I3D_FLOAT32,2,32, false, 0},
     };
 
     i3d::Device *dev = atomicGetGLDevice();
@@ -279,8 +279,8 @@ void CreateCube( VertexArray *va, Buffer *&vbo, float32 half_len )
     };
 
     VertexDesc descs[] = {
-        {GLSL_POSITION, I3D_FLOAT,4, 0, false, 0},
-        {GLSL_NORMAL,   I3D_FLOAT,4,16, false, 0},
+        {GLSL_POSITION, I3D_FLOAT32,4, 0, false, 0},
+        {GLSL_NORMAL,   I3D_FLOAT32,4,16, false, 0},
     };
 
     i3d::Device *dev = atomicGetGLDevice();
@@ -328,8 +328,8 @@ void CreateFieldGridLines( VertexArray *va, Buffer *&vbo )
     }
 
     VertexDesc descs[] = {
-        {GLSL_POSITION, I3D_FLOAT,4, 0, false, 0},
-        {GLSL_COLOR,    I3D_FLOAT,4,16, false, 0},
+        {GLSL_POSITION, I3D_FLOAT32,4, 0, false, 0},
+        {GLSL_COLOR,    I3D_FLOAT32,4,16, false, 0},
     };
 
     i3d::Device *dev = atomicGetGLDevice();
@@ -355,7 +355,7 @@ void CreateDistanceFieldQuads( VertexArray *va, Buffer *&quad_model, Buffer *&qu
             vec4(  0.0f, cell.y, 0.0f, 1.0f),
         };
         VertexDesc descs[] = {
-            {GLSL_POSITION, I3D_FLOAT,4, 0, false, 0},
+            {GLSL_POSITION, I3D_FLOAT32,4, 0, false, 0},
         };
 
         i3d::Device *dev = atomicGetGLDevice();
@@ -377,7 +377,7 @@ void CreateDistanceFieldQuads( VertexArray *va, Buffer *&quad_model, Buffer *&qu
             }
         }
         VertexDesc descs[] = {
-            {GLSL_INSTANCE_POSITION, I3D_FLOAT,4, 0, false, 1},
+            {GLSL_INSTANCE_POSITION, I3D_FLOAT32,4, 0, false, 1},
         };
 
         i3d::Device *dev = atomicGetGLDevice();

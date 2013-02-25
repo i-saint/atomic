@@ -1,59 +1,21 @@
-﻿#ifndef ist_Graphics_EasyDrawer_h
-#define ist_Graphics_EasyDrawer_h
+﻿#ifndef ist_GraphicsCommon_EasyDrawer_h
+#define ist_GraphicsCommon_EasyDrawer_h
 
 #include "ist/Base.h"
 #include "ist/Graphics.h"
+#include "Vertex.h"
 
-#define ist_EasyDraw_impl_GL
+#define ist_EasyDrawer_impl_GL
+
+#ifdef ist_EasyDrawer_impl_GL
+#   define ist_EasyDrawer_NamespaceBegin  namespace ist{ namespace i3dgl{
+#   define ist_EasyDraw_NamespaceEnd    }}
+#else
+// todo
+#endif
 
 
-namespace ist {
-#ifdef ist_EasyDraw_impl_GL
-namespace i3dgl {
-#endif // ist_EasyDraw_impl_GL
-
-
-struct VertexP2C4
-{
-    vec2 position;
-    vec4 color;
-
-    VertexP2C4(const vec2 &p=vec2(), const vec4 &c=vec4())
-        : position(p), color(c)
-    {}
-};
-struct VertexP2T2C4
-{
-    vec2 position;
-    vec2 texcoord;
-    vec4 color;
-
-    VertexP2T2C4(const vec2 &p=vec2(), const vec2 &t=vec2(), const vec4 &c=vec4())
-        : position(p), texcoord(t), color(c)
-    {}
-};
-struct VertexP3T2C4
-{
-    vec3 position;
-    vec2 texcoord;
-    vec4 color;
-
-    VertexP3T2C4(const vec3 &p=vec3(), const vec2 &t=vec2(), const vec4 &c=vec4())
-        : position(p), texcoord(t), color(c)
-    {}
-};
-
-enum VertexType {
-    VT_Unknown,
-    VT_P2C4,
-    VT_P2T2C4,
-    VT_P3T2C4,
-    VT_End,
-};
-template<class T> struct GetVertexType { static const VertexType result=VT_Unknown; };
-template<> struct GetVertexType<VertexP2C4>     { static const VertexType result=VT_P2C4; };
-template<> struct GetVertexType<VertexP2T2C4>   { static const VertexType result=VT_P2T2C4; };
-template<> struct GetVertexType<VertexP3T2C4>   { static const VertexType result=VT_P3T2C4; };
+ist_EasyDrawer_NamespaceBegin
 
 extern const char *g_vs_p2c4;
 extern const char *g_vs_p2t2c4;
@@ -92,71 +54,28 @@ class istInterModule EasyDrawer : public boost::noncopyable
 {
 friend EasyDrawer* CreateEasyDrawer(Device *dev);
 public:
-    struct DrawCall
-    {
-        EasyDrawState state;
-        I3D_TOPOLOGY topology;
-        VertexType vertex_type;
-        uint32 num_vertices;
-        uint32 buffer_index; // in byte
-    };
-
-public:
     void release();
     void flush(DeviceContext *ctx);
 
     template<class VertexT>
     void draw(const EasyDrawState &state, I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices);
+    template<class VertexT>
+    void draw(const EasyDrawState &state, I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices, const uint32 *indices, uint32 num_indices);
 
 private:
     EasyDrawer(Device *dev);
     ~EasyDrawer();
     void updateBuffers(DeviceContext *ctx);
 
+    struct DrawCall;
     struct Members;
     deep_copy_ptr<Members> m;
 };
 
 istInterModule EasyDrawer* CreateEasyDrawer(Device *dev);
 
+ist_EasyDraw_NamespaceEnd
 
 
-istInterModule void DrawLine(
-    EasyDrawer &drawer, const EasyDrawState &state,
-    const vec2 &pos1, const vec2 &pos2,
-    const vec4 &color);
-istInterModule void DrawLine(
-    EasyDrawer &drawer, const EasyDrawState &state,
-    const vec2 &pos1, const vec2 &pos2,
-    const vec4 &color1, const vec4 &color2);
-
-istInterModule void DrawOutlineRect(
-    EasyDrawer &drawer, const EasyDrawState &state,
-    const vec2 &ur, const vec4 &bl,
-    const vec4 &color );
-istInterModule void DrawOutlineRect(
-    EasyDrawer &drawer, const EasyDrawState &state,
-    const vec2 &ur, const vec2 &bl,
-    const vec4 &cur, const vec4 &cul, const vec4 &cbl, const vec4 &cbr );
-
-istInterModule void DrawRect(
-    EasyDrawer &drawer, const EasyDrawState &state,
-    const vec2 &ur, const vec2 &bl,
-    const vec4 &color );
-istInterModule void DrawRect(
-    EasyDrawer &drawer, const EasyDrawState &state,
-    const vec2 &ur, const vec2 &bl,
-    const vec4 &cur, const vec4 &cul, const vec4 &cbl, const vec4 &cbr );
-istInterModule void DrawRectT(
-    EasyDrawer &drawer, const EasyDrawState &state,
-    const vec2 &ur, const vec2 &bl,
-    const vec2 &tur=vec2(1.0f,1.0f), const vec2 &tbl=vec2(0.0f,0.0f),
-    const vec4 &color=vec4(1.0f) );
-
-
-
-
-} // namespace i3d*
-} // namespace ist
-
-#endif // ist_Graphics_EasyDrawer_h
+#include "EasyDrawerUtil.h"
+#endif // ist_GraphicsCommon_EasyDrawer_h

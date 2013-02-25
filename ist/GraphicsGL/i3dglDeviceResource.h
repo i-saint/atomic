@@ -1,5 +1,5 @@
-﻿#ifndef __ist_i3dgl_DeviceResource__
-#define __ist_i3dgl_DeviceResource__
+﻿#ifndef ist_i3dgl_DeviceResource_h
+#define ist_i3dgl_DeviceResource_h
 
 #include "i3dglTypes.h"
 
@@ -44,4 +44,4 @@ public:
 
 } // namespace i3d
 } // namespace ist
-#endif // __ist_i3dgl_DeviceResource__
+#endif // ist_i3dgl_DeviceResource_h
