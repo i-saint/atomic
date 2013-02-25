@@ -68,7 +68,7 @@ bool GraphicResourceManager::initialize()
     i3d::Device *dev = atomicGetGLDevice();
     i3d::DeviceContext *dc = atomicGetGLDeviceContext();
     {
-        m_font = CreateSpriteFont(atomicGetGLDevice(), "Resources/font.sff", "Resources/font.png");
+        m_font = CreateSpriteFont("Resources/font.sff", "Resources/font.png");
     }
     for(uint32 i=0; i<_countof(m_va); ++i) {
         m_va[i] = dev->createVertexArray();

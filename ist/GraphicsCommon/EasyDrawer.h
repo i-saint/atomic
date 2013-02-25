@@ -52,7 +52,7 @@ private:
 
 class istInterModule EasyDrawer : public boost::noncopyable
 {
-friend EasyDrawer* CreateEasyDrawer(Device *dev);
+friend EasyDrawer* CreateEasyDrawer();
 public:
     void release();
     void flush(DeviceContext *ctx);
@@ -63,7 +63,7 @@ public:
     void draw(const EasyDrawState &state, I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices, const uint32 *indices, uint32 num_indices);
 
 private:
-    EasyDrawer(Device *dev);
+    EasyDrawer();
     ~EasyDrawer();
     void updateBuffers(DeviceContext *ctx);
 
@@ -72,7 +72,7 @@ private:
     deep_copy_ptr<Members> m;
 };
 
-istInterModule EasyDrawer* CreateEasyDrawer(Device *dev);
+istInterModule EasyDrawer* CreateEasyDrawer();
 
 ist_EasyDraw_NamespaceEnd
 

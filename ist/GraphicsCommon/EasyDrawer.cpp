@@ -52,10 +52,10 @@ public:
     };
 
 
-    static EasyShaders* getInstance(Device *dev)
+    static EasyShaders* getInstance()
     {
         if(s_inst==NULL) {
-            s_inst = istNew(EasyShaders)(dev);
+            s_inst = istNew(EasyShaders)();
         }
         s_inst->addRef();
         return s_inst;
@@ -66,8 +66,9 @@ public:
     VertexStreamData& getVertexInfo(VertexType vt)      { return m_vsdata[vt]; }
 
 private:
-    EasyShaders(Device *dev)
+    EasyShaders()
     {
+        Device *dev = GetDevice();
         istMemset(m_shaders, 0, sizeof(m_shaders));
         istMemset(m_shaders_nt, 0, sizeof(m_shaders_nt));
 
@@ -162,7 +163,6 @@ struct EasyDrawer::Members
 {
     typedef EasyDrawer::DrawCall DrawCall;
 
-    Device          *dev;
     VertexArray     *va;
     Buffer          *vbo;
     Buffer          *ibo;
@@ -173,8 +173,7 @@ struct EasyDrawer::Members
     raw_vector<DrawCall>    draw_calls;
 
     Members()
-        : dev(NULL)
-        , va(NULL)
+        : va(NULL)
         , vbo(NULL)
         , ibo(NULL)
         , ubo(NULL)
@@ -183,18 +182,19 @@ struct EasyDrawer::Members
     }
 };
 
-EasyDrawer* CreateEasyDrawer(Device *dev)
+EasyDrawer* CreateEasyDrawer()
 {
-    return istNew(EasyDrawer)(dev);
+    return istNew(EasyDrawer)();
 }
 
-EasyDrawer::EasyDrawer(Device *dev)
+EasyDrawer::EasyDrawer()
 {
-    m->dev = dev;
-    istSafeAddRef(m->dev);
-    m->ubo = CreateUniformBuffer(m->dev, 256, I3D_USAGE_DYNAMIC);
-    m->va = m->dev->createVertexArray();
-    m->shaders = EasyShaders::getInstance(dev);
+    Device *dev = GetDevice();
+    istSafeAddRef(dev);
+
+    m->ubo = CreateUniformBuffer(dev, 256, I3D_USAGE_DYNAMIC);
+    m->va = dev->createVertexArray();
+    m->shaders = EasyShaders::getInstance();
 }
 
 EasyDrawer::~EasyDrawer()
@@ -204,7 +204,9 @@ EasyDrawer::~EasyDrawer()
     istSafeRelease(m->ubo);
     istSafeRelease(m->ibo);
     istSafeRelease(m->vbo);
-    istSafeRelease(m->dev);
+
+    Device *dev = GetDevice();
+    istSafeRelease(dev);
 }
 
 void EasyDrawer::release()
@@ -302,11 +304,12 @@ void EasyDrawer::flush(DeviceContext *ctx)
 
 void EasyDrawer::updateBuffers(DeviceContext *ctx)
 {
+    Device *dev = GetDevice();
     if(!m->vertex_data.empty()) {
         uint32 vb_size = std::max<uint32>((uint32)m->vertex_data.size(), 1024*8);
         if(!m->vbo || m->vbo->getDesc().size<vb_size) {
             istSafeRelease(m->vbo);
-            m->vbo = CreateVertexBuffer(m->dev, vb_size*2, I3D_USAGE_DYNAMIC);
+            m->vbo = CreateVertexBuffer(dev, vb_size*2, I3D_USAGE_DYNAMIC);
         }
         MapAndWrite(ctx, m->vbo, &m->vertex_data[0], m->vertex_data.size());
     }
@@ -315,7 +318,7 @@ void EasyDrawer::updateBuffers(DeviceContext *ctx)
         uint32 ib_size = std::max<uint32>((uint32)m->index_data.size(), 1024*8);
         if(!m->ibo || m->ibo->getDesc().size<ib_size) {
             istSafeRelease(m->ibo);
-            m->ibo = CreateIndexBuffer(m->dev, ib_size*2, I3D_USAGE_DYNAMIC);
+            m->ibo = CreateIndexBuffer(dev, ib_size*2, I3D_USAGE_DYNAMIC);
         }
         MapAndWrite(ctx, m->ibo, &m->index_data[0], m->index_data.size());
     }

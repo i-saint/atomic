@@ -24,9 +24,8 @@ public:
     virtual void flush(DeviceContext *dc)=0;
 };
 
-IFontRenderer* CreateSystemFont(Device *device, void *hdc);
-IFontRenderer* CreateSpriteFont(Device *device, const char *path_to_sff, const char *path_to_img);
-IFontRenderer* CreateSpriteFont(Device *device, IBinaryStream &sff, IBinaryStream &img);
+IFontRenderer* CreateSpriteFont(const char *path_to_sff, const char *path_to_img);
+IFontRenderer* CreateSpriteFont(IBinaryStream &sff, IBinaryStream &img);
 
 } // namespace i3d
 } // namespace ist

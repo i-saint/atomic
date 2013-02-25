@@ -7,15 +7,19 @@
 namespace ist {
 namespace i3dgl {
 
+static Device *g_the_device = NULL;
+
 #ifdef ist_env_Windows
 
-Device::Device(HWND hwnd) : m_hwnd(hwnd)
+Device::Device(HWND hwnd)
+    : m_immediate_context(NULL)
+    , m_hwnd(hwnd)
 {
     setRef(1);
     m_hdc = ::GetDC(m_hwnd);
 #ifdef i3d_enable_resource_leak_check
 
-#endif // __i3d_enable_leak_check__
+#endif // i3d_enable_leak_check
 
     int pixelformat;
     static PIXELFORMATDESCRIPTOR pfd = {
@@ -70,6 +74,7 @@ Device::~Device()
         ::ReleaseDC(m_hwnd, m_hdc);
         m_hdc = NULL;
     }
+    g_the_device = NULL;
 }
 #endif // ist_env_Windows
 
@@ -96,9 +101,11 @@ void Device::deleteResource( ResourceHandle v )
     m_vacant.push_back(v);
 }
 
-DeviceContext* Device::createContext()
+DeviceContext* Device::createImmediateContext()
 {
     DeviceContext *r = istNew(DeviceContext)(this);
+    istAssert(m_immediate_context==NULL);
+    m_immediate_context = r;
     return r;
 }
 
@@ -193,6 +200,11 @@ DepthStencilState* Device::createDepthStencilState( const DepthStencilStateDesc 
     return r;
 }
 
+void Device::swapBuffers()
+{
+    ::SwapBuffers(m_hdc);
+}
+
 
 #ifdef i3d_enable_resource_leak_check
 void Device::printLeakInfo()
@@ -204,19 +216,26 @@ void Device::printLeakInfo()
         istPrint("\n");
     }
 }
-#endif // __i3d_enable_leak_check__
 
-
-
-
-void Device::swapBuffers()
+DeviceContext* Device::getImmediateContext()
 {
-    ::SwapBuffers(m_hdc);
+    return m_immediate_context;
+}
+
+#endif // i3d_enable_leak_check
+
+
+Device* GetDevice()
+{
+    return g_the_device;
 }
 
 Device* CreateDevice( HWND hwnd )
 {
-    return istNew(Device)(hwnd);
+    if(!g_the_device) {
+        g_the_device = istNew(Device)(hwnd);
+    }
+    return g_the_device;
 }
 
 } // namespace i3d

@@ -15,24 +15,8 @@ class istInterModule Device : public SharedObject
 {
 istNonCopyable(Device);
 istMakeDestructable;
-private:
-#ifdef ist_env_Windows
-    HWND    m_hwnd;
-    HDC     m_hdc;
-    HGLRC   m_hglrc;
-#endif // ist_env_Windows
-    stl::vector<DeviceResource*>    m_resources;
-    stl::vector<ResourceHandle>     m_vacant;
-    void addResource(DeviceResource *v);
-
-#ifdef ist_env_Windows
-    Device(HWND hwnd);
-    friend Device* CreateDevice(HWND hwnd);
-#else // ist_env_Windows
-#endif // ist_env_Windows
-    ~Device();
 public:
-    DeviceContext*  createContext();
+    DeviceContext*  createImmediateContext();
 
     Buffer*         createBuffer(const BufferDesc &desc);
     VertexArray*    createVertexArray();
@@ -52,17 +36,38 @@ public:
     DepthStencilState*  createDepthStencilState(const DepthStencilStateDesc &desc);
 
     void deleteResource(ResourceHandle v);
-
     void swapBuffers();
 
-#ifdef ist_env_Windows
-    HDC getHDC() { return m_hdc; }
-    HGLRC getHGLRC() { return m_hglrc; }
-#endif // ist_env_Windows
+    DeviceContext* getImmediateContext();
+
 #ifdef i3d_enable_resource_leak_check
     void printLeakInfo();
-#endif // __i3d_enable_leak_check__
+#endif // i3d_enable_leak_check
+
+private:
+    DeviceContext                   *m_immediate_context;
+    stl::vector<DeviceResource*>    m_resources;
+    stl::vector<ResourceHandle>     m_vacant;
+    void addResource(DeviceResource *v);
+
+
+#ifdef ist_env_Windows
+public:
+    HDC getHDC() { return m_hdc; }
+    HGLRC getHGLRC() { return m_hglrc; }
+
+private:
+    friend Device* CreateDevice(HWND hwnd);
+    Device(HWND hwnd);
+    ~Device();
+
+    HWND    m_hwnd;
+    HDC     m_hdc;
+    HGLRC   m_hglrc;
+#endif // ist_env_Windows
 };
+
+Device* GetDevice();
 
 #ifdef ist_env_Windows
 Device* CreateDevice(HWND hwnd);

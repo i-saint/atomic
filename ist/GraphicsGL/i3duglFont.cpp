@@ -204,9 +204,10 @@ public:
         istSafeRelease(m_drawer);
     }
 
-    bool initialize(Device *dev, IBinaryStream &fss_stream, IBinaryStream &img_stream)
+    bool initialize(IBinaryStream &fss_stream, IBinaryStream &img_stream)
     {
-        m_drawer = CreateEasyDrawer(dev);
+        Device *dev = GetDevice();
+        m_drawer = CreateEasyDrawer();
 
         {
             Image img, alpha;
@@ -331,19 +332,19 @@ private:
     ShaderProgram *m_shader;
 };
 
-IFontRenderer* CreateSpriteFont(Device *device, const char *path_to_sff, const char *path_to_img)
+IFontRenderer* CreateSpriteFont(const char *path_to_sff, const char *path_to_img)
 {
     FileStream sff(path_to_sff, "rb");
     FileStream img(path_to_img, "rb");
     if(!sff.isOpened()) { istPrint("%s load failed\n", path_to_sff); return NULL; }
     if(!img.isOpened()) { istPrint("%s load failed\n", path_to_img); return NULL; }
-    return CreateSpriteFont(device, sff, img);
+    return CreateSpriteFont(sff, img);
 }
 
-IFontRenderer* CreateSpriteFont(Device *device, IBinaryStream &sff, IBinaryStream &img)
+IFontRenderer* CreateSpriteFont(IBinaryStream &sff, IBinaryStream &img)
 {
     SpriteFontRenderer *r = istNew(SpriteFontRenderer)();
-    if(!r->initialize(device, sff, img)) {
+    if(!r->initialize(sff, img)) {
         return NULL;
     }
     return r;
