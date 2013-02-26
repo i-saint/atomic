@@ -1,6 +1,8 @@
 ﻿#include "iuiPCH.h"
 #include "iuiSystem.h"
 #include "iuiWidget.h"
+#include "iuiWindow.h"
+#include "iuiRenderer.h"
 namespace iui {
 
 
@@ -49,6 +51,8 @@ UISystem::UISystem()
 {
     m->wmhandler = std::bind(&UISystem::handleWindowMessage, this, std::placeholders::_1);
     istGetAplication()->addMessageHandler(&m->wmhandler);
+    m->renderer = CreateUIRenderer();
+    m->root_widget = istNew(RootWindow)();
 }
 
 UISystem::~UISystem()
@@ -56,6 +60,7 @@ UISystem::~UISystem()
     if(m->root_widget) {
         m->root_widget->release();
     }
+    m->renderer->release();
     istGetAplication()->eraseMessageHandler(&m->wmhandler);
 }
 
@@ -79,6 +84,16 @@ void UISystem::draw()
     if(m->root_widget) {
         m->root_widget->draw();
     }
+}
+
+void UISystem::setScreen( float32 width, float32 height )
+{
+    m->renderer->setScreen(width, height);
+}
+
+void UISystem::setScreen( float32 left, float32 right, float32 bottom, float32 top )
+{
+    m->renderer->setScreen(left, right, bottom, top);
 }
 
 void UISystem::setFocus( Widget *v )

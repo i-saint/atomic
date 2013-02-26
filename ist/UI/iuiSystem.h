@@ -4,7 +4,7 @@
 namespace iui {
 
 
-class istInterModule UISystem : public ist::SharedObject
+class iuiInterModule UISystem : public ist::SharedObject
 {
 public:
     typedef ist::Application::WMHandler WMHandler;
@@ -20,6 +20,8 @@ public:
     Widget* getRootWidgets() const;
     Widget* getFocus() const;
 
+    void setScreen(float32 width, float32 height);
+    void setScreen(float32 left, float32 right, float32 bottom, float32 top);
     void setFocus(Widget *v);
 
 private:
@@ -34,8 +36,10 @@ private:
 
 } // namespace iui
 
-#define iuiInitialize() iui::UISystem::initializeInstance()
-#define iuiFinalize()   iui::UISystem::finalizeInstance()
-#define iuiGetSystem()  iui::UISystem::getInstance()
+#define iuiInitialize()     iui::UISystem::initializeInstance()
+#define iuiFinalize()       iui::UISystem::finalizeInstance()
+#define iuiGetSystem()      iui::UISystem::getInstance()
+
+#define iuiGetRenderer()    iuiGetSystem()->getRenderer()
 
 #endif // iui_System_h

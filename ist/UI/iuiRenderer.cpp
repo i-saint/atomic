@@ -34,17 +34,20 @@ public:
 
     virtual void drawLine(const Line &line, const Color &color)
     {
+        if(color.a<=0.0f) { return; }
         i3d::DrawLine(*m_drawer, m_state, line.begin, line.end, color);
     }
 
     virtual void drawRect(const Rect &rect, const Color &color)
     {
-        i3d::DrawRectT(*m_drawer, m_state, rect.position+rect.size, rect.position, vec2(1.0f), vec2(0.0f), color);
+        if(color.a<=0.0f) { return; }
+        i3d::DrawRectT(*m_drawer, m_state, rect.pos+rect.size, rect.pos, vec2(1.0f), vec2(0.0f), color);
     }
 
     virtual void drawOutlineRect(const Rect &rect, const Color &color)
     {
-        i3d::DrawOutlineRect(*m_drawer, m_state, rect.position+rect.size, rect.position, color);
+        if(color.a<=0.0f) { return; }
+        i3d::DrawOutlineRect(*m_drawer, m_state, rect.pos+rect.size, rect.pos, color);
     }
 
     //virtual void drawCircle(const Circle &circle, const Color &color)=0;

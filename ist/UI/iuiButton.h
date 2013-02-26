@@ -4,77 +4,83 @@
 #include "iuiWidget.h"
 namespace iui {
 
-class ButtonStyle : public Style
+class iuiInterModule ButtonStyle : public Style
 {
 public:
     virtual void draw();
 };
 
-class Button : public Widget
+class iuiInterModule Button : public Widget
 {
 public:
-    Button();
-    Button(const wchar_t *text, const WidgetCallback &on_press);
+    Button(const wchar_t *text=L"", const WidgetCallback &on_press=WidgetCallback(), Style *style=NULL);
+    bool isPressing() const;
 
+protected:
+    virtual Style* createDefaultStyle() const;
 private:
-    WidgetCallback m_on_press;
-    bool m_clicking;
+    struct Members;
+    deep_copy_ptr<Members> m;
 };
 
 
-class ToggleButtonStyle : public Style
+class iuiInterModule ToggleButtonStyle : public Style
 {
 public:
     virtual void draw();
 };
 
-class ToggleButton : public Widget
+class iuiInterModule ToggleButton : public Widget
 {
 public:
-    ToggleButton();
-    ToggleButton(const wchar_t *text, const WidgetCallback &on_toggle);
+    ToggleButton(const wchar_t *text=L"", const WidgetCallback &on_toggle=WidgetCallback(), Style *style=NULL);
     bool isPressed() const;
+    bool isPressing() const;
 
+protected:
+    virtual Style* createDefaultStyle() const;
 private:
-    WidgetCallback m_on_toggle;
-    bool m_pressed;
-    bool m_clicking;
+    struct Members;
+    deep_copy_ptr<Members> m;
 };
 
 
-class CheckboxButtonStyle : public Style
+class iuiInterModule CheckboxStyle : public Style
 {
 public:
     virtual void draw();
 };
 
-class Checkbox : public Widget
+class iuiInterModule Checkbox : public Widget
 {
 public:
-    Checkbox();
-    Checkbox(const wchar_t *text, const WidgetCallback &on_toggle);
+    Checkbox(const wchar_t *text=L"", const WidgetCallback &on_toggle=WidgetCallback(), Style *style=NULL);
     bool isChecked() const;
+    bool isPressing() const;
 
+protected:
+    virtual Style* createDefaultStyle() const;
 private:
-    WidgetCallback m_on_toggle;
-    bool m_checked;
-    bool m_clicking;
+    struct Members;
+    deep_copy_ptr<Members> m;
 };
 
 
-class SliderStyle : public Style
+class iuiInterModule SliderStyle : public Style
 {
 public:
     virtual void draw();
 };
 
-class Slider : public Widget
+class iuiInterModule Slider : public Widget
 {
 public:
     Slider();
     Slider(const wchar_t *text, const WidgetCallback &on_change);
     Float getValue() const;
 
+protected:
+    virtual Style* createDefaultStyle() const;
 private:
     WidgetCallback m_on_change;
     Range m_range;
@@ -82,46 +88,6 @@ private:
     bool m_dragging;
 };
 
-
-class EditboxStyle : public Style
-{
-public:
-    virtual void draw();
-};
-
-class Editbox : public Widget
-{
-public:
-    Editbox();
-    Editbox(const wchar_t *text, const WidgetCallback &on_change);
-    bool isReadOnly() const;
-    int32 getCursor() const;
-
-private:
-    WidgetCallback m_on_change;
-    bool m_readonly;
-    int32 m_cursor;
-};
-
-class EditboxMultilineStyle : public Style
-{
-public:
-    virtual void draw();
-};
-
-class EditboxMultiline : public Widget
-{
-public:
-    EditboxMultiline();
-    EditboxMultiline(const wchar_t *text, const WidgetCallback &on_change);
-    bool isReadOnly() const;
-    ivec2 getCursor() const;
-
-private:
-    WidgetCallback m_on_change;
-    bool m_readonly;
-    ivec2 m_cursor;
-};
 
 } // namespace iui
 #endif // iui_Button_h

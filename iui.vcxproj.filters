@@ -22,6 +22,9 @@
     <ClCompile Include="ist\UI\iuiWindow.cpp">
       <Filter>UI</Filter>
     </ClCompile>
+    <ClCompile Include="ist\UI\iuiEdit.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ist\UI\iuiCommon.h">
@@ -45,6 +48,9 @@
     </ClInclude>
     <ClInclude Include="ist\iui.h" />
     <ClInclude Include="ist\UI\iuiWindow.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\UI\iuiEdit.h">
       <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>

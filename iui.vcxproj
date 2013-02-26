@@ -24,6 +24,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">iuiPCH.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="ist\UI\iuiButton.cpp" />
+    <ClCompile Include="ist\UI\iuiEdit.cpp" />
     <ClCompile Include="ist\UI\iuiRenderer.cpp" />
     <ClCompile Include="ist\UI\iuiSystem.cpp" />
     <ClCompile Include="ist\UI\iuiWidget.cpp" />
@@ -34,6 +35,7 @@
     <ClInclude Include="ist\iuiPCH.h" />
     <ClInclude Include="ist\UI\iuiButton.h" />
     <ClInclude Include="ist\UI\iuiCommon.h" />
+    <ClInclude Include="ist\UI\iuiEdit.h" />
     <ClInclude Include="ist\UI\iuiRenderer.h" />
     <ClInclude Include="ist\UI\iuiSystem.h" />
     <ClInclude Include="ist\UI\iuiTypes.h" />

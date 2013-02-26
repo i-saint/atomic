@@ -4,6 +4,15 @@
 #include "ist/Math.h"
 #include "ist/Window.h"
 
+#if defined(iuiExportSymbols)
+#   define iuiInterModule istDLLExport
+#elif defined(iuiImportSymbols)
+#   define iuiInterModule istDLLImport
+#else
+#   define iuiInterModule
+#endif // iuiExportSymbols
+
+
 namespace iui {
 
 using ist::int8;
@@ -63,8 +72,11 @@ struct Range
 
 struct Rect
 {
-    Position position;
+    Position pos;
     Size size;
+
+    Rect() {}
+    Rect(const Position &p, const Size &s) : pos(p), size(s) {}
 };
 
 struct Circle

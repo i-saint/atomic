@@ -33,6 +33,10 @@ void Widget::update(Float dt)
 
 void Widget::draw()
 {
+    if(m->style==NULL) {
+        m->style = createDefaultStyle();
+        if(m->style) { m->style->setWidget(this); }
+    }
     if(m->style) {
         m->style->draw();
     }
@@ -51,9 +55,24 @@ const Size&         Widget::getSize() const     { return m->size; }
 const String&       Widget::getText() const     { return m->text; }
 bool                Widget::isFocused() const   { return iuiGetSystem()->getFocus()==this; }
 
-void Widget::makeFocus()
+void Widget::setStyle( Style *style )           { m->style=style; }
+void Widget::setText( const String &text )      { m->text = text; }
+void Widget::setPosition( const Position &pos ) { m->pos=pos; }
+void Widget::setSize( const Size &size )        { m->size=size; }
+void Widget::setFocus(bool v)
 {
-    iuiGetSystem()->setFocus(this);
+    if(v) {
+        iuiGetSystem()->setFocus(this);
+    }
+    else if(iuiGetSystem()->getFocus()==this) {
+        iuiGetSystem()->setFocus(NULL);
+    }
+}
+
+
+Style* Widget::createDefaultStyle() const
+{
+    return NULL;
 }
 
 
@@ -66,9 +85,8 @@ struct Style::Members
     Color border_color;
 };
 
-Style::Style(Widget *widget)
+Style::Style()
 {
-    m->widget = widget;
 }
 
 Style::~Style()

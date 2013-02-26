@@ -6,13 +6,14 @@ namespace ist {
 namespace i3dgl {
     class EasyDrawer;
 } // i3dgl
+namespace i3dgles {
+    class EasyDrawer;
+} // i3dgles
 } // namespace ist
 
 namespace iui {
 
-
-
-class istInterModule UIRenderer : public ist::SharedObject
+class iuiInterModule UIRenderer : public ist::SharedObject
 {
 public:
     virtual ~UIRenderer() {}
@@ -28,6 +29,7 @@ public:
 };
 UIRenderer* CreateUIRenderer();
 UIRenderer* CreateUIRenderer(ist::i3dgl::EasyDrawer *drawer);
+UIRenderer* CreateUIRenderer(ist::i3dgles::EasyDrawer *drawer);
 
 
 } // namespace iui
