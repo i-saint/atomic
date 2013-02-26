@@ -10,7 +10,6 @@ namespace i3dgl {
 DeviceContext::DeviceContext( Device *dev )
     : m_device(dev)
 {
-    setRef(1);
     istSafeAddRef(m_device);
 
     m_dirty.flags = 0;

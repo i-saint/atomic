@@ -1,7 +1,5 @@
 ﻿#include "iuiPCH.h"
-#include "iuiPanel.h"
-namespace ist {
+#include "iuiWindow.h"
 namespace iui {
 
 } // namespace iui
-} // namespace ist

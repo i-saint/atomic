@@ -17,7 +17,6 @@ namespace i3dgl {
 
 IFontRenderer::IFontRenderer()
 {
-    setRef(1);
 }
 
 

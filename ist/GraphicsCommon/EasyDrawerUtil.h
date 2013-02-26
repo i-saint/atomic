@@ -16,7 +16,7 @@ istInterModule void DrawLine(
 
 istInterModule void DrawOutlineRect(
     EasyDrawer &drawer, const EasyDrawState &state,
-    const vec2 &ur, const vec4 &bl,
+    const vec2 &ur, const vec2 &bl,
     const vec4 &color );
 istInterModule void DrawOutlineRect(
     EasyDrawer &drawer, const EasyDrawState &state,

@@ -1,18 +1,14 @@
-﻿#ifndef ist_UI_iuiButton_h
-#define ist_UI_iuiButton_h
+﻿#ifndef iui_Button_h
+#define iui_Button_h
 #include "iuiCommon.h"
 #include "iuiWidget.h"
-namespace ist {
 namespace iui {
 
-
-class Panel : public Widget
+class ButtonStyle : public Style
 {
 public:
-
-private:
+    virtual void draw();
 };
-
 
 class Button : public Widget
 {
@@ -23,6 +19,13 @@ public:
 private:
     WidgetCallback m_on_press;
     bool m_clicking;
+};
+
+
+class ToggleButtonStyle : public Style
+{
+public:
+    virtual void draw();
 };
 
 class ToggleButton : public Widget
@@ -38,11 +41,18 @@ private:
     bool m_clicking;
 };
 
-class CheckBox : public Widget
+
+class CheckboxButtonStyle : public Style
 {
 public:
-    CheckBox();
-    CheckBox(const wchar_t *text, const WidgetCallback &on_toggle);
+    virtual void draw();
+};
+
+class Checkbox : public Widget
+{
+public:
+    Checkbox();
+    Checkbox(const wchar_t *text, const WidgetCallback &on_toggle);
     bool isChecked() const;
 
 private:
@@ -51,6 +61,12 @@ private:
     bool m_clicking;
 };
 
+
+class SliderStyle : public Style
+{
+public:
+    virtual void draw();
+};
 
 class Slider : public Widget
 {
@@ -62,15 +78,22 @@ public:
 private:
     WidgetCallback m_on_change;
     Range m_range;
-    Float m_value;
+    Float m_position;
     bool m_dragging;
 };
 
-class TextBox : public Widget
+
+class EditboxStyle : public Style
 {
 public:
-    TextBox();
-    TextBox(const wchar_t *text, const WidgetCallback &on_change);
+    virtual void draw();
+};
+
+class Editbox : public Widget
+{
+public:
+    Editbox();
+    Editbox(const wchar_t *text, const WidgetCallback &on_change);
     bool isReadOnly() const;
     int32 getCursor() const;
 
@@ -80,11 +103,17 @@ private:
     int32 m_cursor;
 };
 
-class TextBoxMultiline : public Widget
+class EditboxMultilineStyle : public Style
 {
 public:
-    TextBoxMultiline();
-    TextBoxMultiline(const wchar_t *text, const WidgetCallback &on_change);
+    virtual void draw();
+};
+
+class EditboxMultiline : public Widget
+{
+public:
+    EditboxMultiline();
+    EditboxMultiline(const wchar_t *text, const WidgetCallback &on_change);
     bool isReadOnly() const;
     ivec2 getCursor() const;
 
@@ -95,5 +124,4 @@ private:
 };
 
 } // namespace iui
-} // namespace ist
-#endif // ist_UI_iuiButton_h
+#endif // iui_Button_h

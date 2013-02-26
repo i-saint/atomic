@@ -1,7 +1,6 @@
 ﻿#ifndef iui_Widget_h
 #define iui_Widget_h
 #include "iuiCommon.h"
-namespace ist {
 namespace iui {
 
 
@@ -63,5 +62,4 @@ private:
 };
 
 } // namespace iui
-} // namespace ist
 #endif // iui_Widget_h

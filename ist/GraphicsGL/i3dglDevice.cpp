@@ -15,7 +15,6 @@ Device::Device(HWND hwnd)
     : m_immediate_context(NULL)
     , m_hwnd(hwnd)
 {
-    setRef(1);
     m_hdc = ::GetDC(m_hwnd);
 #ifdef i3d_enable_resource_leak_check
 

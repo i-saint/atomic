@@ -10,7 +10,6 @@ Device::Device()
     : m_device(NULL)
     , m_context(NULL)
 {
-    setRef(1);
     m_device = alcOpenDevice(NULL);
     if(!m_device) {
         istPrint("alcOpenDevice() failed");

@@ -6,9 +6,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ist\UI\iuiPanel.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
     <ClCompile Include="ist\UI\iuiRenderer.cpp">
       <Filter>UI</Filter>
     </ClCompile>
@@ -22,12 +19,12 @@
     <ClCompile Include="ist\UI\iuiButton.cpp">
       <Filter>UI</Filter>
     </ClCompile>
+    <ClCompile Include="ist\UI\iuiWindow.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ist\UI\iuiCommon.h">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\UI\iuiPanel.h">
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="ist\UI\iuiRenderer.h">
@@ -47,5 +44,8 @@
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="ist\iui.h" />
+    <ClInclude Include="ist\UI\iuiWindow.h">
+      <Filter>UI</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

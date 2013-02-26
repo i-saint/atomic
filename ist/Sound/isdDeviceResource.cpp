@@ -10,7 +10,6 @@ DeviceResource::DeviceResource(Device *v)
     , m_dr_handle(0)
     , m_handle(0)
 {
-    setRef(1);
     istSafeAddRef(m_device);
 }
 

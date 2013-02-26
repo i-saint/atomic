@@ -8,10 +8,10 @@
 
 namespace ist {
 
-class istInterModule SharedObject
+class istInterModule SharedObject : boost::noncopyable
 {
 public:
-    SharedObject() : m_ref_counter(0) {}
+    SharedObject() : m_ref_counter(1) {}
     virtual ~SharedObject()     {}
     virtual void addRef()       { ++m_ref_counter; }
     virtual void setRef(int32 v){ m_ref_counter=v; }

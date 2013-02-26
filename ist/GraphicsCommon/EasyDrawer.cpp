@@ -68,6 +68,8 @@ public:
 private:
     EasyShaders()
     {
+        setRef(0);
+
         Device *dev = GetDevice();
         istMemset(m_shaders, 0, sizeof(m_shaders));
         istMemset(m_shaders_nt, 0, sizeof(m_shaders_nt));
@@ -207,11 +209,6 @@ EasyDrawer::~EasyDrawer()
 
     Device *dev = GetDevice();
     istSafeRelease(dev);
-}
-
-void EasyDrawer::release()
-{
-    istDelete(this);
 }
 
 template<class VertexT>

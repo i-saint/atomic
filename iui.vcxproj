@@ -24,21 +24,21 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">iuiPCH.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="ist\UI\iuiButton.cpp" />
-    <ClCompile Include="ist\UI\iuiPanel.cpp" />
     <ClCompile Include="ist\UI\iuiRenderer.cpp" />
     <ClCompile Include="ist\UI\iuiSystem.cpp" />
     <ClCompile Include="ist\UI\iuiWidget.cpp" />
+    <ClCompile Include="ist\UI\iuiWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ist\iui.h" />
     <ClInclude Include="ist\iuiPCH.h" />
     <ClInclude Include="ist\UI\iuiButton.h" />
     <ClInclude Include="ist\UI\iuiCommon.h" />
-    <ClInclude Include="ist\UI\iuiPanel.h" />
     <ClInclude Include="ist\UI\iuiRenderer.h" />
     <ClInclude Include="ist\UI\iuiSystem.h" />
     <ClInclude Include="ist\UI\iuiTypes.h" />
     <ClInclude Include="ist\UI\iuiWidget.h" />
+    <ClInclude Include="ist\UI\iuiWindow.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{7674C6F9-A478-46C7-BF6C-13674B96C396}</ProjectGuid>

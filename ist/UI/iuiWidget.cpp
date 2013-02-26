@@ -1,7 +1,6 @@
 ﻿#include "iuiPCH.h"
 #include "iuiSystem.h"
 #include "iuiWidget.h"
-namespace ist {
 namespace iui {
 
 struct Widget::Members
@@ -88,4 +87,3 @@ void Style::setBorderColor(const Color &v)  { m->border_color=v; }
 
 
 } // namespace iui
-} // namespace ist

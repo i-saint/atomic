@@ -15,7 +15,6 @@ DeviceResource::DeviceResource(Device *dev)
     , m_dr_handle(0)
     , m_handle(0)
 {
-    setRef(1);
     istSafeAddRef(m_device);
 #ifdef i3d_enable_resource_leak_check
     m_callstack_size = GetCallstack(m_stack, _countof(m_stack), 3);

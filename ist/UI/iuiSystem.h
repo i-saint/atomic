@@ -1,15 +1,13 @@
-﻿#ifndef ist_UI_iuiSystem_h
-#define ist_UI_iuiSystem_h
+﻿#ifndef iui_System_h
+#define iui_System_h
 #include "iuiCommon.h"
-namespace ist {
 namespace iui {
 
-class UIRenderer;
 
-class istInterModule UISystem : public SharedObject
+class istInterModule UISystem : public ist::SharedObject
 {
 public:
-    typedef Application::WMHandler WMHandler;
+    typedef ist::Application::WMHandler WMHandler;
 
     static void initializeInstance();
     static void finalizeInstance();
@@ -35,10 +33,9 @@ private:
 };
 
 } // namespace iui
-} // namespace ist
 
-#define iuiInitialize() ist::iui::UISystem::initializeInstance()
-#define iuiFinalize()   ist::iui::UISystem::finalizeInstance()
-#define iuiGetSystem()  ist::iui::UISystem::getInstance()
+#define iuiInitialize() iui::UISystem::initializeInstance()
+#define iuiFinalize()   iui::UISystem::finalizeInstance()
+#define iuiGetSystem()  iui::UISystem::getInstance()
 
-#endif // ist_UI_iuiSystem_h
+#endif // iui_System_h

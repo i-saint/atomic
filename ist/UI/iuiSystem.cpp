@@ -1,7 +1,6 @@
 ﻿#include "iuiPCH.h"
 #include "iuiSystem.h"
 #include "iuiWidget.h"
-namespace ist {
 namespace iui {
 
 
@@ -95,4 +94,3 @@ void UISystem::setFocus( Widget *v )
 
 
 } // namespace iui
-} // namespace ist

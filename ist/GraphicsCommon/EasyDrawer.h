@@ -50,11 +50,10 @@ private:
 };
 
 
-class istInterModule EasyDrawer : public boost::noncopyable
+class istInterModule EasyDrawer : public SharedObject
 {
 friend EasyDrawer* CreateEasyDrawer();
 public:
-    void release();
     void flush(DeviceContext *ctx);
 
     template<class VertexT>

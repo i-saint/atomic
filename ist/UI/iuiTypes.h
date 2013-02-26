@@ -1,5 +1,5 @@
-﻿#ifndef ist_UI_iuiTypes_h
-#define ist_UI_iuiTypes_h
+﻿#ifndef iui_Types_h
+#define iui_Types_h
 #include "ist/Base.h"
 #include "ist/Math.h"
 
@@ -9,4 +9,4 @@ namespace iui {
 
 } // namespace iui
 } // namespace ist
-#endif // ist_UI_iuiTypes_h
+#endif // iui_Types_h
