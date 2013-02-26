@@ -36,6 +36,7 @@
     <ClInclude Include="ist\UI\iuiButton.h" />
     <ClInclude Include="ist\UI\iuiCommon.h" />
     <ClInclude Include="ist\UI\iuiEdit.h" />
+    <ClInclude Include="ist\UI\iuiEvent.h" />
     <ClInclude Include="ist\UI\iuiRenderer.h" />
     <ClInclude Include="ist\UI\iuiSystem.h" />
     <ClInclude Include="ist\UI\iuiTypes.h" />

@@ -64,7 +64,7 @@ UISystem::~UISystem()
     istGetAplication()->eraseMessageHandler(&m->wmhandler);
 }
 
-bool UISystem::handleWindowMessage( const WM_Base &wm )
+bool UISystem::handleWindowMessage( const ist::WM_Base &wm )
 {
     if(m->root_widget) {
         m->root_widget->handleEvent(wm);

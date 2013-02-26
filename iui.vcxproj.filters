@@ -53,5 +53,8 @@
     <ClInclude Include="ist\UI\iuiEdit.h">
       <Filter>UI</Filter>
     </ClInclude>
+    <ClInclude Include="ist\UI\iuiEvent.h">
+      <Filter>UI</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

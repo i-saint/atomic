@@ -27,7 +27,7 @@ public:
 private:
     UISystem();
     ~UISystem();
-    bool handleWindowMessage(const WM_Base &wm);
+    bool handleWindowMessage(const ist::WM_Base &wm);
 
     static UISystem *s_inst;
     struct Members;

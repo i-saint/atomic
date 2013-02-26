@@ -51,10 +51,6 @@ using ist::atomic_int32;
 
 using ist::SharedObject;
 using ist::deep_copy_ptr;
-using ist::WM_Base;
-using ist::WM_Mouse;
-using ist::WM_Keyboard;
-using ist::WM_IME;
 
 typedef float32 Float;
 typedef vec4 Color;
@@ -98,17 +94,8 @@ class UIRenderer;
 class Widget;
 class Style;
 typedef ist::vector<Widget*> WidgetCont;
+typedef ist::vector<Style*> StyleCont;
 typedef std::function<void (Widget*)> WidgetCallback;
-
-class Panel;
-class Window;
-
-class Button;
-class ToggleButton;
-class Checkbox;
-
-class Editbox;
-class EditboxMultiline;
 
 
 } // namespace iui

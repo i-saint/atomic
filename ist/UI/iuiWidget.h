@@ -1,14 +1,8 @@
 ﻿#ifndef iui_Widget_h
 #define iui_Widget_h
 #include "iuiCommon.h"
+#include "iuiEvent.h"
 namespace iui {
-
-
-class iuiInterModule EventHandler
-{
-public:
-    virtual ~EventHandler() {}
-};
 
 class iuiInterModule Widget : public SharedObject
 {
@@ -32,7 +26,8 @@ public:
     const String&       getText() const;
     const Position&     getPosition() const;
     const Size&         getSize() const;
-    Float               getZOrder();
+    Float               getZOrder() const;
+    bool                isVisible() const;
     bool                isFocused() const;
 
     void setStyle(Style *style);
@@ -40,10 +35,19 @@ public:
     void setPosition(const Position &pos);
     void setSize(const Size &pos);
     void setZOrder(Float v);
+    void setVisible(bool v);
     void setFocus(bool v);
+
+    void setTextHandler(WidgetCallback cb);
+    void setPositionHandler(WidgetCallback cb);
+    void setSizeHandler(WidgetCallback cb);
+    void setZOrderHandler(WidgetCallback cb);
+    void setVisibilityHandler(WidgetCallback cb);
+    void setFocusHandler(WidgetCallback cb);
 
 protected:
     virtual Style* createDefaultStyle() const;
+    void CallIfValid(const WidgetCallback &v);
 
 private:
     struct Members;
