@@ -58,8 +58,8 @@ public:
 
     template<class VertexT>
     void draw(const EasyDrawState &state, I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices);
-    template<class VertexT>
-    void draw(const EasyDrawState &state, I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices, const uint32 *indices, uint32 num_indices);
+    template<class VertexT, class IndexT>
+    void draw(const EasyDrawState &state, I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices, const IndexT *indices, uint32 num_indices);
 
 private:
     EasyDrawer();
