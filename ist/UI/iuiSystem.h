@@ -18,7 +18,7 @@ public:
     void draw();
 
     UIRenderer* getRenderer() const;
-    Widget*     getRootWidgets() const;
+    Widget*     getRootWindow() const;
     Widget*     getFocus() const;
     const Rect& getScreen() const;
 
@@ -29,8 +29,10 @@ public:
 private:
     UISystem();
     ~UISystem();
-    bool sendWindowMessage(Widget *widget, const WM_Base &wm);
     bool handleWindowMessage(const ist::WM_Base &wm);
+    bool handleWindowMessageR(Widget *widget, const WM_Base &wm);
+    void updateR(Widget *widget, Float dt);
+    void drawR(Widget *widget);
 
     static UISystem *s_inst;
     struct Members;
@@ -39,12 +41,13 @@ private:
 
 } // namespace iui
 
-#define iuiInitialize()     iui::UISystem::initializeInstance()
-#define iuiFinalize()       iui::UISystem::finalizeInstance()
-#define iuiGetSystem()      iui::UISystem::getInstance()
-
-#define iuiGetRenderer()            iuiGetSystem()->getRenderer()
+#define iuiInitialize()             iui::UISystem::initializeInstance()
+#define iuiFinalize()               iui::UISystem::finalizeInstance()
 #define iuiInitializeRenderer(...)  iuiGetRenderer()->initialize(__VA_ARGS__)
 #define iuiFinalizeRenderer()       iuiGetRenderer()->finalize()
+
+#define iuiGetSystem()              iui::UISystem::getInstance()
+#define iuiGetRootWindow()          iuiGetSystem()->getRootWindow()
+#define iuiGetRenderer()            iuiGetSystem()->getRenderer()
 
 #endif // iui_System_h

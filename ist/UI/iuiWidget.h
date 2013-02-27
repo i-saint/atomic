@@ -17,10 +17,9 @@ public:
     WidgetCont&         getChildren();
     const WidgetCont&   getChildren() const;
     template<class F>
-    void eachChildren(const F &f)
-    {
-        std::for_each(getChildren().begin(), getChildren().end(), f);
-    }
+    void eachChildren(const F &f) { std::for_each(getChildren().begin(), getChildren().end(), f); }
+    template<class F>
+    void eachChildrenReverse(const F &f) { std::for_each(getChildren().rbegin(), getChildren().rend(), f); }
 
     Style*              getStyle() const;
     const String&       getText() const;
