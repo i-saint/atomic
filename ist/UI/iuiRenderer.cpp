@@ -6,20 +6,28 @@ namespace iui {
 // とりあえず
 namespace i3d = ist::i3dgl;
 
-class UIRendererGL : public UIRenderer
+class UIRendererImpl : public UIRenderer
 {
 public:
-    UIRendererGL(i3d::EasyDrawer *drawer=NULL)
-        : m_drawer(drawer ? drawer : i3d::CreateEasyDrawer())
+    UIRendererImpl()
+        : m_drawer(NULL)
     {
+    }
+
+    virtual ~UIRendererImpl()
+    {
+    }
+
+    virtual void initialize(i3d::EasyDrawer *drawer=NULL)
+    {
+        m_drawer = drawer ? drawer : i3d::CreateEasyDrawer();
         istSafeAddRef(drawer);
     }
 
-    virtual ~UIRendererGL()
+    virtual void finalize()
     {
         istSafeRelease(m_drawer);
     }
-
 
     virtual void setScreen(float32 width, float32 height)
     {
@@ -53,6 +61,11 @@ public:
     //virtual void drawCircle(const Circle &circle, const Color &color)=0;
     //virtual void drawOutlineCircle(const Circle &circle, const Color &color)=0;
 
+    virtual void drawFont(const TextPosition &pos, const Color &color, const wchar_t *text, uint32 len)
+    {
+
+    }
+
     virtual void flush()
     {
         m_drawer->flush(i3d::GetDevice()->getImmediateContext());
@@ -65,12 +78,9 @@ private:
 
 UIRenderer* CreateUIRenderer()
 {
-    return istNew(UIRendererGL)();
+    return istNew(UIRendererImpl)();
 }
-UIRenderer* CreateUIRenderer(ist::i3dgl::EasyDrawer *drawer)
-{
-    return istNew(UIRendererGL)(drawer);
-}
+
 
 
 } // namespace iui

@@ -111,6 +111,14 @@ struct Style::Members
     Color font_color;
     Color bg_color;
     Color border_color;
+
+    Members()
+        : widget(NULL)
+        , font_color(1.0f, 1.0f, 1.0f, 1.0f)
+        , bg_color(0.0f, 0.0f, 0.0f, 0.5f)
+        , border_color(1.0f, 1.0f, 1.0f, 0.8f)
+    {
+    }
 };
 
 Style::Style()

@@ -77,6 +77,10 @@ Device::~Device()
 }
 #endif // ist_env_Windows
 
+DeviceContext* Device::getImmediateContext()
+{
+    return m_immediate_context;
+}
 
 void Device::addResource( DeviceResource *v )
 {
@@ -215,12 +219,6 @@ void Device::printLeakInfo()
         istPrint("\n");
     }
 }
-
-DeviceContext* Device::getImmediateContext()
-{
-    return m_immediate_context;
-}
-
 #endif // i3d_enable_leak_check
 
 

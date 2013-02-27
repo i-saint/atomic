@@ -7,7 +7,8 @@
 #include "UI/iuiSystem.h"
 #include "UI/iuiWidget.h"
 #include "UI/iuiButton.h"
-#include "UI/iuiPanel.h"
+#include "UI/iuiWindow.h"
 #include "UI/iuiEdit.h"
+#include "UI/iuiRenderer.h"
 
 #endif // iui_h

@@ -73,6 +73,10 @@ struct Rect
 
     Rect() {}
     Rect(const Position &p, const Size &s) : pos(p), size(s) {}
+    const Position& getPosition() const { return pos; }
+    const Size&     getSize() const     { return size; }
+    void setPosition(const Position &v) { pos=v; }
+    void setSize(const Size &v)         { size=v; }
 };
 
 struct Circle
@@ -84,6 +88,9 @@ struct Circle
 struct Line
 {
     Position begin, end;
+
+    Position& operator[](size_t i) { reinterpret_cast<Position*>(this)[i]; }
+    const Position& operator[](size_t i) const { reinterpret_cast<const Position*>(this)[i]; }
 };
 
 

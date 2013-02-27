@@ -196,6 +196,8 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     {
         return false;
     }
+    // ui
+    iuiInitialize();
 
     // start rendering thread
     AtomicRenderingSystem::initializeInstance();
@@ -233,8 +235,10 @@ void AtomicApplication::finalize()
 
     istSafeDelete(m->game);
 
-    AtomicRenderingSystem::finalizeInstance();
     AtomicSound::finalizeInstance();
+    AtomicRenderingSystem::finalizeInstance();
+    iuiFinalize();
+    super::finalize();
 
     istCommandlineConsoleFinalize();
     istCommandlineFinalize();
@@ -244,7 +248,6 @@ void AtomicApplication::finalize()
     FinalizeText();
     ist::PoolNewManager::freeAll();
     FinalizeCrashReporter();
-    super::finalize();
 }
 
 void AtomicApplication::mainLoop()
