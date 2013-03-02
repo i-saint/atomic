@@ -2,7 +2,7 @@
 #define ist_Application_WindowMessage_h
 namespace ist {
 
-enum WindowMessageType
+enum WMType
 {
     WMT_Unknown,
 
@@ -38,7 +38,7 @@ enum WindowMessageType
 
 struct istInterModule WM_Base
 {
-    WindowMessageType type;
+    WMType type;
 };
 
 struct istInterModule WM_Window : public WM_Base
@@ -56,7 +56,7 @@ struct istInterModule WM_Keyboard : public WM_Base
 
 struct istInterModule WM_Mouse : public WM_Base
 {
-    ivec2 mouse_pos;
+    vec2 mouse_pos;
     int16 wheel;
     struct {
         uint16 left:1;

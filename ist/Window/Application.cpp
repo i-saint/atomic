@@ -19,8 +19,8 @@ inline void SetupWMMouse(WM_Mouse &wm, WPARAM wParam , LPARAM lParam)
     if(wParam&MK_CONTROL) { wm.button.ctrl=1; }
     if(wParam&MK_MBUTTON) { wm.button.shift=1; }
     wm.wheel = GET_WHEEL_DELTA_WPARAM(wParam);
-    wm.mouse_pos.x = GET_X_LPARAM(lParam);
-    wm.mouse_pos.y = GET_Y_LPARAM(lParam);
+    wm.mouse_pos.x = (float32)GET_X_LPARAM(lParam);
+    wm.mouse_pos.y = (float32)GET_Y_LPARAM(lParam);
 }
 
 
@@ -239,6 +239,8 @@ struct Application::Members
     {
     }
 };
+istMemberPtrImpl(Application::Members);
+
 
 
 Application* Application::getInstance()

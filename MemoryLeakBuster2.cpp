@@ -98,27 +98,6 @@ inline int istVSprintf(char (&buf)[N], const char *format, va_list vl)
     return _vsnprintf(buf, N, format, vl);
 }
 
-#define istPrint(...) DebugPrint(__FILE__, __LINE__, __VA_ARGS__)
-
-static const int DPRINTF_MES_LENGTH  = 4096;
-void DebugPrintV(const char* /*file*/, int /*line*/, const char* fmt, va_list vl)
-{
-    char buf[DPRINTF_MES_LENGTH];
-    //istsprintf(buf, "%s:%d - ", file, line);
-    //::OutputDebugStringA(buf);
-    //WriteLogFile(buf);
-    istVSprintf(buf, fmt, vl);
-    ::OutputDebugStringA(buf);
-}
-
-void DebugPrint(const char* file, int line, const char* fmt, ...)
-{
-    va_list vl;
-    va_start(vl, fmt);
-    DebugPrintV(file, line, fmt, vl);
-    va_end(vl);
-}
-
 
 
 bool InitializeDebugSymbol(HANDLE proc=::GetCurrentProcess())
@@ -441,6 +420,8 @@ public:
 
     const AllocInfo* findAllocationInfo(void *p) const
     {
+        Mutex::ScopedLock l(*m_mutex);
+        if(m_leakinfo==NULL) { return NULL; }
         for(DataTableT::const_iterator li=m_leakinfo->begin(); li!=m_leakinfo->end(); ++li) {
             const AllocInfo &ai = li->second;
             if(p>=ai.location && (size_t)p<=(size_t)ai.location+ai.size) {

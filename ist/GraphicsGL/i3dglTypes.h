@@ -408,6 +408,8 @@ private:\
     friend class DeviceContext;
 
 
+istMemberPtrTemplate();
+
 } // namespace i3dgl
 } // namespace ist
 

@@ -50,6 +50,9 @@ public:
     //virtual void drawCircle(const Circle &circle, const Color &color)=0;
     //virtual void drawOutlineCircle(const Circle &circle, const Color &color)=0;
     virtual void drawFont(const TextPosition &pos, const Color &color, const wchar_t *text, uint32 len=0)=0;
+
+    virtual void begin()=0;
+    virtual void end()=0;
     virtual void flush()=0;
 };
 UIRenderer* CreateUIRenderer();

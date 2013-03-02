@@ -20,7 +20,7 @@ protected:
     virtual Style* createDefaultStyle() const;
 private:
     struct Members;
-    deep_copy_ptr<Members> m;
+    istMemberPtrDecl(Members) m;
 };
 
 
@@ -41,7 +41,7 @@ protected:
     virtual Style* createDefaultStyle() const;
 private:
     struct Members;
-    deep_copy_ptr<Members> m;
+    istMemberPtrDecl(Members) m;
 };
 
 
@@ -62,7 +62,7 @@ protected:
     virtual Style* createDefaultStyle() const;
 private:
     struct Members;
-    deep_copy_ptr<Members> m;
+    istMemberPtrDecl(Members) m;
 };
 
 

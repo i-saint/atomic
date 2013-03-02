@@ -286,6 +286,9 @@ public:
     {
         if(m_quads.empty()) { return; }
 
+        EasyDrawState state_prev = m_drawer->getRenderStates();
+        m_drawer->forceSetRenderStates(m_state);
+
         size_t num_quad = m_quads.size();
         size_t num_vertex = num_quad*4;
         m_vertices.resize(num_quad*4);
@@ -310,12 +313,14 @@ public:
             m_indices[qi6+5] = qi4+0;
         }
         if(!m_vertices.empty()) {
-            m_drawer->draw(m_state, I3D_TRIANGLES, &m_vertices[0], m_vertices.size(), &m_indices[0], m_indices.size());
+            m_drawer->draw(I3D_TRIANGLES, &m_vertices[0], m_vertices.size(), &m_indices[0], m_indices.size());
             m_drawer->flush(dc);
         }
         m_quads.clear();
         m_vertices.clear();
         m_indices.clear();
+
+        m_drawer->forceSetRenderStates(state_prev);
     }
 
 private:

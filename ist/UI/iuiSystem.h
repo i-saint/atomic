@@ -14,7 +14,7 @@ public:
     static void finalizeInstance();
     static UISystem* getInstance();
 
-    void update(Float dt);
+    void update(Float dt=0.0f);
     void draw();
 
     UIRenderer* getRenderer() const;
@@ -36,7 +36,7 @@ private:
 
     static UISystem *s_inst;
     struct Members;
-    deep_copy_ptr<Members> m;
+    istMemberPtrDecl(Members) m;
 };
 
 } // namespace iui
@@ -45,9 +45,13 @@ private:
 #define iuiFinalize()               iui::UISystem::finalizeInstance()
 #define iuiInitializeRenderer(...)  iuiGetRenderer()->initialize(__VA_ARGS__)
 #define iuiFinalizeRenderer()       iuiGetRenderer()->finalize()
+#define iuiUpdate()                 iuiGetSystem()->update()
+#define iuiDraw()                   iuiGetSystem()->draw()
+#define iuiDrawFlush()              iuiGetRenderer()->flush()
 
 #define iuiGetSystem()              iui::UISystem::getInstance()
 #define iuiGetRootWindow()          iuiGetSystem()->getRootWindow()
 #define iuiGetRenderer()            iuiGetSystem()->getRenderer()
+
 
 #endif // iui_System_h

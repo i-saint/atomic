@@ -84,7 +84,7 @@ private:
     static const int MAX_JOYSTICK_NUM = 4;
 
     struct Members;
-    deep_copy_ptr<Members> m;
+    istMemberPtrDecl(Members) m;
 
 #ifdef ist_env_Windows
     bool _handleWindowMessage(const WM_Base& wm);

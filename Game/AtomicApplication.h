@@ -75,7 +75,7 @@ private:
     void registerCommands();
 
     struct Members;
-    ist::deep_copy_ptr<Members, false> m;
+    istMemberPtrDecl(Members) m;
 };
 
 } // namespace atomic

@@ -52,23 +52,50 @@ private:
 
 class istInterModule EasyDrawer : public SharedObject
 {
-friend EasyDrawer* CreateEasyDrawer();
+friend istInterModule EasyDrawer* CreateEasyDrawer();
 public:
-    void flush(DeviceContext *ctx);
+    const EasyDrawState& getRenderStates();
+    void forceSetRenderStates(const EasyDrawState &ds);
 
-    template<class VertexT>
-    void draw(const EasyDrawState &state, I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices);
-    template<class VertexT, class IndexT>
-    void draw(const EasyDrawState &state, I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices, const IndexT *indices, uint32 num_indices);
+    void setScreen(float32 width, float32 height);
+    void setScreen(float32 left, float32 right, float32 bottom, float32 top);
+    void setProjectionMatrix(const mat4 &mat);
+    void setWorldMatrix(const mat4 &mat);
+    void setTexture(Texture2D *tex);
+    void setSampler(Sampler *smp);
+    void setShader(ShaderProgram *smp);
+
+    const mat4&     getProjectionMatrix() const;
+    const mat4&     getWorldMatrix() const;
+    Texture2D*      getTexture() const;
+    Sampler*        getSampler() const;
+    ShaderProgram*  getShader() const;
+    uint32          getUniformLocation() const;
+
+    // template は dllexport できないのでマクロによる展開で代用
+#define Template(VertexT)\
+    void draw(I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices);\
+    void draw(I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices, const uint8 *indices, uint32 num_indices);\
+    void draw(I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices, const uint16 *indices, uint32 num_indices);\
+    void draw(I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices, const uint32 *indices, uint32 num_indices);
+    istEachVertexTypes(Template)
+#undef Template
+
+    void flush(DeviceContext *ctx);
 
 private:
     EasyDrawer();
     ~EasyDrawer();
     void updateBuffers(DeviceContext *ctx);
 
+    template<class VertexT>
+    void drawImpl(I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices);
+    template<class VertexT, class IndexT>
+    void drawImpl(I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices, const IndexT *indices, uint32 num_indices);
+
     struct DrawCall;
     struct Members;
-    deep_copy_ptr<Members> m;
+    istMemberPtrDecl(Members) m;
 };
 
 istInterModule EasyDrawer* CreateEasyDrawer();

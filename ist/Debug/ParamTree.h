@@ -137,7 +137,7 @@ private:
 
 
 template<class T>
-class istInterModule TParamNode : public ParamNodeBase
+class TParamNode : public ParamNodeBase
 {
 typedef ParamNodeBase super;
 public:

@@ -56,6 +56,8 @@ typedef ist::variant32 variant32;
 typedef ist::variant64 variant64;
 typedef ist::variant128 variant128;
 
+istMemberPtrTemplate();
+
 namespace i3d = ist::i3dgl;
 using namespace ist::i3dgl;
 

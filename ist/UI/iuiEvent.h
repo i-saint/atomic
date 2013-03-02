@@ -43,7 +43,14 @@ typedef ist::WM_Base        WM_Base;
 typedef ist::WM_Mouse       WM_Mouse;
 typedef ist::WM_Keyboard    WM_Keyboard;
 typedef ist::WM_IME         WM_IME;
-typedef ist::WM_Base        WM_Base;
+
+class Widget;
+
+struct WM_Widget : public WM_Base
+{
+    Widget *from;
+};
+
 
 } // namespace iui
 #endif // iui_Event_h

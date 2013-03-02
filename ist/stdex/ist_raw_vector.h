@@ -123,6 +123,13 @@ public:
         return *this;
     }
 
+    void swap(const raw_vector &other)
+    {
+        std::swap<value_type*>(m_data, other.m_data);
+        std::swap<size_type>(m_size, other.m_size);
+        std::swap<size_type>(m_capacity, other.m_capacity);
+    }
+
 protected:
     pointer allocate(size_type n)
     {

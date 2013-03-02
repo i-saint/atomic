@@ -1,5 +1,5 @@
-﻿#ifndef __ist_i3dgl__
-#define __ist_i3dgl__
+﻿#ifndef ist_i3dgl_h
+#define ist_i3dgl_h
 #ifdef ist_with_OpenGL
 
 #include <GL/glew.h>
@@ -16,4 +16,4 @@
 #include "i3duglFont.h"
 
 #endif // ist_with_OpenGL
-#endif // __ist_i3dgl__
+#endif // ist_i3dgl_h

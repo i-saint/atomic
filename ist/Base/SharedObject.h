@@ -8,7 +8,7 @@
 
 namespace ist {
 
-class istInterModule SharedObject : boost::noncopyable
+class istInterModule SharedObject
 {
 public:
     SharedObject() : m_ref_counter(1) {}
@@ -28,6 +28,9 @@ protected:
     virtual void onZeroRef() { istDelete(this); }
 
 private:
+    SharedObject(const SharedObject &other);
+    SharedObject& operator=(const SharedObject &other);
+
     atomic_int32 m_ref_counter;
 };
 

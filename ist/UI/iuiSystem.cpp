@@ -44,6 +44,7 @@ struct UISystem::Members
     {
     }
 };
+istMemberPtrImpl(UISystem::Members)
 
 UIRenderer* UISystem::getRenderer() const       { return m->renderer; }
 Widget*     UISystem::getRootWindow() const    { return m->root_widget; }
@@ -118,7 +119,9 @@ void UISystem::updateR( Widget *widget, Float dt )
 
 void UISystem::draw()
 {
+    m->renderer->begin();
     drawR(m->root_widget);
+    m->renderer->end();
 }
 
 void UISystem::drawR( Widget *widget )

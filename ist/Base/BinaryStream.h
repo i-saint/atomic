@@ -1,5 +1,9 @@
 ﻿#ifndef ist_Base_BinaryStream_h
 #define ist_Base_BinaryStream_h
+
+#include "ist/Config.h"
+#include "ist/stdex/ist_raw_vector.h"
+
 namespace ist {
 
 class istInterModule IBinaryStream
@@ -66,7 +70,7 @@ public:
     virtual void setWritePos(uint64 pos, SeekDir dir=Seek_Begin);
 
 private:
-    stl::vector<char> m_buffer;
+    ist::raw_vector<char> m_buffer;
     size_t m_readpos;
     size_t m_writepos;
 

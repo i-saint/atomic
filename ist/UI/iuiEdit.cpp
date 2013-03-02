@@ -18,6 +18,7 @@ struct Editbox::Members
     bool readonly;
     int32 cursor;
 };
+istMemberPtrImpl(Editbox::Members);
 
 Editbox::Editbox( const wchar_t *text, const WidgetCallback &on_change, Style *style )
 {
@@ -45,6 +46,7 @@ struct EditboxMultiline::Members
     bool readonly;
     ivec2 cursor;
 };
+istMemberPtrImpl(EditboxMultiline::Members);
 
 EditboxMultiline::EditboxMultiline( const wchar_t *text, const WidgetCallback &on_change, Style *style )
 {

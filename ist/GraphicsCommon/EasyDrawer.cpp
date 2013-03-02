@@ -102,7 +102,7 @@ private:
                 {0, I3D_FLOAT32, 2,  0, false, 0},
                 {1, I3D_FLOAT32, 4,  8, false, 0},
             };
-            VertexStreamData &vsd = m_vsdata[GetVertexType<Vertex>::result];
+            VertexStreamData &vsd = m_vsdata[GetVertexTypeID<Vertex>::result];
             vsd.stride = sizeof(Vertex);
             vsd.num_descs = _countof(descs);
             std::copy(descs, descs+vsd.num_descs, vsd.descs);
@@ -114,7 +114,7 @@ private:
                 {1, I3D_FLOAT32, 2,  8, false, 0},
                 {2, I3D_FLOAT32, 4, 16, false, 0},
             };
-            VertexStreamData &vsd = m_vsdata[GetVertexType<Vertex>::result];
+            VertexStreamData &vsd = m_vsdata[GetVertexTypeID<Vertex>::result];
             vsd.stride = sizeof(Vertex);
             vsd.num_descs = _countof(descs);
             std::copy(descs, descs+vsd.num_descs, vsd.descs);
@@ -126,7 +126,7 @@ private:
                 {1, I3D_FLOAT32, 2, 12, false, 0},
                 {2, I3D_FLOAT32, 4, 20, false, 0},
             };
-            VertexStreamData &vsd = m_vsdata[GetVertexType<Vertex>::result];
+            VertexStreamData &vsd = m_vsdata[GetVertexTypeID<Vertex>::result];
             vsd.stride = sizeof(Vertex);
             vsd.num_descs = _countof(descs);
             std::copy(descs, descs+vsd.num_descs, vsd.descs);
@@ -174,6 +174,7 @@ struct EasyDrawer::Members
     raw_vector<char>        vertex_data;
     raw_vector<char>        index_data;
     raw_vector<DrawCall>    draw_calls;
+    EasyDrawState state;
 
     Members()
         : va(NULL)
@@ -184,6 +185,27 @@ struct EasyDrawer::Members
     {
     }
 };
+istMemberPtrImpl(EasyDrawer::Members);
+
+
+const EasyDrawState& EasyDrawer::getRenderStates() {return m->state; }
+void EasyDrawer::forceSetRenderStates( const EasyDrawState &ds ) { m->state=ds; }
+
+void EasyDrawer::setScreen(float32 width, float32 height) { m->state.setScreen(width, height); }
+void EasyDrawer::setScreen(float32 left, float32 right, float32 bottom, float32 top) { m->state.setScreen(left, right, bottom, top); }
+void EasyDrawer::setProjectionMatrix(const mat4 &mat) { m->state.setProjectionMatrix(mat); }
+void EasyDrawer::setWorldMatrix(const mat4 &mat) { m->state.setWorldMatrix(mat); }
+void EasyDrawer::setTexture(Texture2D *tex) { m->state.setTexture(tex); }
+void EasyDrawer::setSampler(Sampler *smp) { m->state.setSampler(smp); }
+void EasyDrawer::setShader(ShaderProgram *smp) { m->state.setShader(smp); }
+
+const mat4&     EasyDrawer::getProjectionMatrix() const { return m->state.getProjectionMatrix(); }
+const mat4&     EasyDrawer::getWorldMatrix() const { return m->state.getWorldMatrix(); }
+Texture2D*      EasyDrawer::getTexture() const { return m->state.getTexture(); }
+Sampler*        EasyDrawer::getSampler() const { return m->state.getSampler(); }
+ShaderProgram*  EasyDrawer::getShader() const { return m->state.getShader(); }
+uint32          EasyDrawer::getUniformLocation() const { return m->state.getUniformLocation(); }
+
 
 EasyDrawer* CreateEasyDrawer()
 {
@@ -218,19 +240,19 @@ template<> struct GetIndexType<uint16> { static const I3D_TYPE result = I3D_UINT
 template<> struct GetIndexType<uint32> { static const I3D_TYPE result = I3D_UINT32; };
 
 template<class VertexT>
-void EasyDrawer::draw( const EasyDrawState &states, I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices )
+void EasyDrawer::drawImpl( I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices )
 {
-    draw<VertexT, uint8>(states, topology, vertices, num_vertices, NULL, 0);
+    drawImpl<VertexT, uint8>(topology, vertices, num_vertices, NULL, 0);
 }
 
 template<class VertexT, class IndexT>
-void EasyDrawer::draw( const EasyDrawState &states, I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices, const IndexT *indices, uint32 num_indices )
+void EasyDrawer::drawImpl( I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices, const IndexT *indices, uint32 num_indices )
 {
     if(num_vertices==0) { return; }
 
-    VertexType vertex_type = GetVertexType<VertexT>::result;
+    VertexType vertex_type = GetVertexTypeID<VertexT>::result;
     DrawCall tmp_cmd = {
-        states,
+        m->state,
         topology,
         vertex_type,
         GetIndexType<IndexT>::result,
@@ -258,18 +280,13 @@ void EasyDrawer::draw( const EasyDrawState &states, I3D_TOPOLOGY topology, const
     }
 }
 
-template void EasyDrawer::draw<>(const EasyDrawState &states, I3D_TOPOLOGY topology, const VertexP2C4   *vertices, uint32 num_vertices);
-template void EasyDrawer::draw<>(const EasyDrawState &states, I3D_TOPOLOGY topology, const VertexP2T2C4 *vertices, uint32 num_vertices);
-template void EasyDrawer::draw<>(const EasyDrawState &states, I3D_TOPOLOGY topology, const VertexP3T2C4 *vertices, uint32 num_vertices);
-template void EasyDrawer::draw<>(const EasyDrawState &states, I3D_TOPOLOGY topology, const VertexP2C4   *vertices, uint32 num_vertices, const uint8  *indices, uint32 num_indices);
-template void EasyDrawer::draw<>(const EasyDrawState &states, I3D_TOPOLOGY topology, const VertexP2C4   *vertices, uint32 num_vertices, const uint16 *indices, uint32 num_indices);
-template void EasyDrawer::draw<>(const EasyDrawState &states, I3D_TOPOLOGY topology, const VertexP2C4   *vertices, uint32 num_vertices, const uint32 *indices, uint32 num_indices);
-template void EasyDrawer::draw<>(const EasyDrawState &states, I3D_TOPOLOGY topology, const VertexP2T2C4 *vertices, uint32 num_vertices, const uint8  *indices, uint32 num_indices);
-template void EasyDrawer::draw<>(const EasyDrawState &states, I3D_TOPOLOGY topology, const VertexP2T2C4 *vertices, uint32 num_vertices, const uint16 *indices, uint32 num_indices);
-template void EasyDrawer::draw<>(const EasyDrawState &states, I3D_TOPOLOGY topology, const VertexP2T2C4 *vertices, uint32 num_vertices, const uint32 *indices, uint32 num_indices);
-template void EasyDrawer::draw<>(const EasyDrawState &states, I3D_TOPOLOGY topology, const VertexP3T2C4 *vertices, uint32 num_vertices, const uint8  *indices, uint32 num_indices);
-template void EasyDrawer::draw<>(const EasyDrawState &states, I3D_TOPOLOGY topology, const VertexP3T2C4 *vertices, uint32 num_vertices, const uint16 *indices, uint32 num_indices);
-template void EasyDrawer::draw<>(const EasyDrawState &states, I3D_TOPOLOGY topology, const VertexP3T2C4 *vertices, uint32 num_vertices, const uint32 *indices, uint32 num_indices);
+#define Template(VertexT)\
+    void EasyDrawer::draw(I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices) { drawImpl(topology, vertices, num_vertices); }\
+    void EasyDrawer::draw(I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices, const uint8  *indices, uint32 num_indices) { drawImpl(topology, vertices, num_vertices, indices, num_indices); }\
+    void EasyDrawer::draw(I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices, const uint16 *indices, uint32 num_indices) { drawImpl(topology, vertices, num_vertices, indices, num_indices); }\
+    void EasyDrawer::draw(I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices, const uint32 *indices, uint32 num_indices) { drawImpl(topology, vertices, num_vertices, indices, num_indices); }
+istEachVertexTypes(Template)
+#undef Template
 
 
 void EasyDrawer::flush(DeviceContext *ctx)

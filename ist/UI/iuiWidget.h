@@ -50,7 +50,7 @@ protected:
 
 private:
     struct Members;
-    deep_copy_ptr<Members> m;
+    istMemberPtrDecl(Members) m;
 };
 
 
@@ -73,7 +73,7 @@ public:
 
 private:
     struct Members;
-    deep_copy_ptr<Members> m;
+    istMemberPtrDecl(Members) m;
 };
 
 } // namespace iui

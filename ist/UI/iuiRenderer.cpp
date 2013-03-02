@@ -43,19 +43,19 @@ public:
     virtual void drawLine(const Line &line, const Color &color)
     {
         if(color.a<=0.0f) { return; }
-        i3d::DrawLine(*m_drawer, m_state, line.begin, line.end, color);
+        i3d::DrawLine(*m_drawer,line.begin, line.end, color);
     }
 
     virtual void drawRect(const Rect &rect, const Color &color)
     {
         if(color.a<=0.0f) { return; }
-        i3d::DrawRectT(*m_drawer, m_state, rect.pos+rect.size, rect.pos, vec2(1.0f), vec2(0.0f), color);
+        i3d::DrawRectT(*m_drawer, rect.pos+rect.size, rect.pos, vec2(1.0f), vec2(0.0f), color);
     }
 
     virtual void drawOutlineRect(const Rect &rect, const Color &color)
     {
         if(color.a<=0.0f) { return; }
-        i3d::DrawOutlineRect(*m_drawer, m_state, rect.pos+rect.size, rect.pos, color);
+        i3d::DrawOutlineRect(*m_drawer, rect.pos+rect.size, rect.pos, color);
     }
 
     //virtual void drawCircle(const Circle &circle, const Color &color)=0;
@@ -66,6 +66,16 @@ public:
 
     }
 
+    virtual void begin()
+    {
+        m_prev_state = m_drawer->getRenderStates();
+    }
+
+    virtual void end()
+    {
+        m_drawer->forceSetRenderStates(m_prev_state);
+    }
+
     virtual void flush()
     {
         m_drawer->flush(i3d::GetDevice()->getImmediateContext());
@@ -74,6 +84,7 @@ public:
 private:
     i3d::EasyDrawer *m_drawer;
     i3d::EasyDrawState m_state;
+    i3d::EasyDrawState m_prev_state;
 };
 
 UIRenderer* CreateUIRenderer()

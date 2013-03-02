@@ -137,6 +137,7 @@ struct AtomicApplication::Members
     {
     }
 };
+istMemberPtrImpl_Noncopyable(AtomicApplication::Members)
 
 void AtomicApplication::requestExit()                          { m->request_exit=true; }
 AtomicGame* AtomicApplication::getGame()                       { return m->game; }

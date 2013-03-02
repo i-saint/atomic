@@ -20,6 +20,7 @@ struct Button::Members
     {
     }
 };
+istMemberPtrImpl(Button::Members);
 
 Button::Button( const wchar_t *text, const WidgetCallback &on_press, Style *style )
 {
@@ -49,6 +50,7 @@ struct ToggleButton::Members
     Members() : pressed(false), pressing(false)
     {}
 };
+istMemberPtrImpl(ToggleButton::Members);
 
 ToggleButton::ToggleButton( const wchar_t *text, const WidgetCallback &on_toggle, Style *style )
 {
@@ -80,6 +82,7 @@ struct Checkbox::Members
     Members() : checked(false), pressing(false)
     {}
 };
+istMemberPtrImpl(Checkbox::Members);
 
 Checkbox::Checkbox( const wchar_t *text, const WidgetCallback &on_toggle, Style *style )
 {

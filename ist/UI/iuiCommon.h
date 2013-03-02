@@ -50,7 +50,7 @@ using ist::soavec44;
 using ist::atomic_int32;
 
 using ist::SharedObject;
-using ist::deep_copy_ptr;
+istMemberPtrTemplate();
 
 typedef float32 Float;
 typedef vec4 Color;
