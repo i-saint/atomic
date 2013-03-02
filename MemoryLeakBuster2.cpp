@@ -1,4 +1,4 @@
-﻿﻿// this code is public domain.
+﻿// this code is public domain.
 // latest version: https://github.com/i-saint/scribble/blob/master/MemoryLeakBuster2.cpp
 
 // メモリリーク検出器。
@@ -33,6 +33,9 @@ namespace stl = std;
 
 namespace {
 
+// 保持する callstack の最大段数
+const size_t MaxCallstackDepth = 64;
+
 // リークチェッカを仕掛ける対象となるモジュール名のリスト。(dll or exe)
 // EnumProcessModules でロードされている全モジュールに仕掛けることもできるが、
 // 色々誤判定されるので絞ったほうがいいと思われる。
@@ -63,9 +66,6 @@ const char *g_ignore_list[] = {
     "!std::time_get",
     "!std::time_put",
 };
-
-// 保持する callstack の最大段数
-const size_t MaxCallstackDepth = 32;
 
 
 typedef LPVOID (WINAPI *HeapAllocT)( HANDLE hHeap, DWORD dwFlags, SIZE_T dwBytes );
