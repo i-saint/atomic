@@ -5,7 +5,6 @@
 ist_EasyDrawer_NamespaceBegin
 
 
-
 istInterModule void DrawLine( EasyDrawer &drawer, const vec2 &pos1, const vec2 &pos2, const vec4 &color )
 {
     DrawLine(drawer, pos1, pos2, color, color);

@@ -74,7 +74,6 @@ public:
 private:
     void registerCommands();
 
-    struct Members;
     istMemberPtrDecl(Members) m;
 };
 

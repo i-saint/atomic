@@ -94,7 +94,6 @@ private:
     void drawImpl(I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices, const IndexT *indices, uint32 num_indices);
 
     struct DrawCall;
-    struct Members;
     istMemberPtrDecl(Members) m;
 };
 

@@ -21,7 +21,6 @@
     <ClInclude Include="ist\Base\BinaryStream.h" />
     <ClInclude Include="ist\Base\ClassInfo.h" />
     <ClInclude Include="ist\Base\Container.h" />
-    <ClInclude Include="ist\Base\DeepCopyPtr.h" />
     <ClInclude Include="ist\Base\FileLoader.h" />
     <ClInclude Include="ist\Base\Generics.h" />
     <ClInclude Include="ist\Base\Half\eLut.h" />
@@ -29,6 +28,7 @@
     <ClInclude Include="ist\Base\Half\halfFunction.h" />
     <ClInclude Include="ist\Base\Half\halfLimits.h" />
     <ClInclude Include="ist\Base\Half\toFloat.h" />
+    <ClInclude Include="ist\Base\MemberPtr.h" />
     <ClInclude Include="ist\Base\New.h" />
     <ClInclude Include="ist\Base\PoolNew.h" />
     <ClInclude Include="ist\Base\Serialize.h" />

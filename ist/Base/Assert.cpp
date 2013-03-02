@@ -151,38 +151,6 @@ int DebugAssertV(const char* file, int line, const char* fmt, va_list vl)
     return 0;
 }
 
-int DebugAssert(const char* file, int line, const wchar_t* fmt, ...)
-{
-    va_list vl;
-    va_start(vl, fmt);
-    int result = DebugAssertV(file, line, fmt, vl);
-    va_end(vl);
-    return result;
-}
-
-int DebugAssertV(const char* file, int line, const wchar_t* fmt, va_list vl)
-{
-#ifdef ist_env_Windows
-    char buf[DPRINTF_MES_LENGTH];
-    wchar_t wbuf[DPRINTF_MES_LENGTH];
-    istSPrintf(buf, "assertion failed %s:%d - ", file, line);
-    ::OutputDebugStringA(buf);
-    WriteLogFile(buf);
-    istVSNWPrintf(wbuf, _countof(wbuf), fmt, vl);
-    ::OutputDebugStringW(wbuf);
-    WriteLogFile(wbuf);
-    DebugBreak();
-#else // ist_env_Windows
-    printf("assertion failed %s:%d - ", file, line);
-    vprintf(fmt, vl);
-    fflush(stdout);
-    fgets(buf, _countof(buf), stdin);
-    return s_assert_handler ? s_assert_handler() : 0;
-#endif // ist_env_Windows
-    return 0;
-}
-
-
 } // namespace ist
 
 #endif // ist_enable_assert

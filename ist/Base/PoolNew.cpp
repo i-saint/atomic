@@ -47,13 +47,26 @@ void PoolNewManager::printPoolStates()
     }
 }
 
+struct PoolBase::Members
+{
+    const char *classname;
+    size_t blocksize;
+    size_t align;
+    ist::raw_vector<void*> pool;
+};
+istMemberPtrImpl_Noncopyable(PoolBase,Members);
 
+const char* PoolBase::getClassName() const{ return m->classname; }
+size_t PoolBase::getBlockSize() const     { return m->blocksize; }
+size_t PoolBase::getAlign() const         { return m->align; }
+size_t PoolBase::getNumBlocks() const     { return m->pool.size(); }
+ist::raw_vector<void*>& PoolBase::getPool() { return m->pool; }
 
 PoolBase::PoolBase( const char *classname, size_t blocksize, size_t align )
-    : m_classname(classname)
-    , m_blocksize(blocksize)
-    , m_align(align)
 {
+    m->classname = classname;
+    m->blocksize = blocksize;
+    m->align = align;
     PoolNewManager::addPool(this);
 }
 
@@ -61,48 +74,57 @@ PoolBase::~PoolBase()
 {
 }
 
+template<class ThreadingPolicy>
+struct TPool<ThreadingPolicy>::Members
+{
+    MutexT mutex;
+};
+istMemberPtrImpl_Noncopyable(TPool<PoolSingleThreaded>, Members);
+istMemberPtrImpl_Noncopyable(TPool<PoolMultiThreaded>, Members);
 
 template<class ThreadingPolicy>
-ist::TPool<ThreadingPolicy>::TPool( const char *classname, size_t blocksize, size_t align )
+TPool<ThreadingPolicy>::TPool( const char *classname, size_t blocksize, size_t align )
     : super(classname, blocksize, align)
 {
 }
 
 template<class ThreadingPolicy>
-ist::TPool<ThreadingPolicy>::~TPool()
+TPool<ThreadingPolicy>::~TPool()
 {
     freeAll();
 }
 
 template<class ThreadingPolicy>
-void ist::TPool<ThreadingPolicy>::freeAll()
+void TPool<ThreadingPolicy>::freeAll()
 {
-    MutexT::ScopedLock lock(m_mutex);
-    for(size_t i=0; i<m_pool.size(); ++i) {
-        istAlignedFree(m_pool[i]);
+    MutexT::ScopedLock lock(m->mutex);
+    ist::raw_vector<void*> &pool = getPool();
+    for(size_t i=0; i<pool.size(); ++i) {
+        istAlignedFree(pool[i]);
     }
-    m_pool.clear();
+    pool.clear();
 }
 
 template<class ThreadingPolicy>
-void* ist::TPool<ThreadingPolicy>::allocate()
+void* TPool<ThreadingPolicy>::allocate()
 {
-    MutexT::ScopedLock lock(m_mutex);
-    if(!m_pool.empty()) {
-        void *ret = m_pool.back();
-        m_pool.pop_back();
+    MutexT::ScopedLock lock(m->mutex);
+    ist::raw_vector<void*> &pool = getPool();
+    if(!pool.empty()) {
+        void *ret = pool.back();
+        pool.pop_back();
         return ret;
     }
     else {
-        return istAlignedMalloc(m_blocksize, m_align);
+        return istAlignedMalloc(getBlockSize(), getAlign());
     }
 }
 
 template<class ThreadingPolicy>
-void ist::TPool<ThreadingPolicy>::recycle( void *p )
+void TPool<ThreadingPolicy>::recycle( void *p )
 {
-    MutexT::ScopedLock lock(m_mutex);
-    m_pool.push_back(p);
+    MutexT::ScopedLock lock(m->mutex);
+    getPool().push_back(p);
 }
 
 template TPool<PoolSingleThreaded>;

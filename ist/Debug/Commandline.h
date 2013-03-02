@@ -8,6 +8,7 @@ namespace ist {
 
 class istInterModule Commandline
 {
+istNonCopyable(Commandline);
 public:
     typedef stl::map<stl::string, ICLCommand*> CommandCont;
     typedef stl::vector<stl::string> CommandQueue;
@@ -28,9 +29,7 @@ private:
     ~Commandline();
 
     static Commandline *s_inst;
-    Mutex m_mutex;
-    CommandCont m_commands;
-    CommandQueue m_queue;
+    istMemberPtrDecl(Members) m;
 };
 
 #define istCommandlineInitialize()          ist::Commandline::initializeInstance()

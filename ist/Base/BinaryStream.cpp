@@ -62,50 +62,59 @@ uint64 FileStream::getWritePos() const                  { return ftell(m_file); 
 void FileStream::setWritePos(uint64 pos, SeekDir dir)   { fseek(m_file, (size_t)pos, GetCRTSeekDir(dir)); }
 
 
+struct MemoryStream::Members
+{
+    ist::raw_vector<char> buffer;
+    size_t readpos;
+    size_t writepos;
 
-MemoryStream::MemoryStream() : m_readpos(0), m_writepos(0) {}
+    Members() : readpos(0), writepos(0) {}
+};
+istMemberPtrImpl_Noncopyable(MemoryStream,Members);
+
+MemoryStream::MemoryStream() {}
 MemoryStream::~MemoryStream() {}
 
 uint64 MemoryStream::read(void* p, uint64 s)
 {
-    size_t actual_size = stl::min<size_t>(m_buffer.size()-m_readpos, (size_t)s);
-    istMemcpy(p, &m_buffer[0]+m_readpos, (size_t)actual_size);
-    m_readpos += actual_size;
+    size_t actual_size = stl::min<size_t>(m->buffer.size()-m->readpos, (size_t)s);
+    istMemcpy(p, &m->buffer[0]+m->readpos, (size_t)actual_size);
+    m->readpos += actual_size;
     return actual_size;
 }
 
-uint64 MemoryStream::getReadPos() const { return m_readpos; }
+uint64 MemoryStream::getReadPos() const { return m->readpos; }
 void MemoryStream::setReadPos(uint64 pos, SeekDir dir)
 {
     if(dir==Seek_Begin) {
-        m_readpos = stl::min<size_t>(m_buffer.size(), (size_t)pos);
+        m->readpos = stl::min<size_t>(m->buffer.size(), (size_t)pos);
     }
     else if(dir==Seek_End) {
-        m_readpos = stl::max<size_t>(m_buffer.size()-(size_t)pos, 0);
+        m->readpos = stl::max<size_t>(m->buffer.size()-(size_t)pos, 0);
     }
     else if(dir==Seek_Current) {
-        m_readpos = clamp<size_t>(m_readpos+(size_t)pos, 0, m_buffer.size());
+        m->readpos = clamp<size_t>(m->readpos+(size_t)pos, 0, m->buffer.size());
     }
 }
 
 uint64 MemoryStream::write(const void* p, uint64 s)
 {
-    size_t after = m_writepos+(size_t)s;
-    m_buffer.resize(after);
-    istMemcpy(&m_buffer[0]+m_writepos, p, (size_t)s);
+    size_t after = m->writepos+(size_t)s;
+    m->buffer.resize(after);
+    istMemcpy(&m->buffer[0]+m->writepos, p, (size_t)s);
     return s;
 }
-uint64 MemoryStream::getWritePos() const { return m_writepos; }
+uint64 MemoryStream::getWritePos() const { return m->writepos; }
 void MemoryStream::setWritePos(uint64 pos, SeekDir dir)
 {
     if(dir==Seek_Begin) {
-        m_writepos = stl::min<size_t>(m_buffer.size(), (size_t)pos);
+        m->writepos = stl::min<size_t>(m->buffer.size(), (size_t)pos);
     }
     else if(dir==Seek_End) {
-        m_writepos = stl::max<size_t>(m_buffer.size()-(size_t)pos, 0);
+        m->writepos = stl::max<size_t>(m->buffer.size()-(size_t)pos, 0);
     }
     else if(dir==Seek_Current) {
-        m_writepos = clamp<size_t>(m_writepos+(size_t)pos, 0, m_buffer.size());
+        m->writepos = clamp<size_t>(m->writepos+(size_t)pos, 0, m->buffer.size());
     }
 }
 

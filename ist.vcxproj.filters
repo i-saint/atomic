@@ -322,9 +322,6 @@
     <ClInclude Include="ist\Base\Stringnize.h">
       <Filter>Base</Filter>
     </ClInclude>
-    <ClInclude Include="ist\Base\DeepCopyPtr.h">
-      <Filter>Base</Filter>
-    </ClInclude>
     <ClInclude Include="ist\GraphicsCommon\Vertex.h">
       <Filter>GraphicsCommon</Filter>
     </ClInclude>
@@ -333,6 +330,9 @@
     </ClInclude>
     <ClInclude Include="ist\GraphicsCommon\EasyDrawerShaders.h">
       <Filter>GraphicsCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Base\MemberPtr.h">
+      <Filter>Base</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

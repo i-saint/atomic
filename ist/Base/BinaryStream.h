@@ -2,18 +2,21 @@
 #define ist_Base_BinaryStream_h
 
 #include "ist/Config.h"
+#include "ist/Base/Types.h"
 #include "ist/stdex/ist_raw_vector.h"
 
 namespace ist {
 
 class istInterModule IBinaryStream
 {
+istNonCopyable(IBinaryStream);
 public:
     enum SeekDir {
         Seek_Begin,
         Seek_End,
         Seek_Current,
     };
+    IBinaryStream() {}
     virtual ~IBinaryStream()=0;
 
     virtual uint64 read(void* p, uint64 s)=0;
@@ -70,9 +73,7 @@ public:
     virtual void setWritePos(uint64 pos, SeekDir dir=Seek_Begin);
 
 private:
-    ist::raw_vector<char> m_buffer;
-    size_t m_readpos;
-    size_t m_writepos;
+    istMemberPtrDecl(Members) m;
 
 private:
     // non copyable

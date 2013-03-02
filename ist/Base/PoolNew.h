@@ -51,21 +51,22 @@ struct istInterModule PoolMultiThreaded
 
 class istInterModule PoolBase
 {
+istNoncpyable(PoolBase);
 public:
     PoolBase(const char *classname, size_t blocksize, size_t align);
     virtual ~PoolBase();
     virtual void freeAll()=0;
 
-    const char* getClassName() const{ return m_classname; }
-    size_t getBlockSize() const     { return m_blocksize; }
-    size_t getAlign() const         { return m_align; }
-    size_t getNumBlocks() const     { return m_pool.size(); }
+    const char* getClassName() const;
+    size_t getBlockSize() const;
+    size_t getAlign() const;
+    size_t getNumBlocks() const;
 
 protected:
-    const char *m_classname;
-    size_t m_blocksize;
-    size_t m_align;
-    ist::raw_vector<void*> m_pool;
+    ist::raw_vector<void*>& getPool();
+
+private:
+    istMemberPtrDecl_Noncopyable(Members) m;
 };
 
 template<class ThreadingPolicy>
@@ -82,7 +83,7 @@ public:
 
 private:
     typedef typename ThreadingPolicy::MutexT MutexT;
-    MutexT m_mutex;
+    istMemberPtrDecl_Noncopyable(Members) m;
 };
 
 typedef TPool<PoolSingleThreaded> PoolST;

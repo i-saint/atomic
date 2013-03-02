@@ -1,4 +1,5 @@
-﻿#include "istPCH.h"
+﻿Members
+#include "istPCH.h"
 #include "Commandline.h"
 #include "CommandlineCommand.h"
 
@@ -26,38 +27,47 @@ Commandline* Commandline::getInstance()
 }
 
 
+
+struct Commandline::Members
+{
+    Mutex mutex;
+    CommandCont commands;
+    CommandQueue queue;
+};
+istMemberPtrImpl_Noncopyable(Commandline,Members);
+
 Commandline::Commandline()
 {
 }
 
 Commandline::~Commandline()
 {
-    while(!m_commands.empty()) {
-        unregisterCommand(m_commands.begin()->first);
+    while(!m->commands.empty()) {
+        unregisterCommand(m->commands.begin()->first);
     }
 }
 
 void Commandline::registerCommand( const stl::string &text, ICLCommand *command )
 {
-    ICLCommand *&cmd = m_commands[text];
+    ICLCommand *&cmd = m->commands[text];
     if(cmd) { cmd->release(); }
     cmd = command;
 }
 
 void Commandline::unregisterCommand( const stl::string &text )
 {
-    CommandCont::iterator p = m_commands.find(text);
-    if(p!=m_commands.end()) {
+    CommandCont::iterator p = m->commands.find(text);
+    if(p!=m->commands.end()) {
         p->second->release();
-        m_commands.erase(p);
+        m->commands.erase(p);
     }
 }
 
 void Commandline::execute( const stl::string &text )
 {
     stl::string::const_iterator tok = std::find(text.begin(), text.end(), ' ');
-    CommandCont::iterator cmdp = m_commands.find(stl::string(text.begin(), tok));
-    if(cmdp==m_commands.end()) {
+    CommandCont::iterator cmdp = m->commands.find(stl::string(text.begin(), tok));
+    if(cmdp==m->commands.end()) {
         return;
     }
 
@@ -74,17 +84,17 @@ void Commandline::execute( const stl::string &text )
 
 void Commandline::pushCommand( const stl::string &text )
 {
-    ist::Mutex::ScopedLock l(m_mutex);
-    m_queue.push_back(text);
+    ist::Mutex::ScopedLock l(m->mutex);
+    m->queue.push_back(text);
 }
 
 void Commandline::flush()
 {
-    ist::Mutex::ScopedLock l(m_mutex);
-    for(size_t i=0; i<m_queue.size(); ++i) {
-        execute(m_queue[i]);
+    ist::Mutex::ScopedLock l(m->mutex);
+    for(size_t i=0; i<m->queue.size(); ++i) {
+        execute(m->queue[i]);
     }
-    m_queue.clear();
+    m->queue.clear();
 }
 
 

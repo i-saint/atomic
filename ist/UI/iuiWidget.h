@@ -49,7 +49,6 @@ protected:
     void CallIfValid(const WidgetCallback &v);
 
 private:
-    struct Members;
     istMemberPtrDecl(Members) m;
 };
 
@@ -72,7 +71,6 @@ public:
     void setBorderColor(const Color &v);
 
 private:
-    struct Members;
     istMemberPtrDecl(Members) m;
 };
 

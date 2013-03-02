@@ -16,7 +16,7 @@
 #include "Base/SharedObject.h"
 #include "Base/StringSymbol.h"
 #include "Base/EnumString.h"
-#include "Base/DeepCopyPtr.h"
+#include "Base/MemberPtr.h"
 #include "stdex/crtex.h"
 #include "stdex/ist_vector.h"
 #include "stdex/ist_raw_vector.h"

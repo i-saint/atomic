@@ -239,7 +239,7 @@ struct Application::Members
     {
     }
 };
-istMemberPtrImpl(Application::Members);
+istMemberPtrImpl(Application,Members);
 
 
 

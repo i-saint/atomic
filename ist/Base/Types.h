@@ -8,6 +8,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "Half/half.h"
 #include "Serialize.h"
+#include "MemberPtr.h"
 
 namespace ist {
 
@@ -56,5 +57,7 @@ istSerializeRaw(ist::mat3);
 istSerializeRaw(ist::mat4);
 istSerializeRaw(ist::simdvec4);
 istSerializeRaw(ist::simdmat4);
+
+#include "New.h"
 
 #endif // ist_Base_Types_h

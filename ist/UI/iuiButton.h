@@ -19,7 +19,6 @@ public:
 protected:
     virtual Style* createDefaultStyle() const;
 private:
-    struct Members;
     istMemberPtrDecl(Members) m;
 };
 
@@ -40,7 +39,6 @@ public:
 protected:
     virtual Style* createDefaultStyle() const;
 private:
-    struct Members;
     istMemberPtrDecl(Members) m;
 };
 
@@ -61,7 +59,6 @@ public:
 protected:
     virtual Style* createDefaultStyle() const;
 private:
-    struct Members;
     istMemberPtrDecl(Members) m;
 };
 

@@ -12,8 +12,7 @@
         }\
     }
 
-namespace ist
-{
+namespace ist {
 
     typedef int (*AssertHandler)();
     typedef int (*PanicHandler)();
@@ -27,8 +26,6 @@ namespace ist
 
     istInterModule int DebugAssert(const char* file, int line, const char* fmt, ...);
     istInterModule int DebugAssertV(const char* file, int line, const char* fmt, va_list vl);
-    istInterModule int DebugAssert(const char* file, int line, const wchar_t* fmt, ...);
-    istInterModule int DebugAssertV(const char* file, int line, const wchar_t* fmt, va_list vl);
 
 } // namespace ist
 

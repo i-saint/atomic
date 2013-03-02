@@ -185,7 +185,7 @@ struct EasyDrawer::Members
     {
     }
 };
-istMemberPtrImpl(EasyDrawer::Members);
+istMemberPtrImpl(EasyDrawer,Members);
 
 
 const EasyDrawState& EasyDrawer::getRenderStates() {return m->state; }

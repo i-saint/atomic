@@ -35,7 +35,6 @@ private:
     void drawR(Widget *widget);
 
     static UISystem *s_inst;
-    struct Members;
     istMemberPtrDecl(Members) m;
 };
 

@@ -44,7 +44,7 @@ struct UISystem::Members
     {
     }
 };
-istMemberPtrImpl(UISystem::Members)
+istMemberPtrImpl(UISystem,Members)
 
 UIRenderer* UISystem::getRenderer() const       { return m->renderer; }
 Widget*     UISystem::getRootWindow() const    { return m->root_widget; }

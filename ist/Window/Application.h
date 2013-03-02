@@ -83,7 +83,6 @@ public:
 private:
     static const int MAX_JOYSTICK_NUM = 4;
 
-    struct Members;
     istMemberPtrDecl(Members) m;
 
 #ifdef ist_env_Windows

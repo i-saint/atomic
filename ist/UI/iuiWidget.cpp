@@ -29,7 +29,7 @@ struct Widget::Members
     {
     }
 };
-istMemberPtrImpl(Widget::Members)
+istMemberPtrImpl(Widget,Members)
 
 Widget::Widget()
 {
@@ -121,7 +121,7 @@ struct Style::Members
     {
     }
 };
-istMemberPtrImpl(Style::Members)
+istMemberPtrImpl(Style,Members)
 
 Style::Style()
 {
