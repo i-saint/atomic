@@ -92,17 +92,29 @@ struct Line
     const Position& operator[](size_t i) const { reinterpret_cast<const Position*>(this)[i]; }
 };
 
+enum TextHAlign
+{
+    TA_HLeft,
+    TA_HRight,
+    TA_HCenter,
+};
+enum TextVAlign
+{
+    TA_VTop,
+    TA_VBottom,
+    TA_VCenter,
+};
 
-typedef uint32 WidgetID;
 
 class UIRenderer;
-
 class Widget;
 class Style;
 typedef ist::vector<Widget*> WidgetCont;
 typedef ist::vector<Style*> StyleCont;
 typedef std::function<void (Widget*)> WidgetCallback;
 
+class ListItem;
+typedef std::function<void (ListItem*)> ListCallback;
 
 } // namespace iui
 #endif // iui_Common_h

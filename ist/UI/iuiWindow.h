@@ -5,11 +5,19 @@
 namespace iui {
 
 
+class RootWindowStyle : public Style
+{
+public:
+    virtual void draw();
+};
+
 class RootWindow : public Widget
 {
 public:
+    iuiImplWidget(RootWindow)
 private:
 };
+
 
 
 class PanelStyle : public Style
@@ -21,8 +29,10 @@ public:
 class Panel : public Widget
 {
 public:
+    iuiImplWidget(Panel)
 private:
 };
+
 
 
 class WindowStyle : public Style
@@ -34,6 +44,7 @@ public:
 class Window : public Widget
 {
 public:
+    iuiImplWidget(Window)
 private:
 };
 

@@ -13,18 +13,6 @@ namespace i3dgles {
 
 namespace iui {
 
-enum TextHAlign
-{
-    TA_HLeft,
-    TA_HRight,
-    TA_HCenter,
-};
-enum TextVAlign
-{
-    TA_VTop,
-    TA_VBottom,
-    TA_VCenter,
-};
 struct TextPosition
 {
     Rect rect;

@@ -20,11 +20,10 @@ struct Editbox::Members
 };
 istMemberPtrImpl(Editbox,Members);
 
-Editbox::Editbox( const wchar_t *text, const WidgetCallback &on_change, Style *style )
+Editbox::Editbox( const wchar_t *text, const WidgetCallback &on_change )
 {
     m->on_change = on_change;
     setText(text);
-    setStyle(style);
 }
 
 bool Editbox::isReadOnly() const            { return m->readonly; }
@@ -48,15 +47,14 @@ struct EditboxMultiline::Members
 };
 istMemberPtrImpl(EditboxMultiline,Members);
 
-EditboxMultiline::EditboxMultiline( const wchar_t *text, const WidgetCallback &on_change, Style *style )
-{
-    m->on_change = on_change;
-    setText(text);
-    setStyle(style);
-}
-
 bool EditboxMultiline::isReadOnly() const           { return m->readonly; }
 const ivec2& EditboxMultiline::getCursor() const    { return m->cursor; }
 Style* EditboxMultiline::createDefaultStyle() const { return istNew(EditboxMultilineStyle)(); }
+
+EditboxMultiline::EditboxMultiline( const wchar_t *text, const WidgetCallback &on_change )
+{
+    m->on_change = on_change;
+    setText(text);
+}
 
 } // namespace iui

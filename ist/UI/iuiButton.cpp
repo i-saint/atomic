@@ -10,6 +10,7 @@ void ButtonStyle::draw()
     iuiGetRenderer()->drawRect(Rect(w->getPosition(), w->getSize()), getBGColor());
     iuiGetRenderer()->drawOutlineRect(Rect(w->getPosition(), w->getSize()), getBorderColor());
 }
+iuiImplDefaultStyle(Button);
 
 struct Button::Members
 {
@@ -22,14 +23,13 @@ struct Button::Members
 };
 istMemberPtrImpl(Button,Members);
 
-Button::Button( const wchar_t *text, const WidgetCallback &on_press, Style *style )
+bool Button::isPressing() const             { return m->pressing;  }
+
+Button::Button( const wchar_t *text, const WidgetCallback &on_press )
 {
     m->on_press = on_press;
     setText(text);
-    setStyle(style);
 }
-bool Button::isPressing() const             { return m->pressing;  }
-Style* Button::createDefaultStyle() const   { return istNew(ButtonStyle)(); }
 
 
 
@@ -40,6 +40,7 @@ void ToggleButtonStyle::draw()
     iuiGetRenderer()->drawRect(Rect(w->getPosition(), w->getSize()), getBGColor());
     iuiGetRenderer()->drawOutlineRect(Rect(w->getPosition(), w->getSize()), getBorderColor());
 }
+iuiImplDefaultStyle(ToggleButton);
 
 struct ToggleButton::Members
 {
@@ -52,16 +53,14 @@ struct ToggleButton::Members
 };
 istMemberPtrImpl(ToggleButton,Members);
 
-ToggleButton::ToggleButton( const wchar_t *text, const WidgetCallback &on_toggle, Style *style )
+bool ToggleButton::isPressed() const    { return m->pressed; }
+bool ToggleButton::isPressing() const   { return m->pressing; }
+
+ToggleButton::ToggleButton( const wchar_t *text, const WidgetCallback &on_toggle )
 {
     m->on_toggle = on_toggle;
     setText(text);
-    setStyle(style);
 }
-
-bool ToggleButton::isPressed() const    { return m->pressed; }
-bool ToggleButton::isPressing() const   { return m->pressing; }
-Style* ToggleButton::createDefaultStyle() const { return istNew(ToggleButtonStyle)(); }
 
 
 
@@ -72,6 +71,7 @@ void CheckboxStyle::draw()
     iuiGetRenderer()->drawRect(Rect(w->getPosition(), w->getSize()), getBGColor());
     iuiGetRenderer()->drawOutlineRect(Rect(w->getPosition(), w->getSize()), getBorderColor());
 }
+iuiImplDefaultStyle(Checkbox);
 
 struct Checkbox::Members
 {
@@ -84,16 +84,14 @@ struct Checkbox::Members
 };
 istMemberPtrImpl(Checkbox,Members);
 
-Checkbox::Checkbox( const wchar_t *text, const WidgetCallback &on_toggle, Style *style )
+bool Checkbox::isChecked() const    { return m->checked; }
+bool Checkbox::isPressing() const   { return m->pressing; }
+
+Checkbox::Checkbox( const wchar_t *text, const WidgetCallback &on_toggle )
 {
     m->on_toggle = on_toggle;
     setText(text);
-    setStyle(style);
 }
-
-bool Checkbox::isChecked() const    { return m->checked; }
-bool Checkbox::isPressing() const   { return m->pressing; }
-Style* Checkbox::createDefaultStyle() const { return istNew(CheckboxStyle)(); }
 
 
 } // namespace iui

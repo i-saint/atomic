@@ -46,7 +46,7 @@ void Widget::update(Float dt)
 void Widget::draw()
 {
     if(m->style==NULL) {
-        m->style = createDefaultStyle();
+        m->style = Style::createDefaultStyle(getTypeID());
         if(m->style) { m->style->setWidget(this); }
     }
     if(m->style) {
@@ -97,11 +97,6 @@ void Widget::setZOrderHandler(WidgetCallback cb)    { m->on_zorder=cb; }
 void Widget::setVisibilityHandler(WidgetCallback cb){ m->on_visible=cb; }
 void Widget::setFocusHandler(WidgetCallback cb)     { m->on_focus=cb; }
 
-Style* Widget::createDefaultStyle() const
-{
-    return NULL;
-}
-
 void Widget::CallIfValid(const WidgetCallback &v) { if(v){ v(this); } }
 
 
@@ -112,12 +107,16 @@ struct Style::Members
     Color font_color;
     Color bg_color;
     Color border_color;
+    TextHAlign text_halign;
+    TextVAlign text_valign;
 
     Members()
         : widget(NULL)
         , font_color(1.0f, 1.0f, 1.0f, 1.0f)
         , bg_color(0.0f, 0.0f, 0.0f, 0.5f)
         , border_color(1.0f, 1.0f, 1.0f, 0.8f)
+        , text_halign(TA_HLeft)
+        , text_valign(TA_VCenter)
     {
     }
 };
@@ -135,11 +134,28 @@ Widget*         Style::getWidget() const        { return m->widget; }
 const Color&    Style::getFontColor() const     { return m->font_color; }
 const Color&    Style::getBGColor() const       { return m->bg_color; }
 const Color&    Style::getBorderColor() const   { return m->border_color; }
+TextHAlign      Style::getTextHAlign() const    { return m->text_halign; }
+TextVAlign      Style::getTextVAlign() const    { return m->text_valign; }
 
 void Style::setWidget(Widget *v)            { m->widget=v; }
 void Style::setFontColor(const Color &v)    { m->font_color=v; }
 void Style::setBGColor(const Color &v)      { m->bg_color=v; }
 void Style::setBorderColor(const Color &v)  { m->border_color=v; }
+void Style::setTextHAlign(TextHAlign v)     { m->text_halign=v; }
+void Style::setTextVAlign(TextVAlign v)     { m->text_valign=v; }
+
+Style::StyleCreatorTable& Style::getDefaultStyleCreators()
+{
+    static StyleCreatorTable s_table;
+    return s_table;
+}
+
+Style* Style::createDefaultStyle( uint32 widget_typeid )
+{
+    StyleCreatorTable &table = getDefaultStyleCreators();
+    istAssert(table[widget_typeid]);
+    return table[widget_typeid]();
+}
 
 
 } // namespace iui

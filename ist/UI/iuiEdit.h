@@ -13,7 +13,7 @@ public:
 class iuiInterModule Editbox : public Widget
 {
 public:
-    Editbox(const wchar_t *text=L"", const WidgetCallback &on_change=WidgetCallback(), Style *style=NULL);
+    Editbox(const wchar_t *text=L"", const WidgetCallback &on_change=WidgetCallback());
     bool isReadOnly() const;
     int32 getCursor() const;
 
@@ -34,7 +34,7 @@ public:
 class iuiInterModule EditboxMultiline : public Widget
 {
 public:
-    EditboxMultiline(const wchar_t *text=L"", const WidgetCallback &on_change=WidgetCallback(), Style *style=NULL);
+    EditboxMultiline(const wchar_t *text=L"", const WidgetCallback &on_change=WidgetCallback());
     bool isReadOnly() const;
     const ivec2& getCursor() const;
 

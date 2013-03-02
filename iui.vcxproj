@@ -25,7 +25,9 @@
     </ClCompile>
     <ClCompile Include="ist\UI\iuiButton.cpp" />
     <ClCompile Include="ist\UI\iuiEdit.cpp" />
+    <ClCompile Include="ist\UI\iuiList.cpp" />
     <ClCompile Include="ist\UI\iuiRenderer.cpp" />
+    <ClCompile Include="ist\UI\iuiSlider.cpp" />
     <ClCompile Include="ist\UI\iuiSystem.cpp" />
     <ClCompile Include="ist\UI\iuiWidget.cpp" />
     <ClCompile Include="ist\UI\iuiWindow.cpp" />
@@ -37,7 +39,9 @@
     <ClInclude Include="ist\UI\iuiCommon.h" />
     <ClInclude Include="ist\UI\iuiEdit.h" />
     <ClInclude Include="ist\UI\iuiEvent.h" />
+    <ClInclude Include="ist\UI\iuiList.h" />
     <ClInclude Include="ist\UI\iuiRenderer.h" />
+    <ClInclude Include="ist\UI\iuiSlider.h" />
     <ClInclude Include="ist\UI\iuiSystem.h" />
     <ClInclude Include="ist\UI\iuiTypes.h" />
     <ClInclude Include="ist\UI\iuiWidget.h" />

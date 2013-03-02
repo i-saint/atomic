@@ -1,14 +1,17 @@
 ﻿#ifndef iui_Widget_h
 #define iui_Widget_h
 #include "iuiCommon.h"
+#include "iuiTypes.h"
 #include "iuiEvent.h"
 namespace iui {
+
 
 class iuiInterModule Widget : public SharedObject
 {
 public:
     Widget();
     virtual ~Widget();
+    virtual WidgetTypeID getTypeID() const=0;
 
     virtual void update(Float dt);
     virtual void draw();
@@ -45,7 +48,6 @@ public:
     void setFocusHandler(WidgetCallback cb);
 
 protected:
-    virtual Style* createDefaultStyle() const;
     void CallIfValid(const WidgetCallback &v);
 
 private:
@@ -56,23 +58,42 @@ private:
 class iuiInterModule Style : public SharedObject
 {
 public:
+    typedef Style* (*StyleCreator)();
+    typedef StyleCreator (StyleCreatorTable)[WT_End];
+    static StyleCreatorTable& getDefaultStyleCreators();
+    static Style* createDefaultStyle(uint32 widget_typeid);
+
     Style();
     virtual ~Style();
     virtual void draw()=0;
 
-    Widget* getWidget() const;
-    const Color& getFontColor() const;
-    const Color& getBGColor() const;
-    const Color& getBorderColor() const;
+    Widget*         getWidget() const;
+    const Color&    getFontColor() const;
+    const Color&    getBGColor() const;
+    const Color&    getBorderColor() const;
+    TextHAlign      getTextHAlign() const;
+    TextVAlign      getTextVAlign() const;
 
     void setWidget(Widget *v);
     void setFontColor(const Color &v);
     void setBGColor(const Color &v);
     void setBorderColor(const Color &v);
+    void setTextHAlign(TextHAlign v);
+    void setTextVAlign(TextVAlign v);
 
 private:
     istMemberPtrDecl(Members) m;
 };
+
+#define iuiImplWidget(WidgetType)\
+    virtual WidgetTypeID getTypeID() const { return WT_##WidgetType; }
+
+#define iuiImplDefaultStyle(WidgetType)\
+    static Style* Create##WidgetType##Style() { return istNew(WidgetType##Style); }\
+    struct Register##WidgetType##Style {\
+        Register##WidgetType##Style() { Style::getDefaultStyleCreators()[WT_##WidgetType]=&Create##WidgetType##Style; }\
+    } g_register_##WidgetType##Style;
+
 
 } // namespace iui
 #endif // iui_Widget_h
