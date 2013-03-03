@@ -50,13 +50,10 @@ public:
     virtual void draw() {}
 
 
-    // call_id に対応するメソッドを引数 v で呼ぶ。 (主に setHoge() 系)
+    // call_id に対応するメソッドを引数 v で呼ぶ。
     // Routine や外部スクリプトとの連動用。
-    virtual bool call(FunctionID call_id, const variant &v) { return false; }
-
-    // query_id に対応するメソッドを呼んで v に結果を格納する。(主に getHoge() 系)
-    // Routine や外部スクリプトとの連動用。
-    virtual bool query(FunctionID query_id, variant &v) const { return false; }
+    virtual bool call(FunctionID call_id, const variant *v, variant *ret=NULL) { return false; }
+    bool call(FunctionID call_id, const variant &v, variant *ret=NULL) { return call(call_id, &v, ret); }
 };
 
 

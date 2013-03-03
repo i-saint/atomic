@@ -202,7 +202,7 @@ void EntitySet::handleEntitiesQuery( EntitiesQueryContext &ctx )
         EntityHandle handle = m_all[i];
         IEntity *entity = getEntity(handle);
         if(entity) {
-            if(!entity->query(FID_getCollisionHandle, collision_handle)) { continue; }
+            if(!atomicCall(entity, getCollisionHandle, NULL, &collision_handle)) { continue; }
             CollisionHandle ch = collision_handle.cast<CollisionHandle>();
             CollisionEntity *ce = atomicGetCollision(ch);
             if(ce) {

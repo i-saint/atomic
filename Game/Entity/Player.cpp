@@ -49,12 +49,8 @@ public:
     atomicECallBlock(
         atomicECallSuper(super)
         atomicECallSuper(transform)
-    )
-    atomicEQueryBlock(
-        atomicEQuerySuper(super)
-        atomicEQuerySuper(transform)
         atomicMethodBlock(
-        atomicEQuery(getCollisionHandle)
+        atomicECall(getCollisionHandle)
         )
     )
 

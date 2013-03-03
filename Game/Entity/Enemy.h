@@ -39,18 +39,13 @@ public:
     atomicECallBlock(
         atomicECallDelegate(m_routine)
         atomicMethodBlock(
+        atomicECall(getLife)
         atomicECall(setLife)
         atomicECall(setRoutine)
         atomicECall(damage)
         )
         atomicECallSuper(super)
         atomicECallSuper(mhandler)
-    )
-    atomicEQueryBlock(
-        atomicEQueryDelegate(m_routine)
-        atomicMethodBlock(
-        atomicEQuery(getLife)
-        )
     )
 
 public:

@@ -46,21 +46,15 @@ private:
 public:
     atomicECallBlock(
         atomicMethodBlock(
+        atomicECall(getOwner)
+        atomicECall(getDirection)
+        atomicECall(getSpeed)
         atomicECall(setOwner)
         atomicECall(setDirection)
         atomicECall(setSpeed)
         )
         atomicECallSuper(super)
         atomicECallSuper(transform)
-    )
-    atomicEQueryBlock(
-        atomicMethodBlock(
-        atomicEQuery(getOwner)
-        atomicEQuery(getDirection)
-        atomicEQuery(getSpeed)
-        )
-        atomicEQuerySuper(super)
-        atomicEQuerySuper(transform)
     )
 
 public:
@@ -134,23 +128,17 @@ private:
 public:
     atomicECallBlock(
         atomicMethodBlock(
+        atomicECall(getOwner)
+        atomicECall(getVelocity)
+        atomicECall(getPower)
         atomicECall(setOwner)
         atomicECall(setVelocity)
         atomicECall(setPower)
         )
         atomicECallSuper(super)
         atomicECallSuper(transform)
+        atomicECallSuper(collision)
         atomicECallSuper(mhandler)
-    )
-    atomicEQueryBlock(
-        atomicMethodBlock(
-        atomicEQuery(getOwner)
-        atomicEQuery(getVelocity)
-        atomicEQuery(getPower)
-        )
-        atomicEQuerySuper(super)
-        atomicEQuerySuper(transform)
-        atomicEQuerySuper(collision)
     )
 
 public:
@@ -264,6 +252,9 @@ private:
 public:
     atomicECallBlock(
         atomicMethodBlock(
+        atomicECall(getOwner)
+        atomicECall(getVelocity)
+        atomicECall(getPower)
         atomicECall(setOwner)
         atomicECall(setVelocity)
         atomicECall(setPower)
@@ -272,17 +263,7 @@ public:
         atomicECallSuper(transform)
         atomicECallSuper(model)
         atomicECallSuper(mhandler)
-    )
-    atomicEQueryBlock(
-        atomicMethodBlock(
-        atomicEQuery(getOwner)
-        atomicEQuery(getVelocity)
-        atomicEQuery(getPower)
-        )
-        atomicEQuerySuper(super)
-        atomicEQuerySuper(transform)
-        atomicEQuerySuper(model)
-        atomicEQuerySuper(collision)
+        atomicECallSuper(collision)
     )
 
 public:

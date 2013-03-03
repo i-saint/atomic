@@ -33,6 +33,7 @@
     <ClInclude Include="ist\Base\PoolNew.h" />
     <ClInclude Include="ist\Base\Serialize.h" />
     <ClInclude Include="ist\Base\SharedObject.h" />
+    <ClInclude Include="ist\Base\StringCall.h" />
     <ClInclude Include="ist\Base\Stringnize.h" />
     <ClInclude Include="ist\Base\StringSymbol.h" />
     <ClInclude Include="ist\Base\Types.h" />

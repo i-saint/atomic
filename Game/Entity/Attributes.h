@@ -28,11 +28,7 @@ public:
         atomicECall(setRefCount)
         atomicECall(addRefCount)
         atomicECall(release)
-        )
-    )
-    atomicEQueryBlock(
-        atomicMethodBlock(
-        atomicEQuery(getRefCount)
+        atomicECall(getRefCount)
         )
     )
 
@@ -57,11 +53,7 @@ public:
     atomicECallBlock(
         atomicMethodBlock(
         atomicECall(setPosition)
-        )
-    )
-    atomicEQueryBlock(
-        atomicMethodBlock(
-        atomicEQuery(getPosition)
+        atomicECall(getPosition)
         )
     )
 
@@ -100,14 +92,10 @@ public:
         atomicECall(setScale)
         atomicECall(setAxis)
         atomicECall(setRotate)
-        )
-    )
-    atomicEQueryBlock(
-        atomicMethodBlock(
-        atomicEQuery(getPosition)
-        atomicEQuery(getScale)
-        atomicEQuery(getAxis)
-        atomicEQuery(getRotate)
+        atomicECall(getPosition)
+        atomicECall(getScale)
+        atomicECall(getAxis)
+        atomicECall(getRotate)
         )
     )
 
@@ -164,22 +152,18 @@ private:
 public:
     atomicECallBlock(
         atomicMethodBlock(
+        atomicECall(getPosition)
+        atomicECall(getScale)
+        atomicECall(getAxis1)
+        atomicECall(getAxis2)
+        atomicECall(getRotate1)
+        atomicECall(getRotate2)
         atomicECall(setPosition)
         atomicECall(setScale)
         atomicECall(setAxis1)
         atomicECall(setAxis2)
         atomicECall(setRotate1)
         atomicECall(setRotate2)
-        )
-    )
-    atomicEQueryBlock(
-        atomicMethodBlock(
-        atomicEQuery(getPosition)
-        atomicEQuery(getScale)
-        atomicEQuery(getAxis1)
-        atomicEQuery(getAxis2)
-        atomicEQuery(getRotate1)
-        atomicEQuery(getRotate2)
         )
     )
 
@@ -235,17 +219,12 @@ private:
 public:
     atomicECallBlock(
         atomicMethodBlock(
+        atomicECall(getRotateSpeed1)
+        atomicECall(getRotateSpeed2)
         atomicECall(setRotateSpeed1)
         atomicECall(setRotateSpeed2)
         )
         atomicECallSuper(super)
-    )
-    atomicEQueryBlock(
-        atomicMethodBlock(
-        atomicEQuery(getRotateSpeed1)
-        atomicEQuery(getRotateSpeed2)
-        )
-        atomicEQuerySuper(super)
     )
 
 public:
@@ -340,16 +319,12 @@ private:
 public:
     atomicECallBlock(
         atomicMethodBlock(
+        atomicECall(getDiffuseColor)
+        atomicECall(getGlowColor)
+        atomicECall(getModel)
         atomicECall(setDiffuseColor)
         atomicECall(setGlowColor)
         atomicECall(setModel)
-        )
-    )
-    atomicEQueryBlock(
-        atomicMethodBlock(
-        atomicEQuery(getDiffuseColor)
-        atomicEQuery(getGlowColor)
-        atomicEQuery(getModel)
         )
     )
 
@@ -381,14 +356,10 @@ private:
 public:
     atomicECallBlock(
         atomicMethodBlock(
+        atomicECall(getCollisionFlags)
+        atomicECall(getCollisionHandle)
         atomicECall(setCollisionFlags)
         atomicECall(setCollisionShape)
-        )
-    )
-    atomicEQueryBlock(
-        atomicMethodBlock(
-        atomicEQuery(getCollisionFlags)
-        atomicEQuery(getCollisionHandle)
         )
     )
 

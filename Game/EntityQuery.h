@@ -4,42 +4,26 @@
 #include "FunctionID.h"
 
 
-#define atomicECall(funcname)         \
-    case FID_##funcname: MFCall(*this, &this_t::funcname, v); return true;
-
-#define atomicECallSuper(classname)   \
-    if(this->classname::call(call_id, v)) { return true; }
-
-#define atomicECallDelegate(obj)   \
-    if(obj && obj->call(call_id, v)) {}
-
-#define atomicEQuery(funcname)    \
-    case FID_##funcname: v=funcname(); return true;
-
-#define atomicEQuerySuper(classname)   \
-    if(this->classname::query(call_id, v)) { return true; }
-
-#define atomicEQueryDelegate(obj)   \
-    if(obj && obj->query(call_id, v)) { return true; }
+#define atomicECallBlock(blocks) \
+    virtual bool call(FunctionID fid, const variant *args, variant *ret)\
+    {\
+        blocks\
+        return false;\
+    }
 
 #define atomicMethodBlock(methods)    \
-    switch(call_id) {\
+    switch(fid) {\
     methods\
     }
 
-#define atomicECallBlock(blocks) \
-    virtual bool call(FunctionID call_id, const variant &v)\
-    {\
-        blocks\
-        return false;\
-    }
+#define atomicECall(funcname)         \
+    case FID_##funcname: ist::VariantCall(&this_t::funcname, *this, ret, args); return true;
 
-#define atomicEQueryBlock(blocks) \
-    virtual bool query(FunctionID call_id, variant &v) const\
-    {\
-        blocks\
-        return false;\
-    }
+#define atomicECallSuper(classname)   \
+    if(this->classname::call(fid, args, ret)) { return true; }
+
+#define atomicECallDelegate(obj)   \
+    if(obj && obj->call(fid, args, ret)) {}
 
 
 namespace atomic {
@@ -53,17 +37,17 @@ inline void MFCall( T &obj, Res (T::*mf)(Arg1), const variant &v ) { (obj.*mf)(v
 
 class IEntity;
 template<class T>
-inline T _atomicQuery(IEntity *e, FunctionID qid)
+inline T _atomicQuery(IEntity *e, FunctionID fid, const variant *args=NULL)
 {
     variant v;
-    if(!e->query(qid, v)) {
+    if(!e->call(fid, args, &v)) {
         //istPrint("query failed. entity: 0x%x query: %d\n", e->getHandle(), qid);
     }
     return v.cast<T>();
 }
 
 #define atomicCall(entity, funcname, ...) entity->call(FID_##funcname, __VA_ARGS__)
-#define atomicQuery(entity, funcname, T) _atomicQuery<T>(entity, FID_##funcname)
+#define atomicQuery(entity, funcname, T, ...) _atomicQuery<T>(entity, FID_##funcname, __VA_ARGS__)
 
 } // namespace atomic
 #endif // atomic_Game_EntityQuery_h
