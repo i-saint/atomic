@@ -9,6 +9,7 @@
 #include "Base/ClassInfo.h"
 #include "Base/Variant.h"
 #include "Base/VariantCall.h"
+#include "Base/BinaryCall.h"
 #include "Base/Assert.h"
 #include "Base/BinaryStream.h"
 #include "Base/FileLoader.h"

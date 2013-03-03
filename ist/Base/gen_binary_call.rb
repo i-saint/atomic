@@ -6,7 +6,6 @@ def gen_callers(num_args)
     short_class_args = []
 
     arg_typedefs = []
-    arg_members = []
 
     func_args = []
     pass_args = []
@@ -16,8 +15,7 @@ def gen_callers(num_args)
         class_args << "class A#{i}"
         short_class_args << "A#{i}"
 
-        arg_typedefs << "typedef RemoveCR(A#{i}) A#{i}T;"
-        arg_members << "A#{i}T a#{i};"
+        arg_typedefs << "RemoveCR(A#{i})"
 
         func_args << "const VA#{i} &a#{i}"
         pass_args << "args.a#{i}"
@@ -26,8 +24,7 @@ def gen_callers(num_args)
     class_args = class_args.join(", ")
     short_class_args = short_class_args.join(", ")
 
-    arg_typedefs = arg_typedefs.join("\n    ")
-    arg_members = arg_members.join("\n        ")
+    arg_typedefs = arg_typedefs.join(", ")
 
     pass_args = pass_args.join(", ")
 
@@ -38,13 +35,10 @@ struct BC_Fn#{num_args}
 {
     typedef R (*F)(#{short_class_args});
     typedef RemoveCR(R) RT;
-    #{arg_typedefs}
-    struct Args {
-        #{arg_members}
-    };
+    typedef ArgList<#{arg_typedefs}> ArgListT;
     void operator()(F f, void *r, const void *a)
     {
-        Args &args = *(Args*)a;
+        ArgListT &args = *(ArgListT*)a;
         if(r) { *(RT*)r=f(#{pass_args}); }
         else  {         f(#{pass_args}); }
     }
@@ -53,13 +47,10 @@ template<#{class_args}>
 struct BC_Fn#{num_args}<void, #{short_class_args}>
 {
     typedef void (*F)(#{short_class_args});
-    #{arg_typedefs}
-    struct Args {
-        #{arg_members}
-    };
+    typedef ArgList<#{arg_typedefs}> ArgListT;
     void operator()(F f, void *r, const void *a)
     {
-        Args &args = *(Args*)a;
+        ArgListT &args = *(ArgListT*)a;
         f(#{pass_args});
     }
 };
@@ -69,13 +60,10 @@ struct BC_MemFn#{num_args}
 {
     typedef R (C::*F)(#{short_class_args});
     typedef RemoveCR(R) RT;
-    #{arg_typedefs}
-    struct Args {
-        #{arg_members}
-    };
+    typedef ArgList<#{arg_typedefs}> ArgListT;
     void operator()(F f, C &o, void *r, const void *a)
     {
-        Args &args = *(Args*)a;
+        ArgListT &args = *(ArgListT*)a;
         if(r) { *(RT*)r=(o.*f)(#{pass_args}); }
         else  {         (o.*f)(#{pass_args}); }
     }
@@ -84,13 +72,10 @@ template<class C, #{class_args}>
 struct BC_MemFn#{num_args}<void, C, #{short_class_args}>
 {
     typedef void (C::*F)(#{short_class_args});
-    #{arg_typedefs}
-    struct Args {
-        #{arg_members}
-    };
+    typedef ArgList<#{arg_typedefs}> ArgListT;
     void operator()(F f, C &o, void *r, const void *a)
     {
-        Args &args = *(Args*)a;
+        ArgListT &args = *(ArgListT*)a;
         (o.*f)(#{pass_args});
     }
 };
@@ -100,13 +85,10 @@ struct BC_ConstMemFn#{num_args}
 {
     typedef R (C::*F)(#{short_class_args}) const;
     typedef RemoveCR(R) RT;
-    #{arg_typedefs}
-    struct Args {
-        #{arg_members}
-    };
+    typedef ArgList<#{arg_typedefs}> ArgListT;
     void operator()(F f, const C &o, void *r, const void *a)
     {
-        Args &args = *(Args*)a;
+        ArgListT &args = *(ArgListT*)a;
         if(r) { *(RT*)r=(o.*f)(#{pass_args}); }
         else  {         (o.*f)(#{pass_args}); }
     }
@@ -115,13 +97,10 @@ template<class C, #{class_args}>
 struct BC_ConstMemFn#{num_args}<void, C, #{short_class_args}>
 {
     typedef void (C::*F)(#{short_class_args}) const;
-    #{arg_typedefs}
-    struct Args {
-        #{arg_members}
-    };
+    typedef ArgList<#{arg_typedefs}> ArgListT;
     void operator()(F f, const C &o, void *r, const void *a)
     {
-        Args &args = *(Args*)a;
+        ArgListT &args = *(ArgListT*)a;
         (o.*f)(#{pass_args});
     }
 };
@@ -149,13 +128,51 @@ template<class R, #{class_args}>
 inline void BinaryCall(R (*f)(#{short_class_args}), void *r, const void *a)
 { BC_Fn#{num_args}<R,#{short_class_args}>()(f, r, a); }
 
+template<class R, #{class_args}>
+inline void BinaryCall(R (*f)(#{short_class_args}), R &r, const ArgList<#{short_class_args}> &a)
+{ BC_Fn#{num_args}<R,#{short_class_args}>()(f, &r, &a); }
+
+template<class R, #{class_args}>
+inline void BinaryCall(R (*f)(#{short_class_args}), const void *a)
+{ BC_Fn#{num_args}<R,#{short_class_args}>()(f, NULL, a); }
+
+template<class R, #{class_args}>
+inline void BinaryCall(R (*f)(#{short_class_args}), const ArgList<#{short_class_args}> &a)
+{ BC_Fn#{num_args}<R,#{short_class_args}>()(f, NULL, &a); }
+
+
 template<class R, class C, #{class_args}>
 inline void BinaryCall(R (C::*f)(#{short_class_args}), C &o, void *r, const void *a)
 { BC_MemFn#{num_args}<R,C,#{short_class_args}>()(f, o, r, a); }
 
 template<class R, class C, #{class_args}>
+inline void BinaryCall(R (C::*f)(#{short_class_args}), C &o, R &r, const ArgList<#{short_class_args}> &a)
+{ BC_MemFn#{num_args}<R,C,#{short_class_args}>()(f, o, &r, &a); }
+
+template<class R, class C, #{class_args}>
+inline void BinaryCall(R (C::*f)(#{short_class_args}), C &o, const void *a)
+{ BC_MemFn#{num_args}<R,C,#{short_class_args}>()(f, o, NULL, a); }
+
+template<class R, class C, #{class_args}>
+inline void BinaryCall(R (C::*f)(#{short_class_args}), C &o, const ArgList<#{short_class_args}> &a)
+{ BC_MemFn#{num_args}<R,C,#{short_class_args}>()(f, o, NULL, &a); }
+
+
+template<class R, class C, #{class_args}>
 inline void BinaryCall(R (C::*f)(#{short_class_args}) const, const C &o, void *r, const void *a)
 { BC_ConstMemFn#{num_args}<R,C,#{short_class_args}>()(f, o, r, a); }
+
+template<class R, class C, #{class_args}>
+inline void BinaryCall(R (C::*f)(#{short_class_args}) const, const C &o, R &r, const ArgList<#{short_class_args}> &a)
+{ BC_ConstMemFn#{num_args}<R,C,#{short_class_args}>()(f, o, &r, &a); }
+
+template<class R, class C, #{class_args}>
+inline void BinaryCall(R (C::*f)(#{short_class_args}) const, const C &o, const void *a)
+{ BC_ConstMemFn#{num_args}<R,C,#{short_class_args}>()(f, o, NULL, a); }
+
+template<class R, class C, #{class_args}>
+inline void BinaryCall(R (C::*f)(#{short_class_args}) const, const C &o, const ArgList<#{short_class_args}> &a)
+{ BC_ConstMemFn#{num_args}<R,C,#{short_class_args}>()(f, o, NULL, &a); }
 
 END
 end
