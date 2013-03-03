@@ -39,7 +39,7 @@ struct VC_MemFn0
 template<class C, size_t SR>
 struct VC_MemFn0<void, C, SR>
 {
-    typedef void (*F)();
+    typedef void (C::*F)();
     typedef TVariant<SR> VR;
     void operator()(F f, C *o, VR *)
     { (o->*f)(); }
