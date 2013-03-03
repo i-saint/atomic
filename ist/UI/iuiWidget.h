@@ -8,14 +8,19 @@ namespace iui {
 
 class iuiInterModule Widget : public SharedObject
 {
+friend class UISystem;
+typedef SharedObject super;
 public:
     Widget();
-    virtual ~Widget();
     virtual WidgetTypeID getTypeID() const=0;
+
+    // 破棄したい場合、delete / release() の代わりにこれを呼ぶ。
+    // 破棄フラグを立て、WMT_WidgetDelete を発行する。
+    void destroy();
+    bool isDestroyed() const;
 
     virtual void update(Float dt);
     virtual void draw();
-    virtual bool handleEvent(const WM_Base &wm);
 
     WidgetCont&         getChildren();
     const WidgetCont&   getChildren() const;
@@ -37,7 +42,7 @@ public:
     void setPosition(const Position &pos);
     void setSize(const Size &pos);
     void setZOrder(Float v);
-    void setVisible(bool v);
+    void setVisibility(bool v);
     void setFocus(bool v);
 
     void setTextHandler(WidgetCallback cb);
@@ -48,7 +53,10 @@ public:
     void setFocusHandler(WidgetCallback cb);
 
 protected:
+    virtual ~Widget();
+    virtual bool handleEvent(const WM_Base &wm);
     void CallIfValid(const WidgetCallback &v);
+    using super::release;
 
 private:
     istMemberPtrDecl(Members) m;

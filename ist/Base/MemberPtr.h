@@ -8,6 +8,7 @@
         T(const T &other);\
         T& operator=(const T &other);
 
+
 #define istMemberPtrDecl(M)\
     struct M;\
     class istInterModule member_ptr\
@@ -26,6 +27,13 @@
     };\
     friend class member_ptr;\
     member_ptr
+
+#define istMemberPtrImpl(C,M)\
+    istMemberPtrImpl_Noncopyable(C,M)\
+    C::member_ptr::member_ptr(const member_ptr &other) : ptr(istNew(C::M)(*other.ptr)) {}\
+    C::member_ptr& C::member_ptr::operator=(const member_ptr &other) { *ptr=*other.ptr; return *this; }
+
+
 
 #define istMemberPtrDecl_Noncopyable(M)\
     struct M;\
@@ -53,11 +61,6 @@
     const C::M&  C::member_ptr::operator*() const  { return *ptr; }\
     C::M*        C::member_ptr::operator->()       { return ptr; }\
     const C::M*  C::member_ptr::operator->() const { return ptr; }
-
-#define istMemberPtrImpl(C,M)\
-    istMemberPtrImpl_Noncopyable(C,M)\
-    C::member_ptr::member_ptr(const member_ptr &other) : ptr(istNew(C::M)(*other.ptr)) {}\
-    C::member_ptr& C::member_ptr::operator=(const member_ptr &other) { *ptr=*other.ptr; return *this; }
 
 
 #endif // ist_Base_MemberPtr_h

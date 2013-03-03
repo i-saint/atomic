@@ -11,11 +11,33 @@ static Device *g_the_device = NULL;
 
 #ifdef ist_env_Windows
 
-Device::Device(HWND hwnd)
-    : m_immediate_context(NULL)
-    , m_hwnd(hwnd)
+struct Device::Members
 {
-    m_hdc = ::GetDC(m_hwnd);
+    DeviceContext                  *immediate_context;
+    stl::vector<DeviceResource*>    resources;
+    stl::vector<ResourceHandle>     vacant;
+    HWND    hwnd;
+    HDC     hdc;
+    HGLRC   hglrc;
+
+    Members()
+        : immediate_context(NULL)
+        , hwnd(NULL)
+        , hdc(NULL)
+        , hglrc(NULL)
+    {
+    }
+};
+istMemberPtrImpl_Noncopyable(Device,Members);
+
+HDC Device::getHDC() { return m->hdc; }
+HGLRC Device::getHGLRC() { return m->hglrc; }
+
+
+Device::Device(HWND hwnd)
+{
+    m->hwnd = hwnd;
+    m->hdc = ::GetDC(m->hwnd);
 #ifdef i3d_enable_resource_leak_check
 
 #endif // i3d_enable_leak_check
@@ -42,13 +64,13 @@ Device::Device(HWND hwnd)
     };
 
     // glew 用の仮のコンテキスト生成
-    if(((pixelformat = ::ChoosePixelFormat(m_hdc, &pfd)) == 0)
-        || ((::SetPixelFormat(m_hdc, pixelformat, &pfd) == FALSE))
-        || (!(m_hglrc=::wglCreateContext(m_hdc))))
+    if(((pixelformat = ::ChoosePixelFormat(m->hdc, &pfd)) == 0)
+        || ((::SetPixelFormat(m->hdc, pixelformat, &pfd) == FALSE))
+        || (!(m->hglrc=::wglCreateContext(m->hdc))))
     {
             istPrint("OpenGL initialization failed");
     }
-    wglMakeCurrent(m_hdc, m_hglrc);
+    wglMakeCurrent(m->hdc, m->hglrc);
     glewInit();
     {
         const GLubyte *version = glGetString(GL_VERSION);
@@ -59,19 +81,19 @@ Device::Device(HWND hwnd)
 
 Device::~Device()
 {
-    for(uint32 i=0; i<m_resources.size(); ++i) {
-        istSafeRelease(m_resources[i]);
+    for(uint32 i=0; i<m->resources.size(); ++i) {
+        istSafeRelease(m->resources[i]);
     }
-    m_resources.clear();
+    m->resources.clear();
 
-    if(m_hglrc!=NULL) {
+    if(m->hglrc!=NULL) {
         ::wglMakeCurrent(NULL, NULL);
-        ::wglDeleteContext(m_hglrc);
-        m_hglrc = NULL;
+        ::wglDeleteContext(m->hglrc);
+        m->hglrc = NULL;
     }
-    if(m_hdc!=NULL) {
-        ::ReleaseDC(m_hwnd, m_hdc);
-        m_hdc = NULL;
+    if(m->hdc!=NULL) {
+        ::ReleaseDC(m->hwnd, m->hdc);
+        m->hdc = NULL;
     }
     g_the_device = NULL;
 }
@@ -79,36 +101,36 @@ Device::~Device()
 
 DeviceContext* Device::getImmediateContext()
 {
-    return m_immediate_context;
+    return m->immediate_context;
 }
 
 void Device::addResource( DeviceResource *v )
 {
     if(!v) { return; }
 
-    if(!m_vacant.empty()) {
-        ResourceHandle drh = m_vacant.back();
-        m_vacant.pop_back();
-        m_resources[drh] = v;
+    if(!m->vacant.empty()) {
+        ResourceHandle drh = m->vacant.back();
+        m->vacant.pop_back();
+        m->resources[drh] = v;
         v->setDeviceResourceHandle(drh);
     }
     else {
-        v->setDeviceResourceHandle(m_resources.size());
-        m_resources.push_back(v);
+        v->setDeviceResourceHandle(m->resources.size());
+        m->resources.push_back(v);
     }
 }
 
 void Device::deleteResource( ResourceHandle v )
 {
-    istSafeDelete(m_resources[v]);
-    m_vacant.push_back(v);
+    istSafeDelete(m->resources[v]);
+    m->vacant.push_back(v);
 }
 
 DeviceContext* Device::createImmediateContext()
 {
     DeviceContext *r = istNew(DeviceContext)(this);
-    istAssert(m_immediate_context==NULL);
-    m_immediate_context = r;
+    istAssert(m->immediate_context==NULL);
+    m->immediate_context = r;
     return r;
 }
 
@@ -205,17 +227,17 @@ DepthStencilState* Device::createDepthStencilState( const DepthStencilStateDesc 
 
 void Device::swapBuffers()
 {
-    ::SwapBuffers(m_hdc);
+    ::SwapBuffers(m->hdc);
 }
 
 
 #ifdef i3d_enable_resource_leak_check
 void Device::printLeakInfo()
 {
-    for(size_t i=0; i<m_resources.size(); ++i) {
-        if(m_resources[i]==NULL) { continue; }
-        istPrint("i3dgl::Device: resource leak %p\n", m_resources[i]);
-        m_resources[i]->printLeakInfo();
+    for(size_t i=0; i<m->resources.size(); ++i) {
+        if(m->resources[i]==NULL) { continue; }
+        istPrint("i3dgl::Device: resource leak %p\n", m->resources[i]);
+        m->resources[i]->printLeakInfo();
         istPrint("\n");
     }
 }

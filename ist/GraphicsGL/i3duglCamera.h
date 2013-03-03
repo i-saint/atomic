@@ -4,7 +4,7 @@
 namespace ist {
 namespace i3dgl {
 
-class istInterModule Camera
+class Camera
 {
 public:
     Camera()
@@ -41,7 +41,7 @@ private:
 };
 
 
-class istInterModule OrthographicCamera : public Camera
+class OrthographicCamera : public Camera
 {
 typedef Camera super;
 public:
@@ -99,7 +99,7 @@ private:
 };
 
 
-class istInterModule PerspectiveCamera : public Camera
+class PerspectiveCamera : public Camera
 {
 typedef Camera super;
 public:

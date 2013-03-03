@@ -487,6 +487,9 @@
     <ClCompile Include="ist\GraphicsCommon\EasyDrawerUtil.cpp">
       <Filter>GraphicsCommon</Filter>
     </ClCompile>
+    <ClCompile Include="ist\Base\StringSymbol.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ist\Math\FrustumCulling.inl">

@@ -13,12 +13,13 @@ struct Widget::Members
     Size        size;
     Float       zorder;
     bool        visible;
+    bool        destroyed;
 
     WidgetCallback on_text;
     WidgetCallback on_pos;
     WidgetCallback on_size;
     WidgetCallback on_zorder;
-    WidgetCallback on_visible;
+    WidgetCallback on_visibility;
     WidgetCallback on_focus;
 
     Members()
@@ -26,10 +27,46 @@ struct Widget::Members
         , style(NULL)
         , zorder(0.0f)
         , visible(true)
+        , destroyed(false)
     {
     }
 };
 istMemberPtrImpl(Widget,Members)
+
+WidgetCont&         Widget::getChildren()       { return m->children; }
+const WidgetCont&   Widget::getChildren() const { return m->children; }
+Style*              Widget::getStyle() const    { return m->style; }
+const Position&     Widget::getPosition() const { return m->pos; }
+const Size&         Widget::getSize() const     { return m->size; }
+const String&       Widget::getText() const     { return m->text; }
+Float               Widget::getZOrder() const   { return m->zorder; }
+bool                Widget::isVisible() const   { return m->visible; }
+bool                Widget::isFocused() const   { return iuiGetSystem()->getFocus()==this; }
+
+void Widget::setStyle( Style *style )           { m->style=style; }
+void Widget::setText( const String &text )      { m->text=text; CallIfValid(m->on_text); }
+void Widget::setPosition( const Position &pos ) { m->pos=pos; CallIfValid(m->on_pos); }
+void Widget::setSize( const Size &size )        { m->size=size; CallIfValid(m->on_size); }
+void Widget::setZOrder(float v)                 { m->zorder=v; CallIfValid(m->on_zorder); }
+void Widget::setVisibility(bool v)              { m->visible=v; CallIfValid(m->on_visibility); }
+void Widget::setFocus(bool v)
+{
+    if(v) {
+        iuiGetSystem()->setFocus(this);
+    }
+    else if(iuiGetSystem()->getFocus()==this) {
+        iuiGetSystem()->setFocus(NULL);
+    }
+    CallIfValid(m->on_focus);
+}
+
+void Widget::setTextHandler(WidgetCallback cb)      { m->on_text=cb; }
+void Widget::setPositionHandler(WidgetCallback cb)  { m->on_pos=cb; }
+void Widget::setSizeHandler(WidgetCallback cb)      { m->on_size=cb; }
+void Widget::setZOrderHandler(WidgetCallback cb)    { m->on_zorder=cb; }
+void Widget::setVisibilityHandler(WidgetCallback cb){ m->on_visibility=cb; }
+void Widget::setFocusHandler(WidgetCallback cb)     { m->on_focus=cb; }
+
 
 Widget::Widget()
 {
@@ -37,10 +74,35 @@ Widget::Widget()
 
 Widget::~Widget()
 {
+    eachChildren([&](Widget *&w){ w->release(); });
 }
+
+void Widget::destroy()
+{
+    if(!m->destroyed) {
+        m->destroyed = true;
+        WM_Widget wm;
+        wm.type = WMT_WidgetDelete;
+        wm.from = this;
+        iuiGetSystem()->sendMessage(wm);
+    }
+}
+
+bool Widget::isDestroyed() const { return m->destroyed; }
 
 void Widget::update(Float dt)
 {
+    uint32 num_destroyed = 0;
+    eachChildren([&](Widget *&w){
+        if(w->isDestroyed()) {
+            w->release();
+            w = NULL;
+            ++num_destroyed;
+        }
+    });
+    if(num_destroyed>0) {
+        m->children.erase(std::remove(m->children.begin(), m->children.end(), (Widget*)NULL), m->children.end());
+    }
 }
 
 void Widget::draw()
@@ -62,40 +124,6 @@ bool Widget::handleEvent(const WM_Base &wm)
     }
     return false;
 }
-
-WidgetCont&         Widget::getChildren()       { return m->children; }
-const WidgetCont&   Widget::getChildren() const { return m->children; }
-Style*              Widget::getStyle() const    { return m->style; }
-const Position&     Widget::getPosition() const { return m->pos; }
-const Size&         Widget::getSize() const     { return m->size; }
-const String&       Widget::getText() const     { return m->text; }
-Float               Widget::getZOrder() const   { return m->zorder; }
-bool                Widget::isVisible() const   { return m->visible; }
-bool                Widget::isFocused() const   { return iuiGetSystem()->getFocus()==this; }
-
-void Widget::setStyle( Style *style )           { m->style=style; }
-void Widget::setText( const String &text )      { m->text=text; CallIfValid(m->on_text); }
-void Widget::setPosition( const Position &pos ) { m->pos=pos; CallIfValid(m->on_pos); }
-void Widget::setSize( const Size &size )        { m->size=size; CallIfValid(m->on_size); }
-void Widget::setZOrder(float v)                 { m->zorder=v; CallIfValid(m->on_zorder); }
-void Widget::setVisible(bool v)                 { m->visible=v; CallIfValid(m->on_visible); }
-void Widget::setFocus(bool v)
-{
-    if(v) {
-        iuiGetSystem()->setFocus(this);
-    }
-    else if(iuiGetSystem()->getFocus()==this) {
-        iuiGetSystem()->setFocus(NULL);
-    }
-    CallIfValid(m->on_focus);
-}
-
-void Widget::setTextHandler(WidgetCallback cb)      { m->on_text=cb; }
-void Widget::setPositionHandler(WidgetCallback cb)  { m->on_pos=cb; }
-void Widget::setSizeHandler(WidgetCallback cb)      { m->on_size=cb; }
-void Widget::setZOrderHandler(WidgetCallback cb)    { m->on_zorder=cb; }
-void Widget::setVisibilityHandler(WidgetCallback cb){ m->on_visible=cb; }
-void Widget::setFocusHandler(WidgetCallback cb)     { m->on_focus=cb; }
 
 void Widget::CallIfValid(const WidgetCallback &v) { if(v){ v(this); } }
 

@@ -26,6 +26,8 @@ public:
     void setScreen(float32 left, float32 right, float32 bottom, float32 top);
     void setFocus(Widget *v);
 
+    void sendMessage(const WM_Base &wm);
+
 private:
     UISystem();
     ~UISystem();

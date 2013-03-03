@@ -1,5 +1,5 @@
-﻿#ifndef __ist_isd_Stream__
-#define __ist_isd_Stream__
+﻿#ifndef ist_isd_Stream_h
+#define ist_isd_Stream_h
 
 #include "isdUtil.h"
 
@@ -10,7 +10,7 @@ namespace isd {
 class istInterModule Stream : public SharedObject
 {
 public:
-    typedef stl::vector<char> DataCont;
+    typedef ist::raw_vector<char> DataCont;
 
 public:
     Stream();
@@ -40,7 +40,7 @@ public:
 
 
 
-class istInterModule WaveStream : public Stream
+class WaveStream : public Stream
 {
 public:
     struct riff_header {
@@ -96,4 +96,4 @@ public:
 } // namespace isd
 } // namespace ist
 
-#endif // __ist_isd_Stream__
+#endif // ist_isd_Stream_h

@@ -7,7 +7,7 @@
 
 namespace ist {
 
-class istInterModule Thread : public SharedObject
+class Thread
 {
 istNonCopyable(Thread);
 public:

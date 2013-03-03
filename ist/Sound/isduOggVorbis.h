@@ -1,5 +1,5 @@
-﻿#ifndef __ist_isd_OggVorbis__
-#define __ist_isd_OggVorbis__
+﻿#ifndef ist_isd_OggVorbis_h
+#define ist_isd_OggVorbis_h
 
 #include <vorbis/vorbisfile.h>
 #include "isduOggVorbis.h"
@@ -9,7 +9,7 @@ namespace isd {
 
 
 // .ogg ファイルのストリーミング再生を実現。
-class istInterModule OggVorbisFileStream : public Stream
+class OggVorbisFileStream : public Stream
 {
 private:
     FILE *m_file;
@@ -37,7 +37,7 @@ public:
 };
 
 // .ogg ファイルの内容をメモリに配置して、それをストリーミング再生する機能を実現
-class istInterModule OggVorbisMemoryStream : public Stream
+class OggVorbisMemoryStream : public Stream
 {
 private:
     void *m_data;
@@ -77,4 +77,4 @@ public:
 } // namespace isd
 } // namespace ist
 
-#endif // __ist_isd_OggVorbis__
+#endif // ist_isd_OggVorbis_h

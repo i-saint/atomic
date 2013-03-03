@@ -1,5 +1,5 @@
-﻿#ifndef __ist_isd_SourceSet__
-#define __ist_isd_SourceSet__
+﻿#ifndef ist_isd_SourceSet_h
+#define ist_isd_SourceSet_h
 
 #include "isdTypes.h"
 
@@ -8,9 +8,6 @@ namespace isd {
 
 class istInterModule SourceAdapter : public SharedObject
 {
-private:
-    Source *m_src;
-
 protected:
     SourceAdapter();
     ~SourceAdapter();
@@ -54,13 +51,16 @@ public:
     bool unqueue();
     void queue(Buffer *buf);
     void clearQueue();
+
+private:
+    Source *m_src;
 };
 
 
 class istInterModule StreamSource : public SourceAdapter
 {
 public:
-    typedef stl::vector<char> DataCont;
+    typedef ist::raw_vector<char> DataCont;
 
 private:
     static const int s_num_buffers = 4;
@@ -184,4 +184,4 @@ public:
 } // namespace isd
 } // namespace ist
 
-#endif // __ist_isd_SourceSet__
+#endif // ist_isd_SourceSet_h

@@ -139,6 +139,7 @@
     <ClCompile Include="ist\Base\PoolNew.cpp" />
     <ClCompile Include="ist\Base\Serialize.cpp" />
     <ClCompile Include="ist\Base\Stringnize.cpp" />
+    <ClCompile Include="ist\Base\StringSymbol.cpp" />
     <ClCompile Include="ist\Concurrency\Condition.cpp" />
     <ClCompile Include="ist\Concurrency\Mutex.cpp" />
     <ClCompile Include="ist\Concurrency\Process.cpp" />

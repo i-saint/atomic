@@ -45,25 +45,21 @@ public:
 #endif // i3d_enable_leak_check
 
 private:
-    DeviceContext                   *m_immediate_context;
-    stl::vector<DeviceResource*>    m_resources;
-    stl::vector<ResourceHandle>     m_vacant;
+    istMemberPtrDecl_Noncopyable(Members) m;
+
     void addResource(DeviceResource *v);
 
 
 #ifdef ist_env_Windows
 public:
-    HDC getHDC() { return m_hdc; }
-    HGLRC getHGLRC() { return m_hglrc; }
+    HDC getHDC();
+    HGLRC getHGLRC();
 
 private:
     friend Device* CreateDevice(HWND hwnd);
     Device(HWND hwnd);
     ~Device();
 
-    HWND    m_hwnd;
-    HDC     m_hdc;
-    HGLRC   m_hglrc;
 #endif // ist_env_Windows
 };
 

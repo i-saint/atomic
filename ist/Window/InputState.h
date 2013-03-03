@@ -105,7 +105,7 @@ public:
 };
 
 
-struct istInterModule DisplaySetting
+struct DisplaySetting
 {
 private:
     ivec2 m_resolution;

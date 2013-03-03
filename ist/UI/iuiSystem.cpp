@@ -92,6 +92,13 @@ bool UISystem::handleWindowMessage( const ist::WM_Base &wm )
     return false;
 }
 
+void UISystem::sendMessage( const WM_Base &wm )
+{
+    if(m->root_widget) {
+        handleWindowMessageR(m->root_widget, wm);
+    }
+}
+
 bool UISystem::handleWindowMessageR( Widget *widget, const WM_Base &wm )
 {
     // 子が先

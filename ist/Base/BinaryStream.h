@@ -29,7 +29,7 @@ public:
 };
 
 
-class istInterModule FileStream : public IBinaryStream
+class FileStream : public IBinaryStream
 {
 public:
     FileStream();
@@ -58,7 +58,7 @@ private:
 };
 
 
-class istInterModule MemoryStream : public IBinaryStream
+class MemoryStream : public IBinaryStream
 {
 public:
     MemoryStream();
@@ -73,15 +73,12 @@ public:
     virtual void setWritePos(uint64 pos, SeekDir dir=Seek_Begin);
 
 private:
-    istMemberPtrDecl(Members) m;
-
-private:
-    // non copyable
-    MemoryStream(const MemoryStream&);
-    MemoryStream& operator=(const MemoryStream&);
+    ist::raw_vector<char> m_buffer;
+    size_t m_readpos;
+    size_t m_writepos;
 };
 
-class istInterModule IntrusiveMemoryStream : public IBinaryStream
+class IntrusiveMemoryStream : public IBinaryStream
 {
 public:
     IntrusiveMemoryStream();
@@ -114,7 +111,7 @@ private:
 
 
 
-class istInterModule STDStream : public IBinaryStream
+class STDStream : public IBinaryStream
 {
 public:
     explicit STDStream(std::iostream& s);

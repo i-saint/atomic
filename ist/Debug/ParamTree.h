@@ -207,7 +207,7 @@ typedef TParamNode<int64>   ParamNodeI64;
 typedef TParamNode<uint64>  ParamNodeU64;
 
 template<>
-class istInterModule TParamNode<bool> : public ParamNodeBase
+class TParamNode<bool> : public ParamNodeBase
 {
 typedef ParamNodeBase super;
 public:

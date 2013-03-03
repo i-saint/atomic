@@ -36,25 +36,25 @@ enum WMType
     WMT_IMEResult,
 };
 
-struct istInterModule WM_Base
+struct WM_Base
 {
-    WMType type;
+    uint32 type; // WMType or user defined WM type
 };
 
-struct istInterModule WM_Window : public WM_Base
+struct WM_Window : public WM_Base
 {
     ivec2 window_size;
     ivec2 window_pos;
 };
 
-struct istInterModule WM_Keyboard : public WM_Base
+struct WM_Keyboard : public WM_Base
 {
     uint16 key;
 
     WM_Keyboard() { istMemset(this, 0, sizeof(*this)); }
 };
 
-struct istInterModule WM_Mouse : public WM_Base
+struct WM_Mouse : public WM_Base
 {
     vec2 mouse_pos;
     int16 wheel;
@@ -70,7 +70,7 @@ struct istInterModule WM_Mouse : public WM_Base
 };
 
 // MES_IME_CHAR, MES_IME_RESULT のとき、text, text_len に入力データが入っている
-struct istInterModule WM_IME : public WM_Base
+struct WM_IME : public WM_Base
 {
     uint32 text_len;
     uint32 num_candidates;

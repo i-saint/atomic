@@ -9,21 +9,11 @@ public:
     typedef int32 id_t;
     typedef stl::map<stl::string, id_t> StringTable;
 
-    StringSymbolPool() : m_idgen(0) {}
-    id_t genID(const stl::string &str)
-    {
-        StringTable::iterator i = m_table.find(str);
-        if(i==m_table.end()) {
-            id_t id = ++m_idgen;
-            m_table[str] = id;
-            return id;
-        }
-        return i->second;
-    }
+    StringSymbolPool();
+    id_t genID(const stl::string &str);
 
 private:
-    StringTable m_table;
-    id_t m_idgen;
+    istMemberPtrDecl(Members) m;
 };
 
 
@@ -42,12 +32,15 @@ private:
     id_t m_id;
 
 private:
-    static StringSymbolPool* getPool()
-    {
-        static StringSymbolPool s_pool;
-        return &s_pool;
-    }
+    static StringSymbolPool* getPool();
 };
+
+#define istStringSymbolImpl(T)\
+    template<> StringSymbolPool* TStringSymbol<T>::getPool() {\
+        static StringSymbolPool s_pool;\
+        return &s_pool;\
+    }
+
 
 } // namespace ist
 

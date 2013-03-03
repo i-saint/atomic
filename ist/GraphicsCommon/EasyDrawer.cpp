@@ -5,11 +5,26 @@
 ist_EasyDrawer_NamespaceBegin
 
 
+struct EasyDrawState::Members
+{
+    mat4            proj;
+    mat4            world;
+    Texture2D      *texture;
+    Sampler        *sampler;
+    ShaderProgram  *shader;
+    uint32          uniform_location;
+
+    Members()
+        : texture(NULL)
+        , sampler(NULL)
+        , shader(NULL)
+        , uniform_location(0)
+    {
+    }
+};
+istMemberPtrImpl(EasyDrawState,Members);
+
 EasyDrawState::EasyDrawState()
-    : m_texture(NULL)
-    , m_sampler(NULL)
-    , m_shader(NULL)
-    , m_uniform_location(0)
 {
 }
 
@@ -19,26 +34,26 @@ void EasyDrawState::setScreen(float32 width, float32 height)
 }
 void EasyDrawState::setScreen(float32 left, float32 right, float32 bottom, float32 top)
 {
-    m_proj = glm::ortho(left, right, bottom, top);
+    m->proj = glm::ortho(left, right, bottom, top);
 }
-void EasyDrawState::setProjectionMatrix(const mat4 &mat){ m_proj=mat; }
-void EasyDrawState::setWorldMatrix(const mat4 &mat)     { m_world=mat; }
-void EasyDrawState::setTexture(Texture2D *tex)          { m_texture=tex; }
-void EasyDrawState::setSampler(Sampler *smp)            { m_sampler=smp; }
+void EasyDrawState::setProjectionMatrix(const mat4 &mat){ m->proj=mat; }
+void EasyDrawState::setWorldMatrix(const mat4 &mat)     { m->world=mat; }
+void EasyDrawState::setTexture(Texture2D *tex)          { m->texture=tex; }
+void EasyDrawState::setSampler(Sampler *smp)            { m->sampler=smp; }
 void EasyDrawState::setShader(ShaderProgram *v)
 {
-    m_shader = v;
-    if(m_shader) {
-        m_uniform_location = m_shader->getUniformBlockIndex("render_states");
+    m->shader = v;
+    if(m->shader) {
+        m->uniform_location = m->shader->getUniformBlockIndex("render_states");
     }
 }
 
-const mat4&     EasyDrawState::getProjectionMatrix() const  { return m_proj; }
-const mat4&     EasyDrawState::getWorldMatrix() const       { return m_world; }
-Texture2D*      EasyDrawState::getTexture() const           { return m_texture; }
-Sampler*        EasyDrawState::getSampler() const           { return m_sampler; }
-ShaderProgram*  EasyDrawState::getShader() const            { return m_shader; }
-uint32          EasyDrawState::getUniformLocation() const   { return m_uniform_location; }
+const mat4&     EasyDrawState::getProjectionMatrix() const  { return m->proj; }
+const mat4&     EasyDrawState::getWorldMatrix() const       { return m->world; }
+Texture2D*      EasyDrawState::getTexture() const           { return m->texture; }
+Sampler*        EasyDrawState::getSampler() const           { return m->sampler; }
+ShaderProgram*  EasyDrawState::getShader() const            { return m->shader; }
+uint32          EasyDrawState::getUniformLocation() const   { return m->uniform_location; }
 
 
 class EasyShaders : public SharedObject
@@ -166,15 +181,15 @@ struct EasyDrawer::Members
 {
     typedef EasyDrawer::DrawCall DrawCall;
 
-    VertexArray     *va;
-    Buffer          *vbo;
-    Buffer          *ibo;
-    Buffer          *ubo;
-    EasyShaders     *shaders;
-    raw_vector<char>        vertex_data;
-    raw_vector<char>        index_data;
-    raw_vector<DrawCall>    draw_calls;
-    EasyDrawState state;
+    VertexArray             *va;
+    Buffer                  *vbo;
+    Buffer                  *ibo;
+    Buffer                  *ubo;
+    EasyShaders             *shaders;
+    ist::raw_vector<char>   vertex_data;
+    ist::raw_vector<char>   index_data;
+    ist::vector<DrawCall>   draw_calls;
+    EasyDrawState           state;
 
     Members()
         : va(NULL)

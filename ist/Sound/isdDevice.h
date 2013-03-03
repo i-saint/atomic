@@ -1,5 +1,5 @@
-﻿#ifndef __ist_isd_Device__
-#define __ist_isd_Device__
+﻿#ifndef ist_isd_Device_h
+#define ist_isd_Device_h
 
 #include "isdTypes.h"
 
@@ -33,4 +33,4 @@ Device* CreateDevice();
 } // namespace isd
 } // namespace ist
 
-#endif // __ist_isd_Device__
+#endif // ist_isd_Device_h

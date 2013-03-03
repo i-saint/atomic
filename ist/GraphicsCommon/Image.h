@@ -150,7 +150,7 @@ inline TRGBA<T> GetShininess(const TRGBA<T> &b) { return TRGBA<T>(T(float32(b.r)
 
 
 
-class istInterModule Image
+class Image
 {
 public:
     enum FileType
@@ -253,7 +253,7 @@ private:
     bool loadDDS(IBinaryStream &f, const IOConfig &conf);
     bool saveDDS(IBinaryStream &f, const IOConfig &conf) const;
 
-    stl::vector<char> m_data;
+    ist::raw_vector<char> m_data;
     int32 m_format;
     uint32 m_width, m_height;
 };

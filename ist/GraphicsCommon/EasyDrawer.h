@@ -41,12 +41,7 @@ public:
     uint32          getUniformLocation() const;
 
 private:
-    mat4 m_proj;
-    mat4 m_world;
-    Texture2D *m_texture;
-    Sampler *m_sampler;
-    ShaderProgram *m_shader;
-    uint32 m_uniform_location;
+    istMemberPtrDecl(Members) m;
 };
 
 

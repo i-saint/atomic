@@ -31,7 +31,7 @@ class iuiInterModule HSlider : public Widget
 {
 public:
     iuiImplWidget(HSlider)
-        HSlider(const WidgetCallback &on_change);
+    HSlider(const WidgetCallback &on_change);
     Float getValue() const;
 
 private:
