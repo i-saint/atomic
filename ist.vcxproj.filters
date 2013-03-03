@@ -340,6 +340,9 @@
     <ClInclude Include="ist\Base\StringCall.h">
       <Filter>Base</Filter>
     </ClInclude>
+    <ClInclude Include="ist\Base\BinaryCall.h">
+      <Filter>Base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ist\Window\Application.cpp">

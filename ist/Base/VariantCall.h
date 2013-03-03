@@ -1,5 +1,6 @@
 ﻿#ifndef ist_Base_VariantCall_h
 #define ist_Base_VariantCall_h
+#include <type_traits>
 #include "ist/Base/Variant.h"
 
 namespace ist {

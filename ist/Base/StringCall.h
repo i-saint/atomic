@@ -1,3 +1,6 @@
+#ifndef ist_Base_StringCall_h
+#define ist_Base_StringCall_h
+#include <type_traits>
 #include "Stringnize.h"
 
 namespace ist {
@@ -96,3 +99,4 @@ struct SC_ConstMemFn1
 #undef RemoveCR
 
 } // namespace ist
+#endif // ist_Base_StringCall_h
