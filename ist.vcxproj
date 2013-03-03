@@ -37,6 +37,7 @@
     <ClInclude Include="ist\Base\StringSymbol.h" />
     <ClInclude Include="ist\Base\Types.h" />
     <ClInclude Include="ist\Base\Variant.h" />
+    <ClInclude Include="ist\Base\VariantCall.h" />
     <ClInclude Include="ist\Concurrency.h" />
     <ClInclude Include="ist\Concurrency\AsyncFunction.h" />
     <ClInclude Include="ist\Concurrency\Atomic.h" />

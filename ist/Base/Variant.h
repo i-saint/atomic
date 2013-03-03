@@ -16,7 +16,7 @@ namespace ist {
 // 何でも収容するよ型
 // 収容されたオブジェクトはデストラクタは呼ばれないので注意
 template<size_t Size>
-class istInterModule TVariant
+class TVariant
 {
 public:
     TVariant() { _ZeroClear(m_buf); }
@@ -55,11 +55,21 @@ public:
         istStaticAssert(sizeof(T)<=Size);
         return *reinterpret_cast<T*>(m_buf);
     }
-
     template<class T>
     const T& cast() const
     {
         istStaticAssert(sizeof(T)<=Size);
+        return *reinterpret_cast<const T*>(m_buf);
+    }
+
+    template<class T>
+    T& unsafe_cast()
+    {
+        return *reinterpret_cast<T*>(m_buf);
+    }
+    template<class T>
+    const T& unsafe_cast() const
+    {
         return *reinterpret_cast<const T*>(m_buf);
     }
 

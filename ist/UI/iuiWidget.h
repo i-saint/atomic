@@ -14,13 +14,13 @@ public:
     Widget();
     virtual WidgetTypeID getTypeID() const=0;
 
+    virtual void update(Float dt);
+    virtual void draw();
+
     // 破棄したい場合、delete / release() の代わりにこれを呼ぶ。
     // 破棄フラグを立て、WMT_WidgetDelete を発行する。
     void destroy();
     bool isDestroyed() const;
-
-    virtual void update(Float dt);
-    virtual void draw();
 
     WidgetCont&         getChildren();
     const WidgetCont&   getChildren() const;
