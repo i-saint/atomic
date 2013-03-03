@@ -216,7 +216,7 @@ void AtomicGame::handleLevelEditorCommands( const LevelEditorCommand &c )
         const LevelEditorCommand_Call &cmd = reinterpret_cast<const LevelEditorCommand_Call&>(c);
         IEntity *e = cmd.entity_id==0 ? s_last_entity : atomicGetEntity(cmd.entity_id);
         if(e) {
-            e->call((FunctionID)cmd.function_id, cmd.arg);
+            e->call((FunctionID)cmd.function_id, &cmd.arg);
         }
     }
 }

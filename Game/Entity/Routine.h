@@ -52,8 +52,7 @@ public:
     virtual void asyncupdate(float32 dt){}
     virtual void draw() {}
 
-    virtual bool call(FunctionID fid, const variant *args, variant *ret) { return false; }
-    bool call(FunctionID fid, const variant &args, variant *ret) { return call(fid, &args, ret); }
+    virtual bool call(FunctionID fid, const void *args, void *ret) { return false; }
 };
 
 

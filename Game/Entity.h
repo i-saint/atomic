@@ -50,10 +50,9 @@ public:
     virtual void draw() {}
 
 
-    // call_id に対応するメソッドを引数 v で呼ぶ。
+    // fid に対応するメソッドを引数 args で呼ぶ。
     // Routine や外部スクリプトとの連動用。
-    virtual bool call(FunctionID call_id, const variant *v, variant *ret=NULL) { return false; }
-    bool call(FunctionID call_id, const variant &v, variant *ret=NULL) { return call(call_id, &v, ret); }
+    virtual bool call(FunctionID fid, const void *args, void *ret=NULL) { return false; }
 };
 
 

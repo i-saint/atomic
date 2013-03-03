@@ -47,7 +47,7 @@ public:
         ++m_frame;
         if(m_frame % 300 == 0) {
             IEntity *e = getEntity();
-            vec4 pos = atomicQuery(getEntity(), getPosition, vec4);
+            vec4 pos; atomicQuery(getEntity(), getPosition, pos);
             vec4 player_pos = GetNearestPlayerPosition(pos);
             vec2 vel = glm::normalize(vec2(player_pos)-vec2(pos)) * 0.01f;
             ShootSimpleBullet(e->getHandle(), pos, vec4(vel, 0.0f, 0.0f));
@@ -84,14 +84,14 @@ public:
     void update(float32 dt)
     {
         IEntity *e = getEntity();
-        vec4 pos = atomicQuery(e, getPosition, vec4);
+        vec4 pos; atomicQuery(e, getPosition, pos);
         m_target_pos = GetNearestPlayerPosition(pos);
     }
 
     void asyncupdate(float32 dt)
     {
         IEntity *e = getEntity();
-        vec4 pos = atomicQuery(e, getPosition, vec4);
+        vec4 pos; atomicQuery(e, getPosition, pos);
         m_vel *= 0.98f;
         m_vel += glm::normalize(m_target_pos-pos) * 0.0002f;
         pos += m_vel;
@@ -148,7 +148,7 @@ public:
     void asyncupdate(float32 dt)
     {
         IEntity *e = getEntity();
-        vec4 pos = atomicQuery(e, getPosition, vec4);
+        vec4 pos; atomicQuery(e, getPosition, pos);
         pos += m_vel;
         m_vel += m_accel;
         atomicCall(e, setPosition, pos);

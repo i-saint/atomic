@@ -215,7 +215,8 @@ public:
     {
         PerspectiveCamera *pcam = atomicGetGameCamera();
         if(IEntity *player = atomicGetEntity(m_player)) {
-            vec4 player_pos = atomicQuery(player, getPosition, vec4);
+            vec4 player_pos;
+            atomicQuery(player, getPosition, player_pos);
             vec4 cpos       = pcam->getPosition();
             vec4 tpos       = pcam->getTarget();
             vec4 cpos2      = cpos + (player_pos-cpos)*0.03f;
@@ -391,7 +392,7 @@ public:
 
         float32 health = 0.0f;
         if(IEntity *e = atomicGetEntity(m_player)) {
-            health = atomicQuery(e, getLife, float32);
+            atomicQuery(e, getLife, health);
         }
 
         char buf[64];

@@ -103,10 +103,11 @@ void UpdateCollisionBox(CollisionBox &o, const mat4& t, const vec4 &size)
 
 vec4 GetNearestPlayerPosition(const vec4 &pos)
 {
+    // todo:
     vec4 ret;
     atomicEnumlateEntity(
         [&](EntityHandle h){ return EntityGetCategory(h)==ECA_Player; },
-        [&](IEntity *e){ ret = atomicQuery(e, getPosition, vec4); }
+        [&](IEntity *e){ atomicQuery(e, getPosition, ret); }
     );
     return ret;
 }

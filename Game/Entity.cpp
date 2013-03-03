@@ -196,14 +196,13 @@ IEntity* EntitySet::createEntity( EntityClassID classid )
 
 void EntitySet::handleEntitiesQuery( EntitiesQueryContext &ctx )
 {
-    variant collision_handle;
+    CollisionHandle ch;
     uint32 num_entities = m_all.size();
     for(uint32 i=0; i<num_entities; ++i) {
         EntityHandle handle = m_all[i];
         IEntity *entity = getEntity(handle);
         if(entity) {
-            if(!atomicCall(entity, getCollisionHandle, NULL, &collision_handle)) { continue; }
-            CollisionHandle ch = collision_handle.cast<CollisionHandle>();
+            if(!atomicQuery(entity, getCollisionHandle, ch)) { continue; }
             CollisionEntity *ce = atomicGetCollision(ch);
             if(ce) {
                 const BoundingBox &bb = ce->bb;
