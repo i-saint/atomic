@@ -452,17 +452,33 @@ struct VC_ConstMemFn4<void, C, A0, A1, A2, A3, SR, SA0, SA1, SA2, SA3>
 #undef RemoveCR
 
 
+
+
 template<class R, size_t SR>
 inline void VariantCall(R (*f)(), TVariant<SR> *r)
 { VC_Fn0<R,SR>()(f, r); }
+
+template<class R>
+inline void VariantCall(R (*f)())
+{ VC_Fn0<R,4>()(f, NULL); }
+
 
 template<class R, class C, size_t SR>
 inline void VariantCall(R (C::*f)(), C *o, TVariant<SR> *r)
 { VC_MemFn0<R,C,SR>()(f, o, r); }
 
+template<class R, class C>
+inline void VariantCall(R (C::*f)(), C *o)
+{ VC_MemFn0<R,C,4>()(f, o, NULL); }
+
+
 template<class R, class C, size_t SR>
 inline void VariantCall(R (C::*f)() const, const C *o, TVariant<SR> *r)
 { VC_ConstMemFn0<R,C,SR>()(f, o, r); }
+
+template<class R, class C>
+inline void VariantCall(R (C::*f)() const, const C *o)
+{ VC_ConstMemFn0<R,C,4>()(f, o, NULL); }
 
 
 
@@ -475,6 +491,15 @@ template<class R, class A0, size_t SR, size_t SA>
 inline void VariantCall(R (*f)(A0), TVariant<SR> *r, const TVariant<SA> *va)
 { VC_Fn1<R,A0,SR,SA>()(f, r, va[0]); }
 
+template<class R, class A0, size_t SA0>
+inline void VariantCall(R (*f)(A0), TVariant<SA0> &a0)
+{ VC_Fn1<R,A0,4,SA0>()(f, NULL, a0); }
+
+template<class R, class A0, size_t SA>
+inline void VariantCall(R (*f)(A0), const TVariant<SA> *va)
+{ VC_Fn1<R,A0,4,SA>()(f, NULL, va[0]); }
+
+
 template<class R, class C, class A0, size_t SR, size_t SA0>
 inline void VariantCall(R (C::*f)(A0), C *o, TVariant<SR> *r, TVariant<SA0> &a0)
 { VC_MemFn1<R,C,A0,SR,SA0>()(f, o, r, a0); }
@@ -483,6 +508,15 @@ template<class R, class C, class A0, size_t SR, size_t SA>
 inline void VariantCall(R (C::*f)(A0), C *o, TVariant<SR> *r, const TVariant<SA> *va)
 { VC_MemFn1<R,C,A0,SR,SA>()(f, o, r, va[0]); }
 
+template<class R, class C, class A0, size_t SA0>
+inline void VariantCall(R (C::*f)(A0), C *o, TVariant<SA0> &a0)
+{ VC_MemFn1<R,C,A0,4,SA0>()(f, o, NULL, a0); }
+
+template<class R, class C, class A0, size_t SA>
+inline void VariantCall(R (C::*f)(A0), C *o, const TVariant<SA> *va)
+{ VC_MemFn1<R,C,A0,4,SA>()(f, o, NULL, va[0]); }
+
+
 template<class R, class C, class A0, size_t SR, size_t SA0>
 inline void VariantCall(R (C::*f)(A0) const, const C *o, TVariant<SR> *r, TVariant<SA0> &a0)
 { VC_ConstMemFn1<R,C,A0,SR,SA0>()(f, o, r, a0); }
@@ -490,6 +524,15 @@ inline void VariantCall(R (C::*f)(A0) const, const C *o, TVariant<SR> *r, TVaria
 template<class R, class C, class A0, size_t SR, size_t SA>
 inline void VariantCall(R (C::*f)(A0) const, const C *o, TVariant<SR> *r, const TVariant<SA> *va)
 { VC_ConstMemFn1<R,C,A0,SR,SA>()(f, o, r, va[0]); }
+
+template<class R, class C, class A0, size_t SA0>
+inline void VariantCall(R (C::*f)(A0) const, const C *o, TVariant<SA0> &a0)
+{ VC_ConstMemFn1<R,C,A0,4,SA0>()(f, o, NULL, a0); }
+
+template<class R, class C, class A0, size_t SA>
+inline void VariantCall(R (C::*f)(A0) const, const C *o, const TVariant<SA> *va)
+{ VC_ConstMemFn1<R,C,A0,4,SA>()(f, o, NULL, va[0]); }
+
 
 
 template<class R, class A0, class A1, size_t SR, size_t SA0, size_t SA1>
@@ -500,6 +543,15 @@ template<class R, class A0, class A1, size_t SR, size_t SA>
 inline void VariantCall(R (*f)(A0,A1), TVariant<SR> *r, const TVariant<SA> *va)
 { VC_Fn2<R,A0,A1,SR,SA,SA>()(f, r, va[0], va[1]); }
 
+template<class R, class A0, class A1, size_t SA0, size_t SA1>
+inline void VariantCall(R (*f)(A0,A1), TVariant<SA0> &a0, TVariant<SA1> &a1)
+{ VC_Fn2<R,A0,A1,4,SA0,SA1>()(f, NULL, a0, a1); }
+
+template<class R, class A0, class A1, size_t SA>
+inline void VariantCall(R (*f)(A0,A1), const TVariant<SA> *va)
+{ VC_Fn2<R,A0,A1,4,SA,SA>()(f, NULL, va[0], va[1]); }
+
+
 template<class R, class C, class A0, class A1, size_t SR, size_t SA0, size_t SA1>
 inline void VariantCall(R (C::*f)(A0,A1), C *o, TVariant<SR> *r, TVariant<SA0> &a0, TVariant<SA1> &a1)
 { VC_MemFn2<R,C,A0,A1,SR,SA0,SA1>()(f, o, r, a0, a1); }
@@ -508,6 +560,15 @@ template<class R, class C, class A0, class A1, size_t SR, size_t SA>
 inline void VariantCall(R (C::*f)(A0,A1), C *o, TVariant<SR> *r, const TVariant<SA> *va)
 { VC_MemFn2<R,C,A0,A1,SR,SA,SA>()(f, o, r, va[0], va[1]); }
 
+template<class R, class C, class A0, class A1, size_t SA0, size_t SA1>
+inline void VariantCall(R (C::*f)(A0,A1), C *o, TVariant<SA0> &a0, TVariant<SA1> &a1)
+{ VC_MemFn2<R,C,A0,A1,4,SA0,SA1>()(f, o, NULL, a0, a1); }
+
+template<class R, class C, class A0, class A1, size_t SA>
+inline void VariantCall(R (C::*f)(A0,A1), C *o, const TVariant<SA> *va)
+{ VC_MemFn2<R,C,A0,A1,4,SA,SA>()(f, o, NULL, va[0], va[1]); }
+
+
 template<class R, class C, class A0, class A1, size_t SR, size_t SA0, size_t SA1>
 inline void VariantCall(R (C::*f)(A0,A1) const, const C *o, TVariant<SR> *r, TVariant<SA0> &a0, TVariant<SA1> &a1)
 { VC_ConstMemFn2<R,C,A0,A1,SR,SA0,SA1>()(f, o, r, a0, a1); }
@@ -515,6 +576,15 @@ inline void VariantCall(R (C::*f)(A0,A1) const, const C *o, TVariant<SR> *r, TVa
 template<class R, class C, class A0, class A1, size_t SR, size_t SA>
 inline void VariantCall(R (C::*f)(A0,A1) const, const C *o, TVariant<SR> *r, const TVariant<SA> *va)
 { VC_ConstMemFn2<R,C,A0,A1,SR,SA,SA>()(f, o, r, va[0], va[1]); }
+
+template<class R, class C, class A0, class A1, size_t SA0, size_t SA1>
+inline void VariantCall(R (C::*f)(A0,A1) const, const C *o, TVariant<SA0> &a0, TVariant<SA1> &a1)
+{ VC_ConstMemFn2<R,C,A0,A1,4,SA0,SA1>()(f, o, NULL, a0, a1); }
+
+template<class R, class C, class A0, class A1, size_t SA>
+inline void VariantCall(R (C::*f)(A0,A1) const, const C *o, const TVariant<SA> *va)
+{ VC_ConstMemFn2<R,C,A0,A1,4,SA,SA>()(f, o, NULL, va[0], va[1]); }
+
 
 
 template<class R, class A0, class A1, class A2, size_t SR, size_t SA0, size_t SA1, size_t SA2>
@@ -525,6 +595,15 @@ template<class R, class A0, class A1, class A2, size_t SR, size_t SA>
 inline void VariantCall(R (*f)(A0,A1,A2), TVariant<SR> *r, const TVariant<SA> *va)
 { VC_Fn3<R,A0,A1,A2,SR,SA,SA,SA>()(f, r, va[0], va[1], va[2]); }
 
+template<class R, class A0, class A1, class A2, size_t SA0, size_t SA1, size_t SA2>
+inline void VariantCall(R (*f)(A0,A1,A2), TVariant<SA0> &a0, TVariant<SA1> &a1, TVariant<SA2> &a2)
+{ VC_Fn3<R,A0,A1,A2,4,SA0,SA1,SA2>()(f, NULL, a0, a1, a2); }
+
+template<class R, class A0, class A1, class A2, size_t SA>
+inline void VariantCall(R (*f)(A0,A1,A2), const TVariant<SA> *va)
+{ VC_Fn3<R,A0,A1,A2,4,SA,SA,SA>()(f, NULL, va[0], va[1], va[2]); }
+
+
 template<class R, class C, class A0, class A1, class A2, size_t SR, size_t SA0, size_t SA1, size_t SA2>
 inline void VariantCall(R (C::*f)(A0,A1,A2), C *o, TVariant<SR> *r, TVariant<SA0> &a0, TVariant<SA1> &a1, TVariant<SA2> &a2)
 { VC_MemFn3<R,C,A0,A1,A2,SR,SA0,SA1,SA2>()(f, o, r, a0, a1, a2); }
@@ -533,6 +612,15 @@ template<class R, class C, class A0, class A1, class A2, size_t SR, size_t SA>
 inline void VariantCall(R (C::*f)(A0,A1,A2), C *o, TVariant<SR> *r, const TVariant<SA> *va)
 { VC_MemFn3<R,C,A0,A1,A2,SR,SA,SA,SA>()(f, o, r, va[0], va[1], va[2]); }
 
+template<class R, class C, class A0, class A1, class A2, size_t SA0, size_t SA1, size_t SA2>
+inline void VariantCall(R (C::*f)(A0,A1,A2), C *o, TVariant<SA0> &a0, TVariant<SA1> &a1, TVariant<SA2> &a2)
+{ VC_MemFn3<R,C,A0,A1,A2,4,SA0,SA1,SA2>()(f, o, NULL, a0, a1, a2); }
+
+template<class R, class C, class A0, class A1, class A2, size_t SA>
+inline void VariantCall(R (C::*f)(A0,A1,A2), C *o, const TVariant<SA> *va)
+{ VC_MemFn3<R,C,A0,A1,A2,4,SA,SA,SA>()(f, o, NULL, va[0], va[1], va[2]); }
+
+
 template<class R, class C, class A0, class A1, class A2, size_t SR, size_t SA0, size_t SA1, size_t SA2>
 inline void VariantCall(R (C::*f)(A0,A1,A2) const, const C *o, TVariant<SR> *r, TVariant<SA0> &a0, TVariant<SA1> &a1, TVariant<SA2> &a2)
 { VC_ConstMemFn3<R,C,A0,A1,A2,SR,SA0,SA1,SA2>()(f, o, r, a0, a1, a2); }
@@ -540,6 +628,15 @@ inline void VariantCall(R (C::*f)(A0,A1,A2) const, const C *o, TVariant<SR> *r, 
 template<class R, class C, class A0, class A1, class A2, size_t SR, size_t SA>
 inline void VariantCall(R (C::*f)(A0,A1,A2) const, const C *o, TVariant<SR> *r, const TVariant<SA> *va)
 { VC_ConstMemFn3<R,C,A0,A1,A2,SR,SA,SA,SA>()(f, o, r, va[0], va[1], va[2]); }
+
+template<class R, class C, class A0, class A1, class A2, size_t SA0, size_t SA1, size_t SA2>
+inline void VariantCall(R (C::*f)(A0,A1,A2) const, const C *o, TVariant<SA0> &a0, TVariant<SA1> &a1, TVariant<SA2> &a2)
+{ VC_ConstMemFn3<R,C,A0,A1,A2,4,SA0,SA1,SA2>()(f, o, NULL, a0, a1, a2); }
+
+template<class R, class C, class A0, class A1, class A2, size_t SA>
+inline void VariantCall(R (C::*f)(A0,A1,A2) const, const C *o, const TVariant<SA> *va)
+{ VC_ConstMemFn3<R,C,A0,A1,A2,4,SA,SA,SA>()(f, o, NULL, va[0], va[1], va[2]); }
+
 
 
 template<class R, class A0, class A1, class A2, class A3, size_t SR, size_t SA0, size_t SA1, size_t SA2, size_t SA3>
@@ -550,6 +647,15 @@ template<class R, class A0, class A1, class A2, class A3, size_t SR, size_t SA>
 inline void VariantCall(R (*f)(A0,A1,A2,A3), TVariant<SR> *r, const TVariant<SA> *va)
 { VC_Fn4<R,A0,A1,A2,A3,SR,SA,SA,SA,SA>()(f, r, va[0], va[1], va[2], va[3]); }
 
+template<class R, class A0, class A1, class A2, class A3, size_t SA0, size_t SA1, size_t SA2, size_t SA3>
+inline void VariantCall(R (*f)(A0,A1,A2,A3), TVariant<SA0> &a0, TVariant<SA1> &a1, TVariant<SA2> &a2, TVariant<SA3> &a3)
+{ VC_Fn4<R,A0,A1,A2,A3,4,SA0,SA1,SA2,SA3>()(f, NULL, a0, a1, a2, a3); }
+
+template<class R, class A0, class A1, class A2, class A3, size_t SA>
+inline void VariantCall(R (*f)(A0,A1,A2,A3), const TVariant<SA> *va)
+{ VC_Fn4<R,A0,A1,A2,A3,4,SA,SA,SA,SA>()(f, NULL, va[0], va[1], va[2], va[3]); }
+
+
 template<class R, class C, class A0, class A1, class A2, class A3, size_t SR, size_t SA0, size_t SA1, size_t SA2, size_t SA3>
 inline void VariantCall(R (C::*f)(A0,A1,A2,A3), C *o, TVariant<SR> *r, TVariant<SA0> &a0, TVariant<SA1> &a1, TVariant<SA2> &a2, TVariant<SA3> &a3)
 { VC_MemFn4<R,C,A0,A1,A2,A3,SR,SA0,SA1,SA2,SA3>()(f, o, r, a0, a1, a2, a3); }
@@ -557,6 +663,15 @@ inline void VariantCall(R (C::*f)(A0,A1,A2,A3), C *o, TVariant<SR> *r, TVariant<
 template<class R, class C, class A0, class A1, class A2, class A3, size_t SR, size_t SA>
 inline void VariantCall(R (C::*f)(A0,A1,A2,A3), C *o, TVariant<SR> *r, const TVariant<SA> *va)
 { VC_MemFn4<R,C,A0,A1,A2,A3,SR,SA,SA,SA,SA>()(f, o, r, va[0], va[1], va[2], va[3]); }
+
+template<class R, class C, class A0, class A1, class A2, class A3, size_t SA0, size_t SA1, size_t SA2, size_t SA3>
+inline void VariantCall(R (C::*f)(A0,A1,A2,A3), C *o, TVariant<SA0> &a0, TVariant<SA1> &a1, TVariant<SA2> &a2, TVariant<SA3> &a3)
+{ VC_MemFn4<R,C,A0,A1,A2,A3,4,SA0,SA1,SA2,SA3>()(f, o, NULL, a0, a1, a2, a3); }
+
+template<class R, class C, class A0, class A1, class A2, class A3, size_t SA>
+inline void VariantCall(R (C::*f)(A0,A1,A2,A3), C *o, const TVariant<SA> *va)
+{ VC_MemFn4<R,C,A0,A1,A2,A3,4,SA,SA,SA,SA>()(f, o, NULL, va[0], va[1], va[2], va[3]); }
+
 
 template<class R, class C, class A0, class A1, class A2, class A3, size_t SR, size_t SA0, size_t SA1, size_t SA2, size_t SA3>
 inline void VariantCall(R (C::*f)(A0,A1,A2,A3) const, const C *o, TVariant<SR> *r, TVariant<SA0> &a0, TVariant<SA1> &a1, TVariant<SA2> &a2, TVariant<SA3> &a3)
@@ -566,6 +681,13 @@ template<class R, class C, class A0, class A1, class A2, class A3, size_t SR, si
 inline void VariantCall(R (C::*f)(A0,A1,A2,A3) const, const C *o, TVariant<SR> *r, const TVariant<SA> *va)
 { VC_ConstMemFn4<R,C,A0,A1,A2,A3,SR,SA,SA,SA,SA>()(f, o, r, va[0], va[1], va[2], va[3]); }
 
+template<class R, class C, class A0, class A1, class A2, class A3, size_t SA0, size_t SA1, size_t SA2, size_t SA3>
+inline void VariantCall(R (C::*f)(A0,A1,A2,A3) const, const C *o, TVariant<SA0> &a0, TVariant<SA1> &a1, TVariant<SA2> &a2, TVariant<SA3> &a3)
+{ VC_ConstMemFn4<R,C,A0,A1,A2,A3,4,SA0,SA1,SA2,SA3>()(f, o, NULL, a0, a1, a2, a3); }
+
+template<class R, class C, class A0, class A1, class A2, class A3, size_t SA>
+inline void VariantCall(R (C::*f)(A0,A1,A2,A3) const, const C *o, const TVariant<SA> *va)
+{ VC_ConstMemFn4<R,C,A0,A1,A2,A3,4,SA,SA,SA,SA>()(f, o, NULL, va[0], va[1], va[2], va[3]); }
 
 
 } // namespace ist

@@ -173,6 +173,15 @@ template<class R, #{class_args}, size_t SR, size_t SA>
 inline void VariantCall(R (*f)(#{short_class_args}), TVariant<SR> *r, const TVariant<SA> *va)
 { VC_Fn#{num_args}<R,#{short_class_args},SR,#{array_variant_args}>()(f, r, #{array_pass_args}); }
 
+template<class R, #{class_args}, #{variant_args}>
+inline void VariantCall(R (*f)(#{short_class_args}), #{func_args})
+{ VC_Fn#{num_args}<R,#{short_class_args},4,#{short_variant_args}>()(f, NULL, #{pass_args}); }
+
+template<class R, #{class_args}, size_t SA>
+inline void VariantCall(R (*f)(#{short_class_args}), const TVariant<SA> *va)
+{ VC_Fn#{num_args}<R,#{short_class_args},4,#{array_variant_args}>()(f, NULL, #{array_pass_args}); }
+
+
 template<class R, class C, #{class_args}, size_t SR, #{variant_args}>
 inline void VariantCall(R (C::*f)(#{short_class_args}), C *o, TVariant<SR> *r, #{func_args})
 { VC_MemFn#{num_args}<R,C,#{short_class_args},SR,#{short_variant_args}>()(f, o, r, #{pass_args}); }
@@ -181,6 +190,15 @@ template<class R, class C, #{class_args}, size_t SR, size_t SA>
 inline void VariantCall(R (C::*f)(#{short_class_args}), C *o, TVariant<SR> *r, const TVariant<SA> *va)
 { VC_MemFn#{num_args}<R,C,#{short_class_args},SR,#{array_variant_args}>()(f, o, r, #{array_pass_args}); }
 
+template<class R, class C, #{class_args}, #{variant_args}>
+inline void VariantCall(R (C::*f)(#{short_class_args}), C *o, #{func_args})
+{ VC_MemFn#{num_args}<R,C,#{short_class_args},4,#{short_variant_args}>()(f, o, NULL, #{pass_args}); }
+
+template<class R, class C, #{class_args}, size_t SA>
+inline void VariantCall(R (C::*f)(#{short_class_args}), C *o, const TVariant<SA> *va)
+{ VC_MemFn#{num_args}<R,C,#{short_class_args},4,#{array_variant_args}>()(f, o, NULL, #{array_pass_args}); }
+
+
 template<class R, class C, #{class_args}, size_t SR, #{variant_args}>
 inline void VariantCall(R (C::*f)(#{short_class_args}) const, const C *o, TVariant<SR> *r, #{func_args})
 { VC_ConstMemFn#{num_args}<R,C,#{short_class_args},SR,#{short_variant_args}>()(f, o, r, #{pass_args}); }
@@ -188,6 +206,15 @@ inline void VariantCall(R (C::*f)(#{short_class_args}) const, const C *o, TVaria
 template<class R, class C, #{class_args}, size_t SR, size_t SA>
 inline void VariantCall(R (C::*f)(#{short_class_args}) const, const C *o, TVariant<SR> *r, const TVariant<SA> *va)
 { VC_ConstMemFn#{num_args}<R,C,#{short_class_args},SR,#{array_variant_args}>()(f, o, r, #{array_pass_args}); }
+
+template<class R, class C, #{class_args}, #{variant_args}>
+inline void VariantCall(R (C::*f)(#{short_class_args}) const, const C *o, #{func_args})
+{ VC_ConstMemFn#{num_args}<R,C,#{short_class_args},4,#{short_variant_args}>()(f, o, NULL, #{pass_args}); }
+
+template<class R, class C, #{class_args}, size_t SA>
+inline void VariantCall(R (C::*f)(#{short_class_args}) const, const C *o, const TVariant<SA> *va)
+{ VC_ConstMemFn#{num_args}<R,C,#{short_class_args},4,#{array_variant_args}>()(f, o, NULL, #{array_pass_args}); }
+
 
 
 END
