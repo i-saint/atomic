@@ -92,22 +92,22 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>..\external\tbb\include;$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
-    <IntDir>$(SolutionDir)\_tmp\$(Configuration)\$(ProjectName)\</IntDir>
-    <OutDir>$(SolutionDir)\_out\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)_tmp\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)_out\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>..\external\tbb\include;$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
-    <IntDir>$(SolutionDir)\_tmp\$(Configuration)\$(ProjectName)\</IntDir>
-    <OutDir>$(SolutionDir)\_out\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)_tmp\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)_out\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>..\external\tbb\include;$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
-    <IntDir>$(SolutionDir)\_tmp\$(Configuration)\$(ProjectName)\</IntDir>
-    <OutDir>$(SolutionDir)\_out\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)_tmp\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)_out\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

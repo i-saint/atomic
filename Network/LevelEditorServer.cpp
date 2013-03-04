@@ -260,7 +260,7 @@ void LevelEditorServer::start()
             m_server->start();
         }
         catch(Poco::IOException &e) {
-            istAssert(e.what());
+            istAssert(false);
         }
     }
 }

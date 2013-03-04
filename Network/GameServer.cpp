@@ -61,7 +61,7 @@ void GameServer::start()
             m_message_thread = istNew(ist::FunctorThread<>)(std::bind(&GameServer::messageLoop, this));
         }
         catch(Poco::IOException &e) {
-            istAssert(e.what());
+            istAssert(false);
             stop();
         }
     }
