@@ -17,6 +17,7 @@
   <ItemGroup>
     <ClInclude Include="ist\Base.h" />
     <ClInclude Include="ist\Base\Allocator.h" />
+    <ClInclude Include="ist\Base\ArgHolder.h" />
     <ClInclude Include="ist\Base\Assert.h" />
     <ClInclude Include="ist\Base\BinaryCall.h" />
     <ClInclude Include="ist\Base\BinaryStream.h" />

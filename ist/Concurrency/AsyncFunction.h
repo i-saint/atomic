@@ -3,6 +3,7 @@
 
 #include <functional>
 #include "ist/Base/Generics.h"
+#include "ist/Base/ArgHolder.h"
 #include "ist/Concurrency/TaskScheduler.h"
 
 namespace ist {
@@ -61,38 +62,6 @@ class Method;
 template<class Class, class Ret=void, class Arg1=void, class Arg2=void, class Arg3=void>
 class ConstMethod;
 
-template<class Arg>
-struct ArgHolder
-{
-    ArgHolder() {}
-    ArgHolder(Arg v) : m_value(v) {}
-    operator Arg() const { return m_value; }
-    Arg m_value;
-};
-template<class Arg>
-struct ArgHolder<const Arg>
-{
-    ArgHolder() {}
-    ArgHolder(const Arg v) : m_value(v) {}
-    operator Arg() const { return m_value; }
-    Arg m_value;
-};
-template<class Arg>
-struct ArgHolder<Arg&>
-{
-    ArgHolder() {}
-    ArgHolder(Arg &v) : m_value(&v) {}
-    operator Arg() const { return *m_value; }
-    Arg *m_value;
-};
-template<class Arg>
-struct ArgHolder<const Arg&>
-{
-    ArgHolder() {}
-    ArgHolder(const Arg &v) : m_value(&v) {}
-    operator Arg() const { return *m_value; }
-    const Arg *m_value;
-};
 
 
 template<class Res>
