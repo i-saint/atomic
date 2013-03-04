@@ -43,6 +43,7 @@ void DeviceContext::setIndexBuffer( Buffer *v, size_t offset, I3D_TYPE format )
 
 void DeviceContext::setUniformBuffer( int32 loc, int32 bind, Buffer *buf )
 {
+    if(loc==-1) { return; }
     istAssert(loc<_countof(m_current.uniform));
     m_dirty.uniform = 1;
     m_current.uniform[loc].buffer = buf;
