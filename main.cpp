@@ -2,7 +2,6 @@
 #include "types.h"
 #include "Game/AtomicApplication.h"
 #include "FunctionID.h"
-#include "ist/Base/VariantCall.h"
 #include "ist/Base/BinaryCall.h"
 
 namespace atomic {
