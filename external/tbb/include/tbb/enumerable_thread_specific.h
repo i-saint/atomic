@@ -1,5 +1,5 @@
 /*
-    Copyright 2005-2013 Intel Corporation.  All Rights Reserved.
+    Copyright 2005-2012 Intel Corporation.  All Rights Reserved.
 
     This file is part of Threading Building Blocks.
 
@@ -60,7 +60,7 @@ namespace interface6 {
 #else
             typedef pthread_t key_type;
 #endif
-#if __TBB_PROTECTED_NESTED_CLASS_BROKEN
+#if __TBB_GCC_3_3_PROTECTED_BROKEN
         public:
 #endif
             struct slot;
@@ -87,7 +87,7 @@ namespace interface6 {
                     return tbb::internal::punned_cast<tbb::atomic<key_type>*>(&key)->compare_and_swap(k,0)==0;
                 }
             };
-#if __TBB_PROTECTED_NESTED_CLASS_BROKEN
+#if __TBB_GCC_3_3_PROTECTED_BROKEN
         protected:
 #endif
         
@@ -120,7 +120,11 @@ namespace interface6 {
             static size_t hash( key_type k ) {
                 // Multiplicative hashing.  Client should use *upper* bits.
                 // casts required for Mac gcc4.* compiler
-                return uintptr_t(k)*tbb::internal::size_t_select(0x9E3779B9,0x9E3779B97F4A7C15ULL);
+#if __TBB_WORDSIZE == 4
+                return uintptr_t(k)*0x9E3779B9;
+#else
+                return uintptr_t(k)*0x9E3779B97F4A7C15;
+#endif 
             } 
         
             ets_base() {my_root=NULL; my_count=0;}
@@ -232,19 +236,11 @@ namespace interface6 {
         class ets_base<ets_key_per_instance>: protected ets_base<ets_no_key> {
             typedef ets_base<ets_no_key> super;
 #if _WIN32||_WIN64
-#if __TBB_WIN8UI_SUPPORT
-            typedef DWORD tls_key_t;
-            void create_key() { my_key = FlsAlloc(NULL); }
-            void destroy_key() { FlsFree(my_key); }
-            void set_tls(void * value) { FlsSetValue(my_key, (LPVOID)value); }
-            void* get_tls() { return (void *)FlsGetValue(my_key); }
-#else
             typedef DWORD tls_key_t;
             void create_key() { my_key = TlsAlloc(); }
             void destroy_key() { TlsFree(my_key); }
             void set_tls(void * value) { TlsSetValue(my_key, (LPVOID)value); }
             void* get_tls() { return (void *)TlsGetValue(my_key); }
-#endif
 #else
             typedef pthread_key_t tls_key_t;
             void create_key() { pthread_key_create(&my_key, NULL); }

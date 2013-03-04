@@ -1,5 +1,5 @@
 /*
-    Copyright 2005-2013 Intel Corporation.  All Rights Reserved.
+    Copyright 2005-2012 Intel Corporation.  All Rights Reserved.
 
     This file is part of Threading Building Blocks.
 
@@ -69,13 +69,12 @@ inline __int64 __TBB_machine_cmpswp8(volatile void *ptr, __int64 value, __int64 
  return result;
 }
 
-#define __TBB_USE_GENERIC_PART_WORD_CAS                     1
-#define __TBB_USE_GENERIC_FETCH_ADD                         1
-#define __TBB_USE_GENERIC_FETCH_STORE                       1
-#define __TBB_USE_GENERIC_HALF_FENCED_LOAD_STORE            1
-#define __TBB_USE_GENERIC_RELAXED_LOAD_STORE                1
-#define __TBB_USE_GENERIC_DWORD_LOAD_STORE                  1
-#define __TBB_USE_GENERIC_SEQUENTIAL_CONSISTENCY_LOAD_STORE 1
+#define __TBB_USE_GENERIC_PART_WORD_CAS             1
+#define __TBB_USE_GENERIC_FETCH_ADD                 1
+#define __TBB_USE_GENERIC_FETCH_STORE               1
+#define __TBB_USE_GENERIC_HALF_FENCED_LOAD_STORE    1
+#define __TBB_USE_GENERIC_RELAXED_LOAD_STORE        1
+#define __TBB_USE_GENERIC_DWORD_LOAD_STORE          1
 
 #pragma optimize( "", off )
 inline void __TBB_machine_pause (__int32 delay ) 

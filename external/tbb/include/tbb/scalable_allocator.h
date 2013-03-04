@@ -1,5 +1,5 @@
 /*
-    Copyright 2005-2013 Intel Corporation.  All Rights Reserved.
+    Copyright 2005-2012 Intel Corporation.  All Rights Reserved.
 
     This file is part of Threading Building Blocks.
 
@@ -165,9 +165,6 @@ bool  pool_free(MemoryPool *memPool, void *object);
     #include "tbb_stddef.h"
 #endif
 
-#if __TBB_CPP11_RVALUE_REF_PRESENT && !__TBB_CPP11_STD_FORWARD_BROKEN
- #include <utility> // std::forward
-#endif
 
 namespace tbb {
 
@@ -217,17 +214,7 @@ public:
         size_type absolutemax = static_cast<size_type>(-1) / sizeof (value_type);
         return (absolutemax > 0 ? absolutemax : 1);
     }
-#if __TBB_CPP11_VARIADIC_TEMPLATES_PRESENT && __TBB_CPP11_RVALUE_REF_PRESENT
-    template<typename... Args>
-    void construct(pointer p, Args&&... args)
- #if __TBB_CPP11_STD_FORWARD_BROKEN
-        { ::new((void *)p) T((args)...); }
- #else
-        { ::new((void *)p) T(std::forward<Args>(args)...); }
- #endif
-#else // __TBB_CPP11_VARIADIC_TEMPLATES_PRESENT && __TBB_CPP11_RVALUE_REF_PRESENT
     void construct( pointer p, const value_type& value ) {::new((void*)(p)) value_type(value);}
-#endif // __TBB_CPP11_VARIADIC_TEMPLATES_PRESENT && __TBB_CPP11_RVALUE_REF_PRESENT
     void destroy( pointer p ) {p->~value_type();}
 };
 
@@ -257,7 +244,7 @@ inline bool operator!=( const scalable_allocator<T>&, const scalable_allocator<U
 } // namespace tbb
 
 #if _MSC_VER
-    #if (__TBB_BUILD || __TBBMALLOC_BUILD) && !defined(__TBBMALLOC_NO_IMPLICIT_LINKAGE)
+    #if __TBB_BUILD && !defined(__TBBMALLOC_NO_IMPLICIT_LINKAGE)
         #define __TBBMALLOC_NO_IMPLICIT_LINKAGE 1
     #endif
 

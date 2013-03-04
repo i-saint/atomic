@@ -1,5 +1,5 @@
 /*
-    Copyright 2005-2013 Intel Corporation.  All Rights Reserved.
+    Copyright 2005-2012 Intel Corporation.  All Rights Reserved.
 
     This file is part of Threading Building Blocks.
 
@@ -36,11 +36,8 @@
 
 #include "scalable_allocator.h"
 #include "tbb_stddef.h"
-#include "tbb_machine.h" // TODO: avoid linkage with libtbb on IA-64
+#include "tbb_machine.h" // TODO: Itanium requires linkage with TBB library
 #include <new> // std::bad_alloc
-#if __TBB_CPP11_RVALUE_REF_PRESENT && !__TBB_CPP11_STD_FORWARD_BROKEN
-#include <utility> // std::forward
-#endif
 
 #if __TBB_EXTRA_DEBUG
 #define __TBBMALLOC_ASSERT ASSERT
@@ -136,17 +133,7 @@ public:
         return (max > 0 ? max : 1);
     }
     //! Copy-construct value at location pointed to by p.
-#if __TBB_CPP11_VARIADIC_TEMPLATES_PRESENT && __TBB_CPP11_RVALUE_REF_PRESENT
-    template<typename... Args>
-    void construct(pointer p, Args&&... args)
- #if __TBB_CPP11_STD_FORWARD_BROKEN
-        { ::new((void *)p) T((args)...); }
- #else
-        { ::new((void *)p) T(std::forward<Args>(args)...); }
- #endif
-#else // __TBB_CPP11_VARIADIC_TEMPLATES_PRESENT && __TBB_CPP11_RVALUE_REF_PRESENT
     void construct( pointer p, const value_type& value ) { ::new((void*)(p)) value_type(value); }
-#endif // __TBB_CPP11_VARIADIC_TEMPLATES_PRESENT && __TBB_CPP11_RVALUE_REF_PRESENT
 
     //! Destroy value at location pointed to by p.
     void destroy( pointer p ) { p->~value_type(); }
@@ -254,7 +241,7 @@ inline fixed_pool::fixed_pool(void *buf, size_t size) : my_buffer(buf), my_size(
 }
 inline void *fixed_pool::allocate_request(intptr_t pool_id, size_t & bytes) {
     fixed_pool &self = *reinterpret_cast<fixed_pool*>(pool_id);
-    if( !__TBB_CompareAndSwapW(&self.my_size, 0, (bytes=self.my_size)) )
+    if( bytes > self.my_size || !__TBB_CompareAndSwapW(&self.my_size, 0, (bytes=self.my_size)) )
         return 0; // all the memory was given already
     return self.my_buffer;
 }

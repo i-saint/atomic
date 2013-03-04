@@ -1,5 +1,5 @@
 /*
-    Copyright 2005-2013 Intel Corporation.  All Rights Reserved.
+    Copyright 2005-2012 Intel Corporation.  All Rights Reserved.
 
     This file is part of Threading Building Blocks.
 
@@ -61,7 +61,7 @@ namespace internal {
     class function_input_base : public receiver<Input>, tbb::internal::no_assign {
         typedef sender<Input> predecessor_type;
         enum op_stat {WAIT=0, SUCCEEDED, FAILED};
-        enum op_type {reg_pred, rem_pred, app_body, try_fwd, tryput_bypass, app_body_bypass };
+        enum op_type {reg_pred, rem_pred, app_body, tryput, try_fwd};
         typedef function_input_base<Input, A, ImplType> my_class;
         
     public:
@@ -92,20 +92,18 @@ namespace internal {
             if ( my_queue ) delete my_queue;
         }
         
-        //! Put to the node, returning a task if available
-        virtual task * try_put_task( const input_type &t ) {
+        //! Put to the node
+        virtual bool try_put( const input_type &t ) {
            if ( my_max_concurrency == 0 ) {
-               return create_body_task( t );
+               spawn_body_task( t );
+               return true;
            } else {
-               my_operation op_data(t, tryput_bypass);
+               my_operation op_data(t, tryput);
                my_aggregator.execute(&op_data);
-               if(op_data.status == SUCCEEDED ) {
-                   return op_data.bypass_t;
-               }
-               return NULL;
+               return op_data.status == SUCCEEDED;
            }
         }
-
+        
         //! Adds src to the list of cached predecessors.
         /* override */ bool register_predecessor( predecessor_type &src ) {
             my_operation op_data(reg_pred);
@@ -124,28 +122,16 @@ namespace internal {
 
     protected:
 
-        void reset_function_input_base() {
-            my_concurrency = 0;
-            if(my_queue) {
-                my_queue->reset();
-            }
-            my_predecessors.reset();
-        }
-
         task *my_root_task;
         const size_t my_max_concurrency;
         size_t my_concurrency;
         function_input_queue<input_type, A> *my_queue;
         predecessor_cache<input_type, null_mutex > my_predecessors;
         
-        /*override*/void reset_receiver() {
-            my_predecessors.reset();
-        }
-
     private:
 
-        friend class apply_body_task_bypass< my_class, input_type >;
-        friend class forward_task_bypass< my_class >;
+        friend class apply_body_task< my_class, input_type >;
+        friend class forward_task< my_class >;
         
         class my_operation : public aggregated_operation< my_operation > {
         public:
@@ -154,7 +140,6 @@ namespace internal {
                 input_type *elem;
                 predecessor_type *r;
             };
-            tbb::task *bypass_t;
             my_operation(const input_type& e, op_type t) :
                 type(char(t)), elem(const_cast<input_type*>(&e)) {}
             my_operation(op_type t) : type(char(t)), r(NULL) {}
@@ -200,52 +185,28 @@ namespace internal {
                         }
                     }
                     break;
-                case app_body_bypass: {
-                        task * new_task = NULL;
-                        __TBB_ASSERT(my_max_concurrency != 0, NULL);
-                        --my_concurrency;
-                        if (my_concurrency<my_max_concurrency) {
-                            input_type i;
-                            bool item_was_retrieved = false;
-                            if ( my_queue )
-                                item_was_retrieved = my_queue->pop(i);
-                            else
-                                item_was_retrieved = my_predecessors.get_item(i);
-                            if (item_was_retrieved) {
-                                ++my_concurrency;
-                                new_task = create_body_task(i);
-                            }
-                        }
-                        tmp->bypass_t = new_task;
-                        __TBB_store_with_release(tmp->status, SUCCEEDED);
-                    }
-                    break;
-                case tryput_bypass: internal_try_put_task(tmp);  break;
+                case tryput: internal_try_put(tmp);  break;
                 case try_fwd: internal_forward(tmp);  break;
-                    }
+                }
             }
         }
         
-        //! Put to the node, but return the task instead of enqueueing it
-        void internal_try_put_task(my_operation *op) {
+        //! Put to the node
+        void internal_try_put(my_operation *op) {
             __TBB_ASSERT(my_max_concurrency != 0, NULL);
             if (my_concurrency < my_max_concurrency) {
                ++my_concurrency;
-               task * new_task = create_body_task(*(op->elem));
-               op->bypass_t = new_task;
+               spawn_body_task(*(op->elem));
                __TBB_store_with_release(op->status, SUCCEEDED);
            } else if ( my_queue && my_queue->push(*(op->elem)) ) { 
-               op->bypass_t = SUCCESSFULLY_ENQUEUED;
                __TBB_store_with_release(op->status, SUCCEEDED);
            } else {
-               op->bypass_t = NULL;
                __TBB_store_with_release(op->status, FAILED);
            }
         }
         
         //! Tries to spawn bodies if available and if concurrency allows
         void internal_forward(my_operation *op) {
-            op->bypass_t = NULL;
             if (my_concurrency<my_max_concurrency || !my_max_concurrency) {
                 input_type i;
                 bool item_was_retrieved = false;
@@ -255,8 +216,8 @@ namespace internal {
                     item_was_retrieved = my_predecessors.get_item(i);
                 if (item_was_retrieved) {
                     ++my_concurrency;
-                    op->bypass_t = create_body_task(i);
                     __TBB_store_with_release(op->status, SUCCEEDED);
+                    spawn_body_task(i);
                     return;
                 }
             }
@@ -265,64 +226,31 @@ namespace internal {
         }
         
         //! Applies the body to the provided input
-        //  then decides if more work is available 
         void apply_body( input_type &i ) {
-            task *new_task = apply_body_bypass(i);
-            if(!new_task) return;
-            if(new_task == SUCCESSFULLY_ENQUEUED) return;
-            task::enqueue(*new_task);
-            return;
-        }
-        
-        //! Applies the body to the provided input
-        //  then decides if more work is available 
-        //  we should still be able to use app_body, because the task returned should be the successor node
-        //  and not us, so we are reducing my_concurrency.  (might be a problem if we are our own successor?)
-        task * apply_body_bypass( input_type &i ) {
-            task * new_task = static_cast<ImplType *>(this)->apply_body_impl_bypass(i);
+            static_cast<ImplType *>(this)->apply_body_impl(i);
             if ( my_max_concurrency != 0 ) {
-                my_operation op_data(app_body_bypass);  // tries to pop an item or get_item, enqueues another apply_body
+                my_operation op_data(app_body);
                 my_aggregator.execute(&op_data);
-                tbb::task *ttask = op_data.bypass_t;
-                new_task = combine_tasks(new_task, ttask);
             }
-            return new_task;
         }
         
-       //! allocates a task to call apply_body( input )
-       inline task * create_body_task( const input_type &input ) {
-           return new(task::allocate_additional_child_of(*my_root_task))
-               apply_body_task_bypass < my_class, input_type >(*this, input);
-       }
-
        //! Spawns a task that calls apply_body( input )
        inline void spawn_body_task( const input_type &input ) {
-           task::enqueue(*create_body_task(input));
+           task::enqueue(*new(task::allocate_additional_child_of(*my_root_task)) apply_body_task< my_class, input_type >(*this, input));
        }
         
        //! This is executed by an enqueued task, the "forwarder"
-       task *forward_task() {
+       void forward() {
            my_operation op_data(try_fwd);
-           task *rval = NULL;
            do {
                op_data.status = WAIT;
                my_aggregator.execute(&op_data);
-               if(op_data.status == SUCCEEDED) {
-                   tbb::task *ttask = op_data.bypass_t;
-                   rval = combine_tasks(rval, ttask);
-               }
            } while (op_data.status == SUCCEEDED);
-           return rval;
        }
         
-       inline task *create_forward_task() {
-           task *rval = new(task::allocate_additional_child_of(*my_root_task)) forward_task_bypass< my_class >(*this);
-           return rval;
-       }
-
        //! Spawns a task that calls forward()
        inline void spawn_forward_task() {
-           task::enqueue(*create_forward_task());
+           task::enqueue(*new(task::allocate_additional_child_of(*my_root_task)) forward_task< my_class >(*this));
        }
     };  // function_input_base
 
@@ -361,17 +289,11 @@ namespace internal {
             return dynamic_cast< internal::function_body_leaf<input_type, output_type, Body> & >(body_ref).get_body(); 
         } 
 
-        task * apply_body_impl_bypass( const input_type &i) {
-            task * new_task = successors().try_put_task( (*my_body)(i) );
-            return new_task;
+        void apply_body_impl( const input_type &i) {
+            successors().try_put( (*my_body)(i) );
         }
 
     protected:
-
-        void reset_function_input() { 
-            base_type::reset_function_input_base();
-        }
-
         function_body<input_type, output_type> *my_body;
         virtual broadcast_cache<output_type > &successors() = 0;
 
@@ -416,22 +338,13 @@ namespace internal {
             return dynamic_cast< internal::multifunction_body_leaf<input_type, output_ports_type, Body> & >(body_ref).get_body(); 
         } 
 
-        // for multifunction nodes we do not have a single successor as such.  So we just tell
-        // the task we were successful.
-        task * apply_body_impl_bypass( const input_type &i) {
+        void apply_body_impl( const input_type &i) {
             (*my_body)(i, my_output_ports);
-            task * new_task = SUCCESSFULLY_ENQUEUED;
-            return new_task;
         }
 
         output_ports_type &output_ports(){ return my_output_ports; }
 
     protected:
-
-        void reset() {
-            base_type::reset_function_input_base();
-        }
-
         multifunction_body<input_type, output_ports_type> *my_body;
         output_ports_type my_output_ports;
 
@@ -439,8 +352,8 @@ namespace internal {
 
     // template to refer to an output port of a multifunction_node
     template<size_t N, typename MOP>
-    typename tbb::flow::tuple_element<N, typename MOP::output_ports_type>::type &output_port(MOP &op) {
-        return tbb::flow::get<N>(op.output_ports()); 
+    typename std::tuple_element<N, typename MOP::output_ports_type>::type &output_port(MOP &op) {
+        return std::get<N>(op.output_ports()); 
     }
 
 // helper structs for split_node
@@ -448,7 +361,7 @@ namespace internal {
     struct emit_element {
         template<typename T, typename P>
         static void emit_this(const T &t, P &p) {
-            (void)tbb::flow::get<N-1>(p).try_put(tbb::flow::get<N-1>(t));
+            (void)std::get<N-1>(p).try_put(std::get<N-1>(t));
             emit_element<N-1>::emit_this(t,p);
         }
     };
@@ -457,7 +370,7 @@ namespace internal {
     struct emit_element<1> {
         template<typename T, typename P>
         static void emit_this(const T &t, P &p) {
-            (void)tbb::flow::get<0>(p).try_put(tbb::flow::get<0>(t));
+            (void)std::get<0>(p).try_put(std::get<0>(t));
         }
     };
 
@@ -498,18 +411,17 @@ namespace internal {
         
         virtual broadcast_cache<output_type > &successors() = 0; 
         
-        friend class apply_body_task_bypass< continue_input< Output >, continue_msg >;
+        friend class apply_body_task< continue_input< Output >, continue_msg >;
         
         //! Applies the body to the provided input
-        /* override */ task *apply_body_bypass( input_type ) {
-            return successors().try_put_task( (*my_body)( continue_msg() ) );
+        /* override */ void apply_body( input_type ) {
+            successors().try_put( (*my_body)( continue_msg() ) );
         }
         
         //! Spawns a task that applies the body
-        /* override */ task *execute( ) {
-            task *res = new ( task::allocate_additional_child_of( *my_root_task ) ) 
-                apply_body_task_bypass< continue_input< Output >, continue_msg >( *this, continue_msg() ); 
-            return res;
+        /* override */ void execute( ) {
+            task::enqueue( * new ( task::allocate_additional_child_of( *my_root_task ) ) 
+               apply_body_task< continue_input< Output >, continue_msg >( *this, continue_msg() ) ); 
         }
 
     };
@@ -545,30 +457,12 @@ namespace internal {
         //    get<I>(output_ports).try_put(output_value);
         //
         // return value will be bool returned from successors.try_put.
-        task *try_put_task(const output_type &i) { return my_successors.try_put_task(i); }
+        bool try_put(const output_type &i) { return my_successors.try_put(i); }
           
     protected:
         broadcast_cache<output_type> my_successors;
         broadcast_cache<output_type > &successors() { return my_successors; } 
         
-    };
-
-    template< typename Output >
-    class multifunction_output : public function_output<Output> {
-    public:
-        typedef Output output_type;
-        typedef function_output<output_type> base_type;
-        using base_type::my_successors;
-        
-        multifunction_output() : base_type() {my_successors.set_owner(this);}
-        multifunction_output( const multifunction_output &/*other*/) : base_type() { my_successors.set_owner(this); }
-
-        bool try_put(const output_type &i) {
-            task *res = my_successors.try_put_task(i);
-            if(!res) return false;
-            if(res != SUCCESSFULLY_ENQUEUED) task::enqueue(*res);
-            return true;
-        }
     };
 
 }  // internal

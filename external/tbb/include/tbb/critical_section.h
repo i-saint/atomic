@@ -1,5 +1,5 @@
 /*
-    Copyright 2005-2013 Intel Corporation.  All Rights Reserved.
+    Copyright 2005-2012 Intel Corporation.  All Rights Reserved.
 
     This file is part of Threading Building Blocks.
 
@@ -58,7 +58,7 @@ public:
 
     critical_section_v4() { 
 #if _WIN32||_WIN64
-        InitializeCriticalSectionEx( &my_impl, 4000, 0 );
+        InitializeCriticalSection(&my_impl);
 #else
         pthread_mutex_init(&my_impl, NULL);
 #endif

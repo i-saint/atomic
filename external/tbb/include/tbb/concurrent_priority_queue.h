@@ -1,5 +1,5 @@
 /*
-    Copyright 2005-2013 Intel Corporation.  All Rights Reserved.
+    Copyright 2005-2012 Intel Corporation.  All Rights Reserved.
 
     This file is part of Threading Building Blocks.
 
@@ -231,7 +231,8 @@ class concurrent_priority_queue {
 
         __TBB_ASSERT(mark == data.size(), NULL);
 
-        // First pass processes all constant (amortized; reallocation may happen) time pushes and pops.
+        // first pass processes all constant time operations: pushes,
+        // tops, some pops. Also reserve.
         while (op_list) {
             // ITT note: &(op_list->status) tag is used to cover accesses to op_list
             // node. This thread is going to handle the operation, and so will acquire it
