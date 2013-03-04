@@ -1,5 +1,5 @@
 /*
-    Copyright 2005-2012 Intel Corporation.  All Rights Reserved.
+    Copyright 2005-2013 Intel Corporation.  All Rights Reserved.
 
     This file is part of Threading Building Blocks.
 
@@ -244,6 +244,7 @@ namespace internal {
         //! Miscellaneous state that is not directly visible to users, stored as a byte for compactness.
         /** 0x0 -> version 1.0 task
             0x1 -> version >=2.1 task
+            0x10 -> task was enqueued 
             0x20 -> task_proxy
             0x40 -> task has live ref_count
             0x80 -> a stolen task */
@@ -300,8 +301,8 @@ class task_scheduler_init;
 
     The context can be bound to another one, and other contexts can be bound to it,
     forming a tree-like structure: parent -> this -> children. Arrows here designate
-    cancellation propagation direction. If a task in a cancellation group is canceled
-    all the other tasks in this group and groups bound to it (as children) get canceled too.
+    cancellation propagation direction. If a task in a cancellation group is cancelled
+    all the other tasks in this group and groups bound to it (as children) get cancelled too.
 
     IMPLEMENTATION NOTE:
     When adding new members to task_group_context or changing types of existing ones,
@@ -414,7 +415,7 @@ public:
 
         Creating isolated contexts involve much less overhead, but they have limited
         utility. Normally when an exception occurs in an algorithm that has nested
-        ones running, it is desirably to have all the nested algorithms canceled
+        ones running, it is desirably to have all the nested algorithms cancelled
         as well. Such a behavior requires nested algorithms to use bound contexts.
 
         There is one good place where using isolated algorithms is beneficial. It is
@@ -466,7 +467,7 @@ public:
 
     //! Records the pending exception, and cancels the task group.
     /** May be called only from inside a catch-block. If the context is already
-        canceled, does nothing.
+        cancelled, does nothing.
         The method brings the task group associated with this context exactly into
         the state it would be in, if one of its tasks threw the currently pending
         exception during its execution. In other words, it emulates the actions
@@ -474,7 +475,7 @@ public:
     void __TBB_EXPORTED_METHOD register_pending_exception ();
 
 #if __TBB_TASK_PRIORITY
-    //! Changes priority of the task grop
+    //! Changes priority of the task group
     void set_priority ( priority_t );
 
     //! Retrieves current priority of the current task group
@@ -816,6 +817,8 @@ public:
 
     //! Returns true if the context has received cancellation request.
     bool is_cancelled () const { return prefix().context->is_group_execution_cancelled(); }
+#else
+    bool is_cancelled () const { return false; }
 #endif /* __TBB_TASK_GROUP_CONTEXT */
 
 #if __TBB_TASK_PRIORITY

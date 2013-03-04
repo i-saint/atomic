@@ -1,5 +1,5 @@
 /*
-    Copyright 2005-2012 Intel Corporation.  All Rights Reserved.
+    Copyright 2005-2013 Intel Corporation.  All Rights Reserved.
 
     This file is part of Threading Building Blocks.
 
@@ -44,7 +44,7 @@
 #include "atomic.h"
 
 #if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
-    // Workaround for overzealous compiler warnings 
+    // Workaround for overzealous compiler warnings
     #pragma warning (push)
     #pragma warning (disable: 4244)
 #endif
@@ -114,9 +114,21 @@ template<typename Range, typename Body, typename Partitioner> class start_reduce
 //! Join task node that contains shared flag for stealing feedback
 class flag_task: public task {
 public:
-    tbb::atomic<bool> child_stolen;
-    flag_task() { child_stolen = false; }
+    tbb::atomic<bool> my_child_stolen;
+    flag_task() { my_child_stolen = false; }
     task* execute() { return NULL; }
+    static void mark_task_stolen(task &t) {
+        tbb::atomic<bool> &flag = static_cast<flag_task*>(t.parent())->my_child_stolen;
+#if TBB_USE_THREADING_TOOLS
+        // Threading tools respect lock prefix but report false-positive data-race via plain store
+        flag.fetch_and_store<release>(true);
+#else
+        flag = true;
+#endif //TBB_USE_THREADING_TOOLS
+    }
+    static bool is_peer_stolen(task &t) {
+        return static_cast<flag_task*>(t.parent())->my_child_stolen;
+    }
 };
 
 //! Task to signal the demand without carrying the work
@@ -124,7 +136,7 @@ class signal_task: public task {
 public:
     task* execute() {
         if( is_stolen_task() ) {
-            static_cast<flag_task*>(parent())->child_stolen = true;
+            flag_task::mark_task_stolen(*this);
         }
         return NULL;
     }
@@ -221,7 +233,7 @@ struct partition_type_base {
     }
     template<typename StartType, typename Range>
     void execute(StartType &start, Range &range) {
-        // The algorithm in a few words ([]-denotes calls to decision mathods of partitioner):
+        // The algorithm in a few words ([]-denotes calls to decision methods of partitioner):
         // [If this task is stolen, adjust depth and divisions if necessary, set flag].
         // If range is divisible {
         //    Spread the work while [initial divisions left];
@@ -263,7 +275,7 @@ struct partition_type_base {
                         continue; // note: check_for_demand() should guarantee increasing max_depth() next time
                 }
                 start.run_body( range_pool.back() );
-                range_pool.pop_back();  
+                range_pool.pop_back();
             } while( !range_pool.empty() && !start.is_cancelled() );
         }
     }
@@ -290,17 +302,17 @@ struct auto_partition_type_base : partition_type_base<Partition> {
 #endif
     }
     bool check_being_stolen( task &t) { // part of old should_execute_range()
-        if( !my_divisor ) {
-            my_divisor = 1; // todo: replace by on-stack flag (partition_state's member)?
+        if( !my_divisor ) { // if not from the top P tasks of binary tree
+            my_divisor = 1; // TODO: replace by on-stack flag (partition_state's member)?
             if( t.is_stolen_task() ) {
 #if TBB_USE_EXCEPTIONS
                 // RTTI is available, check whether the cast is valid
                 __TBB_ASSERT(dynamic_cast<flag_task*>(t.parent()), 0);
-                // correctess of the cast rely on avoiding the root task for which:
+                // correctness of the cast relies on avoiding the root task for which:
                 // - initial value of my_divisor != 0 (protected by separate assertion)
-                // - is_stolen_task() always return false for the root task.
+                // - is_stolen_task() always returns false for the root task.
 #endif
-                static_cast<flag_task*>(t.parent())->child_stolen = true;
+                flag_task::mark_task_stolen(t);
                 my_max_depth++;
                 return true;
             }
@@ -312,7 +324,7 @@ struct auto_partition_type_base : partition_type_base<Partition> {
         if( my_divisor && my_max_depth > 1 ) { // can split the task and once more internally. TODO: on-stack flag instead
             // keep same fragmentation while splitting for the local task pool
             my_max_depth--;
-            my_divisor = 0;
+            my_divisor = 0; // decrease max_depth once per task
             return true;
         } else return false;
     }
@@ -320,7 +332,7 @@ struct auto_partition_type_base : partition_type_base<Partition> {
         return my_divisor > 0;
     }
     bool check_for_demand(task &t) {
-        if( static_cast<flag_task*>(t.parent())->child_stolen ) {
+        if( flag_task::is_peer_stolen(t) ) {
             my_max_depth++;
             return true;
         } else return false;
@@ -347,15 +359,15 @@ class affinity_partition_type : public auto_partition_type_base<affinity_partiti
     }
 public:
     affinity_partition_type( tbb::internal::affinity_partitioner_base_v3& ap ) {
-        __TBB_ASSERT( (factor&(factor-1))==0, "factor must be power of two" ); 
+        __TBB_ASSERT( (factor&(factor-1))==0, "factor must be power of two" );
         ap.resize(factor);
         my_array = ap.my_array;
         map_begin = 0;
         map_end = unsigned(ap.my_size);
         set_mid();
         my_delay = true;
-        my_divisor /= __TBB_INITIAL_CHUNKS; // let excatly P tasks to be distributed across workers
-        my_max_depth = factor_power+1; // the first factor_power ranges will be spawned, and >=1 ranges should left
+        my_divisor /= __TBB_INITIAL_CHUNKS; // let exactly P tasks to be distributed across workers
+        my_max_depth = factor_power+1; // the first factor_power ranges will be spawned, and >=1 ranges should be left
         __TBB_ASSERT( my_max_depth < __TBB_RANGE_POOL_CAPACITY, 0 );
     }
     affinity_partition_type(affinity_partition_type& p, split)
@@ -371,7 +383,7 @@ public:
             t.set_affinity( my_array[map_begin] );
     }
     void note_affinity( task::affinity_id id ) {
-        if( map_begin<map_end ) 
+        if( map_begin<map_end )
             my_array[map_begin] = id;
     }
     bool check_for_demand( task &t ) {
@@ -380,7 +392,7 @@ public:
                 __TBB_ASSERT(my_max_depth>__TBB_Log2(map_end-map_mid), 0);
                 return true;// do not do my_max_depth++ here, but be sure my_max_depth is big enough
             }
-            if( static_cast<flag_task*>(t.parent())->child_stolen ) {
+            if( flag_task::is_peer_stolen(t) ) {
                 my_max_depth++;
                 return true;
             }
@@ -441,8 +453,8 @@ public:
 //! @endcond
 } // namespace interfaceX
 
-//! A simple partitioner 
-/** Divides the range until the range is not divisible. 
+//! A simple partitioner
+/** Divides the range until the range is not divisible.
     @ingroup algorithms */
 class simple_partitioner {
 public:
@@ -463,7 +475,7 @@ private:
     typedef interface6::internal::simple_partition_type task_partition_type;
 };
 
-//! An auto partitioner 
+//! An auto partitioner
 /** The range is initial divided into several large chunks.
     Chunks are further subdivided into smaller pieces if demand detected and they are divisible.
     @ingroup algorithms */

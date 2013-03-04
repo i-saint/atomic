@@ -1,5 +1,5 @@
 /*
-    Copyright 2005-2012 Intel Corporation.  All Rights Reserved.
+    Copyright 2005-2013 Intel Corporation.  All Rights Reserved.
 
     This file is part of Threading Building Blocks.
 
@@ -40,11 +40,18 @@
 #include "internal/_aggregator_impl.h"
 
 // use the VC10 or gcc version of tuple if it is available.
-#if TBB_IMPLEMENT_CPP0X && (!defined(_MSC_VER) || _MSC_VER < 1600)
-#define TBB_PREVIEW_TUPLE 1
-#include "compat/tuple"
+#if __TBB_CPP11_TUPLE_PRESENT
+    #include <tuple>
+namespace tbb {
+    namespace flow {
+        using std::tuple;
+        using std::tuple_size;
+        using std::tuple_element;
+        using std::get;
+    }
+}
 #else
-#include <tuple>
+    #include "compat/tuple"
 #endif
 
 #include<list>
@@ -67,6 +74,12 @@ namespace flow {
 enum concurrency { unlimited = 0, serial = 1 };
 
 namespace interface6 {
+
+namespace internal {
+    template<typename T, typename M> class successor_cache;
+    template<typename T, typename M> class broadcast_cache;
+    template<typename T, typename M> class round_robin_cache;
+}
 
 //! An empty class used for messages that mean "I'm done"
 class continue_msg {};
@@ -106,6 +119,27 @@ public:
     virtual bool try_consume( ) { return false; }
 };
 
+template< typename T > class limiter_node;  // needed for resetting decrementer
+template< typename R, typename B > class run_and_put_task;
+
+static tbb::task * const SUCCESSFULLY_ENQUEUED = (task *)-1;
+
+// enqueue left task if necessary.  Returns the non-enqueued task if there is one.
+static inline tbb::task *combine_tasks( tbb::task * left, tbb::task * right) {
+    // if no RHS task, don't change left.
+    if(right == NULL) return left;
+    // right != NULL
+    if(left == NULL) return right;
+    if(left == SUCCESSFULLY_ENQUEUED) return right;
+    // left contains a task
+    if(right != SUCCESSFULLY_ENQUEUED) {
+        // both are valid tasks
+        tbb::task::enqueue(*left);
+        return right;
+    }
+    return left;
+}
+
 //! Pure virtual template class that defines a receiver of messages of type T
 template< typename T >
 class receiver {
@@ -120,13 +154,35 @@ public:
     virtual ~receiver() {}
 
     //! Put an item to the receiver
-    virtual bool try_put( const T& t ) = 0;
+    bool try_put( const T& t ) {
+            task *res = try_put_task(t);
+            if(!res) return false;
+            if (res != SUCCESSFULLY_ENQUEUED) task::enqueue(*res);
+            return true;
+        }
+
+    //! put item to successor; return task to run the successor if possible.
+protected:
+    template< typename R, typename B > friend class run_and_put_task;
+    template<typename X, typename Y> friend class internal::broadcast_cache;
+    template<typename X, typename Y> friend class internal::round_robin_cache;
+    virtual task *try_put_task(const T& t) = 0;
+public:
 
     //! Add a predecessor to the node
     virtual bool register_predecessor( predecessor_type & ) { return false; }
 
     //! Remove a predecessor from the node
     virtual bool remove_predecessor( predecessor_type & ) { return false; }
+
+protected:
+    //! put receiver back in initial state
+    template<typename U> friend class limiter_node;
+    virtual void reset_receiver() = 0;
+
+    template<typename TT, typename M>
+        friend class internal::successor_cache;
+    virtual bool is_continue_receiver() { return false; }
 };
 
 //! Base class for receivers of completion messages
@@ -172,31 +228,41 @@ public:
         return true;
     }
 
-    //! Puts a continue_msg to the receiver
-    /** If the message causes the message count to reach the predecessor count, execute() is called and
-        the message count is reset to 0.  Otherwise the message count is incremented. */
-    /* override */ bool try_put( const input_type & ) {
+protected:
+    template< typename R, typename B > friend class run_and_put_task;
+    template<typename X, typename Y> friend class internal::broadcast_cache;
+    template<typename X, typename Y> friend class internal::round_robin_cache;
+    // execute body is supposed to be too small to create a task for.
+    /* override */ task *try_put_task( const input_type & ) {
         {
             spin_mutex::scoped_lock l(my_mutex);
             if ( ++my_current_count < my_predecessor_count )
-                return true;
+                return SUCCESSFULLY_ENQUEUED;
             else
                 my_current_count = 0;
         }
-        execute();
-        return true;
+        task * res = execute();
+        return res;
     }
 
-protected:
     spin_mutex my_mutex;
     int my_predecessor_count;
     int my_current_count;
     int my_initial_predecessor_count;
+    // the friend declaration in the base class did not eliminate the "protected class"
+    // error in gcc 4.1.2
+    template<typename U> friend class limiter_node;
+    /*override*/void reset_receiver() {
+        my_current_count = 0;
+    }
 
     //! Does whatever should happen when the threshold is reached
     /** This should be very fast or else spawn a task.  This is
         called while the sender is blocked in the try_put(). */
-    virtual void execute() = 0;
+    virtual task * execute() = 0;
+    template<typename TT, typename M>
+        friend class internal::successor_cache;
+    /*override*/ bool is_continue_receiver() { return true; }
 };
 
 #include "internal/_flow_graph_impl.h"
@@ -294,8 +360,9 @@ class graph : tbb::internal::no_copy {
     public:
         run_and_put_task( Receiver &r, Body& body ) : my_receiver(r), my_body(body) {}
         task *execute() {
-            my_receiver.try_put( my_body() );
-            return NULL;
+            task *res = my_receiver.try_put_task( my_body() );
+            if(res == SUCCESSFULLY_ENQUEUED) res = NULL;
+            return res;
         }
     private:
         Receiver &my_receiver;
@@ -307,6 +374,8 @@ public:
     explicit graph() : my_nodes(NULL), my_nodes_last(NULL)
     {
         own_context = true;
+        cancelled = false;
+        caught_exception = false;
         my_context = new task_group_context();
         my_root_task = ( new ( task::allocate_root(*my_context) ) empty_task );
         my_root_task->set_ref_count(1);
@@ -367,9 +436,27 @@ public:
     //! Wait until graph is idle and decrement_wait_count calls equals increment_wait_count calls.
     /** The waiting thread will go off and steal work while it is block in the wait_for_all. */
     void wait_for_all() {
-        if (my_root_task)
-            my_root_task->wait_for_all();
-        my_root_task->set_ref_count(1);
+        cancelled = false;
+        caught_exception = false;
+        if (my_root_task) {
+#if TBB_USE_EXCEPTIONS
+            try {
+#endif
+                my_root_task->wait_for_all();
+                cancelled = my_context->is_group_execution_cancelled();
+#if TBB_USE_EXCEPTIONS
+            }
+            catch(...) {
+                my_root_task->set_ref_count(1);
+                my_context->reset();
+                caught_exception = true;
+                cancelled = true;
+                throw;
+            }
+#endif
+            my_context->reset();  // consistent with behavior in catch()
+            my_root_task->set_ref_count(1);
+        }
     }
 
     //! Returns the root task of the graph
@@ -399,16 +486,26 @@ public:
     //! end const iterator
     const_iterator cend() const { return const_iterator(this, false); }
 
+    //! return status of graph execution
+    bool is_cancelled() { return cancelled; }
+    bool exception_thrown() { return caught_exception; }
+
+    // un-thread-safe state reset.
+    void reset();
+
 private:
     task *my_root_task;
     task_group_context *my_context;
     bool own_context;
+    bool cancelled;
+    bool caught_exception;
 
     graph_node *my_nodes, *my_nodes_last;
 
     spin_mutex nodelist_mutex;
     void register_node(graph_node *n); 
     void remove_node(graph_node *n);
+
 };
 
 template <typename C, typename N>
@@ -450,9 +547,12 @@ public:
     virtual ~graph_node() {
         my_graph.remove_node(this);
     }
+
+protected:
+    virtual void reset() = 0;
 };
 
-void graph::register_node(graph_node *n) {
+inline void graph::register_node(graph_node *n) {
     n->next = NULL;
     {
         spin_mutex::scoped_lock lock(nodelist_mutex);
@@ -463,7 +563,7 @@ void graph::register_node(graph_node *n) {
     }
 }
 
-void graph::remove_node(graph_node *n) {
+inline void graph::remove_node(graph_node *n) {
     {
         spin_mutex::scoped_lock lock(nodelist_mutex);
         __TBB_ASSERT(my_nodes && my_nodes_last, "graph::remove_node: Error: no registered nodes");
@@ -475,11 +575,25 @@ void graph::remove_node(graph_node *n) {
     n->prev = n->next = NULL;
 }
 
+inline void graph::reset() {
+    // reset context
+    if(my_context) my_context->reset();
+    cancelled = false;
+    caught_exception = false;
+    // reset all the nodes comprising the graph
+    for(iterator ii = begin(); ii != end(); ++ii) {
+        graph_node *my_p = &(*ii);
+        my_p->reset();
+    }
+}
+
+
 #include "internal/_flow_graph_node_impl.h"
 
 //! An executable node that acts as a source, i.e. it has no predecessors
 template < typename Output >
 class source_node : public graph_node, public sender< Output > {
+protected:
     using graph_node::my_graph;
 public:
     //! The type of the output message, which is complete
@@ -536,10 +650,9 @@ public:
         if ( my_has_cached_item ) {
             v = my_cached_item;
             my_has_cached_item = false;
-        } else if ( (*my_body)(v) == false ) {
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     //! Reserves an item.
@@ -548,9 +661,6 @@ public:
         if ( my_reserved ) {
             return false;
         }
-
-        if ( !my_has_cached_item && (*my_body)(my_cached_item) )
-            my_has_cached_item = true;
 
         if ( my_has_cached_item ) {
             v = my_cached_item;
@@ -592,6 +702,23 @@ public:
             spawn_put();
     }
 
+    template<typename Body>
+    Body copy_function_object() { 
+        internal::source_body<output_type> &body_ref = *this->my_body;
+        return dynamic_cast< internal::source_body_leaf<output_type, Body> & >(body_ref).get_body(); 
+    }
+
+protected:
+
+    //! resets the node to its initial state
+    void reset() {
+        my_active = init_my_active;
+        my_reserved =false;
+        if(my_has_cached_item) {
+            my_has_cached_item = false;
+        }
+    }
+
 private:
     task *my_root_task;
     spin_mutex my_mutex;
@@ -603,30 +730,49 @@ private:
     bool my_has_cached_item;
     output_type my_cached_item;
 
-    friend class internal::source_task< source_node< output_type > >;
-
-    //! Applies the body
-    /* override */ void apply_body( ) {
-        output_type v;
-        if ( try_reserve(v) == false )
-            return;
-
-        if ( my_successors.try_put( v ) )
-            try_consume();
-        else
-            try_release();
+    // used by apply_body, can invoke body of node.
+    bool try_reserve_apply_body(output_type &v) {
+        spin_mutex::scoped_lock lock(my_mutex);
+        if ( my_reserved ) {
+            return false;
+        }
+        if ( !my_has_cached_item && (*my_body)(my_cached_item) )
+            my_has_cached_item = true;
+        if ( my_has_cached_item ) {
+            v = my_cached_item;
+            my_reserved = true;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     //! Spawns a task that applies the body
     /* override */ void spawn_put( ) {
         task::enqueue( * new ( task::allocate_additional_child_of( *my_root_task ) )
-           internal::source_task< source_node< output_type > >( *this ) );
+           internal:: source_task_bypass < source_node< output_type > >( *this ) );
     }
-};
+
+    friend class internal::source_task_bypass< source_node< output_type > >;
+    //! Applies the body.  Returning SUCCESSFULLY_ENQUEUED okay; forward_task_bypass will handle it.
+    /* override */ task * apply_body_bypass( ) {
+        output_type v;
+        if ( !try_reserve_apply_body(v) )
+            return NULL;
+
+        task *last_task = my_successors.try_put_task(v);
+        if ( last_task )
+            try_consume();
+        else
+            try_release();
+        return last_task;
+    }
+};  // source_node
 
 //! Implements a function node that supports Input -> Output
 template < typename Input, typename Output = continue_msg, graph_buffer_policy = queueing, typename Allocator=cache_aligned_allocator<Input> >
 class function_node : public graph_node, public internal::function_input<Input,Output,Allocator>, public internal::function_output<Output> {
+protected:
     using graph_node::my_graph;
 public:
     typedef Input input_type;
@@ -648,15 +794,22 @@ public:
         fOutput_type()
     {}
 
-    bool try_put(const input_type &i) { return fInput_type::try_put(i); }
-
 protected:
+    template< typename R, typename B > friend class run_and_put_task;
+    template<typename X, typename Y> friend class internal::broadcast_cache;
+    template<typename X, typename Y> friend class internal::round_robin_cache;
+    using fInput_type::try_put_task;
+
+    // override of graph_node's reset.
+    /*override*/void reset() {fInput_type::reset_function_input(); }
+
     /* override */ internal::broadcast_cache<output_type> &successors () { return fOutput_type::my_successors; }
 };
 
 //! Implements a function node that supports Input -> Output
 template < typename Input, typename Output, typename Allocator >
 class function_node<Input,Output,queueing,Allocator> : public graph_node, public internal::function_input<Input,Output,Allocator>, public internal::function_output<Output> {
+protected:
     using graph_node::my_graph;
 public:
     typedef Input input_type;
@@ -678,9 +831,14 @@ public:
         graph_node(src.my_graph), fInput_type( src, new queue_type() ), fOutput_type()
     {}
 
-    bool try_put(const input_type &i) { return fInput_type::try_put(i); }
-
 protected:
+    template< typename R, typename B > friend class run_and_put_task;
+    template<typename X, typename Y> friend class internal::broadcast_cache;
+    template<typename X, typename Y> friend class internal::round_robin_cache;
+    using fInput_type::try_put_task;
+
+    /*override*/void reset() { fInput_type::reset_function_input(); }
+
     /* override */ internal::broadcast_cache<output_type> &successors () { return fOutput_type::my_successors; }
 };
 
@@ -695,18 +853,19 @@ class multifunction_node :
     <
         Input,
         typename internal::wrap_tuple_elements<
-            std::tuple_size<Output>::value,  // #elements in tuple
-            internal::function_output,  // wrap this around each element
+            tbb::flow::tuple_size<Output>::value,  // #elements in tuple
+            internal::multifunction_output,  // wrap this around each element
             Output // the tuple providing the types
         >::type,
         Allocator
     > {
+protected:
     using graph_node::my_graph;
 private:
-    static const int N = std::tuple_size<Output>::value;
+    static const int N = tbb::flow::tuple_size<Output>::value;
 public:
     typedef Input input_type;
-    typedef typename internal::wrap_tuple_elements<N,internal::function_output, Output>::type output_ports_type;
+    typedef typename internal::wrap_tuple_elements<N,internal::multifunction_output, Output>::type output_ports_type;
 private:
     typedef typename internal::multifunction_input<input_type, output_ports_type, Allocator> base_type;
     typedef typename internal::function_input_queue<input_type,Allocator> queue_type;
@@ -719,16 +878,19 @@ public:
         graph_node(other.my_graph), base_type(other)
     {}
     // all the guts are in multifunction_input...
+protected:
+    /*override*/void reset() { base_type::reset(); }
 };  // multifunction_node
 
 template < typename Input, typename Output, typename Allocator >
 class multifunction_node<Input,Output,queueing,Allocator> : public graph_node, public internal::multifunction_input<Input,
-    typename internal::wrap_tuple_elements<std::tuple_size<Output>::value, internal::function_output, Output>::type, Allocator> {
+    typename internal::wrap_tuple_elements<tbb::flow::tuple_size<Output>::value, internal::multifunction_output, Output>::type, Allocator> {
+protected:
     using graph_node::my_graph;
-    static const int N = std::tuple_size<Output>::value;
+    static const int N = tbb::flow::tuple_size<Output>::value;
 public:
     typedef Input input_type;
-    typedef typename internal::wrap_tuple_elements<N, internal::function_output, Output>::type output_ports_type;
+    typedef typename internal::wrap_tuple_elements<N, internal::multifunction_output, Output>::type output_ports_type;
 private:
     typedef typename internal::multifunction_input<input_type, output_ports_type, Allocator> base_type;
     typedef typename internal::function_input_queue<input_type,Allocator> queue_type;
@@ -740,6 +902,9 @@ public:
     multifunction_node( const multifunction_node &other) :
         graph_node(other.my_graph), base_type(other, new queue_type())
     {}
+    // all the guts are in multifunction_input...
+protected:
+    /*override*/void reset() { base_type::reset(); }
 };  // multifunction_node
 
 //! split_node: accepts a tuple as input, forwards each element of the tuple to its
@@ -747,7 +912,7 @@ public:
 //  "rejecting" it does not reject inputs.
 template<typename TupleType, typename Allocator=cache_aligned_allocator<TupleType> >
 class split_node : public multifunction_node<TupleType, TupleType, rejecting, Allocator> {
-    static const int N = std::tuple_size<TupleType>::value;
+    static const int N = tbb::flow::tuple_size<TupleType>::value;
     typedef multifunction_node<TupleType,TupleType,rejecting,Allocator> base_type;
 public:
     typedef typename base_type::output_ports_type output_ports_type;
@@ -767,12 +932,14 @@ public:
 //! Implements an executable node that supports continue_msg -> Output
 template <typename Output>
 class continue_node : public graph_node, public internal::continue_input<Output>, public internal::function_output<Output> {
+protected:
     using graph_node::my_graph;
 public:
     typedef continue_msg input_type;
     typedef Output output_type;
     typedef sender< input_type > predecessor_type;
     typedef receiver< output_type > successor_type;
+    typedef internal::continue_input<Output> fInput_type;
     typedef internal::function_output<output_type> fOutput_type;
 
     //! Constructor for executable node with continue_msg -> Output
@@ -794,11 +961,19 @@ public:
     {}
 
 protected:
+    template< typename R, typename B > friend class run_and_put_task;
+    template<typename X, typename Y> friend class internal::broadcast_cache;
+    template<typename X, typename Y> friend class internal::round_robin_cache;
+    using fInput_type::try_put_task;
+
+    /*override*/void reset() { internal::continue_input<Output>::reset_receiver(); }
+
     /* override */ internal::broadcast_cache<output_type> &successors () { return fOutput_type::my_successors; }
 };
 
 template< typename T >
 class overwrite_node : public graph_node, public receiver<T>, public sender<T> {
+protected:
     using graph_node::my_graph;
 public:
     typedef T input_type;
@@ -824,7 +999,7 @@ public:
         if ( my_buffer_is_valid ) {
             // We have a valid value that must be forwarded immediately.
             if ( s.try_put( my_buffer ) || !s.register_predecessor( *this  ) ) {
-                // We add the successor: it accepted our put or it rejected it but won't let use become a predecessor
+                // We add the successor: it accepted our put or it rejected it but won't let us become a predecessor
                 my_successors.register_successor( s );
                 return true;
             } else {
@@ -841,14 +1016,6 @@ public:
     /* override */ bool remove_successor( successor_type &s ) {
         spin_mutex::scoped_lock l( my_mutex );
         my_successors.remove_successor(s);
-        return true;
-    }
-
-    /* override */ bool try_put( const T &v ) {
-        spin_mutex::scoped_lock l( my_mutex );
-        my_buffer = v;
-        my_buffer_is_valid = true;
-        my_successors.try_put(v);
         return true;
     }
 
@@ -873,10 +1040,25 @@ public:
     }
 
 protected:
+    template< typename R, typename B > friend class run_and_put_task;
+    template<typename X, typename Y> friend class internal::broadcast_cache;
+    template<typename X, typename Y> friend class internal::round_robin_cache;
+    /* override */ task * try_put_task( const T &v ) {
+        spin_mutex::scoped_lock l( my_mutex );
+        my_buffer = v;
+        my_buffer_is_valid = true;
+        task * rtask = my_successors.try_put_task(v);
+        if(!rtask) rtask = SUCCESSFULLY_ENQUEUED;
+        return rtask;
+    }
+
+    /*override*/void reset() { my_buffer_is_valid = false; }
+
     spin_mutex my_mutex;
     internal::broadcast_cache< T, null_rw_mutex > my_successors;
     T my_buffer;
     bool my_buffer_is_valid;
+    /*override*/void reset_receiver() {}
 };
 
 template< typename T >
@@ -893,15 +1075,20 @@ public:
     //! Copy constructor: call base class copy constructor
     write_once_node( const write_once_node& src ) : overwrite_node<T>(src) {}
 
-    /* override */ bool try_put( const T &v ) {
+protected:
+    template< typename R, typename B > friend class run_and_put_task;
+    template<typename X, typename Y> friend class internal::broadcast_cache;
+    template<typename X, typename Y> friend class internal::round_robin_cache;
+    /* override */ task *try_put_task( const T &v ) {
         spin_mutex::scoped_lock l( this->my_mutex );
         if ( this->my_buffer_is_valid ) {
-            return false;
+            return NULL;
         } else {
             this->my_buffer = v;
             this->my_buffer_is_valid = true;
-            this->my_successors.try_put(v);
-            return true;
+            task *res = this->my_successors.try_put_task(v);
+            if(!res) res = SUCCESSFULLY_ENQUEUED;
+            return res;
         }
     }
 };
@@ -909,7 +1096,9 @@ public:
 //! Forwards messages of type T to all successors
 template <typename T>
 class broadcast_node : public graph_node, public receiver<T>, public sender<T> {
+protected:
     using graph_node::my_graph;
+private:
     internal::broadcast_cache<T> my_successors;
 public:
     typedef T input_type;
@@ -940,17 +1129,27 @@ public:
         return true;
     }
 
-    /* override */ bool try_put( const T &t ) {
-        my_successors.try_put(t);
-        return true;
+protected:
+    template< typename R, typename B > friend class run_and_put_task;
+    template<typename X, typename Y> friend class internal::broadcast_cache;
+    template<typename X, typename Y> friend class internal::round_robin_cache;
+    //! build a task to run the successor if possible.  Default is old behavior.
+    /*override*/ task *try_put_task(const T& t) {
+        task *new_task = my_successors.try_put_task(t);
+        if(!new_task) new_task = SUCCESSFULLY_ENQUEUED;
+        return new_task;
     }
-};
+
+    /*override*/void reset() {}
+    /*override*/void reset_receiver() {}
+};  // broadcast_node
 
 #include "internal/_flow_graph_item_buffer_impl.h"
 
 //! Forwards messages in arbitrary order
 template <typename T, typename A=cache_aligned_allocator<T> >
 class buffer_node : public graph_node, public reservable_item_buffer<T, A>, public receiver<T>, public sender<T> {
+protected:
     using graph_node::my_graph;
 public:
     typedef T input_type;
@@ -964,9 +1163,9 @@ protected:
 
     task *my_parent;
 
-    friend class internal::forward_task< buffer_node< T, A > >;
+    friend class internal::forward_task_bypass< buffer_node< T, A > >;
 
-    enum op_type {reg_succ, rem_succ, req_item, res_item, rel_res, con_res, put_item, try_fwd};
+    enum op_type {reg_succ, rem_succ, req_item, res_item, rel_res, con_res, put_item, try_fwd_task };
     enum op_stat {WAIT=0, SUCCEEDED, FAILED};
 
     // implements the aggregator_operation concept
@@ -974,10 +1173,10 @@ protected:
     public:
         char type;
         T *elem;
+        task * ltask;
         successor_type *r;
-        buffer_operation(const T& e, op_type t) :
-            type(char(t)), elem(const_cast<T*>(&e)), r(NULL) {}
-        buffer_operation(op_type t) : type(char(t)), r(NULL) {}
+        buffer_operation(const T& e, op_type t) : type(char(t)), elem(const_cast<T*>(&e)) , ltask(NULL) , r(NULL) {}
+        buffer_operation(op_type t) : type(char(t)) , ltask(NULL) , r(NULL) {}
     };
 
     bool forwarder_busy;
@@ -986,7 +1185,7 @@ protected:
     internal::aggregator< my_handler, buffer_operation> my_aggregator;
 
     virtual void handle_operations(buffer_operation *op_list) {
-        buffer_operation *tmp;
+        buffer_operation *tmp = NULL;
         bool try_forwarding=false;
         while (op_list) {
             tmp = op_list;
@@ -999,22 +1198,46 @@ protected:
             case rel_res:  internal_release(tmp);  try_forwarding = true; break;
             case con_res:  internal_consume(tmp);  try_forwarding = true; break;
             case put_item: internal_push(tmp);  try_forwarding = true; break;
-            case try_fwd:  internal_forward(tmp); break;
+            case try_fwd_task: internal_forward_task(tmp); break;
             }
         }
         if (try_forwarding && !forwarder_busy) {
             forwarder_busy = true;
-            task::enqueue(*new(task::allocate_additional_child_of(*my_parent)) internal::forward_task< buffer_node<input_type, A> >(*this));
+            task *new_task = new(task::allocate_additional_child_of(*my_parent)) internal::
+                    forward_task_bypass
+                    < buffer_node<input_type, A> >(*this);
+            // tmp should point to the last item handled by the aggregator.  This is the operation
+            // the handling thread enqueued.  So modifying that record will be okay.
+            tbb::task *z = tmp->ltask;
+            tmp->ltask = combine_tasks(z, new_task);  // in case the op generated a task
         }
     }
 
+    inline task *grab_forwarding_task( buffer_operation &op_data) {
+        return op_data.ltask;
+    }
+
+    inline bool enqueue_forwarding_task(buffer_operation &op_data) {
+        task *ft = grab_forwarding_task(op_data);
+        if(ft) {
+            task::enqueue(*ft);
+            return true;
+        }
+        return false;
+    }
+
     //! This is executed by an enqueued task, the "forwarder"
-    virtual void forward() {
-        buffer_operation op_data(try_fwd);
+    virtual task *forward_task() {
+        buffer_operation op_data(try_fwd_task);
+        task *last_task = NULL;
         do {
             op_data.status = WAIT;
+            op_data.ltask = NULL;
             my_aggregator.execute(&op_data);
+            tbb::task *xtask = op_data.ltask;
+            last_task = combine_tasks(last_task, xtask);
         } while (op_data.status == SUCCEEDED);
+        return last_task;
     }
 
     //! Register successor
@@ -1030,22 +1253,30 @@ protected:
     }
 
     //! Tries to forward valid items to successors
-    virtual void internal_forward(buffer_operation *op) {
+    virtual void internal_forward_task(buffer_operation *op) {
+        if (this->my_reserved || !this->item_valid(this->my_tail-1)) {
+            __TBB_store_with_release(op->status, FAILED);
+            this->forwarder_busy = false;
+            return;
+        }
         T i_copy;
-        bool success = false; // flagged when a successor accepts
+        task * last_task = NULL;
         size_type counter = my_successors.size();
         // Try forwarding, giving each successor a chance
         while (counter>0 && !this->buffer_empty() && this->item_valid(this->my_tail-1)) {
             this->fetch_back(i_copy);
-            if( my_successors.try_put(i_copy) ) {
+            task *new_task = my_successors.try_put_task(i_copy);
+            last_task = combine_tasks(last_task, new_task);
+            if(new_task) {
                 this->invalidate_back();
                 --(this->my_tail);
-                success = true; // found an accepting successor
             }
             --counter;
         }
-        if (success && !counter)
+        op->ltask = last_task;  // return task
+        if (last_task && !counter) {
             __TBB_store_with_release(op->status, SUCCEEDED);
+        }
         else {
             __TBB_store_with_release(op->status, FAILED);
             forwarder_busy = false;
@@ -1114,6 +1345,7 @@ public:
         buffer_operation op_data(reg_succ);
         op_data.r = &r;
         my_aggregator.execute(&op_data);
+        (void)enqueue_forwarding_task(op_data);
         return true;
     }
 
@@ -1125,6 +1357,10 @@ public:
         buffer_operation op_data(rem_succ);
         op_data.r = &r;
         my_aggregator.execute(&op_data);
+        // even though this operation does not cause a forward, if we are the handler, and
+        // a forward is scheduled, we may be the first to reach this point after the aggregator,
+        // and so should check for the task.
+        (void)enqueue_forwarding_task(op_data);
         return true;
     }
 
@@ -1135,6 +1371,7 @@ public:
         buffer_operation op_data(req_item);
         op_data.elem = &v;
         my_aggregator.execute(&op_data);
+        (void)enqueue_forwarding_task(op_data);
         return (op_data.status==SUCCEEDED);
     }
 
@@ -1145,6 +1382,7 @@ public:
         buffer_operation op_data(res_item);
         op_data.elem = &v;
         my_aggregator.execute(&op_data);
+        (void)enqueue_forwarding_task(op_data);
         return (op_data.status==SUCCEEDED);
     }
 
@@ -1153,6 +1391,7 @@ public:
     /* override */ bool try_release() {
         buffer_operation op_data(rel_res);
         my_aggregator.execute(&op_data);
+        (void)enqueue_forwarding_task(op_data);
         return true;
     }
 
@@ -1161,17 +1400,36 @@ public:
     /* override */ bool try_consume() {
         buffer_operation op_data(con_res);
         my_aggregator.execute(&op_data);
+        (void)enqueue_forwarding_task(op_data);
         return true;
     }
 
-    //! Receive an item
-    /** true is always returned */
-    /* override */ bool try_put(const T &t) {
+protected:
+
+    template< typename R, typename B > friend class run_and_put_task;
+    template<typename X, typename Y> friend class internal::broadcast_cache;
+    template<typename X, typename Y> friend class internal::round_robin_cache;
+    //! receive an item, return a task *if possible
+    /* override */ task *try_put_task(const T &t) {
         buffer_operation op_data(t, put_item);
         my_aggregator.execute(&op_data);
-        return true;
+        task *ft = grab_forwarding_task(op_data);
+        if(!ft) {
+            ft = SUCCESSFULLY_ENQUEUED;
+        }
+        return ft;
     }
-};
+
+    /*override*/void reset() {
+        reservable_item_buffer<T, A>::reset();
+        forwarder_busy = false;
+    }
+
+    /*override*/void reset_receiver() {
+        // nothing to do; no predecesor_cache
+    }
+
+};  // buffer_node
 
 //! Forwards messages in FIFO order
 template <typename T, typename A=cache_aligned_allocator<T> >
@@ -1182,27 +1440,28 @@ protected:
 
     enum op_stat {WAIT=0, SUCCEEDED, FAILED};
 
-    //! Tries to forward valid items to successors
-    /* override */ void internal_forward(queue_operation *op) {
-        T i_copy;
-        bool success = false; // flagged when a successor accepts
-        size_type counter = this->my_successors.size();
+    /* override */ void internal_forward_task(queue_operation *op) {
         if (this->my_reserved || !this->item_valid(this->my_head)) {
             __TBB_store_with_release(op->status, FAILED);
             this->forwarder_busy = false;
             return;
         }
+        T i_copy;
+        task *last_task = NULL;
+        size_type counter = this->my_successors.size();
         // Keep trying to send items while there is at least one accepting successor
         while (counter>0 && this->item_valid(this->my_head)) {
             this->fetch_front(i_copy);
-            if(this->my_successors.try_put(i_copy)) {
-                 this->invalidate_front();
-                 ++(this->my_head);
-                success = true; // found an accepting successor
+            task *new_task = this->my_successors.try_put_task(i_copy);
+            if(new_task) {
+                this->invalidate_front();
+                ++(this->my_head);
+                last_task = combine_tasks(last_task, new_task);
             }
             --counter;
         }
-        if (success && !counter)
+        op->ltask = last_task;
+        if (last_task && !counter)
             __TBB_store_with_release(op->status, SUCCEEDED);
         else {
             __TBB_store_with_release(op->status, FAILED);
@@ -1294,6 +1553,7 @@ class priority_queue_node : public buffer_node<T, A> {
 public:
     typedef T input_type;
     typedef T output_type;
+    typedef buffer_node<T,A> base_type;
     typedef sender< input_type > predecessor_type;
     typedef receiver< output_type > successor_type;
 
@@ -1304,6 +1564,12 @@ public:
     priority_queue_node( const priority_queue_node &src ) : buffer_node<T, A>(src), mark(0) {}
 
 protected:
+
+    /*override*/void reset() {
+        mark = 0;
+        base_type::reset();
+    }
+
     typedef typename buffer_node<T, A>::size_type size_type;
     typedef typename buffer_node<T, A>::item_type item_type;
     typedef typename buffer_node<T, A>::buffer_operation prio_operation;
@@ -1311,7 +1577,7 @@ protected:
     enum op_stat {WAIT=0, SUCCEEDED, FAILED};
 
     /* override */ void handle_operations(prio_operation *op_list) {
-        prio_operation *tmp /*, *pop_list*/ ;
+        prio_operation *tmp = op_list /*, *pop_list*/ ;
         bool try_forwarding=false;
         while (op_list) {
             tmp = op_list;
@@ -1320,7 +1586,7 @@ protected:
             case buffer_node<T, A>::reg_succ: this->internal_reg_succ(tmp); try_forwarding = true; break;
             case buffer_node<T, A>::rem_succ: this->internal_rem_succ(tmp); break;
             case buffer_node<T, A>::put_item: internal_push(tmp); try_forwarding = true; break;
-            case buffer_node<T, A>::try_fwd: internal_forward(tmp); break;
+            case buffer_node<T, A>::try_fwd_task: internal_forward_task(tmp); break;
             case buffer_node<T, A>::rel_res: internal_release(tmp); try_forwarding = true; break;
             case buffer_node<T, A>::con_res: internal_consume(tmp); try_forwarding = true; break;
             case buffer_node<T, A>::req_item: internal_pop(tmp); break;
@@ -1331,14 +1597,20 @@ protected:
         if (mark<this->my_tail) heapify();
         if (try_forwarding && !this->forwarder_busy) {
             this->forwarder_busy = true;
-            task::enqueue(*new(task::allocate_additional_child_of(*(this->my_parent))) internal::forward_task< buffer_node<input_type, A> >(*this));
+            task *new_task = new(task::allocate_additional_child_of(*(this->my_parent))) internal::
+                    forward_task_bypass
+                    < buffer_node<input_type, A> >(*this);
+            // tmp should point to the last item handled by the aggregator.  This is the operation
+            // the handling thread enqueued.  So modifying that record will be okay.
+            tbb::task *tmp1 = tmp->ltask;
+            tmp->ltask = combine_tasks(tmp1, new_task);
         }
     }
 
     //! Tries to forward valid items to successors
-    /* override */ void internal_forward(prio_operation *op) {
+    /* override */ void internal_forward_task(prio_operation *op) {
         T i_copy;
-        bool success = false; // flagged when a successor accepts
+        task * last_task = NULL; // flagged when a successor accepts
         size_type counter = this->my_successors.size();
 
         if (this->my_reserved || this->my_tail == 0) {
@@ -1349,18 +1621,19 @@ protected:
         // Keep trying to send while there exists an accepting successor
         while (counter>0 && this->my_tail > 0) {
             i_copy = this->my_array[0].first;
-            bool msg = this->my_successors.try_put(i_copy);
-            if ( msg == true ) {
+            task * new_task = this->my_successors.try_put_task(i_copy);
+            last_task = combine_tasks(last_task, new_task);
+            if ( new_task ) {
                  if (mark == this->my_tail) --mark;
                 --(this->my_tail);
                 this->my_array[0].first=this->my_array[this->my_tail].first;
                 if (this->my_tail > 1) // don't reheap for heap of size 1
                     reheap();
-                success = true; // found an accepting successor
             }
             --counter;
         }
-        if (success && !counter)
+        op->ltask = last_task;
+        if (last_task && !counter)
             __TBB_store_with_release(op->status, SUCCEEDED);
         else {
             __TBB_store_with_release(op->status, FAILED);
@@ -1375,6 +1648,7 @@ protected:
         ++(this->my_tail);
         __TBB_store_with_release(op->status, SUCCEEDED);
     }
+
     /* override */ void internal_pop(prio_operation *op) {
         if ( this->my_reserved == true || this->my_tail == 0 ) {
             __TBB_store_with_release(op->status, FAILED);
@@ -1475,6 +1749,7 @@ private:
     message is dropped. */
 template< typename T >
 class limiter_node : public graph_node, public receiver< T >, public sender< T > {
+protected:
     using graph_node::my_graph;
 public:
     typedef T input_type;
@@ -1491,23 +1766,29 @@ private:
     internal::broadcast_cache< T > my_successors;
     int init_decrement_predecessors;
 
-    friend class internal::forward_task< limiter_node<T> >;
+    friend class internal::forward_task_bypass< limiter_node<T> >;
 
     // Let decrementer call decrement_counter()
     friend class internal::decrementer< limiter_node<T> >;
 
-    void decrement_counter() {
+    // only returns a valid task pointer or NULL, never SUCCESSFULLY_ENQUEUED
+    task * decrement_counter() {
         input_type v;
+        task *rval = NULL;
 
         // If we can't get / put an item immediately then drop the count
         if ( my_predecessors.get_item( v ) == false
-             || my_successors.try_put(v) == false ) {
+             || (rval = my_successors.try_put_task(v)) == NULL ) {
             spin_mutex::scoped_lock lock(my_mutex);
             --my_count;
-            if ( !my_predecessors.empty() )
-                task::enqueue( * new ( task::allocate_additional_child_of( *my_root_task ) )
-                            internal::forward_task< limiter_node<T> >( *this ) );
+            if ( !my_predecessors.empty() ) {
+                task *rtask = new ( task::allocate_additional_child_of( *my_root_task ) )
+                    internal::forward_task_bypass< limiter_node<T> >( *this );
+                __TBB_ASSERT(!rval, "Have two tasks to handle");
+                return rtask;
+            }
         }
+        return rval;
     }
 
     void forward() {
@@ -1518,7 +1799,17 @@ private:
             else
                 return;
         }
-        decrement_counter();
+        task * rtask = decrement_counter();
+        if(rtask) task::enqueue(*rtask);
+    }
+
+    task *forward_task() {
+        spin_mutex::scoped_lock lock(my_mutex);
+        if ( my_count >= my_threshold )
+            return NULL;
+        ++my_count;
+        task * rtask = decrement_counter();
+        return rtask;
     }
 
 public:
@@ -1562,36 +1853,16 @@ public:
         return true;
     }
 
-    //! Puts an item to this receiver
-    /* override */ bool try_put( const T &t ) {
-        {
-            spin_mutex::scoped_lock lock(my_mutex);
-            if ( my_count >= my_threshold )
-                return false;
-            else
-                ++my_count;
-        }
-
-        bool msg = my_successors.try_put(t);
-
-        if ( msg != true ) {
-            spin_mutex::scoped_lock lock(my_mutex);
-            --my_count;
-            if ( !my_predecessors.empty() )
-                task::enqueue( * new ( task::allocate_additional_child_of( *my_root_task ) )
-                            internal::forward_task< limiter_node<T> >( *this ) );
-        }
-
-        return msg;
-    }
-
     //! Removes src from the list of cached predecessors.
     /* override */ bool register_predecessor( predecessor_type &src ) {
         spin_mutex::scoped_lock lock(my_mutex);
         my_predecessors.add( src );
-        if ( my_count < my_threshold && !my_successors.empty() )
+        if ( my_count < my_threshold && !my_successors.empty() ) {
             task::enqueue( * new ( task::allocate_additional_child_of( *my_root_task ) )
-                           internal::forward_task< limiter_node<T> >( *this ) );
+                           internal::
+                           forward_task_bypass
+                           < limiter_node<T> >( *this ) );
+        }
         return true;
     }
 
@@ -1600,7 +1871,43 @@ public:
         my_predecessors.remove( src );
         return true;
     }
-};
+
+protected:
+
+    template< typename R, typename B > friend class run_and_put_task;
+    template<typename X, typename Y> friend class internal::broadcast_cache;
+    template<typename X, typename Y> friend class internal::round_robin_cache;
+    //! Puts an item to this receiver
+    /* override */ task *try_put_task( const T &t ) {
+        {
+            spin_mutex::scoped_lock lock(my_mutex);
+            if ( my_count >= my_threshold )
+                return NULL;
+            else
+                ++my_count;
+        }
+
+        task * rtask = my_successors.try_put_task(t);
+
+        if ( !rtask ) {  // try_put_task failed.
+            spin_mutex::scoped_lock lock(my_mutex);
+            --my_count;
+            if ( !my_predecessors.empty() ) {
+                rtask = new ( task::allocate_additional_child_of( *my_root_task ) )
+                    internal::forward_task_bypass< limiter_node<T> >( *this );
+            }
+        }
+        return rtask;
+    }
+
+    /*override*/void reset() {
+        my_count = 0;
+        my_predecessors.reset();
+        decrement.reset_receiver();
+    }
+
+    /*override*/void reset_receiver() { my_predecessors.reset(); }
+};  // limiter_node
 
 #include "internal/_flow_graph_join_impl.h"
 
@@ -1614,9 +1921,9 @@ using internal::NO_TAG;
 template<typename OutputTuple, graph_buffer_policy JP=queueing> class join_node;
 
 template<typename OutputTuple>
-class join_node<OutputTuple,reserving>: public internal::unfolded_join_node<std::tuple_size<OutputTuple>::value, reserving_port, OutputTuple, reserving> {
+class join_node<OutputTuple,reserving>: public internal::unfolded_join_node<tbb::flow::tuple_size<OutputTuple>::value, reserving_port, OutputTuple, reserving> {
 private:
-    static const int N = std::tuple_size<OutputTuple>::value;
+    static const int N = tbb::flow::tuple_size<OutputTuple>::value;
     typedef typename internal::unfolded_join_node<N, reserving_port, OutputTuple, reserving> unfolded_type;
 public:
     typedef OutputTuple output_type;
@@ -1626,9 +1933,9 @@ public:
 };
 
 template<typename OutputTuple>
-class join_node<OutputTuple,queueing>: public internal::unfolded_join_node<std::tuple_size<OutputTuple>::value, queueing_port, OutputTuple, queueing> {
+class join_node<OutputTuple,queueing>: public internal::unfolded_join_node<tbb::flow::tuple_size<OutputTuple>::value, queueing_port, OutputTuple, queueing> {
 private:
-    static const int N = std::tuple_size<OutputTuple>::value;
+    static const int N = tbb::flow::tuple_size<OutputTuple>::value;
     typedef typename internal::unfolded_join_node<N, queueing_port, OutputTuple, queueing> unfolded_type;
 public:
     typedef OutputTuple output_type;
@@ -1639,10 +1946,10 @@ public:
 
 // template for tag_matching join_node
 template<typename OutputTuple>
-class join_node<OutputTuple, tag_matching> : public internal::unfolded_join_node<std::tuple_size<OutputTuple>::value,
+class join_node<OutputTuple, tag_matching> : public internal::unfolded_join_node<tbb::flow::tuple_size<OutputTuple>::value,
       tag_matching_port, OutputTuple, tag_matching> {
 private:
-    static const int N = std::tuple_size<OutputTuple>::value;
+    static const int N = tbb::flow::tuple_size<OutputTuple>::value;
     typedef typename internal::unfolded_join_node<N, tag_matching_port, OutputTuple, tag_matching> unfolded_type;
 public:
     typedef OutputTuple output_type;
@@ -1655,16 +1962,26 @@ public:
     join_node(graph &g, B0 b0, B1 b1, B2 b2, B3 b3) : unfolded_type(g, b0, b1, b2, b3) { }
     template<typename B0, typename B1, typename B2, typename B3, typename B4>
     join_node(graph &g, B0 b0, B1 b1, B2 b2, B3 b3, B4 b4) : unfolded_type(g, b0, b1, b2, b3, b4) { }
+#if __TBB_VARIADIC_MAX >= 6
     template<typename B0, typename B1, typename B2, typename B3, typename B4, typename B5>
     join_node(graph &g, B0 b0, B1 b1, B2 b2, B3 b3, B4 b4, B5 b5) : unfolded_type(g, b0, b1, b2, b3, b4, b5) { }
+#endif
+#if __TBB_VARIADIC_MAX >= 7
     template<typename B0, typename B1, typename B2, typename B3, typename B4, typename B5, typename B6>
     join_node(graph &g, B0 b0, B1 b1, B2 b2, B3 b3, B4 b4, B5 b5, B6 b6) : unfolded_type(g, b0, b1, b2, b3, b4, b5, b6) { }
+#endif
+#if __TBB_VARIADIC_MAX >= 8
     template<typename B0, typename B1, typename B2, typename B3, typename B4, typename B5, typename B6, typename B7>
     join_node(graph &g, B0 b0, B1 b1, B2 b2, B3 b3, B4 b4, B5 b5, B6 b6, B7 b7) : unfolded_type(g, b0, b1, b2, b3, b4, b5, b6, b7) { }
+#endif
+#if __TBB_VARIADIC_MAX >= 9
     template<typename B0, typename B1, typename B2, typename B3, typename B4, typename B5, typename B6, typename B7, typename B8>
     join_node(graph &g, B0 b0, B1 b1, B2 b2, B3 b3, B4 b4, B5 b5, B6 b6, B7 b7, B8 b8) : unfolded_type(g, b0, b1, b2, b3, b4, b5, b6, b7, b8) { }
+#endif
+#if __TBB_VARIADIC_MAX >= 10
     template<typename B0, typename B1, typename B2, typename B3, typename B4, typename B5, typename B6, typename B7, typename B8, typename B9>
     join_node(graph &g, B0 b0, B1 b1, B2 b2, B3 b3, B4 b4, B5 b5, B6 b6, B7 b7, B8 b8, B9 b9) : unfolded_type(g, b0, b1, b2, b3, b4, b5, b6, b7, b8, b9) { }
+#endif
     join_node(const join_node &other) : unfolded_type(other) {}
 };
 
@@ -1675,7 +1992,7 @@ public:
 template<typename InputTuple>
 class or_node : public internal::unfolded_or_node<InputTuple> {
 private:
-    static const int N = std::tuple_size<InputTuple>::value;
+    static const int N = tbb::flow::tuple_size<InputTuple>::value;
 public:
     typedef typename internal::or_output_type<InputTuple>::type output_type;
     typedef typename internal::unfolded_or_node<InputTuple> unfolded_type;

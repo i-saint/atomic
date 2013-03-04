@@ -1,6 +1,6 @@
 @echo off
 REM
-REM Copyright 2005-2012 Intel Corporation.  All Rights Reserved.
+REM Copyright 2005-2013 Intel Corporation.  All Rights Reserved.
 REM
 REM This file is part of Threading Building Blocks.
 REM
@@ -42,6 +42,7 @@ if /i "%1"=="intel64"      (set TBB_TARGET_ARCH=intel64) & shift & goto ParseArg
 if /i "%1"=="vs2005"       (set TBB_TARGET_VS=vc8)       & shift & goto ParseArgs
 if /i "%1"=="vs2008"       (set TBB_TARGET_VS=vc9)       & shift & goto ParseArgs
 if /i "%1"=="vs2010"       (set TBB_TARGET_VS=vc10)      & shift & goto ParseArgs
+if /i "%1"=="vs2012"       (set TBB_TARGET_VS=vc11)      & shift & goto ParseArgs
 if /i "%1"=="all"          (set TBB_TARGET_VS=vc_mt)     & shift & goto ParseArgs
 
 :SetEnv
@@ -55,6 +56,7 @@ SET LIB=%TBBROOT%\lib\%TBB_ARCH_PLATFORM%;%LIB%
 SET INCLUDE=%TBBROOT%\include;%INCLUDE%
 IF ("%ICPP_COMPILER11%") NEQ ("") SET TBB_CXX=icl.exe
 IF ("%ICPP_COMPILER12%") NEQ ("") SET TBB_CXX=icl.exe
+IF ("%ICPP_COMPILER13%") NEQ ("") SET TBB_CXX=icl.exe
 goto End
 
 :Syntax
@@ -67,6 +69,7 @@ echo    ^<vs^> should be one of the following
 echo        vs2005      : Set to use with Microsoft Visual Studio 2005 runtime DLLs
 echo        vs2008      : Set to use with Microsoft Visual Studio 2008 runtime DLLs
 echo        vs2010      : Set to use with Microsoft Visual Studio 2010 runtime DLLs
+echo        vs2012      : Set to use with Microsoft Visual Studio 2012 runtime DLLs
 echo        all         : Set to use TBB statically linked with Microsoft Visual C++ runtime
 echo    if ^<vs^> is not set TBB statically linked with Microsoft Visual C++ runtime will be used.
 exit /B 1

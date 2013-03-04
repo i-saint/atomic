@@ -1,5 +1,4 @@
-
-; Copyright 2005-2012 Intel Corporation.  All Rights Reserved.
+; Copyright 2005-2013 Intel Corporation.  All Rights Reserved.
 ;
 ; The source code contained or described herein and all documents related
 ; to the source code ("Material") are owned by Intel Corporation or its
@@ -19,6 +18,23 @@
 
 EXPORTS
 
+; Copyright 2005-2013 Intel Corporation.  All Rights Reserved.
+;
+; The source code contained or described herein and all documents related
+; to the source code ("Material") are owned by Intel Corporation or its
+; suppliers or licensors.  Title to the Material remains with Intel
+; Corporation or its suppliers and licensors.  The Material is protected
+; by worldwide copyright laws and treaty provisions.  No part of the
+; Material may be used, copied, reproduced, modified, published, uploaded,
+; posted, transmitted, distributed, or disclosed in any way without
+; Intel's prior express written permission.
+;
+; No license under any patent, copyright, trade secret or other
+; intellectual property right is granted to or conferred upon you by
+; disclosure or delivery of the Materials, either expressly, by
+; implication, inducement, estoppel or otherwise.  Any license under such
+; intellectual property rights must be express and approved by Intel in
+; writing.
 
 
 
@@ -38,6 +54,7 @@ EXPORTS
 
 
 
+ 
 
 
 
@@ -46,9 +63,11 @@ EXPORTS
 
 
 
+ 
 
 
 
+ 
 
 
 
@@ -61,37 +80,71 @@ EXPORTS
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ 
 
     
 
+ 
+     
+     
+
+
+
+
+
+
+
+
+ 
+ 
+     
+
+     
+
+ 
+
+
+
+
+
+
+
+     
+
+ 
+     
+
+ 
+
+ 
+
+ 
+
+ 
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+ 
 
 
 
@@ -108,195 +161,15 @@ EXPORTS
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ 
 
 
     
-
-
-
+    
     
     
 
-
-        
-    
-
-
-
-    
-        
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-    
-
-
-
-
-
-
-
-    
-
-
-
-    
-
-
-
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-
-    
-
-
+ 
 
 
 
@@ -353,8 +226,6 @@ __TBB_machine_trylockbyte
 ?destroy@task@tbb@@QAEXAAV12@@Z
 
 
-
-
 ?allocate@allocate_root_with_context_proxy@internal@tbb@@QBEAAVtask@3@I@Z
 ?free@allocate_root_with_context_proxy@internal@tbb@@QBEXAAVtask@3@@Z
 ?change_group@task@tbb@@QAEXAAVtask_group_context@2@@Z
@@ -364,10 +235,8 @@ __TBB_machine_trylockbyte
 ?init@task_group_context@tbb@@IAEXXZ
 ?register_pending_exception@task_group_context@tbb@@QAEXXZ
 ??1task_group_context@tbb@@QAE@XZ
-
 ?set_priority@task_group_context@tbb@@QAEXW4priority_t@2@@Z
 ?priority@task_group_context@tbb@@QBE?AW4priority_t@2@XZ
-
 ?name@captured_exception@tbb@@UBEPBDXZ
 ?what@captured_exception@tbb@@UBEPBDXZ
 ??1captured_exception@tbb@@UAE@XZ
@@ -375,7 +244,6 @@ __TBB_machine_trylockbyte
 ?destroy@captured_exception@tbb@@UAEXXZ
 ?set@captured_exception@tbb@@QAEXPBD0@Z
 ?clear@captured_exception@tbb@@QAEXXZ
-
 
 
 ?throw_bad_last_alloc_exception_v4@internal@tbb@@YAXXZ
@@ -410,9 +278,7 @@ TBB_runtime_interface_version
 ?clear@pipeline@tbb@@QAEXXZ
 ?inject_token@pipeline@tbb@@AAEXAAVtask@2@@Z
 ?run@pipeline@tbb@@QAEXI@Z
-
 ?run@pipeline@tbb@@QAEXIAAVtask_group_context@2@@Z
-
 ?process_item@thread_bound_filter@tbb@@QAE?AW4result_type@12@XZ
 ?try_process_item@thread_bound_filter@tbb@@QAE?AW4result_type@12@XZ
 ?set_end_of_input@filter@tbb@@IAEXXZ
@@ -439,7 +305,6 @@ TBB_runtime_interface_version
 ?internal_destroy@scoped_lock_read@reader_writer_lock@interface5@tbb@@AAEXXZ
 
 
-
 ?internal_acquire_reader@spin_rw_mutex@tbb@@CAXPAV12@@Z
 ?internal_acquire_writer@spin_rw_mutex@tbb@@CA_NPAV12@@Z
 ?internal_downgrade@spin_rw_mutex@tbb@@CAXPAV12@@Z
@@ -449,7 +314,6 @@ TBB_runtime_interface_version
 ?internal_upgrade@spin_rw_mutex@tbb@@CA_NPAV12@@Z
 ?internal_try_acquire_writer@spin_rw_mutex@tbb@@CA_NPAV12@@Z
 ?internal_try_acquire_reader@spin_rw_mutex@tbb@@CA_NPAV12@@Z
-
 
 
 ?internal_construct@spin_rw_mutex_v3@tbb@@AAEXXZ
@@ -492,7 +356,6 @@ TBB_runtime_interface_version
 ?internal_construct@critical_section_v4@internal@tbb@@QAEXXZ
 
 
-
 ?internal_grow_predicate@hash_map_segment_base@internal@tbb@@QBE_NXZ
 
 
@@ -508,7 +371,6 @@ TBB_runtime_interface_version
 ?internal_push@concurrent_queue_base@internal@tbb@@IAEXPBX@Z
 ?internal_push_if_not_full@concurrent_queue_base@internal@tbb@@IAE_NPBX@Z
 ?internal_set_capacity@concurrent_queue_base@internal@tbb@@IAEXHI@Z
-
 
 
 ??1concurrent_queue_iterator_base_v3@internal@tbb@@IAE@XZ
@@ -531,7 +393,6 @@ TBB_runtime_interface_version
 ?assign@concurrent_queue_base_v3@internal@tbb@@IAEXABV123@@Z
 
 
-
 ?internal_assign@concurrent_vector_base@internal@tbb@@IAEXABV123@IP6AXPAXI@ZP6AX1PBXI@Z4@Z
 ?internal_capacity@concurrent_vector_base@internal@tbb@@IBEIXZ
 ?internal_clear@concurrent_vector_base@internal@tbb@@IAEXP6AXPAXI@Z_N@Z
@@ -540,7 +401,6 @@ TBB_runtime_interface_version
 ?internal_grow_to_at_least@concurrent_vector_base@internal@tbb@@IAEXIIP6AXPAXI@Z@Z
 ?internal_push_back@concurrent_vector_base@internal@tbb@@IAEPAXIAAI@Z
 ?internal_reserve@concurrent_vector_base@internal@tbb@@IAEXIII@Z
-
 
 
 ??1concurrent_vector_base_v3@internal@tbb@@IAE@XZ
@@ -576,7 +436,5 @@ TBB_runtime_interface_version
 ?internal_condition_variable_notify_one@internal@interface5@tbb@@YAXAATcondvar_impl_t@123@@Z
 ?internal_condition_variable_notify_all@internal@interface5@tbb@@YAXAATcondvar_impl_t@123@@Z
 ?internal_destroy_condition_variable@internal@interface5@tbb@@YAXAATcondvar_impl_t@123@@Z
-
-
 
 

@@ -1,5 +1,5 @@
 /*
-    Copyright 2005-2012 Intel Corporation.  All Rights Reserved.
+    Copyright 2005-2013 Intel Corporation.  All Rights Reserved.
 
     This file is part of Threading Building Blocks.
 
@@ -102,6 +102,12 @@ enum exception_id {
     eid_reservation_length_error,
     eid_invalid_key,
     eid_user_abort,
+    eid_reserved1,
+#if __TBB_SUPPORTS_WORKERS_WAITING_IN_TERMINATE
+    // This id is used only inside library and only for support of CPF functionality.
+    // So, if we drop the functionality, eid_reserved1 can be safely renamed and reused.
+    eid_blocking_sch_init = eid_reserved1,
+#endif
     //! The last enumerator tracks the number of defined IDs. It must remain the last one.
     /** When adding new IDs, place them immediately _before_ this comment (that is
         _after_ all the existing IDs. NEVER insert new IDs between the existing ones. **/
@@ -354,7 +360,13 @@ public:
 
 private:
     tbb_exception_ptr ( const std::exception_ptr& src ) : my_ptr(src) {}
-    tbb_exception_ptr ( const captured_exception& src ) : my_ptr(std::copy_exception(src)) {}
+    tbb_exception_ptr ( const captured_exception& src ) :
+        #if __TBB_MAKE_EXCEPTION_PTR_PRESENT
+            my_ptr(std::make_exception_ptr(src))  // the final function name in C++11
+        #else
+            my_ptr(std::copy_exception(src))      // early C++0x drafts name
+        #endif
+    {}
 }; // class tbb::internal::tbb_exception_ptr
 
 } // namespace internal

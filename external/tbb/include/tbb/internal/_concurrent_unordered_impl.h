@@ -1,5 +1,5 @@
 /*
-    Copyright 2005-2012 Intel Corporation.  All Rights Reserved.
+    Copyright 2005-2013 Intel Corporation.  All Rights Reserved.
 
     This file is part of Threading Building Blocks.
 
@@ -1018,11 +1018,11 @@ public:
         return my_solist.first_real_iterator(it);
     }
 
-    const_local_iterator unsafe_cbegin(size_type bucket) const {
+    const_local_iterator unsafe_cbegin(size_type /*bucket*/) const {
         return ((const self_type *) this)->begin();
     }
 
-    const_local_iterator unsafe_cend(size_type bucket) const {
+    const_local_iterator unsafe_cend(size_type /*bucket*/) const {
         return ((const self_type *) this)->end();
     }
 
@@ -1384,7 +1384,7 @@ private:
 #endif
 
 //! Hash multiplier
-static const size_t hash_multiplier = sizeof(size_t)==4? 2654435769U : 11400714819323198485ULL;
+static const size_t hash_multiplier = tbb::internal::size_t_select(2654435769U, 11400714819323198485ULL);
 } // namespace internal
 //! @endcond
 //! Hasher functions

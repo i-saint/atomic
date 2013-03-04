@@ -1,5 +1,5 @@
 /*
-    Copyright 2005-2012 Intel Corporation.  All Rights Reserved.
+    Copyright 2005-2013 Intel Corporation.  All Rights Reserved.
 
     This file is part of Threading Building Blocks.
 
@@ -37,13 +37,23 @@
 
 #define __TBB_WORDSIZE      __SIZEOF_POINTER__
 
-// For some reason straight mapping does not work on mingw
-#if __BYTE_ORDER__==__ORDER_BIG_ENDIAN__
-    #define __TBB_BIG_ENDIAN    0
-#elif __BYTE_ORDER__==__ORDER_LITTLE_ENDIAN__
-    #define __TBB_BIG_ENDIAN    1
-#else
-#error Unsupported endianness
+#if __TBB_GCC_64BIT_ATOMIC_BUILTINS_BROKEN
+    #define __TBB_64BIT_ATOMICS 0
+#endif
+
+/** FPU control setting not available for non-Intel architectures on Android **/
+#if __ANDROID__ && __TBB_generic_arch 
+    #define __TBB_CPU_CTL_ENV_PRESENT 0
+#endif
+
+#ifdef __BYTE_ORDER__
+    #if __BYTE_ORDER__==__ORDER_BIG_ENDIAN__
+        #define __TBB_BIG_ENDIAN    1
+    #elif __BYTE_ORDER__==__ORDER_LITTLE_ENDIAN__
+        #define __TBB_BIG_ENDIAN    0
+    #elif __BYTE_ORDER__==__ORDER_PDP_ENDIAN__
+        #define __TBB_BIG_ENDIAN -1 // not currently supported
+    #endif
 #endif
 
 /** As this generic implementation has absolutely no information about underlying
@@ -73,8 +83,9 @@ __TBB_MACHINE_DEFINE_ATOMICS(8,int64_t)
 #undef __TBB_MACHINE_DEFINE_ATOMICS
 
 namespace tbb{ namespace internal { namespace gcc_builtins {
-    int clz(unsigned int x){ return __builtin_clz(x);};
-    int clz(unsigned long int x){ return __builtin_clzl(x);};
+    inline int clz(unsigned int x){ return __builtin_clz(x);};
+    inline int clz(unsigned long int x){ return __builtin_clzl(x);};
+    inline int clz(unsigned long long int x){ return __builtin_clzll(x);};
 }}}
 //gcc __builtin_clz builtin count _number_ of leading zeroes
 static inline intptr_t __TBB_machine_lg( uintptr_t x ) {
@@ -112,10 +123,11 @@ inline void __TBB_machine_unlock_byte( __TBB_atomic_flag &flag , __TBB_Flag) {
 // Definition of other functions
 #define __TBB_Log2(V)           __TBB_machine_lg(V)
 
-#define __TBB_USE_GENERIC_FETCH_STORE               1
-#define __TBB_USE_GENERIC_HALF_FENCED_LOAD_STORE    1
-#define __TBB_USE_GENERIC_RELAXED_LOAD_STORE        1
+#define __TBB_USE_GENERIC_FETCH_STORE                       1
+#define __TBB_USE_GENERIC_HALF_FENCED_LOAD_STORE            1
+#define __TBB_USE_GENERIC_RELAXED_LOAD_STORE                1
+#define __TBB_USE_GENERIC_SEQUENTIAL_CONSISTENCY_LOAD_STORE 1
 
 #if __TBB_WORDSIZE==4
-    #define __TBB_USE_GENERIC_DWORD_LOAD_STORE      1
+    #define __TBB_USE_GENERIC_DWORD_LOAD_STORE              1
 #endif

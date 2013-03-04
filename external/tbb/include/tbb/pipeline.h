@@ -1,5 +1,5 @@
 /*
-    Copyright 2005-2012 Intel Corporation.  All Rights Reserved.
+    Copyright 2005-2013 Intel Corporation.  All Rights Reserved.
 
     This file is part of Threading Building Blocks.
 
@@ -33,6 +33,10 @@
 #include "task.h"
 #include "tbb_allocator.h"
 #include <cstddef>
+
+#if !TBB_IMPLEMENT_CPP0X
+#include <type_traits>
+#endif
 
 namespace tbb {
 
@@ -321,7 +325,30 @@ public:
 //! @cond INTERNAL
 namespace internal {
 
-template<typename T> struct is_large_object { enum { r = sizeof(T) > sizeof(void *) }; };
+template<typename T> struct tbb_large_object {enum { value = sizeof(T) > sizeof(void *) }; };
+
+#if TBB_IMPLEMENT_CPP0X
+// cannot use SFINAE in current compilers.  Explicitly list the types we wish to be
+// placed as-is in the pipeline input_buffers.
+template<typename T> struct tbb_trivially_copyable { enum { value = false }; };
+template<typename T> struct tbb_trivially_copyable <T*> { enum { value = true }; };
+template<> struct tbb_trivially_copyable <short> { enum { value = true }; };
+template<> struct tbb_trivially_copyable <unsigned short> { enum { value = true }; };
+template<> struct tbb_trivially_copyable <int> { enum { value = !tbb_large_object<int>::value }; };
+template<> struct tbb_trivially_copyable <unsigned int> { enum { value = !tbb_large_object<int>::value }; };
+template<> struct tbb_trivially_copyable <long> { enum { value = !tbb_large_object<long>::value }; };
+template<> struct tbb_trivially_copyable <unsigned long> { enum { value = !tbb_large_object<long>::value }; };
+template<> struct tbb_trivially_copyable <float> { enum { value = !tbb_large_object<float>::value }; };
+template<> struct tbb_trivially_copyable <double> { enum { value = !tbb_large_object<double>::value }; };
+#else
+#if __GNUC__==4 && __GNUC_MINOR__>=4 && __GXX_EXPERIMENTAL_CXX0X__
+template<typename T> struct tbb_trivially_copyable { enum { value = std::has_trivial_copy_constructor<T>::value }; };
+#else
+template<typename T> struct tbb_trivially_copyable { enum { value = std::is_trivially_copyable<T>::value }; };
+#endif //
+#endif // __TBB_USE_CPP0X
+
+template<typename T> struct is_large_object {enum { value = tbb_large_object<T>::value || !tbb_trivially_copyable<T>::value }; };
 
 template<typename T, bool> class token_helper;
 
@@ -388,9 +415,9 @@ class token_helper<T, false> {
 template<typename T, typename U, typename Body>
 class concrete_filter: public tbb::filter {
     const Body& my_body;
-    typedef token_helper<T,is_large_object<T>::r > t_helper;
+    typedef token_helper<T,is_large_object<T>::value > t_helper;
     typedef typename t_helper::pointer t_pointer;
-    typedef token_helper<U,is_large_object<U>::r > u_helper;
+    typedef token_helper<U,is_large_object<U>::value > u_helper;
     typedef typename u_helper::pointer u_pointer;
 
     /*override*/ void* operator()(void* input) {
@@ -398,6 +425,11 @@ class concrete_filter: public tbb::filter {
         u_pointer output_u = u_helper::create_token(my_body(t_helper::token(temp_input)));
         t_helper::destroy_token(temp_input);
         return u_helper::cast_to_void_ptr(output_u);
+    }
+
+    /*override*/ void finalize(void * input) {
+        t_pointer temp_input = t_helper::cast_from_void_ptr(input);
+        t_helper::destroy_token(temp_input);
     }
 
 public:
@@ -408,7 +440,7 @@ public:
 template<typename U, typename Body>
 class concrete_filter<void,U,Body>: public filter {
     const Body& my_body;
-    typedef token_helper<U, is_large_object<U>::r > u_helper;
+    typedef token_helper<U, is_large_object<U>::value > u_helper;
     typedef typename u_helper::pointer u_pointer;
 
     /*override*/void* operator()(void*) {
@@ -432,7 +464,7 @@ public:
 template<typename T, typename Body>
 class concrete_filter<T,void,Body>: public filter {
     const Body& my_body;
-    typedef token_helper<T, is_large_object<T>::r > t_helper;
+    typedef token_helper<T, is_large_object<T>::value > t_helper;
     typedef typename t_helper::pointer t_pointer;
    
     /*override*/ void* operator()(void* input) {
@@ -441,6 +473,11 @@ class concrete_filter<T,void,Body>: public filter {
         t_helper::destroy_token(temp_input);
         return NULL;
     }
+    /*override*/ void finalize(void* input) {
+        t_pointer temp_input = t_helper::cast_from_void_ptr(input);
+        t_helper::destroy_token(temp_input);
+    }
+
 public:
     concrete_filter(tbb::filter::mode filter_mode, const Body& body) : filter(filter_mode), my_body(body) {}
 };

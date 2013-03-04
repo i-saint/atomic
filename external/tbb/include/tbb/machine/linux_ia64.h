@@ -1,5 +1,5 @@
 /*
-    Copyright 2005-2012 Intel Corporation.  All Rights Reserved.
+    Copyright 2005-2013 Intel Corporation.  All Rights Reserved.
 
     This file is part of Threading Building Blocks.
 
@@ -33,7 +33,6 @@
 #define __TBB_machine_linux_ia64_H
 
 #include <stdint.h>
-#include <unistd.h>
 #include <ia64intrin.h>
 
 #define __TBB_WORDSIZE 8
@@ -176,8 +175,9 @@ namespace internal {
 
 #undef __TBB_MACHINE_DEFINE_ATOMICS
 
-#define __TBB_USE_FENCED_ATOMICS 1
-#define __TBB_USE_GENERIC_HALF_FENCED_LOAD_STORE 1
+#define __TBB_USE_FENCED_ATOMICS                            1
+#define __TBB_USE_GENERIC_HALF_FENCED_LOAD_STORE            1
+#define __TBB_USE_GENERIC_SEQUENTIAL_CONSISTENCY_LOAD_STORE 1
 
 // Definition of Lock functions
 #define __TBB_TryLockByte(P) __TBB_machine_trylockbyte(P)

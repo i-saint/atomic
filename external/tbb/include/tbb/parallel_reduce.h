@@ -1,5 +1,5 @@
 /*
-    Copyright 2005-2012 Intel Corporation.  All Rights Reserved.
+    Copyright 2005-2013 Intel Corporation.  All Rights Reserved.
 
     This file is part of Threading Building Blocks.
 
@@ -43,20 +43,24 @@ namespace internal {
 
     using namespace tbb::internal;
 
-    //! 0 if root, 1 if a left child, 2 if a right child.
+    /** Values for reduction_context. */
+    enum {
+        root_task, left_child, right_child
+    };
+
     /** Represented as a char, not enum, for compactness. */
     typedef char reduction_context;
 
-    //! Task type use to combine the partial results of parallel_reduce.
+    //! Task type used to combine the partial results of parallel_reduce.
     /** @ingroup algorithms */
     template<typename Body>
     class finish_reduce: public flag_task {
-        //! Pointer to body, or NULL if the left child has not yet finished. 
+        //! Pointer to body, or NULL if the left child has not yet finished.
         bool has_right_zombie;
         const reduction_context my_context;
         Body* my_body;
         aligned_space<Body,1> zombie_space;
-        finish_reduce( reduction_context context_ ) : 
+        finish_reduce( reduction_context context_ ) :
             has_right_zombie(false), // TODO: substitute by flag_task::child_stolen?
             my_context(context_),
             my_body(NULL)
@@ -69,7 +73,7 @@ namespace internal {
                 my_body->join( *s );
                 s->~Body();
             }
-            if( my_context==1 )  // left child
+            if( my_context==left_child )
                 itt_store_word_with_release( static_cast<finish_reduce*>(parent())->my_body, my_body );
             return NULL;
         }
@@ -89,14 +93,14 @@ namespace internal {
         /*override*/ task* execute();
         template<typename Body_>
         friend class finish_reduce;
-    
+
 public:
         //! Constructor used for root task
         start_reduce( const Range& range, Body* body, Partitioner& partitioner ) :
             my_body(body),
             my_range(range),
             my_partition(partitioner),
-            my_context(0)
+            my_context(root_task)
         {
         }
         //! Splitting constructor used to generate children.
@@ -105,10 +109,10 @@ public:
             my_body(parent_.my_body),
             my_range(parent_.my_range,split()),
             my_partition(parent_.my_partition,split()),
-            my_context(2)
+            my_context(right_child)
         {
             my_partition.set_affinity(*this);
-            parent_.my_context = 1;
+            parent_.my_context = left_child;
         }
         //! Construct right child from the given range as response to the demand.
         /** parent_ remains left child.  Newly constructed object is right child. */
@@ -116,11 +120,11 @@ public:
             my_body(parent_.my_body),
             my_range(r),
             my_partition(parent_.my_partition,split()),
-            my_context(2) // right leaf mark
+            my_context(right_child)
         {
             my_partition.set_affinity(*this);
             my_partition.align_depth( d );
-            parent_.my_context = 1; // left leaf mark
+            parent_.my_context = left_child;
         }
         //! Update affinity info, if any
         /*override*/ void note_affinity( affinity_id id ) {
@@ -140,7 +144,7 @@ public:
         }
 #if __TBB_TASK_GROUP_CONTEXT
         static void run( const Range& range, Body& body, Partitioner& partitioner, task_group_context& context ) {
-            if( !range.empty() ) 
+            if( !range.empty() )
                 task::spawn_root_and_wait( *new(task::allocate_root(context)) start_reduce(range,&body,partitioner) );
         }
 #endif /* __TBB_TASK_GROUP_CONTEXT */
@@ -154,24 +158,23 @@ public:
     template<typename Range, typename Body, typename Partitioner>
     task* start_reduce<Range,Body,Partitioner>::execute() {
         my_partition.check_being_stolen( *this );
-        if( my_context==2 ) { // right child
+        if( my_context==right_child ) {
             finish_type* parent_ptr = static_cast<finish_type*>(parent());
             if( !itt_load_word_with_acquire(parent_ptr->my_body) ) { // TODO: replace by is_stolen_task() or by parent_ptr->ref_count() == 2???
                 my_body = new( parent_ptr->zombie_space.begin() ) Body(*my_body,split());
                 parent_ptr->has_right_zombie = true;
             }
-        } else __TBB_ASSERT(my_context==0,0);// because left leaf spawns right leafs without recycling
+        } else __TBB_ASSERT(my_context==root_task,NULL);// because left leaf spawns right leafs without recycling
         my_partition.execute(*this, my_range);
-        if( my_context==1 ) {
+        if( my_context==left_child ) {
             finish_type* parent_ptr = static_cast<finish_type*>(parent());
-            __TBB_ASSERT(my_body!=parent_ptr->zombie_space.begin(),0);
+            __TBB_ASSERT(my_body!=parent_ptr->zombie_space.begin(),NULL);
             itt_store_word_with_release(parent_ptr->my_body, my_body );
         }
         return NULL;
     }
 
-#if TBB_PREVIEW_DETERMINISTIC_REDUCE
-    //! Task type use to combine the partial results of parallel_deterministic_reduce.
+    //! Task type used to combine the partial results of parallel_deterministic_reduce.
     /** @ingroup algorithms */
     template<typename Body>
     class finish_deterministic_reduce: public task {
@@ -229,7 +232,7 @@ public:
         }
 #if __TBB_TASK_GROUP_CONTEXT
         static void run( const Range& range, Body& body, task_group_context& context ) {
-            if( !range.empty() ) 
+            if( !range.empty() )
                 task::spawn_root_and_wait( *new(task::allocate_root(context)) start_deterministic_reduce(range,body) );
         }
 #endif /* __TBB_TASK_GROUP_CONTEXT */
@@ -249,7 +252,6 @@ public:
             return this;
         }
     }
-#endif /* TBB_PREVIEW_DETERMINISTIC_REDUCE */
 } // namespace internal
 //! @endcond
 } //namespace interfaceX
@@ -257,9 +259,7 @@ public:
 //! @cond INTERNAL
 namespace internal {
     using interface6::internal::start_reduce;
-#if TBB_PREVIEW_DETERMINISTIC_REDUCE
     using interface6::internal::start_deterministic_reduce;
-#endif
     //! Auxiliary class for parallel_reduce; for internal use only.
     /** The adaptor class that implements \ref parallel_reduce_body_req "parallel_reduce Body"
         using given \ref parallel_reduce_lambda_req "anonymous function objects".
@@ -318,7 +318,7 @@ namespace internal {
     - \code Body::~Body(); \endcode                     Destructor
     - \code void Body::operator()( Range& r ); \endcode Function call operator applying body to range \c r
                                                         and accumulating the result
-    - \code void Body::join( Body& b ); \endcode        Join results. 
+    - \code void Body::join( Body& b ); \endcode        Join results.
                                                         The result in \c b should be merged into the result of \c this
 **/
 
@@ -462,7 +462,6 @@ Value parallel_reduce( const Range& range, const Value& identity, const RealBody
 }
 #endif /* __TBB_TASK_GROUP_CONTEXT */
 
-#if TBB_PREVIEW_DETERMINISTIC_REDUCE
 //! Parallel iteration with deterministic reduction and default partitioner.
 /** @ingroup algorithms **/
 template<typename Range, typename Body>
@@ -504,7 +503,6 @@ Value parallel_deterministic_reduce( const Range& range, const Value& identity, 
     return body.result();
 }
 #endif /* __TBB_TASK_GROUP_CONTEXT */
-#endif /* TBB_PREVIEW_DETERMINISTIC_REDUCE */
 //@}
 
 } // namespace tbb

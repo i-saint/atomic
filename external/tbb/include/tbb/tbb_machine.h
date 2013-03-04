@@ -1,5 +1,5 @@
 /*
-    Copyright 2005-2012 Intel Corporation.  All Rights Reserved.
+    Copyright 2005-2013 Intel Corporation.  All Rights Reserved.
 
     This file is part of Threading Building Blocks.
 
@@ -48,7 +48,7 @@
 
     In this case tbb_machine.h will add missing functionality based on a minimal set 
     of APIs that are required to be implemented by all plug-n headers as described
-    futher.
+    further.
     Note that these generic implementations may be sub-optimal for a particular
     architecture, and thus should be relied upon only after careful evaluation
     or as the last resort.
@@ -58,11 +58,26 @@
     be set to 1 explicitly, though normally this is not necessary as tbb_machine.h
     will set it automatically.
 
+    __TBB_BIG_ENDIAN macro can be defined by the implementation as well.
+    It is used only if the __TBB_USE_GENERIC_PART_WORD_CAS is set.
+    Possible values are:
+       -  1 if the system is big endian,
+       -  0 if it is little endian,
+       -  or -1 to explicitly state that __TBB_USE_GENERIC_PART_WORD_CAS can not be used.
+    -1 should be used when it is known in advance that endianness can change in run time
+    or it is  not simple big or little but something more complex.
+    The system will try to detect it in run time if it is not set(in assumption that it
+    is either a big or little one).
+
     Prerequisites for each architecture port
     ----------------------------------------
-    The following functions have no generic implementation. Therefore they must be 
+    The following functions and macros have no generic implementation. Therefore they must be
     implemented in each machine architecture specific header either as a conventional
     function or as a functional macro.
+
+    __TBB_WORDSIZE
+        This is the size of machine word in bytes, i.e. for 32 bit systems it
+        should be defined to 4.
 
     __TBB_Yield()
         Signals OS that the current thread is willing to relinquish the remainder
@@ -89,14 +104,16 @@
     __TBB_control_consistency_helper()
         Bridges the memory-semantics gap between architectures providing only
         implicit C++0x "consume" semantics (like Power Architecture) and those
-        also implicitly obeying control dependencies (like Itanium).
+        also implicitly obeying control dependencies (like IA-64).
         It must be used only in conditional code where the condition is itself
         data-dependent, and will then make subsequent code behave as if the
         original data dependency were acquired.
-        It needs only an empty definition where implied by the architecture
-        either specifically (Itanium) or because generally stronger C++0x "acquire"
+        It needs only a compiler fence where implied by the architecture
+        either specifically (like IA-64) or because generally stronger "acquire"
         semantics are enforced (like x86).
-    
+        It is always valid, though potentially suboptimal, to replace
+        control with acquire on the load and then remove the helper.
+
     __TBB_acquire_consistency_helper(), __TBB_release_consistency_helper()
         Must be provided if __TBB_USE_GENERIC_HALF_FENCED_LOAD_STORE is set.
         Enforce acquire and release semantics in generic implementations of fenced
@@ -156,6 +173,22 @@ template<> struct atomic_selector<8> {
 
 }} // namespaces internal, tbb
 
+#define __TBB_MACHINE_DEFINE_STORE8_GENERIC_FENCED(M)                                        \
+    inline void __TBB_machine_generic_store8##M(volatile void *ptr, int64_t value) {         \
+        for(;;) {                                                                            \
+            int64_t result = *(int64_t *)ptr;                                                \
+            if( __TBB_machine_cmpswp8##M(ptr,value,result)==result ) break;                  \
+        }                                                                                    \
+    }                                                                                        \
+
+#define __TBB_MACHINE_DEFINE_LOAD8_GENERIC_FENCED(M)                                         \
+    inline int64_t __TBB_machine_generic_load8##M(const volatile void *ptr) {                \
+        /* Comparand and new value may be anything, they only must be equal, and      */     \
+        /* the value should have a low probability to be actually found in 'location'.*/     \
+        const int64_t anyvalue = 2305843009213693951LL;                                      \
+        return __TBB_machine_cmpswp8##M(const_cast<volatile void *>(ptr),anyvalue,anyvalue); \
+    }                                                                                        \
+
 #if _WIN32||_WIN64
 
 #ifdef _MANAGED
@@ -172,6 +205,8 @@ template<> struct atomic_selector<8> {
         #elif __MINGW32__
             #include "machine/linux_ia32.h"
         #endif
+    #elif (TBB_USE_ICC_BUILTINS && __TBB_ICC_BUILTIN_ATOMICS_PRESENT)
+        #include "machine/icc_generic.h"
     #elif defined(_M_IX86)
         #include "machine/windows_ia32.h"
     #elif defined(_M_X64) 
@@ -184,10 +219,18 @@ template<> struct atomic_selector<8> {
 #pragma managed(pop)
 #endif
 
+#elif __TBB_DEFINE_MIC
+
+    #include "machine/mic_common.h"
+    //TODO: check if ICC atomic intrinsics are available for MIC
+    #include "machine/linux_intel64.h"
+
 #elif __linux__ || __FreeBSD__ || __NetBSD__
 
     #if (TBB_USE_GCC_BUILTINS && __TBB_GCC_BUILTIN_ATOMICS_PRESENT)
         #include "machine/gcc_generic.h"
+    #elif (TBB_USE_ICC_BUILTINS && __TBB_ICC_BUILTIN_ATOMICS_PRESENT)
+        #include "machine/icc_generic.h"
     #elif __i386__
         #include "machine/linux_ia32.h"
     #elif __x86_64__
@@ -202,8 +245,10 @@ template<> struct atomic_selector<8> {
     #include "machine/linux_common.h"
 
 #elif __APPLE__
-
-    #if __i386__
+    //TODO:  TBB_USE_GCC_BUILTINS is not used for Mac, Sun, Aix
+    #if (TBB_USE_ICC_BUILTINS && __TBB_ICC_BUILTIN_ATOMICS_PRESENT)
+        #include "machine/icc_generic.h"
+    #elif __i386__
         #include "machine/linux_ia32.h"
     #elif __x86_64__
         #include "machine/linux_intel64.h"
@@ -238,6 +283,8 @@ template<> struct atomic_selector<8> {
     #define __TBB_64BIT_ATOMICS 1
 #endif
 
+//TODO: replace usage of these functions with usage of tbb::atomic, and then remove them
+//TODO: map functions with W suffix to use cast to tbb::atomic and according op, i.e. as_atomic().op()
 // Special atomic functions
 #if __TBB_USE_FENCED_ATOMICS
     #define __TBB_machine_cmpswp1   __TBB_machine_cmpswp1full_fence
@@ -252,7 +299,11 @@ template<> struct atomic_selector<8> {
         #define __TBB_FetchAndIncrementWacquire(P)  __TBB_machine_fetchadd8acquire(P,1)
         #define __TBB_FetchAndDecrementWrelease(P)  __TBB_machine_fetchadd8release(P,(-1))
     #else
-        #error Define macros for 4-byte word, similarly to the above __TBB_WORDSIZE==8 branch.
+        #define __TBB_machine_fetchadd4             __TBB_machine_fetchadd4full_fence
+        #define __TBB_machine_fetchstore4           __TBB_machine_fetchstore4full_fence
+        #define __TBB_FetchAndAddWrelease(P,V)      __TBB_machine_fetchadd4release(P,V)
+        #define __TBB_FetchAndIncrementWacquire(P)  __TBB_machine_fetchadd4acquire(P,1)
+        #define __TBB_FetchAndDecrementWrelease(P)  __TBB_machine_fetchadd4release(P,(-1))
     #endif /* __TBB_WORDSIZE==4 */
 #else /* !__TBB_USE_FENCED_ATOMICS */
     #define __TBB_FetchAndAddWrelease(P,V)      __TBB_FetchAndAddW(P,V)
@@ -345,43 +396,66 @@ void spin_wait_until_eq( const volatile T& location, const U value ) {
     while( location!=value ) backoff.pause();
 }
 
-// T should be unsigned, otherwise sign propagation will break correctness of bit manipulations.
-// S should be either 1 or 2, for the mask calculation to work correctly.
-// Together, these rules limit applicability of Masked CAS to unsigned char and unsigned short.
-template<size_t S, typename T>
-inline T __TBB_MaskedCompareAndSwap (volatile T *ptr, T value, T comparand ) {
-    volatile uint32_t * base = (uint32_t*)( (uintptr_t)ptr & ~(uintptr_t)0x3 );
-#if __TBB_BIG_ENDIAN
-    const uint8_t bitoffset = uint8_t( 8*( 4-S - (uintptr_t(ptr) & 0x3) ) );
-#else
-    const uint8_t bitoffset = uint8_t( 8*((uintptr_t)ptr & 0x3) );
-#endif
-    const uint32_t mask = ( (1<<(S*8)) - 1 )<<bitoffset;
-    atomic_backoff b;
-    uint32_t result;
-    for(;;) {
-        result = *base; // reload the base value which might change during the pause
-        uint32_t old_value = ( result & ~mask ) | ( comparand << bitoffset );
-        uint32_t new_value = ( result & ~mask ) | ( value << bitoffset );
-        // __TBB_CompareAndSwap4 presumed to have full fence.
-        // Cast shuts up /Wp64 warning
-        result = (uint32_t)__TBB_machine_cmpswp4( base, new_value, old_value );
-        if(  result==old_value               // CAS succeeded
-          || ((result^old_value)&mask)!=0 )  // CAS failed and the bits of interest have changed
-            break;
-        else                                 // CAS failed but the bits of interest left unchanged
-            b.pause();
-    }
-    return T((result & mask) >> bitoffset);
-}
+//TODO: add static_assert for the requirements stated below
+//TODO: check if it works with signed types
 
+// there are following restrictions/limitations for this operation:
+//  - T should be unsigned, otherwise sign propagation will break correctness of bit manipulations.
+//  - T should be integer type of at most 4 bytes, for the casts and calculations to work.
+//      (Together, these rules limit applicability of Masked CAS to uint8_t and uint16_t only,
+//      as it does nothing useful for 4 bytes).
+//  - The operation assumes that the architecture consistently uses either little-endian or big-endian:
+//      it does not support mixed-endian or page-specific bi-endian architectures.
+// This function is the only use of __TBB_BIG_ENDIAN.
+#if (__TBB_BIG_ENDIAN!=-1)
+    #if ( __TBB_USE_GENERIC_PART_WORD_CAS)
+        #error generic implementation of part-word CAS was explicitly disabled for this configuration
+    #endif
+template<typename T>
+inline T __TBB_MaskedCompareAndSwap (volatile T * const ptr, const T value, const T comparand ) {
+    struct endianness{ static bool is_big_endian(){
+        #ifndef __TBB_BIG_ENDIAN
+            const uint32_t probe = 0x03020100;
+            return (((const char*)(&probe))[0]==0x03);
+        #elif (__TBB_BIG_ENDIAN==0) || (__TBB_BIG_ENDIAN==1)
+            return __TBB_BIG_ENDIAN;
+        #else
+            #error unexpected value of __TBB_BIG_ENDIAN
+        #endif
+    }};
+
+    const uint32_t byte_offset            = (uint32_t) ((uintptr_t)ptr & 0x3);
+    volatile uint32_t * const aligned_ptr = (uint32_t*)((uintptr_t)ptr - byte_offset );
+
+    // location of T within uint32_t for a C++ shift operation
+    const uint32_t bits_to_shift     = 8*(endianness::is_big_endian() ? (4 - sizeof(T) - (byte_offset)) : byte_offset);
+    const uint32_t mask              = (((uint32_t)1<<(sizeof(T)*8)) - 1 )<<bits_to_shift;
+    const uint32_t shifted_comparand = ((uint32_t)comparand << bits_to_shift)&mask;
+    const uint32_t shifted_value     = ((uint32_t)value     << bits_to_shift)&mask;
+
+    for(atomic_backoff b;;b.pause()) {
+        const uint32_t surroundings  = *aligned_ptr & ~mask ; // reload the aligned_ptr value which might change during the pause
+        const uint32_t big_comparand = surroundings | shifted_comparand ;
+        const uint32_t big_value     = surroundings | shifted_value     ;
+        // __TBB_machine_cmpswp4 presumed to have full fence.
+        // Cast shuts up /Wp64 warning
+        const uint32_t big_result = (uint32_t)__TBB_machine_cmpswp4( aligned_ptr, big_value, big_comparand );
+        if( big_result == big_comparand                    // CAS succeeded
+          || ((big_result ^ big_comparand) & mask) != 0)   // CAS failed and the bits of interest have changed
+        {
+            return T((big_result & mask) >> bits_to_shift);
+        }
+        else continue;                                     // CAS failed but the bits of interest left unchanged
+    }
+}
+#endif
 template<size_t S, typename T>
 inline T __TBB_CompareAndSwapGeneric (volatile void *ptr, T value, T comparand );
 
 template<>
 inline uint8_t __TBB_CompareAndSwapGeneric <1,uint8_t> (volatile void *ptr, uint8_t value, uint8_t comparand ) {
 #if __TBB_USE_GENERIC_PART_WORD_CAS
-    return __TBB_MaskedCompareAndSwap<1,uint8_t>((volatile uint8_t *)ptr,value,comparand);
+    return __TBB_MaskedCompareAndSwap<uint8_t>((volatile uint8_t *)ptr,value,comparand);
 #else
     return __TBB_machine_cmpswp1(ptr,value,comparand);
 #endif
@@ -390,7 +464,7 @@ inline uint8_t __TBB_CompareAndSwapGeneric <1,uint8_t> (volatile void *ptr, uint
 template<>
 inline uint16_t __TBB_CompareAndSwapGeneric <2,uint16_t> (volatile void *ptr, uint16_t value, uint16_t comparand ) {
 #if __TBB_USE_GENERIC_PART_WORD_CAS
-    return __TBB_MaskedCompareAndSwap<2,uint16_t>((volatile uint16_t *)ptr,value,comparand);
+    return __TBB_MaskedCompareAndSwap<uint16_t>((volatile uint16_t *)ptr,value,comparand);
 #else
     return __TBB_machine_cmpswp2(ptr,value,comparand);
 #endif
@@ -447,7 +521,7 @@ inline T __TBB_FetchAndStoreGeneric (volatile void *ptr, T value) {
 #define __TBB_machine_fetchadd2 tbb::internal::__TBB_FetchAndAddGeneric<2,uint16_t>
 #endif
 
-#if __TBB_USE_GENERIC_FETCH_ADD 
+#if __TBB_USE_GENERIC_FETCH_ADD
 #define __TBB_machine_fetchadd4 tbb::internal::__TBB_FetchAndAddGeneric<4,uint32_t>
 #endif
 
@@ -460,7 +534,7 @@ inline T __TBB_FetchAndStoreGeneric (volatile void *ptr, T value) {
 #define __TBB_machine_fetchstore2 tbb::internal::__TBB_FetchAndStoreGeneric<2,uint16_t>
 #endif
 
-#if __TBB_USE_GENERIC_FETCH_STORE 
+#if __TBB_USE_GENERIC_FETCH_STORE
 #define __TBB_machine_fetchstore4 tbb::internal::__TBB_FetchAndStoreGeneric<4,uint32_t>
 #endif
 
@@ -483,19 +557,21 @@ __TBB_MACHINE_DEFINE_ATOMIC_SELECTOR_FETCH_STORE(8)
 #endif /* __TBB_USE_FETCHSTORE_AS_FULL_FENCED_STORE */
 
 #if __TBB_USE_GENERIC_DWORD_LOAD_STORE
-inline void __TBB_machine_store8 (volatile void *ptr, int64_t value) {
-    for(;;) {
-        int64_t result = *(int64_t *)ptr;
-        if( __TBB_machine_cmpswp8(ptr,value,result)==result ) break;
-    }
-}
+/*TODO: find a more elegant way to handle function names difference*/
+#if ! __TBB_USE_FENCED_ATOMICS
+    /* This name forwarding is needed for generic implementation of
+     * load8/store8 defined below (via macro) to pick the right CAS function*/
+    #define   __TBB_machine_cmpswp8full_fence __TBB_machine_cmpswp8
+#endif
+__TBB_MACHINE_DEFINE_LOAD8_GENERIC_FENCED(full_fence)
+__TBB_MACHINE_DEFINE_STORE8_GENERIC_FENCED(full_fence)
 
-inline int64_t __TBB_machine_load8 (const volatile void *ptr) {
-    // Comparand and new value may be anything, they only must be equal, and
-    // the value should have a low probability to be actually found in 'location'.
-    const int64_t anyvalue = 2305843009213693951;
-    return __TBB_machine_cmpswp8(const_cast<volatile void *>(ptr),anyvalue,anyvalue);
-}
+#if ! __TBB_USE_FENCED_ATOMICS
+    #undef   __TBB_machine_cmpswp8full_fence
+#endif
+
+#define __TBB_machine_store8 tbb::internal::__TBB_machine_generic_store8full_fence
+#define __TBB_machine_load8  tbb::internal::__TBB_machine_generic_load8full_fence
 #endif /* __TBB_USE_GENERIC_DWORD_LOAD_STORE */
 
 #if __TBB_USE_GENERIC_HALF_FENCED_LOAD_STORE
@@ -518,6 +594,7 @@ struct machine_load_store {
     }
 };
 
+//in general, plain load and store of 32bit compiler is not atomic for 64bit types
 #if __TBB_WORDSIZE==4 && __TBB_64BIT_ATOMICS
 template <typename T>
 struct machine_load_store<T,8> {
@@ -531,6 +608,7 @@ struct machine_load_store<T,8> {
 #endif /* __TBB_WORDSIZE==4 && __TBB_64BIT_ATOMICS */
 #endif /* __TBB_USE_GENERIC_HALF_FENCED_LOAD_STORE */
 
+#if __TBB_USE_GENERIC_SEQUENTIAL_CONSISTENCY_LOAD_STORE
 template <typename T, size_t S>
 struct machine_load_store_seq_cst {
     static T load ( const volatile T& location ) {
@@ -557,7 +635,7 @@ struct machine_load_store_seq_cst<T,8> {
     static T load ( const volatile T& location ) {
         // Comparand and new value may be anything, they only must be equal, and
         // the value should have a low probability to be actually found in 'location'.
-        const int64_t anyvalue = 2305843009213693951ll;
+        const int64_t anyvalue = 2305843009213693951LL;
         return __TBB_machine_cmpswp8( (volatile void*)const_cast<volatile T*>(&location), anyvalue, anyvalue );
     }
     static void store ( volatile T &location, T value ) {
@@ -567,11 +645,12 @@ struct machine_load_store_seq_cst<T,8> {
     }
 };
 #endif /* __TBB_WORDSIZE==4 && __TBB_64BIT_ATOMICS */
+#endif /*__TBB_USE_GENERIC_SEQUENTIAL_CONSISTENCY_LOAD_STORE */
 
 #if __TBB_USE_GENERIC_RELAXED_LOAD_STORE
 // Relaxed operations add volatile qualifier to prevent compiler from optimizing them out.
 /** Volatile should not incur any additional cost on IA32, Intel64, and Sparc TSO
-    architectures. However on architectures with weak memory ordering compiler may 
+    architectures. However on architectures with weak memory ordering compiler may
     generate code with acquire/release semantics for operations on volatile data. **/
 template <typename T, size_t S>
 struct machine_load_store_relaxed {
@@ -595,6 +674,8 @@ struct machine_load_store_relaxed<T,8> {
 };
 #endif /* __TBB_WORDSIZE==4 && __TBB_64BIT_ATOMICS */
 #endif /* __TBB_USE_GENERIC_RELAXED_LOAD_STORE */
+
+#undef __TBB_WORDSIZE //this macro is forbidden to use outside of atomic machinery
 
 template<typename T>
 inline T __TBB_load_with_acquire(const volatile T &location) {
@@ -635,7 +716,7 @@ inline void __TBB_store_relaxed ( volatile size_t& location, size_t value ) {
     machine_load_store_relaxed<size_t,sizeof(size_t)>::store( const_cast<size_t&>(location), value );
 }
 
-// Macro __TBB_TypeWithAlignmentAtLeastAsStrict(T) should be a type with alignment at least as 
+// Macro __TBB_TypeWithAlignmentAtLeastAsStrict(T) should be a type with alignment at least as
 // strict as type T.  The type should have a trivial default constructor and destructor, so that
 // arrays of that type can be declared without initializers.
 // It is correct (but perhaps a waste of space) if __TBB_TypeWithAlignmentAtLeastAsStrict(T) expands
@@ -685,7 +766,7 @@ template<> struct type_with_alignment<16> {__TBB_machine_type_with_alignment_16 
 template<> struct type_with_alignment<32> {__TBB_machine_type_with_alignment_32 member; };
 template<> struct type_with_alignment<64> {__TBB_machine_type_with_alignment_64 member; };
 
-#if __TBB_ALIGNOF_NOT_INSTANTIATED_TYPES_BROKEN  
+#if __TBB_ALIGNOF_NOT_INSTANTIATED_TYPES_BROKEN
 //! Work around for bug in GNU 3.2 and MSVC compilers.
 /** Bug is that compiler sometimes returns 0 for __alignof(T) when T has not yet been instantiated.
     The work-around forces instantiation by forcing computation of sizeof(T) before __alignof(T). */
@@ -743,9 +824,8 @@ inline intptr_t __TBB_Log2( uintptr_t x ) {
     if( x==0 ) return -1;
     intptr_t result = 0;
     uintptr_t tmp;
-#if __TBB_WORDSIZE>=8
-    if( (tmp = x>>32) ) { x=tmp; result += 32; }
-#endif
+
+    if( sizeof(x)>4 && (tmp = ((uint64_t)x)>>32)) { x=tmp; result += 32; }
     if( (tmp = x>>16) ) { x=tmp; result += 16; }
     if( (tmp = x>>8) )  { x=tmp; result += 8; }
     if( (tmp = x>>4) )  { x=tmp; result += 4; }
