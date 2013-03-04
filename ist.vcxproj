@@ -233,24 +233,24 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>external\lib;$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
-    <IntDir>$(Configuration)\$(ProjectName)\</IntDir>
-    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IncludePath>$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <IntDir>$(SolutionDir)\_tmp\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)\_out\$(Configuration)\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">
-    <IncludePath>$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>external\lib;$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
-    <IntDir>$(Configuration)\$(ProjectName)\</IntDir>
-    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IncludePath>$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <IntDir>$(SolutionDir)\_tmp\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)\_out\$(Configuration)\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>external\lib;$(CG_LIB_PATH);$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
-    <IntDir>$(Configuration)\$(ProjectName)\</IntDir>
+    <IncludePath>$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)\_out\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\_tmp\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

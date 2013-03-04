@@ -6,7 +6,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader\shader.rb" />
     <None Include="shader\Deferred_PointLight.glsl">
       <Filter>shader</Filter>
     </None>
@@ -108,5 +107,8 @@
     <ClInclude Include="shader\DistanceFunctions.h">
       <Filter>shader</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="shader\shader.rb" />
   </ItemGroup>
 </Project>
