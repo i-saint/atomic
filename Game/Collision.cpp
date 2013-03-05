@@ -307,7 +307,7 @@ void CollisionSet::asyncupdate(float32 dt)
 {
     m_grid.updateGrid(m_entities);
 
-    const uint32 block_size = 8;
+    const uint32 block_size = 32;
     uint32 num_entities = m_entities.size();
     if(num_entities==0) { return; }
 
