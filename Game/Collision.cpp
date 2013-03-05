@@ -278,7 +278,9 @@ CollisionSet::CollisionSet()
 
 CollisionSet::~CollisionSet()
 {
-    for(uint32 i=0; i<m_entities.size(); ++i)   { deleteEntity(m_entities[i]); }
+    for(uint32 i=0; i<m_acons.size(); ++i) { istDelete(m_acons[i]); }
+    m_acons.clear();
+    for(uint32 i=0; i<m_entities.size(); ++i) { deleteEntity(m_entities[i]); }
     m_entities.clear();
     m_vacant.clear();
 }
@@ -290,7 +292,7 @@ void CollisionSet::frameBegin()
 void CollisionSet::update(float32 dt)
 {
     for(uint32 ti=0; ti<m_acons.size(); ++ti) {
-        MessageCont &messages = m_acons[ti].messages;
+        MessageCont &messages = m_acons[ti]->messages;
         uint32 num_messages = messages.size();
         for(uint32 mi=0; mi<num_messages; ++mi) {
             if(IEntity *e = atomicGetEntity(messages[mi].to)) {
@@ -305,17 +307,18 @@ void CollisionSet::asyncupdate(float32 dt)
 {
     m_grid.updateGrid(m_entities);
 
-    const uint32 block_size = 64;
+    const uint32 block_size = 8;
     uint32 num_entities = m_entities.size();
     if(num_entities==0) { return; }
 
     uint32 num_tasks = (num_entities / block_size) + (num_entities%block_size==0 ? 0 : 1);
-    m_acons.resize(std::max<size_t>(num_tasks, m_acons.size()));
-    ist::parallel_for(ist::size_range(0, num_entities, block_size),
-        [&](const ist::size_range &r) {
-            uint32 first = r.begin();
-            uint32 last = r.end();
-            AsyncContext &ctx = m_acons[first / block_size];
+    while(m_acons.size() < num_tasks) { m_acons.push_back(istNew(AsyncContext)()); }
+
+    ist::parallel_for(uint32(0), num_tasks,
+        [&](uint32 i) {
+            uint32 first = i*block_size;
+            uint32 last = std::min<uint32>((i+1)*block_size, num_entities);
+            AsyncContext &ctx = *m_acons[i];
             ctx.messages.clear();
             for(uint32 i=first; i!=last; ++i) {
                 collide(m_entities[i], ctx.messages, ctx.neighbors);

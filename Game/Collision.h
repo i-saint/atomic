@@ -212,7 +212,7 @@ public:
         HandleCont  neighbors;
         MessageCont messages;
     };
-    typedef ist::vector<AsyncContext> AsyncCtxCont;
+    typedef ist::vector<AsyncContext*> AsyncCtxCont;
 
 public:
     CollisionSet();
