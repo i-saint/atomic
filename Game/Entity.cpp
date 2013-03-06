@@ -157,7 +157,7 @@ void EntitySet::deleteEntity( EntityHandle h )
     EntityCont &entities = m_entities;
     HandleCont &vacants = m_vacant;
     entities[iid]->finalize();
-    istSafeDelete(entities[iid]);
+    istSafeRelease(entities[iid]);
     vacants.push_back(EntityGetIndex(h));
 }
 

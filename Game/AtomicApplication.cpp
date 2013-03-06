@@ -247,7 +247,7 @@ void AtomicApplication::finalize()
 
     istTaskSchedulerFinalize();
     FinalizeText();
-    ist::PoolNewManager::freeAll();
+    ist::PoolManager::clear();
     FinalizeCrashReporter();
 }
 
@@ -467,7 +467,7 @@ void AtomicApplication::printDebugLog( const char *format, ... )
 
 void AtomicApplication::registerCommands()
 {
-    istCommandlineRegister("printPoolStates", &ist::PoolNewManager::printPoolStates);
+    istCommandlineRegister("printPoolStates", &ist::PoolManager::printPoolStates);
 }
 
 

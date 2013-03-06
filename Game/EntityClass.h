@@ -75,6 +75,13 @@ template<class EntityType> class AddEntityTable;
     };\
     AddEntityTable<Class> g_add_entity_creator_##Class;
 
+#define atomicImplementEntity_Pooled(Class) \
+    template<> IEntity* CreateEntity<Class>() { return Class::create(); } \
+    template<> struct AddEntityTable<Class> {\
+        AddEntityTable() { AddEntityCreator(EC_##Class, &CreateEntity<Class>); }\
+    };\
+    AddEntityTable<Class> g_add_entity_creator_##Class;
+
 
 } // namespace atomic
 #endif //atomic_Game_EntityClass_h

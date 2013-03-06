@@ -21,10 +21,10 @@ private:
         )
 
 public:
-    // コンストラクタではメンバ変数初期化以外の処理を行なってはならない。他は initialize() で行う。
-    // (ID がコンストラクタの後に決まるため、子オブジェクトの処理順などを適切に行うにはこうする必要がある)
     IEntity();
     virtual ~IEntity() {}
+    virtual void release() { istDelete(this); }
+
     uint32 getHandle() const { return m_ehandle; }
 
     // 初期化処理
