@@ -298,6 +298,8 @@ void AtomicApplication::mainLoop()
 
 void AtomicApplication::sysUpdate()
 {
+    ist::PoolManager::update();
+
     AtomicConfig &conf = m->config;
     if(getKeyboardState().isKeyTriggered(ist::KEY_F2)) {
         conf.posteffect_bloom = !conf.posteffect_bloom;

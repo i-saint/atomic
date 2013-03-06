@@ -7,6 +7,14 @@ namespace ist {
 static stl::vector<PoolBase*> s_all_pools;
 static ist::Mutex s_mutex;
 
+void PoolManager::update()
+{
+    ist::Mutex::ScopedLock lock(s_mutex);
+    for(size_t i=0; i<s_all_pools.size(); ++i) {
+        s_all_pools[i]->update();
+    }
+}
+
 void PoolManager::clear()
 {
     ist::Mutex::ScopedLock lock(s_mutex);
@@ -63,61 +71,6 @@ PoolBase::PoolBase( const char *classname, size_t blocksize, size_t align )
 PoolBase::~PoolBase()
 {
 }
-
-template<class ThreadingPolicy>
-TPoolAllocator<ThreadingPolicy>::TPoolAllocator( const char *classname, size_t blocksize, size_t align )
-    : super(classname, blocksize, align)
-{
-}
-
-template<class ThreadingPolicy>
-TPoolAllocator<ThreadingPolicy>::~TPoolAllocator()
-{
-    clear();
-}
-
-template<class ThreadingPolicy>
-void ist::TPoolAllocator<ThreadingPolicy>::reserve( size_t size )
-{
-    MutexT::ScopedLock lock(m_mutex);
-    while(m_pool.size()<size) {
-        m_pool.push_back(istAlignedMalloc(getBlockSize(), getAlign()));
-    }
-}
-
-template<class ThreadingPolicy>
-void TPoolAllocator<ThreadingPolicy>::clear()
-{
-    MutexT::ScopedLock lock(m_mutex);
-    for(size_t i=0; i<m_pool.size(); ++i) {
-        istAlignedFree(m_pool[i]);
-    }
-    m_pool.clear();
-}
-
-template<class ThreadingPolicy>
-void* TPoolAllocator<ThreadingPolicy>::allocate()
-{
-    MutexT::ScopedLock lock(m_mutex);
-    if(!m_pool.empty()) {
-        void *ret = m_pool.back();
-        m_pool.pop_back();
-        return ret;
-    }
-    else {
-        return istAlignedMalloc(getBlockSize(), getAlign());
-    }
-}
-
-template<class ThreadingPolicy>
-void TPoolAllocator<ThreadingPolicy>::recycle( void *p )
-{
-    MutexT::ScopedLock lock(m_mutex);
-    m_pool.push_back(p);
-}
-
-template TPoolAllocator<PoolSingleThreaded>;
-template TPoolAllocator<PoolMultiThreaded>;
 
 
 } // namespace ist
