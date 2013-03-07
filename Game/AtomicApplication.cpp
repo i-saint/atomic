@@ -247,8 +247,8 @@ void AtomicApplication::finalize()
 
     istTaskSchedulerFinalize();
     FinalizeText();
-    ist::PoolManager::clear();
     FinalizeCrashReporter();
+    istPoolClear();
 }
 
 void AtomicApplication::mainLoop()
@@ -298,7 +298,7 @@ void AtomicApplication::mainLoop()
 
 void AtomicApplication::sysUpdate()
 {
-    ist::PoolManager::update();
+    istPoolUpdate();
 
     AtomicConfig &conf = m->config;
     if(getKeyboardState().isKeyTriggered(ist::KEY_F2)) {

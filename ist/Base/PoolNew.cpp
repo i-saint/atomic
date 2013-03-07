@@ -3,48 +3,78 @@
 #include "PoolNew.h"
 
 namespace ist {
+namespace {
 
-static stl::vector<PoolBase*> s_all_pools;
-static ist::Mutex s_mutex;
+struct PMMembers
+{
+    stl::vector<PoolBase*> all_pools;
+    ist::Mutex mutex;
+};
+PMMembers *g_pmmem;
+
+PMMembers* PmGet()
+{
+    if(!g_pmmem) {
+        g_pmmem = istNew(PMMembers)();
+    }
+    return g_pmmem;
+}
+
+void PmRelease()
+{
+    istSafeDelete(g_pmmem);
+}
+
+} // namespace
+
 
 void PoolManager::update()
 {
-    ist::Mutex::ScopedLock lock(s_mutex);
-    for(size_t i=0; i<s_all_pools.size(); ++i) {
-        s_all_pools[i]->update();
+    PMMembers &m = *PmGet();
+    ist::Mutex::ScopedLock lock(m.mutex);
+    for(size_t i=0; i<m.all_pools.size(); ++i) {
+        m.all_pools[i]->update();
     }
 }
 
 void PoolManager::clear()
 {
-    ist::Mutex::ScopedLock lock(s_mutex);
-    for(size_t i=0; i<s_all_pools.size(); ++i) {
-        s_all_pools[i]->clear();
+    {
+        PMMembers &m = *PmGet();
+        ist::Mutex::ScopedLock lock(m.mutex);
+        for(size_t i=0; i<m.all_pools.size(); ++i) {
+            istSafeDelete(m.all_pools[i]);
+        }
     }
+    PmRelease();
 }
 
 void PoolManager::addPool( PoolBase *p )
 {
-    ist::Mutex::ScopedLock lock(s_mutex);
-    s_all_pools.push_back(p);
+    PMMembers &m = *PmGet();
+    ist::Mutex::ScopedLock lock(m.mutex);
+    m.all_pools.push_back(p);
 }
 
 size_t PoolManager::getNumPool()
 {
-    return s_all_pools.size();
+    PMMembers &m = *PmGet();
+    return m.all_pools.size();
 }
 
 PoolBase* PoolManager::getPool( size_t i )
 {
-    return s_all_pools[i];
+    PMMembers &m = *PmGet();
+    return m.all_pools[i];
 }
 
 void PoolManager::printPoolStates()
 {
-    ist::Mutex::ScopedLock lock(s_mutex);
+    PMMembers &m = *PmGet();
+    ist::Mutex::ScopedLock lock(m.mutex);
     char buf[512];
-    for(size_t i=0; i<s_all_pools.size(); ++i) {
-        const PoolBase &pool = *s_all_pools[i];
+    for(size_t i=0; i<m.all_pools.size(); ++i) {
+        const PoolBase &pool = *m.all_pools[i];
         istSPrintf(buf,
             "pool %s\n"
             "  block size: %d\n"
