@@ -53,12 +53,11 @@
     <ClCompile Include="Graphics\ResourceManager.cpp" />
     <ClCompile Include="Graphics\Shader.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="MemoryLeakBuster2.cpp">
+    <ClCompile Include="MemoryLeakBuster.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Intel_SSA|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Network\GameClient.cpp" />
     <ClCompile Include="Network\GameServer.cpp" />

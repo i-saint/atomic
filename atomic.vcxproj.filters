@@ -99,7 +99,6 @@
     <ClCompile Include="Graphics\Renderer_Postprocess.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="MemoryLeakBuster2.cpp" />
     <ClCompile Include="DynamicObjLoader\DynamicObjLoader.cpp">
       <Filter>DynamicObjLoader</Filter>
     </ClCompile>
@@ -132,6 +131,7 @@
     <ClCompile Include="Network\Protocol.cpp">
       <Filter>Network</Filter>
     </ClCompile>
+    <ClCompile Include="MemoryLeakBuster.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h">

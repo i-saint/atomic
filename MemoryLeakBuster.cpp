@@ -1,17 +1,33 @@
 ﻿// this code is public domain.
-// written by i-saint http://primitive-games.jp
-
+// latest version: https://github.com/i-saint/MemoryLeakBuster
+// written by i-saint ( http://primitive-games.jp )
+// 
 // メモリリーク検出器。
-// この .cpp をプロジェクトに含めるだけで有効になり、プログラム終了時にリーク領域の確保時のコールスタックをデバッグ出力に表示します。
+// この .cpp をプロジェクトに含めるだけで有効になり、プログラム終了時にリーク箇所の確保時のコールスタックをデバッグ出力に表示します。
 // 
-// また、デバッガで止めた際、イミディエイトウィンドウに以下のコマンドを打つことで、指定メモリ領域の確保時のコールスタックを出すことができます。
-//  mlbInspect((void*)address)
+// また、実行中にイミディエイトウィンドウから使える便利機能をいくつか提供します。
 // 
-// HeapAlloc/Free を hook することによって実装しています。
+// ・mlbInspect((void*)address)
+//  指定メモリ領域の確保時のコールスタックや近隣領域を出力します。
+//  (stack 領域、static 領域の場合それぞれ "stack memory", "static memory" と出力します)
+// 
+// ・mlbBeginScope() & mlbEndScope()
+//  mlbBeginScope() を呼んでから mlbEndScope() を呼ぶまでの間に確保され、開放されなかったメモリがあればそれを出力します。
+// 
+// ・mlbBeginCount() & mlbEndCount()
+//  mlbBeginCount() を呼んでから mlbEndCount() を呼ぶまでの間に発生したメモリ確保のコールスタックとそこで呼ばれた回数を出力します。
+//  デバッグというよりもプロファイル用機能です。
+// 
+// ・mlbOutputToFile
+//  leak 情報出力をファイル (mlbLog.txt) に切り替えます。
+//  デバッグ出力は非常に遅いので、長大なログになる場合ファイルに切り替えたほうがいいでしょう。
+// 
+// 
+// CRT の HeapAlloc/Free を hook することによって実装しています。
 // CRT を static link したモジュールの場合追加の手順が必要で、下の g_crtdllnames に対象モジュールを追加する必要があります。
 
 
-#pragma warning(disable: 4073) // init_seg(lib) は普通は使っちゃダメ的な warning。正当な理由があるので黙らせる
+#pragma warning(disable: 4073) // init_seg(lib) 使うと出る warning。正当な理由があるので黙らせる
 #pragma warning(disable: 4996) // _s じゃない CRT 関数使うとでるやつ
 #pragma init_seg(lib) // global オブジェクトの初期化の優先順位上げる
 #pragma comment(lib, "dbghelp.lib")
@@ -24,7 +40,6 @@
 #include <vector>
 #include <map>
 #include <set>
-namespace stl = std;
 #define mlbForceLink   __declspec(dllexport)
 
 namespace mlb {
@@ -36,7 +51,7 @@ const size_t MaxCallstackDepth = 64;
 // EnumProcessModules でロードされている全モジュールに仕掛けることもできるが、
 // 色々誤判定されるので絞ったほうがいいと思われる。
 // /MT や /MTd でビルドされたモジュールのリークチェックをしたい場合、このリストに対象モジュールを書けばいけるはず。
-const char *g_crtdllnames[] = {
+const char *g_target_modules[] = {
     "msvcr110.dll",
     "msvcr110d.dll",
     "msvcr100.dll",
@@ -75,8 +90,18 @@ HeapFreeT HeapFree_Orig = NULL;
 LPVOID WINAPI HeapAlloc_Hooked( HANDLE hHeap, DWORD dwFlags, SIZE_T dwBytes );
 BOOL WINAPI HeapFree_Hooked( HANDLE hHeap, DWORD dwFlags, LPVOID lpMem );
 
+template<class T> T* mlbNew()
+{
+    return new (HeapAlloc_Orig((HANDLE)_get_heap_handle(), 0, sizeof(T))) T();
+}
 
-
+template<class T> void mlbDelete(T *v)
+{
+    if(v!=NULL) {
+        v->~T();
+        HeapFree_Orig((HANDLE)_get_heap_handle(), 0, v);
+    }
+}
 
 bool InitializeDebugSymbol(HANDLE proc=::GetCurrentProcess())
 {
@@ -162,8 +187,8 @@ void AddressToSymbolName(String &out_text, void *address, HANDLE proc=::GetCurre
 template<class String>
 void CallstackToSymbolNames(String &out_text, void * const *callstack, int callstack_size, int clamp_head=0, int clamp_tail=0, const char *indent="")
 {
-    int begin = stl::max<int>(0, clamp_head);
-    int end = stl::max<int>(0, callstack_size-clamp_tail);
+    int begin = std::max<int>(0, clamp_head);
+    int end = std::max<int>(0, callstack_size-clamp_tail);
     for(int i=begin; i<end; ++i) {
         out_text += indent;
         AddressToSymbolName(out_text, callstack[i]);
@@ -250,7 +275,8 @@ public :
 };
 template<class T, typename Alloc> inline bool operator==(const OrigHeapAllocator<T>& l, const OrigHeapAllocator<T>& r) { return (l.equals(r)); }
 template<class T, typename Alloc> inline bool operator!=(const OrigHeapAllocator<T>& l, const OrigHeapAllocator<T>& r) { return (!(l == r)); }
-typedef stl::basic_string<char, std::char_traits<char>, OrigHeapAllocator<char> > TempString;
+typedef std::basic_string<char, std::char_traits<char>, OrigHeapAllocator<char> > TempString;
+typedef std::vector<TempString, OrigHeapAllocator<TempString> > StringCont;
 
 
 
@@ -299,7 +325,7 @@ bool EachImportFunction(HMODULE module, const char *dllname, const F &f)
 template<class F>
 void EachImportFunctionInEveryModule(const char *dllname, const F &f)
 {
-    stl::vector<HMODULE> modules;
+    std::vector<HMODULE> modules;
     DWORD num_modules;
     ::EnumProcessModules(::GetCurrentProcess(), NULL, 0, &num_modules);
     modules.resize(num_modules/sizeof(HMODULE));
@@ -310,10 +336,10 @@ void EachImportFunctionInEveryModule(const char *dllname, const F &f)
 }
 
 
-void HookHeapAlloc()
+void HookHeapAlloc(const StringCont &modules)
 {
-    for(size_t i=0; i<_countof(g_crtdllnames); ++i) {
-        EachImportFunction(::GetModuleHandleA(g_crtdllnames[i]), "kernel32.dll", [](const char *funcname, void *&imp_func){
+    for(size_t i=0; i<modules.size(); ++i) {
+        EachImportFunction(::GetModuleHandleA(modules[i].c_str()), "kernel32.dll", [](const char *funcname, void *&imp_func){
             if(strcmp(funcname, "HeapAlloc")==0) {
                 ForceWrite<void*>(imp_func, HeapAlloc_Hooked);
             }
@@ -324,10 +350,10 @@ void HookHeapAlloc()
     }
 }
 
-void UnhookHeapAlloc()
+void UnhookHeapAlloc(const StringCont &modules)
 {
-    for(size_t i=0; i<_countof(g_crtdllnames); ++i) {
-        EachImportFunction(::GetModuleHandleA(g_crtdllnames[i]), "kernel32.dll", [](const char *funcname, void *&imp_func){
+    for(size_t i=0; i<modules.size(); ++i) {
+        EachImportFunction(::GetModuleHandleA(modules[i].c_str()), "kernel32.dll", [](const char *funcname, void *&imp_func){
             if(strcmp(funcname, "HeapAlloc")==0) {
                 ForceWrite<void*>(imp_func, HeapAlloc_Orig);
             }
@@ -364,8 +390,8 @@ public:
         }
     };
     struct less_callstack { bool operator()(const AllocInfo &a, const AllocInfo &b) { return a.less_callstack(b); }; };
-    typedef stl::map<void*, AllocInfo, stl::less<void*>, OrigHeapAllocator<stl::pair<const void*, AllocInfo> > > AllocTable;
-    typedef stl::set<AllocInfo, less_callstack, OrigHeapAllocator<AllocInfo> > CountTable;
+    typedef std::map<void*, AllocInfo, std::less<void*>, OrigHeapAllocator<std::pair<const void*, AllocInfo> > > AllocTable;
+    typedef std::set<AllocInfo, less_callstack, OrigHeapAllocator<AllocInfo> > CountTable;
 
     MemoryLeakBuster()
         : m_logfile(NULL)
@@ -375,15 +401,17 @@ public:
         , m_idgen(0)
         , m_scope(INT_MAX)
     {
-        InitializeDebugSymbol();
-
         HeapAlloc_Orig = &HeapAlloc;
         HeapFree_Orig = &HeapFree;
 
+        if(!loadConfig()) { return; }
+
+        InitializeDebugSymbol();
+
         // CRT モジュールの中の import table の HeapAlloc/Free を塗り替えて hook を仕込む
-        HookHeapAlloc();
-        m_mutex = new (HeapAlloc_Orig((HANDLE)_get_heap_handle(), 0, sizeof(Mutex))) Mutex();
-        m_leakinfo = new (HeapAlloc_Orig((HANDLE)_get_heap_handle(), 0, sizeof(AllocTable))) AllocTable();
+        HookHeapAlloc(*m_modules);
+        m_mutex = mlbNew<Mutex>();
+        m_leakinfo = mlbNew<AllocTable>();
     }
 
     ~MemoryLeakBuster()
@@ -396,11 +424,11 @@ public:
         // hook を解除
         // 解除しないとアンロード時にメモリ解放する系の dll などが g_memory_leak_buster 破棄後に
         // eraseAllocationInfo() を呼ぶため、問題が起きる
-        UnhookHeapAlloc();
+        UnhookHeapAlloc(*m_modules);
 
-        m_leakinfo->~AllocTable();
-        HeapFree_Orig((HANDLE)_get_heap_handle(), 0, m_leakinfo);
-        m_leakinfo = NULL;
+        mlbDelete(m_leakinfo); m_leakinfo=NULL;
+        mlbDelete(m_ignores);  m_ignores=NULL;
+        mlbDelete(m_modules);  m_modules=NULL;
 
         // m_mutex は開放しません
         // 別スレッドから HeapFree_Hooked() が呼ばれて mutex を待ってる間に
@@ -408,6 +436,45 @@ public:
 
         enbaleFileOutput(false);
         FinalizeDebugSymbol();
+    }
+
+    bool loadConfig()
+    {
+        m_modules = mlbNew<StringCont>();
+        m_ignores = mlbNew<StringCont>();
+        for(size_t i=0; i<_countof(g_target_modules); ++i) {
+            m_modules->push_back(g_target_modules[i]);
+        }
+        for(size_t i=0; i<_countof(g_ignore_list); ++i) {
+            m_ignores->push_back(g_ignore_list[i]);
+        }
+
+        bool ret = true;
+        char buf[256];
+        if(FILE *f=fopen("mlbConfig.txt", "r")) {
+            int i;
+            char s[128];
+            while(fgets(buf, _countof(buf), f)) {
+                if(sscanf_s(buf, "disable: %d", &i)==1) {
+                    if(i==1) { ret=false; break; }
+                }
+                else if(sscanf_s(buf, "fileoutput: %d", &i)==1) {
+                    enbaleFileOutput(i!=0);
+                }
+                else if(sscanf_s(buf, "ignore: \"%[^\"]\"", &s)==1) {
+                    m_ignores->push_back(s);
+                }
+                else if(sscanf_s(buf, "module: \"%[^\"]\"", &s)==1) {
+                    m_modules->push_back(s);
+                }
+            }
+            fclose(f);
+        }
+        if(!ret) {
+            mlbDelete(m_ignores); m_ignores=NULL;
+            mlbDelete(m_modules); m_modules=NULL;
+        }
+        return ret;
     }
 
     void enbaleFileOutput(bool v)
@@ -575,8 +642,8 @@ public:
 
     bool shouldBeIgnored(const TempString &callstack) const
     {
-        for(size_t ii=0; ii<_countof(g_ignore_list); ++ii) {
-            if(callstack.find(g_ignore_list[ii])!=stl::string::npos) {
+        for(size_t i=0; i<m_ignores->size(); ++i) {
+            if(callstack.find((*m_ignores)[i].c_str())!=std::string::npos) {
                 return true;
             }
         }
@@ -599,25 +666,27 @@ private:
     Mutex *m_mutex;
     AllocTable *m_leakinfo;
     CountTable *m_counter;
+    StringCont *m_modules;
+    StringCont *m_ignores;
     int m_idgen;
     int m_scope;
 };
 
 // global 変数にすることで main 開始前に初期化、main 抜けた後に終了処理をさせる。
-mlbForceLink MemoryLeakBuster g_memory_leak_buster;
+MemoryLeakBuster g_mlb;
 
 
 LPVOID WINAPI HeapAlloc_Hooked( HANDLE hHeap, DWORD dwFlags, SIZE_T dwBytes )
 {
     LPVOID p = HeapAlloc_Orig(hHeap, dwFlags, dwBytes);
-    g_memory_leak_buster.addAllocInfo(p, dwBytes);
+    g_mlb.addAllocInfo(p, dwBytes);
     return p;
 }
 
 BOOL WINAPI HeapFree_Hooked( HANDLE hHeap, DWORD dwFlags, LPVOID lpMem )
 {
     BOOL r = HeapFree_Orig(hHeap, dwFlags, lpMem);
-    g_memory_leak_buster.eraseAllocInfo(lpMem);
+    g_mlb.eraseAllocInfo(lpMem);
     return r;
 }
 
@@ -626,18 +695,10 @@ BOOL WINAPI HeapFree_Hooked( HANDLE hHeap, DWORD dwFlags, LPVOID lpMem )
 using namespace mlb;
 
 
-// イメディエイトウィンドウから実行可能な関数群
-
-// 指定メモリ領域の確保時のコールスタックを出します。
-mlbForceLink void mlbInspect(void *p)       { g_memory_leak_buster.inspect(p); }
-
-// mlbBeginScope(),mlbEndScope() の間に確保されたまま開放されなかったメモリがあればそれを出力します。
-mlbForceLink void mlbBeginScope()           { g_memory_leak_buster.beginScope(); }
-mlbForceLink void mlbEndScope()             { g_memory_leak_buster.endScope(); }
-
-// mlbBeginCount(),mlbEndCount() の間に起きたメモリ確保のコールスタックとそこで呼ばれた回数を出力します。
-mlbForceLink void mlbBeginCount()           { g_memory_leak_buster.beginCount(); }
-mlbForceLink void mlbEndCount()             { g_memory_leak_buster.endCount(); }
-
-// leak 情報出力をファイル (mlbLog.txt) に切り替えます。デバッグ出力は非常に遅いので長大なログはファイルに切り替えたほうがいいでしょう。
-mlbForceLink void mlbOutputToFile(bool v)   { g_memory_leak_buster.enbaleFileOutput(v); }
+// イミディエイトウィンドウから実行可能な関数群
+mlbForceLink void mlbInspect(void *p)       { g_mlb.inspect(p); }
+mlbForceLink void mlbBeginScope()           { g_mlb.beginScope(); }
+mlbForceLink void mlbEndScope()             { g_mlb.endScope(); }
+mlbForceLink void mlbBeginCount()           { g_mlb.beginCount(); }
+mlbForceLink void mlbEndCount()             { g_mlb.endCount(); }
+mlbForceLink void mlbOutputToFile(bool v)   { g_mlb.enbaleFileOutput(v); }
