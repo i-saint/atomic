@@ -23,7 +23,24 @@
 //  デバッグ出力は非常に遅いので、長大なログになる場合ファイルに切り替えたほうがいいでしょう。
 // 
 // 
-// CRT の HeapAlloc/Free を hook することによって実装しています。
+// 設定ファイル (mlbConfig.txt) を書くことで外部から挙動を変えることができます。
+// 設定ファイルは以下の書式を受け付けます。
+// 
+// ・disable: 0/1
+//  リークチェックを無効化します。
+// 
+// ・fileoutput: 0/1
+//  出力先をファイル (mlbLog.txt) にします。
+// 
+// ・module: "hoge.dll"
+//  指定モジュールをリークチェックの対象にします。
+// 
+// ・ignore: "!functionname"
+//  指定パターンを含むコールスタックのリークを表示しないようにします。
+// 
+// 
+// 
+// リークチェックの仕組みは CRT の HeapAlloc/Free を hook することによって実現しています。
 // CRT を static link したモジュールの場合追加の手順が必要で、下の g_crtdllnames に対象モジュールを追加する必要があります。
 
 
@@ -455,18 +472,10 @@ public:
             int i;
             char s[128];
             while(fgets(buf, _countof(buf), f)) {
-                if(sscanf_s(buf, "disable: %d", &i)==1) {
-                    if(i==1) { ret=false; break; }
-                }
-                else if(sscanf_s(buf, "fileoutput: %d", &i)==1) {
-                    enbaleFileOutput(i!=0);
-                }
-                else if(sscanf_s(buf, "ignore: \"%[^\"]\"", &s)==1) {
-                    m_ignores->push_back(s);
-                }
-                else if(sscanf_s(buf, "module: \"%[^\"]\"", &s)==1) {
-                    m_modules->push_back(s);
-                }
+                if     (sscanf_s(buf, "disable: %d", &i)==1)        { if(i==1) { ret=false; break; } }
+                else if(sscanf_s(buf, "fileoutput: %d", &i)==1)     { enbaleFileOutput(i!=0); }
+                else if(sscanf_s(buf, "ignore: \"%[^\"]\"", s)==1)  { m_ignores->push_back(s); }
+                else if(sscanf_s(buf, "module: \"%[^\"]\"", s)==1)  { m_modules->push_back(s); }
             }
             fclose(f);
         }
@@ -608,7 +617,7 @@ public:
     {
         Mutex::ScopedLock l(*m_mutex);
         if(m_counter!=NULL) { return; }
-        m_counter = new (HeapAlloc_Orig((HANDLE)_get_heap_handle(), 0, sizeof(CountTable))) CountTable();
+        m_counter = mlbNew<CountTable>();
     }
 
     void endCount()
@@ -634,9 +643,7 @@ public:
         sprintf_s(buf, "total %d times\n", total);
         output(buf);
 
-        m_counter->~CountTable();
-        HeapFree_Orig((HANDLE)_get_heap_handle(), 0, m_counter);
-        m_counter = NULL;
+        mlbDelete(m_counter); m_counter=NULL;
     }
 
 
