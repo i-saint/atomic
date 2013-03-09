@@ -41,8 +41,8 @@ private:
     ist::Condition m_cond_request;
     ist::Condition m_cond_initialize_complete;
     ist::Condition m_cond_callback_complete;
-    stl::vector<RenderingRequest> m_requests;
-    stl::vector<RenderingRequest> m_requests_temp;
+    ist::vector<RenderingRequest> m_requests;
+    ist::vector<RenderingRequest> m_requests_temp;
 
     ist::Timer m_fps_timer;
     uint32 m_fps_count;

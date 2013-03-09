@@ -19,7 +19,7 @@ public:
         mat4 mat;
         uint32 index;
     };
-    typedef stl::vector<AddFluidContext> AddFluidCtxCont;
+    typedef ist::vector<AddFluidContext> AddFluidCtxCont;
 
 public:
     SPHManager();

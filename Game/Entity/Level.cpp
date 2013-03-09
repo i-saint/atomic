@@ -30,9 +30,9 @@ private:
     CollisionHandle m_planes[4];
 
     EntityHandle m_player;
-    stl::vector<EntityHandle> m_small_enemies;
-    stl::vector<EntityHandle> m_medium_enemies;
-    stl::vector<EntityHandle> m_large_enemies;
+    ist::vector<EntityHandle> m_small_enemies;
+    ist::vector<EntityHandle> m_medium_enemies;
+    ist::vector<EntityHandle> m_large_enemies;
 
     int32 m_level;
     int32 m_loop;
@@ -242,7 +242,7 @@ public:
     }
 
 
-    bool isAllDead(stl::vector<EntityHandle> &ev)
+    bool isAllDead(ist::vector<EntityHandle> &ev)
     {
         for(uint32 i=0; i<ev.size(); ++i) {
             if(atomicGetEntity(ev[i])) { return false; }

@@ -161,7 +161,7 @@ void PassGBuffer_Fluid::draw()
     //}
 }
 
-void PassGBuffer_Fluid::addPSetInstance( PSET_RID psid, const PSetInstance inst )
+void PassGBuffer_Fluid::addPSetInstance( PSET_RID psid, const PSetInstance &inst )
 {
     {
         const ParticleSet *rc = atomicGetParticleSet(psid);

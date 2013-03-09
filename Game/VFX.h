@@ -28,7 +28,7 @@ struct VFXScintillaParticleData
     CollisionHandle collision;
     VFXScintillaParticleData() : frame(0.0f), size(0.01f), collision(0) {}
 };
-typedef stl::vector<VFXScintillaParticleData> VFXScintillaDataCont;
+typedef ist::vector<VFXScintillaParticleData> VFXScintillaDataCont;
 
 
 class IVFXComponent
@@ -67,7 +67,7 @@ class VFXSet : public IAtomicGameModule
 {
 private:
     VFXScintilla *m_scintilla;
-    stl::vector<IVFXComponent*> m_components;
+    ist::vector<IVFXComponent*> m_components;
 
 public:
     VFXSet();

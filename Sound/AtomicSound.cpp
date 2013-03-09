@@ -67,8 +67,8 @@ private:
 
     ist::Condition              m_cond_request;
     ist::Mutex                  m_mutex_request;
-    stl::vector<SoundRequest>   m_requests;
-    stl::vector<SoundRequest>   m_requests_temp;
+    ist::vector<SoundRequest>   m_requests;
+    ist::vector<SoundRequest>   m_requests_temp;
 
     isd::Listener         *m_listener;
     isd::StreamSource     *m_bgm_source;

@@ -55,7 +55,7 @@ private:
 #ifdef atomic_enable_gbuffer_viewer
     PassHUD_DebugShowBuffer                 *m_debug_show_gbuffer;
 #endif // atomic_enable_gbuffer_viewer
-    stl::vector<IRenderer*>                 m_renderers[PASS_END];
+    ist::vector<IRenderer*>                 m_renderers[PASS_END];
 
     SystemTextRenderer                      *m_stext;
 
@@ -125,7 +125,7 @@ private:
         wchar_t text[128];
         vec2 pos;
     };
-    stl::vector<Text> m_texts;
+    ist::vector<Text> m_texts;
 
 public:
     SystemTextRenderer();

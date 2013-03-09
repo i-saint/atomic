@@ -29,7 +29,7 @@ public:
     };
 
 private:
-    stl::vector<LaserParticle> m_particles;
+    ist::vector<LaserParticle> m_particles;
     vec4 m_dir;
     float32 m_speed;
     EntityHandle m_owner;

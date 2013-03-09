@@ -5,7 +5,7 @@
 
 namespace atomic {
 
-struct BloodstainParticle
+struct istAlign(16) BloodstainParticle
 {
     vec4 position;
     union {
@@ -19,7 +19,7 @@ atomicGlobalNamespace(
     istSerializeRaw(atomic::BloodstainParticle);
 )
 
-struct BloodstainParticle_IsDead
+struct istAlign(16) BloodstainParticle_IsDead
 {
     bool operator()(const BloodstainParticle &bsp) const
     {
@@ -27,7 +27,7 @@ struct BloodstainParticle_IsDead
     }
 };
 
-struct IndivisualParticle
+struct istAlign(16) IndivisualParticle
 {
     vec4 position;
     vec4 color;
@@ -35,17 +35,17 @@ struct IndivisualParticle
     float32 scale;
     float32 padding[3];
 };
-BOOST_STATIC_ASSERT(sizeof(IndivisualParticle)%16==0);
+istStaticAssert(sizeof(IndivisualParticle)%16==0);
 
-struct PSetParticle
+struct istAlign(16) PSetParticle
 {
     vec4 normal;
     vec3 position;
     int instanceid;
 };
-BOOST_STATIC_ASSERT(sizeof(PSetParticle)%16==0);
+istStaticAssert(sizeof(PSetParticle)%16==0);
 
-struct PSetInstance
+struct istAlign(16) PSetInstance
 {
     vec4 diffuse;
     vec4 glow;
@@ -55,9 +55,9 @@ struct PSetInstance
     float32 padding[2];
     mat4 translate;
 };
-BOOST_STATIC_ASSERT(sizeof(PSetInstance)%16==0);
+istStaticAssert(sizeof(PSetInstance)%16==0);
 
-struct PSetUpdateInfo
+struct istAlign(16) PSetUpdateInfo
 {
     union {
         struct {
@@ -69,14 +69,14 @@ struct PSetUpdateInfo
 };
 
 
-class ParticleSet
+class istAlign(16) ParticleSet
 {
 private:
-    stl::vector<PSetParticle> m_particles;
     AABB m_aabb;
+    ist::vector<PSetParticle> m_particles;
 
 public:
-    void setData(const stl::vector<PSetParticle> &v)
+    void setData(const ist::vector<PSetParticle> &v)
     {
         m_particles = v;
         simdvec4 bb_min = simdvec4( 9999.0f,  9999.0f,  9999.0f, 1.0f);
@@ -93,7 +93,7 @@ public:
     const AABB& getAABB() const { return m_aabb; }
 };
 
-struct RigidInfo
+struct istAlign(16) RigidInfo
 {
     union {
         struct {

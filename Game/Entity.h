@@ -61,8 +61,8 @@ class EntitySet : public IAtomicGameModule
 {
 friend class IEntity;
 public:
-    typedef stl::vector<EntityHandle> HandleCont;
-    typedef stl::vector<IEntity*> EntityCont;
+    typedef ist::vector<EntityHandle> HandleCont;
+    typedef ist::vector<IEntity*> EntityCont;
 
 public:
     EntitySet();

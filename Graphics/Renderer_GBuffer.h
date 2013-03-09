@@ -18,7 +18,7 @@ private:
     VertexArray     *m_va_cube;
     Buffer          *m_vbo;
     AtomicShader    *m_sh;
-    stl::vector<IndivisualParticle> m_particles;
+    ist::vector<IndivisualParticle> m_particles;
 };
 
 class PassGBuffer_Fluid : public IRenderer
@@ -29,7 +29,7 @@ public:
     void beforeDraw();
     void draw();
 
-    void addPSetInstance(PSET_RID psid, const PSetInstance inst);
+    void addPSetInstance(PSET_RID psid, const PSetInstance &inst);
 
 private:
     VertexArray     *m_va_cube;
@@ -38,9 +38,9 @@ private:
     AtomicShader    *m_sh_fluid;
     AtomicShader    *m_sh_rigid;
 
-    stl::vector<PSetUpdateInfo> m_rupdateinfo;
-    stl::vector<PSetParticle>   m_rparticles;
-    stl::vector<PSetInstance>   m_rinstances;
+    ist::vector<PSetUpdateInfo> m_rupdateinfo;
+    ist::vector<PSetParticle>   m_rparticles;
+    ist::vector<PSetInstance>   m_rinstances;
 };
 
 

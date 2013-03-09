@@ -295,7 +295,7 @@ void CreateFieldGridLines( VertexArray *va, Buffer *&vbo )
         vec4 pos;
         vec4 color;
     };
-    stl::vector<vertex_t> vertices;
+    ist::vector<vertex_t> vertices;
 
     vec3 div    = vec3(PSYM_GRID_DIV, PSYM_GRID_DIV, PSYM_GRID_DIV);
     vec3 bl     = vec3(-PSYM_GRID_SIZE*0.5f, -PSYM_GRID_SIZE*0.5f, 0.0f);
@@ -368,7 +368,7 @@ void CreateDistanceFieldQuads( VertexArray *va, Buffer *&quad_model, Buffer *&qu
         {
             vec4 pos;
         };
-        stl::vector<vertex_t> vertices;
+        ist::vector<vertex_t> vertices;
         vertices.reserve(PSYM_GRID_DIV*PSYM_GRID_DIV);
         for(uint32 yi=0; yi<div.y; ++yi) {
             for(uint32 xi=0; xi<div.x; ++xi) {
@@ -400,7 +400,7 @@ bool CreateCubeParticleSet( ParticleSet &pset, RigidInfo &ri, float32 half_len )
     vec4 pos = vec4(-half_len, -half_len, -half_len, 0.0f);
     float32 volume = len*len*len;
     uint32 num = static_cast<uint32>(volume * g_particle_par_volume);
-    stl::vector<PSetParticle> particles;
+    ist::vector<PSetParticle> particles;
     particles.resize(num);
 
     const vec4 planes[6] = {
@@ -441,7 +441,7 @@ bool CreateSphereParticleSet( ParticleSet &pset, RigidInfo &ri, float32 radius )
     vec4 half = vec4(0.5f, 0.5f, 0.5f, 0.0f);
     float32 volume = (4.0f/3.0f) * ist::PI * (radius*radius*radius);
     uint32 num = static_cast<uint32>(volume * g_particle_par_volume);
-    stl::vector<PSetParticle> particles;
+    ist::vector<PSetParticle> particles;
     particles.resize(num);
 
     for(uint32 i=0; i<num; ++i) {
@@ -478,7 +478,7 @@ bool CreateBulletParticleSet( ParticleSet &pset, RigidInfo &ri )
         vec4(glm::normalize(vec3(pos[4])), 0.9f),
     };
 
-    stl::vector<PSetParticle> particles;
+    ist::vector<PSetParticle> particles;
     particles.resize(_countof(pos));
     for(uint32 i=0; i<_countof(pos); ++i) {
         particles[i].normal = normal[i];

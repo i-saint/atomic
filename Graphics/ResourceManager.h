@@ -61,7 +61,8 @@ private:
     GraphicResourceManager();
     ~GraphicResourceManager();
 
-    bool m_flag_exit;
+    ParticleSet         m_pset[PSET_END];
+    RigidInfo           m_rinfo[PSET_END];
     IFontRenderer       *m_font;
     Sampler             *m_sampler[SAMPLER_END];
     Texture1D           *m_tex1d[TEX1D_END];
@@ -72,10 +73,9 @@ private:
     Buffer              *m_ubo[UBO_END];
     RenderTarget        *m_rt[RT_END];
     AtomicShader        *m_shader[SH_END];
-    ParticleSet         m_pset[PSET_END];
-    RigidInfo           m_rinfo[PSET_END];
     BlendState          *m_blend_states[BS_END];
     DepthStencilState   *m_depth_states[DS_END];
+    bool m_flag_exit;
 
 #ifdef atomic_enable_shader_live_edit
     void watchGLSLFiles();
