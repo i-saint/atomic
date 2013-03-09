@@ -13,10 +13,10 @@
 #define istDefinePoolNew(Class, Traits)\
 public:\
     typedef ist::TPoolAllocator<Traits> PoolT;\
-    static void* operator new(size_t /*size*/)  { return getPool().allocate(); }\
-    static void  operator delete(void *p)       { getPool().recycle(p); }\
-    static void* operator new[](size_t /*size*/){ istAssert(false); return NULL; }\
-    static void  operator delete[](void *p)     { istAssert(false); }\
+    static void* operator new(size_t, size_t)       { return getPool().allocate(); }\
+    static void  operator delete(void *p, size_t)   { getPool().recycle(p); }\
+    static void* operator new[](size_t, size_t)     { istAssert(false); return NULL; }\
+    static void  operator delete[](void *p, size_t) { istAssert(false); }\
 private:\
     static PoolT& getPool()\
     {\
@@ -27,18 +27,18 @@ private:\
 #define istDeclPoolNew(Class, Traits)\
 public:\
     typedef ist::TPoolAllocator<Traits> PoolT;\
-    static void* operator new(size_t /*size*/);\
-    static void  operator delete(void *p);\
-    static void* operator new[](size_t /*size*/);\
-    static void  operator delete[](void *p);\
+    static void* operator new(size_t, size_t);\
+    static void  operator delete(void *p, size_t);\
+    static void* operator new[](size_t, size_t);\
+    static void  operator delete[](void *p, size_t);\
 private:\
     static PoolT& getPool();
 
 #define istImplPoolNew(Class, Traits)\
-void* Class::operator new(size_t /*size*/)  { return getPool().allocate(); }\
-void  Class::operator delete(void *p)       { getPool().recycle(p); }\
-void* Class::operator new[](size_t /*size*/){ istAssert(false); return NULL; }\
-void  Class::operator delete[](void *p)     { istAssert(false); }\
+void* Class::operator new(size_t, size_t)       { return getPool().allocate(); }\
+void  Class::operator delete(void *p, size_t)   { getPool().recycle(p); }\
+void* Class::operator new[](size_t, size_t)     { istAssert(false); return NULL; }\
+void  Class::operator delete[](void *p, size_t) { istAssert(false); }\
 Class::PoolT& Class::getPool()\
 {\
     static PoolT *s_pool = istNew(PoolT)(#Class, sizeof(Class), istAlignof(Class));\

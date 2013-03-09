@@ -27,8 +27,9 @@ enum GBUFFER {
 };
 
 
-class GraphicResourceManager : boost::noncopyable
+class istAlign(16) GraphicResourceManager
 {
+istNonCopyable(GraphicResourceManager);
 istMakeDestructable;
 public:
     static GraphicResourceManager* getInstance() { return s_inst; }

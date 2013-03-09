@@ -8,9 +8,11 @@
 namespace atomic {
 
 
-class IRenderer : public boost::noncopyable
+class IRenderer
 {
+istNonCopyable(IRenderer);
 public:
+    IRenderer() {}
     virtual ~IRenderer() {}
     virtual void beforeDraw() {}    // メインスレッドから、描画処理の前に呼ばれる。頂点データの用意などを行う
     virtual void draw()=0;          // 描画スレッドから呼ばれる。頂点データの GPU への転送、描画コマンド発行などを行う
@@ -32,8 +34,9 @@ class PassHUD_DebugShowBuffer;
 class PassForwardShading_DistanceField; // for debug
 
 
-class AtomicRenderer : public boost::noncopyable
+class AtomicRenderer
 {
+istNonCopyable(AtomicRenderer);
 private:
     // shared resources
     VertexArray     *m_va_screenquad;

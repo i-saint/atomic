@@ -4,6 +4,8 @@
 #include "FunctionID.h"
 #include "ist/Base/BinaryCall.h"
 
+istImplementOperatorNewDelete();
+
 namespace atomic {
     void InitializeCrashReporter();
     void FinalizeCrashReporter();

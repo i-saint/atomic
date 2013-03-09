@@ -9,7 +9,6 @@
 
 namespace ist {
 
-const size_t DefaultAlignment = 16;
 const uint32 FlagNotUsed = 0x4453554E; // "NUSD"
 
 void BadAllocHandlerGeneric(const void* allocator_ptr);
@@ -59,10 +58,10 @@ class istInterModule StackAllocator : public IAllocator
 {
 public:
     StackAllocator();
-    StackAllocator(size_t block_size, size_t alignment=DefaultAlignment, IAllocator *parent=GetDefaultAllocator());
+    StackAllocator(size_t block_size, size_t alignment=istDefaultAlignment, IAllocator *parent=GetDefaultAllocator());
     ~StackAllocator();
 
-    void initialize(size_t block_size, size_t alignment=DefaultAlignment, IAllocator *parent=GetDefaultAllocator());
+    void initialize(size_t block_size, size_t alignment=istDefaultAlignment, IAllocator *parent=GetDefaultAllocator());
     void clear();
 
     virtual void* allocate(size_t size, size_t alignment); // !thread unsafe!
@@ -89,7 +88,7 @@ class istInterModule TFixedAllocator : public IAllocator
 public:
     typedef typename ThreadPolicy::IndexT IndexT;
 
-    TFixedAllocator( size_t element_size, size_t max_elements, size_t alignment=DefaultAlignment, IAllocator *parent=GetDefaultAllocator() );
+    TFixedAllocator( size_t element_size, size_t max_elements, size_t alignment=istDefaultAlignment, IAllocator *parent=GetDefaultAllocator() );
     ~TFixedAllocator();
 
     size_t getElementSize() const   { return m_element_size; }
@@ -137,7 +136,7 @@ public:
     typedef TFixedAllocator<ThreadPolicy> BlockT;
     typedef typename ThreadPolicy::MutexT MutexT;
 
-    TChainedFixedAllocator(size_t element_size, size_t max_elements, size_t alignment=DefaultAlignment, IAllocator *parent=GetDefaultAllocator());
+    TChainedFixedAllocator(size_t element_size, size_t max_elements, size_t alignment=istDefaultAlignment, IAllocator *parent=GetDefaultAllocator());
     ~TChainedFixedAllocator();
 
     size_t getElementSize() const   { return m_block->getElementSize(); }

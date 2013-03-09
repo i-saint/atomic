@@ -9,7 +9,7 @@ template<class T>
 class BlockedList
 {
 public:
-    BlockedList(size_t block_size=1024, size_t align=MinimumAlignment, IAllocator *alloc=GetDefaultAllocator())
+    BlockedList(size_t block_size=1024, size_t align=istDefaultAlignment, IAllocator *alloc=GetDefaultAllocator())
     {
         m_allocator = istNew(ChainedFixedAllocator)(sizeof(T), block_size, align, alloc);
     }
