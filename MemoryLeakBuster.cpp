@@ -559,8 +559,16 @@ public:
                 const AllocInfo &ai = li->second;
                 if(p>=ai.location && (size_t)p<=(size_t)ai.location+ai.bytes) {
                     r = &ai;
-                    if(li!=m_leakinfo->begin()) { auto prev=li; --prev; neighbor[0]=prev->second.location; }
-                    if(li!=m_leakinfo->end())   { auto next=li; ++next; neighbor[1]=next->second.location; }
+                    if(li!=m_leakinfo->begin()) {
+                        auto prev=li; --prev;
+                        neighbor[0]=prev->second.location;
+                    }
+                    {
+                        auto next=li; ++next;
+                        if(next!=m_leakinfo->end()) {
+                            neighbor[1]=next->second.location;
+                        }
+                    } 
                     break;
                 }
             }
@@ -576,8 +584,6 @@ public:
         sprintf_s(buf, "0x%p (%llu byte) ", r->location, (unsigned long long)r->bytes); text+=buf;
         sprintf_s(buf, "prev: 0x%p next: 0x%p\n", neighbor[0], neighbor[1]); text+=buf;
         CallstackToSymbolNames_Stripped(text, r->callstack, r->callstack_size, bufstr);
-        text += "\n";
-
         OutputDebugStringA(text.c_str());
     }
 
