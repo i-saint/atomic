@@ -89,6 +89,7 @@ Widget::~Widget()
 {
     if(Widget *w=getParent()) { w->eraseChild(this); }
     eachChildren([&](Widget *&w){ w->release(); });
+    istSafeRelease(m->style);
 }
 
 void Widget::destroy()

@@ -7,6 +7,7 @@ namespace iui {
 class iuiInterModule ButtonStyle : public Style
 {
 public:
+    ButtonStyle();
     virtual void draw();
 };
 

@@ -4,13 +4,17 @@
 #include "iuiRenderer.h"
 namespace iui {
 
+ButtonStyle::ButtonStyle()
+{
+    setTextHAlign(TA_HCenter);
+}
+
 void ButtonStyle::draw()
 {
     Widget *w = getWidget();
+    TextPosition tpos(w->getPosition(), w->getSize(), getTextHAlign(), getTextVAlign());
     iuiGetRenderer()->drawRect(Rect(w->getPosition(), w->getSize()), getBGColor());
     iuiGetRenderer()->drawOutlineRect(Rect(w->getPosition(), w->getSize()), getBorderColor());
-    TextPosition tpos;
-    tpos.rect = Rect(w->getPosition(), w->getSize());
     iuiGetRenderer()->drawFont(tpos, getFontColor(), w->getText().c_str(), w->getText().size());
 }
 iuiImplDefaultStyle(Button);

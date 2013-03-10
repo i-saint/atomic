@@ -88,7 +88,7 @@ private:
 };
 
 
-class iuiInterModule Style
+class iuiInterModule Style : public SharedObject
 {
 public:
     typedef Style* (*StyleCreator)();

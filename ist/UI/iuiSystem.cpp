@@ -54,14 +54,7 @@ const Rect& UISystem::getScreen() const         { return m->screen; }
 
 void UISystem::setRootWindow( Widget *root )
 {
-    Widget *prev = m->root_widget;
     m->root_widget = root;
-    if(root) {
-        istSafeAddRef(root);
-        root->setPosition(m->screen.pos);
-        root->setSize(m->screen.size);
-    }
-    istSafeRelease(prev);
 }
 
 void UISystem::setScreen( float32 width, float32 height )

@@ -5,9 +5,11 @@
 namespace ist {
 namespace i3dgl {
     class EasyDrawer;
+    class IFontRenderer;
 } // i3dgl
 namespace i3dgles {
     class EasyDrawer;
+    class IFontRenderer;
 } // i3dgles
 } // namespace ist
 
@@ -26,7 +28,7 @@ class iuiInterModule UIRenderer
 {
 public:
     virtual void release()=0;
-    virtual void initialize(ist::i3dgl::EasyDrawer *drawer=NULL)=0;
+    virtual void initialize(ist::i3dgl::EasyDrawer *drawer=NULL, ist::i3dgl::IFontRenderer *font=NULL)=0;
     virtual void finalize()=0;
 
     virtual void setScreen(float32 width, float32 height)=0;

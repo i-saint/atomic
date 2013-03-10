@@ -309,10 +309,10 @@ void AtomicRenderer::passOutput()
     //m_stext->addText(vec2(5.0f, 210.0f), buf);
 
     dc->setBlendState(atomicGetBlendState(BS_BLEND_ALPHA));
-    m_stext->draw();
 
     iuiDraw();
     iuiDrawFlush();
+    m_stext->draw();
 }
 
 
@@ -337,10 +337,12 @@ void SystemTextRenderer::draw()
 
     {
         const vec2 &wsize   = vec2(atomicGetWindowSize());
-        atomicGetFontRenderer()->setScreen(0.0f, wsize.x, wsize.y, 0.0f);
-        atomicGetFontRenderer()->setSize(18.0f);
-        atomicGetFontRenderer()->setMonospace(true);
-        atomicGetFontRenderer()->setSpacing(0.75f);
+        auto *font = atomicGetFontRenderer();
+        font->setScreen(0.0f, wsize.x, wsize.y, 0.0f);
+        font->setSize(18.0f);
+        font->setMonospace(true);
+        font->setSpacing(0.75f);
+        font->setColor(vec4(1.0f));
     }
     for(uint32 i=0; i<m_texts.size(); ++i) {
         const Text &t = m_texts[i];

@@ -58,8 +58,8 @@ TitleWindow::TitleWindow()
     , m_record(NULL)
 {
     using std::placeholders::_1;
-    iui::Size size(120, 20);
-    float32 vspace = 50.0f;
+    iui::Size size(150, 25);
+    float32 vspace = 55.0f;
     iui::Button *bu_start   = istNew(iui::Button)(this, L"start",   iui::Rect(iui::Position(80, 300+vspace*0), size), std::bind(&TitleWindow::onStart, this, _1));
     iui::Button *bu_record  = istNew(iui::Button)(this, L"record",  iui::Rect(iui::Position(80, 300+vspace*1), size), std::bind(&TitleWindow::onRecord, this, _1));
     iui::Button *bu_config  = istNew(iui::Button)(this, L"config",  iui::Rect(iui::Position(80, 300+vspace*2), size), std::bind(&TitleWindow::onConfig, this, _1));
