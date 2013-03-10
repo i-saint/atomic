@@ -71,14 +71,12 @@ void main(void)\
 
 const char *g_ps_colored = "\
 #version 330 core\n\
-uniform sampler2D u_Texture;\
 in vec4 vs_Color;\
 layout(location=0) out vec4 ps_FragColor;\
 \
 void main()\
 {\
-    vec4 color = vs_Color;\
-    ps_FragColor = vec4(color);\
+    ps_FragColor = vs_Color;\
 }\
 ";
 

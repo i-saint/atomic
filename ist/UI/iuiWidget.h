@@ -5,7 +5,7 @@
 #include "iuiEvent.h"
 namespace iui {
 
-class iuiInterModule Widget
+class iuiInterModule Widget : public SharedObject
 {
 friend class UISystem;
 public:
@@ -76,7 +76,7 @@ public:
 
 protected:
     virtual ~Widget();
-    virtual void release();
+    using SharedObject::release;
     virtual bool handleEvent(const WM_Base &wm);
     void callIfValid(const WidgetCallback &v);
 

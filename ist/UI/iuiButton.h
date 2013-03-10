@@ -14,7 +14,7 @@ class iuiInterModule Button : public Widget
 {
 public:
     iuiImplWidget(Button)
-    Button(const wchar_t *text=L"", const WidgetCallback &on_press=WidgetCallback());
+    Button(Widget *parent, const wchar_t *text=L"", const Rect &pos=Rect(), const WidgetCallback &on_press=WidgetCallback());
     bool isPressing() const;
 
 private:

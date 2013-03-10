@@ -19,56 +19,56 @@ istInterModule void DrawLine( EasyDrawer &drawer, const vec2 &pos1, const vec2 &
     drawer.draw(I3D_LINES, v, _countof(v));
 }
 
-istInterModule void DrawOutlineRect( EasyDrawer &drawer, const vec2 &ur, const vec2 &bl, const vec4 &color )
+istInterModule void DrawOutlineRect( EasyDrawer &drawer, const vec2 &bl, const vec2 &ur, const vec4 &color )
 {
     DrawOutlineRect(drawer, ur, bl, color, color, color, color);
 }
 
-istInterModule void DrawOutlineRect( EasyDrawer &drawer, const vec2 &ur, const vec2 &bl, const vec4 &cur, const vec4 &cul, const vec4 &cbl, const vec4 &cbr )
+istInterModule void DrawOutlineRect( EasyDrawer &drawer, const vec2 &bl, const vec2 &ur, const vec4 &cbl, const vec4 &cul, const vec4 &cur, const vec4 &cbr )
 {
-    VertexP2C4 v[4] = {
-        VertexP2C4(vec2(ur.x, ur.y), cur),
-        VertexP2C4(vec2(bl.x, ur.y), cul),
+    VertexP2C4 vb[4] = {
         VertexP2C4(vec2(bl.x, bl.y), cbl),
+        VertexP2C4(vec2(bl.x, ur.y), cul),
+        VertexP2C4(vec2(ur.x, ur.y), cur),
         VertexP2C4(vec2(ur.x, bl.y), cbr),
     };
-    VertexP2C4 vb[] = {
-        v[0],v[1], v[1],v[2], v[2],v[3], v[3],v[0],
+    uint32 ib[] = {
+        0,1, 1,2, 2,3, 3,0
     };
-    drawer.draw(I3D_LINES, vb, _countof(vb));
+    drawer.draw(I3D_LINES, vb, _countof(vb), ib, _countof(ib));
 }
 
-istInterModule void DrawRect( EasyDrawer &drawer, const vec2 &ur, const vec2 &bl, const vec4 &color )
+istInterModule void DrawRect( EasyDrawer &drawer, const vec2 &bl, const vec2 &ur, const vec4 &color )
 {
     DrawRect(drawer, ur, bl, color, color, color, color);
 }
 
-istInterModule void DrawRect( EasyDrawer &drawer, const vec2 &ur, const vec2 &bl, const vec4 &cur, const vec4 &cul, const vec4 &cbl, const vec4 &cbr )
+istInterModule void DrawRect( EasyDrawer &drawer, const vec2 &bl, const vec2 &ur, const vec4 &cbl, const vec4 &cul, const vec4 &cur, const vec4 &cbr )
 {
-    VertexP2C4 v[4] = {
-        VertexP2C4(vec2(ur.x, ur.y), cur),
-        VertexP2C4(vec2(bl.x, ur.y), cul),
+    VertexP2C4 vb[4] = {
         VertexP2C4(vec2(bl.x, bl.y), cbl),
+        VertexP2C4(vec2(bl.x, ur.y), cul),
+        VertexP2C4(vec2(ur.x, ur.y), cur),
         VertexP2C4(vec2(ur.x, bl.y), cbr),
     };
-    VertexP2C4 vb[] = {
-        v[0],v[1],v[2], v[2],v[3],v[0],
+    uint32 ib[] = {
+        0,1,2, 2,3,0
     };
-    drawer.draw(I3D_TRIANGLES, vb, _countof(vb));
+    drawer.draw(I3D_TRIANGLES, vb, _countof(vb), ib, _countof(ib));
 }
 
-istInterModule void DrawRectT( EasyDrawer &drawer, const vec2 &ur, const vec2 &bl, const vec2 &tur, const vec2 &tbl, const vec4 &color )
+istInterModule void DrawRectT( EasyDrawer &drawer, const vec2 &bl, const vec2 &ur, const vec2 &tur, const vec2 &tbl, const vec4 &color )
 {
-    VertexP2T2C4 v[4] = {
-        VertexP2T2C4(vec2(ur.x, ur.y), vec2(tur.x, tur.y), color),
-        VertexP2T2C4(vec2(bl.x, ur.y), vec2(tbl.x, tur.y), color),
+    VertexP2T2C4 vb[4] = {
         VertexP2T2C4(vec2(bl.x, bl.y), vec2(tbl.x, tbl.y), color),
+        VertexP2T2C4(vec2(bl.x, ur.y), vec2(tbl.x, tur.y), color),
+        VertexP2T2C4(vec2(ur.x, ur.y), vec2(tur.x, tur.y), color),
         VertexP2T2C4(vec2(ur.x, bl.y), vec2(tur.x, tbl.y), color),
     };
-    VertexP2T2C4 vb[] = {
-        v[0],v[1],v[2], v[2],v[3],v[0],
+    uint32 ib[] = {
+        0,1,2, 2,3,0
     };
-    drawer.draw(I3D_TRIANGLES, vb, _countof(vb));
+    drawer.draw(I3D_TRIANGLES, vb, _countof(vb), ib, _countof(ib));
 }
 
 ist_EasyDraw_NamespaceEnd

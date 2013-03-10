@@ -9,6 +9,9 @@ void ButtonStyle::draw()
     Widget *w = getWidget();
     iuiGetRenderer()->drawRect(Rect(w->getPosition(), w->getSize()), getBGColor());
     iuiGetRenderer()->drawOutlineRect(Rect(w->getPosition(), w->getSize()), getBorderColor());
+    TextPosition tpos;
+    tpos.rect = Rect(w->getPosition(), w->getSize());
+    iuiGetRenderer()->drawFont(tpos, getFontColor(), w->getText().c_str(), w->getText().size());
 }
 iuiImplDefaultStyle(Button);
 
@@ -25,10 +28,13 @@ istMemberPtrImpl(Button,Members);
 
 bool Button::isPressing() const             { return m->pressing;  }
 
-Button::Button( const wchar_t *text, const WidgetCallback &on_press )
+Button::Button( Widget *parent, const wchar_t *text, const Rect &rect, const WidgetCallback &on_press )
 {
-    m->on_press = on_press;
+    setParent(parent);
     setText(text);
+    setPosition(rect.getPosition());
+    setSize(rect.getSize());
+    m->on_press = on_press;
 }
 
 

@@ -36,12 +36,7 @@ public:
 
     virtual void setScreen(float32 width, float32 height)
     {
-        m_state.setScreen(width, height);
-    }
-
-    virtual void setScreen(float32 left, float32 right, float32 bottom, float32 top)
-    {
-        m_state.setScreen(left, right, bottom, top);
+        m_drawer->setScreen(width, height);
     }
 
 
@@ -54,21 +49,17 @@ public:
     virtual void drawRect(const Rect &rect, const Color &color)
     {
         if(color.a<=0.0f) { return; }
-        i3d::DrawRectT(*m_drawer, rect.pos+rect.size, rect.pos, vec2(1.0f), vec2(0.0f), color);
+        i3d::DrawRectT(*m_drawer, rect.pos, rect.pos+rect.size, vec2(1.0f), vec2(0.0f), color);
     }
 
     virtual void drawOutlineRect(const Rect &rect, const Color &color)
     {
         if(color.a<=0.0f) { return; }
-        i3d::DrawOutlineRect(*m_drawer, rect.pos+rect.size, rect.pos, color);
+        i3d::DrawOutlineRect(*m_drawer, rect.pos, rect.pos+rect.size, color);
     }
-
-    //virtual void drawCircle(const Circle &circle, const Color &color)=0;
-    //virtual void drawOutlineCircle(const Circle &circle, const Color &color)=0;
 
     virtual void drawFont(const TextPosition &pos, const Color &color, const wchar_t *text, uint32 len)
     {
-
     }
 
     virtual void begin()

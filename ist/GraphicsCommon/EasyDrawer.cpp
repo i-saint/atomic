@@ -77,7 +77,7 @@ public:
     }
 
     ShaderProgram* getShader(VertexType vt)             { return m_shaders[vt]; }
-    ShaderProgram* getShaderNonTextured(VertexType vt)  { return m_shaders[vt]; }
+    ShaderProgram* getShaderNonTextured(VertexType vt)  { return m_shaders_nt[vt]; }
     VertexStreamData& getVertexInfo(VertexType vt)      { return m_vsdata[vt]; }
 
 private:
@@ -206,20 +206,20 @@ istMemberPtrImpl(EasyDrawer,Members);
 const EasyDrawState& EasyDrawer::getRenderStates() {return m->state; }
 void EasyDrawer::forceSetRenderStates( const EasyDrawState &ds ) { m->state=ds; }
 
-void EasyDrawer::setScreen(float32 width, float32 height) { m->state.setScreen(width, height); }
+void EasyDrawer::setScreen(float32 width, float32 height)   { m->state.setScreen(width, height); }
 void EasyDrawer::setScreen(float32 left, float32 right, float32 bottom, float32 top) { m->state.setScreen(left, right, bottom, top); }
-void EasyDrawer::setProjectionMatrix(const mat4 &mat) { m->state.setProjectionMatrix(mat); }
-void EasyDrawer::setWorldMatrix(const mat4 &mat) { m->state.setWorldMatrix(mat); }
-void EasyDrawer::setTexture(Texture2D *tex) { m->state.setTexture(tex); }
-void EasyDrawer::setSampler(Sampler *smp) { m->state.setSampler(smp); }
-void EasyDrawer::setShader(ShaderProgram *smp) { m->state.setShader(smp); }
+void EasyDrawer::setProjectionMatrix(const mat4 &mat)       { m->state.setProjectionMatrix(mat); }
+void EasyDrawer::setWorldMatrix(const mat4 &mat)            { m->state.setWorldMatrix(mat); }
+void EasyDrawer::setTexture(Texture2D *tex)                 { m->state.setTexture(tex); }
+void EasyDrawer::setSampler(Sampler *smp)                   { m->state.setSampler(smp); }
+void EasyDrawer::setShader(ShaderProgram *smp)              { m->state.setShader(smp); }
 
 const mat4&     EasyDrawer::getProjectionMatrix() const { return m->state.getProjectionMatrix(); }
-const mat4&     EasyDrawer::getWorldMatrix() const { return m->state.getWorldMatrix(); }
-Texture2D*      EasyDrawer::getTexture() const { return m->state.getTexture(); }
-Sampler*        EasyDrawer::getSampler() const { return m->state.getSampler(); }
-ShaderProgram*  EasyDrawer::getShader() const { return m->state.getShader(); }
-uint32          EasyDrawer::getUniformLocation() const { return m->state.getUniformLocation(); }
+const mat4&     EasyDrawer::getWorldMatrix() const      { return m->state.getWorldMatrix(); }
+Texture2D*      EasyDrawer::getTexture() const          { return m->state.getTexture(); }
+Sampler*        EasyDrawer::getSampler() const          { return m->state.getSampler(); }
+ShaderProgram*  EasyDrawer::getShader() const           { return m->state.getShader(); }
+uint32          EasyDrawer::getUniformLocation() const  { return m->state.getUniformLocation(); }
 
 
 EasyDrawer* CreateEasyDrawer()

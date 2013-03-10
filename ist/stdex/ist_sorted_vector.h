@@ -53,19 +53,19 @@ public:
     iterator find(const_reference v)
     {
         iterator p = std::lower_bound(begin(), end(), v);
-        return *p==v ? p : end();
+        return (p!=end() && *p==v) ? p : end();
     }
 
     const_iterator find(const_reference v) const
     {
         const_iterator p = std::lower_bound(begin(), end(), v);
-        return *p==v ? p : end();
+        return (p!=end() && *p==v) ? p : end();
     }
 
     std::pair<iterator, bool> insert(const_reference v)
     {
         iterator p = std::lower_bound(begin(), end(), v);
-        if(*p==v) {
+        if(p!=end() && *p==v) {
             return std::make_pair(p, false);
         }
         else {

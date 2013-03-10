@@ -11,7 +11,7 @@ UISystem * UISystem::s_inst;
 void UISystem::initializeInstance()
 {
     if(s_inst==NULL) {
-        s_inst = istNew(UISystem)();
+        istNew(UISystem)();
     }
 }
 
@@ -33,6 +33,7 @@ struct UISystem::Members
     UIRenderer  *renderer;
     Widget      *root_widget;
     Widget      *focus;
+    WidgetCont  new_widgets;
     WMHandler   wmhandler;
     Rect        screen;
 
@@ -51,22 +52,32 @@ Widget*     UISystem::getRootWindow() const    { return m->root_widget; }
 Widget*     UISystem::getFocus() const          { return m->focus; }
 const Rect& UISystem::getScreen() const         { return m->screen; }
 
+void UISystem::setRootWindow( Widget *root )
+{
+    Widget *prev = m->root_widget;
+    m->root_widget = root;
+    if(root) {
+        istSafeAddRef(root);
+        root->setPosition(m->screen.pos);
+        root->setSize(m->screen.size);
+    }
+    istSafeRelease(prev);
+}
+
 void UISystem::setScreen( float32 width, float32 height )
 {
     m->screen = Rect(Position(), Size(width, height));
-    m->root_widget->setPosition(m->screen.pos);
-    m->root_widget->setSize(m->screen.size);
-}
-
-void UISystem::setScreen( float32 left, float32 right, float32 bottom, float32 top )
-{
-    m->screen = Rect(Position(left, top), Size(right-left, bottom-top));
+    if(m->root_widget) {
+        m->root_widget->setPosition(m->screen.pos);
+        m->root_widget->setSize(m->screen.size);
+    }
 }
 
 
 UISystem::UISystem()
 {
-    m->root_widget = istNew(RootWindow)();
+    s_inst = this;
+
     m->renderer = CreateUIRenderer();
     m->wmhandler = std::bind(&UISystem::handleWindowMessage, this, std::placeholders::_1);
 
@@ -81,6 +92,8 @@ UISystem::~UISystem()
     istGetAplication()->eraseMessageHandler(&m->wmhandler);
     istSafeRelease(m->renderer);
     istSafeRelease(m->root_widget);
+
+    s_inst = NULL;
 }
 
 
@@ -89,14 +102,23 @@ bool UISystem::handleWindowMessage( const ist::WM_Base &wm )
     if(m->root_widget) {
         handleWindowMessageR(m->root_widget, wm);
     }
+    switch(wm.type) {
+    case WMT_WidgetDelete:
+        {
+            const WM_Widget &mes = reinterpret_cast<const WM_Widget&>(wm);
+            if(m->focus==mes.from) {
+                m->focus->setFocus(false);
+                m->focus = NULL;
+            }
+        }
+        break;
+    }
     return false;
 }
 
 void UISystem::sendMessage( const WM_Base &wm )
 {
-    if(m->root_widget) {
-        handleWindowMessageR(m->root_widget, wm);
-    }
+    handleWindowMessage(wm);
 }
 
 bool UISystem::handleWindowMessageR( Widget *widget, const WM_Base &wm )
@@ -113,6 +135,14 @@ bool UISystem::handleWindowMessageR( Widget *widget, const WM_Base &wm )
 
 void UISystem::update( Float dt )
 {
+    std::for_each(m->new_widgets.begin(), m->new_widgets.end(), [&](Widget *w){
+        WM_Widget mes;
+        mes.type = WMT_WidgetCretate;
+        mes.from = w;
+        sendMessage(mes);
+    });
+    m->new_widgets.clear();
+
     updateR(m->root_widget, dt);
 }
 
@@ -127,6 +157,7 @@ void UISystem::updateR( Widget *widget, Float dt )
 void UISystem::draw()
 {
     m->renderer->begin();
+    m->renderer->setScreen(getScreen().getSize().x, getScreen().getSize().y);
     drawR(m->root_widget);
     m->renderer->end();
 }
@@ -141,13 +172,12 @@ void UISystem::drawR( Widget *widget )
 
 void UISystem::setFocus( Widget *v )
 {
-    if(m->focus) {
-        // todo defocus
-    }
     m->focus = v;
-    if(m->focus) {
-        // todo focus
-    }
+}
+
+void UISystem::notifyNewWidget( Widget *w )
+{
+    m->new_widgets.insert(w);
 }
 
 

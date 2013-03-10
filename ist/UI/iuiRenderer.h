@@ -30,13 +30,10 @@ public:
     virtual void finalize()=0;
 
     virtual void setScreen(float32 width, float32 height)=0;
-    virtual void setScreen(float32 left, float32 right, float32 bottom, float32 top)=0;
 
     virtual void drawLine(const Line &line, const Color &color)=0;
     virtual void drawRect(const Rect &rect, const Color &color)=0;
     virtual void drawOutlineRect(const Rect &rect, const Color &color)=0;
-    //virtual void drawCircle(const Circle &circle, const Color &color)=0;
-    //virtual void drawOutlineCircle(const Circle &circle, const Color &color)=0;
     virtual void drawFont(const TextPosition &pos, const Color &color, const wchar_t *text, uint32 len=0)=0;
 
     virtual void begin()=0;

@@ -214,18 +214,6 @@ bool GraphicResourceManager::initialize()
         CreateBulletParticleSet(m_pset[PSET_SPHERE_BULLET], m_rinfo[PSET_SPHERE_BULLET]);
     }
 
-
-    {
-        Sampler *smp_gb = atomicGetSampler(SAMPLER_GBUFFER);
-        Sampler *smp_tex = atomicGetSampler(SAMPLER_TEXTURE_DEFAULT);
-        dc->setSampler(GLSL_COLOR_BUFFER, smp_tex);
-        dc->setSampler(GLSL_NORMAL_BUFFER, smp_gb);
-        dc->setSampler(GLSL_POSITION_BUFFER, smp_gb);
-        dc->setSampler(GLSL_GLOW_BUFFER, smp_tex);
-        dc->setSampler(GLSL_BACK_BUFFER, smp_tex);
-        dc->setSampler(GLSL_RANDOM_BUFFER, smp_tex);
-        dc->setSampler(GLSL_PARAM_BUFFER, smp_tex);
-   }
     return true;
 }
 

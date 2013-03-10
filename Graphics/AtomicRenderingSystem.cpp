@@ -1,4 +1,5 @@
 ﻿#include "stdafx.h"
+#include "ist/iui.h"
 #include "types.h"
 #include "Game/AtomicApplication.h"
 #include "AtomicRenderingSystem.h"

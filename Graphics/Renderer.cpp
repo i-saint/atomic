@@ -1,4 +1,5 @@
 ﻿#include "stdafx.h"
+#include "ist/iui.h"
 #include "types.h"
 #include "Game/AtomicApplication.h"
 #include "Game/AtomicGame.h"
@@ -134,6 +135,18 @@ void AtomicRenderer::draw()
         m_rstates2d         = m_rstates3d;
         m_rstates2d.ModelViewProjectionMatrix = glm::ortho(0.0f, wsize.x, wsize.y, 0.0f);
         MapAndWrite(dc, ubo_rs, &m_rstates2d, sizeof(m_rstates2d));
+    }
+    {
+        Sampler *smp_gb = atomicGetSampler(SAMPLER_GBUFFER);
+        Sampler *smp_tex = atomicGetSampler(SAMPLER_TEXTURE_DEFAULT);
+        dc->setSampler(GLSL_COLOR_BUFFER, smp_tex);
+        dc->setSampler(GLSL_NORMAL_BUFFER, smp_gb);
+        dc->setSampler(GLSL_POSITION_BUFFER, smp_gb);
+        dc->setSampler(GLSL_GLOW_BUFFER, smp_tex);
+        dc->setSampler(GLSL_BACK_BUFFER, smp_tex);
+        dc->setSampler(GLSL_RANDOM_BUFFER, smp_tex);
+        dc->setSampler(GLSL_PARAM_BUFFER, smp_tex);
+        dc->setBlendState(atomicGetBlendState(BS_NO_BLEND));
     }
 
     passShadow();
@@ -295,7 +308,11 @@ void AtomicRenderer::passOutput()
     //istsprintf(buf, "Multiresolution Threshold: %.3f ([8]<- [9]->)", atomicGetLights()->getMultiresolutionParams().Threshold.x);
     //m_stext->addText(vec2(5.0f, 210.0f), buf);
 
+    dc->setBlendState(atomicGetBlendState(BS_BLEND_ALPHA));
     m_stext->draw();
+
+    iuiDraw();
+    iuiDrawFlush();
 }
 
 
@@ -329,10 +346,7 @@ void SystemTextRenderer::draw()
         const Text &t = m_texts[i];
         atomicGetFontRenderer()->addText(t.pos, t.text, wcsnlen(t.text, _countof(t.text)));
     }
-
-    dc->setBlendState(atomicGetBlendState(BS_BLEND_ALPHA));
     atomicGetFontRenderer()->flush(atomicGetGLDeviceContext());
-    dc->setBlendState(atomicGetBlendState(BS_NO_BLEND));
 }
 
 void SystemTextRenderer::addText(const vec2 &pos, const char *text)

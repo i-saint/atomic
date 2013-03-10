@@ -1,4 +1,5 @@
 ﻿#include "stdafx.h"
+#include "ist/iui.h"
 #include "types.h"
 #include "AtomicGame.h"
 #include "AtomicApplication.h"
@@ -11,6 +12,7 @@
 #include "Network/LevelEditorServer.h"
 #include "Network/GameServer.h"
 #include "Network/GameClient.h"
+#include "UI/Title.h"
 #include "Util.h"
 
 #define ATOMIC_CONFIG_FILE_PATH "atomic.conf"
@@ -199,6 +201,7 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     }
     // ui
     iuiInitialize();
+    iuiGetSystem()->setRootWindow(istNew(RootWindow)());
 
     // start rendering thread
     AtomicRenderingSystem::initializeInstance();
@@ -299,6 +302,7 @@ void AtomicApplication::mainLoop()
 void AtomicApplication::sysUpdate()
 {
     istPoolUpdate();
+    iuiUpdate();
 
     AtomicConfig &conf = m->config;
     if(getKeyboardState().isKeyTriggered(ist::KEY_F2)) {

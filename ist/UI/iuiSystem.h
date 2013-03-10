@@ -7,6 +7,7 @@ namespace iui {
 
 class iuiInterModule UISystem
 {
+friend class Widget;
 public:
     typedef ist::Application::WMHandler WMHandler;
 
@@ -22,11 +23,14 @@ public:
     Widget*     getFocus() const;
     const Rect& getScreen() const;
 
+    void setRootWindow(Widget *root);
     void setScreen(float32 width, float32 height);
-    void setScreen(float32 left, float32 right, float32 bottom, float32 top);
-    void setFocus(Widget *v);
-
     void sendMessage(const WM_Base &wm);
+
+private:
+    // Widget から呼ばれる系
+    void setFocus(Widget *v);
+    void notifyNewWidget(Widget *w);
 
 private:
     UISystem();

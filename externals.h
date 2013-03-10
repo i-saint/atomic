@@ -49,6 +49,5 @@
 #include "ist/Graphics.h"
 #include "ist/Sound.h"
 #include "ist/Debug.h"
-#include "ist/iui.h"
 #include "features.h"
 #include "types.h"

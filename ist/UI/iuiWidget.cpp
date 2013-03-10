@@ -47,7 +47,12 @@ Float               Widget::getZOrder() const   { return m->zorder; }
 bool                Widget::isVisible() const   { return m->visible; }
 bool                Widget::isFocused() const   { return iuiGetSystem()->getFocus()==this; }
 
-void Widget::setParent( Widget *p )             { m->parent=p; }
+void Widget::setParent( Widget *p )
+{
+    if(m->parent) { m->parent->eraseChild(this); }
+    m->parent = p;
+    if(m->parent) { m->parent->addChild(this); }
+}
 void Widget::setStyle( Style *style )           { m->style=style; }
 void Widget::setText( const String &text )      { m->text=text; callIfValid(m->on_text);        }
 void Widget::setPosition( const Position &pos ) { m->pos=pos;   callIfValid(m->on_pos);         }
@@ -77,17 +82,13 @@ Widget::Widget()
 {
     static uint32 s_idgen;
     m->id = ++s_idgen;
+    iuiGetSystem()->notifyNewWidget(this);
 }
 
 Widget::~Widget()
 {
     if(Widget *w=getParent()) { w->eraseChild(this); }
     eachChildren([&](Widget *&w){ w->release(); });
-}
-
-void Widget::release()
-{
-    istDelete(this);
 }
 
 void Widget::destroy()
@@ -144,7 +145,6 @@ void Widget::addChild( Widget *c )
 {
     if(c==NULL) { return; }
     m->children.insert(c);
-    c->setParent(this);
 }
 
 void Widget::eraseChild( Widget *c )
@@ -178,7 +178,7 @@ struct Style::Members
         : widget(NULL)
         , font_color(1.0f, 1.0f, 1.0f, 1.0f)
         , bg_color(0.0f, 0.0f, 0.0f, 0.5f)
-        , border_color(1.0f, 1.0f, 1.0f, 0.8f)
+        , border_color(1.0f, 1.0f, 1.0f, 0.5f)
         , text_halign(TA_HLeft)
         , text_valign(TA_VCenter)
     {
@@ -217,8 +217,13 @@ Style::StyleCreatorTable& Style::getDefaultStyleCreators()
 Style* Style::createDefaultStyle( uint32 widget_typeid )
 {
     StyleCreatorTable &table = getDefaultStyleCreators();
-    istAssert(table[widget_typeid]);
-    return table[widget_typeid]();
+    //istAssert(table[widget_typeid]);
+    if(table[widget_typeid]) {
+        return table[widget_typeid]();
+    }
+    else {
+        return NULL;
+    }
 }
 
 
