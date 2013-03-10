@@ -121,6 +121,7 @@
     <ClInclude Include="ist\stdex\crtex.h" />
     <ClInclude Include="ist\stdex\ist_aligned_allocator.h" />
     <ClInclude Include="ist\stdex\ist_raw_vector.h" />
+    <ClInclude Include="ist\stdex\ist_sorted_vector.h" />
     <ClInclude Include="ist\stdex\ist_vector.h" />
     <ClInclude Include="ist\targetver.h" />
     <ClInclude Include="ist\Window.h" />

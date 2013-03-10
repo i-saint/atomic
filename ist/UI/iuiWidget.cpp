@@ -5,6 +5,7 @@ namespace iui {
 
 struct Widget::Members
 {
+    uint32      id;
     WidgetCont  children;
     Widget      *parent;
     Style       *style;
@@ -23,7 +24,8 @@ struct Widget::Members
     WidgetCallback on_focus;
 
     Members()
-        : parent(NULL)
+        : id(0)
+        , parent(NULL)
         , style(NULL)
         , zorder(0.0f)
         , visible(true)
@@ -33,6 +35,8 @@ struct Widget::Members
 };
 istMemberPtrImpl(Widget,Members)
 
+uint32              Widget::getID() const       { return m->id; }
+Widget*             Widget::getParent() const   { return m->parent; }
 WidgetCont&         Widget::getChildren()       { return m->children; }
 const WidgetCont&   Widget::getChildren() const { return m->children; }
 Style*              Widget::getStyle() const    { return m->style; }
@@ -43,12 +47,13 @@ Float               Widget::getZOrder() const   { return m->zorder; }
 bool                Widget::isVisible() const   { return m->visible; }
 bool                Widget::isFocused() const   { return iuiGetSystem()->getFocus()==this; }
 
+void Widget::setParent( Widget *p )             { m->parent=p; }
 void Widget::setStyle( Style *style )           { m->style=style; }
-void Widget::setText( const String &text )      { m->text=text; CallIfValid(m->on_text); }
-void Widget::setPosition( const Position &pos ) { m->pos=pos; CallIfValid(m->on_pos); }
-void Widget::setSize( const Size &size )        { m->size=size; CallIfValid(m->on_size); }
-void Widget::setZOrder(float v)                 { m->zorder=v; CallIfValid(m->on_zorder); }
-void Widget::setVisibility(bool v)              { m->visible=v; CallIfValid(m->on_visibility); }
+void Widget::setText( const String &text )      { m->text=text; callIfValid(m->on_text);        }
+void Widget::setPosition( const Position &pos ) { m->pos=pos;   callIfValid(m->on_pos);         }
+void Widget::setSize( const Size &size )        { m->size=size; callIfValid(m->on_size);        }
+void Widget::setZOrder(float v)                 { m->zorder=v;  callIfValid(m->on_zorder);      }
+void Widget::setVisibility(bool v)              { m->visible=v; callIfValid(m->on_visibility);  }
 void Widget::setFocus(bool v)
 {
     if(v) {
@@ -57,7 +62,7 @@ void Widget::setFocus(bool v)
     else if(iuiGetSystem()->getFocus()==this) {
         iuiGetSystem()->setFocus(NULL);
     }
-    CallIfValid(m->on_focus);
+    callIfValid(m->on_focus);
 }
 
 void Widget::setTextHandler(WidgetCallback cb)      { m->on_text=cb; }
@@ -70,11 +75,19 @@ void Widget::setFocusHandler(WidgetCallback cb)     { m->on_focus=cb; }
 
 Widget::Widget()
 {
+    static uint32 s_idgen;
+    m->id = ++s_idgen;
 }
 
 Widget::~Widget()
 {
+    if(Widget *w=getParent()) { w->eraseChild(this); }
     eachChildren([&](Widget *&w){ w->release(); });
+}
+
+void Widget::release()
+{
+    istDelete(this);
 }
 
 void Widget::destroy()
@@ -82,7 +95,7 @@ void Widget::destroy()
     if(!m->destroyed) {
         m->destroyed = true;
         WM_Widget wm;
-        wm.type = WMT_WidgetDelete;
+        wm.type = (ist::WMType)WMT_WidgetDelete;
         wm.from = this;
         iuiGetSystem()->sendMessage(wm);
     }
@@ -125,7 +138,30 @@ bool Widget::handleEvent(const WM_Base &wm)
     return false;
 }
 
-void Widget::CallIfValid(const WidgetCallback &v) { if(v){ v(this); } }
+void Widget::callIfValid(const WidgetCallback &v) { if(v){ v(this); } }
+
+void Widget::addChild( Widget *c )
+{
+    if(c==NULL) { return; }
+    m->children.insert(c);
+    c->setParent(this);
+}
+
+void Widget::eraseChild( Widget *c )
+{
+    if(c==NULL) { return; }
+    auto p = std::find(m->children.begin(), m->children.end(), c);
+    if(p!=m->children.end()) {
+        m->children.erase(p);
+    }
+}
+
+Widget::WorkspacePool& Widget::getWorkspacePool()
+{
+    static WorkspacePool *s_pool = istNew(WorkspacePool)("WidgetCont");
+    return *s_pool;
+}
+
 
 
 

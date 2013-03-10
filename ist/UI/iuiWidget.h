@@ -5,11 +5,9 @@
 #include "iuiEvent.h"
 namespace iui {
 
-
-class iuiInterModule Widget : public SharedObject
+class iuiInterModule Widget
 {
 friend class UISystem;
-typedef SharedObject super;
 public:
     Widget();
     virtual WidgetTypeID getTypeID() const=0;
@@ -22,12 +20,12 @@ public:
     void destroy();
     bool isDestroyed() const;
 
+    uint32              getID() const;
+    Widget*             getParent() const;
     WidgetCont&         getChildren();
     const WidgetCont&   getChildren() const;
-    template<class F>
-    void eachChildren(const F &f) { std::for_each(getChildren().begin(), getChildren().end(), f); }
-    template<class F>
-    void eachChildrenReverse(const F &f) { std::for_each(getChildren().rbegin(), getChildren().rend(), f); }
+    void                addChild(Widget *c);
+    void                eraseChild(Widget *c);
 
     Style*              getStyle() const;
     const String&       getText() const;
@@ -37,6 +35,7 @@ public:
     bool                isVisible() const;
     bool                isFocused() const;
 
+    void setParent(Widget *p);
     void setStyle(Style *style);
     void setText(const String &text);
     void setPosition(const Position &pos);
@@ -52,18 +51,44 @@ public:
     void setVisibilityHandler(WidgetCallback cb);
     void setFocusHandler(WidgetCallback cb);
 
+    template<class F>
+    void eachChildren(const F &f)
+    {
+        WidgetCont &children = getChildren();
+        if(children.empty()) { return; }
+        // 処理中に children の要素数が変動する可能性があるため、ワークスペースにコピーしてそれを処理。
+        // コストを伴いますが致し方ありません。
+        WidgetCont *workspace = getWorkspacePool().create();
+        *workspace = children;
+        std::for_each(workspace->begin(), workspace->end(), f);
+        getWorkspacePool().recycle(workspace);
+    }
+    template<class F>
+    void eachChildrenReverse(const F &f)
+    {
+        WidgetCont &children = getChildren();
+        if(children.empty()) { return; }
+        WidgetCont *workspace = getWorkspacePool().create();
+        *workspace = children;
+        std::for_each(workspace->rbegin(), workspace->rend(), f);
+        getWorkspacePool().recycle(workspace);
+    }
+
 protected:
     virtual ~Widget();
+    virtual void release();
     virtual bool handleEvent(const WM_Base &wm);
-    void CallIfValid(const WidgetCallback &v);
-    using super::release;
+    void callIfValid(const WidgetCallback &v);
+
+    typedef ist::TPoolFactory<WidgetCont, ist::PoolFactoryTraitsST<WidgetCont> > WorkspacePool;
+    static WorkspacePool& getWorkspacePool();
 
 private:
     istMemberPtrDecl(Members) m;
 };
 
 
-class iuiInterModule Style : public SharedObject
+class iuiInterModule Style
 {
 public:
     typedef Style* (*StyleCreator)();

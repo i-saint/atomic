@@ -22,10 +22,10 @@ struct TextPosition
     TextPosition(const Position &pos, const Size &size=Size(), TextHAlign ha=TA_HLeft, TextVAlign va=TA_VTop) : halign(ha), valign(va), rect(pos, size) {}
 };
 
-class iuiInterModule UIRenderer : public ist::SharedObject
+class iuiInterModule UIRenderer
 {
 public:
-    virtual ~UIRenderer() {}
+    virtual void release()=0;
     virtual void initialize(ist::i3dgl::EasyDrawer *drawer=NULL)=0;
     virtual void finalize()=0;
 
@@ -42,6 +42,9 @@ public:
     virtual void begin()=0;
     virtual void end()=0;
     virtual void flush()=0;
+
+protected:
+    virtual ~UIRenderer() {}
 };
 UIRenderer* CreateUIRenderer();
 

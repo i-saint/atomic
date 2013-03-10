@@ -105,11 +105,19 @@ enum TextVAlign
     TA_VCenter,
 };
 
+template<class T>
+struct less_id
+{
+    bool operator()(T *a, T *b) const
+    {
+        return a->getID() < b->getID();
+    }
+};
 
 class UIRenderer;
 class Widget;
 class Style;
-typedef ist::vector<Widget*> WidgetCont;
+typedef ist::sorted_vector_set<Widget*, less_id<Widget*> > WidgetCont;
 typedef ist::vector<Style*> StyleCont;
 typedef std::function<void (Widget*)> WidgetCallback;
 

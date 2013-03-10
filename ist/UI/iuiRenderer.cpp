@@ -18,6 +18,11 @@ public:
     {
     }
 
+    virtual void release()
+    {
+        istDelete(this);
+    }
+
     virtual void initialize(i3d::EasyDrawer *drawer=NULL)
     {
         m_drawer = drawer ? drawer : i3d::CreateEasyDrawer();

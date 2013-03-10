@@ -346,6 +346,9 @@
     <ClInclude Include="ist\Base\ArgHolder.h">
       <Filter>Base</Filter>
     </ClInclude>
+    <ClInclude Include="ist\stdex\ist_sorted_vector.h">
+      <Filter>stdex</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ist\Window\Application.cpp">

@@ -5,7 +5,7 @@
 namespace iui {
 
 
-class iuiInterModule UISystem : public ist::SharedObject
+class iuiInterModule UISystem
 {
 public:
     typedef ist::Application::WMHandler WMHandler;

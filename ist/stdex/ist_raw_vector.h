@@ -93,6 +93,11 @@ public:
         istMemcpy(m_data+pos_i, first, sizeof(value_type)*num);
     }
 
+    void erase(iterator pos)
+    {
+        erase(pos, pos+1);
+    }
+
     void erase(iterator first, iterator last)
     {
         size_t first_i = std::distance(m_data, first);

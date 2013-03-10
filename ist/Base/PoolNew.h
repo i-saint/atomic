@@ -177,7 +177,7 @@ template<class T>
 struct PoolCreator
 {
     T*   create() const      { return istNew(T)(); }
-    void release(T *p) const { return istDelete(p); }
+    void release(T *p) const { istDelete(p); }
 };
 
 
