@@ -12,16 +12,16 @@ public:
     atomic_int32() : m_value(0) {}
     atomic_int32(int32 v) : m_value(v) {}
 
-    int32 swap(int32 v) { return InterlockedExchange(&m_value, v); }
-    int32 compare_and_swap(int32 v, int32 comp) { return InterlockedCompareExchange(&m_value, v, comp); }
-    int32 operator+=(int32 v)   { return InterlockedExchangeAdd(&m_value, v); }
-    int32 operator-=(int32 v)   { return InterlockedExchangeAdd(&m_value,-v); }
+    int32 swap(int32 v) { return _InterlockedExchange(&m_value, v); }
+    int32 compare_and_swap(int32 v, int32 comp) { return _InterlockedCompareExchange(&m_value, v, comp); }
+    int32 operator+=(int32 v)   { return _InterlockedExchangeAdd(&m_value, v); }
+    int32 operator-=(int32 v)   { return _InterlockedExchangeAdd(&m_value,-v); }
     int32 operator&=(int32 v)   { return _InterlockedAnd(&m_value, v); }
     int32 operator|=(int32 v)   { return _InterlockedOr(&m_value, v); }
-    int32 operator++()          { return InterlockedIncrement(&m_value); }
-    int32 operator--()          { return InterlockedDecrement(&m_value); }
-    int32 operator++(int)       { return InterlockedIncrement(&m_value)-1; }
-    int32 operator--(int)       { return InterlockedDecrement(&m_value)+1; }
+    int32 operator++()          { return _InterlockedIncrement(&m_value); }
+    int32 operator--()          { return _InterlockedDecrement(&m_value); }
+    int32 operator++(int)       { return _InterlockedIncrement(&m_value)-1; }
+    int32 operator--(int)       { return _InterlockedDecrement(&m_value)+1; }
     int32 operator=(int32 v)    { swap(v); return v; }
     operator int32() const      { return m_value; }
 
@@ -36,16 +36,16 @@ public:
     atomic_int64() : m_value(0) {}
     atomic_int64(int64 v) : m_value(v) {}
 
-    int64 swap(int64 v) { return InterlockedExchange64(&m_value, v); }
-    int64 compare_and_swap(int64 v, int64 comp) { return InterlockedCompareExchange64(&m_value, v, comp); }
-    int64 operator+=(int64 v)   { return InterlockedExchangeAdd64(&m_value, v); }
-    int64 operator-=(int64 v)   { return InterlockedExchangeAdd64(&m_value,-v); }
-    int64 operator&=(int64 v)   { return InterlockedAnd64(&m_value, v); }
-    int64 operator|=(int64 v)   { return InterlockedOr64(&m_value, v); }
-    int64 operator++()          { return InterlockedIncrement64(&m_value); }
-    int64 operator--()          { return InterlockedDecrement64(&m_value); }
-    int64 operator++(int)       { return InterlockedIncrement64(&m_value)-1; }
-    int64 operator--(int)       { return InterlockedDecrement64(&m_value)+1; }
+    int64 swap(int64 v) { return _InterlockedExchange64(&m_value, v); }
+    int64 compare_and_swap(int64 v, int64 comp) { return _InterlockedCompareExchange64(&m_value, v, comp); }
+    int64 operator+=(int64 v)   { return _InterlockedExchangeAdd64(&m_value, v); }
+    int64 operator-=(int64 v)   { return _InterlockedExchangeAdd64(&m_value,-v); }
+    int64 operator&=(int64 v)   { return _InterlockedAnd64(&m_value, v); }
+    int64 operator|=(int64 v)   { return _InterlockedOr64(&m_value, v); }
+    int64 operator++()          { return _InterlockedIncrement64(&m_value); }
+    int64 operator--()          { return _InterlockedDecrement64(&m_value); }
+    int64 operator++(int)       { return _InterlockedIncrement64(&m_value)-1; }
+    int64 operator--(int)       { return _InterlockedDecrement64(&m_value)+1; }
     int64 operator=(int64 v)    { swap(v); return v; }
     operator int64() const      { return m_value; }
 
