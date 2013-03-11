@@ -52,20 +52,20 @@ public:
 
     iterator find(const_reference v)
     {
-        iterator p = std::lower_bound(begin(), end(), v);
-        return (p!=end() && *p==v) ? p : end();
+        iterator p = std::lower_bound(begin(), end(), v, compare());
+        return (p!=end() && equal(*p,v)) ? p : end();
     }
 
     const_iterator find(const_reference v) const
     {
-        const_iterator p = std::lower_bound(begin(), end(), v);
-        return (p!=end() && *p==v) ? p : end();
+        const_iterator p = std::lower_bound(begin(), end(), v, compare());
+        return (p!=end() && equal(*p,v)) ? p : end();
     }
 
     std::pair<iterator, bool> insert(const_reference v)
     {
-        iterator p = std::lower_bound(begin(), end(), v);
-        if(p!=end() && *p==v) {
+        iterator p = std::lower_bound(begin(), end(), v, compare());
+        if(p!=end() && equal(*p,v)) {
             return std::make_pair(p, false);
         }
         else {
@@ -107,6 +107,10 @@ public:
     }
 
 private:
+    bool equal(const_reference a, const_reference b) const
+    {
+        return !compare()(a,b) && !compare()(a,b);
+    }
     container m_cont;
 };
 

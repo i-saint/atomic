@@ -119,6 +119,7 @@
     <ClInclude Include="ist\Sound\isduStreamSource.h" />
     <ClInclude Include="ist\Sound\isdUtil.h" />
     <ClInclude Include="ist\stdex\crtex.h" />
+    <ClInclude Include="ist\stdex\helper_functions.h" />
     <ClInclude Include="ist\stdex\ist_aligned_allocator.h" />
     <ClInclude Include="ist\stdex\ist_raw_vector.h" />
     <ClInclude Include="ist\stdex\ist_sorted_vector.h" />

@@ -22,5 +22,6 @@
 #include "stdex/ist_vector.h"
 #include "stdex/ist_sorted_vector.h"
 #include "stdex/ist_raw_vector.h"
+#include "stdex/helper_functions.h"
 
 #endif // ist_Base_h
