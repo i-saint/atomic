@@ -44,7 +44,13 @@ const Position&     Widget::getPosition() const { return m->pos; }
 const Size&         Widget::getSize() const     { return m->size; }
 const String&       Widget::getText() const     { return m->text; }
 Float               Widget::getZOrder() const   { return m->zorder; }
-bool                Widget::isVisible() const   { return m->visible; }
+bool                Widget::isVisible() const
+{
+    for(const Widget *p=this; p!=NULL; p=p->getParent()) {
+        if(!p->m->visible) { return false; }
+    }
+    return true;
+}
 bool                Widget::isFocused() const   { return iuiGetSystem()->getFocus()==this; }
 
 void Widget::setParent( Widget *p )
@@ -122,6 +128,7 @@ void Widget::update(Float dt)
 
 void Widget::draw()
 {
+    if(!isVisible()) { return; }
     if(m->style==NULL) {
         m->style = Style::createDefaultStyle(getTypeID());
         if(m->style) { m->style->setWidget(this); }

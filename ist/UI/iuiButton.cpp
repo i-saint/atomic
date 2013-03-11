@@ -56,25 +56,27 @@ bool Button::handleEvent( const WM_Base &wm )
 {
     WidgetHit hit = MouseHitWidget(this, wm);
     bool ret = false;
-    if(hit==WH_HitMouseLeftDown) {
-        m->pressing = true;
-        ret = true;
-    }
-    else if(hit==WH_HitMouseLeftUp) {
-        if(m->pressing) {
-            callIfValid(m->on_press);
+    if(isVisible()) {
+        if(hit==WH_HitMouseLeftDown) {
+            m->pressing = true;
+            ret = true;
+        }
+        else if(hit==WH_HitMouseLeftUp) {
+            if(m->pressing) {
+                callIfValid(m->on_press);
+                m->pressing = false;
+            }
+            ret = true;
+        }
+        else if(hit==WH_MissMouseLeftUp) {
             m->pressing = false;
         }
-        ret = true;
-    }
-    else if(hit==WH_MissMouseLeftUp) {
-        m->pressing = false;
-    }
-    else if(hit==WH_MouseEnter) {
-        m->hovered = true;
-    }
-    else if(hit==WH_MouseLeave) {
-        m->hovered = false;
+        else if(hit==WH_MouseEnter) {
+            m->hovered = true;
+        }
+        else if(hit==WH_MouseLeave) {
+            m->hovered = false;
+        }
     }
     return ret || super::handleEvent(wm);
 }
@@ -116,26 +118,28 @@ bool ToggleButton::handleEvent( const WM_Base &wm )
 {
     WidgetHit hit = MouseHitWidget(this, wm);
     bool ret = false;
-    if(hit==WH_HitMouseLeftDown) {
-        m->pressing = true;
-        ret = true;
-    }
-    else if(hit==WH_HitMouseLeftUp) {
-        if(m->pressing) {
-            m->pressed = !m->pressed;
-            callIfValid(m->on_toggle);
+    if(isVisible()) {
+        if(hit==WH_HitMouseLeftDown) {
+            m->pressing = true;
+            ret = true;
+        }
+        else if(hit==WH_HitMouseLeftUp) {
+            if(m->pressing) {
+                m->pressed = !m->pressed;
+                callIfValid(m->on_toggle);
+                m->pressing = false;
+            }
+            ret = true;
+        }
+        else if(hit==WH_MissMouseLeftUp) {
             m->pressing = false;
         }
-        ret = true;
-    }
-    else if(hit==WH_MissMouseLeftUp) {
-        m->pressing = false;
-    }
-    else if(hit==WH_MouseEnter) {
-        m->hovered = true;
-    }
-    else if(hit==WH_MouseLeave) {
-        m->hovered = false;
+        else if(hit==WH_MouseEnter) {
+            m->hovered = true;
+        }
+        else if(hit==WH_MouseLeave) {
+            m->hovered = false;
+        }
     }
     return ret || super::handleEvent(wm);
 }

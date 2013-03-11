@@ -70,7 +70,7 @@ TitleWindow::TitleWindow()
 
 void TitleWindow::onStart(Widget *)
 {
-
+    setVisibility(false);
 }
 
 void TitleWindow::onRecord(Widget *)
