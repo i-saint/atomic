@@ -1,4 +1,5 @@
 ﻿#include "stdafx.h"
+#include "Game/AtomicApplication.h"
 #include "Title.h"
 
 namespace atomic {
@@ -89,7 +90,7 @@ void TitleWindow::onCredit(Widget *)
 
 void TitleWindow::onExit(Widget *)
 {
-
+    atomicGetApplication()->requestExit();
 }
 
 ConfigWindow::ConfigWindow()

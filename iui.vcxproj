@@ -29,6 +29,7 @@
     <ClCompile Include="ist\UI\iuiRenderer.cpp" />
     <ClCompile Include="ist\UI\iuiSlider.cpp" />
     <ClCompile Include="ist\UI\iuiSystem.cpp" />
+    <ClCompile Include="ist\UI\iuiUtilities.cpp" />
     <ClCompile Include="ist\UI\iuiWidget.cpp" />
     <ClCompile Include="ist\UI\iuiWindow.cpp" />
   </ItemGroup>
@@ -44,6 +45,7 @@
     <ClInclude Include="ist\UI\iuiSlider.h" />
     <ClInclude Include="ist\UI\iuiSystem.h" />
     <ClInclude Include="ist\UI\iuiTypes.h" />
+    <ClInclude Include="ist\UI\iuiUtilities.h" />
     <ClInclude Include="ist\UI\iuiWidget.h" />
     <ClInclude Include="ist\UI\iuiWindow.h" />
   </ItemGroup>

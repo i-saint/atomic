@@ -82,6 +82,12 @@ struct Circle
 {
     Position position;
     Float radius;
+    Circle() : radius(0.0f) {}
+    Circle(const Position& p, Float r) : position(p), radius(r) {}
+    const Position& getPosition() const { return position; }
+    Float getRadius() const             { return radius; }
+    void setPosition(const Position &p) { position=p; }
+    void setRadius(Float r)             { radius=r; }
 };
 
 struct Line
@@ -104,6 +110,7 @@ enum TextVAlign
     TA_VBottom,
     TA_VCenter,
 };
+
 
 class UIRenderer;
 class Widget;

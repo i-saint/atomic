@@ -57,6 +57,7 @@ struct WM_Keyboard : public WM_Base
 struct WM_Mouse : public WM_Base
 {
     vec2 mouse_pos;
+    vec2 mouse_move;
     int16 wheel;
     struct {
         uint16 left:1;

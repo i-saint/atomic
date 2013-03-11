@@ -17,7 +17,7 @@ inline void SetupWMMouse(WM_Mouse &wm, WPARAM wParam , LPARAM lParam)
     if(wParam&MK_RBUTTON) { wm.button.right=1; }
     if(wParam&MK_MBUTTON) { wm.button.middle=1; }
     if(wParam&MK_CONTROL) { wm.button.ctrl=1; }
-    if(wParam&MK_MBUTTON) { wm.button.shift=1; }
+    if(wParam&MK_SHIFT)   { wm.button.shift=1; }
     wm.wheel = GET_WHEEL_DELTA_WPARAM(wParam);
     wm.mouse_pos.x = (float32)GET_X_LPARAM(lParam);
     wm.mouse_pos.y = (float32)GET_Y_LPARAM(lParam);
@@ -111,6 +111,9 @@ LRESULT CALLBACK istWndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lP
             WM_Mouse wm;
             wm.type = WMT_MouseDown;
             SetupWMMouse(wm, wParam, lParam);
+            if(message==WM_LBUTTONDOWN) wm.button.left=1;
+            if(message==WM_RBUTTONDOWN) wm.button.right=1;
+            if(message==WM_MBUTTONDOWN) wm.button.middle=1;
             app->_handleWindowMessage(wm);
         }
         break;
@@ -122,6 +125,9 @@ LRESULT CALLBACK istWndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lP
             WM_Mouse wm;
             wm.type = WMT_MouseUp;
             SetupWMMouse(wm, wParam, lParam);
+            if(message==WM_LBUTTONUP) wm.button.left=1;
+            if(message==WM_RBUTTONUP) wm.button.right=1;
+            if(message==WM_MBUTTONUP) wm.button.middle=1;
             app->_handleWindowMessage(wm);
         }
         break;
@@ -131,6 +137,9 @@ LRESULT CALLBACK istWndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lP
             WM_Mouse wm;
             wm.type = WMT_MouseMove;
             SetupWMMouse(wm, wParam, lParam);
+            static vec2 s_prev_pos = wm.mouse_pos;
+            wm.mouse_move = wm.mouse_pos - s_prev_pos;
+            s_prev_pos = wm.mouse_pos;
             app->_handleWindowMessage(wm);
         }
         break;

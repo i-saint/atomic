@@ -13,11 +13,15 @@ public:
 
 class iuiInterModule Button : public Widget
 {
+typedef Widget super;
 public:
     iuiImplWidget(Button)
     Button(Widget *parent, const wchar_t *text=L"", const Rect &pos=Rect(), const WidgetCallback &on_press=WidgetCallback());
     bool isPressing() const;
+    bool isHovered() const;
 
+protected:
+    virtual bool handleEvent(const WM_Base &wm);
 private:
     istMemberPtrDecl(Members) m;
 };
@@ -31,12 +35,16 @@ public:
 
 class iuiInterModule ToggleButton : public Widget
 {
+typedef Widget super;
 public:
     iuiImplWidget(ToggleButton)
     ToggleButton(const wchar_t *text=L"", const WidgetCallback &on_toggle=WidgetCallback());
     bool isPressed() const;
     bool isPressing() const;
+    bool isHovered() const;
 
+protected:
+    virtual bool handleEvent(const WM_Base &wm);
 private:
     istMemberPtrDecl(Members) m;
 };
@@ -50,12 +58,15 @@ public:
 
 class iuiInterModule Checkbox : public Widget
 {
+typedef Widget super;
 public:
     iuiImplWidget(Checkbox)
     Checkbox(const wchar_t *text=L"", const WidgetCallback &on_toggle=WidgetCallback());
     bool isChecked() const;
     bool isPressing() const;
 
+protected:
+    virtual bool handleEvent(const WM_Base &wm);
 private:
     istMemberPtrDecl(Members) m;
 };
