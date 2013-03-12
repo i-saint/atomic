@@ -23,8 +23,8 @@ struct TextPosition
     Float hspace;
     Float vspace;
     TextPosition() : halign(TA_HLeft), valign(TA_VTop), hspace(0.75f), vspace(1.0f) {}
-    TextPosition(const Position &pos, const Size &size=Size(), TextHAlign ha=TA_HLeft, TextVAlign va=TA_VTop, Float hs=0.75f, Float vs=1.0f)
-        : rect(pos, size), halign(ha), valign(va), hspace(hs), vspace(vs) {}
+    TextPosition(const Rect &rc, TextHAlign ha=TA_HLeft, TextVAlign va=TA_VTop, Float hs=0.75f, Float vs=1.0f)
+        : rect(rc), halign(ha), valign(va), hspace(hs), vspace(vs) {}
 };
 
 class iuiInterModule UIRenderer
@@ -35,6 +35,7 @@ public:
     virtual void finalize()=0;
 
     virtual void setScreen(float32 width, float32 height)=0;
+    virtual void setTranslate(Position pos)=0;
 
     virtual void drawLine(const Line &line, const Color &color)=0;
     virtual void drawRect(const Rect &rect, const Color &color)=0;

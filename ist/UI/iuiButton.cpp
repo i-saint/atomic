@@ -15,7 +15,8 @@ ButtonStyle::ButtonStyle()
 void ButtonStyle::draw()
 {
     Button *w = static_cast<Button*>(getWidget());
-    TextPosition tpos(w->getPosition(), w->getSize(), getTextHAlign(), getTextVAlign(), getTextHSpacing(), getTextVSpacing());
+    Rect rect(w->getPositionAbs(), w->getSize());
+    TextPosition tpos(rect, getTextHAlign(), getTextVAlign(), getTextHSpacing(), getTextVSpacing());
     Color bg = getBGColor();
     if(w->isPressing()) {
         bg += vec4(0.4f, 0.4f, 0.4f, 0.0f);
@@ -23,8 +24,8 @@ void ButtonStyle::draw()
     else if(w->isHovered()) {
         bg += vec4(0.2f, 0.2f, 0.2f, 0.0f);
     }
-    iuiGetRenderer()->drawRect(Rect(w->getPosition(), w->getSize()), bg);
-    iuiGetRenderer()->drawOutlineRect(Rect(w->getPosition(), w->getSize()), getBorderColor());
+    iuiGetRenderer()->drawRect(rect, bg);
+    iuiGetRenderer()->drawOutlineRect(rect, getBorderColor());
     iuiGetRenderer()->drawFont(tpos, getFontColor(), w->getText().c_str(), w->getText().size());
 }
 iuiImplDefaultStyle(Button);
@@ -86,10 +87,19 @@ bool Button::handleEvent( const WM_Base &wm )
 
 void ToggleButtonStyle::draw()
 {
-    // todo
-    Widget *w = getWidget();
-    iuiGetRenderer()->drawRect(Rect(w->getPosition(), w->getSize()), getBGColor());
-    iuiGetRenderer()->drawOutlineRect(Rect(w->getPosition(), w->getSize()), getBorderColor());
+    ToggleButton *w = static_cast<ToggleButton*>(getWidget());
+    Rect rect(w->getPositionAbs(), w->getSize());
+    TextPosition tpos(rect, getTextHAlign(), getTextVAlign(), getTextHSpacing(), getTextVSpacing());
+    Color bg = getBGColor();
+    if(w->isPressing()) {
+        bg += vec4(0.4f, 0.4f, 0.4f, 0.0f);
+    }
+    else if(w->isHovered()) {
+        bg += vec4(0.2f, 0.2f, 0.2f, 0.0f);
+    }
+    iuiGetRenderer()->drawRect(rect, bg);
+    iuiGetRenderer()->drawOutlineRect(rect, getBorderColor());
+    iuiGetRenderer()->drawFont(tpos, getFontColor(), w->getText().c_str(), w->getText().size());
 }
 iuiImplDefaultStyle(ToggleButton);
 

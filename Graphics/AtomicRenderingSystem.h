@@ -33,6 +33,7 @@ public:
     // 以下レンダリングスレッドからのみアクセス可
     i3d::Device* getDevice();
     i3d::DeviceContext* getDeviceContext();
+    i3d::EasyDrawer* getEasyDrawer();
 };
 
 } // namespace atomic
@@ -43,5 +44,6 @@ public:
 #define atomicGetAverageFPS()                   atomicGetRenderingSystem()->getAverageFPS()
 #define atomicGetGLDevice()                     atomicGetRenderingSystem()->getDevice()
 #define atomicGetGLDeviceContext()              atomicGetRenderingSystem()->getDeviceContext()
+#define atomicGetEasyDrawer()                   atomicGetRenderingSystem()->getEasyDrawer()
 
 #endif // atomic_Graphics_AtomicRenderingSystem_h

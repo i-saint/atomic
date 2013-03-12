@@ -170,6 +170,15 @@ Widget::WorkspacePool& Widget::getWorkspacePool()
     return *s_pool;
 }
 
+Position Widget::getPositionAbs() const
+{
+    Position pos;
+    for(const Widget *p=this; p!=NULL; p=p->getParent()) {
+        pos += p->getPosition();
+    }
+    return pos;
+}
+
 
 
 

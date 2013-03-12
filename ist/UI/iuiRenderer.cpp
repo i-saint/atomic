@@ -41,6 +41,11 @@ public:
     {
         m_drawer->setScreen(width, height);
     }
+    virtual void setTranslate(Position pos)
+    {
+        mat4 trans = glm::translate(mat4(), vec3(pos, 0.0f));
+        m_drawer->setWorldMatrix(trans);
+    }
 
 
     virtual void drawLine(const Line &line, const Color &color)

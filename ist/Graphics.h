@@ -8,6 +8,7 @@
 
 #ifdef ist_with_OpenGL
 #include "GraphicsGL/i3dgl.h"
+#include "GraphicsCommon/EasyDrawer.h"
 #endif // ist_with_OpenGL
 
 #ifdef ist_with_OpenGLES

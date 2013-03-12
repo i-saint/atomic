@@ -20,7 +20,7 @@ iuiInterModule bool IsInside( const Circle &circle, const Position &pos )
 
 iuiInterModule WidgetHit MouseHitWidget(Widget *w, const WM_Base &wm)
 {
-    const Rect rect(w->getPosition(), w->getSize());
+    const Rect rect(w->getPositionAbs(), w->getSize());
     switch(wm.type) {
     case WMT_MouseDown: // 
     case WMT_MouseUp:   // 

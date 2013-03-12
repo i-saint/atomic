@@ -36,6 +36,7 @@ class AtomicRenderingThread : public ist::Thread
 private:
     i3d::Device *m_device;
     i3d::DeviceContext *m_context;
+    i3d::EasyDrawer *m_drawer;
 
     ATOMIC_ERROR m_error;
     ist::Mutex m_mutex_request;
@@ -63,15 +64,17 @@ public:
 
     void doRender();
 
-    ATOMIC_ERROR getError() const { return m_error; }
-    uint32 getAverageFPS() const { return m_fps_avg; }
-    i3d::Device* getDevice() { return m_device; }
-    i3d::DeviceContext* getDeviceContext() { return m_context; }
+    ATOMIC_ERROR        getError() const        { return m_error; }
+    uint32              getAverageFPS() const   { return m_fps_avg; }
+    i3d::Device*        getDevice()             { return m_device; }
+    i3d::DeviceContext* getDeviceContext()      { return m_context; }
+    i3d::EasyDrawer*    getEasyDrawer()         { return m_drawer; }
 };
 
 AtomicRenderingThread::AtomicRenderingThread()
     : m_device(NULL)
     , m_context(NULL)
+    , m_drawer(NULL)
     , m_error(ATERR_NOERROR)
     , m_fps_count(0)
     , m_fps_avg(0)
@@ -114,13 +117,14 @@ void AtomicRenderingThread::exec()
         goto finalize_section;
     }
     m_context = m_device->createImmediateContext();
+    m_drawer = i3d::CreateEasyDrawer();
 
 #ifdef ist_env_Windows
     wglSwapIntervalEXT(atomicGetConfig()->vsync);
 #endif // ist_env_Windows
     GraphicResourceManager::intializeInstance();
     AtomicRenderer::initializeInstance();
-    iuiInitializeRenderer(NULL, atomicGetFontRenderer());
+    iuiInitializeRenderer(atomicGetEasyDrawer(), atomicGetFontRenderer());
     m_cond_initialize_complete.signalOne();
 
     m_fps_timer.reset();
@@ -156,10 +160,11 @@ void AtomicRenderingThread::exec()
     GraphicResourceManager::finalizeInstance();
 
 finalize_section:
+    istSafeRelease(m_drawer);
     istSafeRelease(m_context);
 #ifdef i3d_enable_resource_leak_check
     m_device->printLeakInfo();
-#endif // __i3d_enable_leak_check__
+#endif // i3d_enable_resource_leak_check
     istSafeRelease(m_device);
 }
 
@@ -237,6 +242,11 @@ i3d::Device * AtomicRenderingSystem::getDevice()
 i3d::DeviceContext * AtomicRenderingSystem::getDeviceContext()
 {
     return m_render_thread->getDeviceContext();
+}
+
+i3d::EasyDrawer* AtomicRenderingSystem::getEasyDrawer()
+{
+    return m_render_thread->getEasyDrawer();
 }
 
 } // namespace atomic

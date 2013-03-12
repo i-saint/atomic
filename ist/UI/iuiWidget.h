@@ -29,7 +29,8 @@ public:
 
     Style*              getStyle() const;
     const String&       getText() const;
-    const Position&     getPosition() const;
+    const Position&     getPosition() const; // 親からの相対座標
+    Position            getPositionAbs() const; // 絶対座標
     const Size&         getSize() const;
     Float               getZOrder() const;
     bool                isVisible() const;
@@ -78,29 +79,6 @@ public:
     }
     template<class F>
     void eachChildrenReverse(const F &f) const { const_cast<Widget*>(this)->eachChildrenReverse(f); }
-
-    // 自分 -> 親 -> 親の親 -> ... -> Root の順に巡回
-    template<class F>
-    void eachParent(const F &f)
-    {
-        for(Widget *w=this; w!=NULL; w=w->getParent()) { f(w); }
-    }
-    template<class F>
-    void eachParent(const F &f) const { const_cast<Widget*>(this)->eachParent(f); }
-
-    // 自分 <- 親 <- 親の親 <- ... <- Root の順に巡回
-    template<class F>
-    void eachParentReverse(const F &f) { eachParentReverseImpl(this); }
-    template<class F>
-    void eachParentReverse(const F &f) const { eachParentReverseImpl(const_cast<Widget*>(this)); }
-
-    template<class F>
-    static void eachParentReverseImpl(Widget *w, const F &f)
-    {
-        if(Widget *w=getParent()) { eachParentReverseImpl(w, f); }
-        f(w);
-    }
-
 
 protected:
     virtual ~Widget();

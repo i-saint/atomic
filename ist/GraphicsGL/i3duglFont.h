@@ -6,7 +6,6 @@
 namespace ist {
 namespace i3dgl {
 
-
 class IFontRenderer : public SharedObject
 {
 public:
@@ -24,8 +23,9 @@ public:
     virtual void flush(DeviceContext *dc)=0;
 };
 
-IFontRenderer* CreateSpriteFont(const char *path_to_sff, const char *path_to_img);
-IFontRenderer* CreateSpriteFont(IBinaryStream &sff, IBinaryStream &img);
+class EasyDrawer;
+IFontRenderer* CreateSpriteFont(const char *path_to_sff, const char *path_to_img, EasyDrawer *drawer=NULL);
+IFontRenderer* CreateSpriteFont(IBinaryStream &sff, IBinaryStream &img, EasyDrawer *drawer=NULL);
 
 } // namespace i3d
 } // namespace ist

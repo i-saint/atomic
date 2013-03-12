@@ -21,6 +21,14 @@ RootWindow::RootWindow()
     m_log->setParent(this);
 }
 
+void RootWindow::update(iui::Float dt)
+{
+    static float32 f = 0.0f;
+    f += 0.005f;
+    setPosition(iui::Position(std::cos(f)*100.0f, 0.0f));
+    super::update(dt);
+}
+
 
 TitleWindow::TitleWindow()
     : m_start(NULL)

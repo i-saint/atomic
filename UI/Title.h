@@ -12,8 +12,10 @@ class LogWindow;
 
 class RootWindow : public iui::RootWindow
 {
+typedef iui::RootWindow super;
 public:
     RootWindow();
+    virtual void update(iui::Float dt=0.0f);
 
 private:
     TitleWindow     *m_title;
