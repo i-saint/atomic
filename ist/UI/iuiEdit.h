@@ -4,6 +4,24 @@
 #include "iuiWidget.h"
 namespace iui {
 
+class iuiInterModule LabelStyle : public Style
+{
+public:
+    virtual void draw();
+};
+
+class iuiInterModule Label : public Widget
+{
+typedef Widget super;
+public:
+    iuiImplWidget(Label)
+    Label(Widget *parent, const wchar_t *text=L"", const Rect &rect=Rect());
+
+protected:
+    virtual bool handleEvent(const WM_Base &wm);
+};
+
+
 class iuiInterModule EditboxStyle : public Style
 {
 public:
@@ -12,13 +30,18 @@ public:
 
 class iuiInterModule Editbox : public Widget
 {
+typedef Widget super;
 public:
-    Editbox(const wchar_t *text=L"", const WidgetCallback &on_change=WidgetCallback());
-    bool isReadOnly() const;
-    int32 getCursor() const;
+    iuiImplWidget(Editbox)
+    Editbox(Widget *parent, const wchar_t *text=L"", const Rect &rect=Rect(), const WidgetCallback &on_edit=WidgetCallback());
+    bool    isHovered() const;
+    bool    isReadOnly() const;
+    int32   getCursor() const;
+    void    setReadOnly(bool ro);
+    void    setCursor(int32 cursor);
 
 protected:
-    virtual Style* createDefaultStyle() const;
+    virtual bool handleEvent(const WM_Base &wm);
 private:
     istMemberPtrDecl(Members) m;
 };
@@ -33,10 +56,13 @@ public:
 
 class iuiInterModule EditboxMultiline : public Widget
 {
+typedef Widget super;
 public:
     EditboxMultiline(const wchar_t *text=L"", const WidgetCallback &on_change=WidgetCallback());
-    bool isReadOnly() const;
-    const ivec2& getCursor() const;
+    bool            isReadOnly() const;
+    const ivec2&    getCursor() const;
+    void            setReadOnly(bool ro);
+    void            setCursor(const ivec2& cursor);
 
 protected:
     virtual Style* createDefaultStyle() const;

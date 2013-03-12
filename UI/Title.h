@@ -20,6 +20,57 @@ private:
     ConfigWindow    *m_config;
     LogWindow       *m_log;
 };
+iui::RootWindow* CreateRootWindow()
+{
+    return istNew(RootWindow)();
+}
 
+
+class TitleWindow : public iui::Panel
+{
+public:
+    TitleWindow();
+
+private:
+    void onStart(Widget *);
+    void onRecord(Widget *);
+    void onConfig(Widget *);
+    void onExit(Widget *);
+
+    StartWindow     *m_start;
+    RecordWindow    *m_record;
+};
+
+class StartWindow : public iui::Panel
+{
+public:
+    StartWindow();
+private:
+    void onQuickJoin(Widget *);
+    void onHorde(Widget *);
+    void onScoreAttack(Widget *);
+};
+
+
+class ConfigWindow : public iui::Panel
+{
+public:
+    ConfigWindow();
+private:
+    void onName(Widget *);
+    void onResolution(Widget *);
+    void onBGMVolume(Widget *);
+    void onBGMOnOff(Widget *);
+    void onSEVolume(Widget *);
+    void onSEOnOff(Widget *);
+};
+
+class LogWindow : public iui::Panel
+{
+public:
+    LogWindow();
+private:
+    void onTextEnter(Widget *);
+};
 } // namespace atomic
 #endif // atomic_UI_Title_h

@@ -45,6 +45,8 @@ struct WM_Window : public WM_Base
 {
     ivec2 window_size;
     ivec2 window_pos;
+
+    static const WM_Window& cast(const WM_Base &wm) { return static_cast<const WM_Window&>(wm); }
 };
 
 struct WM_Keyboard : public WM_Base
@@ -52,6 +54,8 @@ struct WM_Keyboard : public WM_Base
     uint16 key;
 
     WM_Keyboard() { istMemset(this, 0, sizeof(*this)); }
+
+    static const WM_Keyboard& cast(const WM_Base &wm) { return static_cast<const WM_Keyboard&>(wm); }
 };
 
 struct WM_Mouse : public WM_Base
@@ -68,6 +72,8 @@ struct WM_Mouse : public WM_Base
     } button;
 
     WM_Mouse() { istMemset(this, 0, sizeof(*this)); }
+
+    static const WM_Mouse& cast(const WM_Base &wm) { return static_cast<const WM_Mouse&>(wm); }
 };
 
 // MES_IME_CHAR, MES_IME_RESULT のとき、text, text_len に入力データが入っている
@@ -89,6 +95,8 @@ struct WM_IME : public WM_Base
         text = NULL;
         candidates = NULL;
     }
+
+    static const WM_IME& cast(const WM_Base &wm) { return static_cast<const WM_IME&>(wm); }
 };
 
 

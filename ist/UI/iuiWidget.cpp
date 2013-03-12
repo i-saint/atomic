@@ -181,6 +181,8 @@ struct Style::Members
     Color border_color;
     TextHAlign text_halign;
     TextVAlign text_valign;
+    Float text_hspacing;
+    Float text_vspacing;
 
     Members()
         : widget(NULL)
@@ -189,6 +191,8 @@ struct Style::Members
         , border_color(1.0f, 1.0f, 1.0f, 0.5f)
         , text_halign(TA_HLeft)
         , text_valign(TA_VCenter)
+        , text_hspacing(0.75f)
+        , text_vspacing(1.0f)
     {
     }
 };
@@ -208,6 +212,8 @@ const Color&    Style::getBGColor() const       { return m->bg_color; }
 const Color&    Style::getBorderColor() const   { return m->border_color; }
 TextHAlign      Style::getTextHAlign() const    { return m->text_halign; }
 TextVAlign      Style::getTextVAlign() const    { return m->text_valign; }
+Float           Style::getTextHSpacing() const  { return m->text_hspacing; }
+Float           Style::getTextVSpacing() const  { return m->text_vspacing; }
 
 void Style::setWidget(Widget *v)            { m->widget=v; }
 void Style::setFontColor(const Color &v)    { m->font_color=v; }
@@ -215,6 +221,8 @@ void Style::setBGColor(const Color &v)      { m->bg_color=v; }
 void Style::setBorderColor(const Color &v)  { m->border_color=v; }
 void Style::setTextHAlign(TextHAlign v)     { m->text_halign=v; }
 void Style::setTextVAlign(TextVAlign v)     { m->text_valign=v; }
+void Style::setTextHSpacing(Float v)        { m->text_hspacing=v; }
+void Style::setTextVSpacing(Float v)        { m->text_vspacing=v; }
 
 Style::StyleCreatorTable& Style::getDefaultStyleCreators()
 {

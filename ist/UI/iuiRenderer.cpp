@@ -71,6 +71,7 @@ public:
         else if(tp.halign==TA_HCenter) { pos.x += size.x*0.5f - fs.x*0.5f; }
         if     (tp.valign==TA_VBottom) { pos.y += size.y-fs.y; }
         else if(tp.valign==TA_VCenter) { pos.y += size.y*0.5f - fs.y*0.5f; }
+        m_font->setSpacing(tp.hspace);
         m_font->setColor(color);
         m_font->addText(pos, text, len);
     }

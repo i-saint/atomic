@@ -13,6 +13,7 @@ enum WidgetTypeID
     WT_Button,
     WT_ToggleButton,
     WT_Checkbox,
+    WT_Label,
     WT_Editbox,
     WT_EditboxMultiline,
     WT_Listbox,

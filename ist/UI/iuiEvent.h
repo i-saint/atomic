@@ -37,6 +37,8 @@ enum WindowMessageType
 {
     WMT_WidgetCretate = 256,
     WMT_WidgetDelete,
+    WMT_WidgetGainFocus,
+    WMT_WidgetLostFocus,
 };
 
 typedef ist::WM_Base        WM_Base;
@@ -49,6 +51,8 @@ class Widget;
 struct WM_Widget : public WM_Base
 {
     Widget *from;
+
+    static const WM_Widget& cast(const WM_Base &wm) { return static_cast<const WM_Widget&>(wm); }
 };
 
 

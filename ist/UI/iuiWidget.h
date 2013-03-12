@@ -64,6 +64,9 @@ public:
         getWorkspacePool().recycle(workspace);
     }
     template<class F>
+    void eachChildren(const F &f) const { const_cast<Widget*>(this)->eachChildren(f); }
+
+    template<class F>
     void eachChildrenReverse(const F &f)
     {
         WidgetCont &children = getChildren();
@@ -73,6 +76,31 @@ public:
         std::for_each(workspace->rbegin(), workspace->rend(), f);
         getWorkspacePool().recycle(workspace);
     }
+    template<class F>
+    void eachChildrenReverse(const F &f) const { const_cast<Widget*>(this)->eachChildrenReverse(f); }
+
+    // 自分 -> 親 -> 親の親 -> ... -> Root の順に巡回
+    template<class F>
+    void eachParent(const F &f)
+    {
+        for(Widget *w=this; w!=NULL; w=w->getParent()) { f(w); }
+    }
+    template<class F>
+    void eachParent(const F &f) const { const_cast<Widget*>(this)->eachParent(f); }
+
+    // 自分 <- 親 <- 親の親 <- ... <- Root の順に巡回
+    template<class F>
+    void eachParentReverse(const F &f) { eachParentReverseImpl(this); }
+    template<class F>
+    void eachParentReverse(const F &f) const { eachParentReverseImpl(const_cast<Widget*>(this)); }
+
+    template<class F>
+    static void eachParentReverseImpl(Widget *w, const F &f)
+    {
+        if(Widget *w=getParent()) { eachParentReverseImpl(w, f); }
+        f(w);
+    }
+
 
 protected:
     virtual ~Widget();
@@ -106,6 +134,8 @@ public:
     const Color&    getBorderColor() const;
     TextHAlign      getTextHAlign() const;
     TextVAlign      getTextVAlign() const;
+    Float           getTextHSpacing() const;
+    Float           getTextVSpacing() const;
 
     void setWidget(Widget *v);
     void setFontColor(const Color &v);
@@ -113,6 +143,8 @@ public:
     void setBorderColor(const Color &v);
     void setTextHAlign(TextHAlign v);
     void setTextVAlign(TextVAlign v);
+    void setTextHSpacing(Float v);
+    void setTextVSpacing(Float v);
 
 private:
     istMemberPtrDecl(Members) m;

@@ -12,7 +12,6 @@
 #include "Network/LevelEditorServer.h"
 #include "Network/GameServer.h"
 #include "Network/GameClient.h"
-#include "UI/Title.h"
 #include "Util.h"
 
 #define ATOMIC_CONFIG_FILE_PATH "atomic.conf"
@@ -21,6 +20,7 @@ namespace atomic {
 
 void InitializeCrashReporter();
 void FinalizeCrashReporter();
+iui::RootWindow* CreateRootWindow();
 
 
 AtomicConfig::AtomicConfig()
@@ -201,7 +201,7 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     }
     // ui
     iuiInitialize();
-    iuiGetSystem()->setRootWindow(istNew(RootWindow)());
+    iuiGetSystem()->setRootWindow(CreateRootWindow());
 
     // start rendering thread
     AtomicRenderingSystem::initializeInstance();

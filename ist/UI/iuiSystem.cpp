@@ -3,6 +3,7 @@
 #include "iuiWidget.h"
 #include "iuiWindow.h"
 #include "iuiRenderer.h"
+#include "iuiUtilities.h"
 namespace iui {
 
 
@@ -55,15 +56,15 @@ const Rect& UISystem::getScreen() const         { return m->screen; }
 void UISystem::setRootWindow( Widget *root )
 {
     m->root_widget = root;
+    if(m->root_widget) {
+        m->root_widget->setPosition(m->screen.pos);
+        m->root_widget->setSize(m->screen.size);
+    }
 }
 
 void UISystem::setScreen( float32 width, float32 height )
 {
     m->screen = Rect(Position(), Size(width, height));
-    if(m->root_widget) {
-        m->root_widget->setPosition(m->screen.pos);
-        m->root_widget->setSize(m->screen.size);
-    }
 }
 
 
@@ -121,7 +122,15 @@ bool UISystem::handleWindowMessageR( Widget *widget, const WM_Base &wm )
     widget->eachChildren([&](Widget *c){
         if(!handled && handleWindowMessageR(c, wm)) { handled=true; }
     });
-    if(!handled && widget->handleEvent(wm)) { handled=true; }
+    if(!handled) {
+        if(widget->handleEvent(wm)) { handled=true; }
+
+        WidgetHit wh = MouseHitWidget(widget, wm);
+        if(wh==WH_HitMouseLeftDown && !widget->isFocused()) {
+            setFocus(widget);
+            handled=true;
+        }
+    }
     return handled;
 }
 
@@ -165,7 +174,21 @@ void UISystem::drawR( Widget *widget )
 
 void UISystem::setFocus( Widget *v )
 {
-    m->focus = v;
+    if(m->focus!=v) {
+        if(m->focus) {
+            WM_Widget wm;
+            wm.type = WMT_WidgetLostFocus;
+            wm.from = m->focus;
+            sendMessage(wm);
+        }
+        m->focus = v;
+        if(v) {
+            WM_Widget wm;
+            wm.type = WMT_WidgetGainFocus;
+            wm.from = v;
+            sendMessage(wm);
+        }
+    }
 }
 
 void UISystem::notifyNewWidget( Widget *w )

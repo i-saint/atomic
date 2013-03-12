@@ -9,12 +9,13 @@ namespace iui {
 ButtonStyle::ButtonStyle()
 {
     setTextHAlign(TA_HCenter);
+    setTextHSpacing(1.0f);
 }
 
 void ButtonStyle::draw()
 {
     Button *w = static_cast<Button*>(getWidget());
-    TextPosition tpos(w->getPosition(), w->getSize(), getTextHAlign(), getTextVAlign());
+    TextPosition tpos(w->getPosition(), w->getSize(), getTextHAlign(), getTextVAlign(), getTextHSpacing(), getTextVSpacing());
     Color bg = getBGColor();
     if(w->isPressing()) {
         bg += vec4(0.4f, 0.4f, 0.4f, 0.0f);

@@ -20,8 +20,11 @@ struct TextPosition
     Rect rect;
     TextHAlign halign;
     TextVAlign valign;
-    TextPosition() : halign(TA_HLeft), valign(TA_VTop) {}
-    TextPosition(const Position &pos, const Size &size=Size(), TextHAlign ha=TA_HLeft, TextVAlign va=TA_VTop) : halign(ha), valign(va), rect(pos, size) {}
+    Float hspace;
+    Float vspace;
+    TextPosition() : halign(TA_HLeft), valign(TA_VTop), hspace(0.75f), vspace(1.0f) {}
+    TextPosition(const Position &pos, const Size &size=Size(), TextHAlign ha=TA_HLeft, TextVAlign va=TA_VTop, Float hs=0.75f, Float vs=1.0f)
+        : rect(pos, size), halign(ha), valign(va), hspace(hs), vspace(vs) {}
 };
 
 class iuiInterModule UIRenderer
