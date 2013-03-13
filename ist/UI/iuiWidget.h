@@ -33,7 +33,8 @@ public:
     Position            getPositionAbs() const; // 絶対座標
     const Size&         getSize() const;
     Float               getZOrder() const;
-    bool                isVisible() const;
+    bool                isVisible() const; // 単身の可視性 (親が不可視でも true を返しうる)
+    bool                isVisibleAbs() const; // 親の状態まで考慮した可視性 (不可視の親がいたら false)
     bool                isFocused() const;
 
     void setParent(Widget *p);

@@ -34,6 +34,7 @@ typedef Widget super;
 public:
     iuiImplWidget(Editbox)
     Editbox(Widget *parent, const wchar_t *text=L"", const Rect &rect=Rect(), const WidgetCallback &on_edit=WidgetCallback());
+    void    update(Float dt);
     bool    isHovered() const;
     bool    isReadOnly() const;
     int32   getCursor() const;

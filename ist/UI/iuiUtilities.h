@@ -22,10 +22,12 @@ enum WidgetHit {
     WH_MissMouseLeftUp,
     WH_MissMouseRightUp,
     WH_MissMouseMiddleUp,
-    WH_MouseEnter,
-    WH_MouseLeave,
+    WH_MouseInside,
+    WH_MouseOutside,
 };
 iuiInterModule WidgetHit MouseHitWidget(Widget *w, const WM_Base &wm);
+
+iuiInterModule void HandleMouseHover(Widget *w, bool &hovered);
 
 } // namespace iui
 #endif // iui_Utilities_h

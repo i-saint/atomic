@@ -36,6 +36,7 @@ struct UISystem::Members
     Widget      *focus;
     WidgetCont  new_widgets;
     WMHandler   wmhandler;
+    Position    mouse_pos;
     Rect        screen;
 
     Members()
@@ -48,10 +49,11 @@ struct UISystem::Members
 };
 istMemberPtrImpl(UISystem,Members)
 
-UIRenderer* UISystem::getRenderer() const       { return m->renderer; }
-Widget*     UISystem::getRootWindow() const    { return m->root_widget; }
-Widget*     UISystem::getFocus() const          { return m->focus; }
-const Rect& UISystem::getScreen() const         { return m->screen; }
+UIRenderer*     UISystem::getRenderer() const   { return m->renderer; }
+Widget*         UISystem::getRootWindow() const { return m->root_widget; }
+Widget*         UISystem::getFocus() const      { return m->focus; }
+const Position& UISystem::getMousePos() const   { return m->mouse_pos;}
+const Rect&     UISystem::getScreen() const     { return m->screen; }
 
 void UISystem::setRootWindow( Widget *root )
 {
@@ -97,9 +99,14 @@ bool UISystem::handleWindowMessage( const ist::WM_Base &wm )
         handleWindowMessageR(m->root_widget, wm);
     }
     switch(wm.type) {
+    case WMT_MouseMove:
+        {
+            auto &mes = WM_Mouse::cast(wm);
+            m->mouse_pos = mes.mouse_pos;
+        }
     case WMT_WidgetDelete:
         {
-            const WM_Widget &mes = reinterpret_cast<const WM_Widget&>(wm);
+            auto &mes = WM_Widget::cast(wm);
             if(m->focus==mes.from) {
                 m->focus->setFocus(false);
                 m->focus = NULL;
@@ -117,19 +124,18 @@ void UISystem::sendMessage( const WM_Base &wm )
 
 bool UISystem::handleWindowMessageR( Widget *widget, const WM_Base &wm )
 {
+    if(!widget->isVisible()) { return false; }
     // 子が先
     bool handled = false;
     widget->eachChildren([&](Widget *c){
-        if(!handled && handleWindowMessageR(c, wm)) { handled=true; }
+        if(!handled) {
+            if(handleWindowMessageR(c, wm)) {
+                handled = true;
+            }
+        }
     });
     if(!handled) {
         if(widget->handleEvent(wm)) { handled=true; }
-
-        WidgetHit wh = MouseHitWidget(widget, wm);
-        if(wh==WH_HitMouseLeftDown && !widget->isFocused()) {
-            setFocus(widget);
-            handled=true;
-        }
     }
     return handled;
 }
@@ -167,8 +173,10 @@ void UISystem::draw()
 void UISystem::drawR( Widget *widget )
 {
     // 親が先 (奥→手前の順)
-    widget->draw();
-    widget->eachChildrenReverse([&](Widget *c){ drawR(c); });
+    if(widget->isVisible()) {
+        widget->draw();
+        widget->eachChildrenReverse([&](Widget *c){ drawR(c); });
+    }
 }
 
 

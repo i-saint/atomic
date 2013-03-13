@@ -75,30 +75,21 @@ bool    Editbox::isReadOnly() const     { return m->readonly; }
 void    Editbox::setReadOnly(bool ro)   { m->readonly=ro; }
 void    Editbox::setCursor(int32 cursor){ m->cursor=cursor; }
 
+void Editbox::update( Float dt )
+{
+    HandleMouseHover(this, m->hovered);
+    super::update(dt);
+}
+
 bool Editbox::handleEvent( const WM_Base &wm )
 {
-    WidgetHit hit = MouseHitWidget(this, wm);
-    bool ret = false;
-    if(isVisible()) {
-        if(hit==WH_HitMouseLeftDown) {
-            setFocus(true);
-            ret = true;
-        }
-        else if(hit==WH_MouseEnter) {
-            m->hovered = true;
-        }
-        else if(hit==WH_MouseLeave) {
-            m->hovered = false;
-        }
-        else if(hit==WH_Nothing) {
-            if(wm.type==WMT_IMEResult) {
-                if(isFocused()) {
-                    setText(WM_IME::cast(wm).text);
-                }
-            }
+    if(wm.type==WMT_IMEResult) {
+        if(isFocused() && !isReadOnly()) {
+            setText(WM_IME::cast(wm).text);
+            return true;
         }
     }
-    return ret || super::handleEvent(wm);
+    return super::handleEvent(wm);
 }
 
 

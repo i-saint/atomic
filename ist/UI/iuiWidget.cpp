@@ -1,6 +1,7 @@
 ﻿#include "iuiPCH.h"
 #include "iuiSystem.h"
 #include "iuiWidget.h"
+#include "iuiUtilities.h"
 namespace iui {
 
 struct Widget::Members
@@ -35,22 +36,24 @@ struct Widget::Members
 };
 istMemberPtrImpl(Widget,Members)
 
-uint32              Widget::getID() const       { return m->id; }
-Widget*             Widget::getParent() const   { return m->parent; }
-WidgetCont&         Widget::getChildren()       { return m->children; }
-const WidgetCont&   Widget::getChildren() const { return m->children; }
-Style*              Widget::getStyle() const    { return m->style; }
-const Position&     Widget::getPosition() const { return m->pos; }
-const Size&         Widget::getSize() const     { return m->size; }
-const String&       Widget::getText() const     { return m->text; }
-Float               Widget::getZOrder() const   { return m->zorder; }
-bool                Widget::isVisible() const
+uint32              Widget::getID() const           { return m->id; }
+Widget*             Widget::getParent() const       { return m->parent; }
+WidgetCont&         Widget::getChildren()           { return m->children; }
+const WidgetCont&   Widget::getChildren() const     { return m->children; }
+Style*              Widget::getStyle() const        { return m->style; }
+const Position&     Widget::getPosition() const     { return m->pos; }
+const Size&         Widget::getSize() const         { return m->size; }
+const String&       Widget::getText() const         { return m->text; }
+Float               Widget::getZOrder() const       { return m->zorder; }
+bool                Widget::isVisible() const       { return m->visible;  }
+bool Widget::isVisibleAbs() const
 {
     for(const Widget *p=this; p!=NULL; p=p->getParent()) {
         if(!p->m->visible) { return false; }
     }
     return true;
 }
+
 bool                Widget::isFocused() const   { return iuiGetSystem()->getFocus()==this; }
 
 void Widget::setParent( Widget *p )
@@ -128,7 +131,6 @@ void Widget::update(Float dt)
 
 void Widget::draw()
 {
-    if(!isVisible()) { return; }
     if(m->style==NULL) {
         m->style = Style::createDefaultStyle(getTypeID());
         if(m->style) { m->style->setWidget(this); }
@@ -140,9 +142,19 @@ void Widget::draw()
 
 bool Widget::handleEvent(const WM_Base &wm)
 {
-    switch(wm.type) {
-    case WMT_Unknown:
-        break;
+    WidgetHit wh = MouseHitWidget(this, wm);
+    switch(wh) {
+    case WH_HitMouseLeftDown:
+    case WH_HitMouseRightDown:
+    case WH_HitMouseMiddleDown:
+    case WH_HitMouseLeftUp:
+    case WH_HitMouseRightUp:
+    case WH_HitMouseMiddleUp:
+    case WH_MouseInside:
+        if(wh==WH_HitMouseLeftDown && !isFocused()) {
+            setFocus(true);
+        }
+        return true;
     }
     return false;
 }

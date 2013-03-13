@@ -54,33 +54,28 @@ Button::Button( Widget *parent, const wchar_t *text, const Rect &rect, const Wid
     m->on_press = on_press;
 }
 
+void Button::update(Float dt)
+{
+    HandleMouseHover(this, m->hovered);
+    super::update(dt);
+}
+
 bool Button::handleEvent( const WM_Base &wm )
 {
-    WidgetHit hit = MouseHitWidget(this, wm);
-    bool ret = false;
-    if(isVisible()) {
-        if(hit==WH_HitMouseLeftDown) {
-            m->pressing = true;
-            ret = true;
-        }
-        else if(hit==WH_HitMouseLeftUp) {
-            if(m->pressing) {
-                callIfValid(m->on_press);
-                m->pressing = false;
-            }
-            ret = true;
-        }
-        else if(hit==WH_MissMouseLeftUp) {
-            m->pressing = false;
-        }
-        else if(hit==WH_MouseEnter) {
-            m->hovered = true;
-        }
-        else if(hit==WH_MouseLeave) {
-            m->hovered = false;
-        }
+    switch(MouseHitWidget(this, wm)) {
+    case WH_HitMouseLeftDown:
+        setFocus(true);
+        m->pressing = true;
+        return true;
+    case WH_HitMouseLeftUp:
+        callIfValid(m->on_press);
+        m->pressing = false;
+        return true;
+    case WH_MissMouseLeftUp:
+        m->pressing = false;
+        break;
     }
-    return ret || super::handleEvent(wm);
+    return super::handleEvent(wm);
 }
 
 
@@ -125,34 +120,31 @@ ToggleButton::ToggleButton( const wchar_t *text, const WidgetCallback &on_toggle
     setText(text);
 }
 
+void ToggleButton::update( Float dt )
+{
+    HandleMouseHover(this, m->hovered);
+    super::update(dt);
+}
+
 bool ToggleButton::handleEvent( const WM_Base &wm )
 {
-    WidgetHit hit = MouseHitWidget(this, wm);
-    bool ret = false;
-    if(isVisible()) {
-        if(hit==WH_HitMouseLeftDown) {
-            m->pressing = true;
-            ret = true;
-        }
-        else if(hit==WH_HitMouseLeftUp) {
-            if(m->pressing) {
-                m->pressed = !m->pressed;
-                callIfValid(m->on_toggle);
-                m->pressing = false;
-            }
-            ret = true;
-        }
-        else if(hit==WH_MissMouseLeftUp) {
+    switch(MouseHitWidget(this, wm)) {
+    case WH_HitMouseLeftDown:
+        setFocus(true);
+        m->pressing = true;
+        return true;
+    case WH_HitMouseLeftUp:
+        if(m->pressing) {
+            m->pressed = !m->pressed;
+            callIfValid(m->on_toggle);
             m->pressing = false;
         }
-        else if(hit==WH_MouseEnter) {
-            m->hovered = true;
-        }
-        else if(hit==WH_MouseLeave) {
-            m->hovered = false;
-        }
+        return true;
+    case WH_MissMouseLeftUp:
+        m->pressing = false;
+        break;
     }
-    return ret || super::handleEvent(wm);
+    return super::handleEvent(wm);
 }
 
 
@@ -188,21 +180,19 @@ Checkbox::Checkbox( const wchar_t *text, const WidgetCallback &on_toggle )
 
 bool Checkbox::handleEvent( const WM_Base &wm )
 {
-    WidgetHit hit = MouseHitWidget(this, wm);
-    if(hit==WH_HitMouseLeftDown) {
+    switch(MouseHitWidget(this, wm)) {
+    case WH_HitMouseLeftDown:
         m->pressing = true;
-    }
-    else if(hit==WH_HitMouseLeftUp) {
+        return true;
+    case WH_HitMouseLeftUp:
         if(m->pressing) {
             m->checked = !m->checked;
             callIfValid(m->on_toggle);
             m->pressing = false;
         }
+        return true;
     }
-    else {
-        return super::handleEvent(wm);
-    }
-    return true;
+    return super::handleEvent(wm);
 }
 
 

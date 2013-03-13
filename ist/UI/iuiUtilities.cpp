@@ -1,6 +1,7 @@
 ﻿#include "iuiPCH.h"
 #include "iuiUtilities.h"
 #include "iuiWidget.h"
+#include "iuiSystem.h"
 
 namespace iui {
 
@@ -25,7 +26,7 @@ iuiInterModule WidgetHit MouseHitWidget(Widget *w, const WM_Base &wm)
     case WMT_MouseDown: // 
     case WMT_MouseUp:   // 
     case WMT_MouseMove: // fall through
-        auto &mes = reinterpret_cast<const WM_Mouse&>(wm);
+        auto &mes = WM_Mouse::cast(wm);
         if(IsInside(rect, mes.mouse_pos)) {
             switch(wm.type) {
             case WMT_MouseDown:
@@ -37,12 +38,7 @@ iuiInterModule WidgetHit MouseHitWidget(Widget *w, const WM_Base &wm)
                 if(mes.button.right)  return WH_HitMouseRightUp;
                 if(mes.button.middle) return WH_HitMouseMiddleUp;
             case WMT_MouseMove:
-                {
-                    vec2 prev_pos = mes.mouse_pos - mes.mouse_move;
-                    if(!IsInside(rect, prev_pos)) {
-                        return WH_MouseEnter;
-                    }
-                }
+                return WH_MouseInside;
             }
         }
         else {
@@ -56,17 +52,27 @@ iuiInterModule WidgetHit MouseHitWidget(Widget *w, const WM_Base &wm)
                 if(mes.button.right)  return WH_MissMouseRightUp;
                 if(mes.button.middle) return WH_MissMouseMiddleUp;
             case WMT_MouseMove:
-                {
-                    vec2 prev_pos = mes.mouse_pos - mes.mouse_move;
-                    if(IsInside(rect, prev_pos)) {
-                        return WH_MouseLeave;
-                    }
-                }
+                return WH_MouseOutside;
             }
         }
         break;
     }
     return WH_Nothing;
+}
+
+iuiInterModule void HandleMouseHover(Widget *w, bool &hovered)
+{
+    const Rect rect(w->getPositionAbs(), w->getSize());
+    if(IsInside(rect, iuiGetMousePos())) {
+        if(!hovered) {
+            hovered = true;
+        }
+    }
+    else {
+        if(hovered) {
+            hovered = false;
+        }
+    }
 }
 
 } // namespace iui

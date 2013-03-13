@@ -17,6 +17,7 @@ typedef Widget super;
 public:
     iuiImplWidget(Button)
     Button(Widget *parent, const wchar_t *text=L"", const Rect &pos=Rect(), const WidgetCallback &on_press=WidgetCallback());
+    void update(Float dt);
     bool isPressing() const;
     bool isHovered() const;
 
@@ -39,6 +40,7 @@ typedef Widget super;
 public:
     iuiImplWidget(ToggleButton)
     ToggleButton(const wchar_t *text=L"", const WidgetCallback &on_toggle=WidgetCallback());
+    void update(Float dt);
     bool isPressed() const;
     bool isPressing() const;
     bool isHovered() const;

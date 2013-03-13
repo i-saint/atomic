@@ -18,10 +18,11 @@ public:
     void update(Float dt=0.0f);
     void draw();
 
-    UIRenderer* getRenderer() const;
-    Widget*     getRootWindow() const;
-    Widget*     getFocus() const;
-    const Rect& getScreen() const;
+    UIRenderer*     getRenderer() const;
+    Widget*         getRootWindow() const;
+    Widget*         getFocus() const;
+    const Position& getMousePos() const;
+    const Rect&     getScreen() const;
 
     void setRootWindow(Widget *root);
     void setScreen(float32 width, float32 height);
@@ -55,8 +56,9 @@ private:
 #define iuiDrawFlush()              iuiGetRenderer()->flush()
 
 #define iuiGetSystem()              iui::UISystem::getInstance()
-#define iuiGetRootWindow()          iuiGetSystem()->getRootWindow()
 #define iuiGetRenderer()            iuiGetSystem()->getRenderer()
+#define iuiGetRootWindow()          iuiGetSystem()->getRootWindow()
+#define iuiGetMousePos()            iuiGetSystem()->getMousePos()
 
 
 #endif // iui_System_h
