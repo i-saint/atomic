@@ -74,6 +74,7 @@
     <ClInclude Include="ist\GraphicsGL\i3dglDevice.h" />
     <ClInclude Include="ist\GraphicsGL\i3dglDeviceContext.h" />
     <ClInclude Include="ist\GraphicsGL\i3dglDeviceResource.h" />
+    <ClInclude Include="ist\GraphicsGL\i3dglQuery.h" />
     <ClInclude Include="ist\GraphicsGL\i3dglRenderStates.h" />
     <ClInclude Include="ist\GraphicsGL\i3dglRenderTarget.h" />
     <ClInclude Include="ist\GraphicsGL\i3dglShader.h" />
@@ -166,6 +167,7 @@
     <ClCompile Include="ist\GraphicsGL\i3dglDevice.cpp" />
     <ClCompile Include="ist\GraphicsGL\i3dglDeviceContext.cpp" />
     <ClCompile Include="ist\GraphicsGL\i3dglDeviceResource.cpp" />
+    <ClCompile Include="ist\GraphicsGL\i3dglQuery.cpp" />
     <ClCompile Include="ist\GraphicsGL\i3dglRenderStates.cpp" />
     <ClCompile Include="ist\GraphicsGL\i3dglRenderTarget.cpp" />
     <ClCompile Include="ist\GraphicsGL\i3dglShader.cpp" />

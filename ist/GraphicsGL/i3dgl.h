@@ -11,6 +11,7 @@
 #include "i3dglDeviceContext.h"
 #include "i3dglBuffer.h"
 #include "i3dglShader.h"
+#include "i3dglQuery.h"
 #include "i3dglUtil.h"
 #include "i3duglCamera.h"
 #include "i3duglFont.h"

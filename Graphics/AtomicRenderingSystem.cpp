@@ -172,8 +172,23 @@ void AtomicRenderingThread::doRender()
 {
     atomicGetGraphicsResourceManager()->update();
     atomicGetApplication()->drawCallback();
-    m_cond_callback_complete.signalOne();
-    m_device->swapBuffers();
+    {
+        //static uint32 s_frames;
+        //static float32 s_elapsed;
+        //i3d::Query_TimeElapsed te;
+        //te.begin();
+
+        AtomicRenderer::getInstance()->draw();
+        m_cond_callback_complete.signalOne(); // 
+        m_device->swapBuffers();
+
+        //s_elapsed += te.end();
+        //if(++s_frames==60) {
+        //    istPrint("AtomicRenderingThread::doRender(): %.2f\n", s_elapsed/s_frames);
+        //    s_elapsed = 0.0f;
+        //    s_frames = 0;
+        //}
+    }
     ++m_fps_count;
 }
 

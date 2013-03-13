@@ -352,6 +352,9 @@
     <ClInclude Include="ist\stdex\helper_functions.h">
       <Filter>stdex</Filter>
     </ClInclude>
+    <ClInclude Include="ist\GraphicsGL\i3dglQuery.h">
+      <Filter>GraphicsGL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ist\Window\Application.cpp">
@@ -507,6 +510,9 @@
     </ClCompile>
     <ClCompile Include="ist\Base\StringSymbol.cpp">
       <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\GraphicsGL\i3dglQuery.cpp">
+      <Filter>GraphicsGL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
