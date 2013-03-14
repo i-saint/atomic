@@ -44,6 +44,7 @@ public:
 
     virtual void setScreen(float32 x, float32 y, float32 width, float32 height)
     {
+        m_font->setScreen(x,x+width, y+height,y);
         m_drawer->setScreen(x,x+width, y+height,y);
     }
     virtual void setTranslate(Position pos)

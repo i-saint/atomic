@@ -107,7 +107,7 @@ bool UISystem::handleWindowMessage( const ist::WM_Base &wm )
     case WMT_WidgetDelete:
         {
             auto &mes = WM_Widget::cast(wm);
-            if(m->focus==mes.from) {
+            if(mes.from!=NULL && m->focus==mes.from) {
                 m->focus->setFocus(false);
                 m->focus = NULL;
             }
@@ -174,9 +174,11 @@ void UISystem::drawR( Widget *widget )
 {
     // 親が先 (奥→手前の順)
     if(widget->isVisible()) {
-        //const Position &pos = widget->getPosition();
-        //const Size &size = widget->getSize();
-        //iuiGetRenderer()->setViewport((int32)pos.x, (int32)pos.y, (int32)size.x, (int32)size.y);
+        const Position &pos = widget->getPositionAbs();
+        const Size &size = widget->getSize();
+        const Rect &screen = iuiGetSystem()->getScreen();
+        iuiGetRenderer()->setViewport( (int32)(pos.x-0.5f), (int32)(screen.getSize().y-pos.y-size.y-0.5f), (int32)(size.x+1.0f), (int32)(size.y+1.0f) );
+        iuiGetRenderer()->setScreen(-0.5f, -0.5f, size.x+1.0f, size.y+1.0f);
 
         widget->draw();
         widget->eachChildrenReverse([&](Widget *c){ drawR(c); });

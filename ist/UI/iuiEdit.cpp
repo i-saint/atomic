@@ -9,7 +9,7 @@ namespace iui {
 void LabelStyle::draw()
 {
     Editbox *w = static_cast<Editbox*>(getWidget());
-    TextPosition tpos(Rect(w->getPositionAbs(), w->getSize()), getTextHAlign(), getTextVAlign());
+    TextPosition tpos(Rect(Position(), w->getSize()), getTextHAlign(), getTextVAlign());
     iuiGetRenderer()->drawFont(tpos, getFontColor(), w->getText().c_str(), w->getText().size());
 }
 
@@ -32,8 +32,8 @@ bool Label::handleEvent( const WM_Base &wm )
 void EditboxStyle::draw()
 {
     Editbox *w = static_cast<Editbox*>(getWidget());
-    Rect rect(w->getPositionAbs(), w->getSize());
-    TextPosition tpos(Rect(w->getPositionAbs(), w->getSize()), getTextHAlign(), getTextVAlign());
+    Rect rect(Position(), w->getSize());
+    TextPosition tpos(rect, getTextHAlign(), getTextVAlign());
     Color bg = getBGColor();
     if(w->isFocused()) {
         bg += vec4(0.4f, 0.4f, 0.4f, 0.0f);

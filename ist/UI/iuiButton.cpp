@@ -15,7 +15,7 @@ ButtonStyle::ButtonStyle()
 void ButtonStyle::draw()
 {
     Button *w = static_cast<Button*>(getWidget());
-    Rect rect(w->getPositionAbs(), w->getSize());
+    Rect rect(Position(), w->getSize());
     TextPosition tpos(rect, getTextHAlign(), getTextVAlign(), getTextHSpacing(), getTextVSpacing());
     Color bg = getBGColor();
     if(w->isPressing()) {
@@ -83,7 +83,7 @@ bool Button::handleEvent( const WM_Base &wm )
 void ToggleButtonStyle::draw()
 {
     ToggleButton *w = static_cast<ToggleButton*>(getWidget());
-    Rect rect(w->getPositionAbs(), w->getSize());
+    Rect rect(Position(), w->getSize());
     TextPosition tpos(rect, getTextHAlign(), getTextVAlign(), getTextHSpacing(), getTextVSpacing());
     Color bg = getBGColor();
     if(w->isPressing()) {
