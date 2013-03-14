@@ -22,9 +22,8 @@ DeviceContext::~DeviceContext()
 
 void DeviceContext::setViewport( const Viewport &vp )
 {
-    const ivec2 &pos = vp.getPosition();
-    const uvec2 &size = vp.getSize();
-    glViewport(pos.x, pos.y, size.x, size.y);
+    m_dirty.viewport = 1;
+    m_current.viewport = vp;
 }
 
 void DeviceContext::setVertexArray( VertexArray *va )
@@ -294,8 +293,19 @@ void DeviceContext::applyRenderStates()
         m_current.depthstencil_state->apply();
     }
 
+    if(m_dirty.viewport) {
+        const ivec2 &pos = m_current.viewport.getPosition();
+        const uvec2 &size = m_current.viewport.getSize();
+        glViewport(pos.x, pos.y, size.x, size.y);
+    }
+
     m_prev = m_current;
     m_dirty.flags = 0;
+}
+
+const DeviceContext::RenderStates& DeviceContext::getRenderStates() const
+{
+    return m_current;
 }
 
 } // namespace i3dgl

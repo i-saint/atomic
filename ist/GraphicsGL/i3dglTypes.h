@@ -383,7 +383,7 @@ struct DepthStencilStateDesc
 class Viewport
 {
 public:
-    Viewport() : m_pos(0,0), m_size(100,100) {}
+    Viewport() : m_pos(0,0), m_size(0,0) {}
     Viewport(const ivec2 pos, const uvec2 &size) : m_pos(pos), m_size(size) {}
 
     const ivec2& getPosition() const{ return m_pos; }

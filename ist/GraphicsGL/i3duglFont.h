@@ -20,7 +20,7 @@ public:
     virtual void addText(const vec2 &pos, const wchar_t *text, size_t len=0)=0;   // wchar_t 版。こっちの方が速いのでできるだけこっち使いましょう
     virtual vec2 computeTextSize(const char *text, size_t len=0)=0;
     virtual vec2 computeTextSize(const wchar_t *text, size_t len=0)=0;
-    virtual void flush(DeviceContext *dc)=0;
+    virtual void draw()=0;
 };
 
 class EasyDrawer;

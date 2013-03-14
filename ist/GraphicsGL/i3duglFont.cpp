@@ -288,7 +288,7 @@ public:
         return m_fss.computeTextSize(text, len);
     }
 
-    virtual void flush(DeviceContext *dc)
+    virtual void draw()
     {
         if(m_quads.empty()) { return; }
 
@@ -320,7 +320,6 @@ public:
         }
         if(!m_vertices.empty()) {
             m_drawer->draw(I3D_TRIANGLES, &m_vertices[0], m_vertices.size(), &m_indices[0], m_indices.size());
-            m_drawer->flush(dc);
         }
         m_quads.clear();
         m_vertices.clear();

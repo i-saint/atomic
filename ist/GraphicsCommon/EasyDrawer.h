@@ -25,6 +25,8 @@ class istInterModule EasyDrawState
 {
 public:
     EasyDrawState();
+    void setViewport(int32 width, int32 height);
+    void setViewport(int32 x, int32 y, int32 width, int32 height);
     void setScreen(float32 width, float32 height);
     void setScreen(float32 left, float32 right, float32 bottom, float32 top);
     void setProjectionMatrix(const mat4 &mat);
@@ -33,6 +35,7 @@ public:
     void setSampler(Sampler *smp);
     void setShader(ShaderProgram *smp);
 
+    const Viewport& getViewport() const;
     const mat4&     getProjectionMatrix() const;
     const mat4&     getWorldMatrix() const;
     Texture2D*      getTexture() const;
@@ -52,6 +55,8 @@ public:
     const EasyDrawState& getRenderStates();
     void forceSetRenderStates(const EasyDrawState &ds);
 
+    void setViewport(int32 width, int32 height);
+    void setViewport(int32 x, int32 y, int32 width, int32 height);
     void setScreen(float32 width, float32 height);
     void setScreen(float32 left, float32 right, float32 bottom, float32 top);
     void setProjectionMatrix(const mat4 &mat);
@@ -60,6 +65,7 @@ public:
     void setSampler(Sampler *smp);
     void setShader(ShaderProgram *smp);
 
+    const Viewport& getViewport() const;
     const mat4&     getProjectionMatrix() const;
     const mat4&     getWorldMatrix() const;
     Texture2D*      getTexture() const;

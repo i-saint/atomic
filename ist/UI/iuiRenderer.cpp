@@ -37,9 +37,14 @@ public:
         istSafeRelease(m_drawer);
     }
 
-    virtual void setScreen(float32 width, float32 height)
+    virtual void setViewport(int32 x, int32 y, int32 width, int32 height)
     {
-        m_drawer->setScreen(width, height);
+        m_drawer->setViewport(x,y,width,height);
+    }
+
+    virtual void setScreen(float32 x, float32 y, float32 width, float32 height)
+    {
+        m_drawer->setScreen(x,x+width, y+height,y);
     }
     virtual void setTranslate(Position pos)
     {
@@ -79,6 +84,7 @@ public:
         m_font->setSpacing(tp.hspace);
         m_font->setColor(color);
         m_font->addText(pos, text, len);
+        m_font->draw();
     }
 
     virtual void begin()

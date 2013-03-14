@@ -148,6 +148,9 @@ void AtomicRenderer::draw()
         dc->setSampler(GLSL_PARAM_BUFFER, smp_tex);
         dc->setBlendState(atomicGetBlendState(BS_NO_BLEND));
     }
+    {
+        dc->setViewport(*atomicGetDefaultViewport());
+    }
 
     passShadow();
     passGBuffer();
@@ -310,9 +313,11 @@ void AtomicRenderer::passOutput()
 
     dc->setBlendState(atomicGetBlendState(BS_BLEND_ALPHA));
 
-    iuiDraw();
-    iuiDrawFlush();
     m_stext->draw();
+    {
+        iuiDraw();
+        iuiDrawFlush();
+    }
 }
 
 
@@ -348,7 +353,7 @@ void SystemTextRenderer::draw()
         const Text &t = m_texts[i];
         atomicGetFontRenderer()->addText(t.pos, t.text, wcsnlen(t.text, _countof(t.text)));
     }
-    atomicGetFontRenderer()->flush(atomicGetGLDeviceContext());
+    atomicGetFontRenderer()->draw();
 }
 
 void SystemTextRenderer::addText(const vec2 &pos, const char *text)

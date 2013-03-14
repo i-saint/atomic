@@ -174,6 +174,10 @@ void UISystem::drawR( Widget *widget )
 {
     // 親が先 (奥→手前の順)
     if(widget->isVisible()) {
+        //const Position &pos = widget->getPosition();
+        //const Size &size = widget->getSize();
+        //iuiGetRenderer()->setViewport((int32)pos.x, (int32)pos.y, (int32)size.x, (int32)size.y);
+
         widget->draw();
         widget->eachChildrenReverse([&](Widget *c){ drawR(c); });
     }

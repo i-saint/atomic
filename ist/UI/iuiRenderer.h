@@ -34,7 +34,10 @@ public:
     virtual void initialize(ist::i3dgl::EasyDrawer *drawer=NULL, ist::i3dgl::IFontRenderer *font=NULL)=0;
     virtual void finalize()=0;
 
-    virtual void setScreen(float32 width, float32 height)=0;
+    virtual void setViewport(int32 x, int32 y, int32 width, int32 height)=0;
+            void setViewport(int32 width, int32 height) { setViewport(0,0, width,height); }
+    virtual void setScreen(float32 x, float32 y, float32 width, float32 height)=0;
+            void setScreen(float32 width, float32 height) { setScreen(0.0f, 0.0f, width, height); }
     virtual void setTranslate(Position pos)=0;
 
     virtual void drawLine(const Line &line, const Color &color)=0;

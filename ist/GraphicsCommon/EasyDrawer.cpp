@@ -12,6 +12,7 @@ struct EasyDrawState::Members
     Texture2D      *texture;
     Sampler        *sampler;
     ShaderProgram  *shader;
+    Viewport        viewport;
     uint32          uniform_location;
 
     Members()
@@ -28,6 +29,14 @@ EasyDrawState::EasyDrawState()
 {
 }
 
+void EasyDrawState::setViewport( int32 width, int32 height )
+{
+    m->viewport = Viewport(ivec2(0,0), uvec2(width,height));
+}
+void EasyDrawState::setViewport( int32 x, int32 y, int32 width, int32 height )
+{
+    m->viewport = Viewport(ivec2(x,y), uvec2(width,height));
+}
 void EasyDrawState::setScreen(float32 width, float32 height)
 {
     setScreen(0.0f, width, height, 0.0f);
@@ -48,6 +57,7 @@ void EasyDrawState::setShader(ShaderProgram *v)
     }
 }
 
+const Viewport& EasyDrawState::getViewport() const          { return m->viewport; }
 const mat4&     EasyDrawState::getProjectionMatrix() const  { return m->proj; }
 const mat4&     EasyDrawState::getWorldMatrix() const       { return m->world; }
 Texture2D*      EasyDrawState::getTexture() const           { return m->texture; }
@@ -206,14 +216,17 @@ istMemberPtrImpl(EasyDrawer,Members);
 const EasyDrawState& EasyDrawer::getRenderStates() {return m->state; }
 void EasyDrawer::forceSetRenderStates( const EasyDrawState &ds ) { m->state=ds; }
 
-void EasyDrawer::setScreen(float32 width, float32 height)   { m->state.setScreen(width, height); }
-void EasyDrawer::setScreen(float32 left, float32 right, float32 bottom, float32 top) { m->state.setScreen(left, right, bottom, top); }
-void EasyDrawer::setProjectionMatrix(const mat4 &mat)       { m->state.setProjectionMatrix(mat); }
-void EasyDrawer::setWorldMatrix(const mat4 &mat)            { m->state.setWorldMatrix(mat); }
-void EasyDrawer::setTexture(Texture2D *tex)                 { m->state.setTexture(tex); }
-void EasyDrawer::setSampler(Sampler *smp)                   { m->state.setSampler(smp); }
-void EasyDrawer::setShader(ShaderProgram *smp)              { m->state.setShader(smp); }
+void EasyDrawer::setViewport( int32 width, int32 height )               { m->state.setViewport(width,height); }
+void EasyDrawer::setViewport( int32 x, int32 y, int32 w, int32 h )      { m->state.setViewport(x,y, w,h);}
+void EasyDrawer::setScreen(float32 width, float32 height)               { m->state.setScreen(width, height); }
+void EasyDrawer::setScreen(float32 l, float32 r, float32 b, float32 t)  { m->state.setScreen(l,r, b,t); }
+void EasyDrawer::setProjectionMatrix(const mat4 &mat)                   { m->state.setProjectionMatrix(mat); }
+void EasyDrawer::setWorldMatrix(const mat4 &mat)                        { m->state.setWorldMatrix(mat); }
+void EasyDrawer::setTexture(Texture2D *tex)                             { m->state.setTexture(tex); }
+void EasyDrawer::setSampler(Sampler *smp)                               { m->state.setSampler(smp); }
+void EasyDrawer::setShader(ShaderProgram *smp)                          { m->state.setShader(smp); }
 
+const Viewport& EasyDrawer::getViewport() const         { return m->state.getViewport(); }
 const mat4&     EasyDrawer::getProjectionMatrix() const { return m->state.getProjectionMatrix(); }
 const mat4&     EasyDrawer::getWorldMatrix() const      { return m->state.getWorldMatrix(); }
 Texture2D*      EasyDrawer::getTexture() const          { return m->state.getTexture(); }
@@ -311,6 +324,10 @@ void EasyDrawer::flush(DeviceContext *ctx)
     mat4 prev_viewproj;
     for(size_t i=0; i<m->draw_calls.size(); ++i) {
         DrawCall &dc = m->draw_calls[i];
+        const Viewport &vp = dc.state.getViewport();
+        if(vp.getSize().x>0 && vp.getSize().y>0) {
+            ctx->setViewport(vp);
+        }
 
         mat4 viewproj = dc.state.getProjectionMatrix() * dc.state.getWorldMatrix();
         if(viewproj!=prev_viewproj) {
