@@ -253,6 +253,7 @@ public:
     {
         // _alloca() で一時領域高速に取りたいところだが、_alloca() はマルチスレッド非対応っぽいので素直な実装で
         if(len==0) { len = strlen(text); }
+        if(len==0) { return; }
         stl::string tmp(text, len);
 
         size_t wlen = mbstowcs(NULL, tmp.c_str(), 0);
@@ -272,6 +273,7 @@ public:
     virtual vec2 computeTextSize(const char *text, size_t len=0)
     {
         if(len==0) { len = strlen(text); }
+        if(len==0) { return vec2(); }
         stl::string tmp(text, len);
 
         size_t wlen = mbstowcs(NULL, tmp.c_str(), 0);
