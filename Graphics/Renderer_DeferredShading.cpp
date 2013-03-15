@@ -208,7 +208,7 @@ void PassDeferredShading_Lights::upsampling(int32 level)
     AtomicShader *sh_upsampling = atomicGetShader(SH_UPSAMPLING);
     VertexArray *va_quad        = atomicGetVertexArray(VA_SCREEN_QUAD);
     Buffer *ubo_mrp             = atomicGetUniformBuffer(UBO_MULTIRESOLUTION_PARAMS);
-    int mr_params_loc = sh_upsampling->getUniformBlockIndex("multiresolution_params");
+    int32 mr_params_loc = sh_upsampling->getUniformBlockIndex("multiresolution_params");
 
     Texture2D *lower_resolution = NULL;
     RenderTarget *rt = NULL;

@@ -67,7 +67,7 @@ public:
 private:
     void bind();
     void unbind();
-    void setUniformBlock(GLuint uniformBlockIndex, GLuint uniformBindingIndex, GLuint uniformBufferHandle);
+    void setUniformBlock(GLint uniformBlockIndex, GLuint uniformBindingIndex, GLuint uniformBufferHandle);
     ShaderProgram(Device *dev, const ShaderProgramDesc &desc);
     ~ShaderProgram();
 

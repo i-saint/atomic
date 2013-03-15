@@ -140,44 +140,33 @@ void ShaderProgram::unbind()
 
 GLint ShaderProgram::getUniformLocation(const char *name) const
 {
-    GLint ul = glGetUniformLocation(m_handle, name);
-    if(ul == -1) {
-        istPrint("no such uniform named %s\n", name);
-    }
-    return ul;
+    return glGetUniformLocation(m_handle, name);
 }
 
 GLint ShaderProgram::getAttribLocation(const char *name) const
 {
-    GLint al = glGetAttribLocation(m_handle, name);
-    if(al == -1) {
-        istPrint("no such attribute named %s\n", name);
-    }
-    return al;
+    return glGetAttribLocation(m_handle, name);
 }
 
 GLint ShaderProgram::getUniformBlockIndex(const char *name) const
 {
-    GLint ul = glGetUniformBlockIndex(m_handle, name);
-    if(ul == -1) {
-        istPrint("no such uniform block named %s\n", name);
-    }
-    else {
-        //GLint block_size = 0;
-        //glGetActiveUniformBlockiv(m_handle, ul, GL_UNIFORM_BLOCK_DATA_SIZE, &block_size);
-        //istPrint("size of %s: %d\n", name, block_size);
-    }
-    return ul;
+    return glGetUniformBlockIndex(m_handle, name);
 }
 
-void ShaderProgram::setUniformBlock(GLuint uniformBlockIndex, GLuint uniformBindingIndex, GLuint uniformBufferHandle)
+void ShaderProgram::setUniformBlock(GLint uniformBlockIndex, GLuint uniformBindingIndex, GLuint uniformBufferHandle)
 {
+    if(uniformBlockIndex==-1) {
+        return;
+    }
     glBindBufferBase(GL_UNIFORM_BUFFER, uniformBindingIndex, uniformBufferHandle);
     glUniformBlockBinding(m_handle, uniformBlockIndex, uniformBindingIndex);
 }
 
 void ShaderProgram::setSampler(GLint loc, GLint tex)
 {
+    if(loc==-1) {
+        return;
+    }
     bind();
     glUniform1i(loc, tex);
 }

@@ -74,15 +74,14 @@ void main()
     {
         // 出現エフェクト
         float ar = vs_InstanceParams.y;
-        float ar_sq = ar*ar;
         vec3 psetpos = vs_PSetPosition.xyz;
         vec3 diff3 = flag_pos.xyz - psetpos;
-        float d = dot(diff3, diff3);
-        if(d > ar_sq) {
+        float d = length(diff3);
+        if(d > ar) {
             discard;
         }
-        float cr = max(0.0, 1.0f - (ar_sq-d)*100.0);
-        float co = max(0.0, 1.0f - (ar_sq-d)*200.0);
+        float cr = max(0.0, 1.0f - (ar-d)*40.0);
+        float co = max(0.0, 1.0f - (ar-d)*60.0);
         glow += vec4(1.0, 0.6, 0.7, 0.0) * vec4(cr, co, co, 0.0);
     }
 

@@ -104,7 +104,7 @@ bool AtomicShader::createShaders( const char *filename )
     return true;
 }
 
-GLint AtomicShader::getUniformBlockIndex(const char *name) const
+int32 AtomicShader::getUniformBlockIndex(const char *name) const
 {
     return m_shader->getUniformBlockIndex(name);
 }

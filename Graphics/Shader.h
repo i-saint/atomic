@@ -17,7 +17,7 @@ public:
     void clearShaders();
     bool createShaders(const char* filename);
 
-    GLint getUniformBlockIndex(const char *name) const;
+    int32 getUniformBlockIndex(const char *name) const;
     void setUniformBlock(GLuint uniformBlockIndex, GLuint uniformBindingIndex, Buffer *buffer);
     void bind();
     void unbind();

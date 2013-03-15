@@ -256,11 +256,13 @@ void GraphicResourceManager::update()
 #ifdef atomic_enable_shader_live_edit
     if(m_glsl_modified) {
         m_glsl_modified = false;
+        istPrint("recompiling shaders...");
         for(size_t i=0; i<_countof(m_shader); ++i) {
             if(m_shader[i] && m_shader[i]->needsRecompile()) {
                 m_shader[i]->recompile();
             }
         }
+        istPrint("done.\n");
     }
 #endif // atomic_enable_shader_live_edit
 }
