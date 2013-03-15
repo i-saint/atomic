@@ -9,7 +9,7 @@
 namespace ist {
 
 template<class T, class Compare=std::less<T>, class Alloc=ist::aligned_allocator<T> >
-class sorted_vector_set
+class sv_set
 {
 public:
     typedef ist::vector<T, Alloc> container;
@@ -26,9 +26,9 @@ public:
     typedef typename container::const_reverse_iterator  const_reverse_iterator;
     typedef typename container::size_type       size_type;
 
-    sorted_vector_set() {}
-    sorted_vector_set(const sorted_vector_set &v) { m_cont=v.m_cont; }
-    sorted_vector_set& operator=(const sorted_vector_set &v) { m_cont=v.m_cont; return *this; }
+    sv_set() {}
+    sv_set(const sv_set &v) { m_cont=v.m_cont; }
+    sv_set& operator=(const sv_set &v) { m_cont=v.m_cont; return *this; }
 
     size_t          size() const    { return m_cont.size(); }
     bool            empty() const   { return m_cont.empty(); }
@@ -74,6 +74,13 @@ public:
         }
     }
 
+    template<class Iter>
+    void insert(Iter first, Iter last)
+    {
+        m_cont.insert(m_cont.end(), first, last);
+        std::sort(m_cont.begin(), m_cont.end(), compare());
+    }
+
     void erase(iterator p)
     {
         m_cont.erase(p);
@@ -101,7 +108,7 @@ public:
         m_cont.clear();
     }
 
-    void swap(const sorted_vector_set &v)
+    void swap(const sv_set &v)
     {
         m_cont.swap(v);
     }
