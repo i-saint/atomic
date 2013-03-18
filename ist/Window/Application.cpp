@@ -366,7 +366,7 @@ void Application::updateInput()
         cinfo.cbSize = sizeof(cinfo);
         ::GetCursorInfo(&cinfo);
         m->mouse_state.setX( cinfo.ptScreenPos.x );
-        m->mouse_state.setX( cinfo.ptScreenPos.y );
+        m->mouse_state.setY( cinfo.ptScreenPos.y );
     }
     {
         short mouse_button = 0;
