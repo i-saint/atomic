@@ -15,7 +15,8 @@ class iuiInterModule Button : public Widget
 {
 typedef Widget super;
 public:
-    iuiImplWidget(Button)
+    iuiImplWidget(Button);
+
     Button(Widget *parent, const wchar_t *text=L"", const Rect &pos=Rect(), const WidgetCallback &on_press=WidgetCallback());
     void update(Float dt);
     bool isPressing() const;

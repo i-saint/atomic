@@ -16,7 +16,7 @@ enum WidgetTypeID
     WT_Label,
     WT_Editbox,
     WT_EditboxMultiline,
-    WT_Listbox,
+    WT_List,
     WT_Combobox,
     WT_VSlider,
     WT_HSlider,
@@ -34,7 +34,7 @@ class ToggleButton;
 class Checkbox;
 class Editbox;
 class EditboxMultiline;
-class Listbox;
+class List;
 class Combobox;
 class VSlider;
 class HSlider;
@@ -51,7 +51,7 @@ template<> struct GetWidgetTypeID<ToggleButton>     { static const WidgetTypeID 
 template<> struct GetWidgetTypeID<Checkbox>         { static const WidgetTypeID result=WT_Checkbox; };
 template<> struct GetWidgetTypeID<Editbox>          { static const WidgetTypeID result=WT_Editbox; };
 template<> struct GetWidgetTypeID<EditboxMultiline> { static const WidgetTypeID result=WT_EditboxMultiline; };
-template<> struct GetWidgetTypeID<Listbox>          { static const WidgetTypeID result=WT_Listbox; };
+template<> struct GetWidgetTypeID<List>             { static const WidgetTypeID result=WT_List; };
 template<> struct GetWidgetTypeID<Combobox>         { static const WidgetTypeID result=WT_Combobox; };
 template<> struct GetWidgetTypeID<VSlider>          { static const WidgetTypeID result=WT_VSlider; };
 template<> struct GetWidgetTypeID<HSlider>          { static const WidgetTypeID result=WT_HSlider; };

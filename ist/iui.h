@@ -9,6 +9,7 @@
 #include "UI/iuiButton.h"
 #include "UI/iuiWindow.h"
 #include "UI/iuiEdit.h"
+#include "UI/iuiList.h"
 #include "UI/iuiRenderer.h"
 
 #endif // iui_h
