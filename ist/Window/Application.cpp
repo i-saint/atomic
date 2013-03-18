@@ -348,7 +348,7 @@ bool Application::initialize(ivec2 wpos, ivec2 wsize, const wchar_t *title, bool
 void Application::finalize()
 {
     if(m->hwnd) {
-        ::CloseWindow(m->hwnd);
+        ::DestroyWindow(m->hwnd);
         m->hwnd=NULL;
     }
 }
