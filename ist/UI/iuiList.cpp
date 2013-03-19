@@ -27,7 +27,8 @@ ListItem::ListItem(const String &text, void *userdata)
 }
 
 ListItem::~ListItem()
-{}
+{
+}
 
 void ListItem::update(Float dt)
 {
@@ -63,24 +64,33 @@ void ListStyle::draw()
     Color bg = getBGColor();
     iuiGetRenderer()->drawRect(rect, bg);
     iuiGetRenderer()->drawOutlineRect(rect, getBorderColor());
-    Position pos;
+
+    Float item_height = w->getItemHeight();
+    int32 nth_item = 0;
     w->eachListItem([&](ListItem *item){
-        Rect rect(pos, Size(w->getSize().x, w->getItemHeight()));
-        TextPosition tpos(rect, getTextHAlign(), getTextVAlign(), getTextHSpacing(), getTextVSpacing());
-        if(item->isSelected()) {
-            Color ibg = vec4(1.0f, 1.0f, 1.0f, 0.4f);
-            iuiGetRenderer()->drawRect(rect, ibg);
+        Rect irect(Position(0.0f, item_height*nth_item), Size(w->getSize().x, item_height));
+        if(IsOverlaped(rect, irect)) { // 表示領域外ならスキップ
+            drawItem(item, irect);
         }
-        else if(item->isHovered()) {
-            Color ibg = vec4(1.0f, 1.0f, 1.0f, 0.2f);
-            iuiGetRenderer()->drawRect(rect, ibg);
-        }
-        const String &text = item->getText();
-        iuiGetRenderer()->drawFont(tpos, getFontColor(), text.c_str(), text.size());
-        pos.y += w->getItemHeight();
-        tpos.rect.setPosition(pos);
+        ++nth_item;
     });
 }
+
+void ListStyle::drawItem(ListItem *item, const Rect &rect)
+{
+    TextPosition tpos(rect, getTextHAlign(), getTextVAlign(), getTextHSpacing(), getTextVSpacing());
+    if(item->isSelected()) {
+        Color ibg = vec4(1.0f, 1.0f, 1.0f, 0.4f);
+        iuiGetRenderer()->drawRect(rect, ibg);
+    }
+    else if(item->isHovered()) {
+        Color ibg = vec4(1.0f, 1.0f, 1.0f, 0.2f);
+        iuiGetRenderer()->drawRect(rect, ibg);
+    }
+    const String &text = item->getText();
+    iuiGetRenderer()->drawFont(tpos, getFontColor(), text.c_str(), text.size());
+}
+
 iuiImplDefaultStyle(List);
 
 
@@ -117,12 +127,12 @@ List::List( Widget *parent, const Rect &rect, const WidgetCallback &on_item_clic
 
 List::~List()
 {
+    eachListItem([&](ListItem *item){ item->release(); });
 }
 
 void List::update(Float dt)
 {
     eachListItem([&](ListItem *item){ item->setHovered(false); });
-
     bool hovered = false;
     HandleMouseHover(this, hovered);
     if(hovered) {
@@ -134,6 +144,20 @@ void List::update(Float dt)
             callIfValid(m->on_item_hovered);
         }
     }
+
+    uint32 num_destroyed = 0;
+    eachListItem([&](ListItem *&item){
+        item->update(dt);
+        if(item->isDestroyed()) {
+            item->release();
+            item = NULL;
+            ++num_destroyed;
+        }
+    });
+    if(num_destroyed>0) {
+        m->items.erase(std::remove(m->items.begin(), m->items.end(), (ListItem*)NULL), m->items.end());
+    }
+
     super::update(dt);
 }
 

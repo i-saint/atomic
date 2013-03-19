@@ -19,6 +19,19 @@ iuiInterModule bool IsInside( const Circle &circle, const Position &pos )
     return glm::dot(d,d) < r*r;
 }
 
+iuiInterModule bool IsOverlaped( const Rect &r1, const Rect &r2 )
+{
+    Position rel = r1.getPosition() - r2.getPosition();
+    Size size = r1.getSize();
+    if( (r2.size.x < rel.x || 0.0f > rel.x+size.x) ||
+        (r2.size.y < rel.y || 0.0f > rel.y+size.y) )
+    {
+        return false;
+    }
+    return true;
+}
+
+
 iuiInterModule WidgetHit MouseHitWidget(Widget *w, const WM_Base &wm)
 {
     const Rect rect(w->getPositionAbs(), w->getSize());

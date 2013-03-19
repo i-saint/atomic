@@ -7,6 +7,7 @@ namespace iui {
 
 iuiInterModule bool IsInside( const Rect &rect, const Position &pos );
 iuiInterModule bool IsInside( const Circle &circle, const Position &pos );
+iuiInterModule bool IsOverlaped( const Rect &r1, const Rect &r2 );
 
 enum WidgetHit {
     WH_Nothing,

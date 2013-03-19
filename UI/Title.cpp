@@ -70,12 +70,16 @@ ConfigWindow::ConfigWindow()
     iui::Size size(150, 25);
     float32 vspace = 55.0f;
     iui::Editbox *ed_name  = istNew(iui::Editbox)(this, atomicGetConfig()->name, iui::Rect(iui::Position(250, 300+vspace*0), size), std::bind(&ConfigWindow::onName, this, _1));
-    iui::List *ls  = istNew(iui::List)(this, iui::Rect(iui::Position(250, 300+vspace*1), iui::Size(150.0f, 150.0f)));
+    iui::List *ls  = istNew(iui::List)(this, iui::Rect(iui::Position(250, 300+vspace*1), iui::Size(150.0f, 100.0f)));
     ls->addListItem(L"192.168.11.1", NULL);
     ls->addListItem(L"192.168.11.2", NULL);
     ls->addListItem(L"192.168.11.3", NULL);
     ls->addListItem(L"192.168.11.4", NULL);
     ls->addListItem(L"192.168.11.5", NULL);
+    ls->addListItem(L"192.168.11.6", NULL);
+    ls->addListItem(L"192.168.11.7", NULL);
+    ls->addListItem(L"192.168.11.8", NULL);
+    ls->addListItem(L"192.168.11.9", NULL);
     //iui::Button *bu_record  = istNew(iui::Button)(this, L"record",  iui::Rect(iui::Position(80, 300+vspace*1), size), std::bind(&TitleWindow::onRecord, this, _1));
     //iui::Button *bu_config  = istNew(iui::Button)(this, L"config",  iui::Rect(iui::Position(80, 300+vspace*2), size), std::bind(&TitleWindow::onConfig, this, _1));
     //iui::Button *bu_exit    = istNew(iui::Button)(this, L"exit",    iui::Rect(iui::Position(80, 300+vspace*3), size), std::bind(&TitleWindow::onExit, this, _1));

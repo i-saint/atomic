@@ -29,13 +29,14 @@ typedef ist::vector<ListItem*> ListItemCont;
 
 class iuiInterModule ListItem : public SharedObject
 {
+typedef SharedObject super;
 friend class List;
 public:
     ListItem(const String &text=L"", void *userdata=NULL);
     virtual ~ListItem();
 
     virtual void    update(Float dt);
-    void            destroy();
+    void            destroy(); // 破棄する場合これを呼ぶ。 release() は直接呼ぶとマズく、非公開にしている
 
     const String&   getText() const;
     void*           getUserData() const;
@@ -50,6 +51,7 @@ private:
     void            setIndex(int32 v);
     void            setHovered(bool v);
     void            setSelected(bool v);
+    using super::release;
 
 private:
     istMemberPtrDecl(Members) m;
@@ -60,7 +62,7 @@ class iuiInterModule ListStyle : public Style
 public:
     ListStyle();
     virtual void draw();
-private:
+    virtual void drawItem(ListItem *item, const Rect &irect);
 };
 
 class iuiInterModule List : public Widget
