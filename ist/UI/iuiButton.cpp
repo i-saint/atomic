@@ -45,7 +45,7 @@ istMemberPtrImpl(Button,Members);
 bool Button::isPressing() const { return m->pressing;  }
 bool Button::isHovered() const  { return m->hovered; }
 
-Button::Button( Widget *parent, const wchar_t *text, const Rect &rect, const WidgetCallback &on_press )
+Button::Button( Widget *parent, const wchar_t *text, const Rect &rect, WidgetCallback on_press )
 {
     setParent(parent);
     setText(text);
@@ -114,7 +114,7 @@ bool ToggleButton::isPressed() const    { return m->pressed; }
 bool ToggleButton::isPressing() const   { return m->pressing; }
 bool ToggleButton::isHovered() const    { return m->hovered; }
 
-ToggleButton::ToggleButton( const wchar_t *text, const WidgetCallback &on_toggle )
+ToggleButton::ToggleButton( const wchar_t *text, WidgetCallback on_toggle )
 {
     m->on_toggle = on_toggle;
     setText(text);
@@ -172,7 +172,7 @@ istMemberPtrImpl(Checkbox,Members);
 bool Checkbox::isChecked() const    { return m->checked; }
 bool Checkbox::isPressing() const   { return m->pressing; }
 
-Checkbox::Checkbox( const wchar_t *text, const WidgetCallback &on_toggle )
+Checkbox::Checkbox( const wchar_t *text, WidgetCallback on_toggle )
 {
     m->on_toggle = on_toggle;
     setText(text);

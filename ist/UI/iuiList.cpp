@@ -5,6 +5,72 @@
 #include "iuiUtilities.h"
 namespace iui {
 
+
+void VSliderStyle::draw()
+{
+    VSlider *w = static_cast<VSlider*>(getWidget());
+    Rect rect(Position(), w->getSize());
+    Color bg = getBGColor();
+    iuiGetRenderer()->drawRect(rect, bg);
+    iuiGetRenderer()->drawOutlineRect(rect, getBorderColor());
+}
+iuiImplDefaultStyle(VSlider);
+
+
+struct VSlider::Members
+{
+    Float           value;
+    Range           range;
+    Float           page_size;
+    Position        bar_pos;
+    Size            bar_size;
+    bool            bar_hovered;
+    bool            bar_draggind;
+    WidgetCallback  on_change_value;
+
+    Members() : value(0.0f), range(), page_size(0.0f), bar_pos(), bar_size(), bar_hovered(false), bar_draggind(false)
+    {
+    }
+};
+istMemberPtrImpl(VSlider,Members);
+
+Float       VSlider::getValue() const       { return m->value; }
+Range       VSlider::getRange() const       { return m->range; }
+Float       VSlider::getPageSize() const    { return m->page_size; }
+Position    VSlider::getBarPosition() const { return m->bar_pos; }
+Size        VSlider::getBarSize() const     { return m->bar_size; }
+bool        VSlider::isBarHovered() const   { return m->bar_hovered; }
+bool        VSlider::isBarDragging() const  { return m->bar_draggind; }
+
+void        VSlider::setValue(Float v)      { m->value=v; callIfValid(m->on_change_value); }
+void        VSlider::setRange(Range v)      { m->range=v; }
+void        VSlider::setPageSize(Float v)   { m->page_size=v; }
+
+VSlider::VSlider(Widget *parent, const Rect &rect, WidgetCallback on_change_value)
+{
+    setParent(parent);
+    setPosition(rect.getPosition());
+    setSize(rect.getSize());
+    m->on_change_value = on_change_value;
+}
+
+VSlider::~VSlider()
+{
+}
+
+void VSlider::update( Float dt )
+{
+    super::update(dt);
+}
+
+bool VSlider::handleEvent( const WM_Base &wm )
+{
+    return super::handleEvent(wm);
+}
+
+
+
+
 struct ListItem::Members
 {
     String text;
@@ -117,7 +183,7 @@ void List::setItemClickHandler(WidgetCallback cb)       { m->on_item_click=cb; }
 void List::setItemDoubleClickHandler(WidgetCallback cb) { m->on_item_doubleclick=cb; }
 void List::setItemHoverHandler(WidgetCallback cb)       { m->on_item_hovered=cb; }
 
-List::List( Widget *parent, const Rect &rect, const WidgetCallback &on_item_click )
+List::List( Widget *parent, const Rect &rect, WidgetCallback on_item_click )
 {
     setParent(parent);
     setPosition(rect.getPosition());

@@ -59,7 +59,7 @@ struct Editbox::Members
 };
 istMemberPtrImpl(Editbox,Members);
 
-Editbox::Editbox(Widget *parent, const wchar_t *text, const Rect &rect, const WidgetCallback &on_edit)
+Editbox::Editbox(Widget *parent, const wchar_t *text, const Rect &rect, WidgetCallback on_edit)
 {
     setParent(parent);
     setText(text);
@@ -113,7 +113,7 @@ bool EditboxMultiline::isReadOnly() const           { return m->readonly; }
 const ivec2& EditboxMultiline::getCursor() const    { return m->cursor; }
 Style* EditboxMultiline::createDefaultStyle() const { return istNew(EditboxMultilineStyle)(); }
 
-EditboxMultiline::EditboxMultiline( const wchar_t *text, const WidgetCallback &on_change )
+EditboxMultiline::EditboxMultiline( const wchar_t *text, WidgetCallback on_change )
 {
     m->on_change = on_change;
     setText(text);

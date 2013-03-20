@@ -33,7 +33,7 @@ class iuiInterModule Editbox : public Widget
 typedef Widget super;
 public:
     iuiImplWidget(Editbox)
-    Editbox(Widget *parent, const wchar_t *text=L"", const Rect &rect=Rect(), const WidgetCallback &on_edit=WidgetCallback());
+    Editbox(Widget *parent, const wchar_t *text=L"", const Rect &rect=Rect(), WidgetCallback on_edit=WidgetCallback());
     void    update(Float dt);
     bool    isHovered() const;
     bool    isReadOnly() const;
@@ -59,7 +59,7 @@ class iuiInterModule EditboxMultiline : public Widget
 {
 typedef Widget super;
 public:
-    EditboxMultiline(const wchar_t *text=L"", const WidgetCallback &on_change=WidgetCallback());
+    EditboxMultiline(const wchar_t *text=L"", WidgetCallback on_change=WidgetCallback());
     bool            isReadOnly() const;
     const ivec2&    getCursor() const;
     void            setReadOnly(bool ro);
