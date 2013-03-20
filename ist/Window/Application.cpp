@@ -11,7 +11,7 @@ Application *g_the_app = NULL;
 HINSTANCE g_hinstance = NULL;
 
 
-inline void SetupWMMouse(WM_Mouse &wm, WPARAM wParam , LPARAM lParam)
+inline void SetupWMMouse(WM_Mouse &wm, WPARAM wParam , LPARAM lParam, bool screen_to_client=false)
 {
     if(wParam&MK_LBUTTON) { wm.button.left=1; }
     if(wParam&MK_RBUTTON) { wm.button.right=1; }
@@ -19,8 +19,12 @@ inline void SetupWMMouse(WM_Mouse &wm, WPARAM wParam , LPARAM lParam)
     if(wParam&MK_CONTROL) { wm.button.ctrl=1; }
     if(wParam&MK_SHIFT)   { wm.button.shift=1; }
     wm.wheel = GET_WHEEL_DELTA_WPARAM(wParam);
-    wm.mouse_pos.x = (float32)GET_X_LPARAM(lParam);
-    wm.mouse_pos.y = (float32)GET_Y_LPARAM(lParam);
+    POINT pos = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+    if(screen_to_client) {
+        ::ScreenToClient(istGetAplication()->getWindowHandle(), &pos);
+    }
+    wm.mouse_pos.x = (float32)pos.x;
+    wm.mouse_pos.y = (float32)pos.y;
 }
 
 
@@ -147,7 +151,7 @@ LRESULT CALLBACK istWndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lP
     case WM_MOUSEWHEEL:
         {
             WM_Mouse wm;
-            SetupWMMouse(wm, wParam, lParam);
+            SetupWMMouse(wm, wParam, lParam, true);
             wm.type = wm.wheel<0 ? WMT_MouseWheelDown : WMT_MouseWheelUp;
             app->_handleWindowMessage(wm);
         }
@@ -156,7 +160,7 @@ LRESULT CALLBACK istWndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lP
     case WM_MOUSEHWHEEL:
         {
             WM_Mouse wm;
-            SetupWMMouse(wm, wParam, lParam);
+            SetupWMMouse(wm, wParam, lParam, true);
             wm.type = wm.wheel<0 ? WMT_MouseWheelLeft : WMT_MouseWheelRight;
             app->_handleWindowMessage(wm);
         }

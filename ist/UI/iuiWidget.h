@@ -37,14 +37,14 @@ public:
     bool                isVisibleAbs() const; // 親の状態まで考慮した可視性 (不可視の親がいたら false)
     bool                isFocused() const;
 
-    void setParent(Widget *p);
-    void setStyle(Style *style);
-    void setText(const String &text);
-    void setPosition(const Position &pos);
-    void setSize(const Size &pos);
-    void setZOrder(Float v);
-    void setVisibility(bool v);
-    void setFocus(bool v);
+    virtual void setParent(Widget *p);
+    virtual void setStyle(Style *style);
+    virtual void setText(const String &text);
+    virtual void setPosition(const Position &pos);
+    virtual void setSize(const Size &pos);
+    virtual void setZOrder(Float v);
+    virtual void setVisibility(bool v);
+    virtual void setFocus(bool v);
 
     void setTextHandler(WidgetCallback cb);
     void setPositionHandler(WidgetCallback cb);

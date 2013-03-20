@@ -142,7 +142,7 @@ void Widget::draw()
 
 bool Widget::handleEvent(const WM_Base &wm)
 {
-    WidgetHit wh = MouseHitWidget(this, wm);
+    WidgetHit wh = MouseHit(this, wm);
     switch(wh) {
     case WH_HitMouseLeftDown:
     case WH_HitMouseRightDown:

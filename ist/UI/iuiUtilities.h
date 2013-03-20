@@ -17,18 +17,27 @@ enum WidgetHit {
     WH_HitMouseLeftUp,
     WH_HitMouseRightUp,
     WH_HitMouseMiddleUp,
+    WH_HitMouseWheelUp,
+    WH_HitMouseWheelDown,
     WH_MissMouseLeftDown,
     WH_MissMouseRightDown,
     WH_MissMouseMiddleDown,
     WH_MissMouseLeftUp,
     WH_MissMouseRightUp,
     WH_MissMouseMiddleUp,
+    WH_MissMouseWheelUp,
+    WH_MissMouseWheelDown,
     WH_MouseInside,
     WH_MouseOutside,
 };
-iuiInterModule WidgetHit MouseHitWidget(Widget *w, const WM_Base &wm);
+iuiInterModule WidgetHit MouseHit(const Rect &rect, const WM_Base &wm);
+iuiInterModule WidgetHit MouseHit(Widget *w, const WM_Base &wm);
 
+iuiInterModule void HandleMouseHover(const Rect &rect, bool &hovered);
 iuiInterModule void HandleMouseHover(Widget *w, bool &hovered);
+
+iuiInterModule void SetupScreen( const Rect &rect );
+iuiInterModule void SetupScreen(Widget *w);
 
 } // namespace iui
 #endif // iui_Utilities_h

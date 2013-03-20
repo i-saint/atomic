@@ -62,7 +62,7 @@ void Button::update(Float dt)
 
 bool Button::handleEvent( const WM_Base &wm )
 {
-    switch(MouseHitWidget(this, wm)) {
+    switch(MouseHit(this, wm)) {
     case WH_HitMouseLeftDown:
         setFocus(true);
         m->pressing = true;
@@ -128,7 +128,7 @@ void ToggleButton::update( Float dt )
 
 bool ToggleButton::handleEvent( const WM_Base &wm )
 {
-    switch(MouseHitWidget(this, wm)) {
+    switch(MouseHit(this, wm)) {
     case WH_HitMouseLeftDown:
         setFocus(true);
         m->pressing = true;
@@ -180,7 +180,7 @@ Checkbox::Checkbox( const wchar_t *text, WidgetCallback on_toggle )
 
 bool Checkbox::handleEvent( const WM_Base &wm )
 {
-    switch(MouseHitWidget(this, wm)) {
+    switch(MouseHit(this, wm)) {
     case WH_HitMouseLeftDown:
         m->pressing = true;
         return true;

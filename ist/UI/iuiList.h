@@ -5,62 +5,6 @@
 namespace iui {
 
 
-class iuiInterModule HSliderStyle : public Style
-{
-public:
-    virtual void draw();
-};
-
-class iuiInterModule HSlider : public Widget
-{
-public:
-    iuiImplWidget(HSlider);
-    HSlider(Widget *parent, const Rect &rect=Rect(), WidgetCallback on_change=WidgetCallback());
-    Float getValue() const;
-
-private:
-    istMemberPtrDecl(Members) m;
-};
-
-
-
-class iuiInterModule VSliderStyle : public Style
-{
-public:
-    virtual void draw();
-};
-
-class iuiInterModule VSlider : public Widget
-{
-typedef Widget super;
-public:
-    iuiImplWidget(VSlider);
-    VSlider(Widget *parent, const Rect &rect=Rect(), WidgetCallback on_change_value=WidgetCallback());
-    virtual ~VSlider();
-
-    void update(Float dt);
-
-    Float       getValue() const;
-    Range       getRange() const;
-    Float       getPageSize() const;
-    Position    getBarPosition() const;
-    Size        getBarSize() const;
-    bool        isBarHovered() const;
-    bool        isBarDragging() const;
-
-    void        setValue(Float v);
-    void        setRange(Range v);
-    void        setPageSize(Float v);
-
-protected:
-    virtual bool handleEvent(const WM_Base &wm);
-
-private:
-    istMemberPtrDecl(Members) m;
-};
-
-
-
 
 class ListItem;
 typedef ist::vector<ListItem*> ListItemCont;
@@ -125,6 +69,8 @@ public:
     const ListItemCont& getItems() const;
     Float               getItemHeight() const;
     Float               getScrollPos() const;
+    VScrollbar*         getScrollbar() const;
+    Size                getSizeWithoutScrollbar() const;
 
     template<class F>
     void eachListItem(const F &f)
@@ -140,6 +86,8 @@ public:
 
 protected:
     virtual bool handleEvent(const WM_Base &wm);
+    void onChangeNumItems();
+    void onScroll(Widget*);
 
 private:
     istMemberPtrDecl(Members) m;

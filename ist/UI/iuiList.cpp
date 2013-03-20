@@ -3,71 +3,8 @@
 #include "iuiSystem.h"
 #include "iuiRenderer.h"
 #include "iuiUtilities.h"
+#include "iuiSlider.h"
 namespace iui {
-
-
-void VSliderStyle::draw()
-{
-    VSlider *w = static_cast<VSlider*>(getWidget());
-    Rect rect(Position(), w->getSize());
-    Color bg = getBGColor();
-    iuiGetRenderer()->drawRect(rect, bg);
-    iuiGetRenderer()->drawOutlineRect(rect, getBorderColor());
-}
-iuiImplDefaultStyle(VSlider);
-
-
-struct VSlider::Members
-{
-    Float           value;
-    Range           range;
-    Float           page_size;
-    Position        bar_pos;
-    Size            bar_size;
-    bool            bar_hovered;
-    bool            bar_draggind;
-    WidgetCallback  on_change_value;
-
-    Members() : value(0.0f), range(), page_size(0.0f), bar_pos(), bar_size(), bar_hovered(false), bar_draggind(false)
-    {
-    }
-};
-istMemberPtrImpl(VSlider,Members);
-
-Float       VSlider::getValue() const       { return m->value; }
-Range       VSlider::getRange() const       { return m->range; }
-Float       VSlider::getPageSize() const    { return m->page_size; }
-Position    VSlider::getBarPosition() const { return m->bar_pos; }
-Size        VSlider::getBarSize() const     { return m->bar_size; }
-bool        VSlider::isBarHovered() const   { return m->bar_hovered; }
-bool        VSlider::isBarDragging() const  { return m->bar_draggind; }
-
-void        VSlider::setValue(Float v)      { m->value=v; callIfValid(m->on_change_value); }
-void        VSlider::setRange(Range v)      { m->range=v; }
-void        VSlider::setPageSize(Float v)   { m->page_size=v; }
-
-VSlider::VSlider(Widget *parent, const Rect &rect, WidgetCallback on_change_value)
-{
-    setParent(parent);
-    setPosition(rect.getPosition());
-    setSize(rect.getSize());
-    m->on_change_value = on_change_value;
-}
-
-VSlider::~VSlider()
-{
-}
-
-void VSlider::update( Float dt )
-{
-    super::update(dt);
-}
-
-bool VSlider::handleEvent( const WM_Base &wm )
-{
-    return super::handleEvent(wm);
-}
-
 
 
 
@@ -125,16 +62,22 @@ ListStyle::ListStyle()
 void ListStyle::draw()
 {
     List *w = static_cast<List*>(getWidget());
-    Rect rect(Position(), w->getSize());
+    VScrollbar *scrollbar = w->getScrollbar();
+    {
+        SetupScreen(Rect(w->getPositionAbs(), w->getSizeWithoutScrollbar()));
+    }
+
+    Rect rect(Position(), w->getSizeWithoutScrollbar());
     TextPosition tpos(rect, getTextHAlign(), getTextVAlign(), getTextHSpacing(), getTextVSpacing());
     Color bg = getBGColor();
     iuiGetRenderer()->drawRect(rect, bg);
     iuiGetRenderer()->drawOutlineRect(rect, getBorderColor());
 
     Float item_height = w->getItemHeight();
+    Float scrollpos = w->getScrollPos();
     int32 nth_item = 0;
     w->eachListItem([&](ListItem *item){
-        Rect irect(Position(0.0f, item_height*nth_item), Size(w->getSize().x, item_height));
+        Rect irect(Position(0.0f, item_height*nth_item-scrollpos), Size(w->getSize().x, item_height));
         if(IsOverlaped(rect, irect)) { // 表示領域外ならスキップ
             drawItem(item, irect);
         }
@@ -163,6 +106,7 @@ iuiImplDefaultStyle(List);
 
 struct List::Members
 {
+    VScrollbar *scrollbar;
     ListItemCont items;
     WidgetCallback on_item_click;
     WidgetCallback on_item_doubleclick;
@@ -170,14 +114,21 @@ struct List::Members
     Float item_height;
     Float scroll_pos;
 
-    Members() : item_height(18.0f), scroll_pos(0.0f) {}
+    Members() : scrollbar(NULL), item_height(18.0f), scroll_pos(0.0f) {}
 };
 istMemberPtrImpl(List,Members);
 
 Float               List::getItemHeight() const { return m->item_height; }
 Float               List::getScrollPos() const  { return m->scroll_pos; }
+VScrollbar*         List::getScrollbar() const  { return m->scrollbar; }
 ListItemCont&       List::getItems()            { return m->items; }
 const ListItemCont& List::getItems() const      { return m->items; }
+Size List::getSizeWithoutScrollbar() const
+{
+    Size size = getSize();
+    size.x -= m->scrollbar->getSize().x;
+    return size;
+}
 
 void List::setItemClickHandler(WidgetCallback cb)       { m->on_item_click=cb; }
 void List::setItemDoubleClickHandler(WidgetCallback cb) { m->on_item_doubleclick=cb; }
@@ -189,6 +140,11 @@ List::List( Widget *parent, const Rect &rect, WidgetCallback on_item_click )
     setPosition(rect.getPosition());
     setSize(rect.getSize());
     m->on_item_click = on_item_click;
+
+    Float scrollbar_width = 14.0f;
+    Rect scrollbar_rect(Position(rect.getSize().x-scrollbar_width, 0.0f), Size(scrollbar_width, rect.getSize().y));
+    m->scrollbar = istNew(VScrollbar)(this, scrollbar_rect, std::bind(&List::onScroll, this, std::placeholders::_1));
+    m->scrollbar->setRange(Range(0.0f, 0.0f));
 }
 
 List::~List()
@@ -200,9 +156,9 @@ void List::update(Float dt)
 {
     eachListItem([&](ListItem *item){ item->setHovered(false); });
     bool hovered = false;
-    HandleMouseHover(this, hovered);
+    HandleMouseHover(Rect(getPositionAbs(), getSizeWithoutScrollbar()), hovered);
     if(hovered) {
-        Position pos = getPositionAbs();
+        Position pos = getPositionAbs(); pos.y-=m->scroll_pos;
         Position rel = iuiGetSystem()->getMousePos() - pos;
         int32 index = int32(rel.y / m->item_height);
         if(index>=0 && index<(int32)m->items.size()) {
@@ -222,6 +178,7 @@ void List::update(Float dt)
     });
     if(num_destroyed>0) {
         m->items.erase(std::remove(m->items.begin(), m->items.end(), (ListItem*)NULL), m->items.end());
+        onChangeNumItems();
     }
 
     super::update(dt);
@@ -229,8 +186,11 @@ void List::update(Float dt)
 
 void List::addListItem(ListItem *item, int32 pos)
 {
-    // todo: pos
-    m->items.push_back(item);
+    if(pos<0) {
+        pos = (int32)m->items.size()+pos+1;
+    }
+    m->items.insert(m->items.begin()+pos, item);
+    onChangeNumItems();
 }
 
 void List::addListItem(const String &text, void *userdata, int32 pos)
@@ -240,12 +200,12 @@ void List::addListItem(const String &text, void *userdata, int32 pos)
 
 bool List::handleEvent( const WM_Base &wm )
 {
-    switch(MouseHitWidget(this, wm)) {
+    switch(MouseHit(Rect(getPositionAbs(), getSizeWithoutScrollbar()), wm)) {
     case WH_HitMouseLeftDown:
         {
             eachListItem([&](ListItem *item){ item->setSelected(false); });
 
-            Position pos = getPositionAbs();
+            Position pos = getPositionAbs(); pos.y-=m->scroll_pos;
             Position rel = WM_Mouse::cast(wm).mouse_pos - pos;
             int32 index = int32(rel.y / m->item_height);
             if(index>=0 && index<(int32)m->items.size()) {
@@ -255,8 +215,29 @@ bool List::handleEvent( const WM_Base &wm )
             setFocus(true);
             return true;
         }
+    case WH_HitMouseWheelUp:
+        {
+            m->scrollbar->scroll(m->item_height*-2.0f);
+            return true;
+        }
+    case WH_HitMouseWheelDown:
+        {
+            m->scrollbar->scroll(m->item_height*2.0f);
+            return true;
+        }
     }
     return super::handleEvent(wm);
+}
+
+void List::onChangeNumItems()
+{
+    Float scroll_size = std::max<Float>(0.0f, m->items.size() * m->item_height - getSize().y);
+    m->scrollbar->setRange(Range(0.0f, scroll_size));
+}
+
+void List::onScroll( Widget* )
+{
+    m->scroll_pos = m->scrollbar->getValue();
 }
 
 } // namespace iui
