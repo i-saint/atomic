@@ -97,15 +97,23 @@ const char *g_ignore_list[] = {
 
 
 typedef LPVOID (WINAPI *HeapAllocT)( HANDLE hHeap, DWORD dwFlags, SIZE_T dwBytes );
+typedef LPVOID (WINAPI *HeapReAllocT)( HANDLE hHeap, DWORD dwFlags, LPVOID lpMem, SIZE_T dwBytes );
 typedef BOOL (WINAPI *HeapFreeT)( HANDLE hHeap, DWORD dwFlags, LPVOID lpMem );
 
+// 関数の位置
+void    **HeapAlloc_Addr    = NULL;
+void    **HeapReAlloc_Addr  = NULL;
+void    **HeapFree_Addr     = NULL;
+
 // 乗っ取り前の HeapAlloc/Free
-HeapAllocT HeapAlloc_Orig = NULL;
-HeapFreeT HeapFree_Orig = NULL;
+HeapAllocT      HeapAlloc_Orig  = NULL;
+HeapReAllocT    HeapReAlloc_Orig= NULL;
+HeapFreeT       HeapFree_Orig   = NULL;
 
 // 乗っ取り後の HeapAlloc/Free
 LPVOID WINAPI HeapAlloc_Hooked( HANDLE hHeap, DWORD dwFlags, SIZE_T dwBytes );
-BOOL WINAPI HeapFree_Hooked( HANDLE hHeap, DWORD dwFlags, LPVOID lpMem );
+LPVOID WINAPI HeapReAlloc_Hooked( HANDLE hHeap, DWORD dwFlags, LPVOID lpMem, SIZE_T dwBytes );
+BOOL   WINAPI HeapFree_Hooked( HANDLE hHeap, DWORD dwFlags, LPVOID lpMem );
 
 template<class T> T* mlbNew()
 {
@@ -328,7 +336,7 @@ template<class T> inline void ForceWrite(T &dst, const T &src)
 
 
 // dllname: 大文字小文字区別しません
-// F: functor。引数は (const char *funcname, void *&imp_func)
+// F: functor。引数は (const char *funcname, void *&func)
 template<class F>
 bool EachImportFunction(HMODULE module, const char *dllname, const F &f)
 {
@@ -371,32 +379,41 @@ void EachImportFunctionInEveryModule(const char *dllname, const F &f)
     }
 }
 
+void SaveOrigHeapAlloc()
+{
+    HeapAlloc_Orig  = &HeapAlloc;
+    HeapReAlloc_Orig= &HeapReAlloc;
+    HeapFree_Orig   = &HeapFree;
+}
 
 void HookHeapAlloc(const StringCont &modules)
 {
     for(size_t i=0; i<modules.size(); ++i) {
-        EachImportFunction(::GetModuleHandleA(modules[i].c_str()), "kernel32.dll", [](const char *funcname, void *&imp_func){
+        EachImportFunction(::GetModuleHandleA(modules[i].c_str()), "kernel32.dll", [](const char *funcname, void *&func){
             if(strcmp(funcname, "HeapAlloc")==0) {
-                ForceWrite<void*>(imp_func, HeapAlloc_Hooked);
+                HeapAlloc_Addr = &func;
+            }
+            else if(strcmp(funcname, "HeapReAlloc")==0) {
+                HeapReAlloc_Addr = &func;
             }
             else if(strcmp(funcname, "HeapFree")==0) {
-                ForceWrite<void*>(imp_func, HeapFree_Hooked);
+                HeapFree_Addr = &func;
             }
         });
+    }
+    if(HeapAlloc_Addr!=NULL) {
+        ForceWrite<void*>(*HeapAlloc_Addr, HeapAlloc_Hooked);
+        ForceWrite<void*>(*HeapReAlloc_Addr, HeapReAlloc_Hooked);
+        ForceWrite<void*>(*HeapFree_Addr, HeapFree_Hooked);
     }
 }
 
 void UnhookHeapAlloc(const StringCont &modules)
 {
-    for(size_t i=0; i<modules.size(); ++i) {
-        EachImportFunction(::GetModuleHandleA(modules[i].c_str()), "kernel32.dll", [](const char *funcname, void *&imp_func){
-            if(strcmp(funcname, "HeapAlloc")==0) {
-                ForceWrite<void*>(imp_func, HeapAlloc_Orig);
-            }
-            else if(strcmp(funcname, "HeapFree")==0) {
-                ForceWrite<void*>(imp_func, HeapFree_Orig);
-            }
-        });
+    if(HeapAlloc_Addr!=NULL) {
+        ForceWrite<void*>(*HeapAlloc_Addr, HeapAlloc_Orig);
+        ForceWrite<void*>(*HeapReAlloc_Addr, HeapReAlloc_Orig);
+        ForceWrite<void*>(*HeapFree_Addr, HeapFree_Orig);
     }
 }
 
@@ -439,9 +456,7 @@ public:
         , m_idgen(0)
         , m_scope(INT_MAX)
     {
-        HeapAlloc_Orig = &HeapAlloc;
-        HeapFree_Orig = &HeapFree;
-
+        SaveOrigHeapAlloc();
         if(!loadConfig()) { return; }
 
         InitializeDebugSymbol();
@@ -531,7 +546,7 @@ public:
             cs.id = ++m_idgen;
             (*m_leakinfo)[p] = cs;
 
-            if(m_counter) {
+            if(m_counter!=NULL) {
                 auto r = m_counter->insert(cs);
                 const_cast<AllocInfo&>(*r.first).count++;
             }
@@ -713,6 +728,14 @@ MemoryLeakBuster g_mlb;
 LPVOID WINAPI HeapAlloc_Hooked( HANDLE hHeap, DWORD dwFlags, SIZE_T dwBytes )
 {
     LPVOID p = HeapAlloc_Orig(hHeap, dwFlags, dwBytes);
+    g_mlb.addAllocInfo(p, dwBytes);
+    return p;
+}
+
+LPVOID WINAPI HeapReAlloc_Hooked( HANDLE hHeap, DWORD dwFlags, LPVOID lpMem, SIZE_T dwBytes )
+{
+    g_mlb.eraseAllocInfo(lpMem);
+    LPVOID p = HeapReAlloc_Orig(hHeap, dwFlags, lpMem, dwBytes);
     g_mlb.addAllocInfo(p, dwBytes);
     return p;
 }
