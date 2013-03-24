@@ -176,12 +176,6 @@ void Widget::eraseChild( Widget *c )
     }
 }
 
-Widget::WorkspacePool& Widget::getWorkspacePool()
-{
-    static WorkspacePool *s_pool = istNew(WorkspacePool)("WidgetCont");
-    return *s_pool;
-}
-
 Position Widget::getPositionAbs() const
 {
     Position pos;
@@ -190,6 +184,8 @@ Position Widget::getPositionAbs() const
     }
     return pos;
 }
+
+istImplPoolFunction(Widget::WorkspacePool, Widget::getWorkspacePool, "Widget::WorkspacePool");
 
 
 

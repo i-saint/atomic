@@ -48,7 +48,6 @@ template<class T> inline T& unpointer(T *a) { return *a; }
 #define istSafeDelete(Obj)                  if(Obj){istDelete(Obj); Obj=NULL;}
 
 #define istPlacementNew(Type, Addr)         new (Addr) Type
-#define istPlacementDelete(Type, Addr)      ((Type*)(Addr))->~Type();
 
 template<class T> inline T* call_destructor(T* p) { p->~T(); return p; }
 #define istMakeDestructable template<class T> friend T* ::call_destructor(T *v)

@@ -87,7 +87,7 @@ protected:
     virtual bool handleEvent(const WM_Base &wm);
     void callIfValid(const WidgetCallback &v);
 
-    typedef ist::TPoolFactory<WidgetCont, ist::PoolFactoryTraitsST<WidgetCont> > WorkspacePool;
+    typedef ist::TPoolFactory<WidgetCont, ist::PoolTraitsST<WidgetCont> > WorkspacePool;
     static WorkspacePool& getWorkspacePool();
 
 private:

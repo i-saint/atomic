@@ -10,19 +10,20 @@ struct PMMembers
     stl::vector<PoolBase*> all_pools;
     ist::Mutex mutex;
 };
+char istAlign(8) g_pmmem_mem[sizeof(PMMembers)];
 PMMembers *g_pmmem;
 
 PMMembers* PmGet()
 {
     if(!g_pmmem) {
-        g_pmmem = istNew(PMMembers)();
+        g_pmmem = istPlacementNew(PMMembers, g_pmmem_mem)();
     }
     return g_pmmem;
 }
 
 void PmRelease()
 {
-    istSafeDelete(g_pmmem);
+    g_pmmem->~PMMembers();
 }
 
 } // namespace
@@ -37,13 +38,13 @@ void PoolManager::update()
     }
 }
 
-void PoolManager::clear()
+void PoolManager::release()
 {
     {
         PMMembers &m = *PmGet();
         ist::Mutex::ScopedLock lock(m.mutex);
         for(size_t i=0; i<m.all_pools.size(); ++i) {
-            istSafeDelete(m.all_pools[i]);
+            m.all_pools[i]->release();
         }
     }
     PmRelease();
@@ -68,6 +69,12 @@ PoolBase* PoolManager::getPool( size_t i )
     return m.all_pools[i];
 }
 
+Mutex& PoolManager::getMutex()
+{
+    PMMembers &m = *PmGet();
+    return m.mutex;
+}
+
 void PoolManager::printPoolStates()
 {
     PMMembers &m = *PmGet();
@@ -77,29 +84,31 @@ void PoolManager::printPoolStates()
         const PoolBase &pool = *m.all_pools[i];
         istSPrintf(buf,
             "pool %s\n"
-            "  block size: %d\n"
-            "  align: %d\n"
             "  num blocks: %d\n"
-            , pool.getClassName(), pool.getBlockSize(), pool.getAlign(), pool.getNumBlocks());
+            , pool.getClassName(), pool.getNumBlocks());
         istPrint(buf);
     }
 }
 
 
 const char* PoolBase::getClassName() const{ return m_classname; }
-size_t PoolBase::getBlockSize() const     { return m_blocksize; }
-size_t PoolBase::getAlign() const         { return m_align; }
 
-PoolBase::PoolBase( const char *classname, size_t blocksize, size_t align )
+PoolBase::PoolBase( const char *classname )
 {
     m_classname = classname;
-    m_blocksize = blocksize;
-    m_align = align;
     PoolManager::addPool(this);
 }
 
 PoolBase::~PoolBase()
 {
+    m_classname = NULL;
+}
+
+void PoolBase::release()
+{
+    if(m_classname!=NULL) {
+        this->~PoolBase();
+    }
 }
 
 

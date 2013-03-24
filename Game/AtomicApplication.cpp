@@ -251,7 +251,7 @@ void AtomicApplication::finalize()
     istTaskSchedulerFinalize();
     FinalizeText();
     FinalizeCrashReporter();
-    istPoolClear();
+    istPoolRelease();
 }
 
 void AtomicApplication::mainLoop()

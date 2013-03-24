@@ -6,8 +6,23 @@
 #include "ist/Concurrency/Mutex.h"
 
 
-#define istPoolUpdate() ist::PoolManager::update()
-#define istPoolClear()  ist::PoolManager::clear()
+#define istPoolUpdate()     ist::PoolManager::update()
+#define istPoolRelease()    ist::PoolManager::release()
+
+
+#define istImplPoolFunction(PoolType, FuncName, ...)\
+    PoolType& FuncName()\
+    {\
+        static char s_mem[sizeof(PoolType)];\
+        static PoolType *s_pool;\
+        if(s_pool==NULL) {\
+            ist::Mutex::ScopedLock lock(ist::PoolManager::getMutex());\
+            if(s_pool==NULL) {\
+                s_pool=istPlacementNew(PoolType, s_mem)(__VA_ARGS__);\
+            }\
+        }\
+        return *s_pool;\
+    }
 
 
 #define istDefinePoolNew(Class, Traits)\
@@ -18,11 +33,7 @@ public:\
     static void* operator new[](size_t, size_t)     { istAssert(false); return NULL; }\
     static void  operator delete[](void *p, size_t) { istAssert(false); }\
 private:\
-    static PoolT& getPool()\
-    {\
-        static PoolT *s_pool = istNew(PoolT)(#Class, sizeof(Class), istAlignof(Class));\
-        return *s_pool;\
-    }
+    static istImplPoolFunction(PoolT, getPool, #Class, sizeof(Class), istAlignof(Class))
 
 #define istDeclPoolNew(Class, Traits)\
 public:\
@@ -35,33 +46,25 @@ private:\
     static PoolT& getPool();
 
 #define istImplPoolNew(Class, Traits)\
-void* Class::operator new(size_t, size_t)       { return getPool().allocate(); }\
-void  Class::operator delete(void *p, size_t)   { getPool().recycle(p); }\
-void* Class::operator new[](size_t, size_t)     { istAssert(false); return NULL; }\
-void  Class::operator delete[](void *p, size_t) { istAssert(false); }\
-Class::PoolT& Class::getPool()\
-{\
-    static PoolT *s_pool = istNew(PoolT)(#Class, sizeof(Class), istAlignof(Class));\
-    return *s_pool;\
-}
+    void* Class::operator new(size_t, size_t)       { return getPool().allocate(); }\
+    void  Class::operator delete(void *p, size_t)   { getPool().recycle(p); }\
+    void* Class::operator new[](size_t, size_t)     { istAssert(false); return NULL; }\
+    void  Class::operator delete[](void *p, size_t) { istAssert(false); }\
+    static istImplPoolFunction(Class::PoolT, Class::getPool, #Class, sizeof(Class), istAlignof(Class))
 
-#define istDefinePoolNewST(Class)       istDefinePoolNew(Class, ist::PoolAllocatorTraitsST<Class>)
-#define istDefinePoolNewMT(Class)       istDefinePoolNew(Class, ist::PoolAllocatorTraitsMT<Class>)
-#define istDeclPoolNewST(Class)         istDeclPoolNew(  Class, ist::PoolAllocatorTraitsST<Class>)
-#define istDeclPoolNewMT(Class)         istDeclPoolNew(  Class, ist::PoolAllocatorTraitsMT<Class>)
-#define istImplPoolNewST(Class)         istImplPoolNew(  Class, ist::PoolAllocatorTraitsST<Class>)
-#define istImplPoolNewMT(Class)         istImplPoolNew(  Class, ist::PoolAllocatorTraitsMT<Class>)
+#define istDefinePoolNewST(Class)       istDefinePoolNew(Class, ist::PoolTraitsST<Class>)
+#define istDefinePoolNewMT(Class)       istDefinePoolNew(Class, ist::PoolTraitsMT<Class>)
+#define istDeclPoolNewST(Class)         istDeclPoolNew(  Class, ist::PoolTraitsST<Class>)
+#define istDeclPoolNewMT(Class)         istDeclPoolNew(  Class, ist::PoolTraitsMT<Class>)
+#define istImplPoolNewST(Class)         istImplPoolNew(  Class, ist::PoolTraitsST<Class>)
+#define istImplPoolNewMT(Class)         istImplPoolNew(  Class, ist::PoolTraitsMT<Class>)
 
 
 #define istDefinePoolFactory(Class, Traits)\
     template<class T> friend class ist::PoolCreator;\
     typedef ist::TPoolFactory<Class, Traits> PoolT;\
 private:\
-    static PoolT& getPool()\
-    {\
-        static PoolT *s_pool = istNew(PoolT)(#Class);\
-        return *s_pool;\
-    }
+    static istImplPoolFunction(PoolT, getPoolm #Class)
 
 #define istDeclPoolFactory(Class, Traits)\
     template<class T> friend class ist::PoolCreator;\
@@ -70,18 +73,14 @@ private:\
     static PoolT& getPool();
 
 #define istImplPoolFactory(Class, Traits)\
-    Class::PoolT& Class::getPool()\
-    {\
-        static PoolT *s_pool = istNew(PoolT)(#Class);\
-        return *s_pool;\
-    }
+    istImplPoolFunction(Class::PoolT, Class::getPool, #Class)
 
-#define istDefinePoolFactoryST(Class)   istDefinePoolFactory(Class, ist::PoolFactoryTraitsST<Class>)
-#define istDefinePoolFactoryMT(Class)   istDefinePoolFactory(Class, ist::PoolFactoryTraitsMT<Class>)
-#define istDeclPoolFactoryST(Class)     istDeclPoolFactory(  Class, ist::PoolFactoryTraitsST<Class>)
-#define istDeclPoolFactoryMT(Class)     istDeclPoolFactory(  Class, ist::PoolFactoryTraitsMT<Class>)
-#define istImplPoolFactoryST(Class)     istImplPoolFactory(  Class, ist::PoolFactoryTraitsST<Class>)
-#define istImplPoolFactoryMT(Class)     istImplPoolFactory(  Class, ist::PoolFactoryTraitsMT<Class>)
+#define istDefinePoolFactoryST(Class)   istDefinePoolFactory(Class, ist::PoolTraitsST<Class>)
+#define istDefinePoolFactoryMT(Class)   istDefinePoolFactory(Class, ist::PoolTraitsMT<Class>)
+#define istDeclPoolFactoryST(Class)     istDeclPoolFactory(  Class, ist::PoolTraitsST<Class>)
+#define istDeclPoolFactoryMT(Class)     istDeclPoolFactory(  Class, ist::PoolTraitsMT<Class>)
+#define istImplPoolFactoryST(Class)     istImplPoolFactory(  Class, ist::PoolTraitsST<Class>)
+#define istImplPoolFactoryMT(Class)     istImplPoolFactory(  Class, ist::PoolTraitsMT<Class>)
 
 
 
@@ -91,37 +90,36 @@ class PoolBase;
 
 class istInterModule PoolManager
 {
+istNoncpyable(PoolManager);
 public:
     static void update();
-    static void clear();
+    static void release();
     static void addPool(PoolBase *p);
 
     static size_t getNumPool();
     static PoolBase* getPool(size_t i);
+    static Mutex& getMutex();
 
     static void printPoolStates();
 };
 
 
-class PoolBase
+class istInterModule PoolBase
 {
 istNoncpyable(PoolBase);
 public:
-    PoolBase(const char *Class, size_t blocksize, size_t align);
+    PoolBase(const char *classname);
     virtual ~PoolBase();
+    virtual void release();
     virtual void update()=0;
     virtual void reserve(size_t size)=0;
     virtual void clear()=0;
+    virtual size_t getNumBlocks() const=0;
 
     const char* getClassName() const;
-    size_t getBlockSize() const;
-    size_t getAlign() const;
-    virtual size_t getNumBlocks() const=0;
 
 private:
     const char *m_classname;
-    size_t m_blocksize;
-    size_t m_align;
 };
 
 
@@ -131,13 +129,13 @@ struct PoolMultiThreaded { typedef SpinMutex MutexT; };
 
 struct PoolUpdater_DoNothing
 {
-    template<class T, class C>
-    void operator()(ist::raw_vector< std::pair<int, T*> > &, C ) const
+    template<class ObjT, class CreatorT, class MutexT>
+    void operator()(ist::raw_vector<std::pair<int, ObjT*>> &, CreatorT , MutexT &) const
     {
     }
 };
 
-template<int N>
+template<int Delay>
 struct PoolUpdater_DelayedDeleter
 {
     template<class T>
@@ -146,14 +144,15 @@ struct PoolUpdater_DelayedDeleter
         bool operator()(const T &v) const { return v.second==NULL; }
     };
 
-    template<class T, class C>
-    void operator()(ist::raw_vector<std::pair<int, T*>> &pool, C c) const
+    template<class ObjT, class CreatorT, class MutexT>
+    void operator()(ist::raw_vector<std::pair<int, ObjT*>> &pool, CreatorT c, MutexT &mutex) const
     {
+        Mutex::ScopedLock lock(mutex);
         size_t deleted = 0;
         size_t size = pool.size();
         for(size_t i=0; i<size; ++i) {
             auto &p = pool[i];
-            if(p.first++==N) {
+            if(p.first++==Delay) {
                 c.release(p.second);
                 p.second = NULL;
                 ++deleted;
@@ -161,7 +160,7 @@ struct PoolUpdater_DelayedDeleter
         }
         if(deleted>0) {
             pool.erase(
-                std::remove_if(pool.begin(), pool.end(), second_is_null<std::pair<int, T*>>()),
+                std::remove_if(pool.begin(), pool.end(), second_is_null<std::pair<int, ObjT*>>()),
                 pool.end());
         }
     }
@@ -173,29 +172,33 @@ struct PoolAllocator
     void  release(void *p) const             { return istAlignedFree(p); }
 };
 
-template<class T>
 struct PoolCreator
 {
-    T*   create() const      { return istNew(T)(); }
-    void release(T *p) const { istDelete(p); }
+    template<class T> T*   create() const      { return istNew(T)(); }
+    template<class T> void release(T *p) const { istDelete(p); }
 };
 
 
 
+// 適切な Threading, Updater, Creator の typedef を用意することでカスタム可能。
+// 以下は汎用 traits
+
 template<class T>
-struct PoolAllocatorTraitsST
+struct PoolTraitsST
 {
-    typedef PoolSingleThreaded    Threading;
-    typedef PoolUpdater_DoNothing Updater;
-    typedef PoolAllocator         Allocator;
+    typedef PoolSingleThreaded      Threading;
+    typedef PoolUpdater_DoNothing   Updater;
+    typedef PoolAllocator           Allocator;
+    typedef PoolCreator             Creator;
 };
 
 template<class T>
-struct PoolAllocatorTraitsMT
+struct PoolTraitsMT
 {
-    typedef PoolMultiThreaded     Threading;
-    typedef PoolUpdater_DoNothing Updater;
-    typedef PoolAllocator         Allocator;
+    typedef PoolMultiThreaded       Threading;
+    typedef PoolUpdater_DoNothing   Updater;
+    typedef PoolAllocator           Allocator;
+    typedef PoolCreator             Creator;
 };
 
 
@@ -212,7 +215,9 @@ public:
     typedef ist::raw_vector<Pair> Pairs;
 
     TPoolAllocator(const char *Class, size_t blocksize, size_t align)
-        : super(Class, blocksize, align)
+        : super(Class)
+        , m_blocksize(blocksize)
+        , m_align(align)
     {
     }
     ~TPoolAllocator()
@@ -220,12 +225,12 @@ public:
         clear();
     }
 
-    static void Free(void *p) { Allocator().release(p); }
+    size_t getBlockSize() const { return m_blocksize; }
+    size_t getAlign() const     { return m_align; }
 
     virtual void update()
     {
-        MutexT::ScopedLock lock(m_mutex);
-        Updater()(m_pool, Allocator());
+        Updater()(m_pool, Allocator(), m_mutex);
     }
 
     virtual size_t getNumBlocks() const
@@ -273,30 +278,14 @@ public:
 private:
     Pairs m_pool;
     MutexT m_mutex;
+    size_t m_blocksize;
+    size_t m_align;
 };
 
 
 
-// 適切な Threading, Updater, Creator の typedef を用意することでカスタム可能。
-// 以下は汎用 traits
 
-template<class T>
-struct PoolFactoryTraitsST
-{
-    typedef PoolSingleThreaded    Threading;
-    typedef PoolUpdater_DoNothing Updater;
-    typedef PoolCreator<T>        Creator;
-};
-
-template<class T>
-struct PoolFactoryTraitsMT
-{
-    typedef PoolMultiThreaded     Threading;
-    typedef PoolUpdater_DoNothing Updater;
-    typedef PoolCreator<T>        Creator;
-};
-
-template<class T, class Traits=PoolFactoryTraitsST<T> >
+template<class T, class Traits=PoolTraitsST<T> >
 class TPoolFactory : public PoolBase
 {
 typedef PoolBase super;
@@ -308,7 +297,7 @@ public:
     typedef ist::raw_vector<Pair> Pairs;
 
     TPoolFactory(const char *classname)
-        : super(classname, sizeof(T), istAlignof(T))
+        : super(classname)
     {
     }
 
@@ -319,8 +308,7 @@ public:
 
     virtual void update()
     {
-        MutexT::ScopedLock lock(m_mutex);
-        Updater()(m_pool, Creator());
+        Updater()(m_pool, Creator(), m_mutex);
     }
 
     virtual size_t getNumBlocks() const { return m_pool.size(); }
@@ -329,7 +317,7 @@ public:
     {
         MutexT::ScopedLock lock(m_mutex);
         while(m_pool.size()<size) {
-            m_pool.push_back(Pair(0, Creator().create()));
+            m_pool.push_back(Pair(0, Creator().create<T>()));
         }
     }
 
@@ -352,7 +340,7 @@ public:
                 return ret;
             }
         }
-        return Creator().create();
+        return Creator().create<T>();
     }
 
     void recycle(T *p)
