@@ -200,6 +200,8 @@ PassPostprocess_Fade::PassPostprocess_Fade()
 
 void PassPostprocess_Fade::beforeDraw()
 {
+    if(!atomicGetGame()) { return; }
+
     float32 frame = (float32)atomicGetFrame();
     if(frame > m_end_frame) { return; }
 

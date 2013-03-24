@@ -12,6 +12,7 @@ MessageRouter* MessageRouter::s_instance;
 
 void MessageRouter::initializeInstance()
 {
+    istAssert(s_instance==NULL);
     s_instance = istNew(MessageRouter)();
 }
 

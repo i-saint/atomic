@@ -13,12 +13,42 @@ namespace atomic {
 class World;
 class AtomicRenderer;
 
+struct GameStartConfig
+{
+    enum GameMode {
+        GM_Campaign,
+        GM_Horde,
+        GM_QuickJoin,
+        GM_Replay,
+    };
+    enum NetworkMode {
+        NM_Server,
+        NM_Client,
+        NM_Offline,
+    };
+    GameMode    gmode;
+    NetworkMode nmode;
+    std::string path_to_replay;
+    std::string server_address;
+    uint16      server_port;
+
+    GameStartConfig()
+        : gmode(GM_Campaign)
+        , nmode(NM_Server)
+        , server_address("localhost")
+        , server_port(10050)
+    {
+    }
+};
+
+
 class AtomicGame
 {
 public:
     AtomicGame();
     ~AtomicGame();
 
+    bool config(const GameStartConfig &conf);
     bool readReplayFromFile(const char *path);
 
     void frameBegin();
@@ -75,7 +105,7 @@ private:
 #ifdef atomic_enable_sync_lock
 #   define  atomicDbgLockSyncMethods()      atomicGetGame()->dbgLockSyncMethods()
 #   define  atomicDbgUnlockSyncMethods()    atomicGetGame()->dbgUnlockSyncMethods()
-#   define  atomicDbgAssertSyncLock()       istAssert(!atomicGetGame()->dbgIsSyncMethodsEnabled())
+#   define  atomicDbgAssertSyncLock()       istAssert(!atomicGetGame()||!atomicGetGame()->dbgIsSyncMethodsEnabled())
 #else
 #   define  atomicDbgLockSyncMethods()      
 #   define  atomicDbgUnlockSyncMethods()    

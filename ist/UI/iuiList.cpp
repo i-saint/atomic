@@ -184,6 +184,16 @@ void List::update(Float dt)
     super::update(dt);
 }
 
+const ListItem* List::getSelectedItem( size_t i ) const
+{
+    const ListItem *ret = NULL;
+    size_t nth = 0;
+    eachListItem([&](const ListItem *item){
+        if(item->isSelected() && nth==i) { ret=item; }
+    });
+    return ret;
+}
+
 void List::addListItem(ListItem *item, int32 pos)
 {
     if(pos<0) {

@@ -62,10 +62,10 @@ private:
 
     SystemTextRenderer                      *m_stext;
 
-    Viewport   m_default_viewport;
-    RenderStates    m_rstates3d;
-    RenderStates    m_rstatesBG;
-    RenderStates    m_rstates2d;
+    Viewport            m_default_viewport;
+    RenderStates        m_rstates3d;
+    RenderStates        m_rstatesBG;
+    RenderStates        m_rstates2d;
 
 private:
     static AtomicRenderer *s_inst;
@@ -98,7 +98,6 @@ public:
     PassDeferredShading_Lights* getLights()                 { return m_renderer_lights; }
     PassPostprocess_Fade* getFader()                        { return m_renderer_fade; }
     SystemTextRenderer* getSystemTextRenderer()             { return m_stext; }
-
     RenderTarget*   getFrontRenderTarget() { return m_rt_out[0]; }
     RenderTarget*   getBackRenderTarget() { return m_rt_out[1]; }
     void swapOutputRenderTarget()   { stl::swap(m_rt_out[0], m_rt_out[1]); }

@@ -3,6 +3,12 @@
 
 namespace ist {
 
+stl::wstring L(const stl::string &mbs);
+stl::wstring L(const char *mbs, size_t len);
+stl::string S(const stl::wstring &wcs);
+stl::string S(const wchar_t *wcs, size_t len);
+
+
 class istInterModule StringSymbolPool
 {
 public:

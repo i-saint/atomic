@@ -109,7 +109,8 @@ void AtomicRenderer::draw()
     glFrontFace(GL_CCW);
     glEnable(GL_CULL_FACE);
 
-    {
+    AtomicGame *game = atomicGetGame();
+    if(game) {
         PerspectiveCamera *camera   = atomicGetGameCamera();
         Buffer *ubo_rs              = atomicGetUniformBuffer(UBO_RENDERSTATES_3D);
         const uvec2 &wsize          = atomicGetWindowSize();
@@ -177,6 +178,8 @@ void AtomicRenderer::passShadow()
 
 void AtomicRenderer::passGBuffer()
 {
+    if(!atomicGetGame()) { return; }
+
     i3d::DeviceContext *dc = atomicGetGLDeviceContext();
     const PerspectiveCamera *camera = atomicGetGameCamera();
 
@@ -282,8 +285,10 @@ void AtomicRenderer::passOutput()
     char buf[64];
     istSPrintf(buf, "FPS: %u", atomicGetRenderingSystem()->getAverageFPS());
     m_stext->addText(vec2(5.0f, 5.0f), buf);
-    istSPrintf(buf, "Particles: %d", atomicGetSPHManager()->getNumParticles());
-    m_stext->addText(vec2(5.0f, 25.0f), buf);
+    if(atomicGetGame()) {
+        istSPrintf(buf, "Particles: %d", atomicGetSPHManager()->getNumParticles());
+        m_stext->addText(vec2(5.0f, 25.0f), buf);
+    }
 
     //istsprintf(buf, "Bloom: [F2]");
     //m_stext->addText(vec2(5.0f, 45.0f), buf);

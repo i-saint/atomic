@@ -6,6 +6,7 @@ namespace atomic {
 
 class AtomicGame;
 class SoundThread;
+struct GameStartConfig;
 
 struct istInterModule AtomicConfig
 {
@@ -54,7 +55,8 @@ public:
 
     virtual void mainLoop();
     virtual void updateInput();
-    virtual void sysUpdate();
+    void update();
+    void draw();
 
     bool handleWindowMessage(const ist::WM_Base& wm);
     void handleError(ATOMIC_ERROR e);
@@ -62,6 +64,7 @@ public:
     // 描画スレッドから呼ばれる
     void drawCallback();
 
+    void requestStartGame(const GameStartConfig &conf);
     void requestExit();
     AtomicGame* getGame();
     const InputState* getSystemInputs() const;

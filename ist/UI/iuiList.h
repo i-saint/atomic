@@ -67,6 +67,7 @@ public:
 
     ListItemCont&       getItems();
     const ListItemCont& getItems() const;
+    const ListItem*     getSelectedItem(size_t nth=0) const;
     Float               getItemHeight() const;
     Float               getScrollPos() const;
     VScrollbar*         getScrollbar() const;

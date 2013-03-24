@@ -209,11 +209,13 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     // initialize sound
     AtomicSound::initializeInstance();
 
-    // create game
-    m->game = istNew(AtomicGame)();
-    if(argc > 1) {
-        m->game->readReplayFromFile(argv[1]);
-    }
+    //// create game
+    //GameStartConfig gconf;
+    //if(argc > 1) {
+    //    gconf.gmode = GameStartConfig::GM_Replay;
+    //    gconf.path_to_replay = argv[1];
+    //}
+    //m->game = istNew(AtomicGame)(gconf);
 
     // start server
     Poco::ThreadPool::defaultPool().addCapacity(8);
@@ -272,34 +274,40 @@ void AtomicApplication::mainLoop()
     const float32 delay = 16.666f;
     const float32 dt = 1.0f;
 
-    AtomicGame *game = m->game;
     while(!m->request_exit)
     {
         DOL_Update();
         translateMessage();
-        sysUpdate();
+        update();
 
+        AtomicGame *game = m->game;
         if(game) {
             game->frameBegin();
             game->update(dt);
             game->asyncupdateBegin(dt);
             updateInput();
-            game->draw();
+            draw();
             game->asyncupdateEnd();
             game->frameEnd();
+        }
+        else {
+            updateInput();
+            draw();
+        }
 
-            if( game->IsWaitVSyncRequired() &&
-                (!atomicGetConfig()->unlimit_gamespeed && !atomicGetConfig()->vsync))
-            {
-                float32 remain = delay-pc.getElapsedMillisec();
+        if( (game==NULL || game->IsWaitVSyncRequired()) &&
+            (!atomicGetConfig()->unlimit_gamespeed && !atomicGetConfig()->vsync))
+        {
+            float32 remain = delay-pc.getElapsedMillisec();
+            if(remain>0.0f) {
                 ist::Thread::microSleep((uint32)std::max<float32>(remain*1000.0f, 0.0f));
-                pc.reset();
             }
+            pc.reset();
         }
     }
 }
 
-void AtomicApplication::sysUpdate()
+void AtomicApplication::update()
 {
     istPoolUpdate();
     iuiUpdate();
@@ -342,6 +350,23 @@ void AtomicApplication::sysUpdate()
     }
 
     atomicDbgDebugMenuUpdate();
+}
+
+void AtomicApplication::draw()
+{
+    AtomicGame *game = m->game;
+    if(game) {
+        game->draw();
+    }
+    atomicKickDraw();
+    atomicWaitUntilDrawCallbackComplete();
+}
+
+void AtomicApplication::requestStartGame(const GameStartConfig &conf)
+{
+    istSafeDelete(m->game);
+    m->game = istNew(AtomicGame)();
+    m->game->config(conf);
 }
 
 
@@ -453,6 +478,7 @@ void AtomicApplication::handleError(ATOMIC_ERROR e)
 
 void AtomicApplication::drawCallback()
 {
+    AtomicRenderer::getInstance()->beforeDraw();
     if(m->game) {
         m->game->drawCallback();
     }

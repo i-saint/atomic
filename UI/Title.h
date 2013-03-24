@@ -38,6 +38,7 @@ private:
     void onRecord(Widget *);
     void onConfig(Widget *);
     void onExit(Widget *);
+    void hideAll();
 
     StartWindow     *m_start;
     RecordWindow    *m_record;
@@ -48,9 +49,17 @@ class StartWindow : public iui::Panel
 public:
     StartWindow();
 private:
-    void onQuickJoin(Widget *);
+    void onCampaign(Widget *);
     void onHorde(Widget *);
-    void onScoreAttack(Widget *);
+    void onQuickJoin(Widget *);
+};
+
+class RecordWindow : public iui::Panel
+{
+public:
+    RecordWindow();
+private:
+    void onSelect(Widget *);
 };
 
 

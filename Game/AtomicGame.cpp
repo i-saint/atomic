@@ -25,21 +25,6 @@ AtomicGame::AtomicGame()
 , m_frame(0)
 , m_skip_update(false)
 {
-#ifdef atomic_enable_sync_lock
-    m_sync_lock = false;
-#endif // atomic_enable_sync_lock
-    MessageRouter::initializeInstance();
-
-    PlayerName name = L"test";
-    //m_input_server = CreateInputServerLocal();
-    m_input_server = CreateInputServerNetwork();
-    m_input_server->addPlayer(0, name, 0);
-
-    m_world = istNew(World)();
-    m_world->initialize();
-
-    // 今回は固定値で初期化
-    m_rand.initialize(0);
 }
 
 AtomicGame::~AtomicGame()
@@ -49,8 +34,8 @@ AtomicGame::~AtomicGame()
         char path[128];
         char date[128];
         CreateDateString(date, _countof(date));
-        istSPrintf(path, "%s.replay", date);
-        for(size_t i=0; i<_countof(path); ++i) { if(path[i]=='/' || path[i]==':') { path[i]='-'; } }
+        for(size_t i=0; i<_countof(date); ++i) { if(date[i]=='/' || date[i]==':') { date[i]='-'; } }
+        istSPrintf(path, "Replay/%s.replay", date);
         m_input_server->save(path);
     }
 
@@ -58,6 +43,33 @@ AtomicGame::~AtomicGame()
     istSafeDelete(m_input_server);
 
     MessageRouter::finalizeInstance();
+}
+
+bool AtomicGame::config(const GameStartConfig &conf)
+{
+#ifdef atomic_enable_sync_lock
+    m_sync_lock = false;
+#endif // atomic_enable_sync_lock
+    MessageRouter::initializeInstance();
+
+    PlayerName name = L"test";
+    if(conf.gmode==GameStartConfig::GM_Replay) {
+        readReplayFromFile(conf.path_to_replay.c_str());
+    }
+    else if(conf.nmode==GameStartConfig::NM_Offline) {
+        m_input_server = CreateInputServerLocal();
+    }
+    else if(conf.nmode==GameStartConfig::NM_Server || conf.nmode==GameStartConfig::NM_Client) {
+        m_input_server = CreateInputServerNetwork();
+        m_input_server->addPlayer(0, name, 0);
+    }
+
+    m_world = istNew(World)();
+    m_world->initialize();
+
+    // 今回は固定値で初期化
+    m_rand.initialize(0);
+    return true;
 }
 
 bool AtomicGame::readReplayFromFile(const char *path)
@@ -137,8 +149,6 @@ void AtomicGame::draw()
         if(is->isButtonPressed(2) && f%8!=0) { m_skip_draw=true; return; }
         if(is->isButtonPressed(3) && f%16!=0){ m_skip_draw=true; return; }
     }
-    atomicKickDraw();
-    atomicWaitUntilDrawCallbackComplete();
 }
 
 void AtomicGame::frameEnd()
@@ -152,7 +162,6 @@ void AtomicGame::frameEnd()
 
 void AtomicGame::drawCallback()
 {
-    AtomicRenderer::getInstance()->beforeDraw();
     if(m_input_server->getTypeID()==IInputServer::IS_Replay) {
         const uvec2 &wsize = atomicGetWindowSize();
         uint32 len  = m_input_server->getPlayLength();
