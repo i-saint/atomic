@@ -13,10 +13,6 @@ namespace atomic {
 
 PassDeferredShading_Bloodstain::PassDeferredShading_Bloodstain()
 {
-    m_ibo_sphere    = atomicGetIndexBuffer(IBO_BLOODSTAIN_SPHERE);
-    m_va_sphere     = atomicGetVertexArray(VA_BLOOSTAIN_SPHERE);
-    m_sh            = atomicGetShader(SH_BLOODSTAIN);
-    m_vbo_bloodstain= atomicGetVertexBuffer(VBO_BLOODSTAIN_PARTICLES);
     m_instances.reserve(128);
     m_particles.reserve(2048);
 }
@@ -65,7 +61,11 @@ void PassDeferredShading_Bloodstain::draw()
             });
     }
 
-    MapAndWrite(dc, m_vbo_bloodstain, &m_particles[0], sizeof(BloodstainParticle)*num_particles);
+    Buffer          *ibo_sphere       = atomicGetIndexBuffer(IBO_BLOODSTAIN_SPHERE);
+    VertexArray     *va_sphere        = atomicGetVertexArray(VA_BLOOSTAIN_SPHERE);
+    Buffer          *vbo_bloodstain   = atomicGetVertexBuffer(VBO_BLOODSTAIN_PARTICLES);
+    AtomicShader    *sh               = atomicGetShader(SH_BLOODSTAIN);
+    MapAndWrite(dc, vbo_bloodstain, &m_particles[0], sizeof(BloodstainParticle)*num_particles);
 
     // RT_GBUFFER のカラーバッファを更新する。
     // そのため、GLSL_COLOR_BUFFER は一時的に unbind
@@ -82,12 +82,12 @@ void PassDeferredShading_Bloodstain::draw()
         {GLSL_INSTANCE_POSITION, I3D_FLOAT32,4,  0, false, 1},
         {GLSL_INSTANCE_PARAM,    I3D_FLOAT32,4, 16, false, 1},
     };
-    m_va_sphere->setAttributes(1, m_vbo_bloodstain, 0, sizeof(BloodstainParticle), descs, _countof(descs));
+    va_sphere->setAttributes(1, vbo_bloodstain, 0, sizeof(BloodstainParticle), descs, _countof(descs));
 
-    m_sh->assign(dc);
+    sh->assign(dc);
     dc->setRenderTarget(grt);
-    dc->setVertexArray(m_va_sphere);
-    dc->setIndexBuffer(m_ibo_sphere, 0, I3D_UINT32);
+    dc->setVertexArray(va_sphere);
+    dc->setIndexBuffer(ibo_sphere, 0, I3D_UINT32);
     dc->drawIndexedInstanced(I3D_QUADS, 0, (8-1)*(8)*4, num_particles);
     dc->setIndexBuffer(NULL, 0, I3D_UINT32);
     dc->setBlendState(atomicGetBlendState(BS_BLEND_ADD));

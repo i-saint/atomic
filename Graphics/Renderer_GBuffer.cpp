@@ -13,9 +13,6 @@ namespace atomic {
 
 PassGBuffer_Particle::PassGBuffer_Particle()
 {
-    m_va_cube   = atomicGetVertexArray(VA_FLUID_CUBE);
-    m_sh        = atomicGetShader(SH_GBUFFER_PARTICLES);
-    m_vbo       = atomicGetVertexBuffer(VBO_PARTICLES);
 }
 
 PassGBuffer_Particle::~PassGBuffer_Particle()
@@ -32,8 +29,11 @@ void PassGBuffer_Particle::draw()
     if(m_particles.empty()) { return; }
 
     i3d::DeviceContext *dc = atomicGetGLDeviceContext();
+    VertexArray     *va_cube  = atomicGetVertexArray(VA_FLUID_CUBE);
+    Buffer          *vbo      = atomicGetVertexBuffer(VBO_PARTICLES);
+    AtomicShader    *sh       = atomicGetShader(SH_GBUFFER_PARTICLES);
 
-    MapAndWrite(dc, m_vbo, &m_particles[0], sizeof(IndivisualParticle)*m_particles.size());
+    MapAndWrite(dc, vbo, &m_particles[0], sizeof(IndivisualParticle)*m_particles.size());
     {
         const VertexDesc descs[] = {
             {GLSL_INSTANCE_POSITION, I3D_FLOAT32,4,  0, false, 1},
@@ -41,10 +41,10 @@ void PassGBuffer_Particle::draw()
             {GLSL_INSTANCE_GLOW,     I3D_FLOAT32,4, 32, false, 1},
             {GLSL_INSTANCE_PARAM,    I3D_FLOAT32,4, 48, false, 1},
         };
-        m_va_cube->setAttributes(1, m_vbo, 0, sizeof(IndivisualParticle), descs, _countof(descs));
+        va_cube->setAttributes(1, vbo, 0, sizeof(IndivisualParticle), descs, _countof(descs));
 
-        dc->setVertexArray(m_va_cube);
-        m_sh->assign(dc);
+        dc->setVertexArray(va_cube);
+        sh->assign(dc);
         dc->drawInstanced(I3D_QUADS, 0, 24, m_particles.size());
     }
 }
@@ -59,11 +59,6 @@ void PassGBuffer_Particle::addParticle( const IndivisualParticle *particles, uin
 
 PassGBuffer_Fluid::PassGBuffer_Fluid()
 {
-    m_va_cube       = atomicGetVertexArray(VA_FLUID_CUBE);
-    m_sh_fluid      = atomicGetShader(SH_GBUFFER_FLUID);
-    m_sh_rigid      = atomicGetShader(SH_GBUFFER_RIGID);
-    m_vbo_fluid     = atomicGetVertexBuffer(VBO_FLUID_PARTICLES);
-    m_vbo_rigid     = atomicGetVertexBuffer(VBO_RIGID_PARTICLES);
 }
 
 PassGBuffer_Fluid::~PassGBuffer_Fluid()
@@ -80,6 +75,11 @@ void PassGBuffer_Fluid::beforeDraw()
 void PassGBuffer_Fluid::draw()
 {
     i3d::DeviceContext *dc = atomicGetGLDeviceContext();
+    VertexArray     *va_cube  = atomicGetVertexArray(VA_FLUID_CUBE);
+    Buffer          *vbo_fluid= atomicGetVertexBuffer(VBO_FLUID_PARTICLES);
+    Buffer          *vbo_rigid= atomicGetVertexBuffer(VBO_RIGID_PARTICLES);
+    AtomicShader    *sh_fluid = atomicGetShader(SH_GBUFFER_FLUID);
+    AtomicShader    *sh_rigid = atomicGetShader(SH_GBUFFER_RIGID);
 
     // update rigid particle
     uint32 num_rigid_particles = 0;
@@ -118,9 +118,9 @@ void PassGBuffer_Fluid::draw()
                 {GLSL_INSTANCE_VELOCITY, I3D_FLOAT32,4, 16, false, 1},
                 {GLSL_INSTANCE_PARAM,    I3D_FLOAT32,4, 32, false, 1},
             };
-            m_va_cube->setAttributes(1, m_vbo_fluid, 0, sizeof(psym::Particle), descs, _countof(descs));
-            m_sh_fluid->assign(dc);
-            dc->setVertexArray(m_va_cube);
+            va_cube->setAttributes(1, vbo_fluid, 0, sizeof(psym::Particle), descs, _countof(descs));
+            sh_fluid->assign(dc);
+            dc->setVertexArray(va_cube);
             dc->setDepthStencilState(atomicGetDepthStencilState(DS_GBUFFER_FLUID));
             dc->drawInstanced(I3D_QUADS, 0, 24, num_particles);
             dc->setVertexArray(NULL);
@@ -131,7 +131,7 @@ void PassGBuffer_Fluid::draw()
     Texture2D *param_texture = atomicGetTexture2D(TEX2D_ENTITY_PARAMS);
     if(!m_rinstances.empty()) {
         dc->updateResource(param_texture, 0, uvec2(0,0), uvec2(sizeof(PSetInstance)/sizeof(vec4), m_rinstances.size()), &m_rinstances[0]);
-        MapAndWrite(dc, m_vbo_rigid, &m_rparticles[0], sizeof(PSetParticle)*num_rigid_particles);
+        MapAndWrite(dc, vbo_rigid, &m_rparticles[0], sizeof(PSetParticle)*num_rigid_particles);
     }
     {
         const VertexDesc descs[] = {
@@ -139,11 +139,11 @@ void PassGBuffer_Fluid::draw()
             {GLSL_INSTANCE_POSITION, I3D_FLOAT32,3, 16, false, 1},
             {GLSL_INSTANCE_PARAM,    I3D_INT32,  1, 28, false, 1},
         };
-        m_va_cube->setAttributes(1, m_vbo_rigid, 0, sizeof(PSetParticle), descs, _countof(descs));
+        va_cube->setAttributes(1, vbo_rigid, 0, sizeof(PSetParticle), descs, _countof(descs));
 
-        m_sh_rigid->assign(dc);
+        sh_rigid->assign(dc);
         dc->setTexture(GLSL_PARAM_BUFFER, param_texture);
-        dc->setVertexArray(m_va_cube);
+        dc->setVertexArray(va_cube);
         dc->setDepthStencilState(atomicGetDepthStencilState(DS_GBUFFER_RIGID));
         dc->drawInstanced(I3D_QUADS, 0, 24, num_rigid_particles);
         dc->setDepthStencilState(atomicGetDepthStencilState(DS_GBUFFER_BG));

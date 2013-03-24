@@ -15,9 +15,6 @@ public:
     void addParticle(const IndivisualParticle *particles, uint32 num);
 
 private:
-    VertexArray     *m_va_cube;
-    Buffer          *m_vbo;
-    AtomicShader    *m_sh;
     ist::vector<IndivisualParticle> m_particles;
 };
 
@@ -32,12 +29,6 @@ public:
     void addPSetInstance(PSET_RID psid, const PSetInstance &inst);
 
 private:
-    VertexArray     *m_va_cube;
-    Buffer          *m_vbo_fluid;
-    Buffer          *m_vbo_rigid;
-    AtomicShader    *m_sh_fluid;
-    AtomicShader    *m_sh_rigid;
-
     ist::vector<PSetUpdateInfo> m_rupdateinfo;
     ist::vector<PSetParticle>   m_rparticles;
     ist::vector<PSetInstance>   m_rinstances;

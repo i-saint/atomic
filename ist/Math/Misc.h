@@ -20,6 +20,12 @@ inline T clamp(T v, T minmum, T maximum)
     return stl::min<T>(stl::max<T>(v, minmum), maximum);
 }
 
+template<class T>
+inline T div_ceil(T v, T d)
+{
+    return v/d + (v%d==0 ? 0 : 1);
+}
+
 
 template<class F, class CharT>
 inline void separate_scan(CharT *str, CharT separator, const F &f)

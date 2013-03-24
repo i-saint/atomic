@@ -26,10 +26,6 @@ public:
     void addBloodstainParticles(const mat4 &t, const BloodstainParticle *bsp, uint32 num_bsp);
 
 private:
-    Buffer          *m_ibo_sphere;
-    VertexArray     *m_va_sphere;
-    Buffer          *m_vbo_bloodstain;
-    AtomicShader    *m_sh;
     ist::raw_vector<BloodstainParticleSet>  m_instances;
     ist::raw_vector<BloodstainParticle>     m_particles;
 };

@@ -453,7 +453,10 @@ void AtomicApplication::handleError(ATOMIC_ERROR e)
 
 void AtomicApplication::drawCallback()
 {
-    m->game->drawCallback();
+    if(m->game) {
+        m->game->drawCallback();
+    }
+    atomicDbgDebugMenuDraw();
 }
 
 

@@ -177,7 +177,6 @@ void AtomicGame::drawCallback()
     if(m_world) {
         m_world->draw();
     }
-    atomicDbgDebugMenuDraw();
 }
 
 SFMT* AtomicGame::getRandom()
