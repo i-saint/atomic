@@ -1,6 +1,7 @@
 ﻿#include "stdafx.h"
 #include "Game/AtomicApplication.h"
 #include "Game/AtomicGame.h"
+#include "Graphics/Renderer.h"
 #include "Title.h"
 #include "Poco/DirectoryIterator.h"
 
@@ -13,14 +14,17 @@ RootWindow::RootWindow()
     , m_config(NULL)
     , m_log(NULL)
 {
+    setSize(iui::Size(atomicGetWindowSize().x, atomicGetWindowSize().y));
+
     m_title  = istNew(TitleWindow)();
-    m_title->setParent(this);
-
     m_config = istNew(ConfigWindow)();
-    m_config->setParent(this);
-
     m_log    = istNew(LogWindow)();
-    m_log->setParent(this);
+
+    Widget *widgets[] = {m_title, m_config, m_log};
+    for(size_t i=0; i<_countof(widgets); ++i) {
+        widgets[i]->setParent(this);
+        widgets[i]->setSize(getSize());
+    }
 }
 
 void RootWindow::update(iui::Float dt)
@@ -38,24 +42,36 @@ TitleWindow::TitleWindow()
     , m_record(NULL)
 {
     using std::placeholders::_1;
-    iui::Size size(150, 25);
+    iui::Size size(200, 25);
     float32 vspace = 55.0f;
-    iui::Button *bu_start   = istNew(iui::Button)(this, L"start",   iui::Rect(iui::Position(80, 300+vspace*0), size), std::bind(&TitleWindow::onStart, this, _1));
-    iui::Button *bu_record  = istNew(iui::Button)(this, L"record",  iui::Rect(iui::Position(80, 300+vspace*1), size), std::bind(&TitleWindow::onRecord, this, _1));
-    iui::Button *bu_config  = istNew(iui::Button)(this, L"config",  iui::Rect(iui::Position(80, 300+vspace*2), size), std::bind(&TitleWindow::onConfig, this, _1));
-    iui::Button *bu_exit    = istNew(iui::Button)(this, L"exit",    iui::Rect(iui::Position(80, 300+vspace*3), size), std::bind(&TitleWindow::onExit, this, _1));
+    iui::Button *bu_start   = istNew(iui::Button)(this, L"start",   iui::Rect(iui::Position(80, 400+vspace*0), size), std::bind(&TitleWindow::onStart, this, _1));
+    iui::Button *bu_record  = istNew(iui::Button)(this, L"record",  iui::Rect(iui::Position(80, 400+vspace*1), size), std::bind(&TitleWindow::onRecord, this, _1));
+    iui::Button *bu_config  = istNew(iui::Button)(this, L"config",  iui::Rect(iui::Position(80, 400+vspace*2), size), std::bind(&TitleWindow::onConfig, this, _1));
+    iui::Button *bu_exit    = istNew(iui::Button)(this, L"exit",    iui::Rect(iui::Position(80, 400+vspace*3), size), std::bind(&TitleWindow::onExit, this, _1));
 
 
-    m_start = istNew(StartWindow)();
-    m_record = istNew(RecordWindow)();
+    m_start     = istNew(StartWindow)();
+    m_record    = istNew(RecordWindow)();
 
     Widget *windows[] = {m_start, m_record};
     for(size_t i=0; i<_countof(windows); ++i) {
         windows[i]->setParent(this);
-        windows[i]->setPosition(iui::Position(250, 300));
+        windows[i]->setPosition(iui::Position(350, 400));
         windows[i]->setSize(iui::Size(500, 500));
         windows[i]->setVisibility(false);
     }
+}
+
+void TitleWindow::draw()
+{
+    IFontRenderer *font = atomicGetTitleFont();
+    const iui::Size &size = iuiGetRootWindow()->getSize();
+    font->setScreen(0.0f, size.x, size.y, 0.0f);
+    font->setSize(120.0f);
+    font->setSpacing(5.0f);
+    font->setColor(vec4(1.0f, 1.0f, 1.0f, 0.8f));
+    font->addText(vec2(100.0f, 150.0f), L"atomic");
+    font->draw();
 }
 
 void TitleWindow::onStart(Widget *)

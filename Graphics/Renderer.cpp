@@ -347,7 +347,7 @@ void SystemTextRenderer::draw()
 
     {
         const vec2 &wsize   = vec2(atomicGetWindowSize());
-        auto *font = atomicGetFontRenderer();
+        auto *font = atomicGetFont();
         font->setScreen(0.0f, wsize.x, wsize.y, 0.0f);
         font->setSize(18.0f);
         font->setMonospace(true);
@@ -356,9 +356,9 @@ void SystemTextRenderer::draw()
     }
     for(uint32 i=0; i<m_texts.size(); ++i) {
         const Text &t = m_texts[i];
-        atomicGetFontRenderer()->addText(t.pos, t.text, wcsnlen(t.text, _countof(t.text)));
+        atomicGetFont()->addText(t.pos, t.text, wcsnlen(t.text, _countof(t.text)));
     }
-    atomicGetFontRenderer()->draw();
+    atomicGetFont()->draw();
 }
 
 void SystemTextRenderer::addText(const vec2 &pos, const char *text)

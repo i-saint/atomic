@@ -32,6 +32,7 @@ class TitleWindow : public iui::Panel
 {
 public:
     TitleWindow();
+    virtual void draw();
 
 private:
     void onStart(Widget *);

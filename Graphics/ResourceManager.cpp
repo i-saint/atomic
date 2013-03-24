@@ -48,6 +48,7 @@ inline AtomicShader* CreateAtomicShader(const char* filename)
 bool GraphicResourceManager::initialize()
 {
     m_font = NULL;
+    m_title_font = NULL;
     stl::fill_n(m_blend_states, _countof(m_blend_states), (BlendState*)NULL);
     stl::fill_n(m_depth_states, _countof(m_depth_states), (DepthStencilState*)NULL);
     stl::fill_n(m_sampler, _countof(m_sampler), (Sampler*)NULL);
@@ -69,6 +70,7 @@ bool GraphicResourceManager::initialize()
     i3d::DeviceContext *dc = atomicGetGLDeviceContext();
     {
         m_font = CreateSpriteFont("Resources/font.sff", "Resources/font.png", atomicGetEasyDrawer());
+        m_title_font = CreateSpriteFont("Resources/ascii.sff", "Resources/ascii.png", atomicGetEasyDrawer());
     }
     for(uint32 i=0; i<_countof(m_va); ++i) {
         m_va[i] = dev->createVertexArray();
@@ -230,6 +232,7 @@ void GraphicResourceManager::finalize()
     for(uint32 i=0; i<_countof(m_sampler); ++i) { if(m_sampler[i]) { atomicSafeRelease( m_sampler[i] ); } }
     for(uint32 i=0; i<_countof(m_depth_states); ++i) { if(m_depth_states[i]) { atomicSafeRelease( m_depth_states[i] ); } }
     for(uint32 i=0; i<_countof(m_blend_states); ++i) { if(m_blend_states[i]) { atomicSafeRelease( m_blend_states[i] ); } }
+    atomicSafeRelease(m_title_font);
     atomicSafeRelease(m_font);
 }
 

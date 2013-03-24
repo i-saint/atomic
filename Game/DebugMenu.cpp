@@ -73,7 +73,7 @@ void DebugMenu::draw()
 {
     if(!isActive()) { return; }
 
-    IFontRenderer *fr = atomicGetFontRenderer();
+    IFontRenderer *fr = atomicGetFont();
     ist::IParamNode *node = getRoot();
     vec2 base = vec2(10.0f, 100.0f);
     char buf_name[128];

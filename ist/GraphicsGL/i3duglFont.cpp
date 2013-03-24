@@ -147,7 +147,7 @@ public:
                 vec2 uv_size = wh * m_rcp_tex_size;
                 FontQuad q = {base+scaled_offset, scaled_wh, uv_pos, uv_size, m_color};
                 quads.push_back(q);
-                if(!m_monospace) { advance = (scaled_wh.x + scaled_offset.x) * m_spacing; }
+                if(!m_monospace) { advance = scaled_wh.x + scaled_offset.x * m_spacing; }
             }
             base.x += advance;
         }
@@ -267,6 +267,8 @@ public:
 
     virtual void addText(const vec2 &pos, const wchar_t *text, size_t len)
     {
+        if(len==0) { len=wcslen(text); }
+        if(len==0) { return; }
         m_fss.makeQuads(pos, text, len, m_quads);
     }
 

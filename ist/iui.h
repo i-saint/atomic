@@ -11,5 +11,6 @@
 #include "UI/iuiEdit.h"
 #include "UI/iuiList.h"
 #include "UI/iuiRenderer.h"
+#include "UI/iuiUtilities.h"
 
 #endif // iui_h

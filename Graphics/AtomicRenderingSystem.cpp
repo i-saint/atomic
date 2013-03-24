@@ -124,7 +124,7 @@ void AtomicRenderingThread::exec()
 #endif // ist_env_Windows
     GraphicResourceManager::intializeInstance();
     AtomicRenderer::initializeInstance();
-    iuiInitializeRenderer(atomicGetEasyDrawer(), atomicGetFontRenderer());
+    iuiInitializeRenderer(atomicGetEasyDrawer(), atomicGetFont());
     m_cond_initialize_complete.signalOne();
 
     m_fps_timer.reset();

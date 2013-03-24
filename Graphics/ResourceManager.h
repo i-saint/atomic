@@ -38,7 +38,8 @@ public:
 
     void update();
 
-    IFontRenderer*      getFontRenderer()           { return m_font; }
+    IFontRenderer*      getFont()                   { return m_font; }
+    IFontRenderer*      getTitleFont()              { return m_title_font; }
     Sampler*            getSampler(SAMPLER_RID i)   { return m_sampler[i]; }
     Texture1D*          getTexture1D(TEX1D_RID i)   { return m_tex1d[i]; }
     Texture2D*          getTexture2D(TEX2D_RID i)   { return m_tex2d[i]; }
@@ -65,6 +66,7 @@ private:
     ParticleSet         m_pset[PSET_END];
     RigidInfo           m_rinfo[PSET_END];
     IFontRenderer       *m_font;
+    IFontRenderer       *m_title_font;
     Sampler             *m_sampler[SAMPLER_END];
     Texture1D           *m_tex1d[TEX1D_END];
     Texture2D           *m_tex2d[TEX2D_END];
@@ -89,7 +91,8 @@ private:
 
 #define atomicGetGraphicsResourceManager()   GraphicResourceManager::getInstance()
 
-#define atomicGetFontRenderer()     atomicGetGraphicsResourceManager()->getFontRenderer()
+#define atomicGetFont()             atomicGetGraphicsResourceManager()->getFont()
+#define atomicGetTitleFont()        atomicGetGraphicsResourceManager()->getTitleFont()
 #define atomicGetSampler(i)         atomicGetGraphicsResourceManager()->getSampler(i)
 #define atomicGetTexture1D(i)       atomicGetGraphicsResourceManager()->getTexture1D(i)
 #define atomicGetTexture2D(i)       atomicGetGraphicsResourceManager()->getTexture2D(i)
