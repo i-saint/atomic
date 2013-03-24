@@ -17,6 +17,8 @@ PassDeferredShading_Bloodstain::PassDeferredShading_Bloodstain()
     m_va_sphere     = atomicGetVertexArray(VA_BLOOSTAIN_SPHERE);
     m_sh            = atomicGetShader(SH_BLOODSTAIN);
     m_vbo_bloodstain= atomicGetVertexBuffer(VBO_BLOODSTAIN_PARTICLES);
+    m_instances.reserve(128);
+    m_particles.reserve(2048);
 }
 
 PassDeferredShading_Bloodstain::~PassDeferredShading_Bloodstain()

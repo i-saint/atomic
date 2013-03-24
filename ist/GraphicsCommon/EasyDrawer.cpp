@@ -22,6 +22,8 @@ struct EasyDrawState::Members
         , uniform_location(0)
     {
     }
+
+    istDefinePoolNewST(Members);
 };
 istMemberPtrImpl(EasyDrawState,Members);
 
