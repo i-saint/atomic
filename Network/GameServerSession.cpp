@@ -86,7 +86,7 @@ uint32 GameServerSession::getFrame() const
     return m_frame;
 }
 
-uint32 GameServerSession::getAgeragePing() const
+uint32 GameServerSession::getAveragePing() const
 {
     // todo
     return m_ping;

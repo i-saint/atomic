@@ -130,14 +130,14 @@ void GameServer::recvMessage()
     }
 
     {
-        uint32 max_ping = 0;
+        uint32 max_ping = 1;
         uint32 min_frame = 0xffffffff;
         for(size_t i=0; i<m_sessions.size(); ++i) {
-            max_ping = std::max<uint32>(max_ping, m_sessions[i]->getAgeragePing());
+            max_ping = std::max<uint32>(max_ping, m_sessions[i]->getAveragePing());
             min_frame = std::min<uint32>(min_frame, m_sessions[i]->getFrame());
         }
         m_frame = min_frame;
-        m_delay = std::max<uint32>(1, (max_ping/16) + 1);
+        m_delay = ist::div_ceil<uint32>(max_ping, 16)*2;
     }
     for(size_t i=0; i<m_mes_recved.size(); ++i) {
         PMessage &mes = m_mes_recved[i];

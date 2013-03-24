@@ -25,7 +25,7 @@ public:
     void messageLoop();
 
     uint32 getFrame() const;
-    uint32 getAgeragePing() const;
+    uint32 getAveragePing() const;
 
 private:
     void processReceivingMessage(PMessageCont &mes);
