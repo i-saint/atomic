@@ -77,13 +77,14 @@ public:
         if(m_font==NULL) { return; }
         vec2 pos  = tp.rect.getPosition();
         vec2 size = tp.rect.getSize();
+        m_font->setSpacing(tp.hspace);
+        m_font->setColor(color);
+
         vec2 fs   = m_font->computeTextSize(text, len);
         if     (tp.halign==TA_HRight)  { pos.x += size.x-fs.x; }
         else if(tp.halign==TA_HCenter) { pos.x += size.x*0.5f - fs.x*0.5f; }
         if     (tp.valign==TA_VBottom) { pos.y += size.y-fs.y; }
         else if(tp.valign==TA_VCenter) { pos.y += size.y*0.5f - fs.y*0.5f; }
-        m_font->setSpacing(tp.hspace);
-        m_font->setColor(color);
         m_font->addText(pos, text, len);
         m_font->draw();
     }

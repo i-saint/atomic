@@ -80,13 +80,19 @@ bool Button::handleEvent( const WM_Base &wm )
 
 
 
+ToggleButtonStyle::ToggleButtonStyle()
+{
+    setTextHAlign(TA_HCenter);
+    setTextHSpacing(1.0f);
+}
+
 void ToggleButtonStyle::draw()
 {
     ToggleButton *w = static_cast<ToggleButton*>(getWidget());
     Rect rect(Position(), w->getSize());
     TextPosition tpos(rect, getTextHAlign(), getTextVAlign(), getTextHSpacing(), getTextVSpacing());
     Color bg = getBGColor();
-    if(w->isPressing()) {
+    if(w->isPressing() || w->isPressed()) {
         bg += vec4(0.4f, 0.4f, 0.4f, 0.0f);
     }
     else if(w->isHovered()) {
@@ -96,6 +102,7 @@ void ToggleButtonStyle::draw()
     iuiGetRenderer()->drawOutlineRect(rect, getBorderColor());
     iuiGetRenderer()->drawFont(tpos, getFontColor(), w->getText().c_str(), w->getText().size());
 }
+
 iuiImplDefaultStyle(ToggleButton);
 
 struct ToggleButton::Members
@@ -113,11 +120,22 @@ istMemberPtrImpl(ToggleButton,Members);
 bool ToggleButton::isPressed() const    { return m->pressed; }
 bool ToggleButton::isPressing() const   { return m->pressing; }
 bool ToggleButton::isHovered() const    { return m->hovered; }
-
-ToggleButton::ToggleButton( const wchar_t *text, WidgetCallback on_toggle )
+void ToggleButton::setPressed(bool v, bool fire_event)
 {
-    m->on_toggle = on_toggle;
+    bool prev = m->pressed;
+    m->pressed = v;
+    if(fire_event && prev!=v) {
+        callIfValid(m->on_toggle);
+    }
+}
+
+ToggleButton::ToggleButton( Widget *parent, const wchar_t *text, const Rect &rect, WidgetCallback on_toggle )
+{
+    setParent(parent);
     setText(text);
+    setPosition(rect.getPosition());
+    setSize(rect.getSize());
+    m->on_toggle = on_toggle;
 }
 
 void ToggleButton::update( Float dt )
@@ -135,8 +153,7 @@ bool ToggleButton::handleEvent( const WM_Base &wm )
         return true;
     case WH_HitMouseLeftUp:
         if(m->pressing) {
-            m->pressed = !m->pressed;
-            callIfValid(m->on_toggle);
+            setPressed(!m->pressed);
             m->pressing = false;
         }
         return true;

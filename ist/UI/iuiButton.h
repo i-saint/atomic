@@ -17,7 +17,7 @@ typedef Widget super;
 public:
     iuiImplWidget(Button);
 
-    Button(Widget *parent, const wchar_t *text=L"", const Rect &pos=Rect(), WidgetCallback on_press=WidgetCallback());
+    Button(Widget *parent, const wchar_t *text=L"", const Rect &rect=Rect(), WidgetCallback on_press=WidgetCallback());
     void update(Float dt);
     bool isPressing() const;
     bool isHovered() const;
@@ -32,6 +32,7 @@ private:
 class iuiInterModule ToggleButtonStyle : public Style
 {
 public:
+    ToggleButtonStyle();
     virtual void draw();
 };
 
@@ -40,11 +41,12 @@ class iuiInterModule ToggleButton : public Widget
 typedef Widget super;
 public:
     iuiImplWidget(ToggleButton)
-    ToggleButton(const wchar_t *text=L"", WidgetCallback on_toggle=WidgetCallback());
+    ToggleButton(Widget *parent, const wchar_t *text=L"", const Rect &rect=Rect(), WidgetCallback on_toggle=WidgetCallback());
     void update(Float dt);
     bool isPressed() const;
     bool isPressing() const;
     bool isHovered() const;
+    void setPressed(bool v, bool fire_event=true);
 
 protected:
     virtual bool handleEvent(const WM_Base &wm);

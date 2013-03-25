@@ -19,7 +19,6 @@ public:
 
 private:
     TitleWindow     *m_title;
-    ConfigWindow    *m_config;
     LogWindow       *m_log;
 };
 iui::RootWindow* CreateRootWindow()
@@ -43,6 +42,9 @@ private:
 
     StartWindow     *m_start;
     RecordWindow    *m_record;
+    ConfigWindow    *m_config;
+
+    iui::ToggleButton *m_buttons[4];
 };
 
 class StartWindow : public iui::Panel
@@ -70,6 +72,7 @@ public:
     ConfigWindow();
 private:
     void onName(Widget *);
+    void onFullscreen(Widget *);
     void onResolution(Widget *);
     void onBGMVolume(Widget *);
     void onBGMOnOff(Widget *);

@@ -11,16 +11,14 @@ namespace atomic {
 
 RootWindow::RootWindow()
     : m_title(NULL)
-    , m_config(NULL)
     , m_log(NULL)
 {
     setSize(iui::Size(atomicGetWindowSize().x, atomicGetWindowSize().y));
 
     m_title  = istNew(TitleWindow)();
-    m_config = istNew(ConfigWindow)();
     m_log    = istNew(LogWindow)();
 
-    Widget *widgets[] = {m_title, m_config, m_log};
+    Widget *widgets[] = {m_title, m_log};
     for(size_t i=0; i<_countof(widgets); ++i) {
         widgets[i]->setParent(this);
         widgets[i]->setSize(getSize());
@@ -41,19 +39,22 @@ TitleWindow::TitleWindow()
     : m_start(NULL)
     , m_record(NULL)
 {
+    std::fill_n(m_buttons, _countof(m_buttons), (iui::ToggleButton*)NULL);
+
     using std::placeholders::_1;
     iui::Size size(200, 25);
     float32 vspace = 55.0f;
-    iui::Button *bu_start   = istNew(iui::Button)(this, L"start",   iui::Rect(iui::Position(80, 400+vspace*0), size), std::bind(&TitleWindow::onStart, this, _1));
-    iui::Button *bu_record  = istNew(iui::Button)(this, L"record",  iui::Rect(iui::Position(80, 400+vspace*1), size), std::bind(&TitleWindow::onRecord, this, _1));
-    iui::Button *bu_config  = istNew(iui::Button)(this, L"config",  iui::Rect(iui::Position(80, 400+vspace*2), size), std::bind(&TitleWindow::onConfig, this, _1));
-    iui::Button *bu_exit    = istNew(iui::Button)(this, L"exit",    iui::Rect(iui::Position(80, 400+vspace*3), size), std::bind(&TitleWindow::onExit, this, _1));
+    m_buttons[0] = istNew(iui::ToggleButton)(this, L"start",   iui::Rect(iui::Position(80, 400+vspace*0), size), std::bind(&TitleWindow::onStart, this, _1));
+    m_buttons[1] = istNew(iui::ToggleButton)(this, L"record",  iui::Rect(iui::Position(80, 400+vspace*1), size), std::bind(&TitleWindow::onRecord, this, _1));
+    m_buttons[2] = istNew(iui::ToggleButton)(this, L"config",  iui::Rect(iui::Position(80, 400+vspace*2), size), std::bind(&TitleWindow::onConfig, this, _1));
+    m_buttons[3] = istNew(iui::ToggleButton)(this, L"exit",    iui::Rect(iui::Position(80, 400+vspace*3), size), std::bind(&TitleWindow::onExit, this, _1));
 
 
     m_start     = istNew(StartWindow)();
     m_record    = istNew(RecordWindow)();
+    m_config    = istNew(ConfigWindow)();
 
-    Widget *windows[] = {m_start, m_record};
+    Widget *windows[] = {m_start, m_record, m_config};
     for(size_t i=0; i<_countof(windows); ++i) {
         windows[i]->setParent(this);
         windows[i]->setPosition(iui::Position(350, 400));
@@ -76,31 +77,40 @@ void TitleWindow::draw()
 
 void TitleWindow::onStart(Widget *)
 {
-    GameStartConfig conf;
-    atomicGetApplication()->requestStartGame(conf);
+    hideAll();
+    m_buttons[0]->setPressed(true, false);
+    m_start->setVisibility(true);
 }
 
 void TitleWindow::onRecord(Widget *)
 {
     hideAll();
+    m_buttons[1]->setPressed(true, false);
     m_record->setVisibility(true);
 }
 
 void TitleWindow::onConfig(Widget *)
 {
-
+    hideAll();
+    m_buttons[2]->setPressed(true, false);
+    m_config->setVisibility(true);
 }
 
 void TitleWindow::onExit(Widget *)
 {
+    hideAll();
+    m_buttons[3]->setPressed(true, false);
     atomicGetApplication()->requestExit();
 }
 
 void TitleWindow::hideAll()
 {
-    Widget *windows[] = {m_start, m_record};
+    Widget *windows[] = {m_start, m_record, m_config};
     for(size_t i=0; i<_countof(windows); ++i) {
         windows[i]->setVisibility(false);
+    }
+    for(size_t i=0; i<_countof(m_buttons); ++i) {
+        m_buttons[i]->setPressed(false, false);
     }
 }
 
@@ -109,12 +119,18 @@ void TitleWindow::hideAll()
 
 StartWindow::StartWindow()
 {
-
+    using std::placeholders::_1;
+    iui::Size size(150, 25);
+    float32 vspace = 40.0f;
+    iui::Button *bu_start   = istNew(iui::Button)(this, L"campaign",    iui::Rect(iui::Position(0, vspace*0), size), std::bind(&StartWindow::onCampaign, this, _1));
+    iui::Button *bu_record  = istNew(iui::Button)(this, L"horde",       iui::Rect(iui::Position(0, vspace*1), size), std::bind(&StartWindow::onHorde, this, _1));
+    iui::Button *bu_qjoin   = istNew(iui::Button)(this, L"quick join",  iui::Rect(iui::Position(0, vspace*2), size), std::bind(&StartWindow::onQuickJoin, this, _1));
 }
 
 void StartWindow::onCampaign(Widget *)
 {
-
+    GameStartConfig conf;
+    atomicGetApplication()->requestStartGame(conf);
 }
 
 void StartWindow::onHorde(Widget *)
@@ -157,8 +173,9 @@ ConfigWindow::ConfigWindow()
 {
     using std::placeholders::_1;
     iui::Size size(150, 25);
-    float32 vspace = 55.0f;
-    //iui::Editbox *ed_name  = istNew(iui::Editbox)(this, atomicGetConfig()->name, iui::Rect(iui::Position(250, 300+vspace*0), size), std::bind(&ConfigWindow::onName, this, _1));
+    float32 vspace = 40.0f;
+
+    iui::Editbox *ed_name  = istNew(iui::Editbox)(this, atomicGetConfig()->name, iui::Rect(iui::Position(0, 0+vspace*0), size), std::bind(&ConfigWindow::onName, this, _1));
 }
 
 void ConfigWindow::onName(Widget *w)
@@ -170,6 +187,10 @@ void ConfigWindow::onName(Widget *w)
         w->setText(str);
     }
     wcscpy(atomicGetConfig()->name, w->getText().c_str());
+}
+
+void ConfigWindow::onFullscreen(Widget *)
+{
 }
 
 void ConfigWindow::onResolution(Widget *)

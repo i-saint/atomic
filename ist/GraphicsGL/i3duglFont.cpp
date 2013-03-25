@@ -120,7 +120,7 @@ public:
                 vec2 scaled_offset = vec2(float32(cdata.Offset) * scale, 0.0f);
                 quad_pos = base+scaled_offset;
                 quad_size = scaled_wh;
-                if(!m_monospace) { advance = (scaled_wh.x + scaled_offset.x) * m_spacing; }
+                if(!m_monospace) { advance = scaled_wh.x + scaled_offset.x * m_spacing; }
             }
             base.x += advance;
         }

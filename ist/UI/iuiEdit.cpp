@@ -33,7 +33,7 @@ void EditboxStyle::draw()
 {
     Editbox *w = static_cast<Editbox*>(getWidget());
     Rect rect(Position(), w->getSize());
-    TextPosition tpos(rect, getTextHAlign(), getTextVAlign());
+    TextPosition tpos(rect, getTextHAlign(), getTextVAlign(), getTextHSpacing(), getTextVSpacing());
     Color bg = getBGColor();
     if(w->isFocused()) {
         bg += vec4(0.4f, 0.4f, 0.4f, 0.0f);
