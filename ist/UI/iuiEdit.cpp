@@ -6,12 +6,21 @@
 namespace iui {
 
 
+
+LabelStyle::LabelStyle()
+{
+}
+
 void LabelStyle::draw()
 {
-    Editbox *w = static_cast<Editbox*>(getWidget());
-    TextPosition tpos(Rect(Position(), w->getSize()), getTextHAlign(), getTextVAlign());
+    Label *w = static_cast<Label*>(getWidget());
+    Rect rect(Position(), w->getSize());
+    Color bg = getBGColor();
+    TextPosition tpos(rect, getTextHAlign(), getTextVAlign(), getTextHSpacing(), getTextVSpacing());
+    //iuiGetRenderer()->drawRect(rect, bg);
     iuiGetRenderer()->drawFont(tpos, getFontColor(), w->getText().c_str(), w->getText().size());
 }
+iuiImplDefaultStyle(Label);
 
 
 Label::Label( Widget *parent, const wchar_t *text, const Rect &rect )

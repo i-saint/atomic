@@ -39,6 +39,7 @@ public:
 
     virtual void setViewport(int32 x, int32 y, int32 width, int32 height)
     {
+        m_font->setViewport(x,y,width,height);
         m_drawer->setViewport(x,y,width,height);
     }
 

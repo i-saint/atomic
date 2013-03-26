@@ -175,7 +175,8 @@ ConfigWindow::ConfigWindow()
     iui::Size size(150, 25);
     float32 vspace = 40.0f;
 
-    iui::Editbox *ed_name  = istNew(iui::Editbox)(this, atomicGetConfig()->name, iui::Rect(iui::Position(0, 0+vspace*0), size), std::bind(&ConfigWindow::onName, this, _1));
+    iui::Label *lb_name = istNew(iui::Label)(this, L"name", iui::Rect(iui::Position(0, 0+vspace*0), iui::Size(40, 25)));
+    iui::Editbox *ed_name  = istNew(iui::Editbox)(this, atomicGetConfig()->name, iui::Rect(iui::Position(40, 0+vspace*0), size), std::bind(&ConfigWindow::onName, this, _1));
 }
 
 void ConfigWindow::onName(Widget *w)

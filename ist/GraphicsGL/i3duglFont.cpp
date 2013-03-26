@@ -240,6 +240,10 @@ public:
         return true;
     }
 
+    virtual void setViewport(int32 x, int32 y, int32 width, int32 height)
+    {
+        m_state.setViewport(x,y,width,height);
+    }
     virtual void setScreen(float32 left, float32 right, float32 bottom, float32 top)
     {
         m_state.setScreen(left, right, bottom, top);

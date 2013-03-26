@@ -165,8 +165,9 @@ void UISystem::updateR( Widget *widget, Float dt )
 void UISystem::draw()
 {
     m->renderer->begin();
-    m->renderer->setScreen(getScreen().getSize().x, getScreen().getSize().y);
     drawR(m->root_widget);
+    m->renderer->setScreen(getScreen().getSize().x, getScreen().getSize().y);
+    m->renderer->setViewport(0,0);
     m->renderer->end();
 }
 

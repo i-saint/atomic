@@ -10,6 +10,7 @@ class IFontRenderer : public SharedObject
 {
 public:
     IFontRenderer();
+    virtual void setViewport(int32 x, int32 y, int32 width, int32 height)=0;
     virtual void setScreen(float32 left, float32 right, float32 bottom, float32 top)=0;
     virtual void setColor(const vec4 &v)=0;
     virtual void setSize(float32 v)=0;
