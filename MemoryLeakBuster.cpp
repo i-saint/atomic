@@ -43,30 +43,14 @@
 // リークチェックの仕組みは CRT の HeapAlloc/Free を hook することによって実現しています。
 // CRT を static link したモジュールの場合追加の手順が必要で、下の g_crtdllnames に対象モジュールを追加する必要があります。
 
-
-#pragma warning(disable: 4073) // init_seg(lib) 使うと出る warning。正当な理由があるので黙らせる
-#pragma warning(disable: 4996) // _s じゃない CRT 関数使うとでるやつ
-#pragma init_seg(lib) // global オブジェクトの初期化の優先順位上げる
-#pragma comment(lib, "dbghelp.lib")
-#pragma comment(lib, "psapi.lib")
-
-#include <windows.h>
-#include <dbghelp.h>
-#include <psapi.h>
-#include <string>
-#include <vector>
-#include <map>
-#include <set>
-#define mlbForceLink   __declspec(dllexport)
-
+// 設定
 namespace mlb {
 
 // 保持する callstack の最大段数
 const size_t MaxCallstackDepth = 64;
 
 // リークチェッカを仕掛ける対象となるモジュール名のリスト。(dll or exe)
-// EnumProcessModules でロードされている全モジュールに仕掛けることもできるが、
-// 色々誤判定されるので絞ったほうがいいと思われる。
+// EnumProcessModules でロードされている全モジュールに仕掛けることもできるが、色々誤判定されるので絞ったほうがいいと思われる。
 // /MT や /MTd でビルドされたモジュールのリークチェックをしたい場合、このリストに対象モジュールを書けばいけるはず。
 const char *g_target_modules[] = {
     "msvcr110.dll",
@@ -83,7 +67,7 @@ const char *g_target_modules[] = {
 // 以下の関数群はリーク判定しないようにする。
 // 一部の CRT 関数などは確保したメモリをモジュール開放時にまとめて開放する仕様になっており、
 // リーク情報を出力する時点ではモジュールはまだ開放されていないため、リーク判定されてしまう。そういう関数を無視できるようにしている。
-// (たぶん下記以外にもあるはず)
+// (たぶん下記以外にもある)
 const char *g_ignore_list[] = {
     "!unlock",
     "!fopen",
@@ -95,6 +79,25 @@ const char *g_ignore_list[] = {
     "!std::time_put",
     "!fullpath",
 };
+
+} // namespace mlb
+
+
+
+#pragma warning(disable: 4996) // _s じゃない CRT 関数使うとでるやつ
+#pragma comment(lib, "dbghelp.lib")
+#pragma comment(lib, "psapi.lib")
+
+#include <windows.h>
+#include <dbghelp.h>
+#include <psapi.h>
+#include <string>
+#include <vector>
+#include <map>
+#include <set>
+#define mlbForceLink   __declspec(dllexport)
+
+namespace mlb {
 
 typedef unsigned int        uint32;
 typedef unsigned long long  uint64;
@@ -157,7 +160,7 @@ bool IsStaticMemory(void *addr)
 }
 
 // 指定アドレスが現在のスレッドの stack 領域内であれば true
-// * 現在のスレッド以外の stack は判別できません
+// * 現在のスレッドの stack しか判別できません
 bool IsStackMemory(void *addr)
 {
     NT_TIB *tib = reinterpret_cast<NT_TIB*>(::NtCurrentTeb());
@@ -417,19 +420,18 @@ void UnhookHeapAlloc(const StringCont &modules)
 class MemoryLeakBuster
 {
 public:
-    // アロケート時の callstack を保持
-    struct AllocInfo
+    struct HeapInfo
     {
-        void *location;
-        size_t bytes;
+        void *address;
+        size_t size;
         void *callstack[MaxCallstackDepth];
-        int callstack_size;
-        int id;
-        int count;
+        uint32 callstack_size;
+        uint32 id;
+        uint32 count;
     };
     struct less_callstack
     {
-        bool operator()(const AllocInfo &a, const AllocInfo &b) const
+        bool operator()(const HeapInfo &a, const HeapInfo &b) const
         {
             if(a.callstack_size==b.callstack_size) {
                 return memcmp(a.callstack, b.callstack, sizeof(void*)*a.callstack_size)<0;
@@ -439,8 +441,8 @@ public:
             }
         };
     };
-    typedef std::map<void*, AllocInfo, std::less<void*>, OrigHeapAllocator<std::pair<const void*, AllocInfo> > > AllocTable;
-    typedef std::set<AllocInfo, less_callstack, OrigHeapAllocator<AllocInfo> > CountTable;
+    typedef std::map<void*, HeapInfo, std::less<void*>, OrigHeapAllocator<std::pair<const void*, HeapInfo> > > HeapTable;
+    typedef std::set<HeapInfo, less_callstack, OrigHeapAllocator<HeapInfo> > CountTable;
     union Flags
     {
         struct {
@@ -454,7 +456,7 @@ public:
     MemoryLeakBuster()
         : m_logfile(NULL)
         , m_mutex(NULL)
-        , m_leakinfo(NULL)
+        , m_heapinfo(NULL)
         , m_counter(NULL)
         , m_modules(NULL)
         , m_ignores(NULL)
@@ -465,7 +467,7 @@ public:
         m_flags.i = 0;
         m_flags.enable_leakcheck = 1;
         m_mutex     = mlbNew<Mutex>();
-        m_leakinfo  = mlbNew<AllocTable>();
+        m_heapinfo  = mlbNew<HeapTable>();
         m_counter   = mlbNew<CountTable>();
         m_modules   = mlbNew<StringCont>();
         m_ignores   = mlbNew<StringCont>();
@@ -488,7 +490,7 @@ public:
         mlbDelete(m_ignores);   m_ignores=NULL;
         mlbDelete(m_modules);   m_modules=NULL;
         mlbDelete(m_counter);   m_counter=NULL;
-        mlbDelete(m_leakinfo);  m_leakinfo=NULL;
+        mlbDelete(m_heapinfo);  m_heapinfo=NULL;
 
         // m_mutex は開放しません
         // 別スレッドから HeapFree_Hooked() が呼ばれて mutex を待ってる間に
@@ -534,35 +536,58 @@ public:
         }
     }
 
-    void addAllocInfo(void *p, size_t size)
+    void addHeapInfo(void *p, size_t size)
     {
         if(p==NULL || m_flags.i==0) { return; }
 
-        AllocInfo cs;
-        cs.location = p;
-        cs.bytes = size;
+        HeapInfo cs;
+        cs.address = p;
+        cs.size = size;
         cs.callstack_size = GetCallstack(cs.callstack, _countof(cs.callstack));
         cs.count = 0;
         {
             Mutex::ScopedLock l(*m_mutex);
             if(m_flags.enable_leakcheck || m_flags.enable_scopedcheck) {
                 cs.id = ++m_idgen;
-                (*m_leakinfo)[p] = cs;
+                (*m_heapinfo)[p] = cs;
             }
             if(m_flags.enable_counter) {
                 auto r = m_counter->insert(cs);
-                const_cast<AllocInfo&>(*r.first).count++;
+                const_cast<HeapInfo&>(*r.first).count++;
             }
         }
     }
 
-    void eraseAllocInfo(void *p)
+    void eraseHeapInfo(void *p)
     {
         if(p==NULL || (m_flags.enable_leakcheck==0 && m_flags.enable_scopedcheck==0)) { return; }
         Mutex::ScopedLock l(*m_mutex);
-        if(m_leakinfo!=NULL) {
-            m_leakinfo->erase(p);
+        if(m_heapinfo!=NULL) {
+            m_heapinfo->erase(p);
         }
+    }
+
+    // lock しない。内部実装用
+    HeapTable::const_iterator _findHeapInfo(void *p) const
+    {
+        HeapTable::const_iterator i = m_heapinfo->lower_bound(p);
+        if(i==m_heapinfo->end()) { return i; }
+        if(i->first!=p) { --i; }
+
+        const HeapInfo &hi = i->second;
+        if(p>=hi.address && p<=(void*)((size_t)hi.address+hi.size)) {
+            return i;
+        }
+        return m_heapinfo->end();
+    }
+
+    const HeapInfo* getHeapInfo(void *p)
+    {
+        Mutex::ScopedLock l(*m_mutex);
+        if(m_heapinfo==NULL) { return NULL; }
+        auto i = _findHeapInfo(p);
+        if(i==m_heapinfo->end()) { return NULL; }
+        return &i->second;
     }
 
     void inspect(void *p) const
@@ -570,27 +595,25 @@ public:
         if(IsStaticMemory(p)) { OutputDebugStringA("static memory\n"); return; }
         if(IsStackMemory(p))  { OutputDebugStringA("stack memory\n");  return; }
 
-        const AllocInfo *r = NULL;
+        const HeapInfo *r = NULL;
         const void *neighbor[2] = {NULL, NULL};
         {
             Mutex::ScopedLock l(*m_mutex);
-            if(m_leakinfo==NULL) { return; }
-            for(auto li=m_leakinfo->begin(); li!=m_leakinfo->end(); ++li) {
-                const AllocInfo &ai = li->second;
-                if(p>=ai.location && (size_t)p<=(size_t)ai.location+ai.bytes) {
-                    r = &ai;
-                    if(li!=m_leakinfo->begin()) {
-                        auto prev=li; --prev;
-                        neighbor[0]=prev->second.location;
-                    }
-                    {
-                        auto next=li; ++next;
-                        if(next!=m_leakinfo->end()) {
-                            neighbor[1]=next->second.location;
-                        }
-                    } 
-                    break;
+            if(m_heapinfo==NULL) { return; }
+            auto li = _findHeapInfo(p);
+            if(li!=m_heapinfo->end()) {
+                const HeapInfo &ai = li->second;
+                r = &ai;
+                if(li!=m_heapinfo->begin()) {
+                    auto prev=li; --prev;
+                    neighbor[0]=prev->second.address;
                 }
+                {
+                    auto next=li; ++next;
+                    if(next!=m_heapinfo->end()) {
+                        neighbor[1]=next->second.address;
+                    }
+                } 
             }
         }
 
@@ -601,7 +624,7 @@ public:
         char buf[128];
         TempString text, bufstr;
         text.reserve(1024*16);
-        sprintf_s(buf, "0x%p (%llu byte) ", r->location, (uint64)r->bytes); text+=buf;
+        sprintf_s(buf, "0x%p (%llu byte) ", r->address, (uint64)r->size); text+=buf;
         sprintf_s(buf, "prev: 0x%p next: 0x%p\n", neighbor[0], neighbor[1]); text+=buf;
         CallstackToSymbolNames_Stripped(text, r->callstack, r->callstack_size, bufstr);
         OutputDebugStringA(text.c_str());
@@ -610,16 +633,16 @@ public:
     void printLeakInfo() const
     {
         Mutex::ScopedLock l(*m_mutex);
-        if(m_leakinfo==NULL) { return; }
+        if(m_heapinfo==NULL) { return; }
 
         char buf[128];
         TempString text, bufstr;
         text.reserve(1024*16);
-        for(auto li=m_leakinfo->begin(); li!=m_leakinfo->end(); ++li) {
-            const AllocInfo &ai = li->second;
+        for(auto li=m_heapinfo->begin(); li!=m_heapinfo->end(); ++li) {
+            const HeapInfo &ai = li->second;
 
             text.clear();
-            sprintf_s(buf, "memory leak: 0x%p (%llu byte)\n", ai.location, (uint64)ai.bytes);
+            sprintf_s(buf, "memory leak: 0x%p (%llu byte)\n", ai.address, (uint64)ai.size);
             text += buf;
             CallstackToSymbolNames_Stripped(text, ai.callstack, ai.callstack_size, bufstr);
             text += "\n";
@@ -640,17 +663,17 @@ public:
     void endScope()
     {
         Mutex::ScopedLock l(*m_mutex);
-        if(m_leakinfo==NULL) { return; }
+        if(m_heapinfo==NULL) { return; }
 
         char buf[128];
         TempString text, bufstr;
         text.reserve(1024*16);
-        for(auto li=m_leakinfo->begin(); li!=m_leakinfo->end(); ++li) {
-            const AllocInfo &ai = li->second;
+        for(auto li=m_heapinfo->begin(); li!=m_heapinfo->end(); ++li) {
+            const HeapInfo &ai = li->second;
             if(ai.id<m_scope) { continue; }
 
             text.clear();
-            sprintf_s(buf, "maybe a leak: 0x%p (%llu byte)\n", ai.location, (uint64)ai.bytes);
+            sprintf_s(buf, "maybe a leak: 0x%p (%llu byte)\n", ai.address, (uint64)ai.size);
             text += buf;
             CallstackToSymbolNames_Stripped(text, ai.callstack, ai.callstack_size, bufstr);
             text += "\n";
@@ -679,7 +702,7 @@ public:
         TempString text, bufstr;
         text.reserve(1024*16);
         for(auto li=m_counter->begin(); li!=m_counter->end(); ++li) {
-            const AllocInfo &ai = *li;
+            const HeapInfo &ai = *li;
 
             text.clear();
             sprintf_s(buf, "%d times from\n", ai.count);
@@ -720,15 +743,17 @@ public:
 private:
     FILE *m_logfile;
     Mutex *m_mutex;
-    AllocTable *m_leakinfo;
+    HeapTable *m_heapinfo;
     CountTable *m_counter;
     StringCont *m_modules;
     StringCont *m_ignores;
-    int m_idgen;
-    int m_scope;
+    uint32 m_idgen;
+    uint32 m_scope;
     Flags m_flags;
 };
 
+#pragma warning(disable: 4073) // init_seg(lib) 使うと出る warning。正当な理由があるので黙らせる
+#pragma init_seg(lib) // global オブジェクトの初期化の優先順位上げる
 // global 変数にすることで main 開始前に初期化、main 抜けた後に終了処理をさせる。
 MemoryLeakBuster g_mlb;
 
@@ -736,22 +761,22 @@ MemoryLeakBuster g_mlb;
 LPVOID WINAPI HeapAlloc_Hooked( HANDLE hHeap, DWORD dwFlags, SIZE_T dwBytes )
 {
     LPVOID p = HeapAlloc_Orig(hHeap, dwFlags, dwBytes);
-    g_mlb.addAllocInfo(p, dwBytes);
+    g_mlb.addHeapInfo(p, dwBytes);
     return p;
 }
 
 LPVOID WINAPI HeapReAlloc_Hooked( HANDLE hHeap, DWORD dwFlags, LPVOID lpMem, SIZE_T dwBytes )
 {
-    g_mlb.eraseAllocInfo(lpMem);
+    g_mlb.eraseHeapInfo(lpMem);
     LPVOID p = HeapReAlloc_Orig(hHeap, dwFlags, lpMem, dwBytes);
-    g_mlb.addAllocInfo(p, dwBytes);
+    g_mlb.addHeapInfo(p, dwBytes);
     return p;
 }
 
 BOOL WINAPI HeapFree_Hooked( HANDLE hHeap, DWORD dwFlags, LPVOID lpMem )
 {
     BOOL r = HeapFree_Orig(hHeap, dwFlags, lpMem);
-    g_mlb.eraseAllocInfo(lpMem);
+    g_mlb.eraseHeapInfo(lpMem);
     return r;
 }
 
@@ -761,9 +786,12 @@ using namespace mlb;
 
 
 // イミディエイトウィンドウから実行可能な関数群
-mlbForceLink void mlbInspect(void *p)       { g_mlb.inspect(p); }
-mlbForceLink void mlbBeginScope()           { g_mlb.beginScope(); }
-mlbForceLink void mlbEndScope()             { g_mlb.endScope(); }
-mlbForceLink void mlbBeginCount()           { g_mlb.beginCount(); }
-mlbForceLink void mlbEndCount()             { g_mlb.endCount(); }
-mlbForceLink void mlbOutputToFile(bool v)   { g_mlb.enbaleFileOutput(v); }
+typedef mlb::MemoryLeakBuster::HeapInfo HeapInfo;
+mlbForceLink const HeapInfo* mlbGetHeapInfo(void *p){ return g_mlb.getHeapInfo(p); }
+
+mlbForceLink void mlbInspect(void *p)           { g_mlb.inspect(p); }
+mlbForceLink void mlbBeginScope()               { g_mlb.beginScope(); }
+mlbForceLink void mlbEndScope()                 { g_mlb.endScope(); }
+mlbForceLink void mlbBeginCount()               { g_mlb.beginCount(); }
+mlbForceLink void mlbEndCount()                 { g_mlb.endCount(); }
+mlbForceLink void mlbOutputToFile(bool v)       { g_mlb.enbaleFileOutput(v); }
