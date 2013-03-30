@@ -5,46 +5,36 @@
 #ifdef ist_env_Windows
 #   include <windows.h>
 #   include <dbghelp.h>
+#   include <psapi.h>
 #   pragma comment(lib, "dbghelp.lib")
+#   pragma comment(lib, "psapi.lib")
 #endif // ist_env_Windows
 
 namespace ist {
 
-bool InitializeDebugSymbol()
-{
 #ifdef ist_env_Windows
+
+istInterModule bool InitializeDebugSymbol()
+{
     if(!::SymInitialize(::GetCurrentProcess(), NULL, TRUE)) {
         return false;
     }
     ::SymSetOptions(SYMOPT_DEFERRED_LOADS | SYMOPT_LOAD_LINES);
-
     return true;
-#else // ist_env_Windows
-    return false;
-#endif // ist_env_Windows
 }
 
-void FinalizeDebugSymbol()
+istInterModule void FinalizeDebugSymbol()
 {
-#ifdef ist_env_Windows
     ::SymCleanup(::GetCurrentProcess());
-#else // ist_env_Windows
-#endif // ist_env_Windows
 }
 
-
-int GetCallstack(void **callstack, int callstack_size, int skip_size)
+istInterModule int GetCallstack(void **callstack, int callstack_size, int skip_size)
 {
-#ifdef ist_env_Windows
     return CaptureStackBackTrace(skip_size, callstack_size, callstack, NULL);
-#else // ist_env_Windows
-#endif // ist_env_Windows
 }
 
-stl::string AddressToSymbolName(void *address)
+istInterModule stl::string AddressToSymbolName(void *address)
 {
-#ifdef ist_env_Windows
-
 #ifdef _WIN64
     typedef DWORD64 DWORDX;
     typedef PDWORD64 PDWORDX;
@@ -79,15 +69,10 @@ stl::string AddressToSymbolName(void *address)
             imageModule.ModuleName, imageSymbol->Name, ((size_t)address-(size_t)imageSymbol->Address), address);
     }
     return buf;
-
-#else // ist_env_Windows
-    return "";
-#endif // ist_env_Windows
 }
 
-stl::string CallstackToSymbolNames(void **callstack, int callstack_size, int clamp_head, int clamp_tail, const char *indent)
+istInterModule stl::string CallstackToSymbolNames(void **callstack, int callstack_size, int clamp_head, int clamp_tail, const char *indent)
 {
-#ifdef ist_env_Windows
     stl::string tmp;
     int begin = stl::max<int>(0, clamp_head);
     int end = stl::max<int>(0, callstack_size-clamp_tail);
@@ -96,10 +81,116 @@ stl::string CallstackToSymbolNames(void **callstack, int callstack_size, int cla
         tmp += AddressToSymbolName(callstack[i]);
     }
     return tmp;
-#else // ist_env_Windows
-
-    return "";
-#endif // ist_env_Windows
 }
+
+
+istInterModule bool IsStaticMemory(void *addr)
+{
+    // static 領域はモジュール (exe,dll) が map されている領域内にある
+    // 高速化のため呼び出し元モジュールのみ調べる
+    // 他モジュールも調べる場合 ::EnumProcessModules() とかを使う
+    MODULEINFO modinfo;
+    {
+        HMODULE mod = 0;
+        void *retaddr = *(void**)_AddressOfReturnAddress();
+        ::GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCTSTR)retaddr, &mod);
+        ::GetModuleInformation(::GetCurrentProcess(), mod, &modinfo, sizeof(modinfo));
+    }
+    return addr>=modinfo.lpBaseOfDll && addr<reinterpret_cast<char*>(modinfo.lpBaseOfDll)+modinfo.SizeOfImage;
+}
+
+istInterModule bool IsStackMemory(void *addr)
+{
+    // Thread Information Block に上限下限情報が入っている
+    // (これだと現在のスレッドの stack 領域しか判別できない。
+    //  別スレッドの stack かも調べたい場合のいい方法がよくわからず。
+    //  ::Thread32First(), ::Thread32Next() で全プロセスの全スレッドを巡回するしかない…？)
+    NT_TIB *tib = reinterpret_cast<NT_TIB*>(::NtCurrentTeb());
+    return addr>=tib->StackLimit && addr<tib->StackBase;
+}
+
+istInterModule bool IsHeapMemory(void *addr)
+{
+    // static 領域ではない && stack 領域でもない && 有効なメモリ (::VirtualQuery() が成功する) なら true
+    // ::HeapWalk() で照合するのが礼儀正しいアプローチだが、
+    // こっちの方が速いし、別スレッドや別モジュールから呼び出されるのでなければ結果も正しいはず
+    MEMORY_BASIC_INFORMATION meminfo;
+    return !IsStackMemory(addr) && !IsStaticMemory(addr) && ::VirtualQuery(addr, &meminfo, sizeof(meminfo));
+}
+
+
+static BOOL CALLBACK _CB_GetThisOfCaller( SYMBOL_INFO* si, ULONG size, PVOID p )
+{
+    if(si && si->NameLen==4 && strncmp(si->Name, "this", 4)==0) {
+        auto *ret = (std::pair<ULONG64,bool>*)p;
+        ret->first = si->Address;
+        ret->second = true;
+        return FALSE;
+    }
+    return TRUE;
+}
+
+istInterModule void* GetThisOfCaller()
+{
+    // thanks to http://jpassing.com/2008/03/12/walking-the-stack-of-the-current-thread/
+    CONTEXT context;
+#ifdef _WIN64
+    ::RtlCaptureContext(&context);
+#else
+    ::ZeroMemory( &context, sizeof(context) );
+    context.ContextFlags = CONTEXT_CONTROL;
+    __asm
+    {
+        EIP:
+        mov [context.Ebp], ebp;
+        mov [context.Esp], esp;
+        mov eax, [EIP];
+        mov [context.Eip], eax;
+    }
+#endif 
+
+    STACKFRAME64 stackFrame;
+    ::ZeroMemory( &stackFrame, sizeof(stackFrame) );
+#ifdef _WIN64
+    DWORD machineType = IMAGE_FILE_MACHINE_AMD64;
+    stackFrame.AddrPC.Offset = context.Rip;
+    stackFrame.AddrPC.Mode = AddrModeFlat;
+    stackFrame.AddrFrame.Offset = context.Rbp;
+    stackFrame.AddrFrame.Mode = AddrModeFlat;
+    stackFrame.AddrStack.Offset = context.Rsp;
+    stackFrame.AddrStack.Mode = AddrModeFlat;
+#else
+    DWORD machineType = IMAGE_FILE_MACHINE_I386;
+    stackFrame.AddrPC.Offset = context.Eip;
+    stackFrame.AddrPC.Mode = AddrModeFlat;
+    stackFrame.AddrFrame.Offset = context.Ebp;
+    stackFrame.AddrFrame.Mode = AddrModeFlat;
+    stackFrame.AddrStack.Offset = context.Esp;
+    stackFrame.AddrStack.Mode = AddrModeFlat;
+#endif
+
+    HANDLE hProcess = ::GetCurrentProcess();
+    HANDLE hThread = ::GetCurrentThread();
+    ::StackWalk64(machineType, hProcess, hThread, &stackFrame, &context, NULL, NULL, NULL, NULL); // この関数のスタックフレーム
+    ::StackWalk64(machineType, hProcess, hThread, &stackFrame, &context, NULL, NULL, NULL, NULL); // 呼び出し元
+    ::StackWalk64(machineType, hProcess, hThread, &stackFrame, &context, NULL, NULL, NULL, NULL); // 呼び出し元の呼び出し元 (ターゲット)
+
+    std::pair<ULONG64,bool> ret(0,false);
+    IMAGEHLP_STACK_FRAME sf; 
+    sf.ReturnOffset = stackFrame.AddrReturn.Offset;
+    sf.FrameOffset = stackFrame.AddrFrame.Offset;
+    sf.StackOffset = stackFrame.AddrStack.Offset;
+    sf.InstructionOffset = stackFrame.AddrPC.Offset;
+    ::SymSetContext(hProcess, &sf, 0 );
+    ::SymEnumSymbols(hProcess, 0, 0, _CB_GetThisOfCaller, &ret);
+
+    if(!ret.second) { return NULL; }
+#ifdef _WIN64
+    return *(void**)(stackFrame.AddrStack.Offset + ret.first);
+#else
+    return *(void**)(stackFrame.AddrFrame.Offset + ret.first);
+#endif
+}
+#endif // ist_env_Windows
 
 } // namespace ist
