@@ -84,6 +84,7 @@ void test()
 
 int istmain(int argc, char* argv[])
 {
+    ist::forceLink();
     //test();
 
     atomic::InitializeCrashReporter();

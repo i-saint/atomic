@@ -11,6 +11,9 @@
 #include "Graphics.h"
 #include "GraphicsUtil.h"
 #include "Window.h"
-#include "GPGPU.h"
+
+namespace ist {
+    void forceLink();
+} // namespace ist
 
 #endif // ist_ist_h

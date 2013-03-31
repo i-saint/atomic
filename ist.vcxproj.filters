@@ -514,6 +514,7 @@
     <ClCompile Include="ist\GraphicsGL\i3dglQuery.cpp">
       <Filter>GraphicsGL</Filter>
     </ClCompile>
+    <ClCompile Include="ist\istForceLink.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ist\Math\FrustumCulling.inl">

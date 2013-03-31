@@ -18,6 +18,8 @@ istInterModule bool IsStackMemory(void *addr);
 // 指定のアドレスが heap 領域内であれば true
 istInterModule bool IsHeapMemory(void *addr);
 
+// 呼び出し元がメンバ関数の場合、その this を返す
+// !! Debug() ビルド以外で使うのは危険です。全く無関係なポインタを返してきたりします !!
 istInterModule void* GetThisOfCaller();
 
 } // namespace ist
