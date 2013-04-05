@@ -61,16 +61,16 @@ public:
     void update(Float dt);
 
     Float       getValue() const;
-    Range       getRange() const;
     Float       getPageSize() const;
+    Float       getRange() const;
     Position    getBarPosition() const;
     Size        getBarSize() const;
     bool        isBarHovered() const;
     bool        isBarDragging() const;
 
     void        setValue(Float v);
-    void        setRange(Range v);
     void        setPageSize(Float v);
+    void        setRange(Float v);
 
     void        scroll(Float v); // == setValue(getValue()+v);
 

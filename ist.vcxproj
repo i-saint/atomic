@@ -210,6 +210,10 @@
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ml /c %(FullPath)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">atomic_x86.obj</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ml /c %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">ml /c %(FullPath)</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">atomic_x86.obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">atomic_x86.obj</Outputs>
     </CustomBuild>
     <None Include="ist\Math\FrustumCulling.inl" />
   </ItemGroup>
