@@ -570,9 +570,9 @@ public:
     // lock しない。内部実装用
     HeapTable::const_iterator _findHeapInfo(void *p) const
     {
+        if(m_heapinfo->empty()) { return m_heapinfo->end(); }
         HeapTable::const_iterator i = m_heapinfo->lower_bound(p);
-        if(i==m_heapinfo->end()) { return i; }
-        if(i->first!=p) { --i; }
+        if(i==m_heapinfo->end() || (p!=i->first && i!=m_heapinfo->begin())) { --i; }
 
         const HeapInfo &hi = i->second;
         if(p>=hi.address && p<=(void*)((size_t)hi.address+hi.size)) {
