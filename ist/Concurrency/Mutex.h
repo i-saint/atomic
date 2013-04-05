@@ -30,26 +30,29 @@ private:
 /// CAS (compare and swap) による spin lock。
 /// atomic operation の busy loop で待つため、こいつで長時間待つとシステム全体に深刻なパフォーマンスの悪影響を及ぼします。
 /// 使う場合、必ず light_mutex と比較して本当に速くなるか検証が必要です。
-/// 特に Windows の場合 priority boost がかからないためか多くの場合普通の mutex より遅くなります。
-/// android で有効に機能することがあるか検証して、だめなら消した方がいいと思われます。
-class istInterModule SpinMutex
+template<class AtomicIntT>
+class TSpinMutex
 {
-istNonCopyable(SpinMutex);
+istNonCopyable(TSpinMutex);
 public:
-    typedef ScopedLock<SpinMutex> ScopedLock;
+    typedef ScopedLock<TSpinMutex> ScopedLock;
 
-    SpinMutex()
-    {
-    }
+    TSpinMutex() {}
 
     void lock()
     {
-        while(m_lockobj.compare_and_swap(1, 0) != 0) {}
+        while(m_lockobj.cas(1, 0)!=0) { NanoSleep(10); }
+    }
+
+    template<class F>
+    void lock(const F &f)
+    {
+        while(m_lockobj.cas(1, 0)!=0) { f(); }
     }
 
     bool tryLock()
     {
-        return m_lockobj.compare_and_swap(1, 0) == 0;
+        return m_lockobj.cas(1, 0)==0;
     }
 
     void unlock()
@@ -58,8 +61,15 @@ public:
     }
 
 private:
-    atomic_int32 m_lockobj;
+    AtomicIntT m_lockobj;
 };
+typedef TSpinMutex<atomic_int8>  SpinMutex8;
+typedef TSpinMutex<atomic_int16> SpinMutex16;
+typedef TSpinMutex<atomic_int32> SpinMutex32;
+#ifdef ist_env_x64
+typedef TSpinMutex<atomic_int64> SpinMutex64;
+#endif // ist_env_x64
+typedef SpinMutex32 SpinMutex;
 
 
 /// mutex

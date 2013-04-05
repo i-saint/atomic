@@ -206,7 +206,7 @@ bool PMessenger::sendMessage(Poco::Net::SocketStream *stream)
 {
     {
         if(m_message_send.empty()) {
-            ist::Thread::milliSleep(1);
+            ist::MiliSleep(1);
         }
     }
     {

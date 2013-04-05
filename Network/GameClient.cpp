@@ -137,7 +137,7 @@ void GameClient::messageLoop()
             sendMessage(stream);
             recvMessage(stream);
             //// 遅延テスト
-            //ist::Thread::milliSleep(100);
+            //ist::MiliSleep(100);
         }
         catch(Poco::TimeoutException &) {
             m_stop = true;

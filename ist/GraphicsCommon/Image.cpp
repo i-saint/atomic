@@ -449,19 +449,19 @@ bool Image::saveTGA(IBinaryStream &bf, const Image::IOConfig &conf) const
 #ifdef ist_with_png
 namespace
 {
-    void png_streambuf_read(png_structp png_ptr, png_bytep data, png_size_t length)
+    void __cdecl png_streambuf_read(png_structp png_ptr, png_bytep data, png_size_t length)
     {
         IBinaryStream *f = reinterpret_cast<IBinaryStream*>(png_get_io_ptr(png_ptr));
         f->read(data, length);
     }
 
-    void png_streambuf_write(png_structp png_ptr, png_bytep data, png_size_t length)
+    void __cdecl png_streambuf_write(png_structp png_ptr, png_bytep data, png_size_t length)
     {
         IBinaryStream *f = reinterpret_cast<IBinaryStream*>(png_get_io_ptr(png_ptr));
         f->write(data, length);
     }
 
-    void png_streambuf_flush(png_structp png_ptr)
+    void __cdecl png_streambuf_flush(png_structp png_ptr)
     {
     }
 } // namespace

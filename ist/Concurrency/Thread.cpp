@@ -98,38 +98,6 @@ Thread::Handle Thread::getCurrentThread()
 #endif // ist_env_Windows
 }
 
-void Thread::yieldProcessor()
-{
-#ifdef ist_env_Windows
-    //::YieldProcessor();
-    ::SwitchToThread();
-#else // ist_env_Windows
-    ::pthread_yield();
-#endif // ist_env_Windows
-}
-
-void Thread::milliSleep( uint32 millisec )
-{
-#ifdef ist_env_Windows
-    return ::Sleep(millisec);
-#else // ist_env_Windows
-    return ::pthread_yield();
-#endif // ist_env_Windows
-}
-
-void Thread::microSleep( uint32 microsec )
-{
-    if(microsec==0) { return; }
-
-    Timer timer;
-    uint32 milli = microsec / 1000;
-    if(milli>1) { milliSleep(milli); }
-    while(uint32(timer.getElapsedMillisec()*1000.0f)<microsec) {
-        yieldProcessor();
-    }
-}
-
-
 #ifdef ist_env_Windows
 unsigned int __stdcall _EntryPoint(void *arg)
 {

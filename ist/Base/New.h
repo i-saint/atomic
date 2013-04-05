@@ -7,34 +7,34 @@
 // そのため、以下のマクロをアプリケーション側コードのどこかに書いて定義してやる必要がある。
 // 引数がやたら多い new[] 2 つは EASTL 用。
 #define istImplementOperatorNewDelete()\
-    void* operator new(size_t size)                 { return istAlignedMalloc(size, istDefaultAlignment); }\
-    void* operator new(size_t size, size_t align)   { return istAlignedMalloc(size, align); }\
-    void* operator new[](size_t size)               { return istAlignedMalloc(size, istDefaultAlignment); }\
-    void* operator new[](size_t size, size_t align) { return istAlignedMalloc(size, align); }\
-    void operator delete(void* p)           { istAlignedFree(p); }\
-    void operator delete(void* p, size_t)   { istAlignedFree(p); }\
-    void operator delete[](void* p)         { istAlignedFree(p); }\
-    void operator delete[](void* p, size_t) { istAlignedFree(p); }\
-    void* operator new[](size_t size, const char* pName, int flags, unsigned debugFlags, const char* file, int line)\
+    void* __cdecl operator new(size_t size)                 { return istAlignedMalloc(size, istDefaultAlignment); }\
+    void* __cdecl operator new(size_t size, size_t align)   { return istAlignedMalloc(size, align); }\
+    void* __cdecl operator new[](size_t size)               { return istAlignedMalloc(size, istDefaultAlignment); }\
+    void* __cdecl operator new[](size_t size, size_t align) { return istAlignedMalloc(size, align); }\
+    void __cdecl operator delete(void* p)           { istAlignedFree(p); }\
+    void __cdecl operator delete(void* p, size_t)   { istAlignedFree(p); }\
+    void __cdecl operator delete[](void* p)         { istAlignedFree(p); }\
+    void __cdecl operator delete[](void* p, size_t) { istAlignedFree(p); }\
+    void* __cdecl operator new[](size_t size, const char* pName, int flags, unsigned debugFlags, const char* file, int line)\
     {\
         void* p = istAlignedMalloc(size, istDefaultAlignment);\
         return p;\
     }\
-    void* operator new[](size_t size, size_t alignment, size_t alignmentOffset, const char* pName, int flags, unsigned debugFlags, const char* file, int line)\
+    void*  __cdecl operator new[](size_t size, size_t alignment, size_t alignmentOffset, const char* pName, int flags, unsigned debugFlags, const char* file, int line)\
     {\
         void* p = istAlignedMalloc(size, alignment);\
         return p;\
     }
 
 const size_t istDefaultAlignment = 16;
-void* operator new(size_t size);
-void* operator new(size_t size, size_t align);
-void* operator new[](size_t size);
-void* operator new[](size_t size, size_t align);
-void operator delete(void *p);
-void operator delete(void *p, size_t align);
-void operator delete[](void *p);
-void operator delete[](void *p, size_t align);
+void* __cdecl operator new(size_t size);
+void* __cdecl operator new(size_t size, size_t align);
+void* __cdecl operator new[](size_t size);
+void* __cdecl operator new[](size_t size, size_t align);
+void __cdecl operator delete(void *p);
+void __cdecl operator delete(void *p, size_t align);
+void __cdecl operator delete[](void *p);
+void __cdecl operator delete[](void *p, size_t align);
 
 
 template<class T> inline T& unpointer(T &a) { return a; }

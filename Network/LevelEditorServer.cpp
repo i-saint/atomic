@@ -156,7 +156,7 @@ public:
             q.type = LEQ_Entities;
             LevelEditorServer::getInstance()->pushQuery(q);
             while(!q.completed && !LevelEditorServer::getInstance()->endFlag()) {
-                ist::Thread::milliSleep(10);
+                ist::MiliSleep(10);
             }
         }
 
@@ -272,7 +272,7 @@ void LevelEditorServer::stop()
         m_server->stopAll(false);
         clearQuery();
         while(m_server->currentConnections()>0 || m_server->currentThreads()>0) {
-            ist::Thread::milliSleep(5);
+            ist::MiliSleep(5);
         }
         delete m_server;
         m_server = NULL;

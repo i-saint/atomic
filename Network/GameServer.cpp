@@ -73,7 +73,7 @@ void GameServer::stop()
     if(m_server) {
         m_server->stop();
         while(m_server->currentConnections()>0 || m_server->currentThreads()>0) {
-            ist::Thread::milliSleep(5);
+            ist::MiliSleep(5);
         }
         delete m_server;
         m_server = NULL;
@@ -187,7 +187,7 @@ void GameServer::messageLoop()
             recvMessage();
             sendMessage();
             if(timer.getElapsedMillisec() < 3.0f) {
-                ist::Thread::milliSleep(3);
+                ist::MiliSleep(3);
             }
         }
     }

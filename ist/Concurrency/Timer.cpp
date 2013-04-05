@@ -23,6 +23,21 @@ float32 Timer::getElapsedMillisec() const
     ::QueryPerformanceCounter( &end );
     return ((float32)(end.QuadPart - m_start.QuadPart) / (float32)m_freq.QuadPart)*1000.0f;
 }
+
+float32 Timer::getElapsedMicrosec() const
+{
+    LARGE_INTEGER end;
+    ::QueryPerformanceCounter( &end );
+    return ((float32)(end.QuadPart - m_start.QuadPart) / (float32)m_freq.QuadPart)*1000000.0f;
+}
+
+float32 Timer::getElapsedNanosec() const
+{
+    LARGE_INTEGER end;
+    ::QueryPerformanceCounter( &end );
+    return ((float32)(end.QuadPart - m_start.QuadPart) / (float32)m_freq.QuadPart)*1000000000.0f;
+}
+
 #else // todo
 
 #endif // 

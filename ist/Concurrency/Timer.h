@@ -11,6 +11,8 @@ public:
     Timer();
     void reset();
     float32 getElapsedMillisec() const;
+    float32 getElapsedMicrosec() const;
+    float32 getElapsedNanosec() const;
 
 private:
 #ifdef ist_env_Windows

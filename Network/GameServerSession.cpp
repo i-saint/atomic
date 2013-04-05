@@ -48,7 +48,7 @@ void GameServerSession::messageLoop()
         sendMessage(&stream);
 
         m_ping = uint32(timer.getElapsedMillisec());
-        if(timer.getElapsedMillisec()<1.0f) { ist::Thread::milliSleep(1); }
+        if(timer.getElapsedMillisec()<1.0f) { ist::MiliSleep(1); }
    }
 }
 

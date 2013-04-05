@@ -355,6 +355,9 @@
     <ClInclude Include="ist\GraphicsGL\i3dglQuery.h">
       <Filter>GraphicsGL</Filter>
     </ClInclude>
+    <ClInclude Include="ist\Concurrency\Sleep.h">
+      <Filter>Concurrency</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ist\Window\Application.cpp">
@@ -515,10 +518,21 @@
       <Filter>GraphicsGL</Filter>
     </ClCompile>
     <ClCompile Include="ist\istForceLink.cpp" />
+    <ClCompile Include="ist\Concurrency\Sleep.cpp">
+      <Filter>Concurrency</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ist\Math\FrustumCulling.inl">
       <Filter>Math</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="ist\Concurrency\atomic_x86.asm">
+      <Filter>Concurrency</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ist\Concurrency\atomic_x64.asm">
+      <Filter>Concurrency</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

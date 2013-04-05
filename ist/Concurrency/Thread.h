@@ -34,9 +34,6 @@ public:
     static void setNameToCurrentThread(const char *name);
     static void setAffinityMaskToCurrentThread(size_t mask);
     static void setPriorityToCurrentThread(int priority);
-    static void yieldProcessor();
-    static void milliSleep(uint32 millisec);
-    static void microSleep(uint32 microsec);
 
 public:
     Thread();

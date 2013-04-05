@@ -480,7 +480,7 @@ namespace {
 
 extern int istmain(int argc, char* argv[]);
 
-int main(int argc, char* argv[])
+int __cdecl main(int argc, char* argv[])
 {
     PreMain();
     int r = istmain(argc, argv);

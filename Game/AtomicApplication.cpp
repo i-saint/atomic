@@ -300,7 +300,7 @@ void AtomicApplication::mainLoop()
         {
             float32 remain = delay-pc.getElapsedMillisec();
             if(remain>0.0f) {
-                ist::Thread::microSleep((uint32)std::max<float32>(remain*1000.0f, 0.0f));
+                ist::MicroSleep((uint32)std::max<float32>(remain*1000.0f, 0.0f));
             }
             pc.reset();
         }

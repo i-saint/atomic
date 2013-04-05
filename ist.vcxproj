@@ -48,6 +48,7 @@
     <ClInclude Include="ist\Concurrency\Mutex.h" />
     <ClInclude Include="ist\Concurrency\ParallelAlgorithm.h" />
     <ClInclude Include="ist\Concurrency\Process.h" />
+    <ClInclude Include="ist\Concurrency\Sleep.h" />
     <ClInclude Include="ist\Concurrency\TaskScheduler.h" />
     <ClInclude Include="ist\Concurrency\TaskUtil.h" />
     <ClInclude Include="ist\Concurrency\Thread.h" />
@@ -150,6 +151,7 @@
     <ClCompile Include="ist\Concurrency\Condition.cpp" />
     <ClCompile Include="ist\Concurrency\Mutex.cpp" />
     <ClCompile Include="ist\Concurrency\Process.cpp" />
+    <ClCompile Include="ist\Concurrency\Sleep.cpp" />
     <ClCompile Include="ist\Concurrency\TaskScheduler.cpp" />
     <ClCompile Include="ist\Concurrency\TaskUtil.cpp" />
     <ClCompile Include="ist\Concurrency\Thread.cpp" />
@@ -196,6 +198,19 @@
     <ClCompile Include="ist\Window\Application.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <CustomBuild Include="ist\Concurrency\atomic_x64.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ml64 /c %(FullPath)</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">atomic_x64.obj</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="ist\Concurrency\atomic_x86.asm">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ml /c %(FullPath)</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">atomic_x86.obj</Outputs>
+    </CustomBuild>
     <None Include="ist\Math\FrustumCulling.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
