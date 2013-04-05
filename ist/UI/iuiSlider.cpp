@@ -39,15 +39,8 @@ void VScrollbarStyle::draw()
     iuiGetRenderer()->drawRect(rect, bg);
     iuiGetRenderer()->drawOutlineRect(rect, getBorderColor());
 
-    const Float range = w->getRange();
-    const Float pagesize = w->getPageSize();
-    const Float value = w->getValue();
-
-    Float hp = pagesize / (range+pagesize);
-    Float h  = std::max<Float>(rect.getSize().y*hp, 12.0f);
-    Float pp = value / (range);
-    Float p  = (rect.getSize().y-h)*pp;
-    Rect bar(Position(2,p+2), Size(w->getSize().x-4, h-4));
+    Rect bar = w->getBarRect();
+    iuiGetRenderer()->drawRect(bar, (w->isBarHovered() || w->isBarDragging()) ? Color(1,1,1,0.2) : bg);
     iuiGetRenderer()->drawOutlineRect(bar, getBorderColor());
 }
 iuiImplDefaultStyle(VScrollbar);
@@ -75,6 +68,22 @@ Float       VScrollbar::getPageSize() const    { return m->pagesize; }
 Float       VScrollbar::getRange() const       { return m->range; }
 Position    VScrollbar::getBarPosition() const { return m->bar_pos; }
 Size        VScrollbar::getBarSize() const     { return m->bar_size; }
+
+Rect VScrollbar::getBarRect() const
+{
+    Rect rect(getPosition(), getSize());
+    const Float range    = getRange();
+    const Float pagesize = getPageSize();
+    const Float value    = getValue();
+
+    Float hp = pagesize / (range+pagesize);
+    Float h  = std::max<Float>(rect.getSize().y*hp, 12.0f);
+    Float pp = value / (range);
+    Float p  = (rect.getSize().y-h)*pp;
+    Rect bar(Position(2,p+2), Size(getSize().x-4, h-4));
+    return bar;
+}
+
 bool        VScrollbar::isBarHovered() const   { return m->bar_hovered; }
 bool        VScrollbar::isBarDragging() const  { return m->bar_draggind; }
 
@@ -107,7 +116,9 @@ VScrollbar::~VScrollbar()
 
 void VScrollbar::update( Float dt )
 {
-    HandleMouseHover(this, m->bar_hovered);
+    Rect bar = getBarRect();
+    bar.setPosition(bar.getPosition()+getPositionAbs());
+    HandleMouseHover(bar, m->bar_hovered);
     super::update(dt);
 }
 
@@ -120,7 +131,9 @@ bool VScrollbar::handleEvent( const WM_Base &wm )
         }
     }
     else {
-        switch(MouseHit(this, wm)) {
+        Rect bar = getBarRect();
+        bar.setPosition(bar.getPosition()+getPositionAbs());
+        switch(MouseHit(bar, wm)) {
         case WH_HitMouseLeftDown:
             m->bar_draggind = true;
             break;

@@ -65,6 +65,7 @@ public:
     Float       getRange() const;
     Position    getBarPosition() const;
     Size        getBarSize() const;
+    Rect        getBarRect() const;
     bool        isBarHovered() const;
     bool        isBarDragging() const;
 
