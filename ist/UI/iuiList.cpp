@@ -4,6 +4,7 @@
 #include "iuiRenderer.h"
 #include "iuiUtilities.h"
 #include "iuiSlider.h"
+#include "iuiButton.h"
 namespace iui {
 
 
@@ -107,6 +108,7 @@ iuiImplDefaultStyle(List);
 struct List::Members
 {
     VScrollbar *scrollbar;
+    Button *scroll_buttons[2];
     ListItemCont items;
     WidgetCallback on_item_click;
     WidgetCallback on_item_doubleclick;
@@ -114,7 +116,10 @@ struct List::Members
     Float item_height;
     Float scroll_pos;
 
-    Members() : scrollbar(NULL), item_height(18.0f), scroll_pos(0.0f) {}
+    Members() : scrollbar(NULL), item_height(18.0f), scroll_pos(0.0f)
+    {
+        std::fill_n(scroll_buttons, _countof(scroll_buttons), (Button*)NULL);
+    }
 };
 istMemberPtrImpl(List,Members);
 
@@ -141,10 +146,14 @@ List::List( Widget *parent, const Rect &rect, WidgetCallback on_item_click )
     setSize(rect.getSize());
     m->on_item_click = on_item_click;
 
-    Float scrollbar_width = 14.0f;
-    Rect scrollbar_rect(Position(rect.getSize().x-scrollbar_width, 0.0f), Size(scrollbar_width, rect.getSize().y));
-    m->scrollbar = istNew(VScrollbar)(this, scrollbar_rect, std::bind(&List::onScroll, this, std::placeholders::_1));
+    using std::placeholders::_1;
+    Float sb_w = 18.0f;
+    Rect scrollbar_rect(Position(rect.getSize().x-sb_w, sb_w), Size(sb_w, rect.getSize().y-(sb_w*2.0f)));
+    m->scrollbar = istNew(VScrollbar)(this, scrollbar_rect, std::bind(&List::onScroll, this, _1));
     m->scrollbar->setRange(Range(0.0f, 0.0f));
+
+    m->scroll_buttons[0] = istNew(Button)(this, L"△", Rect(Position(rect.getSize().x-sb_w, 0.0f), Size(sb_w,sb_w)), std::bind(&List::onScrollButton, this, _1));
+    m->scroll_buttons[1] = istNew(Button)(this, L"▽", Rect(Position(rect.getSize().x-sb_w, rect.getSize().y-sb_w), Size(sb_w,sb_w)), std::bind(&List::onScrollButton, this, _1));
 }
 
 List::~List()
@@ -248,6 +257,18 @@ void List::onChangeNumItems()
 void List::onScroll( Widget* )
 {
     m->scroll_pos = m->scrollbar->getValue();
+}
+
+void List::onScrollButton( Widget *w )
+{
+    float val = 0.0f;
+    if(w==m->scroll_buttons[0]) {
+        val = m->item_height * -2.0f;
+    }
+    else if(w==m->scroll_buttons[1]) {
+        val = m->item_height * 2.0f;
+    }
+    m->scrollbar->scroll(val);
 }
 
 } // namespace iui

@@ -89,6 +89,7 @@ protected:
     virtual bool handleEvent(const WM_Base &wm);
     void onChangeNumItems();
     void onScroll(Widget*);
+    void onScrollButton(Widget*);
 
 private:
     istMemberPtrDecl(Members) m;
