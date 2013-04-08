@@ -203,17 +203,13 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ml64 /c %(FullPath)</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">atomic_x64.obj</Outputs>
+      <Command Condition="'$(Platform)'=='x64'">ml64 /c /Zi /Fo$(IntDir)%(Filename).obj %(FullPath)</Command>
+      <Outputs Condition="'$(Platform)'=='x64'">$(IntDir)%(Filename).obj</Outputs>
     </CustomBuild>
     <CustomBuild Include="ist\Concurrency\atomic_x86.asm">
       <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ml /c %(FullPath)</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">atomic_x86.obj</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ml /c %(FullPath)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">ml /c %(FullPath)</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">atomic_x86.obj</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">atomic_x86.obj</Outputs>
+      <Command Condition="'$(Platform)'=='Win32'">ml /c /Zi /Fo$(IntDir)%(Filename).obj %(FullPath)</Command>
+      <Outputs Condition="'$(Platform)'=='Win32'">$(IntDir)%(Filename).obj</Outputs>
     </CustomBuild>
     <None Include="ist\Math\FrustumCulling.inl" />
   </ItemGroup>
