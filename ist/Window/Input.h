@@ -82,6 +82,10 @@ public:
         Button_2,
         Button_3,
         Button_4,
+        Button_5,
+        Button_6,
+        Button_7,
+        Button_8,
     };
 
 public:
