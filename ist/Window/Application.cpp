@@ -239,10 +239,6 @@ struct Application::Members
     DEVMODE     devmode;
     bool        fullscreen;
 
-    KeyboardState   keyboard_state;
-    MouseState      mouse_state;
-    JoyState        joy_state[Application::MAX_JOYSTICK_NUM];
-
     uvec2   window_size;
     ist::vector<WMHandler*> wmhandlers;
 
@@ -274,9 +270,6 @@ Application::~Application()
 
 bool Application::isFullscreen() const                      { return m->fullscreen; }
 const uvec2& Application::getWindowSize() const             { return m->window_size; }
-const KeyboardState& Application::getKeyboardState() const  { return m->keyboard_state; }
-const MouseState& Application::getMouseState() const        { return m->mouse_state; }
-const JoyState& Application::getJoyState(int i) const       { return m->joy_state[i]; }
 HWND Application::getWindowHandle() const                   { return m->hwnd; }
 
 
@@ -357,39 +350,6 @@ void Application::finalize()
     }
 }
 
-
-void Application::updateInput()
-{
-    // keyboard
-    m->keyboard_state.copyToBack();
-    ::GetKeyboardState( m->keyboard_state.getRawKeyState() );
-
-    // mouse
-    {
-        CURSORINFO cinfo;
-        cinfo.cbSize = sizeof(cinfo);
-        ::GetCursorInfo(&cinfo);
-        m->mouse_state.setX( cinfo.ptScreenPos.x );
-        m->mouse_state.setY( cinfo.ptScreenPos.y );
-    }
-    {
-        short mouse_button = 0;
-        mouse_button |= m->keyboard_state.isKeyPressed(VK_LBUTTON) ? MouseState::BU_LEFT : 0;
-        mouse_button |= m->keyboard_state.isKeyPressed(VK_RBUTTON) ? MouseState::BU_RIGHT : 0;
-        mouse_button |= m->keyboard_state.isKeyPressed(VK_MBUTTON) ? MouseState::BU_MIDDLE : 0;
-        m->mouse_state.setButtonState(mouse_button);
-    }
-
-    // joystick
-    for(size_t i=0; i<MAX_JOYSTICK_NUM; ++i) {
-        JOYINFOEX joyinfo;
-        joyinfo.dwSize = sizeof(JOYINFOEX);
-        joyinfo.dwFlags = JOY_RETURNALL;
-        if(::joyGetPosEx(i, &joyinfo)==JOYERR_NOERROR){
-            m->joy_state->setValue(joyinfo);
-        }
-    }
-}
 
 void Application::translateMessage()
 {

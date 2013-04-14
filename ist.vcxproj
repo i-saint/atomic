@@ -129,7 +129,7 @@
     <ClInclude Include="ist\targetver.h" />
     <ClInclude Include="ist\Window.h" />
     <ClInclude Include="ist\Window\Application.h" />
-    <ClInclude Include="ist\Window\InputState.h" />
+    <ClInclude Include="ist\Window\Input.h" />
     <ClInclude Include="ist\Window\WindowMessage.h" />
   </ItemGroup>
   <ItemGroup>
@@ -196,6 +196,7 @@
     <ClCompile Include="ist\Sound\isduStreamSource.cpp" />
     <ClCompile Include="ist\Sound\isdUtil.cpp" />
     <ClCompile Include="ist\Window\Application.cpp" />
+    <ClCompile Include="ist\Window\Input.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="ist\Concurrency\atomic_x64.asm">

@@ -110,7 +110,7 @@ bool AtomicConfig::writeToFile( const char* filepath )
     return true;
 }
 
-void AtomicConfig::setup()
+void AtomicConfig::setupDebugMenu()
 {
     atomicDbgAddParamNodeP("Config/VSync",                bool, &vsync);
     atomicDbgAddParamNodeP("Config/Unlimit Game Speed",   bool, &unlimit_gamespeed);
@@ -123,8 +123,13 @@ void AtomicConfig::setup()
 struct AtomicApplication::Members
 {
     typedef ist::Application::WMHandler WMHandler;
-    WMHandler               wnhandler;
-    tbb::task_scheduler_init tbb_init;
+    WMHandler                   wnhandler;
+    tbb::task_scheduler_init    tbb_init;
+
+    ist::IKeyboardDevice         *keyboard;
+    ist::IMouseDevice            *mouse;
+    ist::IControlerDevice        *controller;
+
     AtomicGame              *game;
     InputState              inputs;
     AtomicConfig            config;
@@ -134,8 +139,11 @@ struct AtomicApplication::Members
 #endif // atomic_enable_debug_log
 
     Members()
-        : request_exit(false)
+        : keyboard(NULL)
+        , mouse(NULL)
+        , controller(NULL)
         , game(NULL)
+        , request_exit(false)
     {
     }
 };
@@ -173,6 +181,16 @@ AtomicApplication::~AtomicApplication()
 
 bool AtomicApplication::initialize(int argc, char *argv[])
 {
+    AtomicConfig &conf = m->config;
+    conf.readFromFile(ATOMIC_CONFIG_FILE_PATH);
+    if(conf.window_pos.x >= 30000) { conf.window_pos.x = 0; }
+    if(conf.window_pos.y >= 30000) { conf.window_pos.y = 0; }
+    if(conf.window_size.x < 320 || conf.window_size.x < 240) { conf.window_size = ivec2(1024, 768); }
+
+    m->keyboard     = ist::CreateKeyboardDevice();
+    m->mouse        = ist::CreateMouseDevice();
+    m->controller   = ist::CreateControllerDevice();
+
 #ifdef atomic_enable_shader_live_edit
     ::AllocConsole();
 #endif // atomic_enable_shader_live_edit
@@ -180,17 +198,11 @@ bool AtomicApplication::initialize(int argc, char *argv[])
 
     // initialize debug menu
     atomicDbgInitializeDebugMenu();
+    conf.setupDebugMenu();
 
     // console
     istCommandlineInitialize();
     istCommandlineConsoleInitialize();
-
-    AtomicConfig &conf = m->config;
-    conf.setup();
-    conf.readFromFile(ATOMIC_CONFIG_FILE_PATH);
-    if(conf.window_pos.x >= 30000) { conf.window_pos.x = 0; }
-    if(conf.window_pos.y >= 30000) { conf.window_pos.y = 0; }
-    if(conf.window_size.x < 320 || conf.window_size.x < 240) { conf.window_size = ivec2(1024, 768); }
 
     // create window
     ivec2 wpos = conf.window_pos;
@@ -251,6 +263,11 @@ void AtomicApplication::finalize()
     atomicDbgFinalizeDebugMenu();
 
     istTaskSchedulerFinalize();
+
+    istSafeRelease(m->controller);
+    istSafeRelease(m->mouse);
+    istSafeRelease(m->keyboard);
+
     FinalizeText();
     FinalizeCrashReporter();
     istPoolRelease();
@@ -372,33 +389,40 @@ void AtomicApplication::requestStartGame(const GameStartConfig &conf)
 
 void AtomicApplication::updateInput()
 {
-    super::updateInput();
+    m->keyboard->update();
+    m->mouse->update();
+    m->controller->update();
 
     AtomicConfig &conf = m->config;
 
     RepMove move;
-    int buttons = getJoyState().getButtons();
+    RepButton buttons = 0;
+    if(getControllerState().isButtonPressed(ist::ControllerState::Button_1)) { buttons |= 1<<0; }
+    if(getControllerState().isButtonPressed(ist::ControllerState::Button_2)) { buttons |= 1<<1; }
+    if(getControllerState().isButtonPressed(ist::ControllerState::Button_3)) { buttons |= 1<<2; }
+    if(getControllerState().isButtonPressed(ist::ControllerState::Button_4)) { buttons |= 1<<3; }
 
     const ist::MouseState &mouse = getMouseState();
-    if((mouse.getButtonState() & ist::MouseState::BU_LEFT)!=0)  { buttons = buttons |= 1<<0; }
-    if((mouse.getButtonState() & ist::MouseState::BU_RIGHT)!=0) { buttons = buttons |= 1<<1; }
-    if((mouse.getButtonState() & ist::MouseState::BU_MIDDLE)!=0){ buttons = buttons |= 1<<2; }
+    if(mouse.isButtonPressed(ist::MouseState::Button_Left  )) { buttons |= 1<<0; }
+    if(mouse.isButtonPressed(ist::MouseState::Button_Right )) { buttons |= 1<<1; }
+    if(mouse.isButtonPressed(ist::MouseState::Button_Middle)) { buttons |= 1<<2; }
 
     const ist::KeyboardState &kb = getKeyboardState();
-    if(kb.isKeyPressed('Z')){ buttons = buttons |= 1<<0; }
-    if(kb.isKeyPressed('X')){ buttons = buttons |= 1<<1; }
-    if(kb.isKeyPressed('C')){ buttons = buttons |= 1<<2; }
-    if(kb.isKeyPressed('V')){ buttons = buttons |= 1<<3; }
-    if(kb.isKeyPressed(ist::KEY_RIGHT)  || kb.isKeyPressed('D')){ move.x = INT16_MAX; }
-    if(kb.isKeyPressed(ist::KEY_LEFT)   || kb.isKeyPressed('A')){ move.x =-INT16_MAX; } // INT16_MIN じゃないのは意図的
-    if(kb.isKeyPressed(ist::KEY_UP)     || kb.isKeyPressed('W')){ move.y = INT16_MAX; }
-    if(kb.isKeyPressed(ist::KEY_DOWN)   || kb.isKeyPressed('S')){ move.y =-INT16_MAX; }
+    if(kb.isKeyPressed('Z')) { buttons |= 1<<0; }
+    if(kb.isKeyPressed('X')) { buttons |= 1<<1; }
+    if(kb.isKeyPressed('C')) { buttons |= 1<<2; }
+    if(kb.isKeyPressed('V')) { buttons |= 1<<3; }
+    if(kb.isKeyPressed(ist::KEY_RIGHT)  || kb.isKeyPressed('D')) { move.x = INT16_MAX; }
+    if(kb.isKeyPressed(ist::KEY_LEFT)   || kb.isKeyPressed('A')) { move.x =-INT16_MAX; }
+    if(kb.isKeyPressed(ist::KEY_UP)     || kb.isKeyPressed('W')) { move.y = INT16_MAX; }
+    if(kb.isKeyPressed(ist::KEY_DOWN)   || kb.isKeyPressed('S')) { move.y =-INT16_MAX; }
     if(kb.isKeyTriggered(ist::KEY_F1)) {
         conf.posteffect_antialias = !conf.posteffect_antialias;
     }
 
     {
-        RepMove jpos(getJoyState().getX(), -getJoyState().getY());
+        vec2 pos = getControllerState().getStick1();
+        RepMove jpos(int16(pos.x*INT16_MAX), int16(pos.y*INT16_MAX));
         if(glm::length(jpos.toF())>0.4f) { move=jpos; }
     }
     m->inputs.update(RepInput(move, buttons));
@@ -503,6 +527,21 @@ void AtomicApplication::printDebugLog( const char *format, ... )
 void AtomicApplication::registerCommands()
 {
     istCommandlineRegister("printPoolStates", &ist::PoolManager::printPoolStates);
+}
+
+const ist::KeyboardState& AtomicApplication::getKeyboardState() const
+{
+    return m->keyboard->getState();
+}
+
+const ist::MouseState& AtomicApplication::getMouseState() const
+{
+    return m->mouse->getState();
+}
+
+const ist::ControllerState& AtomicApplication::getControllerState() const
+{
+    return m->controller->getState();
 }
 
 

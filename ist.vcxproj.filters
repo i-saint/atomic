@@ -39,9 +39,6 @@
     <ClInclude Include="ist\Window\Application.h">
       <Filter>Window</Filter>
     </ClInclude>
-    <ClInclude Include="ist\Window\InputState.h">
-      <Filter>Window</Filter>
-    </ClInclude>
     <ClInclude Include="ist\Window\WindowMessage.h">
       <Filter>Window</Filter>
     </ClInclude>
@@ -358,6 +355,9 @@
     <ClInclude Include="ist\Concurrency\Sleep.h">
       <Filter>Concurrency</Filter>
     </ClInclude>
+    <ClInclude Include="ist\Window\Input.h">
+      <Filter>Window</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ist\Window\Application.cpp">
@@ -520,6 +520,9 @@
     <ClCompile Include="ist\istForceLink.cpp" />
     <ClCompile Include="ist\Concurrency\Sleep.cpp">
       <Filter>Concurrency</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Window\Input.cpp">
+      <Filter>Window</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

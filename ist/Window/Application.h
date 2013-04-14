@@ -2,7 +2,7 @@
 #define ist_Application_h
 
 #include "WindowMessage.h"
-#include "InputState.h"
+#include "Input.h"
 
 
 namespace ist {
@@ -53,11 +53,6 @@ public:
 
     virtual void mainLoop()=0;
 
-    // 入力情報の更新は時間がかかることに注意。(おそらく GPU リソースのようにロックが入るのだと思われる)
-    // また、初期化したスレッドからでないと正常に更新できない？ようで、非同期に更新する際は、
-    // ワーカースレッドにタスクを割り振った後メインスレッドから更新、のようなややこしい手順が必要。
-    virtual void updateInput();
-
     virtual void translateMessage();
 
     int showMessageDialog(const char* message, const char* caption, int dlgtype=DLG_OK);
@@ -65,9 +60,6 @@ public:
 
     bool isFullscreen() const;
     const uvec2& getWindowSize() const;
-    const KeyboardState& getKeyboardState() const;
-    const MouseState& getMouseState() const;
-    const JoyState& getJoyState(int i=0) const;
 
     DisplaySetting getCurrentDisplaySetting() const;
     void getAvalableDisplaySettings(DisplaySetting*& settings, int& num_settings) const;

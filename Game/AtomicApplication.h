@@ -36,7 +36,7 @@ struct istInterModule AtomicConfig
     PlayerName name;
 
     AtomicConfig();
-    void setup();
+    void setupDebugMenu();
     bool readFromFile(const char* filepath);
     bool writeToFile(const char* filepath);
 };
@@ -69,6 +69,10 @@ public:
     AtomicGame* getGame();
     const InputState* getSystemInputs() const;
     AtomicConfig* getConfig();
+
+    const ist::KeyboardState&   getKeyboardState() const;
+    const ist::MouseState&      getMouseState() const;
+    const ist::ControllerState& getControllerState() const;
 
 #ifdef atomic_enable_debug_log
     void printDebugLog(const char *format, ...);

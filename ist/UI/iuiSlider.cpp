@@ -40,7 +40,10 @@ void VScrollbarStyle::draw()
     iuiGetRenderer()->drawOutlineRect(rect, getBorderColor());
 
     Rect bar = w->getBarRect();
-    iuiGetRenderer()->drawRect(bar, (w->isBarHovered() || w->isBarDragging()) ? Color(1,1,1,0.2) : bg);
+    Color bar_color = bg;;
+    if     (w->isBarDragging()) { bar_color=Color(1,1,1,0.2); }
+    else if(w->isBarHovered())  { bar_color=Color(1,1,1,0.1); }
+    iuiGetRenderer()->drawRect(bar, bar_color);
     iuiGetRenderer()->drawOutlineRect(bar, getBorderColor());
 }
 iuiImplDefaultStyle(VScrollbar);
@@ -141,6 +144,18 @@ bool VScrollbar::handleEvent( const WM_Base &wm )
         case WH_MissMouseLeftUp:
             m->bar_draggind = false;
             break;
+        }
+        switch(MouseHit(this, wm)) {
+        case WH_HitMouseWheelUp:
+            {
+                scroll(-30.0f);
+                return true;
+            }
+        case WH_HitMouseWheelDown:
+            {
+                scroll(30.0f);
+                return true;
+            }
         }
     }
     return super::handleEvent(wm);
