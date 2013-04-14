@@ -130,7 +130,9 @@ bool VScrollbar::handleEvent( const WM_Base &wm )
     if(wm.type==WMT_MouseMove) {
         if(m->bar_draggind) {
             const WM_Mouse &m = WM_Mouse::cast(wm);
-            scroll(m.mouse_move.y);
+            Rect bar = getBarRect();
+            Float scroll_range = getSize().y - bar.getSize().y;
+            scroll(m.mouse_move.y * (getRange()/scroll_range));
         }
     }
     else {
