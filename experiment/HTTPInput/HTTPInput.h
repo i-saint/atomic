@@ -68,12 +68,11 @@ inline void EnumerateDLLImports(HMODULE module, const char *dllname, const F &f)
             while(pThunkOrig->u1.AddressOfData!=0) {
                 if((pThunkOrig->u1.Ordinal & 0x80000000) > 0) {
                     DWORD Ordinal = pThunkOrig->u1.Ordinal & 0xffff;
-                    // pThunkOrg->Function // nameless
+                    // nameless function
                 }
                 else {
                     IMAGE_IMPORT_BY_NAME* pIBN = (IMAGE_IMPORT_BY_NAME*)(ImageBase + pThunkOrig->u1.AddressOfData);
-                    char *pName = (char*)pIBN->Name;
-                    f(pName, *(void**)pThunk);
+                    f((char*)pIBN->Name, *(void**)pThunk);
                 }
                 ++pThunkOrig;
                 ++pThunk;

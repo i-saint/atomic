@@ -47,7 +47,6 @@ class InputRequestHandlerFactory;
 class InputServer
 {
 friend class InputCommandHandler;
-friend class InputQueryHandler;
 friend class InputRequestHandlerFactory;
 public:
     static void initializeInstance();
@@ -80,7 +79,7 @@ private:
 
 
 
-const char s_fileserver_base_dir[] = "editor";
+const char s_root_dir[] = "html";
 
 struct MIME { const char *ext; const char *type; };
 static const MIME s_mime_types[] = {
@@ -91,6 +90,24 @@ static const MIME s_mime_types[] = {
     {".png",  "image/png"},
     {".jpg",  "image/jpeg"},
 };
+
+static const char* GetModulePath()
+{
+    static char s_path[MAX_PATH] = {0};
+    if(s_path[0]==0) {
+        HMODULE mod = 0;
+        ::GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCTSTR)&GetModulePath, &mod);
+        DWORD size = ::GetModuleFileNameA(mod, s_path, MAX_PATH);
+        while(size>0) {
+            if(s_path[size]=='\\') {
+                s_path[size+1] = '\0';
+                break;
+            }
+            --size;
+        }
+    }
+    return s_path;
+}
 
 
 class FileRequestHandler: public Poco::Net::HTTPRequestHandler
@@ -157,13 +174,13 @@ public:
     virtual Poco::Net::HTTPRequestHandler* createRequestHandler(const Poco::Net::HTTPServerRequest &request)
     {
         if(request.getURI() == "/") {
-            return new FileRequestHandler(std::string(s_fileserver_base_dir)+"/index.html");
+            return new FileRequestHandler(std::string(GetModulePath())+std::string(s_root_dir)+"/index.html");
         }
         else if(request.getURI()=="/keyboard" || request.getURI()=="/mouse" || request.getURI()=="/pad") {
             return new InputCommandHandler();
         }
         else {
-            std::string path = std::string(s_fileserver_base_dir)+request.getURI();
+            std::string path = std::string(GetModulePath())+std::string(s_root_dir)+request.getURI();
             Poco::File file(path);
             if(file.exists()) {
                 return new FileRequestHandler(path);
