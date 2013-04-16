@@ -274,20 +274,26 @@ HTTPInputData& InputServer::getState()
 }
 
 
+extern "C" {
 
-bool StartHTTPInputServer()
+__declspec(dllexport) bool StartHTTPInputServer()
 {
     InputServer::initializeInstance();
     return true;
 }
 
-bool StopHTTPInputServer()
+__declspec(dllexport) bool StopHTTPInputServer()
 {
     InputServer::finalizeInstance();
     return true;
 }
 
-const HTTPInputData* GetHTTPInputData()
+__declspec(dllexport) const HTTPInputData* GetHTTPInputData()
 {
-    return &InputServer::getInstance()->getState();
+    if(InputServer *server = InputServer::getInstance()) {
+        return &server->getState();
+    }
+    return NULL;
 }
+
+} // extern "C"

@@ -13,9 +13,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
         HookMMJoustick();
         HookDirectInput8();
         HookXInput();
-        StartHTTPInputServer();
     }
     else if(fdwReason==DLL_PROCESS_DETACH) {
         StopHTTPInputServer();
     }
+    return TRUE;
 }
