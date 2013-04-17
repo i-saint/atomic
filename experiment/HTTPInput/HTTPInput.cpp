@@ -36,18 +36,10 @@ struct InputServerConfig
     InputServerConfig();
 };
 
-struct InputCommand
-{
 
-};
-
-class InputCommandHandler;
-class InputRequestHandlerFactory;
 
 class InputServer
 {
-friend class InputCommandHandler;
-friend class InputRequestHandlerFactory;
 public:
     static void initializeInstance();
     static void finalizeInstance();
@@ -59,20 +51,15 @@ public:
     void stop();
     HTTPInputData& getState();
 
-    void pushCommand(const InputCommand &cmd);
     bool endFlag() const { return m_end_flag; }
 
 private:
-    typedef std::vector<InputCommand> CommandCont;
 
     static InputServer *s_inst;
     Poco::Net::HTTPServer *m_server;
     InputServerConfig m_conf;
     bool m_end_flag;
 
-    Poco::Mutex m_mutex_commands;
-    CommandCont m_commands;
-    CommandCont m_commands_tmp;
     HTTPInputData m_state;
 };
 
@@ -187,6 +174,7 @@ public:
         }
 
         response.setContentType("text/plain");
+        response.setContentLength(2);
         std::ostream &ostr = response.send();
         ostr.write("ok", 3);
 
@@ -257,7 +245,7 @@ InputServer::InputServer()
     , m_end_flag(false)
 {
     memset(&m_state, 0, sizeof(m_state));
-    m_commands.reserve(128);
+    m_state.pad.x1 = m_state.pad.y1 = m_state.pad.x2 = m_state.pad.y2 = INT16_MAX;
 }
 
 InputServer::~InputServer()
@@ -296,23 +284,8 @@ void InputServer::stop()
     }
 }
 
-void InputServer::pushCommand( const InputCommand &cmd )
-{
-    if(m_end_flag) { return; }
-    Poco::Mutex::ScopedLock lock(m_mutex_commands);
-    m_commands.push_back(cmd);
-}
-
 HTTPInputData& InputServer::getState()
 {
-    {
-        Poco::Mutex::ScopedLock lock(m_mutex_commands);
-        m_commands_tmp = m_commands;
-        m_commands.clear();
-    }
-    for(size_t i=0; i<m_commands_tmp.size(); ++i) {
-        // todo:
-    }
     return m_state;
 }
 

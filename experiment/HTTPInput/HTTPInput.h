@@ -2,6 +2,7 @@
 #define HTTPInput_h
 #pragma comment(lib, "psapi.lib")
 #include <psapi.h>
+#include <stdint.h>
 #include <vector>
 
 typedef char            int8;
