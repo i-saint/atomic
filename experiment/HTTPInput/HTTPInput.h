@@ -40,7 +40,7 @@ extern "C" {
 
     __declspec(dllexport) bool StartHTTPInputServer();
     __declspec(dllexport) bool StopHTTPInputServer();
-    __declspec(dllexport) const HTTPInputData* GetHTTPInputData();
+    __declspec(dllexport) HTTPInputData* GetHTTPInputData();
 } // extern "C"
 
 

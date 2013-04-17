@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>HTTP input</title>
+
+
+<script type="text/javascript" src="prototype.js"></script>
+<script type="text/javascript">
+
+var FieldX = 2.56;
+var FieldY = 2.56;
+
+var ext;
+var loading = false
+var frame = 0;
+var delay = 1000/30;
+var starttime = new Date().getTime();
+var mouseX = 0.5;
+var mouseY = 0.5;
+var oldMouseX = 0;
+var oldMouseY = 0;
+var mouseDx = 0;
+var mouseDy = 0;
+
+
+
+
+var requestDraw = (function() {
+    return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function(callback) { window.setTimeout(callback, delay); };
+})();
+
+
+function draw2D()
+{
+    var c = document.getElementById("c");
+    var w = c.width;
+    var h = c.height;
+    var ctx = c.getContext("2d");
+    ctx.fillStyle="#000000";
+    ctx.fillRect(0, 0, w, h);
+
+//        ctx.fillStyle = color;
+//        ctx.fillRect(center_x-size_x,center_y-size_y, size_x*2,size_y*2);
+//        ctx.rect(center_x-size_x,center_y-size_y, size_x*2,size_y*2);
+}
+
+function onLoad()
+{
+    var c = document.getElementById("c");
+
+    time = new Date().getTime() - starttime;
+
+    document.onmousemove = function(evt) {
+        mouseX = evt.pageX / c.width;
+        mouseY = evt.pageY / c.height;
+    };
+    document.onkeydown = function(evt) {
+        var charCode = evt.charCode ? evt.charCode : evt.keyCode;
+        switch(charCode) {
+        case 39: postCommand("/pad", "x1=65535"); break;
+        case 37: postCommand("/pad", "x1=0"); break;
+        case 38: postCommand("/pad", "y1=0"); break;
+        case 40: postCommand("/pad", "y1=65535"); break;
+        case 90: postCommand("/pad", "button1=1"); break;
+        case 88: postCommand("/pad", "button2=1"); break;
+        case 67: postCommand("/pad", "button3=1"); break;
+        case 86: postCommand("/pad", "button4=1"); break;
+        }
+    };
+    document.onkeyup = function(evt) {
+        var charCode = evt.charCode ? evt.charCode : evt.keyCode;
+        switch(charCode) {
+        case 39: postCommand("/pad", "x1=32767"); break;
+        case 37: postCommand("/pad", "x1=32767"); break;
+        case 38: postCommand("/pad", "y1=32767"); break;
+        case 40: postCommand("/pad", "y1=32767"); break;
+        case 90: postCommand("/pad", "button1=0"); break;
+        case 88: postCommand("/pad", "button2=0"); break;
+        case 67: postCommand("/pad", "button3=0"); break;
+        case 86: postCommand("/pad", "button4=0"); break;
+        }
+    };
+
+    c.onclick = function(evt) {
+    };
+
+
+    draw();
+}
+
+function draw()
+{
+    var t = (new Date().getTime() - starttime)*0.001;
+
+    draw2D();
+
+    frame++;
+    setTimeout("requestDraw(draw)", delay);
+
+    oldMouseX = mouseX;
+    oldMouseY = mouseY;
+}
+
+
+function postCommand(url, values)
+{
+    var ajax = new Ajax.Request(url,
+    {
+        method: "post",
+        parameters: values,
+        onComplete: function(res) {
+        }
+    });
+}
+</script>
+</head>
+
+<body onload="onLoad()">
+<canvas id="c" width="1024" height="1024" style="position:absolute; left:0px; top:0px;"></canvas>
+<div id="desc" style="position:absolute; left:1024px; top:10px; with:200px;">
+<span id="fps">  </span>
+</div>
+</body>
+
+</html>

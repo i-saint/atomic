@@ -139,6 +139,18 @@ private:
 };
 
 
+void GetDecodedRequestBody(Poco::Net::HTTPServerRequest &request, std::string &out)
+{
+    if(!request.hasContentLength() || request.getContentLength()>1024*64) {
+        return;
+    }
+    size_t size = (size_t)request.getContentLength();
+    std::istream& stream = request.stream();
+    std::string encoded_data;
+    encoded_data.resize(size);
+    stream.read(&encoded_data[0], size);
+    Poco::URI::decode(encoded_data, out);
+}
 
 class InputCommandHandler : public Poco::Net::HTTPRequestHandler
 {
@@ -149,7 +161,9 @@ public:
 
     void handleRequest(Poco::Net::HTTPServerRequest &request, Poco::Net::HTTPServerResponse &response)
     {
-        std::istream& stream = request.stream();
+        HTTPInputData *input = GetHTTPInputData();
+        std::string data;
+        GetDecodedRequestBody(request, data);
         if(request.getURI()=="/keyboard") {
             // todo:
         }
@@ -157,7 +171,19 @@ public:
 
         }
         else if(request.getURI()=="/pad") {
-
+            int i1, i2;
+            if     (sscanf(data.c_str(), "x1=%d", &i1)==1) { input->pad.x1=i1; }
+            else if(sscanf(data.c_str(), "y1=%d", &i1)==1) { input->pad.y1=i1; }
+            else if(sscanf(data.c_str(), "x2=%d", &i1)==1) { input->pad.x2=i1; }
+            else if(sscanf(data.c_str(), "y2=%d", &i1)==1) { input->pad.y2=i1; }
+            else if(sscanf(data.c_str(), "button%d=%d", &i1, &i2)==2) {
+                if(i2!=0) {
+                    input->pad.buttons |= 1<<(i1-1);
+                }
+                else {
+                    input->pad.buttons &= ~(1<<(i1-1));
+                }
+            }
         }
 
         response.setContentType("text/plain");
@@ -220,7 +246,7 @@ InputServer* InputServer::getInstance()
 
 
 InputServerConfig::InputServerConfig()
-    : port(10000)
+    : port(10001)
     , max_queue(100)
     , max_threads(4)
 {
@@ -305,7 +331,7 @@ __declspec(dllexport) bool StopHTTPInputServer()
     return true;
 }
 
-__declspec(dllexport) const HTTPInputData* GetHTTPInputData()
+__declspec(dllexport) HTTPInputData* GetHTTPInputData()
 {
     if(InputServer *server = InputServer::getInstance()) {
         return &server->getState();

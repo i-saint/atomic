@@ -1,5 +1,6 @@
 ﻿#include <windows.h>
 #include <dinput.h>
+#include <stdint.h>
 #include "HTTPInput.h"
 
 typedef HRESULT (WINAPI *DirectInput8CreateT)(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID * ppvOut, LPUNKNOWN punkOuter);
@@ -14,13 +15,15 @@ HRESULT __stdcall fake_GetDeviceState(IDirectInputDevice8 *dev, DWORD size, LPVO
 {
     HRESULT r = orig_GetDeviceState(dev, size, data);
     if(SUCCEEDED(r)) {
+        const HTTPInputData *input = GetHTTPInputData();
         if(size==sizeof(DIJOYSTATE)) {
             DIJOYSTATE &state = *(DIJOYSTATE*)data;
             // todo:
         }
         else if(size==sizeof(DIJOYSTATE2)) {
             DIJOYSTATE2 &state = *(DIJOYSTATE2*)data;
-            // todo:
+            state.lX = abs(input->pad.x1+INT16_MIN)>abs(state.lX+INT16_MIN) ? input->pad.x1 : state.lX;
+            state.lY = abs(input->pad.y1+INT16_MIN)>abs(state.lY+INT16_MIN) ? input->pad.y1 : state.lY;
         }
     }
     return r;
