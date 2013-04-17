@@ -102,8 +102,14 @@ function draw()
 }
 
 
+var g_prev_url;
+var g_prev_values;
 function postCommand(url, values)
 {
+    if(url==g_prev_url && values==g_prev_values) { return; }
+    g_prev_url = url;
+    g_prev_values = values;
+
     var ajax = new Ajax.Request(url,
     {
         method: "post",

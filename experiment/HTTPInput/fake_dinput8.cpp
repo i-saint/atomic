@@ -17,7 +17,11 @@ HRESULT __stdcall fake_GetDeviceState(IDirectInputDevice8 *dev, DWORD size, LPVO
         const HTTPInputData *input = GetHTTPInputData();
         if(size==sizeof(DIJOYSTATE)) {
             DIJOYSTATE &state = *(DIJOYSTATE*)data;
-            // todo:
+            state.lX = abs(input->pad.x1+INT16_MIN)>abs(state.lX+INT16_MIN) ? input->pad.x1 : state.lX;
+            state.lY = abs(input->pad.y1+INT16_MIN)>abs(state.lY+INT16_MIN) ? input->pad.y1 : state.lY;
+            for(int i=0; i<32; ++i) {
+                state.rgbButtons[i] |= (state.rgbButtons[i]&0x80) || (input->pad.buttons & 1<<i) ? 0x80 : 0;
+            }
         }
         else if(size==sizeof(DIJOYSTATE2)) {
             DIJOYSTATE2 &state = *(DIJOYSTATE2*)data;
@@ -57,12 +61,18 @@ HRESULT WINAPI fake_DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID 
 bool HookDirectInput8()
 {
     bool ret = false;
-    EachImportFunctionInEveryModule("dinput8.dll", [&](const char *funcname, void *&func){
-        if(strcmp(funcname, "DirectInput8Create")==0) {
-            (void*&)orig_DirectInput8Create = func;
-            ForceWrite<void*>(func, fake_DirectInput8Create);
-            ret = true;
-        }
-    });
+    EachImportFunctionInEveryModule(
+        [](const char *dllname) {
+            return _stricmp(dllname, "dinput8.dll")==0;
+        },
+        [&](const char *funcname, void *&func) {
+            if(strcmp(funcname, "DirectInput8Create")==0) {
+                (void*&)orig_DirectInput8Create = func;
+                ForceWrite<void*>(func, fake_DirectInput8Create);
+                ret = true;
+            }
+        },
+        [](DWORD, void *&func) {}
+        );
     return ret;
 }

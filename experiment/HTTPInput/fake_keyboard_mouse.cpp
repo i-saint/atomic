@@ -20,24 +20,32 @@ BOOL WINAPI fake_GetKeyboardState(PBYTE lpKeyState)
     StartHTTPInputServer();
     orig_GetKeyboardState(lpKeyState);
     const HTTPInputData *input = GetHTTPInputData();
-    // todo
+    for(int i=0; i<256; ++i) {
+        lpKeyState[i] |= (input->key.keys[i] & 0x80);
+    }
     return TRUE;
 }
 
 bool HookKeyboardMouse()
 {
     bool ret = false;
-    EachImportFunctionInEveryModule("user32.dll", [&](const char *funcname, void *&func){
-        if(strcmp(funcname, "GetCursorInfo")==0) {
-            (void*&)orig_GetCursorInfo = func;
-            ForceWrite<void*>(func, fake_GetCursorInfo);
-            ret = true;
-        }
-        else if(strcmp(funcname, "GetKeyboardState")==0) {
-            (void*&)orig_GetKeyboardState = func;
-            ForceWrite<void*>(func, fake_GetKeyboardState);
-            ret = true;
-        }
-    });
+    EachImportFunctionInEveryModule(
+        [](const char *dllname) {
+            return _stricmp(dllname, "user32.dll")==0;
+        },
+        [&](const char *funcname, void *&func){
+            if(strcmp(funcname, "GetCursorInfo")==0) {
+                (void*&)orig_GetCursorInfo = func;
+                ForceWrite<void*>(func, fake_GetCursorInfo);
+                ret = true;
+            }
+            else if(strcmp(funcname, "GetKeyboardState")==0) {
+                (void*&)orig_GetKeyboardState = func;
+                ForceWrite<void*>(func, fake_GetKeyboardState);
+                ret = true;
+            }
+        },
+        [](DWORD, void *&func) {}
+        );
     return ret;
 }
