@@ -16,16 +16,11 @@ var loading = false
 var frame = 0;
 var delay = 1000/30;
 var starttime = new Date().getTime();
-var mouseX = 0.5;
-var mouseY = 0.5;
-var oldMouseX = 0;
-var oldMouseY = 0;
-var mouseDx = 0;
-var mouseDy = 0;
 
 var pad_index = 0;
-var stick1X = 0;
-var stick1Y = 0;
+var stickDragging = false;
+var stick1X = 100;
+var stick1Y = 100;
 
 var g_last_command = "";
 var g_input_commands = [];
@@ -62,6 +57,17 @@ function postCommand(url, values)
     return true;
 }
 
+function pushStickPosCommand()
+{
+    var stick = document.getElementById("stick");
+    stick1X = Math.min(Math.max(stick1X,0), stick.width);
+    stick1Y = Math.min(Math.max(stick1Y,0), stick.height);
+    var x = Math.round( stick1X/200 * 0xffff);
+    var y = Math.round( stick1Y/200 * 0xffff);
+    pushInputCommand("pad"+pad_index+"_x1:0x"+x.toString(16));
+    pushInputCommand("pad"+pad_index+"_y1:0x"+y.toString(16));
+}
+
 var requestDraw = (function() {
     return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function(callback) { window.setTimeout(callback, delay); };
 })();
@@ -70,41 +76,121 @@ var requestDraw = (function() {
 
 function draw2D()
 {
-    var c = document.getElementById("c");
-    var w = c.width;
-    var h = c.height;
-    var ctx = c.getContext("2d");
-    ctx.fillStyle="#000000";
-    ctx.fillRect(0, 0, w, h);
+    var stick = document.getElementById("stick");
+    var ctx = stick.getContext("2d");
+    var w = stick.width;
+    var h = stick.height;
 
-//        ctx.fillStyle = color;
-//        ctx.fillRect(center_x-size_x,center_y-size_y, size_x*2,size_y*2);
-//        ctx.rect(center_x-size_x,center_y-size_y, size_x*2,size_y*2);
-}
+    var center_x = stick1X;
+    var center_y = stick1Y;
+    var size_x = 20;
+    var size_y = 20;
+
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0,0, w,h);
+
+    ctx.beginPath(); 
+    ctx.rect(center_x-size_x,center_y-size_y, size_x*2,size_y*2);
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'black';
+    ctx.stroke();
+
+    ++frame;
+  }
 
 function onLoad()
 {
     clearInterval(flushCommandTimer);
     flushCommandTimer = setInterval(flushCommands, 5);
 
-    var c = document.getElementById("c");
-    input = new Object();
-    input.x1 = 0x7fff;
-    input.y1 = 0x7fff;
-    input.x2 = 0x7fff;
-    input.y2 = 0x7fff;
-    input.pov = 0x0000;
-    input.buttons = [];
-    for(var i=0; i<32; ++i) {
-        input.buttons[i] = 0x00;
-    }
-
+    var stick = document.getElementById("stick");
     time = new Date().getTime() - starttime;
 
-    document.onmousemove = function(evt) {
-        mouseX = evt.pageX / c.width;
-        mouseY = evt.pageY / c.height;
+    stick.onmousemove = function(evt) {
+        var stick = $("stick");
+        if(stickDragging) {
+            stick1X = evt.pageX - stick.offsetLeft;
+            stick1Y = evt.pageY - stick.offsetTop;
+            pushStickPosCommand();
+        }
+        $("desc").innerText = "onmousemove";
     };
+    stick.onmousedown = function(evt) {
+        var stick = $("stick");
+        if( evt.pageX>=stick.offsetLeft && evt.pageX<=stick.offsetLeft+stick.width &&
+            evt.pageY>=stick.offsetTop  && evt.pageY<=stick.offsetTop +stick.height )
+        {
+            stickDragging = true;
+            stick1X = evt.pageX - stick.offsetLeft;
+            stick1Y = evt.pageY - stick.offsetTop;
+            pushStickPosCommand();
+        }
+        stick1X = 100;
+        stick1Y = 100;
+    };    
+    stick.onmouseup = function(evt) {
+        if(stickDragging) {
+            stickDragging = false;
+            stick1X = 100;
+            stick1Y = 100;
+            pushStickPosCommand();
+        }
+    };
+
+
+    stick.ontouchmove = function(evt) {
+        evt.preventDefault();
+        var t = evt.targetTouches.item(0)
+        var stick = $("stick");
+        if(stickDragging) {
+            stick1X = t.pageX - stick.offsetLeft;
+            stick1Y = t.pageY - stick.offsetTop ;
+            pushStickPosCommand();
+        }
+        //$("desc").innerText = "ontouchmove";
+    };
+    stick.ontouchstart = function(evt) {
+        evt.preventDefault();
+        var t = evt.targetTouches.item(0)
+        var stick = $("stick");
+        if( t.pageX>=stick.offsetLeft && t.pageX<=stick.offsetLeft+stick.width &&
+            t.pageY>=stick.offsetTop  && t.pageY<=stick.offsetTop +stick.height )
+        {
+            stickDragging = true;
+            stick1X = t.pageX - stick.offsetLeft;
+            stick1Y = t.pageY - stick.offsetTop ;
+            pushStickPosCommand();
+        }
+
+        var t = "ontouchstart ";
+        for(var i=0; i<evt.targetTouches.length; ++i) {
+            t += evt.targetTouches.item(i).pageX;
+            t += " "
+        }
+        $("desc").innerText = t;
+    };
+    stick.ontouchend = function(evt) {
+        evt.preventDefault();
+        var stick = $("stick");
+        if(stickDragging) {
+            if( evt.touches.length==0 ) {
+                stickDragging = false;
+                stick1X = 100;
+                stick1Y = 100;
+                pushStickPosCommand();
+            }
+        } 
+
+        var t = "ontouchend ";
+        for(var i=0; i<evt.touches.length; ++i) {
+            t += evt.touches.item(i).pageX;
+            t += " "
+        }
+        $("desc").innerText = t;
+    };
+    stick.ontouchleave = stick.ontouchend;
+    stick.ontouchcancel = stick.ontouchend;
+
     document.onkeydown = function(evt) {
         var charCode = evt.charCode ? evt.charCode : evt.keyCode;
         switch(charCode) {
@@ -132,10 +218,6 @@ function onLoad()
         }
     };
 
-    c.onclick = function(evt) {
-    };
-
-
     draw();
 }
 
@@ -147,24 +229,38 @@ function draw()
 
     frame++;
     setTimeout("requestDraw(draw)", delay);
+}
 
-    oldMouseX = mouseX;
-    oldMouseY = mouseY;
+function handleButtonDown(id)
+{
+    pushInputCommand("pad"+pad_index+"_"+id+":0x80");
+}
+function handleButtonUp(id)
+{
+    pushInputCommand("pad"+pad_index+"_"+id+":0x00");
 }
 
 
+function handleButtonDown(id)
+{
+    pushInputCommand("pad"+pad_index+"_"+id+":0x80");
+}
+function handleButtonUp(id)
+{
+    pushInputCommand("pad"+pad_index+"_"+id+":0x00");
+}
 </script>
 </head>
 
 <body onload="onLoad()">
-<canvas id="c" width="200" height="200" style="position:absolute; left:0px; top:350px;"></canvas>
-<button style="position:absolute; left:800px; top:500px; width:40px; height:40px;" onclick="">A</button>
-<button style="position:absolute; left:850px; top:450px; width:40px; height:40px;" onclick="">B</button>
-<button style="position:absolute; left:750px; top:450px; width:40px; height:40px;" onclick="">X</button>
-<button style="position:absolute; left:800px; top:400px; width:40px; height:40px;" onclick="">Y</button>
-<button style="position:absolute; left:800px; top:0px; width:60px; height:60px;" onclick="">RT</button>
-<button style="position:absolute; left:  0px; top:0px; width:60px; height:60px;" onclick="">LT</button>
-<div id="desc" style="position:absolute; left:1024px; top:10px; with:200px;">
+<canvas id="stick" width="200" height="200" style="position:absolute; left:30px; top:170px; outline: solid 1px #000000;"></canvas>
+<button id="button0" style="position:absolute; left:700px; top:350px; width:80px; height:80px;" onmousedown="handleButtonDown('button0')" onmouseup="handleButtonUp('button0')" ontouchstart="event.preventDefault();handleButtonDown('button0')" ontouchend="event.preventDefault();handleButtonUp('button0')">A</button>
+<button id="button1" style="position:absolute; left:800px; top:250px; width:80px; height:80px;" onmousedown="handleButtonDown('button1')" onmouseup="handleButtonUp('button1')" ontouchstart="event.preventDefault();handleButtonDown('button1')" ontouchend="event.preventDefault();handleButtonUp('button1')">B</button>
+<button id="button2" style="position:absolute; left:600px; top:250px; width:80px; height:80px;" onmousedown="handleButtonDown('button2')" onmouseup="handleButtonUp('button2')" ontouchstart="event.preventDefault();handleButtonDown('button2')" ontouchend="event.preventDefault();handleButtonUp('button2')">X</button>
+<button id="button3" style="position:absolute; left:700px; top:150px; width:80px; height:80px;" onmousedown="handleButtonDown('button3')" onmouseup="handleButtonUp('button3')" ontouchstart="event.preventDefault();handleButtonDown('button3')" ontouchend="event.preventDefault();handleButtonUp('button3')">Y</button>
+<button id="buttonRT" style="position:absolute; left:700px; top:0px; width:100px; height:60px;" onmousedown="handleButtonDown('buttonRT')" onmouseup="handleButtonUp('buttonRT')" ontouchstart="event.preventDefault();handleButtonDown('buttonRT')" ontouchend="event.preventDefault();handleButtonUp('buttonRT')">RT</button>
+<button id="buttonLT" style="position:absolute; left:  0px; top:0px; width:100px; height:60px;" onmousedown="handleButtonDown('buttonLT')" onmouseup="handleButtonUp('buttonLT')" ontouchstart="event.preventDefault();handleButtonDown('buttonLT')" ontouchend="event.preventDefault();handleButtonUp('buttonLT')">LT</button>
+<div id="desc" style="position:absolute; left:200px; top:10px; with:200px;">
 </div>
 </body>
 
