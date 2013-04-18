@@ -9,15 +9,18 @@ MMRESULT WINAPI fake_joyGetPosEx(UINT uJoyID, LPJOYINFOEX pji)
 {
     StartHTTPInputServer();
     MMRESULT r = orig_joyGetPosEx(uJoyID, pji);
-    if(r==JOYERR_NOERROR) {
-        const HTTPInputData *input = GetHTTPInputData();
-        pji->dwXpos = abs(input->pad.x1+INT16_MIN)>abs((int)pji->dwXpos+INT16_MIN) ? input->pad.x1 : pji->dwXpos;
-        pji->dwYpos = abs(input->pad.y1+INT16_MIN)>abs((int)pji->dwYpos+INT16_MIN) ? input->pad.y1 : pji->dwYpos;
-        for(int i=0; i<32; ++i) {
-            pji->dwButtons |= input->pad.buttons & (1<<i);
+    if(r!=JOYERR_NOERROR) {
+        memset(pji, 0, sizeof(JOYINFOEX));
+    }
+    if(uJoyID<HTTPInputData::MaxPads) {
+        const HTTPInputData::Pad &vpad = GetHTTPInputData()->pad[uJoyID];
+        pji->dwXpos = abs(vpad.x1+INT16_MIN)>abs((int)pji->dwXpos+INT16_MIN) ? vpad.x1 : pji->dwXpos;
+        pji->dwYpos = abs(vpad.y1+INT16_MIN)>abs((int)pji->dwYpos+INT16_MIN) ? vpad.y1 : pji->dwYpos;
+        for(int32 i=0; i<HTTPInputData::Pad::MaxButtons; ++i) {
+            pji->dwButtons |= vpad.buttons[i]&0x80 ? 1<<i : 0;
         }
     }
-    return r;
+    return JOYERR_NOERROR;
 }
 
 bool HookMMJoustick()

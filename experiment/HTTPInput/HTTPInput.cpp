@@ -126,17 +126,24 @@ private:
 };
 
 
-void GetDecodedRequestBody(Poco::Net::HTTPServerRequest &request, std::string &out)
+template<class F>
+void EachInputValue(Poco::Net::HTTPServerRequest &request, const F &f)
 {
     if(!request.hasContentLength() || request.getContentLength()>1024*64) {
         return;
     }
     size_t size = (size_t)request.getContentLength();
     std::istream& stream = request.stream();
-    std::string encoded_data;
-    encoded_data.resize(size);
-    stream.read(&encoded_data[0], size);
-    Poco::URI::decode(encoded_data, out);
+    std::string encoded_content;
+    std::string content;
+    encoded_content.resize(size);
+    stream.read(&encoded_content[0], size);
+    Poco::URI::decode(encoded_content, content);
+    for(size_t i=5; i<content.size(); ++i) {
+        if(content[i-1]==',' || content[i-1]=='=') {
+            f(&content[i]);
+        }
+    }
 }
 
 class InputCommandHandler : public Poco::Net::HTTPRequestHandler
@@ -149,36 +156,25 @@ public:
     void handleRequest(Poco::Net::HTTPServerRequest &request, Poco::Net::HTTPServerResponse &response)
     {
         HTTPInputData *input = GetHTTPInputData();
-        std::string data;
-        GetDecodedRequestBody(request, data);
-        if(request.getURI()=="/keyboard") {
-            // todo:
-        }
-        else if(request.getURI()=="/mouse") {
-
-        }
-        else if(request.getURI()=="/pad") {
-            int i1, i2;
-            if     (sscanf(data.c_str(), "x1=%d", &i1)==1) { input->pad.x1=i1; }
-            else if(sscanf(data.c_str(), "y1=%d", &i1)==1) { input->pad.y1=i1; }
-            else if(sscanf(data.c_str(), "x2=%d", &i1)==1) { input->pad.x2=i1; }
-            else if(sscanf(data.c_str(), "y2=%d", &i1)==1) { input->pad.y2=i1; }
-            else if(sscanf(data.c_str(), "button%d=%d", &i1, &i2)==2) {
-                if(i2!=0) {
-                    input->pad.buttons |= 1<<(i1-1);
+        if(request.getURI()=="/input") {
+            EachInputValue(request, [&](const char *value){
+                int pad, button, v;
+                if     (sscanf(value, "pad%d_x1:%x", &pad, &v)==2) { input->pad[pad].x1=v; }
+                else if(sscanf(value, "pad%d_y1:%x", &pad, &v)==2) { input->pad[pad].y1=v; }
+                else if(sscanf(value, "pad%d_x2:%x", &pad, &v)==2) { input->pad[pad].x2=v; }
+                else if(sscanf(value, "pad%d_y2:%x", &pad, &v)==2) { input->pad[pad].y2=v; }
+                else if(sscanf(value, "pad%d_button%d:%x", &pad, &button, &v)==3) {
+                    if(button>=0 && button<HTTPInputData::Pad::MaxButtons) {
+                        input->pad[pad].buttons[button] = v;
+                    }
                 }
-                else {
-                    input->pad.buttons &= ~(1<<(i1-1));
-                }
-            }
+            });
         }
 
         response.setContentType("text/plain");
         response.setContentLength(2);
         std::ostream &ostr = response.send();
         ostr.write("ok", 3);
-
-        // todo:
     }
 };
 
@@ -190,7 +186,7 @@ public:
         if(request.getURI() == "/") {
             return new FileRequestHandler(std::string(GetModulePath())+std::string(s_root_dir)+"/index.html");
         }
-        else if(request.getURI()=="/keyboard" || request.getURI()=="/mouse" || request.getURI()=="/pad") {
+        else if(request.getURI()=="/input") {
             return new InputCommandHandler();
         }
         else {
@@ -245,7 +241,9 @@ InputServer::InputServer()
     , m_end_flag(false)
 {
     memset(&m_state, 0, sizeof(m_state));
-    m_state.pad.x1 = m_state.pad.y1 = m_state.pad.x2 = m_state.pad.y2 = INT16_MAX;
+    for(int i=0; i<HTTPInputData::MaxPads; ++i) {
+        m_state.pad[i].x1 = m_state.pad[i].y1 = m_state.pad[i].x2 = m_state.pad[i].y2 = INT16_MAX;
+    }
 }
 
 InputServer::~InputServer()

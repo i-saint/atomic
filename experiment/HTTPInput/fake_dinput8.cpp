@@ -13,26 +13,29 @@ GetDeviceStateT orig_GetDeviceState;
 HRESULT __stdcall fake_GetDeviceState(IDirectInputDevice8 *dev, DWORD size, LPVOID data)
 {
     HRESULT r = orig_GetDeviceState(dev, size, data);
-    if(SUCCEEDED(r)) {
-        const HTTPInputData *input = GetHTTPInputData();
+    if(FAILED(r)) {
+        memset(data, 0, size);
+    }
+    {
+        const HTTPInputData::Pad &vpad = GetHTTPInputData()->pad[0];
         if(size==sizeof(DIJOYSTATE)) {
             DIJOYSTATE &state = *(DIJOYSTATE*)data;
-            state.lX = abs(input->pad.x1+INT16_MIN)>abs(state.lX+INT16_MIN) ? input->pad.x1 : state.lX;
-            state.lY = abs(input->pad.y1+INT16_MIN)>abs(state.lY+INT16_MIN) ? input->pad.y1 : state.lY;
-            for(int i=0; i<32; ++i) {
-                state.rgbButtons[i] |= (state.rgbButtons[i]&0x80) || (input->pad.buttons & 1<<i) ? 0x80 : 0;
+            state.lX = abs(vpad.x1+INT16_MIN)>abs(state.lX+INT16_MIN) ? vpad.x1 : state.lX;
+            state.lY = abs(vpad.y1+INT16_MIN)>abs(state.lY+INT16_MIN) ? vpad.y1 : state.lY;
+            for(int32 i=0; i<HTTPInputData::Pad::MaxButtons; ++i) {
+                state.rgbButtons[i] |= vpad.buttons[i];
             }
         }
         else if(size==sizeof(DIJOYSTATE2)) {
             DIJOYSTATE2 &state = *(DIJOYSTATE2*)data;
-            state.lX = abs(input->pad.x1+INT16_MIN)>abs(state.lX+INT16_MIN) ? input->pad.x1 : state.lX;
-            state.lY = abs(input->pad.y1+INT16_MIN)>abs(state.lY+INT16_MIN) ? input->pad.y1 : state.lY;
-            for(int i=0; i<32; ++i) {
-                state.rgbButtons[i] |= (state.rgbButtons[i]&0x80) || (input->pad.buttons & 1<<i) ? 0x80 : 0;
+            state.lX = abs(vpad.x1+INT16_MIN)>abs(state.lX+INT16_MIN) ? vpad.x1 : state.lX;
+            state.lY = abs(vpad.y1+INT16_MIN)>abs(state.lY+INT16_MIN) ? vpad.y1 : state.lY;
+            for(int32 i=0; i<HTTPInputData::Pad::MaxButtons; ++i) {
+                state.rgbButtons[i] |= vpad.buttons[i];
             }
         }
     }
-    return r;
+    return DI_OK;
 }
 
 HRESULT __stdcall fake_CreateDevice(IDirectInput8 *di8, REFGUID guid, LPDIRECTINPUTDEVICE8A *out, LPUNKNOWN unk)

@@ -11,6 +11,7 @@ var FieldX = 2.56;
 var FieldY = 2.56;
 
 var ext;
+var flushCommandTimer;
 var loading = false
 var frame = 0;
 var delay = 1000/30;
@@ -22,12 +23,49 @@ var oldMouseY = 0;
 var mouseDx = 0;
 var mouseDy = 0;
 
+var pad_index = 0;
+var stick1X = 0;
+var stick1Y = 0;
 
+var g_last_command = "";
+var g_input_commands = [];
 
+function pushInputCommand(cmd)
+{
+    if(cmd==g_last_command) { return; }
+    g_input_commands.push(cmd);
+    g_last_command = cmd;
+}
+
+function flushCommands()
+{
+    if(g_input_commands.length>0) {
+        if(postCommand("/input", {"data":g_input_commands.join(",")})) {
+            g_input_commands.length = 0;
+        }
+    }
+}
+
+function postCommand(url, values)
+{
+    if(loading) { return false; }
+    loading = true;
+    var ajax = new Ajax.Request(url,
+    {
+        method: "post",
+        parameters: values,
+        cache: false,
+        onComplete: function(res) {
+            loading = false;
+        }
+    });
+    return true;
+}
 
 var requestDraw = (function() {
     return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function(callback) { window.setTimeout(callback, delay); };
 })();
+
 
 
 function draw2D()
@@ -46,7 +84,20 @@ function draw2D()
 
 function onLoad()
 {
+    clearInterval(flushCommandTimer);
+    flushCommandTimer = setInterval(flushCommands, 5);
+
     var c = document.getElementById("c");
+    input = new Object();
+    input.x1 = 0x7fff;
+    input.y1 = 0x7fff;
+    input.x2 = 0x7fff;
+    input.y2 = 0x7fff;
+    input.pov = 0x0000;
+    input.buttons = [];
+    for(var i=0; i<32; ++i) {
+        input.buttons[i] = 0x00;
+    }
 
     time = new Date().getTime() - starttime;
 
@@ -57,27 +108,27 @@ function onLoad()
     document.onkeydown = function(evt) {
         var charCode = evt.charCode ? evt.charCode : evt.keyCode;
         switch(charCode) {
-        case 39: postCommand("/pad", "x1=65535"); break;
-        case 37: postCommand("/pad", "x1=0"); break;
-        case 38: postCommand("/pad", "y1=0"); break;
-        case 40: postCommand("/pad", "y1=65535"); break;
-        case 90: postCommand("/pad", "button1=1"); break;
-        case 88: postCommand("/pad", "button2=1"); break;
-        case 67: postCommand("/pad", "button3=1"); break;
-        case 86: postCommand("/pad", "button4=1"); break;
+        case 39: pushInputCommand("pad"+pad_index+"_x1:0xffff"); break;
+        case 37: pushInputCommand("pad"+pad_index+"_x1:0x0000"); break;
+        case 38: pushInputCommand("pad"+pad_index+"_y1:0x0000"); break;
+        case 40: pushInputCommand("pad"+pad_index+"_y1:0xffff"); break;
+        case 90: pushInputCommand("pad"+pad_index+"_button0:0x80"); break;
+        case 88: pushInputCommand("pad"+pad_index+"_button1:0x80"); break;
+        case 67: pushInputCommand("pad"+pad_index+"_button2:0x80"); break;
+        case 86: pushInputCommand("pad"+pad_index+"_button3:0x80"); break;
         }
     };
     document.onkeyup = function(evt) {
         var charCode = evt.charCode ? evt.charCode : evt.keyCode;
         switch(charCode) {
-        case 39: postCommand("/pad", "x1=32767"); break;
-        case 37: postCommand("/pad", "x1=32767"); break;
-        case 38: postCommand("/pad", "y1=32767"); break;
-        case 40: postCommand("/pad", "y1=32767"); break;
-        case 90: postCommand("/pad", "button1=0"); break;
-        case 88: postCommand("/pad", "button2=0"); break;
-        case 67: postCommand("/pad", "button3=0"); break;
-        case 86: postCommand("/pad", "button4=0"); break;
+        case 39: pushInputCommand("pad"+pad_index+"_x1:0x7fff"); break;
+        case 37: pushInputCommand("pad"+pad_index+"_x1:0x7fff"); break;
+        case 38: pushInputCommand("pad"+pad_index+"_y1:0x7fff"); break;
+        case 40: pushInputCommand("pad"+pad_index+"_y1:0x7fff"); break;
+        case 90: pushInputCommand("pad"+pad_index+"_button0:0x00"); break;
+        case 88: pushInputCommand("pad"+pad_index+"_button1:0x00"); break;
+        case 67: pushInputCommand("pad"+pad_index+"_button2:0x00"); break;
+        case 86: pushInputCommand("pad"+pad_index+"_button3:0x00"); break;
         }
     };
 
@@ -102,30 +153,18 @@ function draw()
 }
 
 
-var g_prev_url;
-var g_prev_values;
-function postCommand(url, values)
-{
-    if(url==g_prev_url && values==g_prev_values) { return; }
-    g_prev_url = url;
-    g_prev_values = values;
-
-    var ajax = new Ajax.Request(url,
-    {
-        method: "post",
-        parameters: values,
-        cache: false,
-        onComplete: function(res) {
-        }
-    });
-}
 </script>
 </head>
 
 <body onload="onLoad()">
-<canvas id="c" width="1024" height="1024" style="position:absolute; left:0px; top:0px;"></canvas>
+<canvas id="c" width="200" height="200" style="position:absolute; left:0px; top:350px;"></canvas>
+<button style="position:absolute; left:800px; top:500px; width:40px; height:40px;" onclick="">A</button>
+<button style="position:absolute; left:850px; top:450px; width:40px; height:40px;" onclick="">B</button>
+<button style="position:absolute; left:750px; top:450px; width:40px; height:40px;" onclick="">X</button>
+<button style="position:absolute; left:800px; top:400px; width:40px; height:40px;" onclick="">Y</button>
+<button style="position:absolute; left:800px; top:0px; width:60px; height:60px;" onclick="">RT</button>
+<button style="position:absolute; left:  0px; top:0px; width:60px; height:60px;" onclick="">LT</button>
 <div id="desc" style="position:absolute; left:1024px; top:10px; with:200px;">
-<span id="fps">  </span>
 </div>
 </body>
 

@@ -16,9 +16,10 @@ typedef unsigned int    uint32;
 extern "C" {
     struct HTTPInputData
     {
+        static const int32 MaxPads = 8;
         struct Keyboard
         {
-            char keys[256];
+            uint8 keys[256];
         };
 
         struct Mouse
@@ -29,15 +30,16 @@ extern "C" {
 
         struct Pad
         {
+            static const int32 MaxButtons = 16;
             int32 x1,y1;
             int32 x2,y2;
             int32 pov;
-            uint32 buttons;
+            uint8 buttons[MaxButtons];
         };
 
         Keyboard key;
         Mouse    mouse;
-        Pad      pad;
+        Pad      pad[MaxPads];
     };
 
     __declspec(dllexport) bool StartHTTPInputServer();

@@ -9,16 +9,19 @@ DWORD WINAPI fake_XInputGetState(DWORD dwUserIndex, XINPUT_STATE* pState)
 {
     StartHTTPInputServer();
     DWORD r = orig_XInputGetState(dwUserIndex, pState);
-    if(r==ERROR_SUCCESS) {
+    if(r!=ERROR_SUCCESS) {
+        memset(pState, 0, sizeof(XINPUT_STATE));
+    }
+    if(dwUserIndex<HTTPInputData::MaxPads) {
         XINPUT_GAMEPAD &pad = pState->Gamepad;
-        const HTTPInputData *input = GetHTTPInputData();
-        pad.sThumbLX = abs(input->pad.x1+INT16_MIN)>abs((int)pad.sThumbLX) ?  input->pad.x1+INT16_MIN : pad.sThumbLX;
-        pad.sThumbLY = abs(input->pad.y1+INT16_MIN)>abs((int)pad.sThumbLY) ?-(input->pad.y1-INT16_MAX): pad.sThumbLY;
-        for(int i=0; i<4; ++i) {
-            pad.wButtons |= (input->pad.buttons & 1<<i)<<12;
+        const HTTPInputData::Pad &vpad = GetHTTPInputData()->pad[dwUserIndex];
+        pad.sThumbLX = abs(vpad.x1+INT16_MIN)>abs((int)pad.sThumbLX) ?  vpad.x1+INT16_MIN : pad.sThumbLX;
+        pad.sThumbLY = abs(vpad.y1+INT16_MIN)>abs((int)pad.sThumbLY) ?-(vpad.y1-INT16_MAX): pad.sThumbLY;
+        for(int32 i=0; i<4; ++i) {
+            pad.wButtons |= (vpad.buttons[i] & 0x80 ? 1 : 0)<<12;
         }
     }
-    return r;
+    return ERROR_SUCCESS;
 }
 
 bool HookXInput()
