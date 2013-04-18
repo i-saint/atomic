@@ -23,18 +23,13 @@ MMRESULT WINAPI fake_joyGetPosEx(UINT uJoyID, LPJOYINFOEX pji)
 bool HookMMJoustick()
 {
     bool ret = false;
-    EachImportFunctionInEveryModule(
-        [](const char *dllname) {
-            return _stricmp(dllname, "winmm.dll")==0;
-        },
+    EachImportFunctionInEveryModule("winmm.dll",
         [&](const char *funcname, void *&func){
             if(strcmp(funcname, "joyGetPosEx")==0) {
                 (void*&)orig_joyGetPosEx = func;
                 ForceWrite<void*>(func, fake_joyGetPosEx);
                 ret = true;
             }
-        },
-        [](DWORD, void *&func) {}
-    );
+        });
     return ret;
 }

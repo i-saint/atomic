@@ -29,10 +29,7 @@ BOOL WINAPI fake_GetKeyboardState(PBYTE lpKeyState)
 bool HookKeyboardMouse()
 {
     bool ret = false;
-    EachImportFunctionInEveryModule(
-        [](const char *dllname) {
-            return _stricmp(dllname, "user32.dll")==0;
-        },
+    EachImportFunctionInEveryModule("user32.dll",
         [&](const char *funcname, void *&func){
             if(strcmp(funcname, "GetCursorInfo")==0) {
                 (void*&)orig_GetCursorInfo = func;
@@ -44,8 +41,6 @@ bool HookKeyboardMouse()
                 ForceWrite<void*>(func, fake_GetKeyboardState);
                 ret = true;
             }
-        },
-        [](DWORD, void *&func) {}
-        );
+        });
     return ret;
 }

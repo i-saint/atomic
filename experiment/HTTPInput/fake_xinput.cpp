@@ -24,10 +24,7 @@ DWORD WINAPI fake_XInputGetState(DWORD dwUserIndex, XINPUT_STATE* pState)
 bool HookXInput()
 {
     bool ret = false;
-    EachImportFunctionInEveryModule(
-        [](const char *dllname) {
-            return _strnicmp(dllname, "xinput", 6)==0;
-        },
+    EachImportFunctionInEveryModule("xinput.+\\.dll",
         [](const char *funcname, void *&func) {},
         [&](DWORD ordinal, void *&func){
             if(ordinal==2) {
@@ -35,7 +32,6 @@ bool HookXInput()
                 ForceWrite<void*>(func, fake_XInputGetState);
                 ret = true;
             }
-        }
-    );
+        });
     return ret;
 }

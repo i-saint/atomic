@@ -61,18 +61,13 @@ HRESULT WINAPI fake_DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID 
 bool HookDirectInput8()
 {
     bool ret = false;
-    EachImportFunctionInEveryModule(
-        [](const char *dllname) {
-            return _stricmp(dllname, "dinput8.dll")==0;
-        },
+    EachImportFunctionInEveryModule("dinput8.dll",
         [&](const char *funcname, void *&func) {
             if(strcmp(funcname, "DirectInput8Create")==0) {
                 (void*&)orig_DirectInput8Create = func;
                 ForceWrite<void*>(func, fake_DirectInput8Create);
                 ret = true;
             }
-        },
-        [](DWORD, void *&func) {}
-        );
+        });
     return ret;
 }

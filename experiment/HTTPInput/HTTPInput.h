@@ -4,6 +4,7 @@
 #include <psapi.h>
 #include <stdint.h>
 #include <vector>
+#include <regex>
 
 typedef char            int8;
 typedef short           int16;
@@ -45,11 +46,10 @@ extern "C" {
 } // extern "C"
 
 
-// Filter: bool (const char *dllname)
-// F1: (const char *funcname, void *&func)
-// F2: (DWORD ordinal, void *&func)
-template<class Filter, class F1, class F2>
-inline void EnumerateDLLImports(HMODULE module, const Filter &dllfilter, const F1 &f1, const F2 &f2)
+// F1: [](const char *funcname, void *&func) {...}
+// F2: [](DWORD ordinal, void *&func) {...}
+template<class F1, class F2>
+inline void EnumerateDLLImports(HMODULE module, const char *dllfilter, const F1 &f1, const F2 &f2)
 {
     if(module==NULL) { return; }
 
@@ -61,10 +61,11 @@ inline void EnumerateDLLImports(HMODULE module, const Filter &dllfilter, const F
     DWORD RVAImports = pNTHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress;
     if(RVAImports==0) { return; }
 
+    std::regex reg(dllfilter, std::regex::ECMAScript|std::regex::icase);
     IMAGE_IMPORT_DESCRIPTOR *pImportDesc = (IMAGE_IMPORT_DESCRIPTOR*)(ImageBase + RVAImports);
     while(pImportDesc->Name!=0) {
         const char *pDLLName = (const char*)(ImageBase+pImportDesc->Name);
-        if(dllfilter(pDLLName)) {
+        if(std::regex_match(pDLLName, reg)) {
             IMAGE_THUNK_DATA* pThunkOrig = (IMAGE_THUNK_DATA*)(ImageBase + pImportDesc->OriginalFirstThunk);
             IMAGE_THUNK_DATA* pThunk = (IMAGE_THUNK_DATA*)(ImageBase + pImportDesc->FirstThunk);
             while(pThunkOrig->u1.AddressOfData!=0) {
@@ -84,9 +85,14 @@ inline void EnumerateDLLImports(HMODULE module, const Filter &dllfilter, const F
     }
     return;
 }
+template<class F1>
+inline void EnumerateDLLImports(HMODULE module, const char *dllfilter, const F1 &f1)
+{
+    EnumerateDLLImports(module, dllfilter, f1, [](DWORD ordinal, void *&func){});
+}
 
-template<class Filter, class F1, class F2>
-inline void EachImportFunctionInEveryModule(const Filter &dllfilter, const F1 &f1, const F2 &f2)
+template<class F1, class F2>
+inline void EachImportFunctionInEveryModule(const char *dllfilter, const F1 &f1, const F2 &f2)
 {
     std::vector<HMODULE> modules;
     DWORD num_modules;
@@ -96,6 +102,11 @@ inline void EachImportFunctionInEveryModule(const Filter &dllfilter, const F1 &f
     for(size_t i=0; i<modules.size(); ++i) {
         EnumerateDLLImports(modules[i], dllfilter, f1, f2);
     }
+}
+template<class F1>
+inline void EachImportFunctionInEveryModule(const char *dllfilter, const F1 &f1)
+{
+    EachImportFunctionInEveryModule(dllfilter, f1, [](DWORD ordinal, void *&func){});
 }
 
 
