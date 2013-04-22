@@ -1,11 +1,12 @@
 ﻿#include <windows.h>
 #include <xinput.h>
 #include "HTTPInput.h"
+#include "HTTPInput_Internal.h"
 
 typedef DWORD (WINAPI *XInputGetStateT)(DWORD dwUserIndex, XINPUT_STATE* pState);
-XInputGetStateT orig_XInputGetState;
+static XInputGetStateT orig_XInputGetState;
 
-DWORD WINAPI fake_XInputGetState(DWORD dwUserIndex, XINPUT_STATE* pState)
+static DWORD WINAPI fake_XInputGetState(DWORD dwUserIndex, XINPUT_STATE* pState)
 {
     StartHTTPInputServer();
     DWORD r = orig_XInputGetState(dwUserIndex, pState);
@@ -24,17 +25,7 @@ DWORD WINAPI fake_XInputGetState(DWORD dwUserIndex, XINPUT_STATE* pState)
     return ERROR_SUCCESS;
 }
 
-bool HookXInput()
-{
-    bool ret = false;
-    EachImportFunctionInEveryModule("xinput.+\\.dll",
-        [](const char *funcname, void *&func) {},
-        [&](DWORD ordinal, void *&func){
-            if(ordinal==2) {
-                (void*&)orig_XInputGetState = func;
-                ForceWrite<void*>(func, fake_XInputGetState);
-                ret = true;
-            }
-        });
-    return ret;
-}
+static FuncInfo g_xinput_funcs[] = {
+    {NULL, 2, (void*)&fake_XInputGetState, (void**)&orig_XInputGetState},
+};
+OverrideInfo g_xinput_overrides = {"xinput1_\\d+\\.dll", _countof(g_xinput_funcs), g_xinput_funcs};

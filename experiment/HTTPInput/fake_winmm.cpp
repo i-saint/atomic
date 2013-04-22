@@ -1,11 +1,12 @@
 ﻿#include <windows.h>
 #include <mmsystem.h>
 #include "HTTPInput.h"
+#include "HTTPInput_Internal.h"
 
 typedef MMRESULT (WINAPI *joyGetPosExT)(UINT uJoyID, LPJOYINFOEX pji);
-joyGetPosExT orig_joyGetPosEx;
+static joyGetPosExT orig_joyGetPosEx;
 
-MMRESULT WINAPI fake_joyGetPosEx(UINT uJoyID, LPJOYINFOEX pji)
+static MMRESULT WINAPI fake_joyGetPosEx(UINT uJoyID, LPJOYINFOEX pji)
 {
     StartHTTPInputServer();
     MMRESULT r = orig_joyGetPosEx(uJoyID, pji);
@@ -23,16 +24,7 @@ MMRESULT WINAPI fake_joyGetPosEx(UINT uJoyID, LPJOYINFOEX pji)
     return JOYERR_NOERROR;
 }
 
-bool HookMMJoustick()
-{
-    bool ret = false;
-    EachImportFunctionInEveryModule("winmm.dll",
-        [&](const char *funcname, void *&func){
-            if(strcmp(funcname, "joyGetPosEx")==0) {
-                (void*&)orig_joyGetPosEx = func;
-                ForceWrite<void*>(func, fake_joyGetPosEx);
-                ret = true;
-            }
-        });
-    return ret;
-}
+static FuncInfo g_winmm_funcs[] = {
+    {"joyGetPosEx", 0, (void*)&fake_joyGetPosEx, (void**)&orig_joyGetPosEx},
+};
+OverrideInfo g_winmm_overrides = {"winmm.dll", _countof(g_winmm_funcs), g_winmm_funcs};

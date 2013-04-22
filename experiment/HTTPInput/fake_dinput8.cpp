@@ -1,16 +1,17 @@
 ﻿#include <windows.h>
 #include <dinput.h>
 #include "HTTPInput.h"
+#include "HTTPInput_Internal.h"
 
 typedef HRESULT (WINAPI *DirectInput8CreateT)(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID * ppvOut, LPUNKNOWN punkOuter);
 typedef HRESULT (__stdcall *CreateDeviceT)(IDirectInput8*, REFGUID, LPDIRECTINPUTDEVICE8A*, LPUNKNOWN);
 typedef HRESULT (__stdcall *GetDeviceStateT)(IDirectInputDevice8*, DWORD, LPVOID);
 
-DirectInput8CreateT orig_DirectInput8Create;
-CreateDeviceT orig_CreateDevice;
-GetDeviceStateT orig_GetDeviceState;
+static DirectInput8CreateT orig_DirectInput8Create;
+static CreateDeviceT orig_CreateDevice;
+static GetDeviceStateT orig_GetDeviceState;
 
-HRESULT __stdcall fake_GetDeviceState(IDirectInputDevice8 *dev, DWORD size, LPVOID data)
+static HRESULT __stdcall fake_GetDeviceState(IDirectInputDevice8 *dev, DWORD size, LPVOID data)
 {
     HRESULT r = orig_GetDeviceState(dev, size, data);
     if(FAILED(r)) {
@@ -38,7 +39,7 @@ HRESULT __stdcall fake_GetDeviceState(IDirectInputDevice8 *dev, DWORD size, LPVO
     return DI_OK;
 }
 
-HRESULT __stdcall fake_CreateDevice(IDirectInput8 *di8, REFGUID guid, LPDIRECTINPUTDEVICE8A *out, LPUNKNOWN unk)
+static HRESULT __stdcall fake_CreateDevice(IDirectInput8 *di8, REFGUID guid, LPDIRECTINPUTDEVICE8A *out, LPUNKNOWN unk)
 {
     HRESULT r = orig_CreateDevice(di8, guid, out, unk);
     if(SUCCEEDED(r)) {
@@ -49,7 +50,7 @@ HRESULT __stdcall fake_CreateDevice(IDirectInput8 *di8, REFGUID guid, LPDIRECTIN
     return r;
 }
 
-HRESULT WINAPI fake_DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID * ppvOut, LPUNKNOWN punkOuter)
+static HRESULT WINAPI fake_DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID * ppvOut, LPUNKNOWN punkOuter)
 {
     HRESULT r = orig_DirectInput8Create(hinst, dwVersion, riidltf, ppvOut, punkOuter);
     if(SUCCEEDED(r)) {
@@ -61,16 +62,7 @@ HRESULT WINAPI fake_DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID 
     return r;
 }
 
-bool HookDirectInput8()
-{
-    bool ret = false;
-    EachImportFunctionInEveryModule("dinput8.dll",
-        [&](const char *funcname, void *&func) {
-            if(strcmp(funcname, "DirectInput8Create")==0) {
-                (void*&)orig_DirectInput8Create = func;
-                ForceWrite<void*>(func, fake_DirectInput8Create);
-                ret = true;
-            }
-        });
-    return ret;
-}
+static FuncInfo g_dinput8_funcs[] = {
+    {"DirectInput8Create", 0, (void*)&fake_DirectInput8Create, (void**)&orig_DirectInput8Create},
+};
+OverrideInfo g_dinput8_overrides = {"dinput8.dll", _countof(g_dinput8_funcs), g_dinput8_funcs};

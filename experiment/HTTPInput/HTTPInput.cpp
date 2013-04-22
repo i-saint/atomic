@@ -24,6 +24,7 @@
 #include "Poco/Net/SocketStream.h"
 #include "Poco/Net/SocketAddress.h"
 #include "HTTPInput.h"
+#include "HTTPInput_Internal.h"
 #include <functional>
 
 
