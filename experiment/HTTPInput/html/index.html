@@ -147,7 +147,6 @@ function onLoad()
             stick1Y = t.pageY - stick.offsetTop ;
             pushStickPosCommand();
         }
-        //$("desc").innerText = "ontouchmove";
     };
     stick.ontouchstart = function(evt) {
         evt.preventDefault();
@@ -167,7 +166,6 @@ function onLoad()
             t += evt.targetTouches.item(i).pageX;
             t += " "
         }
-        $("desc").innerText = t;
     };
     stick.ontouchend = function(evt) {
         evt.preventDefault();
@@ -186,7 +184,6 @@ function onLoad()
             t += evt.touches.item(i).pageX;
             t += " "
         }
-        $("desc").innerText = t;
     };
     stick.ontouchleave = stick.ontouchend;
     stick.ontouchcancel = stick.ontouchend;
@@ -241,13 +238,13 @@ function handleButtonUp(id)
 }
 
 
-function handleButtonDown(id)
+function handleTriggerDown(id)
 {
-    pushInputCommand("pad"+pad_index+"_"+id+":0x80");
+    pushInputCommand("pad"+pad_index+"_"+id+":0x7fff");
 }
-function handleButtonUp(id)
+function handleTriggerUp(id)
 {
-    pushInputCommand("pad"+pad_index+"_"+id+":0x00");
+    pushInputCommand("pad"+pad_index+"_"+id+":0x0000");
 }
 </script>
 </head>
@@ -258,8 +255,10 @@ function handleButtonUp(id)
 <button id="button1" style="position:absolute; left:800px; top:250px; width:80px; height:80px;" onmousedown="handleButtonDown('button1')" onmouseup="handleButtonUp('button1')" ontouchstart="event.preventDefault();handleButtonDown('button1')" ontouchend="event.preventDefault();handleButtonUp('button1')">B</button>
 <button id="button2" style="position:absolute; left:600px; top:250px; width:80px; height:80px;" onmousedown="handleButtonDown('button2')" onmouseup="handleButtonUp('button2')" ontouchstart="event.preventDefault();handleButtonDown('button2')" ontouchend="event.preventDefault();handleButtonUp('button2')">X</button>
 <button id="button3" style="position:absolute; left:700px; top:150px; width:80px; height:80px;" onmousedown="handleButtonDown('button3')" onmouseup="handleButtonUp('button3')" ontouchstart="event.preventDefault();handleButtonDown('button3')" ontouchend="event.preventDefault();handleButtonUp('button3')">Y</button>
-<button id="buttonRT" style="position:absolute; left:700px; top:0px; width:100px; height:60px;" onmousedown="handleButtonDown('buttonRT')" onmouseup="handleButtonUp('buttonRT')" ontouchstart="event.preventDefault();handleButtonDown('buttonRT')" ontouchend="event.preventDefault();handleButtonUp('buttonRT')">RT</button>
-<button id="buttonLT" style="position:absolute; left:  0px; top:0px; width:100px; height:60px;" onmousedown="handleButtonDown('buttonLT')" onmouseup="handleButtonUp('buttonLT')" ontouchstart="event.preventDefault();handleButtonDown('buttonLT')" ontouchend="event.preventDefault();handleButtonUp('buttonLT')">LT</button>
+<button id="buttonRT" style="position:absolute; left:800px; top:0px; width:100px; height:60px;" onmousedown="handleTriggerDown('RT')" onmouseup="handleTriggerUp('RT')" ontouchstart="event.preventDefault();handleTriggerDown('RT')" ontouchend="event.preventDefault();handleTriggerUp('RT')">RT</button>
+<button id="buttonLT" style="position:absolute; left:  0px; top:0px; width:100px; height:60px;" onmousedown="handleTriggerDown('LT')" onmouseup="handleTriggerUp('LT')" ontouchstart="event.preventDefault();handleTriggerDown('LT')" ontouchend="event.preventDefault();handleTriggerUp('LT')">LT</button>
+<button id="buttonRS" style="position:absolute; left:800px; top:50px; width:100px; height:50px;" onmousedown="handleButtonDown('button5')" onmouseup="handleButtonUp('button5')" ontouchstart="event.preventDefault();handleButtonDown('button5')" ontouchend="event.preventDefault();handleTriggerUp('button5')">RS</button>
+<button id="buttonLS" style="position:absolute; left:  0px; top:50px; width:100px; height:50px;" onmousedown="handleButtonDown('button4')" onmouseup="handleButtonUp('button4')" ontouchstart="event.preventDefault();handleButtonDown('button4')" ontouchend="event.preventDefault();handleButtonUp('button4')">LS</button>
 <div id="desc" style="position:absolute; left:200px; top:10px; with:200px;">
 </div>
 </body>

@@ -34,6 +34,8 @@ extern "C" {
             int32 x1,y1;
             int32 x2,y2;
             int32 pov;
+            int32 trigger1;
+            int32 trigger2;
             uint8 buttons[MaxButtons];
         };
 

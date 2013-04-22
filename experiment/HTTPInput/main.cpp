@@ -31,10 +31,12 @@ static void OverrideExports(HMODULE mod)
             for(size_t fi=0; fi<oinfo.num_funcs; ++fi) {
                 FuncInfo &finfo = oinfo.funcs[fi];
                 if(finfo.name!=NULL) {
-                    OverrideDLLExportByName(mod, finfo.name, finfo.func);
+                    void *orig = OverrideDLLExportByName(mod, finfo.name, finfo.func);
+                    if(*finfo.func_orig==NULL) { *finfo.func_orig=orig; }
                 }
                 else {
-                    OverrideDLLExportByOrdinal(mod, finfo.ordinal, finfo.func);
+                    void *orig = OverrideDLLExportByOrdinal(mod, finfo.ordinal, finfo.func);
+                    if(*finfo.func_orig==NULL) { *finfo.func_orig=orig; }
                 }
             }
         }

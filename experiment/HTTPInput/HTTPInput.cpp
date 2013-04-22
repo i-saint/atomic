@@ -164,6 +164,8 @@ public:
                 else if(sscanf(value, "pad%d_y1:%x", &pad, &v)==2) { input->pad[pad].y1=v; }
                 else if(sscanf(value, "pad%d_x2:%x", &pad, &v)==2) { input->pad[pad].x2=v; }
                 else if(sscanf(value, "pad%d_y2:%x", &pad, &v)==2) { input->pad[pad].y2=v; }
+                else if(sscanf(value, "pad%d_RT:%x", &pad, &v)==2) { input->pad[pad].trigger1=v; }
+                else if(sscanf(value, "pad%d_LT:%x", &pad, &v)==2) { input->pad[pad].trigger2=v; }
                 else if(sscanf(value, "pad%d_button%d:%x", &pad, &button, &v)==3) {
                     if(button>=0 && button<HTTPInputData::Pad::MaxButtons) {
                         input->pad[pad].buttons[button] = v;

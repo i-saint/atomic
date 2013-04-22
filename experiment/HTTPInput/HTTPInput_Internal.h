@@ -91,17 +91,18 @@ inline void EachImportFunctionInEveryModule(const char *dllfilter, const F1 &f1)
 
 // dll が export している関数 (への RVA) を書き換える
 // それにより、GetProcAddress() が返す関数をすり替える
-inline void OverrideDLLExportByName(HMODULE module, const char *funcname, void *replacement)
+// 元の関数へのポインタを返す
+inline void* OverrideDLLExportByName(HMODULE module, const char *funcname, void *replacement)
 {
-    if(module==NULL) { return; }
+    if(module==NULL) { return NULL; }
 
     size_t ImageBase = (size_t)module;
     PIMAGE_DOS_HEADER pDosHeader = (PIMAGE_DOS_HEADER)ImageBase;
-    if(pDosHeader->e_magic!=IMAGE_DOS_SIGNATURE) { return; }
+    if(pDosHeader->e_magic!=IMAGE_DOS_SIGNATURE) { return NULL; }
 
     PIMAGE_NT_HEADERS pNTHeader = (PIMAGE_NT_HEADERS)(ImageBase + pDosHeader->e_lfanew);
     DWORD RVAExports = pNTHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress;
-    if(RVAExports==0) { return; }
+    if(RVAExports==0) { return NULL; }
 
     IMAGE_EXPORT_DIRECTORY *pExportDirectory = (IMAGE_EXPORT_DIRECTORY *)(ImageBase + RVAExports);
     DWORD *RVANames = (DWORD*)(ImageBase+pExportDirectory->AddressOfNames);
@@ -110,34 +111,38 @@ inline void OverrideDLLExportByName(HMODULE module, const char *funcname, void *
     for(DWORD i=0; i<pExportDirectory->NumberOfFunctions; ++i) {
         char *pName = (char*)(ImageBase+RVANames[i]);
         if(strcmp(pName, funcname)==0) {
+            void *before = (void*)(ImageBase+RVAFunctions[RVANameOrdinals[i]]);
             ForceWrite<DWORD>(RVAFunctions[RVANameOrdinals[i]], (DWORD)replacement - ImageBase);
-            return;
+            return before;
         }
     }
+    return NULL;
 }
 // ordinal 指定版
-inline void OverrideDLLExportByOrdinal(HMODULE module, DWORD func_ordinal, void *replacement)
+inline void* OverrideDLLExportByOrdinal(HMODULE module, DWORD func_ordinal, void *replacement)
 {
-    if(module==NULL) { return; }
+    if(module==NULL) { return NULL; }
 
     size_t ImageBase = (size_t)module;
     PIMAGE_DOS_HEADER pDosHeader = (PIMAGE_DOS_HEADER)ImageBase;
-    if(pDosHeader->e_magic!=IMAGE_DOS_SIGNATURE) { return; }
+    if(pDosHeader->e_magic!=IMAGE_DOS_SIGNATURE) { return NULL; }
 
     PIMAGE_NT_HEADERS pNTHeader = (PIMAGE_NT_HEADERS)(ImageBase + pDosHeader->e_lfanew);
     DWORD RVAExports = pNTHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress;
-    if(RVAExports==0) { return; }
+    if(RVAExports==0) { return NULL; }
 
     IMAGE_EXPORT_DIRECTORY *pExportDirectory = (IMAGE_EXPORT_DIRECTORY *)(ImageBase + RVAExports);
     DWORD *RVANames = (DWORD*)(ImageBase+pExportDirectory->AddressOfNames);
     WORD *RVANameOrdinals = (WORD*)(ImageBase+pExportDirectory->AddressOfNameOrdinals);
     DWORD *RVAFunctions = (DWORD*)(ImageBase+pExportDirectory->AddressOfFunctions);
     for(DWORD i=0; i<pExportDirectory->NumberOfFunctions; ++i) {
-        char *pName = (char*)(ImageBase+RVANames[i]);
         if(RVANameOrdinals[i]==func_ordinal) {
+            void *before = (void*)(ImageBase+RVAFunctions[RVANameOrdinals[i]]);
             ForceWrite<DWORD>(RVAFunctions[RVANameOrdinals[i]], (DWORD)replacement - ImageBase);
+            return before;
         }
     }
+    return NULL;
 }
 
 

@@ -31,6 +31,8 @@ static HRESULT __stdcall fake_GetDeviceState(IDirectInputDevice8 *dev, DWORD siz
             DIJOYSTATE2 &state = *(DIJOYSTATE2*)data;
             state.lX = abs(vpad.x1+INT16_MIN)>abs(state.lX+INT16_MIN) ? vpad.x1 : state.lX;
             state.lY = abs(vpad.y1+INT16_MIN)>abs(state.lY+INT16_MIN) ? vpad.y1 : state.lY;
+            LONG trigger = vpad.trigger1 > vpad.trigger2 ? -vpad.trigger1 : vpad.trigger2;
+            state.lZ = abs(trigger)>0x100 ? INT16_MAX+trigger : state.lZ;
             for(int32 i=0; i<HTTPInputData::Pad::MaxButtons; ++i) {
                 state.rgbButtons[i] |= vpad.buttons[i];
             }
