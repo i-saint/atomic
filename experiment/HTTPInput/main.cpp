@@ -39,18 +39,6 @@ static void OverrideExports(HMODULE mod)
     }
 }
 
-static void OverrideExports()
-{
-    std::vector<HMODULE> modules;
-    DWORD num_modules;
-    ::EnumProcessModules(::GetCurrentProcess(), NULL, 0, &num_modules);
-    modules.resize(num_modules/sizeof(HMODULE));
-    ::EnumProcessModules(::GetCurrentProcess(), &modules[0], num_modules, &num_modules);
-    for(size_t i=0; i<modules.size(); ++i) {
-        OverrideExports(modules[i]);
-    }
-}
-
 static void OverrideImports()
 {
     for(size_t mi=0; mi<_countof(g_overrides); ++mi) {
@@ -83,16 +71,14 @@ static void OverrideImports()
 static HMODULE WINAPI fake_LoadLibraryA(LPCSTR lpFileName)
 {
     HMODULE ret = orig_LoadLibraryA(lpFileName);
-    OverrideImports();
-    OverrideExports();
+    OverrideExports(ret);
     return ret;
 }
 
 static HMODULE WINAPI fake_LoadLibraryW(LPWSTR lpFileName)
 {
     HMODULE ret = orig_LoadLibraryW(lpFileName);
-    OverrideImports();
-    OverrideExports();
+    OverrideExports(ret);
     return ret;
 }
 
@@ -101,14 +87,16 @@ static void HTTPInput_SetHooks()
     (void*&)orig_LoadLibraryA = Hotpatch(&LoadLibraryA, fake_LoadLibraryA);
     (void*&)orig_LoadLibraryW = Hotpatch(&LoadLibraryW, fake_LoadLibraryW);
     OverrideImports();
-    OverrideExports();
 }
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
     if(fdwReason==DLL_PROCESS_ATTACH) {
-        HTTPInput_GetConfig()->override_winmm = false;
         HTTPInput_SetHooks();
+        ::LoadLibraryA("user32.dll");
+        ::LoadLibraryA("winmm.dll");
+        ::LoadLibraryA("dinput8.dll");
+        ::LoadLibraryA("xinput1_3.dll");
     }
     else if(fdwReason==DLL_PROCESS_DETACH) {
         //StopHTTPInputServer();
