@@ -156,7 +156,7 @@ public:
 
     void handleRequest(Poco::Net::HTTPServerRequest &request, Poco::Net::HTTPServerResponse &response)
     {
-        HTTPInputData *input = GetHTTPInputData();
+        HTTPInputData *input = HTTPInput_GetData();
         if(request.getURI()=="/input") {
             EachInputValue(request, [&](const char *value){
                 int pad, button, v;
@@ -290,22 +290,28 @@ HTTPInputData& InputServer::getState()
     return m_state;
 }
 
+static HTTPInputConfig g_conf = {true, true, true, true};
 
 extern "C" {
 
-__declspec(dllexport) bool StartHTTPInputServer()
+__declspec(dllexport) HTTPInputConfig*  HTTPInput_GetConfig()
+{
+    return &g_conf;
+}
+
+__declspec(dllexport) bool HTTPInput_StartServer()
 {
     InputServer::initializeInstance();
     return true;
 }
 
-__declspec(dllexport) bool StopHTTPInputServer()
+__declspec(dllexport) bool HTTPInput_StopServer()
 {
     InputServer::finalizeInstance();
     return true;
 }
 
-__declspec(dllexport) HTTPInputData* GetHTTPInputData()
+__declspec(dllexport) HTTPInputData* HTTPInput_GetData()
 {
     if(InputServer *server = InputServer::getInstance()) {
         return &server->getState();

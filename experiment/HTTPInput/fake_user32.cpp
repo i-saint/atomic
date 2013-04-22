@@ -9,22 +9,26 @@ static GetKeyboardStateT orig_GetKeyboardState;
 
 static BOOL WINAPI fake_GetCursorInfo(PCURSORINFO pci)
 {
-    StartHTTPInputServer();
-    orig_GetCursorInfo(pci);
-    const HTTPInputData *input = GetHTTPInputData();
-    // todo
-    return TRUE;
+    BOOL ret = orig_GetCursorInfo(pci);
+    if(HTTPInput_GetConfig()->override_user32) {
+        HTTPInput_StartServer();
+        const HTTPInputData *input = HTTPInput_GetData();
+        // todo
+    }
+    return ret;
 }
 
 static BOOL WINAPI fake_GetKeyboardState(PBYTE lpKeyState)
 {
-    StartHTTPInputServer();
-    orig_GetKeyboardState(lpKeyState);
-    const HTTPInputData *input = GetHTTPInputData();
-    for(int i=0; i<256; ++i) {
-        lpKeyState[i] |= (input->key.keys[i] & 0x80);
+    BOOL ret = orig_GetKeyboardState(lpKeyState);
+    if(HTTPInput_GetConfig()->override_user32) {
+        HTTPInput_StartServer();
+        const HTTPInputData *input = HTTPInput_GetData();
+        for(int i=0; i<256; ++i) {
+            lpKeyState[i] |= (input->key.keys[i] & 0x80);
+        }
     }
-    return TRUE;
+    return ret;
 }
 
 static FuncInfo g_user32_funcs[] = {

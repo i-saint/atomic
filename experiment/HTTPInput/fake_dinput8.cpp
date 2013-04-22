@@ -14,11 +14,9 @@ static GetDeviceStateT orig_GetDeviceState;
 static HRESULT __stdcall fake_GetDeviceState(IDirectInputDevice8 *dev, DWORD size, LPVOID data)
 {
     HRESULT r = orig_GetDeviceState(dev, size, data);
-    if(FAILED(r)) {
-        memset(data, 0, size);
-    }
-    {
-        const HTTPInputData::Pad &vpad = GetHTTPInputData()->pad[0];
+    if(HTTPInput_GetConfig()->override_dinput8) {
+        if(FAILED(r)) { memset(data, 0, size); }
+        const HTTPInputData::Pad &vpad = HTTPInput_GetData()->pad[0];
         if(size==sizeof(DIJOYSTATE)) {
             DIJOYSTATE &state = *(DIJOYSTATE*)data;
             state.lX = abs(vpad.x1+INT16_MIN)>abs(state.lX+INT16_MIN) ? vpad.x1 : state.lX;
@@ -37,8 +35,9 @@ static HRESULT __stdcall fake_GetDeviceState(IDirectInputDevice8 *dev, DWORD siz
                 state.rgbButtons[i] |= vpad.buttons[i];
             }
         }
+        return DI_OK;
     }
-    return DI_OK;
+    return r;
 }
 
 static HRESULT __stdcall fake_CreateDevice(IDirectInput8 *di8, REFGUID guid, LPDIRECTINPUTDEVICE8A *out, LPUNKNOWN unk)
@@ -59,7 +58,7 @@ static HRESULT WINAPI fake_DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, 
         void **&vftable = ((void***)(*ppvOut))[0];
         if(orig_CreateDevice==NULL) { (void*&)orig_CreateDevice=vftable[3]; }
         vftable[3] = &fake_CreateDevice;
-        StartHTTPInputServer();
+        HTTPInput_StartServer();
     }
     return r;
 }

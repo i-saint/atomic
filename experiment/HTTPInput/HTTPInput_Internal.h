@@ -25,12 +25,20 @@ inline void ForceWrite(T &dst, const T &src)
     ::VirtualProtect(&dst, sizeof(T), old_flag, &old_flag);
 }
 
+inline bool IsValidMemory(void *p)
+{
+    if(p==NULL) { return false; }
+    MEMORY_BASIC_INFORMATION meminfo;
+    if(::VirtualQuery(p, &meminfo, sizeof(meminfo))==0 || meminfo.State==MEM_FREE) { return false; }
+    return true;
+}
+
 // F1: [](const char *funcname, void *&func) {...}
 // F2: [](DWORD ordinal, void *&func) {...}
 template<class F1, class F2>
 inline void EnumerateDLLImports(HMODULE module, const char *dllfilter, const F1 &f1, const F2 &f2)
 {
-    if(module==NULL) { return; }
+    if(!IsValidMemory(module)) { return; }
 
     size_t ImageBase = (size_t)module;
     PIMAGE_DOS_HEADER pDosHeader = (PIMAGE_DOS_HEADER)ImageBase;
@@ -94,7 +102,7 @@ inline void EachImportFunctionInEveryModule(const char *dllfilter, const F1 &f1)
 // 元の関数へのポインタを返す
 inline void* OverrideDLLExportByName(HMODULE module, const char *funcname, void *replacement)
 {
-    if(module==NULL) { return NULL; }
+    if(!IsValidMemory(module)) { return NULL; }
 
     size_t ImageBase = (size_t)module;
     PIMAGE_DOS_HEADER pDosHeader = (PIMAGE_DOS_HEADER)ImageBase;
@@ -121,7 +129,7 @@ inline void* OverrideDLLExportByName(HMODULE module, const char *funcname, void 
 // ordinal 指定版
 inline void* OverrideDLLExportByOrdinal(HMODULE module, DWORD func_ordinal, void *replacement)
 {
-    if(module==NULL) { return NULL; }
+    if(!IsValidMemory(module)) { return NULL; }
 
     size_t ImageBase = (size_t)module;
     PIMAGE_DOS_HEADER pDosHeader = (PIMAGE_DOS_HEADER)ImageBase;

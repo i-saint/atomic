@@ -34,35 +34,25 @@ static void OverrideExports(HMODULE mod)
                     void *orig = OverrideDLLExportByName(mod, finfo.name, finfo.func);
                     if(*finfo.func_orig==NULL) { *finfo.func_orig=orig; }
                 }
-                else {
-                    void *orig = OverrideDLLExportByOrdinal(mod, finfo.ordinal, finfo.func);
-                    if(*finfo.func_orig==NULL) { *finfo.func_orig=orig; }
-                }
             }
         }
     }
 }
 
-
-static HMODULE WINAPI fake_LoadLibraryA(LPCSTR lpFileName)
+static void OverrideExports()
 {
-    HMODULE ret = orig_LoadLibraryA(lpFileName);
-    OverrideExports(ret);
-    return ret;
+    std::vector<HMODULE> modules;
+    DWORD num_modules;
+    ::EnumProcessModules(::GetCurrentProcess(), NULL, 0, &num_modules);
+    modules.resize(num_modules/sizeof(HMODULE));
+    ::EnumProcessModules(::GetCurrentProcess(), &modules[0], num_modules, &num_modules);
+    for(size_t i=0; i<modules.size(); ++i) {
+        OverrideExports(modules[i]);
+    }
 }
 
-static HMODULE WINAPI fake_LoadLibraryW(LPWSTR lpFileName)
+static void OverrideImports()
 {
-    HMODULE ret = orig_LoadLibraryW(lpFileName);
-    OverrideExports(ret);
-    return ret;
-}
-
-static void HTTPInputHook()
-{
-    (void*&)orig_LoadLibraryA = Hotpatch(&LoadLibraryA, fake_LoadLibraryA);
-    (void*&)orig_LoadLibraryW = Hotpatch(&LoadLibraryW, fake_LoadLibraryW);
-
     for(size_t mi=0; mi<_countof(g_overrides); ++mi) {
         OverrideInfo &oinfo = *g_overrides[mi];
         EachImportFunctionInEveryModule(oinfo.dllname,
@@ -75,24 +65,50 @@ static void HTTPInputHook()
                         ForceWrite<void*>(func, finfo.func);
                     }
                 }
-            },
+        },
             [&](DWORD ordinal, void *&func) {
-                    for(size_t fi=0; fi<oinfo.num_funcs; ++fi) {
-                        FuncInfo &finfo = oinfo.funcs[fi];
-                        if(finfo.name!=NULL) { continue; }
-                        if(finfo.ordinal==ordinal) {
-                            if(*finfo.func_orig==NULL) { *finfo.func_orig=func; }
-                            ForceWrite<void*>(func, finfo.func);
-                        }
+                for(size_t fi=0; fi<oinfo.num_funcs; ++fi) {
+                    FuncInfo &finfo = oinfo.funcs[fi];
+                    if(finfo.ordinal==0) { continue; }
+                    if(finfo.ordinal==ordinal) {
+                        if(*finfo.func_orig==NULL) { *finfo.func_orig=func; }
+                        ForceWrite<void*>(func, finfo.func);
                     }
-            });
+                }
+        });
     }
+}
+
+
+static HMODULE WINAPI fake_LoadLibraryA(LPCSTR lpFileName)
+{
+    HMODULE ret = orig_LoadLibraryA(lpFileName);
+    OverrideImports();
+    OverrideExports();
+    return ret;
+}
+
+static HMODULE WINAPI fake_LoadLibraryW(LPWSTR lpFileName)
+{
+    HMODULE ret = orig_LoadLibraryW(lpFileName);
+    OverrideImports();
+    OverrideExports();
+    return ret;
+}
+
+static void HTTPInput_SetHooks()
+{
+    (void*&)orig_LoadLibraryA = Hotpatch(&LoadLibraryA, fake_LoadLibraryA);
+    (void*&)orig_LoadLibraryW = Hotpatch(&LoadLibraryW, fake_LoadLibraryW);
+    OverrideImports();
+    OverrideExports();
 }
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
     if(fdwReason==DLL_PROCESS_ATTACH) {
-        HTTPInputHook();
+        HTTPInput_GetConfig()->override_winmm = false;
+        HTTPInput_SetHooks();
     }
     else if(fdwReason==DLL_PROCESS_DETACH) {
         //StopHTTPInputServer();

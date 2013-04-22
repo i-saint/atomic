@@ -14,6 +14,14 @@ typedef unsigned short  uint16;
 typedef unsigned int    uint32;
 
 extern "C" {
+    struct HTTPInputConfig
+    {
+        bool override_user32;
+        bool override_winmm;
+        bool override_dinput8;
+        bool override_xinput;
+    };
+
     struct HTTPInputData
     {
         static const int32 MaxPads = 8;
@@ -44,9 +52,10 @@ extern "C" {
         Pad      pad[MaxPads];
     };
 
-    __declspec(dllexport) bool StartHTTPInputServer();
-    __declspec(dllexport) bool StopHTTPInputServer();
-    __declspec(dllexport) HTTPInputData* GetHTTPInputData();
+    __declspec(dllexport) HTTPInputConfig*  HTTPInput_GetConfig();
+    __declspec(dllexport) bool              HTTPInput_StartServer();
+    __declspec(dllexport) bool              HTTPInput_StopServer();
+    __declspec(dllexport) HTTPInputData*    HTTPInput_GetData();
 } // extern "C"
 
 
