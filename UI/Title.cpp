@@ -131,6 +131,7 @@ void StartWindow::onCampaign(Widget *)
 {
     GameStartConfig conf;
     atomicGetApplication()->requestStartGame(conf);
+    getParent()->setVisibility(false);
 }
 
 void StartWindow::onHorde(Widget *)

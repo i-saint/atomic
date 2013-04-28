@@ -86,6 +86,7 @@ istInterModule stl::string CallstackToSymbolNames(void **callstack, int callstac
 
 istInterModule bool IsStaticMemory(void *addr)
 {
+    if(addr==NULL) { return false; }
     // static 領域はモジュール (exe,dll) が map されている領域内にある
     // 高速化のため呼び出し元モジュールのみ調べる
     // 他モジュールも調べる場合 ::EnumProcessModules() とかを使う
@@ -101,6 +102,7 @@ istInterModule bool IsStaticMemory(void *addr)
 
 istInterModule bool IsStackMemory(void *addr)
 {
+    if(addr==NULL) { return false; }
     // Thread Information Block に上限下限情報が入っている
     // (これだと現在のスレッドの stack 領域しか判別できない。
     //  別スレッドの stack かも調べたい場合のいい方法がよくわからず。
@@ -111,11 +113,13 @@ istInterModule bool IsStackMemory(void *addr)
 
 istInterModule bool IsHeapMemory(void *addr)
 {
+    if(addr==NULL) { return false; }
     // static 領域ではない && stack 領域でもない && 有効なメモリ (::VirtualQuery() が成功する) なら true
     // ::HeapWalk() で照合するのが礼儀正しいアプローチだが、
     // こっちの方が速いし、別スレッドや別モジュールから呼び出されるのでなければ結果も正しいはず
     MEMORY_BASIC_INFORMATION meminfo;
-    return !IsStackMemory(addr) && !IsStaticMemory(addr) && ::VirtualQuery(addr, &meminfo, sizeof(meminfo));
+    return !IsStackMemory(addr) && !IsStaticMemory(addr) && 
+        ::VirtualQuery(addr, &meminfo, sizeof(meminfo))>0 && meminfo.State!=MEM_FREE;
 }
 
 

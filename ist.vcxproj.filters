@@ -358,6 +358,9 @@
     <ClInclude Include="ist\Window\Input.h">
       <Filter>Window</Filter>
     </ClInclude>
+    <ClInclude Include="ist\Debug\Hook.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ist\Window\Application.cpp">
@@ -523,6 +526,9 @@
     </ClCompile>
     <ClCompile Include="ist\Window\Input.cpp">
       <Filter>Window</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Debug\Hook.cpp">
+      <Filter>Debug</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -270,6 +270,7 @@ function draw2D()
         ctx.fillStyle = color;
         ctx.fillRect(center_x-size_x,center_y-size_y, size_x*2,size_y*2);
         ctx.rect(center_x-size_x,center_y-size_y, size_x*2,size_y*2);
+        ctx.stroke();
     }
 }
 
@@ -288,6 +289,7 @@ function onLoad()
         mouseY = evt.pageY / c.height;
     };
 
+    var c = document.getElementById("c");
     c.onclick = function(evt) {
         mouseX = evt.pageX / c.width;
         mouseY = 1.0 - (evt.pageY / c.height);

@@ -3,6 +3,8 @@
 
 #include "ist/Config.h"
 
+
+// printf
 #ifdef ist_env_Windows
 
 #define istSNPrintf(buf, count, format, ...)    _snprintf(buf, count, format, __VA_ARGS__)
@@ -10,34 +12,12 @@
 #define istVSNPrintf(buf, count, format, va)    _vsnprintf(buf, count, format, va)
 #define istVSNWPrintf(buf, count, format, va)   _vsnwprintf(buf, count, format, va)
 
-#define istMalloc(size)                 malloc(size)
-#define istFree(ptr)                    free(ptr)
-#define istAlignedMalloc(size, align)   _aligned_malloc(size, align)
-#define istAlignedFree(ptr)             _aligned_free(ptr)
-
-#pragma intrinsic(memcpy)
-#pragma intrinsic(memset)
-#pragma intrinsic(memcmp)
-#define istMemcpy(Dst, Src, Size)       memcpy(Dst, Src, Size)
-#define istMemset(Dst, Value, Size)     memset(Dst, Value, Size)
-#define istMemcmp(Ptr1, Ptr2, Size)     memcmp(Ptr1, Ptr2, Size)
-
-
 #else // ist_env_Windows
 
 #define istSNPrintf(buf, count, format, ...)    snprintf(buf, count, format, __VA_ARGS__)
 #define istSNWPrintf(buf, count, format, ...)   snwprintf(buf, count, format, __VA_ARGS__)
 #define istVSNPrintf(buf, count, format, va)    vsnprintf(buf, count, format, va)
 #define istVSNWPrintf(buf, count, format, va)   vsnwprintf(buf, count, format, va)
-
-#define istMalloc(size)                 malloc(size)
-#define istFree(ptr)                    free(ptr)
-#define istAlignedMalloc(size, align)   memalign(align, size)
-#define istAlignedFree(ptr)             free(ptr)
-
-#define istMemcpy(Dst, Src, Size)       __builtin_memcpy(Dst, Src, Size)
-#define istMemset(Dst, Value, Size)     __builtin_memset(Dst, Value, Size)
-#define istMemcmp(Ptr1, Ptr2, Size)     __builtin_memcmp(Ptr1, Ptr2, Size)
 
 #endif // ist_env_Windows
 
@@ -74,6 +54,26 @@ inline int istVSprintf(wchar_t (&buf)[N], const wchar_t *format, va_list vl)
     return istVSNWPrintf(buf, N, format, vl);
 }
 
+
+
+
+// memset
+#ifdef ist_env_Windows
+
+#pragma intrinsic(memcpy)
+#pragma intrinsic(memset)
+#pragma intrinsic(memcmp)
+#define istMemcpy(Dst, Src, Size)       memcpy(Dst, Src, Size)
+#define istMemset(Dst, Value, Size)     memset(Dst, Value, Size)
+#define istMemcmp(Ptr1, Ptr2, Size)     memcmp(Ptr1, Ptr2, Size)
+
+#else  // ist_env_Windows
+
+#define istMemcpy(Dst, Src, Size)       __builtin_memcpy(Dst, Src, Size)
+#define istMemset(Dst, Value, Size)     __builtin_memset(Dst, Value, Size)
+#define istMemcmp(Ptr1, Ptr2, Size)     __builtin_memcmp(Ptr1, Ptr2, Size)
+
+#endif // ist_env_Windows
 
 istForceInline void istMemset128(ist::uint128 *dst, ist::uint128 pattern, size_t size_byte)
 {
@@ -128,5 +128,65 @@ istForceInline void istMemset16(ist::uint16 *dst, ist::uint16 pattern, size_t si
     std::fill_n(dst, size_byte/sizeof(ist::uint16), pattern);
 }
 
+
+
+
+// malloc
+#ifdef ist_env_Windows
+
+#define istAlloca(size)                 alloca(size)
+#define istMalloc(size)                 malloc(size)
+#define istRealloc(addr, size)          realloc(addr,size)
+#define istFree(ptr)                    free(ptr)
+#define istAlignedMalloc(size, align)   _aligned_malloc(size, align)
+#define istAlignedFree(ptr)             _aligned_free(ptr)
+
+enum istPageFlag {
+    istPageNoAccess = PAGE_NOACCESS,
+    istPageR        = PAGE_READONLY,
+    istPageW        = PAGE_READWRITE,
+    istPageRW       = PAGE_READWRITE,
+    istPageRX       = PAGE_EXECUTE_READ,
+    istPageRWX      = PAGE_EXECUTE_READWRITE,
+};
+
+#else // ist_env_Windows
+
+#define istAlloca(size)                 alloca(size)
+#define istMalloc(size)                 malloc(size)
+#define istRealloc(addr, size)          realloc(addr,size)
+#define istFree(ptr)                    free(ptr)
+#define istAlignedMalloc(size, align)   memalign(align, size)
+#define istAlignedFree(ptr)             free(ptr)
+
+enum istPageFlag {
+    istPageNoAccess = PROT_NONE,
+    istPageR        = PROT_READ,
+    istPageW        = PROT_WRITE,
+    istPageRW       = PROT_READ|PROT_WRITE,
+    istPageRX       = PROT_READ|PROT_EXEC,
+    istPageRWX      = PROT_READ|PROT_WRITE|PROT_EXEC,
+};
+
+#endif // ist_env_Windows
+
+inline void* istPageAlloc(void *addr, size_t size, istPageFlag protect)
+{
+#ifdef ist_env_Windows
+    return ::VirtualAlloc(addr, size, MEM_COMMIT|MEM_RESERVE, protect);
+#else // ist_env_Windows
+    return ::mmap(addr, size, protect, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+#endif // ist_env_Windows
+}
+
+inline bool istPageProtect(void *addr, size_t size, istPageFlag protect)
+{
+#ifdef ist_env_Windows
+    DWORD old;
+    return ::VirtualProtect(addr, size, protect, &old)==TRUE;
+#else // ist_env_Windows
+    return ::mpotect(addr, size, protect)==0;
+#endif // ist_env_Windows
+}
 
 #endif // ist_stdex_crtex_h
