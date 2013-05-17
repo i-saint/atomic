@@ -261,6 +261,8 @@ private:
 };
 
 typedef ControlerDevice_DirectInput8 ControlerDevice;
+//typedef ControlerDevice_Winmm ControlerDevice;
+//typedef ControlerDevice_XInput ControlerDevice;
 #endif ist_env_Windows
 
 

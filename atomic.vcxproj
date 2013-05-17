@@ -317,7 +317,7 @@
       <AdditionalIncludeDirectories>./;_tmp/$(Configuration)/psym;external;external/tbb/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PreprocessorDefinitions>DOL_StaticLink;DisableMemoryLeakBuster;ist_env_Master;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>wdmDisable;DOL_StaticLink;DisableMemoryLeakBuster;ist_env_Master;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>

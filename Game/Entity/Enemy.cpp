@@ -75,6 +75,14 @@ public:
     Enemy_Test() : m_state(ST_FADEIN), m_st_frame(0), m_light_radius(0.5f), m_delta_fluid_damage(0.0f)
         , m_explosion_channel(SE_CHANNEL3), m_explosion_se(SE_EXPLOSION3)
     {
+        wdmScope( wdmString path = wdmFormat("Enemy/handle:0x%x", getHandle()) );
+        wdmAddNode(path+"/life", this, &Enemy_Test::getLife, &Enemy_Test::setLife);
+        wdmAddNode(path+"/light_radius", &m_light_radius );
+    }
+
+    ~Enemy_Test()
+    {
+        wdmEraseNode(wdmFormat("Enemy/handle:0x%x", getHandle()));
     }
 
     virtual void initialize()

@@ -51,3 +51,5 @@
 #include "ist/Debug.h"
 #include "features.h"
 #include "types.h"
+
+#include "WebDebugMenu.h"

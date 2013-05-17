@@ -1,0 +1,541 @@
+<!--
+created by i-saint
+distributed under Creative Commons Attribution (CC BY) license.
+https://github.com/i-saint/WebDebugMenu
+-->
+<!DOCTYPE html>
+<html>
+<head>
+<title>WebDebugMenu</title>
+
+ <style type="text/css">
+ .data_property {vertical-align:top; display:inline-block; }
+ .data_children {margin:2px 2px 2px 20px;}
+ .data_type {margin:0px 5px 0px 5px;}
+ .data_inputs {display:inline-block;}
+ .data_control {display:inline-block;}
+ .numeric_slider {width:100px; height:8px;}
+ input.numeric {width:95px;}
+ </style>
+
+<script type="text/javascript" src="prototype.js"></script>
+<script type="text/javascript">
+
+var node_data = new Object();
+var node_loading = false;
+var node_timer;
+var opened_nodes = [];
+
+var create_input_commons = function(s)
+{
+    s.makeReadOnly = function() { this.inputNode.disabled=true; }
+    s.handleChange = function() {
+        this.parentNode.handleChange(this);
+    }
+}
+
+var create_integer_input = function(type) {
+    var i = document.createElement("input");
+    i.setAttribute("class", "numeric "+type);
+    i.setAttribute("type", "text");
+    i.setAttribute("size", 8);
+    i.setAttribute("onfocus", "this.lockUpdate=true");
+    i.setAttribute("onblur", "this.lockUpdate=false");
+    i.setAttribute("onchange", "this.parentNode.handleChange()");
+    var s = document.createElement("div");
+    s.setAttribute("class", "data_inputs");
+    s.appendChild(i);
+    s.inputNode = i;
+    s.setValue = function(v) { if(!this.inputNode.lockUpdate) this.inputNode.value=v.toString(); }
+    s.getValue = function() { return parseInt(this.inputNode.value); }
+    s.onSlider = function() {
+        var p = parseInt(this.slider.value)*0.01;
+        var r = this.dataRange;
+        var v = Math.floor(r[0]+(r[1]-r[0])*p);
+        this.inputNode.value = v.toString();
+    }
+    s.setRange = function(r) {
+        var ri = document.createElement("input");
+        ri.setAttribute("class", "numeric_slider");
+        ri.setAttribute("type", "range");
+        ri.setAttribute("onchange", "this.parentNode.onSlider()");
+        ri.setAttribute("onmousedown", "this.parentNode.inputNode.lockUpdate=true");
+        ri.setAttribute("onmouseup", "this.parentNode.inputNode.lockUpdate=false;this.parentNode.parentNode.handleChange(this.parentNode)");
+        this.insertBefore(ri, this.inputNode);
+        this.insertBefore(document.createElement("br"), this.inputNode);
+        this.dataRange = r;
+        this.slider = ri;
+    }
+    create_input_commons(s);
+    return s;
+}
+
+var create_float_input = function(type) {
+    var i = document.createElement("input");
+    i.setAttribute("class", "numeric "+type);
+    i.setAttribute("type", "text");
+    i.setAttribute("size", 8);
+    i.setAttribute("onfocus", "this.lockUpdate=true");
+    i.setAttribute("onblur", "this.lockUpdate=false");
+    i.setAttribute("onchange", "this.parentNode.handleChange()");
+    var s = document.createElement("div");
+    s.setAttribute("class", "data_control");
+    s.appendChild(i);
+    s.inputNode = i;
+    s.setValue = function(v) { if(!this.inputNode.lockUpdate) this.inputNode.value=v.toString(); }
+    s.getValue = function() { return parseFloat(this.inputNode.value); }
+    s.onSlider = function() {
+        var p = parseInt(this.slider.value)*0.01;
+        var r = this.dataRange;
+        var v = r[0]+(r[1]-r[0])*p;
+        this.inputNode.value = v.toString();
+    }
+    s.setRange = function(r) {
+        var ri = document.createElement("input");
+        ri.setAttribute("class", "numeric_slider");
+        ri.setAttribute("type", "range");
+        ri.setAttribute("onchange", "this.parentNode.onSlider()");
+        ri.setAttribute("onmousedown", "this.parentNode.inputNode.lockUpdate=true");
+        ri.setAttribute("onmouseup", "this.parentNode.inputNode.lockUpdate=false;this.parentNode.parentNode.handleChange(this.parentNode)");
+        this.insertBefore(ri, this.inputNode);
+        this.insertBefore(document.createElement("br"), this.inputNode);
+        this.dataRange = r;
+        this.slider = ri;
+    }
+    create_input_commons(s);
+    return s;
+}
+
+var create_bool_input = function() {
+    var i = document.createElement("input");
+    i.setAttribute("class", "bool");
+    i.setAttribute("type", "checkbox");
+    i.setAttribute("onchange", "this.parentNode.handleChange()");
+    var s = document.createElement("span");
+    s.appendChild(i);
+    s.inputNode = i;
+    s.setValue = function(v) { if(!this.inputNode.lockUpdate) this.inputNode.checked=v!=0; }
+    s.getValue = function() { return this.inputNode.checked ? 1 : 0; }
+    create_input_commons(s);
+    return s;
+}
+
+var create_string_input = function(type) {
+    var i = document.createElement("input");
+    i.setAttribute("class", type);
+    i.setAttribute("type", "text");
+    i.setAttribute("size", 16);
+    i.setAttribute("onfocus", "this.lockUpdate=true");
+    i.setAttribute("onblur", "this.lockUpdate=false");
+    i.setAttribute("onchange", "this.parentNode.handleChange()");
+    var s = document.createElement("span");
+    s.appendChild(i);
+    s.inputNode = i;
+    s.setValue = function(v) { if(!this.inputNode.lockUpdate) this.inputNode.value=v; }
+    s.getValue = function() { return "\""+this.inputNode.value+"\""; }
+    s.setRange = function(r) {
+    }
+    create_input_commons(s);
+    return s;
+}
+
+var DataInputCreators = {
+    "int8":  function() { return create_integer_input("int8") },
+    "int16": function() { return create_integer_input("int16") },
+    "int32": function() { return create_integer_input("int32") },
+    "int64": function() { return create_integer_input("int64") },
+    "uint8": function() { return create_integer_input("uint8") },
+    "uint16":function() { return create_integer_input("uint16") },
+    "uint32":function() { return create_integer_input("uint32") },
+    "uint64":function() { return create_integer_input("uint64") },
+    "bool": create_bool_input,
+    "float32": function() { return create_float_input("float32") },
+    "float64": function() { return create_float_input("float64") },
+    "char":   function() { return create_string_input("char") },
+    "char*":  function() { return create_string_input("char*") },
+    "wchar":  function() { return create_string_input("wchar") },
+    "wchar*": function() { return create_string_input("wchar*") },
+    "string": function() { return create_string_input("string") },
+    "wstring":function() { return create_string_input("wstring") },
+}
+
+var create_control_common = function(node)
+{
+    node.setValue = function(v) { this.dataChildren.setValue(v); }
+    node.getValue = function() { return this.dataChildren.getValue(); }
+    node.setRange = function(r) { this.dataChildren.setRange(r); };
+    node.makeReadOnly = function() { this.dataChildren.makeReadOnly(); }
+}
+
+var create_scalar_control = function(type, data)
+{
+    var t = DataInputCreators[type]();
+    var d = document.createElement("span");
+    d.setAttribute("class", type);
+    d.appendChild(t);
+    d.dataChildren = t;
+    d.handleChange = function(n) {
+        postCommand(data.id.toString()+"->set(" + this.getValue() + ")");
+    }
+    create_control_common(d);
+    return d;
+}
+
+var create_string_control = function(type, data)
+{
+    var t = DataInputCreators[type]();
+    var d = document.createElement("span");
+    d.setAttribute("class", type);
+    t.dataControl = d;
+    d.appendChild(t);
+    d.dataChildren = t;
+    d.handleChange = function(n) {
+        postCommand(data.id.toString()+"->set(" + this.getValue() + ")");
+    }
+    create_control_common(d);
+    return d;
+}
+
+var create_array1_control = function(type, num_elements, data)
+{
+    var d = document.createElement("div");
+    d.setAttribute("class", "data_control "+type+"x"+num_elements);
+
+    var dataChildren = [];
+    for(var i=0; i<num_elements; ++i) {
+        var t = DataInputCreators[type]();
+        t.dataControl = d;
+        t.arrayIndex = i;
+        d.appendChild(t);
+        dataChildren.push(t);
+    }
+    d.dataChildren = dataChildren;
+
+    d.setValue = function(v) {
+        for(var i=0; i<this.dataChildren.length; ++i) {
+            this.dataChildren[i].setValue(v[i]);
+        }
+    }
+    d.getValue = function() {
+        var r = "[";
+        for(var i=0; i<this.dataChildren.length; ++i) {
+            r += this.dataChildren[i].getValue();
+            if(i+1!=this.dataChildren.length) { r+=","; }
+        }
+        r += "]";
+        return r;
+    }
+    d.setRange = function(r) {
+        for(var i=0; i<this.dataChildren.length; ++i) {
+            this.dataChildren[i].setRange(r);
+        }
+    }
+    d.makeReadOnly = function() {
+        for(var i=0; i<this.dataChildren.length; ++i) {
+            this.dataChildren[i].makeReadOnly();
+        }
+    }
+    d.handleChange = function(n) {
+        var value = this.dataChildren[n.arrayIndex].getValue();
+        postCommand(data.id.toString()+"->at(" + n.arrayIndex + "," + value + ")");
+    }
+
+    return d;
+}
+
+var create_vector_control = function(type, num_elements, data)
+{
+    var d = create_array1_control(type, num_elements, data);
+    d.handleChange = function() {
+        postCommand(data.id.toString()+"->set(" + this.getValue() + ")");
+    }
+    return d;
+}
+
+var create_array2_control = function(type, dy, dx, data)
+{
+    var d = document.createElement("div");
+    d.setAttribute("class", "data_control "+type+"["+dy+"]["+dx+"]");
+
+    d.dataChildren = [];
+    for(var i=0; i<dy; ++i) {
+        var t = create_array1_control(type, dx, data);
+        t.arrayIndex = i;
+        t.dataControl = d;
+        t.handleChange = function(n) { this.parentNode.handleChange(this); }
+        d.appendChild(t);
+        d.dataChildren.push(t);
+        d.appendChild(document.createElement("br"));
+    }
+    d.setValue = function(v) {
+        for(var i=0; i<this.dataChildren.length; ++i) {
+            this.dataChildren[i].setValue(v[i]);
+        }
+    }
+    d.getValue = function() {
+        var r = "[";
+        for(var i=0; i<this.dataChildren.length; ++i) {
+            r += this.dataChildren[i].getValue();
+            if(i+1!=this.dataChildren.length) { r+=","; }
+        }
+        r += "]";
+        return r;
+    }
+    d.setRange = function(r) {
+        for(var i=0; i<this.dataChildren.length; ++i) {
+            this.dataChildren[i].setRange(r);
+        }
+    }
+    d.makeReadOnly = function() {
+        for(var i=0; i<this.dataChildren.length; ++i) {
+            this.dataChildren[i].makeReadOnly();
+        }
+    }
+    d.handleChange = function(n) {
+        var value = this.dataChildren[n.arrayIndex].getValue();
+        postCommand(data.id.toString()+"->at(" + n.arrayIndex + "," + value + ")");
+    }
+
+    return d;
+}
+
+var DataControlCreators = {
+    "int8":     function(data) { return data.length ? create_array1_control("int8",   data.length, data) : create_scalar_control("int8",   data); },
+    "int16":    function(data) { return data.length ? create_array1_control("int16",  data.length, data) : create_scalar_control("int16",  data); },
+    "int32":    function(data) { return data.length ? create_array1_control("int32",  data.length, data) : create_scalar_control("int32",  data); },
+    "int64":    function(data) { return data.length ? create_array1_control("int64",  data.length, data) : create_scalar_control("int64",  data); },
+    "uint8":    function(data) { return data.length ? create_array1_control("uint8",  data.length, data) : create_scalar_control("uint8",  data); },
+    "uint16":   function(data) { return data.length ? create_array1_control("uint16", data.length, data) : create_scalar_control("uint16", data); },
+    "uint32":   function(data) { return data.length ? create_array1_control("uint32", data.length, data) : create_scalar_control("uint32", data); },
+    "uint64":   function(data) { return data.length ? create_array1_control("uint64", data.length, data) : create_scalar_control("uint64", data); },
+    "bool":     function(data) { return data.length ? create_array1_control("bool",   data.length, data) : create_scalar_control("bool",   data); },
+    "float32":  function(data) { return data.length ? create_array1_control("float32",data.length, data) : create_scalar_control("float32",data); },
+    "float64":  function(data) { return data.length ? create_array1_control("float32",data.length, data) : create_scalar_control("float32",data); },
+
+    "char" :    function(data) { return create_string_control("char", data); },
+    "char*" :   function(data) { return create_string_control("char*", data); },
+    "wchar" :   function(data) { return create_string_control("wchar", data); },
+    "wchar*" :  function(data) { return create_string_control("wchar*", data); },
+    "string" :  function(data) { return create_string_control("string", data); },
+    "wstring" : function(data) { return create_string_control("wstring", data); },
+
+    "int32x2":  function(data) { return data.length ? create_array2_control("int32", data.length, 2, data) : create_vector_control("int32", 2, data); },
+    "int32x3":  function(data) { return data.length ? create_array2_control("int32", data.length, 3, data) : create_vector_control("int32", 3, data); },
+    "int32x4":  function(data) { return data.length ? create_array2_control("int32", data.length, 4, data) : create_vector_control("int32", 4, data); },
+    "float32x2":function(data) { return data.length ? create_array2_control("float32", data.length, 2, data) : create_vector_control("float32", 2, data); },
+    "float32x3":function(data) { return data.length ? create_array2_control("float32", data.length, 3, data) : create_vector_control("float32", 3, data); },
+    "float32x4":function(data) { return data.length ? create_array2_control("float32", data.length, 4, data) : create_vector_control("float32", 4, data); },
+
+    "float32x2x2": function(data) { return create_array2_control("float32", 2, 2, data); },
+    "float32x3x3": function(data) { return create_array2_control("float32", 3, 3, data); },
+    "float32x4x3": function(data) { return create_array2_control("float32", 4, 3, data); },
+    "float32x4x4": function(data) { return create_array2_control("float32", 4, 4, data); },
+}
+
+function getOrCreateNode(parent, data)
+{
+    var node = $("node"+data.id);
+
+    if(node==null) {
+        node = document.createElement("div");
+        node.nodeID = data.id;
+        node.setAttribute("class", "data_cell");
+        node.setAttribute("id", "node"+data.id);
+        node.isOpened = function(){ return false; }
+
+        var prop = document.createElement("div");
+        prop.setAttribute("class", "data_property");
+        node.appendChild(prop);
+        if(data.name!="" && data.hasChildren) {
+            var toggle = document.createElement("input");
+            toggle.setAttribute("type", "checkbox");
+            toggle.setAttribute("onchange", "setVisibility("+data.id+")");
+            toggle.appendChild(document.createTextNode("+"));
+            prop.appendChild(toggle);
+            node.toggleNode = toggle;
+            node.isOpened = function(){ return this.toggleNode.checked; }
+        }
+
+        var name = document.createElement("span");
+        name.setAttribute("class", "data_name");
+        name.appendChild(document.createTextNode(data.name));
+        prop.appendChild(name);
+
+        if(data.type!=null) {
+            var span = document.createElement("span");
+            span.setAttribute("class", "data_type");
+            var typename = data.type;
+            if(data.length!=null) { typename+="["+data.length+"]"; }
+            span.appendChild(document.createTextNode("("+typename+")"));
+            prop.appendChild(span);
+
+            var control = DataControlCreators[data.type](data);
+            if(data.range) { control.setRange(data.range); }
+            if(data.readonly) { control.makeReadOnly(); }
+            node.appendChild(control);
+            node.dataNode = control;
+        }
+        if(data.callable) {
+            node.argNodes = [];
+            for(var i=0; i<data.argTypes.length; ++i) {
+                var argtype = data.argTypes[i];
+                var span = document.createElement("span");
+                span.setAttribute("class", "data_type");
+                span.appendChild(document.createTextNode("arg"+(i+1)+"("+argtype+")"));
+                prop.appendChild(span);
+
+                var control = DataControlCreators[argtype](data);
+                control.argIndex = i;
+                control.handleChange = function(n) {
+                    postCommand(data.id.toString()+"->arg(" + this.argIndex + "," + this.getValue() + ")");
+                }
+                prop.appendChild(control);
+                node.argNodes.push(control);
+            }
+            var button = document.createElement("input");
+            button.setAttribute("type", "button");
+            button.setAttribute("onclick", "handleCall("+data.id+")");
+            button.setAttribute("value", "call");
+            prop.appendChild(button);
+            node.callButton = button;
+        }
+
+        children = document.createElement("div");
+        children.setAttribute("class", "data_children");
+        node.appendChild(children);
+        node.dataChildren = children;
+        node.dataChildren.style.display = data.name=="" ? "" : "none";
+        parent.appendChild(node);
+    }
+    if(node.dataNode && data.value) {
+        node.dataNode.setValue(data.value);
+    }
+    return node;
+}
+
+function updateDataGrid(parent, data, depth)
+{
+    var node = getOrCreateNode(parent, data);
+    node.updated = true;
+    parent.parentNode.updated = true;
+    if(data.children) {
+        for(var i=0; i<data.children.length; ++i) {
+            updateDataGrid(node.dataChildren, data.children[i], depth+1);
+        }
+    }
+}
+
+function gatherOpenedNodes(node)
+{
+    if(node==null) { return; }
+    if(node.isOpened()) { opened_nodes.push(node.nodeID); }
+    if(node.dataChildren) {
+        var children = node.dataChildren.children;
+        for(var i=0; i<children.length; ++i) {
+            gatherOpenedNodes(children[i]);
+        }
+    }
+}
+
+function beforeUpdateData(node)
+{
+    if(node==null) { return; }
+    node.updated = false;
+    var children = node.dataChildren.children;
+    if(children) {
+        for(var i=0; i<children.length; ++i) {
+            beforeUpdateData(children[i]);
+        }
+    }
+}
+
+function afterUpdateData(node)
+{
+    if(node==null) { return false; }
+
+    var updated = node.updated;
+    var children = node.dataChildren.children;
+    if(children) {
+        for(var i=0; i<children.length; ++i) {
+            var r = afterUpdateData(children[i]);
+            updated = updated || r;
+        }
+    }
+
+    if(!updated) {
+        node.parentNode.removeChild(node);
+    }
+    return updated;
+}
+
+function updateNodeData()
+{
+    if(node_loading) { return; }
+
+    opened_nodes.length = 0;
+    gatherOpenedNodes($("data_grid").children[0]);
+
+    node_loading = true;
+    var ajax = new Ajax.Request("/data",
+    {
+        method: "post",
+        parameters: "nodes="+opened_nodes.join(","),
+        onComplete: function(res) {
+            node_loading = false;
+            data = res.responseText.evalJSON();
+            var root = $("data_grid");
+            beforeUpdateData(root.children[0]);
+            data.each(function(d){
+                var node = $("node"+d.id);
+                node = node==null ? root : node.dataChildren;
+                updateDataGrid(node, d, 0);
+            })
+            afterUpdateData(root.children[0]);
+        }
+    });
+
+}
+
+function setVisibility(id)
+{
+    var node = $("node"+id);
+    var children = node.dataChildren;
+    if(node.toggleNode.checked) {
+        children.style.display = "";
+        updateNodeData();
+    }
+    else {
+        children.style.display = "none";
+    }
+}
+
+function handleCall(id)
+{
+    postCommand(id.toString()+"->call()");
+}
+
+function postCommand(values)
+{
+    var ajax = new Ajax.Request("/command",
+    {
+        method: "post",
+        parameters: "command="+values,
+        onComplete: function(res) {
+        }
+    });
+}
+
+function onLoad()
+{
+    updateNodeData();
+    clearInterval(node_timer);
+    node_timer = setInterval(updateNodeData, 1000);
+}
+</script>
+</head>
+
+<body onload="onLoad()">
+    <div id="data_grid"></div>
+</body>
+
+</html>

@@ -194,6 +194,7 @@ bool AtomicApplication::initialize(int argc, char *argv[])
 #ifdef atomic_enable_shader_live_edit
     ::AllocConsole();
 #endif // atomic_enable_shader_live_edit
+    wdmInitialize();
     istTaskSchedulerInitialize();
 
     // initialize debug menu
@@ -271,6 +272,7 @@ void AtomicApplication::finalize()
     FinalizeText();
     FinalizeCrashReporter();
     istPoolRelease();
+    wdmFinalize();
 }
 
 void AtomicApplication::mainLoop()
@@ -294,6 +296,7 @@ void AtomicApplication::mainLoop()
     while(!m->request_exit)
     {
         DOL_Update();
+        wdmFlush();
         translateMessage();
         update();
 
