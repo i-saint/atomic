@@ -57,6 +57,9 @@ public:
 public:
     Player() : m_cooldown(0)
     {
+        wdmScope( wdmString path = wdmFormat("Player/handle:0x%x", getHandle()) );
+        wdmScope(super::addDebugNodes(path));
+        wdmScope(transform::addDebugNodes(path));
     }
 
     CollisionHandle getCollisionHandle() const { return m_collision.getCollisionHandle(); }

@@ -48,6 +48,15 @@ public:
         atomicECallSuper(mhandler)
     )
 
+    wdmScope(
+    void addDebugNodes(const wdmString &path)
+    {
+        wdmAddNode(path+"/m_health", &m_health);
+        wdmAddNode(path+"/damage()", &Breakable::damage, this);
+        wdmAddNode(path+"/destroy()", &Breakable::destroy, this);
+    }
+    )
+
 public:
     Breakable()
     : m_routine(NULL), m_health(1.0f), m_delta_damage(0.0f), m_past_frame(0)

@@ -43,6 +43,7 @@ private:
     float32 m_delta_fluid_damage;
     SE_CHANNEL m_explosion_channel;
     SE_RID m_explosion_se;
+    vec4 m_light_color;
 
     istSerializeBlock(
         istSerializeBase(super)
@@ -56,6 +57,7 @@ private:
         istSerialize(m_delta_fluid_damage)
         istSerialize(m_explosion_channel)
         istSerialize(m_explosion_se)
+        istSerialize(m_light_color)
         )
 
 public:
@@ -74,10 +76,14 @@ public:
 public:
     Enemy_Test() : m_state(ST_FADEIN), m_st_frame(0), m_light_radius(0.5f), m_delta_fluid_damage(0.0f)
         , m_explosion_channel(SE_CHANNEL3), m_explosion_se(SE_EXPLOSION3)
+        , m_light_color(0.8f, 0.1f, 0.2f, 1.0f)
     {
         wdmScope( wdmString path = wdmFormat("Enemy/handle:0x%x", getHandle()) );
-        wdmAddNode(path+"/life", this, &Enemy_Test::getLife, &Enemy_Test::setLife);
-        wdmAddNode(path+"/light_radius", &m_light_radius );
+        wdmScope(super::addDebugNodes(path));
+        wdmScope(transform::addDebugNodes(path));
+        wdmScope(model::addDebugNodes(path));
+        wdmAddNode(path+"/m_light_radius", &m_light_radius );
+        wdmAddNode(path+"/m_light_color", &m_light_color, 0.0f, 1.0f );
     }
 
     ~Enemy_Test()
@@ -166,7 +172,7 @@ public:
     {
         vec4 diffuse = getDiffuseColor();
         vec4 glow = getGlowColor();
-        vec4 light = vec4(0.8f, 0.1f, 0.2f, 1.0f);
+        vec4 light = m_light_color;
         if(getState()==ST_FADEIN) {
             float32 s   = (float32)m_st_frame / FADEIN_TIME;
             float shininess = diffuse.w;

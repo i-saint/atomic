@@ -99,6 +99,15 @@ public:
         )
     )
 
+    wdmScope(
+    void addDebugNodes(const wdmString &path)
+    {
+        wdmAddNode(path+"/m_pos", &m_pos, -3.0f, 3.0f);
+        wdmAddNode(path+"/m_scale", &m_scale, 0.001f, 4.0f);
+        wdmAddNode(path+"/m_rot", &m_rot, 0.0f, 360.0f);
+    }
+    )
+
 public:
     Attr_Transform()
         : m_scale(1.0f, 1.0f, 1.0f, 0.0f)
@@ -165,6 +174,16 @@ public:
         atomicECall(setRotate1)
         atomicECall(setRotate2)
         )
+    )
+
+    wdmScope(
+    void addDebugNodes(const wdmString &path)
+    {
+        wdmAddNode(path+"/m_pos", &m_pos, -3.0f, 3.0f);
+        wdmAddNode(path+"/m_scale", &m_scale, 0.001f, 4.0f);
+        wdmAddNode(path+"/m_rot1", &m_rot1, 0.0f, 360.0f);
+        wdmAddNode(path+"/m_rot2", &m_rot2, 0.0f, 360.0f);
+    }
     )
 
 public:
@@ -326,6 +345,14 @@ public:
         atomicECall(setGlowColor)
         atomicECall(setModel)
         )
+    )
+
+    wdmScope(
+    void addDebugNodes(const wdmString &path)
+    {
+        wdmAddNode(path+"/m_diffuse_color", &m_diffuse_color, 0.0f, 1.0f);
+        wdmAddNode(path+"/m_glow_color", &m_glow_color, 0.0f, 1.0f);
+    }
     )
 
 public:

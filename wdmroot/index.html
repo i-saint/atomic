@@ -53,6 +53,7 @@ var create_integer_input = function(type) {
         var r = this.dataRange;
         var v = Math.floor(r[0]+(r[1]-r[0])*p);
         this.inputNode.value = v.toString();
+        this.handleChange();
     }
     s.setRange = function(r) {
         var ri = document.createElement("input");
@@ -60,7 +61,7 @@ var create_integer_input = function(type) {
         ri.setAttribute("type", "range");
         ri.setAttribute("onchange", "this.parentNode.onSlider()");
         ri.setAttribute("onmousedown", "this.parentNode.inputNode.lockUpdate=true");
-        ri.setAttribute("onmouseup", "this.parentNode.inputNode.lockUpdate=false;this.parentNode.parentNode.handleChange(this.parentNode)");
+        ri.setAttribute("onmouseup", "this.parentNode.inputNode.lockUpdate=false");
         this.insertBefore(ri, this.inputNode);
         this.insertBefore(document.createElement("br"), this.inputNode);
         this.dataRange = r;
@@ -89,6 +90,7 @@ var create_float_input = function(type) {
         var r = this.dataRange;
         var v = r[0]+(r[1]-r[0])*p;
         this.inputNode.value = v.toString();
+        this.handleChange();
     }
     s.setRange = function(r) {
         var ri = document.createElement("input");
@@ -96,7 +98,7 @@ var create_float_input = function(type) {
         ri.setAttribute("type", "range");
         ri.setAttribute("onchange", "this.parentNode.onSlider()");
         ri.setAttribute("onmousedown", "this.parentNode.inputNode.lockUpdate=true");
-        ri.setAttribute("onmouseup", "this.parentNode.inputNode.lockUpdate=false;this.parentNode.parentNode.handleChange(this.parentNode)");
+        ri.setAttribute("onmouseup", "this.parentNode.inputNode.lockUpdate=false");
         this.insertBefore(ri, this.inputNode);
         this.insertBefore(document.createElement("br"), this.inputNode);
         this.dataRange = r;
