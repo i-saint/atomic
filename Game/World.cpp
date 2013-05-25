@@ -39,7 +39,7 @@ World::World()
 , m_sph(NULL)
 , m_vfx(NULL)
 {
-    wdmAddNode("Game/cameraFovy", &m_camera_game, &i3d::PerspectiveCamera::getFovy, &i3d::PerspectiveCamera::setFovy, 1.0f, 360.0f);
+    wdmAddNode("Game/World/cameraFovy", &m_camera_game, &i3d::PerspectiveCamera::getFovy, &i3d::PerspectiveCamera::setFovy, 1.0f, 180.0f);
 }
 
 World::~World()
@@ -49,6 +49,8 @@ World::~World()
     for(ModuleCont::reverse_iterator i=m_modules.rbegin(); i!=m_modules.rend(); ++i) {
         (*i)->release();
     }
+
+    wdmEraseNode("Game/World");
 }
 
 void World::initialize()

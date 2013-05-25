@@ -702,39 +702,33 @@ inline void wdmAddNode(const wdmString &path, R (C::*cmf)() const, const C2 *_th
 template<class R, class A0>
 inline void wdmAddNode(const wdmString &path, R (*f)(A0))
 {
-    using namespace std::placeholders;
-    _wdmGetRootNode()->addChild( path.c_str(), new wdmFunctionNode1<R,A0>(std::bind(f, _1)) );
+    _wdmGetRootNode()->addChild( path.c_str(), new wdmFunctionNode1<R,A0>(std::bind(f, std::placeholders::_1)) );
 }
 template<class R, class C, class C2, class A0>
 inline void wdmAddNode(const wdmString &path, R (C::*mf)(A0), C2 *_this)
 {
-    using namespace std::placeholders;
-    _wdmGetRootNode()->addChild( path.c_str(), new wdmFunctionNode1<R,A0>(std::bind(mf, _this, _1)) );
+    _wdmGetRootNode()->addChild( path.c_str(), new wdmFunctionNode1<R,A0>(std::bind(mf, _this, std::placeholders::_1)) );
 }
 template<class R, class C, class C2, class A0>
 inline void wdmAddNode(const wdmString &path, R (C::*cmf)(A0) const, const C2 *_this)
 {
-    using namespace std::placeholders;
-    _wdmGetRootNode()->addChild( path.c_str(), new wdmFunctionNode1<R,A0>(std::bind(cmf, _this, _1)) );
+    _wdmGetRootNode()->addChild( path.c_str(), new wdmFunctionNode1<R,A0>(std::bind(cmf, _this, std::placeholders::_1)) );
 }
 // function node (2 args)
 template<class R, class A0, class A1>
 inline void wdmAddNode(const wdmString &path, R (*f)(A0,A1))
 {
-    using namespace std::placeholders;
-    _wdmGetRootNode()->addChild( path.c_str(), new wdmFunctionNode2<R,A0,A1>(std::bind(f, _1, _2)) );
+    _wdmGetRootNode()->addChild( path.c_str(), new wdmFunctionNode2<R,A0,A1>(std::bind(f, std::placeholders::_1, std::placeholders::_2)) );
 }
 template<class R, class C, class C2, class A0, class A1>
 inline void wdmAddNode(const wdmString &path, R (C::*mf)(A0,A1), C2 *_this)
 {
-    using namespace std::placeholders;
-    _wdmGetRootNode()->addChild( path.c_str(), new wdmFunctionNode2<R,A0,A1>(std::bind(mf, _this, _1, _2)) );
+    _wdmGetRootNode()->addChild( path.c_str(), new wdmFunctionNode2<R,A0,A1>(std::bind(mf, _this, std::placeholders::_1, std::placeholders::_2)) );
 }
 template<class R, class C, class C2, class A0, class A1>
 inline void wdmAddNode(const wdmString &path, R (C::*cmf)(A0,A1) const, const C2 *_this)
 {
-    using namespace std::placeholders;
-    _wdmGetRootNode()->addChild( path.c_str(), new wdmFunctionNode2<R,A0,A1>(std::bind(cmf, _this, _1, _2)) );
+    _wdmGetRootNode()->addChild( path.c_str(), new wdmFunctionNode2<R,A0,A1>(std::bind(cmf, _this, std::placeholders::_1, std::placeholders::_2)) );
 }
 
 

@@ -15,6 +15,7 @@
 
 #include "Collision.h"
 #include "Entity/Routine.h"
+#include <zip_stream/zipstream.hpp>
 
 namespace atomic {
 
@@ -326,12 +327,10 @@ bool AtomicGame::serialize( std::ostream &st )
 
 bool AtomicGame::deserialize( std::istream &st )
 {
+    istSafeDelete(m_world);
     try {
-        istSafeDelete(m_world);
-
         boost::archive::binary_iarchive ar(st);
         ar & m_world;
-
     }
     catch(std::exception &e) {
         istPrint(e.what());
@@ -342,13 +341,15 @@ bool AtomicGame::deserialize( std::istream &st )
 void AtomicGame::testSerialize()
 {
     std::ofstream fs("state.atbin", std::ios::binary);
-    serialize(fs);
+    zlib_stream::zip_ostream zipper(fs);
+    serialize(zipper);
 }
 
 void AtomicGame::testDeserialize()
 {
     std::ifstream fs("state.atbin", std::ios::binary);
-    deserialize(fs);
+    zlib_stream::zip_istream zipper(fs);
+    deserialize(zipper);
 }
 
 } // namespace atomic
