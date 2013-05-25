@@ -78,12 +78,14 @@ public:
         , m_explosion_channel(SE_CHANNEL3), m_explosion_se(SE_EXPLOSION3)
         , m_light_color(0.8f, 0.1f, 0.2f, 1.0f)
     {
-        wdmScope( wdmString path = wdmFormat("Enemy/handle:0x%x", getHandle()) );
-        wdmScope(super::addDebugNodes(path));
-        wdmScope(transform::addDebugNodes(path));
-        wdmScope(model::addDebugNodes(path));
-        wdmAddNode(path+"/m_light_radius", &m_light_radius );
-        wdmAddNode(path+"/m_light_color", &m_light_color, 0.0f, 1.0f );
+        wdmScope(
+            wdmString path = wdmFormat("Enemy/handle:0x%x", getHandle());
+            super::addDebugNodes(path);
+            transform::addDebugNodes(path);
+            model::addDebugNodes(path);
+            wdmAddNode(path+"/m_light_radius", &m_light_radius );
+            wdmAddNode(path+"/m_light_color", &m_light_color, 0.0f, 1.0f );
+        )
     }
 
     ~Enemy_Test()

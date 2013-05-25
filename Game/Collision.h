@@ -130,11 +130,13 @@ typedef CollisionEntity super;
 istDefinePoolNewST(CollisionBox);
 public:
     vec4 position;
+    vec4 size;
     vec4 planes[6];
 
     istSerializeBlock(
         istSerializeBase(super)
         istSerialize(position)
+        istSerialize(size)
         istSerialize(planes)
         )
 

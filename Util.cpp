@@ -106,7 +106,7 @@ vec4 GetNearestPlayerPosition(const vec4 &pos)
     // todo:
     vec4 ret;
     atomicEnumlateEntity(
-        [&](EntityHandle h){ return EntityGetCategory(h)==ECA_Player; },
+        [&](EntityHandle h){ return EntityGetClassID(h)==EC_Player; },
         [&](IEntity *e){ atomicQuery(e, getPosition, ret); }
     );
     return ret;
