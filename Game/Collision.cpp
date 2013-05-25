@@ -285,6 +285,10 @@ CollisionSet::~CollisionSet()
     m_vacant.clear();
 }
 
+void CollisionSet::initialize()
+{
+}
+
 void CollisionSet::frameBegin()
 {
 }
@@ -393,12 +397,7 @@ void CollisionSet::deleteEntity(CollisionHandle h)
     atomicDbgAssertSyncLock();
     CollisionEntity *&ce = m_entities[h];
     if(ce) {
-        switch(ce->getShape()) {
-        case CS_Plane:  istDelete(static_cast<CollisionPlane*>(ce)); break;
-        case CS_Sphere: istDelete(static_cast<CollisionSphere*>(ce)); break;
-        case CS_Box:    istDelete(static_cast<CollisionBox*>(ce)); break;
-        default: istAssert(false); break;
-        }
+        ce->release();
         ce = NULL;
         m_vacant.push_back(h);
     }

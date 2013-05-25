@@ -60,6 +60,7 @@ public:
 class EntitySet : public IAtomicGameModule
 {
 friend class IEntity;
+typedef IAtomicGameModule super;
 public:
     typedef ist::vector<EntityHandle> HandleCont;
     typedef ist::vector<IEntity*> EntityCont;
@@ -67,6 +68,8 @@ public:
 public:
     EntitySet();
     ~EntitySet();
+
+    void initialize();
 
     void frameBegin();
     void update(float32 dt);
@@ -108,10 +111,16 @@ private:
     HandleCont m_vacant;
     EntityCont m_entities;
     EntityCont m_new_entities;
-
     EntityHandle m_tmp_handle;
 
     void resizeTasks(uint32 n);
+
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerialize(m_all)
+        istSerialize(m_vacant)
+        istSerialize(m_entities)
+        )
 };
 
 } // namespace atomic

@@ -21,12 +21,37 @@ namespace atomic {
 
 atomicExportClass(atomic::World);
 
+istSerializeBlockImpl(World,
+    istSerializeBase(IAtomicGameModule)
+    istSerialize(m_collision_set)
+    istSerialize(m_sph)
+    istSerialize(m_entity_set)
+    istSerialize(m_vfx)
+    istSerialize(m_modules)
+    istSerialize(m_camera_game)
+    istSerialize(m_camera_bg)
+    istSerialize(m_field_size)
+    )
 
 World::World()
 : m_collision_set(NULL)
 , m_entity_set(NULL)
 , m_sph(NULL)
 , m_vfx(NULL)
+{
+    wdmAddNode("Game/cameraFovy", &m_camera_game, &i3d::PerspectiveCamera::getFovy, &i3d::PerspectiveCamera::setFovy, 1.0f, 360.0f);
+}
+
+World::~World()
+{
+    istCommandlineUnregister("setCameraFovy");
+
+    for(ModuleCont::reverse_iterator i=m_modules.rbegin(); i!=m_modules.rend(); ++i) {
+        (*i)->release();
+    }
+}
+
+void World::initialize()
 {
     m_collision_set = istNew(CollisionSet)();
     m_modules.push_back(m_collision_set);
@@ -40,23 +65,12 @@ World::World()
     m_vfx = istNew(VFXSet)();
     m_modules.push_back(m_vfx);
 
+    for(ModuleCont::iterator i=m_modules.begin(); i!=m_modules.end(); ++i) {
+        (*i)->initialize();
+    }
+
     const uvec2 &wsize = atomicGetWindowSize();
     m_camera_game.setAspect((float32)wsize.x/(float32)wsize.y);
-
-    istCommandlineRegister("setCameraFovy", &i3d::PerspectiveCamera::setFovy, &m_camera_game);
-}
-
-World::~World()
-{
-    istCommandlineUnregister("setCameraFovy");
-
-    for(ModuleCont::reverse_iterator i=m_modules.rbegin(); i!=m_modules.rend(); ++i) {
-        istDelete(*i);
-    }
-}
-
-void World::initialize()
-{
     m_camera_game.setPosition(vec4(0.0f, 0.0f, 3.0f, 0.0f));
     m_camera_game.setZNear(0.01f);
     m_camera_game.setZFar(10.0f);

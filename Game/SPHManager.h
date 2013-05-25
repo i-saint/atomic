@@ -12,6 +12,7 @@ typedef ist::raw_vector<psym::Particle> ParticleCont;
 
 class SPHManager : public IAtomicGameModule
 {
+typedef IAtomicGameModule super;
 public:
     struct AddFluidContext
     {
@@ -25,9 +26,7 @@ public:
     SPHManager();
     ~SPHManager();
 
-    void serialize(Serializer& s) const;
-    void deserialize(Deserializer& s);
-
+    void initialize();
     void frameBegin();
     void update(float32 dt);
     void asyncupdate(float32 dt);
@@ -58,7 +57,7 @@ private:
 
 
     istSerializeBlock(
-        istSerializeBase(IAtomicGameModule)
+        istSerializeBase(super)
         istSerialize(m_world)
         istSerialize(m_rand)
         )

@@ -19,11 +19,15 @@ namespace atomic {
 SPHManager::SPHManager()
     : m_current_fluid_task(0)
 {
-    m_rand.initialize(0);
 }
 
 SPHManager::~SPHManager()
 {
+}
+
+void SPHManager::initialize()
+{
+    m_rand.initialize(0);
 }
 
 void SPHManager::frameBegin()
@@ -197,6 +201,7 @@ void SPHManager::addRigid(const CollisionEntity &v)
         break;
 
     default:
+        istPrint("unknown type: 0x%p : %x", &v, v.getShape());
         istAssert(false);
     }
 }

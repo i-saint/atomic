@@ -76,6 +76,11 @@ public:
     bool IsDrawSkipped() const              { return m_skip_draw; }
     bool IsWaitVSyncRequired() const        { return !IsUpdateSkipped() && !IsDrawSkipped(); }
 
+    bool serialize(std::ostream &st);
+    bool deserialize(std::istream &st);
+
+    void testSerialize();
+    void testDeserialize();
 
 #ifdef atomic_enable_sync_lock
     void dbgLockSyncMethods()               { m_sync_lock=true; }

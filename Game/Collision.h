@@ -44,27 +44,23 @@ atomicSerializeRaw(atomic::BoundingBox);
 class CollisionSet;
 
 
-// virtual なデストラクタがないのは意図的。
-// これを継承するオブジェクトはデータ保持以外のことはやってはいけない。
-struct istAlign(16) CollisionEntity
+struct CollisionEntity
 {
 friend class CollisionSet;
 private:
-    union {
-        struct {
-            CollisionShapeID m_shape;
-            CollisionHandle m_col_handle;
-            EntityHandle    m_gobj_handle;
-            int32           m_flags; // COLLISION_FLAG
-        };
-        float padding[4];
-    };
+    CollisionShapeID m_shape;
+    CollisionHandle m_col_handle;
+    EntityHandle    m_gobj_handle;
+    int32           m_flags; // COLLISION_FLAG
 public:
     BoundingBox bb;
 
 private:
     istSerializeBlock(
-        istSerialize(padding)
+        istSerialize(m_shape)
+        istSerialize(m_col_handle)
+        istSerialize(m_gobj_handle)
+        istSerialize(m_flags)
         istSerialize(bb)
         )
 
@@ -75,6 +71,8 @@ protected:
 
 public:
     CollisionEntity() : m_shape(CS_Null), m_col_handle(0), m_gobj_handle(0), m_flags(CF_Receiver|CF_Sender|CF_SPH_Sender) {}
+    virtual ~CollisionEntity() {}
+    void release() { istDelete(this); }
     CollisionShapeID getShape() const            { return m_shape; }
     CollisionHandle getCollisionHandle() const  { return m_col_handle; }
     EntityHandle    getGObjHandle() const       { return m_gobj_handle; }
@@ -87,7 +85,7 @@ public:
 struct LessCollisionHandle { bool operator()(CollisionEntity *a, CollisionEntity *b) { return a->getCollisionHandle() < b->getCollisionHandle(); }};
 
 
-struct istAlign(16) CollisionPlane : public CollisionEntity
+struct CollisionPlane : public CollisionEntity
 {
 typedef CollisionEntity super;
 istDefinePoolNewST(CollisionPlane);
@@ -103,7 +101,7 @@ public:
     CollisionPlane() { setShape(CS_Plane); }
 };
 
-struct istAlign(16) CollisionSphere : public CollisionEntity
+struct CollisionSphere : public CollisionEntity
 {
 typedef CollisionEntity super;
 istDefinePoolNewST(CollisionSphere);
@@ -124,7 +122,7 @@ public:
     }
 };
 
-struct istAlign(16) CollisionBox : public CollisionEntity
+struct CollisionBox : public CollisionEntity
 {
 typedef CollisionEntity super;
 istDefinePoolNewST(CollisionBox);
@@ -220,6 +218,7 @@ public:
     CollisionSet();
     ~CollisionSet();
 
+    void initialize();
     void frameBegin();
     void update(float32 dt);
     void asyncupdate(float32 dt);

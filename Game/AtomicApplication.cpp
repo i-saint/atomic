@@ -297,6 +297,7 @@ void AtomicApplication::mainLoop()
     {
         DOL_Update();
         wdmFlush();
+        istCommandlineFlush();
         translateMessage();
         update();
 

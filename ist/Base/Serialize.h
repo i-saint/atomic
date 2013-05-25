@@ -33,6 +33,20 @@ private:\
         __VA_ARGS__\
     }
 
+#define istSerializeBlockDecl()\
+private:\
+    friend class boost::serialization::access;\
+    template<class A>\
+    void serialize(A &ar, const uint32 version);
+
+#define istSerializeBlockImpl(ClassName, ...)\
+    template<class A>\
+    void ClassName::serialize(A &ar, const uint32 version)\
+    {\
+        __VA_ARGS__\
+    }
+
+
 #define istSerializeSaveBlock(...)\
 private:\
     friend class boost::serialization::access;\

@@ -81,8 +81,12 @@ enum ATOMIC_ERROR {
 
 class IAtomicGameModule : public boost::noncopyable
 {
+    istSerializeBlock()
 public:
     virtual ~IAtomicGameModule() {}
+    virtual void release() { istDelete(this); }
+
+    virtual void initialize()=0;
 
     // フレーム開始時に呼ばれる。
     virtual void frameBegin()=0;
@@ -103,9 +107,6 @@ public:
     // フレーム終了時に呼ばれる。
     // 非同期更新処理がある場合、この中で完了を待つこと。(フレームを跨ぐ処理があってはならない)
     virtual void frameEnd()=0;
-
-    istSerializeBlock(
-        )
 };
 
 

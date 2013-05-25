@@ -18,8 +18,6 @@ public:
     ~World();
 
     void initialize();
-    void serialize(Serializer& s) const;
-    void deserialize(Deserializer& s);
 
     void frameBegin();
     void update(float32 dt);
@@ -42,17 +40,7 @@ public:
 
     void handleEntitiesQuery(EntitiesQueryContext &ctx);
 
-    istSerializeBlock(
-        istSerializeBase(IAtomicGameModule)
-        istSerialize(m_collision_set)
-        istSerialize(m_sph)
-        istSerialize(m_entity_set)
-        istSerialize(m_vfx)
-        istSerialize(m_modules)
-        istSerialize(m_camera_game)
-        istSerialize(m_camera_bg)
-        istSerialize(m_field_size)
-        )
+    istSerializeBlockDecl();
 
 private:
     typedef ist::vector<IAtomicGameModule*> ModuleCont;
