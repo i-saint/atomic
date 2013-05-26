@@ -190,12 +190,12 @@ void PassGBuffer_Fluid::addPSetInstance( PSET_RID psid, const PSetInstance &inst
 PassGBuffer_BG::PassGBuffer_BG()
     : m_enabled(true)
 {
-    atomicDbgAddParamNodeP("Rendering/BG/Enable", bool, &m_enabled);
+    wdmAddNode("Rendering/BG/Enable", &m_enabled);
 }
 
 PassGBuffer_BG::~PassGBuffer_BG()
 {
-    atomicDbgDeleteParamNode("Rendering/BG");
+    wdmEraseNode("Rendering/BG");
 }
 
 void PassGBuffer_BG::beforeDraw()

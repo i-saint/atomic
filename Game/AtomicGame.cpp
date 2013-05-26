@@ -100,12 +100,7 @@ void AtomicGame::frameBegin()
 void AtomicGame::update(float32 dt)
 {
     if(!m_skip_update) {
-        if(!atomicDbgDebugMenuIsActive()) {
-            m_input_server->pushInput(0, atomicGetSystemInputs()->getRawInput());
-        }
-        else {
-            m_input_server->pushInput(0, RepInput());
-        }
+        m_input_server->pushInput(0, atomicGetSystemInputs()->getRawInput());
     }
 
     atomicLevelEditorHandleCommands( std::bind(&IInputServer::pushLevelEditorCommand, m_input_server, std::placeholders::_1));
