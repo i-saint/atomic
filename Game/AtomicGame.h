@@ -2,7 +2,6 @@
 #define atomic_Game_AtomicGame_h
 #include "Input.h"
 #include "AtomicApplication.h"
-#include "Game/DebugMenu.h"
 #include "Network/LevelEditorCommand.h"
 #include "Network/InputServer.h"
 #include "Network/Protocol.h"
@@ -76,6 +75,11 @@ public:
     bool IsDrawSkipped() const              { return m_skip_draw; }
     bool IsWaitVSyncRequired() const        { return !IsUpdateSkipped() && !IsDrawSkipped(); }
 
+    bool serialize(std::ostream &st);
+    bool deserialize(std::istream &st);
+
+    void testSerialize();
+    void testDeserialize();
 
 #ifdef atomic_enable_sync_lock
     void dbgLockSyncMethods()               { m_sync_lock=true; }

@@ -49,12 +49,15 @@ IEntity* CreateEntity( EntityClassID entity_classid )
 
 
 
+atomicExportClass(atomic::IEntity);
+
 IEntity::IEntity()
-    : m_ehandle(atomicGetEntitySet()->getGeneratedHandle())
+    : m_ehandle(atomicGetWorld() ? atomicGetEntitySet()->getGeneratedHandle() : 0)
 {
 }
 
 
+atomicExportClass(atomic::EntitySet);
 
 EntitySet::EntitySet()
 {
@@ -71,6 +74,10 @@ EntitySet::~EntitySet()
     m_vacant.clear();
 
     m_all.clear();
+}
+
+void EntitySet::initialize()
+{
 }
 
 void EntitySet::frameBegin()

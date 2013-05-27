@@ -6,7 +6,6 @@
 #include "Text.h"
 #include "Graphics/AtomicRenderingSystem.h"
 #include "Game/World.h"
-#include "Game/DebugMenu.h"
 #include "Sound/AtomicSound.h"
 #include "Graphics/Renderer.h"
 #include "Network/LevelEditorServer.h"
@@ -112,10 +111,10 @@ bool AtomicConfig::writeToFile( const char* filepath )
 
 void AtomicConfig::setupDebugMenu()
 {
-    atomicDbgAddParamNodeP("Config/VSync",                bool, &vsync);
-    atomicDbgAddParamNodeP("Config/Unlimit Game Speed",   bool, &unlimit_gamespeed);
-    atomicDbgAddParamNodeP("Config/PostEffect Bloom",     bool, &posteffect_bloom);
-    atomicDbgAddParamNodeP("Config/PostEffect Antialias", bool, &posteffect_antialias);
+    wdmAddNode("Config/VSync",                &vsync);
+    wdmAddNode("Config/Unlimit Game Speed",   &unlimit_gamespeed);
+    wdmAddNode("Config/PostEffect Bloom",     &posteffect_bloom);
+    wdmAddNode("Config/PostEffect Antialias", &posteffect_antialias);
 }
 
 
@@ -198,7 +197,6 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     istTaskSchedulerInitialize();
 
     // initialize debug menu
-    atomicDbgInitializeDebugMenu();
     conf.setupDebugMenu();
 
     // console
@@ -261,7 +259,6 @@ void AtomicApplication::finalize()
 
     istCommandlineConsoleFinalize();
     istCommandlineFinalize();
-    atomicDbgFinalizeDebugMenu();
 
     istTaskSchedulerFinalize();
 
@@ -297,6 +294,7 @@ void AtomicApplication::mainLoop()
     {
         DOL_Update();
         wdmFlush();
+        istCommandlineFlush();
         translateMessage();
         update();
 
@@ -333,6 +331,9 @@ void AtomicApplication::update()
     iuiUpdate();
 
     AtomicConfig &conf = m->config;
+    if(getKeyboardState().isKeyTriggered(ist::KEY_F1)) {
+        wdmOpenBrowser();
+    }
     if(getKeyboardState().isKeyTriggered(ist::KEY_F2)) {
         conf.posteffect_bloom = !conf.posteffect_bloom;
     }
@@ -368,8 +369,6 @@ void AtomicApplication::update()
         float &p = atomicGetLights()->getMultiresolutionParams().Threshold.x;
         p = clamp(p+0.001f, 0.0f, 1.0f);
     }
-
-    atomicDbgDebugMenuUpdate();
 }
 
 void AtomicApplication::draw()
@@ -509,7 +508,6 @@ void AtomicApplication::drawCallback()
     if(m->game) {
         m->game->drawCallback();
     }
-    atomicDbgDebugMenuDraw();
 }
 
 

@@ -74,11 +74,12 @@ void VFXScintilla::addData( const VFXScintillaSpawnData &spawn )
     m_particles.insert(m_particles.end(), particles, particles+spawn.num_particles);
 }
 
+atomicExportClass(atomic::VFXSet);
 
 VFXSet::VFXSet()
+    : m_scintilla(nullptr)
+    , m_components()
 {
-    m_scintilla = istNew(VFXScintilla)();
-    m_components.push_back(m_scintilla);
 }
 
 VFXSet::~VFXSet()
@@ -86,6 +87,12 @@ VFXSet::~VFXSet()
     for(uint32 i=0; i<m_components.size(); ++i) {
         istDelete(m_components[i]);
     }
+}
+
+void VFXSet::initialize()
+{
+    m_scintilla = istNew(VFXScintilla)();
+    m_components.push_back(m_scintilla);
 }
 
 void VFXSet::frameBegin()

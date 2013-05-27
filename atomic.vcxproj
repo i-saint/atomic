@@ -30,7 +30,6 @@
     <ClCompile Include="Game\AtomicApplication.cpp" />
     <ClCompile Include="Game\AtomicGame.cpp" />
     <ClCompile Include="Game\Collision.cpp" />
-    <ClCompile Include="Game\DebugMenu.cpp" />
     <ClCompile Include="Game\Entity.cpp" />
     <ClCompile Include="Game\Entity\Bullet.cpp" />
     <ClCompile Include="Game\Entity\Enemy.cpp" />
@@ -86,7 +85,6 @@
     <ClInclude Include="Game\AtomicApplication.h" />
     <ClInclude Include="Game\AtomicGame.h" />
     <ClInclude Include="Game\Collision.h" />
-    <ClInclude Include="Game\DebugMenu.h" />
     <ClInclude Include="Game\Entity.h" />
     <ClInclude Include="Game\EntityClass.h" />
     <ClInclude Include="Game\EntityQuery.h" />

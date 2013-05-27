@@ -164,6 +164,7 @@ namespace stl = std;
 #ifdef ist_with_boost_serialization
 #pragma warning(push)
 #pragma warning(disable: 4244)
+#define BOOST_SERIALIZATION_DYN_LINK
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/export.hpp>

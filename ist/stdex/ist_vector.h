@@ -1473,14 +1473,16 @@ protected:
 
     istSerializeSaveBlock({
         size_t s = size();
-        ar & s;
+        size_t cap = capacity();
+        ar & s & cap;
         for(size_type i=0; i<s; ++i) {
             ar & (*this)[i];
         }
     })
     istSerializeLoadBlock({
-        size_t s;
-        ar & s;
+        size_t s, cap;
+        ar & s & cap;
+        reserve(cap);
         resize(s);
         for(size_type i=0; i<s; ++i) {
             ar & (*this)[i];

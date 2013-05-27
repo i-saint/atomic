@@ -22,6 +22,7 @@ enum EntityClassID
 
     EC_Player_Begin = ECA_Player<<9,
     EC_Player,
+    EC_Barrier,
     EC_Player_End,
 
     EC_Enemy_Begin = ECA_Enemy<<9,

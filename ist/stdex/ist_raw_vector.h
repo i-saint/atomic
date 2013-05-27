@@ -152,13 +152,15 @@ private:
     size_type m_capacity;
 
     istSerializeSaveBlock({
-        ar & m_size;
+        ar & m_size & m_capacity;
         for(size_type i=0; i<m_size; ++i) {
             ar & m_data[i];
         }
     })
     istSerializeLoadBlock({
-        ar & m_size;
+        size_type cap;
+        ar & m_size & cap;
+        reserve(cap);
         resize(m_size);
         for(size_type i=0; i<m_size; ++i) {
             ar & m_data[i];

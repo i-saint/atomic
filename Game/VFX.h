@@ -13,6 +13,7 @@ struct VFXScintillaSpawnData
     float32 scatter_radius;
     float32 diffuse_strength;
     uint32 num_particles;
+
     VFXScintillaSpawnData()
         : size(0.01f), lifetime(0.0f), scatter_radius(0.02f), diffuse_strength(0.01f), num_particles(0) {}
 };
@@ -26,6 +27,19 @@ struct VFXScintillaParticleData
     float32 frame;
     float32 size;
     CollisionHandle collision;
+
+private:
+    istSerializeBlock(
+        istSerialize(position)
+        istSerialize(color)
+        istSerialize(glow)
+        istSerialize(velosity)
+        istSerialize(frame)
+        istSerialize(size)
+        istSerialize(collision)
+        )
+
+public:
     VFXScintillaParticleData() : frame(0.0f), size(0.01f), collision(0) {}
 };
 typedef ist::vector<VFXScintillaParticleData> VFXScintillaDataCont;
@@ -33,6 +47,8 @@ typedef ist::vector<VFXScintillaParticleData> VFXScintillaDataCont;
 
 class IVFXComponent
 {
+    istSerializeBlock(
+        )
 public:
     virtual ~IVFXComponent() {}
     virtual void frameBegin()=0;
@@ -46,11 +62,17 @@ public:
 
 class VFXScintilla : public IVFXComponent
 {
+typedef IVFXComponent super;
 public:
     typedef VFXScintillaParticleData ParticleData;
     typedef VFXScintillaDataCont ParticleCont;
 private:
     ParticleCont m_particles;
+
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerialize(m_particles)
+        )
 
 public:
     void frameBegin();
@@ -65,14 +87,22 @@ public:
 
 class VFXSet : public IAtomicGameModule
 {
+typedef IAtomicGameModule super;
 private:
     VFXScintilla *m_scintilla;
     ist::vector<IVFXComponent*> m_components;
 
+    // todo
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerialize(m_scintilla)
+        istSerialize(m_components)
+        )
 public:
     VFXSet();
     ~VFXSet();
 
+    void initialize();
     void frameBegin();
     void update(float32 dt);
     void asyncupdate(float32 dt);

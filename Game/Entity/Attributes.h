@@ -277,6 +277,16 @@ private:
         )
 
 public:
+    atomicECallBlock(
+        atomicMethodBlock(
+        atomicECall(getTransform)
+        atomicECall(setTransform)
+        atomicECall(updateTransformMatrix)
+        )
+        atomicECallSuper(super)
+        )
+
+public:
     const mat4& getTransform() const    { return m_transform; }
 
     void setTransform(const mat4 &v) { m_transform=v; }
@@ -300,6 +310,17 @@ private:
         istSerializeBase(super)
         istSerialize(m_transform)
         istSerialize(m_itransform)
+        )
+
+public:
+    atomicECallBlock(
+        atomicMethodBlock(
+        atomicECall(getTransform)
+        atomicECall(getInverseTransform)
+        atomicECall(setTransform)
+        atomicECall(updateTransformMatrix)
+        )
+        atomicECallSuper(super)
         )
 
 public:
@@ -435,7 +456,6 @@ public:
             m_collision = 0;
             return;
         }
-
         CollisionEntity *ce = NULL;
         switch(cs) {
         case CS_Box:    ce = atomicCreateCollision(CollisionBox);   break;
@@ -446,9 +466,37 @@ public:
         m_collision = ce->getCollisionHandle();
     }
 
-    CollisionHandle getCollisionHandle() const
+    CollisionHandle getCollisionHandle() const { return m_collision; }
+    CollisionSphere& getCollisionSphere() {
+        CollisionEntity *ce = atomicGetCollision(m_collision);
+        istAssert(ce!=nullptr && ce->getShape()==CS_Sphere);
+        return *static_cast<CollisionSphere*>(ce);
+    }
+    CollisionBox& getCollisionBox() {
+        CollisionEntity *ce = atomicGetCollision(m_collision);
+        istAssert(ce!=nullptr && ce->getShape()==CS_Box);
+        return *static_cast<CollisionBox*>(ce);
+    }
+
+    void updateCollision(const mat4 &t)
     {
-        return m_collision;
+        if(CollisionEntity *ce = atomicGetCollision(m_collision)) {
+            switch(ce->getShape()) {
+            case CS_Sphere:
+                {
+                    CollisionSphere &shape = *static_cast<CollisionSphere*>(ce);
+                    vec4 pos = t * vec4(0.0f, 0.0f, 0.0f, 1.0f);
+                    UpdateCollisionSphere(shape, pos, shape.pos_r.w);
+                }
+                break;
+            case CS_Box:
+                {
+                    CollisionBox &shape = *static_cast<CollisionBox*>(ce);
+                    UpdateCollisionBox(shape, t, shape.size);
+                }
+                break;
+            }
+        }
     }
 
     void updateCollisionAsSphere(const mat4 &t, float32 radius)

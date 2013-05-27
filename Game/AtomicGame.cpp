@@ -15,6 +15,7 @@
 
 #include "Collision.h"
 #include "Entity/Routine.h"
+#include <zip_stream/zipstream.hpp>
 
 namespace atomic {
 
@@ -25,6 +26,8 @@ AtomicGame::AtomicGame()
 , m_frame(0)
 , m_skip_update(false)
 {
+    wdmAddNode("Game/testSerialize()", &AtomicGame::testSerialize, this);
+    wdmAddNode("Game/testDeserialize()", &AtomicGame::testDeserialize, this);
 }
 
 AtomicGame::~AtomicGame()
@@ -43,6 +46,7 @@ AtomicGame::~AtomicGame()
     istSafeDelete(m_input_server);
 
     MessageRouter::finalizeInstance();
+    wdmEraseNode("Game");
 }
 
 bool AtomicGame::config(const GameStartConfig &conf)
@@ -96,15 +100,9 @@ void AtomicGame::frameBegin()
 void AtomicGame::update(float32 dt)
 {
     if(!m_skip_update) {
-        if(!atomicDbgDebugMenuIsActive()) {
-            m_input_server->pushInput(0, atomicGetSystemInputs()->getRawInput());
-        }
-        else {
-            m_input_server->pushInput(0, RepInput());
-        }
+        m_input_server->pushInput(0, atomicGetSystemInputs()->getRawInput());
     }
 
-    istCommandlineFlush();
     atomicLevelEditorHandleCommands( std::bind(&IInputServer::pushLevelEditorCommand, m_input_server, std::placeholders::_1));
     atomicLevelEditorHandleQueries( std::bind(&AtomicGame::handleLevelEditorQueries, this, std::placeholders::_1) );
     atomicGameClientHandleMessages( std::bind(&AtomicGame::handlePMessages, this, std::placeholders::_1) );
@@ -308,6 +306,45 @@ void AtomicGame::handlePMessages( const PMessage &mes )
         }
         break;
     }
+}
+
+bool AtomicGame::serialize( std::ostream &st )
+{
+    try {
+        boost::archive::binary_oarchive ar(st);
+        ar & m_world;
+    }
+    catch(std::exception &e) {
+        istPrint(e.what());
+    }
+    return true;
+}
+
+bool AtomicGame::deserialize( std::istream &st )
+{
+    istSafeDelete(m_world);
+    try {
+        boost::archive::binary_iarchive ar(st);
+        ar & m_world;
+    }
+    catch(std::exception &e) {
+        istPrint(e.what());
+    }
+    return true;
+}
+
+void AtomicGame::testSerialize()
+{
+    std::ofstream fs("state.atbin", std::ios::binary);
+    zlib_stream::zip_ostream zipper(fs);
+    serialize(zipper);
+}
+
+void AtomicGame::testDeserialize()
+{
+    std::ifstream fs("state.atbin", std::ios::binary);
+    zlib_stream::zip_istream zipper(fs);
+    deserialize(zipper);
 }
 
 } // namespace atomic
