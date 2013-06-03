@@ -79,7 +79,7 @@ public:
         , m_light_color(0.8f, 0.1f, 0.2f, 1.0f)
     {
         wdmScope(
-            wdmString path = wdmFormat("Enemy/handle:0x%x", getHandle());
+            wdmString path = wdmFormat("Enemy/0x%p", this);
             super::addDebugNodes(path);
             transform::addDebugNodes(path);
             model::addDebugNodes(path);
@@ -90,7 +90,7 @@ public:
 
     ~Enemy_Test()
     {
-        wdmEraseNode(wdmFormat("Enemy/handle:0x%x", getHandle()));
+        wdmEraseNode(wdmFormat("Enemy/0x%p", this));
     }
 
     virtual void initialize()

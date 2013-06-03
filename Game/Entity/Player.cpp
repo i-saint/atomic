@@ -386,7 +386,7 @@ public:
         , m_drive(nullptr), m_weapon(nullptr)
     {
         wdmScope(
-            wdmString path = wdmFormat("Player/handle:0x%x", getHandle());
+            wdmString path = wdmFormat("Player/0x%p", this);
             super::addDebugNodes(path);
             transform::addDebugNodes(path);
             wdmAddNode(path+"/setDrive()", &Player::setDrive, this);
@@ -398,7 +398,7 @@ public:
     {
         istSafeDelete(m_drive);
         istSafeDelete(m_weapon);
-        wdmEraseNode(wdmFormat("Player/handle:0x%x", getHandle()));
+        wdmEraseNode(wdmFormat("Player/0x%p", this));
     }
 
     const vec4& getVelocity() const { return m_vel; }
@@ -440,7 +440,7 @@ public:
         istSafeDelete(old_weapon);
     }
 
-    virtual void initialize()
+    virtual void initialize() override
     {
         super::initialize();
 
@@ -463,7 +463,7 @@ public:
         }
     }
 
-    virtual void update(float32 dt)
+    virtual void update(float32 dt) override
     {
         super::update(dt);
         if(m_drive)  {m_drive->update(dt); }
@@ -483,7 +483,7 @@ public:
         }
     }
 
-    void asyncupdate(float32 dt)
+    void asyncupdate(float32 dt) override
     {
         super::asyncupdate(dt);
         if(m_drive)  {m_drive->asyncupdate(dt); }
@@ -514,7 +514,7 @@ public:
         }
     }
 
-    virtual void draw()
+    virtual void draw() override
     {
         {
             PointLight l;
@@ -551,14 +551,14 @@ public:
         //}
     }
 
-    virtual void destroy()
+    virtual void destroy() override
     {
         atomicGetSPHManager()->addFluid(pset_id, getTransform());
         atomicPlaySE(SE_CHANNEL5, SE_EXPLOSION5, getPosition(), true);
         super::destroy();
     }
 
-    virtual void eventCollide(const CollideMessage *m)
+    virtual void eventCollide(const CollideMessage *m) override
     {
         // 押し返し
         vec4 v = m->direction * (m->direction.w * 0.2f);
