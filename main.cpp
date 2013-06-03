@@ -6,6 +6,19 @@
 
 istImplementOperatorNewDelete();
 
+#ifdef _M_X64
+#   define dpPlatform "x64"
+#else
+#   define dpPlatform "Win32"
+#endif
+#ifdef _DEBUG
+#   define dpConfiguration "Debug"
+#else
+#   define dpConfiguration "Release"
+#endif
+#define dpObjDir "_tmp/" dpConfiguration "/atomic" 
+
+
 namespace atomic {
     void InitializeCrashReporter();
     void FinalizeCrashReporter();
@@ -26,6 +39,11 @@ void ExecApp(int argc, char* argv[])
 
 int istmain(int argc, char* argv[])
 {
+    dpInitialize(dpConfig(dpE_LogSimple));
+    dpAddLoadPath(dpObjDir"/Routine.obj");
+    dpAddSourcePath("Game");
+    dpAddSourcePath("Graphics");
+    dpStartAutoBuild("atomic.vcxproj /target:ClCompile /m /p:Configuration="dpConfiguration";Platform="dpPlatform, false);
     ist::forceLink();
     //test();
 
@@ -35,6 +53,8 @@ istCrashReportBegin
 istCrashReportRescue
 istCrashReportEnd
     atomic::FinalizeCrashReporter();
+
+    dpFinalize();
     return 0;
 }
 

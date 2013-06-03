@@ -274,17 +274,6 @@ void AtomicApplication::finalize()
 
 void AtomicApplication::mainLoop()
 {
-#ifdef _WIN64
-#   define MSBUILD_OPTION "atomic.vcxproj /m /p:Configuration=Release;Platform=x64 /t:ClCompile"
-#   define BUILD_TARGET "x64\\Release"
-#else // _WIN64
-#   define MSBUILD_OPTION "atomic.vcxproj /m /p:Configuration=Release;Platform=Win32 /t:ClCompile"
-#   define BUILD_TARGET "Release"
-#endif // _WIN64
-    DOL_AddSourceDirectory("Game\\Entity");
-    DOL_StartAutoRecompile(MSBUILD_OPTION, true);
-    DOL_Load(BUILD_TARGET);
-    DOL_Link();
 
     ist::Timer pc;
     const float32 delay = 16.666f;
@@ -292,7 +281,7 @@ void AtomicApplication::mainLoop()
 
     while(!m->request_exit)
     {
-        DOL_Update();
+        dpUpdate();
         wdmFlush();
         istCommandlineFlush();
         translateMessage();

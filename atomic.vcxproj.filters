@@ -13,9 +13,6 @@
     <Filter Include="Game\Entity">
       <UniqueIdentifier>{1f1a3bf3-079c-4653-90b2-5e697bd4f0df}</UniqueIdentifier>
     </Filter>
-    <Filter Include="DynamicObjLoader">
-      <UniqueIdentifier>{95f71aba-a2cf-41ed-b005-48da179efb62}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Network">
       <UniqueIdentifier>{e0808553-5455-4898-b12a-efbfd7e38736}</UniqueIdentifier>
     </Filter>
@@ -101,9 +98,6 @@
     </ClCompile>
     <ClCompile Include="Graphics\Renderer_Postprocess.cpp">
       <Filter>Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="DynamicObjLoader\DynamicObjLoader.cpp">
-      <Filter>DynamicObjLoader</Filter>
     </ClCompile>
     <ClCompile Include="Network\GameServer.cpp">
       <Filter>Network</Filter>
@@ -235,9 +229,6 @@
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="FunctionID.h" />
-    <ClInclude Include="DynamicObjLoader\DynamicObjLoader.h">
-      <Filter>DynamicObjLoader</Filter>
-    </ClInclude>
     <ClInclude Include="Network\GameServer.h">
       <Filter>Network</Filter>
     </ClInclude>
