@@ -53,3 +53,5 @@
 #include "types.h"
 
 #include "WebDebugMenu.h"
+#define dpLinkDynamic
+#include "DynamicPatcher.h"

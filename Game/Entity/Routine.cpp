@@ -28,7 +28,7 @@ IRoutine* CreateRoutine(RoutineClassID rcid)
 }
 
 
-class Routine_Shoot : public IRoutine
+class dpPatch Routine_Shoot : public IRoutine
 {
 typedef IRoutine super;
 private:
@@ -58,7 +58,7 @@ atomicImplementRoutine(Routine_Shoot);
 atomicExportClass(atomic::Routine_Shoot);
 
 
-class Routine_HomingPlayer : public IRoutine, public Attr_MessageHandler
+class dpPatch Routine_HomingPlayer : public IRoutine, public Attr_MessageHandler
 {
 typedef IRoutine super;
 typedef Attr_MessageHandler mhandler;
@@ -114,7 +114,7 @@ atomicImplementRoutine(Routine_HomingPlayer);
 atomicExportClass(atomic::Routine_HomingPlayer);
 
 
-class Routine_Pinball : public IRoutine, public Attr_MessageHandler
+class dpPatch Routine_Pinball : public IRoutine, public Attr_MessageHandler
 {
 typedef Routine_Pinball this_t;
 typedef IRoutine super;

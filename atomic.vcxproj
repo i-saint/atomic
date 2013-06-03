@@ -20,12 +20,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CrashReport.cpp" />
-    <ClCompile Include="DynamicObjLoader\DynamicObjLoader.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Intel_SSA|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="EnumStrings.cpp" />
     <ClCompile Include="Game\AtomicApplication.cpp" />
     <ClCompile Include="Game\AtomicGame.cpp" />
@@ -78,7 +72,6 @@
     <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DynamicObjLoader\DynamicObjLoader.h" />
     <ClInclude Include="externals.h" />
     <ClInclude Include="features.h" />
     <ClInclude Include="FunctionID.h" />
@@ -192,7 +185,7 @@
     <IncludePath>external\tbb\include;$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)$(Configuration);external\lib\win32;external\tbb\lib\ia32\vc10;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
-    <OutDir>$(SolutionDir)_out\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)bin\</OutDir>
     <TargetName>$(ProjectName)_debug</TargetName>
     <IntDir>$(SolutionDir)_tmp\$(Configuration)\$(ProjectName)\</IntDir>
     <CustomBuildAfterTargets>
@@ -203,7 +196,7 @@
     <IncludePath>external\tbb\include;$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)$(Configuration);external\lib\win32;external\tbb\lib\ia32\vc10;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
     <IntDir>$(SolutionDir)_tmp\$(Configuration)\$(ProjectName)\</IntDir>
-    <OutDir>$(SolutionDir)_out\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)bin\</OutDir>
     <CustomBuildAfterTargets>
     </CustomBuildAfterTargets>
   </PropertyGroup>
@@ -211,7 +204,7 @@
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>external\tbb\include;$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)$(Configuration);external\lib\win32;external\tbb\lib\ia32\vc10;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)_out\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)bin\</OutDir>
     <TargetName>$(ProjectName)_develop</TargetName>
     <IntDir>$(SolutionDir)_tmp\$(Configuration)\$(ProjectName)\</IntDir>
     <CustomBuildBeforeTargets>
@@ -223,7 +216,7 @@
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>external\tbb\include;$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)$(Configuration);external\lib\win32;external\tbb\lib\ia32\vc10;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)_out\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)bin\</OutDir>
     <IntDir>$(SolutionDir)_tmp\$(Configuration)\$(ProjectName)\</IntDir>
     <CustomBuildAfterTargets>
     </CustomBuildAfterTargets>
@@ -252,7 +245,8 @@
       <OptimizeReferences>false</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) $(SolutionDir)</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Intel_SSA|Win32'">
@@ -272,7 +266,8 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) $(SolutionDir)</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -303,7 +298,8 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) $(SolutionDir)</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">
@@ -315,7 +311,7 @@
       <AdditionalIncludeDirectories>./;_tmp/$(Configuration)/psym;external;external/tbb/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PreprocessorDefinitions>wdmDisable;DOL_StaticLink;DisableMemoryLeakBuster;ist_env_Master;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>dpDisable;wdmDisable;DOL_StaticLink;DisableMemoryLeakBuster;ist_env_Master;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -332,7 +328,8 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) $(SolutionDir)</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

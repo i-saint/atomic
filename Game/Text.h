@@ -19,6 +19,5 @@ namespace atomic {
     void SetLanguage(LANGUAGE_ID lid);
     const wchar_t* GetText(TEXT_ID tid);
 
-
 } // namespace atomic
 #endif // atomic_Game_Text_h
