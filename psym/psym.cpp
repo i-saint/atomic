@@ -6,23 +6,23 @@
 
 namespace psym {
 
-DOL_ImportFunction(void, impIntegrateDOL, (ispc::Particle * all_particles, ispc::GridData * grid, int32_t xi, int32_t yi));
-DOL_ImportFunction(void, impUpdateVelocityDOL, (ispc::Particle * all_particles, ispc::GridData * grid, int32_t xi, int32_t yi));
-DOL_ImportFunction(void, sphInitializeConstantsDOL, ());
-DOL_ImportFunction(void, sphIntegrateDOL, (ispc::Particle * all_particles, ispc::GridData * grid, int32_t xi, int32_t yi));
-DOL_ImportFunction(void, sphProcessCollisionDOL, (
+void impIntegrateDOL(ispc::Particle * all_particles, ispc::GridData * grid, int32_t xi, int32_t yi);
+void impUpdateVelocityDOL(ispc::Particle * all_particles, ispc::GridData * grid, int32_t xi, int32_t yi);
+void sphInitializeConstantsDOL();
+void sphIntegrateDOL(ispc::Particle * all_particles, ispc::GridData * grid, int32_t xi, int32_t yi);
+void sphProcessCollisionDOL(
     ispc::Particle * all_particles, ispc::GridData * grid, int32_t xi, int32_t yi,
     ispc::RigidSphere * spheres, int32_t num_spheres,
     ispc::RigidPlane * planes, int32_t num_planes,
-    ispc::RigidBox * boxes, int32_t num_boxes ));
-DOL_ImportFunction(void, sphProcessExternalForceDOL, (
+    ispc::RigidBox * boxes, int32_t num_boxes );
+void sphProcessExternalForceDOL(
     ispc::Particle * all_particles, ispc::GridData * grid, int32_t xi, int32_t yi,
     ispc::PointForce * pforce, int32_t num_pforce,
     ispc::DirectionalForce * dforce, int32_t num_dforce,
-    ispc::BoxForce * bforce, int32_t num_bforce ));
-DOL_ImportFunction(void, sphUpdateDensityDOL, (ispc::Particle * all_particles, ispc::GridData * grid, int32_t xi, int32_t yi));
-DOL_ImportFunction(void, sphUpdateDensity2DOL, (ispc::Particle * all_particles, ispc::GridData * grid, int32_t xi, int32_t yi));
-DOL_ImportFunction(void, sphUpdateForceDOL, (ispc::Particle * all_particles, ispc::GridData * grid, int32_t xi, int32_t yi));
+    ispc::BoxForce * bforce, int32_t num_bforce);
+void sphUpdateDensityDOL(ispc::Particle * all_particles, ispc::GridData * grid, int32_t xi, int32_t yi);
+void sphUpdateDensity2DOL(ispc::Particle * all_particles, ispc::GridData * grid, int32_t xi, int32_t yi);
+void sphUpdateForceDOL(ispc::Particle * all_particles, ispc::GridData * grid, int32_t xi, int32_t yi);
 
 
 const int32 SIMD_LANES = 8;

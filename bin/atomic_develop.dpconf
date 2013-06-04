@@ -1,0 +1,3 @@
+load path: "_tmp\Release\atomic\*.obj"
+source path: "Game"
+msbuild command: "atomic.vcxproj /target:ClCompile /m /p:Configuration=Release;Platform=Win32"

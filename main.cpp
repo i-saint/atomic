@@ -39,11 +39,7 @@ void ExecApp(int argc, char* argv[])
 
 int istmain(int argc, char* argv[])
 {
-    dpInitialize(dpConfig(dpE_LogSimple));
-    dpAddLoadPath(dpObjDir"/Routine.obj");
-    dpAddSourcePath("Game");
-    dpAddSourcePath("Graphics");
-    dpStartAutoBuild("atomic.vcxproj /target:ClCompile /m /p:Configuration="dpConfiguration";Platform="dpPlatform, false);
+    dpInitialize();
     ist::forceLink();
     //test();
 

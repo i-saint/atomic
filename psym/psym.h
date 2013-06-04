@@ -5,7 +5,6 @@
 #include "psymConst.h"
 #include "psymCore_ispc.h"
 #include "psymSoA.h"
-#include "../DynamicObjLoader/DynamicObjLoader.h"
 
 #define psymGlobalNamespace(...) } __VA_ARGS__ namespace psym {
 

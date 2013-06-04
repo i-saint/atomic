@@ -45,7 +45,7 @@ public:
     void update(float32 dt)
     {
         ++m_frame;
-        if(m_frame % 300 == 0) {
+        if(m_frame % 60 == 0) {
             IEntity *e = getEntity();
             vec4 pos; atomicQuery(getEntity(), getPosition, pos);
             vec4 player_pos = GetNearestPlayerPosition(pos);
