@@ -216,7 +216,7 @@ atomicImplementEntity(Bullet_Particle);
 atomicExportClass(atomic::Bullet_Particle);
 
 
-class Bullet_Simple
+class dpPatch Bullet_Simple
     : public IEntity
     , public TAttr_TransformMatrix< TAttr_RotateSpeed<Attr_DoubleAxisRotation> >
     , public Attr_ParticleSet
@@ -267,7 +267,7 @@ public:
     )
 
 public:
-    Bullet_Simple() : m_owner(0), m_power(50.0f), m_past_frame(0), m_lifetime(600) {}
+    Bullet_Simple() : m_owner(0), m_power(10.0f), m_past_frame(0), m_lifetime(360) {}
 
     EntityHandle getOwner() const   { return m_owner; }
     const vec4& getVelocity() const { return m_vel; }
@@ -279,19 +279,19 @@ public:
     void setVelocity(const vec4 &v) { m_vel=v; }
     void setPower(float32 v)        { m_power=v; }
 
-    void initialize()
+    virtual void initialize()
     {
         collision::initializeCollision(getHandle());
         setCollisionShape(CS_Sphere);
         setCollisionFlags(CF_Receiver | CF_SPH_Sender);
 
-        setModel(PSET_SPHERE_SMALL);
+        setModel(PSET_SPHERE_BULLET);
         setDiffuseColor(vec4(0.6f, 0.6f, 0.6f, 80.0f));
-        setGlowColor(vec4(1.0f, 0.7f, 0.1f, 0.0f));
+        setGlowColor(vec4(2.0f, 1.2f, 0.1f, 0.0f));
         //setAxis1(GenRandomUnitVector3());
         //setAxis2(GenRandomUnitVector3());
-        setRotateSpeed1(1.5f);
-        setRotateSpeed2(1.5f);
+        setRotateSpeed1(4.5f);
+        setRotateSpeed2(4.5f);
     }
 
     virtual void update(float32 dt)
@@ -308,17 +308,19 @@ public:
     virtual void asyncupdate(float32 dt)
     {
         super::asyncupdate(dt);
-        move();
+        {
+            vec4 pos = getPosition();
+            pos += getVelocity();
+            pos.z = 0.02f;
+            setPosition(pos);
+        }
+        if(m_owner && !atomicGetEntity(m_owner)) {
+            m_owner = 0;
+        }
+
         transform::updateRotate(dt);
         transform::updateTransformMatrix();
         collision::updateCollisionByParticleSet(getModel(), getTransform(), 0.5f);
-    }
-
-    void move()
-    {
-        vec4 pos = getPosition();
-        pos += getVelocity();
-        setPosition(pos);
     }
 
     virtual void draw()
@@ -326,11 +328,10 @@ public:
         vec4 diffuse= getDiffuseColor();
         vec4 glow   = getGlowColor();
         vec4 light  = glow;
-
         {
             PointLight l;
-            l.setPosition(getPosition() + vec4(0.0f, 0.0f, 0.15f, 1.0f));
-            l.setRadius(0.4f);
+            l.setPosition(getPosition() + vec4(0.0f, 0.0f, 0.10f, 1.0f));
+            l.setRadius(0.2f);
             l.setColor(light);
             atomicGetLights()->addLight(l);
         }
@@ -346,7 +347,7 @@ public:
 
     virtual void eventCollide(const CollideMessage *m)
     {
-        if(m->from == getOwner()) { return; }
+        if(m->from==getOwner()) { return; }
 
         if(IEntity *e=atomicGetEntity(m->from)) {
             atomicCall(e, damage, m_power);
