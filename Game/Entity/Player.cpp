@@ -14,7 +14,7 @@
 
 namespace atomic {
 
-class IWeaponry
+class dpPatch IWeaponry
 {
 private:
     EntityHandle m_owner;
@@ -37,7 +37,7 @@ public:
 typedef IWeaponry IDrive;
 
 
-class Booster : public IDrive
+class dpPatch Booster : public IDrive
 {
 typedef IDrive super;
 private:
@@ -81,7 +81,7 @@ public:
 atomicExportClass(atomic::Booster);
 
 
-class Blinker : public IDrive
+class dpPatch Blinker : public IDrive
 {
 typedef IDrive super;
 private:
@@ -143,7 +143,7 @@ public:
 atomicExportClass(atomic::Blinker);
 
 
-class Penetrator : public IDrive
+class dpPatch Penetrator : public IDrive
 {
 typedef IDrive super;
 private:
@@ -155,7 +155,7 @@ public:
 atomicExportClass(atomic::Penetrator);
 
 
-class TimeWarp : public IDrive
+class dpPatch TimeWarp : public IDrive
 {
 typedef IDrive super;
 private:
@@ -168,7 +168,7 @@ atomicExportClass(atomic::TimeWarp);
 
 
 
-class BarrierGenerator : public IWeaponry
+class dpPatch BarrierGenerator : public IWeaponry
 {
 typedef IWeaponry super;
 private:
@@ -228,7 +228,7 @@ public:
 atomicExportClass(atomic::BarrierGenerator);
 
 
-class GravityMineLauncher : public IWeaponry
+class dpPatch GravityMineLauncher : public IWeaponry
 {
 typedef IWeaponry super;
 private:
@@ -240,7 +240,7 @@ public:
 atomicExportClass(atomic::GravityMineLauncher);
 
 
-class Catapult : public IWeaponry
+class dpPatch Catapult : public IWeaponry
 {
 typedef IWeaponry super;
 private:
@@ -252,7 +252,7 @@ public:
 atomicExportClass(atomic::Catapult);
 
 
-class Barrier
+class dpPatch Barrier
     : public Breakable
     , public TAttr_TransformMatrix<Attr_Translate>
     , public Attr_Collision
@@ -325,7 +325,7 @@ atomicImplementEntity(Barrier);
 atomicExportClass(atomic::Barrier);
 
 
-class Player
+class dpPatch Player
     : public Breakable
     , public TAttr_TransformMatrix< TAttr_RotateSpeed<Attr_DoubleAxisRotation> >
     , public Attr_Collision

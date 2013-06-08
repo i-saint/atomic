@@ -16,7 +16,7 @@
 namespace atomic {
 
 
-class Level_Test : public IEntity
+class dpPatch Level_Test : public IEntity
 {
 typedef IEntity super;
 private:
@@ -148,7 +148,7 @@ public:
         atomicCall(e, setAxis2, GenRandomUnitVector3());
         atomicCall(e, setRotateSpeed1, 0.4f);
         atomicCall(e, setRotateSpeed2, 0.4f);
-        atomicCall(e, setRoutine, RCID_Routine_Shoot);
+        atomicCall(e, setRoutine, RCID_Routine_SingleShoot);
         atomicCall(e, setLightRadius, 0.8f);
         atomicCall(e, setExplosionSE, SE_EXPLOSION4);
         atomicCall(e, setExplosionChannel, SE_CHANNEL4);
@@ -170,7 +170,7 @@ public:
         atomicCall(e, setAxis2, GenRandomUnitVector3());
         atomicCall(e, setRotateSpeed1, 0.1f);
         atomicCall(e, setRotateSpeed2, 0.1f);
-        atomicCall(e, setRoutine, RCID_Routine_Shoot);
+        atomicCall(e, setRoutine, RCID_Routine_SingleShoot);
         atomicCall(e, setLightRadius, 1.4f);
         atomicCall(e, setExplosionSE, SE_EXPLOSION5);
         atomicCall(e, setExplosionChannel, SE_CHANNEL5);
@@ -288,6 +288,8 @@ public:
         // 敵テスト用
         if(m_frame==1) {
             IEntity *e = putLargeEnemy();
+            atomicCall(e, setRoutine, RCID_Routine_CircularShoot);
+            //atomicCall(e, setLife, 100000000.0f);
         }
 
         if(m_frame < 1200) {

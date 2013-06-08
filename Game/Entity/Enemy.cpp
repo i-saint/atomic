@@ -15,7 +15,7 @@
 
 namespace atomic {
 
-class Enemy_Test
+class dpPatch Enemy_Test
     : public Breakable
     , public TAttr_TransformMatrixI< TAttr_RotateSpeed<Attr_DoubleAxisRotation> >
     , public Attr_ParticleSet
@@ -225,30 +225,6 @@ public:
 atomicImplementEntity(Enemy_Test);
 atomicExportClass(atomic::Enemy_Test);
 
-
-class Routine_ChasePlayerRough : public IRoutine
-{
-typedef IRoutine super;
-private:
-    vec4 m_objective;
-    int32 m_count;
-
-    istSerializeBlock(
-        istSerializeBase(super)
-        istSerialize(m_objective)
-        istSerialize(m_count)
-        )
-
-public:
-    Routine_ChasePlayerRough() : m_count(0)
-    {
-    }
-
-    void update(float32 dt)
-    {
-    }
-};
-atomicExportClass(atomic::Routine_ChasePlayerRough);
 
 } // namespace atomic
 

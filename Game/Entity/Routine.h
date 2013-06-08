@@ -6,7 +6,8 @@ enum RoutineClassID
 {
     RCID_Null,
 
-    RCID_Routine_Shoot,
+    RCID_Routine_SingleShoot,
+    RCID_Routine_CircularShoot,
     RCID_Routine_HomingPlayer,
     RCID_Routine_Pinball,
 

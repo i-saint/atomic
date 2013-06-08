@@ -267,7 +267,7 @@ public:
     )
 
 public:
-    Bullet_Simple() : m_owner(0), m_power(10.0f), m_past_frame(0), m_lifetime(360) {}
+    Bullet_Simple() : m_owner(0), m_power(2.0f), m_past_frame(0), m_lifetime(600) {}
 
     EntityHandle getOwner() const   { return m_owner; }
     const vec4& getVelocity() const { return m_vel; }
@@ -311,7 +311,7 @@ public:
         {
             vec4 pos = getPosition();
             pos += getVelocity();
-            pos.z = 0.02f;
+            pos.z = 0.03f;
             setPosition(pos);
         }
         if(m_owner && !atomicGetEntity(m_owner)) {
