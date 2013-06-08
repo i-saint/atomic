@@ -1,10 +1,10 @@
-﻿#ifndef atomic_Game_Entity_h
-#define atomic_Game_Entity_h
+﻿#ifndef atm_Game_Entity_h
+#define atm_Game_Entity_h
 
 #include "EntityClass.h"
 
 
-namespace atomic {
+namespace atm {
 
 
 class IEntity
@@ -123,5 +123,5 @@ private:
         )
 };
 
-} // namespace atomic
-#endif // atomic_Game_Entity_h
+} // namespace atm
+#endif // atm_Game_Entity_h

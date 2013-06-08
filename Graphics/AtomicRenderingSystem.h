@@ -1,9 +1,9 @@
-﻿#ifndef atomic_Graphics_AtomicRenderingSystem_h
-#define atomic_Graphics_AtomicRenderingSystem_h
+﻿#ifndef atm_Graphics_AtomicRenderingSystem_h
+#define atm_Graphics_AtomicRenderingSystem_h
 
 #include "psym/psym.h"
 
-namespace atomic {
+namespace atm {
 
 class AtomicRenderingThread;
 
@@ -36,14 +36,14 @@ public:
     i3d::EasyDrawer* getEasyDrawer();
 };
 
-} // namespace atomic
+} // namespace atm
 
-#define atomicGetRenderingSystem()              AtomicRenderingSystem::getInstance()
-#define atomicWaitUntilDrawCallbackComplete()   atomicGetRenderingSystem()->waitUntilDrawCallbackComplete()
-#define atomicKickDraw()                        atomicGetRenderingSystem()->kickDraw()
-#define atomicGetAverageFPS()                   atomicGetRenderingSystem()->getAverageFPS()
-#define atomicGetGLDevice()                     atomicGetRenderingSystem()->getDevice()
-#define atomicGetGLDeviceContext()              atomicGetRenderingSystem()->getDeviceContext()
-#define atomicGetEasyDrawer()                   atomicGetRenderingSystem()->getEasyDrawer()
+#define atmGetRenderingSystem()              AtomicRenderingSystem::getInstance()
+#define atmWaitUntilDrawCallbackComplete()   atmGetRenderingSystem()->waitUntilDrawCallbackComplete()
+#define atmKickDraw()                        atmGetRenderingSystem()->kickDraw()
+#define atmGetAverageFPS()                   atmGetRenderingSystem()->getAverageFPS()
+#define atmGetGLDevice()                     atmGetRenderingSystem()->getDevice()
+#define atmGetGLDeviceContext()              atmGetRenderingSystem()->getDeviceContext()
+#define atmGetEasyDrawer()                   atmGetRenderingSystem()->getEasyDrawer()
 
-#endif // atomic_Graphics_AtomicRenderingSystem_h
+#endif // atm_Graphics_AtomicRenderingSystem_h

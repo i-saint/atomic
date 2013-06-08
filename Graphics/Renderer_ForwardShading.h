@@ -1,6 +1,6 @@
-﻿#ifndef atomic_Graphics_Renderer_ForwardShading_h
-#define atomic_Graphics_Renderer_ForwardShading_h
-namespace atomic {
+﻿#ifndef atm_Graphics_Renderer_ForwardShading_h
+#define atm_Graphics_Renderer_ForwardShading_h
+namespace atm {
 
 
 class PassForwardShading_DistanceField : public IRenderer
@@ -21,5 +21,5 @@ public:
 };
 
 
-} // namespace atomic
-#endif // atomic_Graphics_Renderer_ForwardShading_h
+} // namespace atm
+#endif // atm_Graphics_Renderer_ForwardShading_h

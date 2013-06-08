@@ -9,7 +9,7 @@
 #include "Renderer.h"
 #include "Util.h"
 
-namespace atomic {
+namespace atm {
 
 
 AtomicRenderer* AtomicRenderer::s_inst = NULL;
@@ -30,12 +30,12 @@ AtomicRenderer::AtomicRenderer()
     istMemset(&m_rstates3d, 0, sizeof(m_rstates3d));
 
     s_inst = this;
-    m_va_screenquad = atomicGetVertexArray(VA_SCREEN_QUAD);
-    m_sh_out        = atomicGetShader(SH_OUTPUT);
+    m_va_screenquad = atmGetVertexArray(VA_SCREEN_QUAD);
+    m_sh_out        = atmGetShader(SH_OUTPUT);
 
-    m_rt_gbuffer    = atomicGetRenderTarget(RT_GBUFFER);
-    m_rt_out[0]     = atomicGetRenderTarget(RT_OUTPUT0);
-    m_rt_out[1]     = atomicGetRenderTarget(RT_OUTPUT1);
+    m_rt_gbuffer    = atmGetRenderTarget(RT_GBUFFER);
+    m_rt_out[0]     = atmGetRenderTarget(RT_OUTPUT0);
+    m_rt_out[1]     = atmGetRenderTarget(RT_OUTPUT1);
 
     // 追加の際はデストラクタでの消去処理も忘れずに
     m_renderer_fluid            = istNew(PassGBuffer_Fluid)();
@@ -48,9 +48,9 @@ AtomicRenderer::AtomicRenderer()
     m_renderer_bloom            = istNew(PassPostprocess_Bloom)();
     m_renderer_fade             = istNew(PassPostprocess_Fade)();
     m_renderer_distance_field   = istNew(PassForwardShading_DistanceField)();
-#ifdef atomic_enable_gbuffer_viewer
+#ifdef atm_enable_gbuffer_viewer
     m_debug_show_gbuffer        = istNew(PassHUD_DebugShowBuffer)();
-#endif // atomic_enable_gbuffer_viewer
+#endif // atm_enable_gbuffer_viewer
 
     m_stext = istNew(SystemTextRenderer)();
 
@@ -64,19 +64,19 @@ AtomicRenderer::AtomicRenderer()
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_microscopic);
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_bloom);
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_fade);
-#ifdef atomic_enable_gbuffer_viewer
+#ifdef atm_enable_gbuffer_viewer
     m_renderers[PASS_HUD].push_back(m_debug_show_gbuffer);
-#endif // atomic_enable_gbuffer_viewer
+#endif // atm_enable_gbuffer_viewer
 
-    m_default_viewport = Viewport(ivec2(0), atomicGetWindowSize());
+    m_default_viewport = Viewport(ivec2(0), atmGetWindowSize());
 }
 
 AtomicRenderer::~AtomicRenderer()
 {
     istSafeDelete(m_stext);
-#ifdef atomic_enable_gbuffer_viewer
+#ifdef atm_enable_gbuffer_viewer
     istSafeDelete(m_debug_show_gbuffer);
-#endif // atomic_enable_gbuffer_viewer
+#endif // atm_enable_gbuffer_viewer
     istSafeDelete(m_renderer_distance_field);
     istSafeDelete(m_renderer_fade);
     istSafeDelete(m_renderer_bloom);
@@ -103,43 +103,43 @@ void AtomicRenderer::beforeDraw()
 
 void AtomicRenderer::draw()
 {
-    i3d::DeviceContext *dc = atomicGetGLDeviceContext();
+    i3d::DeviceContext *dc = atmGetGLDeviceContext();
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
     glEnable(GL_CULL_FACE);
 
-    AtomicGame *game = atomicGetGame();
+    AtomicGame *game = atmGetGame();
     if(game) {
-        PerspectiveCamera *camera   = atomicGetGameCamera();
-        Buffer *ubo_rs              = atomicGetUniformBuffer(UBO_RENDERSTATES_3D);
-        const uvec2 &wsize          = atomicGetWindowSize();
+        PerspectiveCamera *camera   = atmGetGameCamera();
+        Buffer *ubo_rs              = atmGetUniformBuffer(UBO_RENDERSTATES_3D);
+        const uvec2 &wsize          = atmGetWindowSize();
         m_rstates3d.ModelViewProjectionMatrix = camera->getViewProjectionMatrix();
         m_rstates3d.CameraPosition  = camera->getPosition();
         m_rstates3d.CameraDirection = camera->getDirection();
-        m_rstates3d.ScreenSize      = vec2(atomicGetWindowSize());
+        m_rstates3d.ScreenSize      = vec2(atmGetWindowSize());
         m_rstates3d.RcpScreenSize   = vec2(1.0f, 1.0f) / m_rstates3d.ScreenSize;
         m_rstates3d.AspectRatio     = (float32)wsize.x / (float32)wsize.y;
         m_rstates3d.RcpAspectRatio  = 1.0f / m_rstates3d.AspectRatio;
         m_rstates3d.ScreenTexcoord  = m_rstates3d.ScreenSize / vec2(m_rt_gbuffer->getColorBuffer(0)->getDesc().size);
         m_rstates3d.Color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-        m_rstates3d.Frame = (float32)atomicGetFrame();
+        m_rstates3d.Frame = (float32)atmGetFrame();
         MapAndWrite(dc, ubo_rs, &m_rstates3d, sizeof(m_rstates3d));
 
-        ubo_rs              = atomicGetUniformBuffer(UBO_RENDERSTATES_BG);
+        ubo_rs              = atmGetUniformBuffer(UBO_RENDERSTATES_BG);
         m_rstatesBG = m_rstates3d;
         MapAndWrite(dc, ubo_rs, &m_rstatesBG, sizeof(m_rstatesBG));
     }
     {
-        Buffer *ubo_rs      = atomicGetUniformBuffer(UBO_RENDERSTATES_2D);
-        const vec2 &wsize   = vec2(atomicGetWindowSize());
+        Buffer *ubo_rs      = atmGetUniformBuffer(UBO_RENDERSTATES_2D);
+        const vec2 &wsize   = vec2(atmGetWindowSize());
         m_rstates2d         = m_rstates3d;
         m_rstates2d.ModelViewProjectionMatrix = glm::ortho(0.0f, wsize.x, wsize.y, 0.0f);
         MapAndWrite(dc, ubo_rs, &m_rstates2d, sizeof(m_rstates2d));
     }
     {
-        Sampler *smp_gb = atomicGetSampler(SAMPLER_GBUFFER);
-        Sampler *smp_tex = atomicGetSampler(SAMPLER_TEXTURE_DEFAULT);
+        Sampler *smp_gb = atmGetSampler(SAMPLER_GBUFFER);
+        Sampler *smp_tex = atmGetSampler(SAMPLER_TEXTURE_DEFAULT);
         dc->setSampler(GLSL_COLOR_BUFFER, smp_tex);
         dc->setSampler(GLSL_NORMAL_BUFFER, smp_gb);
         dc->setSampler(GLSL_POSITION_BUFFER, smp_gb);
@@ -147,10 +147,10 @@ void AtomicRenderer::draw()
         dc->setSampler(GLSL_BACK_BUFFER, smp_tex);
         dc->setSampler(GLSL_RANDOM_BUFFER, smp_tex);
         dc->setSampler(GLSL_PARAM_BUFFER, smp_tex);
-        dc->setBlendState(atomicGetBlendState(BS_NO_BLEND));
+        dc->setBlendState(atmGetBlendState(BS_NO_BLEND));
     }
     {
-        dc->setViewport(*atomicGetDefaultViewport());
+        dc->setViewport(*atmGetDefaultViewport());
     }
 
     passShadow();
@@ -178,7 +178,7 @@ void AtomicRenderer::passShadow()
 
 void AtomicRenderer::passGBuffer()
 {
-    i3d::DeviceContext *dc = atomicGetGLDeviceContext();
+    i3d::DeviceContext *dc = atmGetGLDeviceContext();
     dc->clearColor(m_rt_gbuffer, vec4(0.0f,0.0f,0.0f,1.0f));
     dc->clearDepthStencil(m_rt_gbuffer, 1.0f, 0);
     dc->setRenderTarget(m_rt_gbuffer);
@@ -188,10 +188,10 @@ void AtomicRenderer::passGBuffer()
         m_renderers[PASS_GBUFFER][i]->draw();
     }
 
-    dc->setDepthStencilState(atomicGetDepthStencilState(DS_NO_DEPTH_NO_STENCIL));
+    dc->setDepthStencilState(atmGetDepthStencilState(DS_NO_DEPTH_NO_STENCIL));
     dc->setRenderTarget(NULL);
 
-    if(atomicGetConfig()->light_multiresolution) {
+    if(atmGetConfig()->light_multiresolution) {
         dc->generateMips(m_rt_gbuffer->getColorBuffer(GBUFFER_COLOR));
         dc->generateMips(m_rt_gbuffer->getColorBuffer(GBUFFER_COLOR));
         dc->generateMips(m_rt_gbuffer->getColorBuffer(GBUFFER_NORMAL));
@@ -201,9 +201,9 @@ void AtomicRenderer::passGBuffer()
 
 void AtomicRenderer::passDeferredShading()
 {
-    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
-    RenderTarget *brt = atomicGetBackRenderTarget();
-    RenderTarget *rt = atomicGetFrontRenderTarget();
+    i3d::DeviceContext *dc  = atmGetGLDeviceContext();
+    RenderTarget *brt = atmGetBackRenderTarget();
+    RenderTarget *rt = atmGetFrontRenderTarget();
 
     rt->setDepthStencilBuffer(m_rt_gbuffer->getDepthStencilBuffer());
     dc->clearColor(rt, vec4(0.0f, 0.0f, 0.0f, 1.0f));
@@ -213,16 +213,16 @@ void AtomicRenderer::passDeferredShading()
     dc->setTexture(GLSL_POSITION_BUFFER, m_rt_gbuffer->getColorBuffer(GBUFFER_POSITION));
     dc->setTexture(GLSL_GLOW_BUFFER, m_rt_gbuffer->getColorBuffer(GBUFFER_GLOW));
     dc->setTexture(GLSL_BACK_BUFFER, brt->getColorBuffer(0));
-    dc->setTexture(GLSL_RANDOM_BUFFER, atomicGetTexture2D(TEX2D_RANDOM));
-    dc->setBlendState(atomicGetBlendState(BS_BLEND_ADD));
-    dc->setDepthStencilState(atomicGetDepthStencilState(DS_LIGHTING_FRONT));
+    dc->setTexture(GLSL_RANDOM_BUFFER, atmGetTexture2D(TEX2D_RANDOM));
+    dc->setBlendState(atmGetBlendState(BS_BLEND_ADD));
+    dc->setDepthStencilState(atmGetDepthStencilState(DS_LIGHTING_FRONT));
 
     uint32 num_renderers = m_renderers[PASS_DEFERRED].size();
     for(uint32 i=0; i<num_renderers; ++i) {
         m_renderers[PASS_DEFERRED][i]->draw();
     }
-    dc->setDepthStencilState(atomicGetDepthStencilState(DS_NO_DEPTH_NO_STENCIL));
-    dc->setBlendState(atomicGetBlendState(BS_NO_BLEND));
+    dc->setDepthStencilState(atmGetDepthStencilState(DS_NO_DEPTH_NO_STENCIL));
+    dc->setBlendState(atmGetBlendState(BS_NO_BLEND));
 
     dc->setTexture(GLSL_COLOR_BUFFER, NULL);
     dc->setTexture(GLSL_NORMAL_BUFFER, NULL);
@@ -233,9 +233,9 @@ void AtomicRenderer::passDeferredShading()
 
 void AtomicRenderer::passForwardShading()
 {
-    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
-    RenderTarget *rt = atomicGetFrontRenderTarget();
-    atomicSwapOutputRenderTarget();
+    i3d::DeviceContext *dc  = atmGetGLDeviceContext();
+    RenderTarget *rt = atmGetFrontRenderTarget();
+    atmSwapOutputRenderTarget();
 
     rt->setDepthStencilBuffer(m_rt_gbuffer->getDepthStencilBuffer());
     dc->setRenderTarget(rt);
@@ -262,10 +262,10 @@ void AtomicRenderer::passHUD()
 
 void AtomicRenderer::passOutput()
 {
-    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
+    i3d::DeviceContext *dc  = atmGetGLDeviceContext();
     m_sh_out->assign(dc);
     dc->setRenderTarget(NULL);
-    dc->setTexture(GLSL_COLOR_BUFFER, atomicGetBackRenderTarget()->getColorBuffer(0));
+    dc->setTexture(GLSL_COLOR_BUFFER, atmGetBackRenderTarget()->getColorBuffer(0));
     dc->setVertexArray(m_va_screenquad);
     dc->draw(I3D_QUADS, 0, 4);
 
@@ -279,10 +279,10 @@ void AtomicRenderer::passOutput()
     // texts 
 
     char buf[64];
-    istSPrintf(buf, "FPS: %u", atomicGetRenderingSystem()->getAverageFPS());
+    istSPrintf(buf, "FPS: %u", atmGetRenderingSystem()->getAverageFPS());
     m_stext->addText(vec2(5.0f, 5.0f), buf);
-    if(atomicGetGame()) {
-        istSPrintf(buf, "Particles: %d", atomicGetSPHManager()->getNumParticles());
+    if(atmGetGame()) {
+        istSPrintf(buf, "Particles: %d", atmGetSPHManager()->getNumParticles());
         m_stext->addText(vec2(5.0f, 25.0f), buf);
     }
 
@@ -297,10 +297,10 @@ void AtomicRenderer::passOutput()
     //        "glow",
     //        "all",
     //    };
-    //    istsprintf(buf, "GBuffer: %s [F3/F4]", names[std::abs(atomicGetConfig()->debug_show_gbuffer)%6]);
+    //    istsprintf(buf, "GBuffer: %s [F3/F4]", names[std::abs(atmGetConfig()->debug_show_gbuffer)%6]);
     //}
     //m_stext->addText(vec2(5.0f, 110.0f), buf);
-    //istsprintf(buf, "Lights: %d [F5/F6]", atomicGetConfig()->debug_show_lights);
+    //istsprintf(buf, "Lights: %d [F5/F6]", atmGetConfig()->debug_show_lights);
     //m_stext->addText(vec2(5.0f, 130.0f), buf);
     //istsprintf(buf, "Pause: [F7]");
     //m_stext->addText(vec2(5.0f, 150.0f), buf);
@@ -309,10 +309,10 @@ void AtomicRenderer::passOutput()
     //istsprintf(buf, "Show Multiresolution Level: [F9]");
     //m_stext->addText(vec2(5.0f, 190.0f), buf);
 
-    //istsprintf(buf, "Multiresolution Threshold: %.3f ([8]<- [9]->)", atomicGetLights()->getMultiresolutionParams().Threshold.x);
+    //istsprintf(buf, "Multiresolution Threshold: %.3f ([8]<- [9]->)", atmGetLights()->getMultiresolutionParams().Threshold.x);
     //m_stext->addText(vec2(5.0f, 210.0f), buf);
 
-    dc->setBlendState(atomicGetBlendState(BS_BLEND_ALPHA));
+    dc->setBlendState(atmGetBlendState(BS_BLEND_ALPHA));
 
     m_stext->draw();
     {
@@ -338,12 +338,12 @@ void SystemTextRenderer::beforeDraw()
 
 void SystemTextRenderer::draw()
 {
-    if(!atomicGetConfig()->show_text) { return; }
-    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
+    if(!atmGetConfig()->show_text) { return; }
+    i3d::DeviceContext *dc  = atmGetGLDeviceContext();
 
     {
-        const vec2 &wsize   = vec2(atomicGetWindowSize());
-        auto *font = atomicGetFont();
+        const vec2 &wsize   = vec2(atmGetWindowSize());
+        auto *font = atmGetFont();
         font->setScreen(0.0f, wsize.x, wsize.y, 0.0f);
         font->setSize(18.0f);
         font->setMonospace(true);
@@ -352,9 +352,9 @@ void SystemTextRenderer::draw()
     }
     for(uint32 i=0; i<m_texts.size(); ++i) {
         const Text &t = m_texts[i];
-        atomicGetFont()->addText(t.pos, t.text, wcsnlen(t.text, _countof(t.text)));
+        atmGetFont()->addText(t.pos, t.text, wcsnlen(t.text, _countof(t.text)));
     }
-    atomicGetFont()->draw();
+    atmGetFont()->draw();
 }
 
 void SystemTextRenderer::addText(const vec2 &pos, const char *text)
@@ -375,11 +375,11 @@ void SystemTextRenderer::addText( const vec2 &pos, const wchar_t *text )
 
 
 
-#ifdef atomic_enable_gbuffer_viewer
+#ifdef atm_enable_gbuffer_viewer
 
 void PassHUD_DebugShowBuffer::drawColorBuffer( const DebugShowBufferParams &params )
 {
-    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
+    i3d::DeviceContext *dc  = atmGetGLDeviceContext();
     MapAndWrite(dc, m_ub_params, &params, sizeof(params));
 
     m_sh_rgb->bind();
@@ -391,7 +391,7 @@ void PassHUD_DebugShowBuffer::drawColorBuffer( const DebugShowBufferParams &para
 
 void PassHUD_DebugShowBuffer::drawNormalBuffer( const DebugShowBufferParams &params )
 {
-    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
+    i3d::DeviceContext *dc  = atmGetGLDeviceContext();
     MapAndWrite(dc, m_ub_params, &params, sizeof(params));
 
     m_sh_rgb->bind();
@@ -403,7 +403,7 @@ void PassHUD_DebugShowBuffer::drawNormalBuffer( const DebugShowBufferParams &par
 
 void PassHUD_DebugShowBuffer::drawPositionBuffer( const DebugShowBufferParams &params )
 {
-    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
+    i3d::DeviceContext *dc  = atmGetGLDeviceContext();
     MapAndWrite(dc, m_ub_params, &params, sizeof(params));
 
     m_sh_rgb->bind();
@@ -415,7 +415,7 @@ void PassHUD_DebugShowBuffer::drawPositionBuffer( const DebugShowBufferParams &p
 
 void PassHUD_DebugShowBuffer::drawGlowBuffer( const DebugShowBufferParams &params )
 {
-    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
+    i3d::DeviceContext *dc  = atmGetGLDeviceContext();
     MapAndWrite(dc, m_ub_params, &params, sizeof(params));
 
     m_sh_rgb->bind();
@@ -427,10 +427,10 @@ void PassHUD_DebugShowBuffer::drawGlowBuffer( const DebugShowBufferParams &param
 
 PassHUD_DebugShowBuffer::PassHUD_DebugShowBuffer()
 {
-    m_gbuffer = atomicGetRenderTarget(RT_GBUFFER);
-    m_sh_rgb = atomicGetShader(SH_DEBUG_SHOW_RGB);
-    m_sh_aaa = atomicGetShader(SH_DEBUG_SHOW_AAA);
-    m_ub_params = atomicGetUniformBuffer(UBO_DEBUG_SHOW_BUFFER_PARAMS);
+    m_gbuffer = atmGetRenderTarget(RT_GBUFFER);
+    m_sh_rgb = atmGetShader(SH_DEBUG_SHOW_RGB);
+    m_sh_aaa = atmGetShader(SH_DEBUG_SHOW_AAA);
+    m_ub_params = atmGetUniformBuffer(UBO_DEBUG_SHOW_BUFFER_PARAMS);
     m_loc_params = m_sh_rgb->getUniformBlockIndex("debug_params");
 }
 
@@ -441,10 +441,10 @@ void PassHUD_DebugShowBuffer::draw()
     params.UpperRight = vec2( 1.0f,  1.0f);
     params.ColorRange = vec2( 0.0f, 1.0f);
 
-    //m_rt = atomicGetBackRenderTarget();
+    //m_rt = atmGetBackRenderTarget();
     //m_rt->bind();
 
-    int32 cmd = std::abs(atomicGetConfig()->debug_show_gbuffer) % 6;
+    int32 cmd = std::abs(atmGetConfig()->debug_show_gbuffer) % 6;
     switch(cmd) {
     case 1:
         drawColorBuffer(params);
@@ -491,6 +491,6 @@ void PassHUD_DebugShowBuffer::draw()
 
     //m_rt->unbind();
 }
-#endif // atomic_enable_gbuffer_viewer
+#endif // atm_enable_gbuffer_viewer
 
-} // namespace atomic
+} // namespace atm

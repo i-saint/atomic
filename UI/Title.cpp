@@ -5,7 +5,7 @@
 #include "Title.h"
 #include "Poco/DirectoryIterator.h"
 
-namespace atomic {
+namespace atm {
 
 
 
@@ -13,7 +13,7 @@ RootWindow::RootWindow()
     : m_title(NULL)
     , m_log(NULL)
 {
-    setSize(iui::Size(atomicGetWindowSize().x, atomicGetWindowSize().y));
+    setSize(iui::Size(atmGetWindowSize().x, atmGetWindowSize().y));
 
     m_title  = istNew(TitleWindow)();
     m_log    = istNew(LogWindow)();
@@ -65,7 +65,7 @@ TitleWindow::TitleWindow()
 
 void TitleWindow::draw()
 {
-    IFontRenderer *font = atomicGetTitleFont();
+    IFontRenderer *font = atmGetTitleFont();
     const iui::Size &size = iuiGetRootWindow()->getSize();
     font->setScreen(0.0f, size.x, size.y, 0.0f);
     font->setSize(120.0f);
@@ -100,7 +100,7 @@ void TitleWindow::onExit(Widget *)
 {
     hideAll();
     m_buttons[3]->setPressed(true, false);
-    atomicGetApplication()->requestExit();
+    atmGetApplication()->requestExit();
 }
 
 void TitleWindow::hideAll()
@@ -130,7 +130,7 @@ StartWindow::StartWindow()
 void StartWindow::onCampaign(Widget *)
 {
     GameStartConfig conf;
-    atomicGetApplication()->requestStartGame(conf);
+    atmGetApplication()->requestStartGame(conf);
     getParent()->setVisibility(false);
 }
 
@@ -165,7 +165,7 @@ void RecordWindow::onSelect( Widget *w )
     conf.gmode = GameStartConfig::GM_Replay;
     std::string path = ist::S(static_cast<iui::List*>(w)->getSelectedItem()->getText());
     conf.path_to_replay = path;
-    atomicGetApplication()->requestStartGame(conf);
+    atmGetApplication()->requestStartGame(conf);
 }
 
 
@@ -177,18 +177,18 @@ ConfigWindow::ConfigWindow()
     float32 vspace = 40.0f;
 
     iui::Label *lb_name = istNew(iui::Label)(this, L"name", iui::Rect(iui::Position(0, 0+vspace*0), iui::Size(40, 25)));
-    iui::Editbox *ed_name  = istNew(iui::Editbox)(this, atomicGetConfig()->name, iui::Rect(iui::Position(40, 0+vspace*0), size), std::bind(&ConfigWindow::onName, this, _1));
+    iui::Editbox *ed_name  = istNew(iui::Editbox)(this, atmGetConfig()->name, iui::Rect(iui::Position(40, 0+vspace*0), size), std::bind(&ConfigWindow::onName, this, _1));
 }
 
 void ConfigWindow::onName(Widget *w)
 {
-    size_t max_len = _countof(atomicGetConfig()->name)-1;
+    size_t max_len = _countof(atmGetConfig()->name)-1;
     if(w->getText().size()>max_len) {
         iui::String str = w->getText();
         str.resize(max_len);
         w->setText(str);
     }
-    wcscpy(atomicGetConfig()->name, w->getText().c_str());
+    wcscpy(atmGetConfig()->name, w->getText().c_str());
 }
 
 void ConfigWindow::onFullscreen(Widget *)
@@ -221,4 +221,4 @@ LogWindow::LogWindow()
 
 }
 
-} // namespace atomic
+} // namespace atm

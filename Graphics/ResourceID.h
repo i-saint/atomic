@@ -1,6 +1,6 @@
-﻿#ifndef atomic_Graphics_ResourceID_h
-#define atomic_Graphics_ResourceID_h
-namespace atomic {
+﻿#ifndef atm_Graphics_ResourceID_h
+#define atm_Graphics_ResourceID_h
+namespace atm {
 
 const size_t ATOMIC_MAX_CHARACTERS = 256;
 
@@ -169,5 +169,5 @@ enum STENCIL_ID {
     STENCIL_BG      = 4,
 };
 
-} // namespace atomic
-#endif //atomic_Graphics_ResourceID_h
+} // namespace atm
+#endif //atm_Graphics_ResourceID_h

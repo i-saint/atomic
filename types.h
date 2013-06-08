@@ -1,9 +1,9 @@
-﻿#ifndef atomic_Types_h
-#define atomic_Types_h
+﻿#ifndef atm_Types_h
+#define atm_Types_h
 
 #include "ist/ist.h"
 
-namespace atomic {
+namespace atm {
 
 typedef char                int8;
 typedef short               int16;
@@ -135,20 +135,20 @@ struct EntitiesQueryContext
     }
 };
 
-} // namespace atomic
+} // namespace atm
 
-#define atomicSafeRelease(Obj) if(Obj){Obj->release();Obj=NULL;}
+#define atmSafeRelease(Obj) if(Obj){Obj->release();Obj=NULL;}
 
-#define atomicGlobalNamespace(...)  } __VA_ARGS__ namespace atomic {
-#define atomicExportClass(ClassName)        \
-    atomicGlobalNamespace(                  \
+#define atmGlobalNamespace(...)  } __VA_ARGS__ namespace atm {
+#define atmExportClass(ClassName)        \
+    atmGlobalNamespace(                  \
         istSerializeExportClass(ClassName); \
     )
 
-#define atomicSerializeRaw(ClassName)   \
-atomicGlobalNamespace(                  \
+#define atmSerializeRaw(ClassName)   \
+atmGlobalNamespace(                  \
     istSerializeRaw(ClassName);         \
 )
 
 
-#endif // atomic_Types_h
+#endif // atm_Types_h

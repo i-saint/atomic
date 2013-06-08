@@ -1,11 +1,11 @@
-﻿#ifndef atomic_Network_PMessage_h
-#define atomic_Network_PMessage_h
+﻿#ifndef atm_Network_PMessage_h
+#define atm_Network_PMessage_h
 #include "externals.h"
 #include "types.h"
 #include "Game/Input.h"
 #include "LevelEditorCommand.h"
 
-namespace atomic {
+namespace atm {
 
 // パケットのヘッダ
 struct PMesBufferHeader
@@ -48,8 +48,8 @@ union istAlign(16) PMessage
     void share();
     void destroy(); // デストラクタ代わり。可変長系メッセージのメモリの開放はこれで行う
 };
-atomicGlobalNamespace(
-    istSerializeRaw(atomic::PMessage)
+atmGlobalNamespace(
+    istSerializeRaw(atm::PMessage)
     )
 
 struct PBuffer
@@ -278,6 +278,6 @@ protected:
     PMessageCont m_message_consuming;
 };
 
-} // namespace atomic
+} // namespace atm
 
-#endif // atomic_Network_PMessage_h
+#endif // atm_Network_PMessage_h

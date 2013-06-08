@@ -2,9 +2,9 @@
 #include "GameServer.h"
 #include "GameServerSession.h"
 
-namespace atomic {
+namespace atm {
 
-#ifdef atomic_enable_GameServer
+#ifdef atm_enable_GameServer
 
 GameServer* GameServer::s_inst;
 
@@ -54,7 +54,7 @@ void GameServer::start()
         params->setThreadIdleTime(Poco::Timespan(3, 0));
 
         try {
-            Poco::Net::ServerSocket svs(atomic_GameServer_DefaultPort);
+            Poco::Net::ServerSocket svs(atm_GameServer_DefaultPort);
             m_server = new Poco::Net::TCPServer(new GameServerSessionFactory(), svs, params);
             m_server->start();
 
@@ -200,6 +200,6 @@ uint32 GameServer::cretaePID()
     return m_pidgen++;
 }
 
-#endif // atomic_enable_GameServer
+#endif // atm_enable_GameServer
 
-} // namespace atomic
+} // namespace atm

@@ -1,6 +1,6 @@
-﻿#ifndef atomic_Graphics_Renderer_Postprocess_h
-#define atomic_Graphics_Renderer_Postprocess_h
-namespace atomic {
+﻿#ifndef atm_Graphics_Renderer_Postprocess_h
+#define atm_Graphics_Renderer_Postprocess_h
+namespace atm {
 
     
 class PassPostprocess_Microscopic : public IRenderer
@@ -75,5 +75,5 @@ public:
     void setFade(const vec4 &v, float32 frame);
 };
 
-} // namespace atomic
-#endif // atomic_Graphics_Renderer_Postprocess_h
+} // namespace atm
+#endif // atm_Graphics_Renderer_Postprocess_h

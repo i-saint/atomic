@@ -13,7 +13,7 @@
 #include "Enemy.h"
 #include "Routine.h"
 
-namespace atomic {
+namespace atm {
 
 
 class dpPatch Level_Test : public IEntity
@@ -62,7 +62,7 @@ public:
         super::initialize();
 
         const vec4 field_size = vec4(PSYM_GRID_SIZE*0.5f);
-        atomicGetWorld()->setFieldSize(field_size);
+        atmGetWorld()->setFieldSize(field_size);
 
         vec4 planes[] = {
             vec4(-1.0f, 0.0f, 0.0f, field_size.x),
@@ -77,7 +77,7 @@ public:
             {vec4(-field_size.x,-field_size.y, 0.0f, 1.0f), vec4( field_size.x,-field_size.y, 0.0f, 1.0f)},
         };
         for(uint32 i=0; i<_countof(planes); ++i) {
-            CollisionPlane *p = atomicCreateCollision(CollisionPlane);
+            CollisionPlane *p = atmCreateCollision(CollisionPlane);
             p->setGObjHandle(getHandle());
             p->setFlags(CF_Sender|CF_SPH_Sender);
             p->bb = bboxes[i];
@@ -89,7 +89,7 @@ public:
     void finalize()
     {
         for(uint32 i=0; i<_countof(m_planes); ++i) {
-            atomicDeleteCollision(m_planes[i]);
+            atmDeleteCollision(m_planes[i]);
         }
         super::finalize();
     }
@@ -99,17 +99,17 @@ public:
     IEntity* putSmallEnemy()
     {
         IEntity *e = NULL;
-        e = atomicCreateEntity(Enemy_Test);
-        atomicCall(e, setCollisionShape, CS_Sphere);
-        atomicCall(e, setModel, PSET_SPHERE_SMALL);
-        atomicCall(e, setPosition, GenRandomVector2() * 2.2f);
-        atomicCall(e, setLife, 15.0f * getLoopBoost());
-        atomicCall(e, setAxis1, GenRandomUnitVector3());
-        atomicCall(e, setAxis2, GenRandomUnitVector3());
-        atomicCall(e, setRotateSpeed1, 2.4f);
-        atomicCall(e, setRotateSpeed2, 2.4f);
-        atomicCall(e, setRoutine, RCID_Routine_HomingPlayer);
-        atomicCall(e, setLightRadius, 0.5f);
+        e = atmCreateEntity(Enemy_Test);
+        atmCall(e, setCollisionShape, CS_Sphere);
+        atmCall(e, setModel, PSET_SPHERE_SMALL);
+        atmCall(e, setPosition, GenRandomVector2() * 2.2f);
+        atmCall(e, setLife, 15.0f * getLoopBoost());
+        atmCall(e, setAxis1, GenRandomUnitVector3());
+        atmCall(e, setAxis2, GenRandomUnitVector3());
+        atmCall(e, setRotateSpeed1, 2.4f);
+        atmCall(e, setRotateSpeed2, 2.4f);
+        atmCall(e, setRoutine, RCID_Routine_HomingPlayer);
+        atmCall(e, setLightRadius, 0.5f);
         m_small_enemies.push_back(e->getHandle());
         return e;
     }
@@ -117,63 +117,63 @@ public:
     IEntity* putPinballEnemy()
     {
         IEntity *e = NULL;
-        e = atomicCreateEntity(Enemy_Test);
-        atomicCall(e, setCollisionShape, CS_Sphere);
-        atomicCall(e, setCollisionFlags, CF_Receiver|CF_Sender);
-        atomicCall(e, setModel, PSET_SPHERE_BULLET);
-        atomicCall(e, setPosition, GenRandomVector2() * 0.5f + vec4(1.5f, 1.5f, 0.0f, 0.0f));
-        atomicCall(e, setLife, 5.0f * getLoopBoost());
-        atomicCall(e, setAxis1, GenRandomUnitVector3());
-        atomicCall(e, setAxis2, GenRandomUnitVector3());
-        atomicCall(e, setRotateSpeed1, 2.4f);
-        atomicCall(e, setRotateSpeed2, 2.4f);
-        atomicCall(e, setRoutine, RCID_Routine_Pinball);
-        atomicCall(e, setLightRadius, 0.0f);
-        atomicCall(e, setVelocity, (vec4(0.0f, -0.99f, 0.0f, 0.0f))*0.005f);
-        //atomicCall(e, setAccel, GenRandomUnitVector2()*0.00005f);
-        atomicCall(e, setAccel, vec4(0.0f, -1.0f, 0.0f, 0.0f)*0.00005f);
+        e = atmCreateEntity(Enemy_Test);
+        atmCall(e, setCollisionShape, CS_Sphere);
+        atmCall(e, setCollisionFlags, CF_Receiver|CF_Sender);
+        atmCall(e, setModel, PSET_SPHERE_BULLET);
+        atmCall(e, setPosition, GenRandomVector2() * 0.5f + vec4(1.5f, 1.5f, 0.0f, 0.0f));
+        atmCall(e, setLife, 5.0f * getLoopBoost());
+        atmCall(e, setAxis1, GenRandomUnitVector3());
+        atmCall(e, setAxis2, GenRandomUnitVector3());
+        atmCall(e, setRotateSpeed1, 2.4f);
+        atmCall(e, setRotateSpeed2, 2.4f);
+        atmCall(e, setRoutine, RCID_Routine_Pinball);
+        atmCall(e, setLightRadius, 0.0f);
+        atmCall(e, setVelocity, (vec4(0.0f, -0.99f, 0.0f, 0.0f))*0.005f);
+        //atmCall(e, setAccel, GenRandomUnitVector2()*0.00005f);
+        atmCall(e, setAccel, vec4(0.0f, -1.0f, 0.0f, 0.0f)*0.00005f);
         return e;
     }
 
     IEntity* putMediumEnemy()
     {
-        IEntity *e = atomicCreateEntity(Enemy_Test);
-        switch(atomicGetRandom()->genInt32() % 2) {
-        case 0: atomicCall(e, setModel, PSET_CUBE_MEDIUM);  atomicCall(e, setCollisionShape, CS_Box); break;
-        case 1: atomicCall(e, setModel, PSET_SPHERE_MEDIUM);atomicCall(e, setCollisionShape, CS_Sphere); break;
+        IEntity *e = atmCreateEntity(Enemy_Test);
+        switch(atmGetRandom()->genInt32() % 2) {
+        case 0: atmCall(e, setModel, PSET_CUBE_MEDIUM);  atmCall(e, setCollisionShape, CS_Box); break;
+        case 1: atmCall(e, setModel, PSET_SPHERE_MEDIUM);atmCall(e, setCollisionShape, CS_Sphere); break;
         }
-        atomicCall(e, setPosition, GenRandomVector2() * 2.1f);
-        atomicCall(e, setLife, 100.0f * getLoopBoost());
-        atomicCall(e, setAxis1, GenRandomUnitVector3());
-        atomicCall(e, setAxis2, GenRandomUnitVector3());
-        atomicCall(e, setRotateSpeed1, 0.4f);
-        atomicCall(e, setRotateSpeed2, 0.4f);
-        atomicCall(e, setRoutine, RCID_Routine_SingleShoot);
-        atomicCall(e, setLightRadius, 0.8f);
-        atomicCall(e, setExplosionSE, SE_EXPLOSION4);
-        atomicCall(e, setExplosionChannel, SE_CHANNEL4);
+        atmCall(e, setPosition, GenRandomVector2() * 2.1f);
+        atmCall(e, setLife, 100.0f * getLoopBoost());
+        atmCall(e, setAxis1, GenRandomUnitVector3());
+        atmCall(e, setAxis2, GenRandomUnitVector3());
+        atmCall(e, setRotateSpeed1, 0.4f);
+        atmCall(e, setRotateSpeed2, 0.4f);
+        atmCall(e, setRoutine, RCID_Routine_SingleShoot);
+        atmCall(e, setLightRadius, 0.8f);
+        atmCall(e, setExplosionSE, SE_EXPLOSION4);
+        atmCall(e, setExplosionChannel, SE_CHANNEL4);
         m_medium_enemies.push_back(e->getHandle());
         return e;
     }
 
     IEntity* putLargeEnemy()
     {
-        IEntity *e = atomicCreateEntity(Enemy_Test);
-        //atomicCall(e, setModel, PSET_CUBE_LARGE); atomicCall(e, setCollisionShape, CS_BOX);
-        switch(atomicGetRandom()->genInt32() % 2) {
-        case 0: atomicCall(e, setModel, PSET_CUBE_LARGE);   atomicCall(e, setCollisionShape, CS_Box); break;
-        case 1: atomicCall(e, setModel, PSET_SPHERE_LARGE); atomicCall(e, setCollisionShape, CS_Sphere); break;
+        IEntity *e = atmCreateEntity(Enemy_Test);
+        //atmCall(e, setModel, PSET_CUBE_LARGE); atmCall(e, setCollisionShape, CS_BOX);
+        switch(atmGetRandom()->genInt32() % 2) {
+        case 0: atmCall(e, setModel, PSET_CUBE_LARGE);   atmCall(e, setCollisionShape, CS_Box); break;
+        case 1: atmCall(e, setModel, PSET_SPHERE_LARGE); atmCall(e, setCollisionShape, CS_Sphere); break;
         }
-        atomicCall(e, setPosition, GenRandomVector2() * 1.5f);
-        atomicCall(e, setLife, 1200.0f * getLoopBoost());
-        atomicCall(e, setAxis1, GenRandomUnitVector3());
-        atomicCall(e, setAxis2, GenRandomUnitVector3());
-        atomicCall(e, setRotateSpeed1, 0.1f);
-        atomicCall(e, setRotateSpeed2, 0.1f);
-        atomicCall(e, setRoutine, RCID_Routine_SingleShoot);
-        atomicCall(e, setLightRadius, 1.4f);
-        atomicCall(e, setExplosionSE, SE_EXPLOSION5);
-        atomicCall(e, setExplosionChannel, SE_CHANNEL5);
+        atmCall(e, setPosition, GenRandomVector2() * 1.5f);
+        atmCall(e, setLife, 1200.0f * getLoopBoost());
+        atmCall(e, setAxis1, GenRandomUnitVector3());
+        atmCall(e, setAxis2, GenRandomUnitVector3());
+        atmCall(e, setRotateSpeed1, 0.1f);
+        atmCall(e, setRotateSpeed2, 0.1f);
+        atmCall(e, setRoutine, RCID_Routine_SingleShoot);
+        atmCall(e, setLightRadius, 1.4f);
+        atmCall(e, setExplosionSE, SE_EXPLOSION5);
+        atmCall(e, setExplosionChannel, SE_CHANNEL5);
         m_large_enemies.push_back(e->getHandle());
         return e;
     }
@@ -201,22 +201,22 @@ public:
             if(m_level > 0 && !isPlayerAlive()) {
                 m_frame = 0;
                 m_state = ST_GAME_OVER;
-                atomicGetFader()->setFade(vec4(0.0f, 0.0f, 0.0f, 1.0f), 300.0f);
+                atmGetFader()->setFade(vec4(0.0f, 0.0f, 0.0f, 1.0f), 300.0f);
             }
         }
         else if(m_state==ST_GAME_OVER) {
             if(m_frame > 300) {
-                atomicGetApplication()->requestExit();
+                atmGetApplication()->requestExit();
             }
         }
     }
 
     void updateCamera()
     {
-        PerspectiveCamera *pcam = atomicGetGameCamera();
-        if(IEntity *player = atomicGetEntity(m_player)) {
+        PerspectiveCamera *pcam = atmGetGameCamera();
+        if(IEntity *player = atmGetEntity(m_player)) {
             vec4 player_pos;
-            atomicQuery(player, getPosition, player_pos);
+            atmQuery(player, getPosition, player_pos);
             vec4 cpos       = pcam->getPosition();
             vec4 tpos       = pcam->getTarget();
             vec4 cpos2      = cpos + (player_pos-cpos)*0.03f;
@@ -226,16 +226,16 @@ public:
             pcam->setPosition(cpos2);
             pcam->setTarget(tpos2);
 
-            PerspectiveCamera *bgcam = atomicGetBGCamera();
+            PerspectiveCamera *bgcam = atmGetBGCamera();
             *bgcam = *pcam;
 
-            atomicSetListenerPosition(cpos2);
+            atmSetListenerPosition(cpos2);
         }
     }
 
     bool isPlayerAlive()
     {
-        if(!atomicGetEntity(m_player)) {
+        if(!atmGetEntity(m_player)) {
             return false;
         }
         return true;
@@ -245,7 +245,7 @@ public:
     bool isAllDead(ist::vector<EntityHandle> &ev)
     {
         for(uint32 i=0; i<ev.size(); ++i) {
-            if(atomicGetEntity(ev[i])) { return false; }
+            if(atmGetEntity(ev[i])) { return false; }
         }
         return true;
     }
@@ -258,7 +258,7 @@ public:
     void goNextLevel()
     {
         {
-            atomicDebugLog("goNextLevel(): %d\n", (uint32)atomicGetFrame());
+            atmDebugLog("goNextLevel(): %d\n", (uint32)atmGetFrame());
         }
         ++m_level;
         m_frame = 0;
@@ -271,14 +271,14 @@ public:
     {
         {
             //SPHPutParticles(30000);
-            IEntity *e = atomicCreateEntity(Player);
+            IEntity *e = atmCreateEntity(Player);
             m_player = e->getHandle();
-            atomicCall(e, setPosition, vec4(0.0f, 0.0f, 0.0f, 1.0f));
-            atomicCall(e, setLife, 100000000.0f);
+            atmCall(e, setPosition, vec4(0.0f, 0.0f, 0.0f, 1.0f));
+            atmCall(e, setLife, 100000000.0f);
         }
         {
-            atomicGetFader()->setColor(vec4(0.0f, 0.0f, 0.0f, 1.0f));
-            atomicGetFader()->setFade(vec4(0.0f, 0.0f, 0.0f, 0.0f), 60.0f);
+            atmGetFader()->setColor(vec4(0.0f, 0.0f, 0.0f, 1.0f));
+            atmGetFader()->setFade(vec4(0.0f, 0.0f, 0.0f, 0.0f), 60.0f);
         }
         goNextLevel();
     }
@@ -288,8 +288,8 @@ public:
         // 敵テスト用
         if(m_frame==1) {
             IEntity *e = putLargeEnemy();
-            atomicCall(e, setRoutine, RCID_Routine_CircularShoot);
-            //atomicCall(e, setLife, 100000000.0f);
+            atmCall(e, setRoutine, RCID_Routine_CircularShoot);
+            //atmCall(e, setLife, 100000000.0f);
         }
 
         if(m_frame < 1200) {
@@ -388,21 +388,21 @@ public:
             dl.setDirection(glm::normalize(vec4(1.0f, -1.0f, -0.5f, 0.0f)));
             dl.setDiffuse(vec4(0.3f, 0.3f, 0.3f, 1.0f));
             dl.setAmbient(vec4(0.0f, 0.0f, 0.0f, 0.0f));
-            atomicGetLights()->addLight(dl);
+            atmGetLights()->addLight(dl);
         }
 
 
         float32 health = 0.0f;
-        if(IEntity *e = atomicGetEntity(m_player)) {
-            atomicQuery(e, getLife, health);
+        if(IEntity *e = atmGetEntity(m_player)) {
+            atmQuery(e, getLife, health);
         }
 
         char buf[64];
         istSPrintf(buf, "life: %.0f", health);
-        atomicGetSystemTextRenderer()->addText(vec2(5.0f, 60.0f), buf);
+        atmGetSystemTextRenderer()->addText(vec2(5.0f, 60.0f), buf);
     }
 };
-atomicImplementEntity(Level_Test);
-atomicExportClass(atomic::Level_Test);
+atmImplementEntity(Level_Test);
+atmExportClass(atm::Level_Test);
 
-} // namespace atomic
+} // namespace atm

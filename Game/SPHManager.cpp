@@ -12,7 +12,7 @@
 #include "Game/SPHManager.h"
 #include "Collision.h"
 
-namespace atomic {
+namespace atm {
 
 
 
@@ -42,8 +42,8 @@ void SPHManager::update( float32 dt )
     uint32 n = m_world.getNumParticles();
     for(uint32 i=0; i<n; ++i) {
         const psym::Particle &m = feedback[i];
-        if(IEntity *e = atomicGetEntity(m.hit_to)) {
-            atomicCall(e, eventFluid, &m);
+        if(IEntity *e = atmGetEntity(m.hit_to)) {
+            atmCall(e, eventFluid, &m);
         }
     }
 
@@ -72,7 +72,7 @@ void SPHManager::update( float32 dt )
         grav.strength = 10.0f;
         m_world.addForce(grav);
     }
-    atomicGetCollisionSet()->copyRigitsToPSym();
+    atmGetCollisionSet()->copyRigitsToPSym();
 }
 
 void SPHManager::asyncupdate( float32 dt )
@@ -83,7 +83,7 @@ void SPHManager::asyncupdate( float32 dt )
     ist::parallel_for(size_t(0), m_new_fluid_ctx.size(),
         [&](size_t i){
             AddFluidContext &ctx = m_new_fluid_ctx[i];
-            const ParticleSet *rc           = atomicGetParticleSet(ctx.psid);
+            const ParticleSet *rc           = atmGetParticleSet(ctx.psid);
             uint32 num_particles            = rc->getNumParticles();
             const PSetParticle *fluid_in    = rc->getParticleData();
             psym::Particle *fluid_out       = &m_new_fluid[ctx.index];
@@ -124,8 +124,8 @@ size_t SPHManager::copyParticlesToGL()
     if(m_particles_to_gpu.empty()) { return 0; }
 
     ist::ScopedLock<ist::Mutex> l(m_mutex_particles);
-    i3d::DeviceContext *dc = atomicGetGLDeviceContext();
-    Buffer *vb = atomicGetVertexBuffer(VBO_FLUID_PARTICLES);
+    i3d::DeviceContext *dc = atmGetGLDeviceContext();
+    Buffer *vb = atmGetVertexBuffer(VBO_FLUID_PARTICLES);
     MapAndWrite(dc, vb, &m_particles_to_gpu[0], m_particles_to_gpu.size()*sizeof(psym::Particle));
     return m_particles_to_gpu.size();
 }
@@ -224,7 +224,7 @@ void SPHManager::addFluid( psym::Particle *particles, uint32 num )
 
 void SPHManager::addFluid(PSET_RID psid, const mat4 &t)
 {
-    const ParticleSet *pset = atomicGetParticleSet(psid);
+    const ParticleSet *pset = atmGetParticleSet(psid);
     AddFluidContext ctx;
     ctx.psid = psid;
     ctx.mat = t;
@@ -233,4 +233,4 @@ void SPHManager::addFluid(PSET_RID psid, const mat4 &t)
     m_new_fluid_ctx.push_back(ctx);
 }
 
-} // namespace atomic
+} // namespace atm

@@ -1,7 +1,7 @@
-﻿#ifndef atomic_FunctionID_h
-#define atomic_FunctionID_h
+﻿#ifndef atm_FunctionID_h
+#define atm_FunctionID_h
 
-namespace atomic {
+namespace atm {
 
 istSEnumBlock(FunctionID,
     istSEnum(FID_unknown),
@@ -79,6 +79,6 @@ istSEnumBlock(FunctionID,
     istSEnum(FID_End),
 );
 
-} // namespace atomic
+} // namespace atm
 
-#endif atomic_FunctionID_h
+#endif atm_FunctionID_h

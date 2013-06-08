@@ -1,7 +1,7 @@
-﻿#ifndef atomic_Message_h
-#define atomic_Message_h
+﻿#ifndef atm_Message_h
+#define atm_Message_h
 
-namespace atomic {
+namespace atm {
 
 
 struct CallInfo
@@ -51,8 +51,8 @@ public:
 };
 
 
-#define atomicGetMessageRouter()            MessageRouter::getInstance()
-#define atomicPushCallMessage(block, mes)   atomicGetMessageRouter()->getMessageBlock(block)->addTask(mes)
+#define atmGetMessageRouter()            MessageRouter::getInstance()
+#define atmPushCallMessage(block, mes)   atmGetMessageRouter()->getMessageBlock(block)->addTask(mes)
 
 
 class MessageIterator
@@ -71,5 +71,5 @@ public:
     const CallInfo& iterate();
 };
 
-} // namespace atomic
-#endif // atomic_Message_h
+} // namespace atm
+#endif // atm_Message_h

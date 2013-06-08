@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
 #include "externals.h"
 
-namespace atomic {
+namespace atm {
 
 using namespace Poco;
 using namespace Poco::Net;
@@ -9,7 +9,7 @@ using namespace Poco::Net;
 
 void SendReport( const char *path_to_dmp )
 {
-    URI uri(atomic_crash_report_url);
+    URI uri(atm_crash_report_url);
     HTTPRequest request(HTTPRequest::HTTP_POST, uri.getPathAndQuery(), HTTPMessage::HTTP_1_0);
 
     FilePartSource *dump = new FilePartSource(path_to_dmp);
@@ -53,4 +53,4 @@ void FinalizeCrashReporter()
 }
 
 
-} // namespace atomic
+} // namespace atm

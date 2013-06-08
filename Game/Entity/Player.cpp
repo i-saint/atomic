@@ -12,7 +12,7 @@
 #include "Game/Message.h"
 #include "Enemy.h"
 
-namespace atomic {
+namespace atm {
 
 class dpPatch IWeaponry
 {
@@ -31,7 +31,7 @@ public:
     virtual void draw() {}
 
     void         setOwner(const IEntity *e) { m_owner = e ? e->getHandle() : 0; }
-    IEntity*     getOwner() const { return atomicGetEntity(m_owner); }
+    IEntity*     getOwner() const { return atmGetEntity(m_owner); }
     EntityHandle getOwnerHandle() const { return m_owner; }
 };
 typedef IWeaponry IDrive;
@@ -59,26 +59,26 @@ public:
 
         IEntity *owner = getOwner();
         if(owner) {
-            vec4 move = vec4(atomicGetIngameInputs().getMove()*0.01f, 0.0f, 0.0f);
+            vec4 move = vec4(atmGetIngameInputs().getMove()*0.01f, 0.0f, 0.0f);
             vec4 pos, vel;
-            atomicQuery(owner, getPosition, pos);
-            atomicQuery(owner, getVelocity, vel);
+            atmQuery(owner, getPosition, pos);
+            atmQuery(owner, getVelocity, vel);
             pos += move;
             pos += vel;
             vel *= 0.96f;
             pos.z = 0.0f;
-            if(m_cooldown==0 && atomicGetIngameInputs().isButtonTriggered(0)) {
+            if(m_cooldown==0 && atmGetIngameInputs().isButtonTriggered(0)) {
                 vel += move * 2.0f;
                 m_cooldown = 10;
             }
-            atomicCall(owner, setPosition, pos);
-            atomicCall(owner, setVelocity, vel);
+            atmCall(owner, setPosition, pos);
+            atmCall(owner, setVelocity, vel);
         }
     }
 
     virtual void draw() {}
 };
-atomicExportClass(atomic::Booster);
+atmExportClass(atm::Booster);
 
 
 class dpPatch Blinker : public IDrive
@@ -107,16 +107,16 @@ public:
     {
         IEntity *owner = getOwner();
         if(owner) {
-            vec4 move = vec4(atomicGetIngameInputs().getMove()*0.01f, 0.0f, 0.0f);
+            vec4 move = vec4(atmGetIngameInputs().getMove()*0.01f, 0.0f, 0.0f);
             vec4 pos, vel;
-            atomicQuery(owner, getPosition, pos);
-            atomicQuery(owner, getVelocity, vel);
+            atmQuery(owner, getPosition, pos);
+            atmQuery(owner, getVelocity, vel);
 
             switch(m_state) {
             case St_Neutral:
                 {
                     pos += move;
-                    if(atomicGetIngameInputs().isButtonTriggered(0)) {
+                    if(atmGetIngameInputs().isButtonTriggered(0)) {
                         m_blink_pos = pos;
                         m_state = St_Targetting;
                     }
@@ -125,7 +125,7 @@ public:
             case St_Targetting:
                 {
                     m_blink_pos += move*4.0f;
-                    if(!atomicGetIngameInputs().isButtonPressed(0)) {
+                    if(!atmGetIngameInputs().isButtonPressed(0)) {
                         pos = m_blink_pos;
                         m_state = St_Neutral;
                     }
@@ -135,12 +135,12 @@ public:
             pos += vel;
             vel *= 0.96f;
             pos.z = 0.0f;
-            atomicCall(owner, setPosition, pos);
-            atomicCall(owner, setVelocity, vel);
+            atmCall(owner, setPosition, pos);
+            atmCall(owner, setVelocity, vel);
         }
     }
 };
-atomicExportClass(atomic::Blinker);
+atmExportClass(atm::Blinker);
 
 
 class dpPatch Penetrator : public IDrive
@@ -152,7 +152,7 @@ private:
         )
 public:
 };
-atomicExportClass(atomic::Penetrator);
+atmExportClass(atm::Penetrator);
 
 
 class dpPatch TimeWarp : public IDrive
@@ -164,7 +164,7 @@ private:
         )
 public:
 };
-atomicExportClass(atomic::TimeWarp);
+atmExportClass(atm::TimeWarp);
 
 
 
@@ -186,23 +186,23 @@ public:
     virtual void update(float32 dt)
     {
         vec4 center_force;
-        IEntity *barrier = atomicGetEntity(m_barrier);
+        IEntity *barrier = atmGetEntity(m_barrier);
         IEntity *owner = getOwner();
         if(!barrier) {
-            IEntity *e = atomicCreateEntity(Barrier);
+            IEntity *e = atmCreateEntity(Barrier);
             m_barrier = e->getHandle();
-            atomicCall(e, setOwner, getOwnerHandle());
-            atomicQuery(owner, getPosition, center_force);
+            atmCall(e, setOwner, getOwnerHandle());
+            atmQuery(owner, getPosition, center_force);
         }
         else {
             if(barrier && owner) {
-                if(!atomicGetIngameInputs().isButtonPressed(1)) {
+                if(!atmGetIngameInputs().isButtonPressed(1)) {
                     vec4 barrier_pos;
-                    atomicQuery(owner, getPosition, barrier_pos);
-                    atomicCall(barrier, setPosition, barrier_pos);
+                    atmQuery(owner, getPosition, barrier_pos);
+                    atmCall(barrier, setPosition, barrier_pos);
                 }
             }
-            atomicQuery(barrier, getPosition, center_force);
+            atmQuery(barrier, getPosition, center_force);
         }
 
         {
@@ -211,21 +211,21 @@ public:
             force.y = center_force.y;
             force.z = center_force.z;
             force.strength = 2.4f;
-            atomicGetSPHManager()->addForce(force);
+            atmGetSPHManager()->addForce(force);
         }
     }
 
     virtual void asyncupdate(float32 dt)
     {
         IEntity *owner = getOwner();
-        IEntity *barrier = atomicGetEntity(m_barrier);
+        IEntity *barrier = atmGetEntity(m_barrier);
         if(owner && barrier) {
         }
     }
 
     virtual void draw() {}
 };
-atomicExportClass(atomic::BarrierGenerator);
+atmExportClass(atm::BarrierGenerator);
 
 
 class dpPatch GravityMineLauncher : public IWeaponry
@@ -237,7 +237,7 @@ private:
         )
 public:
 };
-atomicExportClass(atomic::GravityMineLauncher);
+atmExportClass(atm::GravityMineLauncher);
 
 
 class dpPatch Catapult : public IWeaponry
@@ -249,7 +249,7 @@ private:
         )
 public:
 };
-atomicExportClass(atomic::Catapult);
+atmExportClass(atm::Catapult);
 
 
 class dpPatch Barrier
@@ -276,12 +276,12 @@ private:
         )
 
 public:
-    atomicECallBlock(
-        atomicECallSuper(super)
-        atomicECallSuper(transform)
-        atomicMethodBlock(
-        atomicECall(setOwner)
-        atomicECall(getOwner)
+    atmECallBlock(
+        atmECallSuper(super)
+        atmECallSuper(transform)
+        atmMethodBlock(
+        atmECall(setOwner)
+        atmECall(getOwner)
         )
     )
 
@@ -321,8 +321,8 @@ public:
     {
     }
 };
-atomicImplementEntity(Barrier);
-atomicExportClass(atomic::Barrier);
+atmImplementEntity(Barrier);
+atmExportClass(atm::Barrier);
 
 
 class dpPatch Player
@@ -368,15 +368,15 @@ public:
         Weponry_Catapult,
     };
 
-    atomicECallBlock(
-        atomicECallSuper(super)
-        atomicECallSuper(transform)
-        atomicECallSuper(collision)
-        atomicMethodBlock(
-        atomicECall(getVelocity)
-        atomicECall(setVelocity)
-        atomicECall(setDrive)
-        atomicECall(setWeapon)
+    atmECallBlock(
+        atmECallSuper(super)
+        atmECallSuper(transform)
+        atmECallSuper(collision)
+        atmMethodBlock(
+        atmECall(getVelocity)
+        atmECall(setVelocity)
+        atmECall(setDrive)
+        atmECall(setWeapon)
         )
     )
 
@@ -470,16 +470,16 @@ public:
         if(m_weapon) {m_weapon->update(dt); }
 
         // 流体パーティクルが 10000 以下なら追加
-        if(atomicGetSPHManager()->getNumParticles()<10000) {
+        if(atmGetSPHManager()->getNumParticles()<10000) {
             psym::Particle particles[16];
             for(size_t i=0; i<_countof(particles); ++i) {
-                vec4 rd = glm::normalize(vec4(atomicGenRandFloat()-0.5f, atomicGenRandFloat()-0.5f, 0.0f, 0.0f));
-                istAlign(16) vec4 pos = getPosition() + (rd * (atomicGenRandFloat()*0.2f+0.4f));
+                vec4 rd = glm::normalize(vec4(atmGenRandFloat()-0.5f, atmGenRandFloat()-0.5f, 0.0f, 0.0f));
+                istAlign(16) vec4 pos = getPosition() + (rd * (atmGenRandFloat()*0.2f+0.4f));
                 psym::simdvec4 poss = (psym::simdvec4&)pos;
                 particles[i].position = poss;
                 particles[i].velocity = _mm_set1_ps(0.0f);
             }
-            atomicGetSPHManager()->addFluid(&particles[0], _countof(particles));
+            atmGetSPHManager()->addFluid(&particles[0], _countof(particles));
         }
     }
 
@@ -521,7 +521,7 @@ public:
             l.setPosition(getPosition()+vec4(0.0f, 0.0f, 0.3f, 0.0f));
             l.setColor(vec4(0.3f, 0.2f, 1.0f, 1.0f));
             l.setRadius(1.0f);
-            atomicGetLights()->addLight(l);
+            atmGetLights()->addLight(l);
         }
         for(uint32 i=0; i<_countof(m_lightpos); ++i) {
             vec4 &pos = m_lightpos[i];
@@ -529,7 +529,7 @@ public:
             l.setPosition(pos);
             l.setColor(vec4(0.45f, 0.45f, 0.6f, 1.0f) + vec4(sinf(pos.x), sinf(pos.y), cosf(pos.x+pos.y), 0.0f)*0.1f);
             l.setRadius(1.2f);
-            atomicGetLights()->addLight(l);
+            atmGetLights()->addLight(l);
         }
         {
             PSetInstance inst;
@@ -539,7 +539,7 @@ public:
             inst.elapsed = (float32)getPastFrame();
             inst.appear_radius = 1000.0f;
             inst.translate = getTransform();
-            atomicGetSPHRenderer()->addPSetInstance(pset_id, inst);
+            atmGetSPHRenderer()->addPSetInstance(pset_id, inst);
         }
         //{
         //    IndivisualParticle particles;
@@ -547,14 +547,14 @@ public:
         //    particles.color = vec4(0.6f, 0.6f, 0.6f, 50.0f);
         //    particles.glow = vec4(0.15f, 0.15f, 0.3f, 1.0f);
         //    particles.scale = 3.0f;
-        //    atomicGetParticleRenderer()->addParticle(&particles, 1);
+        //    atmGetParticleRenderer()->addParticle(&particles, 1);
         //}
     }
 
     virtual void destroy() override
     {
-        atomicGetSPHManager()->addFluid(pset_id, getTransform());
-        atomicPlaySE(SE_CHANNEL5, SE_EXPLOSION5, getPosition(), true);
+        atmGetSPHManager()->addFluid(pset_id, getTransform());
+        atmPlaySE(SE_CHANNEL5, SE_EXPLOSION5, getPosition(), true);
         super::destroy();
     }
 
@@ -569,7 +569,7 @@ public:
         damage(m->direction.w * 100.0f);
     }
 };
-atomicImplementEntity(Player);
-atomicExportClass(atomic::Player);
+atmImplementEntity(Player);
+atmExportClass(atm::Player);
 
-} // namespace atomic
+} // namespace atm

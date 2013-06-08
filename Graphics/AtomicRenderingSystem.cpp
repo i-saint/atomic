@@ -6,7 +6,7 @@
 #include "Graphics/ResourceManager.h"
 #include "Graphics/Renderer.h"
 
-namespace atomic {
+namespace atm {
 
 struct RenderingRequest
 {
@@ -110,7 +110,7 @@ void AtomicRenderingThread::exec()
 {
     ist::Thread::setNameToCurrentThread("AtomicRenderingThread");
 
-    m_device = i3d::CreateDevice(atomicGetApplication()->getWindowHandle());
+    m_device = i3d::CreateDevice(atmGetApplication()->getWindowHandle());
     if(!GLEW_VERSION_3_3) {
         m_error = ATERR_OPENGL_330_IS_NOT_SUPPORTED;
         m_cond_initialize_complete.signalOne();
@@ -120,11 +120,11 @@ void AtomicRenderingThread::exec()
     m_drawer = i3d::CreateEasyDrawer();
 
 #ifdef ist_env_Windows
-    wglSwapIntervalEXT(atomicGetConfig()->vsync);
+    wglSwapIntervalEXT(atmGetConfig()->vsync);
 #endif // ist_env_Windows
     GraphicResourceManager::intializeInstance();
     AtomicRenderer::initializeInstance();
-    iuiInitializeRenderer(atomicGetEasyDrawer(), atomicGetFont());
+    iuiInitializeRenderer(atmGetEasyDrawer(), atmGetFont());
     m_cond_initialize_complete.signalOne();
 
     m_fps_timer.reset();
@@ -170,8 +170,8 @@ finalize_section:
 
 void AtomicRenderingThread::doRender()
 {
-    atomicGetGraphicsResourceManager()->update();
-    atomicGetApplication()->drawCallback();
+    atmGetGraphicsResourceManager()->update();
+    atmGetApplication()->drawCallback();
     {
         //static uint32 s_frames;
         //static float32 s_elapsed;
@@ -264,4 +264,4 @@ i3d::EasyDrawer* AtomicRenderingSystem::getEasyDrawer()
     return m_render_thread->getEasyDrawer();
 }
 
-} // namespace atomic
+} // namespace atm

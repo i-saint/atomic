@@ -8,7 +8,7 @@
 #endif // GLSL
 
 #ifndef GLSL
-namespace atomic {
+namespace atm {
 #endif // GLSL
 
 struct ALIGN16 RenderStates
@@ -70,7 +70,7 @@ struct ALIGN16 DebugShowBufferParams
 
 
 #ifndef GLSL
-} // namespace atomic
+} // namespace atm
 #endif // GLSL
 #undef ALIGN16
 #endif // atomic_RenderStates_h

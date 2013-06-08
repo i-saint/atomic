@@ -5,7 +5,7 @@
 #include "Game/AtomicGame.h"
 #include "Game/World.h"
 
-namespace atomic {
+namespace atm {
 
 
 bool InputServerCommon::save(const char *path)
@@ -19,7 +19,7 @@ bool InputServerCommon::save(const char *path)
         max_frame = std::max<uint32>(max_frame, m_players[i].begin_frame+m_players[i].num_frame);
     }
 
-    m_header.random_seed = atomicGetRandom()->getSeed();
+    m_header.random_seed = atmGetRandom()->getSeed();
     m_header.total_frame = max_frame;
     m_header.num_players = m_players.size();
     m_header.num_lecs = m_lecs.size();
@@ -49,7 +49,7 @@ bool InputServerCommon::load(const char *path)
     gzf.read((char*)&m_header, sizeof(m_header));
     if(!m_header.isValid()) { return false; }
 
-    atomicGetRandom()->initialize(m_header.random_seed);
+    atmGetRandom()->initialize(m_header.random_seed);
     m_players.resize(m_header.num_players);
     m_inputs.resize(m_header.num_players);
     m_lecs.resize(m_header.num_lecs);
@@ -122,7 +122,7 @@ void InputServerLocal::addPlayer( PlayerID pid, const PlayerName &name, uint32 e
     wcsncpy(t.name, name, _countof(t.name));
     t.name[_countof(t.name)-1] = '\0';
     t.equip = equip;
-    t.begin_frame = atomicGetGame() ? atomicGetFrame() : 0;
+    t.begin_frame = atmGetGame() ? atmGetFrame() : 0;
     t.num_frame = 0;
     m_players[pid] = t;
 }
@@ -142,8 +142,8 @@ void InputServerLocal::pushInput(PlayerID pid, const RepInput &is)
 void InputServerLocal::pushLevelEditorCommand( const LevelEditorCommand &v )
 {
     LevelEditorCommand tmp = v;
-    tmp.frame = atomicGetFrame();
-    atomicGetGame()->handleLevelEditorCommands(tmp);
+    tmp.frame = atmGetFrame();
+    atmGetGame()->handleLevelEditorCommands(tmp);
     m_lecs.push_back(tmp);
 }
 
@@ -162,4 +162,4 @@ bool InputServerLocal::save(const char *path)
     return impl::save(path);
 }
 
-} // namespace atomic
+} // namespace atm

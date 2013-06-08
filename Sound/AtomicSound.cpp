@@ -7,7 +7,7 @@
 
 namespace isd = ist::isd;
 
-namespace atomic {
+namespace atm {
 
 
 struct SoundRequest
@@ -114,12 +114,12 @@ void SoundThread::initialize()
         m_stream = ovfs;
     }
     {
-        m_bgm_source->setGain(atomicGetConfig()->bgm_volume);
+        m_bgm_source->setGain(atmGetConfig()->bgm_volume);
     }
     for(uint32 i=0; i<_countof(m_se_sources); ++i) {
         m_se_sources[i]->setRefferenceDistance(4.0f);
         m_se_sources[i]->setMaxDistance(12.0f);
-        m_se_sources[i]->setGain(atomicGetConfig()->se_volume);
+        m_se_sources[i]->setGain(atmGetConfig()->se_volume);
     }
     {
         CreateBufferFromWaveFile("Resources/explosion1.wav", m_se_data[SE_EXPLOSION1]);
@@ -243,7 +243,7 @@ AtomicSound* AtomicSound::getInstance() { return s_instance; }
 AtomicSound::AtomicSound()
     : m_sound_thread(NULL)
 {
-    if(atomicGetConfig()->sound_enable) {
+    if(atmGetConfig()->sound_enable) {
         m_sound_thread  = istNew(SoundThread)();
         m_sound_thread->run();
     }
@@ -339,4 +339,4 @@ bool AtomicSound::isBGMPlaying(BGM_CHANNEL channel)
 
 
 
-} // namespace atomic
+} // namespace atm

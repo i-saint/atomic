@@ -13,7 +13,7 @@
 #include "Routine.h"
 #include "Enemy.h"
 
-namespace atomic {
+namespace atm {
 
 class dpPatch Enemy_Test
     : public Breakable
@@ -61,16 +61,16 @@ private:
         )
 
 public:
-    atomicECallBlock(
-        atomicMethodBlock(
-        atomicECall(setLightRadius)
-        atomicECall(setExplosionSE)
-        atomicECall(setExplosionChannel)
+    atmECallBlock(
+        atmMethodBlock(
+        atmECall(setLightRadius)
+        atmECall(setExplosionSE)
+        atmECall(setExplosionChannel)
         )
-        atomicECallSuper(super)
-        atomicECallSuper(transform)
-        atomicECallSuper(model)
-        atomicECallSuper(collision)
+        atmECallSuper(super)
+        atmECallSuper(transform)
+        atmECallSuper(model)
+        atmECallSuper(collision)
     )
 
 public:
@@ -130,7 +130,7 @@ public:
                 collision::finalizeCollision();
             }
             if(m_st_frame==FADEOUT_TIME) {
-                atomicDeleteEntity(getHandle());
+                atmDeleteEntity(getHandle());
                 return;
             }
         }
@@ -193,7 +193,7 @@ public:
             l.setPosition(getPosition() + vec4(0.0f, 0.0f, m_light_radius*0.5f, 1.0f));
             l.setColor(light);
             l.setRadius(m_light_radius);
-            atomicGetLights()->addLight(l);
+            atmGetLights()->addLight(l);
         }
         if(m_state!=ST_FADEOUT) {
             PSetInstance inst;
@@ -203,8 +203,8 @@ public:
             inst.elapsed = (float32)getPastFrame();
             inst.appear_radius = inst.elapsed * 0.004f;
             inst.translate = getTransform();
-            atomicGetSPHRenderer()->addPSetInstance(getModel(), inst);
-            atomicGetBloodstainRenderer()->addBloodstainParticles(getTransform(), getBloodStainParticles(), getNumBloodstainParticles());
+            atmGetSPHRenderer()->addPSetInstance(getModel(), inst);
+            atmGetBloodstainRenderer()->addBloodstainParticles(getTransform(), getBloodStainParticles(), getNumBloodstainParticles());
         }
     }
 
@@ -212,8 +212,8 @@ public:
     {
         setState(ST_FADEOUT);
         setRoutine(RCID_Null);
-        atomicGetSPHManager()->addFluid(getModel(), getTransform());
-        atomicPlaySE(m_explosion_channel, m_explosion_se, getPosition(), true);
+        atmGetSPHManager()->addFluid(getModel(), getTransform());
+        atmPlaySE(m_explosion_channel, m_explosion_se, getPosition(), true);
     }
 
     virtual void eventFluid(const FluidMessage *m)
@@ -222,9 +222,9 @@ public:
         m_delta_fluid_damage += glm::length((const vec3&)m->velocity)*0.002f;
     }
 };
-atomicImplementEntity(Enemy_Test);
-atomicExportClass(atomic::Enemy_Test);
+atmImplementEntity(Enemy_Test);
+atmExportClass(atm::Enemy_Test);
 
 
-} // namespace atomic
+} // namespace atm
 

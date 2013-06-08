@@ -5,15 +5,15 @@
 #include "Renderer.h"
 #include "AtomicRenderingSystem.h"
 
-namespace atomic {
+namespace atm {
 
 
 AtomicShader::AtomicShader()
 : m_shader(NULL)
 , m_loc_renderstates(0)
-#ifdef atomic_enable_shader_live_edit
+#ifdef atm_enable_shader_live_edit
 , m_timestamp(0)
-#endif // atomic_enable_shader_live_edit
+#endif // atm_enable_shader_live_edit
 {
 }
 
@@ -29,16 +29,16 @@ void AtomicShader::release()
 
 void AtomicShader::clearShaders()
 {
-    atomicSafeRelease(m_shader);
+    atmSafeRelease(m_shader);
     m_loc_renderstates = 0;
 }
 
 bool AtomicShader::createShaders( const char *filename )
 {
-    i3d::Device *dev = atomicGetGLDevice();
+    i3d::Device *dev = atmGetGLDevice();
     ShaderProgramDesc sh_desc;
 
-#ifdef atomic_enable_shader_live_edit
+#ifdef atm_enable_shader_live_edit
     m_glsl_filename = filename;
     static const char s_glsl_path[] = "shader/";
     static const char s_shader_path[] = "shader/tmp/";
@@ -59,7 +59,7 @@ bool AtomicShader::createShaders( const char *filename )
         sh_desc.ps = dev->createPixelShader( PixelShaderDesc(ps_src.c_str(), ps_src.size()) );
         if(!sh_desc.vs || !sh_desc.ps) { return false; }
     }
-#else // atomic_enable_shader_live_edit
+#else // atm_enable_shader_live_edit
     // todo: shader ファイルをアーカイブにまとめる
     static const char s_glsl_path[] = "shader/";
     static const char s_shader_path[] = "shader/tmp/";
@@ -76,7 +76,7 @@ bool AtomicShader::createShaders( const char *filename )
         sh_desc.ps = dev->createPixelShader( PixelShaderDesc(ps_src.c_str(), ps_src.size()) );
         if(!sh_desc.vs || !sh_desc.ps) { return false; }
     }
-#endif // atomic_enable_shader_live_edit
+#endif // atm_enable_shader_live_edit
 
     ShaderProgram *shader = dev->createShaderProgram(sh_desc);
     istSafeRelease(sh_desc.vs);
@@ -88,7 +88,7 @@ bool AtomicShader::createShaders( const char *filename )
     m_shader = shader;
     m_loc_renderstates = m_shader->getUniformBlockIndex("render_states");
 
-    i3d::DeviceContext *dc = atomicGetGLDeviceContext();
+    i3d::DeviceContext *dc = atmGetGLDeviceContext();
 #define SetSampler(name, value) { GLint l=m_shader->getUniformLocation(name); if(l!=-1){ m_shader->setSampler(l, value); }}
     dc->setShader(m_shader);
     SetSampler("u_ColorBuffer",     GLSL_COLOR_BUFFER);
@@ -111,29 +111,29 @@ int32 AtomicShader::getUniformBlockIndex(const char *name) const
 
 void AtomicShader::setUniformBlock(GLuint uniformBlockIndex, GLuint uniformBindingIndex, Buffer *buffer)
 {
-    i3d::DeviceContext *dc = atomicGetGLDeviceContext();
+    i3d::DeviceContext *dc = atmGetGLDeviceContext();
     dc->setUniformBuffer(uniformBlockIndex, uniformBindingIndex, buffer);
 }
 
 void AtomicShader::bind()
 {
-    i3d::DeviceContext *dc = atomicGetGLDeviceContext();
+    i3d::DeviceContext *dc = atmGetGLDeviceContext();
     assign(dc);
 }
 
 void AtomicShader::unbind()
 {
-    i3d::DeviceContext *ctx = atomicGetGLDeviceContext();
+    i3d::DeviceContext *ctx = atmGetGLDeviceContext();
     ctx->setShader(NULL);
 }
 
 void AtomicShader::assign( i3d::DeviceContext *dc )
 {
     dc->setShader(m_shader);
-    dc->setUniformBuffer(m_loc_renderstates, GLSL_RENDERSTATE_BINDING, atomicGetUniformBuffer(UBO_RENDERSTATES_3D));
+    dc->setUniformBuffer(m_loc_renderstates, GLSL_RENDERSTATE_BINDING, atmGetUniformBuffer(UBO_RENDERSTATES_3D));
 }
 
-#ifdef atomic_enable_shader_live_edit
+#ifdef atm_enable_shader_live_edit
 bool AtomicShader::needsRecompile()
 {
     static const char s_glsl_path[] = "shader/";
@@ -151,6 +151,6 @@ bool AtomicShader::recompile()
 {
     return createShaders(m_glsl_filename.c_str());
 }
-#endif // atomic_enable_shader_live_edit
+#endif // atm_enable_shader_live_edit
 
-} // namespace atomic
+} // namespace atm

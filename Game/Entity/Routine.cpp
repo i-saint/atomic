@@ -11,7 +11,7 @@
 #include "Routine.h"
 #include "Util.h"
 
-namespace atomic {
+namespace atm {
 
 
 RoutineCreatorTable& GetRoutineCreatorTable()
@@ -44,8 +44,8 @@ private:
         )
 
 public:
-    atomicECallBlock(
-        atomicECallSuper(mhandler)
+    atmECallBlock(
+        atmECallSuper(mhandler)
         )
 
 public:
@@ -55,7 +55,7 @@ public:
     {
         ++m_frame;
         IEntity *e = getEntity();
-        vec4 pos; atomicQuery(e, getPosition, pos);
+        vec4 pos; atmQuery(e, getPosition, pos);
         vec4 player_pos = GetNearestPlayerPosition(pos);
         vec4 dir = vec4(glm::normalize(vec2(player_pos)-vec2(pos)), 0.0f, 0.0f);
         if(m_frame % 120 == 0) {
@@ -66,22 +66,22 @@ public:
             ++m_cycle;
        }
         pos += dir*0.0035f;
-        atomicCall(e, setPosition, pos);
+        atmCall(e, setPosition, pos);
     }
 
     virtual void eventCollide(const CollideMessage *m)
     {
         vec4 v = m->direction * m->direction.w * 0.02f;
         IEntity *e = getEntity();
-        vec4 pos; atomicQuery(e, getPosition, pos);
+        vec4 pos; atmQuery(e, getPosition, pos);
         pos += v;
         pos.z = 0.0f;
         pos.w = 0.0f;
-        atomicCall(e, setPosition, pos);
+        atmCall(e, setPosition, pos);
     }
 };
-atomicImplementRoutine(Routine_SingleShoot);
-atomicExportClass(atomic::Routine_SingleShoot);
+atmImplementRoutine(Routine_SingleShoot);
+atmExportClass(atm::Routine_SingleShoot);
 
 class dpPatch Routine_CircularShoot : public IRoutine
 {
@@ -103,7 +103,7 @@ public:
     {
         ++m_frame;
         IEntity *e = getEntity();
-        vec4 pos; atomicQuery(e, getPosition, pos);
+        vec4 pos; atmQuery(e, getPosition, pos);
         vec4 dir = vec4(0.0f, 1.0f, 0.0f, 0.0f);
         if(m_frame % 20 == 0) {
             for(int i=0; i<10; ++i) {
@@ -115,8 +115,8 @@ public:
         }
     }
 };
-atomicImplementRoutine(Routine_CircularShoot);
-atomicExportClass(atomic::Routine_CircularShoot);
+atmImplementRoutine(Routine_CircularShoot);
+atmExportClass(atm::Routine_CircularShoot);
 
 
 class dpPatch Routine_HomingPlayer : public IRoutine, public Attr_MessageHandler
@@ -135,8 +135,8 @@ private:
         )
 
 public:
-    atomicECallBlock(
-        atomicECallSuper(mhandler)
+    atmECallBlock(
+        atmECallSuper(mhandler)
     )
 
 public:
@@ -145,18 +145,18 @@ public:
     void update(float32 dt)
     {
         IEntity *e = getEntity();
-        vec4 pos; atomicQuery(e, getPosition, pos);
+        vec4 pos; atmQuery(e, getPosition, pos);
         m_target_pos = GetNearestPlayerPosition(pos);
     }
 
     void asyncupdate(float32 dt)
     {
         IEntity *e = getEntity();
-        vec4 pos; atomicQuery(e, getPosition, pos);
+        vec4 pos; atmQuery(e, getPosition, pos);
         m_vel *= 0.98f;
         m_vel += glm::normalize(m_target_pos-pos) * 0.0002f;
         pos += m_vel;
-        atomicCall(e, setPosition, pos);
+        atmCall(e, setPosition, pos);
     }
 
     virtual void eventCollide(const CollideMessage *m)
@@ -171,8 +171,8 @@ public:
         if(len > max_speed) { m_vel = m_vel / len * max_speed; }
     }
 };
-atomicImplementRoutine(Routine_HomingPlayer);
-atomicExportClass(atomic::Routine_HomingPlayer);
+atmImplementRoutine(Routine_HomingPlayer);
+atmExportClass(atm::Routine_HomingPlayer);
 
 
 class dpPatch Routine_Pinball : public IRoutine, public Attr_MessageHandler
@@ -192,12 +192,12 @@ private:
         )
 
 public:
-    atomicECallBlock(
-        atomicMethodBlock(
-        atomicECall(setVelocity)
-        atomicECall(setAccel)
+    atmECallBlock(
+        atmMethodBlock(
+        atmECall(setVelocity)
+        atmECall(setAccel)
         )
-        atomicECallSuper(mhandler)
+        atmECallSuper(mhandler)
     )
 
 public:
@@ -209,10 +209,10 @@ public:
     void asyncupdate(float32 dt)
     {
         IEntity *e = getEntity();
-        vec4 pos; atomicQuery(e, getPosition, pos);
+        vec4 pos; atmQuery(e, getPosition, pos);
         pos += m_vel;
         m_vel += m_accel;
-        atomicCall(e, setPosition, pos);
+        atmCall(e, setPosition, pos);
     }
 
     virtual void eventCollide(const CollideMessage *m)
@@ -237,7 +237,7 @@ public:
         //}
     }
 };
-atomicImplementRoutine(Routine_Pinball);
-atomicExportClass(atomic::Routine_Pinball);
+atmImplementRoutine(Routine_Pinball);
+atmExportClass(atm::Routine_Pinball);
 
-} // namespace atomic
+} // namespace atm

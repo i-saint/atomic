@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
 #include "Text.h"
 
-namespace atomic {
+namespace atm {
 
     static const wchar_t* g_jp[TID_END];
     static const wchar_t* g_en[TID_END];
@@ -41,4 +41,4 @@ namespace atomic {
         return g_text[tid];
     }
 
-} // namespace atomic
+} // namespace atm

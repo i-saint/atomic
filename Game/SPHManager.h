@@ -1,11 +1,11 @@
-﻿#ifndef atomic_Game_SPHManager_h
-#define atomic_Game_SPHManager_h
+﻿#ifndef atm_Game_SPHManager_h
+#define atm_Game_SPHManager_h
 
 #include "Task.h"
 #include "Graphics/ResourceManager.h"
 #include "psym/psym.h"
 
-namespace atomic {
+namespace atm {
 
 struct CollisionEntity;
 typedef ist::raw_vector<psym::Particle> ParticleCont;
@@ -66,5 +66,5 @@ private:
 
 
 
-} // namespace atomic
-#endif // atomic_Game_SPHManager_h
+} // namespace atm
+#endif // atm_Game_SPHManager_h

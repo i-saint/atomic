@@ -17,7 +17,7 @@
 #include "Entity/Routine.h"
 #include <zip_stream/zipstream.hpp>
 
-namespace atomic {
+namespace atm {
 
 
 AtomicGame::AtomicGame()
@@ -32,7 +32,7 @@ AtomicGame::AtomicGame()
 
 AtomicGame::~AtomicGame()
 {
-    if(atomicGetConfig()->output_replay)
+    if(atmGetConfig()->output_replay)
     {
         char path[128];
         char date[128];
@@ -51,9 +51,9 @@ AtomicGame::~AtomicGame()
 
 bool AtomicGame::config(const GameStartConfig &conf)
 {
-#ifdef atomic_enable_sync_lock
+#ifdef atm_enable_sync_lock
     m_sync_lock = false;
-#endif // atomic_enable_sync_lock
+#endif // atm_enable_sync_lock
     MessageRouter::initializeInstance();
 
     PlayerName name = L"test";
@@ -100,14 +100,14 @@ void AtomicGame::frameBegin()
 void AtomicGame::update(float32 dt)
 {
     if(!m_skip_update) {
-        m_input_server->pushInput(0, atomicGetSystemInputs()->getRawInput());
+        m_input_server->pushInput(0, atmGetSystemInputs()->getRawInput());
     }
 
-    atomicLevelEditorHandleCommands( std::bind(&IInputServer::pushLevelEditorCommand, m_input_server, std::placeholders::_1));
-    atomicLevelEditorHandleQueries( std::bind(&AtomicGame::handleLevelEditorQueries, this, std::placeholders::_1) );
-    atomicGameClientHandleMessages( std::bind(&AtomicGame::handlePMessages, this, std::placeholders::_1) );
+    atmLevelEditorHandleCommands( std::bind(&IInputServer::pushLevelEditorCommand, m_input_server, std::placeholders::_1));
+    atmLevelEditorHandleQueries( std::bind(&AtomicGame::handleLevelEditorQueries, this, std::placeholders::_1) );
+    atmGameClientHandleMessages( std::bind(&AtomicGame::handlePMessages, this, std::placeholders::_1) );
 
-    m_skip_update = atomicGetConfig()->pause || !m_input_server->sync();
+    m_skip_update = atmGetConfig()->pause || !m_input_server->sync();
     if(!m_skip_update)
     {
         m_input_server->update();
@@ -119,7 +119,7 @@ void AtomicGame::asyncupdateBegin(float32 dt)
 {
     if(m_skip_update) { return; }
 
-    atomicDbgLockSyncMethods();
+    atmDbgLockSyncMethods();
     m_world->asyncupdateBegin(dt);
 }
 
@@ -128,7 +128,7 @@ void AtomicGame::asyncupdateEnd()
     if(m_skip_update) { return; }
 
     m_world->asyncupdateEnd();
-    atomicDbgUnlockSyncMethods();
+    atmDbgUnlockSyncMethods();
 }
 
 
@@ -140,7 +140,7 @@ void AtomicGame::draw()
     m_skip_draw = false;
     if(m_input_server->getTypeID()==IInputServer::IS_Replay) {
         static uint32 f;
-        const InputState *is = atomicGetSystemInputs();
+        const InputState *is = atmGetSystemInputs();
         ++f;
         if(is->isButtonPressed(0) && f%2!=0) { m_skip_draw=true; return; }
         if(is->isButtonPressed(1) && f%4!=0) { m_skip_draw=true; return; }
@@ -161,22 +161,22 @@ void AtomicGame::frameEnd()
 void AtomicGame::drawCallback()
 {
     if(m_input_server->getTypeID()==IInputServer::IS_Replay) {
-        const uvec2 &wsize = atomicGetWindowSize();
+        const uvec2 &wsize = atmGetWindowSize();
         uint32 len  = m_input_server->getPlayLength();
         uint32 pos  = m_input_server->getPlayPosition();
         char buf[128];
         istSPrintf(buf, "Replay %d / %d", pos, len);
-        atomicGetSystemTextRenderer()->addText(vec2(5.0f, (float32)wsize.y), buf);
+        atmGetSystemTextRenderer()->addText(vec2(5.0f, (float32)wsize.y), buf);
     }
 
-    if(auto *client=atomicGameClientGet()) {
+    if(auto *client=atmGameClientGet()) {
         uint32 i = 0;
         auto &clients = client->getClientStates();
         for(auto it=clients.begin(); it!=clients.end(); ++it) {
             auto &stat = it->second;
             wchar_t buf[128];
             istSPrintf(buf, L"%s - ping %d", stat.name, stat.ping);
-            atomicGetSystemTextRenderer()->addText(vec2(5.0f, 20.0f*i + 80.0f), buf);
+            atmGetSystemTextRenderer()->addText(vec2(5.0f, 20.0f*i + 80.0f), buf);
             ++i;
         }
     }
@@ -188,7 +188,7 @@ void AtomicGame::drawCallback()
 
 SFMT* AtomicGame::getRandom()
 {
-    atomicDbgAssertSyncLock();
+    atmDbgAssertSyncLock();
     return &m_rand;
 }
 
@@ -197,29 +197,29 @@ void AtomicGame::handleLevelEditorCommands( const LevelEditorCommand &c )
     static IEntity *s_last_entity;
     if(c.type==LEC_Create) {
         const LevelEditorCommand_Create &cmd = reinterpret_cast<const LevelEditorCommand_Create&>(c);
-        IEntity *e = atomicCreateEntity(Enemy_Test);
+        IEntity *e = atmCreateEntity(Enemy_Test);
         s_last_entity = e;
-        atomicCall(e, setCollisionShape, CS_Sphere);
-        atomicCall(e, setModel, PSET_SPHERE_SMALL);
-        atomicCall(e, setPosition, GenRandomVector2() * 2.2f);
-        atomicCall(e, setLife, 15.0f);
-        atomicCall(e, setAxis1, GenRandomUnitVector3());
-        atomicCall(e, setAxis2, GenRandomUnitVector3());
-        atomicCall(e, setRotateSpeed1, 2.4f);
-        atomicCall(e, setRotateSpeed2, 2.4f);
-        atomicCall(e, setRoutine, RCID_Routine_HomingPlayer);
-        atomicCall(e, setLightRadius, 0.5f);
+        atmCall(e, setCollisionShape, CS_Sphere);
+        atmCall(e, setModel, PSET_SPHERE_SMALL);
+        atmCall(e, setPosition, GenRandomVector2() * 2.2f);
+        atmCall(e, setLife, 15.0f);
+        atmCall(e, setAxis1, GenRandomUnitVector3());
+        atmCall(e, setAxis2, GenRandomUnitVector3());
+        atmCall(e, setRotateSpeed1, 2.4f);
+        atmCall(e, setRotateSpeed2, 2.4f);
+        atmCall(e, setRoutine, RCID_Routine_HomingPlayer);
+        atmCall(e, setLightRadius, 0.5f);
     }
     else if(c.type==LEC_Delete) {
         const LevelEditorCommand_Delete &cmd = reinterpret_cast<const LevelEditorCommand_Delete&>(c);
-        IEntity *e = cmd.entity_id==uint32(-1) ? s_last_entity : atomicGetEntity(cmd.entity_id);
+        IEntity *e = cmd.entity_id==uint32(-1) ? s_last_entity : atmGetEntity(cmd.entity_id);
         if(e) {
-            atomicCall(e, kill, 0);
+            atmCall(e, kill, 0);
         }
     }
     else if(c.type==LEC_Call) {
         const LevelEditorCommand_Call &cmd = reinterpret_cast<const LevelEditorCommand_Call&>(c);
-        IEntity *e = cmd.entity_id==0 ? s_last_entity : atomicGetEntity(cmd.entity_id);
+        IEntity *e = cmd.entity_id==0 ? s_last_entity : atmGetEntity(cmd.entity_id);
         if(e) {
             e->call((FunctionID)cmd.function_id, &cmd.arg);
         }
@@ -238,7 +238,7 @@ void AtomicGame::handleEntitiesQuery( std::string &out )
     m_ctx_entities_query.clear();
     m_world->handleEntitiesQuery(m_ctx_entities_query);
 
-#ifdef atomic_enable_BinaryEntityData
+#ifdef atm_enable_BinaryEntityData
 
     uint32 num_entities = m_ctx_entities_query.id.size();
     out.resize(sizeof(uint32)+m_ctx_entities_query.sizeByte());
@@ -254,7 +254,7 @@ void AtomicGame::handleEntitiesQuery( std::string &out )
     memcpy(&out[wpos], &m_ctx_entities_query.pos[0], sizeof(vec2)*num_entities);
     wpos += sizeof(vec2)*num_entities;
 
-#else // atomic_enable_BinaryEntityData
+#else // atm_enable_BinaryEntityData
 
     char buf[64];
     auto &ids = m_ctx_entities_query.id;
@@ -286,7 +286,7 @@ void AtomicGame::handleEntitiesQuery( std::string &out )
     }
     out.pop_back();
     out += "]}";
-#endif // atomic_enable_BinaryEntityData
+#endif // atm_enable_BinaryEntityData
 }
 
 void AtomicGame::handlePMessages( const PMessage &mes )
@@ -347,4 +347,4 @@ void AtomicGame::testDeserialize()
     deserialize(zipper);
 }
 
-} // namespace atomic
+} // namespace atm

@@ -1,5 +1,5 @@
-﻿#ifndef atomic_Game_AtomicGame_h
-#define atomic_Game_AtomicGame_h
+﻿#ifndef atm_Game_AtomicGame_h
+#define atm_Game_AtomicGame_h
 #include "Input.h"
 #include "AtomicApplication.h"
 #include "Network/LevelEditorCommand.h"
@@ -7,7 +7,7 @@
 #include "Network/Protocol.h"
 
 
-namespace atomic {
+namespace atm {
 
 class World;
 class AtomicRenderer;
@@ -81,11 +81,11 @@ public:
     void testSerialize();
     void testDeserialize();
 
-#ifdef atomic_enable_sync_lock
+#ifdef atm_enable_sync_lock
     void dbgLockSyncMethods()               { m_sync_lock=true; }
     void dbgUnlockSyncMethods()             { m_sync_lock=false; }
     bool dbgIsSyncMethodsEnabled() const    { return m_sync_lock; }
-#endif // atomic_enable_sync_lock
+#endif // atm_enable_sync_lock
 
 private:
     IInputServer    *m_input_server;
@@ -96,25 +96,25 @@ private:
     EntitiesQueryContext m_ctx_entities_query;
     bool m_skip_update;
     bool m_skip_draw;
-#ifdef atomic_enable_sync_lock
+#ifdef atm_enable_sync_lock
     bool m_sync_lock;
-#endif // atomic_enable_sync_lock
+#endif // atm_enable_sync_lock
 };
 
-#define atomicGetWorld()            atomicGetGame()->getWorld()
-#define atomicGetIngameInputs()     atomicGetGame()->getIngameInputs()
-#define atomicGetRandom()           atomicGetGame()->getRandom()
-#define atomicGetFrame()            atomicGetGame()->getFrame()
+#define atmGetWorld()            atmGetGame()->getWorld()
+#define atmGetIngameInputs()     atmGetGame()->getIngameInputs()
+#define atmGetRandom()           atmGetGame()->getRandom()
+#define atmGetFrame()            atmGetGame()->getFrame()
 
-#ifdef atomic_enable_sync_lock
-#   define  atomicDbgLockSyncMethods()      atomicGetGame()->dbgLockSyncMethods()
-#   define  atomicDbgUnlockSyncMethods()    atomicGetGame()->dbgUnlockSyncMethods()
-#   define  atomicDbgAssertSyncLock()       istAssert(!atomicGetGame()||!atomicGetGame()->dbgIsSyncMethodsEnabled())
+#ifdef atm_enable_sync_lock
+#   define  atmDbgLockSyncMethods()      atmGetGame()->dbgLockSyncMethods()
+#   define  atmDbgUnlockSyncMethods()    atmGetGame()->dbgUnlockSyncMethods()
+#   define  atmDbgAssertSyncLock()       istAssert(!atmGetGame()||!atmGetGame()->dbgIsSyncMethodsEnabled())
 #else
-#   define  atomicDbgLockSyncMethods()      
-#   define  atomicDbgUnlockSyncMethods()    
-#   define  atomicDbgAssertSyncLock()       
-#endif // atomic_enable_sync_lock
+#   define  atmDbgLockSyncMethods()      
+#   define  atmDbgUnlockSyncMethods()    
+#   define  atmDbgAssertSyncLock()       
+#endif // atm_enable_sync_lock
 
-} // namespace atomic
-#endif atomic_Game_AtomicGame_h
+} // namespace atm
+#endif atm_Game_AtomicGame_h

@@ -1,7 +1,7 @@
-﻿#ifndef atomic_Network_LevelEditorCommand_h
-#define atomic_Network_LevelEditorCommand_h
+﻿#ifndef atm_Network_LevelEditorCommand_h
+#define atm_Network_LevelEditorCommand_h
 
-namespace atomic {
+namespace atm {
 
 
     
@@ -38,8 +38,8 @@ union istAlign(16) LevelEditorCommand
     }
     bool operator<(const LevelEditorCommand &v) const { return frame<v.frame; }
 };
-atomicGlobalNamespace(
-    istSerializeRaw(atomic::LevelEditorCommand)
+atmGlobalNamespace(
+    istSerializeRaw(atm::LevelEditorCommand)
 )
 
 #define LEC_Ensure(T) istStaticAssert(sizeof(T)==sizeof(LevelEditorCommand))
@@ -105,5 +105,5 @@ struct LevelEditorQuery
 };
 
 
-} // namespace atomic
-#endif // atomic_Network_LevelEditorCommand_h
+} // namespace atm
+#endif // atm_Network_LevelEditorCommand_h

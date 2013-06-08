@@ -15,7 +15,7 @@
 
 #define ATOMIC_CONFIG_FILE_PATH "atomic.conf"
 
-namespace atomic {
+namespace atm {
 
 void InitializeCrashReporter();
 void FinalizeCrashReporter();
@@ -133,9 +133,9 @@ struct AtomicApplication::Members
     InputState              inputs;
     AtomicConfig            config;
     bool request_exit;
-#ifdef atomic_enable_debug_log
+#ifdef atm_enable_debug_log
     FILE *log;
-#endif // atomic_enable_debug_log
+#endif // atm_enable_debug_log
 
     Members()
         : keyboard(NULL)
@@ -162,18 +162,18 @@ AtomicApplication::AtomicApplication()
     m->wnhandler = std::bind(&AtomicApplication::handleWindowMessage, this, std::placeholders::_1);
     addMessageHandler(&m->wnhandler);
 
-#ifdef atomic_enable_debug_log
+#ifdef atm_enable_debug_log
     m->log = fopen("atomic.log", "wb");
-#endif // atomic_enable_debug_log
+#endif // atm_enable_debug_log
 }
 
 AtomicApplication::~AtomicApplication()
 {
-#ifdef atomic_enable_debug_log
+#ifdef atm_enable_debug_log
     if(m->log!=NULL) {
         fclose(m->log);
     }
-#endif // atomic_enable_debug_log
+#endif // atm_enable_debug_log
 
     eraseMessageHandler(&m->wnhandler);
 }
@@ -190,9 +190,9 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     m->mouse        = ist::CreateMouseDevice();
     m->controller   = ist::CreateControllerDevice();
 
-#ifdef atomic_enable_shader_live_edit
+#ifdef atm_enable_shader_live_edit
     ::AllocConsole();
-#endif // atomic_enable_shader_live_edit
+#endif // atm_enable_shader_live_edit
     wdmInitialize();
     istTaskSchedulerInitialize();
 
@@ -230,11 +230,11 @@ bool AtomicApplication::initialize(int argc, char *argv[])
 
     // start server
     Poco::ThreadPool::defaultPool().addCapacity(8);
-    atomicGameServerInitialize();
-    atomicGameClientInitialize();
-    atomicLevelEditorServerInitialize();
+    atmGameServerInitialize();
+    atmGameClientInitialize();
+    atmLevelEditorServerInitialize();
 
-    atomicGameClientConnect("localhost", atomic_GameServer_DefaultPort);
+    atmGameClientConnect("localhost", atm_GameServer_DefaultPort);
 
     registerCommands();
 
@@ -245,9 +245,9 @@ void AtomicApplication::finalize()
 {
     m->config.writeToFile(ATOMIC_CONFIG_FILE_PATH);
 
-    atomicLevelEditorServerFinalize();
-    atomicGameClientFinalize();
-    atomicGameServerFinalize();
+    atmLevelEditorServerFinalize();
+    atmGameClientFinalize();
+    atmGameServerFinalize();
     Poco::ThreadPool::defaultPool().joinAll();
 
     istSafeDelete(m->game);
@@ -303,7 +303,7 @@ void AtomicApplication::mainLoop()
         }
 
         if( (game==NULL || game->IsWaitVSyncRequired()) &&
-            (!atomicGetConfig()->unlimit_gamespeed && !atomicGetConfig()->vsync))
+            (!atmGetConfig()->unlimit_gamespeed && !atmGetConfig()->vsync))
         {
             float32 remain = delay-pc.getElapsedMillisec();
             if(remain>0.0f) {
@@ -348,14 +348,14 @@ void AtomicApplication::update()
         conf.debug_show_resolution = !conf.debug_show_resolution;
     }
     if(getKeyboardState().isKeyTriggered('7')) {
-        atomicGetRenderStates()->ShowMultiresolution = !atomicGetRenderStates()->ShowMultiresolution;
+        atmGetRenderStates()->ShowMultiresolution = !atmGetRenderStates()->ShowMultiresolution;
     }
     if(getKeyboardState().isKeyPressed('8')) {
-        float &p = atomicGetLights()->getMultiresolutionParams().Threshold.x;
+        float &p = atmGetLights()->getMultiresolutionParams().Threshold.x;
         p = clamp(p-0.001f, 0.0f, 1.0f);
     }
     if(getKeyboardState().isKeyPressed('9')) {
-        float &p = atomicGetLights()->getMultiresolutionParams().Threshold.x;
+        float &p = atmGetLights()->getMultiresolutionParams().Threshold.x;
         p = clamp(p+0.001f, 0.0f, 1.0f);
     }
 }
@@ -366,8 +366,8 @@ void AtomicApplication::draw()
     if(game) {
         game->draw();
     }
-    atomicKickDraw();
-    atomicWaitUntilDrawCallbackComplete();
+    atmKickDraw();
+    atmWaitUntilDrawCallbackComplete();
 }
 
 void AtomicApplication::requestStartGame(const GameStartConfig &conf)
@@ -501,17 +501,17 @@ void AtomicApplication::drawCallback()
 
 
 
-#ifdef atomic_enable_debug_log
+#ifdef atm_enable_debug_log
 void AtomicApplication::printDebugLog( const char *format, ... )
 {
     if(m->log==NULL) { return; }
     va_list vl;
     va_start(vl, format);
-    fprintf(m->log, "%d ", (uint32)atomicGetFrame());
+    fprintf(m->log, "%d ", (uint32)atmGetFrame());
     vfprintf(m->log, format, vl);
     va_end(vl);
 }
-#endif // atomic_enable_debug_log
+#endif // atm_enable_debug_log
 
 
 void AtomicApplication::registerCommands()
@@ -535,4 +535,4 @@ const ist::ControllerState& AtomicApplication::getControllerState() const
 }
 
 
-} // namespace atomic
+} // namespace atm

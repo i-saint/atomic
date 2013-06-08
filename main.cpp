@@ -19,18 +19,18 @@ istImplementOperatorNewDelete();
 #define dpObjDir "_tmp/" dpConfiguration "/atomic" 
 
 
-namespace atomic {
+namespace atm {
     void InitializeCrashReporter();
     void FinalizeCrashReporter();
-} // namespace atomic
-using namespace atomic;
+} // namespace atm
+using namespace atm;
 
 void ExecApp(int argc, char* argv[])
 {
     // クラッシュさせるテスト
     //*static_cast<int*>(NULL) = 0;
 
-    atomic::AtomicApplication app;
+    atm::AtomicApplication app;
     if(app.initialize(argc, argv)) {
         app.mainLoop();
     }
@@ -43,12 +43,12 @@ int istmain(int argc, char* argv[])
     ist::forceLink();
     //test();
 
-    atomic::InitializeCrashReporter();
+    atm::InitializeCrashReporter();
 istCrashReportBegin
     ExecApp(argc, argv);
 istCrashReportRescue
 istCrashReportEnd
-    atomic::FinalizeCrashReporter();
+    atm::FinalizeCrashReporter();
 
     dpFinalize();
     return 0;

@@ -1,9 +1,9 @@
-﻿#ifndef atomic_Game_World_h
-#define atomic_Game_World_h
+﻿#ifndef atm_Game_World_h
+#define atm_Game_World_h
 
 #include "Task.h"
 
-namespace atomic {
+namespace atm {
 
 class EntitySet;
 class CollisionSet;
@@ -61,24 +61,24 @@ private:
 };
 
 
-#define atomicGetGameCamera()   atomicGetWorld()->getGameCamera()
-#define atomicGetBGCamera()     atomicGetWorld()->getBGCamera()
-#define atomicGetViewFrustum()  atomicGetWorld()->getViewFrustum()
-#define atomicGenRandFloat()    atomicGetRandom()->genFloat32()
+#define atmGetGameCamera()      atmGetWorld()->getGameCamera()
+#define atmGetBGCamera()        atmGetWorld()->getBGCamera()
+#define atmGetViewFrustum()     atmGetWorld()->getViewFrustum()
+#define atmGenRandFloat()       atmGetRandom()->genFloat32()
 
-#define atomicGetEntitySet()        atomicGetWorld()->getEntitySet()
-#define atomicGetEntity(id)         atomicGetEntitySet()->getEntity(id)
-#define atomicCreateEntity(C)       atomicGetEntitySet()->createEntity(EC_##C)
-#define atomicDeleteEntity(o)       atomicGetEntitySet()->deleteEntity(o)
-#define atomicEnumlateEntity(...)   atomicGetEntitySet()->enumlateEntity(__VA_ARGS__)
+#define atmGetEntitySet()       atmGetWorld()->getEntitySet()
+#define atmGetEntity(id)        atmGetEntitySet()->getEntity(id)
+#define atmCreateEntity(C)      atmGetEntitySet()->createEntity(EC_##C)
+#define atmDeleteEntity(o)      atmGetEntitySet()->deleteEntity(o)
+#define atmEnumlateEntity(...)  atmGetEntitySet()->enumlateEntity(__VA_ARGS__)
 
-#define atomicGetCollisionSet()     atomicGetWorld()->getCollisionSet()
-#define atomicCreateCollision(n)    atomicGetCollisionSet()->createEntity<n>()
-#define atomicDeleteCollision(o)    atomicGetCollisionSet()->deleteEntity(o)
-#define atomicGetCollision(h)       atomicGetCollisionSet()->getEntity(h)
+#define atmGetCollisionSet()    atmGetWorld()->getCollisionSet()
+#define atmCreateCollision(n)   atmGetCollisionSet()->createEntity<n>()
+#define atmDeleteCollision(o)   atmGetCollisionSet()->deleteEntity(o)
+#define atmGetCollision(h)      atmGetCollisionSet()->getEntity(h)
 
-#define atomicGetSPHManager()   atomicGetWorld()->getFractionSet()
+#define atmGetSPHManager()      atmGetWorld()->getFractionSet()
 
 
-} // namespace atomic
-#endif // atomic_Game_World_h
+} // namespace atm
+#endif // atm_Game_World_h

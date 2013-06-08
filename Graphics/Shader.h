@@ -1,10 +1,10 @@
-﻿#ifndef atomic_Graphics_Shader_h
-#define atomic_Graphics_Shader_h
+﻿#ifndef atm_Graphics_Shader_h
+#define atm_Graphics_Shader_h
 
 #include "shader/Semantics.h"
 #include "shader/RenderStates.h"
 
-namespace atomic {
+namespace atm {
 
 class AtomicShader
 {
@@ -27,7 +27,7 @@ protected:
     ShaderProgram   *m_shader;
     int32 m_loc_renderstates;
 
-#ifdef atomic_enable_shader_live_edit
+#ifdef atm_enable_shader_live_edit
 public:
     bool needsRecompile();
     bool recompile();
@@ -35,10 +35,10 @@ public:
 private:
     stl::string m_glsl_filename;
     Poco::Timestamp m_timestamp;
-#endif // atomic_enable_shader_live_edit
+#endif // atm_enable_shader_live_edit
 
 };
 
 
-} // namespace atomic
-#endif // atomic_Graphics_Shader_h
+} // namespace atm
+#endif // atm_Graphics_Shader_h

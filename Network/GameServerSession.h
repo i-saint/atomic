@@ -1,11 +1,11 @@
-﻿#ifndef atomic_Network_GameServerSession_h
-#define atomic_Network_GameServerSession_h
+﻿#ifndef atm_Network_GameServerSession_h
+#define atm_Network_GameServerSession_h
 #include "externals.h"
 #include "Protocol.h"
 
-namespace atomic {
+namespace atm {
 
-#ifdef atomic_enable_GameServer
+#ifdef atm_enable_GameServer
 
 class GameServerSessionFactory : public Poco::Net::TCPServerConnectionFactory
 {
@@ -35,7 +35,7 @@ private:
     uint32 m_ping;
 };
 
-#endif // atomic_enable_GameServer
+#endif // atm_enable_GameServer
 
-} // namespace atomic
-#endif // atomic_Network_GameServerSession_h
+} // namespace atm
+#endif // atm_Network_GameServerSession_h

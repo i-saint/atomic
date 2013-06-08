@@ -7,7 +7,7 @@
 #include "Graphics/Light.h"
 #include "psym/psym.h"
 
-namespace atomic {
+namespace atm {
 
 const int MAX_RIGID_PARTICLES = 65536 * 4;
 const int MAX_EFFECT_PARTICLES = 65536 * 4;
@@ -16,7 +16,7 @@ const int MAX_BLOODSTAIN_PARTICLES = 65536 * 4;
 uvec2 CalcFrameBufferSize()
 {
     uvec2 r = uvec2(128);
-    uvec2 wsize = atomicGetWindowSize();
+    uvec2 wsize = atmGetWindowSize();
     while(r.x < wsize.x) { r.x *= 2; }
     while(r.y < wsize.y) { r.y *= 2; }
     return r;
@@ -62,15 +62,15 @@ bool GraphicResourceManager::initialize()
     stl::fill_n(m_shader, _countof(m_shader), (AtomicShader*)NULL);
 
     //// どうも 2 の n 乗サイズのフレームバッファの方が若干描画早いっぽい。 
-    uvec2 rt_size = atomicGetWindowSize();
+    uvec2 rt_size = atmGetWindowSize();
     //uvec2 rt_size = CalcFrameBufferSize();
 
     // initialize opengl resources
-    i3d::Device *dev = atomicGetGLDevice();
-    i3d::DeviceContext *dc = atomicGetGLDeviceContext();
+    i3d::Device *dev = atmGetGLDevice();
+    i3d::DeviceContext *dc = atmGetGLDeviceContext();
     {
-        m_font = CreateSpriteFont("Resources/font.sff", "Resources/font.png", atomicGetEasyDrawer());
-        m_title_font = CreateSpriteFont("Resources/ascii.sff", "Resources/ascii.png", atomicGetEasyDrawer());
+        m_font = CreateSpriteFont("Resources/font.sff", "Resources/font.png", atmGetEasyDrawer());
+        m_title_font = CreateSpriteFont("Resources/ascii.sff", "Resources/ascii.png", atmGetEasyDrawer());
     }
     for(uint32 i=0; i<_countof(m_va); ++i) {
         m_va[i] = dev->createVertexArray();
@@ -221,42 +221,42 @@ bool GraphicResourceManager::initialize()
 
 void GraphicResourceManager::finalize()
 {
-    for(uint32 i=0; i<_countof(m_shader); ++i)  { if(m_shader[i]) { atomicSafeRelease( m_shader[i] ); } }
-    for(uint32 i=0; i<_countof(m_rt); ++i)      { if(m_rt[i]) { atomicSafeRelease( m_rt[i] ); } }
-    for(uint32 i=0; i<_countof(m_ubo); ++i)     { if(m_ubo[i]) { atomicSafeRelease( m_ubo[i] ); } }
-    for(uint32 i=0; i<_countof(m_ibo); ++i)     { if(m_ibo[i]) { atomicSafeRelease( m_ibo[i] ); } }
-    for(uint32 i=0; i<_countof(m_vbo); ++i)     { if(m_vbo[i]) { atomicSafeRelease( m_vbo[i] ); } }
-    for(uint32 i=0; i<_countof(m_va); ++i)      { if(m_va[i]) { atomicSafeRelease( m_va[i] ); } }
-    for(uint32 i=0; i<_countof(m_tex2d); ++i)   { if(m_tex2d[i]) { atomicSafeRelease( m_tex2d[i] ); } }
-    for(uint32 i=0; i<_countof(m_tex1d); ++i)   { if(m_tex1d[i]) { atomicSafeRelease( m_tex1d[i] ); } }
-    for(uint32 i=0; i<_countof(m_sampler); ++i) { if(m_sampler[i]) { atomicSafeRelease( m_sampler[i] ); } }
-    for(uint32 i=0; i<_countof(m_depth_states); ++i) { if(m_depth_states[i]) { atomicSafeRelease( m_depth_states[i] ); } }
-    for(uint32 i=0; i<_countof(m_blend_states); ++i) { if(m_blend_states[i]) { atomicSafeRelease( m_blend_states[i] ); } }
-    atomicSafeRelease(m_title_font);
-    atomicSafeRelease(m_font);
+    for(uint32 i=0; i<_countof(m_shader); ++i)  { if(m_shader[i]) { atmSafeRelease( m_shader[i] ); } }
+    for(uint32 i=0; i<_countof(m_rt); ++i)      { if(m_rt[i]) { atmSafeRelease( m_rt[i] ); } }
+    for(uint32 i=0; i<_countof(m_ubo); ++i)     { if(m_ubo[i]) { atmSafeRelease( m_ubo[i] ); } }
+    for(uint32 i=0; i<_countof(m_ibo); ++i)     { if(m_ibo[i]) { atmSafeRelease( m_ibo[i] ); } }
+    for(uint32 i=0; i<_countof(m_vbo); ++i)     { if(m_vbo[i]) { atmSafeRelease( m_vbo[i] ); } }
+    for(uint32 i=0; i<_countof(m_va); ++i)      { if(m_va[i]) { atmSafeRelease( m_va[i] ); } }
+    for(uint32 i=0; i<_countof(m_tex2d); ++i)   { if(m_tex2d[i]) { atmSafeRelease( m_tex2d[i] ); } }
+    for(uint32 i=0; i<_countof(m_tex1d); ++i)   { if(m_tex1d[i]) { atmSafeRelease( m_tex1d[i] ); } }
+    for(uint32 i=0; i<_countof(m_sampler); ++i) { if(m_sampler[i]) { atmSafeRelease( m_sampler[i] ); } }
+    for(uint32 i=0; i<_countof(m_depth_states); ++i) { if(m_depth_states[i]) { atmSafeRelease( m_depth_states[i] ); } }
+    for(uint32 i=0; i<_countof(m_blend_states); ++i) { if(m_blend_states[i]) { atmSafeRelease( m_blend_states[i] ); } }
+    atmSafeRelease(m_title_font);
+    atmSafeRelease(m_font);
 }
 
 GraphicResourceManager::GraphicResourceManager()
     : m_flag_exit(false)
 {
-#ifdef atomic_enable_shader_live_edit
+#ifdef atm_enable_shader_live_edit
     m_glsl_modified = false;
     m_glsl_watcher.setName("GLSL Watcher");
     m_glsl_watcher.run( std::bind(&GraphicResourceManager::watchGLSLFiles, this) );
-#endif // atomic_enable_shader_live_edit
+#endif // atm_enable_shader_live_edit
 }
 
 GraphicResourceManager::~GraphicResourceManager()
 {
     m_flag_exit = true;
-#ifdef atomic_enable_shader_live_edit
+#ifdef atm_enable_shader_live_edit
     m_glsl_watcher.join();
-#endif // atomic_enable_shader_live_edit
+#endif // atm_enable_shader_live_edit
 }
 
 void GraphicResourceManager::update()
 {
-#ifdef atomic_enable_shader_live_edit
+#ifdef atm_enable_shader_live_edit
     if(m_glsl_modified) {
         m_glsl_modified = false;
         istPrint("recompiling shaders...");
@@ -267,10 +267,10 @@ void GraphicResourceManager::update()
         }
         istPrint("done.\n");
     }
-#endif // atomic_enable_shader_live_edit
+#endif // atm_enable_shader_live_edit
 }
 
-#ifdef atomic_enable_shader_live_edit
+#ifdef atm_enable_shader_live_edit
 
 
 void GraphicResourceManager::watchGLSLFiles()
@@ -289,7 +289,7 @@ void GraphicResourceManager::watchGLSLFiles()
         }
     }
 }
-#endif // atomic_enable_shader_live_edit
+#endif // atm_enable_shader_live_edit
 
 
-} // namespace atomic
+} // namespace atm

@@ -1,7 +1,7 @@
-﻿#ifndef atomic_Graphics_CreateModelData_h
-#define atomic_Graphics_CreateModelData_h
+﻿#ifndef atm_Graphics_CreateModelData_h
+#define atm_Graphics_CreateModelData_h
 
-namespace atomic {
+namespace atm {
 
     void CreateFloorQuad(VertexArray *va, Buffer *&vbo, vec4 pos, vec4 size);
     void CreateSphere(VertexArray *va, Buffer *&vbo, Buffer *&ibo, float32 radius, uint32 div_xz, uint32 div_y);
@@ -17,5 +17,5 @@ namespace atomic {
     bool CreateSphereParticleSet(ParticleSet &pset, RigidInfo &ri, float32 radius);
     bool CreateBulletParticleSet(ParticleSet &pset, RigidInfo &ri);
 
-} // namespace atomic
-#endif // atomic_Graphics_CreateModelData_h
+} // namespace atm
+#endif // atm_Graphics_CreateModelData_h

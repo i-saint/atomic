@@ -1,6 +1,6 @@
-﻿#ifndef atomic_Game_Entity_Routine_h
-#define atomic_Game_Entity_Routine_h
-namespace atomic {
+﻿#ifndef atm_Game_Entity_Routine_h
+#define atm_Game_Entity_Routine_h
+namespace atm {
 
 enum RoutineClassID
 {
@@ -24,7 +24,7 @@ IRoutine* CreateRoutine(RoutineClassID rcid);
 template<class RoutineType> IRoutine* CreateRoutine();
 template<class RoutineType> class AddRoutineTable;
 
-#define atomicImplementRoutine(Class) \
+#define atmImplementRoutine(Class) \
     template<> IRoutine* CreateRoutine<Class>() { return istNew(Class)(); } \
     template<> struct AddRoutineTable<Class> {\
         AddRoutineTable() { GetRoutineCreatorTable()[RCID_##Class] = &CreateRoutine<Class>; }\
@@ -59,5 +59,5 @@ public:
 
 
 
-} // namespace atomic
-#endif // atomic_Game_Entity_Routine_h
+} // namespace atm
+#endif // atm_Game_Entity_Routine_h

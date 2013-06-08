@@ -17,9 +17,9 @@
 using namespace ist::i3dgl;
 
 
-namespace atomic {
+namespace atm {
 
-atomicExportClass(atomic::World);
+atmExportClass(atm::World);
 
 istSerializeBlockImpl(World,
     istSerializeBase(IAtomicGameModule)
@@ -71,7 +71,7 @@ void World::initialize()
         (*i)->initialize();
     }
 
-    const uvec2 &wsize = atomicGetWindowSize();
+    const uvec2 &wsize = atmGetWindowSize();
     m_camera_game.setAspect((float32)wsize.x/(float32)wsize.y);
     m_camera_game.setPosition(vec4(0.0f, 0.0f, 3.0f, 0.0f));
     m_camera_game.setZNear(0.01f);
@@ -88,8 +88,8 @@ void World::frameBegin()
 
 void World::update(float32 dt)
 {
-    if(atomicGetFrame()==0) {
-        atomicCreateEntity(Level_Test);
+    if(atmGetFrame()==0) {
+        atmCreateEntity(Level_Test);
     }
 
     for(ModuleCont::iterator i=m_modules.begin(); i!=m_modules.end(); ++i) {
@@ -138,4 +138,4 @@ void World::handleEntitiesQuery( EntitiesQueryContext &ctx )
 }
 
 
-} // namespace atomic
+} // namespace atm

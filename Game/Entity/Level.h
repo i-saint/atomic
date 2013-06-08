@@ -1,7 +1,7 @@
-﻿#ifndef atomic_Game_Entity_Level_h
-#define atomic_Game_Entity_Level_h
-namespace atomic {
+﻿#ifndef atm_Game_Entity_Level_h
+#define atm_Game_Entity_Level_h
+namespace atm {
 
 
-} // namespace atomic
-#endif // atomic_Game_Entity_Level_h
+} // namespace atm
+#endif // atm_Game_Entity_Level_h

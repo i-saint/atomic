@@ -1,11 +1,11 @@
-﻿#ifndef atomic_Graphics_Renderer_h
-#define atomic_Graphics_Renderer_h
+﻿#ifndef atm_Graphics_Renderer_h
+#define atm_Graphics_Renderer_h
 
 #include "AtomicRenderingSystem.h"
 #include "ResourceManager.h"
 #include "Light.h"
 
-namespace atomic {
+namespace atm {
 
 
 class IRenderer
@@ -55,9 +55,9 @@ private:
     PassPostprocess_Fade                    *m_renderer_fade;
     PassPostprocess_Microscopic             *m_renderer_microscopic;
     PassForwardShading_DistanceField        *m_renderer_distance_field;
-#ifdef atomic_enable_gbuffer_viewer
+#ifdef atm_enable_gbuffer_viewer
     PassHUD_DebugShowBuffer                 *m_debug_show_gbuffer;
-#endif // atomic_enable_gbuffer_viewer
+#endif // atm_enable_gbuffer_viewer
     ist::vector<IRenderer*>                 m_renderers[PASS_END];
 
     SystemTextRenderer                      *m_stext;
@@ -103,20 +103,20 @@ public:
     void swapOutputRenderTarget()   { stl::swap(m_rt_out[0], m_rt_out[1]); }
 };
 
-#define atomicGetRenderer()             AtomicRenderer::getInstance()
-#define atomicGetRenderStates()         atomicGetRenderer()->getRenderStates3D()
-#define atomicGetRenderStatesBG()       atomicGetRenderer()->getRenderStatesBG()
-#define atomicGetDefaultViewport()      atomicGetRenderer()->getDefaultViewport()
-#define atomicGetBloodstainRenderer()   atomicGetRenderer()->getBloodStainRenderer()
-#define atomicGetSPHRenderer()          atomicGetRenderer()->getSPHRenderer()
-#define atomicGetParticleRenderer()     atomicGetRenderer()->getParticleRenderer()
-#define atomicGetLights()               atomicGetRenderer()->getLights()
-#define atomicGetFader()                atomicGetRenderer()->getFader()
-#define atomicGetSystemTextRenderer()   atomicGetRenderer()->getSystemTextRenderer()
+#define atmGetRenderer()             AtomicRenderer::getInstance()
+#define atmGetRenderStates()         atmGetRenderer()->getRenderStates3D()
+#define atmGetRenderStatesBG()       atmGetRenderer()->getRenderStatesBG()
+#define atmGetDefaultViewport()      atmGetRenderer()->getDefaultViewport()
+#define atmGetBloodstainRenderer()   atmGetRenderer()->getBloodStainRenderer()
+#define atmGetSPHRenderer()          atmGetRenderer()->getSPHRenderer()
+#define atmGetParticleRenderer()     atmGetRenderer()->getParticleRenderer()
+#define atmGetLights()               atmGetRenderer()->getLights()
+#define atmGetFader()                atmGetRenderer()->getFader()
+#define atmGetSystemTextRenderer()   atmGetRenderer()->getSystemTextRenderer()
 
-#define atomicGetFrontRenderTarget()    atomicGetRenderer()->getFrontRenderTarget()
-#define atomicGetBackRenderTarget()     atomicGetRenderer()->getBackRenderTarget()
-#define atomicSwapOutputRenderTarget()  atomicGetRenderer()->swapOutputRenderTarget()
+#define atmGetFrontRenderTarget()    atmGetRenderer()->getFrontRenderTarget()
+#define atmGetBackRenderTarget()     atmGetRenderer()->getBackRenderTarget()
+#define atmSwapOutputRenderTarget()  atmGetRenderer()->swapOutputRenderTarget()
 
 
 
@@ -138,7 +138,7 @@ public:
     void addText(const vec2 &pos, const wchar_t *text);
 };
 
-#ifdef atomic_enable_gbuffer_viewer
+#ifdef atm_enable_gbuffer_viewer
 class PassHUD_DebugShowBuffer : public IRenderer
 {
 private:
@@ -158,13 +158,13 @@ public:
     PassHUD_DebugShowBuffer();
     void draw();
 };
-#endif // atomic_enable_gbuffer_viewer
+#endif // atm_enable_gbuffer_viewer
 
-} // namespace atomic
+} // namespace atm
 
 #include "Renderer_GBuffer.h"
 #include "Renderer_DeferredShading.h"
 #include "Renderer_ForwardShading.h"
 #include "Renderer_Postprocess.h"
 
-#endif // atomic_Graphics_Renderer_h
+#endif // atm_Graphics_Renderer_h

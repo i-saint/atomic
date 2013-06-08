@@ -12,7 +12,7 @@
 #include "Game/Message.h"
 #include "Enemy.h"
 
-namespace atomic {
+namespace atm {
 
 class Bullet_Laser
     : public IEntity
@@ -44,17 +44,17 @@ private:
         )
 
 public:
-    atomicECallBlock(
-        atomicMethodBlock(
-        atomicECall(getOwner)
-        atomicECall(getDirection)
-        atomicECall(getSpeed)
-        atomicECall(setOwner)
-        atomicECall(setDirection)
-        atomicECall(setSpeed)
+    atmECallBlock(
+        atmMethodBlock(
+        atmECall(getOwner)
+        atmECall(getDirection)
+        atmECall(getSpeed)
+        atmECall(setOwner)
+        atmECall(setDirection)
+        atmECall(setSpeed)
         )
-        atomicECallSuper(super)
-        atomicECallSuper(transform)
+        atmECallSuper(super)
+        atmECallSuper(transform)
     )
 
 public:
@@ -90,9 +90,9 @@ public:
     {
     }
 };
-atomicImplementEntity(Bullet_Laser);
-atomicExportClass(atomic::Bullet_Laser);
-atomicSerializeRaw(atomic::Bullet_Laser::LaserParticle);
+atmImplementEntity(Bullet_Laser);
+atmExportClass(atm::Bullet_Laser);
+atmSerializeRaw(atm::Bullet_Laser::LaserParticle);
 
 
 class Bullet_Particle
@@ -126,19 +126,19 @@ private:
         )
 
 public:
-    atomicECallBlock(
-        atomicMethodBlock(
-        atomicECall(getOwner)
-        atomicECall(getVelocity)
-        atomicECall(getPower)
-        atomicECall(setOwner)
-        atomicECall(setVelocity)
-        atomicECall(setPower)
+    atmECallBlock(
+        atmMethodBlock(
+        atmECall(getOwner)
+        atmECall(getVelocity)
+        atmECall(getPower)
+        atmECall(setOwner)
+        atmECall(setVelocity)
+        atmECall(setPower)
         )
-        atomicECallSuper(super)
-        atomicECallSuper(transform)
-        atomicECallSuper(collision)
-        atomicECallSuper(mhandler)
+        atmECallSuper(super)
+        atmECallSuper(transform)
+        atmECallSuper(collision)
+        atmECallSuper(mhandler)
     )
 
 public:
@@ -168,7 +168,7 @@ public:
 
         ++m_past_frame;
         if(m_past_frame==m_lifetime) {
-            atomicDeleteEntity(getHandle());
+            atmDeleteEntity(getHandle());
             return;
         }
     }
@@ -196,7 +196,7 @@ public:
             particles.color = vec4(0.6f, 0.3f, 0.3f, 50.0f);
             particles.glow = vec4(0.45f, 0.15f, 0.15f, 1.0f);
             particles.scale = 1.5f;
-            atomicGetParticleRenderer()->addParticle(&particles, 1);
+            atmGetParticleRenderer()->addParticle(&particles, 1);
         }
     }
 
@@ -204,16 +204,16 @@ public:
     {
         if(m->from == getOwner()) { return; }
 
-        if(IEntity *e=atomicGetEntity(m->from)) {
-            atomicCall(e, damage, m_power);
+        if(IEntity *e=atmGetEntity(m->from)) {
+            atmCall(e, damage, m_power);
         }
-        //atomicGetSPHManager()->addFluid(getModel(), getTransform());
-        //atomicPlaySE(SE_CHANNEL2, SE_EXPLOSION2, getPosition(), true);
-        atomicDeleteEntity(getHandle());
+        //atmGetSPHManager()->addFluid(getModel(), getTransform());
+        //atmPlaySE(SE_CHANNEL2, SE_EXPLOSION2, getPosition(), true);
+        atmDeleteEntity(getHandle());
     }
 };
-atomicImplementEntity(Bullet_Particle);
-atomicExportClass(atomic::Bullet_Particle);
+atmImplementEntity(Bullet_Particle);
+atmExportClass(atm::Bullet_Particle);
 
 
 class dpPatch Bullet_Simple
@@ -250,20 +250,20 @@ private:
         )
 
 public:
-    atomicECallBlock(
-        atomicMethodBlock(
-        atomicECall(getOwner)
-        atomicECall(getVelocity)
-        atomicECall(getPower)
-        atomicECall(setOwner)
-        atomicECall(setVelocity)
-        atomicECall(setPower)
+    atmECallBlock(
+        atmMethodBlock(
+        atmECall(getOwner)
+        atmECall(getVelocity)
+        atmECall(getPower)
+        atmECall(setOwner)
+        atmECall(setVelocity)
+        atmECall(setPower)
         )
-        atomicECallSuper(super)
-        atomicECallSuper(transform)
-        atomicECallSuper(model)
-        atomicECallSuper(mhandler)
-        atomicECallSuper(collision)
+        atmECallSuper(super)
+        atmECallSuper(transform)
+        atmECallSuper(model)
+        atmECallSuper(mhandler)
+        atmECallSuper(collision)
     )
 
 public:
@@ -300,7 +300,7 @@ public:
 
         ++m_past_frame;
         if(m_past_frame==m_lifetime) {
-            atomicDeleteEntity(getHandle());
+            atmDeleteEntity(getHandle());
             return;
         }
     }
@@ -314,7 +314,7 @@ public:
             pos.z = 0.03f;
             setPosition(pos);
         }
-        if(m_owner && !atomicGetEntity(m_owner)) {
+        if(m_owner && !atmGetEntity(m_owner)) {
             m_owner = 0;
         }
 
@@ -333,7 +333,7 @@ public:
             l.setPosition(getPosition() + vec4(0.0f, 0.0f, 0.10f, 1.0f));
             l.setRadius(0.2f);
             l.setColor(light);
-            atomicGetLights()->addLight(l);
+            atmGetLights()->addLight(l);
         }
         PSetInstance inst;
         inst.diffuse = diffuse;
@@ -342,22 +342,22 @@ public:
         inst.elapsed = (float32)m_past_frame;
         inst.appear_radius = 1000.0f;
         inst.translate = getTransform();
-        atomicGetSPHRenderer()->addPSetInstance(getModel(), inst);
+        atmGetSPHRenderer()->addPSetInstance(getModel(), inst);
     }
 
     virtual void eventCollide(const CollideMessage *m)
     {
         if(m->from==getOwner()) { return; }
 
-        if(IEntity *e=atomicGetEntity(m->from)) {
-            atomicCall(e, damage, m_power);
+        if(IEntity *e=atmGetEntity(m->from)) {
+            atmCall(e, damage, m_power);
         }
-        atomicGetSPHManager()->addFluid(getModel(), getTransform());
-        atomicPlaySE(SE_CHANNEL2, SE_EXPLOSION2, getPosition(), true);
-        atomicDeleteEntity(getHandle());
+        atmGetSPHManager()->addFluid(getModel(), getTransform());
+        atmPlaySE(SE_CHANNEL2, SE_EXPLOSION2, getPosition(), true);
+        atmDeleteEntity(getHandle());
     }
 };
-atomicImplementEntity(Bullet_Simple);
-atomicExportClass(atomic::Bullet_Simple);
+atmImplementEntity(Bullet_Simple);
+atmExportClass(atm::Bullet_Simple);
 
-} // namespace atomic
+} // namespace atm

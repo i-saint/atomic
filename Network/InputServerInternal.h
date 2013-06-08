@@ -1,9 +1,9 @@
-﻿#ifndef atomic_Network_InputServerInternal_h
-#define atomic_Network_InputServerInternal_h
+﻿#ifndef atm_Network_InputServerInternal_h
+#define atm_Network_InputServerInternal_h
 
 #include "InputServer.h"
 
-namespace atomic {
+namespace atm {
 
 class InputServerCommon
 {
@@ -22,8 +22,8 @@ protected:
     PlayerCont m_players;
     InputConts m_inputs;
     LECCont m_lecs;
-    InputState m_is[atomic_MaxPlayerNum];
+    InputState m_is[atm_MaxPlayerNum];
 };
 
-} // namespace atomic
-#endif // atomic_Network_InputServerInternal_h
+} // namespace atm
+#endif // atm_Network_InputServerInternal_h

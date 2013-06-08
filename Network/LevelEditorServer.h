@@ -1,11 +1,11 @@
-﻿#ifndef atomic_Network_LevelEditorServer_h
-#define atomic_Network_LevelEditorServer_h
+﻿#ifndef atm_Network_LevelEditorServer_h
+#define atm_Network_LevelEditorServer_h
 #include "externals.h"
 #include "LevelEditorCommand.h"
 
-namespace atomic {
+namespace atm {
 
-#ifdef atomic_enable_LevelEditorServer
+#ifdef atm_enable_LevelEditorServer
 
 struct LevelEditorServerConfig
 {
@@ -72,19 +72,19 @@ private:
     QueryCont m_queries;
 };
 
-#define atomicLevelEditorServerInitialize()     LevelEditorServer::initializeInstance()
-#define atomicLevelEditorServerFinalize()       LevelEditorServer::finalizeInstance()
-#define atomicLevelEditorHandleCommands(...)    LevelEditorServer::getInstance()->handleCommands(__VA_ARGS__)
-#define atomicLevelEditorHandleQueries(...)     LevelEditorServer::getInstance()->handleQueries(__VA_ARGS__)
+#define atmLevelEditorServerInitialize()     LevelEditorServer::initializeInstance()
+#define atmLevelEditorServerFinalize()       LevelEditorServer::finalizeInstance()
+#define atmLevelEditorHandleCommands(...)    LevelEditorServer::getInstance()->handleCommands(__VA_ARGS__)
+#define atmLevelEditorHandleQueries(...)     LevelEditorServer::getInstance()->handleQueries(__VA_ARGS__)
 
-#else // atomic_enable_LevelEditorServer
+#else // atm_enable_LevelEditorServer
 
-#define atomicLevelEditorServerInitialize()     
-#define atomicLevelEditorServerFinalize()       
-#define atomicLevelEditorHandleCommands(H)      
-#define atomicLevelEditorHandleQueries(H)       
+#define atmLevelEditorServerInitialize()     
+#define atmLevelEditorServerFinalize()       
+#define atmLevelEditorHandleCommands(H)      
+#define atmLevelEditorHandleQueries(H)       
 
-#endif // atomic_enable_LevelEditorServer
+#endif // atm_enable_LevelEditorServer
 
-} // namespace atomic
-#endif // atomic_Network_LevelEditorServer_h
+} // namespace atm
+#endif // atm_Network_LevelEditorServer_h

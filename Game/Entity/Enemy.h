@@ -1,12 +1,12 @@
-﻿#ifndef atomic_Game_Entity_Enemy_h
-#define atomic_Game_Entity_Enemy_h
+﻿#ifndef atm_Game_Entity_Enemy_h
+#define atm_Game_Entity_Enemy_h
 
 #include "Game/Entity.h"
 #include "Game/EntityQuery.h"
 #include "Attributes.h"
 #include "Routine.h"
 
-namespace atomic {
+namespace atm {
 
 
 class IRoutine;
@@ -36,16 +36,16 @@ private:
         )
 
 public:
-    atomicECallBlock(
-        atomicECallDelegate(m_routine)
-        atomicMethodBlock(
-        atomicECall(getLife)
-        atomicECall(setLife)
-        atomicECall(setRoutine)
-        atomicECall(damage)
+    atmECallBlock(
+        atmECallDelegate(m_routine)
+        atmMethodBlock(
+        atmECall(getLife)
+        atmECall(setLife)
+        atmECall(setRoutine)
+        atmECall(damage)
         )
-        atomicECallSuper(super)
-        atomicECallSuper(mhandler)
+        atmECallSuper(super)
+        atmECallSuper(mhandler)
     )
 
     wdmScope(
@@ -141,10 +141,10 @@ public:
 
     virtual void destroy()
     {
-        atomicDeleteEntity(getHandle());
+        atmDeleteEntity(getHandle());
     }
 };
 
 
-} // namespace atomic
-#endif // atomic_Game_Entity_Enemy_h
+} // namespace atm
+#endif // atm_Game_Entity_Enemy_h

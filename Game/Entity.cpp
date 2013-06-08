@@ -8,13 +8,13 @@
 #include "World.h"
 #include "Task.h"
 
-#ifdef atomic_enable_strict_handle_check
-    #define atomicStrictHandleCheck(h) if(!isValidHandle(h)) { istAssert("invalid entity handle\n"); }
+#ifdef atm_enable_strict_handle_check
+    #define atmStrictHandleCheck(h) if(!isValidHandle(h)) { istAssert("invalid entity handle\n"); }
 #else
-    #define atomicStrictHandleCheck(h)
+    #define atmStrictHandleCheck(h)
 #endif
 
-namespace atomic {
+namespace atm {
 
 
 EntityCreator* GetEntityCreatorTable( EntityClassID entity_classid )
@@ -49,15 +49,15 @@ IEntity* CreateEntity( EntityClassID entity_classid )
 
 
 
-atomicExportClass(atomic::IEntity);
+atmExportClass(atm::IEntity);
 
 IEntity::IEntity()
-    : m_ehandle(atomicGetWorld() ? atomicGetEntitySet()->getGeneratedHandle() : 0)
+    : m_ehandle(atmGetWorld() ? atmGetEntitySet()->getGeneratedHandle() : 0)
 {
 }
 
 
-atomicExportClass(atomic::EntitySet);
+atmExportClass(atm::EntitySet);
 
 EntitySet::EntitySet()
 {
@@ -112,7 +112,7 @@ void EntitySet::update( float32 dt )
 
 
     // asyncupdate
-    atomicDbgLockSyncMethods();
+    atmDbgLockSyncMethods();
     ist::parallel_for(
         ist::size_range(size_t(0), m_all.size(), 32),
         [&](const ist::size_range &r) {
@@ -122,7 +122,7 @@ void EntitySet::update( float32 dt )
                 }
             }
         });
-    atomicDbgUnlockSyncMethods();
+    atmDbgUnlockSyncMethods();
 }
 
 void EntitySet::asyncupdate(float32 dt)
@@ -158,7 +158,7 @@ IEntity* EntitySet::getEntity( EntityHandle h )
 
 void EntitySet::deleteEntity( EntityHandle h )
 {
-    atomicDbgAssertSyncLock();
+    atmDbgAssertSyncLock();
     uint32 cid = EntityGetClassID(h);
     uint32 iid = EntityGetIndex(h);
     EntityCont &entities = m_entities;
@@ -170,7 +170,7 @@ void EntitySet::deleteEntity( EntityHandle h )
 
 void EntitySet::generateHandle(EntityClassID classid)
 {
-    atomicDbgAssertSyncLock();
+    atmDbgAssertSyncLock();
     EntityCont &entities = m_entities;
     HandleCont &vacant = m_vacant;
     EntityHandle h = 0;
@@ -209,8 +209,8 @@ void EntitySet::handleEntitiesQuery( EntitiesQueryContext &ctx )
         EntityHandle handle = m_all[i];
         IEntity *entity = getEntity(handle);
         if(entity) {
-            if(!atomicQuery(entity, getCollisionHandle, ch)) { continue; }
-            CollisionEntity *ce = atomicGetCollision(ch);
+            if(!atmQuery(entity, getCollisionHandle, ch)) { continue; }
+            CollisionEntity *ce = atmGetCollision(ch);
             if(ce) {
                 const BoundingBox &bb = ce->bb;
                 vec4 bb_size = bb.ur - bb.bl;
@@ -225,4 +225,4 @@ void EntitySet::handleEntitiesQuery( EntitiesQueryContext &ctx )
 }
 
 
-} // namespace atomic
+} // namespace atm

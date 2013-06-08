@@ -1,12 +1,12 @@
-﻿#ifndef atomic_Graphics_ResourceManager_h
-#define atomic_Graphics_ResourceManager_h
+﻿#ifndef atm_Graphics_ResourceManager_h
+#define atm_Graphics_ResourceManager_h
 
 #include "Graphics/Shader.h"
 #include "Graphics/ParticleSet.h"
 #include "Graphics/ResourceID.h"
 #include "Graphics/CreateModelData.h"
 
-namespace atomic {
+namespace atm {
 
 enum DRAW_PASS {
     PASS_SHADOW_DEPTH,
@@ -80,32 +80,32 @@ private:
     DepthStencilState   *m_depth_states[DS_END];
     bool m_flag_exit;
 
-#ifdef atomic_enable_shader_live_edit
+#ifdef atm_enable_shader_live_edit
     void watchGLSLFiles();
     bool                m_glsl_modified;
     HANDLE              m_glsl_notifier;
     ist::FunctorThread<std::function<void ()> > m_glsl_watcher;
-#endif // atomic_enable_shader_live_edit
+#endif // atm_enable_shader_live_edit
 };
 
 
-#define atomicGetGraphicsResourceManager()   GraphicResourceManager::getInstance()
+#define atmGetGraphicsResourceManager()   GraphicResourceManager::getInstance()
 
-#define atomicGetFont()             atomicGetGraphicsResourceManager()->getFont()
-#define atomicGetTitleFont()        atomicGetGraphicsResourceManager()->getTitleFont()
-#define atomicGetSampler(i)         atomicGetGraphicsResourceManager()->getSampler(i)
-#define atomicGetTexture1D(i)       atomicGetGraphicsResourceManager()->getTexture1D(i)
-#define atomicGetTexture2D(i)       atomicGetGraphicsResourceManager()->getTexture2D(i)
-#define atomicGetVertexArray(i)     atomicGetGraphicsResourceManager()->getVertexArray(i)
-#define atomicGetVertexBuffer(i)    atomicGetGraphicsResourceManager()->getVertexBuffer(i)
-#define atomicGetIndexBuffer(i)     atomicGetGraphicsResourceManager()->getIndexBuffer(i)
-#define atomicGetUniformBuffer(i)   atomicGetGraphicsResourceManager()->getUniformBuffer(i)
-#define atomicGetShader(i)          atomicGetGraphicsResourceManager()->getShader(i)
-#define atomicGetRenderTarget(i)    atomicGetGraphicsResourceManager()->getRenderTarget(i)
-#define atomicGetParticleSet(i)     atomicGetGraphicsResourceManager()->getParticleSet(i)
-#define atomicGetRigidInfo(i)       atomicGetGraphicsResourceManager()->getRigidInfo(i)
-#define atomicGetBlendState(i)          atomicGetGraphicsResourceManager()->getBlendState(i)
-#define atomicGetDepthStencilState(i)   atomicGetGraphicsResourceManager()->getDepthStencilState(i)
+#define atmGetFont()             atmGetGraphicsResourceManager()->getFont()
+#define atmGetTitleFont()        atmGetGraphicsResourceManager()->getTitleFont()
+#define atmGetSampler(i)         atmGetGraphicsResourceManager()->getSampler(i)
+#define atmGetTexture1D(i)       atmGetGraphicsResourceManager()->getTexture1D(i)
+#define atmGetTexture2D(i)       atmGetGraphicsResourceManager()->getTexture2D(i)
+#define atmGetVertexArray(i)     atmGetGraphicsResourceManager()->getVertexArray(i)
+#define atmGetVertexBuffer(i)    atmGetGraphicsResourceManager()->getVertexBuffer(i)
+#define atmGetIndexBuffer(i)     atmGetGraphicsResourceManager()->getIndexBuffer(i)
+#define atmGetUniformBuffer(i)   atmGetGraphicsResourceManager()->getUniformBuffer(i)
+#define atmGetShader(i)          atmGetGraphicsResourceManager()->getShader(i)
+#define atmGetRenderTarget(i)    atmGetGraphicsResourceManager()->getRenderTarget(i)
+#define atmGetParticleSet(i)     atmGetGraphicsResourceManager()->getParticleSet(i)
+#define atmGetRigidInfo(i)       atmGetGraphicsResourceManager()->getRigidInfo(i)
+#define atmGetBlendState(i)          atmGetGraphicsResourceManager()->getBlendState(i)
+#define atmGetDepthStencilState(i)   atmGetGraphicsResourceManager()->getDepthStencilState(i)
 
-} // namespace atomic
-#endif // atomic_Graphics_ResourceManager_h
+} // namespace atm
+#endif // atm_Graphics_ResourceManager_h

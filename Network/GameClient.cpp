@@ -3,9 +3,9 @@
 #include "GameClient.h"
 #include "Game/AtomicApplication.h"
 
-namespace atomic {
+namespace atm {
 
-#ifdef atomic_enable_GameClient
+#ifdef atm_enable_GameClient
 
 GameClient * GameClient::s_inst;
 
@@ -113,7 +113,7 @@ void GameClient::messageLoop()
     ist::Thread::setNameToCurrentThread("GameClient::messageLoop()");
     {
         ist::Mutex::ScopedLock slock(m_mutex_send);
-        m_message_send.insert(m_message_send.begin(), PMessage_Join::create(0, atomicGetConfig()->name));
+        m_message_send.insert(m_message_send.begin(), PMessage_Join::create(0, atmGetConfig()->name));
     }
 
     Poco::Net::StreamSocket *sock = NULL;
@@ -122,8 +122,8 @@ void GameClient::messageLoop()
         sock = new Poco::Net::StreamSocket(m_address);
         sock->setNoDelay(true);
         sock->setBlocking(true);
-        sock->setReceiveTimeout(Poco::Timespan(atomic_NetworkTimeout, 0));
-        sock->setSendTimeout(Poco::Timespan(atomic_NetworkTimeout, 0));
+        sock->setReceiveTimeout(Poco::Timespan(atm_NetworkTimeout, 0));
+        sock->setSendTimeout(Poco::Timespan(atm_NetworkTimeout, 0));
         stream = new Poco::Net::SocketStream(*sock);
     }
     catch(Poco::Exception &) {
@@ -160,7 +160,7 @@ Cleanup:
     m_stop = false;
 }
 
-#else // atomic_enable_GameClient
-#endif // atomic_enable_GameClient
+#else // atm_enable_GameClient
+#endif // atm_enable_GameClient
 
-} // namespace atomic
+} // namespace atm

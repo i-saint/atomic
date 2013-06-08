@@ -1,7 +1,7 @@
-﻿#ifndef atomic_Game_Collision_h
-#define atomic_Game_Collision_h
+﻿#ifndef atm_Game_Collision_h
+#define atm_Game_Collision_h
 
-namespace atomic {
+namespace atm {
 
 enum CollisionShapeID {
     CS_Null,
@@ -39,7 +39,7 @@ struct istAlign(16) BoundingBox
     vec4 getUBB() const { return vec4(ur.x, bl.y, bl.z, 0.0f); }
     vec4 getBBB() const { return vec4(bl.x, bl.y, bl.z, 0.0f); }
 };
-atomicSerializeRaw(atomic::BoundingBox);
+atmSerializeRaw(atm::BoundingBox);
 
 class CollisionSet;
 
@@ -194,7 +194,7 @@ public:
 
     // BoundingBox の範囲のセルの要素を取得。
     // 注意: out_handles の結果はソートされているが、同じ要素が複数入っている可能性がある。
-    //       atomic::unique_iterator で重複要素を回避しながら巡回すること。(stl::unique() が非常に遅いため、こうなっている)
+    //       atm::unique_iterator で重複要素を回避しながら巡回すること。(stl::unique() が非常に遅いため、こうなっている)
     void getEntities(const BoundingBox &bb, ist::vector<CollisionHandle> &out_handles);
 };
 
@@ -256,5 +256,5 @@ private:
 vec4 GetCollisionPosition(CollisionEntity *ce);
 
 
-} // namespace atomic
-#endif //atomic_Game_Collision_h
+} // namespace atm
+#endif //atm_Game_Collision_h

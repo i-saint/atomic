@@ -13,14 +13,14 @@
 #include "Graphics/Shader.h"
 #include "Util.h"
 
-namespace atomic {
+namespace atm {
 
 void FillScreen( const vec4 &color )
 {
-    i3d::DeviceContext *dc = atomicGetGLDeviceContext();
-    AtomicShader *sh_fill   = atomicGetShader(SH_FILL);
-    VertexArray *va_quad    = atomicGetVertexArray(VA_SCREEN_QUAD);
-    Buffer *ubo_params      = atomicGetUniformBuffer(UBO_FILL_PARAMS);
+    i3d::DeviceContext *dc = atmGetGLDeviceContext();
+    AtomicShader *sh_fill   = atmGetShader(SH_FILL);
+    VertexArray *va_quad    = atmGetVertexArray(VA_SCREEN_QUAD);
+    Buffer *ubo_params      = atmGetUniformBuffer(UBO_FILL_PARAMS);
     static uint32 location  = sh_fill->getUniformBlockIndex("fill_params");
 
     FillParams params;
@@ -37,7 +37,7 @@ void FillScreen( const vec4 &color )
 
 vec4 GenRandomVector2()
 {
-    vec4 axis( atomicGenRandFloat(), atomicGenRandFloat(), 0.0f, 0.0f );
+    vec4 axis( atmGenRandFloat(), atmGenRandFloat(), 0.0f, 0.0f );
     axis -= vec4(0.5f, 0.5f, 0.0f, 0.0f);
     axis *= 2.0f;
     return axis;
@@ -45,7 +45,7 @@ vec4 GenRandomVector2()
 
 vec4 GenRandomVector3()
 {
-    vec4 axis( atomicGenRandFloat(), atomicGenRandFloat(), atomicGenRandFloat(), 0.0f );
+    vec4 axis( atmGenRandFloat(), atmGenRandFloat(), atmGenRandFloat(), 0.0f );
     axis -= vec4(0.5f, 0.5f, 0.5f, 0.0f);
     axis *= 2.0f;
     return axis;
@@ -104,19 +104,19 @@ void UpdateCollisionBox(CollisionBox &o, const mat4& t, const vec4 &size)
 vec4 GetNearestPlayerPosition(const vec4 &pos)
 {
     vec4 ret = pos;
-    atomicEnumlateEntity(
+    atmEnumlateEntity(
         [&](EntityHandle h){ return EntityGetClassID(h)==EC_Player; },
-        [&](IEntity *e){ atomicQuery(e, getPosition, ret); }
+        [&](IEntity *e){ atmQuery(e, getPosition, ret); }
     );
     return ret;
 }
 
 void ShootSimpleBullet(EntityHandle owner, const vec4 &pos, const vec4 &vel)
 {
-    IEntity *e = atomicCreateEntity(Bullet_Simple);
-    atomicCall(e, setOwner, owner);
-    atomicCall(e, setPosition, pos);
-    atomicCall(e, setVelocity, vel);
+    IEntity *e = atmCreateEntity(Bullet_Simple);
+    atmCall(e, setOwner, owner);
+    atmCall(e, setPosition, pos);
+    atmCall(e, setVelocity, vel);
 }
 
 void CreateDateString(char *buf, uint32 len)
@@ -128,4 +128,4 @@ void CreateDateString(char *buf, uint32 len)
 }
 
 
-} // namespace atomic
+} // namespace atm

@@ -1,11 +1,11 @@
-﻿#ifndef atomic_Network_GameServer_h
-#define atomic_Network_GameServer_h
+﻿#ifndef atm_Network_GameServer_h
+#define atm_Network_GameServer_h
 #include "externals.h"
 #include "Protocol.h"
 
-namespace atomic {
+namespace atm {
 
-#ifdef atomic_enable_GameServer
+#ifdef atm_enable_GameServer
 
 class GameServerSession;
 
@@ -61,17 +61,17 @@ private:
     PMessageCont m_mes_send;
 };
 
-#define atomicGameServerInitialize()    GameServer::initializeInstance()
-#define atomicGameServerFinalize()      GameServer::finalizeInstance()
-#define atomicGameServerGet()           GameServer::getInstance()
+#define atmGameServerInitialize()    GameServer::initializeInstance()
+#define atmGameServerFinalize()      GameServer::finalizeInstance()
+#define atmGameServerGet()           GameServer::getInstance()
 
-#else // atomic_enable_GameServer
+#else // atm_enable_GameServer
 
-#define atomicGameServerInitialize()    
-#define atomicGameServerFinalize()      
-#define atomicGameServerGet()           
+#define atmGameServerInitialize()    
+#define atmGameServerFinalize()      
+#define atmGameServerGet()           
 
-#endif // atomic_enable_GameServer
+#endif // atm_enable_GameServer
 
-} // namespace atomic
-#endif // atomic_Network_GameServer_h
+} // namespace atm
+#endif // atm_Network_GameServer_h

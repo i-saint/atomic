@@ -1,9 +1,9 @@
-﻿#ifndef atomic_Sound_AtomicSound_h
-#define atomic_Sound_AtomicSound_h
+﻿#ifndef atm_Sound_AtomicSound_h
+#define atm_Sound_AtomicSound_h
 
 #include "SoundResourceID.h"
 
-namespace atomic {
+namespace atm {
 
 class SoundThread;
 
@@ -36,17 +36,17 @@ public:
 };
 
 
-#define atomicGetSound()                            AtomicSound::getInstance()
+#define atmGetSound()                            AtomicSound::getInstance()
 
-#define atomicSetListenerPosition(move)             atomicGetSound()->setListenerPosition(move)
-#define atomicPlaySE(channel, se, move, _override)  atomicGetSound()->playSE(channel, se, move, _override)
-#define atomicHaltSE(channel)                       atomicGetSound()->haltSE(channel)
-#define atomicIsSEPlaying(channel)                  atomicGetSound()->isSEPlaying(channel)
+#define atmSetListenerPosition(move)             atmGetSound()->setListenerPosition(move)
+#define atmPlaySE(channel, se, move, _override)  atmGetSound()->playSE(channel, se, move, _override)
+#define atmHaltSE(channel)                       atmGetSound()->haltSE(channel)
+#define atmIsSEPlaying(channel)                  atmGetSound()->isSEPlaying(channel)
 
-#define atomicPlayBGM(channel, bgm)                 atomicGetSound()->playBGM(channel, bgm)
-#define atomicFadeBGM(channel, fade_ms)                  atomicGetSound()->fadeBGM(channel, fade_ms)
-#define atomicHaltBGM(channel)                      atomicGetSound()->haltBGM(channel)
-#define atomicIsBGMPlaying(channel)                 atomicGetSound()->isBGMPlaying(channel)
+#define atmPlayBGM(channel, bgm)                 atmGetSound()->playBGM(channel, bgm)
+#define atmFadeBGM(channel, fade_ms)                  atmGetSound()->fadeBGM(channel, fade_ms)
+#define atmHaltBGM(channel)                      atmGetSound()->haltBGM(channel)
+#define atmIsBGMPlaying(channel)                 atmGetSound()->isBGMPlaying(channel)
 
-} //namespace atomic
-#endif // atomic_Sound_AtomicSound_h
+} //namespace atm
+#endif // atm_Sound_AtomicSound_h

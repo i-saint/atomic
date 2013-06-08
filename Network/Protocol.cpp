@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
 #include "Protocol.h"
 
-namespace atomic {
+namespace atm {
 
 
 void PMessage::destroy()
@@ -101,7 +101,7 @@ bool SendPMessages( Poco::Net::SocketStream *stream, PMessageBuffer &buf, PMessa
     {
         PMesBufferHeader &header = *(PMesBufferHeader*)&buf[0];
         memcpy(header.magic, PM_message_header, _countof(header.magic));
-        header.version = atomic_version;
+        header.version = atm_version;
         header.num_message = messages.size();
         // 途中の insert で↑の header は無効になる可能性があるため、ここで scope 切る
     }
@@ -242,4 +242,4 @@ void PMessenger::clearAllMessage()
 }
 
 
-} // namespace atomic
+} // namespace atm

@@ -1,8 +1,8 @@
-﻿#ifndef atomic_Game_AtomicApplication_h
-#define atomic_Game_AtomicApplication_h
+﻿#ifndef atm_Game_AtomicApplication_h
+#define atm_Game_AtomicApplication_h
 #include "Input.h"
 
-namespace atomic {
+namespace atm {
 
 class AtomicGame;
 class SoundThread;
@@ -74,9 +74,9 @@ public:
     const ist::MouseState&      getMouseState() const;
     const ist::ControllerState& getControllerState() const;
 
-#ifdef atomic_enable_debug_log
+#ifdef atm_enable_debug_log
     void printDebugLog(const char *format, ...);
-#endif // atomic_enable_debug_log
+#endif // atm_enable_debug_log
 
 private:
     void registerCommands();
@@ -84,18 +84,18 @@ private:
     istMemberPtrDecl(Members) m;
 };
 
-} // namespace atomic
+} // namespace atm
 
 
-#define atomicGetApplication()          AtomicApplication::getInstance()
-#define atomicGetGame()                 atomicGetApplication()->getGame()
-#define atomicGetSystemInputs()         atomicGetApplication()->getSystemInputs()
-#define atomicGetConfig()               atomicGetApplication()->getConfig()
-#define atomicGetWindowSize()           atomicGetApplication()->getWindowSize()
-#ifdef atomic_enable_debug_log
-#   define atomicDebugLog(...)          atomicGetApplication()->printDebugLog(__VA_ARGS__)
-#else  // atomic_enable_debug_log
-#   define atomicDebugLog(...)          
-#endif // atomic_enable_debug_log
+#define atmGetApplication()          AtomicApplication::getInstance()
+#define atmGetGame()                 atmGetApplication()->getGame()
+#define atmGetSystemInputs()         atmGetApplication()->getSystemInputs()
+#define atmGetConfig()               atmGetApplication()->getConfig()
+#define atmGetWindowSize()           atmGetApplication()->getWindowSize()
+#ifdef atm_enable_debug_log
+#   define atmDebugLog(...)          atmGetApplication()->printDebugLog(__VA_ARGS__)
+#else  // atm_enable_debug_log
+#   define atmDebugLog(...)          
+#endif // atm_enable_debug_log
 
-#endif atomic_Game_AtomicApplication_h
+#endif atm_Game_AtomicApplication_h

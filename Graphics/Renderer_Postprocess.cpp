@@ -7,14 +7,14 @@
 #include "Renderer.h"
 #include "Util.h"
 
-namespace atomic {
+namespace atm {
 
 
 PassPostprocess_Microscopic::PassPostprocess_Microscopic()
 {
-    m_rt_gbuffer    = atomicGetRenderTarget(RT_GBUFFER);
-    m_va_quad       = atomicGetVertexArray(VA_SCREEN_QUAD);
-    m_sh            = atomicGetShader(SH_MICROSCOPIC);
+    m_rt_gbuffer    = atmGetRenderTarget(RT_GBUFFER);
+    m_va_quad       = atmGetVertexArray(VA_SCREEN_QUAD);
+    m_sh            = atmGetShader(SH_MICROSCOPIC);
 }
 
 void PassPostprocess_Microscopic::beforeDraw()
@@ -23,12 +23,12 @@ void PassPostprocess_Microscopic::beforeDraw()
 
 void PassPostprocess_Microscopic::draw()
 {
-    if(!atomicGetConfig()->posteffect_microscopic) { return; }
+    if(!atmGetConfig()->posteffect_microscopic) { return; }
 
-    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
-    RenderTarget *brt = atomicGetBackRenderTarget();
-    RenderTarget *rt = atomicGetFrontRenderTarget();
-    atomicSwapOutputRenderTarget();
+    i3d::DeviceContext *dc  = atmGetGLDeviceContext();
+    RenderTarget *brt = atmGetBackRenderTarget();
+    RenderTarget *rt = atmGetFrontRenderTarget();
+    atmSwapOutputRenderTarget();
 
     m_sh->assign(dc);
     dc->setRenderTarget(rt);
@@ -43,9 +43,9 @@ void PassPostprocess_Microscopic::draw()
 
 PassPostprocess_FXAA::PassPostprocess_FXAA()
 {
-    m_sh_FXAA_luma  = atomicGetShader(SH_FXAA_LUMA);
-    m_sh_FXAA       = atomicGetShader(SH_FXAA);
-    m_va_quad       = atomicGetVertexArray(VA_SCREEN_QUAD);
+    m_sh_FXAA_luma  = atmGetShader(SH_FXAA_LUMA);
+    m_sh_FXAA       = atmGetShader(SH_FXAA);
+    m_va_quad       = atmGetVertexArray(VA_SCREEN_QUAD);
     m_loc_fxaa_param = m_sh_FXAA->getUniformBlockIndex("fxaa_params");
 }
 
@@ -55,11 +55,11 @@ void PassPostprocess_FXAA::beforeDraw()
 
 void PassPostprocess_FXAA::draw()
 {
-    if(!atomicGetConfig()->posteffect_antialias) { return; }
+    if(!atmGetConfig()->posteffect_antialias) { return; }
 
-    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
-    Buffer *ubo_fxaa                        = atomicGetUniformBuffer(UBO_FXAA_PARAMS);
-    m_fxaaparams.fxaaQualityRcpFrame        = vec2(1.0f, 1.0f) / vec2(atomicGetWindowSize());
+    i3d::DeviceContext *dc  = atmGetGLDeviceContext();
+    Buffer *ubo_fxaa                        = atmGetUniformBuffer(UBO_FXAA_PARAMS);
+    m_fxaaparams.fxaaQualityRcpFrame        = vec2(1.0f, 1.0f) / vec2(atmGetWindowSize());
     m_fxaaparams.fxaaQualitySubpix          = 0.75f;
     m_fxaaparams.fxaaQualityEdgeThreshold   = 0.166f;
     m_fxaaparams.fxaaQualityEdgeThresholdMin= 0.0833f;
@@ -67,9 +67,9 @@ void PassPostprocess_FXAA::draw()
 
     // 輝度抽出
     {
-        RenderTarget *brt = atomicGetBackRenderTarget();
-        RenderTarget *rt = atomicGetFrontRenderTarget();
-        atomicSwapOutputRenderTarget();
+        RenderTarget *brt = atmGetBackRenderTarget();
+        RenderTarget *rt = atmGetFrontRenderTarget();
+        atmSwapOutputRenderTarget();
 
         dc->setRenderTarget(rt);
         m_sh_FXAA_luma->assign(dc);
@@ -81,9 +81,9 @@ void PassPostprocess_FXAA::draw()
     }
     // FXAA
     {
-        RenderTarget *brt = atomicGetBackRenderTarget();
-        RenderTarget *rt = atomicGetFrontRenderTarget();
-        atomicSwapOutputRenderTarget();
+        RenderTarget *brt = atmGetBackRenderTarget();
+        RenderTarget *rt = atmGetFrontRenderTarget();
+        atmSwapOutputRenderTarget();
 
         dc->setRenderTarget(rt);
         m_sh_FXAA->assign(dc);
@@ -110,17 +110,17 @@ PassPostprocess_Bloom::PassPostprocess_Bloom()
 , m_sh_composite(NULL)
 , m_ubo_states(NULL)
 {
-    m_rt_gbuffer    = atomicGetRenderTarget(RT_GBUFFER);
-    m_rt_gauss0     = atomicGetRenderTarget(RT_GAUSS0);
-    m_rt_gauss1     = atomicGetRenderTarget(RT_GAUSS1);
-    m_va_luminance  = atomicGetVertexArray(VA_BLOOM_LUMINANCE_QUADS);
-    m_va_blur       = atomicGetVertexArray(VA_BLOOM_BLUR_QUADS);
-    m_va_composite  = atomicGetVertexArray(VA_BLOOM_COMPOSITE_QUAD);
-    m_sh_luminance  = atomicGetShader(SH_BLOOM_LUMINANCE);
-    m_sh_hblur      = atomicGetShader(SH_BLOOM_HBLUR);
-    m_sh_vblur      = atomicGetShader(SH_BLOOM_VBLUR);
-    m_sh_composite  = atomicGetShader(SH_BLOOM_COMPOSITE);
-    m_ubo_states    = atomicGetUniformBuffer(UBO_BLOOM_PARAMS);
+    m_rt_gbuffer    = atmGetRenderTarget(RT_GBUFFER);
+    m_rt_gauss0     = atmGetRenderTarget(RT_GAUSS0);
+    m_rt_gauss1     = atmGetRenderTarget(RT_GAUSS1);
+    m_va_luminance  = atmGetVertexArray(VA_BLOOM_LUMINANCE_QUADS);
+    m_va_blur       = atmGetVertexArray(VA_BLOOM_BLUR_QUADS);
+    m_va_composite  = atmGetVertexArray(VA_BLOOM_COMPOSITE_QUAD);
+    m_sh_luminance  = atmGetShader(SH_BLOOM_LUMINANCE);
+    m_sh_hblur      = atmGetShader(SH_BLOOM_HBLUR);
+    m_sh_vblur      = atmGetShader(SH_BLOOM_VBLUR);
+    m_sh_composite  = atmGetShader(SH_BLOOM_COMPOSITE);
+    m_ubo_states    = atmGetUniformBuffer(UBO_BLOOM_PARAMS);
 }
 
 void PassPostprocess_Bloom::beforeDraw()
@@ -129,15 +129,15 @@ void PassPostprocess_Bloom::beforeDraw()
 
 void PassPostprocess_Bloom::draw()
 {
-    if(!atomicGetConfig()->posteffect_bloom) { return; }
+    if(!atmGetConfig()->posteffect_bloom) { return; }
 
-    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
+    i3d::DeviceContext *dc  = atmGetGLDeviceContext();
     Viewport vp(ivec2(), m_rt_gauss0->getColorBuffer(0)->getDesc().size);
     dc->setViewport(vp);
 
     // 輝度抽出
     {
-        RenderTarget *brt = atomicGetBackRenderTarget();
+        RenderTarget *brt = atmGetBackRenderTarget();
 
         dc->setRenderTarget(m_rt_gauss0);
         m_sh_luminance->assign(dc);
@@ -172,17 +172,17 @@ void PassPostprocess_Bloom::draw()
     }
 
     // 加算
-    dc->setViewport(*atomicGetDefaultViewport());
+    dc->setViewport(*atmGetDefaultViewport());
     {
-        RenderTarget *brt = atomicGetBackRenderTarget();
+        RenderTarget *brt = atmGetBackRenderTarget();
 
         dc->setRenderTarget(brt);
         m_sh_composite->assign(dc);
         dc->setTexture(GLSL_COLOR_BUFFER, m_rt_gauss1->getColorBuffer(GBUFFER_COLOR));
         dc->setVertexArray(m_va_composite);
-        dc->setBlendState(atomicGetBlendState(BS_BLEND_ADD));
+        dc->setBlendState(atmGetBlendState(BS_BLEND_ADD));
         dc->draw(I3D_QUADS, 0, 4);
-        dc->setBlendState(atomicGetBlendState(BS_NO_BLEND));
+        dc->setBlendState(atmGetBlendState(BS_NO_BLEND));
         dc->setTexture(GLSL_COLOR_BUFFER, NULL);
         dc->setRenderTarget(NULL);
     }
@@ -191,18 +191,18 @@ void PassPostprocess_Bloom::draw()
 
 PassPostprocess_Fade::PassPostprocess_Fade()
 {
-    m_sh_fade       = atomicGetShader(SH_FADE);
-    m_va_quad       = atomicGetVertexArray(VA_SCREEN_QUAD);
-    m_ubo_fade      = atomicGetUniformBuffer(UBO_FADE_PARAMS);
+    m_sh_fade       = atmGetShader(SH_FADE);
+    m_va_quad       = atmGetVertexArray(VA_SCREEN_QUAD);
+    m_ubo_fade      = atmGetUniformBuffer(UBO_FADE_PARAMS);
 
     m_loc_fade_param = m_sh_fade->getUniformBlockIndex("fade_params");
 }
 
 void PassPostprocess_Fade::beforeDraw()
 {
-    if(!atomicGetGame()) { return; }
+    if(!atmGetGame()) { return; }
 
-    float32 frame = (float32)atomicGetFrame();
+    float32 frame = (float32)atmGetFrame();
     if(frame > m_end_frame) { return; }
 
     vec4 diff = m_end_color-m_begin_color;
@@ -215,18 +215,18 @@ void PassPostprocess_Fade::draw()
 {
     if(m_params.Color.a==0.0f) { return; }
 
-    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
+    i3d::DeviceContext *dc  = atmGetGLDeviceContext();
     MapAndWrite(dc, m_ubo_fade, &m_params, sizeof(m_params));
 
-    RenderTarget *brt = atomicGetBackRenderTarget();
+    RenderTarget *brt = atmGetBackRenderTarget();
 
     dc->setRenderTarget(brt);
     m_sh_fade->assign(dc);
     m_sh_fade->setUniformBlock(m_loc_fade_param, GLSL_FADE_BINDING, m_ubo_fade);
     dc->setVertexArray(m_va_quad);
-    dc->setBlendState(atomicGetBlendState(BS_BLEND_ALPHA));
+    dc->setBlendState(atmGetBlendState(BS_BLEND_ALPHA));
     dc->draw(I3D_QUADS, 0, 4);
-    dc->setBlendState(atomicGetBlendState(BS_NO_BLEND));
+    dc->setBlendState(atmGetBlendState(BS_NO_BLEND));
     dc->setShader(NULL);
     dc->setRenderTarget(NULL);
 }
@@ -235,8 +235,8 @@ void PassPostprocess_Fade::setFade(const vec4 &v, float32 frame)
 {
     m_begin_color = m_params.Color;
     m_end_color = v;
-    m_begin_frame = (float32)atomicGetFrame();
+    m_begin_frame = (float32)atmGetFrame();
     m_end_frame = m_begin_frame+frame;
 }
 
-} // namespace atomic
+} // namespace atm

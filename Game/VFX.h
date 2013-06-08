@@ -1,6 +1,6 @@
-﻿#ifndef atomic_Game_VFX_h
-#define atomic_Game_VFX_h
-namespace atomic {
+﻿#ifndef atm_Game_VFX_h
+#define atm_Game_VFX_h
+namespace atm {
 
 struct VFXScintillaSpawnData
 {
@@ -112,5 +112,5 @@ public:
     VFXScintilla* getScintilla() { return m_scintilla; }
 };
 
-} // namespace atomic
-#endif // atomic_Game_VFX_h
+} // namespace atm
+#endif // atm_Game_VFX_h

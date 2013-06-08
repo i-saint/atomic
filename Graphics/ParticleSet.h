@@ -1,9 +1,9 @@
-﻿#ifndef atomic_Graphics_ParticleSet_h
-#define atomic_Graphics_ParticleSet_h
+﻿#ifndef atm_Graphics_ParticleSet_h
+#define atm_Graphics_ParticleSet_h
 
 #include "ResourceID.h"
 
-namespace atomic {
+namespace atm {
 
 struct istAlign(16) BloodstainParticle
 {
@@ -15,8 +15,8 @@ struct istAlign(16) BloodstainParticle
         float params[4];
     };
 };
-atomicGlobalNamespace(
-    istSerializeRaw(atomic::BloodstainParticle);
+atmGlobalNamespace(
+    istSerializeRaw(atm::BloodstainParticle);
 )
 
 struct istAlign(16) BloodstainParticle_IsDead
@@ -109,6 +109,6 @@ struct istAlign(16) RigidInfo
     };
 };
 
-} // namespace atomic
+} // namespace atm
 
-#endif // atomic_Graphics_ParticleSet_h
+#endif // atm_Graphics_ParticleSet_h

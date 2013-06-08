@@ -1,10 +1,10 @@
-﻿#ifndef atomic_Network_InputServer_h
-#define atomic_Network_InputServer_h
+﻿#ifndef atm_Network_InputServer_h
+#define atm_Network_InputServer_h
 
 #include "Game/Input.h"
 #include "Protocol.h"
 
-namespace atomic {
+namespace atm {
 
 class IInputServer
 {
@@ -38,5 +38,5 @@ IInputServer* CreateInputServerLocal();
 IInputServer* CreateInputServerReplay();
 IInputServer* CreateInputServerNetwork();
 
-} // namespace atomic
-#endif // atomic_Network_InputServer_h
+} // namespace atm
+#endif // atm_Network_InputServer_h

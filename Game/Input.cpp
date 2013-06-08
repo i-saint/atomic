@@ -7,7 +7,7 @@
 #include "World.h"
 #include "Network/LevelEditorCommand.h"
 
-namespace atomic {
+namespace atm {
 
 namespace  {
     const char magic_string[8] = "atomic\x00";
@@ -17,12 +17,12 @@ RepHeader::RepHeader()
 {
     istMemset(this, 0, sizeof(*this));
     istMemcpy(magic, magic_string, sizeof(magic));
-    version = atomic_replay_version;
+    version = atm_replay_version;
 }
 
 bool RepHeader::isValid()
 {
-    if( istMemcmp(magic, magic_string, sizeof(magic))==0 && version==atomic_replay_version)
+    if( istMemcmp(magic, magic_string, sizeof(magic))==0 && version==atm_replay_version)
     {
         return true;
     }
@@ -35,4 +35,4 @@ RepPlayer::RepPlayer() { istMemset(this, 0, sizeof(*this)); }
 
 
 
-} // namespace atomic
+} // namespace atm

@@ -11,13 +11,13 @@
 #include "Game/SPHManager.h"
 #include "Collision.h"
 
-namespace atomic {
+namespace atm {
 
-atomicExportClass(atomic::CollisionEntity);
-atomicExportClass(atomic::CollisionPlane);
-atomicExportClass(atomic::CollisionSphere);
-atomicExportClass(atomic::CollisionBox);
-atomicExportClass(atomic::CollisionSet);
+atmExportClass(atm::CollisionEntity);
+atmExportClass(atm::CollisionPlane);
+atmExportClass(atm::CollisionSphere);
+atmExportClass(atm::CollisionBox);
+atmExportClass(atm::CollisionSet);
 
 
 inline bool BoundingBoxIntersect(const BoundingBox &bb1, const vec4 &pos)
@@ -300,8 +300,8 @@ void CollisionSet::update(float32 dt)
         MessageCont &messages = m_acons[ti]->messages;
         uint32 num_messages = messages.size();
         for(uint32 mi=0; mi<num_messages; ++mi) {
-            if(IEntity *e = atomicGetEntity(messages[mi].to)) {
-                atomicCall(e, eventCollide, static_cast<const CollideMessage*>(&messages[mi]));
+            if(IEntity *e = atmGetEntity(messages[mi].to)) {
+                atmCall(e, eventCollide, static_cast<const CollideMessage*>(&messages[mi]));
             }
         }
         messages.clear();
@@ -345,13 +345,13 @@ void CollisionSet::copyRigitsToPSym()
     for(uint32 i=0; i<num; ++i) {
         const CollisionEntity *ce = m_entities[i];
         if(!ce || (ce->getFlags() & CF_SPH_Sender)==0) { continue; }
-        atomicGetSPHManager()->addRigid(*ce);
+        atmGetSPHManager()->addRigid(*ce);
     }
 }
 
 void CollisionSet::addEntity(CollisionEntity *e)
 {
-    atomicDbgAssertSyncLock();
+    atmDbgAssertSyncLock();
     CollisionHandle h = 0;
     if(!m_vacant.empty()) {
         h = m_vacant.back();
@@ -373,21 +373,21 @@ CollisionEntity* CollisionSet::getEntity(CollisionHandle h)
 
 template<> CollisionPlane* CollisionSet::createEntity<CollisionPlane>()
 {
-    atomicDbgAssertSyncLock();
+    atmDbgAssertSyncLock();
     CollisionPlane *e = istNew(CollisionPlane)();
     addEntity(e);
     return e;
 }
 template<> CollisionSphere* CollisionSet::createEntity<CollisionSphere>()
 {
-    atomicDbgAssertSyncLock();
+    atmDbgAssertSyncLock();
     CollisionSphere *e = istNew(CollisionSphere)();
     addEntity(e);
     return e;
 }
 template<> CollisionBox* CollisionSet::createEntity<CollisionBox>()
 {
-    atomicDbgAssertSyncLock();
+    atmDbgAssertSyncLock();
     CollisionBox *e = istNew(CollisionBox)();
     addEntity(e);
     return e;
@@ -395,7 +395,7 @@ template<> CollisionBox* CollisionSet::createEntity<CollisionBox>()
 
 void CollisionSet::deleteEntity(CollisionHandle h)
 {
-    atomicDbgAssertSyncLock();
+    atmDbgAssertSyncLock();
     CollisionEntity *&ce = m_entities[h];
     if(ce) {
         ce->release();
@@ -406,7 +406,7 @@ void CollisionSet::deleteEntity(CollisionHandle h)
 
 void CollisionSet::deleteEntity(CollisionEntity *e)
 {
-    atomicDbgAssertSyncLock();
+    atmDbgAssertSyncLock();
     if(e != NULL) {
         deleteEntity(e->getCollisionHandle());
     }
@@ -431,4 +431,4 @@ vec4 GetCollisionPosition( CollisionEntity *ce )
     return vec4();
 }
 
-} // namespace atomic
+} // namespace atm

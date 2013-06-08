@@ -1,8 +1,8 @@
-﻿#ifndef atomic_Util_h
-#define atomic_Util_h
+﻿#ifndef atm_Util_h
+#define atm_Util_h
 
 
-namespace atomic {
+namespace atm {
 
     struct CollisionSphere;
     struct CollisionBox;
@@ -68,7 +68,7 @@ namespace atomic {
     };
 
 
-} // namespace atomic
+} // namespace atm
 
 namespace glm {
 namespace detail {
@@ -96,4 +96,4 @@ __forceinline fvec4SIMD operator* (fmat4x4SIMD const & M, fvec4SIMD const & V)
 } // namespace detail
 } // namespace glm
 
-#endif // atomic_Util_h
+#endif // atm_Util_h

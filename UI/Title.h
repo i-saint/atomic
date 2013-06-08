@@ -1,8 +1,8 @@
-﻿#ifndef atomic_UI_Title_h
-#define atomic_UI_Title_h
+﻿#ifndef atm_UI_Title_h
+#define atm_UI_Title_h
 #include "ist/iui.h"
 
-namespace atomic {
+namespace atm {
 
 class TitleWindow;
 class StartWindow;
@@ -87,5 +87,5 @@ public:
 private:
     void onTextEnter(Widget *);
 };
-} // namespace atomic
-#endif // atomic_UI_Title_h
+} // namespace atm
+#endif // atm_UI_Title_h

@@ -5,7 +5,7 @@
 #include "Message.h"
 
 
-namespace atomic {
+namespace atm {
 
 
 MessageRouter* MessageRouter::s_instance;
@@ -68,15 +68,15 @@ MessageIterator::MessageIterator()
 , m_message_index(0)
 , m_current_block(NULL)
 {
-    MessageRouter *router = atomicGetMessageRouter();
+    MessageRouter *router = atmGetMessageRouter();
     m_num_blocks = router->getMessageBlockNum();
     m_current_block = router->getMessageBlock(0);
     m_num_messages = m_current_block->size();
 }
 
-bool atomic::MessageIterator::hasNext()
+bool atm::MessageIterator::hasNext()
 {
-    MessageRouter *router = atomicGetMessageRouter();
+    MessageRouter *router = atmGetMessageRouter();
     for(; m_block_index<m_num_blocks; ++m_block_index) {
         if(m_message_index < m_num_messages) {
             return true;
@@ -91,10 +91,10 @@ bool atomic::MessageIterator::hasNext()
     return false;
 }
 
-const CallInfo& atomic::MessageIterator::iterate()
+const CallInfo& atm::MessageIterator::iterate()
 {
     return (*m_current_block)[m_message_index++];
 }
 
 
-} // namespace atomic
+} // namespace atm

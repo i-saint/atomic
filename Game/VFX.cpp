@@ -6,7 +6,7 @@
 #include "Game/VFX.h"
 #include "Util.h"
 
-namespace atomic {
+namespace atm {
 
     template<class T>
     struct VFXData_IsDead
@@ -53,7 +53,7 @@ void VFXScintilla::draw()
         particles.position = data.position;
         particles.color = data.color;
         particles.glow = data.glow;
-        atomicGetParticleRenderer()->addParticle(&particles, 1);
+        atmGetParticleRenderer()->addParticle(&particles, 1);
     }
 }
 
@@ -74,7 +74,7 @@ void VFXScintilla::addData( const VFXScintillaSpawnData &spawn )
     m_particles.insert(m_particles.end(), particles, particles+spawn.num_particles);
 }
 
-atomicExportClass(atomic::VFXSet);
+atmExportClass(atm::VFXSet);
 
 VFXSet::VFXSet()
     : m_scintilla(nullptr)
@@ -130,4 +130,4 @@ void VFXSet::frameEnd()
     }
 }
 
-} // namespace atomic
+} // namespace atm

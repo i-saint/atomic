@@ -7,7 +7,7 @@
 #include "Renderer.h"
 #include "Util.h"
 
-namespace atomic {
+namespace atm {
 
 
 
@@ -31,7 +31,7 @@ void PassDeferredShading_Bloodstain::draw()
 {
     if(m_instances.empty()) { return; }
 
-    i3d::DeviceContext *dc = atomicGetGLDeviceContext();
+    i3d::DeviceContext *dc = atmGetGLDeviceContext();
     uint32 num_instances = m_instances.size();
     uint32 num_particles = 0;
     for(uint32 i=0; i<num_instances; ++i) {
@@ -61,21 +61,21 @@ void PassDeferredShading_Bloodstain::draw()
             });
     }
 
-    Buffer          *ibo_sphere       = atomicGetIndexBuffer(IBO_BLOODSTAIN_SPHERE);
-    VertexArray     *va_sphere        = atomicGetVertexArray(VA_BLOOSTAIN_SPHERE);
-    Buffer          *vbo_bloodstain   = atomicGetVertexBuffer(VBO_BLOODSTAIN_PARTICLES);
-    AtomicShader    *sh               = atomicGetShader(SH_BLOODSTAIN);
+    Buffer          *ibo_sphere       = atmGetIndexBuffer(IBO_BLOODSTAIN_SPHERE);
+    VertexArray     *va_sphere        = atmGetVertexArray(VA_BLOOSTAIN_SPHERE);
+    Buffer          *vbo_bloodstain   = atmGetVertexBuffer(VBO_BLOODSTAIN_PARTICLES);
+    AtomicShader    *sh               = atmGetShader(SH_BLOODSTAIN);
     MapAndWrite(dc, vbo_bloodstain, &m_particles[0], sizeof(BloodstainParticle)*num_particles);
 
     // RT_GBUFFER のカラーバッファを更新する。
     // そのため、GLSL_COLOR_BUFFER は一時的に unbind
 
-    RenderTarget *grt = atomicGetRenderTarget(RT_GENERIC);
-    RenderTarget *gbuffer = atomicGetRenderTarget(RT_GBUFFER);
+    RenderTarget *grt = atmGetRenderTarget(RT_GENERIC);
+    RenderTarget *gbuffer = atmGetRenderTarget(RT_GBUFFER);
     dc->setTexture(GLSL_COLOR_BUFFER, NULL);
     grt->setColorBuffer(0, gbuffer->getColorBuffer(GBUFFER_COLOR));
     grt->setDepthStencilBuffer(gbuffer->getDepthStencilBuffer());
-    dc->setBlendState(atomicGetBlendState(BS_NO_BLEND));
+    dc->setBlendState(atmGetBlendState(BS_NO_BLEND));
 
 
     const VertexDesc descs[] = {
@@ -90,9 +90,9 @@ void PassDeferredShading_Bloodstain::draw()
     dc->setIndexBuffer(ibo_sphere, 0, I3D_UINT32);
     dc->drawIndexedInstanced(I3D_QUADS, 0, (8-1)*(8)*4, num_particles);
     dc->setIndexBuffer(NULL, 0, I3D_UINT32);
-    dc->setBlendState(atomicGetBlendState(BS_BLEND_ADD));
+    dc->setBlendState(atmGetBlendState(BS_BLEND_ADD));
 
-    dc->setRenderTarget(atomicGetFrontRenderTarget());
+    dc->setRenderTarget(atmGetFrontRenderTarget());
     dc->setTexture(GLSL_COLOR_BUFFER, gbuffer->getColorBuffer(GBUFFER_COLOR));
 }
 
@@ -129,7 +129,7 @@ void PassDeferredShading_Lights::beforeDraw()
 void PassDeferredShading_Lights::draw()
 {
     updateConstantBuffers();
-    if(atomicGetConfig()->light_multiresolution) {
+    if(atmGetConfig()->light_multiresolution) {
         drawMultiResolution();
     }
     else {
@@ -139,13 +139,13 @@ void PassDeferredShading_Lights::draw()
 
 void PassDeferredShading_Lights::drawMultiResolution()
 {
-    i3d::DeviceContext *dc = atomicGetGLDeviceContext();
-    RenderTarget *rt_gbuffer    = atomicGetRenderTarget(RT_GBUFFER);
-    RenderTarget *rt_quarter    = atomicGetRenderTarget(RT_OUTPUT_QUARTER);
-    RenderTarget *rt_half       = atomicGetRenderTarget(RT_OUTPUT_HALF);
-    RenderTarget *rt_original   = atomicGetFrontRenderTarget();
+    i3d::DeviceContext *dc = atmGetGLDeviceContext();
+    RenderTarget *rt_gbuffer    = atmGetRenderTarget(RT_GBUFFER);
+    RenderTarget *rt_quarter    = atmGetRenderTarget(RT_OUTPUT_QUARTER);
+    RenderTarget *rt_half       = atmGetRenderTarget(RT_OUTPUT_HALF);
+    RenderTarget *rt_original   = atmGetFrontRenderTarget();
 
-    dc->setSampler(GLSL_BACK_BUFFER, atomicGetSampler(SAMPLER_GBUFFER));
+    dc->setSampler(GLSL_BACK_BUFFER, atmGetSampler(SAMPLER_GBUFFER));
 
     // 1/4 の解像度で shading
     {
@@ -176,7 +176,7 @@ void PassDeferredShading_Lights::drawMultiResolution()
 
     // 1/1
     {
-        dc->setViewport(*atomicGetDefaultViewport());
+        dc->setViewport(*atmGetDefaultViewport());
         dc->setRenderTarget(rt_original);
 
         upsampling(1);
@@ -186,41 +186,41 @@ void PassDeferredShading_Lights::drawMultiResolution()
         // not unbind
     }
 
-    dc->setSampler(GLSL_BACK_BUFFER, atomicGetSampler(SAMPLER_TEXTURE_DEFAULT));
+    dc->setSampler(GLSL_BACK_BUFFER, atmGetSampler(SAMPLER_TEXTURE_DEFAULT));
 }
 
 void PassDeferredShading_Lights::debugShowResolution( int32 level )
 {
-    i3d::DeviceContext *dc = atomicGetGLDeviceContext();
+    i3d::DeviceContext *dc = atmGetGLDeviceContext();
     static const vec4 colors[] = {
         vec4(0.8f, 0.0f, 0.0f, 0.7f),
         vec4(0.5f, 0.0f, 0.0f, 0.7f),
         vec4(0.2f, 0.0f, 0.0f, 0.7f),
     };
-    if(atomicGetConfig()->debug_show_resolution) {
-        dc->setBlendState(atomicGetBlendState(BS_BLEND_ALPHA));
+    if(atmGetConfig()->debug_show_resolution) {
+        dc->setBlendState(atmGetBlendState(BS_BLEND_ALPHA));
         FillScreen(colors[level]);
-        dc->setBlendState(atomicGetBlendState(BS_BLEND_ADD));
+        dc->setBlendState(atmGetBlendState(BS_BLEND_ADD));
     }
 }
 
 void PassDeferredShading_Lights::upsampling(int32 level)
 {
-    i3d::DeviceContext *dc = atomicGetGLDeviceContext();
-    AtomicShader *sh_upsampling = atomicGetShader(SH_UPSAMPLING);
-    VertexArray *va_quad        = atomicGetVertexArray(VA_SCREEN_QUAD);
-    Buffer *ubo_mrp             = atomicGetUniformBuffer(UBO_MULTIRESOLUTION_PARAMS);
+    i3d::DeviceContext *dc = atmGetGLDeviceContext();
+    AtomicShader *sh_upsampling = atmGetShader(SH_UPSAMPLING);
+    VertexArray *va_quad        = atmGetVertexArray(VA_SCREEN_QUAD);
+    Buffer *ubo_mrp             = atmGetUniformBuffer(UBO_MULTIRESOLUTION_PARAMS);
     int32 mr_params_loc = sh_upsampling->getUniformBlockIndex("multiresolution_params");
 
     Texture2D *lower_resolution = NULL;
     RenderTarget *rt = NULL;
     if(level==2) {
-        lower_resolution = atomicGetRenderTarget(RT_OUTPUT_QUARTER)->getColorBuffer(0);
-        rt = atomicGetRenderTarget(RT_OUTPUT_HALF);
+        lower_resolution = atmGetRenderTarget(RT_OUTPUT_QUARTER)->getColorBuffer(0);
+        rt = atmGetRenderTarget(RT_OUTPUT_HALF);
     }
     else if(level==1) {
-        lower_resolution = atomicGetRenderTarget(RT_OUTPUT_HALF)->getColorBuffer(0);
-        rt = atomicGetFrontRenderTarget();
+        lower_resolution = atmGetRenderTarget(RT_OUTPUT_HALF)->getColorBuffer(0);
+        rt = atmGetFrontRenderTarget();
     }
     else {
         istPrint("PassDeferredShading_Lights::upsampling(): invalid level\n");
@@ -251,14 +251,14 @@ void PassDeferredShading_Lights::upsampling(int32 level)
 
 void PassDeferredShading_Lights::updateConstantBuffers()
 {
-    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
+    i3d::DeviceContext *dc  = atmGetGLDeviceContext();
     if(!m_directional_lights.empty()) {
-        Buffer *vbo_instance    = atomicGetVertexBuffer(VBO_DIRECTIONALLIGHT_INSTANCES);
+        Buffer *vbo_instance    = atmGetVertexBuffer(VBO_DIRECTIONALLIGHT_INSTANCES);
         int32 num_lights = m_directional_lights.size();
         MapAndWrite(dc, vbo_instance, &m_directional_lights[0], sizeof(DirectionalLight)*num_lights);
     }
     if(!m_point_lights.empty()) {
-        Buffer *vbo_instance    = atomicGetVertexBuffer(VBO_POINTLIGHT_INSTANCES);
+        Buffer *vbo_instance    = atmGetVertexBuffer(VBO_POINTLIGHT_INSTANCES);
         int32 num_lights = m_point_lights.size();
         MapAndWrite(dc, vbo_instance, &m_point_lights[0], sizeof(PointLight)*num_lights);
     }
@@ -274,16 +274,16 @@ void PassDeferredShading_Lights::drawLights()
 void PassDeferredShading_Lights::drawDirectionalLights()
 {
     int32 num_lights = m_directional_lights.size();
-    int32 show = atomicGetConfig()->debug_show_lights - m_rendered_lights;
+    int32 show = atmGetConfig()->debug_show_lights - m_rendered_lights;
     if(show >= 0) {
         num_lights = stl::min(num_lights, show);
     }
     if(num_lights==0) { return; }
 
-    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
-    AtomicShader *shader    = atomicGetShader(SH_DIRECTIONALLIGHT);
-    VertexArray *va_quad    = atomicGetVertexArray(VA_SCREEN_QUAD);
-    Buffer *vbo_instance    = atomicGetVertexBuffer(VBO_DIRECTIONALLIGHT_INSTANCES);
+    i3d::DeviceContext *dc  = atmGetGLDeviceContext();
+    AtomicShader *shader    = atmGetShader(SH_DIRECTIONALLIGHT);
+    VertexArray *va_quad    = atmGetVertexArray(VA_SCREEN_QUAD);
+    Buffer *vbo_instance    = atmGetVertexBuffer(VBO_DIRECTIONALLIGHT_INSTANCES);
 
     m_rendered_lights += num_lights;
 
@@ -302,17 +302,17 @@ void PassDeferredShading_Lights::drawDirectionalLights()
 void PassDeferredShading_Lights::drawPointLights()
 {
     int32 num_lights = m_point_lights.size();
-    int32 show = atomicGetConfig()->debug_show_lights - m_rendered_lights;
+    int32 show = atmGetConfig()->debug_show_lights - m_rendered_lights;
     if(show >= 0) {
         num_lights = stl::min(num_lights, show);
     }
     if(num_lights==0) { return; }
 
-    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
-    AtomicShader *shader    = atomicGetShader(SH_POINTLIGHT);
-    Buffer *ibo_sphere      = atomicGetIndexBuffer(IBO_LIGHT_SPHERE);
-    VertexArray *va_sphere  = atomicGetVertexArray(VA_UNIT_SPHERE);
-    Buffer *vbo_instance    = atomicGetVertexBuffer(VBO_POINTLIGHT_INSTANCES);
+    i3d::DeviceContext *dc  = atmGetGLDeviceContext();
+    AtomicShader *shader    = atmGetShader(SH_POINTLIGHT);
+    Buffer *ibo_sphere      = atmGetIndexBuffer(IBO_LIGHT_SPHERE);
+    VertexArray *va_sphere  = atmGetVertexArray(VA_UNIT_SPHERE);
+    Buffer *vbo_instance    = atmGetVertexBuffer(VBO_POINTLIGHT_INSTANCES);
 
     m_rendered_lights += num_lights;
 
@@ -339,4 +339,4 @@ void PassDeferredShading_Lights::addLight( const PointLight& v )
     m_point_lights.push_back(v);
 }
 
-} // namespace atomic
+} // namespace atm

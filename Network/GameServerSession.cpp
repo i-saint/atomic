@@ -2,9 +2,9 @@
 #include "GameServer.h"
 #include "GameServerSession.h"
 
-namespace atomic {
+namespace atm {
 
-#ifdef atomic_enable_GameServer
+#ifdef atm_enable_GameServer
 
 GameServerSession::GameServerSession( const Poco::Net::StreamSocket &_ss )
     : super(_ss)
@@ -15,25 +15,25 @@ GameServerSession::GameServerSession( const Poco::Net::StreamSocket &_ss )
     Poco::Net::StreamSocket &ss = socket();
     ss.setNoDelay(true);
     ss.setBlocking(true);
-    ss.setReceiveTimeout(Poco::Timespan(atomic_NetworkTimeout, 0));
-    ss.setSendTimeout(Poco::Timespan(atomic_NetworkTimeout, 0));
+    ss.setReceiveTimeout(Poco::Timespan(atm_NetworkTimeout, 0));
+    ss.setSendTimeout(Poco::Timespan(atm_NetworkTimeout, 0));
 }
 
 void GameServerSession::run()
 {
-    atomicGameServerGet()->addSession(this);
+    atmGameServerGet()->addSession(this);
     try {
         messageLoop();
     }
     catch(...) {
     }
-    atomicGameServerGet()->eraseSession(this);
+    atmGameServerGet()->eraseSession(this);
 }
 
 void GameServerSession::messageLoop()
 {
     ist::Thread::setNameToCurrentThread("GameServerSession::messageLoop()");
-    m_pid = atomicGameServerGet()->cretaePID();
+    m_pid = atmGameServerGet()->cretaePID();
     {
         ist::Mutex::ScopedLock slock(m_mutex_send);
         m_message_send.insert(m_message_send.begin(), PMessage_Accepted::create(m_pid));
@@ -41,7 +41,7 @@ void GameServerSession::messageLoop()
 
     Poco::Net::SocketStream stream(socket());
     ist::Timer timer;
-    while(!atomicGameServerGet()->getStopFlag()) {
+    while(!atmGameServerGet()->getStopFlag()) {
         timer.reset();
 
         recvMessage(&stream);
@@ -99,6 +99,6 @@ Poco::Net::TCPServerConnection* GameServerSessionFactory::createConnection( cons
 }
 
 
-#endif // atomic_enable_GameServer
+#endif // atm_enable_GameServer
 
-} // namespace atomic
+} // namespace atm

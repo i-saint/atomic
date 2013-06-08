@@ -1,6 +1,6 @@
-﻿#ifndef atomic_Graphics_Renderer_GBuffer_h
-#define atomic_Graphics_Renderer_GBuffer_h
-namespace atomic {
+﻿#ifndef atm_Graphics_Renderer_GBuffer_h
+#define atm_Graphics_Renderer_GBuffer_h
+namespace atm {
 
 
 
@@ -47,5 +47,5 @@ private:
     bool m_enabled;
 };
 
-} // namespace atomic
-#endif // atomic_Graphics_Renderer_GBuffer_h
+} // namespace atm
+#endif // atm_Graphics_Renderer_GBuffer_h

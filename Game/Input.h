@@ -1,9 +1,9 @@
-﻿#ifndef atomic_Game_Input_h
-#define atomic_Game_Input_h
+﻿#ifndef atm_Game_Input_h
+#define atm_Game_Input_h
 
 #include "types.h"
 
-namespace atomic {
+namespace atm {
 
 union LevelEditorCommand;
 
@@ -100,9 +100,5 @@ private:
 };
 
 
-
-
-
-
-} // namespace atomic
-#endif // atomic_Game_Input_h
+} // namespace atm
+#endif // atm_Game_Input_h

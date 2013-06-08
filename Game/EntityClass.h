@@ -1,7 +1,7 @@
-﻿#ifndef atomic_Game_EntityClass_h
-#define atomic_Game_EntityClass_h
+﻿#ifndef atm_Game_EntityClass_h
+#define atm_Game_EntityClass_h
 
-namespace atomic {
+namespace atm {
 
 enum EntityCategoryID
 {
@@ -69,14 +69,14 @@ IEntity* CreateEntity(EntityClassID entity_classid);
 template<class EntityType> IEntity* CreateEntity();
 template<class EntityType> class AddEntityTable;
 
-#define atomicImplementEntity(Class) \
+#define atmImplementEntity(Class) \
     template<> IEntity* CreateEntity<Class>() { return istNew(Class)(); } \
     template<> struct AddEntityTable<Class> {\
         AddEntityTable() { AddEntityCreator(EC_##Class, &CreateEntity<Class>); }\
     };\
     AddEntityTable<Class> g_add_entity_creator_##Class;
 
-#define atomicImplementEntity_Pooled(Class) \
+#define atmImplementEntity_Pooled(Class) \
     template<> IEntity* CreateEntity<Class>() { return Class::create(); } \
     template<> struct AddEntityTable<Class> {\
         AddEntityTable() { AddEntityCreator(EC_##Class, &CreateEntity<Class>); }\
@@ -84,5 +84,5 @@ template<class EntityType> class AddEntityTable;
     AddEntityTable<Class> g_add_entity_creator_##Class;
 
 
-} // namespace atomic
-#endif //atomic_Game_EntityClass_h
+} // namespace atm
+#endif //atm_Game_EntityClass_h

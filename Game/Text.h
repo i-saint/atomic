@@ -1,7 +1,7 @@
-﻿#ifndef atomic_Game_Text_h
-#define atomic_Game_Text_h
+﻿#ifndef atm_Game_Text_h
+#define atm_Game_Text_h
 
-namespace atomic {
+namespace atm {
 
     enum LANGUAGE_ID {
         LANG_JP,
@@ -19,5 +19,5 @@ namespace atomic {
     void SetLanguage(LANGUAGE_ID lid);
     const wchar_t* GetText(TEXT_ID tid);
 
-} // namespace atomic
-#endif // atomic_Game_Text_h
+} // namespace atm
+#endif // atm_Game_Text_h

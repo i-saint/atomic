@@ -1,5 +1,5 @@
-﻿#ifndef atomic_Game_Entity_Attributes_h
-#define atomic_Game_Entity_Attributes_h
+﻿#ifndef atm_Game_Entity_Attributes_h
+#define atm_Game_Entity_Attributes_h
 
 #include "Util.h"
 #include "Game/Collision.h"
@@ -8,7 +8,7 @@
 struct sphFluidMessage;
 typedef psym::Particle FluidMessage;
 
-namespace atomic {
+namespace atm {
 
 class Attr_RefCount
 {
@@ -23,12 +23,12 @@ protected:
     void setRefCount(uint32 v) { m_ref_count=v; }
 
 public:
-    atomicECallBlock(
-        atomicMethodBlock(
-        atomicECall(setRefCount)
-        atomicECall(addRefCount)
-        atomicECall(release)
-        atomicECall(getRefCount)
+    atmECallBlock(
+        atmMethodBlock(
+        atmECall(setRefCount)
+        atmECall(addRefCount)
+        atmECall(release)
+        atmECall(getRefCount)
         )
     )
 
@@ -50,10 +50,10 @@ protected:
         istSerialize(m_pos)
     )
 public:
-    atomicECallBlock(
-        atomicMethodBlock(
-        atomicECall(setPosition)
-        atomicECall(getPosition)
+    atmECallBlock(
+        atmMethodBlock(
+        atmECall(setPosition)
+        atmECall(getPosition)
         )
     )
 
@@ -86,16 +86,16 @@ private:
         istSerialize(m_rot)
     )
 public:
-    atomicECallBlock(
-        atomicMethodBlock(
-        atomicECall(setPosition)
-        atomicECall(setScale)
-        atomicECall(setAxis)
-        atomicECall(setRotate)
-        atomicECall(getPosition)
-        atomicECall(getScale)
-        atomicECall(getAxis)
-        atomicECall(getRotate)
+    atmECallBlock(
+        atmMethodBlock(
+        atmECall(setPosition)
+        atmECall(setScale)
+        atmECall(setAxis)
+        atmECall(setRotate)
+        atmECall(getPosition)
+        atmECall(getScale)
+        atmECall(getAxis)
+        atmECall(getRotate)
         )
     )
 
@@ -159,20 +159,20 @@ private:
         )
 
 public:
-    atomicECallBlock(
-        atomicMethodBlock(
-        atomicECall(getPosition)
-        atomicECall(getScale)
-        atomicECall(getAxis1)
-        atomicECall(getAxis2)
-        atomicECall(getRotate1)
-        atomicECall(getRotate2)
-        atomicECall(setPosition)
-        atomicECall(setScale)
-        atomicECall(setAxis1)
-        atomicECall(setAxis2)
-        atomicECall(setRotate1)
-        atomicECall(setRotate2)
+    atmECallBlock(
+        atmMethodBlock(
+        atmECall(getPosition)
+        atmECall(getScale)
+        atmECall(getAxis1)
+        atmECall(getAxis2)
+        atmECall(getRotate1)
+        atmECall(getRotate2)
+        atmECall(setPosition)
+        atmECall(setScale)
+        atmECall(setAxis1)
+        atmECall(setAxis2)
+        atmECall(setRotate1)
+        atmECall(setRotate2)
         )
     )
 
@@ -236,14 +236,14 @@ private:
         )
 
 public:
-    atomicECallBlock(
-        atomicMethodBlock(
-        atomicECall(getRotateSpeed1)
-        atomicECall(getRotateSpeed2)
-        atomicECall(setRotateSpeed1)
-        atomicECall(setRotateSpeed2)
+    atmECallBlock(
+        atmMethodBlock(
+        atmECall(getRotateSpeed1)
+        atmECall(getRotateSpeed2)
+        atmECall(setRotateSpeed1)
+        atmECall(setRotateSpeed2)
         )
-        atomicECallSuper(super)
+        atmECallSuper(super)
     )
 
 public:
@@ -277,13 +277,13 @@ private:
         )
 
 public:
-    atomicECallBlock(
-        atomicMethodBlock(
-        atomicECall(getTransform)
-        atomicECall(setTransform)
-        atomicECall(updateTransformMatrix)
+    atmECallBlock(
+        atmMethodBlock(
+        atmECall(getTransform)
+        atmECall(setTransform)
+        atmECall(updateTransformMatrix)
         )
-        atomicECallSuper(super)
+        atmECallSuper(super)
         )
 
 public:
@@ -313,14 +313,14 @@ private:
         )
 
 public:
-    atomicECallBlock(
-        atomicMethodBlock(
-        atomicECall(getTransform)
-        atomicECall(getInverseTransform)
-        atomicECall(setTransform)
-        atomicECall(updateTransformMatrix)
+    atmECallBlock(
+        atmMethodBlock(
+        atmECall(getTransform)
+        atmECall(getInverseTransform)
+        atmECall(setTransform)
+        atmECall(updateTransformMatrix)
         )
-        atomicECallSuper(super)
+        atmECallSuper(super)
         )
 
 public:
@@ -357,14 +357,14 @@ private:
         )
 
 public:
-    atomicECallBlock(
-        atomicMethodBlock(
-        atomicECall(getDiffuseColor)
-        atomicECall(getGlowColor)
-        atomicECall(getModel)
-        atomicECall(setDiffuseColor)
-        atomicECall(setGlowColor)
-        atomicECall(setModel)
+    atmECallBlock(
+        atmMethodBlock(
+        atmECall(getDiffuseColor)
+        atmECall(getGlowColor)
+        atmECall(getModel)
+        atmECall(setDiffuseColor)
+        atmECall(setGlowColor)
+        atmECall(setModel)
         )
     )
 
@@ -402,12 +402,12 @@ private:
         )
 
 public:
-    atomicECallBlock(
-        atomicMethodBlock(
-        atomicECall(getCollisionFlags)
-        atomicECall(getCollisionHandle)
-        atomicECall(setCollisionFlags)
-        atomicECall(setCollisionShape)
+    atmECallBlock(
+        atmMethodBlock(
+        atmECall(getCollisionFlags)
+        atmECall(getCollisionHandle)
+        atmECall(setCollisionFlags)
+        atmECall(setCollisionShape)
         )
     )
 
@@ -423,14 +423,14 @@ public:
 
     void setCollisionFlags(int32 v)
     {
-        if(CollisionEntity *ce=atomicGetCollision(m_collision)) {
+        if(CollisionEntity *ce=atmGetCollision(m_collision)) {
             ce->setFlags(v);
         }
     }
 
     uint32 getCollisionFlags() const
     {
-        if(CollisionEntity *ce=atomicGetCollision(m_collision)) {
+        if(CollisionEntity *ce=atmGetCollision(m_collision)) {
             return ce->getFlags();
         }
         return 0;
@@ -444,7 +444,7 @@ public:
     void finalizeCollision()
     {
         if(m_collision!=0) {
-            atomicDeleteCollision(m_collision);
+            atmDeleteCollision(m_collision);
             m_collision = 0;
         }
     }
@@ -458,8 +458,8 @@ public:
         }
         CollisionEntity *ce = NULL;
         switch(cs) {
-        case CS_Box:    ce = atomicCreateCollision(CollisionBox);   break;
-        case CS_Sphere: ce = atomicCreateCollision(CollisionSphere);break;
+        case CS_Box:    ce = atmCreateCollision(CollisionBox);   break;
+        case CS_Sphere: ce = atmCreateCollision(CollisionSphere);break;
         default: istAssert(false); return;
         }
         ce->setGObjHandle(m_owner_handle);
@@ -468,19 +468,19 @@ public:
 
     CollisionHandle getCollisionHandle() const { return m_collision; }
     CollisionSphere& getCollisionSphere() {
-        CollisionEntity *ce = atomicGetCollision(m_collision);
+        CollisionEntity *ce = atmGetCollision(m_collision);
         istAssert(ce!=nullptr && ce->getShape()==CS_Sphere);
         return *static_cast<CollisionSphere*>(ce);
     }
     CollisionBox& getCollisionBox() {
-        CollisionEntity *ce = atomicGetCollision(m_collision);
+        CollisionEntity *ce = atmGetCollision(m_collision);
         istAssert(ce!=nullptr && ce->getShape()==CS_Box);
         return *static_cast<CollisionBox*>(ce);
     }
 
     void updateCollision(const mat4 &t)
     {
-        if(CollisionEntity *ce = atomicGetCollision(m_collision)) {
+        if(CollisionEntity *ce = atmGetCollision(m_collision)) {
             switch(ce->getShape()) {
             case CS_Sphere:
                 {
@@ -501,7 +501,7 @@ public:
 
     void updateCollisionAsSphere(const mat4 &t, float32 radius)
     {
-        if(CollisionEntity *ce = atomicGetCollision(m_collision)) {
+        if(CollisionEntity *ce = atmGetCollision(m_collision)) {
             switch(ce->getShape()) {
             case CS_Sphere:
                 {
@@ -515,18 +515,18 @@ public:
 
     void updateCollisionByParticleSet(PSET_RID psid, const mat4 &t, float32 scale)
     {
-        if(CollisionEntity *ce = atomicGetCollision(m_collision)) {
+        if(CollisionEntity *ce = atmGetCollision(m_collision)) {
             switch(ce->getShape()) {
             case CS_Sphere:
                 {
                     vec4 pos = t * vec4(0.0f, 0.0f, 0.0f, 1.0f);
-                    float radius = atomicGetRigidInfo(psid)->sphere_radius * scale;
+                    float radius = atmGetRigidInfo(psid)->sphere_radius * scale;
                     UpdateCollisionSphere(*static_cast<CollisionSphere*>(ce), pos, radius);
                 }
                 break;
             case CS_Box:
                 {
-                    vec4 box_size = (vec4&)atomicGetRigidInfo(psid)->box_size * scale;
+                    vec4 box_size = (vec4&)atmGetRigidInfo(psid)->box_size * scale;
                     UpdateCollisionBox(*static_cast<CollisionBox*>(ce), t, box_size);
                 }
                 break;
@@ -549,13 +549,13 @@ class Attr_MessageHandler
     istSerializeBlock()
 
 public:
-    atomicECallBlock(
-        atomicMethodBlock(
-        atomicECall(eventCollide)
-        atomicECall(eventFluid)
-        atomicECall(eventDamage)
-        atomicECall(eventDestroy)
-        atomicECall(eventKill)
+    atmECallBlock(
+        atmMethodBlock(
+        atmECall(eventCollide)
+        atmECall(eventFluid)
+        atmECall(eventDamage)
+        atmECall(eventDestroy)
+        atmECall(eventKill)
         )
     )
 
@@ -592,7 +592,7 @@ public:
 
     void addBloodstain(const vec4 pos)
     {
-        if(!atomicGetConfig()->show_bloodstain) { return; }
+        if(!atmGetConfig()->show_bloodstain) { return; }
 
         if(++m_bloodstain_hitcount % bloodstain_frequency == 0) {
             BloodstainParticle tmp;
@@ -618,5 +618,5 @@ public:
     const BloodstainParticle* getBloodStainParticles() const { return m_bloodstain.empty() ? NULL : &m_bloodstain[0]; }
 };
 
-} // namespace atomic
-#endif // atomic_Game_Entity_Attributes_h
+} // namespace atm
+#endif // atm_Game_Entity_Attributes_h

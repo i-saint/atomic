@@ -1,7 +1,7 @@
-﻿#ifndef atomic_Sound_SoundResourceID_h
-#define atomic_Sound_SoundResourceID_h
+﻿#ifndef atm_Sound_SoundResourceID_h
+#define atm_Sound_SoundResourceID_h
 
-namespace atomic {
+namespace atm {
 
     enum BGM_RID {
         SE_BGM1,
@@ -44,5 +44,5 @@ namespace atomic {
         SE_CHANNEL_END
     };
 
-} // namespacr atomic
-#endif // atomic_Sound_SoundResourceID_h
+} // namespace atm
+#endif // atm_Sound_SoundResourceID_h

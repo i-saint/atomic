@@ -6,7 +6,7 @@
 #include "Game/AtomicGame.h"
 #include "Game/World.h"
 
-namespace atomic {
+namespace atm {
 
 class InputServerNetwork
     : public IInputServer
@@ -67,7 +67,7 @@ void InputServerNetwork::update()
         std::pair<LECCont::iterator, LECCont::iterator> lecs
             = std::equal_range(m_lecs.begin(), m_lecs.end(), s, [&](const LevelEditorCommand &a, const LevelEditorCommand &b){ return a.frame<b.frame; });
         for(LECCont::iterator i=lecs.first; i!=lecs.second; ++i) {
-            atomicGetGame()->handleLevelEditorCommands(*i);
+            atmGetGame()->handleLevelEditorCommands(*i);
         }
     }
 
@@ -89,12 +89,12 @@ void InputServerNetwork::erasePlayer( PlayerID id )
 
 void InputServerNetwork::pushInput( PlayerID pid, const RepInput &is )
 {
-    atomicGameClientPushMessage( PMessage_Update::create(pid, atomicGetFrame(), is) );
+    atmGameClientPushMessage( PMessage_Update::create(pid, atmGetFrame(), is) );
 }
 
 void InputServerNetwork::pushLevelEditorCommand( const LevelEditorCommand &v )
 {
-    atomicGameClientPushMessage( PMessage_LEC::create(v) );
+    atmGameClientPushMessage( PMessage_LEC::create(v) );
 }
 
 void InputServerNetwork::handlePMessage( const PMessage &mes )
@@ -111,7 +111,7 @@ void InputServerNetwork::handlePMessage( const PMessage &mes )
             wcsncpy(t.name, m.name, _countof(t.name));
             t.name[_countof(t.name)-1] = L'\0';
             //t.equip = m.equip;
-            t.begin_frame = atomicGetGame() ? atomicGetFrame() : 0;
+            t.begin_frame = atmGetGame() ? atmGetFrame() : 0;
             t.num_frame = 0;
         }
         break;
@@ -148,4 +148,4 @@ bool InputServerNetwork::save( const char *path )
 
 IInputServer* CreateInputServerNetwork() { return istNew(InputServerNetwork)(); }
 
-} // namespace atomic
+} // namespace atm

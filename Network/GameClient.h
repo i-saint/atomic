@@ -1,11 +1,11 @@
-﻿#ifndef atomic_Network_GameClient_h
-#define atomic_Network_GameClient_h
+﻿#ifndef atm_Network_GameClient_h
+#define atm_Network_GameClient_h
 #include "externals.h"
 #include "Protocol.h"
 
-namespace atomic {
+namespace atm {
 
-#ifdef atomic_enable_GameClient
+#ifdef atm_enable_GameClient
 
 class GameClient : public PMessenger
 {
@@ -75,23 +75,23 @@ private:
 };
 
 
-#define atomicGameClientInitialize()        GameClient::initializeInstance()
-#define atomicGameClientFinalize()          GameClient::finalizeInstance()
-#define atomicGameClientGet()               GameClient::getInstance()
-#define atomicGameClientConnect(Host,Port)  atomicGameClientGet()->connect(Host,Port)
-#define atomicGameClientPushMessage(m)      atomicGameClientGet()->pushMessage(PMessageCast(m))
-#define atomicGameClientHandleMessages(h)   atomicGameClientGet()->handleReceivedMessage(h)
-#define atomicGameClientGetPlayerID()       atomicGameClientGet()->getPlayerID()
+#define atmGameClientInitialize()        GameClient::initializeInstance()
+#define atmGameClientFinalize()          GameClient::finalizeInstance()
+#define atmGameClientGet()               GameClient::getInstance()
+#define atmGameClientConnect(Host,Port)  atmGameClientGet()->connect(Host,Port)
+#define atmGameClientPushMessage(m)      atmGameClientGet()->pushMessage(PMessageCast(m))
+#define atmGameClientHandleMessages(h)   atmGameClientGet()->handleReceivedMessage(h)
+#define atmGameClientGetPlayerID()       atmGameClientGet()->getPlayerID()
 
-#else // atomic_enable_GameClient
+#else // atm_enable_GameClient
 
-#define atomicGameClientInitialize()        
-#define atomicGameClientFinalize()          
-#define atomicGameClientPushMessage(...)    
-#define atomicGameClientHandleMessages(...) 
-#define atomicGameClientGetPlayerID()       
+#define atmGameClientInitialize()        
+#define atmGameClientFinalize()          
+#define atmGameClientPushMessage(...)    
+#define atmGameClientHandleMessages(...) 
+#define atmGameClientGetPlayerID()       
 
-#endif // atomic_enable_GameClient
+#endif // atm_enable_GameClient
 
-} // namespace atomic
-#endif // atomic_Network_GameClient_h
+} // namespace atm
+#endif // atm_Network_GameClient_h

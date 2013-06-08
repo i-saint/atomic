@@ -5,7 +5,7 @@
 #include "Game/AtomicGame.h"
 #include "Game/World.h"
 
-namespace atomic {
+namespace atm {
 
 
 class InputServerReplay
@@ -64,7 +64,7 @@ void InputServerReplay::update()
         std::pair<LECCont::iterator, LECCont::iterator> lecs
             = std::equal_range(m_lecs.begin(), m_lecs.end(), s, [&](const LevelEditorCommand &a, const LevelEditorCommand &b){ return a.frame<b.frame; });
         for(LECCont::iterator i=lecs.first; i!=lecs.second; ++i) {
-            atomicGetGame()->handleLevelEditorCommands(*i);
+            atmGetGame()->handleLevelEditorCommands(*i);
         }
     }
 
@@ -81,4 +81,4 @@ bool InputServerReplay::load(const char *path)
     return impl::load(path);
 }
 
-} // namespace atomic
+} // namespace atm

@@ -2,9 +2,9 @@
 #include "../FunctionID.h"
 #include "LevelEditorServer.h"
 
-namespace atomic {
+namespace atm {
 
-#ifdef atomic_enable_LevelEditorServer
+#ifdef atm_enable_LevelEditorServer
 
 const char s_fileserver_base_dir[] = "editor";
 
@@ -161,11 +161,11 @@ public:
         }
 
         response.setChunkedTransferEncoding(true);
-#ifdef atomic_enable_BinaryEntityData
+#ifdef atm_enable_BinaryEntityData
         response.setContentType("application/octet-stream");
-#else // atomic_enable_BinaryEntityData
+#else // atm_enable_BinaryEntityData
         response.setContentType("application/json");
-#endif // atomic_enable_BinaryEntityData
+#endif // atm_enable_BinaryEntityData
         std::ostream &ostr = response.send();
         ostr << q.response;
     }
@@ -227,7 +227,7 @@ LevelEditorServer* LevelEditorServer::getInstance()
 
 
 LevelEditorServerConfig::LevelEditorServerConfig()
-    : port(atomic_Leveleditor_DefaultPort)
+    : port(atm_Leveleditor_DefaultPort)
     , max_queue(100)
     , max_threads(4)
 {
@@ -338,8 +338,8 @@ vec2 LevelEditorServer::randomVec2()
     return (vec2(m_rand.genFloat32(), m_rand.genFloat32())-vec2(0.5f, 0.5f)) * 2.0f;
 }
 
-#else // atomic_enable_LevelEditorServer
-#endif // atomic_enable_LevelEditorServer
+#else // atm_enable_LevelEditorServer
+#endif // atm_enable_LevelEditorServer
 
 
-} // namespace atomic
+} // namespace atm
