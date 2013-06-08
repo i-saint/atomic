@@ -109,7 +109,7 @@ void PassGBuffer_Fluid::draw()
 
 
     // fluid particle
-    {
+    if(atomicGetGame()) {
         // copy fluid particles (ispc -> GL)
         const uint32 num_particles = atomicGetSPHManager()->copyParticlesToGL();
         if(num_particles > 0) {

@@ -178,11 +178,7 @@ void AtomicRenderer::passShadow()
 
 void AtomicRenderer::passGBuffer()
 {
-    if(!atomicGetGame()) { return; }
-
     i3d::DeviceContext *dc = atomicGetGLDeviceContext();
-    const PerspectiveCamera *camera = atomicGetGameCamera();
-
     dc->clearColor(m_rt_gbuffer, vec4(0.0f,0.0f,0.0f,1.0f));
     dc->clearDepthStencil(m_rt_gbuffer, 1.0f, 0);
     dc->setRenderTarget(m_rt_gbuffer);

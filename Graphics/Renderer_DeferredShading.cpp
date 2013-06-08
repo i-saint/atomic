@@ -273,16 +273,18 @@ void PassDeferredShading_Lights::drawLights()
 
 void PassDeferredShading_Lights::drawDirectionalLights()
 {
-    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
-    AtomicShader *shader    = atomicGetShader(SH_DIRECTIONALLIGHT);
-    VertexArray *va_quad    = atomicGetVertexArray(VA_SCREEN_QUAD);
-    Buffer *vbo_instance    = atomicGetVertexBuffer(VBO_DIRECTIONALLIGHT_INSTANCES);
-
     int32 num_lights = m_directional_lights.size();
     int32 show = atomicGetConfig()->debug_show_lights - m_rendered_lights;
     if(show >= 0) {
         num_lights = stl::min(num_lights, show);
     }
+    if(num_lights==0) { return; }
+
+    i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
+    AtomicShader *shader    = atomicGetShader(SH_DIRECTIONALLIGHT);
+    VertexArray *va_quad    = atomicGetVertexArray(VA_SCREEN_QUAD);
+    Buffer *vbo_instance    = atomicGetVertexBuffer(VBO_DIRECTIONALLIGHT_INSTANCES);
+
     m_rendered_lights += num_lights;
 
     const VertexDesc descs[] = {
@@ -299,17 +301,19 @@ void PassDeferredShading_Lights::drawDirectionalLights()
 
 void PassDeferredShading_Lights::drawPointLights()
 {
+    int32 num_lights = m_point_lights.size();
+    int32 show = atomicGetConfig()->debug_show_lights - m_rendered_lights;
+    if(show >= 0) {
+        num_lights = stl::min(num_lights, show);
+    }
+    if(num_lights==0) { return; }
+
     i3d::DeviceContext *dc  = atomicGetGLDeviceContext();
     AtomicShader *shader    = atomicGetShader(SH_POINTLIGHT);
     Buffer *ibo_sphere      = atomicGetIndexBuffer(IBO_LIGHT_SPHERE);
     VertexArray *va_sphere  = atomicGetVertexArray(VA_UNIT_SPHERE);
     Buffer *vbo_instance    = atomicGetVertexBuffer(VBO_POINTLIGHT_INSTANCES);
 
-    int32 num_lights = m_point_lights.size();
-    int32 show = atomicGetConfig()->debug_show_lights - m_rendered_lights;
-    if(show >= 0) {
-        num_lights = stl::min(num_lights, show);
-    }
     m_rendered_lights += num_lights;
 
     const VertexDesc descs[] = {
