@@ -131,6 +131,7 @@ void PassPostprocess_Bloom::draw()
 {
     if(!atmGetConfig()->posteffect_bloom) { return; }
 
+
     i3d::DeviceContext *dc  = atmGetGLDeviceContext();
     Viewport vp(ivec2(), m_rt_gauss0->getColorBuffer(0)->getDesc().size);
     dc->setViewport(vp);

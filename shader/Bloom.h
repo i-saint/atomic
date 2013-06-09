@@ -75,7 +75,7 @@ vec4 Luminance()
 
 vec4 HorizontalBlur()
 {
-    vec4 color;
+    vec4 color = vec4(0.0);
     vec2 gap = vec2(u_RS.RcpScreenSize.x*3.7, 0.0);
     color += texture(u_ColorBuffer, clamp(vs_Texcoord - gap*4.0, vs_TexcoordMin, vs_TexcoordMax)) * Weight[0];
     color += texture(u_ColorBuffer, clamp(vs_Texcoord - gap*3.0, vs_TexcoordMin, vs_TexcoordMax)) * Weight[1];
@@ -91,7 +91,7 @@ vec4 HorizontalBlur()
 
 vec4 VerticalBlur()
 {
-    vec4 color;
+    vec4 color = vec4(0.0);
     vec2 gap = vec2(0.0, u_RS.RcpScreenSize.y);
     color += texture(u_ColorBuffer, clamp(vs_Texcoord - gap*4.0, vs_TexcoordMin, vs_TexcoordMax)) * Weight[0];
     color += texture(u_ColorBuffer, clamp(vs_Texcoord - gap*3.0, vs_TexcoordMin, vs_TexcoordMax)) * Weight[1];

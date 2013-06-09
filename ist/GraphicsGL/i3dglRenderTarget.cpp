@@ -195,7 +195,7 @@ void RenderTarget::bind()
 {
     m_dirty.flags = 0;
 
-    static const GLuint attaches[16] = {
+    static const GLuint attaches[] = {
         GL_COLOR_ATTACHMENT0,
         GL_COLOR_ATTACHMENT1,
         GL_COLOR_ATTACHMENT2,
@@ -218,7 +218,7 @@ void RenderTarget::bind()
     for(uint32 i=0; i<m_num_color_buffers; ++i) {
         GLuint h = m_color_buffers[i] ? m_color_buffers[i]->getHandle() : 0;
         uint32 level = m_color_mips[i];
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+i, GL_TEXTURE_2D, h, level);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, attaches[i], GL_TEXTURE_2D, h, level);
     }
     {
         GLuint h = m_depthstencil ? m_depthstencil->getHandle() : 0;
