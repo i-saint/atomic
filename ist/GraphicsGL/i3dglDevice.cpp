@@ -16,6 +16,7 @@ struct Device::Members
     DeviceContext                  *immediate_context;
     stl::vector<DeviceResource*>    resources;
     stl::vector<ResourceHandle>     vacant;
+    Spec                            spec;
     HWND    hwnd;
     HDC     hdc;
     HGLRC   hglrc;
@@ -76,6 +77,7 @@ Device::Device(HWND hwnd)
         const GLubyte *version = glGetString(GL_VERSION);
         const GLubyte *vendor = glGetString(GL_VENDOR);
         istPrint("OpenGL version: %s, vendor: %s\n", version, vendor);
+        if(strcmp((const char*)vendor, "Intel")==0) { m->spec.needs_transpose=true; }
     }
 }
 
@@ -102,6 +104,11 @@ Device::~Device()
 DeviceContext* Device::getImmediateContext()
 {
     return m->immediate_context;
+}
+
+const Spec* Device::getSpec() const
+{
+    return &m->spec;
 }
 
 void Device::addResource( DeviceResource *v )
@@ -241,6 +248,7 @@ void Device::printLeakInfo()
         istPrint("\n");
     }
 }
+
 #endif // i3d_enable_leak_check
 
 

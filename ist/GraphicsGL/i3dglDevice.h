@@ -39,6 +39,7 @@ public:
     void swapBuffers();
 
     DeviceContext* getImmediateContext();
+    const Spec*    getSpec() const;
 
 #ifdef i3d_enable_resource_leak_check
     void printLeakInfo();

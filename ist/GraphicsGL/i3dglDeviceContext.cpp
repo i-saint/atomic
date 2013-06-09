@@ -308,6 +308,11 @@ const DeviceContext::RenderStates& DeviceContext::getRenderStates() const
     return m_current;
 }
 
+Device* DeviceContext::getDevice() const
+{
+    return m_device;
+}
+
 } // namespace i3dgl
 } // namespace ist
 #endif // ist_with_OpenGL

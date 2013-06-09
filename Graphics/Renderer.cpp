@@ -114,7 +114,12 @@ void AtomicRenderer::draw()
         PerspectiveCamera *camera   = atmGetGameCamera();
         Buffer *ubo_rs              = atmGetUniformBuffer(UBO_RENDERSTATES_3D);
         const uvec2 &wsize          = atmGetWindowSize();
-        m_rstates3d.ModelViewProjectionMatrix = camera->getViewProjectionMatrix();
+        if(dc->getDevice()->getSpec()->needs_transpose) {
+            m_rstates3d.ModelViewProjectionMatrix = glm::transpose(camera->getViewProjectionMatrix());
+        }
+        else {
+            m_rstates3d.ModelViewProjectionMatrix = camera->getViewProjectionMatrix();
+        }
         m_rstates3d.CameraPosition  = camera->getPosition();
         m_rstates3d.CameraDirection = camera->getDirection();
         m_rstates3d.ScreenSize      = vec2(atmGetWindowSize());

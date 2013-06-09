@@ -83,17 +83,17 @@ public:
     void applyRenderStates();
 
     const RenderStates& getRenderStates() const;
+    Device* getDevice() const;
 
 private:
     DeviceContext(Device *dev);
     ~DeviceContext();
 
 private:
-    Device         *m_device;
-
+    Device       *m_device;
     RenderStates m_prev;
     RenderStates m_current;
-    DirtyFlags m_dirty;
+    DirtyFlags   m_dirty;
 };
 
 } // namespace i3d

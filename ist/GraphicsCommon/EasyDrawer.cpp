@@ -334,7 +334,13 @@ void EasyDrawer::flush(DeviceContext *ctx)
         mat4 viewproj = dc.state.getProjectionMatrix() * dc.state.getWorldMatrix();
         if(viewproj!=prev_viewproj) {
             prev_viewproj = viewproj;
-            MapAndWrite(ctx, m->ubo, &viewproj, sizeof(viewproj));
+            if(ctx->getDevice()->getSpec()->needs_transpose) {
+                mat4 tmp = glm::transpose(viewproj);
+                MapAndWrite(ctx, m->ubo, &tmp, sizeof(tmp));
+            }
+            else {
+                MapAndWrite(ctx, m->ubo, &viewproj, sizeof(viewproj));
+            }
         }
 
         ShaderProgram *shader = dc.state.getShader();
