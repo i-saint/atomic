@@ -40,7 +40,7 @@ AtomicRenderer::AtomicRenderer()
     // 追加の際はデストラクタでの消去処理も忘れずに
     m_renderer_fluid            = istNew(PassGBuffer_Fluid)();
     m_renderer_particle         = istNew(PassGBuffer_Particle)();
-    m_renderer_bg               = istNew(PassGBuffer_BG);
+    m_renderer_bg               = istNew(Pass_BackGround);
     m_renderer_bloodstain       = istNew(PassDeferredShading_Bloodstain)();
     m_renderer_lights           = istNew(PassDeferredShading_Lights)();
     m_renderer_microscopic      = istNew(PassPostprocess_Microscopic)();
@@ -56,10 +56,10 @@ AtomicRenderer::AtomicRenderer()
 
     m_renderers[PASS_GBUFFER].push_back(m_renderer_fluid);
     m_renderers[PASS_GBUFFER].push_back(m_renderer_particle);
-    m_renderers[PASS_GBUFFER].push_back(m_renderer_bg);
     m_renderers[PASS_DEFERRED].push_back(m_renderer_bloodstain);
     m_renderers[PASS_DEFERRED].push_back(m_renderer_lights);
     m_renderers[PASS_FORWARD].push_back(m_renderer_distance_field);
+    m_renderers[PASS_FORWARD].push_back(m_renderer_bg);
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_fxaa);
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_microscopic);
     m_renderers[PASS_POSTPROCESS].push_back(m_renderer_bloom);

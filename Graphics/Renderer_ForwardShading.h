@@ -21,5 +21,18 @@ public:
 };
 
 
+class dpPatch Pass_BackGround : public IRenderer
+{
+public:
+    Pass_BackGround();
+    ~Pass_BackGround();
+    void beforeDraw();
+    void draw();
+
+private:
+    int32 m_shader;
+};
+
+
 } // namespace atm
 #endif // atm_Graphics_Renderer_ForwardShading_h

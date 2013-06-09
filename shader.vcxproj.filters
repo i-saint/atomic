@@ -81,10 +81,34 @@
     <None Include="shader\GBuffer_Floor.glsl">
       <Filter>shader</Filter>
     </None>
-    <None Include="shader\GBuffer_BG1.glsl">
+    <None Include="shader\GBuffer_Upsampling.glsl">
       <Filter>shader</Filter>
     </None>
-    <None Include="shader\GBuffer_Upsampling.glsl">
+    <None Include="shader\BG2.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\BG1.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\BG3.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\BG4.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\BG5.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\BG6.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\BG7.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\BG8.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\BG9.glsl">
       <Filter>shader</Filter>
     </None>
   </ItemGroup>

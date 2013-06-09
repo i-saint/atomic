@@ -21,7 +21,7 @@ public:
 
 class PassGBuffer_Fluid;
 class PassGBuffer_Particle;
-class PassGBuffer_BG;
+class Pass_BackGround;
 class PassDeferredShading_Bloodstain;
 class PassDeferredShading_Lights;
 class PassPostprocess_Microscopic;
@@ -34,7 +34,7 @@ class PassHUD_DebugShowBuffer;
 class PassForwardShading_DistanceField; // for debug
 
 
-class AtomicRenderer
+class dpPatch AtomicRenderer
 {
 istNonCopyable(AtomicRenderer);
 private:
@@ -47,7 +47,7 @@ private:
     // internal resources
     PassGBuffer_Fluid                       *m_renderer_fluid;
     PassGBuffer_Particle                    *m_renderer_particle;
-    PassGBuffer_BG                          *m_renderer_bg;
+    Pass_BackGround                          *m_renderer_bg;
     PassDeferredShading_Bloodstain          *m_renderer_bloodstain;
     PassDeferredShading_Lights              *m_renderer_lights;
     PassPostprocess_FXAA                    *m_renderer_fxaa;

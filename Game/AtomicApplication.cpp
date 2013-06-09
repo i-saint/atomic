@@ -33,6 +33,7 @@ AtomicConfig::AtomicConfig()
     posteffect_microscopic  = false;
     posteffect_bloom        = true;
     posteffect_antialias    = false;
+    bg                      = true;
     bg_multiresolution      = false;
     light_multiresolution   = false;
     show_text               = true;
@@ -115,11 +116,14 @@ bool AtomicConfig::writeToFile( const char* filepath )
 
 void AtomicConfig::setupDebugMenu()
 {
-    wdmAddNode("Config/VSync",                &vsync);
+    wdmAddNode("Config/VSync",  &vsync);
+    wdmAddNode("Config/ShowText",   &show_text);
     wdmAddNode("Config/UnlimitGameSpeed",   &unlimit_gamespeed);
     wdmAddNode("Config/PostEffect_Bloom",     &posteffect_bloom);
     wdmAddNode("Config/PostEffect_Antialias", &posteffect_antialias);
     wdmAddNode("Config/Lighting", &lighting, (int32)atmE_Lighting_Low, (int32)atmE_Lighting_High);
+    wdmAddNode("Config/BG", &bg);
+    wdmAddNode("Config/BG_Multiresolution", &bg_multiresolution);
 }
 
 

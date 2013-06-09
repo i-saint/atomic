@@ -1,3 +1,4 @@
 module path: "_tmp\Release\atomic\*.obj"
 source path: "Game"
+source path: "Graphics"
 msbuild command: "atomic.vcxproj /target:ClCompile /m /p:Configuration=Release;Platform=Win32"

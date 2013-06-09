@@ -57,6 +57,7 @@ enum SH_RID {
     SH_BG7,
     SH_BG8,
     SH_BG9,
+    SH_BG_END = SH_BG9,
     SH_END,
 };
 

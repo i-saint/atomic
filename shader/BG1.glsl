@@ -156,9 +156,6 @@ vec3 genNormal(vec3 p)
 }
 
 ps_out(0) vec4 ps_FlagColor;
-ps_out(1) vec4 ps_FragNormal;
-ps_out(2) vec4 ps_FragPosition;
-ps_out(3) vec4 ps_FragGlow;
 
 void main()
 {
@@ -188,20 +185,18 @@ void main()
             break;
         }
     }
-    vec3 normal;
-    if(total_d>MAX_DISTANCE) {
-        normal = -rayDir;
-    }
-    else {
-        normal = genNormal(ray);
-    }
+
+    //vec3 normal;
+    //if(total_d>MAX_DISTANCE) {
+    //    normal = -rayDir;
+    //}
+    //else {
+    //    normal = genNormal(ray);
+    //}
 
 
-    ps_FlagColor    = vec4(0.6, 0.6, 0.8, 70.0);
-    ps_FragNormal   = vec4(normal, 0.0);
-    ps_FragPosition = vec4(ray, total_d);
-    const float fog = 1.0 / MAX_MARCH;
-    ps_FragGlow     = min(vec4(fog*i*1.2, fog*i*1.2, fog*i*2.5, i), 1.0) * 0.5;
+    float fog = 1.0 - (1.0 / MAX_MARCH * i);
+    ps_FlagColor    = vec4(vec3(0.4, 0.4f, 0.5f )*fog, 1.0);
 }
 
 #endif

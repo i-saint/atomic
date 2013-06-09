@@ -52,6 +52,15 @@
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="shader\BG1.glsl" />
+    <None Include="shader\BG2.glsl" />
+    <None Include="shader\BG3.glsl" />
+    <None Include="shader\BG4.glsl" />
+    <None Include="shader\BG5.glsl" />
+    <None Include="shader\BG6.glsl" />
+    <None Include="shader\BG7.glsl" />
+    <None Include="shader\BG8.glsl" />
+    <None Include="shader\BG9.glsl" />
     <None Include="shader\Bloom_Composite.glsl" />
     <None Include="shader\Bloom_HBlur.glsl" />
     <None Include="shader\Bloom_Luminance.glsl" />
@@ -68,7 +77,6 @@
     <None Include="shader\FillInstanced.glsl" />
     <None Include="shader\FXAA.glsl" />
     <None Include="shader\FXAA_luma.glsl" />
-    <None Include="shader\GBuffer_BG1.glsl" />
     <None Include="shader\GBuffer_Floor.glsl" />
     <None Include="shader\GBuffer_Fluid.glsl" />
     <None Include="shader\GBuffer_FluidBlood.glsl" />

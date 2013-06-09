@@ -34,18 +34,5 @@ private:
     ist::vector<PSetInstance>   m_rinstances;
 };
 
-
-class PassGBuffer_BG : public IRenderer
-{
-public:
-    PassGBuffer_BG();
-    ~PassGBuffer_BG();
-    void beforeDraw();
-    void draw();
-
-private:
-    bool m_enabled;
-};
-
 } // namespace atm
 #endif // atm_Graphics_Renderer_GBuffer_h

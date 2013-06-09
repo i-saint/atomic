@@ -181,7 +181,15 @@ bool GraphicResourceManager::initialize()
         m_shader[SH_DEBUG_SHOW_RGB]     = CreateAtomicShader("Debug_ShowRGB");
         m_shader[SH_DEBUG_SHOW_AAA]     = CreateAtomicShader("Debug_ShowAAA");
 
-        m_shader[SH_BG1]    = CreateAtomicShader("GBuffer_BG1");
+        m_shader[SH_BG1]    = CreateAtomicShader("BG1");
+        m_shader[SH_BG2]    = CreateAtomicShader("BG2");
+        m_shader[SH_BG3]    = CreateAtomicShader("BG3");
+        m_shader[SH_BG4]    = CreateAtomicShader("BG4");
+        m_shader[SH_BG5]    = CreateAtomicShader("BG5");
+        m_shader[SH_BG6]    = CreateAtomicShader("BG6");
+        m_shader[SH_BG7]    = CreateAtomicShader("BG7");
+        m_shader[SH_BG8]    = CreateAtomicShader("BG8");
+        m_shader[SH_BG9]    = CreateAtomicShader("BG9");
     }
     {
         // samplers
