@@ -8,6 +8,12 @@ class AtomicGame;
 class SoundThread;
 struct GameStartConfig;
 
+enum atmEffectLevel {
+    atmE_Lighting_Low,
+    atmE_Lighting_Medium,
+    atmE_Lighting_High,
+};
+
 struct istInterModule AtomicConfig
 {
     ivec2 window_pos;
@@ -24,16 +30,18 @@ struct istInterModule AtomicConfig
     bool show_text;
     bool show_bloodstain;
     bool output_replay;
+    bool sound_enable;
+    float32 bgm_volume;
+    float32 se_volume;
+    int32 language;
+    int32 lighting;
+    PlayerName name;
+
     bool debug_show_grid;
     bool debug_show_distance;
     int32 debug_show_gbuffer;
     int32 debug_show_lights;
     int32 debug_show_resolution;
-    bool sound_enable;
-    float32 bgm_volume;
-    float32 se_volume;
-    int language;
-    PlayerName name;
 
     AtomicConfig();
     void setupDebugMenu();

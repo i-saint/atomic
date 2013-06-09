@@ -328,17 +328,21 @@ public:
         vec4 diffuse= getDiffuseColor();
         vec4 glow   = getGlowColor();
         vec4 light  = glow;
-        {
+        vec4 flash  = glow * 0.5f;
+        if(atmGetConfig()->lighting>=atmE_Lighting_High) {
             PointLight l;
             l.setPosition(getPosition() + vec4(0.0f, 0.0f, 0.10f, 1.0f));
             l.setRadius(0.2f);
             l.setColor(light);
             atmGetLights()->addLight(l);
         }
+        else {
+            flash  = glow * 0.7f;
+        }
         PSetInstance inst;
         inst.diffuse = diffuse;
         inst.glow = glow;
-        inst.flash = vec4();
+        inst.flash = flash;
         inst.elapsed = (float32)m_past_frame;
         inst.appear_radius = 1000.0f;
         inst.translate = getTransform();

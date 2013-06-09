@@ -175,6 +175,7 @@ public:
         vec4 diffuse = getDiffuseColor();
         vec4 glow = getGlowColor();
         vec4 light = m_light_color;
+        vec4 flash = getFlashColor();
         if(getState()==ST_FADEIN) {
             float32 s   = (float32)m_st_frame / FADEIN_TIME;
             float shininess = diffuse.w;
@@ -189,17 +190,23 @@ public:
         }
 
         if(m_light_radius > 0.0f) {
-            PointLight l;
-            l.setPosition(getPosition() + vec4(0.0f, 0.0f, m_light_radius*0.5f, 1.0f));
-            l.setColor(light);
-            l.setRadius(m_light_radius);
-            atmGetLights()->addLight(l);
+            if(atmGetConfig()->lighting>=atmE_Lighting_Medium) {
+                PointLight l;
+                l.setPosition(getPosition() + vec4(0.0f, 0.0f, m_light_radius*0.5f, 1.0f));
+                l.setColor(light);
+                l.setRadius(m_light_radius);
+                atmGetLights()->addLight(l);
+            }
+            else {
+                flash += light*0.05f;
+                glow *= 2.0f;
+            }
         }
         if(m_state!=ST_FADEOUT) {
             PSetInstance inst;
             inst.diffuse = diffuse;
             inst.glow = glow;
-            inst.flash = getFlashColor();
+            inst.flash = flash;
             inst.elapsed = (float32)getPastFrame();
             inst.appear_radius = inst.elapsed * 0.004f;
             inst.translate = getTransform();

@@ -38,16 +38,18 @@ AtomicConfig::AtomicConfig()
     show_text               = true;
     show_bloodstain         = true;
     output_replay           = true;
+    sound_enable            = true;
+    bgm_volume              = 0.3f;
+    se_volume               = 0.3f;
+    language                = LANG_JP;
+    lighting            = atmE_Lighting_Medium;
+    wcscpy(name, L"atom");
+
     debug_show_grid         = false;
     debug_show_distance     = false;
     debug_show_gbuffer      = 0;
     debug_show_lights       = -1;
     debug_show_resolution   = 0;
-    sound_enable            = true;
-    bgm_volume              = 0.3f;
-    se_volume               = 0.3f;
-    language                = LANG_JP;
-    wcscpy(name, L"atom");
 }
 
 bool AtomicConfig::readFromFile( const char* filepath )
@@ -71,12 +73,13 @@ bool AtomicConfig::readFromFile( const char* filepath )
         if(sscanf(buf, "show_text = %d", &itmp.x)==1)               { show_text=(itmp.x!=0); }
         if(sscanf(buf, "show_bloodstain = %d", &itmp.x)==1)         { show_bloodstain=(itmp.x!=0); }
         if(sscanf(buf, "output_replay = %d", &itmp.x)==1)           { output_replay=(itmp.x!=0); }
-        if(sscanf(buf, "debug_show_grid = %d", &itmp.x)==1)         { debug_show_grid=(itmp.x!=0); }
-        if(sscanf(buf, "debug_show_distance = %d", &itmp.x)==1)     { debug_show_distance=(itmp.x!=0); }
-        if(sscanf(buf, "debug_show_resolution = %d", &itmp.x)==1)   { debug_show_resolution=(itmp.x!=0); }
         if(sscanf(buf, "sound_enable = %f", &itmp.x)==1)            { sound_enable=(itmp.x!=0); }
         if(sscanf(buf, "bgm_volume = %f", &ftmp.x)==1)              { bgm_volume=ftmp.x; }
         if(sscanf(buf, "se_volume = %f", &ftmp.x)==1)               { se_volume=ftmp.x; }
+        if(sscanf(buf, "lighting = %d", &itmp.x)==1)                { lighting=itmp.x; }
+        if(sscanf(buf, "debug_show_grid = %d", &itmp.x)==1)         { debug_show_grid=(itmp.x!=0); }
+        if(sscanf(buf, "debug_show_distance = %d", &itmp.x)==1)     { debug_show_distance=(itmp.x!=0); }
+        if(sscanf(buf, "debug_show_resolution = %d", &itmp.x)==1)   { debug_show_resolution=(itmp.x!=0); }
     }
     fclose(f);
     return true;
@@ -99,12 +102,13 @@ bool AtomicConfig::writeToFile( const char* filepath )
     fprintf(f, "show_text = %d\n",              show_text);
     fprintf(f, "show_bloodstain = %d\n",        show_bloodstain);
     fprintf(f, "output_replay = %d\n",          output_replay);
-    fprintf(f, "debug_show_grid = %d\n",        debug_show_grid);
-    fprintf(f, "debug_show_distance = %d\n",    debug_show_distance);
-    fprintf(f, "debug_show_resolution = %d\n",  debug_show_resolution);
     fprintf(f, "sound_enable = %d\n",           sound_enable);
     fprintf(f, "bgm_volume = %f\n",             bgm_volume);
     fprintf(f, "se_volume = %f\n",              se_volume);
+    fprintf(f, "lighting = %d\n",               lighting);
+    fprintf(f, "debug_show_grid = %d\n",        debug_show_grid);
+    fprintf(f, "debug_show_distance = %d\n",    debug_show_distance);
+    fprintf(f, "debug_show_resolution = %d\n",  debug_show_resolution);
     fclose(f);
     return true;
 }
@@ -112,9 +116,10 @@ bool AtomicConfig::writeToFile( const char* filepath )
 void AtomicConfig::setupDebugMenu()
 {
     wdmAddNode("Config/VSync",                &vsync);
-    wdmAddNode("Config/Unlimit Game Speed",   &unlimit_gamespeed);
-    wdmAddNode("Config/PostEffect Bloom",     &posteffect_bloom);
-    wdmAddNode("Config/PostEffect Antialias", &posteffect_antialias);
+    wdmAddNode("Config/UnlimitGameSpeed",   &unlimit_gamespeed);
+    wdmAddNode("Config/PostEffect_Bloom",     &posteffect_bloom);
+    wdmAddNode("Config/PostEffect_Antialias", &posteffect_antialias);
+    wdmAddNode("Config/Lighting", &lighting, (int32)atmE_Lighting_Low, (int32)atmE_Lighting_High);
 }
 
 
