@@ -14,6 +14,24 @@ void main()
 
 #elif defined(GLSL_PS)
 
+float time = u_RS.Frame / 60.0;
+vec2 resolution = u_RS.ScreenSize;
+vec2 resolution_rcp = u_RS.RcpScreenSize;
+vec3 camera_pos = u_RS.CameraPosition.xyz;
+vec3 camera_dir = u_RS.CameraDirection.xyz;
+
+float sr = sin(radians(45.0));
+float cr = cos(radians(45.0));
+mat3 rotz = mat3(
+    cr, sr, 0,
+    sr,-cr, 0,
+     0,  0, 1 );
+mat3 roty = mat3(
+    cr, 0, sr,
+     0, 1,  0,
+   -sr, 0, cr );
+
+
 float sdCross( in vec3 p )
 {
     float da = sdBox(p.xy,vec2(1.0));
@@ -27,19 +45,8 @@ float map(vec3 p)
     float d3 = p.z - 0.3;
 
     p = mod(p, vec3(3.0)) - vec3(1.5);
-    float sr = sin(radians(45.0));
-    float cr = cos(radians(45.0));
-    mat3 rotz = mat3(
-        cr, sr, 0,
-        sr,-cr, 0,
-         0,  0, 1 );
-    mat3 roty = mat3(
-      cr, 0, sr,
-       0, 1,  0,
-     -sr, 0, cr );
     p = rotz * p;
     p = roty * p;
-
     p.z += 0.7;
     float d = sdBox(p,vec3(1.0));
 
@@ -70,12 +77,11 @@ ps_out(0) vec4 ps_FlagColor;
 
 void main()
 {
-    float time = u_RS.Frame / 60.0;
-    vec2 pos = (gl_FragCoord.xy*2.0 - u_RS.ScreenSize) * u_RS.RcpScreenSize.y;
-    vec3 camPos = u_RS.CameraPosition.xyz;
+    vec2 pos = (gl_FragCoord.xy*2.0 - resolution) * resolution_rcp.y;
+    vec3 camPos = camera_pos;
     camPos.x +=  -time*0.4;
     camPos.y +=  -time*0.1;
-    vec3 camDir = u_RS.CameraDirection.xyz;
+    vec3 camDir = camera_dir;
     vec3 camUp  = vec3(0.0, 1.0, 0.0);
     vec3 camSide = cross(camDir, camUp);
     float focus = 1.8;
@@ -83,38 +89,58 @@ void main()
     vec3 rayDir = normalize(camSide*pos.x + camUp*pos.y + camDir*focus);
 
     vec3 ray = camPos;
-    int i = 0;
+    int march = 0;
     float d = 0.0, total_d = 0.0;
     const int MAX_MARCH = 32;
     const float MAX_DISTANCE = 750.0;
-    for(0; i<MAX_MARCH; ++i) {
+    for(int mi=0; mi<MAX_MARCH; ++mi) {
+        march = mi;
         d = map(ray);
         total_d += d;
         ray += rayDir * d;
-        if(d<0.001) { break; }
+        if(d<0.001) {break; }
         if(total_d>MAX_DISTANCE) {
             total_d = MAX_DISTANCE;
-            i = MAX_MARCH;
+            march = MAX_MARCH;
             ray = camPos + rayDir*MAX_DISTANCE;
             break;
         }
     }
 
-    //vec3 normal;
-    //if(total_d>MAX_DISTANCE) {
-    //    normal = -rayDir;
-    //}
-    //else {
-    //    normal = genNormal(ray);
-    //}
-
-    const float m = 1.0 / MAX_MARCH;
-
-    //float glow = max((mod((ray.x+ray.y+ray.z)-time*2.0, 10.0)-9.0)/2.0, 0.0);
     float glow = 0.0;
+    {
+        const float s = 0.01;
+        vec3 p = ray;
+        if(total_d>MAX_DISTANCE) {
+        }
+        else {
+            vec3 n1 = genNormal(ray);
+            vec3 n2 = genNormal(ray+vec3(s, 0.0, 0.0));
+            vec3 n3 = genNormal(ray+vec3(0.0, s, 0.0));
+            if(dot(n1, n2)<0.9 || dot(n1, n3)<0.9) {
+                glow = 0.3;
+            }
+        }
+    }
+    {
+        vec3 p = rotz * ray;
+        p = roty * p;
+        float grid1 = max(glow, max((mod((p.x+p.y+p.z*2.0)-time*2.5, 5.0)-4.0)*1.5, 0.0) );
+        float grid2 = max(glow, max((mod((p.x+p.y*2.0+p.z)-time*2.0, 7.0)-6.0)*1.2, 0.0) );
+        vec3 gp1 = abs(mod(p, vec3(0.29)));
+        vec3 gp2 = abs(mod(p, vec3(0.36)));
+        if(gp1.x<0.28 && gp1.y<0.28) {
+            grid1 = 0.0;
+        }
+        if(gp2.x<0.345 && gp2.y<0.345) {
+            grid2 = 0.0;
+        }
+        glow += grid1+grid2;
+    }
 
-    float fog = m*i;
-    ps_FlagColor = vec4(vec3(0.4+glow, 0.4+glow, 0.5+glow)*fog, 1.0);
+    float fog = min(1.0, (1.0 / float(MAX_MARCH-4)) * march);
+    glow *= min(1.0, 4.0-(4.0 / float(MAX_MARCH)) * march);
+    ps_FlagColor = vec4(vec3(0.2+glow*0.75, 0.2+glow*0.75, 0.3+glow)*fog, 1.0);
 }
 
 #endif

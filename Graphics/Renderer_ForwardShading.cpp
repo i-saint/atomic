@@ -54,7 +54,7 @@ void PassForwardShading_DistanceField::draw()
 
 
 Pass_BackGround::Pass_BackGround()
-    : m_shader(SH_BG1)
+    : m_shader(SH_BG2)
 {
     wdmAddNode("Rendering/BG/Enable", &m_shader, (int32)SH_BG1, (int32)SH_BG_END);
 }
