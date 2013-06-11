@@ -43,14 +43,13 @@ float sdCross( in vec3 p )
 float map(vec3 p)
 {
     float d3 = p.z - 0.3;
-
+    p.z += 0.7;
     p = mod(p, vec3(3.0)) - vec3(1.5);
     p = rotz * p;
     p = roty * p;
-    p.z += 0.7;
     float d = sdBox(p,vec3(1.0));
-
     float s = 1.0;
+
     for( int m=0; m<3; m++ )
     {
        vec3 a = mod( p*s, 2.0 )-1.0;
