@@ -131,9 +131,9 @@ void main()
 
 
     float fog = min(1.0, (1.0 / float(MAX_MARCH)) * float(march));
-    vec3  fog2 = 0.01 * vec3(1, 1, 1.5) * total_d;
+    vec3  fog2 = 0.005 * vec3(1, 1, 1.5) * total_d;
     glow *= min(1.0, 4.0-(4.0 / float(MAX_MARCH-1)) * float(march));
-    ps_FlagColor = vec4(vec3(0.15+glow*0.75, 0.15+glow*0.75, 0.2+glow)*fog + fog2, 1.0);
+    ps_FlagColor = vec4(vec3(0.075+glow*0.75, 0.075+glow*0.75, 0.1+glow)*fog + fog2, 1.0);
 }
 
 #endif
