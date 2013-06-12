@@ -70,7 +70,7 @@ void Pass_BackGround::beforeDraw()
 
 void Pass_BackGround::draw()
 {
-    if(!atmGetConfig()->bg) { return; }
+    if(atmGetConfig()->bg_level==atmE_BGNone) { return; }
 
     i3d::DeviceContext *dc  = atmGetGLDeviceContext();
     AtomicShader *sh_bg     = atmGetShader((SH_RID)m_shader);
@@ -132,7 +132,7 @@ void Pass_BackGround::draw()
 
     {
         int resx = 1;
-        switch(atmGetConfig()->bg_resolution) {
+        switch(atmGetConfig()->bg_level) {
         case atmE_BGResolution_x1: resx=1; break;
         case atmE_BGResolution_x2: resx=2; break;
         case atmE_BGResolution_x4: resx=4; break;

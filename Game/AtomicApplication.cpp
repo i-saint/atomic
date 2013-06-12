@@ -33,8 +33,7 @@ AtomicConfig::AtomicConfig()
     posteffect_microscopic  = false;
     posteffect_bloom        = true;
     posteffect_antialias    = false;
-    bg                      = true;
-    bg_resolution           = atmE_BGResolution_x1;
+    bg_level           = atmE_BGResolution_x1;
     bg_multiresolution      = false;
     light_multiresolution   = false;
     show_text               = true;
@@ -70,8 +69,7 @@ bool AtomicConfig::readFromFile( const char* filepath )
         if(sscanf(buf, "unlimit_gamespeed = %d", &itmp.x)==1)       { unlimit_gamespeed=itmp.x!=0; }
         if(sscanf(buf, "posteffect_bloom = %d", &itmp.x)==1)        { posteffect_bloom=(itmp.x!=0); }
         if(sscanf(buf, "posteffect_antialias = %d", &itmp.x)==1)    { posteffect_antialias=(itmp.x!=0); }
-        if(sscanf(buf, "bg = %d", &itmp.x)==1)                      { bg=(itmp.x!=0); }
-        if(sscanf(buf, "bg_resolution = %d", &itmp.x)==1)           { bg_resolution=itmp.x; }
+        if(sscanf(buf, "bg_level = %d", &itmp.x)==1)                { bg_level=itmp.x; }
         if(sscanf(buf, "bg_multiresolution = %d", &itmp.x)==1)      { bg_multiresolution=(itmp.x!=0); }
         if(sscanf(buf, "light_multiresolution = %d", &itmp.x)==1)   { light_multiresolution=(itmp.x!=0); }
         if(sscanf(buf, "show_text = %d", &itmp.x)==1)               { show_text=(itmp.x!=0); }
@@ -101,8 +99,7 @@ bool AtomicConfig::writeToFile( const char* filepath )
     fprintf(f, "unlimit_gamespeed = %d\n",      unlimit_gamespeed);
     fprintf(f, "posteffect_bloom = %d\n",       posteffect_bloom);
     fprintf(f, "posteffect_antialias = %d\n",   posteffect_antialias);
-    fprintf(f, "bg = %d\n",                     bg);
-    fprintf(f, "bg_resolution = %d\n",          bg_resolution);
+    fprintf(f, "bg_level = %d\n",               bg_level);
     fprintf(f, "bg_multiresolution = %d\n",     bg_multiresolution);
     fprintf(f, "light_multiresolution = %d\n",  light_multiresolution);
     fprintf(f, "show_text = %d\n",              show_text);
@@ -127,8 +124,7 @@ void AtomicConfig::setupDebugMenu()
     wdmAddNode("Config/PostEffect_Bloom",     &posteffect_bloom);
     wdmAddNode("Config/PostEffect_Antialias", &posteffect_antialias);
     wdmAddNode("Config/Lighting", &lighting, (int32)atmE_Lighting_Low, (int32)atmE_Lighting_High);
-    wdmAddNode("Config/BG", &bg);
-    wdmAddNode("Config/BG_Resolution", &bg_resolution, (int32)atmE_BGResolution_x1, (int32)atmE_BGResolution_x8);
+    wdmAddNode("Config/BG_Level", &bg_level, (int32)atmE_BGResolution_x1, (int32)atmE_BGNone);
     wdmAddNode("Config/BG_Multiresolution", &bg_multiresolution);
 }
 

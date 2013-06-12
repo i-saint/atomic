@@ -19,6 +19,7 @@ enum atmBGResolution {
     atmE_BGResolution_x2,
     atmE_BGResolution_x4,
     atmE_BGResolution_x8,
+    atmE_BGNone,
 };
 
 struct istInterModule AtomicConfig
@@ -32,8 +33,7 @@ struct istInterModule AtomicConfig
     bool posteffect_microscopic;
     bool posteffect_bloom;
     bool posteffect_antialias;
-    bool bg;
-    int bg_resolution;
+    int32 bg_level;
     bool bg_multiresolution;
     bool light_multiresolution;
     bool show_text;
