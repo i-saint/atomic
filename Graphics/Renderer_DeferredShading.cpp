@@ -72,6 +72,7 @@ void PassDeferredShading_Bloodstain::draw()
 
     RenderTarget *grt = atmGetRenderTarget(RT_GENERIC);
     RenderTarget *gbuffer = atmGetRenderTarget(RT_GBUFFER);
+    Texture2D *grt_color = grt->getColorBuffer(0);
     dc->setTexture(GLSL_COLOR_BUFFER, NULL);
     grt->setColorBuffer(0, gbuffer->getColorBuffer(GBUFFER_COLOR));
     grt->setDepthStencilBuffer(gbuffer->getDepthStencilBuffer());
@@ -94,6 +95,9 @@ void PassDeferredShading_Bloodstain::draw()
 
     dc->setRenderTarget(atmGetFrontRenderTarget());
     dc->setTexture(GLSL_COLOR_BUFFER, gbuffer->getColorBuffer(GBUFFER_COLOR));
+
+    grt->setColorBuffer(0, grt_color);
+    grt->setDepthStencilBuffer(nullptr);
 }
 
 void PassDeferredShading_Bloodstain::addBloodstainParticles( const mat4 &t, const BloodstainParticle *bsp, uint32 num_bsp )

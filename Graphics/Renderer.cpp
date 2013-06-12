@@ -244,6 +244,7 @@ void AtomicRenderer::passForwardShading()
 
     rt->setDepthStencilBuffer(m_rt_gbuffer->getDepthStencilBuffer());
     dc->setRenderTarget(rt);
+    dc->setTexture(GLSL_BACK_BUFFER, nullptr);
 
     uint32 num_renderers = m_renderers[PASS_FORWARD].size();
     for(uint32 i=0; i<num_renderers; ++i) {

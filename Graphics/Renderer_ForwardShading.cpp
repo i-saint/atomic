@@ -75,8 +75,11 @@ void Pass_BackGround::draw()
     i3d::DeviceContext *dc  = atmGetGLDeviceContext();
     AtomicShader *sh_bg     = atmGetShader((SH_RID)m_shader);
     AtomicShader *sh_up     = atmGetShader(SH_GBUFFER_UPSAMPLING);
+    AtomicShader *sh_out    = atmGetShader(SH_OUTPUT);
     VertexArray *va_quad    = atmGetVertexArray(VA_SCREEN_QUAD);
-    RenderTarget *gbuffer   = atmGetFrontRenderTarget();
+    RenderTarget *brt       = atmGetBackRenderTarget();
+    RenderTarget *frt       = atmGetFrontRenderTarget();
+    RenderTarget *bgrt      = atmGetRenderTarget(RT_OUTPUT2);
 
     Buffer *ubo_rs          = atmGetUniformBuffer(UBO_RENDERSTATES_3D);
     RenderStates *rs        = atmGetRenderStates();
@@ -88,12 +91,12 @@ void Pass_BackGround::draw()
         rs->RcpScreenSize   = vec2(1.0f, 1.0f) / rs->ScreenSize;
         MapAndWrite(dc, ubo_rs, rs, sizeof(*rs));
 
-        dc->setViewport(Viewport(ivec2(), gbuffer->getColorBuffer(0)->getDesc().size/4U));
+        dc->setViewport(Viewport(ivec2(), brt->getColorBuffer(0)->getDesc().size/4U));
         dc->setRenderTarget(NULL);
-        dc->generateMips(gbuffer->getDepthStencilBuffer());
-        gbuffer->setMipmapLevel(2);
+        dc->generateMips(brt->getDepthStencilBuffer());
+        brt->setMipmapLevel(2);
         //dc->clearDepthStencil(gbuffer, 1.0f, 0);
-        dc->setRenderTarget(gbuffer);
+        dc->setRenderTarget(brt);
 
         sh_bg->bind();
         dc->setVertexArray(va_quad);
@@ -102,9 +105,9 @@ void Pass_BackGround::draw()
         sh_bg->unbind();
 
         dc->setRenderTarget(NULL);
-        gbuffer->setMipmapLevel(0);
-        dc->setRenderTarget(gbuffer);
-        dc->setViewport(Viewport(ivec2(), gbuffer->getColorBuffer(0)->getDesc().size));
+        brt->setMipmapLevel(0);
+        dc->setRenderTarget(brt);
+        dc->setViewport(Viewport(ivec2(), brt->getColorBuffer(0)->getDesc().size));
 
         rs->ScreenSize      = vec2(atmGetWindowSize());
         rs->RcpScreenSize   = vec2(1.0f, 1.0f) / rs->ScreenSize;
@@ -112,10 +115,10 @@ void Pass_BackGround::draw()
 
 
         // 変化量少ない部分を upsampling
-        dc->setTexture(GLSL_COLOR_BUFFER, gbuffer->getColorBuffer(GBUFFER_COLOR));
-        dc->setTexture(GLSL_NORMAL_BUFFER, gbuffer->getColorBuffer(GBUFFER_NORMAL));
-        dc->setTexture(GLSL_POSITION_BUFFER, gbuffer->getColorBuffer(GBUFFER_POSITION));
-        dc->setTexture(GLSL_GLOW_BUFFER, gbuffer->getColorBuffer(GBUFFER_GLOW));
+        dc->setTexture(GLSL_COLOR_BUFFER, brt->getColorBuffer(GBUFFER_COLOR));
+        dc->setTexture(GLSL_NORMAL_BUFFER, brt->getColorBuffer(GBUFFER_NORMAL));
+        dc->setTexture(GLSL_POSITION_BUFFER, brt->getColorBuffer(GBUFFER_POSITION));
+        dc->setTexture(GLSL_GLOW_BUFFER, brt->getColorBuffer(GBUFFER_GLOW));
         dc->setVertexArray(va_quad);
         sh_up->bind();
         dc->setDepthStencilState(atmGetDepthStencilState(DS_GBUFFER_UPSAMPLING));
@@ -126,13 +129,52 @@ void Pass_BackGround::draw()
         dc->setTexture(GLSL_POSITION_BUFFER, NULL);
         dc->setTexture(GLSL_GLOW_BUFFER, NULL);
     }
+
     {
+        int resx = 1;
+        switch(atmGetConfig()->bg_resolution) {
+        case atmE_BGResolution_x1: resx=1; break;
+        case atmE_BGResolution_x2: resx=2; break;
+        case atmE_BGResolution_x4: resx=4; break;
+        case atmE_BGResolution_x8: resx=8; break;
+        }
+        if(resx!=1) {
+            rs->ScreenSize      = vec2(atmGetWindowSize())/(float32)resx;
+            rs->RcpScreenSize   = vec2(1.0f, 1.0f) / rs->ScreenSize;
+            MapAndWrite(dc, ubo_rs, rs, sizeof(*rs));
+
+            dc->setViewport(Viewport(ivec2(), brt->getColorBuffer(0)->getDesc().size/(uint32)resx));
+            //bgrt->setDepthStencilBuffer(brt->getDepthStencilBuffer()); // 縮小しないといけない
+            dc->setRenderTarget(bgrt);
+        }
+
         sh_bg->bind();
         dc->setVertexArray(va_quad);
         dc->setDepthStencilState(atmGetDepthStencilState(DS_GBUFFER_BG));
         dc->draw(I3D_QUADS, 0, 4);
         dc->setDepthStencilState(atmGetDepthStencilState(DS_NO_DEPTH_NO_STENCIL));
         sh_bg->unbind();
+
+        if(resx!=1) {
+            rs->ScreenSize      = vec2(atmGetWindowSize());
+            rs->RcpScreenSize   = vec2(1.0f, 1.0f) / rs->ScreenSize;
+            rs->ScreenTexcoord  = vec2(1.0f, 1.0f) / float32(resx);
+            MapAndWrite(dc, ubo_rs, rs, sizeof(*rs));
+            dc->setViewport(Viewport(ivec2(), brt->getColorBuffer(0)->getDesc().size));
+
+            sh_out->bind();
+            dc->setTexture(GLSL_COLOR_BUFFER, bgrt->getColorBuffer(0));
+            dc->setRenderTarget(brt);
+            dc->setDepthStencilState(atmGetDepthStencilState(DS_GBUFFER_BG));
+            dc->draw(I3D_QUADS, 0, 4);
+            dc->setDepthStencilState(atmGetDepthStencilState(DS_NO_DEPTH_NO_STENCIL));
+            dc->setTexture(GLSL_COLOR_BUFFER, NULL);
+            sh_out->unbind();
+
+            rs->ScreenTexcoord  = rs->ScreenSize / vec2(brt->getColorBuffer(0)->getDesc().size);
+            MapAndWrite(dc, ubo_rs, rs, sizeof(*rs));
+            bgrt->setDepthStencilBuffer(nullptr);
+        }
     }
 }
 

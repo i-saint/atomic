@@ -8,10 +8,17 @@ class AtomicGame;
 class SoundThread;
 struct GameStartConfig;
 
-enum atmEffectLevel {
+enum atmLightingLevel {
     atmE_Lighting_Low,
     atmE_Lighting_Medium,
     atmE_Lighting_High,
+};
+
+enum atmBGResolution {
+    atmE_BGResolution_x1,
+    atmE_BGResolution_x2,
+    atmE_BGResolution_x4,
+    atmE_BGResolution_x8,
 };
 
 struct istInterModule AtomicConfig
@@ -26,6 +33,7 @@ struct istInterModule AtomicConfig
     bool posteffect_bloom;
     bool posteffect_antialias;
     bool bg;
+    int bg_resolution;
     bool bg_multiresolution;
     bool light_multiresolution;
     bool show_text;

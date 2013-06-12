@@ -69,6 +69,7 @@ enum RT_RID {
     RT_OUTPUT_QUARTER,
     RT_OUTPUT0,
     RT_OUTPUT1,
+    RT_OUTPUT2,
     RT_GENERIC,
     RT_END,
 };

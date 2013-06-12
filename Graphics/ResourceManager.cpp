@@ -208,6 +208,7 @@ bool GraphicResourceManager::initialize()
         m_rt[RT_GAUSS1]     = i3d::CreateRenderTarget(dev, 1, uvec2(512, 256), I3D_RGBA16F);
         m_rt[RT_OUTPUT0]    = i3d::CreateRenderTarget(dev, 1, rt_size, I3D_RGBA16F);
         m_rt[RT_OUTPUT1]    = i3d::CreateRenderTarget(dev, 1, rt_size, I3D_RGBA16F);
+        m_rt[RT_OUTPUT2]    = i3d::CreateRenderTarget(dev, 1, rt_size, I3D_RGBA16F);
         m_rt[RT_OUTPUT_HALF]    = i3d::CreateRenderTarget(dev, 1, rt_size/uvec2(2,2), I3D_RGBA16F);
         m_rt[RT_OUTPUT_QUARTER] = i3d::CreateRenderTarget(dev, 1, rt_size/uvec2(4,4), I3D_RGBA16F);
 
