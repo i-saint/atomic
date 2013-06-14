@@ -45,8 +45,7 @@ float map(vec3 p)
     float d3 = p.z - 0.3;
     p.z += 0.7;
     p = mod(p, vec3(3.0)) - vec3(1.5);
-    p = rotz * p;
-    p = roty * p;
+    p = roty * (rotz * p);
     float d = sdBox(p,vec3(1.0));
     float s = 1.0;
 
@@ -90,7 +89,7 @@ void main()
     vec3 ray = camPos;
     int march = 0;
     float d = 0.0, total_d = 0.0;
-    const int MAX_MARCH = 32;
+    const int MAX_MARCH = 28;
     const float MAX_DISTANCE = 750.0;
     for(int mi=0; mi<MAX_MARCH; ++mi) {
         march = mi;
