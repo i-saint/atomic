@@ -27,23 +27,22 @@ float map(vec3 p)
     vec3 g = vec3(ceil((orig.x)/grid), ceil((orig.y)/grid), ceil((orig.z)/grid));
     vec3 rxz =  nrand3(g.xz);
     vec3 ryz =  nrand3(g.yz);
-    vec3 rxz2 =  nrand3(g.xz+vec2(0.0,1.0));
-    vec3 ryz2 =  nrand3(g.yz+vec2(0.0,1.0));
 
-    float d3 = p.y + h + rxz.x*rh;
-    float d4 = p.y - h + rxz.y*rh;
-    float d5 = p.x + h + ryz.x*rh;
-    float d6 = p.x - h + ryz.y*rh;
+    p = -abs(p);
 
-    vec2 p2 = mod(p.xz, vec2(grid)) - vec2(grid_half);
-    float c1 = sdBox(p2,vec2(cube));
+    float d1 = p.y + h + rxz.x*rh;
+    float d2 = p.x + h + ryz.y*rh;
 
-    vec2 p3 = mod(p.yz, vec2(grid)) - vec2(grid_half);
-    float c2 = sdBox(p3,vec2(cube));
+    vec2 p1 = mod(p.xz, vec2(grid)) - vec2(grid_half);
+    float c1 = sdBox(p1,vec2(cube));
+
+    vec2 p2 = mod(p.yz, vec2(grid)) - vec2(grid_half);
+    float c2 = sdBox(p2,vec2(cube));
 
     float dz = (grid*g.z - p.z + 0.1);
+    float dz2 = -sdBox(p.xy, vec2(0.9))+0.05;
 
-    return min(min(max(c1, min(d3,-d4)), max(c2, min(d5,-d6))), dz);
+    return min( min(max(c1,d1), max(c2,d2)), max(dz,dz2));
 }
 
 vec3 genNormal(vec3 p)
@@ -75,13 +74,14 @@ void main()
     float d = 0.0;
 
     float total_d = 0.0;
-    const int MAX_MARCH = 64;
+    const int MAX_MARCH = 48;
+    const float MAX_DIST = 50.0;
     for(int mi=0; mi<MAX_MARCH; ++mi) {
         d = map(ray);
         march=mi;
         total_d += d;
         ray += rayDir * d;
-        if(d<0.001) {break; }
+        if(d<0.001 || total_d>MAX_DIST) {break; }
     }
 
     float glow = 0.0;
@@ -112,7 +112,7 @@ void main()
     }
 
     float fog = min(1.0, (1.0 / float(MAX_MARCH)) * float(march))*1.0;
-    vec3  fog2 = 0.01 * vec3(1, 1, 1.5) * total_d;
+    vec3  fog2 = 0.015 * vec3(1, 1, 1.5) * total_d;
     glow *= min(1.0, 4.0-(4.0 / float(MAX_MARCH-1)) * float(march));
     float scanline = mod(gl_FragCoord.y, 4.0) < 2.0 ? 0.7 : 1.0;
     ps_FlagColor = vec4(vec3(0.15+glow*0.75, 0.15+glow*0.75, 0.2+glow)*fog + fog2, 1.0) * scanline;
