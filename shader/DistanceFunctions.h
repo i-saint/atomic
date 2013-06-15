@@ -44,6 +44,12 @@ float sdHexPrism( vec3 p, vec2 h )
     return max(q.z-h.y,max(q.x+q.y*0.57735,q.y*1.1547)-h.x);
 }
 
+float sdHexPrism( vec2 p, vec2 h )
+{
+    vec2 q = abs(p);
+    return max(q.x-h.y,max(q.x+q.y*0.57735,q.y*1.1547)-h.x);
+}
+
 vec3 nrand3( vec2 co )
 {
     vec3 a = fract( cos( co.x*8.3e-3 + co.y )*vec3(1.3e5, 4.7e5, 2.9e5) );

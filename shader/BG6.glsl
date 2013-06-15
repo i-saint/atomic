@@ -17,7 +17,7 @@ void main()
 
 float map(vec3 p)
 {
-    float h = 1.2;
+    float h = 1.8;
     float rh = 0.5;
     float grid = 0.4;
     float grid_half = grid*0.5;
@@ -29,7 +29,10 @@ float map(vec3 p)
     vec3 ryz =  nrand3(g1.yz);
 
     p = -abs(p);
-    p.xy = mod(p.xy, -4.0);
+    vec3 di = ceil(p/4.8);
+    p.y += di.x*1.0;
+    p.x += di.y*1.2;
+    p.xy = mod(p.xy, -4.8);
 
     vec2 gap = vec2(rxz.x*rh, ryz.y*rh);
     float d1 = p.y + h + gap.x;
@@ -42,8 +45,8 @@ float map(vec3 p)
     float c2 = sdBox(p2,vec2(cube));
 
     //float dz = (grid*g1.z - p.z + 0.1);
-    //float dz1 = -sdBox(p.xy, vec2(0.9, 1000.0))+0.05;
-    //float dz2 = -sdBox(p.xy, vec2(1000.0, 0.9))+0.05;
+    //float dz1 = -sdBox(p.xy, vec2(h))+0.1;
+    //return min( max(max(c1,d1), max(c2,d2)), max(dz, dz1));
     return max(max(c1,d1), max(c2,d2));
 }
 
@@ -77,7 +80,7 @@ void main()
 
     float total_d = 0.0;
     const int MAX_MARCH = 48;
-    const float MAX_DIST = 100.0;
+    const float MAX_DIST = 50.0;
     for(int mi=0; mi<MAX_MARCH; ++mi) {
         d = map(ray);
         march=mi;
@@ -119,7 +122,7 @@ void main()
     }
 
     float fog = min(1.0, (1.0 / float(MAX_MARCH)) * float(march))*1.0;
-    vec3  fog2 = 0.005 * vec3(1, 1, 1.5) * total_d;
+    vec3  fog2 = 0.0075 * vec3(1, 1, 1.5) * total_d;
     glow *= min(1.0, 4.0-(4.0 / float(MAX_MARCH-1)) * float(march));
     float scanline = mod(gl_FragCoord.y, 4.0) < 2.0 ? 0.7 : 1.0;
     ps_FlagColor = vec4(vec3(0.15+glow*0.75, 0.15+glow*0.75, 0.2+glow)*fog + fog2, 1.0) * scanline;
