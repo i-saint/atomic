@@ -119,6 +119,8 @@ bool GraphicResourceManager::initialize()
         m_depth_states[DS_LIGHTING_FRONT]       = dev->createDepthStencilState(desc);
         m_depth_states[DS_LIGHTING_BACK]        = dev->createDepthStencilState(desc);
     }
+
+    const uvec2 unitsphere_div(32,16);
     {
         CreateFloorQuad(m_va[VA_FLOOR_QUAD], m_vbo[VBO_FLOOR_QUAD], vec4(-PSYM_GRID_SIZE*0.5f, -PSYM_GRID_SIZE*0.5f, -0.15f, 0.0f), vec4(PSYM_GRID_SIZE, PSYM_GRID_SIZE, 0.0f, 0.0f));
         CreateScreenQuad(m_va[VA_SCREEN_QUAD], m_vbo[VBO_SCREEN_QUAD]);
@@ -128,7 +130,7 @@ bool GraphicResourceManager::initialize()
 
         CreateCube(m_va[VA_UNIT_CUBE], m_vbo[VBO_UNIT_CUBE], 0.5f);
         CreateCube(m_va[VA_FLUID_CUBE], m_vbo[VBO_FLUID_CUBE], 0.015f);
-        CreateSphere(m_va[VA_UNIT_SPHERE], m_vbo[VBO_UNIT_SPHERE], m_ibo[IBO_LIGHT_SPHERE], 1.00f, 32,16);
+        CreateSphere(m_va[VA_UNIT_SPHERE], m_vbo[VBO_UNIT_SPHERE], m_ibo[IBO_UNITSPHERE], 1.00f, unitsphere_div.x,unitsphere_div.y);
         CreateSphere(m_va[VA_BLOOSTAIN_SPHERE], m_vbo[VBO_BLOODSTAIN_SPHERE], m_ibo[IBO_BLOODSTAIN_SPHERE], 0.075f, 8,8);
 
         CreateFieldGridLines(m_va[VA_FIELD_GRID], m_vbo[VBO_FIELD_GRID]);
@@ -141,6 +143,7 @@ bool GraphicResourceManager::initialize()
         m_vbo[VBO_DIRECTIONALLIGHT_INSTANCES] = CreateVertexBuffer(dev, sizeof(DirectionalLight)*ATOMIC_MAX_DIRECTIONAL_LIGHTS, I3D_USAGE_DYNAMIC);
         m_vbo[VBO_POINTLIGHT_INSTANCES] = CreateVertexBuffer(dev, sizeof(PointLight)*ATOMIC_MAX_POINT_LIGHTS, I3D_USAGE_DYNAMIC);
         m_vbo[VBO_BLOODSTAIN_PARTICLES] = CreateVertexBuffer(dev, sizeof(BloodstainParticle)*MAX_BLOODSTAIN_PARTICLES, I3D_USAGE_DYNAMIC);
+        m_vbo[VBO_MATRICES]             = CreateVertexBuffer(dev, sizeof(mat4)*2048, I3D_USAGE_DYNAMIC);
     }
     {
         m_ubo[UBO_RENDERSTATES_3D]          = CreateUniformBuffer(dev, sizeof(RenderStates), I3D_USAGE_DYNAMIC);
@@ -180,6 +183,7 @@ bool GraphicResourceManager::initialize()
         m_shader[SH_OUTPUT]             = CreateAtomicShader("Out");
         m_shader[SH_DEBUG_SHOW_RGB]     = CreateAtomicShader("Debug_ShowRGB");
         m_shader[SH_DEBUG_SHOW_AAA]     = CreateAtomicShader("Debug_ShowAAA");
+        m_shader[SH_BARRIER]            = CreateAtomicShader("Forward_Barrier");
 
         m_shader[SH_BG1]    = CreateAtomicShader("BG1");
         m_shader[SH_BG2]    = CreateAtomicShader("BG2");
@@ -209,6 +213,7 @@ bool GraphicResourceManager::initialize()
         m_rt[RT_OUTPUT0]    = i3d::CreateRenderTarget(dev, 1, rt_size, I3D_RGBA16F);
         m_rt[RT_OUTPUT1]    = i3d::CreateRenderTarget(dev, 1, rt_size, I3D_RGBA16F);
         m_rt[RT_OUTPUT2]    = i3d::CreateRenderTarget(dev, 1, rt_size, I3D_RGBA16F);
+        m_rt[RT_PREV_FRAME] = i3d::CreateRenderTarget(dev, 1, rt_size, I3D_RGBA16F);
         m_rt[RT_OUTPUT_HALF]    = i3d::CreateRenderTarget(dev, 1, rt_size/uvec2(2,2), I3D_RGBA16F);
         m_rt[RT_OUTPUT_QUARTER] = i3d::CreateRenderTarget(dev, 1, rt_size/uvec2(4,4), I3D_RGBA16F);
 
@@ -223,6 +228,11 @@ bool GraphicResourceManager::initialize()
         CreateSphereParticleSet(m_pset[PSET_SPHERE_MEDIUM], m_rinfo[PSET_SPHERE_MEDIUM], 0.25f);
         CreateSphereParticleSet(m_pset[PSET_SPHERE_LARGE],  m_rinfo[PSET_SPHERE_LARGE],  0.5f);
         CreateBulletParticleSet(m_pset[PSET_SPHERE_BULLET], m_rinfo[PSET_SPHERE_BULLET]);
+    }
+    {
+        m_models[MODEL_UNITQUAD]    = ModelInfo(I3D_QUADS, VA_SCREEN_QUAD, IBO_NULL, 4);
+        m_models[MODEL_UNITCUBE]    = ModelInfo(I3D_QUADS, VA_UNIT_CUBE, IBO_NULL, 24);
+        m_models[MODEL_UNITSPHERE]  = ModelInfo(I3D_QUADS, VA_UNIT_SPHERE, IBO_UNITSPHERE, (unitsphere_div.y-1)*(unitsphere_div.x)*4);
     }
 
     return true;

@@ -109,6 +109,18 @@ struct istAlign(16) RigidInfo
     };
 };
 
+struct istAlign(16) ModelInfo
+{
+    I3D_TOPOLOGY topology;
+    VA_RID vertices;
+    IBO_RID indices;
+    uint32 num_indices;
+
+    ModelInfo(I3D_TOPOLOGY t=I3D_POINTS, VA_RID v=VA_NULL, IBO_RID i=IBO_NULL, uint32 n=0)
+        : topology(t), vertices(v), indices(i), num_indices(n)
+    {}
+};
+
 } // namespace atm
 
 #endif // atm_Graphics_ParticleSet_h

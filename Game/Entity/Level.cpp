@@ -289,7 +289,7 @@ public:
         if(m_frame==1) {
             IEntity *e = putLargeEnemy();
             atmCall(e, setRoutine, RCID_Routine_CircularShoot);
-            //atmCall(e, setLife, 100000000.0f);
+            atmCall(e, setLife, 100000000.0f);
         }
 
         if(m_frame < 1200) {
@@ -388,7 +388,7 @@ public:
             dl.setDirection(glm::normalize(vec4(1.0f, -1.0f, -0.5f, 0.0f)));
             dl.setDiffuse(vec4(0.3f, 0.3f, 0.3f, 1.0f));
             dl.setAmbient(vec4(0.0f, 0.0f, 0.0f, 0.0f));
-            atmGetLights()->addLight(dl);
+            atmGetLightPass()->addLight(dl);
         }
 
 
@@ -399,7 +399,7 @@ public:
 
         char buf[64];
         istSPrintf(buf, "life: %.0f", health);
-        atmGetSystemTextRenderer()->addText(vec2(5.0f, 60.0f), buf);
+        atmGetTextRenderer()->addText(vec2(5.0f, 60.0f), buf);
     }
 };
 atmImplementEntity(Level_Test);

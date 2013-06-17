@@ -21,9 +21,10 @@ public:
 
 class PassGBuffer_Fluid;
 class PassGBuffer_Particle;
-class Pass_BackGround;
-class PassDeferredShading_Bloodstain;
-class PassDeferredShading_Lights;
+class PassDeferred_Bloodstain;
+class PassDeferred_Lights;
+class PassForward_Generic;
+class PassForward_BackGround;
 class PassPostprocess_Microscopic;
 class PassPostprocess_FXAA;
 class PassPostprocess_Bloom;
@@ -31,7 +32,7 @@ class PassPostprocess_Fade;
 class SystemTextRenderer;
 class PassHUD_DebugShowBuffer;
 
-class PassForwardShading_DistanceField; // for debug
+class PassForward_DistanceField; // for debug
 
 
 class dpPatch AtomicRenderer
@@ -43,24 +44,26 @@ private:
     AtomicShader    *m_sh_out;
     RenderTarget    *m_rt_gbuffer;
     RenderTarget    *m_rt_out[2];
+    RenderTarget    *m_rt_prev_frame;
 
     // internal resources
-    PassGBuffer_Fluid                       *m_renderer_fluid;
-    PassGBuffer_Particle                    *m_renderer_particle;
-    Pass_BackGround                          *m_renderer_bg;
-    PassDeferredShading_Bloodstain          *m_renderer_bloodstain;
-    PassDeferredShading_Lights              *m_renderer_lights;
-    PassPostprocess_FXAA                    *m_renderer_fxaa;
-    PassPostprocess_Bloom                   *m_renderer_bloom;
-    PassPostprocess_Fade                    *m_renderer_fade;
-    PassPostprocess_Microscopic             *m_renderer_microscopic;
-    PassForwardShading_DistanceField        *m_renderer_distance_field;
+    PassGBuffer_Fluid                   *m_pass_fluid;
+    PassGBuffer_Particle                *m_pass_particle;
+    PassDeferred_Bloodstain             *m_pass_bloodstain;
+    PassDeferred_Lights                 *m_pass_lights;
+    PassForward_Generic                 *m_pass_forward;
+    PassForward_BackGround              *m_pass_bg;
+    PassPostprocess_FXAA                *m_pass_fxaa;
+    PassPostprocess_Bloom               *m_pass_bloom;
+    PassPostprocess_Fade                *m_pass_fade;
+    PassPostprocess_Microscopic         *m_pass_microscopic;
+    PassForward_DistanceField    *m_pass_distance_field;
 #ifdef atm_enable_gbuffer_viewer
-    PassHUD_DebugShowBuffer                 *m_debug_show_gbuffer;
+    PassHUD_DebugShowBuffer             *m_debug_show_gbuffer;
 #endif // atm_enable_gbuffer_viewer
-    ist::vector<IRenderer*>                 m_renderers[PASS_END];
+    ist::vector<IRenderer*>             m_renderers[PASS_END];
 
-    SystemTextRenderer                      *m_stext;
+    SystemTextRenderer                  *m_stext;
 
     Viewport            m_default_viewport;
     RenderStates        m_rstates3d;
@@ -88,35 +91,37 @@ public:
     void beforeDraw();  // メインスレッドから、描画処理の前に呼ばれる
     void draw();        // 以下描画スレッドから呼ばれる
 
-    const Viewport* getDefaultViewport() const              { return &m_default_viewport; }
-    RenderStates* getRenderStates3D()                       { return &m_rstates3d; }
-    RenderStates* getRenderStatesBG()                       { return &m_rstatesBG; }
-    RenderStates* getRenderStates2D()                       { return &m_rstates2d; }
-    PassGBuffer_Fluid* getSPHRenderer()                       { return m_renderer_fluid; }
-    PassGBuffer_Particle* getParticleRenderer()             { return m_renderer_particle; }
-    PassDeferredShading_Bloodstain* getBloodStainRenderer() { return m_renderer_bloodstain; }
-    PassDeferredShading_Lights* getLights()                 { return m_renderer_lights; }
-    PassPostprocess_Fade* getFader()                        { return m_renderer_fade; }
-    SystemTextRenderer* getSystemTextRenderer()             { return m_stext; }
-    RenderTarget*   getFrontRenderTarget() { return m_rt_out[0]; }
-    RenderTarget*   getBackRenderTarget() { return m_rt_out[1]; }
-    void swapOutputRenderTarget()   { stl::swap(m_rt_out[0], m_rt_out[1]); }
+    const Viewport* getDefaultViewport() const  { return &m_default_viewport; }
+    RenderStates* getRenderStates3D()           { return &m_rstates3d; }
+    RenderStates* getRenderStatesBG()           { return &m_rstatesBG; }
+    RenderStates* getRenderStates2D()           { return &m_rstates2d; }
+    PassGBuffer_Fluid* getSPHPass()             { return m_pass_fluid; }
+    PassGBuffer_Particle* getParticlePass()     { return m_pass_particle; }
+    PassDeferred_Bloodstain* getBloodStainPass(){ return m_pass_bloodstain; }
+    PassDeferred_Lights* getLightPass()         { return m_pass_lights; }
+    PassForward_Generic* getForwardPass()       { return m_pass_forward; }
+    PassPostprocess_Fade* getFader()            { return m_pass_fade; }
+    SystemTextRenderer* getTextRenderer()       { return m_stext; }
+    RenderTarget*   getFrontRenderTarget()      { return m_rt_out[0]; }
+    RenderTarget*   getBackRenderTarget()       { return m_rt_out[1]; }
+    void swapOutputRenderTarget()               { stl::swap(m_rt_out[0], m_rt_out[1]); }
 };
 
-#define atmGetRenderer()             AtomicRenderer::getInstance()
-#define atmGetRenderStates()         atmGetRenderer()->getRenderStates3D()
-#define atmGetRenderStatesBG()       atmGetRenderer()->getRenderStatesBG()
-#define atmGetDefaultViewport()      atmGetRenderer()->getDefaultViewport()
-#define atmGetBloodstainRenderer()   atmGetRenderer()->getBloodStainRenderer()
-#define atmGetSPHRenderer()          atmGetRenderer()->getSPHRenderer()
-#define atmGetParticleRenderer()     atmGetRenderer()->getParticleRenderer()
-#define atmGetLights()               atmGetRenderer()->getLights()
-#define atmGetFader()                atmGetRenderer()->getFader()
-#define atmGetSystemTextRenderer()   atmGetRenderer()->getSystemTextRenderer()
+#define atmGetRenderer()            AtomicRenderer::getInstance()
+#define atmGetRenderStates()        atmGetRenderer()->getRenderStates3D()
+#define atmGetRenderStatesBG()      atmGetRenderer()->getRenderStatesBG()
+#define atmGetDefaultViewport()     atmGetRenderer()->getDefaultViewport()
+#define atmGetBloodStainPass()      atmGetRenderer()->getBloodStainPass()
+#define atmGetSPHPass()             atmGetRenderer()->getSPHPass()
+#define atmGetParticlePass()        atmGetRenderer()->getParticlePass()
+#define atmGetLightPass()           atmGetRenderer()->getLightPass()
+#define atmGetForwardPass()         atmGetRenderer()->getForwardPass()
+#define atmGetFader()               atmGetRenderer()->getFader()
+#define atmGetTextRenderer()        atmGetRenderer()->getTextRenderer()
 
-#define atmGetFrontRenderTarget()    atmGetRenderer()->getFrontRenderTarget()
-#define atmGetBackRenderTarget()     atmGetRenderer()->getBackRenderTarget()
-#define atmSwapOutputRenderTarget()  atmGetRenderer()->swapOutputRenderTarget()
+#define atmGetFrontRenderTarget()   atmGetRenderer()->getFrontRenderTarget()
+#define atmGetBackRenderTarget()    atmGetRenderer()->getBackRenderTarget()
+#define atmSwapOutputRenderTarget() atmGetRenderer()->swapOutputRenderTarget()
 
 
 

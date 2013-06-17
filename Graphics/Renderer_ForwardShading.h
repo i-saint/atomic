@@ -3,7 +3,7 @@
 namespace atm {
 
 
-class PassForwardShading_DistanceField : public IRenderer
+class PassForward_DistanceField : public IRenderer
 {
 private:
     VertexArray     *m_va_grid;
@@ -15,17 +15,34 @@ private:
     AtomicShader    *m_sh_cell;
 
 public:
-    PassForwardShading_DistanceField();
+    PassForward_DistanceField();
     void beforeDraw();
     void draw();
 };
 
 
-class dpPatch Pass_BackGround : public IRenderer
+class dpPatch PassForward_Generic : public IRenderer
 {
 public:
-    Pass_BackGround();
-    ~Pass_BackGround();
+    PassForward_Generic();
+    ~PassForward_Generic();
+    void beforeDraw();
+    void draw();
+
+    void drawModel(SH_RID shader, MODEL_RID model, const mat4 &matrix);
+
+private:
+    typedef std::vector<mat4> mat_cont;
+    typedef std::map<MODEL_RID, mat_cont> model_mat_cont;
+    typedef std::map<SH_RID, model_mat_cont> sh_model_mat_cont;
+    sh_model_mat_cont m_commands;
+};
+
+class dpPatch PassForward_BackGround : public IRenderer
+{
+public:
+    PassForward_BackGround();
+    ~PassForward_BackGround();
     void beforeDraw();
     void draw();
 

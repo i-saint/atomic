@@ -111,6 +111,11 @@ void VertexArray::setAttributes( uint32 vb_slot, Buffer* vb, uint32 start, uint3
     std::copy(descs, descs+num_descs, vsd.vertex_descs);
 }
 
+const VertexArray::VertexStreamDesc* VertexArray::getAttributes() const
+{
+    return m_stream_descs;
+}
+
 
 } // namespace i3d
 } // namespace ist

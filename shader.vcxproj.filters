@@ -111,6 +111,9 @@
     <None Include="shader\BG9.glsl">
       <Filter>shader</Filter>
     </None>
+    <None Include="shader\Forward_Barrier.glsl">
+      <Filter>shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shader\Fxaa3_11.h">

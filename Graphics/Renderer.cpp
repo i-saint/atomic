@@ -36,34 +36,37 @@ AtomicRenderer::AtomicRenderer()
     m_rt_gbuffer    = atmGetRenderTarget(RT_GBUFFER);
     m_rt_out[0]     = atmGetRenderTarget(RT_OUTPUT0);
     m_rt_out[1]     = atmGetRenderTarget(RT_OUTPUT1);
+    m_rt_prev_frame = atmGetRenderTarget(RT_PREV_FRAME);
 
     // 追加の際はデストラクタでの消去処理も忘れずに
-    m_renderer_fluid            = istNew(PassGBuffer_Fluid)();
-    m_renderer_particle         = istNew(PassGBuffer_Particle)();
-    m_renderer_bg               = istNew(Pass_BackGround);
-    m_renderer_bloodstain       = istNew(PassDeferredShading_Bloodstain)();
-    m_renderer_lights           = istNew(PassDeferredShading_Lights)();
-    m_renderer_microscopic      = istNew(PassPostprocess_Microscopic)();
-    m_renderer_fxaa             = istNew(PassPostprocess_FXAA)();
-    m_renderer_bloom            = istNew(PassPostprocess_Bloom)();
-    m_renderer_fade             = istNew(PassPostprocess_Fade)();
-    m_renderer_distance_field   = istNew(PassForwardShading_DistanceField)();
+    m_pass_fluid            = istNew(PassGBuffer_Fluid)();
+    m_pass_particle         = istNew(PassGBuffer_Particle)();
+    m_pass_bloodstain       = istNew(PassDeferred_Bloodstain)();
+    m_pass_lights           = istNew(PassDeferred_Lights)();
+    m_pass_forward          = istNew(PassForward_Generic)();
+    m_pass_bg               = istNew(PassForward_BackGround);
+    m_pass_distance_field   = istNew(PassForward_DistanceField)();
+    m_pass_microscopic      = istNew(PassPostprocess_Microscopic)();
+    m_pass_fxaa             = istNew(PassPostprocess_FXAA)();
+    m_pass_bloom            = istNew(PassPostprocess_Bloom)();
+    m_pass_fade             = istNew(PassPostprocess_Fade)();
 #ifdef atm_enable_gbuffer_viewer
     m_debug_show_gbuffer        = istNew(PassHUD_DebugShowBuffer)();
 #endif // atm_enable_gbuffer_viewer
 
     m_stext = istNew(SystemTextRenderer)();
 
-    m_renderers[PASS_GBUFFER].push_back(m_renderer_fluid);
-    m_renderers[PASS_GBUFFER].push_back(m_renderer_particle);
-    m_renderers[PASS_DEFERRED].push_back(m_renderer_bloodstain);
-    m_renderers[PASS_DEFERRED].push_back(m_renderer_lights);
-    m_renderers[PASS_FORWARD].push_back(m_renderer_distance_field);
-    m_renderers[PASS_FORWARD].push_back(m_renderer_bg);
-    m_renderers[PASS_POSTPROCESS].push_back(m_renderer_fxaa);
-    m_renderers[PASS_POSTPROCESS].push_back(m_renderer_microscopic);
-    m_renderers[PASS_POSTPROCESS].push_back(m_renderer_bloom);
-    m_renderers[PASS_POSTPROCESS].push_back(m_renderer_fade);
+    m_renderers[PASS_GBUFFER].push_back(m_pass_fluid);
+    m_renderers[PASS_GBUFFER].push_back(m_pass_particle);
+    m_renderers[PASS_DEFERRED].push_back(m_pass_bloodstain);
+    m_renderers[PASS_DEFERRED].push_back(m_pass_lights);
+    m_renderers[PASS_FORWARD].push_back(m_pass_bg);
+    m_renderers[PASS_FORWARD].push_back(m_pass_forward);
+    m_renderers[PASS_FORWARD].push_back(m_pass_distance_field);
+    m_renderers[PASS_POSTPROCESS].push_back(m_pass_fxaa);
+    m_renderers[PASS_POSTPROCESS].push_back(m_pass_microscopic);
+    m_renderers[PASS_POSTPROCESS].push_back(m_pass_bloom);
+    m_renderers[PASS_POSTPROCESS].push_back(m_pass_fade);
 #ifdef atm_enable_gbuffer_viewer
     m_renderers[PASS_HUD].push_back(m_debug_show_gbuffer);
 #endif // atm_enable_gbuffer_viewer
@@ -77,16 +80,19 @@ AtomicRenderer::~AtomicRenderer()
 #ifdef atm_enable_gbuffer_viewer
     istSafeDelete(m_debug_show_gbuffer);
 #endif // atm_enable_gbuffer_viewer
-    istSafeDelete(m_renderer_distance_field);
-    istSafeDelete(m_renderer_fade);
-    istSafeDelete(m_renderer_bloom);
-    istSafeDelete(m_renderer_fxaa);
-    istSafeDelete(m_renderer_microscopic);
-    istSafeDelete(m_renderer_lights);
-    istSafeDelete(m_renderer_bloodstain);
-    istSafeDelete(m_renderer_bg);
-    istSafeDelete(m_renderer_particle);
-    istSafeDelete(m_renderer_fluid);
+    istSafeDelete(m_pass_fade);
+    istSafeDelete(m_pass_bloom);
+    istSafeDelete(m_pass_fxaa);
+    istSafeDelete(m_pass_microscopic);
+
+    istSafeDelete(m_pass_bg);
+    istSafeDelete(m_pass_distance_field);
+    istSafeDelete(m_pass_forward);
+
+    istSafeDelete(m_pass_bloodstain);
+    istSafeDelete(m_pass_lights);
+    istSafeDelete(m_pass_particle);
+    istSafeDelete(m_pass_fluid);
 }
 
 void AtomicRenderer::beforeDraw()
@@ -244,7 +250,7 @@ void AtomicRenderer::passForwardShading()
 
     rt->setDepthStencilBuffer(m_rt_gbuffer->getDepthStencilBuffer());
     dc->setRenderTarget(rt);
-    dc->setTexture(GLSL_BACK_BUFFER, nullptr);
+    dc->setTexture(GLSL_BACK_BUFFER, m_rt_prev_frame->getColorBuffer(0));
 
     uint32 num_renderers = m_renderers[PASS_FORWARD].size();
     for(uint32 i=0; i<num_renderers; ++i) {
@@ -315,7 +321,7 @@ void AtomicRenderer::passOutput()
     //istsprintf(buf, "Show Multiresolution Level: [F9]");
     //m_stext->addText(vec2(5.0f, 190.0f), buf);
 
-    //istsprintf(buf, "Multiresolution Threshold: %.3f ([8]<- [9]->)", atmGetLights()->getMultiresolutionParams().Threshold.x);
+    //istsprintf(buf, "Multiresolution Threshold: %.3f ([8]<- [9]->)", atmGetLightPass()->getMultiresolutionParams().Threshold.x);
     //m_stext->addText(vec2(5.0f, 210.0f), buf);
 
     dc->setBlendState(atmGetBlendState(BS_BLEND_ALPHA));
@@ -325,6 +331,8 @@ void AtomicRenderer::passOutput()
         iuiDraw();
         iuiDrawFlush();
     }
+
+    stl::swap(m_rt_prev_frame, m_rt_out[1]);
 }
 
 

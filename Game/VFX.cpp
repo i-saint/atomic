@@ -53,7 +53,7 @@ void VFXScintilla::draw()
         particles.position = data.position;
         particles.color = data.color;
         particles.glow = data.glow;
-        atmGetParticleRenderer()->addParticle(&particles, 1);
+        atmGetParticlePass()->addParticle(&particles, 1);
     }
 }
 

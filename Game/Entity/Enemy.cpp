@@ -195,7 +195,7 @@ public:
                 l.setPosition(getPosition() + vec4(0.0f, 0.0f, m_light_radius*0.5f, 1.0f));
                 l.setColor(light);
                 l.setRadius(m_light_radius);
-                atmGetLights()->addLight(l);
+                atmGetLightPass()->addLight(l);
             }
             else {
                 flash += light*0.05f;
@@ -210,8 +210,8 @@ public:
             inst.elapsed = (float32)getPastFrame();
             inst.appear_radius = inst.elapsed * 0.004f;
             inst.translate = getTransform();
-            atmGetSPHRenderer()->addPSetInstance(getModel(), inst);
-            atmGetBloodstainRenderer()->addBloodstainParticles(getTransform(), getBloodStainParticles(), getNumBloodstainParticles());
+            atmGetSPHPass()->addPSetInstance(getModel(), inst);
+            atmGetBloodStainPass()->addBloodstainParticles(getTransform(), getBloodStainParticles(), getNumBloodstainParticles());
         }
     }
 

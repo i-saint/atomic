@@ -319,6 +319,20 @@ public:
 
     virtual void draw()
     {
+        const vec4 &pos = getPosition();
+        {
+            PointLight l;
+            l.setPosition(pos+vec4(0.0f, 0.0f, 0.3f, 0.0f));
+            l.setColor(vec4(0.3f, 0.2f, 1.0f, 1.0f));
+            l.setRadius(1.0f);
+            atmGetLightPass()->addLight(l);
+        }
+        {
+            mat4 t;
+            t *= glm::translate(mat4(), vec3(pos.x,pos.y,pos.z));
+            t *= glm::scale(mat4(), vec3(0.125f*3.0f));
+            atmGetForwardPass()->drawModel(SH_BARRIER, MODEL_UNITSPHERE, t);
+        }
     }
 };
 atmImplementEntity(Barrier);
@@ -521,7 +535,7 @@ public:
             l.setPosition(getPosition()+vec4(0.0f, 0.0f, 0.3f, 0.0f));
             l.setColor(vec4(0.3f, 0.2f, 1.0f, 1.0f));
             l.setRadius(1.0f);
-            atmGetLights()->addLight(l);
+            atmGetLightPass()->addLight(l);
         }
         for(uint32 i=0; i<_countof(m_lightpos); ++i) {
             vec4 &pos = m_lightpos[i];
@@ -529,7 +543,7 @@ public:
             l.setPosition(pos);
             l.setColor(vec4(0.45f, 0.45f, 0.6f, 1.0f) + vec4(sinf(pos.x), sinf(pos.y), cosf(pos.x+pos.y), 0.0f)*0.1f);
             l.setRadius(1.2f);
-            atmGetLights()->addLight(l);
+            atmGetLightPass()->addLight(l);
         }
         {
             PSetInstance inst;
@@ -539,7 +553,7 @@ public:
             inst.elapsed = (float32)getPastFrame();
             inst.appear_radius = 1000.0f;
             inst.translate = getTransform();
-            atmGetSPHRenderer()->addPSetInstance(pset_id, inst);
+            atmGetSPHPass()->addPSetInstance(pset_id, inst);
         }
         //{
         //    IndivisualParticle particles;
@@ -547,7 +561,7 @@ public:
         //    particles.color = vec4(0.6f, 0.6f, 0.6f, 50.0f);
         //    particles.glow = vec4(0.15f, 0.15f, 0.3f, 1.0f);
         //    particles.scale = 3.0f;
-        //    atmGetParticleRenderer()->addParticle(&particles, 1);
+        //    atmGetParticlePass()->addParticle(&particles, 1);
         //}
     }
 

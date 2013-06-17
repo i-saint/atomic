@@ -34,8 +34,16 @@ typedef DeviceResource super;
 public:
     static const int MAX_VERTEX_STREAM = 4;
     static const int MAX_VERTEX_DESC = 8;
+    struct VertexStreamDesc {
+        VertexDesc vertex_descs[MAX_VERTEX_DESC];
+        uint32 num_vertex_descs;
+        uint32 start;
+        uint32 stride;
+        Buffer *buffer;
+    };
 
     void setAttributes(uint32 vb_slot, Buffer *vbo, uint32 start, uint32 stride, const VertexDesc *descs, uint32 num_descs);
+    const VertexStreamDesc* getAttributes() const;
 
 private:
     VertexArray(Device *dev);
@@ -45,13 +53,6 @@ private:
     bool isDirty() const { return m_dirty; }
 
 private:
-    struct VertexStreamDesc {
-        VertexDesc vertex_descs[MAX_VERTEX_DESC];
-        uint32 num_vertex_descs;
-        uint32 start;
-        uint32 stride;
-        Buffer *buffer;
-    };
     VertexStreamDesc m_stream_descs[MAX_VERTEX_STREAM];
     mutable bool m_dirty;
 };

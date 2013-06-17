@@ -196,7 +196,7 @@ public:
             particles.color = vec4(0.6f, 0.3f, 0.3f, 50.0f);
             particles.glow = vec4(0.45f, 0.15f, 0.15f, 1.0f);
             particles.scale = 1.5f;
-            atmGetParticleRenderer()->addParticle(&particles, 1);
+            atmGetParticlePass()->addParticle(&particles, 1);
         }
     }
 
@@ -334,7 +334,7 @@ public:
             l.setPosition(getPosition() + vec4(0.0f, 0.0f, 0.10f, 1.0f));
             l.setRadius(0.2f);
             l.setColor(light);
-            atmGetLights()->addLight(l);
+            atmGetLightPass()->addLight(l);
         }
         else {
             flash  = glow * 0.7f;
@@ -346,7 +346,7 @@ public:
         inst.elapsed = (float32)m_past_frame;
         inst.appear_radius = 1000.0f;
         inst.translate = getTransform();
-        atmGetSPHRenderer()->addPSetInstance(getModel(), inst);
+        atmGetSPHPass()->addPSetInstance(getModel(), inst);
     }
 
     virtual void eventCollide(const CollideMessage *m)

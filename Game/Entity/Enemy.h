@@ -26,8 +26,8 @@ private:
     int32       m_past_frame;
 
     istSerializeBlock(
-        istSerializeBase(IEntity)
-        istSerializeBase(Attr_MessageHandler)
+        istSerializeBase(super)
+        istSerializeBase(mhandler)
         istSerialize(m_flash_color)
         istSerialize(m_routine)
         istSerialize(m_health)

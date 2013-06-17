@@ -11,23 +11,23 @@ namespace atm {
 
 
 
-PassDeferredShading_Bloodstain::PassDeferredShading_Bloodstain()
+PassDeferred_Bloodstain::PassDeferred_Bloodstain()
 {
     m_instances.reserve(128);
     m_particles.reserve(2048);
 }
 
-PassDeferredShading_Bloodstain::~PassDeferredShading_Bloodstain()
+PassDeferred_Bloodstain::~PassDeferred_Bloodstain()
 {
 }
 
-void PassDeferredShading_Bloodstain::beforeDraw()
+void PassDeferred_Bloodstain::beforeDraw()
 {
     m_instances.clear();
     m_particles.clear();
 }
 
-void PassDeferredShading_Bloodstain::draw()
+void PassDeferred_Bloodstain::draw()
 {
     if(m_instances.empty()) { return; }
 
@@ -100,7 +100,7 @@ void PassDeferredShading_Bloodstain::draw()
     grt->setDepthStencilBuffer(nullptr);
 }
 
-void PassDeferredShading_Bloodstain::addBloodstainParticles( const mat4 &t, const BloodstainParticle *bsp, uint32 num_bsp )
+void PassDeferred_Bloodstain::addBloodstainParticles( const mat4 &t, const BloodstainParticle *bsp, uint32 num_bsp )
 {
     if(num_bsp==0) { return; }
 
@@ -113,7 +113,7 @@ void PassDeferredShading_Bloodstain::addBloodstainParticles( const mat4 &t, cons
 
 
 
-PassDeferredShading_Lights::PassDeferredShading_Lights()
+PassDeferred_Lights::PassDeferred_Lights()
     : m_rendered_lights(0)
 {
     m_mr_params.Level = ivec4(0,0,0,0);
@@ -123,14 +123,14 @@ PassDeferredShading_Lights::PassDeferredShading_Lights()
     m_point_lights.reserve(ATOMIC_MAX_POINT_LIGHTS);
 }
 
-void PassDeferredShading_Lights::beforeDraw()
+void PassDeferred_Lights::beforeDraw()
 {
     m_directional_lights.clear();
     m_point_lights.clear();
     m_rendered_lights = 0;
 }
 
-void PassDeferredShading_Lights::draw()
+void PassDeferred_Lights::draw()
 {
     updateConstantBuffers();
     if(atmGetConfig()->light_multiresolution) {
@@ -141,7 +141,7 @@ void PassDeferredShading_Lights::draw()
     }
 }
 
-void PassDeferredShading_Lights::drawMultiResolution()
+void PassDeferred_Lights::drawMultiResolution()
 {
     i3d::DeviceContext *dc = atmGetGLDeviceContext();
     RenderTarget *rt_gbuffer    = atmGetRenderTarget(RT_GBUFFER);
@@ -193,7 +193,7 @@ void PassDeferredShading_Lights::drawMultiResolution()
     dc->setSampler(GLSL_BACK_BUFFER, atmGetSampler(SAMPLER_TEXTURE_DEFAULT));
 }
 
-void PassDeferredShading_Lights::debugShowResolution( int32 level )
+void PassDeferred_Lights::debugShowResolution( int32 level )
 {
     i3d::DeviceContext *dc = atmGetGLDeviceContext();
     static const vec4 colors[] = {
@@ -208,7 +208,7 @@ void PassDeferredShading_Lights::debugShowResolution( int32 level )
     }
 }
 
-void PassDeferredShading_Lights::upsampling(int32 level)
+void PassDeferred_Lights::upsampling(int32 level)
 {
     i3d::DeviceContext *dc = atmGetGLDeviceContext();
     AtomicShader *sh_upsampling = atmGetShader(SH_UPSAMPLING);
@@ -227,7 +227,7 @@ void PassDeferredShading_Lights::upsampling(int32 level)
         rt = atmGetFrontRenderTarget();
     }
     else {
-        istPrint("PassDeferredShading_Lights::upsampling(): invalid level\n");
+        istPrint("PassDeferred_Lights::upsampling(): invalid level\n");
         return;
     }
 
@@ -253,7 +253,7 @@ void PassDeferredShading_Lights::upsampling(int32 level)
     glDepthFunc(GL_LESS);
 }
 
-void PassDeferredShading_Lights::updateConstantBuffers()
+void PassDeferred_Lights::updateConstantBuffers()
 {
     i3d::DeviceContext *dc  = atmGetGLDeviceContext();
     if(!m_directional_lights.empty()) {
@@ -268,14 +268,14 @@ void PassDeferredShading_Lights::updateConstantBuffers()
     }
 }
 
-void PassDeferredShading_Lights::drawLights()
+void PassDeferred_Lights::drawLights()
 {
     m_rendered_lights = 0;
     drawDirectionalLights();
     drawPointLights();
 }
 
-void PassDeferredShading_Lights::drawDirectionalLights()
+void PassDeferred_Lights::drawDirectionalLights()
 {
     int32 num_lights = m_directional_lights.size();
     int32 show = atmGetConfig()->debug_show_lights - m_rendered_lights;
@@ -303,7 +303,7 @@ void PassDeferredShading_Lights::drawDirectionalLights()
     dc->drawInstanced(I3D_QUADS, 0, 4, num_lights);
 }
 
-void PassDeferredShading_Lights::drawPointLights()
+void PassDeferred_Lights::drawPointLights()
 {
     int32 num_lights = m_point_lights.size();
     int32 show = atmGetConfig()->debug_show_lights - m_rendered_lights;
@@ -314,7 +314,7 @@ void PassDeferredShading_Lights::drawPointLights()
 
     i3d::DeviceContext *dc  = atmGetGLDeviceContext();
     AtomicShader *shader    = atmGetShader(SH_POINTLIGHT);
-    Buffer *ibo_sphere      = atmGetIndexBuffer(IBO_LIGHT_SPHERE);
+    Buffer *ibo_sphere      = atmGetIndexBuffer(IBO_UNITSPHERE);
     VertexArray *va_sphere  = atmGetVertexArray(VA_UNIT_SPHERE);
     Buffer *vbo_instance    = atmGetVertexBuffer(VBO_POINTLIGHT_INSTANCES);
 
@@ -333,12 +333,12 @@ void PassDeferredShading_Lights::drawPointLights()
     dc->drawIndexedInstanced(I3D_QUADS, 0, (16-1)*(32)*4, num_lights);
 }
 
-void PassDeferredShading_Lights::addLight( const DirectionalLight& v )
+void PassDeferred_Lights::addLight( const DirectionalLight& v )
 {
     m_directional_lights.push_back(v);
 }
 
-void PassDeferredShading_Lights::addLight( const PointLight& v )
+void PassDeferred_Lights::addLight( const PointLight& v )
 {
     m_point_lights.push_back(v);
 }

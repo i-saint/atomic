@@ -3,7 +3,7 @@
 namespace atm {
 
 
-class PassDeferredShading_Bloodstain : public IRenderer
+class PassDeferred_Bloodstain : public IRenderer
 {
 public:
     // 血痕パーティクル群
@@ -18,8 +18,8 @@ public:
     };
 
 public:
-    PassDeferredShading_Bloodstain();
-    ~PassDeferredShading_Bloodstain();
+    PassDeferred_Bloodstain();
+    ~PassDeferred_Bloodstain();
     void beforeDraw();
     void draw();
 
@@ -31,10 +31,10 @@ private:
 };
 
 
-class PassDeferredShading_Lights : public IRenderer
+class PassDeferred_Lights : public IRenderer
 {
 public:
-    PassDeferredShading_Lights();
+    PassDeferred_Lights();
     void beforeDraw();
     void draw();
 

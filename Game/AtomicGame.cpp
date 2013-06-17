@@ -166,7 +166,7 @@ void AtomicGame::drawCallback()
         uint32 pos  = m_input_server->getPlayPosition();
         char buf[128];
         istSPrintf(buf, "Replay %d / %d", pos, len);
-        atmGetSystemTextRenderer()->addText(vec2(5.0f, (float32)wsize.y), buf);
+        atmGetTextRenderer()->addText(vec2(5.0f, (float32)wsize.y), buf);
     }
 
     if(auto *client=atmGameClientGet()) {
@@ -176,7 +176,7 @@ void AtomicGame::drawCallback()
             auto &stat = it->second;
             wchar_t buf[128];
             istSPrintf(buf, L"%s - ping %d", stat.name, stat.ping);
-            atmGetSystemTextRenderer()->addText(vec2(5.0f, 20.0f*i + 80.0f), buf);
+            atmGetTextRenderer()->addText(vec2(5.0f, 20.0f*i + 80.0f), buf);
             ++i;
         }
     }

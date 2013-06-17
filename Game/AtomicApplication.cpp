@@ -362,11 +362,11 @@ void AtomicApplication::update()
         atmGetRenderStates()->ShowMultiresolution = !atmGetRenderStates()->ShowMultiresolution;
     }
     if(getKeyboardState().isKeyPressed('8')) {
-        float &p = atmGetLights()->getMultiresolutionParams().Threshold.x;
+        float &p = atmGetLightPass()->getMultiresolutionParams().Threshold.x;
         p = clamp(p-0.001f, 0.0f, 1.0f);
     }
     if(getKeyboardState().isKeyPressed('9')) {
-        float &p = atmGetLights()->getMultiresolutionParams().Threshold.x;
+        float &p = atmGetLightPass()->getMultiresolutionParams().Threshold.x;
         p = clamp(p+0.001f, 0.0f, 1.0f);
     }
 }

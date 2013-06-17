@@ -51,6 +51,7 @@ public:
     RenderTarget*       getRenderTarget(RT_RID i)   { return m_rt[i]; }
     ParticleSet*        getParticleSet(PSET_RID i)  { return &m_pset[i]; }
     RigidInfo*          getRigidInfo(PSET_RID i)    { return &m_rinfo[i]; }
+    ModelInfo*          getModelInfo(MODEL_RID i)   { return &m_models[i]; }
     BlendState*         getBlendState(BLEND_RID i)          { return m_blend_states[i]; }
     DepthStencilState*  getDepthStencilState(DEPTH_RID i)   { return m_depth_states[i]; }
 
@@ -65,6 +66,7 @@ private:
 
     ParticleSet         m_pset[PSET_END];
     RigidInfo           m_rinfo[PSET_END];
+    ModelInfo           m_models[MODEL_END];
     IFontRenderer       *m_font;
     IFontRenderer       *m_title_font;
     Sampler             *m_sampler[SAMPLER_END];
@@ -104,6 +106,7 @@ private:
 #define atmGetRenderTarget(i)    atmGetGraphicsResourceManager()->getRenderTarget(i)
 #define atmGetParticleSet(i)     atmGetGraphicsResourceManager()->getParticleSet(i)
 #define atmGetRigidInfo(i)       atmGetGraphicsResourceManager()->getRigidInfo(i)
+#define atmGetModelInfo(i)       atmGetGraphicsResourceManager()->getModelInfo(i)
 #define atmGetBlendState(i)          atmGetGraphicsResourceManager()->getBlendState(i)
 #define atmGetDepthStencilState(i)   atmGetGraphicsResourceManager()->getDepthStencilState(i)
 
