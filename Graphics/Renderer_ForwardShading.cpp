@@ -75,11 +75,30 @@ void PassForward_Generic::draw()
 {
     i3d::DeviceContext *dc  = atmGetGLDeviceContext();
     RenderTarget *rt = atmGetBackRenderTarget();
+    Buffer *transforms = atmGetVertexBuffer(VBO_MATRICES);
     rt->setDepthStencilBuffer(atmGetRenderTarget(RT_GBUFFER)->getDepthStencilBuffer());
     dc->setBlendState(atmGetBlendState(BS_BLEND_ALPHA));
     dc->setDepthStencilState(atmGetDepthStencilState(DS_DEPTH_ENABLED));
     dc->setRenderTarget(rt);
 
+    for(auto si=m_commands.begin(); si!=m_commands.end(); ++si) {
+        const model_mat_cont &mm = si->second;
+        for(auto mi=mm.begin(); mi!=mm.end(); ++mi) {
+            m_matrices.insert(m_matrices.end(), mi->second.begin(), mi->second.end());
+        }
+    }
+    istAssert(m_matrices.size()<2048);
+    // todo: ↓でっかいボトルネック。可能ならなんとかしたい
+    MapAndWrite(dc, transforms, &m_matrices[0], sizeof(mat4)*std::min<size_t>(m_matrices.size(), 2048));
+    m_matrices.clear();
+
+    const VertexDesc transform_descs[] = {
+        {GLSL_INSTANCE_TRANSFORM1, I3D_FLOAT32,4,  0, false, 1},
+        {GLSL_INSTANCE_TRANSFORM2, I3D_FLOAT32,4, 16, false, 1},
+        {GLSL_INSTANCE_TRANSFORM3, I3D_FLOAT32,4, 32, false, 1},
+        {GLSL_INSTANCE_TRANSFORM4, I3D_FLOAT32,4, 48, false, 1},
+    };
+    size_t matrices_offset = 0;
     for(auto si=m_commands.begin(); si!=m_commands.end(); ++si) {
         const model_mat_cont &mm = si->second;
 
@@ -90,34 +109,21 @@ void PassForward_Generic::draw()
 
             const ModelInfo &model = *atmGetModelInfo(mi->first);
             const mat_cont &matrices = mi->second;
-
             VertexArray *va = atmGetVertexArray(model.vertices);
             Buffer *ibo = atmGetIndexBuffer(model.indices);
-            Buffer *transforms = atmGetVertexBuffer(VBO_MATRICES);
             dc->setIndexBuffer(ibo, 0, I3D_UINT32);
-            {
-                istAssert(matrices.size()<2048);
-                // todo: ↓でかいボトルネック。可能ならなんとかしたい。あと全シェーダ＆全モデルのデータ一つにまとめて offset でなんとかできるはず
-                MapAndWrite(dc, transforms, &matrices[0], sizeof(mat4)*matrices.size());
-
-                const VertexDesc descs[] = {
-                    {GLSL_INSTANCE_TRANSFORM1, I3D_FLOAT32,4,  0, false, 1},
-                    {GLSL_INSTANCE_TRANSFORM2, I3D_FLOAT32,4, 16, false, 1},
-                    {GLSL_INSTANCE_TRANSFORM3, I3D_FLOAT32,4, 32, false, 1},
-                    {GLSL_INSTANCE_TRANSFORM4, I3D_FLOAT32,4, 48, false, 1},
-                };
-                va->setAttributes(1, transforms, 0, sizeof(mat4), descs, _countof(descs));
-                dc->setVertexArray(va);
-
-                if(ibo) {
-                    dc->drawIndexedInstanced(model.topology, 0, model.num_indices, matrices.size());
-                }
-                else {
-                    dc->drawInstanced(model.topology, 0, model.num_indices, matrices.size());
-                }
+            va->setAttributes(1, transforms, sizeof(mat4)*matrices_offset, sizeof(mat4), transform_descs, _countof(transform_descs));
+            dc->setVertexArray(va);
+            if(ibo) {
+                dc->drawIndexedInstanced(model.topology, 0, model.num_indices, matrices.size());
+            }
+            else {
+                dc->drawInstanced(model.topology, 0, model.num_indices, matrices.size());
             }
             dc->setIndexBuffer(nullptr, 0, I3D_UINT32);
             dc->setVertexArray(nullptr);
+
+            matrices_offset += matrices.size();
         }
         sh->unbind();
     }

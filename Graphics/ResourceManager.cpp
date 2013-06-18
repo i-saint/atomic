@@ -107,6 +107,7 @@ bool GraphicResourceManager::initialize()
         m_depth_states[DS_GBUFFER_RIGID]        = dev->createDepthStencilState(desc);
 
         desc.depth_enable = true;
+        desc.depth_write = false;
         desc.stencil_ref = 0;
         desc.stencil_func = I3D_STENCIL_EQUAL;
         m_depth_states[DS_GBUFFER_BG]           = dev->createDepthStencilState(desc);

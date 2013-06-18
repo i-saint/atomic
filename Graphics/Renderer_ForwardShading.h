@@ -36,6 +36,7 @@ private:
     typedef std::map<MODEL_RID, mat_cont> model_mat_cont;
     typedef std::map<SH_RID, model_mat_cont> sh_model_mat_cont;
     sh_model_mat_cont m_commands;
+    mat_cont m_matrices;
 };
 
 class dpPatch PassForward_BackGround : public IRenderer
