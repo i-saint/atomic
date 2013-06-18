@@ -74,7 +74,11 @@ void PassForward_Generic::beforeDraw()
 void PassForward_Generic::draw()
 {
     i3d::DeviceContext *dc  = atmGetGLDeviceContext();
+    RenderTarget *rt = atmGetBackRenderTarget();
+    rt->setDepthStencilBuffer(atmGetRenderTarget(RT_GBUFFER)->getDepthStencilBuffer());
     dc->setBlendState(atmGetBlendState(BS_BLEND_ALPHA));
+    dc->setDepthStencilState(atmGetDepthStencilState(DS_DEPTH_ENABLED));
+    dc->setRenderTarget(rt);
 
     for(auto si=m_commands.begin(); si!=m_commands.end(); ++si) {
         const model_mat_cont &mm = si->second;
@@ -93,7 +97,9 @@ void PassForward_Generic::draw()
             dc->setIndexBuffer(ibo, 0, I3D_UINT32);
             {
                 istAssert(matrices.size()<2048);
+                // todo: ↓でかいボトルネック。可能ならなんとかしたい。あと全シェーダ＆全モデルのデータ一つにまとめて offset でなんとかできるはず
                 MapAndWrite(dc, transforms, &matrices[0], sizeof(mat4)*matrices.size());
+
                 const VertexDesc descs[] = {
                     {GLSL_INSTANCE_TRANSFORM1, I3D_FLOAT32,4,  0, false, 1},
                     {GLSL_INSTANCE_TRANSFORM2, I3D_FLOAT32,4, 16, false, 1},
@@ -116,7 +122,9 @@ void PassForward_Generic::draw()
         sh->unbind();
     }
 
+    dc->setDepthStencilState(atmGetDepthStencilState(DS_NO_DEPTH_NO_STENCIL));
     dc->setBlendState(atmGetBlendState(BS_NO_BLEND));
+    rt->setDepthStencilBuffer(nullptr);
 }
 
 void PassForward_Generic::drawModel( SH_RID shader, MODEL_RID model, const mat4 &matrix )
@@ -155,7 +163,6 @@ void PassForward_BackGround::draw()
 
     Buffer *ubo_rs          = atmGetUniformBuffer(UBO_RENDERSTATES_3D);
     RenderStates *rs        = atmGetRenderStates();
-
 
     if(atmGetConfig()->bg_multiresolution) {
         // 1/4 の解像度で raymarching
@@ -247,6 +254,14 @@ void PassForward_BackGround::draw()
             MapAndWrite(dc, ubo_rs, rs, sizeof(*rs));
             bgrt->setDepthStencilBuffer(nullptr);
         }
+    }
+
+    {
+        sh_out->assign(dc);
+        dc->setRenderTarget(atmGetPrevFrame());
+        dc->setTexture(GLSL_COLOR_BUFFER, brt->getColorBuffer(0));
+        dc->draw(I3D_QUADS, 0, 4);
+        dc->setRenderTarget(brt);
     }
 }
 

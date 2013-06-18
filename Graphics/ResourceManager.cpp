@@ -94,6 +94,10 @@ bool GraphicResourceManager::initialize()
         m_depth_states[DS_NO_DEPTH_NO_STENCIL]  = dev->createDepthStencilState(desc);
 
         desc.depth_enable = true;
+        desc.depth_write = true;
+        desc.depth_func = I3D_DEPTH_LESS;
+        m_depth_states[DS_DEPTH_ENABLED]        = dev->createDepthStencilState(desc);
+
         desc.stencil_enable = true;
         desc.stencil_op_onpass = I3D_STENCIL_REPLACE;
         desc.stencil_ref = STENCIL_FLUID;

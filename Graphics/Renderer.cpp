@@ -244,9 +244,9 @@ void AtomicRenderer::passDeferredShading()
 
 void AtomicRenderer::passForwardShading()
 {
-    i3d::DeviceContext *dc  = atmGetGLDeviceContext();
-    RenderTarget *rt = atmGetFrontRenderTarget();
     atmSwapOutputRenderTarget();
+    i3d::DeviceContext *dc  = atmGetGLDeviceContext();
+    RenderTarget *rt = atmGetBackRenderTarget();
 
     rt->setDepthStencilBuffer(m_rt_gbuffer->getDepthStencilBuffer());
     dc->setRenderTarget(rt);
@@ -331,8 +331,6 @@ void AtomicRenderer::passOutput()
         iuiDraw();
         iuiDrawFlush();
     }
-
-    stl::swap(m_rt_prev_frame, m_rt_out[1]);
 }
 
 

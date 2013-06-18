@@ -104,6 +104,7 @@ public:
     SystemTextRenderer* getTextRenderer()       { return m_stext; }
     RenderTarget*   getFrontRenderTarget()      { return m_rt_out[0]; }
     RenderTarget*   getBackRenderTarget()       { return m_rt_out[1]; }
+    RenderTarget*   getPrevFrame()              { return m_rt_prev_frame; }
     void swapOutputRenderTarget()               { stl::swap(m_rt_out[0], m_rt_out[1]); }
 };
 
@@ -122,6 +123,7 @@ public:
 #define atmGetFrontRenderTarget()   atmGetRenderer()->getFrontRenderTarget()
 #define atmGetBackRenderTarget()    atmGetRenderer()->getBackRenderTarget()
 #define atmSwapOutputRenderTarget() atmGetRenderer()->swapOutputRenderTarget()
+#define atmGetPrevFrame()           atmGetRenderer()->getPrevFrame()
 
 
 

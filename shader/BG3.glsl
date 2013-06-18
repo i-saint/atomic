@@ -9,7 +9,7 @@ ia_out(GLSL_POSITION)           vec2 ia_VertexPosition;
 
 void main()
 {
-    gl_Position = vec4(ia_VertexPosition, 0.99, 1.0);
+    gl_Position = vec4(ia_VertexPosition, 0.9999, 1.0);
 }
 
 #elif defined(GLSL_PS)
