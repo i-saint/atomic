@@ -148,7 +148,8 @@ bool GraphicResourceManager::initialize()
         m_vbo[VBO_DIRECTIONALLIGHT_INSTANCES] = CreateVertexBuffer(dev, sizeof(DirectionalLight)*ATOMIC_MAX_DIRECTIONAL_LIGHTS, I3D_USAGE_DYNAMIC);
         m_vbo[VBO_POINTLIGHT_INSTANCES] = CreateVertexBuffer(dev, sizeof(PointLight)*ATOMIC_MAX_POINT_LIGHTS, I3D_USAGE_DYNAMIC);
         m_vbo[VBO_BLOODSTAIN_PARTICLES] = CreateVertexBuffer(dev, sizeof(BloodstainParticle)*MAX_BLOODSTAIN_PARTICLES, I3D_USAGE_DYNAMIC);
-        m_vbo[VBO_MATRICES]             = CreateVertexBuffer(dev, sizeof(mat4)*2048, I3D_USAGE_DYNAMIC);
+        m_vbo[VBO_MATRICES1]            = CreateVertexBuffer(dev, sizeof(mat4)*2048, I3D_USAGE_DYNAMIC);
+        m_vbo[VBO_MATRICES2]            = CreateVertexBuffer(dev, sizeof(mat4)*2048, I3D_USAGE_DYNAMIC);
     }
     {
         m_ubo[UBO_RENDERSTATES_3D]          = CreateUniformBuffer(dev, sizeof(RenderStates), I3D_USAGE_DYNAMIC);

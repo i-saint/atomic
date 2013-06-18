@@ -73,9 +73,10 @@ void PassForward_Generic::beforeDraw()
 
 void PassForward_Generic::draw()
 {
+    static const VBO_RID s_vboids[] = {VBO_MATRICES1, VBO_MATRICES2};
     i3d::DeviceContext *dc  = atmGetGLDeviceContext();
     RenderTarget *rt = atmGetBackRenderTarget();
-    Buffer *transforms = atmGetVertexBuffer(VBO_MATRICES);
+    Buffer *transforms = atmGetVertexBuffer(s_vboids[atmGetRenderFrame()%2]);
     rt->setDepthStencilBuffer(atmGetRenderTarget(RT_GBUFFER)->getDepthStencilBuffer());
     dc->setBlendState(atmGetBlendState(BS_BLEND_ALPHA));
     dc->setDepthStencilState(atmGetDepthStencilState(DS_DEPTH_ENABLED));
@@ -88,7 +89,6 @@ void PassForward_Generic::draw()
         }
     }
     istAssert(m_matrices.size()<2048);
-    // todo: ↓でっかいボトルネック。可能ならなんとかしたい
     MapAndWrite(dc, transforms, &m_matrices[0], sizeof(mat4)*std::min<size_t>(m_matrices.size(), 2048));
     m_matrices.clear();
 
@@ -264,7 +264,7 @@ void PassForward_BackGround::draw()
 
     {
         sh_out->assign(dc);
-        dc->setRenderTarget(atmGetPrevFrame());
+        dc->setRenderTarget(atmGetPrevBackbuffer());
         dc->setTexture(GLSL_COLOR_BUFFER, brt->getColorBuffer(0));
         dc->draw(I3D_QUADS, 0, 4);
         dc->setRenderTarget(brt);

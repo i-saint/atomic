@@ -26,6 +26,7 @@ void AtomicRenderer::finalizeInstance()
 }
 
 AtomicRenderer::AtomicRenderer()
+    : m_frame(0)
 {
     istMemset(&m_rstates3d, 0, sizeof(m_rstates3d));
 
@@ -173,6 +174,7 @@ void AtomicRenderer::draw()
     passOutput();
 
     //glFinish();
+    ++m_frame;
 }
 
 void AtomicRenderer::passShadow()
