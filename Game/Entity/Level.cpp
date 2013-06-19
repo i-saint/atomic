@@ -102,7 +102,7 @@ public:
         e = atmCreateEntity(Enemy_Test);
         atmCall(e, setCollisionShape, CS_Sphere);
         atmCall(e, setModel, PSET_SPHERE_SMALL);
-        atmCall(e, setPosition, GenRandomVector2() * 2.2f);
+        atmCall(e, setPosition, vec3(GenRandomVector2()*2.2f, 0.0f));
         atmCall(e, setLife, 15.0f * getLoopBoost());
         atmCall(e, setAxis1, GenRandomUnitVector3());
         atmCall(e, setAxis2, GenRandomUnitVector3());
@@ -142,7 +142,7 @@ public:
         case 0: atmCall(e, setModel, PSET_CUBE_MEDIUM);  atmCall(e, setCollisionShape, CS_Box); break;
         case 1: atmCall(e, setModel, PSET_SPHERE_MEDIUM);atmCall(e, setCollisionShape, CS_Sphere); break;
         }
-        atmCall(e, setPosition, GenRandomVector2() * 2.1f);
+        atmCall(e, setPosition, vec3(GenRandomVector2()*2.1f, 0.0f));
         atmCall(e, setLife, 100.0f * getLoopBoost());
         atmCall(e, setAxis1, GenRandomUnitVector3());
         atmCall(e, setAxis2, GenRandomUnitVector3());
@@ -164,7 +164,7 @@ public:
         case 0: atmCall(e, setModel, PSET_CUBE_LARGE);   atmCall(e, setCollisionShape, CS_Box); break;
         case 1: atmCall(e, setModel, PSET_SPHERE_LARGE); atmCall(e, setCollisionShape, CS_Sphere); break;
         }
-        atmCall(e, setPosition, GenRandomVector2() * 1.5f);
+        atmCall(e, setPosition, vec3(GenRandomVector2()*1.5f, 0.0f));
         atmCall(e, setLife, 1200.0f * getLoopBoost());
         atmCall(e, setAxis1, GenRandomUnitVector3());
         atmCall(e, setAxis2, GenRandomUnitVector3());

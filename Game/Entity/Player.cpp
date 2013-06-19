@@ -210,7 +210,7 @@ public:
             force.x = center_force.x;
             force.y = center_force.y;
             force.z = center_force.z;
-            force.strength = 2.4f;
+            force.strength = 6.0f;
             atmGetSPHManager()->addForce(force);
         }
     }

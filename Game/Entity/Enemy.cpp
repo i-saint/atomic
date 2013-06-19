@@ -226,7 +226,7 @@ public:
     virtual void eventFluid(const FluidMessage *m)
     {
         addBloodstain(getInverseTransform() * (vec4&)m->position);
-        m_delta_fluid_damage += glm::length((const vec3&)m->velocity)*0.002f;
+        m_delta_fluid_damage += glm::length((const vec3&)m->velocity)*0.001f;
     }
 };
 atmImplementEntity(Enemy_Test);

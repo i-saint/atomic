@@ -427,7 +427,7 @@ export void sphIntegrate(
         vel += accel * timestep;
         // Ž©‘RŒ¸‘¬
         {
-            float d = length3(vel) * 0.075;
+            float d = length3(vel) * 0.05;
             float c = max(1.0f - d*d, 0.01);
             vel *= c;
         }
