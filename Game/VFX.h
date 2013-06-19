@@ -5,9 +5,9 @@ namespace atm {
 struct VFXScintillaSpawnData
 {
     vec4 position;
+    vec4 velosity;
     vec4 color;
     vec4 glow;
-    vec4 velosity;
     float32 size;
     float32 lifetime;
     float32 scatter_radius;

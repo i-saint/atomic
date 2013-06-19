@@ -26,17 +26,17 @@ public:
     atmECallBlock(
         atmMethodBlock(
         atmECall(setRefCount)
-        atmECall(addRefCount)
-        atmECall(release)
+        atmECall(incRefCount)
+        atmECall(decRefCount)
         atmECall(getRefCount)
         )
     )
 
 public:
-    Attr_RefCount() : m_ref_count(1) {}
+    Attr_RefCount() : m_ref_count(0) {}
     uint32 getRefCount() const  { return m_ref_count; }
-    uint32 addRefCount()        { return ++m_ref_count; }
-    uint32 release()            { return --m_ref_count; }
+    uint32 incRefCount()        { return ++m_ref_count; }
+    uint32 decRefCount()        { return --m_ref_count; }
 };
 
 
@@ -44,7 +44,7 @@ class Attr_Translate
 {
 typedef Attr_Translate this_t;
 protected:
-    vec4 m_pos;
+    vec3 m_pos;
 
     istSerializeBlock(
         istSerialize(m_pos)
@@ -59,13 +59,13 @@ public:
 
 public:
     Attr_Translate() {}
-    const vec4& getPosition() const { return m_pos; }
-    void setPosition(const vec4& v) { m_pos=v; }
+    const vec3& getPosition() const { return m_pos; }
+    void setPosition(const vec3& v) { m_pos=v; }
 
     mat4 computeMatrix() const
     {
         mat4 mat;
-        mat = glm::translate(mat, reinterpret_cast<const vec3&>(m_pos));
+        mat = glm::translate(mat, m_pos);
         return mat;
     }
 };
@@ -74,9 +74,9 @@ class Attr_Transform
 {
 typedef Attr_Transform this_t;
 private:
-    vec4 m_pos;
-    vec4 m_scale;
-    vec4 m_axis;
+    vec3 m_pos;
+    vec3 m_scale;
+    vec3 m_axis;
     float32 m_rot;
 
     istSerializeBlock(
@@ -110,27 +110,96 @@ public:
 
 public:
     Attr_Transform()
-        : m_scale(1.0f, 1.0f, 1.0f, 0.0f)
-        , m_axis(0.0f, 0.0f, 1.0f, 0.0f)
+        : m_scale(1.0f, 1.0f, 1.0f)
+        , m_axis(0.0f, 0.0f, 1.0f)
         , m_rot(0.0f)
     {}
 
-    const vec4& getPosition() const { return m_pos; }
-    const vec4& getScale() const    { return m_scale; }
-    const vec4& getAxis() const     { return m_axis; }
+    const vec3& getPosition() const { return m_pos; }
+    const vec3& getScale() const    { return m_scale; }
+    const vec3& getAxis() const     { return m_axis; }
     float32 getRotate() const       { return m_rot; }
 
-    void setPosition(const vec4& v) { m_pos=v; }
-    void setScale(const vec4& v)    { m_scale=v; }
-    void setAxis(const vec4& v)     { m_axis=v; }
+    void setPosition(const vec3& v) { m_pos=v; }
+    void setScale(const vec3& v)    { m_scale=v; }
+    void setAxis(const vec3& v)     { m_axis=v; }
     void setRotate(float32 v)       { m_rot=v; }
 
     mat4 computeMatrix() const
     {
         mat4 mat;
-        mat = glm::translate(mat, reinterpret_cast<const vec3&>(m_pos));
-        mat = glm::rotate(mat, m_rot, reinterpret_cast<const vec3&>(m_axis));
-        mat = glm::scale(mat, reinterpret_cast<const vec3&>(m_scale));
+        mat = glm::translate(mat, m_pos);
+        mat = glm::rotate(mat, m_rot, m_axis);
+        mat = glm::scale(mat, m_scale);
+        return mat;
+    }
+
+    void update(float32 dt) {}
+    void asyncupdate(float32 dt) {}
+};
+
+class Attr_Orientation
+{
+typedef Attr_Orientation this_t;
+private:
+    vec3 m_pos;
+    vec3 m_scale;
+    vec3 m_oriantation;
+    vec3 m_up;
+
+    istSerializeBlock(
+        istSerialize(m_pos)
+        istSerialize(m_scale)
+        istSerialize(m_oriantation)
+        istSerialize(m_up)
+    )
+public:
+    atmECallBlock(
+        atmMethodBlock(
+        atmECall(setPosition)
+        atmECall(setScale)
+        atmECall(setOrientation)
+        atmECall(setUpVector)
+        atmECall(getPosition)
+        atmECall(getScale)
+        atmECall(getOrientation)
+        atmECall(getUpVector)
+        )
+    )
+
+    wdmScope(
+    void addDebugNodes(const wdmString &path)
+    {
+        wdmAddNode(path+"/m_pos", &m_pos, -3.0f, 3.0f);
+        wdmAddNode(path+"/m_scale", &m_scale, 0.001f, 4.0f);
+        wdmAddNode(path+"/m_oriantation", &m_oriantation, 0.0f, 360.0f);
+        wdmAddNode(path+"/m_up", &m_up, 0.0f, 360.0f);
+    }
+    )
+
+public:
+    Attr_Orientation()
+        : m_scale(1.0f, 1.0f, 1.0f)
+        , m_oriantation(1.0f, 0.0f, 0.0f)
+        , m_up(0.0f, 1.0f, 0.0f)
+    {}
+
+    const vec3& getPosition() const     { return m_pos; }
+    const vec3& getScale() const        { return m_scale; }
+    const vec3& getOrientation() const  { return m_oriantation; }
+    const vec3& getUpVector() const     { return m_up; }
+
+    void setPosition(const vec3& v)     { m_pos=v; }
+    void setScale(const vec3& v)        { m_scale=v; }
+    void setOrientation(const vec3& v)  { m_oriantation=v; }
+    void setUpVector(const vec3& v)     { m_up=v; }
+
+    mat4 computeMatrix() const
+    {
+        mat4 mat;
+        mat = glm::translate(mat, m_pos);
+        mat *= glm::orientation(m_oriantation, m_up);
+        mat = glm::scale(mat, m_scale);
         return mat;
     }
 
@@ -142,10 +211,10 @@ class Attr_DoubleAxisRotation
 {
 typedef Attr_DoubleAxisRotation this_t;
 private:
-    vec4 m_pos;
-    vec4 m_scale;
-    vec4 m_axis1;
-    vec4 m_axis2;
+    vec3 m_pos;
+    vec3 m_scale;
+    vec3 m_axis1;
+    vec3 m_axis2;
     float32 m_rot1;
     float32 m_rot2;
 
@@ -188,34 +257,34 @@ public:
 
 public:
     Attr_DoubleAxisRotation()
-        : m_scale(1.0f, 1.0f, 1.0f, 0.0f)
-        , m_axis1(0.0f, 1.0f, 0.0f, 0.0f)
-        , m_axis2(0.0f, 0.0f, 1.0f, 0.0f)
+        : m_scale(1.0f, 1.0f, 1.0f)
+        , m_axis1(0.0f, 1.0f, 0.0f)
+        , m_axis2(0.0f, 0.0f, 1.0f)
         , m_rot1(0.0f), m_rot2(0.0f)
     {
     }
 
-    const vec4& getPosition() const { return m_pos; }
-    const vec4& getScale() const    { return m_scale; }
-    const vec4& getAxis1() const    { return m_axis1; }
-    const vec4& getAxis2() const    { return m_axis2; }
+    const vec3& getPosition() const { return m_pos; }
+    const vec3& getScale() const    { return m_scale; }
+    const vec3& getAxis1() const    { return m_axis1; }
+    const vec3& getAxis2() const    { return m_axis2; }
     float32 getRotate1() const      { return m_rot1; }
     float32 getRotate2() const      { return m_rot2; }
 
-    void setPosition(const vec4& v) { m_pos=v; }
-    void setScale(const vec4& v)    { m_scale=v; }
-    void setAxis1(const vec4& v)    { m_axis1=v; }
-    void setAxis2(const vec4& v)    { m_axis2=v; }
+    void setPosition(const vec3& v) { m_pos=v; }
+    void setScale(const vec3& v)    { m_scale=v; }
+    void setAxis1(const vec3& v)    { m_axis1=v; }
+    void setAxis2(const vec3& v)    { m_axis2=v; }
     void setRotate1(float32 v)      { m_rot1=v; }
     void setRotate2(float32 v)      { m_rot2=v; }
 
     mat4 computeMatrix() const
     {
         mat4 mat;
-        mat = glm::translate(mat, reinterpret_cast<const vec3&>(m_pos));
-        mat = glm::rotate(mat, m_rot2, reinterpret_cast<const vec3&>(m_axis2));
-        mat = glm::rotate(mat, m_rot1, reinterpret_cast<const vec3&>(m_axis1));
-        mat = glm::scale(mat, reinterpret_cast<const vec3&>(m_scale));
+        mat = glm::translate(mat, m_pos);
+        mat = glm::rotate(mat, m_rot2, m_axis2);
+        mat = glm::rotate(mat, m_rot1, m_axis1);
+        mat = glm::scale(mat, m_scale);
         return mat;
     }
 };
@@ -274,27 +343,22 @@ private:
     istSerializeBlock(
         istSerializeBase(super)
         istSerialize(m_transform)
-        )
+    )
 
 public:
     atmECallBlock(
         atmMethodBlock(
-        atmECall(getTransform)
-        atmECall(setTransform)
-        atmECall(updateTransformMatrix)
+            atmECall(getTransform)
+            atmECall(setTransform)
+            atmECall(updateTransformMatrix)
         )
         atmECallSuper(super)
-        )
+    )
 
 public:
-    const mat4& getTransform() const    { return m_transform; }
-
+    const mat4& getTransform() const { return m_transform; }
     void setTransform(const mat4 &v) { m_transform=v; }
-
-    void updateTransformMatrix()
-    {
-        setTransform(super::computeMatrix());
-    }
+    void updateTransformMatrix()     { setTransform(super::computeMatrix()); }
 };
 
 template<class T>
@@ -310,18 +374,18 @@ private:
         istSerializeBase(super)
         istSerialize(m_transform)
         istSerialize(m_itransform)
-        )
+    )
 
 public:
     atmECallBlock(
         atmMethodBlock(
-        atmECall(getTransform)
-        atmECall(getInverseTransform)
-        atmECall(setTransform)
-        atmECall(updateTransformMatrix)
+            atmECall(getTransform)
+            atmECall(getInverseTransform)
+            atmECall(setTransform)
+            atmECall(updateTransformMatrix)
         )
         atmECallSuper(super)
-        )
+    )
 
 public:
     const mat4& getTransform() const        { return m_transform; }
@@ -354,17 +418,17 @@ private:
         istSerialize(m_diffuse_color)
         istSerialize(m_glow_color)
         istSerialize(m_psetid)
-        )
+    )
 
 public:
     atmECallBlock(
         atmMethodBlock(
-        atmECall(getDiffuseColor)
-        atmECall(getGlowColor)
-        atmECall(getModel)
-        atmECall(setDiffuseColor)
-        atmECall(setGlowColor)
-        atmECall(setModel)
+            atmECall(getDiffuseColor)
+            atmECall(getGlowColor)
+            atmECall(getModel)
+            atmECall(setDiffuseColor)
+            atmECall(setGlowColor)
+            atmECall(setModel)
         )
     )
 
@@ -399,15 +463,15 @@ private:
     istSerializeBlock(
         istSerialize(m_collision)
         istSerialize(m_owner_handle)
-        )
+    )
 
 public:
     atmECallBlock(
         atmMethodBlock(
-        atmECall(getCollisionFlags)
-        atmECall(getCollisionHandle)
-        atmECall(setCollisionFlags)
-        atmECall(setCollisionShape)
+            atmECall(getCollisionFlags)
+            atmECall(getCollisionHandle)
+            atmECall(setCollisionFlags)
+            atmECall(setCollisionShape)
         )
     )
 
@@ -485,7 +549,7 @@ public:
             case CS_Sphere:
                 {
                     CollisionSphere &shape = *static_cast<CollisionSphere*>(ce);
-                    vec4 pos = t * vec4(0.0f, 0.0f, 0.0f, 1.0f);
+                    vec3 pos = vec3(t * vec4(0.0f, 0.0f, 0.0f, 1.0f));
                     UpdateCollisionSphere(shape, pos, shape.pos_r.w);
                 }
                 break;
@@ -505,7 +569,7 @@ public:
             switch(ce->getShape()) {
             case CS_Sphere:
                 {
-                    vec4 pos = t * vec4(0.0f, 0.0f, 0.0f, 1.0f);
+                    vec3 pos = vec3(t * vec4(0.0f, 0.0f, 0.0f, 1.0f));
                     UpdateCollisionSphere(*static_cast<CollisionSphere*>(ce), pos, radius);
                 }
                 break;
@@ -519,7 +583,7 @@ public:
             switch(ce->getShape()) {
             case CS_Sphere:
                 {
-                    vec4 pos = t * vec4(0.0f, 0.0f, 0.0f, 1.0f);
+                    vec3 pos = vec3(t * vec4(0.0f, 0.0f, 0.0f, 1.0f));
                     float radius = atmGetRigidInfo(psid)->sphere_radius * scale;
                     UpdateCollisionSphere(*static_cast<CollisionSphere*>(ce), pos, radius);
                 }
@@ -551,16 +615,16 @@ class Attr_MessageHandler
 public:
     atmECallBlock(
         atmMethodBlock(
-        atmECall(eventCollide)
-        atmECall(eventFluid)
-        atmECall(eventDamage)
-        atmECall(eventDestroy)
-        atmECall(eventKill)
+            atmECall(eventCollide)
+            atmECall(eventFluid)
+            atmECall(eventDamage)
+            atmECall(eventDestroy)
+            atmECall(eventKill)
         )
     )
 
     virtual void eventCollide(const CollideMessage *m)  {}
-    virtual void eventFluid(const FluidMessage *m)   {}
+    virtual void eventFluid(const FluidMessage *m)      {}
     virtual void eventDamage(const DamageMessage *m)    {}
     virtual void eventDestroy(const DestroyMessage *m)  {}
     virtual void eventKill(const KillMessage *m)        {}

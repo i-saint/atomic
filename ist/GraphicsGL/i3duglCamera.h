@@ -9,28 +9,28 @@ class Camera
 public:
     Camera()
     {
-        m_position = vec4(0.0f, 0.0f, 100.0f, 1.0f);
-        m_target = vec4(0.0f, 0.0f, 0.0f, 0.0f);
-        m_up = vec4(0.0f, 1.0f, 0.0f, 0.0f);
+        m_position = vec3(0.0f, 0.0f, 100.0f);
+        m_target = vec3(0.0f, 0.0f, 0.0f);
+        m_up = vec3(0.0f, 1.0f, 0.0f);
     }
 
-    void setPosition(const vec4& v)     { m_position=v; }
-    void setTarget(const vec4& v)       { m_target=v; }
+    void setPosition(const vec3& v)     { m_position=v; }
+    void setTarget(const vec3& v)       { m_target=v; }
 
-    const vec4& getPosition() const     { return m_position; }
-    const vec4& getTarget() const       { return m_target; }
-    const vec4& getUp() const           { return m_up; }
+    const vec3& getPosition() const     { return m_position; }
+    const vec3& getTarget() const       { return m_target; }
+    const vec3& getUp() const           { return m_up; }
     const mat4& getViewMatrix() const   { return m_v_matrix; }
 
-    vec4 getDirection() const;
+    vec3 getDirection() const;
     void updateMatrix();
 
 
 private:
     mat4 m_v_matrix;
-    vec4 m_position;
-    vec4 m_target;
-    vec4 m_up;
+    vec3 m_position;
+    vec3 m_target;
+    vec3 m_up;
 
     istSerializeBlock(
         istSerialize(m_v_matrix)

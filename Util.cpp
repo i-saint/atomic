@@ -35,35 +35,35 @@ void FillScreen( const vec4 &color )
 }
 
 
-vec4 GenRandomVector2()
+vec2 GenRandomVector2()
 {
-    vec4 axis( atmGenRandFloat(), atmGenRandFloat(), 0.0f, 0.0f );
-    axis -= vec4(0.5f, 0.5f, 0.0f, 0.0f);
+    vec2 axis( atmGenRandFloat(), atmGenRandFloat() );
+    axis -= vec2(0.5f, 0.5f);
     axis *= 2.0f;
     return axis;
 }
 
-vec4 GenRandomVector3()
+vec3 GenRandomVector3()
 {
-    vec4 axis( atmGenRandFloat(), atmGenRandFloat(), atmGenRandFloat(), 0.0f );
-    axis -= vec4(0.5f, 0.5f, 0.5f, 0.0f);
+    vec3 axis( atmGenRandFloat(), atmGenRandFloat(), atmGenRandFloat() );
+    axis -= vec3(0.5f, 0.5f, 0.5f);
     axis *= 2.0f;
     return axis;
 }
 
-vec4 GenRandomUnitVector2()
+vec2 GenRandomUnitVector2()
 {
     return glm::normalize(GenRandomVector2());
 }
 
-vec4 GenRandomUnitVector3()
+vec3 GenRandomUnitVector3()
 {
     return glm::normalize(GenRandomVector3());
 }
 
-void UpdateCollisionSphere(CollisionSphere &o, const vec4& pos, float32 r)
+void UpdateCollisionSphere(CollisionSphere &o, const vec3& pos, float32 r)
 {
-    o.pos_r = vec4(pos.x, pos.y, pos.z, r);
+    o.pos_r = vec4(pos, r);
     o.bb.ur = o.pos_r + vec4( r, r, r, 0.0f);
     o.bb.bl = o.pos_r + vec4(-r,-r,-r, 0.0f);
 }
@@ -101,9 +101,9 @@ void UpdateCollisionBox(CollisionBox &o, const mat4& t, const vec4 &size)
 }
 
 
-vec4 GetNearestPlayerPosition(const vec4 &pos)
+vec3 GetNearestPlayerPosition(const vec3 &pos)
 {
-    vec4 ret = pos;
+    vec3 ret = pos;
     atmEnumlateEntity(
         [&](EntityHandle h){ return EntityGetClassID(h)==EC_Player; },
         [&](IEntity *e){ atmQuery(e, getPosition, ret); }
@@ -111,7 +111,7 @@ vec4 GetNearestPlayerPosition(const vec4 &pos)
     return ret;
 }
 
-void ShootSimpleBullet(EntityHandle owner, const vec4 &pos, const vec4 &vel)
+void ShootSimpleBullet(EntityHandle owner, const vec3 &pos, const vec3 &vel)
 {
     IEntity *e = atmCreateEntity(Bullet_Simple);
     atmCall(e, setOwner, owner);

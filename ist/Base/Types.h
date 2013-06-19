@@ -3,6 +3,7 @@
 
 #define GLM_FORCE_SSE2
 #include <glm/glm.hpp>
+#include <glm/ext.hpp>
 #include <glm/gtx/simd_vec4.hpp>
 #include <glm/gtx/simd_mat4.hpp>
 #include <glm/gtc/matrix_transform.hpp>

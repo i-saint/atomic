@@ -22,9 +22,9 @@ public:
     static void finalizeInstance();
     static AtomicSound* getInstance();
 
-    void setListenerPosition(const vec4 &pos);
+    void setListenerPosition(const vec3 &pos);
 
-    void playSE(SE_CHANNEL channel, SE_RID se, const vec4 &pos, bool _override);
+    void playSE(SE_CHANNEL channel, SE_RID se, const vec3 &pos, bool _override);
     void haltSE(SE_CHANNEL channel);
     bool isSEPlaying(SE_CHANNEL channel);
 

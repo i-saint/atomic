@@ -9,15 +9,15 @@ namespace atm {
 
     void FillScreen(const vec4 &color);
 
-    vec4 GenRandomVector2();
-    vec4 GenRandomVector3();
-    vec4 GenRandomUnitVector2();
-    vec4 GenRandomUnitVector3();
-    void UpdateCollisionSphere(CollisionSphere &o, const vec4& pos, float32 r);
+    vec2 GenRandomVector2();
+    vec3 GenRandomVector3();
+    vec2 GenRandomUnitVector2();
+    vec3 GenRandomUnitVector3();
+    void UpdateCollisionSphere(CollisionSphere &o, const vec3& pos, float32 r);
     void UpdateCollisionBox(CollisionBox &o, const mat4& t, const vec4 &size);
 
-    vec4 GetNearestPlayerPosition(const vec4 &pos);
-    void ShootSimpleBullet(EntityHandle owner, const vec4 &pos, const vec4 &vel);
+    vec3 GetNearestPlayerPosition(const vec3 &pos);
+    void ShootSimpleBullet(EntityHandle owner, const vec3 &pos, const vec3 &vel);
 
     void CreateDateString(char *buf, uint32 len);
 

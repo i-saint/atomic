@@ -107,7 +107,7 @@ typedef TAttr_TransformMatrix< Attr_Translate > transform;
 typedef Attr_Collision collision;
 typedef Attr_MessageHandler mhandler;
 private:
-    vec4            m_vel;
+    vec3            m_vel;
     EntityHandle    m_owner;
     float32         m_power;
     int32           m_past_frame;
@@ -145,13 +145,13 @@ public:
     Bullet_Particle() : m_owner(0), m_power(50.0f), m_past_frame(0), m_lifetime(600) {}
 
     EntityHandle getOwner() const   { return m_owner; }
-    const vec4& getVelocity() const { return m_vel; }
+    const vec3& getVelocity() const { return m_vel; }
     int32 getPastFrame() const      { return m_past_frame; }
     int32 getLifeTime() const       { return m_lifetime; }
     float32 getPower() const        { return m_power; }
 
     void setOwner(EntityHandle v)   { m_owner=v; }
-    void setVelocity(const vec4 &v) { m_vel=v; }
+    void setVelocity(const vec3 &v) { m_vel=v; }
     void setPower(float32 v)        { m_power=v; }
 
 
@@ -183,7 +183,7 @@ public:
 
     void move()
     {
-        vec4 pos = getPosition();
+        vec3 pos = getPosition();
         pos += getVelocity();
         setPosition(pos);
     }
@@ -192,7 +192,7 @@ public:
     {
         {
             IndivisualParticle particles;
-            particles.position = getPosition();
+            particles.position = vec4(getPosition(), 1.0f);
             particles.color = vec4(0.6f, 0.3f, 0.3f, 50.0f);
             particles.glow = vec4(0.45f, 0.15f, 0.15f, 1.0f);
             particles.scale = 1.5f;
@@ -230,7 +230,7 @@ typedef Attr_ParticleSet model;
 typedef Attr_Collision collision;
 typedef Attr_MessageHandler mhandler;
 private:
-    vec4            m_vel;
+    vec3            m_vel;
     EntityHandle    m_owner;
     float32         m_power;
     int32           m_past_frame;
@@ -270,13 +270,13 @@ public:
     Bullet_Simple() : m_owner(0), m_power(2.0f), m_past_frame(0), m_lifetime(600) {}
 
     EntityHandle getOwner() const   { return m_owner; }
-    const vec4& getVelocity() const { return m_vel; }
+    const vec3& getVelocity() const { return m_vel; }
     int32 getPastFrame() const      { return m_past_frame; }
     int32 getLifeTime() const       { return m_lifetime; }
     float32 getPower() const        { return m_power; }
 
     void setOwner(EntityHandle v)   { m_owner=v; }
-    void setVelocity(const vec4 &v) { m_vel=v; }
+    void setVelocity(const vec3 &v) { m_vel=v; }
     void setPower(float32 v)        { m_power=v; }
 
     virtual void initialize()
@@ -309,7 +309,7 @@ public:
     {
         super::asyncupdate(dt);
         {
-            vec4 pos = getPosition();
+            vec3 pos = getPosition();
             pos += getVelocity();
             pos.z = 0.03f;
             setPosition(pos);
@@ -331,7 +331,7 @@ public:
         vec4 flash  = glow * 0.5f;
         if(atmGetConfig()->lighting>=atmE_Lighting_High) {
             PointLight l;
-            l.setPosition(getPosition() + vec4(0.0f, 0.0f, 0.10f, 1.0f));
+            l.setPosition(getPosition() + vec3(0.0f, 0.0f, 0.10f));
             l.setRadius(0.2f);
             l.setColor(light);
             atmGetLightPass()->addLight(l);

@@ -65,11 +65,11 @@ void VFXScintilla::addData( const VFXScintillaSpawnData &spawn )
 {
     ParticleData *particles = (ParticleData*)_alloca(sizeof(ParticleData)*spawn.num_particles);
     for(uint32 i=0; i<spawn.num_particles; ++i) {
-        particles[i].position = spawn.position + (GenRandomUnitVector3() * spawn.scatter_radius);
+        particles[i].position = spawn.position + (vec4(GenRandomUnitVector3(),0.0f) * spawn.scatter_radius);
         particles[i].color = spawn.color;
         particles[i].glow = spawn.glow;
         particles[i].size = spawn.size;
-        particles[i].velosity = spawn.velosity + (GenRandomUnitVector3() * spawn.diffuse_strength);
+        particles[i].velosity = spawn.velosity + (vec4(GenRandomUnitVector3(),0.0f) * spawn.diffuse_strength);
     }
     m_particles.insert(m_particles.end(), particles, particles+spawn.num_particles);
 }

@@ -73,7 +73,7 @@ void World::initialize()
 
     const uvec2 &wsize = atmGetWindowSize();
     m_camera_game.setAspect((float32)wsize.x/(float32)wsize.y);
-    m_camera_game.setPosition(vec4(0.0f, 0.0f, 3.0f, 0.0f));
+    m_camera_game.setPosition(vec3(0.0f, 0.0f, 3.0f));
     m_camera_game.setZNear(0.01f);
     m_camera_game.setZFar(10.0f);
 }

@@ -121,7 +121,7 @@ public:
         atmCall(e, setCollisionShape, CS_Sphere);
         atmCall(e, setCollisionFlags, CF_Receiver|CF_Sender);
         atmCall(e, setModel, PSET_SPHERE_BULLET);
-        atmCall(e, setPosition, GenRandomVector2() * 0.5f + vec4(1.5f, 1.5f, 0.0f, 0.0f));
+        atmCall(e, setPosition, vec3(GenRandomVector2(),0.0f) * 0.5f + vec3(1.5f, 1.5f, 0.0f));
         atmCall(e, setLife, 5.0f * getLoopBoost());
         atmCall(e, setAxis1, GenRandomUnitVector3());
         atmCall(e, setAxis2, GenRandomUnitVector3());
@@ -215,12 +215,12 @@ public:
     {
         PerspectiveCamera *pcam = atmGetGameCamera();
         if(IEntity *player = atmGetEntity(m_player)) {
-            vec4 player_pos;
+            vec3 player_pos;
             atmQuery(player, getPosition, player_pos);
-            vec4 cpos       = pcam->getPosition();
-            vec4 tpos       = pcam->getTarget();
-            vec4 cpos2      = cpos + (player_pos-cpos)*0.03f;
-            vec4 tpos2      = tpos + (player_pos-tpos)*0.03f;
+            vec3 cpos       = pcam->getPosition();
+            vec3 tpos       = pcam->getTarget();
+            vec3 cpos2      = cpos + (player_pos-cpos)*0.03f;
+            vec3 tpos2      = tpos + (player_pos-tpos)*0.03f;
             cpos2.z = cpos.z;
             tpos2.z = tpos.z;
             pcam->setPosition(cpos2);
@@ -385,7 +385,7 @@ public:
     {
         {
             DirectionalLight dl;
-            dl.setDirection(glm::normalize(vec4(1.0f, -1.0f, -0.5f, 0.0f)));
+            dl.setDirection(glm::normalize(vec3(1.0f, -1.0f, -0.5f)));
             dl.setDiffuse(vec4(0.3f, 0.3f, 0.3f, 1.0f));
             dl.setAmbient(vec4(0.0f, 0.0f, 0.0f, 0.0f));
             atmGetLightPass()->addLight(dl);

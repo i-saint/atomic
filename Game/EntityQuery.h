@@ -42,6 +42,16 @@ inline bool atmCallImpl(IEntity *e, FunctionID fid, const Arg &args, Ret &ret)
 {
     return e->call(fid, &args, &ret);
 }
+template<class Arg>
+inline bool atmCallImpl(EntityHandle h, FunctionID fid, const Arg &args)
+{
+    if(IEntity *e=atmGetEntity(h)) { atmCallImpl(e, fid, args); }
+}
+template<class Arg, class Ret>
+inline bool atmCallImpl(EntityHandle h, FunctionID fid, const Arg &args, Ret &ret)
+{
+    if(IEntity *e=atmGetEntity(h)) { atmCallImpl(e, fid, args, ret); }
+}
 
 template<class Ret>
 inline bool atmQueryImpl(IEntity *e, FunctionID fid, Ret &ret)
@@ -52,6 +62,16 @@ template<class Ret, class Arg>
 inline bool atmQueryImpl(IEntity *e, FunctionID fid, Ret &ret, const Arg &args)
 {
     return e->call(fid, &args, &ret);
+}
+template<class Ret>
+inline bool atmQueryImpl(EntityHandle h, FunctionID fid, Ret &ret)
+{
+    if(IEntity *e=atmGetEntity(h)) { atmQueryImpl(e, fid, args); }
+}
+template<class Ret, class Arg>
+inline bool atmQueryImpl(EntityHandle h, FunctionID fid, Ret &ret, const Arg &args)
+{
+    if(IEntity *e=atmGetEntity(h)) { atmQueryImpl(e, fid, ret, args); }
 }
 
 #define atmCall(entity, funcname, ...) atmCallImpl(entity, FID_##funcname, __VA_ARGS__)

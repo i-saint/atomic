@@ -254,17 +254,17 @@ AtomicSound::~AtomicSound()
     istSafeDelete(m_sound_thread);
 }
 
-void AtomicSound::setListenerPosition(const vec4 &pos)
+void AtomicSound::setListenerPosition(const vec3 &pos)
 {
     if(!m_sound_thread) { return; }
 
     SoundRequest req;
     req.type    = SoundRequest::REQ_LISTENER_POS;
-    (vec3&)(req.listener.pos) = vec3(pos);
+    (vec3&)(req.listener.pos) = pos;
     m_sound_thread->addRequest(req);
 }
 
-void AtomicSound::playSE(SE_CHANNEL channel, SE_RID se, const vec4 &pos, bool _override)
+void AtomicSound::playSE(SE_CHANNEL channel, SE_RID se, const vec3 &pos, bool _override)
 {
     if(!m_sound_thread) { return; }
 
@@ -273,7 +273,7 @@ void AtomicSound::playSE(SE_CHANNEL channel, SE_RID se, const vec4 &pos, bool _o
     req.se.ch   = channel;
     req.se.rid  = se;
     req.se.force= _override;
-    (vec3&)(req.se.pos) = vec3(pos);
+    (vec3&)(req.se.pos) = pos;
     m_sound_thread->addRequest(req);
 }
 

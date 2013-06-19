@@ -127,8 +127,8 @@ void AtomicRenderer::draw()
         else {
             m_rstates3d.ModelViewProjectionMatrix = camera->getViewProjectionMatrix();
         }
-        m_rstates3d.CameraPosition  = camera->getPosition();
-        m_rstates3d.CameraDirection = camera->getDirection();
+        m_rstates3d.CameraPosition  = vec4(camera->getPosition(), 1.0f);
+        m_rstates3d.CameraDirection = vec4(camera->getDirection(), 1.0f);
         m_rstates3d.ScreenSize      = vec2(atmGetWindowSize());
         m_rstates3d.RcpScreenSize   = vec2(1.0f, 1.0f) / m_rstates3d.ScreenSize;
         m_rstates3d.AspectRatio     = (float32)wsize.x / (float32)wsize.y;

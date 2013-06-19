@@ -13,10 +13,10 @@ private:
     vec4 m_ambient;
 
 public:
-    void setDirection(const vec4 &v){ m_direction=v; }
+    void setDirection(const vec3 &v){ m_direction=vec4(v,0.0f); }
     void setDiffuse(const vec4 &v)  { m_diffuse=v; }
     void setAmbient(const vec4 &v)  { m_ambient=v; }
-    const vec4& getDirection() const{ return m_direction; }
+    const vec3  getDirection() const{ return vec3(m_direction); }
     const vec4& getDiffuse() const  { return m_diffuse; }
     const vec4& getAmbient() const  { return m_ambient; }
 };
@@ -36,11 +36,11 @@ private:
     };
 
 public:
-    void setPosition(const vec4 &v) { m_position=v; }
+    void setPosition(const vec3 &v) { m_position=vec4(v,1.0f); }
     void setColor(const vec4 &v)    { m_color=v; }
     void setRadius(float32 v)       { m_radius=v; m_rcp_radius=1.0f/v; }
 
-    const vec4& getPosition() const { return m_position; }
+    const vec3 getPosition() const  { return vec3(m_position); }
     const vec4& getColor() const    { return m_color; }
     float32 getRadius() const       { return m_radius; }
 };

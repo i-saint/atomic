@@ -127,7 +127,6 @@ public:
         if(m_routine) { m_routine->asyncupdate(dt); }
     }
 
-
     virtual void damage(float32 d)
     {
         if(m_health > 0.0f) {
@@ -145,6 +144,62 @@ public:
     }
 };
 
+
+inline size_t SweepDeadEntities(stl::vector<EntityHandle> &cont)
+{
+    size_t ret = 0;
+    for(size_t i=0; i<cont.size(); ++i) {
+        EntityHandle v = cont[i];
+        if(v) {
+            if(atmGetEntity(v)==nullptr) {
+                cont[i] = 0;
+            }
+            else {
+                ++ret;
+            }
+        }
+    }
+    return ret;
+}
+
+template<size_t L>
+inline size_t SweepDeadEntities(EntityHandle (&cont)[L])
+{
+    size_t ret = 0;
+    for(size_t i=0; i<L; ++i) {
+        EntityHandle v = cont[i];
+        if(v) {
+            if(atmGetEntity(v)==nullptr) {
+                cont[i] = 0;
+            }
+            else {
+                ++ret;
+            }
+        }
+    }
+    return ret;
+}
+
+inline size_t SweepDeadEntities(EntityHandle &v)
+{
+    if(v) {
+        if(atmGetEntity(v)==nullptr) {
+            v = 0;
+        }
+        else {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+template<class F>
+inline void EachEntities(stl::vector<EntityHandle> &cont, const F &f)
+{
+    for(size_t i=0; i<cont.size(); ++i) {
+        if(cont[i]) { f(cont[i]); }
+    }
+}
 
 } // namespace atm
 #endif // atm_Game_Entity_Enemy_h

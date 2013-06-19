@@ -129,6 +129,9 @@
     <ClCompile Include="UI\Title.cpp">
       <Filter>UI</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Entity\Gear.cpp">
+      <Filter>Game\Entity</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h">

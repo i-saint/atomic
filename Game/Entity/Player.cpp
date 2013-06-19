@@ -59,8 +59,8 @@ public:
 
         IEntity *owner = getOwner();
         if(owner) {
-            vec4 move = vec4(atmGetIngameInputs().getMove()*0.01f, 0.0f, 0.0f);
-            vec4 pos, vel;
+            vec3 move = vec3(atmGetIngameInputs().getMove()*0.01f, 0.0f);
+            vec3 pos, vel;
             atmQuery(owner, getPosition, pos);
             atmQuery(owner, getVelocity, vel);
             pos += move;
@@ -91,7 +91,7 @@ private:
     };
 
     int32 m_state;
-    vec4 m_blink_pos;
+    vec3 m_blink_pos;
 
     istSerializeBlock(
         istSerializeBase(super)
@@ -107,8 +107,8 @@ public:
     {
         IEntity *owner = getOwner();
         if(owner) {
-            vec4 move = vec4(atmGetIngameInputs().getMove()*0.01f, 0.0f, 0.0f);
-            vec4 pos, vel;
+            vec3 move = vec3(atmGetIngameInputs().getMove()*0.01f, 0.0f);
+            vec3 pos, vel;
             atmQuery(owner, getPosition, pos);
             atmQuery(owner, getVelocity, vel);
 
@@ -185,7 +185,7 @@ public:
 
     virtual void update(float32 dt)
     {
-        vec4 center_force;
+        vec3 center_force;
         IEntity *barrier = atmGetEntity(m_barrier);
         IEntity *owner = getOwner();
         if(!barrier) {
@@ -197,7 +197,7 @@ public:
         else {
             if(barrier && owner) {
                 if(!atmGetIngameInputs().isButtonPressed(1)) {
-                    vec4 barrier_pos;
+                    vec3 barrier_pos;
                     atmQuery(owner, getPosition, barrier_pos);
                     atmCall(barrier, setPosition, barrier_pos);
                 }
@@ -319,10 +319,10 @@ public:
 
     virtual void draw()
     {
-        const vec4 &pos = getPosition();
+        const vec3 &pos = getPosition();
         {
             PointLight l;
-            l.setPosition(pos+vec4(0.0f, 0.0f, 0.3f, 0.0f));
+            l.setPosition(pos+vec3(0.0f, 0.0f, 0.3f));
             l.setColor(vec4(0.3f, 0.2f, 1.0f, 1.0f));
             l.setRadius(1.0f);
             atmGetLightPass()->addLight(l);
@@ -351,12 +351,12 @@ typedef Attr_Collision collision;
 private:
     static const PSET_RID pset_id = PSET_SPHERE_SMALL;
 
-    vec4 m_vel;
+    vec3 m_vel;
     IDrive      *m_drive;
     IWeaponry   *m_weapon;
 
-    vec4 m_lightpos[1];
-    vec4 m_lightvel[1];
+    vec3 m_lightpos[1];
+    vec3 m_lightvel[1];
 
     istSerializeBlock(
         istSerializeBase(super)
@@ -415,8 +415,8 @@ public:
         wdmEraseNode(wdmFormat("Player/0x%p", this));
     }
 
-    const vec4& getVelocity() const { return m_vel; }
-    void setVelocity(const vec4 &v) { m_vel=v; }
+    const vec3& getVelocity() const { return m_vel; }
+    void setVelocity(const vec3 &v) { m_vel=v; }
 
     void setDrive(int32 id) // id: Drive_Booster, etc
     {
@@ -488,7 +488,7 @@ public:
             psym::Particle particles[16];
             for(size_t i=0; i<_countof(particles); ++i) {
                 vec4 rd = glm::normalize(vec4(atmGenRandFloat()-0.5f, atmGenRandFloat()-0.5f, 0.0f, 0.0f));
-                istAlign(16) vec4 pos = getPosition() + (rd * (atmGenRandFloat()*0.2f+0.4f));
+                istAlign(16) vec4 pos = vec4(getPosition(), 1.0f) + (rd * (atmGenRandFloat()*0.2f+0.4f));
                 psym::simdvec4 poss = (psym::simdvec4&)pos;
                 particles[i].position = poss;
                 particles[i].velocity = _mm_set1_ps(0.0f);
@@ -512,15 +512,15 @@ public:
 
     void updateLights()
     {
-        vec4 diff[4] = {
-            vec4( 0.0f, 0.0f, 0.0f, 0.0f),
-            vec4(-0.4f, 0.4f, 0.0f, 0.0f),
-            vec4(-0.4f,-0.4f, 0.0f, 0.0f),
-            vec4( 0.4f,-0.4f, 0.0f, 0.0f),
+        vec3 diff[] = {
+            vec3( 0.0f, 0.0f, 0.0f),
+            vec3(-0.4f, 0.4f, 0.0f),
+            vec3(-0.4f,-0.4f, 0.0f),
+            vec3( 0.4f,-0.4f, 0.0f),
         };
         for(uint32 i=0; i<_countof(m_lightpos); ++i) {
-            vec4 &pos = m_lightpos[i];
-            vec4 &vel = m_lightvel[i];
+            vec3 &pos = m_lightpos[i];
+            vec3 &vel = m_lightvel[i];
             vel *= 0.985f;
             vel += glm::normalize(getPosition()+diff[i]-pos) * 0.005f;
             pos += vel;
@@ -532,13 +532,13 @@ public:
     {
         {
             PointLight l;
-            l.setPosition(getPosition()+vec4(0.0f, 0.0f, 0.3f, 0.0f));
+            l.setPosition(getPosition()+vec3(0.0f, 0.0f, 0.3f));
             l.setColor(vec4(0.3f, 0.2f, 1.0f, 1.0f));
             l.setRadius(1.0f);
             atmGetLightPass()->addLight(l);
         }
         for(uint32 i=0; i<_countof(m_lightpos); ++i) {
-            vec4 &pos = m_lightpos[i];
+            vec3 &pos = m_lightpos[i];
             PointLight l;
             l.setPosition(pos);
             l.setColor(vec4(0.45f, 0.45f, 0.6f, 1.0f) + vec4(sinf(pos.x), sinf(pos.y), cosf(pos.x+pos.y), 0.0f)*0.1f);
@@ -575,10 +575,9 @@ public:
     virtual void eventCollide(const CollideMessage *m) override
     {
         // 押し返し
-        vec4 v = m->direction * (m->direction.w * 0.2f);
+        vec3 v = vec3(m->direction * (m->direction.w * 0.2f));
         m_vel += v;
         m_vel.z = 0.0f;
-        m_vel.w = 0.0f;
 
         damage(m->direction.w * 100.0f);
     }

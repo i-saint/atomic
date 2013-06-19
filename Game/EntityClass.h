@@ -27,6 +27,11 @@ enum EntityClassID
 
     EC_Enemy_Begin = ECA_Enemy<<9,
     EC_Enemy_Test,
+    EC_Boss1,
+    EC_Boss2,
+    EC_Boss3,
+    EC_Boss4,
+    EC_Boss5,
     EC_Enemy_End,
 
     EC_Bullet_Begin = ECA_Bullet<<9,
@@ -36,6 +41,11 @@ enum EntityClassID
     EC_Bullet_End,
 
     EC_Obstacle_Begin = ECA_Obstacle<<9,
+    EC_Obstacle,
+    EC_Layer,
+    EC_GearParts,
+    EC_GearSmall,
+    EC_GearLarge,
     EC_Obstacle_End,
 
     EC_Level_Begin = ECA_Level<<9,
