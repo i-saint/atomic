@@ -74,7 +74,8 @@ inline bool atmQueryImpl(EntityHandle h, FunctionID fid, Ret &ret, const Arg &ar
     if(IEntity *e=atmGetEntity(h)) { atmQueryImpl(e, fid, ret, args); }
 }
 
-#define atmCall(entity, funcname, ...) atmCallImpl(entity, FID_##funcname, __VA_ARGS__)
+#define atmArgs(...)                    ist::MakeValueList(__VA_ARGS__)
+#define atmCall(entity, funcname, ...)  atmCallImpl(entity, FID_##funcname, __VA_ARGS__)
 #define atmQuery(entity, funcname, ...) atmQueryImpl(entity, FID_##funcname, __VA_ARGS__)
 
 } // namespace atm

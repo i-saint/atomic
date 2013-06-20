@@ -144,6 +144,20 @@ public:
         transform::setRotate(m_rot_angle);
     }
 
+    void addForce(const vec3& pos, const vec3& force)
+    {
+        vec3 dir = vec3( glm::rotateZ(glm::normalize(pos-getPosition()), 90.0f) );
+        float32 lf = glm::length(force);
+        vec3 nf = force/lf;
+        float d = glm::dot(dir, nf);
+        if(d<-0.5f) {
+            addRotateSpeed(-lf);
+        }
+        else if(d>0.5f) {
+            addRotateSpeed(lf);
+        }
+    }
+
     void addParts(GearParts *v) { m_parts.push_back(v->getHandle()); }
     float32 getRotateAngle() const  { return m_rot_angle; }
     float32 getRotateSpeed() const  { return m_rot_speed; }

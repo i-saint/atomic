@@ -120,6 +120,19 @@ struct ValueList<A0, A1, A2, A3>
         ) : a0(_0), a1(_1), a2(_2), a3(_3) {}
 };
 
+template<class A0>
+inline ValueList<A0> MakeValueList(const A0 &a0)
+{ return ValueList<A0>(a0); }
+
+template<class A0, class A1>
+inline ValueList<A0> MakeValueList(const A0 &a0, const A1 &a1)
+{ return ValueList<A0,A1>(a0,a1); }
+
+template<class A0, class A1, class A2>
+inline ValueList<A0,A1,A2> MakeValueList(const A0 &a0, const A1 &a1, const A2 &a2)
+{ return ValueList<A0,A1,A2>(a0,a1,a2); }
+
+
 template<class A0=void, class A1=void, class A2=void, class A3=void, class A4=void, class A5=void>
 struct ArgList; // reference as pointer
 

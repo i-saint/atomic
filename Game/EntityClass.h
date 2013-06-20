@@ -27,6 +27,10 @@ enum EntityClassID
 
     EC_Enemy_Begin = ECA_Enemy<<9,
     EC_Enemy_Test,
+    EC_HatchSmall,
+    EC_HatchLarge,
+    EC_CarrierSmall,
+    EC_CarrierLarge,
     EC_Boss1,
     EC_Boss2,
     EC_Boss3,

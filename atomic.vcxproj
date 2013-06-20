@@ -26,6 +26,7 @@
     <ClCompile Include="Game\Collision.cpp" />
     <ClCompile Include="Game\Entity.cpp" />
     <ClCompile Include="Game\Entity\Bullet.cpp" />
+    <ClCompile Include="Game\Entity\Carrier.cpp" />
     <ClCompile Include="Game\Entity\Enemy.cpp" />
     <ClCompile Include="Game\Entity\Gear.cpp" />
     <ClCompile Include="Game\Entity\Level.cpp" />

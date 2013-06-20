@@ -52,8 +52,8 @@ protected:
 public:
     atmECallBlock(
         atmMethodBlock(
-        atmECall(setPosition)
         atmECall(getPosition)
+        atmECall(setPosition)
         )
     )
 
@@ -74,13 +74,14 @@ class Attr_Transform
 {
 typedef Attr_Transform this_t;
 private:
+    vec3 m_pivot;
     vec3 m_pos;
     vec3 m_scale;
     vec3 m_axis;
     float32 m_rot;
 
     istSerializeBlock(
-        istSerialize(m_pos)
+        istSerialize(m_pivot)
         istSerialize(m_scale)
         istSerialize(m_axis)
         istSerialize(m_rot)
@@ -88,23 +89,26 @@ private:
 public:
     atmECallBlock(
         atmMethodBlock(
-        atmECall(setPosition)
-        atmECall(setScale)
-        atmECall(setAxis)
-        atmECall(setRotate)
+        atmECall(getPivot)
+        atmECall(setPivot)
         atmECall(getPosition)
+        atmECall(setPosition)
         atmECall(getScale)
+        atmECall(setScale)
         atmECall(getAxis)
+        atmECall(setAxis)
         atmECall(getRotate)
+        atmECall(setRotate)
         )
     )
 
     wdmScope(
     void addDebugNodes(const wdmString &path)
     {
-        wdmAddNode(path+"/m_pos", &m_pos, -3.0f, 3.0f);
-        wdmAddNode(path+"/m_scale", &m_scale, 0.001f, 4.0f);
-        wdmAddNode(path+"/m_rot", &m_rot, 0.0f, 360.0f);
+        wdmAddNode(path+"/m_pivot", &m_pivot, -3.0f, 3.0f);
+        wdmAddNode(path+"/m_pos",   &m_pos,   -3.0f, 3.0f);
+        wdmAddNode(path+"/m_scale", &m_scale,  0.001f, 4.0f);
+        wdmAddNode(path+"/m_rot",   &m_rot,    0.0f, 360.0f);
     }
     )
 
@@ -115,11 +119,12 @@ public:
         , m_rot(0.0f)
     {}
 
+    const vec3& getPivot() const    { return m_pivot; }
     const vec3& getPosition() const { return m_pos; }
     const vec3& getScale() const    { return m_scale; }
     const vec3& getAxis() const     { return m_axis; }
     float32 getRotate() const       { return m_rot; }
-
+    void setPivot(const vec3& v)    { m_pivot=v; }
     void setPosition(const vec3& v) { m_pos=v; }
     void setScale(const vec3& v)    { m_scale=v; }
     void setAxis(const vec3& v)     { m_axis=v; }
@@ -131,6 +136,7 @@ public:
         mat = glm::translate(mat, m_pos);
         mat = glm::rotate(mat, m_rot, m_axis);
         mat = glm::scale(mat, m_scale);
+        mat = glm::translate(mat, m_pivot);
         return mat;
     }
 
@@ -142,12 +148,14 @@ class Attr_Orientation
 {
 typedef Attr_Orientation this_t;
 private:
+    vec3 m_pivot;
     vec3 m_pos;
     vec3 m_scale;
     vec3 m_oriantation;
     vec3 m_up;
 
     istSerializeBlock(
+        istSerialize(m_pivot)
         istSerialize(m_pos)
         istSerialize(m_scale)
         istSerialize(m_oriantation)
@@ -156,21 +164,24 @@ private:
 public:
     atmECallBlock(
         atmMethodBlock(
-        atmECall(setPosition)
-        atmECall(setScale)
-        atmECall(setOrientation)
-        atmECall(setUpVector)
+        atmECall(getPivot)
+        atmECall(setPivot)
         atmECall(getPosition)
+        atmECall(setPosition)
         atmECall(getScale)
+        atmECall(setScale)
         atmECall(getOrientation)
+        atmECall(setOrientation)
         atmECall(getUpVector)
+        atmECall(setUpVector)
         )
     )
 
     wdmScope(
     void addDebugNodes(const wdmString &path)
     {
-        wdmAddNode(path+"/m_pos", &m_pos, -3.0f, 3.0f);
+        wdmAddNode(path+"/m_pivot", &m_pivot, -3.0f, 3.0f);
+        wdmAddNode(path+"/m_pos",   &m_pos, -3.0f, 3.0f);
         wdmAddNode(path+"/m_scale", &m_scale, 0.001f, 4.0f);
         wdmAddNode(path+"/m_oriantation", &m_oriantation, 0.0f, 360.0f);
         wdmAddNode(path+"/m_up", &m_up, 0.0f, 360.0f);
@@ -184,11 +195,12 @@ public:
         , m_up(0.0f, 1.0f, 0.0f)
     {}
 
+    const vec3& getPivot() const        { return m_pivot; }
     const vec3& getPosition() const     { return m_pos; }
     const vec3& getScale() const        { return m_scale; }
     const vec3& getOrientation() const  { return m_oriantation; }
     const vec3& getUpVector() const     { return m_up; }
-
+    void setPivot(const vec3& v)        { m_pivot=v; }
     void setPosition(const vec3& v)     { m_pos=v; }
     void setScale(const vec3& v)        { m_scale=v; }
     void setOrientation(const vec3& v)  { m_oriantation=v; }
@@ -200,6 +212,7 @@ public:
         mat = glm::translate(mat, m_pos);
         mat *= glm::orientation(m_oriantation, m_up);
         mat = glm::scale(mat, m_scale);
+        mat = glm::translate(mat, m_pivot);
         return mat;
     }
 
@@ -211,6 +224,7 @@ class Attr_DoubleAxisRotation
 {
 typedef Attr_DoubleAxisRotation this_t;
 private:
+    vec3 m_pivot;
     vec3 m_pos;
     vec3 m_scale;
     vec3 m_axis1;
@@ -219,6 +233,7 @@ private:
     float32 m_rot2;
 
     istSerializeBlock(
+        istSerialize(m_pivot)
         istSerialize(m_pos)
         istSerialize(m_scale)
         istSerialize(m_axis1)
@@ -230,17 +245,19 @@ private:
 public:
     atmECallBlock(
         atmMethodBlock(
+        atmECall(getPivot)
+        atmECall(setPivot)
         atmECall(getPosition)
-        atmECall(getScale)
-        atmECall(getAxis1)
-        atmECall(getAxis2)
-        atmECall(getRotate1)
-        atmECall(getRotate2)
         atmECall(setPosition)
+        atmECall(getScale)
         atmECall(setScale)
+        atmECall(getAxis1)
         atmECall(setAxis1)
+        atmECall(getAxis2)
         atmECall(setAxis2)
+        atmECall(getRotate1)
         atmECall(setRotate1)
+        atmECall(getRotate2)
         atmECall(setRotate2)
         )
     )
@@ -248,6 +265,7 @@ public:
     wdmScope(
     void addDebugNodes(const wdmString &path)
     {
+        wdmAddNode(path+"/m_pivot", &m_pivot, -3.0f, 3.0f);
         wdmAddNode(path+"/m_pos", &m_pos, -3.0f, 3.0f);
         wdmAddNode(path+"/m_scale", &m_scale, 0.001f, 4.0f);
         wdmAddNode(path+"/m_rot1", &m_rot1, 0.0f, 360.0f);
@@ -264,6 +282,7 @@ public:
     {
     }
 
+    const vec3& getPivot() const    { return m_pivot; }
     const vec3& getPosition() const { return m_pos; }
     const vec3& getScale() const    { return m_scale; }
     const vec3& getAxis1() const    { return m_axis1; }
@@ -271,6 +290,7 @@ public:
     float32 getRotate1() const      { return m_rot1; }
     float32 getRotate2() const      { return m_rot2; }
 
+    void setPivot(const vec3& v)    { m_pivot=v; }
     void setPosition(const vec3& v) { m_pos=v; }
     void setScale(const vec3& v)    { m_scale=v; }
     void setAxis1(const vec3& v)    { m_axis1=v; }
@@ -285,6 +305,7 @@ public:
         mat = glm::rotate(mat, m_rot2, m_axis2);
         mat = glm::rotate(mat, m_rot1, m_axis1);
         mat = glm::scale(mat, m_scale);
+        mat = glm::translate(mat, m_pivot);
         return mat;
     }
 };
@@ -308,8 +329,8 @@ public:
     atmECallBlock(
         atmMethodBlock(
         atmECall(getRotateSpeed1)
-        atmECall(getRotateSpeed2)
         atmECall(setRotateSpeed1)
+        atmECall(getRotateSpeed2)
         atmECall(setRotateSpeed2)
         )
         atmECallSuper(super)
@@ -380,8 +401,8 @@ public:
     atmECallBlock(
         atmMethodBlock(
             atmECall(getTransform)
-            atmECall(getInverseTransform)
             atmECall(setTransform)
+            atmECall(getInverseTransform)
             atmECall(updateTransformMatrix)
         )
         atmECallSuper(super)
@@ -424,10 +445,10 @@ public:
     atmECallBlock(
         atmMethodBlock(
             atmECall(getDiffuseColor)
-            atmECall(getGlowColor)
-            atmECall(getModel)
             atmECall(setDiffuseColor)
+            atmECall(getGlowColor)
             atmECall(setGlowColor)
+            atmECall(getModel)
             atmECall(setModel)
         )
     )
@@ -469,8 +490,8 @@ public:
     atmECallBlock(
         atmMethodBlock(
             atmECall(getCollisionFlags)
-            atmECall(getCollisionHandle)
             atmECall(setCollisionFlags)
+            atmECall(getCollisionHandle)
             atmECall(setCollisionShape)
         )
     )
