@@ -131,7 +131,7 @@ private:
         istSerializeBase(mhandler)
         istSerialize(m_vel)
         istSerialize(m_target_pos)
-        )
+    )
 
 public:
     atmECallBlock(
@@ -175,7 +175,6 @@ atmExportClass(atm::Routine_HomingPlayer);
 
 class dpPatch Routine_Pinball : public IRoutine, public Attr_MessageHandler
 {
-typedef Routine_Pinball this_t;
 typedef IRoutine super;
 typedef Attr_MessageHandler mhandler;
 private:

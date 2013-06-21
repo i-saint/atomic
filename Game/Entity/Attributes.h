@@ -8,19 +8,27 @@
 struct sphFluidMessage;
 typedef psym::Particle FluidMessage;
 
+
 namespace atm {
+
+class Attr_Null
+{
+    istSerializeBlock()
+public:
+    atmECallBlock()
+    wdmScope( void addDebugNodes(const wdmString &path) {} )
+};
 
 class Attr_RefCount
 {
-typedef Attr_RefCount this_t;
 private:
-    uint32 m_ref_count;
+    uint32 m_refcount;
 
     istSerializeBlock(
-        istSerialize(m_ref_count)
+        istSerialize(m_refcount)
     )
 protected:
-    void setRefCount(uint32 v) { m_ref_count=v; }
+    void setRefCount(uint32 v) { m_refcount=v; }
 
 public:
     atmECallBlock(
@@ -32,17 +40,22 @@ public:
         )
     )
 
-public:
-    Attr_RefCount() : m_ref_count(0) {}
-    uint32 getRefCount() const  { return m_ref_count; }
-    uint32 incRefCount()        { return ++m_ref_count; }
-    uint32 decRefCount()        { return --m_ref_count; }
+    wdmScope(
+    void addDebugNodes(const wdmString &path)
+    {
+        wdmAddNode(path+"/m_refcount", (const uint32*)&m_refcount);
+    }
+    )
+
+    Attr_RefCount() : m_refcount(0) {}
+    uint32 getRefCount() const  { return m_refcount; }
+    uint32 incRefCount()        { return ++m_refcount; }
+    uint32 decRefCount()        { return --m_refcount; }
 };
 
 
 class Attr_Translate
 {
-typedef Attr_Translate this_t;
 protected:
     vec3 m_pos;
 
@@ -55,6 +68,13 @@ public:
         atmECall(getPosition)
         atmECall(setPosition)
         )
+    )
+
+    wdmScope(
+    void addDebugNodes(const wdmString &path)
+    {
+        wdmAddNode(path+"/m_pos",   &m_pos,   -3.0f, 3.0f);
+    }
     )
 
 public:
@@ -72,7 +92,6 @@ public:
 
 class Attr_Transform
 {
-typedef Attr_Transform this_t;
 private:
     vec3 m_pivot;
     vec3 m_pos;
@@ -146,7 +165,6 @@ public:
 
 class Attr_Orientation
 {
-typedef Attr_Orientation this_t;
 private:
     vec3 m_pivot;
     vec3 m_pos;
@@ -222,7 +240,6 @@ public:
 
 class Attr_DoubleAxisRotation
 {
-typedef Attr_DoubleAxisRotation this_t;
 private:
     vec3 m_pivot;
     vec3 m_pos;
@@ -313,7 +330,6 @@ public:
 template<class T>
 class TAttr_RotateSpeed : public T
 {
-typedef TAttr_RotateSpeed this_t;
 typedef T super;
 private:
     float32 m_rspeed1;
@@ -336,11 +352,19 @@ public:
         atmECallSuper(super)
     )
 
+    wdmScope(
+    void addDebugNodes(const wdmString &path)
+    {
+        T::addDebugNodes(path);
+        wdmAddNode(path+"/m_rspeed1", &m_rspeed1, -3.0f, 3.0f);
+        wdmAddNode(path+"/m_rspeed2", &m_rspeed2, -3.0f, 3.0f);
+    }
+    )
+
 public:
     TAttr_RotateSpeed()
         : m_rspeed1(0.0f), m_rspeed2(0.0f)
     {}
-
     float32 getRotateSpeed1() const { return m_rspeed1; }
     float32 getRotateSpeed2() const { return m_rspeed2; }
     void setRotateSpeed1(float32 v) { m_rspeed1=v; }
@@ -356,7 +380,6 @@ public:
 template<class T>
 class TAttr_TransformMatrix : public T
 {
-typedef TAttr_TransformMatrix this_t;
 typedef T super;
 private:
     mat4 m_transform;
@@ -376,6 +399,8 @@ public:
         atmECallSuper(super)
     )
 
+    wdmScope(void addDebugNodes(const wdmString &path) {})
+
 public:
     const mat4& getTransform() const { return m_transform; }
     void setTransform(const mat4 &v) { m_transform=v; }
@@ -385,7 +410,6 @@ public:
 template<class T>
 class TAttr_TransformMatrixI : public T
 {
-typedef TAttr_TransformMatrixI this_t;
 typedef T super;
 private:
     mat4 m_transform;
@@ -407,6 +431,7 @@ public:
         )
         atmECallSuper(super)
     )
+    wdmScope(void addDebugNodes(const wdmString &path) {})
 
 public:
     const mat4& getTransform() const        { return m_transform; }
@@ -429,7 +454,6 @@ public:
 
 class Attr_ParticleSet
 {
-typedef Attr_ParticleSet this_t;
 private:
     vec4 m_diffuse_color;
     vec4 m_glow_color;
@@ -476,7 +500,6 @@ public:
 
 class Attr_Collision
 {
-typedef Attr_Collision this_t;
 private:
     CollisionHandle m_collision;
     EntityHandle m_owner_handle;
@@ -495,6 +518,7 @@ public:
             atmECall(setCollisionShape)
         )
     )
+    wdmScope(void addDebugNodes(const wdmString &path) {})
 
 public:
     Attr_Collision() : m_collision(0), m_owner_handle(0)
@@ -629,7 +653,6 @@ struct KillMessage;
 
 class Attr_MessageHandler
 {
-    typedef Attr_MessageHandler this_t;
 
     istSerializeBlock()
 
@@ -643,6 +666,7 @@ public:
             atmECall(eventKill)
         )
     )
+    wdmScope(void addDebugNodes(const wdmString &path) {})
 
     virtual void eventCollide(const CollideMessage *m)  {}
     virtual void eventFluid(const FluidMessage *m)      {}
@@ -655,7 +679,6 @@ public:
 // 流体を浴びた時血痕を残すエフェクトを実現する
 class Attr_Bloodstain
 {
-typedef Attr_Bloodstain this_t;
 private:
     // 血痕を残す頻度。流体がこの回数衝突したとき残す。
     static const uint32 bloodstain_frequency = 128;
@@ -663,11 +686,18 @@ private:
     ist::raw_vector<BloodstainParticle> m_bloodstain;
     uint32 m_bloodstain_hitcount;
 
-
     istSerializeBlock(
         istSerialize(m_bloodstain)
         istSerialize(m_bloodstain_hitcount)
+    )
+
+public:
+    atmECallBlock(
+        atmMethodBlock(
+            atmECall(addBloodstain)
         )
+    )
+    wdmScope(void addDebugNodes(const wdmString &path) {})
 
 public:
     Attr_Bloodstain() : m_bloodstain_hitcount(0)
@@ -675,7 +705,7 @@ public:
         m_bloodstain.reserve(256);
     }
 
-    void addBloodstain(const vec4 pos)
+    void addBloodstain(const vec4& pos)
     {
         if(!atmGetConfig()->show_bloodstain) { return; }
 

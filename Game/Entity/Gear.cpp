@@ -23,7 +23,6 @@ class dpPatch GearParts
     , public Attr_Bloodstain
     , public TAttr_TransformMatrixI<Attr_Orientation>
 {
-    typedef GearParts           this_t;
     typedef IEntity             super;
     typedef Attr_MessageHandler mhandler;
     typedef Attr_ParticleSet    model;
@@ -91,7 +90,6 @@ class dpPatch GearBase
     , public Attr_MessageHandler
     , public TAttr_TransformMatrix<Attr_Transform>
 {
-    typedef GearBase            this_t;
     typedef IEntity             super;
     typedef Attr_MessageHandler mhandler;
     typedef TAttr_TransformMatrix<Attr_Transform>   transform;
@@ -173,7 +171,6 @@ atmExportClass(atm::GearBase);
 
 class dpPatch GearSmall : public GearBase
 {
-    typedef GearSmall           this_t;
     typedef GearBase            super;
 
     istSerializeBlock(
@@ -188,7 +185,6 @@ atmExportClass(atm::GearSmall);
 
 class dpPatch GearLarge : public GearBase
 {
-    typedef GearLarge           this_t;
     typedef GearBase            super;
     typedef Attr_MessageHandler mhandler;
 

@@ -23,34 +23,28 @@ class dpPatch HatchBase
     , public Attr_Bloodstain
     , public TAttr_TransformMatrixI<Attr_Orientation>
 {
-typedef HatchBase this_t;
 };
 
 class dpPatch HatchSmall : public HatchBase
 {
-typedef HatchSmall this_t;
 };
 
 class dpPatch HatchLarge : public HatchBase
 {
-typedef HatchLarge this_t;
 };
 
 
 
 class dpPatch CarrierBase  : public IEntity
 {
-typedef CarrierBase this_t;
 };
 
 class dpPatch CarrierSmall  : public IEntity
 {
-typedef CarrierSmall this_t;
 };
 
 class dpPatch CarrierLarge  : public IEntity
 {
-typedef CarrierLarge this_t;
 };
 
 } // namespace atm

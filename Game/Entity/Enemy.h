@@ -9,13 +9,118 @@
 namespace atm {
 
 
+struct ChrAttributes_AxisRotation
+{
+    typedef TAttr_TransformMatrixI< TAttr_RotateSpeed<Attr_DoubleAxisRotation> > transform;
+    typedef Attr_ParticleSet    model;
+    typedef Attr_Collision      collision;
+    typedef Attr_Bloodstain     bloodstain;
+    typedef Attr_MessageHandler mhandler;
+};
+
+
+class Attr_Life
+{
+private:
+    vec4    m_flash_color;
+    float32 m_life;
+    float32 m_delta_damage;
+
+    istSerializeBlock(
+        istSerialize(m_flash_color)
+        istSerialize(m_life)
+        istSerialize(m_delta_damage)
+        )
+
+public:
+    atmECallBlock(
+        atmMethodBlock(
+            atmECall(getLife)
+            atmECall(setLife)
+            atmECall(damage)
+            atmECall(destroy)
+        )
+    )
+
+    wdmScope(
+    void addDebugNodes(const wdmString &path)
+    {
+        wdmAddNode(path+"/m_health", &m_life);
+        wdmAddNode(path+"/damage()", &Attr_Life::damage, this);
+        wdmAddNode(path+"/destroy()", &Attr_Life::destroy, this);
+    }
+    )
+public:
+    Attr_Life() : m_life(1.0f), m_delta_damage(0.0f)
+    {
+    }
+
+    float32 getLife() const         { return m_life; }
+    void    setLife(float32 v)      { m_life=v; }
+
+    virtual void damage(float32 d)
+    {
+        if(m_life > 0.0f) {
+            m_life -= d;
+            m_delta_damage += d;
+            if(m_life <= 0.0f) {
+                destroy();
+            }
+        }
+    }
+
+    virtual void destroy() {}
+};
+
+template<class Attributes>
+class dpPatch EntityTemplate
+    : public IEntity
+    , public Attributes::transform
+    , public Attributes::model
+    , public Attributes::collision
+    , public Attributes::bloodstain
+    , public Attributes::mhandler
+    , public Attributes
+{
+typedef IEntity super;
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerializeBase(transform)
+        istSerializeBase(model)
+        istSerializeBase(collision)
+        istSerializeBase(bloodstain)
+        istSerializeBase(mhandler)
+    )
+
+public:
+    atmECallBlock(
+        atmECallSuper(super)
+        atmECallSuper(transform)
+        atmECallSuper(model)
+        atmECallSuper(collision)
+        atmECallSuper(bloodstain)
+        atmECallSuper(mhandler)
+    )
+
+    wdmScope(
+    void addDebugNodes(const wdmString &path)
+    {
+        transform::addDebugNodes(path);
+        model::addDebugNodes(path);
+        collision::addDebugNodes(path);
+        bloodstain::addDebugNodes(path);
+        mhandler::addDebugNodes(path);
+    }
+    )
+};
+
+
 class IRoutine;
 
 class Breakable
     : public IEntity
     , public Attr_MessageHandler
 {
-typedef Breakable this_t;
 typedef IEntity super;
 typedef Attr_MessageHandler mhandler;
 private:
@@ -39,10 +144,10 @@ public:
     atmECallBlock(
         atmECallDelegate(m_routine)
         atmMethodBlock(
-        atmECall(getLife)
-        atmECall(setLife)
-        atmECall(setRoutine)
-        atmECall(damage)
+            atmECall(getLife)
+            atmECall(setLife)
+            atmECall(setRoutine)
+            atmECall(damage)
         )
         atmECallSuper(super)
         atmECallSuper(mhandler)
@@ -59,7 +164,7 @@ public:
 
 public:
     Breakable()
-    : m_routine(NULL), m_health(1.0f), m_delta_damage(0.0f), m_past_frame(0)
+    : m_routine(nullptr), m_health(1.0f), m_delta_damage(0.0f), m_past_frame(0)
     {}
 
     ~Breakable()
@@ -67,10 +172,10 @@ public:
         istSafeDelete(m_routine);
     }
 
-    float32     getLife() const             { return m_health; }
-    IRoutine*   getRoutine()                { return m_routine; }
-    const vec4& getFlashColor() const       { return m_flash_color; }
-    int32       getPastFrame() const        { return m_past_frame; }
+    float32     getLife() const         { return m_health; }
+    IRoutine*   getRoutine()            { return m_routine; }
+    const vec4& getDamageColor() const  { return m_flash_color; }
+    int32       getPastFrame() const    { return m_past_frame; }
 
     void setLife(float32 v)       { m_health=v; }
     void setRoutine(RoutineClassID rcid)

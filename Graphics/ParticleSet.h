@@ -12,7 +12,7 @@ struct istAlign(16) BloodstainParticle
         struct {
             float32 lifetime; // 1.0-0.0
         };
-        float params[4];
+        float32 params[4];
     };
 };
 atmGlobalNamespace(

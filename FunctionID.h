@@ -89,6 +89,7 @@ istSEnumBlock(FunctionID,
     istSEnum(FID_setExplosionChannel),
     istSEnum(FID_setDrive),
     istSEnum(FID_setWeapon),
+    istSEnum(FID_addBloodstain),
 
     istSEnum(FID_End),
 );

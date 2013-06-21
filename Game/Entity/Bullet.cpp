@@ -18,7 +18,6 @@ class Bullet_Laser
     : public IEntity
     , public TAttr_TransformMatrix< Attr_Translate >
 {
-typedef Bullet_Laser this_t;
 typedef IEntity super;
 typedef TAttr_TransformMatrix< Attr_Translate > transform;
 public:
@@ -101,7 +100,6 @@ class Bullet_Particle
     , public Attr_Collision
     , public Attr_MessageHandler
 {
-typedef Bullet_Particle this_t;
 typedef IEntity super;
 typedef TAttr_TransformMatrix< Attr_Translate > transform;
 typedef Attr_Collision collision;
@@ -223,7 +221,6 @@ class dpPatch Bullet_Simple
     , public Attr_Collision
     , public Attr_MessageHandler
 {
-typedef Bullet_Simple this_t;
 typedef IEntity super;
 typedef TAttr_TransformMatrix< TAttr_RotateSpeed<Attr_DoubleAxisRotation> > transform;
 typedef Attr_ParticleSet model;

@@ -4,16 +4,17 @@
 #include "FunctionID.h"
 
 
-#define atmECallBlock(blocks) \
+#define atmECallBlock(...) \
     virtual bool call(FunctionID fid, const void *args, void *ret)\
     {\
-        blocks\
+        typedef std::remove_reference<decltype(*this)>::type this_t;\
+        __VA_ARGS__\
         return false;\
     }
 
-#define atmMethodBlock(methods)    \
+#define atmMethodBlock(...)    \
     switch(fid) {\
-    methods\
+    __VA_ARGS__\
     }
 
 #define atmECall(funcname)         \

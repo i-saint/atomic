@@ -22,7 +22,6 @@ class dpPatch Enemy_Test
     , public Attr_Collision
     , public Attr_Bloodstain
 {
-typedef Enemy_Test this_t;
 typedef Breakable super;
 typedef TAttr_TransformMatrixI< TAttr_RotateSpeed<Attr_DoubleAxisRotation> > transform;
 typedef Attr_ParticleSet    model;
@@ -175,7 +174,7 @@ public:
         vec4 diffuse = getDiffuseColor();
         vec4 glow = getGlowColor();
         vec4 light = m_light_color;
-        vec4 flash = getFlashColor();
+        vec4 flash = getDamageColor();
         if(getState()==ST_FADEIN) {
             float32 s   = (float32)m_st_frame / FADEIN_TIME;
             float shininess = diffuse.w;

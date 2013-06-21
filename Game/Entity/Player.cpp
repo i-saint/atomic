@@ -257,7 +257,6 @@ class dpPatch Barrier
     , public TAttr_TransformMatrix<Attr_Translate>
     , public Attr_Collision
 {
-typedef Barrier                                 this_t;
 typedef Breakable                               super;
 typedef TAttr_TransformMatrix<Attr_Translate>   transform;
 typedef Attr_Collision                          collision;
@@ -344,7 +343,6 @@ class dpPatch Player
     , public TAttr_TransformMatrix< TAttr_RotateSpeed<Attr_DoubleAxisRotation> >
     , public Attr_Collision
 {
-typedef Player      this_t;
 typedef Breakable   super;
 typedef TAttr_TransformMatrix< TAttr_RotateSpeed<Attr_DoubleAxisRotation> > transform;
 typedef Attr_Collision collision;
