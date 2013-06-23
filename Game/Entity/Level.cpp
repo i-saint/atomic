@@ -289,7 +289,7 @@ public:
         if(m_frame==1) {
             IEntity *e = putLargeEnemy();
             atmCall(e, setRoutine, RCID_Routine_CircularShoot);
-            atmCall(e, setLife, 100000000.0f);
+            atmCall(e, setLife, 10000.0f);
         }
 
         if(m_frame < 1200) {

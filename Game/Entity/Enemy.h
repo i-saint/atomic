@@ -9,9 +9,27 @@
 namespace atm {
 
 
-struct ChrAttributes_AxisRotation
+struct Entity_AxisRotationI
 {
     typedef TAttr_TransformMatrixI< TAttr_RotateSpeed<Attr_DoubleAxisRotation> > transform;
+    typedef Attr_ParticleSet    model;
+    typedef Attr_Collision      collision;
+    typedef Attr_Bloodstain     bloodstain;
+    typedef Attr_MessageHandler mhandler;
+};
+
+struct Entity_AxisRotation
+{
+    typedef TAttr_TransformMatrix< TAttr_RotateSpeed<Attr_DoubleAxisRotation> > transform;
+    typedef Attr_ParticleSet    model;
+    typedef Attr_Collision      collision;
+    typedef Attr_Bloodstain     bloodstain;
+    typedef Attr_MessageHandler mhandler;
+};
+
+struct Entity_Translate
+{
+    typedef TAttr_TransformMatrix<Attr_Translate> transform;
     typedef Attr_ParticleSet    model;
     typedef Attr_Collision      collision;
     typedef Attr_Bloodstain     bloodstain;
@@ -117,14 +135,13 @@ public:
 
 class IRoutine;
 
+template<class Attributes>
 class Breakable
-    : public IEntity
-    , public Attr_MessageHandler
+    : public EntityTemplate<Attributes>
 {
-typedef IEntity super;
-typedef Attr_MessageHandler mhandler;
+typedef EntityTemplate<Attributes> super;
 private:
-    vec4        m_flash_color;
+    vec4        m_damage_color;
     IRoutine    *m_routine;
     float32     m_health;
     float32     m_delta_damage;
@@ -132,8 +149,7 @@ private:
 
     istSerializeBlock(
         istSerializeBase(super)
-        istSerializeBase(mhandler)
-        istSerialize(m_flash_color)
+        istSerialize(m_damage_color)
         istSerialize(m_routine)
         istSerialize(m_health)
         istSerialize(m_delta_damage)
@@ -144,13 +160,13 @@ public:
     atmECallBlock(
         atmECallDelegate(m_routine)
         atmMethodBlock(
+            atmECall(isDead)
             atmECall(getLife)
             atmECall(setLife)
             atmECall(setRoutine)
             atmECall(damage)
         )
         atmECallSuper(super)
-        atmECallSuper(mhandler)
     )
 
     wdmScope(
@@ -172,10 +188,12 @@ public:
         istSafeDelete(m_routine);
     }
 
+    bool        isDead() const          { return m_health<=0.0f; }
     float32     getLife() const         { return m_health; }
     IRoutine*   getRoutine()            { return m_routine; }
-    const vec4& getDamageColor() const  { return m_flash_color; }
+    const vec4& getDamageColor() const  { return m_damage_color; }
     int32       getPastFrame() const    { return m_past_frame; }
+    void        damage(float32 d)       { m_delta_damage += d; }
 
     void setLife(float32 v)       { m_health=v; }
     void setRoutine(RoutineClassID rcid)
@@ -189,6 +207,8 @@ public:
     {
         ++m_past_frame;
         updateRoutine(dt);
+        updateDamageFlash();
+        updateLife();
     }
 
     virtual void updateRoutine(float32 dt)
@@ -196,9 +216,20 @@ public:
         if(m_routine) { m_routine->update(dt); }
     }
 
+    virtual void updateLife()
+    {
+        if(!isDead()) {
+            m_health -= m_delta_damage;
+            m_delta_damage = 0.0f;
+            if(m_health <= 0.0f) {
+                destroy();
+            }
+        }
+    }
+
     virtual void updateDamageFlash()
     {
-        m_flash_color = vec4();
+        m_damage_color = vec4();
         if(m_past_frame % 4 < 2) {
             const float32 threthold1 = 0.05f;
             const float32 threthold2 = 1.0f;
@@ -208,23 +239,21 @@ public:
             else if(m_delta_damage < threthold2) {
                 float32 d = m_delta_damage - threthold1;
                 float32 r = threthold2 - threthold1;
-                m_flash_color = vec4(d/r, d/r, 0.0f, 0.0f);
+                m_damage_color = vec4(d/r, d/r, 0.0f, 0.0f);
             }
             else if(m_delta_damage) {
                 float32 d = m_delta_damage - threthold2;
                 float32 r = threthold3 - threthold2;
-                m_flash_color = vec4(1.0f, stl::max<float32>(1.0f-d/r, 0.0f), 0.0f, 0.0f);
+                m_damage_color = vec4(1.0f, stl::max<float32>(1.0f-d/r, 0.0f), 0.0f, 0.0f);
             }
-            m_flash_color *= 0.25f;
+            m_damage_color *= 0.25f;
         }
-        m_delta_damage = 0.0f;
     }
 
 
     virtual void asyncupdate(float32 dt)
     {
         asyncupdateRoutine(dt);
-        updateDamageFlash();
     }
 
     virtual void asyncupdateRoutine(float32 dt)
@@ -232,20 +261,29 @@ public:
         if(m_routine) { m_routine->asyncupdate(dt); }
     }
 
-    virtual void damage(float32 d)
-    {
-        if(m_health > 0.0f) {
-            m_health -= d;
-            m_delta_damage += d;
-            if(m_health <= 0.0f) {
-                destroy();
-            }
-        }
-    }
-
     virtual void destroy()
     {
-        atmDeleteEntity(getHandle());
+        //atmDeleteEntity(getHandle());
+    }
+
+    virtual void eventFluid(const FluidMessage *m)
+    {
+        addBloodstain(getInverseTransform(), (vec4&)m->position);
+        m_delta_damage += glm::length((const vec3&)m->velocity)*0.001f;
+    }
+
+
+    virtual void draw()
+    {
+        PSetInstance inst;
+        inst.diffuse = getDiffuseColor();
+        inst.glow = getGlowColor();
+        inst.flash = getDamageColor();
+        inst.elapsed = (float32)getPastFrame();
+        inst.appear_radius = 10000.0f;
+        inst.translate = getTransform();
+        atmGetSPHPass()->addPSetInstance(getModel(), inst);
+        atmGetBloodStainPass()->addBloodstainParticles(getTransform(), getBloodStainParticles(), getNumBloodstainParticles());
     }
 };
 

@@ -47,6 +47,7 @@ public:
 private:
     psym::World         m_world;
     SFMT                m_rand;
+    float32             m_gravity_strength;
 
     // 以下シリアライズ不要
     ist::Mutex          m_mutex_particles;
@@ -60,8 +61,8 @@ private:
         istSerializeBase(super)
         istSerialize(m_world)
         istSerialize(m_rand)
-        )
-
+        istSerialize(m_gravity_strength)
+    )
 };
 
 

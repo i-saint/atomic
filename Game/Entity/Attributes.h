@@ -681,7 +681,7 @@ class Attr_Bloodstain
 {
 private:
     // 血痕を残す頻度。流体がこの回数衝突したとき残す。
-    static const uint32 bloodstain_frequency = 128;
+    static const uint32 bloodstain_frequency = 256;
 
     ist::raw_vector<BloodstainParticle> m_bloodstain;
     uint32 m_bloodstain_hitcount;
@@ -705,13 +705,13 @@ public:
         m_bloodstain.reserve(256);
     }
 
-    void addBloodstain(const vec4& pos)
+    void addBloodstain(const mat4 &imat, const vec4& pos)
     {
         if(!atmGetConfig()->show_bloodstain) { return; }
 
         if(++m_bloodstain_hitcount % bloodstain_frequency == 0) {
             BloodstainParticle tmp;
-            tmp.position = pos;
+            tmp.position = imat * pos;
             tmp.lifetime = 1.0f;
             m_bloodstain.push_back(tmp);
         }

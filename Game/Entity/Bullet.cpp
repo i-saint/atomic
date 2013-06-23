@@ -215,17 +215,9 @@ atmExportClass(atm::Bullet_Particle);
 
 
 class dpPatch Bullet_Simple
-    : public IEntity
-    , public TAttr_TransformMatrix< TAttr_RotateSpeed<Attr_DoubleAxisRotation> >
-    , public Attr_ParticleSet
-    , public Attr_Collision
-    , public Attr_MessageHandler
+    : public EntityTemplate<Entity_AxisRotation>
 {
-typedef IEntity super;
-typedef TAttr_TransformMatrix< TAttr_RotateSpeed<Attr_DoubleAxisRotation> > transform;
-typedef Attr_ParticleSet model;
-typedef Attr_Collision collision;
-typedef Attr_MessageHandler mhandler;
+typedef EntityTemplate<Entity_AxisRotation> super;
 private:
     vec3            m_vel;
     EntityHandle    m_owner;
@@ -235,10 +227,6 @@ private:
 
     istSerializeBlock(
         istSerializeBase(super)
-        istSerializeBase(transform)
-        istSerializeBase(model)
-        istSerializeBase(collision)
-        istSerializeBase(mhandler)
         istSerialize(m_vel)
         istSerialize(m_owner)
         istSerialize(m_power)
@@ -257,10 +245,6 @@ public:
         atmECall(setPower)
         )
         atmECallSuper(super)
-        atmECallSuper(transform)
-        atmECallSuper(model)
-        atmECallSuper(mhandler)
-        atmECallSuper(collision)
     )
 
 public:

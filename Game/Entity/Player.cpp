@@ -253,31 +253,22 @@ atmExportClass(atm::Catapult);
 
 
 class dpPatch Barrier
-    : public Breakable
-    , public TAttr_TransformMatrix<Attr_Translate>
-    , public Attr_Collision
+    : public EntityTemplate<Entity_Translate>
 {
-typedef Breakable                               super;
-typedef TAttr_TransformMatrix<Attr_Translate>   transform;
-typedef Attr_Collision                          collision;
+typedef EntityTemplate<Entity_Translate>    super;
 private:
     EntityHandle    m_owner;
     float32         m_life;
-    Attr_Collision  m_collision;
 
     istSerializeBlock(
         istSerializeBase(super)
-        istSerializeBase(transform)
-        istSerializeBase(collision)
         istSerialize(m_owner)
         istSerialize(m_life)
-        istSerialize(m_collision)
-        )
+    )
 
 public:
     atmECallBlock(
         atmECallSuper(super)
-        atmECallSuper(transform)
         atmMethodBlock(
         atmECall(setOwner)
         atmECall(getOwner)
@@ -339,13 +330,9 @@ atmExportClass(atm::Barrier);
 
 
 class dpPatch Player
-    : public Breakable
-    , public TAttr_TransformMatrix< TAttr_RotateSpeed<Attr_DoubleAxisRotation> >
-    , public Attr_Collision
+    : public Breakable<Entity_AxisRotationI>
 {
-typedef Breakable   super;
-typedef TAttr_TransformMatrix< TAttr_RotateSpeed<Attr_DoubleAxisRotation> > transform;
-typedef Attr_Collision collision;
+typedef Breakable<Entity_AxisRotationI> super;
 private:
     static const PSET_RID pset_id = PSET_SPHERE_SMALL;
 
@@ -358,8 +345,6 @@ private:
 
     istSerializeBlock(
         istSerializeBase(super)
-        istSerializeBase(transform)
-        istSerializeBase(collision)
         istSerialize(m_vel)
         istSerialize(m_drive)
         istSerialize(m_weapon)
@@ -382,8 +367,6 @@ public:
 
     atmECallBlock(
         atmECallSuper(super)
-        atmECallSuper(transform)
-        atmECallSuper(collision)
         atmMethodBlock(
         atmECall(getVelocity)
         atmECall(setVelocity)

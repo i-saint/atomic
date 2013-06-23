@@ -16,17 +16,9 @@
 namespace atm {
 
 class dpPatch Enemy_Test
-    : public Breakable
-    , public TAttr_TransformMatrixI< TAttr_RotateSpeed<Attr_DoubleAxisRotation> >
-    , public Attr_ParticleSet
-    , public Attr_Collision
-    , public Attr_Bloodstain
+    : public Breakable<Entity_AxisRotationI>
 {
-typedef Breakable super;
-typedef TAttr_TransformMatrixI< TAttr_RotateSpeed<Attr_DoubleAxisRotation> > transform;
-typedef Attr_ParticleSet    model;
-typedef Attr_Collision      collision;
-typedef Attr_Bloodstain     bloodstain;
+typedef Breakable<Entity_AxisRotationI> super;
 private:
     enum STATE {
         ST_FADEIN,
@@ -39,49 +31,38 @@ private:
     STATE m_state;
     int32 m_st_frame;
     float32 m_light_radius;
-    float32 m_delta_fluid_damage;
     SE_CHANNEL m_explosion_channel;
     SE_RID m_explosion_se;
     vec4 m_light_color;
 
     istSerializeBlock(
         istSerializeBase(super)
-        istSerializeBase(transform)
-        istSerializeBase(model)
-        istSerializeBase(collision)
-        istSerializeBase(bloodstain)
         istSerialize(m_state)
         istSerialize(m_st_frame)
         istSerialize(m_light_radius)
-        istSerialize(m_delta_fluid_damage)
         istSerialize(m_explosion_channel)
         istSerialize(m_explosion_se)
         istSerialize(m_light_color)
-        )
+    )
 
 public:
     atmECallBlock(
         atmMethodBlock(
-        atmECall(setLightRadius)
-        atmECall(setExplosionSE)
-        atmECall(setExplosionChannel)
+            atmECall(setLightRadius)
+            atmECall(setExplosionSE)
+            atmECall(setExplosionChannel)
         )
         atmECallSuper(super)
-        atmECallSuper(transform)
-        atmECallSuper(model)
-        atmECallSuper(collision)
     )
 
 public:
-    Enemy_Test() : m_state(ST_FADEIN), m_st_frame(0), m_light_radius(0.5f), m_delta_fluid_damage(0.0f)
+    Enemy_Test() : m_state(ST_FADEIN), m_st_frame(0), m_light_radius(0.5f)
         , m_explosion_channel(SE_CHANNEL3), m_explosion_se(SE_EXPLOSION3)
         , m_light_color(0.8f, 0.1f, 0.2f, 1.0f)
     {
         wdmScope(
             wdmString path = wdmFormat("Enemy/0x%p", this);
             super::addDebugNodes(path);
-            transform::addDebugNodes(path);
-            model::addDebugNodes(path);
             wdmAddNode(path+"/m_light_radius", &m_light_radius );
             wdmAddNode(path+"/m_light_color", &m_light_color, 0.0f, 1.0f );
         )
@@ -112,9 +93,6 @@ public:
     virtual void update(float32 dt)
     {
         super::update(dt);
-
-        damage(m_delta_fluid_damage);
-        m_delta_fluid_damage = 0.0f;
 
         ++m_st_frame;
         float32 rigid_scale = 1.0f;
@@ -175,6 +153,7 @@ public:
         vec4 glow = getGlowColor();
         vec4 light = m_light_color;
         vec4 flash = getDamageColor();
+
         if(getState()==ST_FADEIN) {
             float32 s   = (float32)m_st_frame / FADEIN_TIME;
             float shininess = diffuse.w;
@@ -220,12 +199,6 @@ public:
         setRoutine(RCID_Null);
         atmGetSPHManager()->addFluid(getModel(), getTransform());
         atmPlaySE(m_explosion_channel, m_explosion_se, getPosition(), true);
-    }
-
-    virtual void eventFluid(const FluidMessage *m)
-    {
-        addBloodstain(getInverseTransform() * (vec4&)m->position);
-        m_delta_fluid_damage += glm::length((const vec3&)m->velocity)*0.001f;
     }
 };
 atmImplementEntity(Enemy_Test);

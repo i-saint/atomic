@@ -18,7 +18,9 @@ namespace atm {
 
 SPHManager::SPHManager()
     : m_current_fluid_task(0)
+    , m_gravity_strength(15.0f)
 {
+    wdmAddNode("SPH/gravity_strength", &m_gravity_strength, 0.0f, 100.0f);
 }
 
 SPHManager::~SPHManager()
@@ -69,7 +71,7 @@ void SPHManager::update( float32 dt )
         grav.nx = 0.0f;
         grav.ny = 0.0f;
         grav.nz = -1.0f;
-        grav.strength = 10.0f;
+        grav.strength = m_gravity_strength;
         m_world.addForce(grav);
     }
     atmGetCollisionSet()->copyRigitsToPSym();
