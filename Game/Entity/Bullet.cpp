@@ -264,7 +264,7 @@ public:
     {
         collision::initializeCollision(getHandle());
         setCollisionShape(CS_Sphere);
-        setCollisionFlags(CF_Receiver | CF_SPH_Sender);
+        setCollisionFlags(CF_Receiver);
 
         setModel(PSET_SPHERE_BULLET);
         setDiffuseColor(vec4(0.6f, 0.6f, 0.6f, 80.0f));
@@ -301,7 +301,7 @@ public:
 
         transform::updateRotate(dt);
         transform::updateTransformMatrix();
-        collision::updateCollisionByParticleSet(getModel(), getTransform(), 0.5f);
+        collision::updateCollisionByParticleSet(getModel(), getTransform(), vec3(0.5f));
     }
 
     virtual void draw()

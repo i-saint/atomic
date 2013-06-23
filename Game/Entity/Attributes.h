@@ -3,6 +3,8 @@
 
 #include "Util.h"
 #include "Game/Collision.h"
+#include "Game/SPHManager.h"
+#include "Graphics/Renderer.h"
 #include "psym/psym.h"
 
 struct sphFluidMessage;
@@ -155,7 +157,7 @@ public:
         mat = glm::translate(mat, m_pos);
         mat = glm::rotate(mat, m_rot, m_axis);
         mat = glm::scale(mat, m_scale);
-        mat = glm::translate(mat, m_pivot);
+        mat = glm::translate(mat, -m_pivot);
         return mat;
     }
 
@@ -201,7 +203,7 @@ public:
         wdmAddNode(path+"/m_pivot", &m_pivot, -3.0f, 3.0f);
         wdmAddNode(path+"/m_pos",   &m_pos, -3.0f, 3.0f);
         wdmAddNode(path+"/m_scale", &m_scale, 0.001f, 4.0f);
-        wdmAddNode(path+"/m_oriantation", &m_oriantation, 0.0f, 360.0f);
+        wdmAddNode(path+"/m_oriantation", this, &Attr_Orientation::getOrientation, &Attr_Orientation::setOrientation);
         wdmAddNode(path+"/m_up", &m_up, 0.0f, 360.0f);
     }
     )
@@ -210,7 +212,7 @@ public:
     Attr_Orientation()
         : m_scale(1.0f, 1.0f, 1.0f)
         , m_oriantation(1.0f, 0.0f, 0.0f)
-        , m_up(0.0f, 1.0f, 0.0f)
+        , m_up(1.0f, 0.0f, 0.0f)
     {}
 
     const vec3& getPivot() const        { return m_pivot; }
@@ -221,7 +223,7 @@ public:
     void setPivot(const vec3& v)        { m_pivot=v; }
     void setPosition(const vec3& v)     { m_pos=v; }
     void setScale(const vec3& v)        { m_scale=v; }
-    void setOrientation(const vec3& v)  { m_oriantation=v; }
+    void setOrientation(const vec3& v)  { m_oriantation=glm::normalize(v); }
     void setUpVector(const vec3& v)     { m_up=v; }
 
     mat4 computeMatrix() const
@@ -230,7 +232,7 @@ public:
         mat = glm::translate(mat, m_pos);
         mat *= glm::orientation(m_oriantation, m_up);
         mat = glm::scale(mat, m_scale);
-        mat = glm::translate(mat, m_pivot);
+        mat = glm::translate(mat, -m_pivot);
         return mat;
     }
 
@@ -322,7 +324,7 @@ public:
         mat = glm::rotate(mat, m_rot2, m_axis2);
         mat = glm::rotate(mat, m_rot1, m_axis1);
         mat = glm::scale(mat, m_scale);
-        mat = glm::translate(mat, m_pivot);
+        mat = glm::translate(mat, -m_pivot);
         return mat;
     }
 };
@@ -398,8 +400,9 @@ public:
         )
         atmECallSuper(super)
     )
-
-    wdmScope(void addDebugNodes(const wdmString &path) {})
+    wdmScope(void addDebugNodes(const wdmString &path) {
+        T::addDebugNodes(path);
+    })
 
 public:
     const mat4& getTransform() const { return m_transform; }
@@ -431,7 +434,9 @@ public:
         )
         atmECallSuper(super)
     )
-    wdmScope(void addDebugNodes(const wdmString &path) {})
+    wdmScope(void addDebugNodes(const wdmString &path) {
+        T::addDebugNodes(path);
+    })
 
 public:
     const mat4& getTransform() const        { return m_transform; }
@@ -495,6 +500,18 @@ public:
     const vec4& getDiffuseColor() const { return m_diffuse_color; }
     const vec4& getGlowColor() const    { return m_glow_color; }
     PSET_RID getModel() const           { return m_psetid; }
+
+    void drawModel(const mat4 &trans)
+    {
+        PSetInstance inst;
+        inst.diffuse = getDiffuseColor();
+        inst.glow = getGlowColor();
+        inst.flash = vec4();
+        inst.elapsed = 0.0f;
+        inst.appear_radius = 10000.0f;
+        inst.translate = trans;
+        atmGetSPHPass()->addPSetInstance(getModel(), inst);
+    }
 };
 
 
@@ -601,7 +618,7 @@ public:
             case CS_Box:
                 {
                     CollisionBox &shape = *static_cast<CollisionBox*>(ce);
-                    UpdateCollisionBox(shape, t, shape.size);
+                    UpdateCollisionBox(shape, t, vec3(shape.size));
                 }
                 break;
             }
@@ -622,20 +639,20 @@ public:
         }
     }
 
-    void updateCollisionByParticleSet(PSET_RID psid, const mat4 &t, float32 scale)
+    void updateCollisionByParticleSet(PSET_RID psid, const mat4 &t, const vec3 &scale=vec3(1.0f))
     {
         if(CollisionEntity *ce = atmGetCollision(m_collision)) {
             switch(ce->getShape()) {
             case CS_Sphere:
                 {
                     vec3 pos = vec3(t * vec4(0.0f, 0.0f, 0.0f, 1.0f));
-                    float radius = atmGetRigidInfo(psid)->sphere_radius * scale;
+                    float radius = atmGetRigidInfo(psid)->sphere_radius * scale.x;
                     UpdateCollisionSphere(*static_cast<CollisionSphere*>(ce), pos, radius);
                 }
                 break;
             case CS_Box:
                 {
-                    vec4 box_size = (vec4&)atmGetRigidInfo(psid)->box_size * scale;
+                    vec3 box_size = (vec3&)atmGetRigidInfo(psid)->box_size * scale;
                     UpdateCollisionBox(*static_cast<CollisionBox*>(ce), t, box_size);
                 }
                 break;

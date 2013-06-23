@@ -14,7 +14,7 @@ namespace atm {
     vec2 GenRandomUnitVector2();
     vec3 GenRandomUnitVector3();
     void UpdateCollisionSphere(CollisionSphere &o, const vec3& pos, float32 r);
-    void UpdateCollisionBox(CollisionBox &o, const mat4& t, const vec4 &size);
+    void UpdateCollisionBox(CollisionBox &o, const mat4& t, const vec3 &size);
 
     vec3 GetNearestPlayerPosition(const vec3 &pos);
     void ShootSimpleBullet(EntityHandle owner, const vec3 &pos, const vec3 &vel);

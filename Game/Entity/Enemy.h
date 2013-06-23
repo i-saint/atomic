@@ -9,6 +9,15 @@
 namespace atm {
 
 
+struct Entity_Orientation
+{
+    typedef TAttr_TransformMatrixI<Attr_Orientation> transform;
+    typedef Attr_ParticleSet    model;
+    typedef Attr_Collision      collision;
+    typedef Attr_Bloodstain     bloodstain;
+    typedef Attr_MessageHandler mhandler;
+};
+
 struct Entity_AxisRotationI
 {
     typedef TAttr_TransformMatrixI< TAttr_RotateSpeed<Attr_DoubleAxisRotation> > transform;
@@ -100,7 +109,8 @@ class dpPatch EntityTemplate
     , public Attributes::mhandler
     , public Attributes
 {
-typedef IEntity super;
+private:
+    typedef IEntity super;
     istSerializeBlock(
         istSerializeBase(super)
         istSerializeBase(transform)
@@ -130,6 +140,9 @@ public:
         mhandler::addDebugNodes(path);
     }
     )
+
+    virtual void update(float32 dt) {}
+    virtual void asyncupdate(float32 dt) {}
 };
 
 
@@ -172,6 +185,7 @@ public:
     wdmScope(
     void addDebugNodes(const wdmString &path)
     {
+        super::addDebugNodes(path);
         wdmAddNode(path+"/m_health", &m_health);
         wdmAddNode(path+"/damage()", &Breakable::damage, this);
         wdmAddNode(path+"/destroy()", &Breakable::destroy, this);

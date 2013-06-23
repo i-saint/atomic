@@ -125,7 +125,7 @@ public:
             rigid_scale = ((float32)m_st_frame / FADEIN_TIME);
         }
         if(getState()!=ST_FADEOUT) {
-            collision::updateCollisionByParticleSet(getModel(), getTransform(), rigid_scale);
+            collision::updateCollisionByParticleSet(getModel(), getTransform(), vec3(rigid_scale));
         }
     }
 

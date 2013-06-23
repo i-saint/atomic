@@ -252,8 +252,7 @@ public:
 atmExportClass(atm::Catapult);
 
 
-class dpPatch Barrier
-    : public EntityTemplate<Entity_Translate>
+class dpPatch Barrier : public EntityTemplate<Entity_Translate>
 {
 typedef EntityTemplate<Entity_Translate>    super;
 private:
@@ -329,25 +328,23 @@ atmImplementEntity(Barrier);
 atmExportClass(atm::Barrier);
 
 
-class dpPatch Player
-    : public Breakable<Entity_AxisRotationI>
+class dpPatch Player : public Breakable<Entity_AxisRotationI>
 {
 typedef Breakable<Entity_AxisRotationI> super;
 private:
     static const PSET_RID pset_id = PSET_SPHERE_SMALL;
 
-    vec3 m_vel;
     IDrive      *m_drive;
     IWeaponry   *m_weapon;
-
-    vec3 m_lightpos[1];
-    vec3 m_lightvel[1];
+    vec3        m_vel;
+    vec3        m_lightpos[1];
+    vec3        m_lightvel[1];
 
     istSerializeBlock(
         istSerializeBase(super)
-        istSerialize(m_vel)
         istSerialize(m_drive)
         istSerialize(m_weapon)
+        istSerialize(m_vel)
         istSerialize(m_lightpos)
         istSerialize(m_lightvel)
         )
@@ -488,7 +485,7 @@ public:
 
         transform::updateRotate(dt);
         transform::updateTransformMatrix();
-        collision::updateCollisionByParticleSet(pset_id, getTransform(), 0.5f);
+        collision::updateCollisionByParticleSet(pset_id, getTransform(), vec3(0.5f));
     }
 
     void updateLights()
