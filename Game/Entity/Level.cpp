@@ -38,7 +38,7 @@ private:
         istSerialize(m_level)
         istSerialize(m_loop)
         istSerialize(m_state)
-        )
+    )
 
 public:
     Level_Test() : m_frame(0), m_player(0), m_level(0), m_loop(0), m_state(ST_BEGIN)
@@ -284,6 +284,10 @@ public:
             {
                 IEntity *e = atmCreateEntity(GroundBlock);
                 atmCall(e, setPosition, vec3(0.5f, 0.5f, 0.0f));
+            }
+            {
+                IEntity *e = atmCreateEntity(GearSmall);
+                atmCall(e, setPosition, vec3(-1.0f, -1.0f, 0.0f));
             }
         }
 

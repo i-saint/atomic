@@ -125,7 +125,7 @@ inline ValueList<A0> MakeValueList(const A0 &a0)
 { return ValueList<A0>(a0); }
 
 template<class A0, class A1>
-inline ValueList<A0> MakeValueList(const A0 &a0, const A1 &a1)
+inline ValueList<A0,A1> MakeValueList(const A0 &a0, const A1 &a1)
 { return ValueList<A0,A1>(a0,a1); }
 
 template<class A0, class A1, class A2>

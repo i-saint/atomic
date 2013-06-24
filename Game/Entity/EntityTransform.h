@@ -206,25 +206,25 @@ private:
         istSerialize(m_axis2)
         istSerialize(m_rot1)
         istSerialize(m_rot2)
-        )
+    )
 
 public:
     atmECallBlock(
         atmMethodBlock(
-        atmECall(getPivot)
-        atmECall(setPivot)
-        atmECall(getPosition)
-        atmECall(setPosition)
-        atmECall(getScale)
-        atmECall(setScale)
-        atmECall(getAxis1)
-        atmECall(setAxis1)
-        atmECall(getAxis2)
-        atmECall(setAxis2)
-        atmECall(getRotate1)
-        atmECall(setRotate1)
-        atmECall(getRotate2)
-        atmECall(setRotate2)
+            atmECall(getPivot)
+            atmECall(setPivot)
+            atmECall(getPosition)
+            atmECall(setPosition)
+            atmECall(getScale)
+            atmECall(setScale)
+            atmECall(getAxis1)
+            atmECall(setAxis1)
+            atmECall(getAxis2)
+            atmECall(setAxis2)
+            atmECall(getRotate1)
+            atmECall(setRotate1)
+            atmECall(getRotate2)
+            atmECall(setRotate2)
         )
     )
 
@@ -288,15 +288,15 @@ private:
         istSerializeBase(super)
         istSerialize(m_rspeed1)
         istSerialize(m_rspeed2)
-        )
+    )
 
 public:
     atmECallBlock(
         atmMethodBlock(
-        atmECall(getRotateSpeed1)
-        atmECall(setRotateSpeed1)
-        atmECall(getRotateSpeed2)
-        atmECall(setRotateSpeed2)
+            atmECall(getRotateSpeed1)
+            atmECall(setRotateSpeed1)
+            atmECall(getRotateSpeed2)
+            atmECall(setRotateSpeed2)
         )
         atmECallSuper(super)
     )
@@ -311,8 +311,7 @@ public:
     )
 
 public:
-    TAttr_RotateSpeed()
-        : m_rspeed1(0.0f), m_rspeed2(0.0f)
+    TAttr_RotateSpeed() : m_rspeed1(0.0f), m_rspeed2(0.0f)
     {}
     float32 getRotateSpeed1() const { return m_rspeed1; }
     float32 getRotateSpeed2() const { return m_rspeed2; }
@@ -325,6 +324,54 @@ public:
         this->setRotate2(this->getRotate2()+getRotateSpeed2());
     }
 };
+
+
+template<class T>
+class TAttr_HaveParent : public T
+{
+typedef T super;
+private:
+    EntityHandle m_parent;
+
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerialize(m_parent)
+    )
+
+public:
+    atmECallBlock(
+        atmMethodBlock(
+            atmECall(getParent)
+            atmECall(setParent)
+        )
+        atmECallSuper(super)
+    )
+
+    wdmScope(
+    void addDebugNodes(const wdmString &path)
+    {
+        super::addDebugNodes(path);
+        wdmAddNode(path+"/m_parent", (const uint32*)&m_parent);
+    }
+    )
+
+public:
+    TAttr_HaveParent() : m_parent(0)
+    {}
+    EntityHandle getParent() const { return m_parent; }
+    void setParent(EntityHandle v) { m_parent=v; }
+
+    mat4 computeMatrix() const
+    {
+        mat4 mat = super::computeMatrix();
+        mat4 pmat;
+        if(atmQuery(getParent(), getTransform, pmat)) {
+            mat = pmat * mat;
+        }
+        return mat;
+    }
+};
+
 
 template<class T>
 class TAttr_TransformMatrix : public T
@@ -347,9 +394,12 @@ public:
         )
         atmECallSuper(super)
     )
-    wdmScope(void addDebugNodes(const wdmString &path) {
-        T::addDebugNodes(path);
-    })
+
+    wdmScope(
+    void addDebugNodes(const wdmString &path) {
+        super::addDebugNodes(path);
+    }
+    )
 
 public:
     const mat4& getTransform() const { return m_transform; }

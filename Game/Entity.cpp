@@ -151,9 +151,16 @@ IEntity* EntitySet::getEntity( EntityHandle h )
 
     EntityCont &entities = m_entities;
     if(iid >= entities.size()) {
-        return NULL;
+        return nullptr;
     }
-    return entities[iid];
+    IEntity *r = entities[iid];
+    if(!r) {
+        std::find_if(m_new_entities.begin(), m_new_entities.end(), [&](IEntity *e)->bool{
+            if(e->getHandle()==h) { r=e; return true; }
+            return false;
+        });
+    }
+    return r;
 }
 
 void EntitySet::deleteEntity( EntityHandle h )

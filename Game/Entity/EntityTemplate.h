@@ -8,7 +8,7 @@ namespace atm {
 
 struct Entity_Orientation
 {
-    typedef TAttr_TransformMatrixI<Attr_Orientation> transform;
+    typedef TAttr_TransformMatrixI< TAttr_HaveParent<Attr_Orientation> > transform;
     typedef Attr_ParticleSet    model;
     typedef Attr_Collision      collision;
     typedef Attr_Bloodstain     bloodstain;

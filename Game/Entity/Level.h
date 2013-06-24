@@ -7,24 +7,17 @@ class Unbreakable : public EntityTemplate<Transform>
 {
 typedef EntityTemplate<Transform> super;
 private:
-    EntityHandle    m_parent;
-
     istSerializeBlock(
         istSerializeBase(super)
-        istSerialize(m_parent)
     )
 
 public:
     atmECallBlock(
         atmECallSuper(super)
-        atmMethodBlock(
-            atmECall(setParent)
-            atmECall(getParent)
-        )
     )
 
 public:
-    Unbreakable() : m_parent(0)
+    Unbreakable()
     {
     }
 
@@ -34,9 +27,6 @@ public:
         super::addDebugNodes(path);
     }
     )
-
-    void            setParent(EntityHandle v)    { m_parent=v; }
-    EntityHandle    getParent() const            { return m_parent; }
 
     virtual void initialize() override
     {

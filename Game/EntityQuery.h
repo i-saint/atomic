@@ -36,12 +36,14 @@ class IEntity;
 template<class Arg>
 inline bool atmCallImpl(EntityHandle h, FunctionID fid, const Arg &args)
 {
-    if(IEntity *e=atmGetEntity(h)) { atmCallImpl(e, fid, args); }
+    if(IEntity *e=atmGetEntity(h)) { return atmCallImpl(e, fid, args); }
+    return false;
 }
 template<class Arg, class Ret>
 inline bool atmCallImpl(EntityHandle h, FunctionID fid, const Arg &args, Ret &ret)
 {
-    if(IEntity *e=atmGetEntity(h)) { atmCallImpl(e, fid, args, ret); }
+    if(IEntity *e=atmGetEntity(h)) { return atmCallImpl(e, fid, args, ret); }
+    return false;
 }
 template<class C, class Arg>
 inline bool atmCallImpl(C *e, FunctionID fid, const Arg &args)
@@ -57,12 +59,14 @@ inline bool atmCallImpl(C *e, FunctionID fid, const Arg &args, Ret &ret)
 template<class Ret>
 inline bool atmQueryImpl(EntityHandle h, FunctionID fid, Ret &ret)
 {
-    if(IEntity *e=atmGetEntity(h)) { atmQueryImpl(e, fid, args); }
+    if(IEntity *e=atmGetEntity(h)) { return atmQueryImpl(e, fid, ret); }
+    return false;
 }
 template<class Ret, class Arg>
 inline bool atmQueryImpl(EntityHandle h, FunctionID fid, Ret &ret, const Arg &args)
 {
-    if(IEntity *e=atmGetEntity(h)) { atmQueryImpl(e, fid, ret, args); }
+    if(IEntity *e=atmGetEntity(h)) {return atmQueryImpl(e, fid, ret, args); }
+    return false;
 }
 template<class C, class Ret>
 inline bool atmQueryImpl(C *e, FunctionID fid, Ret &ret)

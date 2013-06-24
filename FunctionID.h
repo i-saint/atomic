@@ -99,6 +99,7 @@ istSEnumBlock(FunctionID,
     istSEnum(FID_setDiffuse),
     istSEnum(FID_getAmbient),
     istSEnum(FID_setAmbient),
+    istSEnum(FID_addForce),
 
     istSEnum(FID_End),
 );

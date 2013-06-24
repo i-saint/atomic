@@ -128,7 +128,6 @@ public:
             atmCall(e, damage, m_power);
         }
         atmGetSPHManager()->addFluid(getModel(), getTransform());
-        atmPlaySE(SE_CHANNEL2, SE_EXPLOSION2, getPosition(), true);
         atmDeleteEntity(getHandle());
     }
 };

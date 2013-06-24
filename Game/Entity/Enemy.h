@@ -19,7 +19,7 @@ private:
         istSerialize(m_flash_color)
         istSerialize(m_life)
         istSerialize(m_delta_damage)
-        )
+    )
 
 public:
     atmECallBlock(
