@@ -44,8 +44,10 @@ void SPHManager::update( float32 dt )
     uint32 n = m_world.getNumParticles();
     for(uint32 i=0; i<n; ++i) {
         const psym::Particle &m = feedback[i];
-        if(IEntity *e = atmGetEntity(m.hit_to)) {
-            atmCall(e, eventFluid, &m);
+        if(m.hash==0) {
+            if(IEntity *e = atmGetEntity(m.hit_to)) {
+                atmCall(e, eventFluid, &m);
+            }
         }
     }
 

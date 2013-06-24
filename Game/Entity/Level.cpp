@@ -154,7 +154,7 @@ public:
         case 1: atmCall(e, setModel, PSET_SPHERE_LARGE); atmCall(e, setCollisionShape, CS_Sphere); break;
         }
         atmCall(e, setPosition, vec3(GenRandomVector2()*1.5f, 0.0f));
-        atmCall(e, setLife, 1200.0f * getLoopBoost());
+        atmCall(e, setLife, 1000.0f * getLoopBoost());
         atmCall(e, setAxis1, GenRandomUnitVector3());
         atmCall(e, setAxis2, GenRandomUnitVector3());
         atmCall(e, setRotateSpeed1, 0.1f);
@@ -282,12 +282,12 @@ public:
                 atmCall(e, setLife, 10000.0f);
             }
             {
-                IEntity *e = atmCreateEntity(GroundBlock);
-                atmCall(e, setPosition, vec3(0.5f, 0.5f, 0.0f));
+                //IEntity *e = atmCreateEntity(GroundBlock);
+                //atmCall(e, setPosition, vec3(0.5f, 0.5f, 0.0f));
             }
             {
                 IEntity *e = atmCreateEntity(GearSmall);
-                atmCall(e, setPosition, vec3(-1.0f, -1.0f, 0.0f));
+                atmCall(e, setPosition, vec3(0.5f, 0.5f, 0.0f));
             }
         }
 

@@ -114,10 +114,17 @@ void AoSnize( int32 num, const ispc::Particle_SOA8 *particles, Particle *out )
         __declspec(align(16)) const uint32 maskv[4] = {mask, mask, mask, mask};
         const simdvec4 masksv = _mm_load_ps((const float*)maskv);
         for(int32 ei=0; ei<e; ++ei) {
-            out[i+ei].position = _mm_and_ps(aos_pos[ei/4][ei%4], masksv);
-            out[i+ei].velocity = _mm_and_ps(aos_vel[ei/4][ei%4], masksv);
-            out[i+ei].density = particles[bi].density[ei];
-            out[i+ei].hit_to = particles[bi].hit_to[ei];
+            Particle &o = out[i+ei];
+            o.position = _mm_and_ps(aos_pos[ei/4][ei%4], masksv);
+            o.velocity = _mm_and_ps(aos_vel[ei/4][ei%4], masksv);
+            o.density = particles[bi].density[ei];
+            if(o.hit_to && particles[bi].hit_to[ei]) {
+                o.hash = 1;
+            }
+            else {
+                o.hash = 0;
+            }
+            o.hit_to = particles[bi].hit_to[ei];
         }
     }
 }
@@ -179,8 +186,8 @@ void World::update(float32 dt)
         });
 
     // パーティクルを hash で sort
-    // tbb:parallel_sort() は non-stable で、毎回結果が変わる可能性があるため、自前の sort。
-    // こちらも non-stable だが、tbb:parallel_sort() と違い、データが同じなら結果も同じ。
+    // tbb:parallel_sort() は non-stable なだけでなく、毎回同じ key のものは毎回順序が変わる可能性があるため、自前の sort。
+    // こちらも non-stable だがデータが同じなら毎回順序も同じ。
     parallel_deterministic_sort(particles, particles+num_active_particles, 
         [&](const Particle &a, const Particle &b) { return a.hash < b.hash; } );
 

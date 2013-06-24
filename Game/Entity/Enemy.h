@@ -199,7 +199,7 @@ public:
     virtual void eventFluid(const FluidMessage *m)
     {
         addBloodstain(getInverseTransform(), (vec4&)m->position);
-        m_delta_damage += glm::length((const vec3&)m->velocity)*0.001f;
+        m_delta_damage += glm::length((const vec3&)m->velocity)*0.01f;
     }
 
 

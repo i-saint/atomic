@@ -39,13 +39,13 @@ struct istAlign(16) Particle
     struct {
         float32 energy;
         float32 density;
-        uint32 hash;
+        uint32 hash; // 衝突計算時は hash grid の hash だが、そうじゃないときはフラグの保持に使う。0x1: 前フレームでも何かと衝突してたら true
         uint32 hit_to;
     };
 };
 psymGlobalNamespace(
     istSerializeRaw(psym::Particle);
-    )
+)
 
 
 

@@ -47,28 +47,8 @@ public:
     virtual void eventFluid(const FluidMessage *m) override
     {
         super::eventFluid(m);
-        atmCall(getParent(), addForce, atmArgs((const vec3&)m->position, (const vec3&)m->velocity*m->density*0.001f));
+        atmCall(getParent(), addForce, atmArgs((const vec3&)m->position, (const vec3&)m->velocity * (sqrt(m->density)*0.1f) ) );
     }
-
-
-    //void accel(const vec3& a)
-    //{
-    //    IEntity *e = atmGetEntity(getParent());
-    //    if(!e) { return; }
-
-    //    mat4 pmat; atmQuery(e, getTransform, pmat);
-    //    vec3 dir = vec3( glm::rotateZ(pmat*vec4(getDirection(),0.0f), 90.0f) );
-    //    float32 la = glm::length(a);
-    //    vec3 na = a/la;
-
-    //    float d = glm::dot(dir, na);
-    //    if(d<-0.5f) {
-    //        atmCall(e, addRotateSpeed, -la);
-    //    }
-    //    else if(d>0.5f) {
-    //        atmCall(e, addRotateSpeed, la);
-    //    }
-    //}
 };
 atmImplementEntity(GearParts);
 atmExportClass(GearParts);
@@ -123,7 +103,7 @@ public:
     }
     )
 public:
-    GearBase() : m_rot_angle(0.0f), m_rot_speed(0.0f), m_max_rot_speed(0.5f), m_rot_accel(0.0001f), m_rot_decel(0.99f)
+    GearBase() : m_rot_angle(0.0f), m_rot_speed(0.0f), m_max_rot_speed(0.5f), m_rot_accel(0.00002f), m_rot_decel(0.99f)
     {
     }
 
@@ -156,18 +136,14 @@ public:
 
     void addForce(const vec3 &pos, const vec3 &force)
     {
-        float32 dist = glm::length(pos-getPosition());
-        vec3 dir = vec3( glm::rotateZ(glm::normalize(pos-getPosition()), 90.0f) );
+        vec3 diff = pos-getPosition(); diff.z=0.0f;
+        float32 dist = glm::length(diff);
+        vec3 dir = vec3( glm::rotateZ(diff/dist, 90.0f) );
         float32 lf = glm::length(force);
         vec3 nf = force/lf;
-        float d = glm::dot(dir, nf);
-        lf *= m_rot_accel * dist;
-        if(d<-0.9f) {
-            addRotateSpeed(-lf);
-        }
-        else if(d>0.9f) {
-            addRotateSpeed(lf);
-        }
+        float32 d = glm::dot(dir, nf);
+        float32 f = lf * m_rot_accel * dist * d;
+        addRotateSpeed(f);
     }
 
     void addParts(GearParts *v)         { m_parts.push_back(v->getHandle()); }
@@ -213,14 +189,14 @@ public:
     {
         setMaxRotateSpeed(0.6f);
         setRotateDecel(0.99f);
-        setRotateAccel(0.0001f);
+        setRotateAccel(0.00003f);
 
         const int32 div = 4;
         const vec4 dir_x(1.0f,0.0f,0.0f,0.0f);
         for(int i=0; i<div; ++i) {
             vec3 dir = vec3(glm::rotateZ(dir_x, 360.0f/div*i));
             GearParts *e = (GearParts*)atmCreateEntity(GearParts);
-            e->setScale(vec3(2.5f, 0.75f, 1.0f));
+            e->setScale(vec3(2.5f, 0.5f, 1.0f));
             e->setParent(getHandle());
             e->setOrientation(dir);
             addParts(e);
