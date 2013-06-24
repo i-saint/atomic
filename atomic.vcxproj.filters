@@ -141,6 +141,9 @@
     <ClCompile Include="Game\Entity\EntityUtil.cpp">
       <Filter>Game\Entity</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Entity\LightEntity.cpp">
+      <Filter>Game\Entity</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h">

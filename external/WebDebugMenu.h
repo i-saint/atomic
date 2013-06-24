@@ -702,7 +702,7 @@ inline void wdmAddNode(const wdmString &path, C *_this, T (C2::*getter)() const,
 template<class C, class C2, class T, class T2>
 inline void wdmAddNode(const wdmString &path, C *_this, T (C2::*getter)() const, void (C2::*setter)(T), T2 min_value, T2 max_value)
 {
-    auto *n = new wdmPropertyNode<T>(std::bind(getter, _this), std::bind(setter, _this, std::placeholders::_1), wdmRange<T>(min_value, max_value));
+    auto *n = new wdmPropertyNode<T,T2>(std::bind(getter, _this), std::bind(setter, _this, std::placeholders::_1), wdmRange<T2>(min_value, max_value));
     _wdmGetRootNode()->addChild(path.c_str(), n);
 }
 template<class C, class C2, class T>
