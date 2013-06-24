@@ -19,7 +19,7 @@ using namespace ist::i3dgl;
 
 namespace atm {
 
-atmExportClass(atm::World);
+atmExportClass(World);
 
 istSerializeBlockImpl(World,
     istSerializeBase(IAtomicGameModule)

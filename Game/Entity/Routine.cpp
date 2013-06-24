@@ -71,7 +71,7 @@ public:
     }
 };
 atmImplementRoutine(Routine_SingleShoot);
-atmExportClass(atm::Routine_SingleShoot);
+atmExportClass(Routine_SingleShoot);
 
 class dpPatch Routine_CircularShoot : public IRoutine
 {
@@ -106,7 +106,7 @@ public:
     }
 };
 atmImplementRoutine(Routine_CircularShoot);
-atmExportClass(atm::Routine_CircularShoot);
+atmExportClass(Routine_CircularShoot);
 
 
 class dpPatch Routine_HomingPlayer : public IRoutine, public Attr_MessageHandler
@@ -161,7 +161,7 @@ public:
     }
 };
 atmImplementRoutine(Routine_HomingPlayer);
-atmExportClass(atm::Routine_HomingPlayer);
+atmExportClass(Routine_HomingPlayer);
 
 
 class dpPatch Routine_Pinball : public IRoutine, public Attr_MessageHandler
@@ -225,6 +225,6 @@ public:
     }
 };
 atmImplementRoutine(Routine_Pinball);
-atmExportClass(atm::Routine_Pinball);
+atmExportClass(Routine_Pinball);
 
 } // namespace atm

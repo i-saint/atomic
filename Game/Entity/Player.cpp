@@ -78,7 +78,7 @@ public:
 
     virtual void draw() {}
 };
-atmExportClass(atm::Booster);
+atmExportClass(Booster);
 
 
 class dpPatch Blinker : public IDrive
@@ -140,7 +140,7 @@ public:
         }
     }
 };
-atmExportClass(atm::Blinker);
+atmExportClass(Blinker);
 
 
 class dpPatch Penetrator : public IDrive
@@ -152,7 +152,7 @@ private:
         )
 public:
 };
-atmExportClass(atm::Penetrator);
+atmExportClass(Penetrator);
 
 
 class dpPatch TimeWarp : public IDrive
@@ -164,7 +164,7 @@ private:
         )
 public:
 };
-atmExportClass(atm::TimeWarp);
+atmExportClass(TimeWarp);
 
 
 
@@ -225,7 +225,7 @@ public:
 
     virtual void draw() {}
 };
-atmExportClass(atm::BarrierGenerator);
+atmExportClass(BarrierGenerator);
 
 
 class dpPatch GravityMineLauncher : public IWeaponry
@@ -237,7 +237,7 @@ private:
         )
 public:
 };
-atmExportClass(atm::GravityMineLauncher);
+atmExportClass(GravityMineLauncher);
 
 
 class dpPatch Catapult : public IWeaponry
@@ -249,7 +249,7 @@ private:
         )
 public:
 };
-atmExportClass(atm::Catapult);
+atmExportClass(Catapult);
 
 
 class dpPatch Barrier : public EntityTemplate<Entity_Translate>
@@ -325,7 +325,7 @@ public:
     }
 };
 atmImplementEntity(Barrier);
-atmExportClass(atm::Barrier);
+atmExportClass(Barrier);
 
 
 class dpPatch Player : public Breakable<Entity_AxisRotationI>
@@ -561,6 +561,6 @@ public:
     }
 };
 atmImplementEntity(Player);
-atmExportClass(atm::Player);
+atmExportClass(Player);
 
 } // namespace atm

@@ -13,11 +13,11 @@
 
 namespace atm {
 
-atmExportClass(atm::CollisionEntity);
-atmExportClass(atm::CollisionPlane);
-atmExportClass(atm::CollisionSphere);
-atmExportClass(atm::CollisionBox);
-atmExportClass(atm::CollisionSet);
+atmExportClass(CollisionEntity);
+atmExportClass(CollisionPlane);
+atmExportClass(CollisionSphere);
+atmExportClass(CollisionBox);
+atmExportClass(CollisionSet);
 
 
 inline bool BoundingBoxIntersect(const BoundingBox &bb1, const vec4 &pos)

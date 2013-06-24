@@ -133,6 +133,6 @@ public:
     }
 };
 atmImplementEntity(Bullet_Simple);
-atmExportClass(atm::Bullet_Simple);
+atmExportClass(Bullet_Simple);
 
 } // namespace atm

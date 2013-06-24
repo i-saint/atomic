@@ -142,7 +142,7 @@ struct EntitiesQueryContext
 #define atmGlobalNamespace(...)  } __VA_ARGS__ namespace atm {
 #define atmExportClass(ClassName)        \
     atmGlobalNamespace(                  \
-        istSerializeExportClass(ClassName); \
+        istSerializeExportClass(atm::ClassName); \
     )
 
 #define atmSerializeRaw(ClassName)   \

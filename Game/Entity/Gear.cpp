@@ -70,7 +70,7 @@ public:
     void            setDirection(const vec3 &v) { m_dir=v; }
 };
 atmImplementEntity(GearParts);
-atmExportClass(atm::GearParts);
+atmExportClass(GearParts);
 
 
 class dpPatch GearBase
@@ -154,7 +154,7 @@ public:
     void addRotateSpeed(float32 v) { m_rot_speed+=v; }
     template<class F> void eachParts(const F &f) { EachEntities(m_parts, f); }
 };
-atmExportClass(atm::GearBase);
+atmExportClass(GearBase);
 
 
 class dpPatch GearSmall : public GearBase
@@ -168,7 +168,7 @@ class dpPatch GearSmall : public GearBase
 public:
 };
 atmImplementEntity(GearSmall);
-atmExportClass(atm::GearSmall);
+atmExportClass(GearSmall);
 
 
 class dpPatch GearLarge : public GearBase
@@ -183,6 +183,6 @@ class dpPatch GearLarge : public GearBase
 public:
 };
 atmImplementEntity(GearLarge);
-atmExportClass(atm::GearLarge);
+atmExportClass(GearLarge);
 
 } // namespace atm

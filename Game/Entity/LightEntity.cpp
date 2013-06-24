@@ -97,7 +97,7 @@ public:
     }
 };
 atmImplementEntity(PointLightEntity);
-atmExportClass(atm::PointLightEntity);
+atmExportClass(PointLightEntity);
 
 
 class dpPatch DirectionalLightEntity : public LightEntityBase<Attr_Translate>
@@ -148,7 +148,7 @@ public:
     }
 };
 atmImplementEntity(DirectionalLightEntity);
-atmExportClass(atm::DirectionalLightEntity);
+atmExportClass(DirectionalLightEntity);
 
 // todo:
 class dpPatch BoxLightEntity;

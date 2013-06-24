@@ -49,7 +49,7 @@ IEntity* CreateEntity( EntityClassID entity_classid )
 
 
 
-atmExportClass(atm::IEntity);
+atmExportClass(IEntity);
 
 IEntity::IEntity()
     : m_ehandle(atmGetWorld() ? atmGetEntitySet()->getGeneratedHandle() : 0)
@@ -57,7 +57,7 @@ IEntity::IEntity()
 }
 
 
-atmExportClass(atm::EntitySet);
+atmExportClass(EntitySet);
 
 EntitySet::EntitySet()
 {

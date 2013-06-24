@@ -45,6 +45,6 @@ public:
     }
 };
 atmImplementEntity(GroundBlock);
-atmExportClass(atm::GroundBlock);
+atmExportClass(GroundBlock);
 
 } // namespace atm

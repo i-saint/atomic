@@ -398,7 +398,7 @@ public:
     }
 };
 atmImplementEntity(Level_Test);
-atmExportClass(atm::Level_Test);
+atmExportClass(Level_Test);
 
 
 } // namespace atm

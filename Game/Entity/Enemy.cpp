@@ -191,7 +191,7 @@ public:
     }
 };
 atmImplementEntity(Enemy_Test);
-atmExportClass(atm::Enemy_Test);
+atmExportClass(Enemy_Test);
 
 
 } // namespace atm

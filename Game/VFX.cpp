@@ -74,7 +74,7 @@ void VFXScintilla::addData( const VFXScintillaSpawnData &spawn )
     m_particles.insert(m_particles.end(), particles, particles+spawn.num_particles);
 }
 
-atmExportClass(atm::VFXSet);
+atmExportClass(VFXSet);
 
 VFXSet::VFXSet()
     : m_scintilla(nullptr)
