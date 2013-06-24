@@ -1,15 +1,6 @@
 ﻿#include "stdafx.h"
-#include "types.h"
-#include "Graphics/ResourceManager.h"
-#include "Game/AtomicApplication.h"
-#include "Game/AtomicGame.h"
-#include "Game/World.h"
-#include "Game/Collision.h"
-#include "Game/Entity.h"
-#include "Game/EntityQuery.h"
-#include "Game/Entity/Attributes.h"
-#include "Routine.h"
-#include "Util.h"
+#include "Game/Entity/EntityCommon.h"
+#include "Game/Entity/Routine.h"
 
 namespace atm {
 

@@ -135,6 +135,12 @@
     <ClCompile Include="Game\Entity\Carrier.cpp">
       <Filter>Game\Entity</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Entity\Obstacle.cpp">
+      <Filter>Game\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Entity\EntityUtil.cpp">
+      <Filter>Game\Entity</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h">
@@ -197,9 +203,6 @@
     </ClInclude>
     <ClInclude Include="Game\Collision.h">
       <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\Entity\Attributes.h">
-      <Filter>Game\Entity</Filter>
     </ClInclude>
     <ClInclude Include="Game\Entity\Enemy.h">
       <Filter>Game\Entity</Filter>
@@ -265,6 +268,21 @@
     </ClInclude>
     <ClInclude Include="UI\Config.h">
       <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Entity\EntityCommon.h">
+      <Filter>Game\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Entity\EntityUtil.h">
+      <Filter>Game\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Entity\EntityTemplate.h">
+      <Filter>Game\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Entity\EntityTransform.h">
+      <Filter>Game\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Entity\EntityAttributes.h">
+      <Filter>Game\Entity</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

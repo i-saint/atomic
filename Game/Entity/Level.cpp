@@ -1,102 +1,8 @@
 ﻿#include "stdafx.h"
-#include "types.h"
-#include "Sound/AtomicSound.h"
-#include "Graphics/ResourceManager.h"
-#include "Graphics/Renderer.h"
-#include "Game/AtomicApplication.h"
-#include "Game/AtomicGame.h"
-#include "Game/World.h"
-#include "Game/SPHManager.h"
-#include "Game/Collision.h"
-#include "Game/Message.h"
-#include "Util.h"
-#include "Enemy.h"
-#include "Routine.h"
+#include "Game/Entity/EntityCommon.h"
+#include "Game/Entity/Routine.h"
 
 namespace atm {
-
-class dpPatch GroundBlock : public EntityTemplate<Entity_Orientation>
-{
-typedef EntityTemplate<Entity_Orientation>  super;
-private:
-    EntityHandle    m_parent;
-
-    istSerializeBlock(
-        istSerializeBase(super)
-        istSerialize(m_parent)
-    )
-
-public:
-    atmECallBlock(
-        atmECallSuper(super)
-        atmMethodBlock(
-            atmECall(setParent)
-            atmECall(getParent)
-        )
-    )
-
-public:
-    GroundBlock() : m_parent(0)
-    {
-        wdmScope(
-        wdmString path = wdmFormat("Level/GroundBlock:0x%p", this);
-        super::addDebugNodes(path);
-        )
-    }
-
-    ~GroundBlock()
-    {
-        wdmEraseNode(wdmFormat("Level/GroundBlock:0x%p", this));
-    }
-
-    void            setParent(EntityHandle v)    { m_parent=v; }
-    EntityHandle    getParent() const            { return m_parent; }
-
-    virtual void initialize()
-    {
-        setPivot(vec3(-0.2f, 0.0f, -0.1f));
-
-        initializeCollision(getHandle());
-        setCollisionShape(CS_Box);
-        //setCollisionFlags(CF_Sender|CF_SPH_Sender);
-
-        setModel(PSET_CUBE_MEDIUM);
-        setGlowColor(vec4(0.4f));
-        setDiffuseColor(vec4(vec3(0.5f), 50.0f));
-    }
-
-    virtual void finalize()
-    {
-    }
-
-    virtual void update(float32 dt)
-    {
-    }
-
-    virtual void asyncupdate(float32 dt)
-    {
-        super::update(dt);
-        transform::updateTransformMatrix();
-        collision::updateCollisionByParticleSet(getModel(), getTransform());
-    }
-
-    virtual void draw()
-    {
-        PSetInstance inst;
-        inst.diffuse = getDiffuseColor();
-        inst.glow = getGlowColor();
-        inst.flash = vec4();
-        inst.elapsed = 1000.0f;
-        inst.appear_radius = 10000.0f;
-        inst.translate = getTransform();
-        atmGetSPHPass()->addPSetInstance(getModel(), inst);
-        atmGetBloodStainPass()->addBloodstainParticles(getTransform(), getBloodStainParticles(), getNumBloodstainParticles());
-    }
-};
-atmImplementEntity(GroundBlock);
-atmExportClass(atm::GroundBlock);
-
-
 
 
 class dpPatch Level_Test : public IEntity
@@ -161,7 +67,7 @@ public:
         };
         for(uint32 i=0; i<_countof(planes); ++i) {
             CollisionPlane *p = atmCreateCollision(CollisionPlane);
-            p->setGObjHandle(getHandle());
+            p->setEntityHandle(getHandle());
             p->setFlags(CF_Sender|CF_SPH_Sender);
             p->bb = bboxes[i];
             p->plane = planes[i];
@@ -493,5 +399,6 @@ public:
 };
 atmImplementEntity(Level_Test);
 atmExportClass(atm::Level_Test);
+
 
 } // namespace atm

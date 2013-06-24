@@ -1,49 +1,11 @@
 ﻿#ifndef atm_Game_Entity_Enemy_h
 #define atm_Game_Entity_Enemy_h
 
-#include "Game/Entity.h"
-#include "Game/EntityQuery.h"
-#include "Attributes.h"
+#include "EntityCommon.h"
+#include "EntityTemplate.h"
 #include "Routine.h"
 
 namespace atm {
-
-
-struct Entity_Orientation
-{
-    typedef TAttr_TransformMatrixI<Attr_Orientation> transform;
-    typedef Attr_ParticleSet    model;
-    typedef Attr_Collision      collision;
-    typedef Attr_Bloodstain     bloodstain;
-    typedef Attr_MessageHandler mhandler;
-};
-
-struct Entity_AxisRotationI
-{
-    typedef TAttr_TransformMatrixI< TAttr_RotateSpeed<Attr_DoubleAxisRotation> > transform;
-    typedef Attr_ParticleSet    model;
-    typedef Attr_Collision      collision;
-    typedef Attr_Bloodstain     bloodstain;
-    typedef Attr_MessageHandler mhandler;
-};
-
-struct Entity_AxisRotation
-{
-    typedef TAttr_TransformMatrix< TAttr_RotateSpeed<Attr_DoubleAxisRotation> > transform;
-    typedef Attr_ParticleSet    model;
-    typedef Attr_Collision      collision;
-    typedef Attr_Bloodstain     bloodstain;
-    typedef Attr_MessageHandler mhandler;
-};
-
-struct Entity_Translate
-{
-    typedef TAttr_TransformMatrix<Attr_Translate> transform;
-    typedef Attr_ParticleSet    model;
-    typedef Attr_Collision      collision;
-    typedef Attr_Bloodstain     bloodstain;
-    typedef Attr_MessageHandler mhandler;
-};
 
 
 class Attr_Life
@@ -97,52 +59,6 @@ public:
     }
 
     virtual void destroy() {}
-};
-
-template<class Attributes>
-class dpPatch EntityTemplate
-    : public IEntity
-    , public Attributes::transform
-    , public Attributes::model
-    , public Attributes::collision
-    , public Attributes::bloodstain
-    , public Attributes::mhandler
-    , public Attributes
-{
-private:
-    typedef IEntity super;
-    istSerializeBlock(
-        istSerializeBase(super)
-        istSerializeBase(transform)
-        istSerializeBase(model)
-        istSerializeBase(collision)
-        istSerializeBase(bloodstain)
-        istSerializeBase(mhandler)
-    )
-
-public:
-    atmECallBlock(
-        atmECallSuper(super)
-        atmECallSuper(transform)
-        atmECallSuper(model)
-        atmECallSuper(collision)
-        atmECallSuper(bloodstain)
-        atmECallSuper(mhandler)
-    )
-
-    wdmScope(
-    void addDebugNodes(const wdmString &path)
-    {
-        transform::addDebugNodes(path);
-        model::addDebugNodes(path);
-        collision::addDebugNodes(path);
-        bloodstain::addDebugNodes(path);
-        mhandler::addDebugNodes(path);
-    }
-    )
-
-    virtual void update(float32 dt) {}
-    virtual void asyncupdate(float32 dt) {}
 };
 
 
@@ -300,63 +216,6 @@ public:
         atmGetBloodStainPass()->addBloodstainParticles(getTransform(), getBloodStainParticles(), getNumBloodstainParticles());
     }
 };
-
-
-inline size_t SweepDeadEntities(stl::vector<EntityHandle> &cont)
-{
-    size_t ret = 0;
-    for(size_t i=0; i<cont.size(); ++i) {
-        EntityHandle v = cont[i];
-        if(v) {
-            if(atmGetEntity(v)==nullptr) {
-                cont[i] = 0;
-            }
-            else {
-                ++ret;
-            }
-        }
-    }
-    return ret;
-}
-
-template<size_t L>
-inline size_t SweepDeadEntities(EntityHandle (&cont)[L])
-{
-    size_t ret = 0;
-    for(size_t i=0; i<L; ++i) {
-        EntityHandle v = cont[i];
-        if(v) {
-            if(atmGetEntity(v)==nullptr) {
-                cont[i] = 0;
-            }
-            else {
-                ++ret;
-            }
-        }
-    }
-    return ret;
-}
-
-inline size_t SweepDeadEntities(EntityHandle &v)
-{
-    if(v) {
-        if(atmGetEntity(v)==nullptr) {
-            v = 0;
-        }
-        else {
-            return 1;
-        }
-    }
-    return 0;
-}
-
-template<class F>
-inline void EachEntities(stl::vector<EntityHandle> &cont, const F &f)
-{
-    for(size_t i=0; i<cont.size(); ++i) {
-        if(cont[i]) { f(cont[i]); }
-    }
-}
 
 } // namespace atm
 #endif // atm_Game_Entity_Enemy_h

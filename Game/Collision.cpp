@@ -146,9 +146,9 @@ dpPatch bool _Collide(const CollisionBox *sender, const CollisionBox *receiver, 
 
 bool Collide(const CollisionEntity *sender, const CollisionEntity *receiver, CollideMessage &m)
 {
-    switch(sender->getShape()) {
+    switch(sender->getShapeType()) {
     case CS_Plane:
-        switch(receiver->getShape()) {
+        switch(receiver->getShapeType()) {
         case CS_Plane:  return _Collide(static_cast<const CollisionPlane*>(sender), static_cast<const CollisionPlane*>(receiver), m);
         case CS_Sphere: return _Collide(static_cast<const CollisionPlane*>(sender), static_cast<const CollisionSphere*>(receiver), m);
         case CS_Box:    return _Collide(static_cast<const CollisionPlane*>(sender), static_cast<const CollisionBox*>(receiver), m);
@@ -156,7 +156,7 @@ bool Collide(const CollisionEntity *sender, const CollisionEntity *receiver, Col
         break;
 
     case CS_Sphere:
-        switch(receiver->getShape()) {
+        switch(receiver->getShapeType()) {
         case CS_Plane:  return _Collide(static_cast<const CollisionSphere*>(sender), static_cast<const CollisionPlane*>(receiver), m);
         case CS_Sphere: return _Collide(static_cast<const CollisionSphere*>(sender), static_cast<const CollisionSphere*>(receiver), m);
         case CS_Box:    return _Collide(static_cast<const CollisionSphere*>(sender), static_cast<const CollisionBox*>(receiver), m);
@@ -164,7 +164,7 @@ bool Collide(const CollisionEntity *sender, const CollisionEntity *receiver, Col
         break;
 
     case CS_Box:
-        switch(receiver->getShape()) {
+        switch(receiver->getShapeType()) {
         case CS_Plane:  return _Collide(static_cast<const CollisionBox*>(sender), static_cast<const CollisionPlane*>(receiver), m);
         case CS_Sphere: return _Collide(static_cast<const CollisionBox*>(sender), static_cast<const CollisionSphere*>(receiver), m);
         case CS_Box:    return _Collide(static_cast<const CollisionBox*>(sender), static_cast<const CollisionBox*>(receiver), m);
@@ -253,12 +253,12 @@ uint32 CollisionSet::collide(CollisionEntity *sender, MessageCont &m, HandleCont
     for(; iter!=neighbors.end(); ++iter) {
         CollisionEntity *receiver = getEntity(*iter);
         if((receiver->getFlags() & CF_Receiver) == 0 ) { continue; }
-        if(receiver->getGObjHandle() == sender->getGObjHandle()) { continue; }
+        if(receiver->getEntityHandle() == sender->getEntityHandle()) { continue; }
         CollideMessage message;
         if(Collide(sender, receiver, message)) {
-            message.to = receiver->getGObjHandle();
+            message.to = receiver->getEntityHandle();
             message.cto = receiver->getCollisionHandle();
-            message.from = sender->getGObjHandle();
+            message.from = sender->getEntityHandle();
             message.cfrom = sender->getCollisionHandle();
             m.push_back(message);
             ++n;
@@ -422,7 +422,7 @@ CollisionGrid* CollisionSet::getCollisionGrid()
 vec4 GetCollisionPosition( CollisionEntity *ce )
 {
     if(ce) {
-        switch(ce->getShape()) {
+        switch(ce->getShapeType()) {
         case CS_Plane:  static_cast<CollisionPlane*>(ce); break; // 位置なし
         case CS_Sphere: return static_cast<CollisionSphere*>(ce)->pos_r; break;
         case CS_Box:    return static_cast<CollisionBox*>(ce)->position; break;

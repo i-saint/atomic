@@ -45,6 +45,8 @@ enum EntityClassID
     EC_Bullet_End,
 
     EC_Obstacle_Begin = ECA_Obstacle<<9,
+    EC_PointLightEntity,
+    EC_DirectionalLightEntity,
     EC_GroundBlock,
     EC_Layer,
     EC_GearParts,

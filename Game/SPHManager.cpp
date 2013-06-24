@@ -139,12 +139,12 @@ size_t SPHManager::getNumParticles() const
 
 void SPHManager::addRigid(const CollisionEntity &v)
 {
-    switch(v.getShape()) {
+    switch(v.getShapeType()) {
     case CS_Sphere:
         {
             const CollisionSphere &src = static_cast<const CollisionSphere&>(v);
             psym::RigidSphere dst;
-            dst.id = src.getGObjHandle();
+            dst.id = src.getEntityHandle();
             dst.bb.bl_x = src.bb.bl.x;
             dst.bb.bl_y = src.bb.bl.y;
             dst.bb.bl_z = src.bb.bl.z;
@@ -163,7 +163,7 @@ void SPHManager::addRigid(const CollisionEntity &v)
         {
             const CollisionPlane &src = static_cast<const CollisionPlane&>(v);
             psym::RigidPlane dst;
-            dst.id = v.getGObjHandle();
+            dst.id = v.getEntityHandle();
             dst.bb.bl_x = src.bb.bl.x;
             dst.bb.bl_y = src.bb.bl.y;
             dst.bb.bl_z = src.bb.bl.z;
@@ -182,7 +182,7 @@ void SPHManager::addRigid(const CollisionEntity &v)
         {
             const CollisionBox &src = static_cast<const CollisionBox&>(v);
             psym::RigidBox dst;
-            dst.id = v.getGObjHandle();
+            dst.id = v.getEntityHandle();
             dst.bb.bl_x = src.bb.bl.x;
             dst.bb.bl_y = src.bb.bl.y;
             dst.bb.bl_z = src.bb.bl.z;
@@ -203,7 +203,7 @@ void SPHManager::addRigid(const CollisionEntity &v)
         break;
 
     default:
-        istPrint("unknown type: 0x%p : %x", &v, v.getShape());
+        istPrint("unknown type: 0x%p : %x", &v, v.getShapeType());
         istAssert(false);
     }
 }

@@ -28,8 +28,10 @@
     <ClCompile Include="Game\Entity\Bullet.cpp" />
     <ClCompile Include="Game\Entity\Carrier.cpp" />
     <ClCompile Include="Game\Entity\Enemy.cpp" />
+    <ClCompile Include="Game\Entity\EntityUtil.cpp" />
     <ClCompile Include="Game\Entity\Gear.cpp" />
     <ClCompile Include="Game\Entity\Level.cpp" />
+    <ClCompile Include="Game\Entity\Obstacle.cpp" />
     <ClCompile Include="Game\Entity\Player.cpp" />
     <ClCompile Include="Game\Entity\Routine.cpp" />
     <ClCompile Include="Game\Input.cpp" />
@@ -83,8 +85,12 @@
     <ClInclude Include="Game\Entity.h" />
     <ClInclude Include="Game\EntityClass.h" />
     <ClInclude Include="Game\EntityQuery.h" />
-    <ClInclude Include="Game\Entity\Attributes.h" />
     <ClInclude Include="Game\Entity\Enemy.h" />
+    <ClInclude Include="Game\Entity\EntityAttributes.h" />
+    <ClInclude Include="Game\Entity\EntityCommon.h" />
+    <ClInclude Include="Game\Entity\EntityTemplate.h" />
+    <ClInclude Include="Game\Entity\EntityTransform.h" />
+    <ClInclude Include="Game\Entity\EntityUtil.h" />
     <ClInclude Include="Game\Entity\Level.h" />
     <ClInclude Include="Game\Entity\Routine.h" />
     <ClInclude Include="Game\Input.h" />

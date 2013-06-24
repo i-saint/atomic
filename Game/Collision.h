@@ -3,7 +3,7 @@
 
 namespace atm {
 
-enum CollisionShapeID {
+enum CollisionShapeType {
     CS_Null,
     CS_Plane,
     CS_Sphere,
@@ -48,38 +48,38 @@ struct CollisionEntity
 {
 friend class CollisionSet;
 private:
-    CollisionShapeID m_shape;
+    CollisionShapeType m_shape_type;
     CollisionHandle m_col_handle;
-    EntityHandle    m_gobj_handle;
+    EntityHandle    m_entity_handle;
     int32           m_flags; // COLLISION_FLAG
 public:
     BoundingBox bb;
 
 private:
     istSerializeBlock(
-        istSerialize(m_shape)
+        istSerialize(m_shape_type)
         istSerialize(m_col_handle)
-        istSerialize(m_gobj_handle)
+        istSerialize(m_entity_handle)
         istSerialize(m_flags)
         istSerialize(bb)
-        )
+    )
 
     void setCollisionHandle(CollisionHandle v) { m_col_handle=v; }
 
 protected:
-    void setShape(CollisionShapeID v) { m_shape=v; }
+    void setShape(CollisionShapeType v) { m_shape_type=v; }
 
 public:
-    CollisionEntity() : m_shape(CS_Null), m_col_handle(0), m_gobj_handle(0), m_flags(CF_Receiver|CF_Sender|CF_SPH_Sender) {}
+    CollisionEntity() : m_shape_type(CS_Null), m_col_handle(0), m_entity_handle(0), m_flags(CF_Receiver|CF_Sender|CF_SPH_Sender) {}
     virtual ~CollisionEntity() {}
     void release() { istDelete(this); }
-    CollisionShapeID getShape() const            { return m_shape; }
+    CollisionShapeType getShapeType() const           { return m_shape_type; }
     CollisionHandle getCollisionHandle() const  { return m_col_handle; }
-    EntityHandle    getGObjHandle() const       { return m_gobj_handle; }
+    EntityHandle    getEntityHandle() const     { return m_entity_handle; }
     int32           getFlags() const            { return m_flags; }
 
-    void setGObjHandle(EntityHandle v)  { m_gobj_handle=v; }
-    void setFlags(int32 v)              { m_flags=v; }
+    void setEntityHandle(EntityHandle v)    { m_entity_handle=v; }
+    void setFlags(int32 v)                  { m_flags=v; }
 };
 
 struct LessCollisionHandle { bool operator()(CollisionEntity *a, CollisionEntity *b) { return a->getCollisionHandle() < b->getCollisionHandle(); }};

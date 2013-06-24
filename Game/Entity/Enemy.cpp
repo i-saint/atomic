@@ -1,22 +1,11 @@
 ﻿#include "stdafx.h"
-#include "types.h"
-#include "Util.h"
-#include "Sound/AtomicSound.h"
-#include "Graphics/ResourceManager.h"
-#include "Graphics/Renderer.h"
-#include "Game/AtomicApplication.h"
-#include "Game/AtomicGame.h"
-#include "Game/World.h"
-#include "Game/SPHManager.h"
-#include "Game/Collision.h"
-#include "Game/Message.h"
-#include "Routine.h"
-#include "Enemy.h"
+#include "Game/Entity/EntityCommon.h"
+#include "Game/Entity/Enemy.h"
+#include "Game/Entity/Routine.h"
 
 namespace atm {
 
-class dpPatch Enemy_Test
-    : public Breakable<Entity_AxisRotationI>
+class dpPatch Enemy_Test : public Breakable<Entity_AxisRotationI>
 {
 typedef Breakable<Entity_AxisRotationI> super;
 private:
@@ -118,7 +107,7 @@ public:
         super::asyncupdate(dt);
         transform::updateRotate(dt);
         transform::updateTransformMatrix();
-        bloodstain::updateBloodstain();
+        bloodstain::updateBloodstain(dt);
 
         float32 rigid_scale = 1.0f;
         if(getState()==ST_FADEIN) {
