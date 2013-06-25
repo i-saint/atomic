@@ -38,7 +38,7 @@ public:
 
         initializeCollision(getHandle());
         setCollisionShape(CS_Box);
-        setCollisionFlags(CF_Sender|CF_SPH_Sender);
+        setCollisionFlags(CF_Sender|CF_Receiver|CF_SPH_Sender);
 
         setModel(PSET_CUBE_MEDIUM);
     }
@@ -48,6 +48,16 @@ public:
     {
         super::eventFluid(m);
         atmCall(getParent(), addForce, atmArgs((const vec3&)m->position, (const vec3&)m->velocity * (sqrt(m->density)*0.1f) ) );
+    }
+
+    virtual void eventCollide(const CollideMessage *m) override
+    {
+        super::eventCollide(m);
+        vec3 pos;
+        if(atmQuery(m->from, getPosition, pos)) {
+            vec3 force = vec3(m->direction * (m->direction.w * 4000.0f));
+            atmCall(getParent(), addForce, atmArgs(pos, force));
+        }
     }
 };
 atmImplementEntity(GearParts);
@@ -207,12 +217,14 @@ public:
 
         const int32 div = 6;
         const vec4 dir_x(1.0f,0.0f,0.0f,0.0f);
+        CollisionGroup cg = atmGetCollisionSet()->genGroup();
         for(int i=0; i<div; ++i) {
             vec3 dir = vec3(glm::rotateZ(dir_x, 360.0f/div*i));
             GearParts *e = (GearParts*)atmCreateEntity(GearParts);
             e->setScale(vec3(1.5f, 0.25f, 0.75f));
             e->setParent(getHandle());
             e->setOrientation(dir);
+            e->setCollisionGroup(cg);
             addParts(e);
         }
     }
@@ -251,12 +263,14 @@ public:
 
         const int32 div = 6;
         const vec4 dir_x(1.0f,0.0f,0.0f,0.0f);
+        CollisionGroup cg = atmGetCollisionSet()->genGroup();
         for(int i=0; i<div; ++i) {
             vec3 dir = vec3(glm::rotateZ(dir_x, 360.0f/div*i));
             GearParts *e = (GearParts*)atmCreateEntity(GearParts);
             e->setScale(vec3(2.5f, 0.4f, 1.0f));
             e->setParent(getHandle());
             e->setOrientation(dir);
+            e->setCollisionGroup(cg);
             addParts(e);
         }
     }

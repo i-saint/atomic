@@ -13,15 +13,16 @@ void UpdateCollisionSphere(CollisionSphere &o, const vec3& pos, float32 r)
 
 void UpdateCollisionBox(CollisionBox &o, const mat4& t, const vec3 &size)
 {
+    simdmat4 st(t);
     vec3 vertices[] = {
-        vec3(t * vec4( size.x, size.y, size.z, 0.0f)),
-        vec3(t * vec4(-size.x, size.y, size.z, 0.0f)),
-        vec3(t * vec4(-size.x,-size.y, size.z, 0.0f)),
-        vec3(t * vec4( size.x,-size.y, size.z, 0.0f)),
-        vec3(t * vec4( size.x, size.y,-size.z, 0.0f)),
-        vec3(t * vec4(-size.x, size.y,-size.z, 0.0f)),
-        vec3(t * vec4(-size.x,-size.y,-size.z, 0.0f)),
-        vec3(t * vec4( size.x,-size.y,-size.z, 0.0f)),
+        vec3(glm::vec4_cast(st * simdvec4( size.x, size.y, size.z, 0.0f))),
+        vec3(glm::vec4_cast(st * simdvec4(-size.x, size.y, size.z, 0.0f))),
+        vec3(glm::vec4_cast(st * simdvec4(-size.x,-size.y, size.z, 0.0f))),
+        vec3(glm::vec4_cast(st * simdvec4( size.x,-size.y, size.z, 0.0f))),
+        vec3(glm::vec4_cast(st * simdvec4( size.x, size.y,-size.z, 0.0f))),
+        vec3(glm::vec4_cast(st * simdvec4(-size.x, size.y,-size.z, 0.0f))),
+        vec3(glm::vec4_cast(st * simdvec4(-size.x,-size.y,-size.z, 0.0f))),
+        vec3(glm::vec4_cast(st * simdvec4( size.x,-size.y,-size.z, 0.0f))),
     };
     vec3 normals[6] = {
         glm::normalize(glm::cross(vertices[3]-vertices[0], vertices[4]-vertices[0])),
@@ -42,6 +43,8 @@ void UpdateCollisionBox(CollisionBox &o, const mat4& t, const vec3 &size)
 
     const vec3 pos = vec3(t[3]);
     o.position = vec4(pos, 0.0f);
+    o.trans = t;
+    o.size = vec4(size, 0.0f);
     for(int32 i=0; i<_countof(normals); ++i) {
         o.planes[i] = vec4(normals[i], distances[i]);
     }

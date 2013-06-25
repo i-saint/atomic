@@ -3,6 +3,151 @@
 
 namespace atm {
 
+class IBulletManager
+{
+public:
+    virtual ~IBulletManager() {}
+    virtual void update(float32 dt) {}
+    virtual void asyncupdate(float32 dt) {}
+    virtual void draw() {}
+};
+
+
+struct LaserParticle
+{
+    vec3    pos;
+    float32 time;
+    EntityHandle hit_to;
+
+    LaserParticle() : time(0.0f), hit_to(0) {}
+};
+atmSerializeRaw(LaserParticle);
+
+class dpPatch Laser
+{
+private:
+    enum State {
+        State_Normal,
+        State_Fadeout,
+        State_Dead,
+    };
+    typedef stl::vector<LaserParticle> particles;
+
+    uint32       m_id;
+    EntityHandle m_owner;
+    State        m_state;
+    float32      m_time;
+    vec3         m_pos;
+    vec3         m_dir;
+    particles    m_particles;
+
+    istSerializeBlock(
+        istSerialize(m_id)
+        istSerialize(m_owner)
+        istSerialize(m_state)
+        istSerialize(m_time)
+        istSerialize(m_pos)
+        istSerialize(m_dir)
+        istSerialize(m_particles)
+    )
+
+public:
+    Laser() : m_id(0), m_owner(0), m_state(State_Normal), m_time(0.0f)
+    {
+    }
+
+    void update(float32 dt)
+    {
+        m_time += dt;
+
+        static const float32 speed = 0.1f;
+        static const float32 lifetime = 240.0f;
+        std::for_each(m_particles.begin(), m_particles.end(), [&](LaserParticle &p){
+            p.time += dt;
+        });
+        if(m_state==State_Normal) {
+            std::for_each(m_particles.begin(), m_particles.end(), [&](LaserParticle &p){
+                vec3 pos = p.pos + m_dir*p.time*speed;
+                // todo: collision
+                // if(collide) {
+                //    // add some vfx
+                //    // send dame to p.hit_to
+                //    p.time=300.0f;
+                //}
+            });
+        }
+        m_particles.erase(
+            std::remove_if(m_particles.begin(), m_particles.end(), [&](LaserParticle &p){ return p.time>=lifetime; }),
+            m_particles.end());
+    }
+
+    void fadeout()  { m_state=State_Fadeout; m_time=0.0f; }
+    void kill()     { m_state=State_Dead; m_time=0.0f; }
+};
+
+class dpPatch LaserManager : public IBulletManager
+{
+private:
+    typedef stl::vector<Laser*> lasers;
+    lasers m_lasers;
+
+public:
+};
+
+
+struct SimpleBullet
+{
+    vec3 pos;
+    vec3 vel;
+    float32 time;
+    EntityHandle owner;
+    EntityHandle hit_to;
+    uint32 flags;
+};
+atmSerializeRaw(SimpleBullet);
+
+class dpPatch SimpleBulletManager : public IBulletManager
+{
+private:
+    typedef stl::vector<SimpleBullet> bullets;
+    bullets m_bullets;
+
+public:
+    SimpleBulletManager()
+    {
+    }
+
+    void update(float32 dt)
+    {
+        static const float32 lifetime = 600.0f;
+        std::for_each(m_bullets.begin(), m_bullets.end(), [&](SimpleBullet &p){
+            p.time += dt;
+            p.pos += p.vel;
+            // todo: collision
+            // if(collide) {
+            //    // add some vfx
+            //    // send dame to p.hit_to
+            //    p.time=300.0f;
+            //}
+        });
+        m_bullets.erase(
+            std::remove_if(m_bullets.begin(), m_bullets.end(), [&](SimpleBullet &p){ return p.time>=lifetime; }),
+            m_bullets.end());
+    }
+
+    void shoot(const vec3 &pos, const vec3 &vel, EntityHandle owner);
+};
+
+
+
+class dpPatch NeedleBulletManager : public IBulletManager
+{
+private:
+public:
+};
+
+
+
 class dpPatch Bullet_Needle;
 
 class dpPatch Bullet_Simple : public EntityTemplate<Entity_AxisRotation>

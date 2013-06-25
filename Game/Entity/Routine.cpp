@@ -63,7 +63,7 @@ public:
     virtual void eventCollide(const CollideMessage *m)
     {
         IEntity *e = getEntity();
-        vec3 v = vec3(m->direction * m->direction.w * 0.02f);
+        vec3 v = glm::normalize(vec3(m->direction.x,m->direction.y,0.0f)) * (m->direction.w * 0.1f);
         vec3 pos; atmQuery(e, getPosition, pos);
         pos += v;
         pos.z = 0.0f;

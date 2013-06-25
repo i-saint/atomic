@@ -130,6 +130,8 @@ public:
         atmMethodBlock(
             atmECall(getCollisionFlags)
             atmECall(setCollisionFlags)
+            atmECall(getCollisionGroup)
+            atmECall(setCollisionGroup)
             atmECall(getCollisionHandle)
             atmECall(setCollisionShape)
         )
@@ -157,6 +159,21 @@ public:
     {
         if(CollisionEntity *ce=atmGetCollision(m_collision)) {
             return ce->getFlags();
+        }
+        return 0;
+    }
+
+    void setCollisionGroup(CollisionGroup v)
+    {
+        if(CollisionEntity *ce=atmGetCollision(m_collision)) {
+            ce->setCollisionGroup(v);
+        }
+    }
+
+    CollisionGroup getCollisionGroup() const
+    {
+        if(CollisionEntity *ce=atmGetCollision(m_collision)) {
+            return ce->getCollisionGroup();
         }
         return 0;
     }

@@ -61,6 +61,7 @@ using namespace ist::i3dgl;
 
 typedef uint32 EntityHandle;
 typedef uint32 CollisionHandle;
+typedef uint32 CollisionGroup;
 enum FunctionID;
 
 typedef uint32 PlayerID;
@@ -147,7 +148,7 @@ struct EntitiesQueryContext
 
 #define atmSerializeRaw(ClassName)   \
 atmGlobalNamespace(                  \
-    istSerializeRaw(ClassName);         \
+    istSerializeRaw(atm::ClassName);         \
 )
 
 

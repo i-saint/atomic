@@ -140,7 +140,56 @@ dpPatch bool _Collide(const CollisionSphere *sender, const CollisionBox *receive
 
 dpPatch bool _Collide(const CollisionBox *sender, const CollisionBox *receiver, CollideMessage &m)
 {
+    if(!BoundingBoxIntersect(sender->bb, receiver->bb)) { return false; }
+    {
+        const vec4 &size = receiver->size;
+        simdmat4 t(receiver->trans);
+        vec4 vertices[] = {
+            glm::vec4_cast(t * simdvec4( size.x, size.y, size.z, 1.0f)),
+            glm::vec4_cast(t * simdvec4(-size.x, size.y, size.z, 1.0f)),
+            glm::vec4_cast(t * simdvec4(-size.x,-size.y, size.z, 1.0f)),
+            glm::vec4_cast(t * simdvec4( size.x,-size.y, size.z, 1.0f)),
+            glm::vec4_cast(t * simdvec4( size.x, size.y,-size.z, 1.0f)),
+            glm::vec4_cast(t * simdvec4(-size.x, size.y,-size.z, 1.0f)),
+            glm::vec4_cast(t * simdvec4(-size.x,-size.y,-size.z, 1.0f)),
+            glm::vec4_cast(t * simdvec4( size.x,-size.y,-size.z, 1.0f)),
+        };
+        for(size_t i=0; i<_countof(vertices); ++i) {
+            CollisionSphere sphere;
+            sphere.bb.bl = sphere.bb.ur = sphere.pos_r = vec4(vec3(vertices[i]), 0.0f);
+            if(_Collide(sender, &sphere, m)) {
+                goto HIT;
+            }
+        }
+    }
+    {
+        const vec4 &size = sender->size;
+        simdmat4 t(sender->trans);
+        vec4 vertices[] = {
+            glm::vec4_cast(t * simdvec4( size.x, size.y, size.z, 1.0f)),
+            glm::vec4_cast(t * simdvec4(-size.x, size.y, size.z, 1.0f)),
+            glm::vec4_cast(t * simdvec4(-size.x,-size.y, size.z, 1.0f)),
+            glm::vec4_cast(t * simdvec4( size.x,-size.y, size.z, 1.0f)),
+            glm::vec4_cast(t * simdvec4( size.x, size.y,-size.z, 1.0f)),
+            glm::vec4_cast(t * simdvec4(-size.x, size.y,-size.z, 1.0f)),
+            glm::vec4_cast(t * simdvec4(-size.x,-size.y,-size.z, 1.0f)),
+            glm::vec4_cast(t * simdvec4( size.x,-size.y,-size.z, 1.0f)),
+        };
+        for(size_t i=0; i<_countof(vertices); ++i) {
+            CollisionSphere sphere;
+            sphere.bb.bl = sphere.bb.ur = sphere.pos_r = vec4(vec3(vertices[i]), 0.0f);
+            if(_Collide(&sphere, receiver, m)) {
+                goto HIT;
+            }
+        }
+    }
     return false;
+
+HIT:
+    vec3 dir = glm::normalize(vec3(receiver->position)-vec3(sender->position));
+    (vec3&)m.direction = glm::normalize((vec3&)m.direction+dir);
+    //(vec3&)m.direction = dir;
+    return true;
 }
 
 
@@ -246,6 +295,7 @@ void CollisionGrid::getEntities( const BoundingBox &bb, ist::vector<CollisionHan
 uint32 CollisionSet::collide(CollisionEntity *sender, MessageCont &m, HandleCont &neighbors)
 {
     if(!sender || (sender->getFlags() & CF_Sender)==0) { return 0; }
+    CollisionGroup group = sender->getCollisionGroup();
 
     uint32 n = 0;
     m_grid.getEntities(sender->bb, neighbors);
@@ -253,7 +303,9 @@ uint32 CollisionSet::collide(CollisionEntity *sender, MessageCont &m, HandleCont
     for(; iter!=neighbors.end(); ++iter) {
         CollisionEntity *receiver = getEntity(*iter);
         if((receiver->getFlags() & CF_Receiver) == 0 ) { continue; }
-        if(receiver->getEntityHandle() == sender->getEntityHandle()) { continue; }
+        if(group!=0 && group==receiver->getCollisionGroup()) { continue; }
+        if(receiver->getEntityHandle()==sender->getEntityHandle()) { continue; }
+
         CollideMessage message;
         if(Collide(sender, receiver, message)) {
             message.to = receiver->getEntityHandle();
@@ -270,6 +322,7 @@ uint32 CollisionSet::collide(CollisionEntity *sender, MessageCont &m, HandleCont
 
 
 CollisionSet::CollisionSet()
+    : m_groupgen(0)
 {
     m_entities.reserve(1024);
     m_vacant.reserve(1024);
@@ -415,6 +468,11 @@ void CollisionSet::deleteEntity(CollisionEntity *e)
 CollisionGrid* CollisionSet::getCollisionGrid()
 {
     return &m_grid;
+}
+
+atm::CollisionGroup CollisionSet::genGroup()
+{
+    return ++m_groupgen;
 }
 
 

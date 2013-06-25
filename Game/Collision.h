@@ -39,7 +39,7 @@ struct istAlign(16) BoundingBox
     vec4 getUBB() const { return vec4(ur.x, bl.y, bl.z, 0.0f); }
     vec4 getBBB() const { return vec4(bl.x, bl.y, bl.z, 0.0f); }
 };
-atmSerializeRaw(atm::BoundingBox);
+atmSerializeRaw(BoundingBox);
 
 class CollisionSet;
 
@@ -49,7 +49,8 @@ struct CollisionEntity
 friend class CollisionSet;
 private:
     CollisionShapeType m_shape_type;
-    CollisionHandle m_col_handle;
+    CollisionHandle m_handle;
+    CollisionGroup  m_group;
     EntityHandle    m_entity_handle;
     int32           m_flags; // COLLISION_FLAG
 public:
@@ -58,28 +59,31 @@ public:
 private:
     istSerializeBlock(
         istSerialize(m_shape_type)
-        istSerialize(m_col_handle)
+        istSerialize(m_handle)
+        istSerialize(m_group)
         istSerialize(m_entity_handle)
         istSerialize(m_flags)
         istSerialize(bb)
     )
 
-    void setCollisionHandle(CollisionHandle v) { m_col_handle=v; }
+    void setCollisionHandle(CollisionHandle v) { m_handle=v; }
 
 protected:
     void setShape(CollisionShapeType v) { m_shape_type=v; }
 
 public:
-    CollisionEntity() : m_shape_type(CS_Null), m_col_handle(0), m_entity_handle(0), m_flags(CF_Receiver|CF_Sender|CF_SPH_Sender) {}
+    CollisionEntity() : m_shape_type(CS_Null), m_handle(0), m_group(0), m_entity_handle(0), m_flags(CF_Receiver|CF_Sender|CF_SPH_Sender) {}
     virtual ~CollisionEntity() {}
     void release() { istDelete(this); }
-    CollisionShapeType getShapeType() const           { return m_shape_type; }
-    CollisionHandle getCollisionHandle() const  { return m_col_handle; }
-    EntityHandle    getEntityHandle() const     { return m_entity_handle; }
-    int32           getFlags() const            { return m_flags; }
+    CollisionShapeType  getShapeType() const        { return m_shape_type; }
+    CollisionHandle     getCollisionHandle() const  { return m_handle; }
+    CollisionGroup      getCollisionGroup() const   { return m_group; }
+    EntityHandle        getEntityHandle() const     { return m_entity_handle; }
+    int32               getFlags() const            { return m_flags; }
 
-    void setEntityHandle(EntityHandle v)    { m_entity_handle=v; }
-    void setFlags(int32 v)                  { m_flags=v; }
+    void setCollisionGroup(CollisionGroup v)    { m_group=v; }
+    void setEntityHandle(EntityHandle v)        { m_entity_handle=v; }
+    void setFlags(int32 v)                      { m_flags=v; }
 };
 
 struct LessCollisionHandle { bool operator()(CollisionEntity *a, CollisionEntity *b) { return a->getCollisionHandle() < b->getCollisionHandle(); }};
@@ -129,14 +133,16 @@ istDefinePoolNewST(CollisionBox);
 public:
     vec4 position;
     vec4 size;
+    mat4 trans;
     vec4 planes[6];
 
     istSerializeBlock(
         istSerializeBase(super)
         istSerialize(position)
         istSerialize(size)
+        istSerialize(trans)
         istSerialize(planes)
-        )
+    )
 
 public:
     CollisionBox() { setShape(CS_Box); }
@@ -234,12 +240,15 @@ public:
 
     CollisionGrid* getCollisionGrid();
 
+    CollisionGroup genGroup();
+
 private:
     void addEntity(CollisionEntity *e);
     uint32 collide(CollisionEntity *e, MessageCont &m, HandleCont &neighbors_placeholder);
 
     EntityCont      m_entities;
     HandleCont      m_vacant;
+    CollisionGroup  m_groupgen;
 
     // 以下 serialize 不要
     CollisionGrid   m_grid;
@@ -249,7 +258,8 @@ private:
         istSerializeBase(super)
         istSerialize(m_entities)
         istSerialize(m_vacant)
-        )
+        istSerialize(m_groupgen)
+    )
 };
 
 
