@@ -34,7 +34,7 @@ public:
     virtual void initialize() override
     {
         super::initialize();
-        setPivot(vec3(-0.2f, 0.0f, -0.1f));
+        setPivot(vec3(-0.2f, 0.0f, 0.0f));
 
         initializeCollision(getHandle());
         setCollisionShape(CS_Box);
@@ -56,14 +56,13 @@ atmExportClass(GearParts);
 
 class dpPatch GearBase
     : public IEntity
-    , public Attr_MessageHandler
     , public TAttr_TransformMatrix<Attr_Transform>
 {
     typedef IEntity             super;
-    typedef Attr_MessageHandler mhandler;
     typedef TAttr_TransformMatrix<Attr_Transform>   transform;
 
     stl::vector<EntityHandle> m_parts;
+    EntityHandle m_linkage;
     float32 m_rot_angle;
     float32 m_rot_speed;
     float32 m_max_rot_speed;
@@ -72,8 +71,8 @@ class dpPatch GearBase
 
     istSerializeBlock(
         istSerializeBase(super)
-        istSerializeBase(mhandler)
         istSerializeBase(transform)
+        istSerialize(m_linkage)
         istSerialize(m_parts)
         istSerialize(m_rot_angle)
         istSerialize(m_rot_speed)
@@ -86,6 +85,19 @@ public:
     atmECallBlock(
         atmMethodBlock(
             atmECall(addForce)
+            atmECall(addRotateSpeed)
+            atmECall(getLinkage)
+            atmECall(setLinkage)
+            atmECall(getRotateAngle)
+            atmECall(setRotateAngle)
+            atmECall(getRotateSpeed)
+            atmECall(setRotateSpeed)
+            atmECall(getMaxRotateSpeed)
+            atmECall(setMaxRotateSpeed)
+            atmECall(getRotateAccel)
+            atmECall(setRotateAccel)
+            atmECall(getRotateDecel)
+            atmECall(setRotateDecel)
         )
         atmECallSuper(super)
         atmECallSuper(transform)
@@ -103,7 +115,7 @@ public:
     }
     )
 public:
-    GearBase() : m_rot_angle(0.0f), m_rot_speed(0.0f), m_max_rot_speed(0.5f), m_rot_accel(0.00002f), m_rot_decel(0.99f)
+    GearBase() : m_linkage(0), m_rot_angle(0.0f), m_rot_speed(0.0f), m_max_rot_speed(0.5f), m_rot_accel(0.00002f), m_rot_decel(0.99f)
     {
     }
 
@@ -119,11 +131,11 @@ public:
 
     virtual void update(float32 dt) override
     {
+        updateRotate(); // 子が参照するので asyncupdate() の中ではマズい
     }
 
     virtual void asyncupdate(float32 dt) override
     {
-        updateRotate();
     }
 
     void updateRotate()
@@ -146,18 +158,20 @@ public:
         addRotateSpeed(f);
     }
 
+    void addRotateSpeed(float32 v)      { setRotateSpeed(getRotateSpeed()+v); }
     void addParts(GearParts *v)         { m_parts.push_back(v->getHandle()); }
+    EntityHandle getLinkage() const     { return m_linkage; }
     float32 getRotateAngle() const      { return m_rot_angle; }
     float32 getRotateSpeed() const      { return m_rot_speed; }
     float32 getMaxRotateSpeed() const   { return m_max_rot_speed; }
     float32 getRotateAccel() const      { return m_rot_accel; }
     float32 getRotateDecel() const      { return m_rot_decel; }
+    void setLinkage(EntityHandle v)     { m_linkage=v; }
     void setRotateAngle(float32 v)      { m_rot_angle=v; }
     void setRotateSpeed(float32 v)      { m_rot_speed=glm::sign(v)*glm::min(glm::abs(v), m_max_rot_speed); }
     void setMaxRotateSpeed(float32 v)   { m_max_rot_speed=v; }
     void setRotateAccel(float32 v)      { m_rot_accel=v; }
     void setRotateDecel(float32 v)      { m_rot_decel=v; }
-    void addRotateSpeed(float32 v)      { setRotateSpeed(getRotateSpeed()+v); }
     template<class F> void eachParts(const F &f) { EachEntities(m_parts, f); }
 };
 atmExportClass(GearBase);
@@ -166,7 +180,7 @@ atmExportClass(GearBase);
 class dpPatch GearSmall : public GearBase
 {
 typedef GearBase super;
-
+private:
     istSerializeBlock(
         istSerializeBase(super)
     )
@@ -187,16 +201,16 @@ public:
 
     virtual void initialize() override
     {
-        setMaxRotateSpeed(0.6f);
+        setMaxRotateSpeed(1.5f);
         setRotateDecel(0.99f);
-        setRotateAccel(0.00003f);
+        setRotateAccel(0.0002f);
 
-        const int32 div = 4;
+        const int32 div = 6;
         const vec4 dir_x(1.0f,0.0f,0.0f,0.0f);
         for(int i=0; i<div; ++i) {
             vec3 dir = vec3(glm::rotateZ(dir_x, 360.0f/div*i));
             GearParts *e = (GearParts*)atmCreateEntity(GearParts);
-            e->setScale(vec3(2.5f, 0.5f, 1.0f));
+            e->setScale(vec3(1.5f, 0.25f, 0.75f));
             e->setParent(getHandle());
             e->setOrientation(dir);
             addParts(e);
@@ -209,14 +223,43 @@ atmExportClass(GearSmall);
 
 class dpPatch GearLarge : public GearBase
 {
-    typedef GearBase            super;
-    typedef Attr_MessageHandler mhandler;
-
+typedef GearBase super;
+private:
     istSerializeBlock(
         istSerializeBase(super)
     )
 
 public:
+    GearLarge()
+    {
+        wdmScope(
+            wdmString path = wdmFormat("Level/GearLarge/0x%p", this);
+        super::addDebugNodes(path);
+        )
+    }
+
+    ~GearLarge()
+    {
+        wdmEraseNode(wdmFormat("Level/GearLarge/0x%p", this));
+    }
+
+    virtual void initialize() override
+    {
+        setMaxRotateSpeed(0.6f);
+        setRotateDecel(0.99f);
+        setRotateAccel(0.00003f);
+
+        const int32 div = 6;
+        const vec4 dir_x(1.0f,0.0f,0.0f,0.0f);
+        for(int i=0; i<div; ++i) {
+            vec3 dir = vec3(glm::rotateZ(dir_x, 360.0f/div*i));
+            GearParts *e = (GearParts*)atmCreateEntity(GearParts);
+            e->setScale(vec3(2.5f, 0.4f, 1.0f));
+            e->setParent(getHandle());
+            e->setOrientation(dir);
+            addParts(e);
+        }
+    }
 };
 atmImplementEntity(GearLarge);
 atmExportClass(GearLarge);

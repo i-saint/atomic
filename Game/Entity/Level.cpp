@@ -277,9 +277,9 @@ public:
         // 敵テスト用
         if(m_frame==1) {
             {
-                IEntity *e = putLargeEnemy();
-                atmCall(e, setRoutine, RCID_Routine_CircularShoot);
-                atmCall(e, setLife, 10000.0f);
+                //IEntity *e = putLargeEnemy();
+                //atmCall(e, setRoutine, RCID_Routine_CircularShoot);
+                //atmCall(e, setLife, 10000.0f);
             }
             {
                 //IEntity *e = atmCreateEntity(GroundBlock);
@@ -288,6 +288,10 @@ public:
             {
                 IEntity *e = atmCreateEntity(GearSmall);
                 atmCall(e, setPosition, vec3(0.5f, 0.5f, 0.0f));
+            }
+            {
+                IEntity *e = atmCreateEntity(GearLarge);
+                atmCall(e, setPosition, vec3(-1.0f, 0.5f, 0.0f));
             }
         }
 
