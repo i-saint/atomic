@@ -7,8 +7,8 @@
 #include "Game/AtomicApplication.h"
 #include "Game/AtomicGame.h"
 #include "Game/World.h"
-#include "Game/SPHManager.h"
-#include "Game/Collision.h"
+#include "Game/FluidModule.h"
+#include "Game/CollisionModule.h"
 #include "Game/Message.h"
 #include "Enemy.h"
 
@@ -211,7 +211,7 @@ public:
             force.y = center_force.y;
             force.z = center_force.z;
             force.strength = 6.0f;
-            atmGetSPHManager()->addForce(force);
+            atmGetFluidModule()->addForce(force);
         }
     }
 
@@ -432,7 +432,7 @@ public:
         istSafeDelete(old_weapon);
     }
 
-    virtual void initialize() override
+    void initialize() override
     {
         super::initialize();
 
@@ -455,14 +455,14 @@ public:
         }
     }
 
-    virtual void update(float32 dt) override
+    void update(float32 dt) override
     {
         super::update(dt);
         if(m_drive)  {m_drive->update(dt); }
         if(m_weapon) {m_weapon->update(dt); }
 
         // 流体パーティクルが 10000 以下なら追加
-        if(atmGetSPHManager()->getNumParticles()<10000) {
+        if(atmGetFluidModule()->getNumParticles()<10000) {
             psym::Particle particles[16];
             for(size_t i=0; i<_countof(particles); ++i) {
                 vec4 rd = glm::normalize(vec4(atmGenRandFloat()-0.5f, atmGenRandFloat()-0.5f, 0.0f, 0.0f));
@@ -471,7 +471,7 @@ public:
                 particles[i].position = poss;
                 particles[i].velocity = _mm_set1_ps(0.0f);
             }
-            atmGetSPHManager()->addFluid(&particles[0], _countof(particles));
+            atmGetFluidModule()->addFluid(&particles[0], _countof(particles));
         }
     }
 
@@ -506,7 +506,7 @@ public:
         }
     }
 
-    virtual void draw() override
+    void draw() override
     {
         {
             PointLight l;
@@ -543,14 +543,14 @@ public:
         //}
     }
 
-    virtual void destroy() override
+    void destroy() override
     {
-        atmGetSPHManager()->addFluid(pset_id, getTransform());
+        atmGetFluidModule()->addFluid(pset_id, getTransform());
         atmPlaySE(SE_CHANNEL5, SE_EXPLOSION5, getPosition(), true);
         atmDeleteEntity(getHandle());
     }
 
-    virtual void eventCollide(const CollideMessage *m) override
+    void eventCollide(const CollideMessage *m) override
     {
         // 押し返し
         vec3 v = vec3(m->direction * (m->direction.w * 0.2f));

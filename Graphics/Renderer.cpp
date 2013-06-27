@@ -4,7 +4,7 @@
 #include "Game/AtomicApplication.h"
 #include "Game/AtomicGame.h"
 #include "Game/World.h"
-#include "Game/SPHManager.h"
+#include "Game/FluidModule.h"
 #include "AtomicRenderingSystem.h"
 #include "Renderer.h"
 #include "Util.h"
@@ -296,7 +296,7 @@ void AtomicRenderer::passOutput()
     istSPrintf(buf, "FPS: %u", atmGetRenderingSystem()->getAverageFPS());
     m_stext->addText(vec2(5.0f, 5.0f), buf);
     if(atmGetGame()) {
-        istSPrintf(buf, "Particles: %d", atmGetSPHManager()->getNumParticles());
+        istSPrintf(buf, "Particles: %d", atmGetFluidModule()->getNumParticles());
         m_stext->addText(vec2(5.0f, 25.0f), buf);
     }
 

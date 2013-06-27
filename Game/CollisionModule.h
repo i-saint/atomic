@@ -41,12 +41,12 @@ struct istAlign(16) BoundingBox
 };
 atmSerializeRaw(BoundingBox);
 
-class CollisionSet;
+class CollisionModule;
 
 
 struct CollisionEntity
 {
-friend class CollisionSet;
+friend class CollisionModule;
 private:
     CollisionShapeType m_shape_type;
     CollisionHandle m_handle;
@@ -205,7 +205,7 @@ public:
 };
 
 
-class CollisionSet : public IAtomicGameModule
+class CollisionModule : public IAtomicGameModule
 {
 typedef IAtomicGameModule super;
 public:
@@ -221,8 +221,8 @@ public:
     typedef ist::vector<CollisionContext*> CollisionCtxCont;
 
 public:
-    CollisionSet();
-    ~CollisionSet();
+    CollisionModule();
+    ~CollisionModule();
 
     void initialize();
     void frameBegin();

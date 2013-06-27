@@ -3,7 +3,7 @@
 #include "Game/AtomicApplication.h"
 #include "Game/AtomicGame.h"
 #include "Game/World.h"
-#include "Game/SPHManager.h"
+#include "Game/FluidModule.h"
 #include "AtomicRenderingSystem.h"
 #include "Renderer.h"
 #include "Util.h"
@@ -111,7 +111,7 @@ void PassGBuffer_Fluid::draw()
     // fluid particle
     if(atmGetGame()) {
         // copy fluid particles (ispc -> GL)
-        const uint32 num_particles = atmGetSPHManager()->copyParticlesToGL();
+        const uint32 num_particles = atmGetFluidModule()->copyParticlesToGL();
         if(num_particles > 0) {
             const VertexDesc descs[] = {
                 {GLSL_INSTANCE_POSITION, I3D_FLOAT32,4,  0, false, 1},

@@ -3,7 +3,7 @@
 #include "Game/AtomicApplication.h"
 #include "Game/AtomicGame.h"
 #include "Game/World.h"
-#include "Game/Collision.h"
+#include "Game/CollisionModule.h"
 #include "AtomicRenderingSystem.h"
 #include "Renderer.h"
 #include "Util.h"
@@ -31,7 +31,7 @@ void PassForward_DistanceField::draw()
     i3d::DeviceContext *dc = atmGetGLDeviceContext();
 #ifdef atm_enable_distance_field
     if(atmGetConfig()->debug_show_distance) {
-        MapAndWrite(*m_vbo_cell_dist, atmGetCollisionSet()->getDistanceField()->getDistances(),
+        MapAndWrite(*m_vbo_cell_dist, atmGetCollisionModule()->getDistanceField()->getDistances(),
             sizeof(vec4) * SPH_DISTANCE_FIELD_DIV_X * SPH_DISTANCE_FIELD_DIV_Y);
         m_sh_cell->bind();
         m_va_cell->bind();

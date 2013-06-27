@@ -2,9 +2,9 @@
 #define atm_Game_Entity_EntityUtil_h
 
 #include "Game/AtomicGame.h"
-#include "Game/Collision.h"
+#include "Game/CollisionModule.h"
 #include "Game/World.h"
-#include "Game/Entity.h"
+#include "Game/EntityModule.h"
 #include "Game/EntityQuery.h"
 
 namespace atm {

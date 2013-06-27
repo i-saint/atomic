@@ -4,10 +4,11 @@
 #include "AtomicApplication.h"
 #include "AtomicGame.h"
 #include "Game/Message.h"
-#include "Game/SPHManager.h"
-#include "Game/Entity.h"
-#include "Game/Collision.h"
-#include "Game/VFX.h"
+#include "Game/FluidModule.h"
+#include "Game/EntityModule.h"
+#include "Game/CollisionModule.h"
+#include "Game/BulletModule.h"
+#include "Game/VFXModule.h"
 #include "Game/World.h"
 #include "Graphics/Renderer.h"
 #include "EntityQuery.h"
@@ -23,21 +24,23 @@ atmExportClass(World);
 
 istSerializeBlockImpl(World,
     istSerializeBase(IAtomicGameModule)
-    istSerialize(m_collision_set)
-    istSerialize(m_sph)
-    istSerialize(m_entity_set)
-    istSerialize(m_vfx)
+    istSerialize(m_collision_module)
+    istSerialize(m_fluid_module)
+    istSerialize(m_entity_module)
+    istSerialize(m_bullet_module)
+    istSerialize(m_vfx_module)
     istSerialize(m_modules)
     istSerialize(m_camera_game)
     istSerialize(m_camera_bg)
     istSerialize(m_field_size)
-    )
+)
 
 World::World()
-: m_collision_set(NULL)
-, m_entity_set(NULL)
-, m_sph(NULL)
-, m_vfx(NULL)
+: m_collision_module(nullptr)
+, m_fluid_module(nullptr)
+, m_entity_module(nullptr)
+, m_bullet_module(nullptr)
+, m_vfx_module(nullptr)
 {
     wdmAddNode("Game/World/cameraFovy", &m_camera_game, &i3d::PerspectiveCamera::getFovy, &i3d::PerspectiveCamera::setFovy, 1.0f, 180.0f);
 }
@@ -55,17 +58,20 @@ World::~World()
 
 void World::initialize()
 {
-    m_collision_set = istNew(CollisionSet)();
-    m_modules.push_back(m_collision_set);
+    m_collision_module = istNew(CollisionModule)();
+    m_modules.push_back(m_collision_module);
 
-    m_sph = istNew(SPHManager)();
-    m_modules.push_back(m_sph);
+    m_fluid_module = istNew(FluidModule)();
+    m_modules.push_back(m_fluid_module);
 
-    m_entity_set = istNew(EntitySet)();
-    m_modules.push_back(m_entity_set);
+    m_entity_module = istNew(EntityModule)();
+    m_modules.push_back(m_entity_module);
 
-    m_vfx = istNew(VFXSet)();
-    m_modules.push_back(m_vfx);
+    m_bullet_module = istNew(BulletModule)();
+    m_modules.push_back(m_bullet_module);
+
+    m_vfx_module = istNew(VFXModule)();
+    m_modules.push_back(m_vfx_module);
 
     for(ModuleCont::iterator i=m_modules.begin(); i!=m_modules.end(); ++i) {
         (*i)->initialize();
@@ -81,9 +87,9 @@ void World::initialize()
 
 void World::frameBegin()
 {
-    m_collision_set->frameBegin();
-    m_sph->frameBegin();
-    m_entity_set->frameBegin();
+    m_collision_module->frameBegin();
+    m_fluid_module->frameBegin();
+    m_entity_module->frameBegin();
 }
 
 void World::update(float32 dt)
@@ -134,7 +140,7 @@ void World::frameEnd()
 
 void World::handleEntitiesQuery( EntitiesQueryContext &ctx )
 {
-    m_entity_set->handleEntitiesQuery(ctx);
+    m_entity_module->handleEntitiesQuery(ctx);
 }
 
 

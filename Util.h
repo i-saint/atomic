@@ -4,6 +4,15 @@
 
 namespace atm {
 
+    template<class T, class F>
+    inline void each(T &v, const F &f) { std::for_each(v.begin(), v.end(), f); }
+
+    template<class IntType>
+    inline IntType ceildiv(IntType a, IntType b)
+    {
+        return a/b + (a%b==0 ? 0 : 1);
+    }
+
     struct CollisionSphere;
     struct CollisionBox;
 

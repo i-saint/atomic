@@ -53,16 +53,7 @@
     <ClCompile Include="Game\Text.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Entity.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\SPHManager.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
     <ClCompile Include="Util.cpp" />
-    <ClCompile Include="Game\Collision.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
     <ClCompile Include="Game\Entity\Enemy.cpp">
       <Filter>Game\Entity</Filter>
     </ClCompile>
@@ -79,9 +70,6 @@
       <Filter>Game\Entity</Filter>
     </ClCompile>
     <ClCompile Include="Game\Input.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\VFX.cpp">
       <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\AtomicRenderingSystem.cpp">
@@ -144,6 +132,21 @@
     <ClCompile Include="Game\Entity\LightEntity.cpp">
       <Filter>Game\Entity</Filter>
     </ClCompile>
+    <ClCompile Include="Game\FluidModule.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\CollisionModule.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\VFXModule.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\BulletModule.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\EntityModule.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h">
@@ -181,9 +184,6 @@
     <ClInclude Include="Game\Text.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Entity.h">
-      <Filter>Game</Filter>
-    </ClInclude>
     <ClInclude Include="Game\EntityQuery.h">
       <Filter>Game</Filter>
     </ClInclude>
@@ -194,18 +194,12 @@
     <ClInclude Include="Game\Task.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="Game\SPHManager.h">
-      <Filter>Game</Filter>
-    </ClInclude>
     <ClInclude Include="Util.h" />
     <ClInclude Include="Game\EntityClass.h">
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\ParticleSet.h">
       <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\Collision.h">
-      <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="Game\Entity\Enemy.h">
       <Filter>Game\Entity</Filter>
@@ -220,9 +214,6 @@
       <Filter>Sound</Filter>
     </ClInclude>
     <ClInclude Include="Game\Input.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\VFX.h">
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\AtomicRenderingSystem.h">
@@ -286,6 +277,21 @@
     </ClInclude>
     <ClInclude Include="Game\Entity\EntityAttributes.h">
       <Filter>Game\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\BulletModule.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\FluidModule.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\CollisionModule.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\VFXModule.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\EntityModule.h">
+      <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

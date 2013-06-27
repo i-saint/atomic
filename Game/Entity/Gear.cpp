@@ -31,7 +31,7 @@ public:
         wdmEraseNode(wdmFormat("Level/GearParts/0x%p", this));
     }
 
-    virtual void initialize() override
+    void initialize() override
     {
         super::initialize();
         setPivot(vec3(-0.2f, 0.0f, 0.0f));
@@ -44,7 +44,7 @@ public:
     }
 
 
-    virtual void eventFluid(const FluidMessage *m) override
+    void eventFluid(const FluidMessage *m) override
     {
         super::eventFluid(m);
         vec3 pos = (const vec3&)m->position;
@@ -52,7 +52,7 @@ public:
         atmCall(getParent(), addForce, atmArgs(pos, force));
     }
 
-    virtual void eventCollide(const CollideMessage *m) override
+    void eventCollide(const CollideMessage *m) override
     {
         super::eventCollide(m);
         vec3 pos;
@@ -140,17 +140,17 @@ public:
         eachParts([&](EntityHandle h){ atmDeleteEntity(h); });
     }
 
-    virtual void initialize() override
+    void initialize() override
     {
         transform::setAxis(vec3(0.0f, 0.0f, 1.0f));
     }
 
-    virtual void update(float32 dt) override
+    void update(float32 dt) override
     {
         updateRotate(); // 子が参照するので asyncupdate() の中ではマズい
     }
 
-    virtual void asyncupdate(float32 dt) override
+    void asyncupdate(float32 dt) override
     {
     }
 
@@ -215,7 +215,7 @@ public:
         wdmEraseNode(wdmFormat("Level/GearSmall/0x%p", this));
     }
 
-    virtual void initialize() override
+    void initialize() override
     {
         setMaxRotateSpeed(1.5f);
         setRotateDecel(0.99f);
@@ -223,7 +223,7 @@ public:
 
         const int32 div = 6;
         const vec4 dir_x(1.0f,0.0f,0.0f,0.0f);
-        CollisionGroup cg = atmGetCollisionSet()->genGroup();
+        CollisionGroup cg = atmGetCollisionModule()->genGroup();
         for(int i=0; i<div; ++i) {
             vec3 dir = vec3(glm::rotateZ(dir_x, 360.0f/div*i));
             GearParts *e = (GearParts*)atmCreateEntity(GearParts);
@@ -261,7 +261,7 @@ public:
         wdmEraseNode(wdmFormat("Level/GearLarge/0x%p", this));
     }
 
-    virtual void initialize() override
+    void initialize() override
     {
         setMaxRotateSpeed(0.6f);
         setRotateDecel(0.99f);
@@ -269,7 +269,7 @@ public:
 
         const int32 div = 6;
         const vec4 dir_x(1.0f,0.0f,0.0f,0.0f);
-        CollisionGroup cg = atmGetCollisionSet()->genGroup();
+        CollisionGroup cg = atmGetCollisionModule()->genGroup();
         for(int i=0; i<div; ++i) {
             vec3 dir = vec3(glm::rotateZ(dir_x, 360.0f/div*i));
             GearParts *e = (GearParts*)atmCreateEntity(GearParts);

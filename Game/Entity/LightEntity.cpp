@@ -87,7 +87,7 @@ public:
     float32 getRadius() const { return m_radius; }
     void setRadius(float32 v) { m_radius=v; }
 
-    virtual void draw() override
+    void draw() override
     {
         PointLight l;
         l.setPosition(getPosition());
@@ -138,7 +138,7 @@ public:
     const vec3& getDirection() const { return m_direction; }
     void setDirection(const vec3 &v) { m_direction=glm::normalize(v); }
 
-    virtual void draw() override
+    void draw() override
     {
         DirectionalLight dl;
         dl.setDirection(getDirection());

@@ -5,10 +5,11 @@
 
 namespace atm {
 
-class EntitySet;
-class CollisionSet;
-class SPHManager;
-class VFXSet;
+class EntityModule;
+class BulletModule;
+class CollisionModule;
+class FluidModule;
+class VFXModule;
 
 
 class World : public IAtomicGameModule
@@ -27,16 +28,18 @@ public:
     void draw();
     void frameEnd();
 
-    PerspectiveCamera* getGameCamera()  { return &m_camera_game; }
-    PerspectiveCamera* getBGCamera()    { return &m_camera_bg; }
+    PerspectiveCamera* getGameCamera()          { return &m_camera_game; }
+    PerspectiveCamera* getBGCamera()            { return &m_camera_bg; }
     const FrustumPlanes* getViewFrustum() const { return &m_frustum; }
-    const vec4& getFieldSize() const    { return m_field_size; }
+    const vec4& getFieldSize() const            { return m_field_size; }
 
     void setFieldSize(const vec4 &v)    { m_field_size=v; }
 
-    EntitySet*      getEntitySet()      { return m_entity_set; }
-    CollisionSet*   getCollisionSet()   { return m_collision_set; }
-    SPHManager*    getFractionSet()    { return m_sph; }
+    CollisionModule*    getCollisionModule(){ return m_collision_module; }
+    FluidModule*        getFluidModule()    { return m_fluid_module; }
+    EntityModule*       getEntityModule()   { return m_entity_module; }
+    BulletModule*       getBulletModule()   { return m_bullet_module; }
+    VFXModule*          getVFXModule()      { return m_vfx_module; }
 
     void handleEntitiesQuery(EntitiesQueryContext &ctx);
 
@@ -45,10 +48,11 @@ public:
 private:
     typedef ist::vector<IAtomicGameModule*> ModuleCont;
 
-    CollisionSet    *m_collision_set;
-    SPHManager      *m_sph;
-    EntitySet       *m_entity_set;
-    VFXSet          *m_vfx;
+    CollisionModule *m_collision_module;
+    FluidModule     *m_fluid_module;
+    EntityModule    *m_entity_module;
+    BulletModule    *m_bullet_module;
+    VFXModule       *m_vfx_module;
     ModuleCont      m_modules;
 
     PerspectiveCamera m_camera_game;
@@ -66,18 +70,18 @@ private:
 #define atmGetViewFrustum()     atmGetWorld()->getViewFrustum()
 #define atmGenRandFloat()       atmGetRandom()->genFloat32()
 
-#define atmGetEntitySet()       atmGetWorld()->getEntitySet()
-#define atmGetEntity(id)        atmGetEntitySet()->getEntity(id)
-#define atmCreateEntity(C)      atmGetEntitySet()->createEntity(EC_##C)
-#define atmDeleteEntity(o)      atmGetEntitySet()->deleteEntity(o)
-#define atmEnumlateEntity(...)  atmGetEntitySet()->enumlateEntity(__VA_ARGS__)
+#define atmGetEntityModule()    atmGetWorld()->getEntityModule()
+#define atmGetEntity(id)        atmGetEntityModule()->getEntity(id)
+#define atmCreateEntity(C)      atmGetEntityModule()->createEntity(EC_##C)
+#define atmDeleteEntity(o)      atmGetEntityModule()->deleteEntity(o)
+#define atmEnumlateEntity(...)  atmGetEntityModule()->enumlateEntity(__VA_ARGS__)
 
-#define atmGetCollisionSet()    atmGetWorld()->getCollisionSet()
-#define atmCreateCollision(n)   atmGetCollisionSet()->createEntity<n>()
-#define atmDeleteCollision(o)   atmGetCollisionSet()->deleteEntity(o)
-#define atmGetCollision(h)      atmGetCollisionSet()->getEntity(h)
+#define atmGetCollisionModule() atmGetWorld()->getCollisionModule()
+#define atmCreateCollision(n)   atmGetCollisionModule()->createEntity<n>()
+#define atmDeleteCollision(o)   atmGetCollisionModule()->deleteEntity(o)
+#define atmGetCollision(h)      atmGetCollisionModule()->getEntity(h)
 
-#define atmGetSPHManager()      atmGetWorld()->getFractionSet()
+#define atmGetFluidModule()     atmGetWorld()->getFluidModule()
 
 
 } // namespace atm

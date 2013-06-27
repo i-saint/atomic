@@ -186,7 +186,7 @@ public:
     {
         setState(ST_FADEOUT);
         setRoutine(RCID_Null);
-        atmGetSPHManager()->addFluid(getModel(), getTransform());
+        atmGetFluidModule()->addFluid(getModel(), getTransform());
         atmPlaySE(m_explosion_channel, m_explosion_se, getPosition(), true);
     }
 };

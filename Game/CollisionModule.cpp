@@ -1,15 +1,14 @@
 ﻿#include "stdafx.h"
-
 #include "types.h"
 #include "Task.h"
 #include "Util.h"
 #include "Game/AtomicApplication.h"
 #include "Game/AtomicGame.h"
 #include "Game/World.h"
-#include "Game/Entity.h"
+#include "Game/EntityModule.h"
 #include "Game/EntityQuery.h"
-#include "Game/SPHManager.h"
-#include "Collision.h"
+#include "Game/FluidModule.h"
+#include "CollisionModule.h"
 
 namespace atm {
 
@@ -17,7 +16,7 @@ atmExportClass(CollisionEntity);
 atmExportClass(CollisionPlane);
 atmExportClass(CollisionSphere);
 atmExportClass(CollisionBox);
-atmExportClass(CollisionSet);
+atmExportClass(CollisionModule);
 
 
 inline bool BoundingBoxIntersect(const BoundingBox &bb1, const vec4 &pos)
@@ -295,7 +294,7 @@ void CollisionGrid::getEntities( const BoundingBox &bb, ist::vector<CollisionHan
 
 
 
-uint32 CollisionSet::collide(CollisionEntity *sender, CollisionContext &ctx)
+uint32 CollisionModule::collide(CollisionEntity *sender, CollisionContext &ctx)
 {
     if(!sender || (sender->getFlags() & CF_Sender)==0) { return 0; }
     CollisionGroup group = sender->getCollisionGroup();
@@ -326,7 +325,7 @@ uint32 CollisionSet::collide(CollisionEntity *sender, CollisionContext &ctx)
 }
 
 
-CollisionSet::CollisionSet()
+CollisionModule::CollisionModule()
     : m_groupgen(0)
 {
     m_entities.reserve(1024);
@@ -335,7 +334,7 @@ CollisionSet::CollisionSet()
     m_entities.push_back(NULL); // id:0 は無効とする
 }
 
-CollisionSet::~CollisionSet()
+CollisionModule::~CollisionModule()
 {
     for(uint32 i=0; i<m_acons.size(); ++i) { istDelete(m_acons[i]); }
     m_acons.clear();
@@ -344,15 +343,15 @@ CollisionSet::~CollisionSet()
     m_vacant.clear();
 }
 
-void CollisionSet::initialize()
+void CollisionModule::initialize()
 {
 }
 
-void CollisionSet::frameBegin()
+void CollisionModule::frameBegin()
 {
 }
 
-void CollisionSet::update(float32 dt)
+void CollisionModule::update(float32 dt)
 {
     for(uint32 ti=0; ti<m_acons.size(); ++ti) {
         MessageCont &messages = m_acons[ti]->messages;
@@ -366,7 +365,7 @@ void CollisionSet::update(float32 dt)
     }
 }
 
-void CollisionSet::asyncupdate(float32 dt)
+void CollisionModule::asyncupdate(float32 dt)
 {
     m_grid.updateGrid(m_entities);
 
@@ -374,7 +373,7 @@ void CollisionSet::asyncupdate(float32 dt)
     uint32 num_entities = m_entities.size();
     if(num_entities==0) { return; }
 
-    uint32 num_tasks = (num_entities / block_size) + (num_entities%block_size==0 ? 0 : 1);
+    uint32 num_tasks = ceildiv(num_entities, block_size);
     while(m_acons.size() < num_tasks) { m_acons.push_back(istNew(CollisionContext)()); }
 
     ist::parallel_for(uint32(0), num_tasks,
@@ -389,25 +388,25 @@ void CollisionSet::asyncupdate(float32 dt)
         });
 }
 
-void CollisionSet::draw()
+void CollisionModule::draw()
 {
 }
 
-void CollisionSet::frameEnd()
+void CollisionModule::frameEnd()
 {
 }
 
-void CollisionSet::copyRigitsToPSym()
+void CollisionModule::copyRigitsToPSym()
 {
     uint32 num = m_entities.size();
     for(uint32 i=0; i<num; ++i) {
         const CollisionEntity *ce = m_entities[i];
         if(!ce || (ce->getFlags() & CF_SPH_Sender)==0) { continue; }
-        atmGetSPHManager()->addRigid(*ce);
+        atmGetFluidModule()->addRigid(*ce);
     }
 }
 
-void CollisionSet::addEntity(CollisionEntity *e)
+void CollisionModule::addEntity(CollisionEntity *e)
 {
     atmDbgAssertSyncLock();
     CollisionHandle h = 0;
@@ -423,27 +422,27 @@ void CollisionSet::addEntity(CollisionEntity *e)
     e->setCollisionHandle(h);
 }
 
-CollisionEntity* CollisionSet::getEntity(CollisionHandle h)
+CollisionEntity* CollisionModule::getEntity(CollisionHandle h)
 {
     if(h >= m_entities.size()) { return NULL; }
     return m_entities[h];
 }
 
-template<> CollisionPlane* CollisionSet::createEntity<CollisionPlane>()
+template<> CollisionPlane* CollisionModule::createEntity<CollisionPlane>()
 {
     atmDbgAssertSyncLock();
     CollisionPlane *e = istNew(CollisionPlane)();
     addEntity(e);
     return e;
 }
-template<> CollisionSphere* CollisionSet::createEntity<CollisionSphere>()
+template<> CollisionSphere* CollisionModule::createEntity<CollisionSphere>()
 {
     atmDbgAssertSyncLock();
     CollisionSphere *e = istNew(CollisionSphere)();
     addEntity(e);
     return e;
 }
-template<> CollisionBox* CollisionSet::createEntity<CollisionBox>()
+template<> CollisionBox* CollisionModule::createEntity<CollisionBox>()
 {
     atmDbgAssertSyncLock();
     CollisionBox *e = istNew(CollisionBox)();
@@ -451,7 +450,7 @@ template<> CollisionBox* CollisionSet::createEntity<CollisionBox>()
     return e;
 }
 
-void CollisionSet::deleteEntity(CollisionHandle h)
+void CollisionModule::deleteEntity(CollisionHandle h)
 {
     atmDbgAssertSyncLock();
     CollisionEntity *&ce = m_entities[h];
@@ -462,7 +461,7 @@ void CollisionSet::deleteEntity(CollisionHandle h)
     }
 }
 
-void CollisionSet::deleteEntity(CollisionEntity *e)
+void CollisionModule::deleteEntity(CollisionEntity *e)
 {
     atmDbgAssertSyncLock();
     if(e != NULL) {
@@ -470,12 +469,12 @@ void CollisionSet::deleteEntity(CollisionEntity *e)
     }
 }
 
-CollisionGrid* CollisionSet::getCollisionGrid()
+CollisionGrid* CollisionModule::getCollisionGrid()
 {
     return &m_grid;
 }
 
-atm::CollisionGroup CollisionSet::genGroup()
+atm::CollisionGroup CollisionModule::genGroup()
 {
     return ++m_groupgen;
 }

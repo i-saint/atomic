@@ -7,38 +7,38 @@
 #include "Game/AtomicGame.h"
 #include "Game/World.h"
 #include "Game/EntityQuery.h"
-#include "Game/Entity.h"
-#include "Game/Collision.h"
-#include "Game/SPHManager.h"
-#include "Collision.h"
+#include "Game/EntityModule.h"
+#include "Game/CollisionModule.h"
+#include "Game/FluidModule.h"
+#include "CollisionModule.h"
 
 namespace atm {
 
 
 
-SPHManager::SPHManager()
+FluidModule::FluidModule()
     : m_current_fluid_task(0)
     , m_gravity_strength(15.0f)
 {
     wdmAddNode("SPH/gravity_strength", &m_gravity_strength, 0.0f, 100.0f);
 }
 
-SPHManager::~SPHManager()
+FluidModule::~FluidModule()
 {
 }
 
-void SPHManager::initialize()
+void FluidModule::initialize()
 {
     m_rand.initialize(0);
 }
 
-void SPHManager::frameBegin()
+void FluidModule::frameBegin()
 {
     m_world.clearRigidsAndForces();
     m_current_fluid_task = 0;
 }
 
-void SPHManager::update( float32 dt )
+void FluidModule::update( float32 dt )
 {
     const psym::Particle *feedback = m_world.getParticles();
     uint32 n = m_world.getNumParticles();
@@ -76,10 +76,10 @@ void SPHManager::update( float32 dt )
         grav.strength = m_gravity_strength;
         m_world.addForce(grav);
     }
-    atmGetCollisionSet()->copyRigitsToPSym();
+    atmGetCollisionModule()->copyRigitsToPSym();
 }
 
-void SPHManager::asyncupdate( float32 dt )
+void FluidModule::asyncupdate( float32 dt )
 {
     m_mutex_particles.lock();
     m_particles_to_gpu.clear();
@@ -114,16 +114,16 @@ void SPHManager::asyncupdate( float32 dt )
     m_world.update(dt);
 }
 
-void SPHManager::draw()
+void FluidModule::draw()
 {
 
 }
 
-void SPHManager::frameEnd()
+void FluidModule::frameEnd()
 {
 }
 
-size_t SPHManager::copyParticlesToGL()
+size_t FluidModule::copyParticlesToGL()
 {
     if(m_particles_to_gpu.empty()) { return 0; }
 
@@ -134,12 +134,12 @@ size_t SPHManager::copyParticlesToGL()
     return m_particles_to_gpu.size();
 }
 
-size_t SPHManager::getNumParticles() const
+size_t FluidModule::getNumParticles() const
 {
     return m_world.getNumParticles();
 }
 
-void SPHManager::addRigid(const CollisionEntity &v)
+void FluidModule::addRigid(const CollisionEntity &v)
 {
     switch(v.getShapeType()) {
     case CS_Sphere:
@@ -210,12 +210,12 @@ void SPHManager::addRigid(const CollisionEntity &v)
     }
 }
 
-void SPHManager::addForce( const psym::PointForce &v )
+void FluidModule::addForce( const psym::PointForce &v )
 {
     m_world.addForce(v);
 }
 
-void SPHManager::addFluid( psym::Particle *particles, uint32 num )
+void FluidModule::addFluid( psym::Particle *particles, uint32 num )
 {
     const float32 enery_base = 2700.0f;
     const float32 enery_diffuse = 300.0f;
@@ -226,7 +226,7 @@ void SPHManager::addFluid( psym::Particle *particles, uint32 num )
     m_world.addParticles(particles, num);
 }
 
-void SPHManager::addFluid(PSET_RID psid, const mat4 &t)
+void FluidModule::addFluid(PSET_RID psid, const mat4 &t)
 {
     const ParticleSet *pset = atmGetParticleSet(psid);
     AddFluidContext ctx;

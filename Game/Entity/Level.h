@@ -28,19 +28,19 @@ public:
     }
     )
 
-    virtual void initialize() override
+    void initialize() override
     {
         super::initialize();
         setGlowColor(vec4(0.4f));
         setDiffuseColor(vec4(vec3(0.5f), 50.0f));
     }
 
-    virtual void update(float32 dt) override
+    void update(float32 dt) override
     {
         super::update(dt);
     }
 
-    virtual void asyncupdate(float32 dt) override
+    void asyncupdate(float32 dt) override
     {
         super::asyncupdate(dt);
         transform::updateTransformMatrix();
@@ -48,7 +48,7 @@ public:
         bloodstain::updateBloodstain(dt);
     }
 
-    virtual void draw() override
+    void draw() override
     {
         PSetInstance inst;
         inst.diffuse = getDiffuseColor();
@@ -61,7 +61,7 @@ public:
         atmGetBloodStainPass()->addBloodstainParticles(getTransform(), getBloodStainParticles(), getNumBloodstainParticles());
     }
 
-    virtual void eventFluid(const FluidMessage *m) override
+    void eventFluid(const FluidMessage *m) override
     {
         addBloodstain(getInverseTransform(), (vec4&)m->position);
     }

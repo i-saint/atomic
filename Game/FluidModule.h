@@ -10,7 +10,7 @@ namespace atm {
 struct CollisionEntity;
 typedef ist::raw_vector<psym::Particle> ParticleCont;
 
-class SPHManager : public IAtomicGameModule
+class FluidModule : public IAtomicGameModule
 {
 typedef IAtomicGameModule super;
 public:
@@ -23,8 +23,8 @@ public:
     typedef ist::vector<AddFluidContext> AddFluidCtxCont;
 
 public:
-    SPHManager();
-    ~SPHManager();
+    FluidModule();
+    ~FluidModule();
 
     void initialize();
     void frameBegin();

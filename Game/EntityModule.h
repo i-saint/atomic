@@ -9,7 +9,7 @@ namespace atm {
 
 class IEntity
 {
-friend class EntitySet;
+friend class EntityModule;
 private:
     EntityHandle m_ehandle;
 
@@ -57,7 +57,7 @@ public:
 
 
 
-class EntitySet : public IAtomicGameModule
+class EntityModule : public IAtomicGameModule
 {
 friend class IEntity;
 typedef IAtomicGameModule super;
@@ -66,8 +66,8 @@ public:
     typedef ist::vector<IEntity*> EntityCont;
 
 public:
-    EntitySet();
-    ~EntitySet();
+    EntityModule();
+    ~EntityModule();
 
     void initialize();
 

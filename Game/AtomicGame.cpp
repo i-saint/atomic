@@ -8,12 +8,12 @@
 #include "Game/Message.h"
 #include "Game/World.h"
 #include "Util.h"
-#include "Game/Entity.h"
+#include "Game/EntityModule.h"
 #include "Game/EntityQuery.h"
 #include "Network/GameCLient.h"
 #include "Network/LevelEditorServer.h"
 
-#include "Collision.h"
+#include "CollisionModule.h"
 #include "Entity/Routine.h"
 #include <zip_stream/zipstream.hpp>
 

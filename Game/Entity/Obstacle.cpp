@@ -32,7 +32,7 @@ public:
         wdmEraseNode(wdmFormat("Level/GroundBlock/0x%p", this));
     }
 
-    virtual void initialize() override
+    void initialize() override
     {
         super::initialize();
         setPivot(vec3(-0.2f, 0.0f, -0.1f));
@@ -76,7 +76,7 @@ public:
         wdmEraseNode(wdmFormat("Level/FluidFilter/0x%p", this));
     }
 
-    virtual void initialize() override
+    void initialize() override
     {
         super::initialize();
         setPivot(vec3(-0.2f, 0.0f, -0.1f));
@@ -88,7 +88,7 @@ public:
         setModel(PSET_CUBE_MEDIUM);
     }
 
-    virtual void draw() override
+    void draw() override
     {
         // todo
     }
@@ -141,18 +141,18 @@ public:
     const vec3& getScroll() const { return m_scroll; }
     void setScroll(const vec3 &v) { m_scroll=v; }
 
-    virtual void initialize() override
+    void initialize() override
     {
     }
 
-    virtual void update(float32 dt) override
+    void update(float32 dt) override
     {
         // 子が参照するので asyncupdate ではダメ
         setPosition(getPosition()+getScroll());
         updateTransformMatrix();
     }
 
-    virtual void asyncupdate(float32 dt) override
+    void asyncupdate(float32 dt) override
     {
     }
 };

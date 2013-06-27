@@ -1,9 +1,8 @@
 ﻿#include "stdafx.h"
-#include "ist/ist.h"
 #include "types.h"
 #include "Graphics/ResourceManager.h"
 #include "Graphics/Renderer.h"
-#include "Game/VFX.h"
+#include "Game/VFXModule.h"
 #include "Util.h"
 
 namespace atm {
@@ -74,56 +73,56 @@ void VFXScintilla::addData( const VFXScintillaSpawnData &spawn )
     m_particles.insert(m_particles.end(), particles, particles+spawn.num_particles);
 }
 
-atmExportClass(VFXSet);
+atmExportClass(VFXModule);
 
-VFXSet::VFXSet()
+VFXModule::VFXModule()
     : m_scintilla(nullptr)
     , m_components()
 {
 }
 
-VFXSet::~VFXSet()
+VFXModule::~VFXModule()
 {
     for(uint32 i=0; i<m_components.size(); ++i) {
         istDelete(m_components[i]);
     }
 }
 
-void VFXSet::initialize()
+void VFXModule::initialize()
 {
     m_scintilla = istNew(VFXScintilla)();
     m_components.push_back(m_scintilla);
 }
 
-void VFXSet::frameBegin()
+void VFXModule::frameBegin()
 {
     for(uint32 i=0; i<m_components.size(); ++i) {
         m_components[i]->frameBegin();
     }
 }
 
-void VFXSet::update( float32 dt )
+void VFXModule::update( float32 dt )
 {
     for(uint32 i=0; i<m_components.size(); ++i) {
         m_components[i]->update(dt);
     }
 }
 
-void VFXSet::asyncupdate( float32 dt )
+void VFXModule::asyncupdate( float32 dt )
 {
     for(uint32 i=0; i<m_components.size(); ++i) {
         m_components[i]->asyncupdate(dt);
     }
 }
 
-void VFXSet::draw()
+void VFXModule::draw()
 {
     for(uint32 i=0; i<m_components.size(); ++i) {
         m_components[i]->draw();
     }
 }
 
-void VFXSet::frameEnd()
+void VFXModule::frameEnd()
 {
     for(uint32 i=0; i<m_components.size(); ++i) {
         m_components[i]->frameEnd();

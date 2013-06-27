@@ -85,7 +85,7 @@ public:
 };
 
 
-class VFXSet : public IAtomicGameModule
+class VFXModule : public IAtomicGameModule
 {
 typedef IAtomicGameModule super;
 private:
@@ -97,10 +97,10 @@ private:
         istSerializeBase(super)
         istSerialize(m_scintilla)
         istSerialize(m_components)
-        )
+    )
 public:
-    VFXSet();
-    ~VFXSet();
+    VFXModule();
+    ~VFXModule();
 
     void initialize();
     void frameBegin();

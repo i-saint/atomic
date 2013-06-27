@@ -2,8 +2,8 @@
 #define atm_Game_Entity_EntityAttributes_h
 
 #include "Util.h"
-#include "Game/Collision.h"
-#include "Game/SPHManager.h"
+#include "Game/CollisionModule.h"
+#include "Game/FluidModule.h"
 #include "Graphics/Renderer.h"
 #include "psym/psym.h"
 

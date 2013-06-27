@@ -2,9 +2,9 @@
 #include "types.h"
 #include "AtomicGame.h"
 #include "Graphics/ResourceManager.h"
-#include "Entity.h"
+#include "EntityModule.h"
 #include "EntityQuery.h"
-#include "Collision.h"
+#include "CollisionModule.h"
 #include "World.h"
 #include "Task.h"
 
@@ -52,18 +52,18 @@ IEntity* CreateEntity( EntityClassID entity_classid )
 atmExportClass(IEntity);
 
 IEntity::IEntity()
-    : m_ehandle(atmGetWorld() ? atmGetEntitySet()->getGeneratedHandle() : 0)
+    : m_ehandle(atmGetWorld() ? atmGetEntityModule()->getGeneratedHandle() : 0)
 {
 }
 
 
-atmExportClass(EntitySet);
+atmExportClass(EntityModule);
 
-EntitySet::EntitySet()
+EntityModule::EntityModule()
 {
 }
 
-EntitySet::~EntitySet()
+EntityModule::~EntityModule()
 {
     EntityCont &entities = m_entities;
     uint32 s = entities.size();
@@ -76,15 +76,15 @@ EntitySet::~EntitySet()
     m_all.clear();
 }
 
-void EntitySet::initialize()
+void EntityModule::initialize()
 {
 }
 
-void EntitySet::frameBegin()
+void EntityModule::frameBegin()
 {
 }
 
-void EntitySet::update( float32 dt )
+void EntityModule::update( float32 dt )
 {
     // update
     uint32 num_entities = m_all.size();
@@ -125,11 +125,11 @@ void EntitySet::update( float32 dt )
     atmDbgUnlockSyncMethods();
 }
 
-void EntitySet::asyncupdate(float32 dt)
+void EntityModule::asyncupdate(float32 dt)
 {
 }
 
-void EntitySet::draw()
+void EntityModule::draw()
 {
     uint32 s = m_entities.size();
     for(uint32 k=0; k<s; ++k) {
@@ -138,12 +138,12 @@ void EntitySet::draw()
     }
 }
 
-void EntitySet::frameEnd()
+void EntityModule::frameEnd()
 {
 }
 
 
-IEntity* EntitySet::getEntity( EntityHandle h )
+IEntity* EntityModule::getEntity( EntityHandle h )
 {
     if(h==0) { return NULL; }
     uint32 cid = EntityGetClassID(h);
@@ -163,7 +163,7 @@ IEntity* EntitySet::getEntity( EntityHandle h )
     return r;
 }
 
-void EntitySet::deleteEntity( EntityHandle h )
+void EntityModule::deleteEntity( EntityHandle h )
 {
     atmDbgAssertSyncLock();
     uint32 cid = EntityGetClassID(h);
@@ -175,7 +175,7 @@ void EntitySet::deleteEntity( EntityHandle h )
     vacants.push_back(EntityGetIndex(h));
 }
 
-void EntitySet::generateHandle(EntityClassID classid)
+void EntityModule::generateHandle(EntityClassID classid)
 {
     atmDbgAssertSyncLock();
     EntityCont &entities = m_entities;
@@ -193,12 +193,12 @@ void EntitySet::generateHandle(EntityClassID classid)
     m_tmp_handle = h;
 }
 
-EntityHandle EntitySet::getGeneratedHandle()
+EntityHandle EntityModule::getGeneratedHandle()
 {
     return m_tmp_handle;
 }
 
-IEntity* EntitySet::createEntity( EntityClassID classid )
+IEntity* EntityModule::createEntity( EntityClassID classid )
 {
     generateHandle(classid);
     IEntity *e = CreateEntity(classid);
@@ -208,7 +208,7 @@ IEntity* EntitySet::createEntity( EntityClassID classid )
 }
 
 
-void EntitySet::handleEntitiesQuery( EntitiesQueryContext &ctx )
+void EntityModule::handleEntitiesQuery( EntitiesQueryContext &ctx )
 {
     CollisionHandle ch;
     uint32 num_entities = m_all.size();
