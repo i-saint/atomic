@@ -47,7 +47,9 @@ public:
     virtual void eventFluid(const FluidMessage *m) override
     {
         super::eventFluid(m);
-        atmCall(getParent(), addForce, atmArgs((const vec3&)m->position, (const vec3&)m->velocity * (sqrt(m->density)*0.1f) ) );
+        vec3 pos = (const vec3&)m->position;
+        vec3 force = (const vec3&)m->velocity * (sqrt(m->density)*0.1f);
+        atmCall(getParent(), addForce, atmArgs(pos, force));
     }
 
     virtual void eventCollide(const CollideMessage *m) override
@@ -55,7 +57,11 @@ public:
         super::eventCollide(m);
         vec3 pos;
         if(atmQuery(m->from, getPosition, pos)) {
-            vec3 force = vec3(m->direction * (m->direction.w * 4000.0f));
+            float32 f = 4000.0f;
+            if(EntityGetCategory(m->from)==ECA_Obstacle) {
+                f = 20000.0f;
+            }
+            vec3 force = vec3(m->direction * (m->direction.w * f));
             atmCall(getParent(), addForce, atmArgs(pos, force));
         }
     }

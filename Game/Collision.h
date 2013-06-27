@@ -213,12 +213,12 @@ public:
     typedef ist::vector<CollisionEntity*>   EntityCont;
     typedef ist::vector<CollideMessage>     MessageCont;
 
-    struct AsyncContext
+    struct CollisionContext
     {
         HandleCont  neighbors;
         MessageCont messages;
     };
-    typedef ist::vector<AsyncContext*> AsyncCtxCont;
+    typedef ist::vector<CollisionContext*> CollisionCtxCont;
 
 public:
     CollisionSet();
@@ -239,12 +239,12 @@ public:
     void deleteEntity(CollisionEntity *e);
 
     CollisionGrid* getCollisionGrid();
-
     CollisionGroup genGroup();
+
+    uint32 collide(CollisionEntity *e, CollisionContext &ctx);
 
 private:
     void addEntity(CollisionEntity *e);
-    uint32 collide(CollisionEntity *e, MessageCont &m, HandleCont &neighbors_placeholder);
 
     EntityCont      m_entities;
     HandleCont      m_vacant;
@@ -252,7 +252,7 @@ private:
 
     // 以下 serialize 不要
     CollisionGrid   m_grid;
-    AsyncCtxCont    m_acons;
+    CollisionCtxCont    m_acons;
 
     istSerializeBlock(
         istSerializeBase(super)

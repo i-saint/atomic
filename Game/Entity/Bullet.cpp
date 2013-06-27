@@ -40,6 +40,7 @@ private:
     vec3         m_pos;
     vec3         m_dir;
     particles    m_particles;
+    CollisionSet::CollisionContext m_cctx; // serialize 不要
 
     istSerializeBlock(
         istSerialize(m_id)
@@ -62,12 +63,17 @@ public:
 
         static const float32 speed = 0.1f;
         static const float32 lifetime = 240.0f;
+        static const float32 radius = 0.03f;
         std::for_each(m_particles.begin(), m_particles.end(), [&](LaserParticle &p){
             p.time += dt;
         });
         if(m_state==State_Normal) {
             std::for_each(m_particles.begin(), m_particles.end(), [&](LaserParticle &p){
                 vec3 pos = p.pos + m_dir*p.time*speed;
+                CollisionSphere sphere;
+                sphere.pos_r = vec4(pos, radius);
+                sphere.bb.bl = vec4(pos-radius, 0.0f);
+                sphere.bb.ur = vec4(pos+radius, 0.0f);
                 // todo: collision
                 // if(collide) {
                 //    // add some vfx

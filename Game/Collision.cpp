@@ -107,14 +107,17 @@ dpPatch bool _Collide(const CollisionBox *sender, const CollisionSphere *receive
 
     int inside = 0;
     int closest_index = 0;
-    float closest_dinstance = -9999.0f;
+    float closest_dinstance = -FLT_MAX;
+    float closest = -FLT_MAX;
     for(int p=0; p<6; ++p) {
         vec4 plane = sender->planes[p];
         float32 radius = receiver->pos_r.w;
         float d = glm::dot(pos, plane) - radius;
         if(d <= 0.0f) {
             ++inside;
-            if(d > closest_dinstance) {
+            float32 pd = d / (1.0f-glm::abs(plane.z)); // z 方向を向いてるものは優先度を下げる
+            if(pd > closest) {
+                closest = pd;
                 closest_dinstance = d;
                 closest_index = p;
             }
@@ -186,8 +189,8 @@ dpPatch bool _Collide(const CollisionBox *sender, const CollisionBox *receiver, 
     return false;
 
 HIT:
-    vec3 dir = glm::normalize(vec3(receiver->position)-vec3(sender->position));
-    (vec3&)m.direction = glm::normalize((vec3&)m.direction+dir);
+    //vec3 dir = glm::normalize(vec3(receiver->position)-vec3(sender->position));
+    //(vec3&)m.direction = glm::normalize((vec3&)m.direction+dir);
     //(vec3&)m.direction = dir;
     return true;
 }
@@ -292,10 +295,12 @@ void CollisionGrid::getEntities( const BoundingBox &bb, ist::vector<CollisionHan
 
 
 
-uint32 CollisionSet::collide(CollisionEntity *sender, MessageCont &m, HandleCont &neighbors)
+uint32 CollisionSet::collide(CollisionEntity *sender, CollisionContext &ctx)
 {
     if(!sender || (sender->getFlags() & CF_Sender)==0) { return 0; }
     CollisionGroup group = sender->getCollisionGroup();
+    MessageCont &m = ctx.messages;
+    HandleCont &neighbors = ctx.neighbors;
 
     uint32 n = 0;
     m_grid.getEntities(sender->bb, neighbors);
@@ -370,16 +375,16 @@ void CollisionSet::asyncupdate(float32 dt)
     if(num_entities==0) { return; }
 
     uint32 num_tasks = (num_entities / block_size) + (num_entities%block_size==0 ? 0 : 1);
-    while(m_acons.size() < num_tasks) { m_acons.push_back(istNew(AsyncContext)()); }
+    while(m_acons.size() < num_tasks) { m_acons.push_back(istNew(CollisionContext)()); }
 
     ist::parallel_for(uint32(0), num_tasks,
         [&](uint32 i) {
             uint32 first = i*block_size;
             uint32 last = std::min<uint32>((i+1)*block_size, num_entities);
-            AsyncContext &ctx = *m_acons[i];
+            CollisionContext &ctx = *m_acons[i];
             ctx.messages.clear();
             for(uint32 i=first; i!=last; ++i) {
-                collide(m_entities[i], ctx.messages, ctx.neighbors);
+                collide(m_entities[i], ctx);
             }
         });
 }
