@@ -144,7 +144,7 @@ bool GraphicResourceManager::initialize()
 
         m_vbo[VBO_FLUID_PARTICLES]      = CreateVertexBuffer(dev, sizeof(psym::Particle)*PSYM_MAX_PARTICLE_NUM, I3D_USAGE_DYNAMIC);
         m_vbo[VBO_RIGID_PARTICLES]      = CreateVertexBuffer(dev, sizeof(PSetParticle)*MAX_RIGID_PARTICLES, I3D_USAGE_DYNAMIC);
-        m_vbo[VBO_PARTICLES]            = CreateVertexBuffer(dev, sizeof(IndivisualParticle)*MAX_EFFECT_PARTICLES, I3D_USAGE_DYNAMIC);
+        m_vbo[VBO_PARTICLES]            = CreateVertexBuffer(dev, sizeof(SingleParticle)*MAX_EFFECT_PARTICLES, I3D_USAGE_DYNAMIC);
         m_vbo[VBO_DIRECTIONALLIGHT_INSTANCES] = CreateVertexBuffer(dev, sizeof(DirectionalLight)*ATOMIC_MAX_DIRECTIONAL_LIGHTS, I3D_USAGE_DYNAMIC);
         m_vbo[VBO_POINTLIGHT_INSTANCES] = CreateVertexBuffer(dev, sizeof(PointLight)*ATOMIC_MAX_POINT_LIGHTS, I3D_USAGE_DYNAMIC);
         m_vbo[VBO_BLOODSTAIN_PARTICLES] = CreateVertexBuffer(dev, sizeof(BloodstainParticle)*MAX_BLOODSTAIN_PARTICLES, I3D_USAGE_DYNAMIC);

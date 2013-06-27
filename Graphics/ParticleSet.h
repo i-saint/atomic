@@ -15,9 +15,7 @@ struct istAlign(16) BloodstainParticle
         float32 params[4];
     };
 };
-atmGlobalNamespace(
-    istSerializeRaw(atm::BloodstainParticle);
-)
+atmSerializeRaw(BloodstainParticle);
 
 struct istAlign(16) BloodstainParticle_IsDead
 {
@@ -27,7 +25,7 @@ struct istAlign(16) BloodstainParticle_IsDead
     }
 };
 
-struct istAlign(16) IndivisualParticle
+struct istAlign(16) SingleParticle
 {
     vec4 position;
     vec4 color;
@@ -35,7 +33,7 @@ struct istAlign(16) IndivisualParticle
     float32 scale;
     float32 padding[3];
 };
-istStaticAssert(sizeof(IndivisualParticle)%16==0);
+istStaticAssert(sizeof(SingleParticle)%16==0);
 
 struct istAlign(16) PSetParticle
 {

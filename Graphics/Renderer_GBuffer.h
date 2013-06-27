@@ -12,10 +12,10 @@ public:
     void beforeDraw();
     void draw();
 
-    void addParticle(const IndivisualParticle *particles, uint32 num);
+    void addParticle(const SingleParticle *particles, uint32 num);
 
 private:
-    ist::vector<IndivisualParticle> m_particles;
+    ist::vector<SingleParticle> m_particles;
 };
 
 class PassGBuffer_Fluid : public IRenderer

@@ -365,10 +365,10 @@ public:
     atmECallBlock(
         atmECallSuper(super)
         atmMethodBlock(
-        atmECall(getVelocity)
-        atmECall(setVelocity)
-        atmECall(setDrive)
-        atmECall(setWeapon)
+            atmECall(getVelocity)
+            atmECall(setVelocity)
+            atmECall(setDrive)
+            atmECall(setWeapon)
         )
     )
 
@@ -547,7 +547,7 @@ public:
     {
         atmGetSPHManager()->addFluid(pset_id, getTransform());
         atmPlaySE(SE_CHANNEL5, SE_EXPLOSION5, getPosition(), true);
-        super::destroy();
+        atmDeleteEntity(getHandle());
     }
 
     virtual void eventCollide(const CollideMessage *m) override

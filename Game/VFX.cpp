@@ -49,7 +49,7 @@ void VFXScintilla::draw()
     uint32 num_data = m_particles.size();
     for(uint32 i=0; i<num_data; ++i) {
         ParticleData &data = m_particles[i];
-        IndivisualParticle particles;
+        SingleParticle particles;
         particles.position = data.position;
         particles.color = data.color;
         particles.glow = data.glow;

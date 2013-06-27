@@ -108,6 +108,8 @@ istSEnumBlock(FunctionID,
     istSEnum(FID_setAmbient),
     istSEnum(FID_getLinkage),
     istSEnum(FID_setLinkage),
+    istSEnum(FID_getScroll),
+    istSEnum(FID_setScroll),
     istSEnum(FID_End),
 );
 

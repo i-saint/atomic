@@ -33,7 +33,7 @@ void PassGBuffer_Particle::draw()
     Buffer          *vbo      = atmGetVertexBuffer(VBO_PARTICLES);
     AtomicShader    *sh       = atmGetShader(SH_GBUFFER_PARTICLES);
 
-    MapAndWrite(dc, vbo, &m_particles[0], sizeof(IndivisualParticle)*m_particles.size());
+    MapAndWrite(dc, vbo, &m_particles[0], sizeof(SingleParticle)*m_particles.size());
     {
         const VertexDesc descs[] = {
             {GLSL_INSTANCE_POSITION, I3D_FLOAT32,4,  0, false, 1},
@@ -41,7 +41,7 @@ void PassGBuffer_Particle::draw()
             {GLSL_INSTANCE_GLOW,     I3D_FLOAT32,4, 32, false, 1},
             {GLSL_INSTANCE_PARAM,    I3D_FLOAT32,4, 48, false, 1},
         };
-        va_cube->setAttributes(1, vbo, 0, sizeof(IndivisualParticle), descs, _countof(descs));
+        va_cube->setAttributes(1, vbo, 0, sizeof(SingleParticle), descs, _countof(descs));
 
         dc->setVertexArray(va_cube);
         sh->assign(dc);
@@ -49,7 +49,7 @@ void PassGBuffer_Particle::draw()
     }
 }
 
-void PassGBuffer_Particle::addParticle( const IndivisualParticle *particles, uint32 num )
+void PassGBuffer_Particle::addParticle( const SingleParticle *particles, uint32 num )
 {
     m_particles.insert(m_particles.end(), particles, particles+num);
 }
