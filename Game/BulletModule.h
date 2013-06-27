@@ -4,10 +4,17 @@
 namespace atm {
 
 
+class LaserManager;
+class BulletManager;
+class NeedleManager;
+
+typedef uint32 LaserHandle;
+
 class ILaser
 {
 public:
     virtual ~ILaser() {}
+    virtual LaserHandle getHandle() const=0;
     virtual const vec3& getPosition() const=0;
     virtual const vec3& getDirection() const=0;
     virtual void setPosition(const vec3 &v)=0;
@@ -19,15 +26,12 @@ class IBulletManager
 {
 public:
     virtual ~IBulletManager() {}
-    virtual void update(float32 dt)=0;
-    virtual void asyncupdate(float32 dt)=0;
-    virtual void draw()=0;
+    virtual void frameBegin() {}
+    virtual void update(float32 dt) {}
+    virtual void asyncupdate(float32 dt) {}
+    virtual void draw() {}
+    virtual void frameEnd() {}
 };
-class LaserManager;
-class BulletManager;
-class NeedleManager;
-
-typedef uint32 LaserHandle;
 
 
 class BulletModule : public IAtomicGameModule

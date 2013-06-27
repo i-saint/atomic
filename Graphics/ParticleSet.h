@@ -17,14 +17,6 @@ struct istAlign(16) BloodstainParticle
 };
 atmSerializeRaw(BloodstainParticle);
 
-struct istAlign(16) BloodstainParticle_IsDead
-{
-    bool operator()(const BloodstainParticle &bsp) const
-    {
-        return bsp.lifetime <= 0.0f;
-    }
-};
-
 struct istAlign(16) SingleParticle
 {
     vec4 position;

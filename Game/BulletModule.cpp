@@ -3,6 +3,8 @@
 #include "Game/AtomicGame.h"
 #include "Game/World.h"
 #include "Game/CollisionModule.h"
+#include "Game/EntityModule.h"
+#include "Game/EntityQuery.h"
 #include "Graphics/ResourceManager.h"
 #include "Graphics/Renderer.h"
 #include "Util.h"
@@ -23,15 +25,16 @@ atmSerializeRaw(LaserParticle);
 
 class dpPatch Laser : public ILaser
 {
-private:
+public:
     enum State {
         State_Normal,
         State_Fadeout,
         State_Dead,
     };
+private:
     typedef stl::vector<LaserParticle> particles;
 
-    uint32          m_id;
+    LaserHandle     m_handle;
     EntityHandle    m_owner;
     CollisionGroup  m_group;
     State           m_state;
@@ -53,16 +56,24 @@ private:
     )
 
 public:
-    Laser() : m_id(0), m_owner(0), m_group(0), m_state(State_Normal), m_time(0.0f)
+    Laser(LaserHandle handle, const vec3 &pos, const vec3 &dir, EntityHandle owner)
+        : m_handle(handle), m_owner(0), m_group(0), m_state(State_Normal), m_time(0.0f)
     {
+        m_pos = pos;
+        m_dir = dir;
+        m_owner = owner;
+        atmQuery(owner, getCollisionGroup, m_group);
     }
 
-    virtual const vec3& getPosition() const     { return m_pos; }
-    virtual const vec3& getDirection() const    { return m_dir; }
-    virtual void setPosition(const vec3 &v)     { m_pos=v; }
-    virtual void setDirection(const vec3 &v)    { m_dir=v; }
-    virtual void fade() { m_state=State_Fadeout; m_time=0.0f; }
-    virtual void kill() { m_state=State_Dead; m_time=0.0f; }
+    State getState() const { return m_state; }
+    LaserHandle getHandle() const override      { return m_handle; }
+    const vec3& getPosition() const override    { return m_pos; }
+    const vec3& getDirection() const override   { return m_dir; }
+    void setPosition(const vec3 &v) override    { m_pos=v; }
+    void setDirection(const vec3 &v) override   { m_dir=v; }
+    void fade() override { m_state=State_Fadeout; m_time=0.0f; }
+    void kill() override { m_state=State_Dead; m_time=0.0f; }
+    bool isDead() const { return m_state==State_Dead; }
 
     void update(float32 dt)
     {
@@ -71,7 +82,7 @@ public:
         static const float32 speed = 0.1f;
         static const float32 lifetime = 240.0f;
         static const float32 radius = 0.02f;
-        std::for_each(m_particles.begin(), m_particles.end(), [&](LaserParticle &p){
+        each(m_particles, [&](LaserParticle &p){
             p.time += dt;
         });
 
@@ -79,7 +90,7 @@ public:
             CollisionSphere sphere;
             sphere.setEntityHandle(m_owner);
             sphere.setCollisionGroup(m_group);
-            std::for_each(m_particles.begin(), m_particles.end(), [&](LaserParticle &p){
+            each(m_particles, [&](LaserParticle &p){
                 vec3 pos = p.pos + m_dir*p.time*speed;
                 sphere.pos_r = vec4(pos, radius);
                 sphere.bb.bl = vec4(pos-radius, 0.0f);
@@ -90,9 +101,11 @@ public:
                 }
             });
         }
-        m_particles.erase(
-            std::remove_if(m_particles.begin(), m_particles.end(), [&](LaserParticle &p){ return p.time>=lifetime; }),
-            m_particles.end());
+        erase(m_particles, [&](LaserParticle &p){ return p.time>=lifetime; });
+    }
+
+    void asyncupdate(float32 dt)
+    {
     }
 
     void draw()
@@ -106,7 +119,10 @@ class dpPatch LaserManager : public IBulletManager
 {
 private:
     typedef stl::vector<Laser*> lasers;
+    typedef stl::vector<size_t> handles;
     lasers m_lasers;
+    handles m_vacants;
+    handles m_all;
 
 public:
     LaserManager()
@@ -119,16 +135,58 @@ public:
         m_lasers.clear();
     }
 
+    Laser* createLaser(const vec3 &pos, const vec3 &dir, EntityHandle owner)
+    {
+        atmDbgAssertSyncLock();
+        LaserHandle h = 0;
+        if(!m_vacants.empty()) {
+            h = m_vacants.back();
+            m_vacants.pop_back();
+        }
+        else {
+            h = m_lasers.size();
+        }
+
+        Laser *l = istNew(Laser)(h, pos, dir, owner);
+        m_lasers.push_back(l);
+        m_all.push_back(h);
+        return l;
+    }
+
     void update(float32 dt) override
     {
+        each(m_all, [&](LaserHandle &h){
+            Laser *&v = m_lasers[h];
+            if(v) {
+                v->update(dt);
+                if(v->isDead()) {
+                    istSafeDelete(v);
+                }
+            }
+            if(!v) {
+                m_vacants.push_back(h);
+                h = 0;
+            }
+        });
+        erase(m_all, [&](LaserHandle h){ return h==0; });
     }
 
     void asyncupdate(float32 dt) override
     {
+        each(m_all, [&](LaserHandle h){
+            if(Laser *v = m_lasers[h]) {
+                v->asyncupdate(dt);
+            }
+        });
     }
 
     void draw() override
     {
+        each(m_all, [&](LaserHandle h){
+            if(Laser *v = m_lasers[h]) {
+                v->draw();
+            }
+        });
     }
 };
 
@@ -143,6 +201,12 @@ struct BulletData
     CollisionGroup group;
     EntityHandle hit_to;
     uint32 flags;
+
+    BulletData() : time(), owner(), hit_to(), flags() {}
+    BulletData(const vec3 &p, const vec3 &v, EntityHandle o) : pos(p), vel(v), owner(o)
+    {
+        atmQuery(owner, getCollisionGroup, group);
+    }
 };
 atmSerializeRaw(BulletData);
 
@@ -156,6 +220,7 @@ private:
 public:
     BulletManager()
     {
+        m_bullets.reserve(512);
     }
 
     void update(float32 dt) override
@@ -164,7 +229,7 @@ public:
         static const float32 lifetime = 600.0f;
 
         CollisionSphere sphere;
-        std::for_each(m_bullets.begin(), m_bullets.end(), [&](BulletData &p){
+        each(m_bullets, [&](BulletData &p){
             vec3 pos = p.pos + p.vel;
             p.time += dt;
             p.pos = pos;
@@ -179,9 +244,7 @@ public:
                 p.time = lifetime;
             }
         });
-        m_bullets.erase(
-            std::remove_if(m_bullets.begin(), m_bullets.end(), [&](BulletData &p){ return p.time>=lifetime; }),
-            m_bullets.end());
+        erase(m_bullets, [&](BulletData &p){ return p.time>=lifetime; });
     }
 
     void asyncupdate(float32 dt) override
@@ -191,10 +254,48 @@ public:
 
     void draw() override
     {
-        // todo
+        vec4 diffuse = vec4(0.6f, 0.6f, 0.6f, 80.0f);
+        vec4 glow = vec4(2.0f, 1.2f, 0.1f, 0.0f);
+        vec4 light  = glow;
+        vec4 flash  = glow * 0.5f;
+        vec3 axis1(0.0f, 1.0f, 0.0f);
+        vec3 axis2(0.0f, 0.0f, 1.0f);
+        if(atmGetConfig()->lighting<atmE_Lighting_High) {
+            flash  = glow * 0.7f;
+        }
+
+        PSetInstance inst;
+        inst.diffuse = diffuse;
+        inst.glow = glow;
+        inst.flash = vec4();
+        inst.elapsed = 0.0f;
+        inst.appear_radius = 10000.0f;
+        each(m_bullets, [&](BulletData &p){
+            mat4 mat;
+            mat = glm::translate(mat, p.pos);
+            mat = glm::rotate(mat, 4.5f*p.time, axis1);
+            mat = glm::rotate(mat, 4.5f*p.time, axis2);
+            inst.translate = mat;
+            atmGetSPHPass()->addPSetInstance(PSET_SPHERE_BULLET, inst);
+        });
+        if(atmGetConfig()->lighting>=atmE_Lighting_High) {
+            each(m_bullets, [&](BulletData &p){
+                PointLight l;
+                l.setPosition(p.pos + vec3(0.0f, 0.0f, 0.10f));
+                l.setRadius(0.2f);
+                l.setColor(light);
+                atmGetLightPass()->addLight(l);
+            });
+            PointLight l;
+        }
     }
 
-    void shoot(const vec3 &pos, const vec3 &vel, EntityHandle owner);
+    void shoot(const vec3 &pos, const vec3 &vel, EntityHandle owner)
+    {
+        atmDbgAssertSyncLock();
+        BulletData bd(pos, vel, owner);
+        m_bullets.push_back(bd);
+    }
 };
 
 
@@ -210,11 +311,6 @@ public:
 BulletModule::BulletModule()
     : m_lasers(), m_bullets()
 {
-    m_lasers = istNew(LaserManager)();
-    m_managers.push_back(m_lasers);
-
-    m_bullets = istNew(BulletManager)();
-    m_managers.push_back(m_bullets);
 }
 
 BulletModule::~BulletModule()
@@ -224,37 +320,41 @@ BulletModule::~BulletModule()
 
 void BulletModule::initialize()
 {
+    m_lasers = istNew(LaserManager)();
+    m_managers.push_back(m_lasers);
 
+    m_bullets = istNew(BulletManager)();
+    m_managers.push_back(m_bullets);
 }
 
 void BulletModule::frameBegin()
 {
-
+    each(m_managers, [&](IBulletManager *bm){ bm->frameBegin(); });
 }
 
 void BulletModule::update(float32 dt)
 {
-
+    each(m_managers, [&](IBulletManager *bm){ bm->update(dt); });
 }
 
 void BulletModule::asyncupdate(float32 dt)
 {
-
+    each(m_managers, [&](IBulletManager *bm){ bm->asyncupdate(dt); });
 }
 
 void BulletModule::draw()
 {
-
+    each(m_managers, [&](IBulletManager *bm){ bm->draw(); });
 }
 
 void BulletModule::frameEnd()
 {
-
+    each(m_managers, [&](IBulletManager *bm){ bm->frameEnd(); });
 }
 
 void BulletModule::shootBullet(const vec3 &pos, const vec3 &vel, EntityHandle owner)
 {
-
+    m_bullets->shoot(pos, vel, owner);
 }
 
 LaserHandle BulletModule::createLaser(const vec3 &pos, const vec3 &dir, EntityHandle owner)

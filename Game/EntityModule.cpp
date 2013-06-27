@@ -155,7 +155,7 @@ IEntity* EntityModule::getEntity( EntityHandle h )
     }
     IEntity *r = entities[iid];
     if(!r) {
-        std::find_if(m_new_entities.begin(), m_new_entities.end(), [&](IEntity *e)->bool{
+        find(m_new_entities, [&](IEntity *e)->bool{
             if(e->getHandle()==h) { r=e; return true; }
             return false;
         });

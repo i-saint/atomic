@@ -7,6 +7,18 @@ namespace atm {
     template<class T, class F>
     inline void each(T &v, const F &f) { std::for_each(v.begin(), v.end(), f); }
 
+    template<class T, class F>
+    inline void each_with_index(T &v, const F &f) {
+        size_t idx=0;
+        for(auto i=v.begin(); i!=v.end(); ++i, ++idx) { f(*i, idx); }
+    }
+
+    template<class T, class F>
+    inline void erase(T &v, const F &f) { v.erase(std::remove_if(v.begin(), v.end(), f), v.end()); }
+
+    template<class T, class F>
+    inline auto find(T &v, const F &f)->decltype(v.begin()) { return std::find_if(v.begin(), v.end(), f); }
+
     template<class IntType>
     inline IntType ceildiv(IntType a, IntType b)
     {

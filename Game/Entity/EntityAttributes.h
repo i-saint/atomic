@@ -358,9 +358,7 @@ public:
             BloodstainParticle &bsp = m_bloodstain[i];
             bsp.lifetime -= 0.002f*dt;
         }
-        m_bloodstain.erase(
-            stl::remove_if(m_bloodstain.begin(), m_bloodstain.end(), BloodstainParticle_IsDead()),
-            m_bloodstain.end());
+        erase(m_bloodstain, [](BloodstainParticle &bsp){ return bsp.lifetime <= 0.0f; });
     }
 
     uint32 getNumBloodstainParticles() const { return m_bloodstain.size(); }

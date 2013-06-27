@@ -2,6 +2,7 @@
 #define atm_Game_Entity_h
 
 #include "EntityClass.h"
+#include "Util.h"
 
 
 namespace atm {
@@ -89,7 +90,7 @@ public:
 
     template<class Cond, class Func>
     void enumlateEntity(const Cond &c, const Func &f) {
-        std::for_each(m_all.begin(), m_all.end(), [&](EntityHandle h){
+        each(m_all, [&](EntityHandle h){
             if(c(h)) {
                 if(IEntity *e=getEntity(h)) { f(e); }
             }
@@ -98,7 +99,7 @@ public:
 
     template<class Func>
     void enumlateEntity(const Func &f) {
-        std::for_each(m_all.begin(), m_all.end(), [&](EntityHandle h){
+        each(m_all, [&](EntityHandle h){
             if(IEntity *e=getEntity(h)) { f(e); }
         });
     }

@@ -7,15 +7,6 @@
 
 namespace atm {
 
-    template<class T>
-    struct VFXData_IsDead
-    {
-        bool operator()(const T &v) const
-        {
-            return v.size <= 0.0f;
-        }
-    };
-
 
 void VFXScintilla::frameBegin()
 {
@@ -38,9 +29,7 @@ void VFXScintilla::asyncupdate( float32 dt )
             data.size = data.size -= 0.0003f;
         }
     }
-    m_particles.erase(
-        stl::remove_if(m_particles.begin(), m_particles.end(), VFXData_IsDead<ParticleData>()),
-        m_particles.end());
+    erase(m_particles, [](ParticleData &v){ return v.size <= 0.0f; });
 }
 
 void VFXScintilla::draw()
