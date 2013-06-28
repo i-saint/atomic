@@ -118,11 +118,22 @@ public:
 class dpPatch LaserManager : public IBulletManager
 {
 private:
-    typedef stl::vector<Laser*> lasers;
-    typedef stl::vector<size_t> handles;
-    lasers m_lasers;
-    handles m_vacants;
-    handles m_all;
+    typedef stl::vector<Laser*> Lasers;
+    typedef stl::vector<LaserHandle> Handles;
+
+    Lasers m_lasers;
+    Handles m_all;
+    Handles m_vacants;
+    Handles m_dead;
+    Handles m_dead_prev;
+
+    istSerializeBlock(
+        istSerialize(m_lasers)
+        istSerialize(m_all)
+        istSerialize(m_vacants)
+        istSerialize(m_dead)
+        istSerialize(m_dead_prev)
+    )
 
 public:
     LaserManager()
@@ -145,10 +156,11 @@ public:
         }
         else {
             h = m_lasers.size();
+            m_lasers.push_back(nullptr);
         }
 
         Laser *l = istNew(Laser)(h, pos, dir, owner);
-        m_lasers.push_back(l);
+        m_lasers[h] = l;
         m_all.push_back(h);
         return l;
     }
@@ -164,11 +176,15 @@ public:
                 }
             }
             if(!v) {
-                m_vacants.push_back(h);
+                m_dead.push_back(h);
                 h = 0;
             }
         });
         erase(m_all, [&](LaserHandle h){ return h==0; });
+
+        m_vacants.insert(m_vacants.end(), m_dead_prev.begin(), m_dead_prev.end());
+        m_dead_prev = m_dead;
+        m_dead.clear();
     }
 
     void asyncupdate(float32 dt) override

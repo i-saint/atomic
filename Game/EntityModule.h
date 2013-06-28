@@ -63,8 +63,8 @@ class EntityModule : public IAtomicGameModule
 friend class IEntity;
 typedef IAtomicGameModule super;
 public:
-    typedef ist::vector<EntityHandle> HandleCont;
-    typedef ist::vector<IEntity*> EntityCont;
+    typedef ist::vector<EntityHandle> Handles;
+    typedef ist::vector<IEntity*> Entities;
 
 public:
     EntityModule();
@@ -108,20 +108,25 @@ private:
     void generateHandle(EntityClassID classid);
     EntityHandle getGeneratedHandle();
 
-    HandleCont m_all;
-    HandleCont m_vacant;
-    EntityCont m_entities;
-    EntityCont m_new_entities;
+    Entities    m_entities;
+    Handles     m_all;
+    Handles     m_vacants;
+    Handles     m_dead;      // 死亡を検出できるようにするため、死んだ Entity の handle は 1 frame は無効なままにする必要がある。
+    Handles     m_dead_prev; // 
+
+    // 以下 serialize 不要
     EntityHandle m_tmp_handle;
 
     void resizeTasks(uint32 n);
 
     istSerializeBlock(
         istSerializeBase(super)
-        istSerialize(m_all)
-        istSerialize(m_vacant)
         istSerialize(m_entities)
-        )
+        istSerialize(m_all)
+        istSerialize(m_vacants)
+        istSerialize(m_dead)
+        istSerialize(m_dead_prev)
+    )
 };
 
 } // namespace atm

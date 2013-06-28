@@ -65,14 +65,13 @@ EntityModule::EntityModule()
 
 EntityModule::~EntityModule()
 {
-    EntityCont &entities = m_entities;
+    Entities &entities = m_entities;
     uint32 s = entities.size();
     for(uint32 k=0; k<s; ++k) {
         istSafeDelete(entities[k]);
     }
     entities.clear();
-    m_vacant.clear();
-
+    m_vacants.clear();
     m_all.clear();
 }
 
@@ -87,8 +86,7 @@ void EntityModule::frameBegin()
 void EntityModule::update( float32 dt )
 {
     // update
-    uint32 num_entities = m_all.size();
-    for(uint32 i=0; i<num_entities; ++i) {
+    for(uint32 i=0; i<m_all.size(); ++i) {
         if(IEntity *entity = getEntity(m_all[i])) {
             entity->update(dt);
         }
@@ -100,15 +98,9 @@ void EntityModule::update( float32 dt )
     // erase invalid handles
     m_all.erase(stl::remove(m_all.begin(), m_all.end(), 0), m_all.end());
 
-    // append new entities
-    for(uint32 i=0; i<m_new_entities.size(); ++i) {
-        IEntity *entity = m_new_entities[i];
-        EntityHandle handle = entity->getHandle();
-        m_entities[EntityGetIndex(handle)] = entity;
-        m_all.push_back(handle);
-        entity->update(dt);
-    }
-    m_new_entities.clear();
+    m_vacants.insert(m_vacants.end(), m_dead_prev.begin(), m_dead_prev.end());
+    m_dead_prev = m_dead;
+    m_dead.clear();
 
 
     // asyncupdate
@@ -145,22 +137,15 @@ void EntityModule::frameEnd()
 
 IEntity* EntityModule::getEntity( EntityHandle h )
 {
-    if(h==0) { return NULL; }
+    if(h==0) { return nullptr; }
     uint32 cid = EntityGetClassID(h);
     uint32 iid = EntityGetIndex(h);
 
-    EntityCont &entities = m_entities;
+    Entities &entities = m_entities;
     if(iid >= entities.size()) {
         return nullptr;
     }
-    IEntity *r = entities[iid];
-    if(!r) {
-        find(m_new_entities, [&](IEntity *e)->bool{
-            if(e->getHandle()==h) { r=e; return true; }
-            return false;
-        });
-    }
-    return r;
+    return entities[iid];
 }
 
 void EntityModule::deleteEntity( EntityHandle h )
@@ -168,18 +153,18 @@ void EntityModule::deleteEntity( EntityHandle h )
     atmDbgAssertSyncLock();
     uint32 cid = EntityGetClassID(h);
     uint32 iid = EntityGetIndex(h);
-    EntityCont &entities = m_entities;
-    HandleCont &vacants = m_vacant;
+    Entities &entities = m_entities;
+    Handles &vacants = m_vacants;
     entities[iid]->finalize();
     istSafeRelease(entities[iid]);
-    vacants.push_back(EntityGetIndex(h));
+    m_dead.push_back(EntityGetIndex(h));
 }
 
 void EntityModule::generateHandle(EntityClassID classid)
 {
     atmDbgAssertSyncLock();
-    EntityCont &entities = m_entities;
-    HandleCont &vacant = m_vacant;
+    Entities &entities = m_entities;
+    Handles &vacant = m_vacants;
     EntityHandle h = 0;
     if(!vacant.empty()) {
         h = vacant.back();
@@ -187,8 +172,8 @@ void EntityModule::generateHandle(EntityClassID classid)
     }
     else {
         h = entities.size();
+        entities.push_back(nullptr); // reserve
     }
-    entities.push_back(NULL); // reserve
     h = EntityCreateHandle(classid, h);
     m_tmp_handle = h;
 }
@@ -202,7 +187,8 @@ IEntity* EntityModule::createEntity( EntityClassID classid )
 {
     generateHandle(classid);
     IEntity *e = CreateEntity(classid);
-    m_new_entities.push_back(e);
+    m_entities[EntityGetIndex(e->getHandle())] = e;
+    m_all.push_back(e->getHandle());
     e->initialize();
     return e;
 }
