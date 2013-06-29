@@ -14,6 +14,9 @@ private:
 
 public:
     atmECallBlock(
+        atmMethodBlock(
+            atmECall(addForce)
+        )
         atmECallSuper(super)
     )
 
@@ -49,7 +52,7 @@ public:
         super::eventFluid(m);
         vec3 pos = (const vec3&)m->position;
         vec3 force = (const vec3&)m->velocity * (sqrt(m->density)*0.1f);
-        atmCall(getParent(), addForce, atmArgs(pos, force));
+        addForce(pos, force);
     }
 
     void eventCollide(const CollideMessage *m) override
@@ -59,11 +62,16 @@ public:
         if(atmQuery(m->from, getPosition, pos)) {
             float32 f = 4000.0f;
             if(EntityGetCategory(m->from)==ECA_Obstacle) {
-                f = 20000.0f;
+                f = 50000.0f;
             }
             vec3 force = vec3(m->direction * (m->direction.w * f));
-            atmCall(getParent(), addForce, atmArgs(pos, force));
+            addForce(pos, force);
         }
+    }
+
+    void addForce(const vec3 &pos, const vec3 &force)
+    {
+        atmCall(getParent(), addForce, atmArgs(pos, force));
     }
 };
 atmImplementEntity(GearParts);

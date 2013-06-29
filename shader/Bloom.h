@@ -67,7 +67,7 @@ vec4 Luminance()
 {
     vec4 color = texture(u_ColorBuffer, vs_Texcoord);
     vec4 glow = texture(u_GlowBuffer, vs_Texcoord);
-    color = max(color-vec4(0.5), vec4(0.0))*2.0;
+    color = max(color-vec4(0.6), vec4(0.0))*2.5;
     color += glow;
     color.w += 0.5;
     return color;

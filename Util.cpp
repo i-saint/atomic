@@ -46,7 +46,7 @@ vec2 GenRandomVector2()
 vec3 GenRandomVector3()
 {
     vec3 axis( atmGenRandFloat(), atmGenRandFloat(), atmGenRandFloat() );
-    axis -= vec3(0.5f, 0.5f, 0.5f);
+    axis -= 0.5f;
     axis *= 2.0f;
     return axis;
 }

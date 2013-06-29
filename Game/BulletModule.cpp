@@ -16,7 +16,8 @@ namespace atm {
 
 struct LaserParticle
 {
-    vec3    pos;
+    vec3    pos_base;
+    vec3    pos_current;
     float32 time;
     EntityHandle hit_to;
 
@@ -37,6 +38,7 @@ private:
     static const float32 s_speed;
     static const float32 s_lifetime;
     static const float32 s_radius;
+    static const float32 s_power;
 
     LaserHandle     m_handle;
     EntityHandle    m_owner;
@@ -48,7 +50,9 @@ private:
     particles       m_particles;
 
     // 以下 serialize 不要
-    CollisionModule::CollisionContext m_cctx;
+    typedef CollisionModule::CollisionContext CollisionContext;
+    typedef stl::vector<CollisionContext> CollisionContexts;
+    CollisionContexts m_cctx;
     ist::vector<SingleParticle> m_drawdata;
 
     istSerializeBlock(
@@ -95,47 +99,71 @@ public:
     void kill() override { m_state=State_Dead; m_time=0.0f; }
     bool isDead() const { return m_state==State_Dead; }
 
-    void update(float32 dt)
+    vec3 computeParticlePos(const LaserParticle &p)
+    {
+        vec3 adv = m_dir * (p.time*s_speed);
+        vec3 pos = m_pos + adv;
+        mat4 mat;
+        mat = glm::translate(mat, pos);
+        mat = glm::rotate(mat, p.time*7.5f, m_dir);
+        mat = glm::translate(mat, p.pos_base);
+        return vec3(mat * vec4(vec3(0.0f), 1.0f));
+    }
+
+    void update1(float32 dt)
     {
         m_time += dt;
 
-        for(size_t i=0; i<3; ++i) {
+        for(size_t i=0; i<6; ++i) {
             LaserParticle t;
-            t.pos = m_pos + (vec3(GenRandomVector3()*0.075f)*vec3(1.0f,1.0f,0.5f));
+            t.pos_base = GenRandomVector3()*0.075f * vec3(1.0f,1.0f,0.5f);
             t.time = 0.0f;
             m_particles.push_back(t);
         }
-
-        const float32 lifetime = 240.0f;
-        const float32 power = 2.0f;
-
         each(m_particles, [&](LaserParticle &p){
             p.time += dt;
         });
 
+    }
+
+    void update2async(float32 dt)
+    {
+        const size_t blocksize = 32;
+        size_t num_tasks = ceildiv(m_particles.size(), blocksize);
+        if(num_tasks>m_cctx.size()) {
+            m_cctx.resize(num_tasks);
+        }
+
         if(m_state==State_Normal) {
-            each(m_particles, [&](LaserParticle &p){
-                vec3 pos = p.pos + m_dir*p.time*s_speed;
+            parallel_each_with_block_index(m_particles, blocksize, [&](LaserParticle &p, size_t bi){
+                CollisionContext &ctx = m_cctx[bi];
+                vec3 pos = computeParticlePos(p);
+                p.pos_current = pos;
                 CollisionSphere sphere;
                 sphere.setEntityHandle(m_owner);
                 sphere.setCollisionGroup(m_group);
                 sphere.pos_r = vec4(pos, s_radius);
                 sphere.updateBoundingBox();
-                if(atmGetCollisionModule()->collideRecv(&sphere, m_cctx)) {
-                    p.hit_to = m_cctx.messages.front().from;
-                    p.time = lifetime;
+                if(atmGetCollisionModule()->collideRecv(&sphere, ctx)) {
+                    p.hit_to = ctx.messages.front().from;
+                    p.time = s_lifetime;
                 }
-                m_cctx.clear();
+                ctx.clear();
             });
         }
+    }
+
+    void update3(float32 dt)
+    {
         each(m_particles, [&](LaserParticle &p){
             if(p.hit_to) {
-                vec3 pos = p.pos + m_dir*p.time*s_speed;
+                vec3 pos = p.pos_current;
                 //atmGetFluidModule()->addFluid(PSET_SPHERE_BULLET, glm::translate(pos));
-                atmCall(p.hit_to, damage, power);
+                atmCall(p.hit_to, damage, s_power);
+                atmCall(p.hit_to, addForce, atmArgs(pos, m_dir*s_speed*1000.0f));
             }
         });
-        erase(m_particles, [&](LaserParticle &p){ return p.time>=lifetime; });
+        erase(m_particles, [&](LaserParticle &p){ return p.time>=s_lifetime; });
     }
 
     void asyncupdate(float32 dt)
@@ -159,8 +187,8 @@ public:
         //});
         //atmGetParticlePass()->addParticle(&m_drawdata[0], m_drawdata.size());
 
-        vec4 diffuse = vec4(0.6f, 0.6f, 0.6f, 80.0f);
-        vec4 glow = vec4(2.0f, 1.2f, 0.1f, 0.0f);
+        vec4 diffuse = vec4(0.0f, 0.0f, 0.0f, 80.0f);
+        vec4 glow = vec4(1.2f, 1.2f, 2.5f, 0.0f);
         vec4 light  = glow;
         vec4 flash  = glow * 0.5f;
         if(atmGetConfig()->lighting<atmE_Lighting_High) {
@@ -174,8 +202,12 @@ public:
         inst.elapsed = 0.0f;
         inst.appear_radius = 10000.0f;
         each(m_particles, [&](LaserParticle &p){
-            vec3 pos = p.pos + m_dir*p.time*s_speed;
-            inst.translate = glm::translate(pos);
+            vec3 pos = p.pos_current;
+            vec3 scale = vec3(2.0f);
+            mat4 mat;
+            mat = glm::translate(mat, p.pos_current);
+            mat = glm::scale(mat, scale);
+            inst.translate = mat;
             atmGetFluidPass()->addPSetInstance(PSET_SPHERE_BULLET, inst);
         });
     }
@@ -184,6 +216,7 @@ public:
 const float32 Laser::s_speed = 0.025f;
 const float32 Laser::s_lifetime = 180.0f;
 const float32 Laser::s_radius = 0.02f;
+const float32 Laser::s_power = 2.0f;
 
 class dpPatch LaserManager : public IBulletManager
 {
@@ -241,7 +274,7 @@ public:
         each(m_all, [&](LaserHandle &h){
             Laser *&v = m_lasers[h];
             if(v) {
-                v->update(dt);
+                v->update1(dt);
                 if(v->isDead()) {
                     istSafeDelete(v);
                 }
@@ -252,6 +285,18 @@ public:
             }
         });
         erase(m_all, [&](LaserHandle h){ return h==0; });
+        parallel_each(m_all, 1, [&](LaserHandle h){
+            Laser *&v = m_lasers[h];
+            if(v) {
+                v->update2async(dt);
+            }
+        });
+        each(m_all, [&](LaserHandle h){
+            Laser *&v = m_lasers[h];
+            if(v) {
+                v->update3(dt);
+            }
+        });
 
         m_vacants.insert(m_vacants.end(), m_dead_prev.begin(), m_dead_prev.end());
         m_dead_prev = m_dead;
