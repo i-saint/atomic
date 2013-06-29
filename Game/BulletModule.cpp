@@ -3,6 +3,7 @@
 #include "Game/AtomicGame.h"
 #include "Game/World.h"
 #include "Game/CollisionModule.h"
+#include "Game/FluidModule.h"
 #include "Game/EntityModule.h"
 #include "Game/EntityQuery.h"
 #include "Graphics/ResourceManager.h"
@@ -33,6 +34,9 @@ public:
     };
 private:
     typedef stl::vector<LaserParticle> particles;
+    static const float32 s_speed;
+    static const float32 s_lifetime;
+    static const float32 s_radius;
 
     LaserHandle     m_handle;
     EntityHandle    m_owner;
@@ -42,7 +46,10 @@ private:
     vec3            m_pos;
     vec3            m_dir;
     particles       m_particles;
-    CollisionModule::CollisionContext m_cctx; // serialize 不要
+
+    // 以下 serialize 不要
+    CollisionModule::CollisionContext m_cctx;
+    ist::vector<SingleParticle> m_drawdata;
 
     istSerializeBlock(
         istSerialize(m_id)
@@ -63,6 +70,19 @@ public:
         m_dir = dir;
         m_owner = owner;
         atmQuery(owner, getCollisionGroup, m_group);
+
+        wdmScope(
+        wdmString path = wdmFormat("Bullet/Laser/0x%p", this);
+        wdmAddNode(path+"/m_pos", &m_pos );
+        wdmAddNode(path+"/m_dir", this, &Laser::getDirection, &Laser::setDirection );
+        wdmAddNode(path+"/fade()", &Laser::fade, this );
+        wdmAddNode(path+"/kill()", &Laser::kill, this );
+        )
+    }
+
+    ~Laser()
+    {
+        wdmEraseNode(wdmFormat("Bullet/Laser/0x%p", this));
     }
 
     State getState() const { return m_state; }
@@ -70,7 +90,7 @@ public:
     const vec3& getPosition() const override    { return m_pos; }
     const vec3& getDirection() const override   { return m_dir; }
     void setPosition(const vec3 &v) override    { m_pos=v; }
-    void setDirection(const vec3 &v) override   { m_dir=v; }
+    void setDirection(const vec3 &v) override   { m_dir=glm::normalize(v); }
     void fade() override { m_state=State_Fadeout; m_time=0.0f; }
     void kill() override { m_state=State_Dead; m_time=0.0f; }
     bool isDead() const { return m_state==State_Dead; }
@@ -79,28 +99,42 @@ public:
     {
         m_time += dt;
 
-        static const float32 speed = 0.1f;
-        static const float32 lifetime = 240.0f;
-        static const float32 radius = 0.02f;
+        for(size_t i=0; i<3; ++i) {
+            LaserParticle t;
+            t.pos = m_pos + (vec3(GenRandomVector3()*0.075f)*vec3(1.0f,1.0f,0.5f));
+            t.time = 0.0f;
+            m_particles.push_back(t);
+        }
+
+        const float32 lifetime = 240.0f;
+        const float32 power = 2.0f;
+
         each(m_particles, [&](LaserParticle &p){
             p.time += dt;
         });
 
         if(m_state==State_Normal) {
-            CollisionSphere sphere;
-            sphere.setEntityHandle(m_owner);
-            sphere.setCollisionGroup(m_group);
             each(m_particles, [&](LaserParticle &p){
-                vec3 pos = p.pos + m_dir*p.time*speed;
-                sphere.pos_r = vec4(pos, radius);
-                sphere.bb.bl = vec4(pos-radius, 0.0f);
-                sphere.bb.ur = vec4(pos+radius, 0.0f);
-                if(atmGetCollisionModule()->collide(&sphere, m_cctx)) {
-                    p.hit_to = m_cctx.messages.front().to;
+                vec3 pos = p.pos + m_dir*p.time*s_speed;
+                CollisionSphere sphere;
+                sphere.setEntityHandle(m_owner);
+                sphere.setCollisionGroup(m_group);
+                sphere.pos_r = vec4(pos, s_radius);
+                sphere.updateBoundingBox();
+                if(atmGetCollisionModule()->collideRecv(&sphere, m_cctx)) {
+                    p.hit_to = m_cctx.messages.front().from;
                     p.time = lifetime;
                 }
+                m_cctx.clear();
             });
         }
+        each(m_particles, [&](LaserParticle &p){
+            if(p.hit_to) {
+                vec3 pos = p.pos + m_dir*p.time*s_speed;
+                //atmGetFluidModule()->addFluid(PSET_SPHERE_BULLET, glm::translate(pos));
+                atmCall(p.hit_to, damage, power);
+            }
+        });
         erase(m_particles, [&](LaserParticle &p){ return p.time>=lifetime; });
     }
 
@@ -110,10 +144,46 @@ public:
 
     void draw()
     {
-        // todo
+        if(m_particles.empty()) { return; }
+
+        //const vec4 color(0.5f,0.5f,0.7f,1.0f);
+        //const vec4 glow(0.5f,0.5f,0.7f,1.0f);
+
+        //m_drawdata.resize(m_particles.size());
+        //each_with_index(m_particles, [&](LaserParticle &p, size_t i){
+        //    SingleParticle &dd = m_drawdata[i];
+        //    dd.position = vec4(p.pos+m_dir*p.time*s_speed, 1.0f);
+        //    dd.color = color;
+        //    dd.glow = glow;
+        //    dd.scale = 1.0f;
+        //});
+        //atmGetParticlePass()->addParticle(&m_drawdata[0], m_drawdata.size());
+
+        vec4 diffuse = vec4(0.6f, 0.6f, 0.6f, 80.0f);
+        vec4 glow = vec4(2.0f, 1.2f, 0.1f, 0.0f);
+        vec4 light  = glow;
+        vec4 flash  = glow * 0.5f;
+        if(atmGetConfig()->lighting<atmE_Lighting_High) {
+            flash  = glow * 0.7f;
+        }
+
+        PSetInstance inst;
+        inst.diffuse = diffuse;
+        inst.glow = glow;
+        inst.flash = flash;
+        inst.elapsed = 0.0f;
+        inst.appear_radius = 10000.0f;
+        each(m_particles, [&](LaserParticle &p){
+            vec3 pos = p.pos + m_dir*p.time*s_speed;
+            inst.translate = glm::translate(pos);
+            atmGetFluidPass()->addPSetInstance(PSET_SPHERE_BULLET, inst);
+        });
     }
 
 };
+const float32 Laser::s_speed = 0.025f;
+const float32 Laser::s_lifetime = 180.0f;
+const float32 Laser::s_radius = 0.02f;
 
 class dpPatch LaserManager : public IBulletManager
 {
@@ -138,6 +208,7 @@ private:
 public:
     LaserManager()
     {
+        m_lasers.push_back(nullptr);
     }
 
     ~LaserManager()
@@ -146,7 +217,7 @@ public:
         m_lasers.clear();
     }
 
-    Laser* createLaser(const vec3 &pos, const vec3 &dir, EntityHandle owner)
+    LaserHandle createLaser(const vec3 &pos, const vec3 &dir, EntityHandle owner)
     {
         atmDbgAssertSyncLock();
         LaserHandle h = 0;
@@ -162,7 +233,7 @@ public:
         Laser *l = istNew(Laser)(h, pos, dir, owner);
         m_lasers[h] = l;
         m_all.push_back(h);
-        return l;
+        return h;
     }
 
     void update(float32 dt) override
@@ -219,9 +290,20 @@ struct BulletData
     uint32 flags;
 
     BulletData() : time(), owner(), hit_to(), flags() {}
-    BulletData(const vec3 &p, const vec3 &v, EntityHandle o) : pos(p), vel(v), owner(o)
+    BulletData(const vec3 &p, const vec3 &v, EntityHandle o) : pos(p), vel(v), owner(o), hit_to(), flags()
     {
         atmQuery(owner, getCollisionGroup, group);
+    }
+
+    mat4 computeMatrix() const
+    {
+        const vec3 axis1(0.0f, 1.0f, 0.0f);
+        const vec3 axis2(0.0f, 0.0f, 1.0f);
+        mat4 mat;
+        mat = glm::translate(mat, pos);
+        mat = glm::rotate(mat, 4.5f*time, axis1);
+        mat = glm::rotate(mat, 4.5f*time, axis2);
+        return mat;
     }
 };
 atmSerializeRaw(BulletData);
@@ -229,9 +311,11 @@ atmSerializeRaw(BulletData);
 class dpPatch BulletManager : public IBulletManager
 {
 private:
-    typedef stl::vector<BulletData> bullets;
-    bullets m_bullets;
-    CollisionModule::CollisionContext m_cctx; // serialize 不要
+    typedef stl::vector<BulletData> Bullets;
+    typedef CollisionModule::CollisionContext CollisionContext;
+    typedef stl::vector<CollisionContext> CollisionContexts;
+    Bullets m_bullets;
+    CollisionContexts m_cctx; // serialize 不要
 
 public:
     BulletManager()
@@ -241,23 +325,39 @@ public:
 
     void update(float32 dt) override
     {
-        static const float32 radius = 0.03f;
-        static const float32 lifetime = 600.0f;
+        const float32 radius = 0.03f;
+        const float32 lifetime = 600.0f;
+        const float32 power = 5.0f;
+        const size_t blocksize = 32;
 
-        CollisionSphere sphere;
-        each(m_bullets, [&](BulletData &p){
+        size_t num_tasks = ceildiv(m_bullets.size(), blocksize);
+        if(num_tasks>m_cctx.size()) {
+            m_cctx.resize(num_tasks);
+        }
+
+        parallel_each_with_block_index(m_bullets, blocksize, [&](BulletData &p, size_t bi){
             vec3 pos = p.pos + p.vel;
+            pos.z = 0.03f;
             p.time += dt;
             p.pos = pos;
 
+            CollisionContext &ctx = m_cctx[bi];
+            CollisionSphere sphere;
             sphere.setEntityHandle(p.owner);
             sphere.setCollisionGroup(p.group);
             sphere.pos_r = vec4(pos, radius);
             sphere.bb.bl = vec4(pos-radius, 0.0f);
             sphere.bb.ur = vec4(pos+radius, 0.0f);
-            if(atmGetCollisionModule()->collide(&sphere, m_cctx)) {
-                p.hit_to = m_cctx.messages.front().to;
+            if(atmGetCollisionModule()->collideRecv(&sphere, ctx)) {
+                p.hit_to = ctx.messages.front().from;
                 p.time = lifetime;
+            }
+            ctx.clear();
+        });
+        each(m_bullets, [&](BulletData &p){
+            if(p.hit_to) {
+                atmGetFluidModule()->addFluid(PSET_SPHERE_BULLET, p.computeMatrix());
+                atmCall(p.hit_to, damage, power);
             }
         });
         erase(m_bullets, [&](BulletData &p){ return p.time>=lifetime; });
@@ -274,8 +374,6 @@ public:
         vec4 glow = vec4(2.0f, 1.2f, 0.1f, 0.0f);
         vec4 light  = glow;
         vec4 flash  = glow * 0.5f;
-        vec3 axis1(0.0f, 1.0f, 0.0f);
-        vec3 axis2(0.0f, 0.0f, 1.0f);
         if(atmGetConfig()->lighting<atmE_Lighting_High) {
             flash  = glow * 0.7f;
         }
@@ -283,16 +381,12 @@ public:
         PSetInstance inst;
         inst.diffuse = diffuse;
         inst.glow = glow;
-        inst.flash = vec4();
+        inst.flash = flash;
         inst.elapsed = 0.0f;
         inst.appear_radius = 10000.0f;
         each(m_bullets, [&](BulletData &p){
-            mat4 mat;
-            mat = glm::translate(mat, p.pos);
-            mat = glm::rotate(mat, 4.5f*p.time, axis1);
-            mat = glm::rotate(mat, 4.5f*p.time, axis2);
-            inst.translate = mat;
-            atmGetSPHPass()->addPSetInstance(PSET_SPHERE_BULLET, inst);
+            inst.translate = p.computeMatrix();
+            atmGetFluidPass()->addPSetInstance(PSET_SPHERE_BULLET, inst);
         });
         if(atmGetConfig()->lighting>=atmE_Lighting_High) {
             each(m_bullets, [&](BulletData &p){
@@ -302,7 +396,6 @@ public:
                 l.setColor(light);
                 atmGetLightPass()->addLight(l);
             });
-            PointLight l;
         }
     }
 
@@ -375,7 +468,7 @@ void BulletModule::shootBullet(const vec3 &pos, const vec3 &vel, EntityHandle ow
 
 LaserHandle BulletModule::createLaser(const vec3 &pos, const vec3 &dir, EntityHandle owner)
 {
-    return 0;
+    return m_lasers->createLaser(pos, dir, owner);
 }
 
 ILaser* BulletModule::getLaser(LaserHandle v)

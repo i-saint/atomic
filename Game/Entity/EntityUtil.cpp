@@ -1,5 +1,7 @@
 ﻿#include "stdafx.h"
 #include "EntityUtil.h"
+#include "Game/CollisionModule.h"
+#include "Game/BulletModule.h"
 
 namespace atm {
 
@@ -69,10 +71,7 @@ vec3 GetNearestPlayerPosition(const vec3 &pos)
 
 void ShootSimpleBullet(EntityHandle owner, const vec3 &pos, const vec3 &vel)
 {
-    IEntity *e = atmCreateEntity(Bullet_Simple);
-    atmCall(e, setOwner, owner);
-    atmCall(e, setPosition, pos);
-    atmCall(e, setVelocity, vel);
+    atmGetBulletModule()->shootBullet(pos, vel, owner);
 }
 
 } // namespace atm

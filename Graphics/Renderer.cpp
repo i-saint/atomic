@@ -40,34 +40,34 @@ AtomicRenderer::AtomicRenderer()
     m_rt_prev_frame = atmGetRenderTarget(RT_PREV_FRAME);
 
     // 追加の際はデストラクタでの消去処理も忘れずに
-    m_pass_fluid            = istNew(PassGBuffer_Fluid)();
-    m_pass_particle         = istNew(PassGBuffer_Particle)();
-    m_pass_bloodstain       = istNew(PassDeferred_Bloodstain)();
-    m_pass_lights           = istNew(PassDeferred_Lights)();
-    m_pass_forward          = istNew(PassForward_Generic)();
-    m_pass_bg               = istNew(PassForward_BackGround);
+    m_gb_fluid            = istNew(PassGBuffer_Fluid)();
+    m_gb_particle         = istNew(PassGBuffer_Particle)();
+    m_df_bloodstain       = istNew(PassDeferred_Bloodstain)();
+    m_df_lights           = istNew(PassDeferred_Lights)();
+    m_fw_generic          = istNew(PassForward_Generic)();
+    m_fw_bg               = istNew(PassForward_BackGround);
     m_pass_distance_field   = istNew(PassForward_DistanceField)();
-    m_pass_microscopic      = istNew(PassPostprocess_Microscopic)();
-    m_pass_fxaa             = istNew(PassPostprocess_FXAA)();
-    m_pass_bloom            = istNew(PassPostprocess_Bloom)();
-    m_pass_fade             = istNew(PassPostprocess_Fade)();
+    m_pp_microscopic      = istNew(PassPostprocess_Microscopic)();
+    m_pp_fxaa             = istNew(PassPostprocess_FXAA)();
+    m_pp_bloom            = istNew(PassPostprocess_Bloom)();
+    m_pp_fade             = istNew(PassPostprocess_Fade)();
 #ifdef atm_enable_gbuffer_viewer
     m_debug_show_gbuffer        = istNew(PassHUD_DebugShowBuffer)();
 #endif // atm_enable_gbuffer_viewer
 
     m_stext = istNew(SystemTextRenderer)();
 
-    m_renderers[PASS_GBUFFER].push_back(m_pass_fluid);
-    m_renderers[PASS_GBUFFER].push_back(m_pass_particle);
-    m_renderers[PASS_DEFERRED].push_back(m_pass_bloodstain);
-    m_renderers[PASS_DEFERRED].push_back(m_pass_lights);
-    m_renderers[PASS_FORWARD].push_back(m_pass_bg);
-    m_renderers[PASS_FORWARD].push_back(m_pass_forward);
+    m_renderers[PASS_GBUFFER].push_back(m_gb_fluid);
+    m_renderers[PASS_GBUFFER].push_back(m_gb_particle);
+    m_renderers[PASS_DEFERRED].push_back(m_df_bloodstain);
+    m_renderers[PASS_DEFERRED].push_back(m_df_lights);
+    m_renderers[PASS_FORWARD].push_back(m_fw_bg);
+    m_renderers[PASS_FORWARD].push_back(m_fw_generic);
     m_renderers[PASS_FORWARD].push_back(m_pass_distance_field);
-    m_renderers[PASS_POSTPROCESS].push_back(m_pass_fxaa);
-    m_renderers[PASS_POSTPROCESS].push_back(m_pass_microscopic);
-    m_renderers[PASS_POSTPROCESS].push_back(m_pass_bloom);
-    m_renderers[PASS_POSTPROCESS].push_back(m_pass_fade);
+    m_renderers[PASS_POSTPROCESS].push_back(m_pp_fxaa);
+    m_renderers[PASS_POSTPROCESS].push_back(m_pp_microscopic);
+    m_renderers[PASS_POSTPROCESS].push_back(m_pp_bloom);
+    m_renderers[PASS_POSTPROCESS].push_back(m_pp_fade);
 #ifdef atm_enable_gbuffer_viewer
     m_renderers[PASS_HUD].push_back(m_debug_show_gbuffer);
 #endif // atm_enable_gbuffer_viewer
@@ -81,19 +81,19 @@ AtomicRenderer::~AtomicRenderer()
 #ifdef atm_enable_gbuffer_viewer
     istSafeDelete(m_debug_show_gbuffer);
 #endif // atm_enable_gbuffer_viewer
-    istSafeDelete(m_pass_fade);
-    istSafeDelete(m_pass_bloom);
-    istSafeDelete(m_pass_fxaa);
-    istSafeDelete(m_pass_microscopic);
+    istSafeDelete(m_pp_fade);
+    istSafeDelete(m_pp_bloom);
+    istSafeDelete(m_pp_fxaa);
+    istSafeDelete(m_pp_microscopic);
 
-    istSafeDelete(m_pass_bg);
+    istSafeDelete(m_fw_bg);
     istSafeDelete(m_pass_distance_field);
-    istSafeDelete(m_pass_forward);
+    istSafeDelete(m_fw_generic);
 
-    istSafeDelete(m_pass_bloodstain);
-    istSafeDelete(m_pass_lights);
-    istSafeDelete(m_pass_particle);
-    istSafeDelete(m_pass_fluid);
+    istSafeDelete(m_df_bloodstain);
+    istSafeDelete(m_df_lights);
+    istSafeDelete(m_gb_particle);
+    istSafeDelete(m_gb_fluid);
 }
 
 void AtomicRenderer::beforeDraw()

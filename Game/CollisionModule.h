@@ -69,7 +69,7 @@ private:
     void setCollisionHandle(CollisionHandle v) { m_handle=v; }
 
 protected:
-    void setShape(CollisionShapeType v) { m_shape_type=v; }
+    void setShapeType(CollisionShapeType v) { m_shape_type=v; }
 
 public:
     CollisionEntity() : m_shape_type(CS_Null), m_handle(0), m_group(0), m_entity_handle(0), m_flags(CF_Receiver|CF_Sender|CF_SPH_Sender) {}
@@ -99,10 +99,10 @@ public:
     istSerializeBlock(
         istSerializeBase(super)
         istSerialize(plane)
-        )
+    )
 
 public:
-    CollisionPlane() { setShape(CS_Plane); }
+    CollisionPlane() { setShapeType(CS_Plane); }
 };
 
 struct CollisionSphere : public CollisionEntity
@@ -115,10 +115,10 @@ public:
     istSerializeBlock(
         istSerializeBase(super)
         istSerialize(pos_r)
-        )
+    )
 
 public:
-    CollisionSphere() { setShape(CS_Sphere); }
+    CollisionSphere() { setShapeType(CS_Sphere); }
     void updateBoundingBox()
     {
         bb.ur = vec4(vec3(pos_r)+vec3(pos_r.w), 1.0f);
@@ -145,7 +145,7 @@ public:
     )
 
 public:
-    CollisionBox() { setShape(CS_Box); }
+    CollisionBox() { setShapeType(CS_Box); }
 };
 
 
@@ -217,6 +217,12 @@ public:
     {
         HandleCont  neighbors;
         MessageCont messages;
+
+        void clear()
+        {
+            neighbors.clear();
+            messages.clear();
+        }
     };
     typedef ist::vector<CollisionContext*> CollisionCtxCont;
 
@@ -241,7 +247,8 @@ public:
     CollisionGrid* getCollisionGrid();
     CollisionGroup genGroup();
 
-    uint32 collide(CollisionEntity *e, CollisionContext &ctx);
+    uint32 collideSend(CollisionEntity *e, CollisionContext &ctx);
+    uint32 collideRecv(CollisionEntity *e, CollisionContext &ctx);
 
 private:
     void addEntity(CollisionEntity *e);

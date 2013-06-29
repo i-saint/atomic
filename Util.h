@@ -14,6 +14,46 @@ namespace atm {
     }
 
     template<class T, class F>
+    inline void parallel_each(T &v, size_t block_size, const F &f) {
+        size_t num_tasks = ceildiv(v.size(), block_size);
+        ist::parallel_for(size_t(0), num_tasks,
+            [&](size_t bi) {
+                auto first = v.begin() + (bi*block_size);
+                auto last = v.begin() + (std::min<size_t>((bi+1)*block_size, v.size()));
+                for(; first!=last; ++first) {
+                    f(*first);
+                }
+        });
+    }
+
+    template<class T, class F>
+    inline void parallel_each_with_block_index(T &v, size_t block_size, const F &f) {
+        size_t num_tasks = ceildiv(v.size(), block_size);
+        ist::parallel_for(size_t(0), num_tasks,
+            [&](size_t bi) {
+                auto first = v.begin() + (bi*block_size);
+                auto last = v.begin() + (std::min<size_t>((bi+1)*block_size, v.size()));
+                for(; first!=last; ++first) {
+                    f(*first, bi);
+                }
+        });
+    }
+
+    template<class T, class F>
+    inline void parallel_each_with_index(T &v, size_t block_size, const F &f) {
+        size_t num_tasks = ceildiv(v.size(), block_size);
+        ist::parallel_for(size_t(0), num_tasks,
+            [&](size_t bi) {
+                size_t index = bi*block_size;
+                auto first = v.begin() + (bi*block_size);
+                auto last = v.begin() + (std::min<size_t>((bi+1)*block_size, v.size()));
+                for(; first!=last; ++first, ++index) {
+                    f(*first, index);
+                }
+        });
+    }
+
+    template<class T, class F>
     inline void erase(T &v, const F &f) { v.erase(std::remove_if(v.begin(), v.end(), f), v.end()); }
 
     template<class T, class F>

@@ -47,17 +47,17 @@ private:
     RenderTarget    *m_rt_prev_frame;
 
     // internal resources
-    PassGBuffer_Fluid                   *m_pass_fluid;
-    PassGBuffer_Particle                *m_pass_particle;
-    PassDeferred_Bloodstain             *m_pass_bloodstain;
-    PassDeferred_Lights                 *m_pass_lights;
-    PassForward_Generic                 *m_pass_forward;
-    PassForward_BackGround              *m_pass_bg;
-    PassPostprocess_FXAA                *m_pass_fxaa;
-    PassPostprocess_Bloom               *m_pass_bloom;
-    PassPostprocess_Fade                *m_pass_fade;
-    PassPostprocess_Microscopic         *m_pass_microscopic;
-    PassForward_DistanceField    *m_pass_distance_field;
+    PassGBuffer_Fluid                   *m_gb_fluid;
+    PassGBuffer_Particle                *m_gb_particle;
+    PassDeferred_Bloodstain             *m_df_bloodstain;
+    PassDeferred_Lights                 *m_df_lights;
+    PassForward_Generic                 *m_fw_generic;
+    PassForward_BackGround              *m_fw_bg;
+    PassPostprocess_FXAA                *m_pp_fxaa;
+    PassPostprocess_Bloom               *m_pp_bloom;
+    PassPostprocess_Fade                *m_pp_fade;
+    PassPostprocess_Microscopic         *m_pp_microscopic;
+    PassForward_DistanceField           *m_pass_distance_field;
 #ifdef atm_enable_gbuffer_viewer
     PassHUD_DebugShowBuffer             *m_debug_show_gbuffer;
 #endif // atm_enable_gbuffer_viewer
@@ -97,12 +97,12 @@ public:
     RenderStates* getRenderStates3D()           { return &m_rstates3d; }
     RenderStates* getRenderStatesBG()           { return &m_rstatesBG; }
     RenderStates* getRenderStates2D()           { return &m_rstates2d; }
-    PassGBuffer_Fluid* getSPHPass()             { return m_pass_fluid; }
-    PassGBuffer_Particle* getParticlePass()     { return m_pass_particle; }
-    PassDeferred_Bloodstain* getBloodStainPass(){ return m_pass_bloodstain; }
-    PassDeferred_Lights* getLightPass()         { return m_pass_lights; }
-    PassForward_Generic* getForwardPass()       { return m_pass_forward; }
-    PassPostprocess_Fade* getFader()            { return m_pass_fade; }
+    PassGBuffer_Fluid* getFluidPass()           { return m_gb_fluid; }
+    PassGBuffer_Particle* getParticlePass()     { return m_gb_particle; }
+    PassDeferred_Bloodstain* getBloodStainPass(){ return m_df_bloodstain; }
+    PassDeferred_Lights* getLightPass()         { return m_df_lights; }
+    PassForward_Generic* getForwardPass()       { return m_fw_generic; }
+    PassPostprocess_Fade* getFader()            { return m_pp_fade; }
     SystemTextRenderer* getTextRenderer()       { return m_stext; }
     RenderTarget*   getFrontRenderTarget()      { return m_rt_out[0]; }
     RenderTarget*   getBackRenderTarget()       { return m_rt_out[1]; }
@@ -116,7 +116,7 @@ public:
 #define atmGetRenderStatesBG()      atmGetRenderer()->getRenderStatesBG()
 #define atmGetDefaultViewport()     atmGetRenderer()->getDefaultViewport()
 #define atmGetBloodStainPass()      atmGetRenderer()->getBloodStainPass()
-#define atmGetSPHPass()             atmGetRenderer()->getSPHPass()
+#define atmGetFluidPass()           atmGetRenderer()->getFluidPass()
 #define atmGetParticlePass()        atmGetRenderer()->getParticlePass()
 #define atmGetLightPass()           atmGetRenderer()->getLightPass()
 #define atmGetForwardPass()         atmGetRenderer()->getForwardPass()

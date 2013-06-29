@@ -418,9 +418,6 @@ void AtomicApplication::updateInput()
     if(kb.isKeyPressed(ist::KEY_LEFT)   || kb.isKeyPressed('A')) { move.x =-INT16_MAX; }
     if(kb.isKeyPressed(ist::KEY_UP)     || kb.isKeyPressed('W')) { move.y = INT16_MAX; }
     if(kb.isKeyPressed(ist::KEY_DOWN)   || kb.isKeyPressed('S')) { move.y =-INT16_MAX; }
-    if(kb.isKeyTriggered(ist::KEY_F1)) {
-        conf.posteffect_antialias = !conf.posteffect_antialias;
-    }
 
     {
         vec2 pos = getControllerState().getStick1();

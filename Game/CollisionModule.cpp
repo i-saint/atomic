@@ -294,7 +294,7 @@ void CollisionGrid::getEntities( const BoundingBox &bb, ist::vector<CollisionHan
 
 
 
-uint32 CollisionModule::collide(CollisionEntity *sender, CollisionContext &ctx)
+uint32 CollisionModule::collideSend(CollisionEntity *sender, CollisionContext &ctx)
 {
     if(!sender || (sender->getFlags() & CF_Sender)==0) { return 0; }
     CollisionGroup group = sender->getCollisionGroup();
@@ -306,6 +306,7 @@ uint32 CollisionModule::collide(CollisionEntity *sender, CollisionContext &ctx)
     unique_iterator<HandleCont::iterator> iter(neighbors.begin(), neighbors.end());
     for(; iter!=neighbors.end(); ++iter) {
         CollisionEntity *receiver = getEntity(*iter);
+        if(!receiver) { continue; }
         if((receiver->getFlags() & CF_Receiver) == 0 ) { continue; }
         if(group!=0 && group==receiver->getCollisionGroup()) { continue; }
         if(receiver->getEntityHandle()==sender->getEntityHandle()) { continue; }
@@ -324,6 +325,36 @@ uint32 CollisionModule::collide(CollisionEntity *sender, CollisionContext &ctx)
     return n;
 }
 
+uint32 CollisionModule::collideRecv(CollisionEntity *receiver, CollisionContext &ctx)
+{
+    if(!receiver || (receiver->getFlags() & CF_Receiver)==0) { return 0; }
+    CollisionGroup group = receiver->getCollisionGroup();
+    MessageCont &m = ctx.messages;
+    HandleCont &neighbors = ctx.neighbors;
+
+    uint32 n = 0;
+    m_grid.getEntities(receiver->bb, neighbors);
+    unique_iterator<HandleCont::iterator> iter(neighbors.begin(), neighbors.end());
+    for(; iter!=neighbors.end(); ++iter) {
+        CollisionEntity *sender = getEntity(*iter);
+        if(!sender) { continue; }
+        if((sender->getFlags() & CF_Sender) == 0 ) { continue; }
+        if(group!=0 && group==sender->getCollisionGroup()) { continue; }
+        if(receiver->getEntityHandle()==sender->getEntityHandle()) { continue; }
+
+        CollideMessage message;
+        if(Collide(sender, receiver, message)) {
+            message.to = receiver->getEntityHandle();
+            message.cto = receiver->getCollisionHandle();
+            message.from = sender->getEntityHandle();
+            message.cfrom = sender->getCollisionHandle();
+            m.push_back(message);
+            ++n;
+        }
+    }
+
+    return n;
+}
 
 CollisionModule::CollisionModule()
     : m_groupgen(0)
@@ -383,7 +414,7 @@ void CollisionModule::asyncupdate(float32 dt)
             CollisionContext &ctx = *m_acons[i];
             ctx.messages.clear();
             for(uint32 i=first; i!=last; ++i) {
-                collide(m_entities[i], ctx);
+                collideSend(m_entities[i], ctx);
             }
         });
 }

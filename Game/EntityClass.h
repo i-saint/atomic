@@ -8,7 +8,6 @@ enum EntityCategoryID
     ECA_Unknown,
     ECA_Player,
     ECA_Enemy,
-    ECA_Bullet,
     ECA_Obstacle,
     ECA_Level,
     ECA_VFX,
@@ -37,12 +36,6 @@ enum EntityClassID
     EC_Boss4,
     EC_Boss5,
     EC_Enemy_End,
-
-    EC_Bullet_Begin = ECA_Bullet<<9,
-    EC_Bullet_Simple,
-    EC_Bullet_Particle,
-    EC_Bullet_Laser,
-    EC_Bullet_End,
 
     EC_Obstacle_Begin = ECA_Obstacle<<9,
     EC_PointLightEntity,

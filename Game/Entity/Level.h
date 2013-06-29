@@ -57,7 +57,7 @@ public:
         inst.elapsed = 1000.0f;
         inst.appear_radius = 10000.0f;
         inst.translate = getTransform();
-        atmGetSPHPass()->addPSetInstance(getModel(), inst);
+        atmGetFluidPass()->addPSetInstance(getModel(), inst);
         atmGetBloodStainPass()->addBloodstainParticles(getTransform(), getBloodStainParticles(), getNumBloodstainParticles());
     }
 

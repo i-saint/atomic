@@ -21,7 +21,6 @@ EntityCreator* GetEntityCreatorTable( EntityClassID entity_classid )
 {
     static EntityCreator s_table_player[EC_Player_End & 0x1FF];
     static EntityCreator s_table_enemy[EC_Enemy_End & 0x1FF];
-    static EntityCreator s_table_bullet[EC_Bullet_End & 0x1FF];
     static EntityCreator s_table_obstacle[EC_Obstacle_End & 0x1FF];
     static EntityCreator s_table_level[EC_Level_End & 0x1FF];
     static EntityCreator s_table_vfx[EC_VFX_End & 0x1FF];
@@ -29,7 +28,6 @@ EntityCreator* GetEntityCreatorTable( EntityClassID entity_classid )
         NULL,
         s_table_player,
         s_table_enemy,
-        s_table_bullet,
         s_table_obstacle,
         s_table_level,
         s_table_vfx,

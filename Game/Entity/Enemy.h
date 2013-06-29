@@ -83,7 +83,7 @@ private:
         istSerialize(m_health)
         istSerialize(m_delta_damage)
         istSerialize(m_past_frame)
-        )
+    )
 
 public:
     atmECallBlock(
@@ -212,7 +212,7 @@ public:
         inst.elapsed = (float32)getPastFrame();
         inst.appear_radius = 10000.0f;
         inst.translate = getTransform();
-        atmGetSPHPass()->addPSetInstance(getModel(), inst);
+        atmGetFluidPass()->addPSetInstance(getModel(), inst);
         atmGetBloodStainPass()->addBloodstainParticles(getTransform(), getBloodStainParticles(), getNumBloodstainParticles());
     }
 };

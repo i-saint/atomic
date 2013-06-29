@@ -32,12 +32,12 @@ private:
         istSerializeBase(mhandler)
         istSerialize(m_frame)
         istSerialize(m_cycle)
-        )
+    )
 
 public:
     atmECallBlock(
         atmECallSuper(mhandler)
-        )
+    )
 
 public:
     Routine_SingleShoot() : m_frame(0), m_cycle(0) {}
@@ -84,7 +84,7 @@ private:
         istSerializeBase(super)
         istSerialize(m_frame)
         istSerialize(m_cycle)
-        )
+    )
 
 public:
     Routine_CircularShoot() : m_frame(0), m_cycle(0) {}
@@ -114,12 +114,14 @@ class dpPatch Routine_HomingPlayer : public IRoutine, public Attr_MessageHandler
 typedef IRoutine super;
 typedef Attr_MessageHandler mhandler;
 private:
+    int32 m_frame;
     vec3 m_vel;
     vec3 m_target_pos;
 
     istSerializeBlock(
         istSerializeBase(super)
         istSerializeBase(mhandler)
+        istSerialize(m_frame)
         istSerialize(m_vel)
         istSerialize(m_target_pos)
     )
@@ -130,13 +132,20 @@ public:
     )
 
 public:
-    Routine_HomingPlayer() {}
+    Routine_HomingPlayer() : m_frame(0)
+    {}
 
     void update(float32 dt)
     {
+        ++m_frame;
         IEntity *e = getEntity();
         vec3 pos; atmQuery(e, getPosition, pos);
         m_target_pos = GetNearestPlayerPosition(pos);
+
+        if(m_frame%180==0) {
+            vec3 vel = glm::normalize(m_target_pos-pos)*0.01f;
+            ShootSimpleBullet(e->getHandle(), pos, vel);
+        }
     }
 
     void asyncupdate(float32 dt)
@@ -177,13 +186,13 @@ private:
         istSerializeBase(mhandler)
         istSerialize(m_vel)
         istSerialize(m_accel)
-        )
+    )
 
 public:
     atmECallBlock(
         atmMethodBlock(
-        atmECall(setVelocity)
-        atmECall(setAccel)
+            atmECall(setVelocity)
+            atmECall(setAccel)
         )
         atmECallSuper(mhandler)
     )

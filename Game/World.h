@@ -83,6 +83,7 @@ private:
 
 #define atmGetFluidModule()     atmGetWorld()->getFluidModule()
 
+#define atmGetBulletModule()    atmGetWorld()->getBulletModule()
 
 } // namespace atm
 #endif // atm_Game_World_h

@@ -41,7 +41,7 @@ protected:
 
     istSerializeBlock(
         istSerialize(m_obj)
-        )
+    )
 
 public:
     IRoutine()  : m_obj(NULL) {}

@@ -46,7 +46,7 @@ private:
     istSerializeBlock(
         istSerializeBase(super)
         istSerialize(m_cooldown)
-        )
+    )
 
 public:
     Booster() : m_cooldown(0)
@@ -531,7 +531,7 @@ public:
             inst.elapsed = (float32)getPastFrame();
             inst.appear_radius = 1000.0f;
             inst.translate = getTransform();
-            atmGetSPHPass()->addPSetInstance(pset_id, inst);
+            atmGetFluidPass()->addPSetInstance(pset_id, inst);
         }
         //{
         //    IndivisualParticle particles;
