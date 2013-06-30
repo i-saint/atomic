@@ -333,12 +333,17 @@ class dpPatch Player : public Breakable<Entity_AxisRotationI>
 typedef Breakable<Entity_AxisRotationI> super;
 private:
     static const PSET_RID pset_id = PSET_SPHERE_SMALL;
+    enum State {
+        State_Normal,
+        State_Dead,
+    };
 
     IDrive      *m_drive;
     IWeaponry   *m_weapon;
     vec3        m_vel;
     vec3        m_lightpos[1];
     vec3        m_lightvel[1];
+    State       m_state;
 
     istSerializeBlock(
         istSerializeBase(super)
@@ -347,7 +352,8 @@ private:
         istSerialize(m_vel)
         istSerialize(m_lightpos)
         istSerialize(m_lightvel)
-        )
+        istSerialize(m_state)
+    )
 
 public:
     enum {
@@ -376,6 +382,7 @@ public:
     Player()
         : m_vel()
         , m_drive(nullptr), m_weapon(nullptr)
+        , m_state(State_Normal)
     {
         wdmScope(
             wdmString path = wdmFormat("Player/0x%p", this);
@@ -458,6 +465,11 @@ public:
     void update(float32 dt) override
     {
         super::update(dt);
+        if(m_state==State_Dead) {
+            atmDeleteEntity(getHandle());
+            return;
+        }
+
         if(m_drive)  {m_drive->update(dt); }
         if(m_weapon) {m_weapon->update(dt); }
 
@@ -547,7 +559,7 @@ public:
     {
         atmGetFluidModule()->addFluid(pset_id, getTransform());
         atmPlaySE(SE_CHANNEL5, SE_EXPLOSION5, getPosition(), true);
-        atmDeleteEntity(getHandle());
+        m_state = State_Dead;
     }
 
     void eventCollide(const CollideMessage *m) override
