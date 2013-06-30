@@ -58,7 +58,7 @@ public:
         inst.appear_radius = 10000.0f;
         inst.transform = transform::getTransformMatrix();
         inst.rotate = transform::computeRotationMatrix();
-        atmGetFluidPass()->addPSetInstance(getModel(), inst);
+        atmGetFluidPass()->addParticlesSolid(getModel(), inst);
         atmGetBloodStainPass()->addBloodstainParticles(getTransformMatrix(), getBloodStainParticles(), getNumBloodstainParticles());
     }
 

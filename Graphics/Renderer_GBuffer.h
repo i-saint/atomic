@@ -26,12 +26,16 @@ public:
     void beforeDraw();
     void draw();
 
-    void addPSetInstance(PSET_RID psid, const PSetInstance &inst);
+    void addParticles(PSET_RID psid, const PSetInstance &inst);
+    void addParticlesSolid(PSET_RID psid, const PSetInstance &inst);
 
 private:
-    ist::vector<PSetUpdateInfo> m_rupdateinfo;
-    ist::vector<PSetParticle>   m_rparticles;
-    ist::vector<PSetInstance>   m_rinstances;
+    void drawFluid();
+    void drawParticleSets(PSetDrawData &pdd);
+    bool culling(PSET_RID psid, const PSetInstance &inst);
+
+    PSetDrawData m_rigid_sp;
+    PSetDrawData m_rigid_so;
 };
 
 } // namespace atm

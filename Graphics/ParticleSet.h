@@ -84,6 +84,25 @@ public:
     const AABB& getAABB() const { return m_aabb; }
 };
 
+struct PSetDrawData
+{
+    ist::vector<PSetUpdateInfo> update_info;
+    ist::vector<PSetInstance>   instance_data;
+    ist::vector<PSetParticle>   particle_data;
+    VBO_RID     vbo;
+    SH_RID      shader;
+    TEX2D_RID   params;
+
+    PSetDrawData() : vbo(), shader(), params() {}
+    void clear()
+    {
+        update_info.clear();
+        instance_data.clear();
+        particle_data.clear();
+    }
+};
+
+
 struct istAlign(16) RigidInfo
 {
     union {

@@ -47,12 +47,12 @@ public:
     void beforeDraw();
     void draw();
 
-    void addPSetInstance(PSET_RID psid, const PSetInstance &inst);
+    void addParticles(PSET_RID psid, const PSetInstance &inst);
 
 private:
-    ist::vector<PSetUpdateInfo> m_rupdateinfo;
-    ist::vector<PSetParticle>   m_rparticles;
-    ist::vector<PSetInstance>   m_rinstances;
+    void drawParticles(PSetDrawData &pdd);
+
+    PSetDrawData m_solids;
 };
 
 class dpPatch PassForward_BackGround : public IRenderer

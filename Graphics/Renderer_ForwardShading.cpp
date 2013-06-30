@@ -147,51 +147,53 @@ void PassForward_Generic::drawModel( SH_RID shader, MODEL_RID model, const mat4 
 
 void PassForward_Barrier::beforeDraw()
 {
-    m_rupdateinfo.clear();
-    m_rparticles.clear();
-    m_rinstances.clear();
+    m_solids.clear();
 }
 
 void PassForward_Barrier::draw()
 {
+    drawParticles(m_solids);
+}
+
+void PassForward_Barrier::drawParticles( PSetDrawData &pdd )
+{
+    if(pdd.update_info.empty()) { return; }
+
     i3d::DeviceContext *dc = atmGetGLDeviceContext();
     VertexArray     *va_cube  = atmGetVertexArray(VA_FLUID_CUBE);
-    Buffer          *vbo_fluid= atmGetVertexBuffer(VBO_FLUID_PARTICLES);
-    Buffer          *vbo_rigid= atmGetVertexBuffer(VBO_RIGID_PARTICLES);
-    AtomicShader    *sh_fluid = atmGetShader(SH_GBUFFER_FLUID_SPHERICAL);
-    AtomicShader    *sh_rigid = atmGetShader(SH_GBUFFER_RIGID_SPHERICAL);
+    Buffer          *vbo = atmGetVertexBuffer(pdd.vbo);
+    AtomicShader    *shader = atmGetShader(pdd.shader);
+    Texture2D       *params = atmGetTexture2D(pdd.params);
 
     // update rigid particle
-    uint32 num_rigid_particles = 0;
+    uint32 num_particles = 0;
     uint32 num_tasks = 0;
     {
         // 合計パーティクル数を算出して、それが収まるバッファを確保
-        uint32 num_rigids = m_rupdateinfo.size();
-        for(uint32 ri=0; ri<num_rigids; ++ri) {
-            num_rigid_particles += atmGetParticleSet(m_rupdateinfo[ri].psid)->getNumParticles();
+        uint32 num_instances = pdd.update_info.size();
+        for(uint32 ri=0; ri<num_instances; ++ri) {
+            num_particles += atmGetParticleSet(pdd.update_info[ri].psid)->getNumParticles();
         }
-        m_rparticles.resize(num_rigid_particles);
+        pdd.particle_data.resize(num_particles);
 
         size_t n = 0;
-        for(uint32 ri=0; ri<num_rigids; ++ri) {
-            const ParticleSet *rc = atmGetParticleSet(m_rupdateinfo[ri].psid);
+        for(uint32 ri=0; ri<num_instances; ++ri) {
+            const ParticleSet *rc = atmGetParticleSet(pdd.update_info[ri].psid);
             uint32 num_particles            = rc->getNumParticles();
             const PSetParticle *particles   = rc->getParticleData();
             for(uint32 i=0; i<num_particles; ++i) {
                 uint32 pi = n+i;
-                m_rparticles[pi].position     = particles[i].position;
-                m_rparticles[pi].normal       = particles[i].normal;
-                m_rparticles[pi].instanceid   = m_rupdateinfo[ri].instanceid;
+                pdd.particle_data[pi].position     = particles[i].position;
+                pdd.particle_data[pi].normal       = particles[i].normal;
+                pdd.particle_data[pi].instanceid   = pdd.update_info[ri].instanceid;
             }
-            n += atmGetParticleSet(m_rupdateinfo[ri].psid)->getNumParticles();
+            n += atmGetParticleSet(pdd.update_info[ri].psid)->getNumParticles();
         }
     }
 
-    // rigid particle
-    Texture2D *param_texture = atmGetTexture2D(TEX2D_ENTITY_PARAMS_BARRIER);
-    if(!m_rinstances.empty()) {
-        dc->updateResource(param_texture, 0, uvec2(0,0), uvec2(sizeof(PSetInstance)/sizeof(vec4), m_rinstances.size()), &m_rinstances[0]);
-        MapAndWrite(dc, vbo_rigid, &m_rparticles[0], sizeof(PSetParticle)*num_rigid_particles);
+    if(!pdd.instance_data.empty()) {
+        dc->updateResource(params, 0, uvec2(0,0), uvec2(sizeof(PSetInstance)/sizeof(vec4), pdd.instance_data.size()), &pdd.instance_data[0]);
+        MapAndWrite(dc, vbo, &pdd.particle_data[0], sizeof(PSetParticle)*num_particles);
     }
     {
         const VertexDesc descs[] = {
@@ -199,20 +201,20 @@ void PassForward_Barrier::draw()
             {GLSL_INSTANCE_POSITION, I3D_FLOAT32,3, 16, false, 1},
             {GLSL_INSTANCE_PARAM,    I3D_INT32,  1, 28, false, 1},
         };
-        va_cube->setAttributes(1, vbo_rigid, 0, sizeof(PSetParticle), descs, _countof(descs));
+        va_cube->setAttributes(1, vbo, 0, sizeof(PSetParticle), descs, _countof(descs));
 
-        sh_rigid->assign(dc);
-        dc->setTexture(GLSL_PARAM_BUFFER, param_texture);
+        shader->assign(dc);
+        dc->setTexture(GLSL_PARAM_BUFFER, params);
         dc->setVertexArray(va_cube);
         dc->setDepthStencilState(atmGetDepthStencilState(DS_GBUFFER_RIGID));
-        dc->drawInstanced(I3D_QUADS, 0, 24, num_rigid_particles);
+        dc->drawInstanced(I3D_QUADS, 0, 24, num_particles);
         dc->setDepthStencilState(atmGetDepthStencilState(DS_GBUFFER_BG));
-        dc->setVertexArray(NULL);
+        dc->setVertexArray(nullptr);
         dc->setTexture(GLSL_PARAM_BUFFER, NULL);
     }
 }
 
-void PassForward_Barrier::addPSetInstance( PSET_RID psid, const PSetInstance &inst )
+void PassForward_Barrier::addParticles( PSET_RID psid, const PSetInstance &inst )
 {
     {
         const ParticleSet *rc = atmGetParticleSet(psid);
@@ -229,10 +231,13 @@ void PassForward_Barrier::addPSetInstance( PSET_RID psid, const PSetInstance &in
 
     PSetUpdateInfo tmp;
     tmp.psid        = psid;
-    tmp.instanceid  = m_rinstances.size();
-    m_rupdateinfo.push_back(tmp);
-    m_rinstances.push_back(inst);
+    tmp.instanceid  = m_solids.instance_data.size();
+    m_solids.update_info.push_back(tmp);
+    m_solids.instance_data.push_back(inst);
 }
+
+
+
 
 
 PassForward_BackGround::PassForward_BackGround()

@@ -129,7 +129,7 @@ size_t FluidModule::copyParticlesToGL()
 
     ist::ScopedLock<ist::Mutex> l(m_mutex_particles);
     i3d::DeviceContext *dc = atmGetGLDeviceContext();
-    Buffer *vb = atmGetVertexBuffer(VBO_FLUID_PARTICLES);
+    Buffer *vb = atmGetVertexBuffer(VBO_GB_FLUID);
     MapAndWrite(dc, vb, &m_particles_to_gpu[0], m_particles_to_gpu.size()*sizeof(psym::Particle));
     return m_particles_to_gpu.size();
 }

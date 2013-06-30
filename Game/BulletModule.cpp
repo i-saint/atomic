@@ -212,7 +212,7 @@ public:
             mat = glm::translate(mat, p.pos_current);
             mat = glm::scale(mat, scale);
             inst.transform = inst.rotate = mat;
-            atmGetFluidPass()->addPSetInstance(PSET_SPHERE_BULLET, inst);
+            atmGetFluidPass()->addParticlesSolid(PSET_SPHERE_BULLET, inst);
         });
 
         if(atmGetConfig()->lighting>=atmE_Lighting_Medium) {
@@ -443,7 +443,7 @@ public:
         inst.appear_radius = 10000.0f;
         each(m_bullets, [&](BulletData &p){
             inst.transform = inst.rotate = p.computeTransformMatrix();
-            atmGetFluidPass()->addPSetInstance(PSET_SPHERE_BULLET, inst);
+            atmGetFluidPass()->addParticles(PSET_SPHERE_BULLET, inst);
         });
         if(atmGetConfig()->lighting>=atmE_Lighting_High) {
             each(m_bullets, [&](BulletData &p){

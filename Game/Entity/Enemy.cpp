@@ -177,7 +177,7 @@ public:
             inst.elapsed = (float32)getPastFrame();
             inst.appear_radius = inst.elapsed * 0.004f;
             inst.transform = inst.rotate = getTransformMatrix();
-            atmGetFluidPass()->addPSetInstance(getModel(), inst);
+            atmGetFluidPass()->addParticles(getModel(), inst);
             atmGetBloodStainPass()->addBloodstainParticles(getTransformMatrix(), getBloodStainParticles(), getNumBloodstainParticles());
         }
     }

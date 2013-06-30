@@ -543,7 +543,7 @@ public:
             inst.elapsed = (float32)getPastFrame();
             inst.appear_radius = 1000.0f;
             inst.transform = inst.rotate = getTransformMatrix();
-            atmGetFluidPass()->addPSetInstance(pset_id, inst);
+            atmGetFluidPass()->addParticles(pset_id, inst);
         }
         //{
         //    IndivisualParticle particles;

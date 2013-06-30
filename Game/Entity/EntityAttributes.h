@@ -109,7 +109,7 @@ public:
         inst.elapsed = 0.0f;
         inst.appear_radius = 10000.0f;
         inst.transform = trans;
-        atmGetFluidPass()->addPSetInstance(getModel(), inst);
+        atmGetFluidPass()->addParticles(getModel(), inst);
     }
 };
 
