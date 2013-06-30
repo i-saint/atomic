@@ -71,5 +71,15 @@ inline void EachEntities(stl::vector<EntityHandle> &cont, const F &f)
     }
 }
 
+template<class T>
+inline mat4 GetRotationMatrix(T *_this)
+{
+    mat4 rot;
+    if(atmQuery(_this, computeRotationMatrix, rot)) {
+        return rot;
+    }
+    return _this->getTransformMatrix();
+}
+
 } // namespace atm
 #endif // atm_Game_Entity_EntityUtil_h

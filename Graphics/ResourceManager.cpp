@@ -166,9 +166,10 @@ bool GraphicResourceManager::initialize()
         m_shader[SH_GBUFFER_FLOOR]      = CreateAtomicShader("GBuffer_Floor");
         //m_shader[SH_GBUFFER_FLUID]      = CreateAtomicShader("GBuffer_Fluid");
         //m_shader[SH_GBUFFER_RIGID]      = CreateAtomicShader("GBuffer_Rigid");
-        m_shader[SH_GBUFFER_FLUID]      = CreateAtomicShader("GBuffer_FluidBlood");
-        //m_shader[SH_GBUFFER_FLUID]      = CreateAtomicShader("GBuffer_FluidSpherical");
-        m_shader[SH_GBUFFER_RIGID]      = CreateAtomicShader("GBuffer_RigidSpherical");
+        m_shader[SH_GBUFFER_FLUID_SPHERICAL]= CreateAtomicShader("GBuffer_FluidBlood");
+        m_shader[SH_GBUFFER_FLUID_SOLID]    = CreateAtomicShader("GBuffer_FluidSolid");
+        m_shader[SH_GBUFFER_RIGID_SPHERICAL]= CreateAtomicShader("GBuffer_RigidSpherical");
+        m_shader[SH_GBUFFER_RIGID_SOLID]    = CreateAtomicShader("GBuffer_RigidSolid");
         m_shader[SH_GBUFFER_PARTICLES]  = CreateAtomicShader("GBuffer_ParticleSpherical");
         m_shader[SH_GBUFFER_UPSAMPLING] = CreateAtomicShader("GBuffer_Upsampling");
         m_shader[SH_BLOODSTAIN]         = CreateAtomicShader("Deferred_Bloodstain");
@@ -209,7 +210,8 @@ bool GraphicResourceManager::initialize()
     {
         // create textures
         m_tex2d[TEX2D_RANDOM] = GenerateRandomTexture(dev, uvec2(64, 64), I3D_RGB8);
-        m_tex2d[TEX2D_ENTITY_PARAMS] = dev->createTexture2D(Texture2DDesc(I3D_RGBA32F, uvec2(8, 4096)));
+        m_tex2d[TEX2D_ENTITY_PARAMS_GBUFFER] = dev->createTexture2D(Texture2DDesc(I3D_RGBA32F, uvec2(12, 2048)));
+        m_tex2d[TEX2D_ENTITY_PARAMS_BARRIER] = dev->createTexture2D(Texture2DDesc(I3D_RGBA32F, uvec2(12, 512)));
     }
     {
         // create render targets

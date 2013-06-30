@@ -39,6 +39,22 @@ private:
     mat_cont m_matrices;
 };
 
+class dpPatch PassForward_Barrier : public IRenderer
+{
+public:
+    PassForward_Barrier();
+    ~PassForward_Barrier();
+    void beforeDraw();
+    void draw();
+
+    void addPSetInstance(PSET_RID psid, const PSetInstance &inst);
+
+private:
+    ist::vector<PSetUpdateInfo> m_rupdateinfo;
+    ist::vector<PSetParticle>   m_rparticles;
+    ist::vector<PSetInstance>   m_rinstances;
+};
+
 class dpPatch PassForward_BackGround : public IRenderer
 {
 public:

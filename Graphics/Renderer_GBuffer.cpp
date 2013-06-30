@@ -78,8 +78,9 @@ void PassGBuffer_Fluid::draw()
     VertexArray     *va_cube  = atmGetVertexArray(VA_FLUID_CUBE);
     Buffer          *vbo_fluid= atmGetVertexBuffer(VBO_FLUID_PARTICLES);
     Buffer          *vbo_rigid= atmGetVertexBuffer(VBO_RIGID_PARTICLES);
-    AtomicShader    *sh_fluid = atmGetShader(SH_GBUFFER_FLUID);
-    AtomicShader    *sh_rigid = atmGetShader(SH_GBUFFER_RIGID);
+    AtomicShader    *sh_fluid = atmGetShader(SH_GBUFFER_FLUID_SPHERICAL);
+    //AtomicShader    *sh_rigid = atmGetShader(SH_GBUFFER_RIGID_SPHERICAL);
+    AtomicShader    *sh_rigid = atmGetShader(SH_GBUFFER_RIGID_SOLID);
 
     // update rigid particle
     uint32 num_rigid_particles = 0;
@@ -128,7 +129,7 @@ void PassGBuffer_Fluid::draw()
     }
 
     // rigid particle
-    Texture2D *param_texture = atmGetTexture2D(TEX2D_ENTITY_PARAMS);
+    Texture2D *param_texture = atmGetTexture2D(TEX2D_ENTITY_PARAMS_GBUFFER);
     if(!m_rinstances.empty()) {
         dc->updateResource(param_texture, 0, uvec2(0,0), uvec2(sizeof(PSetInstance)/sizeof(vec4), m_rinstances.size()), &m_rinstances[0]);
         MapAndWrite(dc, vbo_rigid, &m_rparticles[0], sizeof(PSetParticle)*num_rigid_particles);
@@ -150,22 +151,13 @@ void PassGBuffer_Fluid::draw()
         dc->setVertexArray(NULL);
         dc->setTexture(GLSL_PARAM_BUFFER, NULL);
     }
-
-    //// floor
-    //{
-    //    AtomicShader *sh_floor = atmGetShader(SH_GBUFFER_FLOOR);
-    //    VertexArray *va_floor = atmGetVertexArray(VA_FLOOR_QUAD);
-    //    sh_floor->assign(dc);
-    //    dc->setVertexArray(va_floor);
-    //    dc->draw(I3D_QUADS, 0, 4);
-    //}
 }
 
 void PassGBuffer_Fluid::addPSetInstance( PSET_RID psid, const PSetInstance &inst )
 {
     {
         const ParticleSet *rc = atmGetParticleSet(psid);
-        vec4 posf = inst.translate[3];
+        vec4 posf = inst.transform[3];
         posf.w = 0.0f;
         simdvec4 pos = simdvec4(posf);
         AABB aabb = rc->getAABB();

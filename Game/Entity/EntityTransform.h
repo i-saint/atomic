@@ -31,7 +31,7 @@ public:
     const vec3& getPosition() const { return m_pos; }
     void setPosition(const vec3& v) { m_pos=v; }
 
-    mat4 computeMatrix() const
+    mat4 computeTransformMatrix() const
     {
         mat4 mat;
         mat = glm::translate(mat, m_pos);
@@ -57,16 +57,18 @@ private:
 public:
     atmECallBlock(
         atmMethodBlock(
-        atmECall(getPivot)
-        atmECall(setPivot)
-        atmECall(getPosition)
-        atmECall(setPosition)
-        atmECall(getScale)
-        atmECall(setScale)
-        atmECall(getAxis)
-        atmECall(setAxis)
-        atmECall(getRotate)
-        atmECall(setRotate)
+            atmECall(getPivot)
+            atmECall(setPivot)
+            atmECall(getPosition)
+            atmECall(setPosition)
+            atmECall(getScale)
+            atmECall(setScale)
+            atmECall(getAxis)
+            atmECall(setAxis)
+            atmECall(getRotate)
+            atmECall(setRotate)
+            atmECall(computeTransformMatrix)
+            atmECall(computeRotationMatrix)
         )
     )
 
@@ -98,7 +100,7 @@ public:
     void setAxis(const vec3& v)     { m_axis=v; }
     void setRotate(float32 v)       { m_rot=v; }
 
-    mat4 computeMatrix() const
+    mat4 computeTransformMatrix() const
     {
         mat4 mat;
         mat = glm::translate(mat, m_pos);
@@ -106,6 +108,11 @@ public:
         mat = glm::scale(mat, m_scale);
         mat = glm::translate(mat, -m_pivot);
         return mat;
+    }
+
+    mat4 computeRotationMatrix() const
+    {
+        return glm::rotate(m_rot, m_axis);
     }
 
     void update(float32 dt) {}
@@ -131,16 +138,18 @@ private:
 public:
     atmECallBlock(
         atmMethodBlock(
-        atmECall(getPivot)
-        atmECall(setPivot)
-        atmECall(getPosition)
-        atmECall(setPosition)
-        atmECall(getScale)
-        atmECall(setScale)
-        atmECall(getOrientation)
-        atmECall(setOrientation)
-        atmECall(getUpVector)
-        atmECall(setUpVector)
+            atmECall(getPivot)
+            atmECall(setPivot)
+            atmECall(getPosition)
+            atmECall(setPosition)
+            atmECall(getScale)
+            atmECall(setScale)
+            atmECall(getOrientation)
+            atmECall(setOrientation)
+            atmECall(getUpVector)
+            atmECall(setUpVector)
+            atmECall(computeTransformMatrix)
+            atmECall(computeRotationMatrix)
         )
     )
 
@@ -173,7 +182,7 @@ public:
     void setOrientation(const vec3& v)  { m_oriantation=glm::normalize(v); }
     void setUpVector(const vec3& v)     { m_up=v; }
 
-    mat4 computeMatrix() const
+    mat4 computeTransformMatrix() const
     {
         mat4 mat;
         mat = glm::translate(mat, m_pos);
@@ -181,6 +190,11 @@ public:
         mat = glm::scale(mat, m_scale);
         mat = glm::translate(mat, -m_pivot);
         return mat;
+    }
+
+    mat4 computeRotationMatrix() const
+    {
+        return glm::orientation(m_oriantation, m_up);
     }
 
     void update(float32 dt) {}
@@ -225,6 +239,8 @@ public:
             atmECall(setRotate1)
             atmECall(getRotate2)
             atmECall(setRotate2)
+            atmECall(computeTransformMatrix)
+            atmECall(computeRotationMatrix)
         )
     )
 
@@ -264,7 +280,7 @@ public:
     void setRotate1(float32 v)      { m_rot1=v; }
     void setRotate2(float32 v)      { m_rot2=v; }
 
-    mat4 computeMatrix() const
+    mat4 computeTransformMatrix() const
     {
         mat4 mat;
         mat = glm::translate(mat, m_pos);
@@ -272,6 +288,14 @@ public:
         mat = glm::rotate(mat, m_rot1, m_axis1);
         mat = glm::scale(mat, m_scale);
         mat = glm::translate(mat, -m_pivot);
+        return mat;
+    }
+
+    mat4 computeRotationMatrix() const
+    {
+        mat4 mat;
+        mat = glm::rotate(mat, m_rot2, m_axis2);
+        mat = glm::rotate(mat, m_rot1, m_axis1);
         return mat;
     }
 };
@@ -343,6 +367,8 @@ public:
         atmMethodBlock(
             atmECall(getParent)
             atmECall(setParent)
+            atmECall(computeTransformMatrix)
+            atmECall(computeRotationMatrix)
         )
         atmECallSuper(super)
     )
@@ -361,11 +387,21 @@ public:
     EntityHandle getParent() const { return m_parent; }
     void setParent(EntityHandle v) { m_parent=v; }
 
-    mat4 computeMatrix() const
+    mat4 computeTransformMatrix() const
     {
-        mat4 mat = super::computeMatrix();
+        mat4 mat = super::computeTransformMatrix();
         mat4 pmat;
-        if(atmQuery(getParent(), getTransform, pmat)) {
+        if(atmQuery(getParent(), getTransformMatrix, pmat)) {
+            mat = pmat * mat;
+        }
+        return mat;
+    }
+
+    mat4 computeRotationMatrix() const
+    {
+        mat4 mat = super::computeRotationMatrix();
+        mat4 pmat;
+        if(atmQuery(getParent(), computeRotationMatrix, pmat)) {
             mat = pmat * mat;
         }
         return mat;
@@ -388,8 +424,8 @@ private:
 public:
     atmECallBlock(
         atmMethodBlock(
-            atmECall(getTransform)
-            atmECall(setTransform)
+            atmECall(getTransformMatrix)
+            atmECall(setTransformMatrix)
             atmECall(updateTransformMatrix)
         )
         atmECallSuper(super)
@@ -402,9 +438,9 @@ public:
     )
 
 public:
-    const mat4& getTransform() const { return m_transform; }
-    void setTransform(const mat4 &v) { m_transform=v; }
-    void updateTransformMatrix()     { setTransform(super::computeMatrix()); }
+    const mat4& getTransformMatrix() const { return m_transform; }
+    void setTransformMatrix(const mat4 &v) { m_transform=v; }
+    void updateTransformMatrix()     { setTransformMatrix(super::computeTransformMatrix()); }
 };
 
 template<class T>
@@ -424,8 +460,8 @@ private:
 public:
     atmECallBlock(
         atmMethodBlock(
-            atmECall(getTransform)
-            atmECall(setTransform)
+            atmECall(getTransformMatrix)
+            atmECall(setTransformMatrix)
             atmECall(getInverseTransform)
             atmECall(updateTransformMatrix)
         )
@@ -436,10 +472,10 @@ public:
     })
 
 public:
-    const mat4& getTransform() const        { return m_transform; }
+    const mat4& getTransformMatrix() const        { return m_transform; }
     const mat4& getInverseTransform() const { return m_itransform; }
 
-    void setTransform(const mat4 &v)
+    void setTransformMatrix(const mat4 &v)
     {
         m_transform = v;
         m_itransform = glm::inverse(v);
@@ -447,7 +483,7 @@ public:
 
     void updateTransformMatrix()
     {
-        setTransform(super::computeMatrix());
+        setTransformMatrix(super::computeTransformMatrix());
     }
 };
 

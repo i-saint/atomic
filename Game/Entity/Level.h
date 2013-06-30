@@ -44,7 +44,7 @@ public:
     {
         super::asyncupdate(dt);
         transform::updateTransformMatrix();
-        collision::updateCollisionByParticleSet(getModel(), getTransform());
+        collision::updateCollisionByParticleSet(getModel(), getTransformMatrix());
         bloodstain::updateBloodstain(dt);
     }
 
@@ -56,9 +56,10 @@ public:
         inst.flash = vec4();
         inst.elapsed = 1000.0f;
         inst.appear_radius = 10000.0f;
-        inst.translate = getTransform();
+        inst.transform = transform::getTransformMatrix();
+        inst.rotate = transform::computeRotationMatrix();
         atmGetFluidPass()->addPSetInstance(getModel(), inst);
-        atmGetBloodStainPass()->addBloodstainParticles(getTransform(), getBloodStainParticles(), getNumBloodstainParticles());
+        atmGetBloodStainPass()->addBloodstainParticles(getTransformMatrix(), getBloodStainParticles(), getNumBloodstainParticles());
     }
 
     void eventFluid(const FluidMessage *m) override

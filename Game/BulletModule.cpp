@@ -34,12 +34,13 @@ public:
         State_Dead,
     };
 private:
-    typedef stl::vector<LaserParticle> particles;
+    typedef stl::vector<LaserParticle> Particles;
     static const float32 s_speed;
     static const float32 s_lifetime;
     static const float32 s_radius;
     static const float32 s_power;
 
+    Particles       m_particles;
     LaserHandle     m_handle;
     EntityHandle    m_owner;
     CollisionGroup  m_group;
@@ -47,7 +48,7 @@ private:
     float32         m_time;
     vec3            m_pos;
     vec3            m_dir;
-    particles       m_particles;
+    float32         m_light_radius;
 
     // 以下 serialize 不要
     typedef CollisionModule::CollisionContext CollisionContext;
@@ -56,6 +57,7 @@ private:
     ist::vector<SingleParticle> m_drawdata;
 
     istSerializeBlock(
+        istSerialize(m_particles)
         istSerialize(m_id)
         istSerialize(m_owner)
         istSerialize(m_group)
@@ -63,12 +65,13 @@ private:
         istSerialize(m_time)
         istSerialize(m_pos)
         istSerialize(m_dir)
-        istSerialize(m_particles)
+        istSerialize(m_light_radius)
     )
 
 public:
     Laser(LaserHandle handle, const vec3 &pos, const vec3 &dir, EntityHandle owner)
         : m_handle(handle), m_owner(0), m_group(0), m_state(State_Normal), m_time(0.0f)
+        , m_light_radius(0.5f)
     {
         m_pos = pos;
         m_dir = dir;
@@ -77,8 +80,9 @@ public:
 
         wdmScope(
         wdmString path = wdmFormat("Bullet/Laser/0x%p", this);
-        wdmAddNode(path+"/m_pos", &m_pos );
-        wdmAddNode(path+"/m_dir", this, &Laser::getDirection, &Laser::setDirection );
+        wdmAddNode(path+"/m_pos", &m_pos, -4.0f, 4.0f );
+        wdmAddNode(path+"/m_dir", this, &Laser::getDirection, &Laser::setDirection, -2.0f, 2.0f );
+        wdmAddNode(path+"/m_light_radius", &m_light_radius, 0.0f, 2.0f);
         wdmAddNode(path+"/fade()", &Laser::fade, this );
         wdmAddNode(path+"/kill()", &Laser::kill, this );
         )
@@ -114,7 +118,7 @@ public:
     {
         m_time += dt;
 
-        for(size_t i=0; i<6; ++i) {
+        for(size_t i=0; i<4; ++i) {
             LaserParticle t;
             t.pos_base = GenRandomVector3()*0.075f * vec3(1.0f,1.0f,0.5f);
             t.time = 0.0f;
@@ -207,15 +211,23 @@ public:
             mat4 mat;
             mat = glm::translate(mat, p.pos_current);
             mat = glm::scale(mat, scale);
-            inst.translate = mat;
+            inst.transform = inst.rotate = mat;
             atmGetFluidPass()->addPSetInstance(PSET_SPHERE_BULLET, inst);
         });
+
+        if(atmGetConfig()->lighting>=atmE_Lighting_Medium) {
+            PointLight l;
+            l.setPosition(m_pos + vec3(0.0f, 0.0f, 0.3f));
+            l.setColor(flash);
+            l.setRadius(m_light_radius);
+            atmGetLightPass()->addLight(l);
+        }
     }
 
 };
 const float32 Laser::s_speed = 0.025f;
 const float32 Laser::s_lifetime = 180.0f;
-const float32 Laser::s_radius = 0.02f;
+const float32 Laser::s_radius = 0.04f;
 const float32 Laser::s_power = 2.0f;
 
 class dpPatch LaserManager : public IBulletManager
@@ -340,7 +352,7 @@ struct BulletData
         atmQuery(owner, getCollisionGroup, group);
     }
 
-    mat4 computeMatrix() const
+    mat4 computeTransformMatrix() const
     {
         const vec3 axis1(0.0f, 1.0f, 0.0f);
         const vec3 axis2(0.0f, 0.0f, 1.0f);
@@ -401,7 +413,7 @@ public:
         });
         each(m_bullets, [&](BulletData &p){
             if(p.hit_to) {
-                atmGetFluidModule()->addFluid(PSET_SPHERE_BULLET, p.computeMatrix());
+                atmGetFluidModule()->addFluid(PSET_SPHERE_BULLET, p.computeTransformMatrix());
                 atmCall(p.hit_to, damage, power);
             }
         });
@@ -430,7 +442,7 @@ public:
         inst.elapsed = 0.0f;
         inst.appear_radius = 10000.0f;
         each(m_bullets, [&](BulletData &p){
-            inst.translate = p.computeMatrix();
+            inst.transform = inst.rotate = p.computeTransformMatrix();
             atmGetFluidPass()->addPSetInstance(PSET_SPHERE_BULLET, inst);
         });
         if(atmGetConfig()->lighting>=atmE_Lighting_High) {

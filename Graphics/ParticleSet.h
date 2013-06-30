@@ -43,7 +43,8 @@ struct istAlign(16) PSetInstance
     float32 elapsed;
     float32 appear_radius;
     float32 padding[2];
-    mat4 translate;
+    mat4 transform;
+    mat4 rotate;
 };
 istStaticAssert(sizeof(PSetInstance)%16==0);
 

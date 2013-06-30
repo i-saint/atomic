@@ -211,9 +211,9 @@ public:
         inst.flash = getDamageColor();
         inst.elapsed = (float32)getPastFrame();
         inst.appear_radius = 10000.0f;
-        inst.translate = getTransform();
+        inst.transform = getTransformMatrix();
         atmGetFluidPass()->addPSetInstance(getModel(), inst);
-        atmGetBloodStainPass()->addBloodstainParticles(getTransform(), getBloodStainParticles(), getNumBloodstainParticles());
+        atmGetBloodStainPass()->addBloodstainParticles(getTransformMatrix(), getBloodStainParticles(), getNumBloodstainParticles());
     }
 };
 

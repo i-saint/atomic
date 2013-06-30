@@ -79,11 +79,11 @@
     <None Include="shader\FXAA.glsl" />
     <None Include="shader\FXAA_luma.glsl" />
     <None Include="shader\GBuffer_Floor.glsl" />
-    <None Include="shader\GBuffer_Fluid.glsl" />
     <None Include="shader\GBuffer_FluidBlood.glsl" />
+    <None Include="shader\GBuffer_FluidSolid.glsl" />
     <None Include="shader\GBuffer_FluidSpherical.glsl" />
     <None Include="shader\GBuffer_ParticleSpherical.glsl" />
-    <None Include="shader\GBuffer_Rigid.glsl" />
+    <None Include="shader\GBuffer_RigidSolid.glsl" />
     <None Include="shader\GBuffer_RigidSpherical.glsl" />
     <None Include="shader\GBuffer_Upsampling.glsl" />
     <None Include="shader\Out.glsl" />

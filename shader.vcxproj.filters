@@ -27,12 +27,6 @@
     <None Include="shader\Deferred_DirectionalLight.glsl">
       <Filter>shader</Filter>
     </None>
-    <None Include="shader\GBuffer_Rigid.glsl">
-      <Filter>shader</Filter>
-    </None>
-    <None Include="shader\GBuffer_Fluid.glsl">
-      <Filter>shader</Filter>
-    </None>
     <None Include="shader\FXAA.glsl">
       <Filter>shader</Filter>
     </None>
@@ -112,6 +106,12 @@
       <Filter>shader</Filter>
     </None>
     <None Include="shader\Forward_Barrier.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\GBuffer_FluidSolid.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\GBuffer_RigidSolid.glsl">
       <Filter>shader</Filter>
     </None>
   </ItemGroup>

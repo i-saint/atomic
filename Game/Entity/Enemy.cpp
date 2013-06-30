@@ -114,7 +114,7 @@ public:
             rigid_scale = ((float32)m_st_frame / FADEIN_TIME);
         }
         if(getState()!=ST_FADEOUT) {
-            collision::updateCollisionByParticleSet(getModel(), getTransform(), vec3(rigid_scale));
+            collision::updateCollisionByParticleSet(getModel(), getTransformMatrix(), vec3(rigid_scale));
         }
     }
 
@@ -176,9 +176,9 @@ public:
             inst.flash = flash;
             inst.elapsed = (float32)getPastFrame();
             inst.appear_radius = inst.elapsed * 0.004f;
-            inst.translate = getTransform();
+            inst.transform = inst.rotate = getTransformMatrix();
             atmGetFluidPass()->addPSetInstance(getModel(), inst);
-            atmGetBloodStainPass()->addBloodstainParticles(getTransform(), getBloodStainParticles(), getNumBloodstainParticles());
+            atmGetBloodStainPass()->addBloodstainParticles(getTransformMatrix(), getBloodStainParticles(), getNumBloodstainParticles());
         }
     }
 
@@ -186,7 +186,7 @@ public:
     {
         setState(ST_FADEOUT);
         setRoutine(RCID_Null);
-        atmGetFluidModule()->addFluid(getModel(), getTransform());
+        atmGetFluidModule()->addFluid(getModel(), getTransformMatrix());
         atmPlaySE(m_explosion_channel, m_explosion_se, getPosition(), true);
     }
 };

@@ -108,7 +108,7 @@ public:
         inst.flash = vec4();
         inst.elapsed = 0.0f;
         inst.appear_radius = 10000.0f;
-        inst.translate = trans;
+        inst.transform = trans;
         atmGetFluidPass()->addPSetInstance(getModel(), inst);
     }
 };

@@ -303,7 +303,7 @@ public:
         super::update(dt);
 
         transform::updateTransformMatrix();
-        updateCollision(transform::getTransform());
+        updateCollision(transform::getTransformMatrix());
     }
 
     virtual void draw()
@@ -497,7 +497,7 @@ public:
 
         transform::updateRotate(dt);
         transform::updateTransformMatrix();
-        collision::updateCollisionByParticleSet(pset_id, getTransform(), vec3(0.5f));
+        collision::updateCollisionByParticleSet(pset_id, getTransformMatrix(), vec3(0.5f));
     }
 
     void updateLights()
@@ -542,7 +542,7 @@ public:
             inst.flash = vec4();
             inst.elapsed = (float32)getPastFrame();
             inst.appear_radius = 1000.0f;
-            inst.translate = getTransform();
+            inst.transform = inst.rotate = getTransformMatrix();
             atmGetFluidPass()->addPSetInstance(pset_id, inst);
         }
         //{
@@ -557,7 +557,7 @@ public:
 
     void destroy() override
     {
-        atmGetFluidModule()->addFluid(pset_id, getTransform());
+        atmGetFluidModule()->addFluid(pset_id, getTransformMatrix());
         atmPlaySE(SE_CHANNEL5, SE_EXPLOSION5, getPosition(), true);
         m_state = State_Dead;
     }
