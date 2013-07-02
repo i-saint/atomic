@@ -5,30 +5,46 @@
 
 namespace atm {
 
-class dpPatch HatchBase : public Breakable<Entity_Orientation>
+
+class dpPatch CarrierBase  : public Breakable<Entity_Orientation>
 {
-};
+typedef Breakable<Entity_Orientation> super;
+private:
+    istSerializeBlock(
+        istSerializeBase(super)
+    )
 
-class dpPatch HatchSmall : public HatchBase
+public:
+};
+atmExportClass(CarrierBase);
+
+
+class dpPatch CarrierSmall  : public CarrierBase
 {
-};
+typedef CarrierBase super;
+private:
+    istSerializeBlock(
+        istSerializeBase(super)
+    )
 
-class dpPatch HatchLarge : public HatchBase
+public:
+};
+atmImplementEntity(CarrierSmall);
+atmExportClass(CarrierSmall);
+
+
+class dpPatch CarrierLarge  : public CarrierBase
 {
+typedef CarrierBase super;
+private:
+    istSerializeBlock(
+        istSerializeBase(super)
+    )
+
+public:
 };
+atmImplementEntity(CarrierLarge);
+atmExportClass(CarrierLarge);
 
-
-
-class dpPatch CarrierBase  : public IEntity
-{
-};
-
-class dpPatch CarrierSmall  : public IEntity
-{
-};
-
-class dpPatch CarrierLarge  : public IEntity
-{
-};
 
 } // namespace atm

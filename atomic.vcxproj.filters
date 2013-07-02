@@ -66,9 +66,6 @@
     <ClCompile Include="Game\Entity\Routine.cpp">
       <Filter>Game\Entity</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Entity\Bullet.cpp">
-      <Filter>Game\Entity</Filter>
-    </ClCompile>
     <ClCompile Include="Game\Input.cpp">
       <Filter>Game</Filter>
     </ClCompile>
@@ -146,6 +143,18 @@
     </ClCompile>
     <ClCompile Include="Game\EntityModule.cpp">
       <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Entity\Projectile.cpp">
+      <Filter>Game\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Entity\Fighter.cpp">
+      <Filter>Game\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Entity\Turret.cpp">
+      <Filter>Game\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Entity\Hatch.cpp">
+      <Filter>Game\Entity</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -107,11 +107,13 @@ vec4 VerticalBlur()
 
 vec4 Composite()
 {
-    const float weight = 0.09;
-    return (texture(u_ColorBuffer, vs_Texcoords[0]) * weight)
+    const float weight = 0.1;
+    vec4 col =
+           (texture(u_ColorBuffer, vs_Texcoords[0]) * weight)
          + (texture(u_ColorBuffer, vs_Texcoords[1]) * weight)
          + (texture(u_ColorBuffer, vs_Texcoords[2]) * weight)
          + (texture(u_ColorBuffer, vs_Texcoords[3]) * weight);
+    return vec4(col.rgb, 1.0);
 }
 
 

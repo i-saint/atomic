@@ -17,6 +17,7 @@ vs_out vec4 vs_VertexColor;         // w = shininess
 vs_out vec4 vs_Glow;
 vs_out vec4 vs_Flash;
 #endif
+const float scale = 1.2;
 
 #if defined(GLSL_VS)
 
@@ -35,7 +36,7 @@ void main()
     vs_PSetPosition = trans[3];
 
     vec4 instancePos = trans * vec4(ia_InstancePosition, 1.0);
-    vec4 vert = ia_VertexPosition+instancePos;
+    vec4 vert = ia_VertexPosition*scale + instancePos;
     vert.w = 1.0;
 
     float dif = ia_InstanceNormal.w;
@@ -61,7 +62,7 @@ ps_out(3) vec4 ps_FragGlow;
 
 void main()
 {
-    const float radius = 0.015f;
+    const float radius = 0.015f * scale;
     vec2 diff2 = vs_VertexPosition.xy - vs_InstancePosition.xy;
     if(dot(diff2, diff2) > radius*radius) {
         discard;
