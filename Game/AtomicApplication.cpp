@@ -43,7 +43,8 @@ AtomicConfig::AtomicConfig()
     bgm_volume              = 0.3f;
     se_volume               = 0.3f;
     language                = LANG_JP;
-    lighting            = atmE_Lighting_Medium;
+    lighting                = atmE_Lighting_Medium;
+    leveleditor_port        = atm_Leveleditor_DefaultPort;
     wcscpy(name, L"atom");
 
     debug_show_grid         = false;
@@ -59,6 +60,7 @@ bool AtomicConfig::readFromFile( const char* filepath )
     if(!f) { return false; }
 
     char buf[256];
+    uvec2 utmp;
     ivec2 itmp;
     vec2 ftmp;
     while(fgets(buf, 256, f)) {
@@ -79,6 +81,7 @@ bool AtomicConfig::readFromFile( const char* filepath )
         if(sscanf(buf, "bgm_volume = %f", &ftmp.x)==1)              { bgm_volume=ftmp.x; }
         if(sscanf(buf, "se_volume = %f", &ftmp.x)==1)               { se_volume=ftmp.x; }
         if(sscanf(buf, "lighting = %d", &itmp.x)==1)                { lighting=itmp.x; }
+        if(sscanf(buf, "leveleditor_port = %d", &utmp.x)==1)        { leveleditor_port=utmp.x; }
         if(sscanf(buf, "debug_show_grid = %d", &itmp.x)==1)         { debug_show_grid=(itmp.x!=0); }
         if(sscanf(buf, "debug_show_distance = %d", &itmp.x)==1)     { debug_show_distance=(itmp.x!=0); }
         if(sscanf(buf, "debug_show_resolution = %d", &itmp.x)==1)   { debug_show_resolution=(itmp.x!=0); }
@@ -109,6 +112,7 @@ bool AtomicConfig::writeToFile( const char* filepath )
     fprintf(f, "bgm_volume = %f\n",             bgm_volume);
     fprintf(f, "se_volume = %f\n",              se_volume);
     fprintf(f, "lighting = %d\n",               lighting);
+    fprintf(f, "leveleditor_port = %d",         leveleditor_port);
     fprintf(f, "debug_show_grid = %d\n",        debug_show_grid);
     fprintf(f, "debug_show_distance = %d\n",    debug_show_distance);
     fprintf(f, "debug_show_resolution = %d\n",  debug_show_resolution);
@@ -335,7 +339,9 @@ void AtomicApplication::update()
         wdmOpenBrowser();
     }
     if(getKeyboardState().isKeyTriggered(ist::KEY_F2)) {
-        conf.posteffect_bloom = !conf.posteffect_bloom;
+        char url[256];
+        sprintf(url, "http://localhost:%d", atmGetConfig()->leveleditor_port);
+        ::ShellExecuteA(NULL, "open", url, "", "", SW_SHOWDEFAULT);
     }
     if(getKeyboardState().isKeyTriggered(ist::KEY_F3)) {
         conf.debug_show_gbuffer--;

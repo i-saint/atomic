@@ -1,6 +1,7 @@
 ﻿#include "stdafx.h"
 #include "../FunctionID.h"
 #include "LevelEditorServer.h"
+#include "Game/AtomicApplication.h"
 
 namespace atm {
 
@@ -227,8 +228,7 @@ LevelEditorServer* LevelEditorServer::getInstance()
 
 
 LevelEditorServerConfig::LevelEditorServerConfig()
-    : port(atm_Leveleditor_DefaultPort)
-    , max_queue(100)
+    : max_queue(100)
     , max_threads(4)
 {
 }
@@ -255,7 +255,7 @@ void LevelEditorServer::start()
         params->setThreadIdleTime(Poco::Timespan(3, 0));
 
         try {
-            Poco::Net::ServerSocket svs(m_conf.port);
+            Poco::Net::ServerSocket svs(atmGetConfig()->leveleditor_port);
             m_server = new Poco::Net::HTTPServer(new LevelEditorRequestHandlerFactory(), svs, params);
             m_server->start();
         }

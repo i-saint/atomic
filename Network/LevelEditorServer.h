@@ -9,7 +9,6 @@ namespace atm {
 
 struct LevelEditorServerConfig
 {
-    uint16 port;
     uint16 max_queue;
     uint16 max_threads;
 

@@ -35,14 +35,12 @@ var EntityClassID = {
     Unknown : 0,
     Player : 1,
     Enemy : 2,
-    Bullet : 3,
-    Obstacle : 4,
+    Obstacle : 3,
 };
 var EntityClassColor = [
     [0.0, 0.0, 0.0, 0.0],
     [0.2, 0.2, 1.0, 0.5],
     [1.0, 0.2, 0.2, 0.5],
-    [0.8, 0.0, 0.8, 0.5],
     [0.3, 0.3, 0.3, 0.5],
 ];
 
@@ -50,7 +48,6 @@ var EntityClassColor2D = [
     "#000000",
     "#3333FF",
     "#FF3333",
-    "#FFFF00",
     "#444444",
 ];
 var FieldX = 2.56;
@@ -257,8 +254,11 @@ function draw2D()
     var w = c.width;
     var h = c.height;
     var ctx = c.getContext("2d");
+    ctx.beginPath();
     ctx.fillStyle="#000000";
-    ctx.fillRect(0, 0, w, h);
+    ctx.rect(0, 0, w, h);
+    ctx.fill();
+    ctx.stroke();
 
     for(var i=0; i<entities.ids.length; ++i) {
         var color = EntityClassColor2D[entities.types[i]];
@@ -266,10 +266,11 @@ function draw2D()
         var center_y = (entities.positions[i*2+1] / FieldY *-0.5 + 0.5) * h;
         var size_x = w * (entities.sizes[i*2+0] / FieldX * 0.25);
         var size_y = h * (entities.sizes[i*2+1] / FieldY *-0.25);
+        ctx.beginPath();
         ctx.globalAlpha = 0.3;
         ctx.fillStyle = color;
-        ctx.fillRect(center_x-size_x,center_y-size_y, size_x*2,size_y*2);
         ctx.rect(center_x-size_x,center_y-size_y, size_x*2,size_y*2);
+        ctx.fill();
         ctx.stroke();
     }
 }

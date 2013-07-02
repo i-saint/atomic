@@ -55,3 +55,8 @@
 #include "WebDebugMenu.h"
 #define dpLinkDynamic
 #include "DynamicPatcher.h"
+
+#pragma comment(lib, "psapi.lib")
+#pragma comment(lib, "shell32.lib")
+#include <psapi.h>
+#include <shellapi.h>

@@ -44,6 +44,7 @@ struct istInterModule AtomicConfig
     float32 se_volume;
     int32 language;
     int32 lighting;
+    uint32 leveleditor_port;
     PlayerName name;
 
     bool debug_show_grid;
