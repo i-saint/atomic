@@ -113,6 +113,7 @@ public:
         vec2 pos;
         EachFormData(data, [&](const char *str, size_t size){
             vec2 t;
+            // 全く同じ位置に連続して配置すると問題が起きるため、ほんの少しランダムにずらす必要がある
             if(sscanf(str, "pos=vec2(%f,%f)", &t.x, &t.y)==2) { pos = t+LevelEditorServer::getInstance()->randomVec2()*0.01f; }
         });
 

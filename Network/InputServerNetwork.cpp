@@ -130,7 +130,7 @@ void InputServerNetwork::handlePMessage( const PMessage &mes )
     case PM_LevelEditorCommand:
         {
             auto &m = reinterpret_cast<const PMessage_LEC&>(mes);
-            m_lecs.insert(std::lower_bound(m_lecs.begin(), m_lecs.end(), m.lec), m.lec);
+            m_lecs.insert(std::upper_bound(m_lecs.begin(), m_lecs.end(), m.lec), m.lec);
         }
         break;
     }

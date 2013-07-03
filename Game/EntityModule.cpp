@@ -212,7 +212,7 @@ void EntityModule::handleEntitiesQuery( EntitiesQueryContext &ctx )
 #ifdef atm_enable_WebGL
                 atmQuery(e, getTransformMatrix, trans);
                 if(ce->getShapeType()==CS_Sphere) {
-                    size = vec3(static_cast<CollisionSphere*>(ce)->pos_r.w);
+                    size = vec3(static_cast<CollisionSphere*>(ce)->pos_r.w*0.8f);
                 }
                 else if(ce->getShapeType()==CS_Box) {
                     size = vec3(static_cast<CollisionBox*>(ce)->size);

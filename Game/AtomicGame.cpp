@@ -201,7 +201,6 @@ void AtomicGame::handleLevelEditorCommands( const LevelEditorCommand &c )
         s_last_entity = e;
         atmCall(e, setCollisionShape, CS_Sphere);
         atmCall(e, setModel, PSET_SPHERE_SMALL);
-        atmCall(e, setPosition, GenRandomVector2() * 2.2f);
         atmCall(e, setLife, 15.0f);
         atmCall(e, setAxis1, GenRandomUnitVector3());
         atmCall(e, setAxis2, GenRandomUnitVector3());
@@ -212,7 +211,7 @@ void AtomicGame::handleLevelEditorCommands( const LevelEditorCommand &c )
     }
     else if(c.type==LEC_Delete) {
         const LevelEditorCommand_Delete &cmd = reinterpret_cast<const LevelEditorCommand_Delete&>(c);
-        IEntity *e = cmd.entity_id==uint32(-1) ? s_last_entity : atmGetEntity(cmd.entity_id);
+        IEntity *e = cmd.entity_id==0 ? s_last_entity : atmGetEntity(cmd.entity_id);
         if(e) {
             atmCall(e, kill, 0);
         }

@@ -16,6 +16,7 @@ public:
 
     void setPosition(const vec3& v)     { m_position=v; }
     void setTarget(const vec3& v)       { m_target=v; }
+    void setUp(const vec3& v)           { m_up=v; }
 
     const vec3& getPosition() const     { return m_position; }
     const vec3& getTarget() const       { return m_target; }
@@ -37,7 +38,7 @@ private:
         istSerialize(m_position)
         istSerialize(m_target)
         istSerialize(m_up)
-        )
+    )
 };
 
 
@@ -95,7 +96,7 @@ private:
         istSerialize(m_top)
         istSerialize(m_znear)
         istSerialize(m_zfar)
-        )
+    )
 };
 
 

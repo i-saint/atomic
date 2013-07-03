@@ -23,7 +23,7 @@ void OrthographicCamera::updateMatrix()
 {
     super::updateMatrix();
     m_p_matrix = glm::ortho( m_left, m_right, m_bottom, m_top, m_znear, m_zfar);
-    m_vp_matrix = getViewMatrix()*getProjectionMatrix();
+    m_vp_matrix = getProjectionMatrix()*getViewMatrix();
 }
 
 
