@@ -21,7 +21,7 @@
 #define atm_enable_LevelEditorServer
 #define atm_enable_GameServer
 #define atm_enable_GameClient
-//#define atm_enable_BinaryEntityData
+#define atm_enable_WebGL
 
 #ifdef ist_env_Master
 #else // ist_env_Master

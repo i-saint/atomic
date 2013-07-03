@@ -194,22 +194,42 @@ IEntity* EntityModule::createEntity( EntityClassID classid )
 
 void EntityModule::handleEntitiesQuery( EntitiesQueryContext &ctx )
 {
+#ifdef atm_enable_WebGL
+    mat4 trans;
+    vec4 color = vec4(vec3(1.0f), 0.1f);
+    vec3 size;
+#endif // atm_enable_WebGL
+
     CollisionHandle ch;
     uint32 num_entities = m_all.size();
     for(uint32 i=0; i<num_entities; ++i) {
         EntityHandle handle = m_all[i];
-        IEntity *entity = getEntity(handle);
-        if(entity) {
-            if(!atmQuery(entity, getCollisionHandle, ch)) { continue; }
+        IEntity *e = getEntity(handle);
+        if(e) {
+            if(!atmQuery(e, getCollisionHandle, ch)) { continue; }
             CollisionEntity *ce = atmGetCollision(ch);
             if(ce) {
+#ifdef atm_enable_WebGL
+                atmQuery(e, getTransformMatrix, trans);
+                if(ce->getShapeType()==CS_Sphere) {
+                    size = vec3(static_cast<CollisionSphere*>(ce)->pos_r.w);
+                }
+                else if(ce->getShapeType()==CS_Box) {
+                    size = vec3(static_cast<CollisionBox*>(ce)->size);
+                }
+                ctx.id.push_back( e->getHandle() );
+                ctx.trans.push_back(trans);
+                ctx.size.push_back(size);
+                ctx.color.push_back(color);
+#else // atm_enable_WebGL
                 const BoundingBox &bb = ce->bb;
                 vec4 bb_size = bb.ur - bb.bl;
                 vec4 bb_pos = (bb.ur + bb.bl) * 0.5f;
-                ctx.id.push_back( entity->getHandle() );
-                ctx.type.push_back( EntityGetCategory(entity->getHandle()) );
+                ctx.id.push_back( e->getHandle() );
+                ctx.type.push_back( EntityGetCategory(e->getHandle()) );
                 ctx.size.push_back( vec2(bb_size) );
                 ctx.pos.push_back( vec2(bb_pos) );
+#endif // atm_enable_WebGL
             }
         }
     }

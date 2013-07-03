@@ -140,6 +140,9 @@ void World::frameEnd()
 
 void World::handleEntitiesQuery( EntitiesQueryContext &ctx )
 {
+#ifdef atm_enable_WebGL
+    ctx.proj = getGameCamera()->getViewProjectionMatrix();
+#endif // atm_enable_WebGL
     m_entity_module->handleEntitiesQuery(ctx);
 }
 

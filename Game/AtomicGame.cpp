@@ -238,23 +238,28 @@ void AtomicGame::handleEntitiesQuery( std::string &out )
     m_ctx_entities_query.clear();
     m_world->handleEntitiesQuery(m_ctx_entities_query);
 
-#ifdef atm_enable_BinaryEntityData
+#ifdef atm_enable_WebGL
+    uint32 wpos = 0;
 
     uint32 num_entities = m_ctx_entities_query.id.size();
-    out.resize(sizeof(uint32)+m_ctx_entities_query.sizeByte());
-    *(uint32*)(&out[0]) = m_ctx_entities_query.id.size();
+    out.resize(sizeof(mat4)+sizeof(uint32)+m_ctx_entities_query.sizeByte());
 
-    uint32 wpos = sizeof(uint32);
+    *(mat4*)(&out[wpos]) = m_ctx_entities_query.proj;
+    wpos += sizeof(mat4);
+
+    *(uint32*)(&out[wpos]) = m_ctx_entities_query.id.size();
+    wpos += sizeof(uint32);
+
     memcpy(&out[wpos], &m_ctx_entities_query.id[0], sizeof(uint32)*num_entities);
     wpos += sizeof(uint32)*num_entities;
-    memcpy(&out[wpos], &m_ctx_entities_query.type[0], sizeof(uint32)*num_entities);
-    wpos += sizeof(uint32)*num_entities;
-    memcpy(&out[wpos], &m_ctx_entities_query.size[0], sizeof(vec2)*num_entities);
-    wpos += sizeof(vec2)*num_entities;
-    memcpy(&out[wpos], &m_ctx_entities_query.pos[0], sizeof(vec2)*num_entities);
-    wpos += sizeof(vec2)*num_entities;
+    memcpy(&out[wpos], &m_ctx_entities_query.trans[0], sizeof(mat4)*num_entities);
+    wpos += sizeof(mat4)*num_entities;
+    memcpy(&out[wpos], &m_ctx_entities_query.size[0], sizeof(vec3)*num_entities);
+    wpos += sizeof(vec3)*num_entities;
+    memcpy(&out[wpos], &m_ctx_entities_query.color[0], sizeof(vec4)*num_entities);
+    wpos += sizeof(vec4)*num_entities;
 
-#else // atm_enable_BinaryEntityData
+#else // atm_enable_WebGL
 
     char buf[64];
     auto &ids = m_ctx_entities_query.id;
@@ -286,7 +291,7 @@ void AtomicGame::handleEntitiesQuery( std::string &out )
     }
     out.pop_back();
     out += "]}";
-#endif // atm_enable_BinaryEntityData
+#endif // atm_enable_WebGL
 }
 
 void AtomicGame::handlePMessages( const PMessage &mes )

@@ -162,11 +162,11 @@ public:
         }
 
         response.setChunkedTransferEncoding(true);
-#ifdef atm_enable_BinaryEntityData
+#ifdef atm_enable_WebGL
         response.setContentType("application/octet-stream");
-#else // atm_enable_BinaryEntityData
+#else // atm_enable_WebGL
         response.setContentType("application/json");
-#endif // atm_enable_BinaryEntityData
+#endif // atm_enable_WebGL
         std::ostream &ostr = response.send();
         ostr << q.response;
     }

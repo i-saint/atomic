@@ -4,18 +4,16 @@
 <title>atomic: level editor</title>
 
 <script type="x-shader/x-vertex" id="vs_simple"> 
-attribute vec2 ia_position;
-uniform vec2 u_position;
-uniform vec2 u_scale;
+attribute vec3 ia_position;
+uniform mat4 u_proj;
+uniform mat4 u_trans;
+uniform vec3 u_size;
 uniform vec4 u_color;
 varying vec4 vs_color;
-const float u_rcp_field = 1.0/(2.56);
-const float u_rcp_field2 = 1.0/(2.56*2.0);
 void main()
 {
     vs_color = u_color;
-    vec2 pos = (ia_position*u_rcp_field2) * u_scale + (u_position*u_rcp_field);
-    gl_Position = vec4(pos, 0.0, 1.0);
+    gl_Position = u_proj * (u_trans* vec4(ia_position*u_size, 1.0));
 }
 </script>
 
@@ -43,7 +41,6 @@ var EntityClassColor = [
     [1.0, 0.2, 0.2, 0.5],
     [0.3, 0.3, 0.3, 0.5],
 ];
-
 var EntityClassColor2D = [
     "#000000",
     "#3333FF",
@@ -72,6 +69,9 @@ var sh_simple;
 var vb_quad;
 var ib_quad;
 var ib_quad_line;
+var vb_cube;
+var ib_cube;
+var ib_cube_line;
 
 var entities = new Object();
 
@@ -94,34 +94,37 @@ function updateEntities()
     if(loading) { return; }
 
     loading = true;
-    var ajax = new Ajax.Request("/state/entities",
-    {
-        method: "get",
-        onComplete: function(res) {
-            loading = false;
-            entities = res.responseText.evalJSON();
-        }
-    });
 
-    // var ajax = new XMLHttpRequest();
-    // ajax.open("GET", "/state/entities", true);
-    // ajax.responseType = "arraybuffer";
-    // ajax.onload = function (ev) {
-    //     loading = false;
-    //     var buf = ajax.response;
-    //     var pos = 0;
-    //     var num = new Uint32Array(buf, pos, 1)[0];
-    //     pos += 4;
-    //     entities.ids = new Uint32Array(buf, pos, num);
-    //     pos += 4 * num;
-    //     entities.types = new Uint32Array(buf, pos, num);
-    //     pos += 4 * num;
-    //     entities.sizes = new Float32Array(buf, pos, num*2);
-    //     pos += 4 * 2 * num;
-    //     entities.positions = new Float32Array(buf, pos, num*2);
-    //     pos += 4 * 2 * num;
-    // };
-    // ajax.send(null);
+//    var ajax = new Ajax.Request("/state/entities",
+//    {
+//        method: "get",
+//        onComplete: function(res) {
+//            loading = false;
+//            entities = res.responseText.evalJSON();
+//        }
+//    });
+
+     var ajax = new XMLHttpRequest();
+     ajax.open("GET", "/state/entities", true);
+     ajax.responseType = "arraybuffer";
+     ajax.onload = function (ev) {
+         loading = false;
+         var buf = ajax.response;
+         var pos = 0;
+         entities.proj = new Float32Array(buf, pos, 16);
+         pos += 4 * 16;
+         var num = new Uint32Array(buf, pos, 1)[0];
+         pos += 4;
+         entities.ids = new Uint32Array(buf, pos, num);
+         pos += 4 * num;
+         entities.trans = new Float32Array(buf, pos, num*16);
+         pos += 4 * 16*num;
+         entities.size = new Float32Array(buf, pos, num*3);
+         pos += 4 * 3*num;
+         entities.color = new Float32Array(buf, pos, num*4);
+         pos += 4 * 4*num;
+     };
+     ajax.send(null);
 }
 
 function createShader(id)
@@ -188,9 +191,11 @@ function onLoadGL()
 
     sh_simple = createShaderProgram("vs_simple", "ps_simple");
     sh_simple.ia_position = gl.getAttribLocation(sh_simple, "ia_position");
-    sh_simple.u_position = gl.getUniformLocation(sh_simple, "u_position");
-    sh_simple.u_scale = gl.getUniformLocation(sh_simple, "u_scale");
+    sh_simple.u_proj  = gl.getUniformLocation(sh_simple, "u_proj");
+    sh_simple.u_trans = gl.getUniformLocation(sh_simple, "u_trans");
+    sh_simple.u_size  = gl.getUniformLocation(sh_simple, "u_size");
     sh_simple.u_color = gl.getUniformLocation(sh_simple, "u_color");
+
 
     var quad_vertices = new Float32Array([
         -1.0, -1.0,
@@ -211,6 +216,45 @@ function onLoadGL()
     ib_quad_line = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib_quad_line);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, quad_line_indices, gl.STATIC_DRAW);
+
+
+    var cube_vertices = new Float32Array([
+         1.0, 1.0, 1.0,
+        -1.0, 1.0, 1.0,
+        -1.0,-1.0, 1.0,
+         1.0,-1.0, 1.0,
+         1.0, 1.0,-1.0,
+        -1.0, 1.0,-1.0,
+        -1.0,-1.0,-1.0,
+         1.0,-1.0,-1.0,
+    ]);
+    vb_cube = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vb_cube);
+    gl.bufferData(gl.ARRAY_BUFFER, cube_vertices, gl.STATIC_DRAW);
+
+    var cube_indices = new Int16Array([
+        0,1,2, 2,3,0,
+        0,4,5, 5,1,0,
+        2,1,5, 5,6,2,
+        3,7,4, 4,0,3,
+        3,2,6, 6,7,3,
+        7,6,5, 5,4,7,
+    ]);
+    ib_cube = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib_cube);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cube_indices, gl.STATIC_DRAW);
+
+    var cube_line_indices = new Int16Array([
+        0,1, 1,2, 2,3, 3,0,
+        0,4, 4,5, 5,1, 1,0,
+        2,1, 1,5, 5,6, 6,2,
+        3,7, 7,4, 4,0, 0,3,
+        3,2, 2,6, 6,7, 7,3,
+        7,6, 6,5, 5,4, 4,7,
+    ]);
+    ib_cube_line = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib_cube_line);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cube_line_indices, gl.STATIC_DRAW);
 }
 
 function drawGL()
@@ -220,25 +264,22 @@ function drawGL()
 
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-
     gl.useProgram(sh_simple);
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, vb_quad);
+    gl.bindBuffer(gl.ARRAY_BUFFER, vb_cube);
     gl.enableVertexAttribArray(sh_simple.ia_position);
-    gl.vertexAttribPointer(sh_simple.ia_position, 2, gl.FLOAT, gl.FALSE, 8, 0);
+    gl.vertexAttribPointer(sh_simple.ia_position, 3, gl.FLOAT, gl.FALSE, 12, 0);
 
+    gl.uniformMatrix4fv(sh_simple.u_proj, gl.FALSE, entities.proj);
     for(var i=0; i<entities.ids.length; ++i) {
-        var color = EntityClassColor[entities.types[i]];
-        gl.uniform2f(sh_simple.u_position, entities.positions[i*2+0], entities.positions[i*2+1]);
-        gl.uniform2f(sh_simple.u_scale, entities.sizes[i*2+0], entities.sizes[i*2+1]);
-        gl.uniform4f(sh_simple.u_color, color[0], color[1], color[2], color[3]);
-
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib_quad);
-        gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib_quad_line);
-        gl.drawElements(gl.LINES, 8, gl.UNSIGNED_SHORT, 0);
+        var ipp = i+1;
+        gl.uniformMatrix4fv(sh_simple.u_trans, gl.FALSE, entities.trans.subarray(16*i, 16*ipp));
+        gl.uniform3fv(sh_simple.u_size, entities.size.subarray(3*i, 3*ipp));
+        gl.uniform4fv(sh_simple.u_color, entities.color.subarray(4*i, 4*ipp));
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib_cube);
+        gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib_cube_line);
+        gl.drawElements(gl.LINES, 48, gl.UNSIGNED_SHORT, 0);
     }
-    
     gl.flush();
 }
 
@@ -301,13 +342,21 @@ function onLoad()
         }
     };
 
-    entities.ids = [];
-    entities.types = [];
-    entities.sizes = [];
-    entities.positions = [];
+    // gl
+    entities.proj = new Float32Array(16);
+    entities.ids = new Uint32Array();
+    entities.trans = new Float32Array();
+    entities.size = new Float32Array();
+    entities.color = new Float32Array();
 
-    //onLoadGL();
-    onLoad2D();
+//    // canvas
+//    entities.ids = [];
+//    entities.types = [];
+//    entities.sizes = [];
+//    entities.positions = [];
+
+    onLoadGL();
+    //onLoad2D();
     draw();
 }
 
@@ -315,8 +364,8 @@ function draw()
 {
     var t = (new Date().getTime() - starttime)*0.001;
 
-    //drawGL();
-    draw2D();
+    drawGL();
+    //draw2D();
 
     frame++;
     setTimeout("requestDraw(draw)", delay);

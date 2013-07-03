@@ -113,6 +113,32 @@ public:
 
 struct EntitiesQueryContext
 {
+#ifdef atm_enable_WebGL
+    mat4                    proj;
+    ist::raw_vector<uint32> id;
+    ist::raw_vector<mat4>   trans;
+    ist::raw_vector<vec3>   size;
+    ist::raw_vector<vec4>   color;
+
+    void clear()
+    {
+        id.clear();
+        trans.clear();
+        size.clear();
+        color.clear();
+    }
+
+    size_t sizeByte() const
+    {
+        return
+            sizeof(mat4) +
+            id.size()*sizeof(uint32) +
+            trans.size()*sizeof(mat4) +
+            size.size()*sizeof(vec3) +
+            color.size()*sizeof(vec4);
+    }
+
+#else  // atm_enable_WebGL
     ist::raw_vector<uint32> id;
     ist::raw_vector<uint32> type;
     ist::raw_vector<vec2>   size;
@@ -134,6 +160,7 @@ struct EntitiesQueryContext
             size.size()*sizeof(vec2) +
             pos.size()*sizeof(vec2);
     }
+#endif // atm_enable_WebGL
 };
 
 } // namespace atm
