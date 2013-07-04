@@ -211,13 +211,26 @@ void EntityModule::handleEntitiesQuery( EntitiesQueryContext &ctx )
             if(ce) {
 #ifdef atm_enable_WebGL
                 atmQuery(e, getTransformMatrix, trans);
-                if(ce->getShapeType()==CS_Sphere) {
+                switch(ce->getShapeType()) {
+                case CS_Sphere:
                     size = vec3(static_cast<CollisionSphere*>(ce)->pos_r.w*0.8f);
-                }
-                else if(ce->getShapeType()==CS_Box) {
+                    break;
+                case CS_Box:
                     size = vec3(static_cast<CollisionBox*>(ce)->size);
+                    break;
+                default:
+                    size = vec3();
+                    break;
                 }
-                ctx.id.push_back( e->getHandle() );
+
+                switch(EntityGetCategory(handle)) {
+                case ECA_Player:   color=vec4(0.3f, 0.3f, 1.0f, 0.25f); break;
+                case ECA_Enemy:    color=vec4(1.0f, 0.3f, 0.3f, 0.25f); break;
+                case ECA_Obstacle: color=vec4(0.4f, 0.4f, 0.4f, 0.25f); break;
+                default:           color=vec4(); break;
+                }
+
+                ctx.id.push_back(handle);
                 ctx.trans.push_back(trans);
                 ctx.size.push_back(size);
                 ctx.color.push_back(color);
@@ -225,7 +238,7 @@ void EntityModule::handleEntitiesQuery( EntitiesQueryContext &ctx )
                 const BoundingBox &bb = ce->bb;
                 vec4 bb_size = bb.ur - bb.bl;
                 vec4 bb_pos = (bb.ur + bb.bl) * 0.5f;
-                ctx.id.push_back( e->getHandle() );
+                ctx.id.push_back(handle);
                 ctx.type.push_back( EntityGetCategory(e->getHandle()) );
                 ctx.size.push_back( vec2(bb_size) );
                 ctx.pos.push_back( vec2(bb_pos) );

@@ -14,8 +14,9 @@ protected:
 public:
     atmECallBlock(
         atmMethodBlock(
-        atmECall(getPosition)
-        atmECall(setPosition)
+            atmECall(getPosition)
+            atmECall(setPosition)
+            atmECall(move)
         )
     )
 
@@ -30,6 +31,7 @@ public:
     Attr_Translate() {}
     const vec3& getPosition() const { return m_pos; }
     void setPosition(const vec3& v) { m_pos=v; }
+    void move(const vec3 &v)        { setPosition(getPosition()+v); }
 
     mat4 computeTransformMatrix() const
     {
@@ -67,6 +69,7 @@ public:
             atmECall(setAxis)
             atmECall(getRotate)
             atmECall(setRotate)
+            atmECall(move)
             atmECall(computeTransformMatrix)
             atmECall(computeRotationMatrix)
         )
@@ -99,6 +102,7 @@ public:
     void setScale(const vec3& v)    { m_scale=v; }
     void setAxis(const vec3& v)     { m_axis=v; }
     void setRotate(float32 v)       { m_rot=v; }
+    void move(const vec3 &v)        { setPosition(getPosition()+v); }
 
     mat4 computeTransformMatrix() const
     {
@@ -148,6 +152,7 @@ public:
             atmECall(setOrientation)
             atmECall(getUpVector)
             atmECall(setUpVector)
+            atmECall(move)
             atmECall(computeTransformMatrix)
             atmECall(computeRotationMatrix)
         )
@@ -181,6 +186,7 @@ public:
     void setScale(const vec3& v)        { m_scale=v; }
     void setOrientation(const vec3& v)  { m_oriantation=glm::normalize(v); }
     void setUpVector(const vec3& v)     { m_up=v; }
+    void move(const vec3 &v)            { setPosition(getPosition()+v); }
 
     mat4 computeTransformMatrix() const
     {
@@ -239,6 +245,7 @@ public:
             atmECall(setRotate1)
             atmECall(getRotate2)
             atmECall(setRotate2)
+            atmECall(move)
             atmECall(computeTransformMatrix)
             atmECall(computeRotationMatrix)
         )
@@ -271,7 +278,6 @@ public:
     const vec3& getAxis2() const    { return m_axis2; }
     float32 getRotate1() const      { return m_rot1; }
     float32 getRotate2() const      { return m_rot2; }
-
     void setPivot(const vec3& v)    { m_pivot=v; }
     void setPosition(const vec3& v) { m_pos=v; }
     void setScale(const vec3& v)    { m_scale=v; }
@@ -279,6 +285,7 @@ public:
     void setAxis2(const vec3& v)    { m_axis2=v; }
     void setRotate1(float32 v)      { m_rot1=v; }
     void setRotate2(float32 v)      { m_rot2=v; }
+    void move(const vec3 &v)        { setPosition(getPosition()+v); }
 
     mat4 computeTransformMatrix() const
     {

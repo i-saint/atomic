@@ -218,9 +218,9 @@ void AtomicGame::handleLevelEditorCommands( const LevelEditorCommand &c )
     }
     else if(c.type==LEC_Call) {
         const LevelEditorCommand_Call &cmd = reinterpret_cast<const LevelEditorCommand_Call&>(c);
-        IEntity *e = cmd.entity_id==0 ? s_last_entity : atmGetEntity(cmd.entity_id);
+        IEntity *e = cmd.entity==0 ? s_last_entity : atmGetEntity(cmd.entity);
         if(e) {
-            e->call((FunctionID)cmd.function_id, &cmd.arg);
+            e->call((FunctionID)cmd.function, &cmd.arg);
         }
     }
 }

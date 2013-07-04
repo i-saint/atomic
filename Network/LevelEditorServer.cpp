@@ -2,6 +2,7 @@
 #include "../FunctionID.h"
 #include "LevelEditorServer.h"
 #include "Game/AtomicApplication.h"
+#include "Game/EntityClass.h"
 
 namespace atm {
 
@@ -79,6 +80,28 @@ void EachFormData(const std::string &form_fata, const Func &f)
     f(&form_fata[pos], sep-pos);
 }
 
+inline bool ParseArg(variant &out, const std::string &str)
+{
+    ivec4 iv;
+    uvec4 uv;
+    vec4 fv;
+    if(sscanf(str.c_str(), "int(%d)", &iv.x)==1) {
+        out=iv; return true;
+    }
+    else if(sscanf(str.c_str(), "uint(%u)", &uv.x)==1) {
+        out=uv; return true;
+    }
+    else if(sscanf(str.c_str(), "float(%f)", &fv.x)==1) {
+        out=fv; return true;
+    }
+    else if(sscanf(str.c_str(), "vec2(%f,%f)", &fv.x, &fv.y)==2) {
+        out=fv; return true;
+    }
+    else if(sscanf(str.c_str(), "vec3(%f,%f,%f)", &fv.x, &fv.y, &fv.z)==3) {
+        out=fv; return true;
+    }
+    return false;
+}
 
 class LevelEditorCommandHandler : public Poco::Net::HTTPRequestHandler
 {
@@ -91,44 +114,58 @@ public:
     {
         std::string data;
         GetDecodedRequestBody(request, data);
-        if(data.find("command=create")!=std::string::npos) {
+        if(request.getURI()=="/call") {
+            handleCallRequest(data);
+        }
+        else if(request.getURI()=="/create") {
             handleCreateRequest(data);
         }
-        else if(data.find("command=delete")!=std::string::npos) {
+        else if(request.getURI()=="/delete") {
             handleDeleteRequest(data);
-        }
-        else if(data.find("command=call")!=std::string::npos) {
-            handleCallRequest(data);
         }
 
         response.setContentType("text/plain");
+        response.setContentLength(2);
         std::ostream &ostr = response.send();
-        ostr.write("ok", 3);
-
-        // todo:
+        ostr.write("ok", 2);
     }
 
     bool handleCreateRequest(std::string &data)
     {
-        vec2 pos;
-        EachFormData(data, [&](const char *str, size_t size){
-            vec2 t;
-            // 全く同じ位置に連続して配置すると問題が起きるため、ほんの少しランダムにずらす必要がある
-            if(sscanf(str, "pos=vec2(%f,%f)", &t.x, &t.y)==2) { pos = t+LevelEditorServer::getInstance()->randomVec2()*0.01f; }
-        });
+        static stl::set<EntityClassID> s_table;
+        if(s_table.empty()) {
+#define RegisterEntityClass(f) s_table.insert(EC_##f)
+            RegisterEntityClass(Enemy_Test);
+            RegisterEntityClass(SmallFighter);
+            RegisterEntityClass(MediumFighter);
+            RegisterEntityClass(LargeFighter);
+#undef RegisterEntityClass
+        }
 
-        {
-            LevelEditorCommand_Create cmd;
-            LevelEditorServer::getInstance()->pushCommand(reinterpret_cast<LevelEditorCommand&>(cmd));
+        std::smatch m1;
+        if(std::regex_search(data, m1, std::regex("classid=(\\d+),pos=(.+)"))) {
+            EntityClassID cid = (EntityClassID)_atoi64(m1[1].str().c_str());
+            if(s_table.find(cid)==s_table.end()) { return false; }
+
+            variant vpos;
+            if(ParseArg(vpos, m1[2].str())) {
+                vec2 pos = (vec2&)vpos + LevelEditorServer::getInstance()->randomVec2()*0.01f;
+                {
+                    LevelEditorCommand_Create cmd;
+                    LevelEditorServer::getInstance()->pushCommand((LevelEditorCommand&)cmd);
+                }
+                {
+                    LevelEditorCommand_Call cmd;
+                    cmd.entity = 0;
+                    cmd.function = FID_setPosition;
+                    cmd.arg = vec3(pos, 0.0f);
+                    LevelEditorServer::getInstance()->pushCommand((LevelEditorCommand&)cmd);
+                }
+                return true;
+            }
         }
-        {
-            LevelEditorCommand_Call cmd;
-            cmd.entity_id = 0;
-            cmd.function_id = FID_setPosition;
-            cmd.arg = vec3(pos, 0.0f);
-            LevelEditorServer::getInstance()->pushCommand(reinterpret_cast<LevelEditorCommand&>(cmd));
-        }
-        return true;
+
+        return false;
     }
 
     bool handleDeleteRequest(std::string &data)
@@ -138,7 +175,35 @@ public:
 
     bool handleCallRequest(std::string &data)
     {
-        return true;
+        static stl::map<stl::string, FunctionID> s_table;
+        if(s_table.empty()) {
+#define RegisterFunction(f) s_table[#f]=FID_##f
+            RegisterFunction(setPosition);
+            RegisterFunction(move);
+            RegisterFunction(setDirection);
+            RegisterFunction(setScale);
+            RegisterFunction(setParent);
+#undef RegisterFunction
+        }
+
+        std::smatch m1;
+        if(std::regex_search(data, m1, std::regex("entity=(\\d+),func=(\\w+),arg=(.+)"))) {
+            variant arg;
+            EntityHandle entity = (EntityHandle)_atoi64(m1[1].str().c_str());
+            auto i = s_table.find(m1[2].str());
+            if(i!=s_table.end() && ParseArg(arg, m1[3].str())) {
+                LevelEditorCommand_Call cmd;
+                cmd.entity = entity;
+                cmd.function = i->second;
+                cmd.arg = arg;
+                LevelEditorServer::getInstance()->pushCommand((LevelEditorCommand&)cmd);
+                return true;
+            }
+            else {
+                istPrint("handleCallRequest(): invalid command %s\n", data.c_str());
+            }
+        }
+        return false;
     }
 
 private:
@@ -182,7 +247,7 @@ public:
         if(request.getURI() == "/") {
             return new FileRequestHandler(std::string(s_fileserver_base_dir)+"/index.html");
         }
-        else if(request.getURI() == "/command") {
+        else if(request.getURI()=="/create" || request.getURI()=="/delete" || request.getURI()=="/call") {
             return new LevelEditorCommandHandler();
         }
         else if(request.getURI().find("/state")==0) {

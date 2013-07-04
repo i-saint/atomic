@@ -79,8 +79,8 @@ struct istAlign(16) LevelEditorCommand_Call
 {
     LEC_Type type;
     uint32 frame;
-    uint32 entity_id;
-    uint32 function_id;
+    uint32 entity;
+    uint32 function;
     variant arg;
 
     LevelEditorCommand_Call() : type(LEC_Call) {}

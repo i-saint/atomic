@@ -27,7 +27,14 @@ void main()
 </script>
 
 <script type="text/javascript" src="prototype.js"></script>
+<script type="text/javascript" src="gl-matrix-min.js"></script>
 <script type="text/javascript">
+
+var EditMode = {
+    Observer : 0,
+    Editor : 1,
+};
+
 
 var EntityClassID = {
     Unknown : 0,
@@ -52,18 +59,39 @@ var FieldY = 3.0;
 
 var gl;
 var ext;
+
 var FPSTimer;
 var EntitiesTimer;
 var loading = false
 var frame = 0;
 var delay = 1000/30;
 var starttime = new Date().getTime();
-var mouseX = 0.5;
-var mouseY = 0.5;
-var oldMouseX = 0;
-var oldMouseY = 0;
-var mouseDx = 0;
-var mouseDy = 0;
+
+var mouse = {
+    screen:     vec2.create(),
+    screen_prev:vec2.create(),
+    gl:         vec2.create(),
+    gl_prev:    vec2.create(),
+    dragging:   false,
+    button:     0,
+};
+
+var camera = {
+    pos:    vec3.create(),
+    target: vec3.create(),
+    up:     vec3.create(),
+    aspect: 1.0,
+    left:   -FieldX,
+    right:   FieldX,
+    bottom:  FieldX,
+    top:    -FieldX,
+    znear:  0.1,
+    zfar:   1000.0,
+};
+
+var editor = {
+    selection: 0,
+};
 
 var sh_simple;
 var vb_quad;
@@ -125,6 +153,30 @@ function updateEntities()
          pos += 4 * 4*num;
      };
      ajax.send(null);
+}
+
+function selectEntity(p)
+{
+    var nearest = 0.0;
+    var handle = 0;
+    var radius;
+    var diff = vec2.create();
+    for(var i=0; i<entities.ids.length; ++i) {
+        var ipp = i+1;
+        var pos = entities.trans.subarray(16*i+12, 16*ipp);
+        var size = entities.size.subarray(3*i, 3*ipp);
+        vec2.sub(diff, p, pos);
+        var radius = vec2.length(size);
+        var len = vec2.length(diff);
+        if(len<radius) {
+            if(handle==0 || len<nearest) {
+                nearest = len;
+                handle = entities.ids[i];
+            }
+        }
+    }
+    editor.selection = handle;
+    return handle;
 }
 
 function createShader(id)
@@ -261,8 +313,11 @@ function drawGL()
 {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
-
+    
+    gl.enable(gl.CULL_FACE );
+    gl.cullFace(gl.BACK);
     gl.enable(gl.BLEND);
+
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
     gl.useProgram(sh_simple);
     gl.bindBuffer(gl.ARRAY_BUFFER, vb_cube);
@@ -274,7 +329,12 @@ function drawGL()
         var ipp = i+1;
         gl.uniformMatrix4fv(sh_simple.u_trans, gl.FALSE, entities.trans.subarray(16*i, 16*ipp));
         gl.uniform3fv(sh_simple.u_size, entities.size.subarray(3*i, 3*ipp));
-        gl.uniform4fv(sh_simple.u_color, entities.color.subarray(4*i, 4*ipp));
+        if(entities.ids[i]==editor.selection) {
+            gl.uniform4fv(sh_simple.u_color, [1,1,1,0.3]);
+        }
+        else {
+            gl.uniform4fv(sh_simple.u_color, entities.color.subarray(4*i, 4*ipp));
+        }
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib_cube);
         gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib_cube_line);
@@ -326,33 +386,49 @@ function onLoad()
     EntitiesTimer = setInterval(updateEntities, 200);
     time = new Date().getTime() - starttime;
 
-    document.onmousemove = function(evt) {
-        mouseX = evt.pageX / c.width;
-        mouseY = evt.pageY / c.height;
-    };
+    document.onmousemove = function(e) {
+        vec2.copy(mouse.screen_prev, mouse.screen);
+        vec2.set(mouse.screen, e.pageX, e.pageY);
+        var p_x = e.pageX / c.width;
+        var p_y = 1.0 - (e.pageY / c.height);
+        var gl_x = FieldX * (p_x-0.5)*2.0;
+        var gl_y = FieldY * (p_y-0.5)*2.0;
+        vec2.copy(mouse.gl_prev, mouse.gl);
+        vec2.set(mouse.gl, gl_x, gl_y);
 
-    var c = document.getElementById("c");
-    c.onclick = function(evt) {
-        mouseX = evt.pageX / c.width;
-        mouseY = 1.0 - (evt.pageY / c.height);
-        if(mouseX<=1.0 && mouseY<=1.0) {
-            var fx = FieldX * (mouseX-0.5)*2.0;
-            var fy = FieldY * (mouseY-0.5)*2.0;
-            postCommand("/command", {command:"create", pos:vec2_s(fx, fy)});
+        if(mouse.dragging && editor.selection) {
+            var diff = vec2.create();
+            vec2.sub(diff, mouse.gl, mouse.gl_prev);
+            postCommand("/call", "entity="+editor.selection+",func=move,arg="+vec2_s(diff[0],diff[1]));
         }
     };
 
+    var c = document.getElementById("c");
+    c.onmousedown = function(e) {
+        mouse.dragging = true;
+        e.preventDefault();
+    };
+    c.onmouseup = function(e) {
+        mouse.dragging = false;
+        if(selectEntity(mouse.gl)==0) {
+            if(mouse.gl[0]<FieldX && mouse.gl[1]<FieldY) {
+                postCommand("/create", "classid=0,pos="+vec2_s(mouse.gl[0], mouse.gl[1]));
+            }
+        }
+        e.preventDefault();
+    };
+
     // gl
-    entities.proj = new Float32Array(16);
-    entities.ids = new Uint32Array();
+    entities.proj  = new Float32Array(16);
+    entities.ids   = new Uint32Array();
     entities.trans = new Float32Array();
-    entities.size = new Float32Array();
+    entities.size  = new Float32Array();
     entities.color = new Float32Array();
 
 //    // canvas
-//    entities.ids = [];
-//    entities.types = [];
-//    entities.sizes = [];
+//    entities.ids       = [];
+//    entities.types     = [];
+//    entities.sizes     = [];
 //    entities.positions = [];
 
     onLoadGL();
@@ -369,15 +445,12 @@ function draw()
 
     frame++;
     setTimeout("requestDraw(draw)", delay);
-
-    oldMouseX = mouseX;
-    oldMouseY = mouseY;
 }
 
 
 function postCommand(url, values)
 {
-    var ajax = new Ajax.Request("/command",
+    var ajax = new Ajax.Request(url,
     {
         method: "post",
         parameters: values,
