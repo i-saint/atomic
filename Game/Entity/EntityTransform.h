@@ -351,8 +351,8 @@ public:
 
     void updateRotate(float32 dt)
     {
-        this->setRotate1(this->getRotate1()+getRotateSpeed1());
-        this->setRotate2(this->getRotate2()+getRotateSpeed2());
+        this->setRotate1(this->getRotate1()+getRotateSpeed1()*dt);
+        this->setRotate2(this->getRotate2()+getRotateSpeed2()*dt);
     }
 };
 

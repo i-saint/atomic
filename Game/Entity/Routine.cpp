@@ -154,7 +154,7 @@ public:
         vec3 pos; atmQuery(e, getPosition, pos);
         m_vel *= 0.98f;
         m_vel += glm::normalize(m_target_pos-pos) * 0.0002f;
-        pos += m_vel;
+        pos += m_vel*dt;
         atmCall(e, setPosition, pos);
     }
 
@@ -207,7 +207,7 @@ public:
     {
         IEntity *e = getEntity();
         vec3 pos; atmQuery(e, getPosition, pos);
-        pos += m_vel;
+        pos += m_vel * dt;
         m_vel += m_accel;
         atmCall(e, setPosition, pos);
     }

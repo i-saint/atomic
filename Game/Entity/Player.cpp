@@ -63,8 +63,7 @@ public:
             vec3 pos, vel;
             atmQuery(owner, getPosition, pos);
             atmQuery(owner, getVelocity, vel);
-            pos += move;
-            pos += vel;
+            pos += (move + vel) * dt;
             vel *= 0.96f;
             pos.z = 0.0f;
             if(m_cooldown==0 && atmGetIngameInputs().isButtonTriggered(0)) {
@@ -115,7 +114,7 @@ public:
             switch(m_state) {
             case St_Neutral:
                 {
-                    pos += move;
+                    pos += move*dt;
                     if(atmGetIngameInputs().isButtonTriggered(0)) {
                         m_blink_pos = pos;
                         m_state = St_Targetting;
@@ -124,7 +123,7 @@ public:
                 break;
             case St_Targetting:
                 {
-                    m_blink_pos += move*4.0f;
+                    m_blink_pos += move*(4.0f*dt);
                     if(!atmGetIngameInputs().isButtonPressed(0)) {
                         pos = m_blink_pos;
                         m_state = St_Neutral;
@@ -132,7 +131,7 @@ public:
                 }
                 break;
             }
-            pos += vel;
+            pos += vel*dt;
             vel *= 0.96f;
             pos.z = 0.0f;
             atmCall(owner, setPosition, pos);

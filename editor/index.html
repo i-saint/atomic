@@ -35,6 +35,11 @@ var EditMode = {
     Editor : 1,
 };
 
+var Button = {
+    Left    : 1,
+    Right   : 2,
+    Middle  : 4,
+};
 
 var EntityClassID = {
     Unknown : 0,
@@ -463,7 +468,7 @@ function postCommand(url, values)
 
 <body onload="onLoad()">
 <canvas id="c" width="1024" height="1024" style="position:absolute; left:0px; top:0px;"></canvas>
-<div id="desc" style="position:absolute; left:1024px; top:10px; with:200px;">
+<div id="tools" style="position:absolute; left:1024px; top:0px; with:200px;">
 <span id="fps">  </span>
 <a href="http://primitive-games.jp/atomic/">about atomic</a>
 </div>

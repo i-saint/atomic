@@ -393,7 +393,7 @@ public:
         }
 
         parallel_each_with_block_index(m_bullets, blocksize, [&](BulletData &p, size_t bi){
-            vec3 pos = p.pos + p.vel;
+            vec3 pos = p.pos + p.vel*dt;
             pos.z = 0.03f;
             p.time += dt;
             p.pos = pos;

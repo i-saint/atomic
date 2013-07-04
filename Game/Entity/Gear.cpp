@@ -155,16 +155,16 @@ public:
 
     void update(float32 dt) override
     {
-        updateRotate(); // 子が参照するので asyncupdate() の中ではマズい
+        updateRotate(dt); // 子が参照するので asyncupdate() の中ではマズい
     }
 
     void asyncupdate(float32 dt) override
     {
     }
 
-    void updateRotate()
+    void updateRotate(float32 dt)
     {
-        m_rot_angle += m_rot_speed;
+        m_rot_angle += m_rot_speed * dt;
         m_rot_speed *= m_rot_decel;
         transform::setRotate(m_rot_angle);
         transform::updateTransformMatrix();
