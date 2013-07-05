@@ -129,6 +129,9 @@ private:
 public:
     atmECallBlock(
         atmECallSuper(mhandler)
+        atmMethodBlock(
+            atmECall(instruct)
+        )
     )
 
 public:
@@ -143,7 +146,7 @@ public:
         m_target_pos = GetNearestPlayerPosition(pos);
 
         if(m_frame%180==0) {
-            vec3 vel = glm::normalize(m_target_pos-pos)*0.01f;
+            vec3 vel = glm::normalize(m_target_pos-pos)*0.015f;
             ShootSimpleBullet(e->getHandle(), pos, vel);
         }
     }
@@ -167,6 +170,14 @@ public:
         float32 len = glm::length(m_vel);
         const float32 max_speed = 0.01f;
         if(len > max_speed) { m_vel = m_vel / len * max_speed; }
+    }
+
+    void instruct(const vec3 &tpos, EntityHandle tobj)
+    {
+        IEntity *e = getEntity();
+        vec3 pos; atmQuery(e, getPosition, pos);
+        vec3 vel = glm::normalize(tpos-pos)*0.015f;
+        ShootSimpleBullet(e->getHandle(), pos, vel);
     }
 };
 atmImplementRoutine(Routine_HomingPlayer);

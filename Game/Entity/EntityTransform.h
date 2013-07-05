@@ -153,6 +153,7 @@ public:
             atmECall(getUpVector)
             atmECall(setUpVector)
             atmECall(move)
+            atmECall(orient)
             atmECall(computeTransformMatrix)
             atmECall(computeRotationMatrix)
         )
@@ -184,9 +185,10 @@ public:
     void setPivot(const vec3& v)        { m_pivot=v; }
     void setPosition(const vec3& v)     { m_pos=v; }
     void setScale(const vec3& v)        { m_scale=v; }
-    void setOrientation(const vec3& v)  { m_oriantation=glm::normalize(v); }
+    void setOrientation(const vec3& v)  { if(glm::dot(v,v)>0.001f) m_oriantation=glm::normalize(v); }
     void setUpVector(const vec3& v)     { m_up=v; }
     void move(const vec3 &v)            { setPosition(getPosition()+v); }
+    void orient(const vec3 &v)          { setOrientation(v); }
 
     mat4 computeTransformMatrix() const
     {
@@ -374,6 +376,8 @@ public:
         atmMethodBlock(
             atmECall(getParent)
             atmECall(setParent)
+            atmECall(move)
+            atmECall(orient)
             atmECall(computeTransformMatrix)
             atmECall(computeRotationMatrix)
         )
@@ -393,6 +397,26 @@ public:
     {}
     EntityHandle getParent() const { return m_parent; }
     void setParent(EntityHandle v) { m_parent=v; }
+
+    void move(const vec3 &v)
+    {
+        vec3 m = v;
+        mat4 pmat;
+        if(atmQuery(getParent(), getInvTransformMatrix, pmat)) {
+            m = vec3(pmat*vec4(v,0.0f));
+        }
+        super::move(m);
+    }
+
+    void orient(const vec3 &v)
+    {
+        vec3 m = v;
+        mat4 pmat;
+        if(atmQuery(getParent(), getInvTransformMatrix, pmat)) {
+            m = vec3(pmat*vec4(v,0.0f));
+        }
+        super::call(FID_orient, &m, nullptr);
+    }
 
     mat4 computeTransformMatrix() const
     {
@@ -469,7 +493,7 @@ public:
         atmMethodBlock(
             atmECall(getTransformMatrix)
             atmECall(setTransformMatrix)
-            atmECall(getInverseTransform)
+            atmECall(getInvTransformMatrix)
             atmECall(updateTransformMatrix)
         )
         atmECallSuper(super)
@@ -479,8 +503,8 @@ public:
     })
 
 public:
-    const mat4& getTransformMatrix() const        { return m_transform; }
-    const mat4& getInverseTransform() const { return m_itransform; }
+    const mat4& getTransformMatrix() const      { return m_transform; }
+    const mat4& getInvTransformMatrix() const   { return m_itransform; }
 
     void setTransformMatrix(const mat4 &v)
     {

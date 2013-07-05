@@ -80,10 +80,10 @@ atmExportClass(GearParts);
 
 class dpPatch GearBase
     : public IEntity
-    , public TAttr_TransformMatrix<Attr_Transform>
+    , public TAttr_TransformMatrixI<Attr_Transform>
 {
     typedef IEntity             super;
-    typedef TAttr_TransformMatrix<Attr_Transform>   transform;
+    typedef TAttr_TransformMatrixI<Attr_Transform>   transform;
 
     stl::vector<EntityHandle> m_parts;
     EntityHandle m_linkage;

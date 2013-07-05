@@ -36,9 +36,9 @@ var EditMode = {
 };
 
 var Button = {
-    Left    : 1,
+    Left    : 0,
     Right   : 2,
-    Middle  : 4,
+    Middle  : 1,
 };
 
 var EntityClassID = {
@@ -75,8 +75,9 @@ var starttime = new Date().getTime();
 var mouse = {
     screen:     vec2.create(),
     screen_prev:vec2.create(),
-    gl:         vec2.create(),
-    gl_prev:    vec2.create(),
+    pos:        vec2.create(),
+    pos_prev:   vec2.create(),
+    drag_begin: vec2.create(),
     dragging:   false,
     button:     0,
 };
@@ -95,7 +96,8 @@ var camera = {
 };
 
 var editor = {
-    selection: 0,
+    selection: [],
+    entity_classid: 0,
 };
 
 var sh_simple;
@@ -106,16 +108,24 @@ var vb_cube;
 var ib_cube;
 var ib_cube_line;
 
-var entities = new Object();
+var entities = {
+    proj:   new Float32Array(16),
+    ids:    new Uint32Array(),
+    trans:  new Float32Array(),
+    size:   new Float32Array(),
+    color:  new Float32Array(),
+};
 
 
-function bool_s(v)      { return "bool("+v.toString()+")"; }
-function int_s(v)       { return "int("+v.toString()+")"; }
-function float_s(v)     { return "float("+v.toString()+")"; }
-function vec2_s(x,y)    { return "vec2("+x.toString()+","+y.toString()+")"; }
-function vec3_s(x,y,z)  { return "vec3("+x.toString()+","+y.toString()+","+z.toString()+")"; }
-function vec4_s(x,y,z,w){ return "vec4("+x.toString()+","+y.toString()+","+z.toString()+","+w.toString()+")"; }
-function string_s(v)    { return "string(\""+v+"\")"; }
+function bool_s(v)  { return "bool("+v.toString()+")"; }
+function int_s(v)   { return "int("+v.toString()+")"; }
+function uint_s(v)  { return "uint("+v.toString()+")"; }
+function float_s(v) { return "float("+v.toString()+")"; }
+function vec2_s(v)  { return "vec2("+v[0].toString()+","+v[1].toString()+")"; }
+function vec3_s(v)  { return "vec3("+v[0].toString()+","+v[1].toString()+","+v[2].toString()+")"; }
+function vec4_s(v)  { return "vec4("+v[0].toString()+","+v[1].toString()+","+v[2].toString()+","+v[3].toString()+")"; }
+function string_s(v){ return "string(\""+v+"\")"; }
+function instruction_s(p,e) { return "instruction("+p[0].toString()+","+p[1].toString()+",0.0,"+e.toString()+")"; }
 
 function updateFPS() {
     document.getElementById("fps").textContent = frame;
@@ -160,11 +170,10 @@ function updateEntities()
      ajax.send(null);
 }
 
-function selectEntity(p)
+function selectEntityPoint(p)
 {
     var nearest = 0.0;
     var handle = 0;
-    var radius;
     var diff = vec2.create();
     for(var i=0; i<entities.ids.length; ++i) {
         var ipp = i+1;
@@ -180,8 +189,24 @@ function selectEntity(p)
             }
         }
     }
-    editor.selection = handle;
     return handle;
+}
+function selectEntityRect(bl, ur)
+{
+    var handles = [];
+    for(var i=0; i<entities.ids.length; ++i) {
+        var ipp = i+1;
+        var pos = entities.trans.subarray(16*i+12, 16*ipp);
+        var size = entities.size.subarray(3*i, 3*ipp);
+        var radius = vec2.length(size);
+        if( (pos[0]-radius>=bl[0] && pos[0]+radius<=ur[0]) &&
+            (pos[1]-radius>=bl[1] && pos[1]+radius<=ur[1]) )
+        {
+            handles.push(entities.ids[i]);
+        }
+    }
+    handles.sort();
+    return handles;
 }
 
 function createShader(id)
@@ -334,7 +359,7 @@ function drawGL()
         var ipp = i+1;
         gl.uniformMatrix4fv(sh_simple.u_trans, gl.FALSE, entities.trans.subarray(16*i, 16*ipp));
         gl.uniform3fv(sh_simple.u_size, entities.size.subarray(3*i, 3*ipp));
-        if(entities.ids[i]==editor.selection) {
+        if(editor.selection.include(entities.ids[i])) {
             gl.uniform4fv(sh_simple.u_color, [1,1,1,0.3]);
         }
         else {
@@ -391,6 +416,10 @@ function onLoad()
     EntitiesTimer = setInterval(updateEntities, 200);
     time = new Date().getTime() - starttime;
 
+    var c = document.getElementById("c");
+
+    document.oncontextmenu = function() { return false; };
+
     document.onmousemove = function(e) {
         vec2.copy(mouse.screen_prev, mouse.screen);
         vec2.set(mouse.screen, e.pageX, e.pageY);
@@ -398,43 +427,61 @@ function onLoad()
         var p_y = 1.0 - (e.pageY / c.height);
         var gl_x = FieldX * (p_x-0.5)*2.0;
         var gl_y = FieldY * (p_y-0.5)*2.0;
-        vec2.copy(mouse.gl_prev, mouse.gl);
-        vec2.set(mouse.gl, gl_x, gl_y);
+        vec2.copy(mouse.pos_prev, mouse.pos);
+        vec2.set(mouse.pos, gl_x, gl_y);
 
-        if(mouse.dragging && editor.selection) {
-            var diff = vec2.create();
-            vec2.sub(diff, mouse.gl, mouse.gl_prev);
-            postCommand("/call", "entity="+editor.selection+",func=move,arg="+vec2_s(diff[0],diff[1]));
+        if(mouse.dragging && editor.selection.length>0) {
+            if(mouse.button==Button.Left) {
+                var diff = vec2.create();
+                vec2.sub(diff, mouse.pos, mouse.pos_prev);
+                editor.selection.each(function(h){
+                    postCommand("/call", "entity="+h+",func=move,arg="+vec2_s(diff));
+                });
+            }
+            else if(mouse.button==Button.Right) {
+                var diff = vec2.create();
+                vec2.sub(diff, mouse.pos, mouse.drag_begin);
+                editor.selection.each(function(h){
+                    postCommand("/call", "entity="+h+",func=orient,arg="+vec2_s(diff));
+                });
+            }
         }
     };
 
-    var c = document.getElementById("c");
     c.onmousedown = function(e) {
         mouse.dragging = true;
-        e.preventDefault();
-    };
-    c.onmouseup = function(e) {
-        mouse.dragging = false;
-        if(selectEntity(mouse.gl)==0) {
-            if(mouse.gl[0]<FieldX && mouse.gl[1]<FieldY) {
-                postCommand("/create", "classid=0,pos="+vec2_s(mouse.gl[0], mouse.gl[1]));
+        mouse.button = e.button;
+        if(mouse.button==Button.Left) {
+            editor.selection.clear();
+            var selection = selectEntityPoint(mouse.pos);
+            if(selection!=0) {
+                editor.selection.push(selection);
             }
         }
         e.preventDefault();
     };
 
-    // gl
-    entities.proj  = new Float32Array(16);
-    entities.ids   = new Uint32Array();
-    entities.trans = new Float32Array();
-    entities.size  = new Float32Array();
-    entities.color = new Float32Array();
-
-//    // canvas
-//    entities.ids       = [];
-//    entities.types     = [];
-//    entities.sizes     = [];
-//    entities.positions = [];
+    c.onmouseup = function(e) {
+        mouse.dragging = false;
+        if(mouse.button==Button.Left) {
+            if(editor.selection.length==0) {
+                postCommand("/create", "classid="+editor.entity_classid+",pos="+vec2_s(mouse.pos));
+            }
+        }
+        else if(mouse.button==Button.Right) {
+            var selection = selectEntityPoint(mouse.pos);
+            editor.selection.each(function(h){
+                postCommand("/call", "entity="+h+",func=instruct,arg="+instruction_s(mouse.pos,selection) );
+            });
+        }
+        else if(mouse.button==Button.Middle) {
+            var selection = selectEntityPoint(mouse.pos);
+            editor.selection.each(function(h){
+                postCommand("/call", "entity="+h+",func=setParent,arg="+uint_s(selection));
+            });
+        }
+        e.preventDefault();
+    };
 
     onLoadGL();
     //onLoad2D();
@@ -446,8 +493,6 @@ function draw()
     var t = (new Date().getTime() - starttime)*0.001;
 
     drawGL();
-    //draw2D();
-
     frame++;
     setTimeout("requestDraw(draw)", delay);
 }

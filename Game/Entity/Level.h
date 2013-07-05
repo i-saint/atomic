@@ -64,7 +64,7 @@ public:
 
     void eventFluid(const FluidMessage *m) override
     {
-        addBloodstain(getInverseTransform(), (vec4&)m->position);
+        addBloodstain(getInvTransformMatrix(), (vec4&)m->position);
     }
 };
 

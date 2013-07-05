@@ -100,6 +100,9 @@ inline bool ParseArg(variant &out, const std::string &str)
     else if(sscanf(str.c_str(), "vec3(%f,%f,%f)", &fv.x, &fv.y, &fv.z)==3) {
         out=fv; return true;
     }
+    else if(sscanf(str.c_str(), "instruction(%f,%f,%f,%u)", &fv.x, &fv.y, &fv.z, &uv.x)==4) {
+        out=ist::MakeValueList(vec3(fv),uv.x); return true;
+    }
     return false;
 }
 
@@ -178,9 +181,10 @@ public:
         static stl::map<stl::string, FunctionID> s_table;
         if(s_table.empty()) {
 #define RegisterFunction(f) s_table[#f]=FID_##f
-            RegisterFunction(setPosition);
             RegisterFunction(move);
-            RegisterFunction(setDirection);
+            RegisterFunction(orient);
+            RegisterFunction(instruct);
+            RegisterFunction(setPosition);
             RegisterFunction(setScale);
             RegisterFunction(setParent);
 #undef RegisterFunction
