@@ -36,7 +36,7 @@ void main()
     vs_PSetPosition = trans[3];
 
     vec4 instancePos = trans * vec4(ia_InstancePosition, 1.0);
-    vec4 vert = ia_VertexPosition*scale + instancePos;
+    vec4 vert = ia_VertexPosition*vs_InstanceParams.z*scale + instancePos;
     vert.w = 1.0;
 
     float dif = ia_InstanceNormal.w;
@@ -62,7 +62,7 @@ ps_out(3) vec4 ps_FragGlow;
 
 void main()
 {
-    const float radius = 0.015f * scale;
+    float radius = 0.015f*vs_InstanceParams.z * scale;
     vec2 diff2 = vs_VertexPosition.xy - vs_InstancePosition.xy;
     if(dot(diff2, diff2) > radius*radius) {
         discard;

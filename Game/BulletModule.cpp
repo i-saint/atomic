@@ -49,6 +49,7 @@ private:
     vec3            m_pos;
     vec3            m_dir;
     float32         m_light_radius;
+    uint32          m_hitcount;
 
     // 以下 serialize 不要
     typedef CollisionModule::CollisionContext CollisionContext;
@@ -66,12 +67,14 @@ private:
         istSerialize(m_pos)
         istSerialize(m_dir)
         istSerialize(m_light_radius)
+        istSerialize(m_hitcount)
     )
 
 public:
     Laser(LaserHandle handle, const vec3 &pos, const vec3 &dir, EntityHandle owner)
         : m_handle(handle), m_owner(0), m_group(0), m_state(State_Normal), m_time(0.0f)
         , m_light_radius(0.5f)
+        , m_hitcount(0)
     {
         m_pos = pos;
         m_dir = dir;
@@ -128,6 +131,11 @@ public:
             p.time += dt;
         });
 
+        if(m_state==State_Fadeout) {
+            if(m_time>s_lifetime) {
+                m_state = State_Dead;
+            }
+        }
     }
 
     void update2async(float32 dt)
@@ -138,35 +146,42 @@ public:
             m_cctx.resize(num_tasks);
         }
 
-        if(m_state==State_Normal) {
-            parallel_each_with_block_index(m_particles, blocksize, [&](LaserParticle &p, size_t bi){
-                CollisionContext &ctx = m_cctx[bi];
-                vec3 pos = computeParticlePos(p);
-                p.pos_current = pos;
-                CollisionSphere sphere;
-                sphere.setEntityHandle(m_owner);
-                sphere.setCollisionGroup(m_group);
-                sphere.pos_r = vec4(pos, s_radius);
-                sphere.updateBoundingBox();
-                if(atmGetCollisionModule()->collideRecv(&sphere, ctx)) {
-                    p.hit_to = ctx.messages.front().from;
-                    p.time = s_lifetime;
-                }
-                ctx.clear();
-            });
-        }
+        parallel_each_with_block_index(m_particles, blocksize, [&](LaserParticle &p, size_t bi){
+            CollisionContext &ctx = m_cctx[bi];
+            vec3 pos = computeParticlePos(p);
+            p.pos_current = pos;
+            CollisionSphere sphere;
+            sphere.setEntityHandle(m_owner);
+            sphere.setCollisionGroup(m_group);
+            sphere.pos_r = vec4(pos, s_radius);
+            sphere.updateBoundingBox();
+            if(atmGetCollisionModule()->collideRecv(&sphere, ctx)) {
+                p.hit_to = ctx.messages.front().from;
+                p.time = s_lifetime;
+            }
+            ctx.clear();
+        });
     }
 
     void update3(float32 dt)
     {
-        each(m_particles, [&](LaserParticle &p){
-            if(p.hit_to) {
-                vec3 pos = p.pos_current;
-                //atmGetFluidModule()->addFluid(PSET_SPHERE_BULLET, glm::translate(pos));
-                atmCall(p.hit_to, damage, s_power);
-                atmCall(p.hit_to, addForce, atmArgs(pos, m_dir*s_speed*1000.0f));
-            }
-        });
+        if(m_state==State_Normal) {
+            each(m_particles, [&](LaserParticle &p){
+                if(p.hit_to) {
+                    ++m_hitcount;
+                    vec3 pos = p.pos_current;
+                    atmCall(p.hit_to, damage, s_power);
+                    atmCall(p.hit_to, addForce, atmArgs(pos, m_dir*s_speed*1000.0f));
+                    {
+                        psym::Particle particles;
+                        istAlign(16) vec4 spos = vec4(pos, 1.0f);
+                        particles.position = (psym::simdvec4&)spos;
+                        particles.velocity = _mm_set1_ps(0.0f);
+                        atmGetFluidModule()->addFluid(&particles, 1);
+                    }
+                }
+            });
+        }
         erase(m_particles, [&](LaserParticle &p){ return p.time>=s_lifetime; });
     }
 
@@ -205,6 +220,9 @@ public:
         inst.flash = flash;
         inst.elapsed = 0.0f;
         inst.appear_radius = 10000.0f;
+        if(m_state==State_Fadeout) {
+            inst.scale = std::max<float32>(1.0f-m_time/s_lifetime, 0.0f);
+        }
         each(m_particles, [&](LaserParticle &p){
             vec3 pos = p.pos_current;
             vec3 scale = vec3(2.0f);

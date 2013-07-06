@@ -42,9 +42,13 @@ struct istAlign(16) PSetInstance
     vec4 flash;
     float32 elapsed;
     float32 appear_radius;
-    float32 padding[2];
+    float32 scale;
+    float32 padding[1];
     mat4 transform;
     mat4 rotate;
+
+    PSetInstance() : elapsed(0.0f), appear_radius(100.0f), scale(1.0f)
+    {}
 };
 istStaticAssert(sizeof(PSetInstance)%16==0);
 

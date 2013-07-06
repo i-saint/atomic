@@ -10,7 +10,7 @@ ia_out(GLSL_INSTANCE_PARAM)     int  ia_InstanceID;
 #if defined(GLSL_VS) || defined(GLSL_PS)
 vs_out vec4 vs_PSetPosition;
 vs_out vec4 vs_InstancePosition;
-vs_out vec4 vs_InstanceParams;      // x: elapsed frame, y: appear_radius
+vs_out vec4 vs_InstanceParams;      // x: elapsed frame, y: appear_radius, z: scale
 vs_out vec4 vs_VertexPosition;      // w = affect bloodstain
 vs_out vec4 vs_VertexNormal;        // w = fresnel
 vs_out vec4 vs_VertexColor;         // w = shininess
@@ -41,7 +41,7 @@ void main()
     rot[3] = texelFetch(u_ParamBuffer, ivec2(11, ia_InstanceID), 0);
 
     vec4 instancePos = trans * vec4(ia_InstancePosition.xyz, 1.0);
-    vec4 vertexPos = rot * vec4(ia_VertexPosition.xyz, 0.0);
+    vec4 vertexPos = rot * vec4(ia_VertexPosition.xyz*vs_InstanceParams.z, 0.0);
     vec4 vert = vec4(vertexPos.xyz+instancePos.xyz, 1.0);
 
     vec3 normal = normalize((rot * vec4(ia_VertexNormal.xyz, 0.0)).xyz);
