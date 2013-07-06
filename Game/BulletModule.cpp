@@ -109,7 +109,7 @@ public:
         vec3 pos = m_pos + adv;
         mat4 mat;
         mat = glm::translate(mat, pos);
-        mat = glm::rotate(mat, p.time*7.5f, m_dir);
+        mat = glm::rotate(mat, p.time*15.0f, m_dir);
         mat = glm::translate(mat, p.pos_base);
         return vec3(mat * vec4(vec3(0.0f), 1.0f));
     }
@@ -118,7 +118,7 @@ public:
     {
         m_time += dt;
 
-        for(size_t i=0; i<4; ++i) {
+        for(size_t i=0; i<6; ++i) {
             LaserParticle t;
             t.pos_base = GenRandomVector3()*0.075f * vec3(1.0f,1.0f,0.5f);
             t.time = 0.0f;
@@ -225,8 +225,8 @@ public:
     }
 
 };
-const float32 Laser::s_speed = 0.025f;
-const float32 Laser::s_lifetime = 180.0f;
+const float32 Laser::s_speed = 0.06f;
+const float32 Laser::s_lifetime = 100.0f;
 const float32 Laser::s_radius = 0.04f;
 const float32 Laser::s_power = 2.0f;
 
@@ -537,8 +537,8 @@ void BulletModule::handleEntitiesQuery( EntitiesQueryContext &ctx )
         ctx.bullets.push_back(b.pos);
     });
     m_lasers->eachLasers([&](const Laser *l){
-        ctx.laser_pos.push_back(l->getPosition());
-        ctx.laser_dir.push_back(l->getDirection());
+        ctx.lasers.push_back(vec4(l->getPosition(), 1.0f));
+        ctx.lasers.push_back(vec4(l->getPosition()+l->getDirection()*2.0f, 0.0f));
     });
 }
 

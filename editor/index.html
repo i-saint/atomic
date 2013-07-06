@@ -30,7 +30,7 @@ attribute vec3 ia_position;
 uniform mat4 u_proj;
 void main()
 {
-    gl_PointSize = 4.0;
+    gl_PointSize = 8.0;
     gl_Position = u_proj * vec4(ia_position, 1.0);
 }
 </script>
@@ -40,6 +40,26 @@ uniform vec4 u_color;
 void main()
 {
     gl_FragColor = u_color;
+}
+</script>
+
+<script type="x-shader/x-vertex" id="vs_lasers"> 
+attribute vec4 ia_position;
+uniform mat4 u_proj;
+uniform vec4 u_color;
+varying vec4 vs_color;
+void main()
+{
+    vs_color = vec4(u_color.rgb, u_color.a*ia_position.a);
+    gl_Position = u_proj * vec4(ia_position.xyz, 1.0);
+}
+</script>
+<script type="x-shader/x-fragment" id="ps_lasers">
+precision mediump float;
+varying vec4 vs_color;
+void main()
+{
+    gl_FragColor = vs_color;
 }
 </script>
 
@@ -54,8 +74,8 @@ var EditMode = {
 
 var Button = {
     Left    : 0,
-    Right   : 2,
     Middle  : 1,
+    Right   : 2,
 };
 
 var EntityClassID = {
@@ -144,10 +164,9 @@ var entities = {
     trans:  new Float32Array(),
     size:   new Float32Array(),
     color:  new Float32Array(),
-    
+
     bullets: new Float32Array(),
-    laser_pos: new Float32Array(),
-    laser_dir: new Float32Array(),
+    lasers: new Float32Array(),
 };
 
 
@@ -208,10 +227,8 @@ function updateEntities()
          entities.bullets = new Float32Array(buf, rpos, num_bullets*3);
          rpos += 4*3 * num_bullets;
 
-         entities.laser_pos = new Float32Array(buf, rpos, num_lasers*3);
-         rpos += 4*3 * num_lasers;
-         entities.laser_dir = new Float32Array(buf, rpos, num_lasers*3);
-         rpos += 4*3 * num_lasers;
+         entities.lasers = new Float32Array(buf, rpos, num_lasers*4);
+         rpos += 4*4 * num_lasers;
      };
      ajax.send(null);
 }
@@ -329,6 +346,11 @@ function onLoadGL()
     sh_bullets.u_proj  = gl.getUniformLocation(sh_bullets, "u_proj");
     sh_bullets.u_color = gl.getUniformLocation(sh_bullets, "u_color");
 
+    sh_lasers = createShaderProgram("vs_lasers", "ps_lasers");
+    sh_lasers.ia_position = gl.getAttribLocation(sh_lasers, "ia_position");
+    sh_lasers.u_proj  = gl.getUniformLocation(sh_lasers, "u_proj");
+    sh_lasers.u_color = gl.getUniformLocation(sh_lasers, "u_color");
+
 
     var quad_vertices = new Float32Array([
         -1.0, -1.0,
@@ -436,6 +458,18 @@ function drawGL()
     gl.uniformMatrix4fv(sh_bullets.u_proj, gl.FALSE, projection);
     gl.uniform4fv(sh_bullets.u_color, [1.0, 1.0, 0.0, 1.0]);
     gl.drawArrays(gl.POINTS, 0, entities.bullets.length/3);
+
+
+    gl.useProgram(sh_lasers);
+    gl.bindBuffer(gl.ARRAY_BUFFER, vb_lasers);
+    gl.bufferData(gl.ARRAY_BUFFER, entities.lasers, gl.STREAM_DRAW);
+    gl.enableVertexAttribArray(sh_lasers.ia_position);
+    gl.vertexAttribPointer(sh_lasers.ia_position, 4, gl.FLOAT, gl.FALSE, 16, 0);
+    gl.uniformMatrix4fv(sh_lasers.u_proj, gl.FALSE, projection);
+    gl.uniform4fv(sh_lasers.u_color, [1.0, 1.0, 0.0, 1.0]);
+    gl.lineWidth(10.0);
+    gl.drawArrays(gl.LINES, 0, entities.lasers.length/4);
+    gl.lineWidth(1.0);
 
     gl.flush();
 }

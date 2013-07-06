@@ -242,8 +242,8 @@ void AtomicGame::handleEntitiesQuery( std::string &out )
 
     uint32 num_entities = (uint32)m_ctx_entities_query.id.size();
     uint32 num_bullets = (uint32)m_ctx_entities_query.bullets.size();
-    uint32 num_lasers = (uint32)m_ctx_entities_query.laser_pos.size();
-    out.resize(sizeof(mat4)+sizeof(uint32)+m_ctx_entities_query.sizeByte());
+    uint32 num_lasers = (uint32)m_ctx_entities_query.lasers.size();
+    out.resize(sizeof(uint32)*3+m_ctx_entities_query.sizeByte());
 
     *(uint32*)(&out[wpos]) = num_entities;
     wpos += sizeof(uint32);
@@ -267,10 +267,8 @@ void AtomicGame::handleEntitiesQuery( std::string &out )
         wpos += sizeof(vec3)*num_bullets;
     }
     if(num_lasers) {
-        memcpy(&out[wpos], &m_ctx_entities_query.laser_pos[0], sizeof(vec3)*num_lasers);
-        wpos += sizeof(vec3)*num_lasers;
-        memcpy(&out[wpos], &m_ctx_entities_query.laser_dir[0], sizeof(vec3)*num_lasers);
-        wpos += sizeof(vec3)*num_lasers;
+        memcpy(&out[wpos], &m_ctx_entities_query.lasers[0], sizeof(vec4)*num_lasers);
+        wpos += sizeof(vec4)*num_lasers;
     }
 
 #else // atm_enable_WebGL

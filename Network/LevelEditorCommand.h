@@ -12,8 +12,7 @@ struct EntitiesQueryContext
     ist::raw_vector<vec3>   size;
     ist::raw_vector<vec4>   color;
     ist::raw_vector<vec3>   bullets;
-    ist::raw_vector<vec3>   laser_pos;
-    ist::raw_vector<vec3>   laser_dir;
+    ist::raw_vector<vec4>   lasers;
 
     void clear()
     {
@@ -22,8 +21,7 @@ struct EntitiesQueryContext
         size.clear();
         color.clear();
         bullets.clear();
-        laser_pos.clear();
-        laser_dir.clear();
+        lasers.clear();
     }
 
     size_t sizeByte() const
@@ -34,8 +32,7 @@ struct EntitiesQueryContext
             sizeof(vec3)  * size.size()     +
             sizeof(vec4)  * color.size()    +
             sizeof(vec3)  * bullets.size()  +
-            sizeof(vec3)  * laser_pos.size()+
-            sizeof(vec3)  * laser_dir.size();
+            sizeof(vec4)  * lasers.size();
     }
 
 #else  // atm_enable_WebGL
