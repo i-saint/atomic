@@ -146,6 +146,17 @@ dpPatch bool _Collide(const CollisionBox *sender, const CollisionBox *receiver, 
     {
         const vec4 &size = receiver->size;
         simdmat4 t(receiver->trans);
+        {
+            CollisionSphere sphere;
+            float32 r = std::min<float32>(std::min<float32>(size.x, size.y), size.z);
+            vec3 center = vec3(receiver->trans[3]);
+            sphere.pos_r = vec4(center, r);
+            sphere.bb.bl = vec4(center-r, 1.0f);
+            sphere.bb.ur = vec4(center+r, 1.0f);
+            if(_Collide(sender, &sphere, m)) {
+                goto HIT;
+            }
+        }
         vec4 vertices[] = {
             glm::vec4_cast(t * simdvec4( size.x, size.y, size.z, 1.0f)),
             glm::vec4_cast(t * simdvec4(-size.x, size.y, size.z, 1.0f)),
@@ -167,6 +178,17 @@ dpPatch bool _Collide(const CollisionBox *sender, const CollisionBox *receiver, 
     {
         const vec4 &size = sender->size;
         simdmat4 t(sender->trans);
+        {
+            CollisionSphere sphere;
+            float32 r = std::min<float32>(std::min<float32>(size.x, size.y), size.z);
+            vec3 center = vec3(sender->trans[3]);
+            sphere.pos_r = vec4(center, r);
+            sphere.bb.bl = vec4(center-r, 1.0f);
+            sphere.bb.ur = vec4(center+r, 1.0f);
+            if(_Collide(&sphere, receiver, m)) {
+                goto HIT;
+            }
+        }
         vec4 vertices[] = {
             glm::vec4_cast(t * simdvec4( size.x, size.y, size.z, 1.0f)),
             glm::vec4_cast(t * simdvec4(-size.x, size.y, size.z, 1.0f)),
