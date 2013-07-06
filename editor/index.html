@@ -3,7 +3,7 @@
 <head>
 <title>atomic: level editor</title>
 
-<script type="x-shader/x-vertex" id="vs_simple"> 
+<script type="x-shader/x-vertex" id="vs_entities"> 
 attribute vec3 ia_position;
 uniform mat4 u_proj;
 uniform mat4 u_trans;
@@ -16,13 +16,30 @@ void main()
     gl_Position = u_proj * (u_trans* vec4(ia_position*u_size, 1.0));
 }
 </script>
-
-<script type="x-shader/x-fragment" id="ps_simple">
+<script type="x-shader/x-fragment" id="ps_entities">
 precision mediump float;
 varying vec4 vs_color;
 void main()
 {
     gl_FragColor = vs_color;
+}
+</script>
+
+<script type="x-shader/x-vertex" id="vs_bullets"> 
+attribute vec3 ia_position;
+uniform mat4 u_proj;
+void main()
+{
+    gl_PointSize = 4.0;
+    gl_Position = u_proj * vec4(ia_position, 1.0);
+}
+</script>
+<script type="x-shader/x-fragment" id="ps_bullets">
+precision mediump float;
+uniform vec4 u_color;
+void main()
+{
+    gl_FragColor = u_color;
 }
 </script>
 
@@ -59,8 +76,8 @@ var EntityClassColor2D = [
     "#FF3333",
     "#444444",
 ];
-var FieldX = 3.0;
-var FieldY = 3.0;
+var FieldX = 2.56;
+var FieldY = 2.56;
 
 var gl;
 var ext;
@@ -83,16 +100,26 @@ var mouse = {
 };
 
 var camera = {
-    pos:    vec3.create(),
-    target: vec3.create(),
-    up:     vec3.create(),
+    pos:    vec3.fromValues(0.0, 0.0, 3.0),
+    target: vec3.fromValues(0.0, 0.0, 0.0),
+    up:     vec3.fromValues(0.0, 1.0, 0.0),
     aspect: 1.0,
     left:   -FieldX,
     right:   FieldX,
-    bottom:  FieldX,
-    top:    -FieldX,
+    bottom: -FieldX,
+    top:     FieldX,
     znear:  0.1,
     zfar:   1000.0,
+
+    view: mat4.create(),
+    proj: mat4.create(),
+    viewProj: mat4.create(),
+
+    updateMatrix: function() {
+        mat4.lookAt(this.view, this.pos, this.target, this.up);
+        mat4.ortho(this.proj, this.left, this.right, this.bottom, this.top, this.znear, this.zfar);
+        mat4.mul(this.viewProj, this.proj, this.view);
+    }
 };
 
 var editor = {
@@ -100,20 +127,27 @@ var editor = {
     entity_classid: 0,
 };
 
-var sh_simple;
+var sh_entities;
+var sh_bullets;
+var sh_lasers;
 var vb_quad;
 var ib_quad;
 var ib_quad_line;
 var vb_cube;
 var ib_cube;
 var ib_cube_line;
+var vb_bullets;
+var vb_lasers;
 
 var entities = {
-    proj:   new Float32Array(16),
     ids:    new Uint32Array(),
     trans:  new Float32Array(),
     size:   new Float32Array(),
     color:  new Float32Array(),
+    
+    bullets: new Float32Array(),
+    laser_pos: new Float32Array(),
+    laser_dir: new Float32Array(),
 };
 
 
@@ -153,19 +187,31 @@ function updateEntities()
      ajax.onload = function (ev) {
          loading = false;
          var buf = ajax.response;
-         var pos = 0;
-         entities.proj = new Float32Array(buf, pos, 16);
-         pos += 4 * 16;
-         var num = new Uint32Array(buf, pos, 1)[0];
-         pos += 4;
-         entities.ids = new Uint32Array(buf, pos, num);
-         pos += 4 * num;
-         entities.trans = new Float32Array(buf, pos, num*16);
-         pos += 4 * 16*num;
-         entities.size = new Float32Array(buf, pos, num*3);
-         pos += 4 * 3*num;
-         entities.color = new Float32Array(buf, pos, num*4);
-         pos += 4 * 4*num;
+         var rpos = 0;
+
+         var num_entities = new Uint32Array(buf, rpos, 1)[0];
+         rpos += 4;
+         var num_bullets = new Uint32Array(buf, rpos, 1)[0];
+         rpos += 4;
+         var num_lasers = new Uint32Array(buf, rpos, 1)[0];
+         rpos += 4;
+
+         entities.ids = new Uint32Array(buf, rpos, num_entities);
+         rpos += 4 * num_entities;
+         entities.trans = new Float32Array(buf, rpos, num_entities*16);
+         rpos += 4*16 * num_entities;
+         entities.size = new Float32Array(buf, rpos, num_entities*3);
+         rpos += 4*3 * num_entities;
+         entities.color = new Float32Array(buf, rpos, num_entities*4);
+         rpos += 4*4 * num_entities;
+
+         entities.bullets = new Float32Array(buf, rpos, num_bullets*3);
+         rpos += 4*3 * num_bullets;
+
+         entities.laser_pos = new Float32Array(buf, rpos, num_lasers*3);
+         rpos += 4*3 * num_lasers;
+         entities.laser_dir = new Float32Array(buf, rpos, num_lasers*3);
+         rpos += 4*3 * num_lasers;
      };
      ajax.send(null);
 }
@@ -271,12 +317,17 @@ function onLoadGL()
         return;
     }
 
-    sh_simple = createShaderProgram("vs_simple", "ps_simple");
-    sh_simple.ia_position = gl.getAttribLocation(sh_simple, "ia_position");
-    sh_simple.u_proj  = gl.getUniformLocation(sh_simple, "u_proj");
-    sh_simple.u_trans = gl.getUniformLocation(sh_simple, "u_trans");
-    sh_simple.u_size  = gl.getUniformLocation(sh_simple, "u_size");
-    sh_simple.u_color = gl.getUniformLocation(sh_simple, "u_color");
+    sh_entities = createShaderProgram("vs_entities", "ps_entities");
+    sh_entities.ia_position = gl.getAttribLocation(sh_entities, "ia_position");
+    sh_entities.u_proj  = gl.getUniformLocation(sh_entities, "u_proj");
+    sh_entities.u_trans = gl.getUniformLocation(sh_entities, "u_trans");
+    sh_entities.u_size  = gl.getUniformLocation(sh_entities, "u_size");
+    sh_entities.u_color = gl.getUniformLocation(sh_entities, "u_color");
+
+    sh_bullets = createShaderProgram("vs_bullets", "ps_bullets");
+    sh_bullets.ia_position = gl.getAttribLocation(sh_bullets, "ia_position");
+    sh_bullets.u_proj  = gl.getUniformLocation(sh_bullets, "u_proj");
+    sh_bullets.u_color = gl.getUniformLocation(sh_bullets, "u_color");
 
 
     var quad_vertices = new Float32Array([
@@ -337,10 +388,16 @@ function onLoadGL()
     ib_cube_line = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib_cube_line);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cube_line_indices, gl.STATIC_DRAW);
+
+    vb_bullets = gl.createBuffer();
+    vb_lasers = gl.createBuffer();
 }
 
 function drawGL()
 {
+    camera.updateMatrix();
+    var projection = camera.viewProj;
+
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     
@@ -349,27 +406,37 @@ function drawGL()
     gl.enable(gl.BLEND);
 
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-    gl.useProgram(sh_simple);
+    gl.useProgram(sh_entities);
     gl.bindBuffer(gl.ARRAY_BUFFER, vb_cube);
-    gl.enableVertexAttribArray(sh_simple.ia_position);
-    gl.vertexAttribPointer(sh_simple.ia_position, 3, gl.FLOAT, gl.FALSE, 12, 0);
-
-    gl.uniformMatrix4fv(sh_simple.u_proj, gl.FALSE, entities.proj);
+    gl.enableVertexAttribArray(sh_entities.ia_position);
+    gl.vertexAttribPointer(sh_entities.ia_position, 3, gl.FLOAT, gl.FALSE, 12, 0);
+    gl.uniformMatrix4fv(sh_entities.u_proj, gl.FALSE, projection);
     for(var i=0; i<entities.ids.length; ++i) {
         var ipp = i+1;
-        gl.uniformMatrix4fv(sh_simple.u_trans, gl.FALSE, entities.trans.subarray(16*i, 16*ipp));
-        gl.uniform3fv(sh_simple.u_size, entities.size.subarray(3*i, 3*ipp));
+        gl.uniformMatrix4fv(sh_entities.u_trans, gl.FALSE, entities.trans.subarray(16*i, 16*ipp));
+        gl.uniform3fv(sh_entities.u_size, entities.size.subarray(3*i, 3*ipp));
         if(editor.selection.include(entities.ids[i])) {
-            gl.uniform4fv(sh_simple.u_color, [1,1,1,0.3]);
+            gl.uniform4fv(sh_entities.u_color, [1,1,1,0.3]);
         }
         else {
-            gl.uniform4fv(sh_simple.u_color, entities.color.subarray(4*i, 4*ipp));
+            gl.uniform4fv(sh_entities.u_color, entities.color.subarray(4*i, 4*ipp));
         }
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib_cube);
         gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib_cube_line);
         gl.drawElements(gl.LINES, 48, gl.UNSIGNED_SHORT, 0);
     }
+
+
+    gl.useProgram(sh_bullets);
+    gl.bindBuffer(gl.ARRAY_BUFFER, vb_bullets);
+    gl.bufferData(gl.ARRAY_BUFFER, entities.bullets, gl.STREAM_DRAW);
+    gl.enableVertexAttribArray(sh_bullets.ia_position);
+    gl.vertexAttribPointer(sh_bullets.ia_position, 3, gl.FLOAT, gl.FALSE, 12, 0);
+    gl.uniformMatrix4fv(sh_bullets.u_proj, gl.FALSE, projection);
+    gl.uniform4fv(sh_bullets.u_color, [1.0, 1.0, 0.0, 1.0]);
+    gl.drawArrays(gl.POINTS, 0, entities.bullets.length/3);
+
     gl.flush();
 }
 

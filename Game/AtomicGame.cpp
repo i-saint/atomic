@@ -240,23 +240,38 @@ void AtomicGame::handleEntitiesQuery( std::string &out )
 #ifdef atm_enable_WebGL
     uint32 wpos = 0;
 
-    uint32 num_entities = m_ctx_entities_query.id.size();
+    uint32 num_entities = (uint32)m_ctx_entities_query.id.size();
+    uint32 num_bullets = (uint32)m_ctx_entities_query.bullets.size();
+    uint32 num_lasers = (uint32)m_ctx_entities_query.laser_pos.size();
     out.resize(sizeof(mat4)+sizeof(uint32)+m_ctx_entities_query.sizeByte());
 
-    *(mat4*)(&out[wpos]) = m_ctx_entities_query.proj;
-    wpos += sizeof(mat4);
-
-    *(uint32*)(&out[wpos]) = m_ctx_entities_query.id.size();
+    *(uint32*)(&out[wpos]) = num_entities;
+    wpos += sizeof(uint32);
+    *(uint32*)(&out[wpos]) = num_bullets;
+    wpos += sizeof(uint32);
+    *(uint32*)(&out[wpos]) = num_lasers;
     wpos += sizeof(uint32);
 
-    memcpy(&out[wpos], &m_ctx_entities_query.id[0], sizeof(uint32)*num_entities);
-    wpos += sizeof(uint32)*num_entities;
-    memcpy(&out[wpos], &m_ctx_entities_query.trans[0], sizeof(mat4)*num_entities);
-    wpos += sizeof(mat4)*num_entities;
-    memcpy(&out[wpos], &m_ctx_entities_query.size[0], sizeof(vec3)*num_entities);
-    wpos += sizeof(vec3)*num_entities;
-    memcpy(&out[wpos], &m_ctx_entities_query.color[0], sizeof(vec4)*num_entities);
-    wpos += sizeof(vec4)*num_entities;
+    if(num_entities) {
+        memcpy(&out[wpos], &m_ctx_entities_query.id[0], sizeof(uint32)*num_entities);
+        wpos += sizeof(uint32)*num_entities;
+        memcpy(&out[wpos], &m_ctx_entities_query.trans[0], sizeof(mat4)*num_entities);
+        wpos += sizeof(mat4)*num_entities;
+        memcpy(&out[wpos], &m_ctx_entities_query.size[0], sizeof(vec3)*num_entities);
+        wpos += sizeof(vec3)*num_entities;
+        memcpy(&out[wpos], &m_ctx_entities_query.color[0], sizeof(vec4)*num_entities);
+        wpos += sizeof(vec4)*num_entities;
+    }
+    if(num_bullets) {
+        memcpy(&out[wpos], &m_ctx_entities_query.bullets[0], sizeof(vec3)*num_bullets);
+        wpos += sizeof(vec3)*num_bullets;
+    }
+    if(num_lasers) {
+        memcpy(&out[wpos], &m_ctx_entities_query.laser_pos[0], sizeof(vec3)*num_lasers);
+        wpos += sizeof(vec3)*num_lasers;
+        memcpy(&out[wpos], &m_ctx_entities_query.laser_dir[0], sizeof(vec3)*num_lasers);
+        wpos += sizeof(vec3)*num_lasers;
+    }
 
 #else // atm_enable_WebGL
 

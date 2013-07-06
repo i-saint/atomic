@@ -140,17 +140,8 @@ void World::frameEnd()
 
 void World::handleEntitiesQuery( EntitiesQueryContext &ctx )
 {
-#ifdef atm_enable_WebGL
-    const float32 screen = 3.0f;
-    OrthographicCamera cam;
-    cam.setPosition(vec3(0.0f,0.0f,3.0f));
-    cam.setTarget(vec3());
-    cam.setUp(vec3(0.0f,1.0f,0.0f));
-    cam.setScreen(-screen,screen,-screen,screen);
-    cam.updateMatrix();
-    ctx.proj = cam.getViewProjectionMatrix();
-#endif // atm_enable_WebGL
     m_entity_module->handleEntitiesQuery(ctx);
+    m_bullet_module->handleEntitiesQuery(ctx);
 }
 
 

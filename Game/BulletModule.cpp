@@ -332,6 +332,16 @@ public:
             }
         });
     }
+
+    template<class F>
+    void eachLasers(const F &f) {
+        each(m_all, [&](LaserHandle h){
+            Laser *v = m_lasers[h];
+            if(v) {
+                f(v);
+            }
+        });
+    }
 };
 
 
@@ -462,6 +472,9 @@ public:
         BulletData bd(pos, vel, owner);
         m_bullets.push_back(bd);
     }
+
+    template<class F>
+    void eachBullets(const F &f) { each(m_bullets, f); }
 };
 
 
@@ -516,6 +529,17 @@ void BulletModule::draw()
 void BulletModule::frameEnd()
 {
     each(m_managers, [&](IBulletManager *bm){ bm->frameEnd(); });
+}
+
+void BulletModule::handleEntitiesQuery( EntitiesQueryContext &ctx )
+{
+    m_bullets->eachBullets([&](const BulletData &b){
+        ctx.bullets.push_back(b.pos);
+    });
+    m_lasers->eachLasers([&](const Laser *l){
+        ctx.laser_pos.push_back(l->getPosition());
+        ctx.laser_dir.push_back(l->getDirection());
+    });
 }
 
 void BulletModule::shootBullet(const vec3 &pos, const vec3 &vel, EntityHandle owner)

@@ -4,7 +4,65 @@
 namespace atm {
 
 
-    
+struct EntitiesQueryContext
+{
+#ifdef atm_enable_WebGL
+    ist::raw_vector<uint32> id;
+    ist::raw_vector<mat4>   trans;
+    ist::raw_vector<vec3>   size;
+    ist::raw_vector<vec4>   color;
+    ist::raw_vector<vec3>   bullets;
+    ist::raw_vector<vec3>   laser_pos;
+    ist::raw_vector<vec3>   laser_dir;
+
+    void clear()
+    {
+        id.clear();
+        trans.clear();
+        size.clear();
+        color.clear();
+        bullets.clear();
+        laser_pos.clear();
+        laser_dir.clear();
+    }
+
+    size_t sizeByte() const
+    {
+        return
+            sizeof(uint32)* id.size()       +
+            sizeof(mat4)  * trans.size()    +
+            sizeof(vec3)  * size.size()     +
+            sizeof(vec4)  * color.size()    +
+            sizeof(vec3)  * bullets.size()  +
+            sizeof(vec3)  * laser_pos.size()+
+            sizeof(vec3)  * laser_dir.size();
+    }
+
+#else  // atm_enable_WebGL
+    ist::raw_vector<uint32> id;
+    ist::raw_vector<uint32> type;
+    ist::raw_vector<vec2>   size;
+    ist::raw_vector<vec2>   pos;
+
+    void clear()
+    {
+        id.clear();
+        type.clear();
+        size.clear();
+        pos.clear();
+    }
+
+    size_t sizeByte() const
+    {
+        return
+            id.size()*sizeof(uint32) +
+            type.size()*sizeof(uint32) +
+            size.size()*sizeof(vec2) +
+            pos.size()*sizeof(vec2);
+    }
+#endif // atm_enable_WebGL
+};
+
 // Level Editor Commans
 enum LEC_Type
 {

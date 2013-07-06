@@ -1,6 +1,7 @@
 ﻿#ifndef atm_Game_Entity_h
 #define atm_Game_Entity_h
 
+#include "Network/LevelEditorCommand.h"
 #include "EntityClass.h"
 #include "Util.h"
 
