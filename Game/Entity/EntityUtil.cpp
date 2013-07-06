@@ -61,7 +61,7 @@ void UpdateCollisionBox(CollisionBox &o, const mat4& t, const vec3 &size)
 
 vec3 GetNearestPlayerPosition(const vec3 &pos)
 {
-    vec3 ret = pos;
+    vec3 ret;
     atmEnumlateEntity(
         [&](EntityHandle h){ return EntityGetClassID(h)==EC_Player; },
         [&](IEntity *e){ atmQuery(e, getPosition, ret); }

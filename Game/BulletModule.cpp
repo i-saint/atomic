@@ -37,6 +37,7 @@ private:
     typedef stl::vector<LaserParticle> Particles;
     static const float32 s_speed;
     static const float32 s_lifetime;
+    static const float32 s_fadeout_time;
     static const float32 s_radius;
     static const float32 s_power;
 
@@ -102,9 +103,22 @@ public:
     const vec3& getDirection() const override   { return m_dir; }
     void setPosition(const vec3 &v) override    { m_pos=v; }
     void setDirection(const vec3 &v) override   { m_dir=glm::normalize(v); }
-    void fade() override { m_state=State_Fadeout; m_time=0.0f; }
-    void kill() override { m_state=State_Dead; m_time=0.0f; }
-    bool isDead() const { return m_state==State_Dead; }
+
+    void fade() override {
+        if(m_state!=State_Fadeout) {
+            m_state = State_Fadeout;
+            m_time = 0.0f;
+        }
+    }
+
+    void kill() override {
+        m_state=State_Dead;
+        m_time=0.0f;
+    }
+
+    bool isDead() const {
+        return m_state==State_Dead;
+    }
 
     vec3 computeParticlePos(const LaserParticle &p)
     {
@@ -132,7 +146,7 @@ public:
         });
 
         if(m_state==State_Fadeout) {
-            if(m_time>s_lifetime) {
+            if(m_time>s_fadeout_time) {
                 m_state = State_Dead;
             }
         }
@@ -220,8 +234,10 @@ public:
         inst.flash = flash;
         inst.elapsed = 0.0f;
         inst.appear_radius = 10000.0f;
+        inst.rotate = glm::orientation(m_dir, vec3(1.0f,0.0f,0.0f));
+        inst.scale = 1.5f;
         if(m_state==State_Fadeout) {
-            inst.scale = std::max<float32>(1.0f-m_time/s_lifetime, 0.0f);
+            inst.scale *= std::max<float32>(1.0f-m_time/s_fadeout_time, 0.0f);
         }
         each(m_particles, [&](LaserParticle &p){
             vec3 pos = p.pos_current;
@@ -229,14 +245,14 @@ public:
             mat4 mat;
             mat = glm::translate(mat, p.pos_current);
             mat = glm::scale(mat, scale);
-            inst.transform = inst.rotate = mat;
+            inst.transform = mat;
             atmGetFluidPass()->addParticlesSolid(PSET_SPHERE_BULLET, inst);
         });
 
         if(atmGetConfig()->lighting>=atmE_Lighting_Medium) {
             PointLight l;
             l.setPosition(m_pos + vec3(0.0f, 0.0f, 0.3f));
-            l.setColor(flash);
+            l.setColor(flash*inst.scale);
             l.setRadius(m_light_radius);
             atmGetLightPass()->addLight(l);
         }
@@ -245,6 +261,7 @@ public:
 };
 const float32 Laser::s_speed = 0.06f;
 const float32 Laser::s_lifetime = 100.0f;
+const float32 Laser::s_fadeout_time = 50.0f;
 const float32 Laser::s_radius = 0.04f;
 const float32 Laser::s_power = 2.0f;
 
@@ -297,6 +314,11 @@ public:
         m_lasers[h] = l;
         m_all.push_back(h);
         return h;
+    }
+
+    Laser* getLaser(EntityHandle h)
+    {
+        return h<m_lasers.size() ? m_lasers[h] : nullptr;
     }
 
     void update(float32 dt) override
@@ -572,7 +594,7 @@ LaserHandle BulletModule::createLaser(const vec3 &pos, const vec3 &dir, EntityHa
 
 ILaser* BulletModule::getLaser(LaserHandle v)
 {
-    return nullptr;
+    return m_lasers->getLaser(v);
 }
 
 

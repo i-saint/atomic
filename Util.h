@@ -65,6 +65,13 @@ namespace atm {
         return a/b + (a%b==0 ? 0 : 1);
     }
 
+    inline int32 moddiv(float32 &v, float32 m)
+    {
+        float32 d = v/m;
+        v = std::fmod(v,m);
+        return (int32)d;
+    }
+
     struct CollisionSphere;
     struct CollisionBox;
 
