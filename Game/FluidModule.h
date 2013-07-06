@@ -35,7 +35,6 @@ public:
 
     size_t copyParticlesToGL();
     void taskAsyncupdate(float32 dt);
-
     size_t getNumParticles() const;
 
     // rigid/force は毎フレームクリアされるので、毎フレーム突っ込む必要がある
@@ -43,6 +42,8 @@ public:
     void addForce(const psym::PointForce &v);
     void addFluid(psym::Particle *particles, uint32 num);
     void addFluid(PSET_RID psid, const mat4 &t);
+
+    void handleEntitiesQuery(EntitiesQueryContext &ctx);
 
 private:
     psym::World         m_world;

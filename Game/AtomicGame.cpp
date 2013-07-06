@@ -234,16 +234,18 @@ void AtomicGame::handleLevelEditorQueries( LevelEditorQuery &cmd )
 
 void AtomicGame::handleEntitiesQuery( std::string &out )
 {
-    m_ctx_entities_query.clear();
-    m_world->handleEntitiesQuery(m_ctx_entities_query);
+    EntitiesQueryContext &eqc = m_ctx_entities_query;
+    eqc.clear();
+    m_world->handleEntitiesQuery(eqc);
 
 #ifdef atm_enable_WebGL
     uint32 wpos = 0;
 
-    uint32 num_entities = (uint32)m_ctx_entities_query.id.size();
-    uint32 num_bullets = (uint32)m_ctx_entities_query.bullets.size();
-    uint32 num_lasers = (uint32)m_ctx_entities_query.lasers.size();
-    out.resize(sizeof(uint32)*3+m_ctx_entities_query.sizeByte());
+    uint32 num_entities = (uint32)eqc.id.size();
+    uint32 num_bullets = (uint32)eqc.bullets.size();
+    uint32 num_lasers = (uint32)eqc.lasers.size();
+    uint32 num_fluids = (uint32)eqc.fluids.size();
+    out.resize(sizeof(uint32)*4+eqc.sizeByte());
 
     *(uint32*)(&out[wpos]) = num_entities;
     wpos += sizeof(uint32);
@@ -251,33 +253,40 @@ void AtomicGame::handleEntitiesQuery( std::string &out )
     wpos += sizeof(uint32);
     *(uint32*)(&out[wpos]) = num_lasers;
     wpos += sizeof(uint32);
+    *(uint32*)(&out[wpos]) = num_fluids;
+    wpos += sizeof(uint32);
 
     if(num_entities) {
-        memcpy(&out[wpos], &m_ctx_entities_query.id[0], sizeof(uint32)*num_entities);
+
+        memcpy(&out[wpos], &eqc.id[0], sizeof(eqc.id)*num_entities);
         wpos += sizeof(uint32)*num_entities;
-        memcpy(&out[wpos], &m_ctx_entities_query.trans[0], sizeof(mat4)*num_entities);
+        memcpy(&out[wpos], &eqc.trans[0], sizeof(mat4)*num_entities);
         wpos += sizeof(mat4)*num_entities;
-        memcpy(&out[wpos], &m_ctx_entities_query.size[0], sizeof(vec3)*num_entities);
+        memcpy(&out[wpos], &eqc.size[0], sizeof(vec3)*num_entities);
         wpos += sizeof(vec3)*num_entities;
-        memcpy(&out[wpos], &m_ctx_entities_query.color[0], sizeof(vec4)*num_entities);
+        memcpy(&out[wpos], &eqc.color[0], sizeof(vec4)*num_entities);
         wpos += sizeof(vec4)*num_entities;
     }
     if(num_bullets) {
-        memcpy(&out[wpos], &m_ctx_entities_query.bullets[0], sizeof(vec3)*num_bullets);
-        wpos += sizeof(vec3)*num_bullets;
+        memcpy(&out[wpos], &eqc.bullets[0], sizeof(vec2)*num_bullets);
+        wpos += sizeof(vec2)*num_bullets;
     }
     if(num_lasers) {
-        memcpy(&out[wpos], &m_ctx_entities_query.lasers[0], sizeof(vec4)*num_lasers);
-        wpos += sizeof(vec4)*num_lasers;
+        memcpy(&out[wpos], &eqc.lasers[0], sizeof(vec3)*num_lasers);
+        wpos += sizeof(vec3)*num_lasers;
+    }
+    if(num_fluids) {
+        memcpy(&out[wpos], &eqc.fluids[0], sizeof(vec2)*num_fluids);
+        wpos += sizeof(vec2)*num_lasers;
     }
 
 #else // atm_enable_WebGL
 
     char buf[64];
-    auto &ids = m_ctx_entities_query.id;
-    auto &types = m_ctx_entities_query.type;
-    auto &sizes = m_ctx_entities_query.size;
-    auto &positions = m_ctx_entities_query.pos;
+    auto &ids = eqc.id;
+    auto &types = eqc.type;
+    auto &sizes = eqc.size;
+    auto &positions = eqc.pos;
     out += "{\"ids\":[";
     for(size_t i=0; i<ids.size(); ++i) {
         istSPrintf(buf, "%d,", ids[i]);

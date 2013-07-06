@@ -237,4 +237,15 @@ void FluidModule::addFluid(PSET_RID psid, const mat4 &t)
     m_new_fluid_ctx.push_back(ctx);
 }
 
+void FluidModule::handleEntitiesQuery( EntitiesQueryContext &ctx )
+{
+    const psym::Particle *particles = m_world.getParticles();
+    size_t num = m_world.getNumParticles();
+    size_t step = std::max<size_t>(num/100, 1);
+    for(size_t i=0; i<num; i+=step) {
+        vec2 pos = *((const vec2*)&particles[i].position);
+        ctx.fluids.push_back(pos);
+    }
+}
+
 } // namespace atm

@@ -74,7 +74,7 @@ private:
 public:
     Laser(LaserHandle handle, const vec3 &pos, const vec3 &dir, EntityHandle owner)
         : m_handle(handle), m_owner(0), m_group(0), m_state(State_Normal), m_time(0.0f)
-        , m_light_radius(0.5f)
+        , m_light_radius(0.75f)
         , m_hitcount(0)
     {
         m_pos = pos;
@@ -263,7 +263,7 @@ const float32 Laser::s_speed = 0.06f;
 const float32 Laser::s_lifetime = 100.0f;
 const float32 Laser::s_fadeout_time = 50.0f;
 const float32 Laser::s_radius = 0.04f;
-const float32 Laser::s_power = 2.0f;
+const float32 Laser::s_power = 0.5f;
 
 class dpPatch LaserManager : public IBulletManager
 {
@@ -574,11 +574,11 @@ void BulletModule::frameEnd()
 void BulletModule::handleEntitiesQuery( EntitiesQueryContext &ctx )
 {
     m_bullets->eachBullets([&](const BulletData &b){
-        ctx.bullets.push_back(b.pos);
+        ctx.bullets.push_back(vec2(b.pos));
     });
     m_lasers->eachLasers([&](const Laser *l){
-        ctx.lasers.push_back(vec4(l->getPosition(), 1.0f));
-        ctx.lasers.push_back(vec4(l->getPosition()+l->getDirection()*2.0f, 0.0f));
+        ctx.lasers.push_back(vec3(vec2(l->getPosition()), 1.0f));
+        ctx.lasers.push_back(vec3(vec2(l->getPosition()+l->getDirection()*2.0f), 0.0f));
     });
 }
 

@@ -26,12 +26,12 @@ void main()
 </script>
 
 <script type="x-shader/x-vertex" id="vs_bullets"> 
-attribute vec3 ia_position;
+attribute vec2 ia_position;
 uniform mat4 u_proj;
 void main()
 {
     gl_PointSize = 8.0;
-    gl_Position = u_proj * vec4(ia_position, 1.0);
+    gl_Position = u_proj * vec4(ia_position, 0.0, 1.0);
 }
 </script>
 <script type="x-shader/x-fragment" id="ps_bullets">
@@ -44,14 +44,14 @@ void main()
 </script>
 
 <script type="x-shader/x-vertex" id="vs_lasers"> 
-attribute vec4 ia_position;
+attribute vec3 ia_position;
 uniform mat4 u_proj;
 uniform vec4 u_color;
 varying vec4 vs_color;
 void main()
 {
-    vs_color = vec4(u_color.rgb, u_color.a*ia_position.a);
-    gl_Position = u_proj * vec4(ia_position.xyz, 1.0);
+    vs_color = vec4(u_color.rgb, u_color.a*ia_position.z);
+    gl_Position = u_proj * vec4(ia_position.xy, 0.0, 1.0);
 }
 </script>
 <script type="x-shader/x-fragment" id="ps_lasers">
@@ -158,6 +158,7 @@ var ib_cube;
 var ib_cube_line;
 var vb_bullets;
 var vb_lasers;
+var vb_fluids;
 
 var entities = {
     ids:    new Uint32Array(),
@@ -167,6 +168,7 @@ var entities = {
 
     bullets: new Float32Array(),
     lasers: new Float32Array(),
+    fluids: new Float32Array(),
 };
 
 
@@ -208,12 +210,12 @@ function updateEntities()
          var buf = ajax.response;
          var rpos = 0;
 
-         var num_entities = new Uint32Array(buf, rpos, 1)[0];
-         rpos += 4;
-         var num_bullets = new Uint32Array(buf, rpos, 1)[0];
-         rpos += 4;
-         var num_lasers = new Uint32Array(buf, rpos, 1)[0];
-         rpos += 4;
+         var nums = new Uint32Array(buf, rpos, 4);
+         rpos += 4*4;
+         var num_entities = nums[0];
+         var num_bullets = nums[1];
+         var num_lasers = nums[2];
+         var num_fluids = nums[3];
 
          entities.ids = new Uint32Array(buf, rpos, num_entities);
          rpos += 4 * num_entities;
@@ -224,11 +226,14 @@ function updateEntities()
          entities.color = new Float32Array(buf, rpos, num_entities*4);
          rpos += 4*4 * num_entities;
 
-         entities.bullets = new Float32Array(buf, rpos, num_bullets*3);
-         rpos += 4*3 * num_bullets;
+         entities.bullets = new Float32Array(buf, rpos, num_bullets*2);
+         rpos += 4*2 * num_bullets;
 
-         entities.lasers = new Float32Array(buf, rpos, num_lasers*4);
-         rpos += 4*4 * num_lasers;
+         entities.lasers = new Float32Array(buf, rpos, num_lasers*3);
+         rpos += 4*3 * num_lasers;
+
+         entities.fluids = new Float32Array(buf, rpos, num_fluids*2);
+         rpos += 4*2 * num_fluids;
      };
      ajax.send(null);
 }
@@ -413,6 +418,7 @@ function onLoadGL()
 
     vb_bullets = gl.createBuffer();
     vb_lasers = gl.createBuffer();
+    vb_fluids = gl.createBuffer();
 }
 
 function drawGL()
@@ -450,27 +456,38 @@ function drawGL()
     }
 
 
-    gl.useProgram(sh_bullets);
-    gl.bindBuffer(gl.ARRAY_BUFFER, vb_bullets);
-    gl.bufferData(gl.ARRAY_BUFFER, entities.bullets, gl.STREAM_DRAW);
-    gl.enableVertexAttribArray(sh_bullets.ia_position);
-    gl.vertexAttribPointer(sh_bullets.ia_position, 3, gl.FLOAT, gl.FALSE, 12, 0);
-    gl.uniformMatrix4fv(sh_bullets.u_proj, gl.FALSE, projection);
-    gl.uniform4fv(sh_bullets.u_color, [1.0, 1.0, 0.0, 1.0]);
-    gl.drawArrays(gl.POINTS, 0, entities.bullets.length/3);
-
-
-    gl.useProgram(sh_lasers);
-    gl.bindBuffer(gl.ARRAY_BUFFER, vb_lasers);
-    gl.bufferData(gl.ARRAY_BUFFER, entities.lasers, gl.STREAM_DRAW);
-    gl.enableVertexAttribArray(sh_lasers.ia_position);
-    gl.vertexAttribPointer(sh_lasers.ia_position, 4, gl.FLOAT, gl.FALSE, 16, 0);
-    gl.uniformMatrix4fv(sh_lasers.u_proj, gl.FALSE, projection);
-    gl.uniform4fv(sh_lasers.u_color, [1.0, 1.0, 0.0, 1.0]);
-    gl.lineWidth(10.0);
-    gl.drawArrays(gl.LINES, 0, entities.lasers.length/4);
-    gl.lineWidth(1.0);
-
+    if(entities.fluids.length) {
+        gl.useProgram(sh_bullets);
+        gl.bindBuffer(gl.ARRAY_BUFFER, vb_fluids);
+        gl.bufferData(gl.ARRAY_BUFFER, entities.fluids, gl.STREAM_DRAW);
+        gl.enableVertexAttribArray(sh_bullets.ia_position);
+        gl.vertexAttribPointer(sh_bullets.ia_position, 2, gl.FLOAT, gl.FALSE, 8, 0);
+        gl.uniformMatrix4fv(sh_bullets.u_proj, gl.FALSE, projection);
+        gl.uniform4fv(sh_bullets.u_color, [0.0, 0.5, 1.0, 0.3]);
+        gl.drawArrays(gl.POINTS, 0, entities.fluids.length/2);
+    }
+    if(entities.bullets.length) {
+        gl.useProgram(sh_bullets);
+        gl.bindBuffer(gl.ARRAY_BUFFER, vb_bullets);
+        gl.bufferData(gl.ARRAY_BUFFER, entities.bullets, gl.STREAM_DRAW);
+        gl.enableVertexAttribArray(sh_bullets.ia_position);
+        gl.vertexAttribPointer(sh_bullets.ia_position, 2, gl.FLOAT, gl.FALSE, 8, 0);
+        gl.uniformMatrix4fv(sh_bullets.u_proj, gl.FALSE, projection);
+        gl.uniform4fv(sh_bullets.u_color, [1.0, 1.0, 0.0, 1.0]);
+        gl.drawArrays(gl.POINTS, 0, entities.bullets.length/2);
+    }
+    if(entities.lasers.length) {
+        gl.useProgram(sh_lasers);
+        gl.bindBuffer(gl.ARRAY_BUFFER, vb_lasers);
+        gl.bufferData(gl.ARRAY_BUFFER, entities.lasers, gl.STREAM_DRAW);
+        gl.enableVertexAttribArray(sh_lasers.ia_position);
+        gl.vertexAttribPointer(sh_lasers.ia_position, 3, gl.FLOAT, gl.FALSE, 12, 0);
+        gl.uniformMatrix4fv(sh_lasers.u_proj, gl.FALSE, projection);
+        gl.uniform4fv(sh_lasers.u_color, [1.0, 1.0, 0.0, 1.0]);
+        gl.lineWidth(10.0);
+        gl.drawArrays(gl.LINES, 0, entities.lasers.length/3);
+        gl.lineWidth(1.0);
+    }
     gl.flush();
 }
 

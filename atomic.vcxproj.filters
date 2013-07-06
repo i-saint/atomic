@@ -19,6 +19,9 @@
     <Filter Include="UI">
       <UniqueIdentifier>{405ff96c-19dd-4b7d-b8fe-512dd43ae5fb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="editor">
+      <UniqueIdentifier>{87c5f29b-034a-471c-b4a1-f3e4c753435f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game\AtomicApplication.cpp">
@@ -302,5 +305,10 @@
     <ClInclude Include="Game\EntityModule.h">
       <Filter>Game</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="editor\index.html">
+      <Filter>editor</Filter>
+    </None>
   </ItemGroup>
 </Project>

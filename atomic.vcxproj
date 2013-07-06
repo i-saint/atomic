@@ -148,6 +148,9 @@
       <Project>{9ef1b96e-375a-46d3-9181-882e6eb3da6a}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="editor\index.html" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A8F5B4BE-0942-4A93-BBFE-0716BEAC2551}</ProjectGuid>
     <RootNamespace>atomic</RootNamespace>

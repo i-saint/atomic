@@ -292,9 +292,6 @@ public:
                 IEntity *e = atmCreateEntity(GearLarge);
                 atmCall(e, setPosition, vec3(-1.0f, 0.5f, 0.0f));
             }
-            {
-                LaserHandle l = atmGetBulletModule()->createLaser(vec3(1.0f,0.0f,0.0f), vec3(0.0f,-1.0f, 0.0f), getHandle());
-            }
             //for(int i=0; i<8; ++i) {
             //    IEntity *e = putMediumEnemy();
             //    atmCall(e, setLife, 3000.0f);
