@@ -49,6 +49,7 @@ public:
     IEntity* getEntity() { return m_obj; }
     void setEntity(IEntity *v) { m_obj=v; }
 
+    virtual void finalize()             {}
     virtual void update(float32 dt)     {}
     virtual void asyncupdate(float32 dt){}
     virtual void draw() {}

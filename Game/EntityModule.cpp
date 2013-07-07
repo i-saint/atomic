@@ -63,6 +63,15 @@ EntityModule::EntityModule()
 
 EntityModule::~EntityModule()
 {
+    finalize();
+}
+
+void EntityModule::initialize()
+{
+}
+
+void EntityModule::finalize()
+{
     Entities &entities = m_entities;
     uint32 s = entities.size();
     for(uint32 k=0; k<s; ++k) {
@@ -71,10 +80,6 @@ EntityModule::~EntityModule()
     entities.clear();
     m_vacants.clear();
     m_all.clear();
-}
-
-void EntityModule::initialize()
-{
 }
 
 void EntityModule::frameBegin()

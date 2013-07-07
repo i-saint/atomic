@@ -50,6 +50,9 @@ World::~World()
     istCommandlineUnregister("setCameraFovy");
 
     for(ModuleCont::reverse_iterator i=m_modules.rbegin(); i!=m_modules.rend(); ++i) {
+        (*i)->finalize();
+    }
+    for(ModuleCont::reverse_iterator i=m_modules.rbegin(); i!=m_modules.rend(); ++i) {
         (*i)->release();
     }
 
@@ -64,14 +67,14 @@ void World::initialize()
     m_fluid_module = istNew(FluidModule)();
     m_modules.push_back(m_fluid_module);
 
-    m_entity_module = istNew(EntityModule)();
-    m_modules.push_back(m_entity_module);
-
     m_bullet_module = istNew(BulletModule)();
     m_modules.push_back(m_bullet_module);
 
     m_vfx_module = istNew(VFXModule)();
     m_modules.push_back(m_vfx_module);
+
+    m_entity_module = istNew(EntityModule)();
+    m_modules.push_back(m_entity_module);
 
     for(ModuleCont::iterator i=m_modules.begin(); i!=m_modules.end(); ++i) {
         (*i)->initialize();

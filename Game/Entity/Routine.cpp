@@ -57,7 +57,14 @@ public:
     void setState(State v) { m_state=v; m_time=0.0f; }
     State getState() const { return m_state; }
 
-    void update(float32 dt)
+    void finalize() override
+    {
+        if(ILaser *l=atmGetBulletModule()->getLaser(m_laser)) {
+            l->kill();
+        }
+    }
+
+    void update(float32 dt) override
     {
         switch(getState()) {
         case State_Normal: update_Normal(dt); break;
@@ -109,7 +116,7 @@ public:
         }
     }
 
-    virtual void eventCollide(const CollideMessage *m)
+    void eventCollide(const CollideMessage *m) override
     {
         IEntity *e = getEntity();
         vec3 v = glm::normalize(vec3(m->direction.x,m->direction.y,0.0f)) * (m->direction.w * 0.1f);

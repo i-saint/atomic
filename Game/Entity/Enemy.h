@@ -117,7 +117,7 @@ public:
 
     ~Breakable()
     {
-        istSafeDelete(m_routine);
+        setRoutine(RCID_Null);
     }
 
     bool        isDead() const          { return m_health<=0.0f; }
@@ -130,12 +130,18 @@ public:
     void setLife(float32 v)       { m_health=v; }
     void setRoutine(RoutineClassID rcid)
     {
+        if(m_routine) { m_routine->finalize(); }
         istSafeDelete(m_routine);
         m_routine = CreateRoutine(rcid);
         if(m_routine) { m_routine->setEntity(this); }
     }
 
-    virtual void update(float32 dt)
+    void finalize() override
+    {
+        setRoutine(RCID_Null);
+    }
+
+    void update(float32 dt) override
     {
         ++m_past_frame;
         updateRoutine(dt);
@@ -183,7 +189,7 @@ public:
     }
 
 
-    virtual void asyncupdate(float32 dt)
+    void asyncupdate(float32 dt) override
     {
         asyncupdateRoutine(dt);
     }
@@ -205,7 +211,7 @@ public:
     }
 
 
-    virtual void draw()
+    void draw() override
     {
         PSetInstance inst;
         inst.diffuse = getDiffuseColor();

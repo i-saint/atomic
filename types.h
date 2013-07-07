@@ -87,10 +87,11 @@ public:
     virtual ~IAtomicGameModule() {}
     virtual void release() { istDelete(this); }
 
-    virtual void initialize()=0;
+    virtual void initialize() {}
+    virtual void finalize() {}
 
     // フレーム開始時に呼ばれる。
-    virtual void frameBegin()=0;
+    virtual void frameBegin() {}
 
     // 同期更新。dt の単位はフレーム。
     virtual void update(float32 dt)=0;
@@ -103,11 +104,11 @@ public:
     // 描画用データを作って Renderer へ送る。(i3d::DeviceContext などを直接触る処理があってはならない)
     // asyncupdate() と draw() は並列に走るため、draw() に asyncupdate() の結果に依存する処理がある場合、
     // draw() の中で asyncupdate() の完了を待つ必要がある。
-    virtual void draw()=0;
+    virtual void draw() {}
 
     // フレーム終了時に呼ばれる。
     // 非同期更新処理がある場合、この中で完了を待つこと。(フレームを跨ぐ処理があってはならない)
-    virtual void frameEnd()=0;
+    virtual void frameEnd() {}
 };
 
 } // namespace atm

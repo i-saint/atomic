@@ -72,6 +72,7 @@ public:
     ~EntityModule();
 
     void initialize();
+    void finalize();
 
     void frameBegin();
     void update(float32 dt);
