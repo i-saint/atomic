@@ -20,8 +20,8 @@ istImplementOperatorNewDelete();
 
 
 namespace atm {
-    void InitializeCrashReporter();
-    void FinalizeCrashReporter();
+    void atmInitializeCrashReporter();
+    void atmFinalizeCrashReporter();
 } // namespace atm
 using namespace atm;
 
@@ -43,12 +43,12 @@ int istmain(int argc, char* argv[])
     ist::forceLink();
     //test();
 
-    atm::InitializeCrashReporter();
+    atm::atmInitializeCrashReporter();
 istCrashReportBegin
     ExecApp(argc, argv);
 istCrashReportRescue
 istCrashReportEnd
-    atm::FinalizeCrashReporter();
+    atm::atmFinalizeCrashReporter();
 
     dpFinalize();
     return 0;

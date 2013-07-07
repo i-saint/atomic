@@ -19,9 +19,10 @@
 
 
 #define atm_enable_LevelEditorServer
-#define atm_enable_GameServer
-#define atm_enable_GameClient
 #define atm_enable_WebGL
+//// C84 版は coop 省略
+//#define atm_enable_GameServer
+//#define atm_enable_GameClient
 
 #ifdef ist_env_Master
 #else // ist_env_Master

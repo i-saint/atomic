@@ -272,9 +272,6 @@
     <ClInclude Include="UI\Title.h">
       <Filter>UI</Filter>
     </ClInclude>
-    <ClInclude Include="UI\Config.h">
-      <Filter>UI</Filter>
-    </ClInclude>
     <ClInclude Include="Game\Entity\EntityCommon.h">
       <Filter>Game\Entity</Filter>
     </ClInclude>

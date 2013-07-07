@@ -34,11 +34,20 @@ void RootWindow::update(iui::Float dt)
     super::update(dt);
 }
 
+iui::RootWindow* atmCreateRootWindow()
+{
+    return istNew(RootWindow)();
+}
+
+
+
+static TitleWindow *g_titlewindow = nullptr;
 
 TitleWindow::TitleWindow()
     : m_start(NULL)
     , m_record(NULL)
 {
+    g_titlewindow = this;
     std::fill_n(m_buttons, _countof(m_buttons), (iui::ToggleButton*)NULL);
 
     using std::placeholders::_1;
@@ -114,7 +123,7 @@ void TitleWindow::hideAll()
     }
 }
 
-
+iui::Widget* atmGetTitleWindow() { return g_titlewindow; }
 
 
 StartWindow::StartWindow()
@@ -131,7 +140,7 @@ void StartWindow::onCampaign(Widget *)
 {
     GameStartConfig conf;
     atmGetApplication()->requestStartGame(conf);
-    getParent()->setVisibility(false);
+    atmGetTitleWindow()->setVisibility(false);
 }
 
 void StartWindow::onHorde(Widget *)
@@ -174,7 +183,7 @@ void RecordWindow::onStart( Widget * )
     std::string path = ist::S(m_selection);
     conf.path_to_replay = path;
     atmGetApplication()->requestStartGame(conf);
-    getParent()->setVisibility(false);
+    atmGetTitleWindow()->setVisibility(false);
 }
 
 

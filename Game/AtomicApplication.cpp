@@ -17,9 +17,10 @@
 
 namespace atm {
 
-void InitializeCrashReporter();
-void FinalizeCrashReporter();
-iui::RootWindow* CreateRootWindow();
+void atmInitializeCrashReporter();
+void atmFinalizeCrashReporter();
+iui::RootWindow*    atmCreateRootWindow();
+iui::Widget*        atmGetTitleWindow();
 
 
 AtomicConfig::AtomicConfig()
@@ -148,6 +149,7 @@ struct AtomicApplication::Members
     InputState              inputs;
     AtomicConfig            config;
     bool request_exit;
+    bool request_title;
 #ifdef atm_enable_debug_log
     FILE *log;
 #endif // atm_enable_debug_log
@@ -158,15 +160,17 @@ struct AtomicApplication::Members
         , controller(NULL)
         , game(NULL)
         , request_exit(false)
+        , request_title(false)
     {
     }
 };
 istMemberPtrImpl_Noncopyable(AtomicApplication,Members)
 
-void AtomicApplication::requestExit()                          { m->request_exit=true; }
-AtomicGame* AtomicApplication::getGame()                       { return m->game; }
-const InputState* AtomicApplication::getSystemInputs() const   { return &m->inputs; }
-AtomicConfig* AtomicApplication::getConfig()                   { return &m->config; }
+void AtomicApplication::requestExit()                       { m->request_exit=true; }
+void AtomicApplication::requestReturnToTitleScreen()        {m->request_title=true; }
+AtomicGame* AtomicApplication::getGame()                    { return m->game; }
+const InputState* AtomicApplication::getSystemInputs() const{ return &m->inputs; }
+AtomicConfig* AtomicApplication::getConfig()                { return &m->config; }
 
 
 
@@ -227,7 +231,7 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     }
     // ui
     iuiInitialize();
-    iuiGetSystem()->setRootWindow(CreateRootWindow());
+    iuiGetSystem()->setRootWindow(atmCreateRootWindow());
     iuiGetSystem()->setScreen(768.0f*istGetAspectRatio(), 768.0f);
 
     // start rendering thread
@@ -283,7 +287,7 @@ void AtomicApplication::finalize()
     istSafeRelease(m->keyboard);
 
     FinalizeText();
-    FinalizeCrashReporter();
+    atmFinalizeCrashReporter();
     istPoolRelease();
     wdmFinalize();
 }
@@ -312,13 +316,19 @@ void AtomicApplication::mainLoop()
             draw();
             game->asyncupdateEnd();
             game->frameEnd();
+
+            if(m->request_title) {
+                m->request_title = false;
+                istSafeDelete(m->game);
+                atmGetTitleWindow()->setVisibility(true);
+            }
         }
         else {
             updateInput();
             draw();
         }
 
-        if( (game==NULL || game->IsWaitVSyncRequired()) &&
+        if( (game==nullptr || game->IsWaitVSyncRequired()) &&
             (!atmGetConfig()->unlimit_gamespeed && !atmGetConfig()->vsync))
         {
             float32 remain = delay-pc.getElapsedMillisec();
@@ -364,6 +374,14 @@ void AtomicApplication::update()
     }
     if(getKeyboardState().isKeyTriggered(ist::KEY_F9)) {
         conf.debug_show_resolution = !conf.debug_show_resolution;
+    }
+    if(getKeyboardState().isKeyTriggered(ist::KEY_ESCAPE)) {
+        if(m->game) {
+            m->request_title = true;
+        }
+        else {
+            m->request_exit = true;
+        }
     }
     if(getKeyboardState().isKeyTriggered('7')) {
         atmGetRenderStates()->ShowMultiresolution = !atmGetRenderStates()->ShowMultiresolution;
@@ -445,12 +463,6 @@ bool AtomicApplication::handleWindowMessage(const ist::WM_Base& wm)
         return true;
 
     case ist::WMT_KeyUp:
-        {
-            auto &mes = static_cast<const ist::WM_Keyboard&>(wm);
-            if(mes.key==ist::KEY_ESCAPE) {
-                m->request_exit = true;
-            }
-        }
         return true;
 
     case ist::WMT_WindowSize:

@@ -83,6 +83,7 @@ public:
     void drawCallback();
 
     void requestStartGame(const GameStartConfig &conf);
+    void requestReturnToTitleScreen();
     void requestExit();
     AtomicGame* getGame();
     const InputState* getSystemInputs() const;

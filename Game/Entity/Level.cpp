@@ -195,7 +195,7 @@ public:
         }
         else if(m_state==ST_GAME_OVER) {
             if(m_frame > 300) {
-                atmGetApplication()->requestExit();
+                atmGetApplication()->requestReturnToTitleScreen();
             }
         }
     }

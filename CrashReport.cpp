@@ -42,12 +42,12 @@ void SendReport( const char *path_to_dmp )
 }
 
 
-void InitializeCrashReporter()
+void atmInitializeCrashReporter()
 {
     istSetDumpFileHanlder(&SendReport);
 }
 
-void FinalizeCrashReporter()
+void atmFinalizeCrashReporter()
 {
 
 }

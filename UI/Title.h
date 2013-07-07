@@ -21,10 +21,6 @@ private:
     TitleWindow     *m_title;
     LogWindow       *m_log;
 };
-iui::RootWindow* CreateRootWindow()
-{
-    return istNew(RootWindow)();
-}
 
 
 class TitleWindow : public iui::Panel

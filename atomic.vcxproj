@@ -130,7 +130,6 @@
     <ClInclude Include="Sound\SoundResourceID.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="types.h" />
-    <ClInclude Include="UI\Config.h" />
     <ClInclude Include="UI\Title.h" />
     <ClInclude Include="Util.h" />
   </ItemGroup>

@@ -87,8 +87,10 @@ private:
 
 #define atmGameClientInitialize()        
 #define atmGameClientFinalize()          
-#define atmGameClientPushMessage(...)    
-#define atmGameClientHandleMessages(...) 
+#define atmGameClientGet()               
+#define atmGameClientConnect(Host,Port)  
+#define atmGameClientPushMessage(m)      
+#define atmGameClientHandleMessages(h)   
 #define atmGameClientGetPlayerID()       
 
 #endif // atm_enable_GameClient

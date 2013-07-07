@@ -33,7 +33,7 @@ struct GameStartConfig
 
     GameStartConfig()
         : gmode(GM_Campaign)
-        , nmode(NM_Server)
+        , nmode(NM_Offline)
         , server_address("localhost")
         , server_port(10050)
     {

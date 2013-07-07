@@ -62,6 +62,7 @@ bool AtomicGame::config(const GameStartConfig &conf)
     }
     else if(conf.nmode==GameStartConfig::NM_Offline) {
         m_input_server = CreateInputServerLocal();
+        m_input_server->addPlayer(0, name, 0);
     }
     else if(conf.nmode==GameStartConfig::NM_Server || conf.nmode==GameStartConfig::NM_Client) {
         m_input_server = CreateInputServerNetwork();
@@ -169,6 +170,7 @@ void AtomicGame::drawCallback()
         atmGetTextRenderer()->addText(vec2(5.0f, (float32)wsize.y), buf);
     }
 
+#ifdef atm_enable_GameClient
     if(auto *client=atmGameClientGet()) {
         uint32 i = 0;
         auto &clients = client->getClientStates();
@@ -180,6 +182,7 @@ void AtomicGame::drawCallback()
             ++i;
         }
     }
+#endif // atm_enable_GameClient
 
     if(m_world) {
         m_world->draw();
