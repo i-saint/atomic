@@ -88,6 +88,6 @@ private:
 
 #define istGetAplication()  ist::Application::getInstance()
 #define istShowMessageDialog(mes, cap, dtype) istGetAplication()->showMessageDialog(mes, cap, dtype)
-
+#define istGetAspectRatio() ((float32)istGetAplication()->getWindowSize().x/(float32)istGetAplication()->getWindowSize().y)
 
 #endif // ist_Application_h

@@ -179,7 +179,7 @@ void Widget::eraseChild( Widget *c )
 Position Widget::getPositionAbs() const
 {
     Position pos;
-    for(const Widget *p=this; p!=NULL; p=p->getParent()) {
+    for(const Widget *p=this; p!=nullptr; p=p->getParent()) {
         pos += p->getPosition();
     }
     return pos;

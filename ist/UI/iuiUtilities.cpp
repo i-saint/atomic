@@ -108,7 +108,9 @@ iuiInterModule void SetupScreen( const Rect &rect )
     const Position &pos = rect.getPosition();
     const Size &size    = rect.getSize();
     const Rect &screen  = iuiGetSystem()->getScreen();
-    iuiGetRenderer()->setViewport( (int32)(pos.x-0.5f), (int32)(screen.getSize().y-pos.y-size.y-0.5f), (int32)(size.x+1.0f), (int32)(size.y+1.0f) );
+    const Size viewport = Size(istGetAplication()->getWindowSize().x, istGetAplication()->getWindowSize().y);
+    Size r = viewport/screen.size;
+    iuiGetRenderer()->setViewport( (int32)(pos.x*r.x-0.5f), (int32)(viewport.y-(pos.y+size.y)*r.y-0.5f), (int32)(size.x*r.x+1.0f), (int32)(size.y*r.y+1.0f) );
     iuiGetRenderer()->setScreen(-0.5f, -0.5f, size.x+1.0f, size.y+1.0f);
 }
 

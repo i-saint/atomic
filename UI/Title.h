@@ -63,6 +63,8 @@ public:
     RecordWindow();
 private:
     void onSelect(Widget *);
+    void onStart(Widget *);
+    iui::String m_selection;
 };
 
 

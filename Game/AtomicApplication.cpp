@@ -228,6 +228,7 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     // ui
     iuiInitialize();
     iuiGetSystem()->setRootWindow(CreateRootWindow());
+    iuiGetSystem()->setScreen(768.0f*istGetAspectRatio(), 768.0f);
 
     // start rendering thread
     AtomicRenderingSystem::initializeInstance();

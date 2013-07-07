@@ -149,7 +149,8 @@ void StartWindow::onQuickJoin(Widget *)
 RecordWindow::RecordWindow()
 {
     using std::placeholders::_1;
-    iui::List *ls  = istNew(iui::List)(this, iui::Rect(iui::Position(0, 0), iui::Size(300.0f, 250.0f)), std::bind(&RecordWindow::onSelect, this, _1));
+    iui::List   *ls         = istNew(iui::List)(this, iui::Rect(iui::Position(0, 0), iui::Size(300.0f, 250.0f)), std::bind(&RecordWindow::onSelect, this, _1));
+    iui::Button *bu_start   = istNew(iui::Button)(this, L"start", iui::Rect(iui::Position(0, 260.0f), iui::Size(150, 25)), std::bind(&RecordWindow::onStart, this, _1));
 
     Poco::DirectoryIterator end;
     for(Poco::DirectoryIterator it(Poco::Path("Replay")); it!=end; ++it) {
@@ -161,11 +162,19 @@ RecordWindow::RecordWindow()
 
 void RecordWindow::onSelect( Widget *w )
 {
+    m_selection = static_cast<iui::List*>(w)->getSelectedItem()->getText();
+}
+
+void RecordWindow::onStart( Widget * )
+{
+    if(m_selection.empty()) { return; }
+
     GameStartConfig conf;
     conf.gmode = GameStartConfig::GM_Replay;
-    std::string path = ist::S(static_cast<iui::List*>(w)->getSelectedItem()->getText());
+    std::string path = ist::S(m_selection);
     conf.path_to_replay = path;
     atmGetApplication()->requestStartGame(conf);
+    getParent()->setVisibility(false);
 }
 
 
