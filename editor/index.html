@@ -146,6 +146,18 @@ var editor = {
     selection: [],
     current_entitytype: 0,
     entitytypes: [],
+    resource: 0.0,
+};
+
+var entities = {
+    ids:    new Uint32Array(),
+    trans:  new Float32Array(),
+    size:   new Float32Array(),
+    color:  new Float32Array(),
+
+    bullets: new Float32Array(),
+    lasers: new Float32Array(),
+    fluids: new Float32Array(),
 };
 
 var sh_entities;
@@ -160,17 +172,6 @@ var ib_cube_line;
 var vb_bullets;
 var vb_lasers;
 var vb_fluids;
-
-var entities = {
-    ids:    new Uint32Array(),
-    trans:  new Float32Array(),
-    size:   new Float32Array(),
-    color:  new Float32Array(),
-
-    bullets: new Float32Array(),
-    lasers: new Float32Array(),
-    fluids: new Float32Array(),
-};
 
 
 function bool_s(v)  { return "bool("+v.toString()+")"; }

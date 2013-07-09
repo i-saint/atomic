@@ -134,6 +134,10 @@ public:
     void update1(float32 dt)
     {
         m_time += dt;
+        if(m_owner && !atmGetEntity(m_owner)) {
+            m_state = State_Dead;
+            return;
+        }
 
         for(size_t i=0; i<6; ++i) {
             LaserParticle t;

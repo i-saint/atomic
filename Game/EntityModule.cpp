@@ -16,55 +16,60 @@
 
 namespace atm {
 
-
-EntityCreator* GetEntityCreatorTable( EntityClassID entity_classid )
+inline bool IsValidECID(EntityClassID ecid)
 {
-    static EntityCreator s_table_player[EC_Player_End & 0x1FF];
-    static EntityCreator s_table_enemy[EC_Enemy_End & 0x1FF];
-    static EntityCreator s_table_obstacle[EC_Obstacle_End & 0x1FF];
-    static EntityCreator s_table_level[EC_Level_End & 0x1FF];
-    static EntityCreator *s_table_list[ECA_End] = {
-        NULL,
-        s_table_player,
-        s_table_enemy,
-        s_table_obstacle,
-        s_table_level,
+    static const size_t s_sizes[] = {
+        0,
+        EC_Player_End   & 0x1FF,
+        EC_Enemy_End    & 0x1FF,
+        EC_Obstacle_End & 0x1FF,
+        EC_Level_End    & 0x1FF,
     };
-    return s_table_list[(entity_classid & 0xE00) >> 9];
+
+    if(ecid==EC_Unknown) { return false; }
+    uint32 cid = (ecid & 0xE00) >> 9;
+    uint32 eid = (ecid & 0x1FF);
+    if(cid>=ECA_End)      { return false; }
+    if(eid>=s_sizes[cid]) { return false; }
+    return true;
 }
 
-EntityClassInfo* GetEntityClassInfoTable(EntityClassID entity_classid)
+EntityCreator* GetEntityCreatorTable( EntityClassID ecid )
 {
-    static EntityClassInfo s_table_player[EC_Player_End & 0x1FF];
-    static EntityClassInfo s_table_enemy[EC_Enemy_End & 0x1FF];
-    static EntityClassInfo s_table_obstacle[EC_Obstacle_End & 0x1FF];
-    static EntityClassInfo s_table_level[EC_Level_End & 0x1FF];
-    static EntityClassInfo *s_table_list[ECA_End] = {
-        NULL,
-        s_table_player,
-        s_table_enemy,
-        s_table_obstacle,
-        s_table_level,
-    };
-    return s_table_list[(entity_classid & 0xE00) >> 9];
+    static EntityCreator s_player[EC_Player_End   & 0x1FF];
+    static EntityCreator s_enemy[ EC_Enemy_End    & 0x1FF];
+    static EntityCreator s_obst[  EC_Obstacle_End & 0x1FF];
+    static EntityCreator s_level[ EC_Level_End    & 0x1FF];
+    static EntityCreator *s_list[ECA_End] = {nullptr, s_player, s_enemy, s_obst, s_level};
+    return s_list[(ecid & 0xE00)>>9];
 }
 
-void AddEntityCreator(EntityClassID entity_classid, EntityCreator creator, const EntityClassInfo &eci)
+EntityClassInfo* GetEntityClassInfoTable(EntityClassID ecid)
 {
-    GetEntityCreatorTable(entity_classid)[entity_classid & 0x1FF] = creator;
-    GetEntityClassInfoTable(entity_classid)[entity_classid & 0x1FF] = eci;
+    static EntityClassInfo s_player[EC_Player_End   & 0x1FF];
+    static EntityClassInfo s_enemy[ EC_Enemy_End    & 0x1FF];
+    static EntityClassInfo s_obst[  EC_Obstacle_End & 0x1FF];
+    static EntityClassInfo s_level[ EC_Level_End    & 0x1FF];
+    static EntityClassInfo *s_list[ECA_End] = {nullptr, s_player, s_enemy, s_obst, s_level};
+    return s_list[(ecid & 0xE00)>>9];
 }
 
-IEntity* CreateEntity( EntityClassID entity_classid )
+void AddEntityCreator(EntityClassID ecid, EntityCreator creator, const EntityClassInfo &eci)
 {
-    if(entity_classid==EC_Unknown) { return nullptr; }
-    return GetEntityCreatorTable(entity_classid)[entity_classid & 0x1FF]();
+    GetEntityCreatorTable(ecid)[ecid & 0x1FF] = creator;
+    GetEntityClassInfoTable(ecid)[ecid & 0x1FF] = eci;
 }
 
-EntityClassInfo* GetEntityClassInfo( EntityClassID entity_classid )
+IEntity* CreateEntity( EntityClassID ecid )
 {
-    if(entity_classid==EC_Unknown) { return nullptr; }
-    return &GetEntityClassInfoTable(entity_classid)[entity_classid & 0x1FF];
+    if(!IsValidECID(ecid)) { return nullptr; }
+    return GetEntityCreatorTable(ecid)[ecid & 0x1FF]();
+}
+
+EntityClassInfo* GetEntityClassInfo( EntityClassID ecid )
+{
+    if(!IsValidECID(ecid)) { return nullptr; }
+    return &GetEntityClassInfoTable(ecid)[ecid & 0x1FF];
 }
 
 

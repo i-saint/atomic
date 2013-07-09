@@ -114,7 +114,7 @@ atmImplementEntity(Zab);
 atmExportClass(Zab);
 
 
-class dpPatch Nucleus : public Breakable<Entity_Orientation>
+class dpPatch SmallNucleus : public Breakable<Entity_Orientation>
 {
 typedef Breakable<Entity_Orientation> super;
 private:
@@ -124,8 +124,8 @@ private:
 
 public:
 };
-atmImplementEntity(Nucleus);
-atmExportClass(Nucleus);
+atmImplementEntity(SmallNucleus);
+atmExportClass(SmallNucleus);
 
 
 

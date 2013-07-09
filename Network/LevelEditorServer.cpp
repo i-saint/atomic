@@ -21,44 +21,30 @@ static const MIME s_mime_types[] = {
 };
 
 
-struct LevelEditorConsts
+inline FunctionID GetValidFID(const stl::string &name)
 {
-    stl::set<EntityClassID> deployable;
-    stl::map<stl::string, FunctionID> callable;
-
-    LevelEditorConsts()
-    {
-#define Append(f) deployable.insert(EC_##f)
-        Append(Enemy_Test);
-        Append(SmallFighter);
-        Append(MediumFighter);
-        Append(LargeFighter);
-#undef Append
-
-#define Append(f) callable[#f]=FID_##f
-        Append(move);
-        Append(orient);
-        Append(instruct);
-        Append(setPosition);
-        Append(setScale);
-        Append(setParent);
-#undef Append
-    }
-
-    bool isDeployable(EntityClassID ecid)
-    {
-        return deployable.find(ecid)!=deployable.end();
-    }
-
-    FunctionID findCallableFID(const stl::string &name)
-    {
-        auto p = callable.find(name);
-        if(p==callable.end()) {
-            return FID_unknown;
+    if(name.size()<64) {
+        if(atmIsEditMode()) {
+            char fid[128];
+            istSPrintf(fid, "FID_%s", name.c_str());
+            return GetFunctionIDNum(fid);
         }
-        return p->second;
+        else {
+            if(name=="instruct") { return FID_instruct; }
+        }
     }
-} g_lec_consts;
+    return FID_unknown;
+}
+
+inline bool IsDeployable(EntityClassID ecid)
+{
+    if(EntityClassInfo *eci=GetEntityClassInfo(ecid)) {
+        if(atmIsEditMode()) { return true; }
+        else if(eci->deploy==DF_RTS) { return true; }
+    }
+    return false;
+}
+
 
 class FileRequestHandler: public Poco::Net::HTTPRequestHandler
 {
@@ -176,8 +162,8 @@ public:
     {
         std::smatch m1;
         if(std::regex_search(data, m1, std::regex("classid=(\\d+),pos=(.+)"))) {
-            EntityClassID cid = (EntityClassID)_atoi64(m1[1].str().c_str());
-            if(!atmGetConfig()->editmode && !g_lec_consts.isDeployable(cid)) {
+            EntityClassID ecid = (EntityClassID)_atoi64(m1[1].str().c_str());
+            if(!IsDeployable(ecid)) {
                 return false;
             }
 
@@ -186,7 +172,7 @@ public:
                 vec2 pos = (vec2&)vpos + LevelEditorServer::getInstance()->randomVec2()*0.01f;
                 {
                     LevelEditorCommand_Create cmd;
-                    cmd.entity_typeid = cid;
+                    cmd.classid = ecid;
                     LevelEditorServer::getInstance()->pushCommand((LevelEditorCommand&)cmd);
                 }
                 {
@@ -215,7 +201,7 @@ public:
         if(std::regex_search(data, m1, std::regex("entity=(\\d+),func=(\\w+),arg=(.+)"))) {
             variant arg;
             EntityHandle entity = (EntityHandle)_atoi64(m1[1].str().c_str());
-            FunctionID fid = g_lec_consts.findCallableFID(m1[2].str());
+            FunctionID fid = GetValidFID(m1[2].str());
             if(fid!=0 && ParseArg(arg, m1[3].str())) {
                 LevelEditorCommand_Call cmd;
                 cmd.entity = entity;

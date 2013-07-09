@@ -202,7 +202,7 @@ void AtomicGame::handleLevelEditorCommands( const LevelEditorCommand &c )
     static IEntity *s_last_entity;
     if(c.type==LEC_Create) {
         const LevelEditorCommand_Create &cmd = reinterpret_cast<const LevelEditorCommand_Create&>(c);
-        EntityClassID ecid = (EntityClassID)cmd.entity_typeid;
+        EntityClassID ecid = (EntityClassID)cmd.classid;
         EntityClassInfo *eci = GetEntityClassInfo(ecid);
         bool ok = false;
         if(atmIsEditMode()) { ok=true; }
