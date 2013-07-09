@@ -88,7 +88,7 @@ public:
     IEntity* putSmallEnemy()
     {
         IEntity *e = NULL;
-        e = atmCreateEntity(Enemy_Test);
+        e = atmCreateEntityT(Enemy_Test);
         atmCall(e, setCollisionShape, CS_Sphere);
         atmCall(e, setModel, PSET_SPHERE_SMALL);
         atmCall(e, setPosition, vec3(GenRandomVector2()*2.2f, 0.0f));
@@ -106,7 +106,7 @@ public:
     IEntity* putPinballEnemy()
     {
         IEntity *e = NULL;
-        e = atmCreateEntity(Enemy_Test);
+        e = atmCreateEntityT(Enemy_Test);
         atmCall(e, setCollisionShape, CS_Sphere);
         atmCall(e, setCollisionFlags, CF_Receiver|CF_Sender);
         atmCall(e, setModel, PSET_SPHERE_BULLET);
@@ -126,7 +126,7 @@ public:
 
     IEntity* putMediumEnemy()
     {
-        IEntity *e = atmCreateEntity(Enemy_Test);
+        IEntity *e = atmCreateEntityT(Enemy_Test);
         switch(atmGetRandom()->genInt32() % 2) {
         case 0: atmCall(e, setModel, PSET_CUBE_MEDIUM);  atmCall(e, setCollisionShape, CS_Box); break;
         case 1: atmCall(e, setModel, PSET_SPHERE_MEDIUM);atmCall(e, setCollisionShape, CS_Sphere); break;
@@ -147,7 +147,7 @@ public:
 
     IEntity* putLargeEnemy()
     {
-        IEntity *e = atmCreateEntity(Enemy_Test);
+        IEntity *e = atmCreateEntityT(Enemy_Test);
         //atmCall(e, setModel, PSET_CUBE_LARGE); atmCall(e, setCollisionShape, CS_BOX);
         switch(atmGetRandom()->genInt32() % 2) {
         case 0: atmCall(e, setModel, PSET_CUBE_LARGE);   atmCall(e, setCollisionShape, CS_Box); break;
@@ -259,7 +259,7 @@ public:
     void level0()
     {
         {
-            IEntity *e = atmCreateEntity(Player);
+            IEntity *e = atmCreateEntityT(Player);
             m_player = e->getHandle();
             atmCall(e, setPosition, vec4(0.0f, 0.0f, 0.0f, 1.0f));
             atmCall(e, setLife, 10000.0f);
@@ -285,11 +285,11 @@ public:
                 //atmCall(e, setPosition, vec3(0.5f, 0.5f, 0.0f));
             }
             {
-                IEntity *e = atmCreateEntity(GearSmall);
+                IEntity *e = atmCreateEntityT(GearSmall);
                 atmCall(e, setPosition, vec3(0.5f, 0.5f, 0.0f));
             }
             {
-                IEntity *e = atmCreateEntity(GearLarge);
+                IEntity *e = atmCreateEntityT(GearLarge);
                 atmCall(e, setPosition, vec3(-1.0f, 0.5f, 0.0f));
             }
             //for(int i=0; i<8; ++i) {

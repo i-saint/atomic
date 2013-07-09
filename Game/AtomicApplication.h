@@ -47,6 +47,8 @@ struct istInterModule AtomicConfig
     uint32 leveleditor_port;
     PlayerName name;
 
+    bool editmode;
+
     bool debug_show_grid;
     bool debug_show_distance;
     int32 debug_show_gbuffer;

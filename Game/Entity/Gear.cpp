@@ -234,7 +234,7 @@ public:
         CollisionGroup cg = atmGetCollisionModule()->genGroup();
         for(int i=0; i<div; ++i) {
             vec3 dir = vec3(glm::rotateZ(dir_x, 360.0f/div*i));
-            GearParts *e = (GearParts*)atmCreateEntity(GearParts);
+            GearParts *e = (GearParts*)atmCreateEntityT(GearParts);
             e->setScale(vec3(1.5f, 0.25f, 0.75f));
             e->setParent(getHandle());
             e->setOrientation(dir);
@@ -280,7 +280,7 @@ public:
         CollisionGroup cg = atmGetCollisionModule()->genGroup();
         for(int i=0; i<div; ++i) {
             vec3 dir = vec3(glm::rotateZ(dir_x, 360.0f/div*i));
-            GearParts *e = (GearParts*)atmCreateEntity(GearParts);
+            GearParts *e = (GearParts*)atmCreateEntityT(GearParts);
             e->setScale(vec3(2.5f, 0.4f, 1.0f));
             e->setParent(getHandle());
             e->setOrientation(dir);

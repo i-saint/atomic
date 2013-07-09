@@ -48,6 +48,8 @@ AtomicConfig::AtomicConfig()
     leveleditor_port        = atm_Leveleditor_DefaultPort;
     wcscpy(name, L"atom");
 
+    editmode = true;
+
     debug_show_grid         = false;
     debug_show_distance     = false;
     debug_show_gbuffer      = 0;

@@ -632,9 +632,20 @@ function draw()
     setTimeout("requestDraw(draw)", delay);
 }
 
+function each(v, f)
+{
+    for(var i=0; i<v.length; ++i) { f(v[i]); }
+}
+
 function onClickSelector()
 {
+    var selector = $("entity_type_selector");
+    each(selector.childNodes, function(e){
+        e.style.backgroundColor = "";
+    });
+
     editor.current_entitytype = this.entitytype;
+    this.style.backgroundColor = "#FF0000";
 }
 
 function postCommand(url, values)

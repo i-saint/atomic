@@ -72,7 +72,8 @@ private:
 
 #define atmGetEntityModule()    atmGetWorld()->getEntityModule()
 #define atmGetEntity(id)        atmGetEntityModule()->getEntity(id)
-#define atmCreateEntity(C)      atmGetEntityModule()->createEntity(EC_##C)
+#define atmCreateEntityT(Type)  atmGetEntityModule()->createEntity(EC_##Type)
+#define atmCreateEntity(id)     atmGetEntityModule()->createEntity(id)
 #define atmDeleteEntity(o)      atmGetEntityModule()->deleteEntity(o)
 #define atmEnumlateEntity(...)  atmGetEntityModule()->enumlateEntity(__VA_ARGS__)
 

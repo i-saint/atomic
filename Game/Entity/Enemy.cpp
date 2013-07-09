@@ -62,7 +62,7 @@ public:
         wdmEraseNode(wdmFormat("Enemy/0x%p", this));
     }
 
-    virtual void initialize()
+    void initialize() override
     {
         super::initialize();
         setModel(PSET_CUBE_MEDIUM);
@@ -193,6 +193,59 @@ public:
 atmImplementEntity(Enemy_Test);
 atmExportClass(Enemy_Test);
 
+
+class Electron : public Enemy_Test
+{
+typedef Enemy_Test super;
+public:
+    Electron()
+    {
+    }
+
+    void initialize() override
+    {
+        super::initialize();
+        setCollisionShape(CS_Sphere);
+        setModel(PSET_SPHERE_SMALL);
+        setLife(5.0f);
+        setAxis1(GenRandomUnitVector3());
+        setAxis2(GenRandomUnitVector3());
+        setRotateSpeed1(2.4f);
+        setRotateSpeed2(2.4f);
+        setRoutine(RCID_Routine_HomingPlayer);
+        setLightRadius(0.5f);
+    }
+};
+atmImplementEntity(Electron);
+atmExportClass(Electron);
+
+
+class Proton : public Enemy_Test
+{
+typedef Enemy_Test super;
+public:
+    Proton()
+    {
+    }
+
+    void initialize() override
+    {
+        super::initialize();
+        setModel(PSET_SPHERE_MEDIUM);
+        setCollisionShape(CS_Sphere);
+        setLife(100.0f);
+        setAxis1(GenRandomUnitVector3());
+        setAxis2(GenRandomUnitVector3());
+        setRotateSpeed1(0.4f);
+        setRotateSpeed2(0.4f);
+        setRoutine(RCID_Routine_SingleShoot);
+        setLightRadius(0.8f);
+        setExplosionSE(SE_EXPLOSION4);
+        setExplosionChannel(SE_CHANNEL4);
+    }
+};
+atmImplementEntity(Proton);
+atmExportClass(Proton);
 
 } // namespace atm
 

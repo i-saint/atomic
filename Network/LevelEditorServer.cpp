@@ -177,19 +177,22 @@ public:
         std::smatch m1;
         if(std::regex_search(data, m1, std::regex("classid=(\\d+),pos=(.+)"))) {
             EntityClassID cid = (EntityClassID)_atoi64(m1[1].str().c_str());
-            if(!g_lec_consts.isDeployable(cid)) { return false; }
+            if(!atmGetConfig()->editmode && !g_lec_consts.isDeployable(cid)) {
+                return false;
+            }
 
             variant vpos;
             if(ParseArg(vpos, m1[2].str())) {
                 vec2 pos = (vec2&)vpos + LevelEditorServer::getInstance()->randomVec2()*0.01f;
                 {
                     LevelEditorCommand_Create cmd;
+                    cmd.entity_typeid = cid;
                     LevelEditorServer::getInstance()->pushCommand((LevelEditorCommand&)cmd);
                 }
                 {
                     LevelEditorCommand_Call cmd;
                     cmd.entity = 0;
-                    cmd.function = FID_setPosition;
+                    cmd.function = FID_move;
                     cmd.arg = vec3(pos, 0.0f);
                     LevelEditorServer::getInstance()->pushCommand((LevelEditorCommand&)cmd);
                 }

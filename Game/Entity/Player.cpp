@@ -188,7 +188,7 @@ public:
         IEntity *barrier = atmGetEntity(m_barrier);
         IEntity *owner = getOwner();
         if(!barrier) {
-            IEntity *e = atmCreateEntity(Barrier);
+            IEntity *e = atmCreateEntityT(Barrier);
             m_barrier = e->getHandle();
             atmCall(e, setOwner, getOwnerHandle());
             atmQuery(owner, getPosition, center_force);

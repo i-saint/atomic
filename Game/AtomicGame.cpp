@@ -200,17 +200,8 @@ void AtomicGame::handleLevelEditorCommands( const LevelEditorCommand &c )
     static IEntity *s_last_entity;
     if(c.type==LEC_Create) {
         const LevelEditorCommand_Create &cmd = reinterpret_cast<const LevelEditorCommand_Create&>(c);
-        IEntity *e = atmCreateEntity(Enemy_Test);
+        IEntity *e = atmCreateEntity((EntityClassID)cmd.entity_typeid);
         s_last_entity = e;
-        atmCall(e, setCollisionShape, CS_Sphere);
-        atmCall(e, setModel, PSET_SPHERE_SMALL);
-        atmCall(e, setLife, 15.0f);
-        atmCall(e, setAxis1, GenRandomUnitVector3());
-        atmCall(e, setAxis2, GenRandomUnitVector3());
-        atmCall(e, setRotateSpeed1, 2.4f);
-        atmCall(e, setRotateSpeed2, 2.4f);
-        atmCall(e, setRoutine, RCID_Routine_HomingPlayer);
-        atmCall(e, setLightRadius, 0.5f);
     }
     else if(c.type==LEC_Delete) {
         const LevelEditorCommand_Delete &cmd = reinterpret_cast<const LevelEditorCommand_Delete&>(c);

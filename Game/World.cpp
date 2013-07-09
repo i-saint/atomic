@@ -98,7 +98,7 @@ void World::frameBegin()
 void World::update(float32 dt)
 {
     if(atmGetFrame()==0) {
-        atmCreateEntity(Level_Test);
+        atmCreateEntityT(Level_Test);
     }
 
     for(ModuleCont::iterator i=m_modules.begin(); i!=m_modules.end(); ++i) {

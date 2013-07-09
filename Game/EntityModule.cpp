@@ -40,6 +40,7 @@ void AddEntityCreator(EntityClassID entity_classid, EntityCreator creator)
 
 IEntity* CreateEntity( EntityClassID entity_classid )
 {
+    if(entity_classid==EC_Unknown) { return nullptr; }
     return GetEntityCreatorTable(entity_classid)[entity_classid & 0x1FF]();
 }
 
@@ -188,9 +189,11 @@ IEntity* EntityModule::createEntity( EntityClassID classid )
 {
     generateHandle(classid);
     IEntity *e = CreateEntity(classid);
-    m_entities[EntityGetIndex(e->getHandle())] = e;
-    m_all.push_back(e->getHandle());
-    e->initialize();
+    if(e) {
+        m_entities[EntityGetIndex(e->getHandle())] = e;
+        m_all.push_back(e->getHandle());
+        e->initialize();
+    }
     return e;
 }
 
