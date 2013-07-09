@@ -144,7 +144,8 @@ var camera = {
 
 var editor = {
     selection: [],
-    entity_classid: 0,
+    current_entitytype: 0,
+    entitytypes: [],
 };
 
 var sh_entities;
@@ -583,7 +584,7 @@ function onLoad()
         mouse.dragging = false;
         if(mouse.button==Button.Left) {
             if(editor.selection.length==0) {
-                postCommand("/create", "classid="+editor.entity_classid+",pos="+vec2_s(mouse.pos));
+                postCommand("/create", "classid="+editor.current_entitytype+",pos="+vec2_s(mouse.pos));
             }
         }
         else if(mouse.button==Button.Right) {
@@ -601,6 +602,22 @@ function onLoad()
         e.preventDefault();
     };
 
+    var ajax = new Ajax.Request("/state/entitytypes", {
+        method: "get",
+        onComplete: function(res) {
+            editor.entitytypes = res.responseText.evalJSON();
+            var selector = $("entity_type_selector");
+            editor.entitytypes.each(function(ti){
+                var t = document.createElement("li");
+                t.setAttribute("class", "entitytype");
+                t.appendChild(document.createTextNode(ti.name));
+                t.entitytype = ti.id;
+                t.onclick = onClickSelector;
+                selector.appendChild(t);
+            });
+        }
+    });
+
     onLoadGL();
     //onLoad2D();
     draw();
@@ -615,6 +632,10 @@ function draw()
     setTimeout("requestDraw(draw)", delay);
 }
 
+function onClickSelector()
+{
+    editor.current_entitytype = this.entitytype;
+}
 
 function postCommand(url, values)
 {
@@ -630,9 +651,9 @@ function postCommand(url, values)
 </head>
 
 <body onload="onLoad()">
-<canvas id="c" width="512" height="512" style="position:absolute; left:0px; top:0px;"></canvas>
+<canvas id="c" width="1024" height="1024" style="position:absolute; left:0px; top:0px;"></canvas>
 <div id="tools" style="position:absolute; left:1024px; top:0px; with:200px;">
-<span id="fps">  </span>
+<span id="fps">  </span><ul id="entity_type_selector"></ul>
 <a href="http://primitive-games.jp/atomic/">about atomic</a>
 </div>
 </body>

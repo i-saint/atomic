@@ -21,6 +21,45 @@ static const MIME s_mime_types[] = {
 };
 
 
+struct LevelEditorConsts
+{
+    stl::set<EntityClassID> deployable;
+    stl::map<stl::string, FunctionID> callable;
+
+    LevelEditorConsts()
+    {
+#define Append(f) deployable.insert(EC_##f)
+        Append(Enemy_Test);
+        Append(SmallFighter);
+        Append(MediumFighter);
+        Append(LargeFighter);
+#undef Append
+
+#define Append(f) callable[#f]=FID_##f
+        Append(move);
+        Append(orient);
+        Append(instruct);
+        Append(setPosition);
+        Append(setScale);
+        Append(setParent);
+#undef Append
+    }
+
+    bool isDeployable(EntityClassID ecid)
+    {
+        return deployable.find(ecid)!=deployable.end();
+    }
+
+    FunctionID findCallableFID(const stl::string &name)
+    {
+        auto p = callable.find(name);
+        if(p==callable.end()) {
+            return FID_unknown;
+        }
+        return p->second;
+    }
+} g_lec_consts;
+
 class FileRequestHandler: public Poco::Net::HTTPRequestHandler
 {
 public:
@@ -135,20 +174,10 @@ public:
 
     bool handleCreateRequest(std::string &data)
     {
-        static stl::set<EntityClassID> s_table;
-        if(s_table.empty()) {
-#define RegisterEntityClass(f) s_table.insert(EC_##f)
-            RegisterEntityClass(Enemy_Test);
-            RegisterEntityClass(SmallFighter);
-            RegisterEntityClass(MediumFighter);
-            RegisterEntityClass(LargeFighter);
-#undef RegisterEntityClass
-        }
-
         std::smatch m1;
         if(std::regex_search(data, m1, std::regex("classid=(\\d+),pos=(.+)"))) {
             EntityClassID cid = (EntityClassID)_atoi64(m1[1].str().c_str());
-            if(s_table.find(cid)==s_table.end()) { return false; }
+            if(!g_lec_consts.isDeployable(cid)) { return false; }
 
             variant vpos;
             if(ParseArg(vpos, m1[2].str())) {
@@ -178,27 +207,16 @@ public:
 
     bool handleCallRequest(std::string &data)
     {
-        static stl::map<stl::string, FunctionID> s_table;
-        if(s_table.empty()) {
-#define RegisterFunction(f) s_table[#f]=FID_##f
-            RegisterFunction(move);
-            RegisterFunction(orient);
-            RegisterFunction(instruct);
-            RegisterFunction(setPosition);
-            RegisterFunction(setScale);
-            RegisterFunction(setParent);
-#undef RegisterFunction
-        }
 
         std::smatch m1;
         if(std::regex_search(data, m1, std::regex("entity=(\\d+),func=(\\w+),arg=(.+)"))) {
             variant arg;
             EntityHandle entity = (EntityHandle)_atoi64(m1[1].str().c_str());
-            auto i = s_table.find(m1[2].str());
-            if(i!=s_table.end() && ParseArg(arg, m1[3].str())) {
+            FunctionID fid = g_lec_consts.findCallableFID(m1[2].str());
+            if(fid!=0 && ParseArg(arg, m1[3].str())) {
                 LevelEditorCommand_Call cmd;
                 cmd.entity = entity;
-                cmd.function = i->second;
+                cmd.function = fid;
                 cmd.arg = arg;
                 LevelEditorServer::getInstance()->pushCommand((LevelEditorCommand&)cmd);
                 return true;
@@ -222,13 +240,21 @@ public:
 
     void handleRequest(Poco::Net::HTTPServerRequest &request, Poco::Net::HTTPServerResponse &response)
     {
+        if(request.getURI()=="/state/entities") {
+            handleEntities(request, response);
+        }
+        else if(request.getURI()=="/state/entitytypes") {
+            handleEntityTypes(request, response);
+        }
+    }
+
+    void handleEntities(Poco::Net::HTTPServerRequest &request, Poco::Net::HTTPServerResponse &response)
+    {
         LevelEditorQuery q;
-        if(request.getURI() == "/state/entities") {
-            q.type = LEQ_Entities;
-            LevelEditorServer::getInstance()->pushQuery(q);
-            while(!q.completed && !LevelEditorServer::getInstance()->endFlag()) {
-                ist::MiliSleep(10);
-            }
+        q.type = LEQ_Entities;
+        LevelEditorServer::getInstance()->pushQuery(q);
+        while(!q.completed && !LevelEditorServer::getInstance()->endFlag()) {
+            ist::MiliSleep(5);
         }
 
         response.setChunkedTransferEncoding(true);
@@ -241,6 +267,21 @@ public:
         ostr << q.response;
     }
 
+    void handleEntityTypes(Poco::Net::HTTPServerRequest &request, Poco::Net::HTTPServerResponse &response)
+    {
+        stl::string ret;
+        ret += "[";
+        EntityClassIDEachPair([&](const ist::EnumStr &es){
+            ret += ist::Format("{\"name\":\"%s\",\"id\":%d,\"deployable\":%d}", es.str, es.num, (int)g_lec_consts.isDeployable((EntityClassID)es.num));
+            if(es.num!=EC_End) { ret+=","; }
+        });
+        ret += "]";
+
+        response.setContentType("application/json");
+        response.setContentLength(ret.size());
+        std::ostream &ostr = response.send();
+        ostr << ret;
+    }
 };
 
 class LevelEditorRequestHandlerFactory : public Poco::Net::HTTPRequestHandlerFactory
@@ -330,6 +371,7 @@ void LevelEditorServer::start()
             m_server->start();
         }
         catch(Poco::IOException &e) {
+            istPrint(e.what());
             istAssert(false);
         }
     }

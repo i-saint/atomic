@@ -3,78 +3,80 @@
 
 namespace atm {
 
-enum EntityCategoryID
-{
-    ECA_Unknown,
-    ECA_Player,
-    ECA_Enemy,
-    ECA_Obstacle,
-    ECA_Level,
-    ECA_VFX,
+istSEnumBlock(EntityCategoryID,
+    istSEnum(ECA_Unknown),
+    istSEnum(ECA_Player),
+    istSEnum(ECA_Enemy),
+    istSEnum(ECA_Obstacle),
+    istSEnum(ECA_Level),
+    istSEnum(ECA_End),
+)
 
-    ECA_End,
-};
+istSEnumBlock(EntityClassID,
+    istSEnum(EC_Unknown),
 
-enum EntityClassID
-{
-    EC_Unknown,
+    istSEnumEq(EC_Player_Begin, ECA_Player<<9),
+    istSEnum(EC_Player),
+    istSEnum(EC_Barrier),
+    istSEnum(EC_Player_End),
 
-    EC_Player_Begin = ECA_Player<<9,
-    EC_Player,
-    EC_Barrier,
-    EC_Player_End,
+    istSEnumEq(EC_Enemy_Begin, ECA_Enemy<<9),
+    istSEnum(EC_Enemy_Test),
+    istSEnum(EC_HatchSmall),
+    istSEnum(EC_HatchLarge),
+    istSEnum(EC_CarrierSmall),
+    istSEnum(EC_CarrierLarge),
+    istSEnum(EC_HomingMine),
+    istSEnum(EC_LaserMissile),
+    istSEnum(EC_BreakableParts),
+    istSEnum(EC_BreakableCore),
+    istSEnum(EC_SmallFighter),
+    istSEnum(EC_MediumFighter),
+    istSEnum(EC_LargeFighter),
+    istSEnum(EC_Shell),
+    istSEnum(EC_Tortoise),
+    istSEnum(EC_Zab),
+    istSEnum(EC_Nucleus),
+    istSEnum(EC_BulletTurret),
+    istSEnum(EC_LaserTurret),
+    istSEnum(EC_Boss1),
+    istSEnum(EC_Boss2),
+    istSEnum(EC_Boss3),
+    istSEnum(EC_Boss4),
+    istSEnum(EC_Boss5),
+    istSEnum(EC_Enemy_End),
 
-    EC_Enemy_Begin = ECA_Enemy<<9,
-    EC_Enemy_Test,
-    EC_HatchSmall,
-    EC_HatchLarge,
-    EC_CarrierSmall,
-    EC_CarrierLarge,
-    EC_HomingMine,
-    EC_LaserMissile,
-    EC_BreakableParts,
-    EC_BreakableCore,
-    EC_SmallFighter,
-    EC_MediumFighter,
-    EC_LargeFighter,
-    EC_Shell,
-    EC_Tortoise,
-    EC_Zab,
-    EC_Nucleus,
-    EC_BulletTurret,
-    EC_LaserTurret,
-    EC_Boss1,
-    EC_Boss2,
-    EC_Boss3,
-    EC_Boss4,
-    EC_Boss5,
-    EC_Enemy_End,
+    istSEnumEq(EC_Obstacle_Begin, ECA_Obstacle<<9),
+    istSEnum(EC_PointLightEntity),
+    istSEnum(EC_DirectionalLightEntity),
+    istSEnum(EC_SpotLightEntity),
+    istSEnum(EC_BoxLightEntity),
+    istSEnum(EC_CylinderLightEntity),
+    istSEnum(EC_GroundBlock),
+    istSEnum(EC_FluidFilter),
+    istSEnum(EC_FluidFan),
+    istSEnum(EC_LevelLayer),
+    istSEnum(EC_GearParts),
+    istSEnum(EC_GearSmall),
+    istSEnum(EC_GearLarge),
+    istSEnum(EC_Obstacle_End),
 
-    EC_Obstacle_Begin = ECA_Obstacle<<9,
-    EC_PointLightEntity,
-    EC_DirectionalLightEntity,
-    EC_SpotLightEntity,
-    EC_BoxLightEntity,
-    EC_CylinderLightEntity,
-    EC_GroundBlock,
-    EC_FluidFilter,
-    EC_FluidFan,
-    EC_LevelLayer,
-    EC_GearParts,
-    EC_GearSmall,
-    EC_GearLarge,
-    EC_Obstacle_End,
+    istSEnumEq(EC_Level_Begin, ECA_Level<<9),
+    istSEnum(EC_Level_Test),
+    istSEnum(EC_Level_Stage1),
+    istSEnum(EC_Level_Stage2),
+    istSEnum(EC_Level_Stage3),
+    istSEnum(EC_Level_Stage4),
+    istSEnum(EC_Level_Stage5),
+    istSEnum(EC_Level_Stage6),
+    istSEnum(EC_Level_End),
 
-    EC_Level_Begin = ECA_Level<<9,
-    EC_Level_Test,
-    EC_Level_End,
+    istSEnum(EC_End),
+)
 
-    EC_VFX_Begin = ECA_VFX<<9,
-    EC_VFX_Scintilla,
-    EC_VFX_End,
 
-    EC_End,
-};
+#ifndef atm_Game_EntityClass_detail
+#define atm_Game_EntityClass_detail
 
 // EntityHandle は
 // 上位 3bit がカテゴリ (EntityCategoryID)
@@ -110,6 +112,7 @@ template<class EntityType> class AddEntityTable;
     };\
     AddEntityTable<Class> g_add_entity_creator_##Class;
 
+#endif // atm_Game_EntityClass_detail
 
 } // namespace atm
 #endif //atm_Game_EntityClass_h

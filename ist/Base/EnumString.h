@@ -6,7 +6,7 @@ namespace ist {
 struct EnumStr
 {
     int32 num;
-    const char str[64];
+    const char *str;
 };
 
 struct equal_num

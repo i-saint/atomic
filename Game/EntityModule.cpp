@@ -23,14 +23,12 @@ EntityCreator* GetEntityCreatorTable( EntityClassID entity_classid )
     static EntityCreator s_table_enemy[EC_Enemy_End & 0x1FF];
     static EntityCreator s_table_obstacle[EC_Obstacle_End & 0x1FF];
     static EntityCreator s_table_level[EC_Level_End & 0x1FF];
-    static EntityCreator s_table_vfx[EC_VFX_End & 0x1FF];
     static EntityCreator *s_table_list[ECA_End] = {
         NULL,
         s_table_player,
         s_table_enemy,
         s_table_obstacle,
         s_table_level,
-        s_table_vfx,
     };
     return s_table_list[(entity_classid & 0xE00) >> 9];
 }
