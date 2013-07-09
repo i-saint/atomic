@@ -330,9 +330,12 @@ void AtomicApplication::mainLoop()
             draw();
         }
 
-        if( (game==nullptr || game->IsWaitVSyncRequired()) &&
-            (!atmGetConfig()->unlimit_gamespeed && !atmGetConfig()->vsync))
-        {
+        bool needs_sync = true;
+        if( atmGetConfig()->unlimit_gamespeed || atmGetConfig()->vsync ||
+            (game && (game->IsUpdateSkipped() || game->IsDrawSkipped()) ) ) {
+            needs_sync = false;
+        }
+        if(needs_sync) {
             float32 remain = delay-pc.getElapsedMillisec();
             if(remain>0.0f) {
                 ist::MicroSleep((uint32)std::max<float32>(remain*1000.0f, 0.0f));
@@ -404,8 +407,10 @@ void AtomicApplication::draw()
     if(game) {
         game->draw();
     }
-    atmKickDraw();
-    atmWaitUntilDrawCallbackComplete();
+    if(!game || !game->IsDrawSkipped()) {
+        atmKickDraw();
+        atmWaitUntilDrawCallbackComplete();
+    }
 }
 
 void AtomicApplication::requestStartGame(const GameStartConfig &conf)

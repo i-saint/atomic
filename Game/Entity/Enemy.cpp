@@ -216,7 +216,7 @@ public:
         setLightRadius(0.5f);
     }
 };
-atmImplementEntity(Electron);
+atmImplementEntity(Electron, DF_RTS, 2.0f);
 atmExportClass(Electron);
 
 
@@ -244,7 +244,7 @@ public:
         setExplosionChannel(SE_CHANNEL4);
     }
 };
-atmImplementEntity(Proton);
+atmImplementEntity(Proton, DF_RTS, 5.0f);
 atmExportClass(Proton);
 
 } // namespace atm

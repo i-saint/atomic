@@ -67,7 +67,7 @@ private:
 
 public:
 };
-atmImplementEntity(HatchSmall);
+atmImplementEntity(HatchSmall, DF_Editor, 4.0f);
 atmExportClass(HatchSmall);
 
 
@@ -77,7 +77,7 @@ typedef HatchBase super;
 private:
 public:
 };
-atmImplementEntity(HatchLarge);
+atmImplementEntity(HatchLarge, DF_Editor, 8.0f);
 atmExportClass(HatchLarge);
 
 

@@ -273,10 +273,23 @@ public:
     void handleEntityTypes(Poco::Net::HTTPServerRequest &request, Poco::Net::HTTPServerResponse &response)
     {
         stl::string ret;
+        bool first = true;
         ret += "[";
         EntityClassIDEachPair([&](const ist::EnumStr &es){
-            ret += ist::Format("{\"name\":\"%s\",\"id\":%d,\"deployable\":%d}", es.str, es.num, (int)g_lec_consts.isDeployable((EntityClassID)es.num));
-            if(es.num!=EC_End) { ret+=","; }
+            EntityClassID ecid = (EntityClassID)es.num;
+            const EntityClassInfo *eci = GetEntityClassInfo(ecid);
+            bool deployable = false;
+            float32 cost = 0.0f;
+            if(eci) {
+                if(eci->deploy==DF_RTS || (eci->deploy==DF_Editor && atmIsEditMode())) { deployable=true; }
+                cost = eci->cost;
+            }
+
+            if(!first) { ret+=","; }
+            ret += ist::Format(
+                "{\"name\":\"%s\",\"id\":%d,\"deployable\":%d,\"cost\":%f}",
+                es.str, es.num, deployable, cost );
+            first=false;
         });
         ret += "]";
 

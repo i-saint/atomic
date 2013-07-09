@@ -24,6 +24,8 @@ istSEnumBlock(EntityClassID,
     istSEnum(EC_Enemy_Test),
     istSEnum(EC_Electron),
     istSEnum(EC_Proton),
+    istSEnum(EC_Positron),
+    istSEnum(EC_Antiproton),
     istSEnum(EC_Nucleus),
     istSEnum(EC_HomingMine),
     istSEnum(EC_LaserMissile),
@@ -90,27 +92,32 @@ inline uint32 EntityGetClassIndex(EntityHandle e)   { return (e & 0x1FF00000) >>
 inline uint32 EntityGetIndex(EntityHandle e)        { return (e & 0x000FFFFF) >>  0; }
 inline EntityHandle EntityCreateHandle(uint32 classid, uint32 index) { return (classid<<20) | index; }
 
+enum DeployFlags {
+    DF_None  = 0,
+    DF_RTS   = 1, // RTS モードでもエディタでもデプロイ可
+    DF_Editor= 2, // エディタでのみデプロイ可
+};
+struct EntityClassInfo
+{
+    DeployFlags deploy;
+    float32     cost;
+
+    EntityClassInfo(DeployFlags df=DF_None, float32 c=10.0f) : deploy(df), cost(c) {}
+};
 
 class IEntity;
 typedef IEntity* (*EntityCreator)();
-EntityCreator* GetEntityCreatorTable(EntityClassID entity_classid);
-void AddEntityCreator(EntityClassID entity_classid, EntityCreator creator);
+void AddEntityCreator(EntityClassID entity_classid, EntityCreator creator, const EntityClassInfo &eci=EntityClassInfo());
 IEntity* CreateEntity(EntityClassID entity_classid);
+EntityClassInfo* GetEntityClassInfo(EntityClassID entity_classid);
 
 template<class EntityType> IEntity* CreateEntity();
 template<class EntityType> class AddEntityTable;
 
-#define atmImplementEntity(Class) \
+#define atmImplementEntity(Class, ...) \
     template<> IEntity* CreateEntity<Class>() { return istNew(Class)(); } \
     template<> struct AddEntityTable<Class> {\
-        AddEntityTable() { AddEntityCreator(EC_##Class, &CreateEntity<Class>); }\
-    };\
-    AddEntityTable<Class> g_add_entity_creator_##Class;
-
-#define atmImplementEntity_Pooled(Class) \
-    template<> IEntity* CreateEntity<Class>() { return Class::create(); } \
-    template<> struct AddEntityTable<Class> {\
-        AddEntityTable() { AddEntityCreator(EC_##Class, &CreateEntity<Class>); }\
+        AddEntityTable() { AddEntityCreator(EC_##Class, &CreateEntity<Class>, EntityClassInfo(__VA_ARGS__)); }\
     };\
     AddEntityTable<Class> g_add_entity_creator_##Class;
 

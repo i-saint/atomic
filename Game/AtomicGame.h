@@ -92,6 +92,7 @@ private:
     World           *m_world;
     SFMT            m_rand;
     uint32          m_frame;
+    float32         m_resource; // RTS モードでユニットを生成するためのコスト。毎秒 1 追加 & 敵キャラ倒すと追加
     PlayerID        m_player_id;
     EntitiesQueryContext m_ctx_entities_query;
     bool m_skip_update;

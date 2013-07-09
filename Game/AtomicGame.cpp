@@ -24,6 +24,7 @@ AtomicGame::AtomicGame()
 : m_input_server(NULL)
 , m_world(NULL)
 , m_frame(0)
+, m_resource(0.0f)
 , m_skip_update(false)
 {
     wdmAddNode("Game/testSerialize()", &AtomicGame::testSerialize, this);
@@ -103,6 +104,7 @@ void AtomicGame::update(float32 dt)
     if(!m_skip_update) {
         m_input_server->pushInput(0, atmGetSystemInputs()->getRawInput());
     }
+    m_resource += dt;
 
     atmLevelEditorHandleCommands( std::bind(&IInputServer::pushLevelEditorCommand, m_input_server, std::placeholders::_1));
     atmLevelEditorHandleQueries( std::bind(&AtomicGame::handleLevelEditorQueries, this, std::placeholders::_1) );
@@ -200,8 +202,21 @@ void AtomicGame::handleLevelEditorCommands( const LevelEditorCommand &c )
     static IEntity *s_last_entity;
     if(c.type==LEC_Create) {
         const LevelEditorCommand_Create &cmd = reinterpret_cast<const LevelEditorCommand_Create&>(c);
-        IEntity *e = atmCreateEntity((EntityClassID)cmd.entity_typeid);
-        s_last_entity = e;
+        EntityClassID ecid = (EntityClassID)cmd.entity_typeid;
+        EntityClassInfo *eci = GetEntityClassInfo(ecid);
+        bool ok = false;
+        if(atmIsEditMode()) { ok=true; }
+        else {
+            if(m_resource>=eci->cost) {
+                m_resource-=eci->cost;
+                ok = true;
+            }
+        }
+
+        if(ok) {
+            IEntity *e = atmCreateEntity(ecid);
+            s_last_entity = e;
+        }
     }
     else if(c.type==LEC_Delete) {
         const LevelEditorCommand_Delete &cmd = reinterpret_cast<const LevelEditorCommand_Delete&>(c);

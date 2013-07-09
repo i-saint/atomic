@@ -608,6 +608,7 @@ function onLoad()
             editor.entitytypes = res.responseText.evalJSON();
             var selector = $("entity_type_selector");
             editor.entitytypes.each(function(ti){
+                if(!ti.deployable) { return; }
                 var t = document.createElement("li");
                 t.setAttribute("class", "entitytype");
                 t.appendChild(document.createTextNode(ti.name));

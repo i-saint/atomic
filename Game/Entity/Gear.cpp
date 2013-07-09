@@ -243,7 +243,7 @@ public:
         }
     }
 };
-atmImplementEntity(GearSmall);
+atmImplementEntity(GearSmall, DF_Editor);
 atmExportClass(GearSmall);
 
 
@@ -289,7 +289,7 @@ public:
         }
     }
 };
-atmImplementEntity(GearLarge);
+atmImplementEntity(GearLarge, DF_Editor);
 atmExportClass(GearLarge);
 
 } // namespace atm

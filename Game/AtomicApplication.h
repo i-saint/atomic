@@ -107,7 +107,6 @@ private:
 
 } // namespace atm
 
-
 #define atmGetApplication()          AtomicApplication::getInstance()
 #define atmGetGame()                 atmGetApplication()->getGame()
 #define atmGetSystemInputs()         atmGetApplication()->getSystemInputs()
@@ -118,5 +117,7 @@ private:
 #else  // atm_enable_debug_log
 #   define atmDebugLog(...)          
 #endif // atm_enable_debug_log
+
+#define atmIsEditMode()             atmGetConfig()->editmode
 
 #endif atm_Game_AtomicApplication_h
