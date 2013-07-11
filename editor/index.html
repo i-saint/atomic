@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>atomic: level editor</title>
+<title>nuclei: atomic level editor</title>
 
 <script type="x-shader/x-vertex" id="vs_entities"> 
 attribute vec3 ia_position;
@@ -146,6 +146,7 @@ var editor = {
     selection: [],
     current_entitytype: 0,
     entitytypes: [],
+    functions: [],
     resource: 0.0,
 };
 
@@ -603,20 +604,23 @@ function onLoad()
         e.preventDefault();
     };
 
-    var ajax = new Ajax.Request("/state/entitytypes", {
+    var ajax = new Ajax.Request("/state/const", {
         method: "get",
         onComplete: function(res) {
-            editor.entitytypes = res.responseText.evalJSON();
+            var consts = res.responseText.evalJSON();
+            editor.entitytypes = consts.entityTypes;
+            editor.functions = consts.functions;
             var selector = $("entity_type_selector");
-            editor.entitytypes.each(function(ti){
-                if(!ti.deployable) { return; }
+            for(var name in editor.entitytypes) {
+                var value = editor.entitytypes[name];
+                if(!value.deployable) { continue; }
                 var t = document.createElement("li");
                 t.setAttribute("class", "entitytype");
-                t.appendChild(document.createTextNode(ti.name));
-                t.entitytype = ti.id;
+                t.appendChild(document.createTextNode(name));
+                t.entitytype = value.id;
                 t.onclick = onClickSelector;
                 selector.appendChild(t);
-            });
+            }
         }
     });
 

@@ -232,8 +232,8 @@ public:
         if(request.getURI()=="/state/entities") {
             handleEntities(request, response);
         }
-        else if(request.getURI()=="/state/entitytypes") {
-            handleEntityTypes(request, response);
+        else if(request.getURI()=="/state/const") {
+            handleConst(request, response);
         }
     }
 
@@ -256,28 +256,40 @@ public:
         ostr << q.response;
     }
 
-    void handleEntityTypes(Poco::Net::HTTPServerRequest &request, Poco::Net::HTTPServerResponse &response)
+    void handleConst(Poco::Net::HTTPServerRequest &request, Poco::Net::HTTPServerResponse &response)
     {
         stl::string ret;
-        bool first = true;
-        ret += "[";
-        EntityClassIDEachPair([&](const ist::EnumStr &es){
-            EntityClassID ecid = (EntityClassID)es.num;
-            const EntityClassInfo *eci = GetEntityClassInfo(ecid);
-            bool deployable = false;
-            float32 cost = 0.0f;
-            if(eci) {
-                if(eci->deploy==DF_RTS || (eci->deploy==DF_Editor && atmIsEditMode())) { deployable=true; }
-                cost = eci->cost;
-            }
-
-            if(!first) { ret+=","; }
-            ret += ist::Format(
-                "{\"name\":\"%s\",\"id\":%d,\"deployable\":%d,\"cost\":%f}",
-                es.str, es.num, deployable, cost );
-            first=false;
-        });
-        ret += "]";
+        ret += "{";
+        {
+            bool first = true;
+            ret += "\"entityTypes\":{";
+            EntityClassIDEachPair([&](const ist::EnumStr &es){
+                EntityClassID ecid = (EntityClassID)es.num;
+                const EntityClassInfo *eci = GetEntityClassInfo(ecid);
+                bool deployable = false;
+                float32 cost = 0.0f;
+                if(eci) {
+                    if(eci->deploy==DF_RTS || (eci->deploy==DF_Editor && atmIsEditMode())) { deployable=true; }
+                    cost = eci->cost;
+                }
+                if(!first){ret+=",";} first=false;
+                ret += ist::Format(
+                    "\"%s\":{\"id\":%d,\"deployable\":%d,\"cost\":%f}",
+                    es.str+3, es.num, deployable, cost );
+                
+            });
+            ret += "},";
+        }
+        {
+            bool first = true;
+            ret += "\"functions\":{";
+            FunctionIDEachPair([&](const ist::EnumStr &es){
+                if(!first){ret+=",";} first=false;
+                ret += ist::Format("\"%s\":%d", es.str+4, es.num);
+            });
+            ret += "}";
+        }
+        ret += "}";
 
         response.setContentType("application/json");
         response.setContentLength(ret.size());
