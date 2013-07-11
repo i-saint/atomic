@@ -577,6 +577,7 @@ function onLoad()
             var selection = selectEntityPoint(mouse.pos);
             if(selection!=0) {
                 editor.selection.push(selection);
+                queryEntity(selection);
             }
         }
         e.preventDefault();
@@ -643,6 +644,30 @@ function each(v, f)
     for(var i=0; i<v.length; ++i) { f(v[i]); }
 }
 
+function clearChildren(e)
+{
+    while(e.firstChild) { e.removeChild(e.firstChild); }
+}
+
+function queryEntity(handle)
+{
+    var ajax = new Ajax.Request("/state/entity/"+handle, {
+        method: "get",
+        onComplete: function(res) {
+            var properties = res.responseText.evalJSON();
+            var fields = $("entity_properties");
+            clearChildren(fields);
+            each(properties, function(field){
+                var t = document.createElement("li");
+                t.setAttribute("class", "param");
+                t.appendChild(document.createTextNode(field.name+"("+field.type+") "+field.value));
+                t.properties = properties;
+                fields.appendChild(t);
+            });
+        }
+    });
+}
+
 function onClickSelector()
 {
     var selector = $("entity_type_selector");
@@ -670,7 +695,7 @@ function postCommand(url, values)
 <body onload="onLoad()">
 <canvas id="c" width="1024" height="1024" style="position:absolute; left:0px; top:0px;"></canvas>
 <div id="tools" style="position:absolute; left:1024px; top:0px; with:200px;">
-<span id="fps">  </span><ul id="entity_type_selector"></ul>
+<span id="fps">  </span><ul id="entity_type_selector"></ul><ul id="entity_properties"></ul>
 <a href="http://primitive-games.jp/atomic/">about atomic</a>
 </div>
 </body>

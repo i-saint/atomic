@@ -55,6 +55,8 @@ public:
     // fid に対応するメソッドを引数 args で呼ぶ。
     // Routine や外部スクリプトとの連動用。
     virtual bool call(FunctionID fid, const void *args, void *ret=nullptr) { return false; }
+
+    virtual void jsonize(stl::string &out) {}
 };
 
 

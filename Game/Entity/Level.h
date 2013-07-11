@@ -28,6 +28,11 @@ public:
     }
     )
 
+    void jsonize(stl::string &out) override
+    {
+        transform::jsonize(out);
+    }
+
     void initialize() override
     {
         super::initialize();

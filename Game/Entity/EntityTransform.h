@@ -26,6 +26,11 @@ public:
         wdmAddNode(path+"/m_pos",   &m_pos,   -3.0f, 3.0f);
     }
     )
+    void jsonize(stl::string &out) {
+        atmJsonizeMember(out, m_pos, getPosition, setPosition);
+        atmJsonizeMemberFunction(out, move);
+    }
+
 
 public:
     Attr_Translate() {}
@@ -84,6 +89,14 @@ public:
         wdmAddNode(path+"/m_rot",   &m_rot,    0.0f, 360.0f);
     }
     )
+    void jsonize(stl::string &out) {
+        atmJsonizeMember(out, m_pivot, getPivot, setPivot);
+        atmJsonizeMember(out, m_pos, getPosition, setPosition);
+        atmJsonizeMember(out, m_scale, getScale, setScale);
+        atmJsonizeMember(out, m_axis, getAxis, setAxis);
+        atmJsonizeMember(out, m_rot, getRotate, setRotate);
+        atmJsonizeMemberFunction(out, move);
+    }
 
 public:
     Attr_Transform()
@@ -129,14 +142,14 @@ private:
     vec3 m_pivot;
     vec3 m_pos;
     vec3 m_scale;
-    vec3 m_oriantation;
+    vec3 m_orient;
     vec3 m_up;
 
     istSerializeBlock(
         istSerialize(m_pivot)
         istSerialize(m_pos)
         istSerialize(m_scale)
-        istSerialize(m_oriantation)
+        istSerialize(m_orient)
         istSerialize(m_up)
     )
 public:
@@ -165,27 +178,36 @@ public:
         wdmAddNode(path+"/m_pivot", &m_pivot, -3.0f, 3.0f);
         wdmAddNode(path+"/m_pos",   &m_pos, -3.0f, 3.0f);
         wdmAddNode(path+"/m_scale", &m_scale, 0.001f, 4.0f);
-        wdmAddNode(path+"/m_oriantation", this, &Attr_Orientation::getOrientation, &Attr_Orientation::setOrientation);
+        wdmAddNode(path+"/m_orient", this, &Attr_Orientation::getOrientation, &Attr_Orientation::setOrientation);
         wdmAddNode(path+"/m_up", &m_up, 0.0f, 360.0f);
     }
     )
+    void jsonize(stl::string &out) {
+        atmJsonizeMember(out, m_pivot, getPivot, setPivot);
+        atmJsonizeMember(out, m_pos, getPosition, setPosition);
+        atmJsonizeMember(out, m_scale, getScale, setScale);
+        atmJsonizeMember(out, m_orient, getOrientation, setOrientation);
+        atmJsonizeMember(out, m_up, getUpVector, setUpVector);
+        atmJsonizeMemberFunction(out, move);
+        atmJsonizeMemberFunction(out, orient);
+    }
 
 public:
     Attr_Orientation()
         : m_scale(1.0f, 1.0f, 1.0f)
-        , m_oriantation(1.0f, 0.0f, 0.0f)
+        , m_orient(1.0f, 0.0f, 0.0f)
         , m_up(1.0f, 0.0f, 0.0f)
     {}
 
     const vec3& getPivot() const        { return m_pivot; }
     const vec3& getPosition() const     { return m_pos; }
     const vec3& getScale() const        { return m_scale; }
-    const vec3& getOrientation() const  { return m_oriantation; }
+    const vec3& getOrientation() const  { return m_orient; }
     const vec3& getUpVector() const     { return m_up; }
     void setPivot(const vec3& v)        { m_pivot=v; }
     void setPosition(const vec3& v)     { m_pos=v; }
     void setScale(const vec3& v)        { m_scale=v; }
-    void setOrientation(const vec3& v)  { if(glm::dot(v,v)>0.001f) m_oriantation=glm::normalize(v); }
+    void setOrientation(const vec3& v)  { if(glm::dot(v,v)>0.001f) m_orient=glm::normalize(v); }
     void setUpVector(const vec3& v)     { m_up=v; }
     void move(const vec3 &v)            { setPosition(getPosition()+v); }
     void orient(const vec3 &v)          { setOrientation(v); }
@@ -194,7 +216,7 @@ public:
     {
         mat4 mat;
         mat = glm::translate(mat, m_pos);
-        mat *= glm::orientation(m_oriantation, m_up);
+        mat *= glm::orientation(m_orient, m_up);
         mat = glm::scale(mat, m_scale);
         mat = glm::translate(mat, -m_pivot);
         return mat;
@@ -202,7 +224,7 @@ public:
 
     mat4 computeRotationMatrix() const
     {
-        return glm::orientation(m_oriantation, m_up);
+        return glm::orientation(m_orient, m_up);
     }
 
     void update(float32 dt) {}
@@ -263,6 +285,16 @@ public:
         wdmAddNode(path+"/m_rot2", &m_rot2, 0.0f, 360.0f);
     }
     )
+    void jsonize(stl::string &out) {
+        atmJsonizeMember(out, m_pivot, getPivot, setPivot);
+        atmJsonizeMember(out, m_pos, getPosition, setPosition);
+        atmJsonizeMember(out, m_scale, getScale, setScale);
+        atmJsonizeMember(out, m_axis1, getAxis1, setAxis1);
+        atmJsonizeMember(out, m_axis2, getAxis2, setAxis2);
+        atmJsonizeMember(out, m_rot1, getRotate1, setRotate1);
+        atmJsonizeMember(out, m_rot2, getRotate2, setRotate2);
+        atmJsonizeMemberFunction(out, move);
+    }
 
 public:
     Attr_DoubleAxisRotation()
@@ -342,6 +374,11 @@ public:
         wdmAddNode(path+"/m_rspeed2", &m_rspeed2, -3.0f, 3.0f);
     }
     )
+    void jsonize(stl::string &out) {
+        super::jsonize(out);
+        atmJsonizeMember(out, m_rspeed1, getRotateSpeed1, setRotateSpeed1);
+        atmJsonizeMember(out, m_rspeed2, getRotateSpeed2, setRotateSpeed2);
+    }
 
 public:
     TAttr_RotateSpeed() : m_rspeed1(0.0f), m_rspeed2(0.0f)
@@ -391,6 +428,10 @@ public:
         wdmAddNode(path+"/m_parent", (const uint32*)&m_parent);
     }
     )
+    void jsonize(stl::string &out) {
+        super::jsonize(out);
+        atmJsonizeMember(out, m_parent, getParent, setParent);
+    }
 
 public:
     TAttr_HaveParent() : m_parent(0)

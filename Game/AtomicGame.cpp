@@ -239,6 +239,9 @@ void AtomicGame::handleLevelEditorQueries( LevelEditorQuery &cmd )
     if(cmd.type==LEQ_Entities) {
         handleEntitiesQuery(cmd.response);
     }
+    else if(cmd.type==LEQ_Entity) {
+        handleEntityQuery(cmd.response, (EntityHandle)cmd.optional);
+    }
 }
 
 void AtomicGame::handleEntitiesQuery( std::string &out )
@@ -322,6 +325,16 @@ void AtomicGame::handleEntitiesQuery( std::string &out )
     out.pop_back();
     out += "]}";
 #endif // atm_enable_WebGL
+}
+
+void AtomicGame::handleEntityQuery( std::string &out, EntityHandle h )
+{
+    out += "[";
+    if(IEntity *e=atmGetEntity(h)) {
+        e->jsonize(out);
+        out.pop_back();
+    }
+    out += "]";
 }
 
 void AtomicGame::handlePMessages( const PMessage &mes )

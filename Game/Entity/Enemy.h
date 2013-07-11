@@ -40,6 +40,7 @@ public:
         wdmAddNode(path+"/destroy()", &Attr_Life::destroy, this);
     }
     )
+
 public:
     Attr_Life() : m_life(1.0f), m_delta_damage(0.0f)
     {
@@ -109,6 +110,10 @@ public:
         wdmAddNode(path+"/destroy()", &Breakable::destroy, this);
     }
     )
+    void jsonize(stl::string &out) override
+    {
+        transform::jsonize(out);
+    }
 
 public:
     Breakable()

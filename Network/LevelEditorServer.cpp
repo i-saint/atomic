@@ -229,7 +229,11 @@ public:
 
     void handleRequest(Poco::Net::HTTPServerRequest &request, Poco::Net::HTTPServerResponse &response)
     {
-        if(request.getURI()=="/state/entities") {
+        static const char entity[] = "/state/entity/";
+        if(strncmp(request.getURI().c_str(), entity, _countof(entity)-1)==0) {
+            handleEntity(request, response);
+        }
+        else if(request.getURI()=="/state/entities") {
             handleEntities(request, response);
         }
         else if(request.getURI()=="/state/const") {
@@ -252,6 +256,25 @@ public:
 #else // atm_enable_WebGL
         response.setContentType("application/json");
 #endif // atm_enable_WebGL
+        std::ostream &ostr = response.send();
+        ostr << q.response;
+    }
+
+    void handleEntity(Poco::Net::HTTPServerRequest &request, Poco::Net::HTTPServerResponse &response)
+    {
+        uint32 h = 0;
+        sscanf(request.getURI().c_str(), "/state/entity/%u", &h);
+
+        LevelEditorQuery q;
+        q.type = LEQ_Entity;
+        q.optional =  h;
+        LevelEditorServer::getInstance()->pushQuery(q);
+        while(!q.completed && !LevelEditorServer::getInstance()->endFlag()) {
+            ist::MiliSleep(5);
+        }
+
+        response.setContentType("application/json");
+        response.setContentLength(q.response.size());
         std::ostream &ostr = response.send();
         ostr << q.response;
     }

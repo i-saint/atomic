@@ -138,6 +138,12 @@ public:
         wdmAddNode(path+"/m_rot_accel", &m_rot_accel);
     }
     )
+
+    void jsonize(stl::string &out) override
+    {
+        transform::jsonize(out);
+    }
+
 public:
     GearBase() : m_linkage(0), m_rot_angle(0.0f), m_rot_speed(0.0f), m_max_rot_speed(0.5f), m_rot_accel(0.00002f), m_rot_decel(0.99f)
     {
