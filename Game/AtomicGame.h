@@ -72,9 +72,9 @@ public:
     SFMT* getRandom();
     uint32 getFrame() const                 { return m_frame; }
     PlayerID getPlayerID() const            { return m_player_id; }
-    bool IsUpdateSkipped() const            { return m_skip_update; }
-    bool IsDrawSkipped() const              { return m_skip_draw; }
-    bool IsWaitVSyncRequired() const        { return !IsUpdateSkipped() && !IsDrawSkipped(); }
+    bool isUpdateSkipped() const            { return m_skip_update; }
+    bool isDrawSkipped() const              { return m_skip_draw; }
+    bool isWaitVSyncRequired() const        { return !isUpdateSkipped() && !isDrawSkipped(); }
 
     bool serialize(std::ostream &st);
     bool deserialize(std::istream &st);

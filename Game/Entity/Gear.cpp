@@ -51,7 +51,7 @@ public:
     {
         super::eventFluid(m);
         vec3 pos = (const vec3&)m->position;
-        vec3 force = (const vec3&)m->velocity * (sqrt(m->density)*0.1f);
+        vec3 force = (const vec3&)m->velocity;
         addForce(pos, force);
     }
 
@@ -178,6 +178,7 @@ public:
 
     void addForce(const vec3 &pos, const vec3 &force)
     {
+        atmDbgAssertSyncLock();
         vec3 diff = pos-getPosition(); diff.z=0.0f;
         float32 dist = glm::length(diff);
         vec3 dir = vec3( glm::rotateZ(diff/dist, 90.0f) );

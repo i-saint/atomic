@@ -222,6 +222,8 @@ void FluidModule::addFluid( psym::Particle *particles, uint32 num )
     for(uint32 i=0; i<num; ++i) {
         particles[i].energy = enery_base + (m_rand.genFloat32()*enery_diffuse);
         particles[i].density = 0.0f;
+        particles[i].hash = 0;
+        particles[i].hit_to = 0;
     }
     m_world.addParticles(particles, num);
 }

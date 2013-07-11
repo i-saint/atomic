@@ -48,7 +48,7 @@ void SoAnize( int32 num, const Particle *particles, ispc::Particle_SOA8 *out )
 {
     int32 blocks = soa_blocks(num);
     for(int32 bi=0; bi<blocks; ++bi) {
-        int32 i = SIMD_LANES*bi;
+        int32 i = SIMD_LANES * bi;
         soavec34 soav;
         soav = soa_transpose34(particles[i+0].position, particles[i+1].position, particles[i+2].position, particles[i+3].position);
         simd_store(out[bi].x+0, soav.x());
@@ -72,9 +72,10 @@ void SoAnize( int32 num, const Particle *particles, ispc::Particle_SOA8 *out )
         simd_store(out[bi].hit_to+4, _mm_set1_epi32(0));
 
         //// ïsóv
-        //soas = simdvec4_set(particles[i+0].params.density, particles[i+1].params.density, particles[i+2].params.density, particles[i+3].params.density);
+        //simdvec4 soas;
+        //soas = simdvec4_set(particles[i+0].density, particles[i+1].density, particles[i+2].density, particles[i+3].density);
         //_mm_store_ps(out[bi].density+0, soas);
-        //soas = simdvec4_set(particles[i+4].params.density, particles[i+5].params.density, particles[i+6].params.density, particles[i+7].params.density);
+        //soas = simdvec4_set(particles[i+4].density, particles[i+5].density, particles[i+6].density, particles[i+7].density);
         //_mm_store_ps(out[bi].density+4, soas);
     }
 }
@@ -83,7 +84,7 @@ void AoSnize( int32 num, const ispc::Particle_SOA8 *particles, Particle *out )
 {
     int32 blocks = soa_blocks(num);
     for(int32 bi=0; bi<blocks; ++bi) {
-        int32 i = 8*bi;
+        int32 i = SIMD_LANES * bi;
         soavec44 aos_pos[2] = {
             soa_transpose44(
                 _mm_load_ps(particles[bi].x + 0),
@@ -118,12 +119,8 @@ void AoSnize( int32 num, const ispc::Particle_SOA8 *particles, Particle *out )
             o.position = _mm_and_ps(aos_pos[ei/4][ei%4], masksv);
             o.velocity = _mm_and_ps(aos_vel[ei/4][ei%4], masksv);
             o.density = particles[bi].density[ei];
-            if(o.hit_to && particles[bi].hit_to[ei]) {
-                o.hash = 1;
-            }
-            else {
-                o.hash = 0;
-            }
+            o.hash = o.hit_to && particles[bi].hit_to[ei] ? 1 : 0;
+            //o.hash = 0;
             o.hit_to = particles[bi].hit_to[ei];
         }
     }
@@ -195,24 +192,22 @@ void World::update(float32 dt)
     tbb::parallel_for(tbb::blocked_range<int>(0, (int32)num_active_particles, 1024),
         [&](const tbb::blocked_range<int> &r) {
             for(int i=r.begin(); i!=r.end(); ++i) {
-                const int32 G_ID = i;
-                int32 G_ID_PREV = G_ID-1;
-                int32 G_ID_NEXT = G_ID+1;
-
-                uint32 cell = particles[G_ID].hash;
-                uint32 cell_prev = (G_ID_PREV==-1) ? -1 : particles[G_ID_PREV].hash;
-                uint32 cell_next = (G_ID_NEXT==PSYM_MAX_PARTICLE_NUM) ? -2 : particles[G_ID_NEXT].hash;
+                int32 prev = i-1;
+                int32 next = i+1;
+                uint32 cell = particles[i].hash;
+                uint32 cell_prev = (prev==-1) ? -1 : particles[prev].hash;
+                uint32 cell_next = (next==PSYM_MAX_PARTICLE_NUM) ? -2 : particles[next].hash;
                 if((cell & 0x80000000) != 0) { // ç≈è„à  bit Ç™óßÇ¡ÇƒÇ¢ÇΩÇÁéÄÇÒÇ≈Ç¢ÇÈàµÇ¢
                     if((cell_prev & 0x80000000) == 0) { // 
-                        num_active_particles = G_ID;
+                        num_active_particles = i;
                     }
                 }
                 else {
                     if(cell != cell_prev) {
-                        ce[cell].begin = G_ID;
+                        ce[cell].begin = i;
                     }
                     if(cell != cell_next) {
-                        ce[cell].end = G_ID + 1;
+                        ce[cell].end = i + 1;
                     }
                 }
             }

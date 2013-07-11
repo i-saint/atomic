@@ -332,7 +332,7 @@ void AtomicApplication::mainLoop()
 
         bool needs_sync = true;
         if( atmGetConfig()->unlimit_gamespeed || atmGetConfig()->vsync ||
-            (game && (game->IsUpdateSkipped() || game->IsDrawSkipped()) ) ) {
+            (game && (game->isUpdateSkipped() || game->isDrawSkipped()) ) ) {
             needs_sync = false;
         }
         if(needs_sync) {
@@ -407,7 +407,7 @@ void AtomicApplication::draw()
     if(game) {
         game->draw();
     }
-    if(!game || !game->IsDrawSkipped()) {
+    if(!game || !game->isDrawSkipped()) {
         atmKickDraw();
         atmWaitUntilDrawCallbackComplete();
     }
