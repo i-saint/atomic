@@ -23,13 +23,14 @@ void VFXScintillaSpawn(const VFXScintillaSpawnData &v);
 
 struct VFXLightSpawnData
 {
-    vec4 color;
-    vec3 position;
+    vec4    color;
+    vec3    position;
     float32 radius;
-    float32 lifetime;
+    vec4    color_attenuation;
+    float32 radius_attenuation;
 
     VFXLightSpawnData()
-        : radius(0.5f), lifetime(20.0f)
+        : radius(0.5f), radius_attenuation(0.01f)
     {}
 };
 void VFXLightSpawn(const VFXLightSpawnData &v);

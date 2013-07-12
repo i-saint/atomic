@@ -323,6 +323,18 @@
     <ClInclude Include="Game\VFX\VFXInterfaces.h">
       <Filter>Game\VFX</Filter>
     </ClInclude>
+    <ClInclude Include="Game\VFX\VFXParticle.h">
+      <Filter>Game\VFX</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\VFX\VFXLight.h">
+      <Filter>Game\VFX</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\VFX\VFXBlur.h">
+      <Filter>Game\VFX</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\VFX\VFXDistortion.h">
+      <Filter>Game\VFX</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="editor\index.html">

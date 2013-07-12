@@ -109,8 +109,12 @@
     <ClInclude Include="Game\Task.h" />
     <ClInclude Include="Game\Text.h" />
     <ClInclude Include="Game\VFXModule.h" />
+    <ClInclude Include="Game\VFX\VFXBlur.h" />
     <ClInclude Include="Game\VFX\VFXCommon.h" />
+    <ClInclude Include="Game\VFX\VFXDistortion.h" />
     <ClInclude Include="Game\VFX\VFXInterfaces.h" />
+    <ClInclude Include="Game\VFX\VFXLight.h" />
+    <ClInclude Include="Game\VFX\VFXParticle.h" />
     <ClInclude Include="Game\World.h" />
     <ClInclude Include="Graphics\AtomicRenderingSystem.h" />
     <ClInclude Include="Graphics\CreateModelData.h" />
