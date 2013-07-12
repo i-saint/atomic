@@ -44,6 +44,10 @@
     <ClCompile Include="Game\Message.cpp" />
     <ClCompile Include="Game\Text.cpp" />
     <ClCompile Include="Game\VFXModule.cpp" />
+    <ClCompile Include="Game\VFX\VFXBlur.cpp" />
+    <ClCompile Include="Game\VFX\VFXDistortion.cpp" />
+    <ClCompile Include="Game\VFX\VFXLight.cpp" />
+    <ClCompile Include="Game\VFX\VFXParticle.cpp" />
     <ClCompile Include="Game\World.cpp" />
     <ClCompile Include="Graphics\AtomicRenderingSystem.cpp" />
     <ClCompile Include="Graphics\CreateModelData.cpp" />
@@ -105,6 +109,8 @@
     <ClInclude Include="Game\Task.h" />
     <ClInclude Include="Game\Text.h" />
     <ClInclude Include="Game\VFXModule.h" />
+    <ClInclude Include="Game\VFX\VFXCommon.h" />
+    <ClInclude Include="Game\VFX\VFXInterfaces.h" />
     <ClInclude Include="Game\World.h" />
     <ClInclude Include="Graphics\AtomicRenderingSystem.h" />
     <ClInclude Include="Graphics\CreateModelData.h" />

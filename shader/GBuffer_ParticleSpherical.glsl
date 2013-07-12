@@ -22,13 +22,12 @@ vs_out float vs_Scale;
 void main()
 {
     float scale = ia_InstanceParam.x;
-    vec4 vert = (ia_VertexPosition*scale)+ia_InstancePosition;
-    vert.w = 1.0;
+    vec4 vert = vec4((ia_VertexPosition.xyz*scale)+ia_InstancePosition.xyz, 1.0);
 
     vs_Glow = ia_InstanceGlow;
     vs_Scale = scale;
 
-    vs_VertexPosition = vec4(vert.xyz, 1.0);
+    vs_VertexPosition = vert;
     vs_VertexNormal = vec4(ia_VertexNormal, 0.04);
     vs_VertexColor = ia_InstanceColor;
     vs_InstancePosition = ia_InstancePosition;

@@ -42,10 +42,10 @@ void PassGBuffer_Particle::draw()
             {GLSL_INSTANCE_PARAM,    I3D_FLOAT32,4, 48, false, 1},
         };
         va_cube->setAttributes(1, vbo, 0, sizeof(SingleParticle), descs, _countof(descs));
-
         dc->setVertexArray(va_cube);
         sh->assign(dc);
         dc->drawInstanced(I3D_QUADS, 0, 24, m_particles.size());
+        dc->setVertexArray(nullptr);
     }
 }
 

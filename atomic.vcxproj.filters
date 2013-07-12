@@ -22,6 +22,9 @@
     <Filter Include="editor">
       <UniqueIdentifier>{87c5f29b-034a-471c-b4a1-f3e4c753435f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\VFX">
+      <UniqueIdentifier>{2c10f52f-81de-4d40-9778-e697e7d1d8d6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game\AtomicApplication.cpp">
@@ -158,6 +161,18 @@
     </ClCompile>
     <ClCompile Include="Game\Entity\Hatch.cpp">
       <Filter>Game\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\VFX\VFXBlur.cpp">
+      <Filter>Game\VFX</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\VFX\VFXDistortion.cpp">
+      <Filter>Game\VFX</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\VFX\VFXLight.cpp">
+      <Filter>Game\VFX</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\VFX\VFXParticle.cpp">
+      <Filter>Game\VFX</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -301,6 +316,12 @@
     </ClInclude>
     <ClInclude Include="Game\EntityModule.h">
       <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\VFX\VFXCommon.h">
+      <Filter>Game\VFX</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\VFX\VFXInterfaces.h">
+      <Filter>Game\VFX</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

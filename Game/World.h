@@ -5,6 +5,8 @@
 
 namespace atm {
 
+struct EntitiesQueryContext;
+
 class EntityModule;
 class BulletModule;
 class CollisionModule;
@@ -85,6 +87,8 @@ private:
 #define atmGetFluidModule()     atmGetWorld()->getFluidModule()
 
 #define atmGetBulletModule()    atmGetWorld()->getBulletModule()
+
+#define atmGetVFXModule()       atmGetWorld()->getVFXModule()
 
 } // namespace atm
 #endif // atm_Game_World_h
