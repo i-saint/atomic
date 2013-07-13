@@ -1,6 +1,7 @@
 ﻿#include "stdafx.h"
 #include "Game/Entity/EntityCommon.h"
 #include "Game/Entity/Routine.h"
+#include "Game/Entity/Level.h"
 
 namespace atm {
 
@@ -284,13 +285,19 @@ public:
                 //IEntity *e = atmCreateEntity(GroundBlock);
                 //atmCall(e, setPosition, vec3(0.5f, 0.5f, 0.0f));
             }
+
+            IEntity *layer = atmCreateEntityT(LevelLayer);
+            atmCall(layer, addControlPoint, ControlPoint(0.0f, vec3()));
+            atmCall(layer, addControlPoint, ControlPoint(600.0f, vec3(-1.0f,0.0f,0.0f)));
             {
                 IEntity *e = atmCreateEntityT(GearSmall);
                 atmCall(e, setPosition, vec3(0.5f, 0.5f, 0.0f));
+                atmCall(e, setParent, layer->getHandle());
             }
             {
                 IEntity *e = atmCreateEntityT(GearLarge);
                 atmCall(e, setPosition, vec3(-1.0f, 0.5f, 0.0f));
+                atmCall(e, setParent, layer->getHandle());
             }
             //for(int i=0; i<8; ++i) {
             //    IEntity *e = putMediumEnemy();

@@ -180,6 +180,9 @@
     <ClCompile Include="Network\LevelEditorCommand.cpp">
       <Filter>Network</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Entity\Layer.cpp">
+      <Filter>Game\Entity</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h">
