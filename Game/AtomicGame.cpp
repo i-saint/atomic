@@ -220,10 +220,7 @@ void AtomicGame::handleLevelEditorCommands( const LevelEditorCommand &c )
     }
     else if(c.type==LEC_Delete) {
         const LevelEditorCommand_Delete &cmd = reinterpret_cast<const LevelEditorCommand_Delete&>(c);
-        IEntity *e = cmd.entity_id==0 ? s_last_entity : atmGetEntity(cmd.entity_id);
-        if(e) {
-            atmCall(e, kill, 0);
-        }
+        atmDeleteEntity(cmd.entity);
     }
     else if(c.type==LEC_Call) {
         const LevelEditorCommand_Call &cmd = reinterpret_cast<const LevelEditorCommand_Call&>(c);

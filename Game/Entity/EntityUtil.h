@@ -93,31 +93,31 @@ template<> struct TypeS<vec4>   {static const char* get(){return "vec4";}};
 
 inline void Jsonize(stl::string &out, const char *name, const char *getter, const char *setter, bool v) {
     out += ist::Format("{\"name\":\"%s\",\"type\":\"bool\",\"getter\":\"%s\",\"setter\":\"%s\",\"value\":%d},",
-        name, getter, setter, (int32)v);
+        name+2, getter, setter, (int32)v);
 }
 inline void Jsonize(stl::string &out, const char *name, const char *getter, const char *setter, int32 v) {
     out += ist::Format("{\"name\":\"%s\",\"type\":\"int32\",\"getter\":\"%s\",\"setter\":\"%s\",\"value\":%d},",
-        name, getter, setter, v);
+        name+2, getter, setter, v);
 }
 inline void Jsonize(stl::string &out, const char *name, const char *getter, const char *setter, uint32 v) {
     out += ist::Format("{\"name\":\"%s\",\"type\":\"uint32\",\"getter\":\"%s\",\"setter\":\"%s\",\"value\":%u},",
-        name, getter, setter, v);
+        name+2, getter, setter, v);
 }
 inline void Jsonize(stl::string &out, const char *name, const char *getter, const char *setter, float32 v) {
     out += ist::Format("{\"name\":\"%s\",\"type\":\"float32\",\"getter\":\"%s\",\"setter\":\"%s\",\"value\":%.2f},",
-        name, getter, setter, v);
+        name+2, getter, setter, v);
 }
 inline void Jsonize(stl::string &out, const char *name, const char *getter, const char *setter, const vec2 &v) {
     out += ist::Format("{\"name\":\"%s\",\"type\":\"vec2\",\"getter\":\"%s\",\"setter\":\"%s\",\"value\":[%.2f,%.2f]},",
-        name, getter, setter, v.x,v.y);
+        name+2, getter, setter, v.x,v.y);
 }
 inline void Jsonize(stl::string &out, const char *name, const char *getter, const char *setter, const vec3 &v) {
     out += ist::Format("{\"name\":\"%s\",\"type\":\"vec3\",\"getter\":\"%s\",\"setter\":\"%s\",\"value\":[%.2f,%.2f,%.2f]},",
-        name, getter, setter, v.x,v.y,v.z);
+        name+2, getter, setter, v.x,v.y,v.z);
 }
 inline void Jsonize(stl::string &out, const char *name, const char *getter, const char *setter, const vec4 &v) {
     out += ist::Format("{\"name\":\"%s\",\"type\":\"vec4\",\"getter\":\"%s\",\"setter\":\"%s\",\"value\":[%.2f,%.2f,%.2f,%.2f]},",
-        name, getter, setter, v.x,v.y,v.z,v.w);
+        name+2, getter, setter, v.x,v.y,v.z,v.w);
 }
 #define atmJsonizeMember(Out,V,Getter,Setter) Jsonize(Out, #V, #Getter, #Setter, V)
 #define atmJsonizeMemberFunction(Out,F)

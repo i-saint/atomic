@@ -19,7 +19,7 @@ struct EntitiesQueryContext
     void makeArrayBuffer(stl::string &out);
 };
 
-// Level Editor Commans
+// Level Editor Commands
 enum LEC_Type
 {
     LEC_Unknown,
@@ -76,10 +76,10 @@ struct istAlign(16) LevelEditorCommand_Delete
 {
     LEC_Type type;
     uint32 frame;
-    uint32 entity_id;
+    uint32 entity;
     uint32 dummy[5];
 
-    LevelEditorCommand_Delete() : type(LEC_Delete), frame(0), entity_id(0)
+    LevelEditorCommand_Delete() : type(LEC_Delete), frame(0), entity(0)
     {
         std::fill_n(dummy, _countof(dummy), 0);
     }

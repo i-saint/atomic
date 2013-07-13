@@ -221,17 +221,30 @@ var ui = {
                 var fields = ui.getProperties();
                 clearChildren(fields);
 
-                var parent = properties.find( function(a){return a.name=="m_parent";} );
-                if(parent) {
+                {
+                    var button = document.createElement("input");
+                    button.setAttribute("type", "button");
+                    button.value = "delete";
+                    button.nuEntity = entity;
+                    button.onclick = function(){
+                        postCommand("/nuclei/delete", "entity="+this.nuEntity);
+                    };
                     var t = document.createElement("li");
+                    t.appendChild(button);
+                    fields.appendChild(t);
+                }
+                var parent = properties.find( function(a){return a.name=="parent";} );
+                if(parent) {
                     var button = document.createElement("input");
                     button.setAttribute("type", "button");
                     button.value = "select parent";
-                    button.eParent = parent.value;
+                    button.nuParent = parent.value;
                     button.onclick = function(){
-                        editor.setSelection(this.eParent);
+                        editor.setSelection(this.nuParent);
                     };
-                    fields.appendChild(button);
+                    var t = document.createElement("li");
+                    t.appendChild(button);
+                    fields.appendChild(t);
                 }
                 each(properties, function(field){
                     var t = document.createElement("li");
@@ -314,49 +327,40 @@ function updateEntities()
 
     loading = true;
 
-//    var ajax = new Ajax.Request("/nuclei/entities",
-//    {
-//        method: "get",
-//        onComplete: function(res) {
-//            loading = false;
-//            entities = res.responseText.evalJSON();
-//        }
-//    });
+    var ajax = new XMLHttpRequest();
+    ajax.open("GET", "/nuclei/state", true);
+    ajax.responseType = "arraybuffer";
+    ajax.onload = function (ev) {
+        loading = false;
+        var buf = ajax.response;
+        var rpos = 0;
 
-     var ajax = new XMLHttpRequest();
-     ajax.open("GET", "/nuclei/state", true);
-     ajax.responseType = "arraybuffer";
-     ajax.onload = function (ev) {
-         loading = false;
-         var buf = ajax.response;
-         var rpos = 0;
+        var nums = new Uint32Array(buf, rpos, 4);
+        rpos += 4*4;
+        var num_entities = nums[0];
+        var num_bullets = nums[1];
+        var num_lasers = nums[2];
+        var num_fluids = nums[3];
+    
+        entities.ids = new Uint32Array(buf, rpos, num_entities);
+        rpos += 4 * num_entities;
+        entities.trans = new Float32Array(buf, rpos, num_entities*16);
+        rpos += 4*16 * num_entities;
+        entities.size = new Float32Array(buf, rpos, num_entities*3);
+        rpos += 4*3 * num_entities;
+        entities.color = new Float32Array(buf, rpos, num_entities*4);
+        rpos += 4*4 * num_entities;
 
-         var nums = new Uint32Array(buf, rpos, 4);
-         rpos += 4*4;
-         var num_entities = nums[0];
-         var num_bullets = nums[1];
-         var num_lasers = nums[2];
-         var num_fluids = nums[3];
+        entities.bullets = new Float32Array(buf, rpos, num_bullets*2);
+        rpos += 4*2 * num_bullets;
 
-         entities.ids = new Uint32Array(buf, rpos, num_entities);
-         rpos += 4 * num_entities;
-         entities.trans = new Float32Array(buf, rpos, num_entities*16);
-         rpos += 4*16 * num_entities;
-         entities.size = new Float32Array(buf, rpos, num_entities*3);
-         rpos += 4*3 * num_entities;
-         entities.color = new Float32Array(buf, rpos, num_entities*4);
-         rpos += 4*4 * num_entities;
+        entities.lasers = new Float32Array(buf, rpos, num_lasers*3);
+        rpos += 4*3 * num_lasers;
 
-         entities.bullets = new Float32Array(buf, rpos, num_bullets*2);
-         rpos += 4*2 * num_bullets;
-
-         entities.lasers = new Float32Array(buf, rpos, num_lasers*3);
-         rpos += 4*3 * num_lasers;
-
-         entities.fluids = new Float32Array(buf, rpos, num_fluids*2);
-         rpos += 4*2 * num_fluids;
-     };
-     ajax.send(null);
+        entities.fluids = new Float32Array(buf, rpos, num_fluids*2);
+        rpos += 4*2 * num_fluids;
+    };
+    ajax.send(null);
 }
 
 function selectEntityPoint(p)
@@ -613,39 +617,6 @@ function drawGL()
 }
 
 
-function onLoad2D()
-{
-    var c = document.getElementById("c");
-}
-
-function draw2D()
-{
-    var c = document.getElementById("c");
-    var w = c.width;
-    var h = c.height;
-    var ctx = c.getContext("2d");
-    ctx.beginPath();
-    ctx.fillStyle="#000000";
-    ctx.rect(0, 0, w, h);
-    ctx.fill();
-    ctx.stroke();
-
-    for(var i=0; i<entities.ids.length; ++i) {
-        var color = EntityClassColor2D[entities.types[i]];
-        var center_x = (entities.positions[i*2+0] / FieldX * 0.5 + 0.5) * w;
-        var center_y = (entities.positions[i*2+1] / FieldY *-0.5 + 0.5) * h;
-        var size_x = w * (entities.sizes[i*2+0] / FieldX * 0.25);
-        var size_y = h * (entities.sizes[i*2+1] / FieldY *-0.25);
-        ctx.beginPath();
-        ctx.globalAlpha = 0.3;
-        ctx.fillStyle = color;
-        ctx.rect(center_x-size_x,center_y-size_y, size_x*2,size_y*2);
-        ctx.fill();
-        ctx.stroke();
-    }
-}
-
-
 function onLoad()
 {
     clearInterval(FPSTimer);
@@ -725,7 +696,6 @@ function onLoad()
     ui.onLoad();
 
     onLoadGL();
-    //onLoad2D();
     draw();
 }
 
@@ -764,7 +734,7 @@ function postCommand(url, values)
 <body onload="onLoad()">
 <canvas id="c" width="1024" height="1024" style="position:absolute; left:0px; top:0px;"></canvas>
 <div id="tools" style="position:absolute; left:1024px; top:0px; with:200px;">
-<span id="fps">  </span><ul id="entity_type_selector"></ul><ul id="entity_properties"></ul>
+<span id="fps">00</span><ul id="entity_type_selector"></ul><ul id="entity_properties"></ul>
 <a href="http://primitive-games.jp/atomic/">about atomic</a>
 </div>
 </body>

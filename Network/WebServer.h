@@ -16,12 +16,10 @@ struct WebServerConfig
 };
 
 class NucleiCommandHandler;
-class WebRequestHandlerFactory;
 
 class WebServer
 {
 friend class NucleiCommandHandler;
-friend class WebRequestHandlerFactory;
 public:
     enum ErrorCode {
         ER_Ok,

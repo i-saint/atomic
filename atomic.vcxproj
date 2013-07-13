@@ -73,6 +73,7 @@
     <ClCompile Include="Network\InputServerNetwork.cpp" />
     <ClCompile Include="Network\InputServerReplay.cpp" />
     <ClCompile Include="Network\LevelEditorCommand.cpp" />
+    <ClCompile Include="Network\LevelEditorCommandHandler.cpp" />
     <ClCompile Include="Network\Protocol.cpp" />
     <ClCompile Include="Network\WebServer.cpp" />
     <ClCompile Include="Sound\AtomicSound.cpp" />
@@ -135,6 +136,7 @@
     <ClInclude Include="Network\InputServer.h" />
     <ClInclude Include="Network\InputServerInternal.h" />
     <ClInclude Include="Network\LevelEditorCommand.h" />
+    <ClInclude Include="Network\LevelEditorCommandHandler.h" />
     <ClInclude Include="Network\Protocol.h" />
     <ClInclude Include="Network\WebServer.h" />
     <ClInclude Include="Sound\AtomicSound.h" />

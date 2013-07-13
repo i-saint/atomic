@@ -186,9 +186,13 @@ void EntityModule::deleteEntity( EntityHandle h )
     uint32 iid = EntityGetIndex(h);
     Entities &entities = m_entities;
     Handles &vacants = m_vacants;
-    entities[iid]->finalize();
-    istSafeRelease(entities[iid]);
-    m_dead.push_back(EntityGetIndex(h));
+    if(iid < entities.size()) {
+        if(IEntity *&e = entities[iid]) {
+            e->finalize();
+            istSafeRelease(entities[iid]);
+            m_dead.push_back(EntityGetIndex(h));
+        }
+    }
 }
 
 void EntityModule::generateHandle(EntityClassID classid)
