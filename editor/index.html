@@ -146,6 +146,7 @@ var editor = {
     selection: [],
     currentEntityType: 0,
     entityTypes: [],
+    entityTypes_IDOrder: {},
     functions: [],
     resource: 0.0,
 
@@ -166,10 +167,23 @@ var editor = {
         }
     },
 
+    getEntityClassID: function(e) {
+        return (e & 0xFFF00000) >>> 20;
+    },
+    getEntityClassName: function(e) {
+        var classid = this.getEntityClassID(e);
+        var typeinfo = this.entityTypes_IDOrder[classid];
+        return typeinfo;
+    },
+
     setupConsts: function(consts)
     {
         this.entityTypes = consts.entityTypes;
         this.functions = consts.functions;
+        for(var name in this.entityTypes) {
+            var value = this.entityTypes[name];
+            this.entityTypes_IDOrder[value.id] = name;
+        }
     },
 };
 
@@ -220,7 +234,12 @@ var ui = {
                 var properties = res.responseText.evalJSON();
                 var fields = ui.getProperties();
                 clearChildren(fields);
-
+                {
+                    var classname = editor.getEntityClassName(entity);
+                    var t = document.createElement("li");
+                    t.appendChild(document.createTextNode(classname));
+                    fields.appendChild(t);
+                }
                 {
                     var button = document.createElement("input");
                     button.setAttribute("type", "button");
@@ -734,7 +753,7 @@ function postCommand(url, values)
 <body onload="onLoad()">
 <canvas id="c" width="1024" height="1024" style="position:absolute; left:0px; top:0px;"></canvas>
 <div id="tools" style="position:absolute; left:1024px; top:0px; with:200px;">
-<span id="fps">00</span><ul id="entity_type_selector"></ul><ul id="entity_properties"></ul>
+<span id="fps">00</span><ul id="entity_type_selector"></ul><ul id="entity_properties"></ul><ul id="entity_list"></ul>
 <a href="http://primitive-games.jp/atomic/">about atomic</a>
 </div>
 </body>

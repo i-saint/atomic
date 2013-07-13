@@ -64,7 +64,7 @@ public:
     void handleLevelEditorQueries(LevelEditorQuery &cmd);
     void handlePMessages(const PMessage &mes);
     int handleCommandLine(const stl::wstring &command);
-    void handleEntitiesQuery(std::string &out);
+    void handleStateQuery(std::string &out);
     void handleEntityQuery(std::string &out, EntityHandle h);
 
     const InputState& getIngameInputs() const { return m_input_server->getInput(0); }

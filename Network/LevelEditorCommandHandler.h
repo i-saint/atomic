@@ -41,35 +41,6 @@ inline void EachFormData(const std::string &form_fata, const Func &f)
     f(&form_fata[pos], sep-pos);
 }
 
-inline bool ParseArg(variant32 &out, const std::string &str)
-{
-    ivec4 iv;
-    uvec4 uv;
-    vec4 fv;
-    if(sscanf(str.c_str(), "int32(%d)", &iv.x)==1) {
-        out=iv; return true;
-    }
-    else if(sscanf(str.c_str(), "uint32(%u)", &uv.x)==1) {
-        out=uv; return true;
-    }
-    else if(sscanf(str.c_str(), "float32(%f)", &fv.x)==1) {
-        out=fv; return true;
-    }
-    else if(sscanf(str.c_str(), "vec2(%f,%f)", &fv.x, &fv.y)==2) {
-        out=fv; return true;
-    }
-    else if(sscanf(str.c_str(), "vec3(%f,%f,%f)", &fv.x, &fv.y, &fv.z)==3) {
-        out=fv; return true;
-    }
-    else if(sscanf(str.c_str(), "instruction(%f,%f,%f,%u)", &fv.x, &fv.y, &fv.z, &uv.x)==4) {
-        out=ist::MakeValueList(vec3(fv),uv.x); return true;
-    }
-    else if(sscanf(str.c_str(), "controlpoint(%f,%f,%f,%f,%u)", &fv.x, &fv.y, &fv.z, &fv.w, &uv.x)==5) {
-        out=ControlPoint(fv.x, fv.y, fv.z, fv.w, (Interpolation)uv.x); return true;
-    }
-    return false;
-}
-
 
 class NucleiCommandHandler : public Poco::Net::HTTPRequestHandler
 {

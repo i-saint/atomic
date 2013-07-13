@@ -35,7 +35,7 @@ struct Entity_AxisRotation
 
 struct Entity_Translate
 {
-    typedef TAttr_TransformMatrix<Attr_Translate> transform;
+    typedef TAttr_TransformMatrix<Attr_Position> transform;
     typedef Attr_ParticleSet    model;
     typedef Attr_Collision      collision;
     typedef Attr_Bloodstain     bloodstain;

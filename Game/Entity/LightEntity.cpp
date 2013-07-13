@@ -49,9 +49,9 @@ public:
 };
 
 
-class PointLightEntity : public LightEntityBase<Attr_Translate>
+class PointLightEntity : public LightEntityBase<Attr_Position>
 {
-typedef LightEntityBase<Attr_Translate> super;
+typedef LightEntityBase<Attr_Position> super;
 private:
     float32 m_radius;
 
@@ -100,9 +100,9 @@ atmImplementEntity(PointLightEntity);
 atmExportClass(PointLightEntity);
 
 
-class DirectionalLightEntity : public LightEntityBase<Attr_Translate>
+class DirectionalLightEntity : public LightEntityBase<Attr_Position>
 {
-typedef LightEntityBase<Attr_Translate> super;
+typedef LightEntityBase<Attr_Position> super;
 private:
     vec3 m_direction;
 

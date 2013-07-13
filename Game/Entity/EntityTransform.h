@@ -3,7 +3,7 @@
 namespace atm {
 
 
-class Attr_Translate
+class Attr_Position
 {
 protected:
     vec3 m_pos;
@@ -33,7 +33,7 @@ public:
 
 
 public:
-    Attr_Translate() {}
+    Attr_Position() {}
     const vec3& getPosition() const { return m_pos; }
     void setPosition(const vec3& v) { m_pos=v; }
     void move(const vec3 &v)        { setPosition(getPosition()+v); }

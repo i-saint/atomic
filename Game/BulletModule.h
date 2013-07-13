@@ -46,7 +46,7 @@ public:
     void draw() override;
     void frameEnd() override;
 
-    void handleEntitiesQuery(EntitiesQueryContext &ctx);
+    void handleStateQuery(EntitiesQueryContext &ctx);
 
     void shootBullet(const vec3 &pos, const vec3 &vel, EntityHandle owner);
     LaserHandle createLaser(const vec3 &pos, const vec3 &dir, EntityHandle owner);

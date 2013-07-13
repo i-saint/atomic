@@ -231,13 +231,11 @@ IEntity* EntityModule::createEntity( EntityClassID classid )
 }
 
 
-void EntityModule::handleEntitiesQuery( EntitiesQueryContext &ctx )
+void EntityModule::handleStateQuery( EntitiesQueryContext &ctx )
 {
-#ifdef atm_enable_WebGL
     mat4 trans;
     vec4 color = vec4(vec3(1.0f), 0.1f);
     vec3 size;
-#endif // atm_enable_WebGL
 
     CollisionHandle ch;
     uint32 num_entities = m_all.size();
@@ -245,10 +243,11 @@ void EntityModule::handleEntitiesQuery( EntitiesQueryContext &ctx )
         EntityHandle handle = m_all[i];
         IEntity *e = getEntity(handle);
         if(e) {
-            if(!atmQuery(e, getCollisionHandle, ch)) { continue; }
-            CollisionEntity *ce = atmGetCollision(ch);
+            CollisionEntity *ce = nullptr;
+            if(atmQuery(e, getCollisionHandle, ch)) {
+                ce = atmGetCollision(ch);
+            }
             if(ce) {
-#ifdef atm_enable_WebGL
                 atmQuery(e, getTransformMatrix, trans);
                 switch(ce->getShapeType()) {
                 case CS_Sphere:
@@ -261,28 +260,28 @@ void EntityModule::handleEntitiesQuery( EntitiesQueryContext &ctx )
                     size = vec3();
                     break;
                 }
-
-                switch(EntityGetCategory(handle)) {
-                case ECA_Player:   color=vec4(0.3f, 0.3f, 1.0f, 0.25f); break;
-                case ECA_Enemy:    color=vec4(1.0f, 0.3f, 0.3f, 0.25f); break;
-                case ECA_Obstacle: color=vec4(0.4f, 0.4f, 0.4f, 0.25f); break;
-                default:           color=vec4(); break;
-                }
-
-                ctx.id.push_back(handle);
-                ctx.trans.push_back(trans);
-                ctx.size.push_back(size);
-                ctx.color.push_back(color);
-#else // atm_enable_WebGL
-                const BoundingBox &bb = ce->bb;
-                vec4 bb_size = bb.ur - bb.bl;
-                vec4 bb_pos = (bb.ur + bb.bl) * 0.5f;
-                ctx.id.push_back(handle);
-                ctx.type.push_back( EntityGetCategory(e->getHandle()) );
-                ctx.size.push_back( vec2(bb_size) );
-                ctx.pos.push_back( vec2(bb_pos) );
-#endif // atm_enable_WebGL
             }
+            else {
+                if(atmQuery(e, getTransformMatrix, trans)) {}
+                else {
+                    vec3 pos;
+                    atmQuery(e, getPosition, pos);
+                    trans = glm::translate(pos);
+                }
+                size = vec3(0.1f);
+            }
+
+            switch(EntityGetCategory(handle)) {
+            case ECA_Player:   color=vec4(0.3f, 0.3f, 1.0f, 0.25f); break;
+            case ECA_Enemy:    color=vec4(1.0f, 0.3f, 0.3f, 0.25f); break;
+            case ECA_Obstacle: color=vec4(0.4f, 0.4f, 0.4f, 0.25f); break;
+            default:           color=vec4(0.2f, 0.2f, 0.2f, 0.25f); break;
+            }
+
+            ctx.id.push_back(handle);
+            ctx.trans.push_back(trans);
+            ctx.size.push_back(size);
+            ctx.color.push_back(color);
         }
     }
 }

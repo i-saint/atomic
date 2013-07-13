@@ -6,9 +6,9 @@
 namespace atm {
 
 
-class Level_Test : public IEntity
+class Level_Test : public EntityWithPosition
 {
-typedef IEntity super;
+typedef EntityWithPosition super;
 private:
     enum STATE {
         ST_BEGIN,

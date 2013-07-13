@@ -233,15 +233,15 @@ void AtomicGame::handleLevelEditorCommands( const LevelEditorCommand &c )
 
 void AtomicGame::handleLevelEditorQueries( LevelEditorQuery &cmd )
 {
-    if(cmd.type==LEQ_Entities) {
-        handleEntitiesQuery(cmd.response);
+    if(cmd.type==LEQ_State) {
+        handleStateQuery(cmd.response);
     }
     else if(cmd.type==LEQ_Entity) {
         handleEntityQuery(cmd.response, (EntityHandle)cmd.optional);
     }
 }
 
-void AtomicGame::handleEntitiesQuery( std::string &out )
+void AtomicGame::handleStateQuery( std::string &out )
 {
     EntitiesQueryContext &eqc = m_ctx_entities_query;
     eqc.clear();
@@ -254,7 +254,9 @@ void AtomicGame::handleEntityQuery( std::string &out, EntityHandle h )
     out += "[";
     if(IEntity *e=atmGetEntity(h)) {
         e->jsonize(out);
-        out.pop_back();
+        if(out.back()==',') {
+            out.pop_back();
+        }
     }
     out += "]";
 }

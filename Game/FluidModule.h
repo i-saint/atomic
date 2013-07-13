@@ -43,7 +43,7 @@ public:
     void addFluid(psym::Particle *particles, uint32 num);
     void addFluid(PSET_RID psid, const mat4 &t);
 
-    void handleEntitiesQuery(EntitiesQueryContext &ctx);
+    void handleStateQuery(EntitiesQueryContext &ctx);
 
 private:
     psym::World         m_world;

@@ -144,9 +144,9 @@ void World::frameEnd()
 void World::handleEntitiesQuery( EntitiesQueryContext &ctx )
 {
     if(m_modules.empty()) { return; }
-    m_entity_module->handleEntitiesQuery(ctx);
-    m_bullet_module->handleEntitiesQuery(ctx);
-    m_fluid_module->handleEntitiesQuery(ctx);
+    m_entity_module->handleStateQuery(ctx);
+    m_bullet_module->handleStateQuery(ctx);
+    m_fluid_module->handleStateQuery(ctx);
 }
 
 

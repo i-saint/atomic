@@ -9,6 +9,35 @@ namespace atm {
 
 #ifdef atm_enable_LevelEditorServer
 
+inline bool ParseArg(variant32 &out, const std::string &str)
+{
+    ivec4 iv;
+    uvec4 uv;
+    vec4 fv;
+    if(sscanf(str.c_str(), "int32(%d)", &iv.x)==1) {
+        out=iv; return true;
+    }
+    else if(sscanf(str.c_str(), "uint32(%u)", &uv.x)==1) {
+        out=uv; return true;
+    }
+    else if(sscanf(str.c_str(), "float32(%f)", &fv.x)==1) {
+        out=fv; return true;
+    }
+    else if(sscanf(str.c_str(), "vec2(%f,%f)", &fv.x, &fv.y)==2) {
+        out=fv; return true;
+    }
+    else if(sscanf(str.c_str(), "vec3(%f,%f,%f)", &fv.x, &fv.y, &fv.z)==3) {
+        out=fv; return true;
+    }
+    else if(sscanf(str.c_str(), "instruction(%f,%f,%f,%u)", &fv.x, &fv.y, &fv.z, &uv.x)==4) {
+        out=ist::MakeValueList(vec3(fv),uv.x); return true;
+    }
+    else if(sscanf(str.c_str(), "controlpoint(%f,%f,%f,%f,%u)", &fv.x, &fv.y, &fv.z, &fv.w, &uv.x)==5) {
+        out=ControlPoint(fv.x, fv.y, fv.z, fv.w, (Interpolation)uv.x); return true;
+    }
+    return false;
+}
+
 struct NucleiCommandHandler_Initializer
 {
     NucleiCommandHandler_Initializer() {
@@ -20,12 +49,12 @@ NucleiCommandHandler::HandlerTable& NucleiCommandHandler::getHandlerTable()
 {
     static HandlerTable s_table;
     if(s_table.empty()) {
-        s_table["/nuclei/call"]   = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleCall(req,res);   };
-        s_table["/nuclei/create"] = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleCreate(req,res); };
-        s_table["/nuclei/delete"] = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleDelete(req,res); };
-        s_table["/nuclei/state"]  = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleState(req,res);  };
-        s_table["/nuclei/entity"] = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleEntity(req,res); };
-        s_table["/nuclei/const"]  = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleConst(req,res);  };
+        s_table["/nuclei/call"]     = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleCall(req,res);   };
+        s_table["/nuclei/create"]   = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleCreate(req,res); };
+        s_table["/nuclei/delete"]   = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleDelete(req,res); };
+        s_table["/nuclei/state"]    = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleState(req,res);  };
+        s_table["/nuclei/entity"]   = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleEntity(req,res); };
+        s_table["/nuclei/const"]    = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleConst(req,res);  };
     }
     return s_table;
 }
@@ -164,7 +193,7 @@ void NucleiCommandHandler::handleCall(HTTPServerRequest &request, HTTPServerResp
 void NucleiCommandHandler::handleState(HTTPServerRequest &request, HTTPServerResponse &response)
 {
     LevelEditorQuery q;
-    q.type = LEQ_Entities;
+    q.type = LEQ_State;
     WebServer::getInstance()->pushQuery(q);
     while(!q.completed && !WebServer::getInstance()->endFlag()) {
         ist::MiliSleep(5);

@@ -575,7 +575,7 @@ void BulletModule::frameEnd()
     each(m_managers, [&](IBulletManager *bm){ bm->frameEnd(); });
 }
 
-void BulletModule::handleEntitiesQuery( EntitiesQueryContext &ctx )
+void BulletModule::handleStateQuery( EntitiesQueryContext &ctx )
 {
     m_bullets->eachBullets([&](const BulletData &b){
         ctx.bullets.push_back(vec2(b.pos));

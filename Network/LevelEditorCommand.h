@@ -32,7 +32,7 @@ enum LEC_Type
 enum LEQ_Type
 {
     LEQ_Unknown,
-    LEQ_Entities,
+    LEQ_State,
     LEQ_Entity,
     LEQ_Players,
 };

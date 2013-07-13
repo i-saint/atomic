@@ -3,6 +3,29 @@
 namespace atm {
 
 template<class Transform>
+class EntityWithTransform : public IEntity, public Transform
+{
+typedef IEntity super;
+typedef Transform transform;
+private:
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerializeBase(transform)
+    )
+
+public:
+    atmECallBlock(
+        atmECallSuper(super)
+        atmECallSuper(transform)
+    )
+
+    atmJsonizeBlock(
+        atmJsonizeSuper(transform)
+    )
+};
+typedef EntityWithTransform<Attr_Position> EntityWithPosition;
+
+template<class Transform>
 class Unbreakable : public EntityTemplate<Transform>
 {
 typedef EntityTemplate<Transform> super;
@@ -16,6 +39,10 @@ public:
         atmECallSuper(super)
     )
 
+    atmJsonizeBlock(
+        atmJsonizeSuper(transform)
+    )
+
 public:
     Unbreakable()
     {
@@ -27,11 +54,6 @@ public:
         super::addDebugNodes(path);
     }
     )
-
-    void jsonize(stl::string &out) override
-    {
-        transform::jsonize(out);
-    }
 
     void initialize() override
     {

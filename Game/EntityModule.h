@@ -90,7 +90,12 @@ public:
     IEntity* createEntity(EntityClassID cid);
     void deleteEntity(EntityHandle h);
 
-    void handleEntitiesQuery(EntitiesQueryContext &ctx);
+    void handleStateQuery(EntitiesQueryContext &ctx);
+
+    template<class Func>
+    void enumlateEntityHandle(const Func &f) {
+        each(m_all, [&](EntityHandle h){ f(h); });
+    }
 
     template<class Cond, class Func>
     void enumlateEntity(const Cond &c, const Func &f) {

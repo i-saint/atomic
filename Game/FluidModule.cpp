@@ -239,7 +239,7 @@ void FluidModule::addFluid(PSET_RID psid, const mat4 &t)
     m_new_fluid_ctx.push_back(ctx);
 }
 
-void FluidModule::handleEntitiesQuery( EntitiesQueryContext &ctx )
+void FluidModule::handleStateQuery( EntitiesQueryContext &ctx )
 {
     const psym::Particle *particles = m_world.getParticles();
     size_t num = m_world.getNumParticles();

@@ -127,33 +127,23 @@ inline void jsonize(stl::string &out, const ControlPoint &cp)
 }
 
 
-inline const char* SkipColon(const char *name)
-{
-    size_t p=0;
-    for(size_t i=0; ; ++i) {
-        if(name[i]=='\0') { break; }
-        else if(name[i]==':') { p=i+1; }
-    }
-    return name+p;
-}
-
 template<class R, class C>
 inline void JsonizeMF(stl::string &out, const char *name, R (C::*f)()) {
     out += ist::Format("{\"name\":\"%s\",\"type\":\"function\",\"args\":[]},"
-        , SkipColon(name));
+        , name);
 }
 template<class R, class C, class R0>
 inline void JsonizeMF(stl::string &out, const char *name, R (C::*f)(R0)) {
     typedef typename std::remove_const<typename std::remove_reference<R0>::type>::type R0T;
     out += ist::Format("{\"name\":\"%s\",\"type\":\"function\",\"args\":[\"%s\"]},"
-        , SkipColon(name), TypeS<R0T>::get());
+        , name, TypeS<R0T>::get());
 }
 template<class R, class C, class R0, class R1>
 inline void JsonizeMF(stl::string &out, const char *name, R (C::*f)(R0,R1)) {
     typedef typename std::remove_const<typename std::remove_reference<R0>::type>::type R0T;
     typedef typename std::remove_const<typename std::remove_reference<R1>::type>::type R1T;
     out += ist::Format("{\"name\":\"%s\",\"type\":\"function\",\"args\":[\"%s\",\"%s\"]},"
-        , SkipColon(name), TypeS<R0T>::get(), TypeS<R1T>::get());
+        , name, TypeS<R0T>::get(), TypeS<R1T>::get());
 }
 
 #define atmJsonizeBlock(...) \
