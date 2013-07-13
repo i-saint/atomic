@@ -81,18 +81,24 @@ enum FunctionID;
 typedef uint32 PlayerID;
 typedef wchar_t (PlayerName)[16];
 
-enum Transition {
+enum Interpolation {
+    atmE_None,
     atmE_Linear,
+    atmE_Decel,
+    atmE_Accel,
+    atmE_Smooth,
     atmE_Bezier,
 };
 struct ControlPoint
 {
     float32 time;
-    vec3 pos;
-    Transition transition;
+    float32 value;
+    float32 bez_in, bez_out;
+    Interpolation interp;
 
-    ControlPoint() : time(0.0f), transition(atmE_Linear) {}
-    ControlPoint(float32 t, const vec3 &p, Transition ts=atmE_Linear) : time(t), pos(p), transition(ts) {}
+    ControlPoint() : time(0.0f), value(0.0f), bez_in(0.0f),bez_out(0.0f), interp(atmE_Linear) {}
+    ControlPoint(float32 t, float32 v, Interpolation ts=atmE_Linear) : time(t), value(v), bez_in(0.0f),bez_out(0.0f), interp(ts) {}
+    ControlPoint(float32 t, float32 v, float32 _in, float32 _out, Interpolation ts=atmE_Linear) : time(t), value(v), bez_in(_in),bez_out(_out), interp(ts) {}
     bool operator<(const ControlPoint &p) const { return time<p.time; }
 };
 atmSerializeRaw(ControlPoint);

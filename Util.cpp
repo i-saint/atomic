@@ -35,6 +35,22 @@ void FillScreen( const vec4 &color )
 }
 
 
+float32 Interpolate(const ControlPoint &v1, const ControlPoint &v2, float32 time)
+{
+    float32 u = (time - v1.time) / (v2.time-v1.time);
+    float32 r;
+    switch(v1.interp) {
+    case atmE_None:   r=v1.value; break;
+    case atmE_Linear: r=ist::interpolate_lerp(v1.value, v2.value, u); break;
+    case atmE_Decel:  r=ist::interpolate_sin90(v1.value, v2.value, u); break;
+    case atmE_Accel:  r=ist::interpolate_cos90inv(v1.value, v2.value, u); break;
+    case atmE_Smooth: r=ist::interpolate_cos180inv(v1.value, v2.value, u); break;
+    case atmE_Bezier: r=ist::interpolate_bezier(v1.value, v1.bez_out, v2.bez_in, v2.value, u); break;
+    }
+    return r;
+}
+
+
 vec2 GenRandomVector2()
 {
     vec2 axis( atmGenRandFloat(), atmGenRandFloat() );

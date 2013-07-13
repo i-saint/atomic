@@ -287,11 +287,20 @@ public:
             }
 
             IEntity *layer = atmCreateEntityT(LevelLayer);
-            atmCall(layer, addPotisionCP, ControlPoint(0.0f, vec3()));
-            atmCall(layer, addPotisionCP, ControlPoint(600.0f, vec3(-1.0f,0.0f,0.0f)));
-            atmCall(layer, addPotisionCP, ControlPoint(1200.0f, vec3(-1.0f,1.0f,0.0f)));
-            atmCall(layer, addRotationCP, ControlPoint(1200.0f, vec3(0.0f)));
-            atmCall(layer, addRotationCP, ControlPoint(1400.0f, vec3(180.0f)));
+            atmCall(layer, addPotisionXCP, ControlPoint(  0.0f,  0.0f, 0.0f, -1.0f, atmE_Bezier));
+            atmCall(layer, addPotisionXCP, ControlPoint(300.0f, -1.0f, -1.0f, 0.0f));
+
+            atmCall(layer, addPotisionYCP, ControlPoint(300.0f,  0.0f, atmE_Accel));
+            atmCall(layer, addPotisionYCP, ControlPoint(600.0f,  1.0f));
+
+            atmCall(layer, addPotisionXCP, ControlPoint(600.0f,-1.0f, atmE_Decel));
+            atmCall(layer, addPotisionXCP, ControlPoint(900.0f, 0.0f));
+
+            atmCall(layer, addPotisionYCP, ControlPoint(900.0f,  1.0f, atmE_Smooth));
+            atmCall(layer, addPotisionYCP, ControlPoint(1200.0f,  0.0f));
+
+            atmCall(layer, addRotationCP, ControlPoint(1200.0f, 0.0f));
+            atmCall(layer, addRotationCP, ControlPoint(1400.0f, 180.0f));
 
             {
                 IEntity *e = atmCreateEntityT(GearSmall);
