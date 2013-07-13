@@ -254,7 +254,7 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     Poco::ThreadPool::defaultPool().addCapacity(8);
     atmGameServerInitialize();
     atmGameClientInitialize();
-    atmLevelEditorServerInitialize();
+    atmWebServerInitialize();
 
     atmGameClientConnect("localhost", atm_GameServer_DefaultPort);
 
@@ -267,7 +267,7 @@ void AtomicApplication::finalize()
 {
     m->config.writeToFile(ATOMIC_CONFIG_FILE_PATH);
 
-    atmLevelEditorServerFinalize();
+    atmWebServerFinalize();
     atmGameClientFinalize();
     atmGameServerFinalize();
     Poco::ThreadPool::defaultPool().joinAll();

@@ -8,6 +8,9 @@ namespace atm {
 
 #ifdef atm_enable_LevelEditorServer
 
+using Poco::Net::HTTPServerRequest;
+using Poco::Net::HTTPServerResponse;
+
 const char s_fileserver_base_dir[] = "editor";
 
 struct MIME { const char *ext; const char *type; };
@@ -21,31 +24,6 @@ static const MIME s_mime_types[] = {
 };
 
 
-inline FunctionID GetValidFID(const stl::string &name)
-{
-    if(name.size()<64) {
-        if(atmIsEditMode()) {
-            char fid[128];
-            istSPrintf(fid, "FID_%s", name.c_str());
-            return GetFunctionIDNum(fid);
-        }
-        else {
-            if(name=="instruct") { return FID_instruct; }
-        }
-    }
-    return FID_unknown;
-}
-
-inline bool IsDeployable(EntityClassID ecid)
-{
-    if(EntityClassInfo *eci=GetEntityClassInfo(ecid)) {
-        if(atmIsEditMode()) { return true; }
-        else if(eci->deploy==DF_RTS) { return true; }
-    }
-    return false;
-}
-
-
 class FileRequestHandler: public Poco::Net::HTTPRequestHandler
 {
 public:
@@ -54,7 +32,7 @@ public:
     {
     }
 
-    void handleRequest(Poco::Net::HTTPServerRequest &request, Poco::Net::HTTPServerResponse &response)
+    void handleRequest(HTTPServerRequest &request, HTTPServerResponse &response)
     {
         const char *ext = s_mime_types[0].ext;
         const char *mime = s_mime_types[0].type;
@@ -75,7 +53,7 @@ private:
 };
 
 
-void GetDecodedRequestBody(Poco::Net::HTTPServerRequest &request, std::string &out)
+void GetDecodedRequestBody(HTTPServerRequest &request, std::string &out)
 {
     if(!request.hasContentLength() || request.getContentLength()>1024*64) {
         return;
@@ -131,209 +109,267 @@ inline bool ParseArg(variant &out, const std::string &str)
     return false;
 }
 
-class LevelEditorCommandHandler : public Poco::Net::HTTPRequestHandler
+
+class NucleiCommandHandler : public Poco::Net::HTTPRequestHandler
 {
 public:
-    LevelEditorCommandHandler()
-    {
+    enum ReturnCode {
+        RC_Ok = 0,
+        RC_InvalidCommand = -1,
+        RC_InvalicParam = -2,
+    };
+    typedef std::function<void (NucleiCommandHandler*, HTTPServerRequest&, HTTPServerResponse&)> Handler;
+    typedef stl::map<stl::string, Handler> HandlerTable;
+    static HandlerTable&    getHandlerTable();
+    static Handler*         findHandler(const stl::string &path);
+    static FunctionID       getValidFID(const stl::string &name);
+    static bool             isDeployable(EntityClassID ecid);
+
+public:
+    NucleiCommandHandler();
+    void handleRequest(HTTPServerRequest &request, HTTPServerResponse &response);
+    void respondCode(HTTPServerResponse &response, int32 code);
+
+    void handleCreateRequest(HTTPServerRequest &request, HTTPServerResponse &response);
+    void handleDeleteRequest(HTTPServerRequest &request, HTTPServerResponse &response);
+    void handleCallRequest(HTTPServerRequest &request, HTTPServerResponse &response);
+    void handleEntities(HTTPServerRequest &request, HTTPServerResponse &response);
+    void handleEntity(HTTPServerRequest &request, HTTPServerResponse &response);
+    void handleConst(HTTPServerRequest &request, HTTPServerResponse &response);
+};
+
+NucleiCommandHandler::HandlerTable& NucleiCommandHandler::getHandlerTable()
+{
+    static HandlerTable s_table;
+    if(s_table.empty()) {
+        s_table["/nuclei/call"]     = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleCallRequest(req,res);  };
+        s_table["/nuclei/create"]   = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleCreateRequest(req,res);};
+        s_table["/nuclei/delete"]   = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleDeleteRequest(req,res);};
+        s_table["/nuclei/entity"]   = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleEntity(req,res);       };
+        s_table["/nuclei/entities"] = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleEntities(req,res);     };
+        s_table["/nuclei/const"]    = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleConst(req,res);        };
     }
+    return s_table;
+}
 
-    void handleRequest(Poco::Net::HTTPServerRequest &request, Poco::Net::HTTPServerResponse &response)
-    {
-        std::string data;
-        GetDecodedRequestBody(request, data);
-        if(request.getURI()=="/call") {
-            handleCallRequest(data);
-        }
-        else if(request.getURI()=="/create") {
-            handleCreateRequest(data);
-        }
-        else if(request.getURI()=="/delete") {
-            handleDeleteRequest(data);
-        }
+NucleiCommandHandler::Handler* NucleiCommandHandler::findHandler(const stl::string &path)
+{
+    auto &table = getHandlerTable();
+    auto i = table.find(path);
+    return i==table.end() ? nullptr : &i->second;
+}
 
-        response.setContentType("text/plain");
-        response.setContentLength(2);
-        std::ostream &ostr = response.send();
-        ostr.write("ok", 2);
+FunctionID NucleiCommandHandler::getValidFID(const stl::string &name)
+{
+    if(name.size()<64) {
+        if(atmIsEditMode()) {
+            char fid[128];
+            istSPrintf(fid, "FID_%s", name.c_str());
+            return GetFunctionIDNum(fid);
+        }
+        else {
+            if(name=="instruct") { return FID_instruct; }
+        }
     }
+    return FID_unknown;
+}
 
-    bool handleCreateRequest(std::string &data)
-    {
-        std::smatch m1;
-        if(std::regex_search(data, m1, std::regex("classid=(\\d+),pos=(.+)"))) {
-            EntityClassID ecid = (EntityClassID)_atoi64(m1[1].str().c_str());
-            if(!IsDeployable(ecid)) {
-                return false;
+bool NucleiCommandHandler::isDeployable(EntityClassID ecid)
+{
+    if(EntityClassInfo *eci=GetEntityClassInfo(ecid)) {
+        if(atmIsEditMode()) { return true; }
+        else if(eci->deploy==DF_RTS) { return true; }
+    }
+    return false;
+}
+
+
+NucleiCommandHandler::NucleiCommandHandler()
+{
+}
+
+void NucleiCommandHandler::handleRequest(HTTPServerRequest &request, HTTPServerResponse &response)
+{
+    if(Handler *hanlder = findHandler(request.getURI())) {
+        (*hanlder)(this, request, response);
+    }
+}
+
+void NucleiCommandHandler::respondCode(HTTPServerResponse &response, int32 code)
+{
+    char str[16];
+    size_t len;
+    istSPrintf(str, "%d", code);
+    len = strlen(str);
+
+    response.setContentType("text/plain");
+    response.setContentLength(len);
+    std::ostream &ostr = response.send();
+    ostr.write(str, len);
+}
+
+void NucleiCommandHandler::handleCreateRequest(HTTPServerRequest &request, HTTPServerResponse &response)
+{
+    std::string data;
+    GetDecodedRequestBody(request, data);
+    int32 code = 0;
+
+    std::smatch m1;
+    if(std::regex_search(data, m1, std::regex("classid=(\\d+),pos=(.+)"))) {
+        EntityClassID ecid = (EntityClassID)_atoi64(m1[1].str().c_str());
+        if(!isDeployable(ecid)) {
+            code=RC_InvalidCommand; goto RESPOND;
+        }
+
+        variant vpos;
+        if(ParseArg(vpos, m1[2].str())) {
+            vec2 pos = (vec2&)vpos + WebServer::getInstance()->randomVec2()*0.01f;
+            {
+                LevelEditorCommand_Create cmd;
+                cmd.classid = ecid;
+                WebServer::getInstance()->pushCommand((LevelEditorCommand&)cmd);
             }
-
-            variant vpos;
-            if(ParseArg(vpos, m1[2].str())) {
-                vec2 pos = (vec2&)vpos + LevelEditorServer::getInstance()->randomVec2()*0.01f;
-                {
-                    LevelEditorCommand_Create cmd;
-                    cmd.classid = ecid;
-                    LevelEditorServer::getInstance()->pushCommand((LevelEditorCommand&)cmd);
-                }
-                {
-                    LevelEditorCommand_Call cmd;
-                    cmd.entity = 0;
-                    cmd.function = FID_move;
-                    cmd.arg = vec3(pos, 0.0f);
-                    LevelEditorServer::getInstance()->pushCommand((LevelEditorCommand&)cmd);
-                }
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    bool handleDeleteRequest(std::string &data)
-    {
-        return true;
-    }
-
-    bool handleCallRequest(std::string &data)
-    {
-
-        std::smatch m1;
-        if(std::regex_search(data, m1, std::regex("entity=(\\d+),func=(\\w+),arg=(.+)"))) {
-            variant arg;
-            EntityHandle entity = (EntityHandle)_atoi64(m1[1].str().c_str());
-            FunctionID fid = GetValidFID(m1[2].str());
-            if(fid!=0 && ParseArg(arg, m1[3].str())) {
+            {
                 LevelEditorCommand_Call cmd;
-                cmd.entity = entity;
-                cmd.function = fid;
-                cmd.arg = arg;
-                LevelEditorServer::getInstance()->pushCommand((LevelEditorCommand&)cmd);
-                return true;
-            }
-            else {
-                istPrint("handleCallRequest(): invalid command %s\n", data.c_str());
+                cmd.entity = 0;
+                cmd.function = FID_move;
+                cmd.arg = vec3(pos, 0.0f);
+                WebServer::getInstance()->pushCommand((LevelEditorCommand&)cmd);
             }
         }
-        return false;
     }
+RESPOND:
+    respondCode(response, code);
+}
 
-private:
-};
-
-class LevelEditorQueryHandler : public Poco::Net::HTTPRequestHandler
+void NucleiCommandHandler::handleDeleteRequest(HTTPServerRequest &request, HTTPServerResponse &response)
 {
-public:
-    LevelEditorQueryHandler()
-    {
+    std::string data;
+    GetDecodedRequestBody(request, data);
+    int32 code = 0;
+
+    respondCode(response, code);
+}
+
+void NucleiCommandHandler::handleCallRequest(HTTPServerRequest &request, HTTPServerResponse &response)
+{
+    std::string data;
+    GetDecodedRequestBody(request, data);
+    int32 code = 0;
+
+    std::smatch m1;
+    if(std::regex_search(data, m1, std::regex("entity=(\\d+),func=(\\w+),arg=(.+)"))) {
+        variant arg;
+        EntityHandle entity = (EntityHandle)_atoi64(m1[1].str().c_str());
+        FunctionID fid = getValidFID(m1[2].str());
+        if(fid!=0 && ParseArg(arg, m1[3].str())) {
+            LevelEditorCommand_Call cmd;
+            cmd.entity = entity;
+            cmd.function = fid;
+            cmd.arg = arg;
+            WebServer::getInstance()->pushCommand((LevelEditorCommand&)cmd);
+        }
+        else {
+            code = RC_InvalidCommand;
+        }
+    }
+    respondCode(response, code);
+}
+
+void NucleiCommandHandler::handleEntities(HTTPServerRequest &request, HTTPServerResponse &response)
+{
+    LevelEditorQuery q;
+    q.type = LEQ_Entities;
+    WebServer::getInstance()->pushQuery(q);
+    while(!q.completed && !WebServer::getInstance()->endFlag()) {
+        ist::MiliSleep(5);
     }
 
-    void handleRequest(Poco::Net::HTTPServerRequest &request, Poco::Net::HTTPServerResponse &response)
-    {
-        static const char entity[] = "/state/entity/";
-        if(strncmp(request.getURI().c_str(), entity, _countof(entity)-1)==0) {
-            handleEntity(request, response);
-        }
-        else if(request.getURI()=="/state/entities") {
-            handleEntities(request, response);
-        }
-        else if(request.getURI()=="/state/const") {
-            handleConst(request, response);
-        }
-    }
-
-    void handleEntities(Poco::Net::HTTPServerRequest &request, Poco::Net::HTTPServerResponse &response)
-    {
-        LevelEditorQuery q;
-        q.type = LEQ_Entities;
-        LevelEditorServer::getInstance()->pushQuery(q);
-        while(!q.completed && !LevelEditorServer::getInstance()->endFlag()) {
-            ist::MiliSleep(5);
-        }
-
-        response.setChunkedTransferEncoding(true);
+    response.setChunkedTransferEncoding(true);
 #ifdef atm_enable_WebGL
-        response.setContentType("application/octet-stream");
+    response.setContentType("application/octet-stream");
 #else // atm_enable_WebGL
-        response.setContentType("application/json");
+    response.setContentType("application/json");
 #endif // atm_enable_WebGL
-        std::ostream &ostr = response.send();
-        ostr << q.response;
+    std::ostream &ostr = response.send();
+    ostr << q.response;
+}
+
+
+void NucleiCommandHandler::handleEntity(HTTPServerRequest &request, HTTPServerResponse &response)
+{
+    std::string data;
+    GetDecodedRequestBody(request, data);
+
+    uint32 h = 0;
+    sscanf(data.c_str(), "entity=%u", &h);
+
+    LevelEditorQuery q;
+    q.type = LEQ_Entity;
+    q.optional =  h;
+    WebServer::getInstance()->pushQuery(q);
+    while(!q.completed && !WebServer::getInstance()->endFlag()) {
+        ist::MiliSleep(5);
     }
 
-    void handleEntity(Poco::Net::HTTPServerRequest &request, Poco::Net::HTTPServerResponse &response)
+    response.setContentType("application/json");
+    response.setContentLength(q.response.size());
+    std::ostream &ostr = response.send();
+    ostr << q.response;
+}
+
+void NucleiCommandHandler::handleConst(HTTPServerRequest &request, HTTPServerResponse &response)
+{
+    stl::string ret;
+    ret += "{";
     {
-        uint32 h = 0;
-        sscanf(request.getURI().c_str(), "/state/entity/%u", &h);
+        bool first = true;
+        ret += "\"entityTypes\":{";
+        EntityClassIDEachPair([&](const ist::EnumStr &es){
+            EntityClassID ecid = (EntityClassID)es.num;
+            const EntityClassInfo *eci = GetEntityClassInfo(ecid);
+            bool deployable = false;
+            float32 cost = 0.0f;
+            if(eci) {
+                if(eci->deploy==DF_RTS || (eci->deploy==DF_Editor && atmIsEditMode())) { deployable=true; }
+                cost = eci->cost;
+            }
+            if(!first){ret+=",";} first=false;
+            ret += ist::Format(
+                "\"%s\":{\"id\":%d,\"deployable\":%d,\"cost\":%f}",
+                es.str+3, es.num, deployable, cost );
 
-        LevelEditorQuery q;
-        q.type = LEQ_Entity;
-        q.optional =  h;
-        LevelEditorServer::getInstance()->pushQuery(q);
-        while(!q.completed && !LevelEditorServer::getInstance()->endFlag()) {
-            ist::MiliSleep(5);
-        }
-
-        response.setContentType("application/json");
-        response.setContentLength(q.response.size());
-        std::ostream &ostr = response.send();
-        ostr << q.response;
+        });
+        ret += "},";
     }
-
-    void handleConst(Poco::Net::HTTPServerRequest &request, Poco::Net::HTTPServerResponse &response)
     {
-        stl::string ret;
-        ret += "{";
-        {
-            bool first = true;
-            ret += "\"entityTypes\":{";
-            EntityClassIDEachPair([&](const ist::EnumStr &es){
-                EntityClassID ecid = (EntityClassID)es.num;
-                const EntityClassInfo *eci = GetEntityClassInfo(ecid);
-                bool deployable = false;
-                float32 cost = 0.0f;
-                if(eci) {
-                    if(eci->deploy==DF_RTS || (eci->deploy==DF_Editor && atmIsEditMode())) { deployable=true; }
-                    cost = eci->cost;
-                }
-                if(!first){ret+=",";} first=false;
-                ret += ist::Format(
-                    "\"%s\":{\"id\":%d,\"deployable\":%d,\"cost\":%f}",
-                    es.str+3, es.num, deployable, cost );
-                
-            });
-            ret += "},";
-        }
-        {
-            bool first = true;
-            ret += "\"functions\":{";
-            FunctionIDEachPair([&](const ist::EnumStr &es){
-                if(!first){ret+=",";} first=false;
-                ret += ist::Format("\"%s\":%d", es.str+4, es.num);
-            });
-            ret += "}";
-        }
+        bool first = true;
+        ret += "\"functions\":{";
+        FunctionIDEachPair([&](const ist::EnumStr &es){
+            if(!first){ret+=",";} first=false;
+            ret += ist::Format("\"%s\":%d", es.str+4, es.num);
+        });
         ret += "}";
-
-        response.setContentType("application/json");
-        response.setContentLength(ret.size());
-        std::ostream &ostr = response.send();
-        ostr << ret;
     }
-};
+    ret += "}";
 
-class LevelEditorRequestHandlerFactory : public Poco::Net::HTTPRequestHandlerFactory
+    response.setContentType("application/json");
+    response.setContentLength(ret.size());
+    std::ostream &ostr = response.send();
+    ostr << ret;
+}
+
+
+class WebRequestHandlerFactory : public Poco::Net::HTTPRequestHandlerFactory
 {
 public:
-    virtual Poco::Net::HTTPRequestHandler* createRequestHandler(const Poco::Net::HTTPServerRequest &request)
+    virtual Poco::Net::HTTPRequestHandler* createRequestHandler(const HTTPServerRequest &request)
     {
-        if(request.getURI() == "/") {
+        if(request.getURI()=="/") {
             return new FileRequestHandler(std::string(s_fileserver_base_dir)+"/index.html");
         }
-        else if(request.getURI()=="/create" || request.getURI()=="/delete" || request.getURI()=="/call") {
-            return new LevelEditorCommandHandler();
-        }
-        else if(request.getURI().find("/state")==0) {
-            return new LevelEditorQueryHandler();
+        else if( NucleiCommandHandler::findHandler(request.getURI()) ) {
+            return new NucleiCommandHandler();
         }
         else {
             std::string path = std::string(s_fileserver_base_dir)+request.getURI();
@@ -351,17 +387,17 @@ public:
 
 
 
-LevelEditorServer * LevelEditorServer::s_inst;
+WebServer * WebServer::s_inst;
 
-void LevelEditorServer::initializeInstance()
+void WebServer::initializeInstance()
 {
     if(!s_inst) {
-        s_inst = new LevelEditorServer();
+        s_inst = new WebServer();
         s_inst->start();
     }
 }
 
-void LevelEditorServer::finalizeInstance()
+void WebServer::finalizeInstance()
 {
     if(s_inst) {
         delete s_inst;
@@ -369,19 +405,19 @@ void LevelEditorServer::finalizeInstance()
     }
 }
 
-LevelEditorServer* LevelEditorServer::getInstance()
+WebServer* WebServer::getInstance()
 {
     return s_inst;
 }
 
 
-LevelEditorServerConfig::LevelEditorServerConfig()
+WebServerConfig::WebServerConfig()
     : max_queue(100)
     , max_threads(4)
 {
 }
 
-LevelEditorServer::LevelEditorServer()
+WebServer::WebServer()
     : m_server(NULL)
     , m_end_flag(false)
 {
@@ -389,12 +425,12 @@ LevelEditorServer::LevelEditorServer()
     m_commands.reserve(128);
 }
 
-LevelEditorServer::~LevelEditorServer()
+WebServer::~WebServer()
 {
     stop();
 }
 
-void LevelEditorServer::start()
+void WebServer::start()
 {
     if(!m_server) {
         Poco::Net::HTTPServerParams* params = new Poco::Net::HTTPServerParams;
@@ -404,7 +440,7 @@ void LevelEditorServer::start()
 
         try {
             Poco::Net::ServerSocket svs(atmGetConfig()->leveleditor_port);
-            m_server = new Poco::Net::HTTPServer(new LevelEditorRequestHandlerFactory(), svs, params);
+            m_server = new Poco::Net::HTTPServer(new WebRequestHandlerFactory(), svs, params);
             m_server->start();
         }
         catch(Poco::IOException &e) {
@@ -414,7 +450,7 @@ void LevelEditorServer::start()
     }
 }
 
-void LevelEditorServer::stop()
+void WebServer::stop()
 {
     if(m_server) {
         m_end_flag = true;
@@ -428,13 +464,13 @@ void LevelEditorServer::stop()
     }
 }
 
-void LevelEditorServer::restart()
+void WebServer::restart()
 {
     stop();
     start();
 }
 
-void LevelEditorServer::handleCommands( const CommandHandler &h )
+void WebServer::handleCommands( const CommandHandler &h )
 {
     {
         ist::Mutex::ScopedLock lock(m_mutex_commands);
@@ -447,7 +483,7 @@ void LevelEditorServer::handleCommands( const CommandHandler &h )
     m_commands_tmp.clear();
 }
 
-void LevelEditorServer::handleQueries( const QueryHandler &h )
+void WebServer::handleQueries( const QueryHandler &h )
 {
     {
         ist::Mutex::ScopedLock lock(m_mutex_queries);
@@ -459,21 +495,21 @@ void LevelEditorServer::handleQueries( const QueryHandler &h )
     }
 }
 
-void LevelEditorServer::pushCommand( const LevelEditorCommand &cmd )
+void WebServer::pushCommand( const LevelEditorCommand &cmd )
 {
     if(m_end_flag) { return; }
     ist::Mutex::ScopedLock lock(m_mutex_commands);
     m_commands.push_back(cmd);
 }
 
-void LevelEditorServer::pushQuery( LevelEditorQuery &q )
+void WebServer::pushQuery( LevelEditorQuery &q )
 {
     if(m_end_flag) { return; }
     ist::Mutex::ScopedLock lock(m_mutex_queries);
     m_queries.push_back(&q);
 }
 
-void LevelEditorServer::clearQuery()
+void WebServer::clearQuery()
 {
     ist::Mutex::ScopedLock lock(m_mutex_queries);
     for(size_t i=0; i<m_queries.size(); ++i) {
@@ -482,7 +518,7 @@ void LevelEditorServer::clearQuery()
     m_queries.clear();
 }
 
-vec2 LevelEditorServer::randomVec2()
+vec2 WebServer::randomVec2()
 {
     return (vec2(m_rand.genFloat32(), m_rand.genFloat32())-vec2(0.5f, 0.5f)) * 2.0f;
 }

@@ -196,7 +196,7 @@ function updateEntities()
 
     loading = true;
 
-//    var ajax = new Ajax.Request("/state/entities",
+//    var ajax = new Ajax.Request("/nuclei/entities",
 //    {
 //        method: "get",
 //        onComplete: function(res) {
@@ -206,7 +206,7 @@ function updateEntities()
 //    });
 
      var ajax = new XMLHttpRequest();
-     ajax.open("GET", "/state/entities", true);
+     ajax.open("GET", "/nuclei/entities", true);
      ajax.responseType = "arraybuffer";
      ajax.onload = function (ev) {
          loading = false;
@@ -556,14 +556,14 @@ function onLoad()
                 var diff = vec2.create();
                 vec2.sub(diff, mouse.pos, mouse.pos_prev);
                 editor.selection.each(function(h){
-                    postCommand("/call", "entity="+h+",func=move,arg="+vec2_s(diff));
+                    postCommand("/nuclei/call", "entity="+h+",func=move,arg="+vec2_s(diff));
                 });
             }
             else if(mouse.button==Button.Right) {
                 var diff = vec2.create();
                 vec2.sub(diff, mouse.pos, mouse.drag_begin);
                 editor.selection.each(function(h){
-                    postCommand("/call", "entity="+h+",func=orient,arg="+vec2_s(diff));
+                    postCommand("/nuclei/call", "entity="+h+",func=orient,arg="+vec2_s(diff));
                 });
             }
         }
@@ -577,7 +577,7 @@ function onLoad()
             var selection = selectEntityPoint(mouse.pos);
             if(selection!=0) {
                 editor.selection.push(selection);
-                queryEntity(selection);
+                updateEntityProperties(selection);
             }
         }
         e.preventDefault();
@@ -587,25 +587,25 @@ function onLoad()
         mouse.dragging = false;
         if(mouse.button==Button.Left) {
             if(editor.selection.length==0) {
-                postCommand("/create", "classid="+editor.current_entitytype+",pos="+vec2_s(mouse.pos));
+                postCommand("/nuclei/create", "classid="+editor.current_entitytype+",pos="+vec2_s(mouse.pos));
             }
         }
         else if(mouse.button==Button.Right) {
             var selection = selectEntityPoint(mouse.pos);
             editor.selection.each(function(h){
-                postCommand("/call", "entity="+h+",func=instruct,arg="+instruction_s(mouse.pos,selection) );
+                postCommand("/nuclei/call", "entity="+h+",func=instruct,arg="+instruction_s(mouse.pos,selection) );
             });
         }
         else if(mouse.button==Button.Middle) {
             var selection = selectEntityPoint(mouse.pos);
             editor.selection.each(function(h){
-                postCommand("/call", "entity="+h+",func=setParent,arg="+uint_s(selection));
+                postCommand("/nuclei/call", "entity="+h+",func=setParent,arg="+uint_s(selection));
             });
         }
         e.preventDefault();
     };
 
-    var ajax = new Ajax.Request("/state/const", {
+    var ajax = new Ajax.Request("/nuclei/const", {
         method: "get",
         onComplete: function(res) {
             var consts = res.responseText.evalJSON();
@@ -619,7 +619,7 @@ function onLoad()
                 t.setAttribute("class", "entitytype");
                 t.appendChild(document.createTextNode(name));
                 t.entitytype = value.id;
-                t.onclick = onClickSelector;
+                t.onclick = onClickEntityClassSelection;
                 selector.appendChild(t);
             }
         }
@@ -649,10 +649,11 @@ function clearChildren(e)
     while(e.firstChild) { e.removeChild(e.firstChild); }
 }
 
-function queryEntity(handle)
+function updateEntityProperties(handle)
 {
-    var ajax = new Ajax.Request("/state/entity/"+handle, {
-        method: "get",
+    var ajax = new Ajax.Request("/nuclei/entity", {
+        method: "post",
+        parameters: "entity="+handle,
         onComplete: function(res) {
             var properties = res.responseText.evalJSON();
             var fields = $("entity_properties");
@@ -661,14 +662,14 @@ function queryEntity(handle)
                 var t = document.createElement("li");
                 t.setAttribute("class", "param");
                 t.appendChild(document.createTextNode(field.name+"("+field.type+") "+field.value));
-                t.properties = properties;
+                t.entityProperty = field;
                 fields.appendChild(t);
             });
         }
     });
 }
 
-function onClickSelector()
+function onClickEntityClassSelection()
 {
     var selector = $("entity_type_selector");
     each(selector.childNodes, function(e){
