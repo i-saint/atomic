@@ -8,26 +8,31 @@ class LevelLayer
     : public IEntity
     , public TAttr_TransformMatrixI<Attr_Transform>
 {
-typedef IEntity             super;
-typedef TAttr_TransformMatrixI<Attr_Transform>   transform;
+typedef IEntity super;
+typedef TAttr_TransformMatrixI<Attr_Transform> transform;
 private:
     typedef ist::raw_vector<ControlPoint> ControlPoints;
-    ControlPoints m_points;
+    ControlPoints m_poscp;
+    ControlPoints m_oricp;
     float32 m_time;
 
     istSerializeBlock(
         istSerializeBase(super)
         istSerializeBase(transform)
-        istSerialize(m_points)
+        istSerialize(m_poscp)
+        istSerialize(m_oricp)
         istSerialize(m_time)
     )
 
 public:
     atmECallBlock(
         atmMethodBlock(
-            atmECall(addControlPoint)
-            atmECall(eraseControlPoint)
-            atmECall(setControlPoint)
+            atmECall(addPotisionCP)
+            atmECall(erasePotisionCP)
+            atmECall(setPotisionCP)
+            atmECall(addRotationCP)
+            atmECall(eraseRotationCP)
+            atmECall(setRotationCP)
         )
         atmECallSuper(super)
         atmECallSuper(transform)
@@ -35,9 +40,12 @@ public:
 
     atmJsonizeBlock(
         atmJsonizeSuper(transform)
-        atmJsonizeCall(addControlPoint)
-        atmJsonizeCall(eraseControlPoint)
-        atmJsonizeCall(setControlPoint)
+        atmJsonizeCall(addPotisionCP)
+        atmJsonizeCall(erasePotisionCP)
+        atmJsonizeCall(setPotisionCP)
+        atmJsonizeCall(addRotationCP)
+        atmJsonizeCall(eraseRotationCP)
+        atmJsonizeCall(setRotationCP)
     )
 
 public:
@@ -64,7 +72,8 @@ public:
         m_time += dt;
 
         // 子が参照するので asyncupdate ではダメ
-        setPosition(computePosition(m_time));
+        setPosition(-computeInterpolation(m_poscp, m_time));
+        setRotate(computeInterpolation(m_oricp, m_time).x);
         updateTransformMatrix();
     }
 
@@ -73,35 +82,52 @@ public:
     }
 
 
-    void addControlPoint(const ControlPoint &v)
+    void addPotisionCP(const ControlPoint &v)
     {
-        auto i = stl::lower_bound(m_points.begin(), m_points.end(), v);
-        m_points.insert(i, v);
+        auto i = stl::lower_bound(m_poscp.begin(), m_poscp.end(), v);
+        m_poscp.insert(i, v);
     }
-
-    void eraseControlPoint(uint32 i)
+    void erasePotisionCP(uint32 i)
     {
-        if(i<m_points.size()) {
-            m_points.erase(m_points.begin()+i);
+        if(i<m_poscp.size()) {
+            m_poscp.erase(m_poscp.begin()+i);
+        }
+    }
+    void setPotisionCP(uint32 i, const ControlPoint &v)
+    {
+        if(i<m_poscp.size()) {
+            m_poscp[i] = v;
+            stl::sort(m_poscp.begin(), m_poscp.end());
         }
     }
 
-    void setControlPoint(uint32 i, const ControlPoint &v)
+    void addRotationCP(const ControlPoint &v)
     {
-        if(i<m_points.size()) {
-            m_points[i] = v;
-            stl::sort(m_points.begin(), m_points.end());
+        auto i = stl::lower_bound(m_oricp.begin(), m_oricp.end(), v);
+        m_oricp.insert(i, v);
+    }
+    void eraseRotationCP(uint32 i)
+    {
+        if(i<m_oricp.size()) {
+            m_oricp.erase(m_oricp.begin()+i);
+        }
+    }
+    void setRotationCP(uint32 i, const ControlPoint &v)
+    {
+        if(i<m_oricp.size()) {
+            m_oricp[i] = v;
+            stl::sort(m_oricp.begin(), m_oricp.end());
         }
     }
 
-    vec3 computePosition(float32 time) const
+    vec3 computeInterpolation(ControlPoints &cps, float32 time) const
     {
         vec3 r;
-        if(m_points.empty()) {}
-        else if(time<=m_points.front().time){ r=m_points.front().pos; }
-        else if(time>=m_points.back().time) { r=m_points.back().pos; }
+        if(cps.empty()) {}
+        else if(time<=cps.front().time){ r=cps.front().pos; }
+        else if(time>=cps.back().time) { r=cps.back().pos; }
         else {
-            auto p2 = stl::lower_bound(m_points.begin(), m_points.end(), time,
+            auto p2 = stl::lower_bound(cps.begin(), cps.end(), time,
                 [&](const ControlPoint &v, float32 t){ return v.time<t; });
             auto p1 = p2-1;
 
@@ -120,7 +146,7 @@ public:
                 break;
             }
         }
-        return -r;
+        return r;
     }
 };
 atmImplementEntity(LevelLayer);
