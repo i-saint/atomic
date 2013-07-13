@@ -3,6 +3,20 @@
 
 #include "ist/ist.h"
 
+#define atmSafeRelease(Obj) if(Obj){Obj->release();Obj=NULL;}
+
+#define atmGlobalNamespace(...)  } __VA_ARGS__ namespace atm {
+#define atmExportClass(ClassName)        \
+    atmGlobalNamespace(                  \
+        istSerializeExportClass(atm::ClassName); \
+    )
+
+#define atmSerializeRaw(ClassName)       \
+    atmGlobalNamespace(                  \
+        istSerializeRaw(atm::ClassName); \
+    )
+
+
 namespace atm {
 
 typedef char                int8;
@@ -67,17 +81,30 @@ enum FunctionID;
 typedef uint32 PlayerID;
 typedef wchar_t (PlayerName)[16];
 
+enum Transition {
+    atmE_Linear,
+    atmE_Bezier,
+};
+struct ControlPoint
+{
+    float32 time;
+    vec3 pos;
+    Transition transition;
 
-enum ATOMIC_ERROR {
-    ATERR_NOERROR,
-    ATERR_CREATEWINDOW_FAILED,
-    ATERR_CHANGEDISPLAYSETTINGS_FAILED,
-    ATERR_OPENAL_OPENDEVICE_FAILED,
-    ATERR_OPENAL_CREATECONTEXT_FAILED,
-    ATERR_OPENGL_330_IS_NOT_SUPPORTED,
-    ATERR_OPENGL_INITIALIZATION_FAILED,
-    ATERR_CUDA_NO_DEVICE,
-    ATERR_CUDA_INSUFFICIENT_DRIVER,
+    ControlPoint() : time(0.0f), transition(atmE_Linear) {}
+    ControlPoint(float32 t, const vec3 &p, Transition ts=atmE_Linear) : time(t), pos(p), transition(ts) {}
+    bool operator<(const ControlPoint &p) const { return time<p.time; }
+};
+atmSerializeRaw(ControlPoint);
+
+enum ErrorCode {
+    atmE_NoError,
+    atmE_CreateWindow_Failed,
+    atmE_ChangeDisplaySetting_Failed,
+    atmE_OpenAL_OpenDevice_Failed,
+    atmE_OpenAL_CreateContext_Failed,
+    atmE_OpenGL_330NotSupported,
+    atmE_OpenGL_Initialization_Failed,
 };
 
 class IAtomicGameModule : public boost::noncopyable
@@ -112,19 +139,6 @@ public:
 };
 
 } // namespace atm
-
-#define atmSafeRelease(Obj) if(Obj){Obj->release();Obj=NULL;}
-
-#define atmGlobalNamespace(...)  } __VA_ARGS__ namespace atm {
-#define atmExportClass(ClassName)        \
-    atmGlobalNamespace(                  \
-        istSerializeExportClass(atm::ClassName); \
-    )
-
-#define atmSerializeRaw(ClassName)   \
-atmGlobalNamespace(                  \
-    istSerializeRaw(atm::ClassName);         \
-)
 
 
 #endif // atm_Types_h

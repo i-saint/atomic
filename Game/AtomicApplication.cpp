@@ -43,7 +43,7 @@ AtomicConfig::AtomicConfig()
     sound_enable            = true;
     bgm_volume              = 0.3f;
     se_volume               = 0.3f;
-    language                = LANG_JP;
+    language                = lang_JP;
     lighting                = atmE_Lighting_Medium;
     leveleditor_port        = atm_Leveleditor_DefaultPort;
     wcscpy(name, L"atom");
@@ -513,13 +513,11 @@ bool AtomicApplication::handleWindowMessage(const ist::WM_Base& wm)
     return false;
 }
 
-void AtomicApplication::handleError(ATOMIC_ERROR e)
+void AtomicApplication::handleError(ErrorCode e)
 {
     stl::wstring mes;
     switch(e) {
-    case ATERR_OPENGL_330_IS_NOT_SUPPORTED:   mes=GetText(TID_OPENGL330_IS_NOT_SUPPORTED); break;
-    case ATERR_CUDA_NO_DEVICE:                mes=GetText(TID_ERROR_CUDA_NO_DEVICE); break;
-    case ATERR_CUDA_INSUFFICIENT_DRIVER:      mes=GetText(TID_ERROR_CUDA_INSUFFICIENT_DRIVER); break;
+    case atmE_OpenGL_330NotSupported:   mes=GetText(txt_OpenGL_330NotSupported); break;
     }
     istShowMessageDialog(mes.c_str(), L"error", DLG_OK);
 }

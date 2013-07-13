@@ -35,7 +35,7 @@ class PassHUD_DebugShowBuffer;
 class PassForward_DistanceField; // for debug
 
 
-class dpPatch AtomicRenderer
+class AtomicRenderer
 {
 istNonCopyable(AtomicRenderer);
 private:

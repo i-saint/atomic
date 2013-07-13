@@ -25,7 +25,7 @@ struct LaserParticle
 };
 atmSerializeRaw(LaserParticle);
 
-class dpPatch Laser : public ILaser
+class Laser : public ILaser
 {
 public:
     enum State {
@@ -269,7 +269,7 @@ const float32 Laser::s_fadeout_time = 50.0f;
 const float32 Laser::s_radius = 0.04f;
 const float32 Laser::s_power = 0.5f;
 
-class dpPatch LaserManager : public IBulletManager
+class LaserManager : public IBulletManager
 {
 private:
     typedef stl::vector<Laser*> Lasers;
@@ -419,7 +419,7 @@ struct BulletData
 };
 atmSerializeRaw(BulletData);
 
-class dpPatch BulletManager : public IBulletManager
+class BulletManager : public IBulletManager
 {
 private:
     typedef stl::vector<BulletData> Bullets;
@@ -523,7 +523,7 @@ public:
 
 
 
-class dpPatch NeedleManager
+class NeedleManager
 {
 private:
 public:

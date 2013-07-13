@@ -6,7 +6,7 @@
 namespace atm {
 
 
-class dpPatch CarrierBase  : public Breakable<Entity_Orientation>
+class CarrierBase  : public Breakable<Entity_Orientation>
 {
 typedef Breakable<Entity_Orientation> super;
 private:
@@ -19,7 +19,7 @@ public:
 atmExportClass(CarrierBase);
 
 
-class dpPatch CarrierSmall  : public CarrierBase
+class CarrierSmall  : public CarrierBase
 {
 typedef CarrierBase super;
 private:
@@ -33,7 +33,7 @@ atmImplementEntity(CarrierSmall);
 atmExportClass(CarrierSmall);
 
 
-class dpPatch CarrierLarge  : public CarrierBase
+class CarrierLarge  : public CarrierBase
 {
 typedef CarrierBase super;
 private:

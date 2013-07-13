@@ -5,7 +5,7 @@
 
 namespace atm {
 
-class dpPatch Enemy_Test : public Breakable<Entity_AxisRotationI>
+class Enemy_Test : public Breakable<Entity_AxisRotationI>
 {
 typedef Breakable<Entity_AxisRotationI> super;
 private:

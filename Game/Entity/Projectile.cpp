@@ -5,7 +5,7 @@
 
 namespace atm {
 
-class dpPatch HomingMine : public Breakable<Entity_Orientation>
+class HomingMine : public Breakable<Entity_Orientation>
 {
 typedef Breakable<Entity_Orientation> super;
 private:
@@ -19,7 +19,7 @@ atmImplementEntity(HomingMine);
 atmExportClass(HomingMine);
 
 
-class dpPatch LaserMissile : public Breakable<Entity_Orientation>
+class LaserMissile : public Breakable<Entity_Orientation>
 {
 typedef Breakable<Entity_Orientation> super;
 private:

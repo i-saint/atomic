@@ -90,6 +90,7 @@ template<> struct TypeS<float32>{static const char* get(){return "float32";}};
 template<> struct TypeS<vec2>   {static const char* get(){return "vec2";}};
 template<> struct TypeS<vec3>   {static const char* get(){return "vec3";}};
 template<> struct TypeS<vec4>   {static const char* get(){return "vec4";}};
+template<> struct TypeS<ControlPoint> {static const char* get(){return "controlpoint";}};
 
 inline void Jsonize(stl::string &out, const char *name, const char *getter, const char *setter, bool v) {
     out += ist::Format("{\"name\":\"%s\",\"type\":\"bool\",\"getter\":\"%s\",\"setter\":\"%s\",\"value\":%d},",
@@ -119,8 +120,51 @@ inline void Jsonize(stl::string &out, const char *name, const char *getter, cons
     out += ist::Format("{\"name\":\"%s\",\"type\":\"vec4\",\"getter\":\"%s\",\"setter\":\"%s\",\"value\":[%.2f,%.2f,%.2f,%.2f]},",
         name+2, getter, setter, v.x,v.y,v.z,v.w);
 }
-#define atmJsonizeMember(Out,V,Getter,Setter) Jsonize(Out, #V, #Getter, #Setter, V)
-#define atmJsonizeMemberFunction(Out,F)
+
+inline void jsonize(stl::string &out, const ControlPoint &cp)
+{
+    out+=ist::Format("{\"time\":%.2f,\"pos\":[%.2f,%.2f,%.2f],\"transition\":%d}", cp.time, cp.pos.x, cp.pos.y, cp.pos.z, cp.transition);
+}
+
+
+inline const char* SkipColon(const char *name)
+{
+    size_t p=0;
+    for(size_t i=0; ; ++i) {
+        if(name[i]=='\0') { break; }
+        else if(name[i]==':') { p=i+1; }
+    }
+    return name+p;
+}
+
+template<class R, class C>
+inline void JsonizeMF(stl::string &out, const char *name, R (C::*f)()) {
+    out += ist::Format("{\"name\":\"%s\",\"type\":\"function\",\"args\":[]},"
+        , SkipColon(name));
+}
+template<class R, class C, class R0>
+inline void JsonizeMF(stl::string &out, const char *name, R (C::*f)(R0)) {
+    typedef typename std::remove_const<typename std::remove_reference<R0>::type>::type R0T;
+    out += ist::Format("{\"name\":\"%s\",\"type\":\"function\",\"args\":[\"%s\"]},"
+        , SkipColon(name), TypeS<R0T>::get());
+}
+template<class R, class C, class R0, class R1>
+inline void JsonizeMF(stl::string &out, const char *name, R (C::*f)(R0,R1)) {
+    typedef typename std::remove_const<typename std::remove_reference<R0>::type>::type R0T;
+    typedef typename std::remove_const<typename std::remove_reference<R1>::type>::type R1T;
+    out += ist::Format("{\"name\":\"%s\",\"type\":\"function\",\"args\":[\"%s\",\"%s\"]},"
+        , SkipColon(name), TypeS<R0T>::get(), TypeS<R1T>::get());
+}
+
+#define atmJsonizeBlock(...) \
+    void jsonize(stl::string &out) {\
+        typedef std::remove_reference<decltype(*this)>::type this_t;\
+        __VA_ARGS__\
+    }
+
+#define atmJsonizeSuper(T) T::jsonize(out);
+#define atmJsonizeMember(V,Getter,Setter) Jsonize(out, #V, #Getter, #Setter, V);
+#define atmJsonizeCall(F) JsonizeMF(out, #F, &this_t::F);
 
 } // namespace atm
 #endif // atm_Game_Entity_EntityUtil_h

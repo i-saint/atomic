@@ -41,7 +41,7 @@ inline void EachFormData(const std::string &form_fata, const Func &f)
     f(&form_fata[pos], sep-pos);
 }
 
-inline bool ParseArg(variant &out, const std::string &str)
+inline bool ParseArg(variant32 &out, const std::string &str)
 {
     ivec4 iv;
     uvec4 uv;
@@ -63,6 +63,9 @@ inline bool ParseArg(variant &out, const std::string &str)
     }
     else if(sscanf(str.c_str(), "instruction(%f,%f,%f,%u)", &fv.x, &fv.y, &fv.z, &uv.x)==4) {
         out=ist::MakeValueList(vec3(fv),uv.x); return true;
+    }
+    else if(sscanf(str.c_str(), "controlpoint(%f,%f,%f,%f,%u)", &fv.w, &fv.x, &fv.y, &fv.z, &uv.x)==5) {
+        out=ControlPoint(fv.w, vec3(fv), (Transition)uv.x); return true;
     }
     return false;
 }

@@ -235,7 +235,6 @@ struct istAlign(16) PMessage_LEC
 {
     PM_Type type;
     LevelEditorCommand lec;
-    uint8 padding[16];
 
     static PMessage_LEC create(const LevelEditorCommand &lec);
 };

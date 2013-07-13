@@ -26,10 +26,10 @@ public:
         wdmAddNode(path+"/m_pos",   &m_pos,   -3.0f, 3.0f);
     }
     )
-    void jsonize(stl::string &out) {
-        atmJsonizeMember(out, m_pos, getPosition, setPosition);
-        atmJsonizeMemberFunction(out, move);
-    }
+    atmJsonizeBlock(
+        atmJsonizeMember(m_pos, getPosition, setPosition)
+        atmJsonizeCall(move)
+    )
 
 
 public:
@@ -89,14 +89,15 @@ public:
         wdmAddNode(path+"/m_rot",   &m_rot,    0.0f, 360.0f);
     }
     )
-    void jsonize(stl::string &out) {
-        atmJsonizeMember(out, m_pivot, getPivot, setPivot);
-        atmJsonizeMember(out, m_pos, getPosition, setPosition);
-        atmJsonizeMember(out, m_scale, getScale, setScale);
-        atmJsonizeMember(out, m_axis, getAxis, setAxis);
-        atmJsonizeMember(out, m_rot, getRotate, setRotate);
-        atmJsonizeMemberFunction(out, move);
-    }
+
+    atmJsonizeBlock(
+        atmJsonizeMember(m_pivot, getPivot, setPivot)
+        atmJsonizeMember(m_pos, getPosition, setPosition)
+        atmJsonizeMember(m_scale, getScale, setScale)
+        atmJsonizeMember(m_axis, getAxis, setAxis)
+        atmJsonizeMember(m_rot, getRotate, setRotate)
+        atmJsonizeCall( move)
+    )
 
 public:
     Attr_Transform()
@@ -182,15 +183,16 @@ public:
         wdmAddNode(path+"/m_up", &m_up, 0.0f, 360.0f);
     }
     )
-    void jsonize(stl::string &out) {
-        atmJsonizeMember(out, m_pivot, getPivot, setPivot);
-        atmJsonizeMember(out, m_pos, getPosition, setPosition);
-        atmJsonizeMember(out, m_scale, getScale, setScale);
-        atmJsonizeMember(out, m_orient, getOrientation, setOrientation);
-        atmJsonizeMember(out, m_up, getUpVector, setUpVector);
-        atmJsonizeMemberFunction(out, move);
-        atmJsonizeMemberFunction(out, orient);
-    }
+
+    atmJsonizeBlock(
+        atmJsonizeMember(m_pivot, getPivot, setPivot)
+        atmJsonizeMember(m_pos, getPosition, setPosition)
+        atmJsonizeMember(m_scale, getScale, setScale)
+        atmJsonizeMember(m_orient, getOrientation, setOrientation)
+        atmJsonizeMember(m_up, getUpVector, setUpVector)
+        atmJsonizeCall(move)
+        atmJsonizeCall(orient)
+    )
 
 public:
     Attr_Orientation()
@@ -285,16 +287,17 @@ public:
         wdmAddNode(path+"/m_rot2", &m_rot2, 0.0f, 360.0f);
     }
     )
-    void jsonize(stl::string &out) {
-        atmJsonizeMember(out, m_pivot, getPivot, setPivot);
-        atmJsonizeMember(out, m_pos, getPosition, setPosition);
-        atmJsonizeMember(out, m_scale, getScale, setScale);
-        atmJsonizeMember(out, m_axis1, getAxis1, setAxis1);
-        atmJsonizeMember(out, m_axis2, getAxis2, setAxis2);
-        atmJsonizeMember(out, m_rot1, getRotate1, setRotate1);
-        atmJsonizeMember(out, m_rot2, getRotate2, setRotate2);
-        atmJsonizeMemberFunction(out, move);
-    }
+
+    atmJsonizeBlock(
+        atmJsonizeMember(m_pivot, getPivot, setPivot)
+        atmJsonizeMember(m_pos, getPosition, setPosition)
+        atmJsonizeMember(m_scale, getScale, setScale)
+        atmJsonizeMember(m_axis1, getAxis1, setAxis1)
+        atmJsonizeMember(m_axis2, getAxis2, setAxis2)
+        atmJsonizeMember(m_rot1, getRotate1, setRotate1)
+        atmJsonizeMember(m_rot2, getRotate2, setRotate2)
+        atmJsonizeCall(move)
+    )
 
 public:
     Attr_DoubleAxisRotation()
@@ -374,11 +377,12 @@ public:
         wdmAddNode(path+"/m_rspeed2", &m_rspeed2, -3.0f, 3.0f);
     }
     )
-    void jsonize(stl::string &out) {
-        super::jsonize(out);
-        atmJsonizeMember(out, m_rspeed1, getRotateSpeed1, setRotateSpeed1);
-        atmJsonizeMember(out, m_rspeed2, getRotateSpeed2, setRotateSpeed2);
-    }
+
+    atmJsonizeBlock(
+        atmJsonizeSuper(super)
+        atmJsonizeMember(m_rspeed1, getRotateSpeed1, setRotateSpeed1)
+        atmJsonizeMember(m_rspeed2, getRotateSpeed2, setRotateSpeed2)
+    )
 
 public:
     TAttr_RotateSpeed() : m_rspeed1(0.0f), m_rspeed2(0.0f)
@@ -428,10 +432,11 @@ public:
         wdmAddNode(path+"/m_parent", (const uint32*)&m_parent);
     }
     )
-    void jsonize(stl::string &out) {
-        super::jsonize(out);
-        atmJsonizeMember(out, m_parent, getParent, setParent);
-    }
+
+    atmJsonizeBlock(
+        atmJsonizeSuper(super)
+        atmJsonizeMember(m_parent, getParent, setParent)
+    )
 
 public:
     TAttr_HaveParent() : m_parent(0)

@@ -4,7 +4,7 @@
 
 namespace atm {
 
-class dpPatch GearParts : public Unbreakable<Entity_Orientation>
+class GearParts : public Unbreakable<Entity_Orientation>
 {
 typedef Unbreakable<Entity_Orientation>  super;
 private:
@@ -78,7 +78,7 @@ atmImplementEntity(GearParts);
 atmExportClass(GearParts);
 
 
-class dpPatch GearBase
+class GearBase
     : public IEntity
     , public TAttr_TransformMatrixI< TAttr_HaveParent<Attr_Transform> >
 {
@@ -208,7 +208,7 @@ public:
 atmExportClass(GearBase);
 
 
-class dpPatch GearSmall : public GearBase
+class GearSmall : public GearBase
 {
 typedef GearBase super;
 private:
@@ -254,7 +254,7 @@ atmImplementEntity(GearSmall, DF_Editor);
 atmExportClass(GearSmall);
 
 
-class dpPatch GearLarge : public GearBase
+class GearLarge : public GearBase
 {
 typedef GearBase super;
 private:

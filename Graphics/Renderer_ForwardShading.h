@@ -21,7 +21,7 @@ public:
 };
 
 
-class dpPatch PassForward_Generic : public IRenderer
+class PassForward_Generic : public IRenderer
 {
 public:
     PassForward_Generic();
@@ -39,7 +39,7 @@ private:
     mat_cont m_matrices;
 };
 
-class dpPatch PassForward_Barrier : public IRenderer
+class PassForward_Barrier : public IRenderer
 {
 public:
     PassForward_Barrier();
@@ -55,7 +55,7 @@ private:
     PSetDrawData m_solids;
 };
 
-class dpPatch PassForward_BackGround : public IRenderer
+class PassForward_BackGround : public IRenderer
 {
 public:
     PassForward_BackGround();

@@ -5,7 +5,7 @@ namespace atm {
 
 
 template<class Transform>
-class dpPatch LightEntityBase
+class LightEntityBase
     : public IEntity
     , public Transform
 {
@@ -49,7 +49,7 @@ public:
 };
 
 
-class dpPatch PointLightEntity : public LightEntityBase<Attr_Translate>
+class PointLightEntity : public LightEntityBase<Attr_Translate>
 {
 typedef LightEntityBase<Attr_Translate> super;
 private:
@@ -100,7 +100,7 @@ atmImplementEntity(PointLightEntity);
 atmExportClass(PointLightEntity);
 
 
-class dpPatch DirectionalLightEntity : public LightEntityBase<Attr_Translate>
+class DirectionalLightEntity : public LightEntityBase<Attr_Translate>
 {
 typedef LightEntityBase<Attr_Translate> super;
 private:
@@ -151,9 +151,9 @@ atmImplementEntity(DirectionalLightEntity);
 atmExportClass(DirectionalLightEntity);
 
 // todo:
-class dpPatch BoxLightEntity;
-class dpPatch CylinderLightEntity;
-class dpPatch SpotLightEntity;
+class BoxLightEntity;
+class CylinderLightEntity;
+class SpotLightEntity;
 
 
 } // namespace atm

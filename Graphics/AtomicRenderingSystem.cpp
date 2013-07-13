@@ -38,7 +38,7 @@ private:
     i3d::DeviceContext *m_context;
     i3d::EasyDrawer *m_drawer;
 
-    ATOMIC_ERROR m_error;
+    ErrorCode m_error;
     ist::Mutex m_mutex_request;
     ist::Condition m_cond_request;
     ist::Condition m_cond_initialize_complete;
@@ -64,7 +64,7 @@ public:
 
     void doRender();
 
-    ATOMIC_ERROR        getError() const        { return m_error; }
+    ErrorCode        getError() const        { return m_error; }
     uint32              getAverageFPS() const   { return m_fps_avg; }
     i3d::Device*        getDevice()             { return m_device; }
     i3d::DeviceContext* getDeviceContext()      { return m_context; }
@@ -75,7 +75,7 @@ AtomicRenderingThread::AtomicRenderingThread()
     : m_device(NULL)
     , m_context(NULL)
     , m_drawer(NULL)
-    , m_error(ATERR_NOERROR)
+    , m_error(atmE_NoError)
     , m_fps_count(0)
     , m_fps_avg(0)
 {
@@ -112,7 +112,7 @@ void AtomicRenderingThread::exec()
 
     m_device = i3d::CreateDevice(atmGetApplication()->getWindowHandle());
     if(!GLEW_VERSION_3_3) {
-        m_error = ATERR_OPENGL_330_IS_NOT_SUPPORTED;
+        m_error = atmE_OpenGL_330NotSupported;
         m_cond_initialize_complete.signalOne();
         goto finalize_section;
     }

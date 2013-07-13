@@ -44,7 +44,7 @@ union istAlign(16) LevelEditorCommand
         LEC_Type type;
         uint32 frame;
     };
-    uint32 dummy[8];
+    uint32 dummy[12];
 
     LevelEditorCommand() : type(LEC_Unknown), frame(0)
     {
@@ -62,7 +62,7 @@ struct istAlign(16) LevelEditorCommand_Create
     LEC_Type type;
     uint32 frame;
     uint32 classid;
-    uint32 dummy[5];
+    uint32 dummy[9];
 
     LevelEditorCommand_Create() : type(LEC_Create), frame(0), classid(0)
     {
@@ -77,7 +77,7 @@ struct istAlign(16) LevelEditorCommand_Delete
     LEC_Type type;
     uint32 frame;
     uint32 entity;
-    uint32 dummy[5];
+    uint32 dummy[9];
 
     LevelEditorCommand_Delete() : type(LEC_Delete), frame(0), entity(0)
     {
@@ -93,7 +93,7 @@ struct istAlign(16) LevelEditorCommand_Call
     uint32 frame;
     uint32 entity;
     uint32 function;
-    variant arg;
+    variant32 arg;
 
     LevelEditorCommand_Call() : type(LEC_Call) {}
 };

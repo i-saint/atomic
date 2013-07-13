@@ -19,7 +19,7 @@ IRoutine* CreateRoutine(RoutineClassID rcid)
 }
 
 
-class dpPatch Routine_SingleShoot : public IRoutine, public Attr_MessageHandler
+class Routine_SingleShoot : public IRoutine, public Attr_MessageHandler
 {
 typedef IRoutine super;
 typedef Attr_MessageHandler mhandler;
@@ -129,7 +129,7 @@ public:
 atmImplementRoutine(Routine_SingleShoot);
 atmExportClass(Routine_SingleShoot);
 
-class dpPatch Routine_CircularShoot : public IRoutine
+class Routine_CircularShoot : public IRoutine
 {
 typedef IRoutine super;
 private:
@@ -165,7 +165,7 @@ atmImplementRoutine(Routine_CircularShoot);
 atmExportClass(Routine_CircularShoot);
 
 
-class dpPatch Routine_HomingPlayer : public IRoutine, public Attr_MessageHandler
+class Routine_HomingPlayer : public IRoutine, public Attr_MessageHandler
 {
 typedef IRoutine super;
 typedef Attr_MessageHandler mhandler;
@@ -241,7 +241,7 @@ atmImplementRoutine(Routine_HomingPlayer);
 atmExportClass(Routine_HomingPlayer);
 
 
-class dpPatch Routine_Pinball : public IRoutine, public Attr_MessageHandler
+class Routine_Pinball : public IRoutine, public Attr_MessageHandler
 {
 typedef IRoutine super;
 typedef Attr_MessageHandler mhandler;

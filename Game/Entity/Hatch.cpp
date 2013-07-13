@@ -6,7 +6,7 @@
 namespace atm {
 
 
-class dpPatch HatchBase : public Breakable<Entity_Orientation>
+class HatchBase : public Breakable<Entity_Orientation>
 {
 typedef Breakable<Entity_Orientation> super;
 private:
@@ -57,7 +57,7 @@ public:
 atmExportClass(HatchBase);
 
 
-class dpPatch HatchSmall : public HatchBase
+class HatchSmall : public HatchBase
 {
 typedef HatchBase super;
 private:
@@ -71,7 +71,7 @@ atmImplementEntity(HatchSmall, DF_Editor, 4.0f);
 atmExportClass(HatchSmall);
 
 
-class dpPatch HatchLarge : public HatchBase
+class HatchLarge : public HatchBase
 {
 typedef HatchBase super;
 private:

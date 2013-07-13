@@ -4,7 +4,7 @@
 
 namespace atm {
 
-class dpPatch LevelLayer
+class LevelLayer
     : public IEntity
     , public TAttr_TransformMatrixI<Attr_Transform>
 {
@@ -31,6 +31,13 @@ public:
         )
         atmECallSuper(super)
         atmECallSuper(transform)
+    )
+
+    atmJsonizeBlock(
+        atmJsonizeSuper(transform)
+        atmJsonizeCall(addControlPoint)
+        atmJsonizeCall(eraseControlPoint)
+        atmJsonizeCall(setControlPoint)
     )
 
 public:
@@ -72,14 +79,14 @@ public:
         m_points.insert(i, v);
     }
 
-    void eraseControlPoint(size_t i)
+    void eraseControlPoint(uint32 i)
     {
         if(i<m_points.size()) {
             m_points.erase(m_points.begin()+i);
         }
     }
 
-    void setControlPoint(size_t i, const ControlPoint &v)
+    void setControlPoint(uint32 i, const ControlPoint &v)
     {
         if(i<m_points.size()) {
             m_points[i] = v;
@@ -94,9 +101,10 @@ public:
         else if(time<=m_points.front().time){ r=m_points.front().pos; }
         else if(time>=m_points.back().time) { r=m_points.back().pos; }
         else {
-            auto p1 = stl::lower_bound(m_points.begin(), m_points.end(), time,
+            auto p2 = stl::lower_bound(m_points.begin(), m_points.end(), time,
                 [&](const ControlPoint &v, float32 t){ return v.time<t; });
-            auto p2 = p1+1;
+            auto p1 = p2-1;
+
             switch(p1->transition) {
             case atmE_Linear:
                 {
@@ -104,7 +112,7 @@ public:
                     float32 t = (time - p1->time) / (p2->time-p1->time);
                     r = p1->pos + (diff*t);
                 }
-                break;;
+                break;
             case atmE_Bezier:
                 {
                     // todo (if needed)

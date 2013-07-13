@@ -79,7 +79,7 @@ public:
     void draw();
 
     bool handleWindowMessage(const ist::WM_Base& wm);
-    void handleError(ATOMIC_ERROR e);
+    void handleError(ErrorCode e);
 
     // 描画スレッドから呼ばれる
     void drawCallback();

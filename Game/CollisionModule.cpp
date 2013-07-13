@@ -76,7 +76,7 @@ bool _Collide(const CollisionSphere *sender, const CollisionPlane *receiver, Col
     return false;
 }
 
-dpPatch bool _Collide(const CollisionSphere *sender, const CollisionSphere *receiver, CollideMessage &m)
+bool _Collide(const CollisionSphere *sender, const CollisionSphere *receiver, CollideMessage &m)
 {
     float32 r = sender->pos_r.w + receiver->pos_r.w;
     float32 r2 = r*r;
@@ -92,12 +92,12 @@ dpPatch bool _Collide(const CollisionSphere *sender, const CollisionSphere *rece
 }
 
 
-dpPatch bool _Collide(const CollisionBox *sender, const CollisionPlane *receiver, CollideMessage &m)
+bool _Collide(const CollisionBox *sender, const CollisionPlane *receiver, CollideMessage &m)
 {
     return false;
 }
 
-dpPatch bool _Collide(const CollisionBox *sender, const CollisionSphere *receiver, CollideMessage &m)
+bool _Collide(const CollisionBox *sender, const CollisionSphere *receiver, CollideMessage &m)
 {
     if(!BoundingBoxIntersect(sender->bb, receiver->bb)) { return false; }
 
@@ -131,7 +131,7 @@ dpPatch bool _Collide(const CollisionBox *sender, const CollisionSphere *receive
     return false;
 }
 
-dpPatch bool _Collide(const CollisionSphere *sender, const CollisionBox *receiver, CollideMessage &m)
+bool _Collide(const CollisionSphere *sender, const CollisionBox *receiver, CollideMessage &m)
 {
     if(_Collide(receiver, sender, m)) {
         m.direction *= vec4(-1.0f, -1.0f, -1.0f, 1.0f);
@@ -140,7 +140,7 @@ dpPatch bool _Collide(const CollisionSphere *sender, const CollisionBox *receive
     return false;
 }
 
-dpPatch bool _Collide(const CollisionBox *sender, const CollisionBox *receiver, CollideMessage &m)
+bool _Collide(const CollisionBox *sender, const CollisionBox *receiver, CollideMessage &m)
 {
     if(!BoundingBoxIntersect(sender->bb, receiver->bb)) { return false; }
     {

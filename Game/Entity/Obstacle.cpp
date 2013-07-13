@@ -5,7 +5,7 @@
 namespace atm {
 
 
-class dpPatch GroundBlock : public Unbreakable<Entity_Orientation>
+class GroundBlock : public Unbreakable<Entity_Orientation>
 {
 typedef Unbreakable<Entity_Orientation>  super;
 private:
@@ -49,7 +49,7 @@ atmExportClass(GroundBlock);
 
 
 
-class dpPatch FluidFilter : public Unbreakable<Entity_Orientation>
+class FluidFilter : public Unbreakable<Entity_Orientation>
 {
 typedef Unbreakable<Entity_Orientation>  super;
 private:

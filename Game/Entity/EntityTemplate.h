@@ -43,7 +43,7 @@ struct Entity_Translate
 };
 
 template<class Attributes>
-class dpPatch EntityTemplate
+class EntityTemplate
     : public IEntity
     , public Attributes::transform
     , public Attributes::model
@@ -61,7 +61,7 @@ private:
         istSerializeBase(collision)
         istSerializeBase(bloodstain)
         istSerializeBase(mhandler)
-        )
+    )
 
 public:
     atmECallBlock(
@@ -71,10 +71,10 @@ public:
         atmECallSuper(collision)
         atmECallSuper(bloodstain)
         atmECallSuper(mhandler)
-        )
+     )
 
-        wdmScope(
-        void addDebugNodes(const wdmString &path)
+    wdmScope(
+    void addDebugNodes(const wdmString &path)
     {
         transform::addDebugNodes(path);
         model::addDebugNodes(path);

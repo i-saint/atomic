@@ -2,27 +2,6 @@
 #define atm_Game_Entity_Level_h
 namespace atm {
 
-enum Transition {
-    atmE_Linear,
-    atmE_Bezier,
-};
-struct ControlPoint
-{
-    float32 time;
-    vec3 pos;
-    Transition transition;
-
-    ControlPoint() : time(0.0f), transition(atmE_Linear) {}
-    ControlPoint(float32 t, const vec3 &p, Transition ts=atmE_Linear) : time(t), pos(p), transition(ts) {}
-    bool operator<(const ControlPoint &p) const { return time<p.time; }
-    void jsonize(stl::string &out)
-    {
-        out+=ist::Format("%d,%.2f,[%.2f,%.2f,%.2f]", transition, time, pos.x,pos.y,pos.z);
-    }
-};
-atmSerializeRaw(ControlPoint);
-
-
 template<class Transform>
 class Unbreakable : public EntityTemplate<Transform>
 {

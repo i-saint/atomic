@@ -6,7 +6,7 @@
 namespace atm {
 
 
-class dpPatch LaserTurret : public Breakable<Entity_Orientation>
+class LaserTurret : public Breakable<Entity_Orientation>
 {
 typedef Breakable<Entity_Orientation> super;
 private:

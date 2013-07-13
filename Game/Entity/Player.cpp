@@ -14,7 +14,7 @@
 
 namespace atm {
 
-class dpPatch IWeaponry
+class IWeaponry
 {
 private:
     EntityHandle m_owner;
@@ -37,7 +37,7 @@ public:
 typedef IWeaponry IDrive;
 
 
-class dpPatch Booster : public IDrive
+class Booster : public IDrive
 {
 typedef IDrive super;
 private:
@@ -80,7 +80,7 @@ public:
 atmExportClass(Booster);
 
 
-class dpPatch Blinker : public IDrive
+class Blinker : public IDrive
 {
 typedef IDrive super;
 private:
@@ -142,7 +142,7 @@ public:
 atmExportClass(Blinker);
 
 
-class dpPatch Penetrator : public IDrive
+class Penetrator : public IDrive
 {
 typedef IDrive super;
 private:
@@ -154,7 +154,7 @@ public:
 atmExportClass(Penetrator);
 
 
-class dpPatch TimeWarp : public IDrive
+class TimeWarp : public IDrive
 {
 typedef IDrive super;
 private:
@@ -167,7 +167,7 @@ atmExportClass(TimeWarp);
 
 
 
-class dpPatch BarrierGenerator : public IWeaponry
+class BarrierGenerator : public IWeaponry
 {
 typedef IWeaponry super;
 private:
@@ -227,7 +227,7 @@ public:
 atmExportClass(BarrierGenerator);
 
 
-class dpPatch GravityMineLauncher : public IWeaponry
+class GravityMineLauncher : public IWeaponry
 {
 typedef IWeaponry super;
 private:
@@ -239,7 +239,7 @@ public:
 atmExportClass(GravityMineLauncher);
 
 
-class dpPatch Catapult : public IWeaponry
+class Catapult : public IWeaponry
 {
 typedef IWeaponry super;
 private:
@@ -251,7 +251,7 @@ public:
 atmExportClass(Catapult);
 
 
-class dpPatch Barrier : public EntityTemplate<Entity_Translate>
+class Barrier : public EntityTemplate<Entity_Translate>
 {
 typedef EntityTemplate<Entity_Translate>    super;
 private:
@@ -327,7 +327,7 @@ atmImplementEntity(Barrier);
 atmExportClass(Barrier);
 
 
-class dpPatch Player : public Breakable<Entity_AxisRotationI>
+class Player : public Breakable<Entity_AxisRotationI>
 {
 typedef Breakable<Entity_AxisRotationI> super;
 private:

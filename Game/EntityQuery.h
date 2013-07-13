@@ -29,8 +29,6 @@
 
 namespace atm {
 
-
-
 class IEntity;
 
 template<class Arg>
@@ -48,7 +46,7 @@ inline bool atmCallImpl(EntityHandle h, FunctionID fid, const Arg &args, Ret &re
 template<class C, class Arg>
 inline bool atmCallImpl(C *e, FunctionID fid, const Arg &args)
 {
-    return e->call(fid, &args, NULL);
+    return e->call(fid, &args, nullptr);
 }
 template<class C, class Ret, class Arg>
 inline bool atmCallImpl(C *e, FunctionID fid, const Arg &args, Ret &ret)
@@ -71,7 +69,7 @@ inline bool atmQueryImpl(EntityHandle h, FunctionID fid, Ret &ret, const Arg &ar
 template<class C, class Ret>
 inline bool atmQueryImpl(C *e, FunctionID fid, Ret &ret)
 {
-    return e->call(fid, NULL, &ret);
+    return e->call(fid, nullptr, &ret);
 }
 template<class C, class Ret, class Arg>
 inline bool atmQueryImpl(C *e, FunctionID fid, Ret &ret, const Arg &args)

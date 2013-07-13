@@ -6,7 +6,7 @@
 namespace atm {
 
 
-class dpPatch Level_Test : public IEntity
+class Level_Test : public IEntity
 {
 typedef IEntity super;
 private:
@@ -289,6 +289,7 @@ public:
             IEntity *layer = atmCreateEntityT(LevelLayer);
             atmCall(layer, addControlPoint, ControlPoint(0.0f, vec3()));
             atmCall(layer, addControlPoint, ControlPoint(600.0f, vec3(-1.0f,0.0f,0.0f)));
+            atmCall(layer, addControlPoint, ControlPoint(1200.0f, vec3(-1.0f,1.0f,0.0f)));
             {
                 IEntity *e = atmCreateEntityT(GearSmall);
                 atmCall(e, setPosition, vec3(0.5f, 0.5f, 0.0f));

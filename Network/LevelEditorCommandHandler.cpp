@@ -99,7 +99,7 @@ void NucleiCommandHandler::handleCreate(HTTPServerRequest &request, HTTPServerRe
             code=RC_InvalidCommand; goto RESPOND;
         }
 
-        variant vpos;
+        variant32 vpos;
         if(ParseArg(vpos, m1[2].str())) {
             vec2 pos = (vec2&)vpos + WebServer::getInstance()->randomVec2()*0.01f;
             {
@@ -144,7 +144,7 @@ void NucleiCommandHandler::handleCall(HTTPServerRequest &request, HTTPServerResp
 
     std::smatch m1;
     if(std::regex_search(data, m1, std::regex("entity=(\\d+),func=(\\w+),arg=(.+)"))) {
-        variant arg;
+        variant32 arg;
         EntityHandle entity = (EntityHandle)_atoi64(m1[1].str().c_str());
         FunctionID fid = getValidFID(m1[2].str());
         if(fid!=0 && ParseArg(arg, m1[3].str())) {

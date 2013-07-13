@@ -16,7 +16,7 @@ namespace atm {
     EC_Zab,
     */
 
-class dpPatch BreakableParts : public Breakable<Entity_Orientation>
+class BreakableParts : public Breakable<Entity_Orientation>
 {
 typedef Breakable<Entity_Orientation> super;
 private:
@@ -30,7 +30,7 @@ atmImplementEntity(BreakableParts);
 atmExportClass(BreakableParts);
 
 
-class dpPatch BreakableCore : public Breakable<Entity_Orientation>
+class BreakableCore : public Breakable<Entity_Orientation>
 {
 typedef Breakable<Entity_Orientation> super;
 private:
@@ -44,7 +44,7 @@ atmImplementEntity(BreakableCore);
 atmExportClass(BreakableCore);
 
 
-class dpPatch SmallFighter : public Breakable<Entity_Orientation>
+class SmallFighter : public Breakable<Entity_Orientation>
 {
 typedef Breakable<Entity_Orientation> super;
 private:
@@ -58,7 +58,7 @@ atmImplementEntity(SmallFighter);
 atmExportClass(SmallFighter);
 
 
-class dpPatch MediumFighter : public Breakable<Entity_Orientation>
+class MediumFighter : public Breakable<Entity_Orientation>
 {
 typedef Breakable<Entity_Orientation> super;
 private:
@@ -72,7 +72,7 @@ atmImplementEntity(MediumFighter);
 atmExportClass(MediumFighter);
 
 
-class dpPatch LargeFighter : public Breakable<Entity_Orientation>
+class LargeFighter : public Breakable<Entity_Orientation>
 {
 typedef Breakable<Entity_Orientation> super;
 private:
@@ -86,7 +86,7 @@ atmImplementEntity(LargeFighter);
 atmExportClass(LargeFighter);
 
 
-class dpPatch Shell : public Breakable<Entity_Orientation>
+class Shell : public Breakable<Entity_Orientation>
 {
 typedef Breakable<Entity_Orientation> super;
 private:
@@ -100,7 +100,7 @@ atmImplementEntity(Shell);
 atmExportClass(Shell);
 
 
-class dpPatch Zab : public Breakable<Entity_Orientation>
+class Zab : public Breakable<Entity_Orientation>
 {
 typedef Breakable<Entity_Orientation> super;
 private:
@@ -114,7 +114,7 @@ atmImplementEntity(Zab);
 atmExportClass(Zab);
 
 
-class dpPatch SmallNucleus : public Breakable<Entity_Orientation>
+class SmallNucleus : public Breakable<Entity_Orientation>
 {
 typedef Breakable<Entity_Orientation> super;
 private:

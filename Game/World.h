@@ -43,7 +43,7 @@ public:
     BulletModule*       getBulletModule()   { return m_bullet_module; }
     VFXModule*          getVFXModule()      { return m_vfx_module; }
 
-    dpPatch void handleEntitiesQuery(EntitiesQueryContext &ctx);
+    void handleEntitiesQuery(EntitiesQueryContext &ctx);
 
     istSerializeBlockDecl();
 
