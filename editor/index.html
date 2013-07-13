@@ -25,7 +25,7 @@ void main()
 }
 </script>
 
-<script type="x-shader/x-vertex" id="vs_bullets"> 
+<script type="x-shader/x-vertex" id="vs_particles"> 
 attribute vec2 ia_position;
 uniform mat4 u_proj;
 void main()
@@ -34,7 +34,7 @@ void main()
     gl_Position = u_proj * vec4(ia_position, 0.0, 1.0);
 }
 </script>
-<script type="x-shader/x-fragment" id="ps_bullets">
+<script type="x-shader/x-fragment" id="ps_particles">
 precision mediump float;
 uniform vec4 u_color;
 void main()
@@ -144,10 +144,33 @@ var camera = {
 
 var editor = {
     selection: [],
-    current_entitytype: 0,
-    entitytypes: [],
+    currentEntityType: 0,
+    entityTypes: [],
     functions: [],
     resource: 0.0,
+
+    clearSelection: function() {
+        this.selection.clear();
+    },
+    addSelection: function(e) {
+        this.selection.push(e);
+        if(this.selection.length==1) {
+            ui.updateEntityProperties(e);
+        }
+    },
+    setSelection: function(e) {
+        this.clearSelection();
+        this.selection.push(e);
+        if(this.selection.length==1) {
+            ui.updateEntityProperties(e);
+        }
+    },
+
+    setupConsts: function(consts)
+    {
+        this.entityTypes = consts.entityTypes;
+        this.functions = consts.functions;
+    },
 };
 
 var entities = {
@@ -161,8 +184,103 @@ var entities = {
     fluids: new Float32Array(),
 };
 
+var ui = {
+    getProperties: function() { return $("entity_properties"); },
+    getTypeSelector: function() { return $("entity_type_selector"); },
+
+    createPropertyInput: function(entity, property) {
+        var r = document.createElement("input");
+        r.entity = entity;
+        r.eprop = property;
+        r.setAttribute("class", "property "+property.type);
+        r.setAttribute("type", "text");
+        r.setAttribute("size", 32);
+        r.value = property.value;
+        if(property.setter) {
+            r.setAttribute("onfocus", "this.lockUpdate=true");
+            r.setAttribute("onblur", "this.lockUpdate=false");
+            r.setAttribute("onchange", "this.handleChange()");
+            r.handleChange = function() {
+                var value = this.eprop.type+"("+this.value.gsub(" ", "")+")";
+                postCommand("/nuclei/call", "entity="+this.entity+",func="+this.eprop.setter+",arg="+value);
+            }
+        }
+        else {
+            r.disabled = true;
+        }
+        return r;
+    },
+
+    updateEntityProperties: function(entity)
+    {
+        var ajax = new Ajax.Request("/nuclei/entity", {
+            method: "post",
+            parameters: "entity="+entity,
+            onComplete: function(res) {
+                var properties = res.responseText.evalJSON();
+                var fields = ui.getProperties();
+                clearChildren(fields);
+
+                var parent = properties.find( function(a){return a.name=="m_parent";} );
+                if(parent) {
+                    var t = document.createElement("li");
+                    var button = document.createElement("input");
+                    button.setAttribute("type", "button");
+                    button.value = "select parent";
+                    button.eParent = parent.value;
+                    button.onclick = function(){
+                        editor.setSelection(this.eParent);
+                    };
+                    fields.appendChild(button);
+                }
+                each(properties, function(field){
+                    var t = document.createElement("li");
+                    t.setAttribute("class", "property");
+                    t.appendChild(document.createTextNode(field.name+"("+field.type+") "));
+                    t.appendChild(ui.createPropertyInput(entity, field));
+                    t.entityProperty = field;
+                    fields.appendChild(t);
+                });
+            }
+        });
+    },
+
+    onClickEntityType: function()
+    {
+        var selector = ui.getTypeSelector();
+        each(selector.childNodes, function(e){
+            e.style.backgroundColor = "";
+        });
+        editor.currentEntityType = this.entitytype;
+        this.style.backgroundColor = "#FF0000";
+    },
+
+    onLoad: function()
+    {
+        var ajax = new Ajax.Request("/nuclei/const", {
+            method: "get",
+            onComplete: function(res) {
+                var consts = res.responseText.evalJSON();
+                editor.setupConsts(consts);
+
+                var selector = ui.getTypeSelector();
+                for(var name in editor.entityTypes) {
+                    var value = editor.entityTypes[name];
+                    if(!value.deployable) { continue; }
+                    var t = document.createElement("li");
+                    t.setAttribute("class", "entitytype");
+                    t.appendChild(document.createTextNode(name));
+                    t.entitytype = value.id;
+                    t.onclick = ui.onClickEntityType;
+                    selector.appendChild(t);
+                }
+            }
+        });
+    }
+};
+
 var sh_entities;
-var sh_bullets;
+var sh_particles;
 var sh_lasers;
 var vb_quad;
 var ib_quad;
@@ -176,9 +294,9 @@ var vb_fluids;
 
 
 function bool_s(v)  { return "bool("+v.toString()+")"; }
-function int_s(v)   { return "int("+v.toString()+")"; }
-function uint_s(v)  { return "uint("+v.toString()+")"; }
-function float_s(v) { return "float("+v.toString()+")"; }
+function int32_s(v)   { return "int32("+v.toString()+")"; }
+function uint32_s(v)  { return "uint32("+v.toString()+")"; }
+function float32_s(v) { return "float32("+v.toString()+")"; }
 function vec2_s(v)  { return "vec2("+v[0].toString()+","+v[1].toString()+")"; }
 function vec3_s(v)  { return "vec3("+v[0].toString()+","+v[1].toString()+","+v[2].toString()+")"; }
 function vec4_s(v)  { return "vec4("+v[0].toString()+","+v[1].toString()+","+v[2].toString()+","+v[3].toString()+")"; }
@@ -206,7 +324,7 @@ function updateEntities()
 //    });
 
      var ajax = new XMLHttpRequest();
-     ajax.open("GET", "/nuclei/entities", true);
+     ajax.open("GET", "/nuclei/state", true);
      ajax.responseType = "arraybuffer";
      ajax.onload = function (ev) {
          loading = false;
@@ -349,10 +467,10 @@ function onLoadGL()
     sh_entities.u_size  = gl.getUniformLocation(sh_entities, "u_size");
     sh_entities.u_color = gl.getUniformLocation(sh_entities, "u_color");
 
-    sh_bullets = createShaderProgram("vs_bullets", "ps_bullets");
-    sh_bullets.ia_position = gl.getAttribLocation(sh_bullets, "ia_position");
-    sh_bullets.u_proj  = gl.getUniformLocation(sh_bullets, "u_proj");
-    sh_bullets.u_color = gl.getUniformLocation(sh_bullets, "u_color");
+    sh_particles = createShaderProgram("vs_particles", "ps_particles");
+    sh_particles.ia_position = gl.getAttribLocation(sh_particles, "ia_position");
+    sh_particles.u_proj  = gl.getUniformLocation(sh_particles, "u_proj");
+    sh_particles.u_color = gl.getUniformLocation(sh_particles, "u_color");
 
     sh_lasers = createShaderProgram("vs_lasers", "ps_lasers");
     sh_lasers.ia_position = gl.getAttribLocation(sh_lasers, "ia_position");
@@ -460,23 +578,23 @@ function drawGL()
 
 
     if(entities.fluids.length) {
-        gl.useProgram(sh_bullets);
+        gl.useProgram(sh_particles);
         gl.bindBuffer(gl.ARRAY_BUFFER, vb_fluids);
         gl.bufferData(gl.ARRAY_BUFFER, entities.fluids, gl.STREAM_DRAW);
-        gl.enableVertexAttribArray(sh_bullets.ia_position);
-        gl.vertexAttribPointer(sh_bullets.ia_position, 2, gl.FLOAT, gl.FALSE, 8, 0);
-        gl.uniformMatrix4fv(sh_bullets.u_proj, gl.FALSE, projection);
-        gl.uniform4fv(sh_bullets.u_color, [0.0, 0.5, 1.0, 0.3]);
+        gl.enableVertexAttribArray(sh_particles.ia_position);
+        gl.vertexAttribPointer(sh_particles.ia_position, 2, gl.FLOAT, gl.FALSE, 8, 0);
+        gl.uniformMatrix4fv(sh_particles.u_proj, gl.FALSE, projection);
+        gl.uniform4fv(sh_particles.u_color, [0.0, 0.5, 1.0, 0.3]);
         gl.drawArrays(gl.POINTS, 0, entities.fluids.length/2);
     }
     if(entities.bullets.length) {
-        gl.useProgram(sh_bullets);
+        gl.useProgram(sh_particles);
         gl.bindBuffer(gl.ARRAY_BUFFER, vb_bullets);
         gl.bufferData(gl.ARRAY_BUFFER, entities.bullets, gl.STREAM_DRAW);
-        gl.enableVertexAttribArray(sh_bullets.ia_position);
-        gl.vertexAttribPointer(sh_bullets.ia_position, 2, gl.FLOAT, gl.FALSE, 8, 0);
-        gl.uniformMatrix4fv(sh_bullets.u_proj, gl.FALSE, projection);
-        gl.uniform4fv(sh_bullets.u_color, [1.0, 1.0, 0.0, 1.0]);
+        gl.enableVertexAttribArray(sh_particles.ia_position);
+        gl.vertexAttribPointer(sh_particles.ia_position, 2, gl.FLOAT, gl.FALSE, 8, 0);
+        gl.uniformMatrix4fv(sh_particles.u_proj, gl.FALSE, projection);
+        gl.uniform4fv(sh_particles.u_color, [1.0, 1.0, 0.0, 1.0]);
         gl.drawArrays(gl.POINTS, 0, entities.bullets.length/2);
     }
     if(entities.lasers.length) {
@@ -573,11 +691,10 @@ function onLoad()
         mouse.dragging = true;
         mouse.button = e.button;
         if(mouse.button==Button.Left) {
-            editor.selection.clear();
+            editor.clearSelection();
             var selection = selectEntityPoint(mouse.pos);
             if(selection!=0) {
-                editor.selection.push(selection);
-                updateEntityProperties(selection);
+                editor.addSelection(selection);
             }
         }
         e.preventDefault();
@@ -587,7 +704,7 @@ function onLoad()
         mouse.dragging = false;
         if(mouse.button==Button.Left) {
             if(editor.selection.length==0) {
-                postCommand("/nuclei/create", "classid="+editor.current_entitytype+",pos="+vec2_s(mouse.pos));
+                postCommand("/nuclei/create", "classid="+editor.currentEntityType+",pos="+vec2_s(mouse.pos));
             }
         }
         else if(mouse.button==Button.Right) {
@@ -605,25 +722,7 @@ function onLoad()
         e.preventDefault();
     };
 
-    var ajax = new Ajax.Request("/nuclei/const", {
-        method: "get",
-        onComplete: function(res) {
-            var consts = res.responseText.evalJSON();
-            editor.entitytypes = consts.entityTypes;
-            editor.functions = consts.functions;
-            var selector = $("entity_type_selector");
-            for(var name in editor.entitytypes) {
-                var value = editor.entitytypes[name];
-                if(!value.deployable) { continue; }
-                var t = document.createElement("li");
-                t.setAttribute("class", "entitytype");
-                t.appendChild(document.createTextNode(name));
-                t.entitytype = value.id;
-                t.onclick = onClickEntityClassSelection;
-                selector.appendChild(t);
-            }
-        }
-    });
+    ui.onLoad();
 
     onLoadGL();
     //onLoad2D();
@@ -647,37 +746,6 @@ function each(v, f)
 function clearChildren(e)
 {
     while(e.firstChild) { e.removeChild(e.firstChild); }
-}
-
-function updateEntityProperties(handle)
-{
-    var ajax = new Ajax.Request("/nuclei/entity", {
-        method: "post",
-        parameters: "entity="+handle,
-        onComplete: function(res) {
-            var properties = res.responseText.evalJSON();
-            var fields = $("entity_properties");
-            clearChildren(fields);
-            each(properties, function(field){
-                var t = document.createElement("li");
-                t.setAttribute("class", "param");
-                t.appendChild(document.createTextNode(field.name+"("+field.type+") "+field.value));
-                t.entityProperty = field;
-                fields.appendChild(t);
-            });
-        }
-    });
-}
-
-function onClickEntityClassSelection()
-{
-    var selector = $("entity_type_selector");
-    each(selector.childNodes, function(e){
-        e.style.backgroundColor = "";
-    });
-
-    editor.current_entitytype = this.entitytype;
-    this.style.backgroundColor = "#FF0000";
 }
 
 function postCommand(url, values)

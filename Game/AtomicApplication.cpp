@@ -8,7 +8,7 @@
 #include "Game/World.h"
 #include "Sound/AtomicSound.h"
 #include "Graphics/Renderer.h"
-#include "Network/LevelEditorServer.h"
+#include "Network/WebServer.h"
 #include "Network/GameServer.h"
 #include "Network/GameClient.h"
 #include "Util.h"

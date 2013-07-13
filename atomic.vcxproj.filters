@@ -93,9 +93,6 @@
     <ClCompile Include="Network\GameServer.cpp">
       <Filter>Network</Filter>
     </ClCompile>
-    <ClCompile Include="Network\LevelEditorServer.cpp">
-      <Filter>Network</Filter>
-    </ClCompile>
     <ClCompile Include="EnumStrings.cpp" />
     <ClCompile Include="CrashReport.cpp" />
     <ClCompile Include="Network\GameServerSession.cpp">
@@ -173,6 +170,12 @@
     </ClCompile>
     <ClCompile Include="Game\VFX\VFXParticle.cpp">
       <Filter>Game\VFX</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\WebServer.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\LevelEditorCommand.cpp">
+      <Filter>Network</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -262,9 +265,6 @@
     <ClInclude Include="Network\GameServer.h">
       <Filter>Network</Filter>
     </ClInclude>
-    <ClInclude Include="Network\LevelEditorServer.h">
-      <Filter>Network</Filter>
-    </ClInclude>
     <ClInclude Include="externals.h" />
     <ClInclude Include="Network\Protocol.h">
       <Filter>Network</Filter>
@@ -334,6 +334,9 @@
     </ClInclude>
     <ClInclude Include="Game\VFX\VFXDistortion.h">
       <Filter>Game\VFX</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\WebServer.h">
+      <Filter>Network</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

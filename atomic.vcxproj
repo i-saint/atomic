@@ -72,8 +72,9 @@
     <ClCompile Include="Network\InputServerLocal.cpp" />
     <ClCompile Include="Network\InputServerNetwork.cpp" />
     <ClCompile Include="Network\InputServerReplay.cpp" />
-    <ClCompile Include="Network\LevelEditorServer.cpp" />
+    <ClCompile Include="Network\LevelEditorCommand.cpp" />
     <ClCompile Include="Network\Protocol.cpp" />
+    <ClCompile Include="Network\WebServer.cpp" />
     <ClCompile Include="Sound\AtomicSound.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -134,8 +135,8 @@
     <ClInclude Include="Network\InputServer.h" />
     <ClInclude Include="Network\InputServerInternal.h" />
     <ClInclude Include="Network\LevelEditorCommand.h" />
-    <ClInclude Include="Network\LevelEditorServer.h" />
     <ClInclude Include="Network\Protocol.h" />
+    <ClInclude Include="Network\WebServer.h" />
     <ClInclude Include="Sound\AtomicSound.h" />
     <ClInclude Include="Sound\SoundResourceID.h" />
     <ClInclude Include="stdafx.h" />

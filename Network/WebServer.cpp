@@ -1,6 +1,6 @@
 ﻿#include "stdafx.h"
 #include "../FunctionID.h"
-#include "LevelEditorServer.h"
+#include "WebServer.h"
 #include "Game/AtomicApplication.h"
 #include "Game/EntityClass.h"
 
@@ -13,8 +13,8 @@ using Poco::Net::HTTPServerResponse;
 
 const char s_fileserver_base_dir[] = "editor";
 
-struct MIME { const char *ext; const char *type; };
-static const MIME s_mime_types[] = {
+struct MIMEType { const char *ext; const char *type; };
+static const MIMEType s_mime_types[] = {
     {".txt",  "text/plain"},
     {".html", "text/html"},
     {".css",  "text/css"},
@@ -88,13 +88,13 @@ inline bool ParseArg(variant &out, const std::string &str)
     ivec4 iv;
     uvec4 uv;
     vec4 fv;
-    if(sscanf(str.c_str(), "int(%d)", &iv.x)==1) {
+    if(sscanf(str.c_str(), "int32(%d)", &iv.x)==1) {
         out=iv; return true;
     }
-    else if(sscanf(str.c_str(), "uint(%u)", &uv.x)==1) {
+    else if(sscanf(str.c_str(), "uint32(%u)", &uv.x)==1) {
         out=uv; return true;
     }
-    else if(sscanf(str.c_str(), "float(%f)", &fv.x)==1) {
+    else if(sscanf(str.c_str(), "float32(%f)", &fv.x)==1) {
         out=fv; return true;
     }
     else if(sscanf(str.c_str(), "vec2(%f,%f)", &fv.x, &fv.y)==2) {
@@ -130,24 +130,31 @@ public:
     void handleRequest(HTTPServerRequest &request, HTTPServerResponse &response);
     void respondCode(HTTPServerResponse &response, int32 code);
 
-    void handleCreateRequest(HTTPServerRequest &request, HTTPServerResponse &response);
-    void handleDeleteRequest(HTTPServerRequest &request, HTTPServerResponse &response);
-    void handleCallRequest(HTTPServerRequest &request, HTTPServerResponse &response);
-    void handleEntities(HTTPServerRequest &request, HTTPServerResponse &response);
+    void handleCreate(HTTPServerRequest &request, HTTPServerResponse &response);
+    void handleDelete(HTTPServerRequest &request, HTTPServerResponse &response);
+    void handleCall(HTTPServerRequest &request, HTTPServerResponse &response);
+    void handleState(HTTPServerRequest &request, HTTPServerResponse &response);
     void handleEntity(HTTPServerRequest &request, HTTPServerResponse &response);
     void handleConst(HTTPServerRequest &request, HTTPServerResponse &response);
 };
+
+struct NucleiCommandHandler_Initializer
+{
+    NucleiCommandHandler_Initializer() {
+        NucleiCommandHandler::getHandlerTable();
+    }
+} g_NucleiCommandHandler_Initializer;
 
 NucleiCommandHandler::HandlerTable& NucleiCommandHandler::getHandlerTable()
 {
     static HandlerTable s_table;
     if(s_table.empty()) {
-        s_table["/nuclei/call"]     = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleCallRequest(req,res);  };
-        s_table["/nuclei/create"]   = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleCreateRequest(req,res);};
-        s_table["/nuclei/delete"]   = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleDeleteRequest(req,res);};
-        s_table["/nuclei/entity"]   = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleEntity(req,res);       };
-        s_table["/nuclei/entities"] = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleEntities(req,res);     };
-        s_table["/nuclei/const"]    = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleConst(req,res);        };
+        s_table["/nuclei/call"]   = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleCall(req,res);   };
+        s_table["/nuclei/create"] = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleCreate(req,res); };
+        s_table["/nuclei/delete"] = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleDelete(req,res); };
+        s_table["/nuclei/state"]  = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleState(req,res);  };
+        s_table["/nuclei/entity"] = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleEntity(req,res); };
+        s_table["/nuclei/const"]  = [](NucleiCommandHandler *o, HTTPServerRequest &req, HTTPServerResponse &res){ o->handleConst(req,res);  };
     }
     return s_table;
 }
@@ -208,7 +215,7 @@ void NucleiCommandHandler::respondCode(HTTPServerResponse &response, int32 code)
     ostr.write(str, len);
 }
 
-void NucleiCommandHandler::handleCreateRequest(HTTPServerRequest &request, HTTPServerResponse &response)
+void NucleiCommandHandler::handleCreate(HTTPServerRequest &request, HTTPServerResponse &response)
 {
     std::string data;
     GetDecodedRequestBody(request, data);
@@ -242,7 +249,7 @@ RESPOND:
     respondCode(response, code);
 }
 
-void NucleiCommandHandler::handleDeleteRequest(HTTPServerRequest &request, HTTPServerResponse &response)
+void NucleiCommandHandler::handleDelete(HTTPServerRequest &request, HTTPServerResponse &response)
 {
     std::string data;
     GetDecodedRequestBody(request, data);
@@ -251,7 +258,7 @@ void NucleiCommandHandler::handleDeleteRequest(HTTPServerRequest &request, HTTPS
     respondCode(response, code);
 }
 
-void NucleiCommandHandler::handleCallRequest(HTTPServerRequest &request, HTTPServerResponse &response)
+void NucleiCommandHandler::handleCall(HTTPServerRequest &request, HTTPServerResponse &response)
 {
     std::string data;
     GetDecodedRequestBody(request, data);
@@ -276,7 +283,7 @@ void NucleiCommandHandler::handleCallRequest(HTTPServerRequest &request, HTTPSer
     respondCode(response, code);
 }
 
-void NucleiCommandHandler::handleEntities(HTTPServerRequest &request, HTTPServerResponse &response)
+void NucleiCommandHandler::handleState(HTTPServerRequest &request, HTTPServerResponse &response)
 {
     LevelEditorQuery q;
     q.type = LEQ_Entities;
@@ -285,12 +292,8 @@ void NucleiCommandHandler::handleEntities(HTTPServerRequest &request, HTTPServer
         ist::MiliSleep(5);
     }
 
-    response.setChunkedTransferEncoding(true);
-#ifdef atm_enable_WebGL
     response.setContentType("application/octet-stream");
-#else // atm_enable_WebGL
-    response.setContentType("application/json");
-#endif // atm_enable_WebGL
+    response.setContentLength(q.response.size());
     std::ostream &ostr = response.send();
     ostr << q.response;
 }
