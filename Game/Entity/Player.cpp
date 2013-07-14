@@ -316,10 +316,13 @@ public:
             atmGetLightPass()->addLight(l);
         }
         {
-            mat4 t;
-            t *= glm::translate(mat4(), vec3(pos.x,pos.y,pos.z));
-            t *= glm::scale(mat4(), vec3(0.125f*3.0f));
-            atmGetForwardPass()->drawModel(SH_BARRIER, MODEL_UNITSPHERE, t);
+            float32 radius = 0.125f*3.0f;
+            PassForward_Generic::InstanceParams params;
+            params.transform *= glm::translate(mat4(), pos);
+            params.transform *= glm::scale(mat4(), vec3(radius));
+            //atmGetForwardPass()->drawModel(SH_BARRIER, MODEL_UNITSPHERE, t);
+            params.params[0] = vec4(radius, 0.1f, 1.0f, 1.0f);
+            atmGetForwardPass()->drawModel(SH_FEEDBACK_BLUR, MODEL_UNITSPHERE, params);
         }
     }
 };

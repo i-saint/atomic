@@ -29,14 +29,19 @@ public:
     void beforeDraw();
     void draw();
 
-    void drawModel(SH_RID shader, MODEL_RID model, const mat4 &matrix);
+    struct InstanceParams {
+        mat4 transform;
+        vec4 params[4];
+    };
+    void drawModel(SH_RID shader, MODEL_RID model, const mat4 &transform);
+    void drawModel(SH_RID shader, MODEL_RID model, const InstanceParams &params);
 
 private:
-    typedef std::vector<mat4> mat_cont;
-    typedef std::map<MODEL_RID, mat_cont> model_mat_cont;
-    typedef std::map<SH_RID, model_mat_cont> sh_model_mat_cont;
-    sh_model_mat_cont m_commands;
-    mat_cont m_matrices;
+    typedef std::vector<InstanceParams> ParamCont;
+    typedef std::map<MODEL_RID, ParamCont> ModelParamCont;
+    typedef std::map<SH_RID, ModelParamCont> ShModelParamCont;
+    ShModelParamCont m_commands;
+    ParamCont m_params;
 };
 
 class PassForward_Barrier : public IRenderer

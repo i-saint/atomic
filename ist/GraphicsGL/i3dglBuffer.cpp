@@ -100,8 +100,8 @@ void VertexArray::unbind() const
 
 void VertexArray::setAttributes( uint32 vb_slot, Buffer* vb, uint32 start, uint32 stride, const VertexDesc *descs, uint32 num_descs )
 {
-    istAssert(vb_slot<MAX_VERTEX_STREAM);
-    istAssert(num_descs<MAX_VERTEX_DESC);
+    istAssert(vb_slot<=MAX_VERTEX_STREAM);
+    istAssert(num_descs<=MAX_VERTEX_DESC);
     m_dirty = true;
     VertexStreamDesc &vsd = m_stream_descs[vb_slot];
     vsd.stride = stride;

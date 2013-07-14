@@ -150,11 +150,11 @@ bool GraphicResourceManager::initialize()
         m_vbo[VBO_GB_RIGID_SPHERICAL]   = CreateVertexBuffer(dev, sizeof(PSetParticle)*MAX_RIGID_PARTICLES, I3D_USAGE_DYNAMIC);
         m_vbo[VBO_GB_RIGID_SOLID]       = CreateVertexBuffer(dev, sizeof(PSetParticle)*MAX_RIGID_PARTICLES, I3D_USAGE_DYNAMIC);
         m_vbo[VBO_PARTICLES]            = CreateVertexBuffer(dev, sizeof(SingleParticle)*MAX_EFFECT_PARTICLES, I3D_USAGE_DYNAMIC);
-        m_vbo[VBO_DIRECTIONALLIGHT_INSTANCES] = CreateVertexBuffer(dev, sizeof(DirectionalLight)*ATOMIC_MAX_DIRECTIONAL_LIGHTS, I3D_USAGE_DYNAMIC);
+        m_vbo[VBO_DIRLIGHT_INSTANCES]   = CreateVertexBuffer(dev, sizeof(DirectionalLight)*ATOMIC_MAX_DIRECTIONAL_LIGHTS, I3D_USAGE_DYNAMIC);
         m_vbo[VBO_POINTLIGHT_INSTANCES] = CreateVertexBuffer(dev, sizeof(PointLight)*ATOMIC_MAX_POINT_LIGHTS, I3D_USAGE_DYNAMIC);
         m_vbo[VBO_BLOODSTAIN_PARTICLES] = CreateVertexBuffer(dev, sizeof(BloodstainParticle)*MAX_BLOODSTAIN_PARTICLES, I3D_USAGE_DYNAMIC);
-        m_vbo[VBO_MATRICES1]            = CreateVertexBuffer(dev, sizeof(mat4)*2048, I3D_USAGE_DYNAMIC);
-        m_vbo[VBO_MATRICES2]            = CreateVertexBuffer(dev, sizeof(mat4)*2048, I3D_USAGE_DYNAMIC);
+        m_vbo[VBO_GENERIC_PARAMS1]      = CreateVertexBuffer(dev, 512*1024, I3D_USAGE_DYNAMIC);
+        m_vbo[VBO_GENERIC_PARAMS2]      = CreateVertexBuffer(dev, 512*1024, I3D_USAGE_DYNAMIC);
     }
     {
         m_ubo[UBO_RENDERSTATES_3D]          = CreateUniformBuffer(dev, sizeof(RenderStates), I3D_USAGE_DYNAMIC);
@@ -196,6 +196,7 @@ bool GraphicResourceManager::initialize()
         m_shader[SH_DEBUG_SHOW_RGB]     = CreateAtomicShader("Debug_ShowRGB");
         m_shader[SH_DEBUG_SHOW_AAA]     = CreateAtomicShader("Debug_ShowAAA");
         m_shader[SH_BARRIER]            = CreateAtomicShader("Forward_Barrier");
+        m_shader[SH_FEEDBACK_BLUR]      = CreateAtomicShader("FeedbackBlur");
 
         m_shader[SH_BG1]    = CreateAtomicShader("BG1");
         m_shader[SH_BG2]    = CreateAtomicShader("BG2");

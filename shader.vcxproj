@@ -73,6 +73,7 @@
     <None Include="shader\Deferred_Upsampling.glsl" />
     <None Include="shader\DistanceField.glsl" />
     <None Include="shader\Fade.glsl" />
+    <None Include="shader\FeedbackBlur.glsl" />
     <None Include="shader\Fill.glsl" />
     <None Include="shader\FillInstanced.glsl" />
     <None Include="shader\Forward_Barrier.glsl" />

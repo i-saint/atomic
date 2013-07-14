@@ -3,8 +3,10 @@
 
 #ifdef GLSL
     #define ALIGN16 
+    #define CPPScope(...)
 #else // GLSL
     #define ALIGN16 istAlign(16)
+    #define CPPScope(...) __VA_ARGS__
 #endif // GLSL
 
 #ifndef GLSL

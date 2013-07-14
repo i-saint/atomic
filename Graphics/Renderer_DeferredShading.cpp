@@ -257,7 +257,7 @@ void PassDeferred_Lights::updateConstantBuffers()
 {
     i3d::DeviceContext *dc  = atmGetGLDeviceContext();
     if(!m_directional_lights.empty()) {
-        Buffer *vbo_instance    = atmGetVertexBuffer(VBO_DIRECTIONALLIGHT_INSTANCES);
+        Buffer *vbo_instance    = atmGetVertexBuffer(VBO_DIRLIGHT_INSTANCES);
         int32 num_lights = m_directional_lights.size();
         MapAndWrite(dc, vbo_instance, &m_directional_lights[0], sizeof(DirectionalLight)*num_lights);
     }
@@ -287,7 +287,7 @@ void PassDeferred_Lights::drawDirectionalLights()
     i3d::DeviceContext *dc  = atmGetGLDeviceContext();
     AtomicShader *shader    = atmGetShader(SH_DIRECTIONALLIGHT);
     VertexArray *va_quad    = atmGetVertexArray(VA_SCREEN_QUAD);
-    Buffer *vbo_instance    = atmGetVertexBuffer(VBO_DIRECTIONALLIGHT_INSTANCES);
+    Buffer *vbo_instance    = atmGetVertexBuffer(VBO_DIRLIGHT_INSTANCES);
 
     m_rendered_lights += num_lights;
 

@@ -64,7 +64,7 @@ PassForward_Generic::~PassForward_Generic()
 void PassForward_Generic::beforeDraw()
 {
     for(auto si=m_commands.begin(); si!=m_commands.end(); ++si) {
-        model_mat_cont &mm = si->second;
+        ModelParamCont &mm = si->second;
         for(auto mi=mm.begin(); mi!=mm.end(); ++mi) {
             mi->second.clear();
         }
@@ -75,35 +75,41 @@ void PassForward_Generic::draw()
 {
     if(m_commands.empty()) { return; }
 
-    static const VBO_RID s_vboids[] = {VBO_MATRICES1, VBO_MATRICES2};
+    static const VBO_RID s_vboids[] = {VBO_GENERIC_PARAMS1, VBO_GENERIC_PARAMS2};
     i3d::DeviceContext *dc  = atmGetGLDeviceContext();
     RenderTarget *rt = atmGetBackRenderTarget();
-    Buffer *transforms = atmGetVertexBuffer(s_vboids[atmGetRenderFrame()%2]);
+    Buffer *vbo_params = atmGetVertexBuffer(s_vboids[atmGetRenderFrame()%2]);
     rt->setDepthStencilBuffer(atmGetRenderTarget(RT_GBUFFER)->getDepthStencilBuffer());
     dc->setBlendState(atmGetBlendState(BS_BLEND_ALPHA));
     dc->setDepthStencilState(atmGetDepthStencilState(DS_DEPTH_ENABLED));
     dc->setRenderTarget(rt);
 
     for(auto si=m_commands.begin(); si!=m_commands.end(); ++si) {
-        const model_mat_cont &mm = si->second;
+        const ModelParamCont &mm = si->second;
         for(auto mi=mm.begin(); mi!=mm.end(); ++mi) {
-            m_matrices.insert(m_matrices.end(), mi->second.begin(), mi->second.end());
+            m_params.insert(m_params.end(), mi->second.begin(), mi->second.end());
         }
     }
-    if(!m_matrices.empty()) {
-        istAssert(m_matrices.size()<2048);
-        MapAndWrite(dc, transforms, &m_matrices[0], sizeof(mat4)*std::min<size_t>(m_matrices.size(), 2048));
-        m_matrices.clear();
+    if(!m_params.empty()) {
+        size_t capacity = vbo_params->getDesc().size;
+        size_t size_byte = sizeof(InstanceParams)*m_params.size();
+        istAssert(size_byte < capacity);
+        MapAndWrite(dc, vbo_params, &m_params[0], std::min<size_t>(size_byte, capacity));
+        m_params.clear();
 
-        const VertexDesc transform_descs[] = {
+        static const VertexDesc transform_descs[] = {
             {GLSL_INSTANCE_TRANSFORM1, I3D_FLOAT32,4,  0, false, 1},
             {GLSL_INSTANCE_TRANSFORM2, I3D_FLOAT32,4, 16, false, 1},
             {GLSL_INSTANCE_TRANSFORM3, I3D_FLOAT32,4, 32, false, 1},
             {GLSL_INSTANCE_TRANSFORM4, I3D_FLOAT32,4, 48, false, 1},
+            {GLSL_INSTANCE_PARAM1,     I3D_FLOAT32,4, 64, false, 1},
+            {GLSL_INSTANCE_PARAM2,     I3D_FLOAT32,4, 80, false, 1},
+            {GLSL_INSTANCE_PARAM3,     I3D_FLOAT32,4, 96, false, 1},
+            {GLSL_INSTANCE_PARAM4,     I3D_FLOAT32,4,112, false, 1},
         };
-        size_t matrices_offset = 0;
+        size_t params_offset = 0;
         for(auto si=m_commands.begin(); si!=m_commands.end(); ++si) {
-            const model_mat_cont &mm = si->second;
+            const ModelParamCont &mm = si->second;
 
             AtomicShader *sh = atmGetShader(si->first);
             sh->bind();
@@ -111,22 +117,22 @@ void PassForward_Generic::draw()
                 if(mi->second.empty()) { continue; }
 
                 const ModelInfo &model = *atmGetModelInfo(mi->first);
-                const mat_cont &matrices = mi->second;
+                const ParamCont &params = mi->second;
                 VertexArray *va = atmGetVertexArray(model.vertices);
                 Buffer *ibo = atmGetIndexBuffer(model.indices);
                 dc->setIndexBuffer(ibo, 0, I3D_UINT32);
-                va->setAttributes(1, transforms, sizeof(mat4)*matrices_offset, sizeof(mat4), transform_descs, _countof(transform_descs));
+                va->setAttributes(1, vbo_params, sizeof(InstanceParams)*params_offset, sizeof(InstanceParams), transform_descs, _countof(transform_descs));
                 dc->setVertexArray(va);
                 if(ibo) {
-                    dc->drawIndexedInstanced(model.topology, 0, model.num_indices, matrices.size());
+                    dc->drawIndexedInstanced(model.topology, 0, model.num_indices, params.size());
                 }
                 else {
-                    dc->drawInstanced(model.topology, 0, model.num_indices, matrices.size());
+                    dc->drawInstanced(model.topology, 0, model.num_indices, params.size());
                 }
                 dc->setIndexBuffer(nullptr, 0, I3D_UINT32);
                 dc->setVertexArray(nullptr);
 
-                matrices_offset += matrices.size();
+                params_offset += params.size();
             }
             sh->unbind();
         }
@@ -137,9 +143,16 @@ void PassForward_Generic::draw()
     rt->setDepthStencilBuffer(nullptr);
 }
 
-void PassForward_Generic::drawModel( SH_RID shader, MODEL_RID model, const mat4 &matrix )
+void PassForward_Generic::drawModel( SH_RID shader, MODEL_RID model, const mat4 &trans )
 {
-    m_commands[shader][model].push_back(matrix);
+    InstanceParams params;
+    params.transform = trans;
+    m_commands[shader][model].push_back(params);
+}
+
+void PassForward_Generic::drawModel( SH_RID shader, MODEL_RID model, const InstanceParams &params )
+{
+    m_commands[shader][model].push_back(params);
 }
 
 
