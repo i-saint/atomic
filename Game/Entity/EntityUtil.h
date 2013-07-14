@@ -125,7 +125,7 @@ inline void Jsonize(stl::string &out, const char *name, const char *getter, cons
 
 inline void jsonize(stl::string &out, const ControlPoint &cp)
 {
-    out+=ist::Format("{\"time\":%.2f,\"value\":%.2f,\"in\":%.2f,\"out\":%.2f,\"interpolation\":%d}", cp.time, cp.value, cp.bez_in, cp.bez_out, cp.interp);
+    out+=ist::Format("{\"time\":%.2f,\"value\":%.2f,\"in\":%.2f,\"out\":%.2f,\"interpolation\":%d}", cp.time, cp.value, cp.in, cp.out, cp.interp);
 }
 
 

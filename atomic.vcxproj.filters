@@ -352,5 +352,8 @@
     <None Include="editor\index.html">
       <Filter>editor</Filter>
     </None>
+    <None Include="editor\util.js">
+      <Filter>editor</Filter>
+    </None>
   </ItemGroup>
 </Project>

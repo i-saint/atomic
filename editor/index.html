@@ -65,11 +65,14 @@ void main()
 
 <script type="text/javascript" src="prototype.js"></script>
 <script type="text/javascript" src="gl-matrix-min.js"></script>
+<script type="text/javascript" src="util.js"></script>
 <script type="text/javascript">
 
 var EditMode = {
-    Observer : 0,
-    Editor : 1,
+    Normal : 0,
+    SelectEntity : 1,
+    EditTimeline : 2,
+    EditPath : 3,
 };
 var Button = {
     Left    : 0,
@@ -129,6 +132,57 @@ var editor = {
     entityTypes_IDOrder: {},
     functions: [],
     resource: 0.0,
+    path: [],
+    timeline: [],
+
+    onMouseMove: function() {
+        if(mouse.dragging && editor.selection.length>0) {
+            if(mouse.button==Button.Left) {
+                var diff = vec2.create();
+                vec2.sub(diff, mouse.pos, mouse.pos_prev);
+                editor.selection.each(function(h){
+                    callRequest(h,"move",vec2_s(diff));
+                });
+            }
+            else if(mouse.button==Button.Right) {
+                var diff = vec2.create();
+                vec2.sub(diff, mouse.pos, mouse.drag_begin);
+                editor.selection.each(function(h){
+                    callRequest(h,"orient",vec2_s(diff));
+                });
+            }
+        }
+    },
+
+    onMouseDown: function() {
+        if(mouse.button==Button.Left) {
+            editor.clearSelection();
+            var selection = selectEntityPoint(mouse.pos);
+            if(selection!=0) {
+                editor.addSelection(selection);
+            }
+        }
+    },
+
+    onMouseUp: function() {
+        if(mouse.button==Button.Left) {
+            if(editor.selection.length==0) {
+                postCommand("/nuclei/create", "classid="+editor.currentEntityType+",pos="+vec2_s(mouse.pos));
+            }
+        }
+        else if(mouse.button==Button.Right) {
+            var selection = selectEntityPoint(mouse.pos);
+            editor.selection.each(function(h){
+                callRequest(h,"instruct",instruction_s(mouse.pos,selection));
+            });
+        }
+        else if(mouse.button==Button.Middle) {
+            var selection = selectEntityPoint(mouse.pos);
+            editor.selection.each(function(h){
+                callRequest(h,"setParent",uint_s(selection));
+            });
+        }
+    },
 
     clearSelection: function() {
         this.selection.clear();
@@ -638,57 +692,19 @@ function onLoad()
         var gl_y = FieldY * (p_y-0.5)*2.0;
         vec2.copy(mouse.pos_prev, mouse.pos);
         vec2.set(mouse.pos, gl_x, gl_y);
-
-        if(mouse.dragging && editor.selection.length>0) {
-            if(mouse.button==Button.Left) {
-                var diff = vec2.create();
-                vec2.sub(diff, mouse.pos, mouse.pos_prev);
-                editor.selection.each(function(h){
-                    callRequest(h,"move",vec2_s(diff));
-                });
-            }
-            else if(mouse.button==Button.Right) {
-                var diff = vec2.create();
-                vec2.sub(diff, mouse.pos, mouse.drag_begin);
-                editor.selection.each(function(h){
-                    callRequest(h,"orient",vec2_s(diff));
-                });
-            }
-        }
+        editor.onMouseMove();
     };
 
     c.onmousedown = function(e) {
         mouse.dragging = true;
         mouse.button = e.button;
-        if(mouse.button==Button.Left) {
-            editor.clearSelection();
-            var selection = selectEntityPoint(mouse.pos);
-            if(selection!=0) {
-                editor.addSelection(selection);
-            }
-        }
+        editor.onMouseDown();
         e.preventDefault();
     };
 
     c.onmouseup = function(e) {
         mouse.dragging = false;
-        if(mouse.button==Button.Left) {
-            if(editor.selection.length==0) {
-                postCommand("/nuclei/create", "classid="+editor.currentEntityType+",pos="+vec2_s(mouse.pos));
-            }
-        }
-        else if(mouse.button==Button.Right) {
-            var selection = selectEntityPoint(mouse.pos);
-            editor.selection.each(function(h){
-                callRequest(h,"instruct",instruction_s(mouse.pos,selection));
-            });
-        }
-        else if(mouse.button==Button.Middle) {
-            var selection = selectEntityPoint(mouse.pos);
-            editor.selection.each(function(h){
-                callRequest(h,"setParent",uint_s(selection));
-            });
-        }
+        editor.onMouseUp();
         e.preventDefault();
     };
 
@@ -705,16 +721,6 @@ function draw()
     drawGL();
     frame++;
     setTimeout("requestDraw(draw)", delay);
-}
-
-function each(v, f)
-{
-    for(var i=0; i<v.length; ++i) { f(v[i]); }
-}
-
-function clearChildren(e)
-{
-    while(e.firstChild) { e.removeChild(e.firstChild); }
 }
 
 function callRequest(entity, funcname, arg)

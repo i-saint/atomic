@@ -533,9 +533,6 @@
     <ClCompile Include="ist\Debug\Hook.cpp">
       <Filter>Debug</Filter>
     </ClCompile>
-    <ClCompile Include="ist\Math\Curve.cpp">
-      <Filter>Math</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ist\Math\FrustumCulling.inl">

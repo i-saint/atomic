@@ -163,6 +163,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="editor\index.html" />
+    <None Include="editor\util.js" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A8F5B4BE-0942-4A93-BBFE-0716BEAC2551}</ProjectGuid>

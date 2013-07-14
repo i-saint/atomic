@@ -71,6 +71,8 @@ using ist::FrustumPlanes;
 using ist::AABB;
 using ist::ControlPoint;
 using ist::ControlPoints;
+using ist::ControlPoint2D;
+using ist::ControlPoints2D;
 
 namespace i3d = ist::i3dgl;
 using namespace ist::i3dgl;

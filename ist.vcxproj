@@ -187,7 +187,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ist\Math\Constants.cpp" />
-    <ClCompile Include="ist\Math\Curve.cpp" />
     <ClCompile Include="ist\Math\Linear.cpp" />
     <ClCompile Include="ist\Math\SFMT\SFMT.cpp" />
     <ClCompile Include="ist\Sound\isdBuffer.cpp" />

@@ -8,6 +8,7 @@ enum BLEND_RID {
     BS_NO_BLEND,
     BS_BLEND_ALPHA,
     BS_BLEND_ADD,
+    BS_BLEND_SCREEN,
     BS_END,
 };
 

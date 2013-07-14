@@ -88,6 +88,10 @@ bool GraphicResourceManager::initialize()
         desc.func_src_rgb = desc.func_src_a = I3D_BLEND_SRC_ALPHA;
         desc.func_dst_rgb = desc.func_dst_a = I3D_BLEND_ONE;
         m_blend_states[BS_BLEND_ADD]    = dev->createBlendState(desc);
+
+        desc.func_src_rgb = desc.func_src_a = I3D_BLEND_ONE;
+        desc.func_dst_rgb = desc.func_dst_a = I3D_BLEND_INV_SRC_COLOR;
+        m_blend_states[BS_BLEND_SCREEN]    = dev->createBlendState(desc);
     }
     {
         DepthStencilStateDesc desc;
