@@ -361,6 +361,9 @@
     <ClInclude Include="ist\Debug\Hook.h">
       <Filter>Debug</Filter>
     </ClInclude>
+    <ClInclude Include="ist\Math\Curve.h">
+      <Filter>Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ist\Window\Application.cpp">
@@ -529,6 +532,9 @@
     </ClCompile>
     <ClCompile Include="ist\Debug\Hook.cpp">
       <Filter>Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Math\Curve.cpp">
+      <Filter>Math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

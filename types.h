@@ -58,17 +58,19 @@ typedef ist::IBinaryStream Serializer;
 typedef ist::IBinaryStream Deserializer;
 
 
+typedef ist::variant16 variant;
+typedef ist::variant16 variant16;
+typedef ist::variant32 variant32;
+typedef ist::variant64 variant64;
+typedef ist::variant128 variant128;
 using ist::SpinMutex;
 using ist::Task;
 using ist::TaskGroup;
 using ist::SFMT;
 using ist::FrustumPlanes;
 using ist::AABB;
-typedef ist::variant16 variant;
-typedef ist::variant16 variant16;
-typedef ist::variant32 variant32;
-typedef ist::variant64 variant64;
-typedef ist::variant128 variant128;
+using ist::ControlPoint;
+using ist::ControlPoints;
 
 namespace i3d = ist::i3dgl;
 using namespace ist::i3dgl;
@@ -81,50 +83,6 @@ enum FunctionID;
 typedef uint32 PlayerID;
 typedef wchar_t (PlayerName)[16];
 
-enum Interpolation {
-    atmE_None,
-    atmE_Linear,
-    atmE_Decel,
-    atmE_Accel,
-    atmE_Smooth,
-    atmE_Bezier,
-};
-struct ControlPoint
-{
-    float32 time;
-    float32 value;
-    float32 bez_in, bez_out;
-    Interpolation interp;
-
-    ControlPoint() : time(0.0f), value(0.0f), bez_in(0.0f),bez_out(0.0f), interp(atmE_Linear) {}
-    ControlPoint(float32 t, float32 v, Interpolation ts=atmE_Linear) : time(t), value(v), bez_in(0.0f),bez_out(0.0f), interp(ts) {}
-    ControlPoint(float32 t, float32 v, float32 _in, float32 _out, Interpolation ts=atmE_Linear) : time(t), value(v), bez_in(_in),bez_out(_out), interp(ts) {}
-    bool operator<(const ControlPoint &p) const { return time<p.time; }
-};
-atmSerializeRaw(ControlPoint);
-
-class ControlPoints : public ist::raw_vector<ControlPoint>
-{
-public:
-    void addCP(const ControlPoint &v)
-    {
-        auto i = stl::lower_bound(begin(), end(), v);
-        insert(i, v);
-    }
-    void setCP(uint32 i, const ControlPoint &v)
-    {
-        if(i<size()) {
-            (*this)[i] = v;
-            stl::sort(begin(), end());
-        }
-    }
-    void eraseCP(uint32 i)
-    {
-        if(i<size()) {
-            erase(begin()+i);
-        }
-    }
-};
 
 
 enum ErrorCode {

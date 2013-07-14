@@ -85,9 +85,9 @@ public:
         m_time += dt;
 
         // 子が参照するので asyncupdate ではダメ
-        vec3 pos(Interpolate(m_posxcp, m_time), Interpolate(m_posycp, m_time), 0.0f );
+        vec3 pos(m_posxcp.computeValue(m_time), m_posycp.computeValue(m_time), 0.0f );
         setPosition(-pos);
-        setRotate(Interpolate(m_rotcp, m_time));
+        setRotate(m_rotcp.computeValue(m_time));
         updateTransformMatrix();
     }
 

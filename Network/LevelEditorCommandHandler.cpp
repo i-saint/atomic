@@ -34,7 +34,7 @@ inline bool ParseArg(variant32 &out, const std::string &str)
         out=ist::MakeValueList(vec3(fv),uv.x); return true;
     }
     else if(sscanf(str.c_str(), "controlpoint(%f,%f,%f,%f,%u)", &fv.x, &fv.y, &fv.z, &fv.w, &uv.x)==5) {
-        out=ControlPoint(fv.x, fv.y, fv.z, fv.w, (Interpolation)uv.x); return true;
+        out=ControlPoint(fv.x, fv.y, fv.z, fv.w, (ControlPoint::Interpolation)uv.x); return true;
     }
     return false;
 }

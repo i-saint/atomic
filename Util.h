@@ -96,8 +96,6 @@ namespace atm {
     vec3 GenRandomVector3();
     vec2 GenRandomUnitVector2();
     vec3 GenRandomUnitVector3();
-    float32 Interpolate(const ControlPoint &a, const ControlPoint &b, float32 t);
-    float32 Interpolate(ControlPoints &cps, float32 time);
     void CreateDateString(char *buf, uint32 len);
 
     template<class T>
