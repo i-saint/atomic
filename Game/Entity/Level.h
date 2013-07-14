@@ -2,45 +2,40 @@
 #define atm_Game_Entity_Level_h
 namespace atm {
 
-template<class Transform>
-class EntityWithTransform : public IEntity, public Transform
+template<class TransAttr>
+class EntityWithTransAttr : public IEntity, public TransAttr
 {
 typedef IEntity super;
-typedef Transform transform;
+typedef TransAttr transform;
 private:
     istSerializeBlock(
-        istSerializeBase(super)
         istSerializeBase(transform)
     )
-
 public:
     atmECallBlock(
-        atmECallSuper(super)
         atmECallSuper(transform)
     )
-
     atmJsonizeBlock(
         atmJsonizeSuper(transform)
     )
 };
-typedef EntityWithTransform<Attr_Position> EntityWithPosition;
+typedef EntityWithTransAttr<Attr_Position> EntityWithPosition;
 
-template<class Transform>
-class Unbreakable : public EntityTemplate<Transform>
+
+template<class TransAttr>
+class Unbreakable : public EntityTemplate<TransAttr>
 {
-typedef EntityTemplate<Transform> super;
+typedef EntityTemplate<TransAttr> super;
 private:
     istSerializeBlock(
         istSerializeBase(super)
     )
-
 public:
     atmECallBlock(
         atmECallSuper(super)
     )
-
     atmJsonizeBlock(
-        atmJsonizeSuper(transform)
+        atmJsonizeSuper(super)
     )
 
 public:

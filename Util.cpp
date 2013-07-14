@@ -50,6 +50,21 @@ float32 Interpolate(const ControlPoint &v1, const ControlPoint &v2, float32 time
     return r;
 }
 
+float32 Interpolate(ControlPoints &cps, float32 time)
+{
+    float32 r = 0.0f;
+    if(cps.empty()) {}
+    else if(time<=cps.front().time){ r=cps.front().value; }
+    else if(time>=cps.back().time) { r=cps.back().value; }
+    else {
+        auto p2 = stl::lower_bound(cps.begin(), cps.end(), time,
+            [&](const ControlPoint &v, float32 t){ return v.time<t; });
+        auto p1 = p2-1;
+        r = Interpolate(*p1, *p2, time);
+    }
+    return r;
+}
+
 
 vec2 GenRandomVector2()
 {

@@ -11,7 +11,6 @@ class LevelLayer
 typedef IEntity super;
 typedef TAttr_TransformMatrixI<Attr_Transform> transform;
 private:
-    typedef ist::raw_vector<ControlPoint> ControlPoints;
     ControlPoints m_posxcp;
     ControlPoints m_posycp;
     ControlPoints m_rotcp;
@@ -29,15 +28,18 @@ private:
 public:
     atmECallBlock(
         atmMethodBlock(
-            atmECall(addPotisionXCP)
-            atmECall(erasePotisionXCP)
-            atmECall(setPotisionXCP)
-            atmECall(addPotisionYCP)
-            atmECall(erasePotisionYCP)
-            atmECall(setPotisionYCP)
+            atmECall(addPositionXCP)
+            atmECall(setPositionXCP)
+            atmECall(erasePositionXCP)
+            atmECall(clearPositionXCP)
+            atmECall(addPositionYCP)
+            atmECall(setPositionYCP)
+            atmECall(erasePositionYCP)
+            atmECall(clearPositionYCP)
             atmECall(addRotationCP)
-            atmECall(eraseRotationCP)
             atmECall(setRotationCP)
+            atmECall(eraseRotationCP)
+            atmECall(clearRotationCP)
         )
         atmECallSuper(super)
         atmECallSuper(transform)
@@ -45,15 +47,18 @@ public:
 
     atmJsonizeBlock(
         atmJsonizeSuper(transform)
-        atmJsonizeCall(addPotisionXCP)
-        atmJsonizeCall(erasePotisionXCP)
-        atmJsonizeCall(setPotisionXCP)
-        atmJsonizeCall(addPotisionYCP)
-        atmJsonizeCall(erasePotisionYCP)
-        atmJsonizeCall(setPotisionYCP)
+        atmJsonizeCall(addPositionXCP)
+        atmJsonizeCall(setPositionXCP)
+        atmJsonizeCall(erasePositionXCP)
+        atmJsonizeCall(clearPositionXCP)
+        atmJsonizeCall(addPositionYCP)
+        atmJsonizeCall(setPositionYCP)
+        atmJsonizeCall(erasePositionYCP)
+        atmJsonizeCall(clearPositionYCP)
         atmJsonizeCall(addRotationCP)
-        atmJsonizeCall(eraseRotationCP)
         atmJsonizeCall(setRotationCP)
+        atmJsonizeCall(eraseRotationCP)
+        atmJsonizeCall(clearRotationCP)
     )
 
 public:
@@ -80,12 +85,9 @@ public:
         m_time += dt;
 
         // 子が参照するので asyncupdate ではダメ
-        vec3 pos(
-            computeInterpolation(m_posxcp, m_time),
-            computeInterpolation(m_posycp, m_time),
-            0.0f );
+        vec3 pos(Interpolate(m_posxcp, m_time), Interpolate(m_posycp, m_time), 0.0f );
         setPosition(-pos);
-        setRotate(computeInterpolation(m_rotcp, m_time));
+        setRotate(Interpolate(m_rotcp, m_time));
         updateTransformMatrix();
     }
 
@@ -94,77 +96,20 @@ public:
     }
 
 
-    void addPotisionXCP(const ControlPoint &v)
-    {
-        auto i = stl::lower_bound(m_posxcp.begin(), m_posxcp.end(), v);
-        m_posxcp.insert(i, v);
-    }
-    void erasePotisionXCP(uint32 i)
-    {
-        if(i<m_posxcp.size()) {
-            m_posxcp.erase(m_posxcp.begin()+i);
-        }
-    }
-    void setPotisionXCP(uint32 i, const ControlPoint &v)
-    {
-        if(i<m_posxcp.size()) {
-            m_posxcp[i] = v;
-            stl::sort(m_posxcp.begin(), m_posxcp.end());
-        }
-    }
+    void addPositionXCP(const ControlPoint &v)          { m_posxcp.addCP(v);   }
+    void setPositionXCP(uint32 i, const ControlPoint &v){ m_posxcp.setCP(i,v); }
+    void erasePositionXCP(uint32 i)                     { m_posxcp.eraseCP(i); }
+    void clearPositionXCP()                             { m_posxcp.clear();    }
 
-    void addPotisionYCP(const ControlPoint &v)
-    {
-        auto i = stl::lower_bound(m_posycp.begin(), m_posycp.end(), v);
-        m_posycp.insert(i, v);
-    }
-    void erasePotisionYCP(uint32 i)
-    {
-        if(i<m_posycp.size()) {
-            m_posycp.erase(m_posycp.begin()+i);
-        }
-    }
-    void setPotisionYCP(uint32 i, const ControlPoint &v)
-    {
-        if(i<m_posycp.size()) {
-            m_posycp[i] = v;
-            stl::sort(m_posycp.begin(), m_posycp.end());
-        }
-    }
+    void addPositionYCP(const ControlPoint &v)          { m_posycp.addCP(v);   }
+    void setPositionYCP(uint32 i, const ControlPoint &v){ m_posycp.setCP(i,v); }
+    void erasePositionYCP(uint32 i)                     { m_posycp.eraseCP(i); }
+    void clearPositionYCP()                             { m_posycp.clear();    }
 
-    void addRotationCP(const ControlPoint &v)
-    {
-        auto i = stl::lower_bound(m_rotcp.begin(), m_rotcp.end(), v);
-        m_rotcp.insert(i, v);
-    }
-    void eraseRotationCP(uint32 i)
-    {
-        if(i<m_rotcp.size()) {
-            m_rotcp.erase(m_rotcp.begin()+i);
-        }
-    }
-    void setRotationCP(uint32 i, const ControlPoint &v)
-    {
-        if(i<m_rotcp.size()) {
-            m_rotcp[i] = v;
-            stl::sort(m_rotcp.begin(), m_rotcp.end());
-        }
-    }
-
-    float32 computeInterpolation(ControlPoints &cps, float32 time) const
-    {
-        float32 r = 0.0f;
-        if(cps.empty()) {}
-        else if(time<=cps.front().time){ r=cps.front().value; }
-        else if(time>=cps.back().time) { r=cps.back().value; }
-        else {
-            auto p2 = stl::lower_bound(cps.begin(), cps.end(), time,
-                [&](const ControlPoint &v, float32 t){ return v.time<t; });
-            auto p1 = p2-1;
-            r = Interpolate(*p1, *p2, time);
-        }
-        return r;
-    }
+    void addRotationCP(const ControlPoint &v)           { m_rotcp.addCP(v);   }
+    void setRotationCP(uint32 i, const ControlPoint &v) { m_rotcp.setCP(i,v); }
+    void eraseRotationCP(uint32 i)                      { m_rotcp.eraseCP(i); }
+    void clearRotationCP()                              { m_rotcp.clear();    }
 };
 atmImplementEntity(LevelLayer);
 atmExportClass(LevelLayer);

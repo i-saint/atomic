@@ -71,31 +71,11 @@ var EditMode = {
     Observer : 0,
     Editor : 1,
 };
-
 var Button = {
     Left    : 0,
     Middle  : 1,
     Right   : 2,
 };
-
-var EntityClassID = {
-    Unknown : 0,
-    Player : 1,
-    Enemy : 2,
-    Obstacle : 3,
-};
-var EntityClassColor = [
-    [0.0, 0.0, 0.0, 0.0],
-    [0.2, 0.2, 1.0, 0.5],
-    [1.0, 0.2, 0.2, 0.5],
-    [0.3, 0.3, 0.3, 0.5],
-];
-var EntityClassColor2D = [
-    "#000000",
-    "#3333FF",
-    "#FF3333",
-    "#444444",
-];
 var FieldX = 2.56;
 var FieldY = 2.56;
 
@@ -216,7 +196,7 @@ var ui = {
             r.setAttribute("onchange", "this.handleChange()");
             r.handleChange = function() {
                 var value = this.eprop.type+"("+this.value.gsub(" ", "")+")";
-                postCommand("/nuclei/call", "entity="+this.entity+",func="+this.eprop.setter+",arg="+value);
+                callRequest(this.entity, this.eprop.setter, value);
             }
         }
         else {
@@ -233,6 +213,7 @@ var ui = {
             onComplete: function(res) {
                 var properties = res.responseText.evalJSON();
                 var fields = ui.getProperties();
+                var parent = properties.find( function(a){return a.name=="parent";} );
                 clearChildren(fields);
                 {
                     var classname = editor.getEntityClassName(entity);
@@ -252,7 +233,6 @@ var ui = {
                     t.appendChild(button);
                     fields.appendChild(t);
                 }
-                var parent = properties.find( function(a){return a.name=="parent";} );
                 if(parent) {
                     var button = document.createElement("input");
                     button.setAttribute("type", "button");
@@ -664,14 +644,14 @@ function onLoad()
                 var diff = vec2.create();
                 vec2.sub(diff, mouse.pos, mouse.pos_prev);
                 editor.selection.each(function(h){
-                    postCommand("/nuclei/call", "entity="+h+",func=move,arg="+vec2_s(diff));
+                    callRequest(h,"move",vec2_s(diff));
                 });
             }
             else if(mouse.button==Button.Right) {
                 var diff = vec2.create();
                 vec2.sub(diff, mouse.pos, mouse.drag_begin);
                 editor.selection.each(function(h){
-                    postCommand("/nuclei/call", "entity="+h+",func=orient,arg="+vec2_s(diff));
+                    callRequest(h,"orient",vec2_s(diff));
                 });
             }
         }
@@ -700,13 +680,13 @@ function onLoad()
         else if(mouse.button==Button.Right) {
             var selection = selectEntityPoint(mouse.pos);
             editor.selection.each(function(h){
-                postCommand("/nuclei/call", "entity="+h+",func=instruct,arg="+instruction_s(mouse.pos,selection) );
+                callRequest(h,"instruct",instruction_s(mouse.pos,selection));
             });
         }
         else if(mouse.button==Button.Middle) {
             var selection = selectEntityPoint(mouse.pos);
             editor.selection.each(function(h){
-                postCommand("/nuclei/call", "entity="+h+",func=setParent,arg="+uint_s(selection));
+                callRequest(h,"setParent",uint_s(selection));
             });
         }
         e.preventDefault();
@@ -737,6 +717,12 @@ function clearChildren(e)
     while(e.firstChild) { e.removeChild(e.firstChild); }
 }
 
+function callRequest(entity, funcname, arg)
+{
+    var command = entity.toString()+"->"+funcname+"("+arg+")";
+    postCommand("/nuclei/call", command);
+}
+
 function postCommand(url, values)
 {
     var ajax = new Ajax.Request(url,
@@ -747,6 +733,7 @@ function postCommand(url, values)
         }
     });
 }
+
 </script>
 </head>
 

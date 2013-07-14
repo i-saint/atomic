@@ -8,6 +8,8 @@
 
 namespace atm {
 
+struct CollisionSphere;
+struct CollisionBox;
 void UpdateCollisionSphere(CollisionSphere &o, const vec3& pos, float32 r);
 void UpdateCollisionBox(CollisionBox &o, const mat4& t, const vec3 &size);
 

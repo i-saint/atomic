@@ -84,7 +84,11 @@ public:
     }
     )
 
-        virtual void update(float32 dt) {}
+    atmJsonizeBlock(
+        atmJsonizeSuper(transform)
+    )
+
+    virtual void update(float32 dt) {}
     virtual void asyncupdate(float32 dt) {}
 };
 

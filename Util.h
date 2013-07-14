@@ -72,8 +72,23 @@ namespace atm {
         return (int32)d;
     }
 
-    struct CollisionSphere;
-    struct CollisionBox;
+
+    template<class F>
+    void scan(const stl::string &str, const std::regex &reg, const F &f)
+    {
+        std::cmatch m;
+        size_t pos = 0;
+        for(;;) {
+            if(std::regex_search(str.c_str()+pos, m, reg)) {
+                f(m);
+                pos += m.position()+m.length();
+            }
+            else {
+                break;
+            }
+        }
+    }
+
 
     void FillScreen(const vec4 &color);
 
@@ -82,6 +97,7 @@ namespace atm {
     vec2 GenRandomUnitVector2();
     vec3 GenRandomUnitVector3();
     float32 Interpolate(const ControlPoint &a, const ControlPoint &b, float32 t);
+    float32 Interpolate(ControlPoints &cps, float32 time);
     void CreateDateString(char *buf, uint32 len);
 
     template<class T>

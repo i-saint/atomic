@@ -103,6 +103,30 @@ struct ControlPoint
 };
 atmSerializeRaw(ControlPoint);
 
+class ControlPoints : public ist::raw_vector<ControlPoint>
+{
+public:
+    void addCP(const ControlPoint &v)
+    {
+        auto i = stl::lower_bound(begin(), end(), v);
+        insert(i, v);
+    }
+    void setCP(uint32 i, const ControlPoint &v)
+    {
+        if(i<size()) {
+            (*this)[i] = v;
+            stl::sort(begin(), end());
+        }
+    }
+    void eraseCP(uint32 i)
+    {
+        if(i<size()) {
+            erase(begin()+i);
+        }
+    }
+};
+
+
 enum ErrorCode {
     atmE_NoError,
     atmE_CreateWindow_Failed,

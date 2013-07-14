@@ -68,14 +68,13 @@ public:
 class IRoutine;
 
 template<class Attributes>
-class Breakable
-    : public EntityTemplate<Attributes>
+class Breakable : public EntityTemplate<Attributes>
 {
 typedef EntityTemplate<Attributes> super;
 private:
     vec4        m_damage_color;
     IRoutine    *m_routine;
-    float32     m_health;
+    float32     m_life;
     float32     m_delta_damage;
     int32       m_past_frame;
 
@@ -83,7 +82,7 @@ private:
         istSerializeBase(super)
         istSerialize(m_damage_color)
         istSerialize(m_routine)
-        istSerialize(m_health)
+        istSerialize(m_life)
         istSerialize(m_delta_damage)
         istSerialize(m_past_frame)
     )
@@ -105,19 +104,20 @@ public:
     void addDebugNodes(const wdmString &path)
     {
         super::addDebugNodes(path);
-        wdmAddNode(path+"/m_health", &m_health);
+        wdmAddNode(path+"/m_health", &m_life);
         wdmAddNode(path+"/damage()", &Breakable::damage, this);
         wdmAddNode(path+"/destroy()", &Breakable::destroy, this);
     }
     )
-    void jsonize(stl::string &out) override
-    {
-        transform::jsonize(out);
-    }
+
+    atmJsonizeBlock(
+        atmJsonizeSuper(super)
+        atmJsonizeMember(m_life, getLife, setLife)
+    )
 
 public:
     Breakable()
-    : m_routine(nullptr), m_health(1.0f), m_delta_damage(0.0f), m_past_frame(0)
+    : m_routine(nullptr), m_life(1.0f), m_delta_damage(0.0f), m_past_frame(0)
     {}
 
     ~Breakable()
@@ -125,14 +125,14 @@ public:
         setRoutine(RCID_Null);
     }
 
-    bool        isDead() const          { return m_health<=0.0f; }
-    float32     getLife() const         { return m_health; }
+    bool        isDead() const          { return m_life<=0.0f; }
+    float32     getLife() const         { return m_life; }
     IRoutine*   getRoutine()            { return m_routine; }
     const vec4& getDamageColor() const  { return m_damage_color; }
     int32       getPastFrame() const    { return m_past_frame; }
     void        damage(float32 d)       { m_delta_damage += d; }
 
-    void setLife(float32 v)       { m_health=v; }
+    void setLife(float32 v)       { m_life=v; }
     void setRoutine(RoutineClassID rcid)
     {
         if(m_routine) { m_routine->finalize(); }
@@ -162,9 +162,9 @@ public:
     virtual void updateLife()
     {
         if(!isDead()) {
-            m_health -= m_delta_damage;
+            m_life -= m_delta_damage;
             m_delta_damage = 0.0f;
-            if(m_health <= 0.0f) {
+            if(m_life <= 0.0f) {
                 destroy();
             }
         }

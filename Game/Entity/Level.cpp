@@ -10,10 +10,10 @@ class Level_Test : public EntityWithPosition
 {
 typedef EntityWithPosition super;
 private:
-    enum STATE {
-        ST_BEGIN,
-        ST_NORMAL,
-        ST_GAME_OVER,
+    enum State {
+        St_Begin,
+        St_Normal,
+        St_GameOver,
     };
 
     int m_frame;
@@ -26,7 +26,7 @@ private:
 
     int32 m_level;
     int32 m_loop;
-    STATE m_state;
+    State m_state;
 
     istSerializeBlock(
         istSerializeBase(super)
@@ -42,7 +42,7 @@ private:
     )
 
 public:
-    Level_Test() : m_frame(0), m_player(0), m_level(0), m_loop(0), m_state(ST_BEGIN)
+    Level_Test() : m_frame(0), m_player(0), m_level(0), m_loop(0), m_state(St_Begin)
     {
         stl::fill_n(m_planes, _countof(m_planes), 0);
     }
@@ -173,12 +173,12 @@ public:
         ++m_frame;
         updateCamera();
 
-        if(m_state==ST_BEGIN) {
+        if(m_state==St_Begin) {
             level0();
-            m_state = ST_NORMAL;
+            m_state = St_Normal;
             m_frame = 0;
         }
-        else if(m_state==ST_NORMAL) {
+        else if(m_state==St_Normal) {
             switch(m_level) {
             case 1: level1(); break;
             case 2: level2(); break;
@@ -190,11 +190,11 @@ public:
             }
             if(m_level > 0 && !isPlayerAlive()) {
                 m_frame = 0;
-                m_state = ST_GAME_OVER;
+                m_state = St_GameOver;
                 atmGetFader()->setFade(vec4(0.0f, 0.0f, 0.0f, 1.0f), 300.0f);
             }
         }
-        else if(m_state==ST_GAME_OVER) {
+        else if(m_state==St_GameOver) {
             if(m_frame > 300) {
                 atmGetApplication()->requestReturnToTitleScreen();
             }
@@ -287,17 +287,17 @@ public:
             }
 
             IEntity *layer = atmCreateEntityT(LevelLayer);
-            atmCall(layer, addPotisionXCP, ControlPoint(  0.0f,  0.0f, 0.0f, -1.0f, atmE_Bezier));
-            atmCall(layer, addPotisionXCP, ControlPoint(300.0f, -1.0f, -1.0f, 0.0f));
+            atmCall(layer, addPositionXCP, ControlPoint(  0.0f,  0.0f, 0.0f, -1.0f, atmE_Bezier));
+            atmCall(layer, addPositionXCP, ControlPoint(300.0f, -1.0f, -1.0f, 0.0f));
 
-            atmCall(layer, addPotisionYCP, ControlPoint(300.0f,  0.0f, atmE_Accel));
-            atmCall(layer, addPotisionYCP, ControlPoint(600.0f,  1.0f));
+            atmCall(layer, addPositionYCP, ControlPoint(300.0f,  0.0f, atmE_Accel));
+            atmCall(layer, addPositionYCP, ControlPoint(600.0f,  1.0f));
 
-            atmCall(layer, addPotisionXCP, ControlPoint(600.0f,-1.0f, atmE_Decel));
-            atmCall(layer, addPotisionXCP, ControlPoint(900.0f, 0.0f));
+            atmCall(layer, addPositionXCP, ControlPoint(600.0f,-1.0f, atmE_Decel));
+            atmCall(layer, addPositionXCP, ControlPoint(900.0f, 0.0f));
 
-            atmCall(layer, addPotisionYCP, ControlPoint(900.0f,  1.0f, atmE_Smooth));
-            atmCall(layer, addPotisionYCP, ControlPoint(1200.0f,  0.0f));
+            atmCall(layer, addPositionYCP, ControlPoint(900.0f,  1.0f, atmE_Smooth));
+            atmCall(layer, addPositionYCP, ControlPoint(1200.0f,  0.0f));
 
             atmCall(layer, addRotationCP, ControlPoint(1200.0f, 0.0f));
             atmCall(layer, addRotationCP, ControlPoint(1400.0f, 180.0f));

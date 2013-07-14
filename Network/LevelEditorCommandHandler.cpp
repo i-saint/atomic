@@ -4,6 +4,7 @@
 #include "Game/EntityClass.h"
 #include "WebServer.h"
 #include "LevelEditorCommandHandler.h"
+#include "Util.h"
 
 namespace atm {
 
@@ -171,12 +172,11 @@ void NucleiCommandHandler::handleCall(HTTPServerRequest &request, HTTPServerResp
     GetDecodedRequestBody(request, data);
     int32 code = 0;
 
-    std::smatch m1;
-    if(std::regex_search(data, m1, std::regex("entity=(\\d+),func=(\\w+),arg=(.+)"))) {
+    scan(data, std::regex("(\\d+)->(\\w+)\\(([^;]+)\\)"), [&](const std::cmatch &m){
         variant32 arg;
-        EntityHandle entity = (EntityHandle)_atoi64(m1[1].str().c_str());
-        FunctionID fid = getValidFID(m1[2].str());
-        if(fid!=0 && ParseArg(arg, m1[3].str())) {
+        EntityHandle entity = (EntityHandle)_atoi64(m[1].str().c_str());
+        FunctionID fid = getValidFID(m[2].str());
+        if(fid!=FID_unknown && ParseArg(arg, m[3].str())) {
             LevelEditorCommand_Call cmd;
             cmd.entity = entity;
             cmd.function = fid;
@@ -184,9 +184,10 @@ void NucleiCommandHandler::handleCall(HTTPServerRequest &request, HTTPServerResp
             WebServer::getInstance()->pushCommand((LevelEditorCommand&)cmd);
         }
         else {
-            code = RC_InvalidCommand;
+            code = -1;
         }
-    }
+    });
+
     respondCode(response, code);
 }
 
