@@ -28,9 +28,10 @@ void main()
 <script type="x-shader/x-vertex" id="vs_particles"> 
 attribute vec2 ia_position;
 uniform mat4 u_proj;
+uniform float u_pointSize;
 void main()
 {
-    gl_PointSize = 8.0;
+    gl_PointSize = u_pointSize;
     gl_Position = u_proj * vec4(ia_position, 0.0, 1.0);
 }
 </script>
@@ -357,6 +358,8 @@ var ib_cube_line;
 var vb_bullets;
 var vb_lasers;
 var vb_fluids;
+var vb_curve;
+var vb_curve_points;
 
 
 function bool_s(v)  { return "bool("+v.toString()+")"; }
@@ -527,6 +530,7 @@ function onLoadGL()
     sh_particles = createShaderProgram("vs_particles", "ps_particles");
     sh_particles.ia_position = gl.getAttribLocation(sh_particles, "ia_position");
     sh_particles.u_proj  = gl.getUniformLocation(sh_particles, "u_proj");
+    sh_particles.u_pointSize  = gl.getUniformLocation(sh_particles, "u_pointSize");
     sh_particles.u_color = gl.getUniformLocation(sh_particles, "u_color");
 
     sh_lasers = createShaderProgram("vs_lasers", "ps_lasers");
@@ -597,6 +601,8 @@ function onLoadGL()
     vb_bullets = gl.createBuffer();
     vb_lasers = gl.createBuffer();
     vb_fluids = gl.createBuffer();
+    vb_curve = gl.createBuffer();
+    vb_curve_points = gl.createBuffer();
 }
 
 function drawGL()
@@ -642,6 +648,7 @@ function drawGL()
         gl.vertexAttribPointer(sh_particles.ia_position, 2, gl.FLOAT, gl.FALSE, 8, 0);
         gl.uniformMatrix4fv(sh_particles.u_proj, gl.FALSE, projection);
         gl.uniform4fv(sh_particles.u_color, [0.0, 0.5, 1.0, 0.3]);
+        gl.uniform1f(sh_particles.u_pointSize, 5.0);
         gl.drawArrays(gl.POINTS, 0, entities.fluids.length/2);
     }
     if(entities.bullets.length) {
@@ -652,6 +659,7 @@ function drawGL()
         gl.vertexAttribPointer(sh_particles.ia_position, 2, gl.FLOAT, gl.FALSE, 8, 0);
         gl.uniformMatrix4fv(sh_particles.u_proj, gl.FALSE, projection);
         gl.uniform4fv(sh_particles.u_color, [1.0, 1.0, 0.0, 1.0]);
+        gl.uniform1f(sh_particles.u_pointSize, 8.0);
         gl.drawArrays(gl.POINTS, 0, entities.bullets.length/2);
     }
     if(entities.lasers.length) {
@@ -666,6 +674,34 @@ function drawGL()
         gl.drawArrays(gl.LINES, 0, entities.lasers.length/3);
         gl.lineWidth(1.0);
     }
+
+//// curve test
+//    {
+//        var xline = curve.createPoints();
+//        var yline = curve.createPoints();
+//        xline.addPoint(curve.createPoint(   0.0, 0.0, 0.0, 2.0, curve.Pow));
+//        xline.addPoint(curve.createPoint( 200.0, 1.0, 0.0, 0.5, curve.Linear));
+//        yline.addPoint(curve.createPoint(   0.0, 0.0, 0.0, 0.5, curve.Linear));
+//        yline.addPoint(curve.createPoint( 200.0, 1.0, 0.0, 0.5, curve.Linear));
+//        var xv = xline.sampling(10.0);
+//        var yv = yline.sampling(10.0);
+//        var vertices = [];
+//        for(var i=0; i<xv.length; ++i) {
+//            vertices.push(xv[i]);
+//            vertices.push(yv[i]);
+//        }
+//        gl.useProgram(sh_particles);
+//        gl.bindBuffer(gl.ARRAY_BUFFER, vb_curve_points);
+//        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STREAM_DRAW);
+//        gl.enableVertexAttribArray(sh_particles.ia_position);
+//        gl.vertexAttribPointer(sh_particles.ia_position, 2, gl.FLOAT, gl.FALSE, 8, 0);
+//        gl.uniformMatrix4fv(sh_particles.u_proj, gl.FALSE, projection);
+//        gl.uniform4fv(sh_particles.u_color, [1.0, 1.0, 1.0, 0.5]);
+//        gl.uniform1f(sh_particles.u_pointSize, 4.0);
+//        gl.drawArrays(gl.POINTS, 0, vertices.length/2);
+//        gl.drawArrays(gl.LINE_STRIP, 0, vertices.length/2);
+//    }
+
     gl.flush();
 }
 
