@@ -70,10 +70,9 @@ void main()
 <script type="text/javascript">
 
 var EditMode = {
-    Normal : 0,
+    Entity : 0,
     SelectEntity : 1,
-    EditTimeline : 2,
-    EditPath : 3,
+    Curve : 2,
 };
 var Button = {
     Left    : 0,
@@ -127,79 +126,162 @@ var camera = {
 };
 
 var editor = {
-    selection: [],
-    currentEntityType: 0,
+    editMode: EditMode.Entity,
     entityTypes: [],
     entityTypes_IDOrder: {},
     functions: [],
     resource: 0.0,
-    path: [],
-    timeline: [],
+
+    entitySelection: [],
+    entityDeployType: 0,
+
+    curve: {
+        x: curve.createPoints(),
+        y: curve.createPoints(),
+    },
+    curveSelection: [-1,-1],
 
     onMouseMove: function() {
-        if(mouse.dragging && editor.selection.length>0) {
-            if(mouse.button==Button.Left) {
+        if(this.editMode==EditMode.Normal) {
+            if(mouse.dragging && editor.entitySelection.length>0) {
+                if(mouse.button==Button.Left) {
+                    var diff = vec2.create();
+                    vec2.sub(diff, mouse.pos, mouse.pos_prev);
+                    editor.entitySelection.each(function(h){
+                        callRequest(h,"move",vec2_s(diff));
+                    });
+                }
+                else if(mouse.button==Button.Right) {
+                    var diff = vec2.create();
+                    vec2.sub(diff, mouse.pos, mouse.drag_begin);
+                    editor.entitySelection.each(function(h){
+                        callRequest(h,"orient",vec2_s(diff));
+                    });
+                }
+            }
+        }
+        else if(this.editMode==EditMode.Curve) {
+            if(mouse.dragging && mouse.button==Button.Left) {
                 var diff = vec2.create();
                 vec2.sub(diff, mouse.pos, mouse.pos_prev);
-                editor.selection.each(function(h){
-                    callRequest(h,"move",vec2_s(diff));
-                });
-            }
-            else if(mouse.button==Button.Right) {
-                var diff = vec2.create();
-                vec2.sub(diff, mouse.pos, mouse.drag_begin);
-                editor.selection.each(function(h){
-                    callRequest(h,"orient",vec2_s(diff));
-                });
+                var sel = editor.curveSelection;
+                if(sel[0]!=-1) {
+                    editor.curve.x[sel[0]][1] += diff[0];
+                }
+                if(sel[1]!=-1) {
+                    editor.curve.y[sel[1]][1] += diff[1];
+                }
             }
         }
     },
 
     onMouseDown: function() {
-        if(mouse.button==Button.Left) {
-            editor.clearSelection();
-            var selection = selectEntityPoint(mouse.pos);
-            if(selection!=0) {
-                editor.addSelection(selection);
+        if(this.editMode==EditMode.Normal) {
+            if(mouse.button==Button.Left) {
+                editor.clearEntitySelection();
+                var selection = editor.selectEntity(mouse.pos);
+                if(selection!=0) {
+                    editor.addEntitySelection(selection);
+                }
+            }
+        }
+        else if(this.editMode==EditMode.Curve) {
+            var s = editor.selectCurvePoint(mouse.pos);
+            if(mouse.button==Button.Left) {
+                if(s[0]==-1 && s[1]==-1) {
+                    editor.curve.x.addPoint(curve.createPoint(editor.curve.x.endTime()+300.0, mouse.pos[0], 0.0,0.0, curve.Linear));
+                    editor.curve.y.addPoint(curve.createPoint(editor.curve.y.endTime()+300.0, mouse.pos[1], 0.0,0.0, curve.Linear));
+                }
+                else {
+                    editor.curveSelection = s;
+                }
+            }
+            else if(mouse.button==Button.Right) {
+                if(s[0]!=-1) { editor.curve.x.splice(s[0],1); }
+                if(s[1]!=-1) { editor.curve.y.splice(s[1],1); }
+                editor.curveSelection = [-1,-1];
             }
         }
     },
 
     onMouseUp: function() {
-        if(mouse.button==Button.Left) {
-            if(editor.selection.length==0) {
-                postCommand("/nuclei/create", "classid="+editor.currentEntityType+",pos="+vec2_s(mouse.pos));
+        if(this.editMode==EditMode.Normal) {
+            if(mouse.button==Button.Left) {
+                if(editor.entitySelection.length==0) {
+                    postCommand("/nuclei/create", "classid="+editor.entityDeployType+",pos="+vec2_s(mouse.pos));
+                }
+            }
+            else if(mouse.button==Button.Right) {
+                var selection = editor.selectEntity(mouse.pos);
+                editor.entitySelection.each(function(h){
+                    callRequest(h,"instruct",instruction_s(mouse.pos,selection));
+                });
+            }
+            else if(mouse.button==Button.Middle) {
+                var selection = editor.selectEntity(mouse.pos);
+                editor.entitySelection.each(function(h){
+                    callRequest(h,"setParent",uint32_s(selection));
+                });
             }
         }
-        else if(mouse.button==Button.Right) {
-            var selection = selectEntityPoint(mouse.pos);
-            editor.selection.each(function(h){
-                callRequest(h,"instruct",instruction_s(mouse.pos,selection));
-            });
-        }
-        else if(mouse.button==Button.Middle) {
-            var selection = selectEntityPoint(mouse.pos);
-            editor.selection.each(function(h){
-                callRequest(h,"setParent",uint_s(selection));
-            });
+        else if(this.editMode==EditMode.Curve) {
         }
     },
 
-    clearSelection: function() {
-        this.selection.clear();
+    clearEntitySelection: function() {
+        this.entitySelection.clear();
     },
-    addSelection: function(e) {
-        this.selection.push(e);
-        if(this.selection.length==1) {
+    addEntitySelection: function(e) {
+        this.entitySelection.push(e);
+        if(this.entitySelection.length==1) {
             ui.updateEntityProperties(e);
         }
     },
-    setSelection: function(e) {
-        this.clearSelection();
-        this.selection.push(e);
-        if(this.selection.length==1) {
+    setEntitySelection: function(e) {
+        this.clearEntitySelection();
+        this.entitySelection.push(e);
+        if(this.entitySelection.length==1) {
             ui.updateEntityProperties(e);
         }
+    },
+
+    selectEntity: function(p)
+    {
+        var nearest = 0.0;
+        var handle = 0;
+        var diff = vec2.create();
+        for(var i=0; i<entities.ids.length; ++i) {
+            var ipp = i+1;
+            var pos = entities.trans.subarray(16*i+12, 16*ipp);
+            var size = entities.size.subarray(3*i, 3*ipp);
+            vec2.sub(diff, p, pos);
+            var radius = vec2.length(size);
+            var len = vec2.length(diff);
+            if(len<radius) {
+                if(handle==0 || len<nearest) {
+                    nearest = len;
+                    handle = entities.ids[i];
+                }
+            }
+        }
+        return handle;
+    },
+    selectEntityByRect: function(bl, ur)
+    {
+        var handles = [];
+        for(var i=0; i<entities.ids.length; ++i) {
+            var ipp = i+1;
+            var pos = entities.trans.subarray(16*i+12, 16*ipp);
+            var size = entities.size.subarray(3*i, 3*ipp);
+            var radius = vec2.length(size);
+            if( (pos[0]-radius>=bl[0] && pos[0]+radius<=ur[0]) &&
+                (pos[1]-radius>=bl[1] && pos[1]+radius<=ur[1]) )
+            {
+                handles.push(entities.ids[i]);
+            }
+        }
+        handles.sort();
+        return handles;
     },
 
     getEntityClassID: function(e) {
@@ -209,6 +291,43 @@ var editor = {
         var classid = this.getEntityClassID(e);
         var typeinfo = this.entityTypes_IDOrder[classid];
         return typeinfo;
+    },
+
+    selectCurvePoint: function(p)
+    {
+        var xi = -1;
+        var yi = -1;
+        var nearest = 0.0;
+
+        var radius = 0.1;
+        var xline = editor.curve.x;
+        var yline = editor.curve.y;
+        var diff = vec2.create();
+        for(var i=0; i<xline.length; ++i) {
+            var ipp = i+1;
+            var pos = vec2.fromValues(xline[i][1], yline.computeValue(xline[i][0]));
+            vec2.sub(diff, p, pos);
+            var len = vec2.length(diff);
+            if(len<radius) {
+                if(xi==-1 || len<nearest) {
+                    nearest = len;
+                    xi = i;
+                }
+            }
+        }
+        for(var i=0; i<yline.length; ++i) {
+            var ipp = i+1;
+            var pos = vec2.fromValues(xline.computeValue(yline[i][0]), yline[i][1]);
+            vec2.sub(diff, p, pos);
+            var len = vec2.length(diff);
+            if(len<radius) {
+                if(yi==-1 || len<nearest) {
+                    nearest = len;
+                    yi = i;
+                }
+            }
+        }
+        return [xi,yi];
     },
 
     setupConsts: function(consts)
@@ -294,7 +413,7 @@ var ui = {
                     button.value = "select parent";
                     button.nuParent = parent.value;
                     button.onclick = function(){
-                        editor.setSelection(this.nuParent);
+                        editor.setEntitySelection(this.nuParent);
                     };
                     var t = document.createElement("li");
                     t.appendChild(button);
@@ -318,8 +437,13 @@ var ui = {
         each(selector.childNodes, function(e){
             e.style.backgroundColor = "";
         });
-        editor.currentEntityType = this.entitytype;
+        editor.entityDeployType = this.entitytype;
         this.style.backgroundColor = "#FF0000";
+    },
+
+    updateCurveProperties: function()
+    {
+        var root = $("curve_properties");
     },
 
     onLoad: function()
@@ -419,44 +543,6 @@ function updateEntities()
     ajax.send(null);
 }
 
-function selectEntityPoint(p)
-{
-    var nearest = 0.0;
-    var handle = 0;
-    var diff = vec2.create();
-    for(var i=0; i<entities.ids.length; ++i) {
-        var ipp = i+1;
-        var pos = entities.trans.subarray(16*i+12, 16*ipp);
-        var size = entities.size.subarray(3*i, 3*ipp);
-        vec2.sub(diff, p, pos);
-        var radius = vec2.length(size);
-        var len = vec2.length(diff);
-        if(len<radius) {
-            if(handle==0 || len<nearest) {
-                nearest = len;
-                handle = entities.ids[i];
-            }
-        }
-    }
-    return handle;
-}
-function selectEntityRect(bl, ur)
-{
-    var handles = [];
-    for(var i=0; i<entities.ids.length; ++i) {
-        var ipp = i+1;
-        var pos = entities.trans.subarray(16*i+12, 16*ipp);
-        var size = entities.size.subarray(3*i, 3*ipp);
-        var radius = vec2.length(size);
-        if( (pos[0]-radius>=bl[0] && pos[0]+radius<=ur[0]) &&
-            (pos[1]-radius>=bl[1] && pos[1]+radius<=ur[1]) )
-        {
-            handles.push(entities.ids[i]);
-        }
-    }
-    handles.sort();
-    return handles;
-}
 
 function createShader(id)
 {
@@ -627,7 +713,7 @@ function drawGL()
         var ipp = i+1;
         gl.uniformMatrix4fv(sh_entities.u_trans, gl.FALSE, entities.trans.subarray(16*i, 16*ipp));
         gl.uniform3fv(sh_entities.u_size, entities.size.subarray(3*i, 3*ipp));
-        if(editor.selection.include(entities.ids[i])) {
+        if(editor.entitySelection.include(entities.ids[i])) {
             gl.uniform4fv(sh_entities.u_color, [1,1,1,0.3]);
         }
         else {
@@ -675,32 +761,41 @@ function drawGL()
         gl.lineWidth(1.0);
     }
 
-//// curve test
-//    {
-//        var xline = curve.createPoints();
-//        var yline = curve.createPoints();
-//        xline.addPoint(curve.createPoint(   0.0, 0.0, 0.0, 2.0, curve.Pow));
-//        xline.addPoint(curve.createPoint( 200.0, 1.0, 0.0, 0.5, curve.Linear));
-//        yline.addPoint(curve.createPoint(   0.0, 0.0, 0.0, 0.5, curve.Linear));
-//        yline.addPoint(curve.createPoint( 200.0, 1.0, 0.0, 0.5, curve.Linear));
-//        var xv = xline.sampling(10.0);
-//        var yv = yline.sampling(10.0);
-//        var vertices = [];
-//        for(var i=0; i<xv.length; ++i) {
-//            vertices.push(xv[i]);
-//            vertices.push(yv[i]);
-//        }
-//        gl.useProgram(sh_particles);
-//        gl.bindBuffer(gl.ARRAY_BUFFER, vb_curve_points);
-//        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STREAM_DRAW);
-//        gl.enableVertexAttribArray(sh_particles.ia_position);
-//        gl.vertexAttribPointer(sh_particles.ia_position, 2, gl.FLOAT, gl.FALSE, 8, 0);
-//        gl.uniformMatrix4fv(sh_particles.u_proj, gl.FALSE, projection);
-//        gl.uniform4fv(sh_particles.u_color, [1.0, 1.0, 1.0, 0.5]);
-//        gl.uniform1f(sh_particles.u_pointSize, 4.0);
-//        gl.drawArrays(gl.POINTS, 0, vertices.length/2);
-//        gl.drawArrays(gl.LINE_STRIP, 0, vertices.length/2);
-//    }
+    if(editor.editMode==EditMode.Curve) {
+        var xline = editor.curve.x;
+        var yline = editor.curve.y;
+        var xv = xline.sampling(10.0);
+        var yv = yline.sampling(10.0);
+        var vertices = [];
+        for(var i=0; i<xv.length; ++i) {
+            vertices.push(xv[i]);
+            vertices.push(yv[i]);
+        }
+        gl.useProgram(sh_particles);
+        gl.bindBuffer(gl.ARRAY_BUFFER, vb_curve_points);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STREAM_DRAW);
+        gl.enableVertexAttribArray(sh_particles.ia_position);
+        gl.vertexAttribPointer(sh_particles.ia_position, 2, gl.FLOAT, gl.FALSE, 8, 0);
+        gl.uniformMatrix4fv(sh_particles.u_proj, gl.FALSE, projection);
+        gl.uniform4fv(sh_particles.u_color, [0.75, 0.75, 1.0, 0.5]);
+        gl.uniform1f(sh_particles.u_pointSize, 4.0);
+        gl.drawArrays(gl.POINTS, 0, vertices.length/2);
+        gl.drawArrays(gl.LINE_STRIP, 0, vertices.length/2);
+
+        vertices.clear();
+        for(var i=0; i<xline.length; ++i) {
+            vertices.push(xline[i][1]);
+            vertices.push(yline.computeValue(xline[i][0]));
+        }
+        for(var i=0; i<yline.length; ++i) {
+            vertices.push(xline.computeValue(yline[i][0]));
+            vertices.push(yline[i][1]);
+        }
+        gl.bindBuffer(gl.ARRAY_BUFFER, vb_curve_points);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STREAM_DRAW);
+        gl.uniform1f(sh_particles.u_pointSize, 8.0);
+        gl.drawArrays(gl.POINTS, 0, vertices.length/2);
+    }
 
     gl.flush();
 }
@@ -782,7 +877,7 @@ function postCommand(url, values)
 <body onload="onLoad()">
 <canvas id="c" width="1024" height="1024" style="position:absolute; left:0px; top:0px;"></canvas>
 <div id="tools" style="position:absolute; left:1024px; top:0px; with:200px;">
-<span id="fps">00</span><ul id="entity_type_selector"></ul><ul id="entity_properties"></ul><ul id="entity_list"></ul>
+<span id="fps">00</span><ul id="entity_type_selector"></ul><ul id="entity_properties"></ul><ul id="entity_list"></ul><ul id="curve_properties"></ul>
 <a href="http://primitive-games.jp/atomic/">about atomic</a>
 </div>
 </body>

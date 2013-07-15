@@ -49,6 +49,76 @@ function interpolate_bezier(v1, v1out, v2in, v2, u)
     return w[0]*v1 + w[1]*v1out + w[2]*v2in + w[3]*v2;
 }
 
+function interpolate2D_linear(v1, v2, u)
+{
+    var r = vec2.create();
+    var d = vec2.create();
+    vec2.sub(d, v2, v1);
+    vec2.mul(r, d, vec2.fromValues(u,u));
+    vec2.add(r, v1, r);
+    return r;
+}
+function interpolate2D_sin90(v1, v2, u)
+{
+    var r = vec2.create();
+    var d = vec2.create();
+    vec2.sub(d, v2, v1);
+    var s = Math.sin(radians(90.0*u));
+    vec2.mul(r, d, vec2.fromValues(s,s));
+    vec2.add(r, v1, r);
+    return r;
+}
+function interpolate2D_cos90inv(v1, v2, u)
+{
+    var r = vec2.create();
+    var d = vec2.create();
+    vec2.sub(d, v2, v1);
+    var s = 1.0-Math.cos(radians(90.0*u));
+    vec2.mul(r, d, vec2.fromValues(s,s));
+    vec2.add(r, v1, r);
+    return r;
+}
+function interpolate2D_cos180inv(v1, v2, u)
+{
+    var r = vec2.create();
+    var d = vec2.create();
+    vec2.sub(d, v2, v1);
+    var s = 1.0-(Math.cos(radians(180.0*u))/2.0+0.5);
+    vec2.mul(r, d, vec2.fromValues(s,s));
+    vec2.add(r, v1, r);
+    return r;
+}
+function interpolate2D_pow(v1, v2, p, u)
+{
+    var r = vec2.create();
+    var d = vec2.create();
+    vec2.sub(d, v2, v1);
+    var s = Math.pow(u,p);
+    vec2.mul(r, d, vec2.fromValues(s,s));
+    vec2.add(r, v1, r);
+    return r;
+}
+function interpolate2D_bezier(v1, v1out, v2in, v2, u)
+{
+    var w = [
+        (1.0-u) * (1.0-u) * (1.0-u),
+        u * (1.0-u) * (1.0-u)*3.0,
+        u * u * (1.0-u)*3.0,
+        u * u * u,
+    ];
+    var r = vec2.create();
+    var m = vec2.create();
+    vec2.mul(m, v1, vec2.fromValues(w[0],w[0]));
+    vec2.add(r, m, r);
+    vec2.mul(m, v1out, vec2.fromValues(w[1],w[1]));
+    vec2.add(r, m, r);
+    vec2.mul(m, v2in, vec2.fromValues(w[2],w[2]));
+    vec2.add(r, m, r);
+    vec2.mul(m, v2, vec2.fromValues(w[3],w[3]));
+    vec2.add(r, m, r);
+    return r;
+}
+
 var curve = {
     // interplation types
     None:   0,
