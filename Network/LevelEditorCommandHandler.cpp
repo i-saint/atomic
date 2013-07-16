@@ -12,6 +12,8 @@ namespace atm {
 
 inline bool ParseArg(variant32 &out, const std::string &str)
 {
+    if(str.empty()) { return true; }
+
     ivec4 iv;
     uvec4 uv;
     vec4 fv;
@@ -33,7 +35,7 @@ inline bool ParseArg(variant32 &out, const std::string &str)
     else if(sscanf(str.c_str(), "instruction(%f,%f,%f,%u)", &fv.x, &fv.y, &fv.z, &uv.x)==4) {
         out=ist::MakeValueList(vec3(fv),uv.x); return true;
     }
-    else if(sscanf(str.c_str(), "controlpoint(%f,%f,%f,%f,%u)", &fv.x, &fv.y, &fv.z, &fv.w, &uv.x)==5) {
+    else if(sscanf(str.c_str(), "curvepoint(%f,%f,%f,%f,%u)", &fv.x, &fv.y, &fv.z, &fv.w, &uv.x)==5) {
         out=ControlPoint(fv.x, fv.y, fv.z, fv.w, (ControlPoint::Interpolation)uv.x); return true;
     }
     return false;
@@ -172,7 +174,7 @@ void NucleiCommandHandler::handleCall(HTTPServerRequest &request, HTTPServerResp
     GetDecodedRequestBody(request, data);
     int32 code = 0;
 
-    scan(data, std::regex("(\\d+)->(\\w+)\\(([^;]+)\\)"), [&](const std::cmatch &m){
+    scan(data, std::regex("(\\d+)->(\\w+)\\(([^;]*)\\)"), [&](const std::cmatch &m){
         variant32 arg;
         EntityHandle entity = (EntityHandle)_atoi64(m[1].str().c_str());
         FunctionID fid = getValidFID(m[2].str());

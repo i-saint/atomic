@@ -44,6 +44,28 @@ void main()
 }
 </script>
 
+<script type="x-shader/x-vertex" id="vs_points"> 
+attribute vec2 ia_position;
+attribute vec4 ia_color;
+uniform mat4 u_proj;
+uniform float u_pointSize;
+varying vec4 vs_color;
+void main()
+{
+    vs_color = ia_color;
+    gl_PointSize = u_pointSize;
+    gl_Position = u_proj * vec4(ia_position, 0.0, 1.0);
+}
+</script>
+<script type="x-shader/x-fragment" id="ps_points">
+precision mediump float;
+varying vec4 vs_color;
+void main()
+{
+    gl_FragColor = vs_color;
+}
+</script>
+
 <script type="x-shader/x-vertex" id="vs_lasers"> 
 attribute vec3 ia_position;
 uniform mat4 u_proj;
@@ -66,6 +88,7 @@ void main()
 
 <script type="text/javascript" src="prototype.js"></script>
 <script type="text/javascript" src="gl-matrix-min.js"></script>
+<script type="text/javascript" src="draw.js"></script>
 <script type="text/javascript" src="util.js"></script>
 <script type="text/javascript">
 
@@ -192,21 +215,21 @@ var editor = {
             var cur = editor.curveSelection;
             var s = cur;
             var bz = 1;
-            if(s[0]!=-1 && s[1]!=-1) {
+            if(s[0]!=-1 || s[1]!=-1) {
                 bz = editor.selectBzCurvePoint(mouse.pos);
                 if(bz==1) {
                     s = [-1,-1];
                 }
             }
-            if(s[0]==-1 && s[1]==-1) {
+            if(s[0]==-1 || s[1]==-1) {
                 s = editor.selectCurvePoint(mouse.pos);
             }
 
             var needsUpdate = false;
             if(mouse.button==Button.Left) {
                 if(cur[0]==-1 && cur[1]==-1 && s[0]==-1 && s[1]==-1) {
-                    editor.curve.x.addPoint(curve.createPoint(editor.curve.x.endTime()+300.0, mouse.pos[0], -0.1, 0.1, curve.Linear));
-                    editor.curve.y.addPoint(curve.createPoint(editor.curve.y.endTime()+300.0, mouse.pos[1], -0.0, 0.0, curve.Linear));
+                    editor.curve.x.addPoint(curve.createPoint(editor.curve.x.endTime()+300.0, mouse.pos[0], -0.1, 0.1, curve.Bezier));
+                    editor.curve.y.addPoint(curve.createPoint(editor.curve.y.endTime()+300.0, mouse.pos[1], -0.0, 0.0, curve.Bezier));
                     needsUpdate=true;
                 }
                 else {
@@ -221,8 +244,8 @@ var editor = {
                 editor.curveSelection = [-1,-1];
             }
             else if(mouse.button==Button.Middle) {
-                if(s[0]!=-1) { editor.curve.x[s[0]][4] = (editor.curve.x[s[0]][4]+1)%curve.End; }
-                if(s[1]!=-1) { editor.curve.y[s[1]][4] = (editor.curve.y[s[1]][4]+1)%curve.End; }
+                if(s[0]!=-1) { editor.curve.x[s[0]][4] = (editor.curve.x[s[0]][4]+1)%curve.End; needsUpdate=true; }
+                if(s[1]!=-1) { editor.curve.y[s[1]][4] = (editor.curve.y[s[1]][4]+1)%curve.End; needsUpdate=true; }
             }
             if(needsUpdate) { ui.updateCurvePoints(); }
         }
@@ -377,6 +400,29 @@ var editor = {
         }
         return r;
     },
+    sendCurve1D: function(entity,clear,add)
+    {
+        var cmd = [];
+        cmd.push(makeCallCommand(entity,clear,""));
+        editor.curve.x.each(function(p){
+            cmd.push(makeCallCommand(entity,add,curvepoint_s(p)));
+        });
+        postCommand("/nuclei/call",cmd.join(";"));
+    },
+    sendCurve2D: function(entity,clear,add)
+    {
+        var cmd = [];
+        clear.each(function(c){
+            cmd.push(makeCallCommand(entity,c,""));
+        })
+        editor.curve.x.each(function(p){
+            cmd.push(makeCallCommand(entity,add[0],curvepoint_s(p)));
+        });
+        editor.curve.y.each(function(p){
+            cmd.push(makeCallCommand(entity,add[1],curvepoint_s(p)));
+        });
+        postCommand("/nuclei/call",cmd.join(";"));
+    },
 
     setupConsts: function(consts)
     {
@@ -405,18 +451,50 @@ var ui = {
     getTypeSelector: function() { return $("entity_type_list"); },
 
     createPropertyInput: function(entity, property) {
-        if(property.type=="curve2D") {
-            var r = document.createElement("input");
-            r.entity = entity;
-            r.eprop = property;
-            r.setAttribute("type", "button");
-            r.value = "edit";
-            r.onclick = function() {
+        if(property.type=="curve1D") {
+            var span = document.createElement("span");
+            span.entity = entity;
+            span.eprop = property;
+            var edit = document.createElement("input");
+            edit.setAttribute("type", "button");
+            edit.value = "edit";
+            edit.onclick = function() {
+                property.value.each(function(e){ editor.curve.x.addPoint(e); });
+                ui.beginCurveEdit();
+            }
+            var send = document.createElement("input");
+            send.setAttribute("type", "button");
+            send.value = "done";
+            send.onclick = function() {
+                editor.sendCurve1D(entity,property.clear, property.add);
+                ui.endCurveEdit();
+            }
+            span.appendChild(edit);
+            span.appendChild(send);
+            return span;
+        }
+        else if(property.type=="curve2D") {
+            var span = document.createElement("span");
+            span.entity = entity;
+            span.eprop = property;
+            var edit = document.createElement("input");
+            edit.setAttribute("type", "button");
+            edit.value = "edit";
+            edit.onclick = function() {
                 property.value.x.each(function(e){ editor.curve.x.addPoint(e); });
                 property.value.y.each(function(e){ editor.curve.y.addPoint(e); });
                 ui.beginCurveEdit();
             }
-            return r;
+            var send = document.createElement("input");
+            send.setAttribute("type", "button");
+            send.value = "done";
+            send.onclick = function() {
+                editor.sendCurve2D(entity,property.clear, property.add);
+                ui.endCurveEdit();
+            }
+            span.appendChild(edit);
+            span.appendChild(send);
+            return span;
         }
         else {
             var r = document.createElement("input");
@@ -557,21 +635,6 @@ var ui = {
     }
 };
 
-var sh_entities;
-var sh_particles;
-var sh_lasers;
-var vb_quad;
-var ib_quad;
-var ib_quad_line;
-var vb_cube;
-var ib_cube;
-var ib_cube_line;
-var vb_bullets;
-var vb_lasers;
-var vb_fluids;
-var vb_curve;
-var vb_curve_points;
-
 
 
 function updateFPS() {
@@ -639,218 +702,7 @@ function onLoadGL()
         alert("WebGL is not supported on this browser.");
         return;
     }
-
-    sh_entities = createShaderProgram("vs_entities", "ps_entities");
-    sh_entities.ia_position = gl.getAttribLocation(sh_entities, "ia_position");
-    sh_entities.u_proj  = gl.getUniformLocation(sh_entities, "u_proj");
-    sh_entities.u_trans = gl.getUniformLocation(sh_entities, "u_trans");
-    sh_entities.u_size  = gl.getUniformLocation(sh_entities, "u_size");
-    sh_entities.u_color = gl.getUniformLocation(sh_entities, "u_color");
-
-    sh_particles = createShaderProgram("vs_particles", "ps_particles");
-    sh_particles.ia_position = gl.getAttribLocation(sh_particles, "ia_position");
-    sh_particles.u_proj  = gl.getUniformLocation(sh_particles, "u_proj");
-    sh_particles.u_pointSize  = gl.getUniformLocation(sh_particles, "u_pointSize");
-    sh_particles.u_color = gl.getUniformLocation(sh_particles, "u_color");
-
-    sh_lasers = createShaderProgram("vs_lasers", "ps_lasers");
-    sh_lasers.ia_position = gl.getAttribLocation(sh_lasers, "ia_position");
-    sh_lasers.u_proj  = gl.getUniformLocation(sh_lasers, "u_proj");
-    sh_lasers.u_color = gl.getUniformLocation(sh_lasers, "u_color");
-
-
-    var quad_vertices = new Float32Array([
-        -1.0, -1.0,
-        -1.0,  1.0,
-         1.0,  1.0,
-         1.0, -1.0
-    ]);
-    vb_quad = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vb_quad);
-    gl.bufferData(gl.ARRAY_BUFFER, quad_vertices, gl.STATIC_DRAW);
-
-    var quad_indices = new Int16Array([0,1,2, 2,3,0]);
-    ib_quad = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib_quad);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, quad_indices, gl.STATIC_DRAW);
-
-    var quad_line_indices = new Int16Array([0,1, 1,2, 2,3, 3,0]);
-    ib_quad_line = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib_quad_line);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, quad_line_indices, gl.STATIC_DRAW);
-
-
-    var cube_vertices = new Float32Array([
-         1.0, 1.0, 1.0,
-        -1.0, 1.0, 1.0,
-        -1.0,-1.0, 1.0,
-         1.0,-1.0, 1.0,
-         1.0, 1.0,-1.0,
-        -1.0, 1.0,-1.0,
-        -1.0,-1.0,-1.0,
-         1.0,-1.0,-1.0,
-    ]);
-    vb_cube = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vb_cube);
-    gl.bufferData(gl.ARRAY_BUFFER, cube_vertices, gl.STATIC_DRAW);
-
-    var cube_indices = new Int16Array([
-        0,1,2, 2,3,0,
-        0,4,5, 5,1,0,
-        2,1,5, 5,6,2,
-        3,7,4, 4,0,3,
-        3,2,6, 6,7,3,
-        7,6,5, 5,4,7,
-    ]);
-    ib_cube = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib_cube);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cube_indices, gl.STATIC_DRAW);
-
-    var cube_line_indices = new Int16Array([
-        0,1, 1,2, 2,3, 3,0,
-        0,4, 4,5, 5,1, 1,0,
-        2,1, 1,5, 5,6, 6,2,
-        3,7, 7,4, 4,0, 0,3,
-        3,2, 2,6, 6,7, 7,3,
-        7,6, 6,5, 5,4, 4,7,
-    ]);
-    ib_cube_line = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib_cube_line);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cube_line_indices, gl.STATIC_DRAW);
-
-    vb_bullets = gl.createBuffer();
-    vb_lasers = gl.createBuffer();
-    vb_fluids = gl.createBuffer();
-    vb_curve = gl.createBuffer();
-    vb_curve_points = gl.createBuffer();
-}
-
-function drawGL()
-{
-    camera.updateMatrix();
-    var projection = camera.viewProj;
-
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-    
-    gl.enable(gl.CULL_FACE );
-    gl.cullFace(gl.BACK);
-    gl.enable(gl.BLEND);
-
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-    gl.useProgram(sh_entities);
-    gl.bindBuffer(gl.ARRAY_BUFFER, vb_cube);
-    gl.enableVertexAttribArray(sh_entities.ia_position);
-    gl.vertexAttribPointer(sh_entities.ia_position, 3, gl.FLOAT, gl.FALSE, 12, 0);
-    gl.uniformMatrix4fv(sh_entities.u_proj, gl.FALSE, projection);
-    for(var i=0; i<entities.ids.length; ++i) {
-        var ipp = i+1;
-        gl.uniformMatrix4fv(sh_entities.u_trans, gl.FALSE, entities.trans.subarray(16*i, 16*ipp));
-        gl.uniform3fv(sh_entities.u_size, entities.size.subarray(3*i, 3*ipp));
-        if(editor.entitySelection.include(entities.ids[i])) {
-            gl.uniform4fv(sh_entities.u_color, [1,1,1,0.3]);
-        }
-        else {
-            gl.uniform4fv(sh_entities.u_color, entities.color.subarray(4*i, 4*ipp));
-        }
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib_cube);
-        gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib_cube_line);
-        gl.drawElements(gl.LINES, 48, gl.UNSIGNED_SHORT, 0);
-    }
-
-
-    if(entities.fluids.length) {
-        gl.useProgram(sh_particles);
-        gl.bindBuffer(gl.ARRAY_BUFFER, vb_fluids);
-        gl.bufferData(gl.ARRAY_BUFFER, entities.fluids, gl.STREAM_DRAW);
-        gl.enableVertexAttribArray(sh_particles.ia_position);
-        gl.vertexAttribPointer(sh_particles.ia_position, 2, gl.FLOAT, gl.FALSE, 8, 0);
-        gl.uniformMatrix4fv(sh_particles.u_proj, gl.FALSE, projection);
-        gl.uniform4fv(sh_particles.u_color, [0.0, 0.5, 1.0, 0.3]);
-        gl.uniform1f(sh_particles.u_pointSize, 5.0);
-        gl.drawArrays(gl.POINTS, 0, entities.fluids.length/2);
-    }
-    if(entities.bullets.length) {
-        gl.useProgram(sh_particles);
-        gl.bindBuffer(gl.ARRAY_BUFFER, vb_bullets);
-        gl.bufferData(gl.ARRAY_BUFFER, entities.bullets, gl.STREAM_DRAW);
-        gl.enableVertexAttribArray(sh_particles.ia_position);
-        gl.vertexAttribPointer(sh_particles.ia_position, 2, gl.FLOAT, gl.FALSE, 8, 0);
-        gl.uniformMatrix4fv(sh_particles.u_proj, gl.FALSE, projection);
-        gl.uniform4fv(sh_particles.u_color, [1.0, 1.0, 0.0, 1.0]);
-        gl.uniform1f(sh_particles.u_pointSize, 8.0);
-        gl.drawArrays(gl.POINTS, 0, entities.bullets.length/2);
-    }
-    if(entities.lasers.length) {
-        gl.useProgram(sh_lasers);
-        gl.bindBuffer(gl.ARRAY_BUFFER, vb_lasers);
-        gl.bufferData(gl.ARRAY_BUFFER, entities.lasers, gl.STREAM_DRAW);
-        gl.enableVertexAttribArray(sh_lasers.ia_position);
-        gl.vertexAttribPointer(sh_lasers.ia_position, 3, gl.FLOAT, gl.FALSE, 12, 0);
-        gl.uniformMatrix4fv(sh_lasers.u_proj, gl.FALSE, projection);
-        gl.uniform4fv(sh_lasers.u_color, [1.0, 1.0, 0.0, 1.0]);
-        gl.lineWidth(10.0);
-        gl.drawArrays(gl.LINES, 0, entities.lasers.length/3);
-        gl.lineWidth(1.0);
-    }
-
-    var xline = editor.curve.x;
-    var yline = editor.curve.y;
-    var sx = editor.curveSelection[0];
-    var sy = editor.curveSelection[1];
-    if(xline.length || yline.length) {
-        var tbegin = [xline.beginTime(), yline.beginTime()].min();
-        var tend = [xline.endTime(), yline.endTime()].max();
-        var xv = xline.sampling(tbegin, tend, 10.0);
-        var yv = yline.sampling(tbegin, tend, 10.0);
-        var vertices = [];
-        for(var i=0; i<xv.length; ++i) {
-            vertices.push(xv[i]);
-            vertices.push(yv[i]);
-        }
-        gl.useProgram(sh_particles);
-        gl.bindBuffer(gl.ARRAY_BUFFER, vb_curve_points);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STREAM_DRAW);
-        gl.enableVertexAttribArray(sh_particles.ia_position);
-        gl.vertexAttribPointer(sh_particles.ia_position, 2, gl.FLOAT, gl.FALSE, 8, 0);
-        gl.uniformMatrix4fv(sh_particles.u_proj, gl.FALSE, projection);
-        gl.uniform4fv(sh_particles.u_color, [0.75, 0.75, 1.0, 0.5]);
-        gl.uniform1f(sh_particles.u_pointSize, 4.0);
-        gl.drawArrays(gl.POINTS, 0, vertices.length/2);
-        gl.drawArrays(gl.LINE_STRIP, 0, vertices.length/2);
-
-        vertices.clear();
-        for(var i=0; i<xline.length; ++i) {
-            vertices.push(xline[i][1]);
-            vertices.push(yline.computeValue(xline[i][0]));
-        }
-        for(var i=0; i<yline.length; ++i) {
-            vertices.push(xline.computeValue(yline[i][0]));
-            vertices.push(yline[i][1]);
-        }
-        gl.bindBuffer(gl.ARRAY_BUFFER, vb_curve_points);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STREAM_DRAW);
-        gl.uniform1f(sh_particles.u_pointSize, 8.0);
-        gl.drawArrays(gl.POINTS, 0, vertices.length/2);
-
-        vertices.clear();
-        if(sx>-1 && sy>-1 && xline[sx][4]==curve.Bezier && yline[sy][4]==curve.Bezier) {
-            vertices.push( xline[sx][1]+xline[sx][2] );
-            vertices.push( yline[sy][1]+yline[sy][2] );
-            vertices.push( xline[sx][1] );
-            vertices.push( yline[sy][1] );
-            vertices.push( xline[sx][1]+xline[sx][3] );
-            vertices.push( yline[sy][1]+yline[sy][3] );
-        }
-        gl.bindBuffer(gl.ARRAY_BUFFER, vb_curve_points);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STREAM_DRAW);
-        gl.uniform1f(sh_particles.u_pointSize, 8.0);
-        gl.drawArrays(gl.POINTS, 0, vertices.length/2);
-        gl.drawArrays(gl.LINE_STRIP, 0, vertices.length/2);
-    }
-
-    gl.flush();
+    initializeGLResources();
 }
 
 
@@ -907,10 +759,14 @@ function draw()
     setTimeout("requestDraw(draw)", delay);
 }
 
+function makeCallCommand(entity, funcname, arg)
+{
+    return entity.toString()+"->"+funcname+"("+arg+")";
+}
+
 function callRequest(entity, funcname, arg)
 {
-    var command = entity.toString()+"->"+funcname+"("+arg+")";
-    postCommand("/nuclei/call", command);
+    postCommand("/nuclei/call", makeCallCommand(entity,funcname,arg));
 }
 
 function postCommand(url, values)
@@ -938,7 +794,7 @@ function postCommand(url, values)
 
 #entity_type_panel {}
 #entity_property_panel {}
-#entity_list_panel { height:400px; overflow:scroll; }
+#entity_list_panel { max-height:400px; overflow:auto; }
 #curve_panel {}
 </style>
 </head>

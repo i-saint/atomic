@@ -26,6 +26,7 @@ function vec3_s(v)  { return "vec3("+v[0].toString()+","+v[1].toString()+","+v[2
 function vec4_s(v)  { return "vec4("+v[0].toString()+","+v[1].toString()+","+v[2].toString()+","+v[3].toString()+")"; }
 function string_s(v){ return "string(\""+v+"\")"; }
 function instruction_s(p,e) { return "instruction("+p[0].toString()+","+p[1].toString()+",0.0,"+e.toString()+")"; }
+function curvepoint_s(p) { return "curvepoint("+p[0].toFixed(2)+","+p[1].toFixed(2)+","+p[2].toFixed(2)+","+p[3].toFixed(2)+","+p[4].toString()+")"; }
 
 function createShader(id)
 {
@@ -235,7 +236,7 @@ var curve = {
                 var i2=0;
                 for(;; i2++) {
                     var p = this[i2];
-                    if(p[0]>=t) { break; }
+                    if(p[0]>t) { break; }
                 }
                 var i1 = i2-1;
                 r = curve.interpolate(this[i1], this[i2], t);

@@ -162,6 +162,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="editor\draw.js" />
     <None Include="editor\index.html" />
     <None Include="editor\util.js" />
   </ItemGroup>

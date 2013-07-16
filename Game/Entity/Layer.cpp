@@ -28,17 +28,14 @@ private:
 public:
     atmECallBlock(
         atmMethodBlock(
-            atmECall(addPositionXCP)
             atmECall(setPositionXCP)
-            atmECall(erasePositionXCP)
+            atmECall(addPositionXCP)
             atmECall(clearPositionXCP)
-            atmECall(addPositionYCP)
             atmECall(setPositionYCP)
-            atmECall(erasePositionYCP)
+            atmECall(addPositionYCP)
             atmECall(clearPositionYCP)
-            atmECall(addRotationCP)
             atmECall(setRotationCP)
-            atmECall(eraseRotationCP)
+            atmECall(addRotationCP)
             atmECall(clearRotationCP)
         )
         atmECallSuper(super)
@@ -76,7 +73,7 @@ public:
 
         // 子が参照するので asyncupdate ではダメ
         vec3 pos(m_posxcp.computeValue(m_time), m_posycp.computeValue(m_time), 0.0f );
-        setPosition(-pos);
+        setPosition(pos);
         setRotate(m_rotcp.computeValue(m_time));
         updateTransformMatrix();
     }
@@ -86,20 +83,17 @@ public:
     }
 
 
-    void addPositionXCP(const ControlPoint &v)          { m_posxcp.addCP(v);   }
-    void setPositionXCP(uint32 i, const ControlPoint &v){ m_posxcp.setCP(i,v); }
-    void erasePositionXCP(uint32 i)                     { m_posxcp.eraseCP(i); }
-    void clearPositionXCP()                             { m_posxcp.clear();    }
+    void setPositionXCP(const ControlPoint *v, uint32 n){ m_posxcp.assign(v,v+n);   }
+    void addPositionXCP(const ControlPoint &v)          { m_posxcp.addCP(v);        }
+    void clearPositionXCP()                             { m_posxcp.clear();         }
 
-    void addPositionYCP(const ControlPoint &v)          { m_posycp.addCP(v);   }
-    void setPositionYCP(uint32 i, const ControlPoint &v){ m_posycp.setCP(i,v); }
-    void erasePositionYCP(uint32 i)                     { m_posycp.eraseCP(i); }
-    void clearPositionYCP()                             { m_posycp.clear();    }
+    void setPositionYCP(const ControlPoint *v, uint32 n){ m_posycp.assign(v,v+n);   }
+    void addPositionYCP(const ControlPoint &v)          { m_posycp.addCP(v);        }
+    void clearPositionYCP()                             { m_posycp.clear();         }
 
-    void addRotationCP(const ControlPoint &v)           { m_rotcp.addCP(v);   }
-    void setRotationCP(uint32 i, const ControlPoint &v) { m_rotcp.setCP(i,v); }
-    void eraseRotationCP(uint32 i)                      { m_rotcp.eraseCP(i); }
-    void clearRotationCP()                              { m_rotcp.clear();    }
+    void setRotationCP(const ControlPoint *v, uint32 n) { m_rotcp.assign(v,v+n);    }
+    void addRotationCP(const ControlPoint &v)           { m_rotcp.addCP(v);         }
+    void clearRotationCP()                              { m_rotcp.clear();          }
 };
 atmImplementEntity(LevelLayer);
 atmExportClass(LevelLayer);

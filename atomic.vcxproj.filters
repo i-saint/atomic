@@ -355,5 +355,8 @@
     <None Include="editor\util.js">
       <Filter>editor</Filter>
     </None>
+    <None Include="editor\draw.js">
+      <Filter>editor</Filter>
+    </None>
   </ItemGroup>
 </Project>
