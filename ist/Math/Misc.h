@@ -90,7 +90,7 @@ inline T interpolate_bezier(T v1, T v1out, T v2_in, T v2, float32 u)
         u * u * (1.0f-u)*3.0f,
         u * u * u,
     };
-    return v1*w[0] + v1out*w[1] + v2_in*w[2] + v2*w[3];
+    return v1*w[0] + (v1+v1out)*w[1] + (v2_in+v2)*w[2] + v2*w[3];
 }
 
 } // namespace ist

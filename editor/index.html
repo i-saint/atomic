@@ -140,6 +140,7 @@ var editor = {
         y: curve.createPoints(),
     },
     curveSelection: [-1,-1],
+    curveBzSelection: 1,
 
     onMouseMove: function() {
         if(this.editMode==EditMode.Normal) {
@@ -164,13 +165,15 @@ var editor = {
             if(mouse.dragging && mouse.button==Button.Left) {
                 var diff = vec2.create();
                 vec2.sub(diff, mouse.pos, mouse.pos_prev);
+                var bsel = editor.curveBzSelection;
                 var sel = editor.curveSelection;
                 if(sel[0]!=-1) {
-                    editor.curve.x[sel[0]][1] += diff[0];
+                    editor.curve.x[sel[0]][bsel] += diff[0];
                 }
                 if(sel[1]!=-1) {
-                    editor.curve.y[sel[1]][1] += diff[1];
+                    editor.curve.y[sel[1]][bsel] += diff[1];
                 }
+                ui.updateCurvePoints();
             }
         }
     },
@@ -186,21 +189,42 @@ var editor = {
             }
         }
         else if(this.editMode==EditMode.Curve) {
-            var s = editor.selectCurvePoint(mouse.pos);
+            var cur = editor.curveSelection;
+            var s = cur;
+            var bz = 1;
+            if(s[0]!=-1 && s[1]!=-1) {
+                bz = editor.selectBzCurvePoint(mouse.pos);
+                if(bz==1) {
+                    s = [-1,-1];
+                }
+            }
+            if(s[0]==-1 && s[1]==-1) {
+                s = editor.selectCurvePoint(mouse.pos);
+            }
+
+            var needsUpdate = false;
             if(mouse.button==Button.Left) {
-                if(s[0]==-1 && s[1]==-1) {
-                    editor.curve.x.addPoint(curve.createPoint(editor.curve.x.endTime()+300.0, mouse.pos[0], 0.0,0.0, curve.Linear));
-                    editor.curve.y.addPoint(curve.createPoint(editor.curve.y.endTime()+300.0, mouse.pos[1], 0.0,0.0, curve.Linear));
+                if(cur[0]==-1 && cur[1]==-1 && s[0]==-1 && s[1]==-1) {
+                    editor.curve.x.addPoint(curve.createPoint(editor.curve.x.endTime()+300.0, mouse.pos[0], -0.1, 0.1, curve.Linear));
+                    editor.curve.y.addPoint(curve.createPoint(editor.curve.y.endTime()+300.0, mouse.pos[1], -0.0, 0.0, curve.Linear));
+                    needsUpdate=true;
                 }
                 else {
                     editor.curveSelection = s;
+                    editor.curveBzSelection = bz;
+                    needsUpdate=true;
                 }
             }
             else if(mouse.button==Button.Right) {
-                if(s[0]!=-1) { editor.curve.x.splice(s[0],1); }
-                if(s[1]!=-1) { editor.curve.y.splice(s[1],1); }
+                if(s[0]!=-1) { editor.curve.x.splice(s[0],1); needsUpdate=true; }
+                if(s[1]!=-1) { editor.curve.y.splice(s[1],1); needsUpdate=true; }
                 editor.curveSelection = [-1,-1];
             }
+            else if(mouse.button==Button.Middle) {
+                if(s[0]!=-1) { editor.curve.x[s[0]][4] = (editor.curve.x[s[0]][4]+1)%curve.End; }
+                if(s[1]!=-1) { editor.curve.y[s[1]][4] = (editor.curve.y[s[1]][4]+1)%curve.End; }
+            }
+            if(needsUpdate) { ui.updateCurvePoints(); }
         }
     },
 
@@ -329,6 +353,30 @@ var editor = {
         }
         return [xi,yi];
     },
+    selectBzCurvePoint: function(p)
+    {
+        var radius = 0.05;
+        var xline = editor.curve.x;
+        var yline = editor.curve.y;
+        var diff = vec2.create();
+        var sx = editor.curveSelection[0];
+        var sy = editor.curveSelection[1];
+        var r = 1;
+        if(sx>-1 && sy>-1 && xline[sx][4]==curve.Bezier && yline[sy][4]==curve.Bezier) {
+            var pos = [
+                vec2.fromValues(xline[sx][1]+xline[sx][2], yline[sy][1]+yline[sy][2]),
+                vec2.fromValues(xline[sx][1]+xline[sx][3], yline[sy][1]+yline[sy][3]),
+            ];
+            for(var i=0; i<pos.length; ++i) {
+                vec2.sub(diff, p, pos[i]);
+                var len = vec2.length(diff);
+                if(len<radius) {
+                    r = i+2;
+                }
+            }
+        }
+        return r;
+    },
 
     setupConsts: function(consts)
     {
@@ -353,8 +401,8 @@ var entities = {
 };
 
 var ui = {
-    getProperties: function() { return $("entity_properties"); },
-    getTypeSelector: function() { return $("entity_type_selector"); },
+    getProperties: function() { return $("entity_property_list"); },
+    getTypeSelector: function() { return $("entity_type_list"); },
 
     createPropertyInput: function(entity, property) {
         var r = document.createElement("input");
@@ -441,9 +489,31 @@ var ui = {
         this.style.backgroundColor = "#FF0000";
     },
 
-    updateCurveProperties: function()
+    beginCurveEdit: function()
     {
-        var root = $("curve_properties");
+        editor.editMode = EditMode.Curve;
+    },
+    endCurveEdit: function()
+    {
+        editor.editMode = EditMode.Entity;
+    },
+    updateCurvePoints: function()
+    {
+        var pointlist = $("curve_points");
+        var xline = editor.curve.x;
+        var yline = editor.curve.y;
+        resizeChildren(pointlist, xline.length+yline.length, function(){
+            var li = document.createElement("li");
+            li.appendChild(document.createTextNode(""));
+            return li;
+        });
+        var i = 0;
+        xline.each(function(p){ ui.updatePointProperty(pointlist.childNodes[i++],"x",p); });
+        yline.each(function(p){ ui.updatePointProperty(pointlist.childNodes[i++],"y",p); });
+    },
+    updatePointProperty: function(node, xy, p)
+    {
+        node.firstChild.data = xy+" time:"+p[0]+" value:"+p[1].toFixed(2);
     },
 
     onLoad: function()
@@ -761,9 +831,11 @@ function drawGL()
         gl.lineWidth(1.0);
     }
 
-    if(editor.editMode==EditMode.Curve) {
-        var xline = editor.curve.x;
-        var yline = editor.curve.y;
+    var xline = editor.curve.x;
+    var yline = editor.curve.y;
+    var sx = editor.curveSelection[0];
+    var sy = editor.curveSelection[1];
+    if(xline.length || yline.length) {
         var xv = xline.sampling(10.0);
         var yv = yline.sampling(10.0);
         var vertices = [];
@@ -795,6 +867,21 @@ function drawGL()
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STREAM_DRAW);
         gl.uniform1f(sh_particles.u_pointSize, 8.0);
         gl.drawArrays(gl.POINTS, 0, vertices.length/2);
+
+        vertices.clear();
+        if(sx>-1 && sy>-1 && xline[sx][4]==curve.Bezier && yline[sy][4]==curve.Bezier) {
+            vertices.push( xline[sx][1]+xline[sx][2] );
+            vertices.push( yline[sy][1]+yline[sy][2] );
+            vertices.push( xline[sx][1] );
+            vertices.push( yline[sy][1] );
+            vertices.push( xline[sx][1]+xline[sx][3] );
+            vertices.push( yline[sy][1]+yline[sy][3] );
+        }
+        gl.bindBuffer(gl.ARRAY_BUFFER, vb_curve_points);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STREAM_DRAW);
+        gl.uniform1f(sh_particles.u_pointSize, 8.0);
+        gl.drawArrays(gl.POINTS, 0, vertices.length/2);
+        gl.drawArrays(gl.LINE_STRIP, 0, vertices.length/2);
     }
 
     gl.flush();
@@ -872,14 +959,33 @@ function postCommand(url, values)
 }
 
 </script>
+
+
+<style type="text/css">
+#c { position:absolute; left:0px; top:0px; }
+#fps { position:absolute; left:2px; top:2px; color:#FFFFFF ;}
+#toolwindow { position:absolute; left:1024px; top:0px; width:400px; }
+.toolpanel { border:1px solid #000000; margin:5px; padding:5px; }
+.toolcaption { border:1px solid #000000; margin:2px; padding:2px; }
+.dataitem { margin:2px; padding:2px; }
+.datalist { margin:2px; padding:2px; }
+
+#entity_type_panel {}
+#entity_property_panel {}
+#entity_list_panel { height:400px; overflow:scroll; }
+#curve_panel {}
+</style>
 </head>
 
-<body onload="onLoad()">
-<canvas id="c" width="1024" height="1024" style="position:absolute; left:0px; top:0px;"></canvas>
-<div id="tools" style="position:absolute; left:1024px; top:0px; with:200px;">
-<span id="fps">00</span><ul id="entity_type_selector"></ul><ul id="entity_properties"></ul><ul id="entity_list"></ul><ul id="curve_properties"></ul>
-<a href="http://primitive-games.jp/atomic/">about atomic</a>
-</div>
-</body>
-
-</html>
+<body onload="onLoad()"
+><canvas id="c" width="1024" height="1024"></canvas><span id="fps">00</span
+><div id="toolwindow"
+><div id="entity_type_panel" class="toolpanel"><ul id="entity_type_list" class="datalist"></ul></div
+><div id="entity_property_panel" class="toolpanel"><ul id="entity_property_list" class="datalist"></ul></div
+><div id="entity_list_panel" class="toolpanel"><ul id="entity_list" class="datalist"></ul></div
+><div id="curve_panel" class="toolpanel"
+><input type="button" value="edit" onclick="ui.beginCurveEdit()" /><input type="button" value="done" onclick="ui.endCurveEdit()" /><ul id="curve_points" class="datalist"></ul></div
+><a href="http://primitive-games.jp/atomic/">about atomic</a
+></div
+></body
+></html>

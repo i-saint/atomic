@@ -9,7 +9,11 @@ function each(v, f) {
 }
 
 function clearChildren(e) {
-    while (e.firstChild) { e.removeChild(e.firstChild); }
+    while(e.lastChild) { e.removeChild(e.lastChild); }
+}
+function resizeChildren(e, num, creater) {
+    while(e.childNodes.length>num) { e.removeChild(e.lastChild); }
+    while(e.childNodes.length<num) { e.appendChild(creater()); }
 }
 
 
@@ -126,11 +130,11 @@ var curve = {
     Decel:  2,
     Accel:  3,
     Smooth: 4,
-    Pow:    5,
-    Bezier: 6,
+    Bezier: 5,
+    End:    6,
 
     createPoint: function(time, value, i_in, i_out, interpolation) {
-        return [time, value, i_in, i_out, interpolation];
+        return [time, value, i_in, i_out, interpolation, true];
     },
     pointGetTime:           function(p) { return p[0]; },
     pointGetValue:          function(p) { return p[1]; },
@@ -146,8 +150,7 @@ var curve = {
         case curve.Decel:  r=interpolate_sin90(v1[1], v2[1], u); break;
         case curve.Accel:  r=interpolate_cos90inv(v1[1], v2[1], u); break;
         case curve.Smooth: r=interpolate_cos180inv(v1[1], v2[1], u); break;
-        case curve.Pow   : r=interpolate_pow(v1[1], v2[1], v1[3], u); break;
-        case curve.Bezier: r=interpolate_bezier(v1[1], v1[3], v2[2], v2[1], u); break;
+        case curve.Bezier: r=interpolate_bezier(v1[1], v1[1]+v1[3], v2[1]+v2[2], v2[1], u); break;
         }
         return r;
     },

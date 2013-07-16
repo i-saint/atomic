@@ -17,7 +17,6 @@ struct TControlPoint
         Decel,
         Accel,
         Smooth,
-        Pow,
         Bezier,
     };
     T value;
@@ -43,7 +42,6 @@ inline T Interpolate(const TControlPoint<T> &v1, const TControlPoint<T> &v2, flo
     case PointT::Decel:  r=ist::interpolate_sin90(v1.value, v2.value, u); break;
     case PointT::Accel:  r=ist::interpolate_cos90inv(v1.value, v2.value, u); break;
     case PointT::Smooth: r=ist::interpolate_cos180inv(v1.value, v2.value, u); break;
-    case PointT::Pow   : r=ist::interpolate_pow(v1.value, v2.value, v1.out, u); break;
     case PointT::Bezier: r=ist::interpolate_bezier(v1.value, v1.out, v2.in, v2.value, u); break;
     }
     return r;
