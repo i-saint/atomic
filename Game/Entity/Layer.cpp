@@ -47,18 +47,8 @@ public:
 
     atmJsonizeBlock(
         atmJsonizeSuper(transform)
-        atmJsonizeCall(addPositionXCP)
-        atmJsonizeCall(setPositionXCP)
-        atmJsonizeCall(erasePositionXCP)
-        atmJsonizeCall(clearPositionXCP)
-        atmJsonizeCall(addPositionYCP)
-        atmJsonizeCall(setPositionYCP)
-        atmJsonizeCall(erasePositionYCP)
-        atmJsonizeCall(clearPositionYCP)
-        atmJsonizeCall(addRotationCP)
-        atmJsonizeCall(setRotationCP)
-        atmJsonizeCall(eraseRotationCP)
-        atmJsonizeCall(clearRotationCP)
+        atmJsonizeCurve2D(m_pos, addPositionXCP,clearPositionXCP,m_posxcp, addPositionYCP,clearPositionYCP,m_posycp)
+        atmJsonizeCurve1D(m_rotcp,addPositionXCP,clearPositionXCP)
     )
 
 public:

@@ -143,7 +143,7 @@ var editor = {
     curveBzSelection: 1,
 
     onMouseMove: function() {
-        if(this.editMode==EditMode.Normal) {
+        if(this.editMode==EditMode.Entity) {
             if(mouse.dragging && editor.entitySelection.length>0) {
                 if(mouse.button==Button.Left) {
                     var diff = vec2.create();
@@ -179,7 +179,7 @@ var editor = {
     },
 
     onMouseDown: function() {
-        if(this.editMode==EditMode.Normal) {
+        if(this.editMode==EditMode.Entity) {
             if(mouse.button==Button.Left) {
                 editor.clearEntitySelection();
                 var selection = editor.selectEntity(mouse.pos);
@@ -229,7 +229,7 @@ var editor = {
     },
 
     onMouseUp: function() {
-        if(this.editMode==EditMode.Normal) {
+        if(this.editMode==EditMode.Entity) {
             if(mouse.button==Button.Left) {
                 if(editor.entitySelection.length==0) {
                     postCommand("/nuclei/create", "classid="+editor.entityDeployType+",pos="+vec2_s(mouse.pos));
@@ -405,26 +405,41 @@ var ui = {
     getTypeSelector: function() { return $("entity_type_list"); },
 
     createPropertyInput: function(entity, property) {
-        var r = document.createElement("input");
-        r.entity = entity;
-        r.eprop = property;
-        r.setAttribute("class", "property "+property.type);
-        r.setAttribute("type", "text");
-        r.setAttribute("size", 32);
-        r.value = property.value;
-        if(property.setter) {
-            r.setAttribute("onfocus", "this.lockUpdate=true");
-            r.setAttribute("onblur", "this.lockUpdate=false");
-            r.setAttribute("onchange", "this.handleChange()");
-            r.handleChange = function() {
-                var value = this.eprop.type+"("+this.value.gsub(" ", "")+")";
-                callRequest(this.entity, this.eprop.setter, value);
+        if(property.type=="curve2D") {
+            var r = document.createElement("input");
+            r.entity = entity;
+            r.eprop = property;
+            r.setAttribute("type", "button");
+            r.value = "edit";
+            r.onclick = function() {
+                property.value.x.each(function(e){ editor.curve.x.addPoint(e); });
+                property.value.y.each(function(e){ editor.curve.y.addPoint(e); });
+                ui.beginCurveEdit();
             }
+            return r;
         }
         else {
-            r.disabled = true;
+            var r = document.createElement("input");
+            r.entity = entity;
+            r.eprop = property;
+            r.setAttribute("class", "property "+property.type);
+            r.setAttribute("type", "text");
+            r.setAttribute("size", 32);
+            r.value = property.value;
+            if(property.setter) {
+                r.setAttribute("onfocus", "this.lockUpdate=true");
+                r.setAttribute("onblur", "this.lockUpdate=false");
+                r.setAttribute("onchange", "this.handleChange()");
+                r.handleChange = function() {
+                    var value = this.eprop.type+"("+this.value.gsub(" ", "")+")";
+                    callRequest(this.entity, this.eprop.setter, value);
+                }
+            }
+            else {
+                r.disabled = true;
+            }
+            return r;
         }
-        return r;
     },
 
     updateEntityProperties: function(entity)
@@ -492,6 +507,7 @@ var ui = {
     beginCurveEdit: function()
     {
         editor.editMode = EditMode.Curve;
+        ui.updateCurvePoints();
     },
     endCurveEdit: function()
     {
@@ -513,7 +529,8 @@ var ui = {
     },
     updatePointProperty: function(node, xy, p)
     {
-        node.firstChild.data = xy+" time:"+p[0]+" value:"+p[1].toFixed(2);
+        node.firstChild.data = xy+" time:"+p[0]+" value:"+p[1].toFixed(2)+" in:"+p[2].toFixed(2)+" out:"+p[3].toFixed(2)
+            +" "+curve.TypeStr[p[4]];
     },
 
     onLoad: function()
@@ -556,15 +573,6 @@ var vb_curve;
 var vb_curve_points;
 
 
-function bool_s(v)  { return "bool("+v.toString()+")"; }
-function int32_s(v)   { return "int32("+v.toString()+")"; }
-function uint32_s(v)  { return "uint32("+v.toString()+")"; }
-function float32_s(v) { return "float32("+v.toString()+")"; }
-function vec2_s(v)  { return "vec2("+v[0].toString()+","+v[1].toString()+")"; }
-function vec3_s(v)  { return "vec3("+v[0].toString()+","+v[1].toString()+","+v[2].toString()+")"; }
-function vec4_s(v)  { return "vec4("+v[0].toString()+","+v[1].toString()+","+v[2].toString()+","+v[3].toString()+")"; }
-function string_s(v){ return "string(\""+v+"\")"; }
-function instruction_s(p,e) { return "instruction("+p[0].toString()+","+p[1].toString()+",0.0,"+e.toString()+")"; }
 
 function updateFPS() {
     document.getElementById("fps").textContent = frame;
@@ -611,50 +619,6 @@ function updateEntities()
         rpos += 4*2 * num_fluids;
     };
     ajax.send(null);
-}
-
-
-function createShader(id)
-{
-    var shaderScript = document.getElementById(id);
-    if(!shaderScript) { return null; }
-
-    var str = "";
-    var k = shaderScript.firstChild;
-    while (k) {
-        if (k.nodeType == 3) {
-            str += k.textContent;
-        }
-        k = k.nextSibling;
-    }
-
-    var shader;
-    if(shaderScript.type == "x-shader/x-fragment") {
-        shader = gl.createShader(gl.FRAGMENT_SHADER);
-    }
-    else if(shaderScript.type == "x-shader/x-vertex") {
-        shader = gl.createShader(gl.VERTEX_SHADER);
-    }
-    else {
-        return null;
-    }
-
-    gl.shaderSource(shader, str);
-    gl.compileShader(shader);
-    if(!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        alert(gl.getShaderInfoLog(shader));
-        return null;
-    }
-    return shader;
-}
-
-function createShaderProgram(vsid, psid)
-{
-    var program = gl.createProgram();
-    gl.attachShader(program, createShader(vsid));
-    gl.attachShader(program, createShader(psid));
-    gl.linkProgram(program);
-    return program;
 }
 
 var requestDraw = (function() {
@@ -836,8 +800,10 @@ function drawGL()
     var sx = editor.curveSelection[0];
     var sy = editor.curveSelection[1];
     if(xline.length || yline.length) {
-        var xv = xline.sampling(10.0);
-        var yv = yline.sampling(10.0);
+        var tbegin = [xline.beginTime(), yline.beginTime()].min();
+        var tend = [xline.endTime(), yline.endTime()].max();
+        var xv = xline.sampling(tbegin, tend, 10.0);
+        var yv = yline.sampling(tbegin, tend, 10.0);
         var vertices = [];
         for(var i=0; i<xv.length; ++i) {
             vertices.push(xv[i]);

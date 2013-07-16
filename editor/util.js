@@ -17,6 +17,60 @@ function resizeChildren(e, num, creater) {
 }
 
 
+function bool_s(v)  { return "bool("+v.toString()+")"; }
+function int32_s(v)   { return "int32("+v.toString()+")"; }
+function uint32_s(v)  { return "uint32("+v.toString()+")"; }
+function float32_s(v) { return "float32("+v.toString()+")"; }
+function vec2_s(v)  { return "vec2("+v[0].toString()+","+v[1].toString()+")"; }
+function vec3_s(v)  { return "vec3("+v[0].toString()+","+v[1].toString()+","+v[2].toString()+")"; }
+function vec4_s(v)  { return "vec4("+v[0].toString()+","+v[1].toString()+","+v[2].toString()+","+v[3].toString()+")"; }
+function string_s(v){ return "string(\""+v+"\")"; }
+function instruction_s(p,e) { return "instruction("+p[0].toString()+","+p[1].toString()+",0.0,"+e.toString()+")"; }
+
+function createShader(id)
+{
+    var shaderScript = document.getElementById(id);
+    if(!shaderScript) { return null; }
+
+    var str = "";
+    var k = shaderScript.firstChild;
+    while (k) {
+        if (k.nodeType == 3) {
+            str += k.textContent;
+        }
+        k = k.nextSibling;
+    }
+
+    var shader;
+    if(shaderScript.type == "x-shader/x-fragment") {
+        shader = gl.createShader(gl.FRAGMENT_SHADER);
+    }
+    else if(shaderScript.type == "x-shader/x-vertex") {
+        shader = gl.createShader(gl.VERTEX_SHADER);
+    }
+    else {
+        return null;
+    }
+
+    gl.shaderSource(shader, str);
+    gl.compileShader(shader);
+    if(!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        alert(gl.getShaderInfoLog(shader));
+        return null;
+    }
+    return shader;
+}
+
+function createShaderProgram(vsid, psid)
+{
+    var program = gl.createProgram();
+    gl.attachShader(program, createShader(vsid));
+    gl.attachShader(program, createShader(psid));
+    gl.linkProgram(program);
+    return program;
+}
+
+
 function interpolate_linear(v1, v2, u)
 {
     var d = v2-v1;
@@ -132,6 +186,7 @@ var curve = {
     Smooth: 4,
     Bezier: 5,
     End:    6,
+    TypeStr: ["None", "Linear", "Decel", "Accel", "Smooth", "Bezier"],
 
     createPoint: function(time, value, i_in, i_out, interpolation) {
         return [time, value, i_in, i_out, interpolation, true];
@@ -187,9 +242,7 @@ var curve = {
             }
             return r;
         };
-        ret.sampling = function(interval) {
-            var tbegin = this.beginTime();
-            var tend = this.endTime();
+        ret.sampling = function(tbegin, tend, interval) {
             var ret = [];
             for(var t=tbegin; t<=tend; t+=interval) {
                 ret.push(this.computeValue(t));

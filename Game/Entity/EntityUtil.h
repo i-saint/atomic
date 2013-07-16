@@ -125,7 +125,45 @@ inline void Jsonize(stl::string &out, const char *name, const char *getter, cons
 
 inline void jsonize(stl::string &out, const ControlPoint &cp)
 {
-    out+=ist::Format("{\"time\":%.2f,\"value\":%.2f,\"in\":%.2f,\"out\":%.2f,\"interpolation\":%d}", cp.time, cp.value, cp.in, cp.out, cp.interp);
+    out+=ist::Format("[%.2f,%.2f,%.2f,%.2f,%d]", cp.time, cp.value, cp.in, cp.out, cp.interp);
+}
+
+inline void jsonizeCurve1D(stl::string &out, const char *name, const char *adder, const char *clearer, const ControlPoints &cv)
+{
+    out += ist::Format("{\"name\":\"%s\",\"type\":\"curve1D\",\"add\":\"%s\",\"clear\":\"%s\",\"value\":[",
+        name+2, adder, clearer);
+    bool first = true;
+    each(cv,[&](const ControlPoint &cp){
+        if(!first){out+=",";} first=false;
+        out+=ist::Format("[%.2f,%.2f,%.2f,%.2f,%d]", cp.time, cp.value, cp.in, cp.out, cp.interp);
+    });
+    out+="]},";
+}
+
+inline void jsonizeCurve2D(
+    stl::string &out, const char *name,
+    const char *addx, const char *clearx, const ControlPoints &cvx,
+    const char *addy, const char *cleary, const ControlPoints &cvy )
+{
+    out += ist::Format("{\"name\":\"%s\",\"type\":\"curve2D\",\"add\":[\"%s\",\"%s\"],\"clear\":[\"%s\",\"%s\"],",
+        name, addx, addy, clearx, cleary);
+    out += "\"value\":{\"x\":[";
+    {
+        bool first = true;
+        each(cvx,[&](const ControlPoint &cp){
+            if(!first){out+=",";} first=false;
+            out+=ist::Format("[%.2f,%.2f,%.2f,%.2f,%d]", cp.time, cp.value, cp.in, cp.out, cp.interp);
+        });
+    }
+    out += "],\"y\":[";
+    {
+        bool first = true;
+        each(cvy,[&](const ControlPoint &cp){
+            if(!first){out+=",";} first=false;
+            out+=ist::Format("[%.2f,%.2f,%.2f,%.2f,%d]", cp.time, cp.value, cp.in, cp.out, cp.interp);
+        });
+    }
+    out+="]}},";
 }
 
 
@@ -156,6 +194,8 @@ inline void JsonizeMF(stl::string &out, const char *name, R (C::*f)(R0,R1)) {
 
 #define atmJsonizeSuper(T) T::jsonize(out);
 #define atmJsonizeMember(V,Getter,Setter) Jsonize(out, #V, #Getter, #Setter, V);
+#define atmJsonizeCurve1D(V,Add,Clear) jsonizeCurve1D(out, #V, #Add, #Clear, V);
+#define atmJsonizeCurve2D(Name, AddX,ClearX,VX, AddY,ClearY,VY) jsonizeCurve2D(out, #Name, #AddX,#ClearX,VX, #AddY,#ClearY,VY);
 #define atmJsonizeCall(F) JsonizeMF(out, #F, &this_t::F);
 
 } // namespace atm
