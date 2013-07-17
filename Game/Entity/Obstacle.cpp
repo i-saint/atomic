@@ -12,10 +12,11 @@ private:
     istSerializeBlock(
         istSerializeBase(super)
     )
-
-public:
     atmECallBlock(
         atmECallSuper(super)
+    )
+    atmJsonizeBlock(
+        atmJsonizeSuper(super)
     )
 
 public:
@@ -35,16 +36,15 @@ public:
     void initialize() override
     {
         super::initialize();
-        setPivot(vec3(-0.2f, 0.0f, -0.1f));
+        setPivot(vec3(-0.5f, 0.0f, -0.4f));
 
         initializeCollision(getHandle());
         setCollisionShape(CS_Box);
         setCollisionFlags(CF_Sender|CF_SPH_Sender);
-
-        setModel(PSET_CUBE_MEDIUM);
+        setModel(PSET_GROUNDCUBE);
     }
 };
-atmImplementEntity(GroundBlock);
+atmImplementEntity(GroundBlock, DF_Editor, 0.0f);
 atmExportClass(GroundBlock);
 
 
@@ -55,12 +55,10 @@ typedef Unbreakable<Entity_Orientation>  super;
 private:
     istSerializeBlock(
         istSerializeBase(super)
-        )
-
-public:
+    )
     atmECallBlock(
         atmECallSuper(super)
-        )
+    )
 
 public:
     FluidFilter()
@@ -93,7 +91,7 @@ public:
         // todo
     }
 };
-atmImplementEntity(FluidFilter);
+atmImplementEntity(FluidFilter, DF_Editor, 0.0f);
 atmExportClass(FluidFilter);
 
 

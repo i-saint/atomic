@@ -13,8 +13,10 @@ namespace atm {
     void CreateFieldGridLines(VertexArray *va, Buffer *&vbo);
     void CreateDistanceFieldQuads(VertexArray *va, Buffer *&quad_model, Buffer *&quad_pos, Buffer *&quad_dist);
 
-    bool CreateCubeParticleSet(ParticleSet &pset, RigidInfo &ri, float32 half_len);
-    bool CreateSphereParticleSet(ParticleSet &pset, RigidInfo &ri, float32 radius);
+    extern const float32 PSetDefaultDensity;
+    bool CreateCubeParticleSet(ParticleSet &pset, RigidInfo &ri, float32 half_len, float32 density=PSetDefaultDensity);
+    bool CreateHollowCubeParticleSet(ParticleSet &pset, RigidInfo &ri, float32 half_len, float32 density=PSetDefaultDensity);
+    bool CreateSphereParticleSet(ParticleSet &pset, RigidInfo &ri, float32 radius, float32 density=PSetDefaultDensity);
     bool CreateBulletParticleSet(ParticleSet &pset, RigidInfo &ri);
 
 } // namespace atm

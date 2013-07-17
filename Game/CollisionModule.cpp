@@ -146,17 +146,6 @@ bool _Collide(const CollisionBox *sender, const CollisionBox *receiver, CollideM
     {
         const vec4 &size = receiver->size;
         simdmat4 t(receiver->trans);
-        {
-            CollisionSphere sphere;
-            float32 r = std::min<float32>(std::min<float32>(size.x, size.y), size.z);
-            vec3 center = vec3(receiver->trans[3]);
-            sphere.pos_r = vec4(center, r);
-            sphere.bb.bl = vec4(center-r, 1.0f);
-            sphere.bb.ur = vec4(center+r, 1.0f);
-            if(_Collide(sender, &sphere, m)) {
-                goto HIT;
-            }
-        }
         vec4 vertices[] = {
             glm::vec4_cast(t * simdvec4( size.x, size.y, size.z, 1.0f)),
             glm::vec4_cast(t * simdvec4(-size.x, size.y, size.z, 1.0f)),
@@ -167,6 +156,20 @@ bool _Collide(const CollisionBox *sender, const CollisionBox *receiver, CollideM
             glm::vec4_cast(t * simdvec4(-size.x,-size.y,-size.z, 1.0f)),
             glm::vec4_cast(t * simdvec4( size.x,-size.y,-size.z, 1.0f)),
         };
+        {
+            CollisionSphere sphere;
+            float32 r = std::abs(vertices[0].x);
+            for(int i=0; i<_countof(vertices); ++i) {
+                r = absmin(r, absmin(absmin(vertices[i].x, vertices[i].y), vertices[i].z));
+            }
+            vec3 center = vec3(receiver->trans[3]);
+            sphere.pos_r = vec4(center, r);
+            sphere.bb.bl = vec4(center-r, 1.0f);
+            sphere.bb.ur = vec4(center+r, 1.0f);
+            if(_Collide(sender, &sphere, m)) {
+                goto HIT;
+            }
+        }
         for(size_t i=0; i<_countof(vertices); ++i) {
             CollisionSphere sphere;
             sphere.bb.bl = sphere.bb.ur = sphere.pos_r = vec4(vec3(vertices[i]), 0.0f);
@@ -178,17 +181,6 @@ bool _Collide(const CollisionBox *sender, const CollisionBox *receiver, CollideM
     {
         const vec4 &size = sender->size;
         simdmat4 t(sender->trans);
-        {
-            CollisionSphere sphere;
-            float32 r = std::min<float32>(std::min<float32>(size.x, size.y), size.z);
-            vec3 center = vec3(sender->trans[3]);
-            sphere.pos_r = vec4(center, r);
-            sphere.bb.bl = vec4(center-r, 1.0f);
-            sphere.bb.ur = vec4(center+r, 1.0f);
-            if(_Collide(&sphere, receiver, m)) {
-                goto HIT;
-            }
-        }
         vec4 vertices[] = {
             glm::vec4_cast(t * simdvec4( size.x, size.y, size.z, 1.0f)),
             glm::vec4_cast(t * simdvec4(-size.x, size.y, size.z, 1.0f)),
@@ -199,6 +191,20 @@ bool _Collide(const CollisionBox *sender, const CollisionBox *receiver, CollideM
             glm::vec4_cast(t * simdvec4(-size.x,-size.y,-size.z, 1.0f)),
             glm::vec4_cast(t * simdvec4( size.x,-size.y,-size.z, 1.0f)),
         };
+        {
+            CollisionSphere sphere;
+            float32 r = std::abs(vertices[0].x);
+            for(int i=0; i<_countof(vertices); ++i) {
+                r = absmin(r, absmin(absmin(vertices[i].x, vertices[i].y), vertices[i].z));
+            }
+            vec3 center = vec3(sender->trans[3]);
+            sphere.pos_r = vec4(center, r);
+            sphere.bb.bl = vec4(center-r, 1.0f);
+            sphere.bb.ur = vec4(center+r, 1.0f);
+            if(_Collide(&sphere, receiver, m)) {
+                goto HIT;
+            }
+        }
         for(size_t i=0; i<_countof(vertices); ++i) {
             CollisionSphere sphere;
             sphere.bb.bl = sphere.bb.ur = sphere.pos_r = vec4(vec3(vertices[i]), 0.0f);

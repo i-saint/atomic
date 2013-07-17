@@ -388,18 +388,16 @@ void CreateDistanceFieldQuads( VertexArray *va, Buffer *&quad_model, Buffer *&qu
 
 
 
-namespace {
-    const float32 g_particle_par_volume = 30000.0; // particles / (1.0*1.0*1.0)
-}
+const float32 PSetDefaultDensity = 30000.0; // particles / (1.0*1.0*1.0)
 
-bool CreateCubeParticleSet( ParticleSet &pset, RigidInfo &ri, float32 half_len )
+
+bool CreateCubeParticleSet( ParticleSet &pset, RigidInfo &ri, float32 half_len, float32 density )
 {
-    SFMT random; random.initialize(3);
+    SFMT random; random.initialize(9);
 
     float32 len = half_len*2.0f;
-    vec4 pos = vec4(-half_len, -half_len, -half_len, 0.0f);
     float32 volume = len*len*len;
-    uint32 num = static_cast<uint32>(volume * g_particle_par_volume);
+    uint32 num = static_cast<uint32>(volume * density);
     ist::vector<PSetParticle> particles;
     particles.resize(num);
 
@@ -412,14 +410,14 @@ bool CreateCubeParticleSet( ParticleSet &pset, RigidInfo &ri, float32 half_len )
         vec4( 0.0f, 0.0f,-1.0f, 0.0f),
     };
     for(uint32 i=0; i<num; ++i) {
-        vec4 rv = vec4(random.genFloat32(),random.genFloat32(),random.genFloat32(),0.0f) * len;
-        vec4 ppos = pos + rv;
-        particles[i].position = vec3(ppos);
+        vec3 r = vec3(random.genFloat32(),random.genFloat32(),random.genFloat32())*2.0f-1.0f;
+        vec4 pos = vec4(r * half_len, 0.0f);
+        particles[i].position = vec3(pos);
 
         float32 max_d = 0.0f;
         uint32 max_p = 0;
         for(uint32 p=0; p<_countof(planes); ++p) {
-            float32 d = glm::dot(ppos, planes[p]);
+            float32 d = glm::dot(pos, planes[p]);
             if(d > max_d) {
                 max_d = d;
                 max_p = p;
@@ -434,13 +432,61 @@ bool CreateCubeParticleSet( ParticleSet &pset, RigidInfo &ri, float32 half_len )
     return true;
 }
 
-bool CreateSphereParticleSet( ParticleSet &pset, RigidInfo &ri, float32 radius )
+bool CreateHollowCubeParticleSet( ParticleSet &pset, RigidInfo &ri, float32 half_len, float32 density )
+{
+    SFMT random; random.initialize(9);
+
+    float32 len = half_len*2.0f;
+    float32 volume = len*len*len;
+    uint32 num = static_cast<uint32>(volume * density);
+    ist::vector<PSetParticle> particles;
+    particles.resize(num);
+
+    const vec4 planes[6] = {
+        vec4( 1.0f, 0.0f, 0.0f, 0.0f),
+        vec4(-1.0f, 0.0f, 0.0f, 0.0f),
+        vec4( 0.0f, 1.0f, 0.0f, 0.0f),
+        vec4( 0.0f,-1.0f, 0.0f, 0.0f),
+        vec4( 0.0f, 0.0f, 1.0f, 0.0f),
+        vec4( 0.0f, 0.0f,-1.0f, 0.0f),
+    };
+    for(uint32 i=0; i<num; ++i) {
+        vec3 r = vec3(random.genFloat32(),random.genFloat32(),random.genFloat32())*0.5f-0.25f;
+        vec3 dr = r * 4.0f;
+        vec3 hr = r + vec3(0.75f)*glm::sign(r);
+        switch(i&3) {
+        case 0: r=vec3(hr.x,dr.y,dr.z); break;
+        case 1: r=vec3(dr.x,hr.y,dr.z); break;
+        case 2: r=vec3(dr.x,dr.y,hr.z); break;
+        }
+        vec4 pos = vec4(r * half_len, 0.0f);
+        particles[i].position = vec3(pos);
+
+        float32 max_d = 0.0f;
+        uint32 max_p = 0;
+        for(uint32 p=0; p<_countof(planes); ++p) {
+            float32 d = glm::dot(pos, planes[p]);
+            if(d > max_d) {
+                max_d = d;
+                max_p = p;
+            }
+        }
+        particles[i].normal = planes[max_p];
+        particles[i].normal.w = max_d / half_len;
+    }
+
+    pset.setData(particles);
+    assign_float4(ri.box_size, half_len, half_len, half_len, 0.0f);
+    return true;
+}
+
+bool CreateSphereParticleSet( ParticleSet &pset, RigidInfo &ri, float32 radius, float32 density )
 {
     SFMT random; random.initialize(5);
 
     vec4 half = vec4(0.5f, 0.5f, 0.5f, 0.0f);
     float32 volume = (4.0f/3.0f) * ist::PI * (radius*radius*radius);
-    uint32 num = static_cast<uint32>(volume * g_particle_par_volume);
+    uint32 num = static_cast<uint32>(volume * density);
     ist::vector<PSetParticle> particles;
     particles.resize(num);
 

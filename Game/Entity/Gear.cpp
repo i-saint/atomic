@@ -11,8 +11,6 @@ private:
     istSerializeBlock(
         istSerializeBase(super)
     )
-
-public:
     atmECallBlock(
         atmMethodBlock(
             atmECall(addForce)
@@ -37,13 +35,12 @@ public:
     void initialize() override
     {
         super::initialize();
-        setPivot(vec3(-0.2f, 0.0f, 0.0f));
+        setPivot(vec3(-0.5f, 0.0f, -0.4f));
 
         initializeCollision(getHandle());
         setCollisionShape(CS_Box);
         setCollisionFlags(CF_Sender|CF_Receiver|CF_SPH_Sender);
-
-        setModel(PSET_CUBE_MEDIUM);
+        setModel(PSET_GROUNDCUBE);
     }
 
 
@@ -62,7 +59,7 @@ public:
         if(atmQuery(m->from, getPosition, pos)) {
             float32 f = 4000.0f;
             if(EntityGetCategory(m->from)==ECA_Obstacle) {
-                f = 50000.0f;
+                f = 40000.0f;
             }
             vec3 force = vec3(m->direction * (m->direction.w * f));
             addForce(pos, force);
@@ -242,7 +239,7 @@ public:
         for(int i=0; i<div; ++i) {
             vec3 dir = vec3(glm::rotateZ(dir_x, 360.0f/div*i));
             GearParts *e = (GearParts*)atmCreateEntityT(GearParts);
-            e->setScale(vec3(1.5f, 0.25f, 0.75f));
+            e->setScale(vec3(0.6f, 0.125f, 0.3f));
             e->setParent(getHandle());
             e->setOrientation(dir);
             e->setCollisionGroup(cg);
@@ -288,7 +285,7 @@ public:
         for(int i=0; i<div; ++i) {
             vec3 dir = vec3(glm::rotateZ(dir_x, 360.0f/div*i));
             GearParts *e = (GearParts*)atmCreateEntityT(GearParts);
-            e->setScale(vec3(2.5f, 0.4f, 1.0f));
+            e->setScale(vec3(1.0f, 0.15f, 0.4f));
             e->setParent(getHandle());
             e->setOrientation(dir);
             e->setCollisionGroup(cg);

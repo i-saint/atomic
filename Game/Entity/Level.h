@@ -80,7 +80,12 @@ public:
         inst.appear_radius = 10000.0f;
         inst.transform = transform::getTransformMatrix();
         inst.rotate = transform::computeRotationMatrix();
-        atmGetFluidPass()->addParticlesSolid(getModel(), inst);
+        uint32 num = 0;
+        vec3 size;
+        if(atmQuery(this, getScale, size)) {
+            num = uint32(size.x*size.y*size.z * 30000.0f);
+        }
+        atmGetFluidPass()->addParticlesSolid(getModel(), inst, num);
         atmGetBloodStainPass()->addBloodstainParticles(getTransformMatrix(), getBloodStainParticles(), getNumBloodstainParticles());
     }
 

@@ -58,6 +58,7 @@ struct istAlign(16) PSetUpdateInfo
         struct {
             PSET_RID psid;
             uint32 instanceid;
+            uint32 num;
         };
         float padding[4];
     };

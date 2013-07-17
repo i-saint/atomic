@@ -72,6 +72,12 @@ namespace atm {
         return (int32)d;
     }
 
+    template<class T>
+    inline T absmin(T a, T b)
+    {
+        return std::min<T>(abs(a), abs(b));
+    }
+
 
     template<class F>
     void scan(const stl::string &str, const std::regex &reg, const F &f)

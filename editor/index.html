@@ -8,20 +8,17 @@ attribute vec3 ia_position;
 uniform mat4 u_proj;
 uniform mat4 u_trans;
 uniform vec3 u_size;
-uniform vec4 u_color;
-varying vec4 vs_color;
 void main()
 {
-    vs_color = u_color;
     gl_Position = u_proj * (u_trans* vec4(ia_position*u_size, 1.0));
 }
 </script>
 <script type="x-shader/x-fragment" id="ps_entities">
 precision mediump float;
-varying vec4 vs_color;
+uniform vec4 u_color;
 void main()
 {
-    gl_FragColor = vs_color;
+    gl_FragColor = u_color;
 }
 </script>
 
@@ -94,8 +91,8 @@ void main()
 
 var EditMode = {
     Entity : 0,
-    SelectEntity : 1,
-    Curve : 2,
+    Curve : 1,
+    PickEntity : 2,
 };
 var Button = {
     Left    : 0,

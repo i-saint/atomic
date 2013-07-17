@@ -135,7 +135,7 @@ void PassGBuffer_Fluid::drawParticleSets( PSetDrawData &pdd )
         size_t n = 0;
         for(uint32 ri=0; ri<num_instances; ++ri) {
             const ParticleSet *rc = atmGetParticleSet(pdd.update_info[ri].psid);
-            uint32 num_particles            = rc->getNumParticles();
+            uint32 num_particles            = pdd.update_info[ri].num;
             const PSetParticle *particles   = rc->getParticleData();
             for(uint32 i=0; i<num_particles; ++i) {
                 uint32 pi = n+i;
@@ -170,24 +170,30 @@ void PassGBuffer_Fluid::drawParticleSets( PSetDrawData &pdd )
     }
 }
 
-void PassGBuffer_Fluid::addParticles( PSET_RID psid, const PSetInstance &inst )
+void PassGBuffer_Fluid::addParticles( PSET_RID psid, const PSetInstance &inst, uint32 n )
 {
     if(!culling(psid, inst)) { return; }
 
+    const ParticleSet *rc = atmGetParticleSet(psid);
+    uint32 num_particles = rc->getNumParticles();
     PSetUpdateInfo tmp;
     tmp.psid        = psid;
     tmp.instanceid  = m_rigid_sp.instance_data.size();
+    tmp.num = n!=0 ? std::min(n, num_particles) : num_particles;
     m_rigid_sp.update_info.push_back(tmp);
     m_rigid_sp.instance_data.push_back(inst);
 }
 
-void PassGBuffer_Fluid::addParticlesSolid( PSET_RID psid, const PSetInstance &inst )
+void PassGBuffer_Fluid::addParticlesSolid( PSET_RID psid, const PSetInstance &inst, uint32 n )
 {
     if(!culling(psid, inst)) { return; }
 
+    const ParticleSet *rc = atmGetParticleSet(psid);
+    uint32 num_particles = rc->getNumParticles();
     PSetUpdateInfo tmp;
     tmp.psid        = psid;
     tmp.instanceid  = m_rigid_so.instance_data.size();
+    tmp.num = n!=0 ? std::min(n, num_particles) : num_particles;
     m_rigid_so.update_info.push_back(tmp);
     m_rigid_so.instance_data.push_back(inst);
 }
