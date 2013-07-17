@@ -77,8 +77,8 @@ void main()
         float ar = vs_InstanceParams.y;
         vec3 psetpos = vs_PSetPosition.xyz;
         vec3 diff3 = flag_pos.xyz - psetpos;
-        float d = length(diff3);
-        if(d > ar) {
+        float d = dot(diff3,diff3);
+        if(d > ar*ar) {
             discard;
         }
         float cr = max(0.0, 1.0f - (ar-d)*40.0);

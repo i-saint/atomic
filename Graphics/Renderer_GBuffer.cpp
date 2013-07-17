@@ -128,22 +128,22 @@ void PassGBuffer_Fluid::drawParticleSets( PSetDrawData &pdd )
         // 合計パーティクル数を算出して、それが収まるバッファを確保
         uint32 num_instances = pdd.update_info.size();
         for(uint32 ri=0; ri<num_instances; ++ri) {
-            num_particles += atmGetParticleSet(pdd.update_info[ri].psid)->getNumParticles();
+            num_particles += pdd.update_info[ri].num;
         }
         pdd.particle_data.resize(num_particles);
 
         size_t n = 0;
         for(uint32 ri=0; ri<num_instances; ++ri) {
             const ParticleSet *rc = atmGetParticleSet(pdd.update_info[ri].psid);
-            uint32 num_particles            = pdd.update_info[ri].num;
-            const PSetParticle *particles   = rc->getParticleData();
-            for(uint32 i=0; i<num_particles; ++i) {
+            uint32 np = pdd.update_info[ri].num;
+            const PSetParticle *particles = rc->getParticleData();
+            for(uint32 i=0; i<np; ++i) {
                 uint32 pi = n+i;
                 pdd.particle_data[pi].position     = particles[i].position;
                 pdd.particle_data[pi].normal       = particles[i].normal;
                 pdd.particle_data[pi].instanceid   = pdd.update_info[ri].instanceid;
             }
-            n += atmGetParticleSet(pdd.update_info[ri].psid)->getNumParticles();
+            n += np;
         }
     }
 
