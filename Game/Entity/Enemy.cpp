@@ -217,6 +217,7 @@ public:
     }
 };
 atmImplementEntity(Electron, DF_RTS, 2.0f);
+atmSetAvailableRoutines(Electron, RCID_Routine_HomingPlayer);
 atmExportClass(Electron);
 
 

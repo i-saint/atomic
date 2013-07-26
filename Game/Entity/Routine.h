@@ -2,17 +2,16 @@
 #define atm_Game_Entity_Routine_h
 namespace atm {
 
-enum RoutineClassID
-{
-    RCID_Null,
+istSEnumBlock(RoutineClassID,
+    istSEnum(RCID_Null),
 
-    RCID_Routine_SingleShoot,
-    RCID_Routine_CircularShoot,
-    RCID_Routine_HomingPlayer,
-    RCID_Routine_Pinball,
+    istSEnum(RCID_Routine_SingleShoot),
+    istSEnum(RCID_Routine_CircularShoot),
+    istSEnum(RCID_Routine_HomingPlayer),
+    istSEnum(RCID_Routine_Pinball),
 
-    RCID_End,
-};
+    istSEnum(RCID_End)
+)
 
 class IRoutine;
 typedef IRoutine* (*RoutineCreator)();

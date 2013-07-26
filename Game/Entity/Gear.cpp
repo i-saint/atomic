@@ -40,7 +40,7 @@ public:
         initializeCollision(getHandle());
         setCollisionShape(CS_Box);
         setCollisionFlags(CF_Sender|CF_Receiver|CF_SPH_Sender);
-        setModel(PSET_GROUNDCUBE);
+        setModel(PSET_GROUND_CUBE);
     }
 
 

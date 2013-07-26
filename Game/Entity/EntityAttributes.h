@@ -7,11 +7,14 @@
 #include "Graphics/Renderer.h"
 #include "psym/psym.h"
 
-struct sphFluidMessage;
-typedef psym::Particle FluidMessage;
-
-
 namespace atm {
+typedef psym::Particle FluidMessage;
+//struct FluidMessage
+//{
+//    const psym::Particle *fluids;
+//    size_t num_fluids;
+//};
+
 
 class Attr_Null
 {

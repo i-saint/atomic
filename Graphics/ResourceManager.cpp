@@ -236,6 +236,9 @@ bool GraphicResourceManager::initialize()
     }
 
     {
+        CreateCubeParticleSet(m_pset[PSET_UNIT_CUBE],  m_rinfo[PSET_UNIT_CUBE],  0.5f, 5000.0f);
+        CreateSphereParticleSet(m_pset[PSET_UNIT_SPHERE],  m_rinfo[PSET_UNIT_SPHERE],  0.5f, 5000.0f);
+        CreateHollowCubeParticleSet(m_pset[PSET_GROUND_CUBE],  m_rinfo[PSET_GROUND_CUBE],  0.5f, 5000.0f );
         CreateCubeParticleSet(m_pset[PSET_CUBE_SMALL],  m_rinfo[PSET_CUBE_SMALL],  0.1f);
         CreateCubeParticleSet(m_pset[PSET_CUBE_MEDIUM], m_rinfo[PSET_CUBE_MEDIUM], 0.2f);
         CreateCubeParticleSet(m_pset[PSET_CUBE_LARGE],  m_rinfo[PSET_CUBE_LARGE],  0.4f);
@@ -243,7 +246,6 @@ bool GraphicResourceManager::initialize()
         CreateSphereParticleSet(m_pset[PSET_SPHERE_MEDIUM], m_rinfo[PSET_SPHERE_MEDIUM], 0.25f);
         CreateSphereParticleSet(m_pset[PSET_SPHERE_LARGE],  m_rinfo[PSET_SPHERE_LARGE],  0.5f);
         CreateBulletParticleSet(m_pset[PSET_SPHERE_BULLET], m_rinfo[PSET_SPHERE_BULLET]);
-        CreateHollowCubeParticleSet(m_pset[PSET_GROUNDCUBE],  m_rinfo[PSET_GROUNDCUBE],  0.5f, 5000.0f );
     }
     {
         m_models[MODEL_UNITQUAD]    = ModelInfo(I3D_QUADS, VA_SCREEN_QUAD, IBO_NULL, 4);

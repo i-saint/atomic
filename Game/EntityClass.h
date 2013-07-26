@@ -97,6 +97,7 @@ inline uint32 EntityGetClassIndex(EntityHandle e)   { return (e & 0x1FF00000) >>
 inline uint32 EntityGetIndex(EntityHandle e)        { return (e & 0x000FFFFF) >>  0; }
 inline EntityHandle EntityCreateHandle(uint32 classid, uint32 index) { return (classid<<20) | index; }
 
+enum RoutineClassID;
 enum DeployFlags {
     DF_None  = 0,
     DF_RTS   = 1, // RTS モードでもエディタでもデプロイ可
@@ -106,6 +107,7 @@ struct EntityClassInfo
 {
     DeployFlags deploy;
     float32     cost;
+    ist::vector<RoutineClassID> routines;
 
     EntityClassInfo(DeployFlags df=DF_None, float32 c=10.0f) : deploy(df), cost(c) {}
 };
@@ -118,6 +120,7 @@ EntityClassInfo* GetEntityClassInfo(EntityClassID entity_classid);
 
 template<class EntityType> IEntity* CreateEntity();
 template<class EntityType> class AddEntityTable;
+template<class EntityType> class AddAvailableRoutines;
 
 #define atmImplementEntity(Class, ...) \
     template<> IEntity* CreateEntity<Class>() { return istNew(Class)(); } \
@@ -125,6 +128,18 @@ template<class EntityType> class AddEntityTable;
         AddEntityTable() { AddEntityCreator(EC_##Class, &CreateEntity<Class>, EntityClassInfo(__VA_ARGS__)); }\
     };\
     AddEntityTable<Class> g_add_entity_creator_##Class;
+
+#define atmSetAvailableRoutines(Class, ...) \
+    template<> struct AddAvailableRoutines<Class> {\
+        AddAvailableRoutines() {\
+            static const RoutineClassID s_rids[] = {__VA_ARGS__};\
+            EntityClassInfo *eci = GetEntityClassInfo(EC_##Class);\
+            istAssert(eci!=nullptr);\
+            eci->routines.insert(eci->routines.end(), s_rids, s_rids+_countof(s_rids));\
+        }\
+    };\
+    AddAvailableRoutines<Class> g_add_available_routines_##Class;
+
 
 #endif // atm_Game_EntityClass_detail
 
