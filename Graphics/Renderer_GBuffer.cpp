@@ -166,7 +166,7 @@ void PassGBuffer_Fluid::drawParticleSets( PSetDrawData &pdd )
         dc->drawInstanced(I3D_QUADS, 0, 24, num_particles);
         dc->setDepthStencilState(atmGetDepthStencilState(DS_GBUFFER_BG));
         dc->setVertexArray(nullptr);
-        dc->setTexture(GLSL_PARAM_BUFFER, NULL);
+        dc->setTexture(GLSL_PARAM_BUFFER, nullptr);
     }
 }
 

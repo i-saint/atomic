@@ -106,9 +106,9 @@ typedef LPVOID (WINAPI *HeapReAllocT)( HANDLE hHeap, DWORD dwFlags, LPVOID lpMem
 typedef BOOL (WINAPI *HeapFreeT)( HANDLE hHeap, DWORD dwFlags, LPVOID lpMem );
 
 // 乗っ取り前の HeapAlloc/Free
-HeapAllocT      HeapAlloc_Orig  = NULL;
-HeapReAllocT    HeapReAlloc_Orig= NULL;
-HeapFreeT       HeapFree_Orig   = NULL;
+HeapAllocT      HeapAlloc_Orig  = nullptr;
+HeapReAllocT    HeapReAlloc_Orig= nullptr;
+HeapFreeT       HeapFree_Orig   = nullptr;
 
 // 乗っ取り後の HeapAlloc/Free
 LPVOID WINAPI HeapAlloc_Hooked( HANDLE hHeap, DWORD dwFlags, SIZE_T dwBytes );
@@ -125,7 +125,7 @@ template<class T> T* mlbNew()
 
 template<class T> void mlbDelete(T *v)
 {
-    if(v!=NULL) {
+    if(v!=nullptr) {
         v->~T();
         mlbFree(v);
     }
@@ -133,7 +133,7 @@ template<class T> void mlbDelete(T *v)
 
 bool InitializeDebugSymbol(HANDLE proc=::GetCurrentProcess())
 {
-    if(!::SymInitialize(proc, NULL, TRUE)) {
+    if(!::SymInitialize(proc, nullptr, TRUE)) {
         return false;
     }
     ::SymSetOptions(SYMOPT_DEFERRED_LOADS | SYMOPT_LOAD_LINES);
@@ -169,7 +169,7 @@ bool IsStackMemory(void *addr)
 
 int GetCallstack(void **callstack, int callstack_size)
 {
-    return CaptureStackBackTrace(1, callstack_size, callstack, NULL);
+    return CaptureStackBackTrace(1, callstack_size, callstack, nullptr);
 }
 
 template<class String>
@@ -302,7 +302,7 @@ public :
     pointer address(reference r) { return &r; }
     const_pointer address(const_reference r) { return &r; }
 
-    pointer allocate(size_type cnt, const void *p=NULL) { p; return (pointer)mlbMalloc(cnt * sizeof(T)); }
+    pointer allocate(size_type cnt, const void *p=nullptr) { p; return (pointer)mlbMalloc(cnt * sizeof(T)); }
     void deallocate(pointer p, size_type) { mlbFree(p); }
 
     size_type max_size() const { return std::numeric_limits<size_type>::max() / sizeof(T); }
@@ -368,7 +368,7 @@ void EachImportFunctionInEveryModule(const char *dllname, const F &f)
 {
     std::vector<HMODULE> modules;
     DWORD num_modules;
-    ::EnumProcessModules(::GetCurrentProcess(), NULL, 0, &num_modules);
+    ::EnumProcessModules(::GetCurrentProcess(), nullptr, 0, &num_modules);
     modules.resize(num_modules/sizeof(HMODULE));
     ::EnumProcessModules(::GetCurrentProcess(), &modules[0], num_modules, &num_modules);
     for(size_t i=0; i<modules.size(); ++i) {

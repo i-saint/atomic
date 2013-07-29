@@ -201,7 +201,7 @@ public:
             m_collision = 0;
             return;
         }
-        CollisionEntity *ce = NULL;
+        CollisionEntity *ce = nullptr;
         switch(cs) {
         case CS_Box:    ce = atmCreateCollision(CollisionBox);   break;
         case CS_Sphere: ce = atmCreateCollision(CollisionSphere);break;
@@ -365,7 +365,7 @@ public:
     }
 
     uint32 getNumBloodstainParticles() const { return m_bloodstain.size(); }
-    const BloodstainParticle* getBloodStainParticles() const { return m_bloodstain.empty() ? NULL : &m_bloodstain[0]; }
+    const BloodstainParticle* getBloodStainParticles() const { return m_bloodstain.empty() ? nullptr : &m_bloodstain[0]; }
 };
 
 } // namespace atm

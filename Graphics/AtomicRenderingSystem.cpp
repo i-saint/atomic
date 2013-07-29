@@ -72,9 +72,9 @@ public:
 };
 
 AtomicRenderingThread::AtomicRenderingThread()
-    : m_device(NULL)
-    , m_context(NULL)
-    , m_drawer(NULL)
+    : m_device(nullptr)
+    , m_context(nullptr)
+    , m_drawer(nullptr)
     , m_error(atmE_NoError)
     , m_fps_count(0)
     , m_fps_avg(0)
@@ -195,7 +195,7 @@ void AtomicRenderingThread::doRender()
 
 
 
-AtomicRenderingSystem * AtomicRenderingSystem::s_inst = NULL;
+AtomicRenderingSystem * AtomicRenderingSystem::s_inst = nullptr;
 
 bool AtomicRenderingSystem::initializeInstance()
 {
@@ -218,7 +218,7 @@ AtomicRenderingSystem* AtomicRenderingSystem::getInstance()
 }
 
 AtomicRenderingSystem::AtomicRenderingSystem()
-    : m_render_thread(NULL)
+    : m_render_thread(nullptr)
 {
     m_render_thread = istNew(AtomicRenderingThread)();
     m_render_thread->run();

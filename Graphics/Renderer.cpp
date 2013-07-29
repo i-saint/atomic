@@ -12,11 +12,11 @@
 namespace atm {
 
 
-AtomicRenderer* AtomicRenderer::s_inst = NULL;
+AtomicRenderer* AtomicRenderer::s_inst = nullptr;
 
 void AtomicRenderer::initializeInstance()
 {
-    istAssert(s_inst==NULL);
+    istAssert(s_inst==nullptr);
     s_inst = istNew(AtomicRenderer) ();
 }
 
@@ -202,7 +202,7 @@ void AtomicRenderer::passGBuffer()
     }
 
     dc->setDepthStencilState(atmGetDepthStencilState(DS_NO_DEPTH_NO_STENCIL));
-    dc->setRenderTarget(NULL);
+    dc->setRenderTarget(nullptr);
 
     if(atmGetConfig()->light_multiresolution) {
         dc->generateMips(m_rt_gbuffer->getColorBuffer(GBUFFER_COLOR));
@@ -237,11 +237,11 @@ void AtomicRenderer::passDeferredShading()
     dc->setDepthStencilState(atmGetDepthStencilState(DS_NO_DEPTH_NO_STENCIL));
     dc->setBlendState(atmGetBlendState(BS_NO_BLEND));
 
-    dc->setTexture(GLSL_COLOR_BUFFER, NULL);
-    dc->setTexture(GLSL_NORMAL_BUFFER, NULL);
-    dc->setTexture(GLSL_POSITION_BUFFER, NULL);
-    dc->setTexture(GLSL_GLOW_BUFFER, NULL);
-    rt->setDepthStencilBuffer(NULL);
+    dc->setTexture(GLSL_COLOR_BUFFER, nullptr);
+    dc->setTexture(GLSL_NORMAL_BUFFER, nullptr);
+    dc->setTexture(GLSL_POSITION_BUFFER, nullptr);
+    dc->setTexture(GLSL_GLOW_BUFFER, nullptr);
+    rt->setDepthStencilBuffer(nullptr);
 }
 
 void AtomicRenderer::passForwardShading()
@@ -259,7 +259,7 @@ void AtomicRenderer::passForwardShading()
         m_renderers[PASS_FORWARD][i]->draw();
     }
 
-    rt->setDepthStencilBuffer(NULL);
+    rt->setDepthStencilBuffer(nullptr);
 }
 
 void AtomicRenderer::passPostprocess()
@@ -278,7 +278,7 @@ void AtomicRenderer::passOutput()
 {
     i3d::DeviceContext *dc  = atmGetGLDeviceContext();
     m_sh_out->assign(dc);
-    dc->setRenderTarget(NULL);
+    dc->setRenderTarget(nullptr);
     dc->setTexture(GLSL_COLOR_BUFFER, atmGetBackRenderTarget()->getColorBuffer(0));
     dc->setVertexArray(m_va_screenquad);
     dc->draw(I3D_QUADS, 0, 4);

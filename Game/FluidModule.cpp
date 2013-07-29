@@ -88,7 +88,7 @@ void FluidModule::asyncupdate( float32 dt )
         [&](size_t i){
             AddFluidContext &ctx = m_new_fluid_ctx[i];
             const ParticleSet *rc           = atmGetParticleSet(ctx.psid);
-            uint32 num_particles            = rc->getNumParticles();
+            uint32 num_particles            = ctx.num;
             const PSetParticle *fluid_in    = rc->getParticleData();
             psym::Particle *fluid_out       = &m_new_fluid[ctx.index];
 
@@ -228,14 +228,15 @@ void FluidModule::addFluid( psym::Particle *particles, uint32 num )
     m_world.addParticles(particles, num);
 }
 
-void FluidModule::addFluid(PSET_RID psid, const mat4 &t)
+void FluidModule::addFluid(PSET_RID psid, const mat4 &t, uint32 num)
 {
     const ParticleSet *pset = atmGetParticleSet(psid);
     AddFluidContext ctx;
     ctx.psid = psid;
     ctx.mat = t;
     ctx.index = m_new_fluid.size();
-    m_new_fluid.resize(m_new_fluid.size()+pset->getNumParticles());
+    ctx.num = num==0 ? pset->getNumParticles() : std::min<uint32>(num, pset->getNumParticles());
+    m_new_fluid.resize(m_new_fluid.size()+ctx.num);
     m_new_fluid_ctx.push_back(ctx);
 }
 

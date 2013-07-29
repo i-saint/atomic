@@ -76,8 +76,8 @@ void PassPostprocess_FXAA::draw()
         dc->setTexture(GLSL_COLOR_BUFFER, brt->getColorBuffer(GBUFFER_COLOR));
         dc->setVertexArray(m_va_quad);
         dc->draw(I3D_QUADS, 0, 4);
-        dc->setShader(NULL);
-        dc->setRenderTarget(NULL);
+        dc->setShader(nullptr);
+        dc->setRenderTarget(nullptr);
     }
     // FXAA
     {
@@ -91,24 +91,24 @@ void PassPostprocess_FXAA::draw()
         dc->setTexture(GLSL_COLOR_BUFFER, brt->getColorBuffer(0));
         dc->setVertexArray(m_va_quad);
         dc->draw(I3D_QUADS, 0, 4);
-        dc->setShader(NULL);
-        dc->setRenderTarget(NULL);
+        dc->setShader(nullptr);
+        dc->setRenderTarget(nullptr);
     }
 }
 
 
 
 PassPostprocess_Bloom::PassPostprocess_Bloom()
-: m_rt_gauss0(NULL)
-, m_rt_gauss1(NULL)
-, m_va_luminance(NULL)
-, m_va_blur(NULL)
-, m_va_composite(NULL)
-, m_sh_luminance(NULL)
-, m_sh_hblur(NULL)
-, m_sh_vblur(NULL)
-, m_sh_composite(NULL)
-, m_ubo_states(NULL)
+: m_rt_gauss0(nullptr)
+, m_rt_gauss1(nullptr)
+, m_va_luminance(nullptr)
+, m_va_blur(nullptr)
+, m_va_composite(nullptr)
+, m_sh_luminance(nullptr)
+, m_sh_hblur(nullptr)
+, m_sh_vblur(nullptr)
+, m_sh_composite(nullptr)
+, m_ubo_states(nullptr)
 {
     m_rt_gbuffer    = atmGetRenderTarget(RT_GBUFFER);
     m_rt_gauss0     = atmGetRenderTarget(RT_GAUSS0);
@@ -146,7 +146,7 @@ void PassPostprocess_Bloom::draw()
         dc->setTexture(GLSL_GLOW_BUFFER, m_rt_gbuffer->getColorBuffer(GBUFFER_GLOW));
         dc->setVertexArray(m_va_luminance);
         dc->draw(I3D_QUADS, 0, 16);
-        dc->setRenderTarget(NULL);
+        dc->setRenderTarget(nullptr);
         stl::swap(m_rt_gauss0, m_rt_gauss1);
     }
 
@@ -157,7 +157,7 @@ void PassPostprocess_Bloom::draw()
         dc->setTexture(GLSL_COLOR_BUFFER, m_rt_gauss1->getColorBuffer(GBUFFER_COLOR));
         dc->setVertexArray(m_va_blur);
         dc->draw(I3D_QUADS, 0, 16);
-        dc->setRenderTarget(NULL);
+        dc->setRenderTarget(nullptr);
         stl::swap(m_rt_gauss0, m_rt_gauss1);
     }
 
@@ -168,7 +168,7 @@ void PassPostprocess_Bloom::draw()
         dc->setTexture(GLSL_COLOR_BUFFER, m_rt_gauss1->getColorBuffer(GBUFFER_COLOR));
         dc->setVertexArray(m_va_blur);
         dc->draw(I3D_QUADS, 0, 16);
-        dc->setRenderTarget(NULL);
+        dc->setRenderTarget(nullptr);
         stl::swap(m_rt_gauss0, m_rt_gauss1);
     }
 
@@ -184,8 +184,8 @@ void PassPostprocess_Bloom::draw()
         dc->setBlendState(atmGetBlendState(BS_BLEND_ADD));
         dc->draw(I3D_QUADS, 0, 4);
         dc->setBlendState(atmGetBlendState(BS_NO_BLEND));
-        dc->setTexture(GLSL_COLOR_BUFFER, NULL);
-        dc->setRenderTarget(NULL);
+        dc->setTexture(GLSL_COLOR_BUFFER, nullptr);
+        dc->setRenderTarget(nullptr);
     }
 }
 
@@ -228,8 +228,8 @@ void PassPostprocess_Fade::draw()
     dc->setBlendState(atmGetBlendState(BS_BLEND_ALPHA));
     dc->draw(I3D_QUADS, 0, 4);
     dc->setBlendState(atmGetBlendState(BS_NO_BLEND));
-    dc->setShader(NULL);
-    dc->setRenderTarget(NULL);
+    dc->setShader(nullptr);
+    dc->setRenderTarget(nullptr);
 }
 
 void PassPostprocess_Fade::setFade(const vec4 &v, float32 frame)

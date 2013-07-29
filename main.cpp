@@ -28,7 +28,7 @@ using namespace atm;
 void ExecApp(int argc, char* argv[])
 {
     // クラッシュさせるテスト
-    //*static_cast<int*>(NULL) = 0;
+    //*static_cast<int*>(nullptr) = 0;
 
     atm::AtomicApplication app;
     if(app.initialize(argc, argv)) {

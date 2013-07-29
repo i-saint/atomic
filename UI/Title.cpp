@@ -10,8 +10,8 @@ namespace atm {
 
 
 RootWindow::RootWindow()
-    : m_title(NULL)
-    , m_log(NULL)
+    : m_title(nullptr)
+    , m_log(nullptr)
 {
     setSize(iui::Size(atmGetWindowSize().x, atmGetWindowSize().y));
 
@@ -44,11 +44,11 @@ iui::RootWindow* atmCreateRootWindow()
 static TitleWindow *g_titlewindow = nullptr;
 
 TitleWindow::TitleWindow()
-    : m_start(NULL)
-    , m_record(NULL)
+    : m_start(nullptr)
+    , m_record(nullptr)
 {
     g_titlewindow = this;
-    std::fill_n(m_buttons, _countof(m_buttons), (iui::ToggleButton*)NULL);
+    std::fill_n(m_buttons, _countof(m_buttons), (iui::ToggleButton*)nullptr);
 
     using std::placeholders::_1;
     iui::Size size(200, 25);
@@ -164,7 +164,7 @@ RecordWindow::RecordWindow()
     Poco::DirectoryIterator end;
     for(Poco::DirectoryIterator it(Poco::Path("Replay")); it!=end; ++it) {
         if(it->isFile() && it->canRead()) {
-            ls->addListItem(ist::L(it->path()), NULL);
+            ls->addListItem(ist::L(it->path()), nullptr);
         }
     }
 }

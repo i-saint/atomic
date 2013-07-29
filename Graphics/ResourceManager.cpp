@@ -23,7 +23,7 @@ uvec2 CalcFrameBufferSize()
 }
 
 
-GraphicResourceManager* GraphicResourceManager::s_inst = NULL;
+GraphicResourceManager* GraphicResourceManager::s_inst = nullptr;
 
 void GraphicResourceManager::intializeInstance()
 {
@@ -47,19 +47,19 @@ inline AtomicShader* CreateAtomicShader(const char* filename)
 
 bool GraphicResourceManager::initialize()
 {
-    m_font = NULL;
-    m_title_font = NULL;
-    stl::fill_n(m_blend_states, _countof(m_blend_states), (BlendState*)NULL);
-    stl::fill_n(m_depth_states, _countof(m_depth_states), (DepthStencilState*)NULL);
-    stl::fill_n(m_sampler, _countof(m_sampler), (Sampler*)NULL);
-    stl::fill_n(m_tex1d, _countof(m_tex1d), (Texture1D*)NULL);
-    stl::fill_n(m_tex2d, _countof(m_tex2d), (Texture2D*)NULL);
-    stl::fill_n(m_va, _countof(m_va), (VertexArray*)NULL);
-    stl::fill_n(m_vbo, _countof(m_vbo), (Buffer*)NULL);
-    stl::fill_n(m_ibo, _countof(m_ibo), (Buffer*)NULL);
-    stl::fill_n(m_ubo, _countof(m_ubo), (Buffer*)NULL);
-    stl::fill_n(m_rt, _countof(m_rt), (RenderTarget*)NULL);
-    stl::fill_n(m_shader, _countof(m_shader), (AtomicShader*)NULL);
+    m_font = nullptr;
+    m_title_font = nullptr;
+    stl::fill_n(m_blend_states, _countof(m_blend_states), (BlendState*)nullptr);
+    stl::fill_n(m_depth_states, _countof(m_depth_states), (DepthStencilState*)nullptr);
+    stl::fill_n(m_sampler, _countof(m_sampler), (Sampler*)nullptr);
+    stl::fill_n(m_tex1d, _countof(m_tex1d), (Texture1D*)nullptr);
+    stl::fill_n(m_tex2d, _countof(m_tex2d), (Texture2D*)nullptr);
+    stl::fill_n(m_va, _countof(m_va), (VertexArray*)nullptr);
+    stl::fill_n(m_vbo, _countof(m_vbo), (Buffer*)nullptr);
+    stl::fill_n(m_ibo, _countof(m_ibo), (Buffer*)nullptr);
+    stl::fill_n(m_ubo, _countof(m_ubo), (Buffer*)nullptr);
+    stl::fill_n(m_rt, _countof(m_rt), (RenderTarget*)nullptr);
+    stl::fill_n(m_shader, _countof(m_shader), (AtomicShader*)nullptr);
 
     //// どうも 2 の n 乗サイズのフレームバッファの方が若干描画早いっぽい。 
     uvec2 rt_size = atmGetWindowSize();
@@ -238,7 +238,7 @@ bool GraphicResourceManager::initialize()
     {
         CreateCubeParticleSet(m_pset[PSET_UNIT_CUBE],  m_rinfo[PSET_UNIT_CUBE],  0.5f, 5000.0f);
         CreateSphereParticleSet(m_pset[PSET_UNIT_SPHERE],  m_rinfo[PSET_UNIT_SPHERE],  0.5f, 5000.0f);
-        CreateHollowCubeParticleSet(m_pset[PSET_GROUND_CUBE],  m_rinfo[PSET_GROUND_CUBE],  0.5f, 5000.0f );
+        CreateHollowCubeParticleSet(m_pset[PSET_HOLLOW_CUBE],  m_rinfo[PSET_HOLLOW_CUBE],  0.5f, 5000.0f );
         CreateCubeParticleSet(m_pset[PSET_CUBE_SMALL],  m_rinfo[PSET_CUBE_SMALL],  0.1f);
         CreateCubeParticleSet(m_pset[PSET_CUBE_MEDIUM], m_rinfo[PSET_CUBE_MEDIUM], 0.2f);
         CreateCubeParticleSet(m_pset[PSET_CUBE_LARGE],  m_rinfo[PSET_CUBE_LARGE],  0.4f);
@@ -314,7 +314,7 @@ void GraphicResourceManager::watchGLSLFiles()
 {
     const char glsl_dir[] = "shader";
     char abs_path[MAX_PATH];
-    ::GetFullPathNameA(glsl_dir, MAX_PATH, abs_path, NULL);
+    ::GetFullPathNameA(glsl_dir, MAX_PATH, abs_path, nullptr);
 
     m_glsl_notifier = ::FindFirstChangeNotificationA(abs_path, TRUE, FILE_NOTIFY_CHANGE_LAST_WRITE);
     while(!m_flag_exit) {

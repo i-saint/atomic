@@ -224,7 +224,7 @@ struct istAlign(16) PMessage_Sync
     void *data;
     uint8 padding[52];
 
-    PMessage_Sync() : type(PM_Sync), data_size(0), data(NULL) {}
+    PMessage_Sync() : type(PM_Sync), data_size(0), data(nullptr) {}
     operator const PMessage&() const { return reinterpret_cast<const PMessage&>(*this); }
 };
 PM_Ensure(PMessage_Sync);

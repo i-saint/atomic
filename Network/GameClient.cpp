@@ -20,7 +20,7 @@ void GameClient::finalizeInstance()
 {
     if(s_inst) {
         delete s_inst;
-        s_inst = NULL;
+        s_inst = nullptr;
     }
 }
 
@@ -33,7 +33,7 @@ GameClient* GameClient::getInstance()
 
 GameClient::GameClient()
     : m_stop(false)
-    , m_thread(NULL)
+    , m_thread(nullptr)
     , m_pid(0)
 {
 }
@@ -116,8 +116,8 @@ void GameClient::messageLoop()
         m_message_send.insert(m_message_send.begin(), PMessage_Join::create(0, atmGetConfig()->name));
     }
 
-    Poco::Net::StreamSocket *sock = NULL;
-    Poco::Net::SocketStream *stream = NULL;
+    Poco::Net::StreamSocket *sock = nullptr;
+    Poco::Net::SocketStream *stream = nullptr;
     try {
         sock = new Poco::Net::StreamSocket(m_address);
         sock->setNoDelay(true);

@@ -41,7 +41,7 @@ public:
         initializeCollision(getHandle());
         setCollisionShape(CS_Box);
         setCollisionFlags(CF_Sender|CF_SPH_Sender);
-        setModel(PSET_GROUND_CUBE);
+        setModel(PSET_HOLLOW_CUBE);
     }
 };
 atmImplementEntity(GroundBlock, DF_Editor, 0.0f);

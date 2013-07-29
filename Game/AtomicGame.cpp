@@ -21,8 +21,8 @@ namespace atm {
 
 
 AtomicGame::AtomicGame()
-: m_input_server(NULL)
-, m_world(NULL)
+: m_input_server(nullptr)
+, m_world(nullptr)
 , m_frame(0)
 , m_resource(0.0f)
 , m_skip_update(false)

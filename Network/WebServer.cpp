@@ -90,7 +90,7 @@ void WebServer::finalizeInstance()
 {
     if(s_inst) {
         delete s_inst;
-        s_inst = NULL;
+        s_inst = nullptr;
     }
 }
 
@@ -107,7 +107,7 @@ WebServerConfig::WebServerConfig()
 }
 
 WebServer::WebServer()
-    : m_server(NULL)
+    : m_server(nullptr)
     , m_end_flag(false)
 {
     m_rand.initialize(0);
@@ -149,7 +149,7 @@ void WebServer::stop()
             ist::MiliSleep(5);
         }
         delete m_server;
-        m_server = NULL;
+        m_server = nullptr;
     }
 }
 

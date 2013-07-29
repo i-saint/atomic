@@ -14,7 +14,7 @@ RoutineCreatorTable& GetRoutineCreatorTable()
 
 IRoutine* CreateRoutine(RoutineClassID rcid)
 {
-    if(rcid==RCID_Null) { return NULL; }
+    if(rcid==RCID_Null) { return nullptr; }
     return GetRoutineCreatorTable()[rcid]();
 }
 

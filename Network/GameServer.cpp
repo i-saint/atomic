@@ -20,7 +20,7 @@ void GameServer::finalizeInstance()
 {
     if(s_inst) {
         delete s_inst;
-        s_inst = NULL;
+        s_inst = nullptr;
     }
 }
 
@@ -31,8 +31,8 @@ GameServer* GameServer::getInstance()
 
 
 GameServer::GameServer()
-    : m_server(NULL)
-    , m_message_thread(NULL)
+    : m_server(nullptr)
+    , m_message_thread(nullptr)
     , m_pidgen(0)
     , m_frame(0)
     , m_delay(0)
@@ -76,12 +76,12 @@ void GameServer::stop()
             ist::MiliSleep(5);
         }
         delete m_server;
-        m_server = NULL;
+        m_server = nullptr;
     }
     if(m_message_thread) {
         m_message_thread->join();
         istDelete(m_message_thread);
-        m_message_thread = NULL;
+        m_message_thread = nullptr;
     }
     m_stop = false;
 }
@@ -182,7 +182,7 @@ void GameServer::messageLoop()
 
     try {
         ist::Timer timer;
-        while(m_server!=NULL) {
+        while(m_server!=nullptr) {
             timer.reset();
             recvMessage();
             sendMessage();

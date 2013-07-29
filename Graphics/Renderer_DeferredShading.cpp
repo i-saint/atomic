@@ -73,7 +73,7 @@ void PassDeferred_Bloodstain::draw()
     RenderTarget *grt = atmGetRenderTarget(RT_GENERIC);
     RenderTarget *gbuffer = atmGetRenderTarget(RT_GBUFFER);
     Texture2D *grt_color = grt->getColorBuffer(0);
-    dc->setTexture(GLSL_COLOR_BUFFER, NULL);
+    dc->setTexture(GLSL_COLOR_BUFFER, nullptr);
     grt->setColorBuffer(0, gbuffer->getColorBuffer(GBUFFER_COLOR));
     grt->setDepthStencilBuffer(gbuffer->getDepthStencilBuffer());
     dc->setBlendState(atmGetBlendState(BS_NO_BLEND));
@@ -90,7 +90,7 @@ void PassDeferred_Bloodstain::draw()
     dc->setVertexArray(va_sphere);
     dc->setIndexBuffer(ibo_sphere, 0, I3D_UINT32);
     dc->drawIndexedInstanced(I3D_QUADS, 0, (8-1)*(8)*4, num_particles);
-    dc->setIndexBuffer(NULL, 0, I3D_UINT32);
+    dc->setIndexBuffer(nullptr, 0, I3D_UINT32);
     dc->setBlendState(atmGetBlendState(BS_BLEND_ADD));
 
     dc->setRenderTarget(atmGetFrontRenderTarget());
@@ -161,7 +161,7 @@ void PassDeferred_Lights::drawMultiResolution()
         dc->clearColor(rt_quarter, vec4());
         drawLights();
         debugShowResolution(2);
-        dc->setRenderTarget(NULL);
+        dc->setRenderTarget(nullptr);
     }
 
     // 1/2
@@ -175,7 +175,7 @@ void PassDeferred_Lights::drawMultiResolution()
         upsampling(2);
         drawLights();
         debugShowResolution(1);
-        dc->setRenderTarget(NULL);
+        dc->setRenderTarget(nullptr);
     }
 
     // 1/1
@@ -216,8 +216,8 @@ void PassDeferred_Lights::upsampling(int32 level)
     Buffer *ubo_mrp             = atmGetUniformBuffer(UBO_MULTIRESOLUTION_PARAMS);
     int32 mr_params_loc = sh_upsampling->getUniformBlockIndex("multiresolution_params");
 
-    Texture2D *lower_resolution = NULL;
-    RenderTarget *rt = NULL;
+    Texture2D *lower_resolution = nullptr;
+    RenderTarget *rt = nullptr;
     if(level==2) {
         lower_resolution = atmGetRenderTarget(RT_OUTPUT_QUARTER)->getColorBuffer(0);
         rt = atmGetRenderTarget(RT_OUTPUT_HALF);
@@ -245,7 +245,7 @@ void PassDeferred_Lights::upsampling(int32 level)
     dc->setTexture(GLSL_BACK_BUFFER, lower_resolution);
     dc->setVertexArray(va_quad);
     dc->draw(I3D_QUADS, 0, 4);
-    dc->setVertexArray(NULL);
+    dc->setVertexArray(nullptr);
     sh_upsampling->unbind();
 
     glDepthMask(GL_FALSE);

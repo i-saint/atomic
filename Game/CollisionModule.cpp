@@ -390,7 +390,7 @@ CollisionModule::CollisionModule()
     m_entities.reserve(1024);
     m_vacant.reserve(1024);
 
-    m_entities.push_back(NULL); // id:0 は無効とする
+    m_entities.push_back(nullptr); // id:0 は無効とする
 }
 
 CollisionModule::~CollisionModule()
@@ -483,7 +483,7 @@ void CollisionModule::addEntity(CollisionEntity *e)
 
 CollisionEntity* CollisionModule::getEntity(CollisionHandle h)
 {
-    if(h >= m_entities.size()) { return NULL; }
+    if(h >= m_entities.size()) { return nullptr; }
     return m_entities[h];
 }
 
@@ -515,7 +515,7 @@ void CollisionModule::deleteEntity(CollisionHandle h)
     CollisionEntity *&ce = m_entities[h];
     if(ce) {
         ce->release();
-        ce = NULL;
+        ce = nullptr;
         m_vacant.push_back(h);
     }
 }
@@ -523,7 +523,7 @@ void CollisionModule::deleteEntity(CollisionHandle h)
 void CollisionModule::deleteEntity(CollisionEntity *e)
 {
     atmDbgAssertSyncLock();
-    if(e != NULL) {
+    if(e != nullptr) {
         deleteEntity(e->getCollisionHandle());
     }
 }

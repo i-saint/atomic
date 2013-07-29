@@ -82,11 +82,11 @@ SoundThread::SoundThread()
     : m_initialization_complete(false)
     , m_stop_request(false)
 {
-    m_listener = NULL;
-    m_bgm_source = NULL;
-    m_stream = NULL;
-    stl::fill_n(m_se_sources, _countof(m_se_sources), (isd::Source*)NULL);
-    stl::fill_n(m_se_data, _countof(m_se_data), (isd::Buffer*)NULL);
+    m_listener = nullptr;
+    m_bgm_source = nullptr;
+    m_stream = nullptr;
+    stl::fill_n(m_se_sources, _countof(m_se_sources), (isd::Source*)nullptr);
+    stl::fill_n(m_se_data, _countof(m_se_data), (isd::Buffer*)nullptr);
 
     m_requests.reserve(64);
     m_requests_temp.reserve(64);
@@ -219,7 +219,7 @@ void SoundThread::processRequests()
 
 
 
-AtomicSound* AtomicSound::s_instance = NULL;
+AtomicSound* AtomicSound::s_instance = nullptr;
 
 bool AtomicSound::initializeInstance()
 {
@@ -241,7 +241,7 @@ AtomicSound* AtomicSound::getInstance() { return s_instance; }
 
 
 AtomicSound::AtomicSound()
-    : m_sound_thread(NULL)
+    : m_sound_thread(nullptr)
 {
     if(atmGetConfig()->sound_enable) {
         m_sound_thread  = istNew(SoundThread)();

@@ -88,7 +88,7 @@ public:
 
     IEntity* putSmallEnemy()
     {
-        IEntity *e = NULL;
+        IEntity *e = nullptr;
         e = atmCreateEntityT(Enemy_Test);
         atmCall(e, setCollisionShape, CS_Sphere);
         atmCall(e, setModel, PSET_SPHERE_SMALL);
@@ -106,7 +106,7 @@ public:
 
     IEntity* putPinballEnemy()
     {
-        IEntity *e = NULL;
+        IEntity *e = nullptr;
         e = atmCreateEntityT(Enemy_Test);
         atmCall(e, setCollisionShape, CS_Sphere);
         atmCall(e, setCollisionFlags, CF_Receiver|CF_Sender);

@@ -9,7 +9,7 @@ namespace atm {
 
 
 AtomicShader::AtomicShader()
-: m_shader(NULL)
+: m_shader(nullptr)
 , m_loc_renderstates(0)
 #ifdef atm_enable_shader_live_edit
 , m_timestamp(0)
@@ -98,7 +98,7 @@ bool AtomicShader::createShaders( const char *filename )
     SetSampler("u_BackBuffer",      GLSL_BACK_BUFFER);
     SetSampler("u_RandomBuffer",    GLSL_RANDOM_BUFFER);
     SetSampler("u_ParamBuffer",     GLSL_PARAM_BUFFER);
-    dc->setShader(NULL);
+    dc->setShader(nullptr);
 #undef SetSampler
 
     return true;
@@ -124,7 +124,7 @@ void AtomicShader::bind()
 void AtomicShader::unbind()
 {
     i3d::DeviceContext *ctx = atmGetGLDeviceContext();
-    ctx->setShader(NULL);
+    ctx->setShader(nullptr);
 }
 
 void AtomicShader::assign( i3d::DeviceContext *dc )

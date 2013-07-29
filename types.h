@@ -3,7 +3,7 @@
 
 #include "ist/ist.h"
 
-#define atmSafeRelease(Obj) if(Obj){Obj->release();Obj=NULL;}
+#define atmSafeRelease(Obj) if(Obj){Obj->release();Obj=nullptr;}
 
 #define atmGlobalNamespace(...)  } __VA_ARGS__ namespace atm {
 #define atmExportClass(ClassName)        \

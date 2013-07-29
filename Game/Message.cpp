@@ -12,7 +12,7 @@ MessageRouter* MessageRouter::s_instance;
 
 void MessageRouter::initializeInstance()
 {
-    istAssert(s_instance==NULL);
+    istAssert(s_instance==nullptr);
     s_instance = istNew(MessageRouter)();
 }
 
@@ -66,7 +66,7 @@ MessageIterator::MessageIterator()
 , m_num_messages(0)
 , m_block_index(0)
 , m_message_index(0)
-, m_current_block(NULL)
+, m_current_block(nullptr)
 {
     MessageRouter *router = atmGetMessageRouter();
     m_num_blocks = router->getMessageBlockNum();

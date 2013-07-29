@@ -177,9 +177,16 @@ public:
             inst.elapsed = (float32)getPastFrame();
             inst.appear_radius = inst.elapsed * 0.004f;
             inst.transform = inst.rotate = getTransformMatrix();
-            atmGetFluidPass()->addParticles(getModel(), inst);
+            atmGetFluidPass()->addParticles(getModel(), inst, computeNumParticles());
             atmGetBloodStainPass()->addBloodstainParticles(getTransformMatrix(), getBloodStainParticles(), getNumBloodstainParticles());
         }
+    }
+
+    uint32 computeNumParticles()
+    {
+        const float32 density = 30000.0f;
+        const vec3 &size = getScale();
+        return uint32(size.x*size.y*size.z * density);
     }
 
     virtual void destroy()

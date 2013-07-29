@@ -19,6 +19,7 @@ public:
         PSET_RID psid;
         mat4 mat;
         uint32 index;
+        uint32 num;
     };
     typedef ist::vector<AddFluidContext> AddFluidCtxCont;
 
@@ -41,7 +42,7 @@ public:
     void addRigid(const CollisionEntity &v);
     void addForce(const psym::PointForce &v);
     void addFluid(psym::Particle *particles, uint32 num);
-    void addFluid(PSET_RID psid, const mat4 &t);
+    void addFluid(PSET_RID psid, const mat4 &t, uint32 num=0);
 
     void handleStateQuery(EntitiesQueryContext &ctx);
 

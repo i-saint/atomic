@@ -157,10 +157,10 @@ struct AtomicApplication::Members
 #endif // atm_enable_debug_log
 
     Members()
-        : keyboard(NULL)
-        , mouse(NULL)
-        , controller(NULL)
-        , game(NULL)
+        : keyboard(nullptr)
+        , mouse(nullptr)
+        , controller(nullptr)
+        , game(nullptr)
         , request_exit(false)
         , request_title(false)
     {
@@ -191,7 +191,7 @@ AtomicApplication::AtomicApplication()
 AtomicApplication::~AtomicApplication()
 {
 #ifdef atm_enable_debug_log
-    if(m->log!=NULL) {
+    if(m->log!=nullptr) {
         fclose(m->log);
     }
 #endif // atm_enable_debug_log
@@ -357,7 +357,7 @@ void AtomicApplication::update()
     if(getKeyboardState().isKeyTriggered(ist::KEY_F2)) {
         char url[256];
         sprintf(url, "http://localhost:%d", atmGetConfig()->leveleditor_port);
-        ::ShellExecuteA(NULL, "open", url, "", "", SW_SHOWDEFAULT);
+        ::ShellExecuteA(nullptr, "open", url, "", "", SW_SHOWDEFAULT);
     }
     if(getKeyboardState().isKeyTriggered(ist::KEY_F3)) {
         conf.debug_show_gbuffer--;
@@ -536,7 +536,7 @@ void AtomicApplication::drawCallback()
 #ifdef atm_enable_debug_log
 void AtomicApplication::printDebugLog( const char *format, ... )
 {
-    if(m->log==NULL) { return; }
+    if(m->log==nullptr) { return; }
     va_list vl;
     va_start(vl, format);
     fprintf(m->log, "%d ", (uint32)atmGetFrame());

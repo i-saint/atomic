@@ -43,7 +43,7 @@ protected:
     )
 
 public:
-    IRoutine()  : m_obj(NULL) {}
+    IRoutine()  : m_obj(nullptr) {}
     virtual ~IRoutine() {}
     IEntity* getEntity() { return m_obj; }
     void setEntity(IEntity *v) { m_obj=v; }

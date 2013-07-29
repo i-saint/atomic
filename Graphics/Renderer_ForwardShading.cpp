@@ -45,7 +45,7 @@ void PassForward_DistanceField::draw()
         m_sh_grid->bind();
         dc->setVertexArray(m_va_grid);
         dc->draw(I3D_LINES, 0, (PSYM_GRID_DIV+1) * (PSYM_GRID_DIV+1) * 2);
-        dc->setVertexArray(NULL);
+        dc->setVertexArray(nullptr);
         m_sh_grid->unbind();
     }
 }
@@ -223,7 +223,7 @@ void PassForward_Barrier::drawParticles( PSetDrawData &pdd )
         dc->drawInstanced(I3D_QUADS, 0, 24, num_particles);
         dc->setDepthStencilState(atmGetDepthStencilState(DS_GBUFFER_BG));
         dc->setVertexArray(nullptr);
-        dc->setTexture(GLSL_PARAM_BUFFER, NULL);
+        dc->setTexture(GLSL_PARAM_BUFFER, nullptr);
     }
 }
 
@@ -291,7 +291,7 @@ void PassForward_BackGround::draw()
         MapAndWrite(dc, ubo_rs, rs, sizeof(*rs));
 
         dc->setViewport(Viewport(ivec2(), brt->getColorBuffer(0)->getDesc().size/4U));
-        dc->setRenderTarget(NULL);
+        dc->setRenderTarget(nullptr);
         dc->generateMips(brt->getDepthStencilBuffer());
         brt->setMipmapLevel(2);
         //dc->clearDepthStencil(gbuffer, 1.0f, 0);
@@ -303,7 +303,7 @@ void PassForward_BackGround::draw()
         dc->draw(I3D_QUADS, 0, 4);
         sh_bg->unbind();
 
-        dc->setRenderTarget(NULL);
+        dc->setRenderTarget(nullptr);
         brt->setMipmapLevel(0);
         dc->setRenderTarget(brt);
         dc->setViewport(Viewport(ivec2(), brt->getColorBuffer(0)->getDesc().size));
@@ -323,10 +323,10 @@ void PassForward_BackGround::draw()
         dc->setDepthStencilState(atmGetDepthStencilState(DS_GBUFFER_UPSAMPLING));
         dc->draw(I3D_QUADS, 0, 4);
         sh_up->unbind();
-        dc->setTexture(GLSL_COLOR_BUFFER, NULL);
-        dc->setTexture(GLSL_NORMAL_BUFFER, NULL);
-        dc->setTexture(GLSL_POSITION_BUFFER, NULL);
-        dc->setTexture(GLSL_GLOW_BUFFER, NULL);
+        dc->setTexture(GLSL_COLOR_BUFFER, nullptr);
+        dc->setTexture(GLSL_NORMAL_BUFFER, nullptr);
+        dc->setTexture(GLSL_POSITION_BUFFER, nullptr);
+        dc->setTexture(GLSL_GLOW_BUFFER, nullptr);
     }
 
     {
@@ -367,7 +367,7 @@ void PassForward_BackGround::draw()
             dc->setDepthStencilState(atmGetDepthStencilState(DS_GBUFFER_BG));
             dc->draw(I3D_QUADS, 0, 4);
             dc->setDepthStencilState(atmGetDepthStencilState(DS_NO_DEPTH_NO_STENCIL));
-            dc->setTexture(GLSL_COLOR_BUFFER, NULL);
+            dc->setTexture(GLSL_COLOR_BUFFER, nullptr);
             sh_out->unbind();
 
             rs->ScreenTexcoord  = rs->ScreenSize / vec2(brt->getColorBuffer(0)->getDesc().size);
