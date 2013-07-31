@@ -21,7 +21,7 @@ private:
 
     istSerializeBlock(
         istSerialize(m_owner)
-        )
+    )
 
 public:
     IWeaponry() : m_owner(0) {}
@@ -34,155 +34,27 @@ public:
     IEntity*     getOwner() const { return atmGetEntity(m_owner); }
     EntityHandle getOwnerHandle() const { return m_owner; }
 };
-typedef IWeaponry IDrive;
 
 
-class Booster : public IDrive
-{
-typedef IDrive super;
-private:
-    int32 m_cooldown;
-
-    istSerializeBlock(
-        istSerializeBase(super)
-        istSerialize(m_cooldown)
-    )
-
-public:
-    Booster() : m_cooldown(0)
-    {
-    }
-
-    virtual void asyncupdate(float32 dt)
-    {
-        m_cooldown = stl::max<int32>(0, m_cooldown-1);
-
-        IEntity *owner = getOwner();
-        if(owner) {
-            vec3 move = vec3(atmGetIngameInputs().getMove()*0.01f, 0.0f);
-            vec3 pos, vel;
-            atmQuery(owner, getPosition, pos);
-            atmQuery(owner, getVelocity, vel);
-            pos += (move + vel) * dt;
-            vel *= 0.96f;
-            pos.z = 0.0f;
-            if(m_cooldown==0 && atmGetIngameInputs().isButtonTriggered(0)) {
-                vel += move * 2.0f;
-                m_cooldown = 10;
-            }
-            atmCall(owner, setPosition, pos);
-            atmCall(owner, setVelocity, vel);
-        }
-    }
-
-    virtual void draw() {}
-};
-atmExportClass(Booster);
-
-
-class Blinker : public IDrive
-{
-typedef IDrive super;
-private:
-    enum {
-        St_Neutral,
-        St_Targetting,
-    };
-
-    int32 m_state;
-    vec3 m_blink_pos;
-
-    istSerializeBlock(
-        istSerializeBase(super)
-        istSerialize(m_state)
-        istSerialize(m_blink_pos)
-        )
-public:
-    Blinker() : m_state(St_Neutral), m_blink_pos()
-    {
-    }
-
-    virtual void asyncupdate(float32 dt)
-    {
-        IEntity *owner = getOwner();
-        if(owner) {
-            vec3 move = vec3(atmGetIngameInputs().getMove()*0.01f, 0.0f);
-            vec3 pos, vel;
-            atmQuery(owner, getPosition, pos);
-            atmQuery(owner, getVelocity, vel);
-
-            switch(m_state) {
-            case St_Neutral:
-                {
-                    pos += move*dt;
-                    if(atmGetIngameInputs().isButtonTriggered(0)) {
-                        m_blink_pos = pos;
-                        m_state = St_Targetting;
-                    }
-                }
-                break;
-            case St_Targetting:
-                {
-                    m_blink_pos += move*(4.0f*dt);
-                    if(!atmGetIngameInputs().isButtonPressed(0)) {
-                        pos = m_blink_pos;
-                        m_state = St_Neutral;
-                    }
-                }
-                break;
-            }
-            pos += vel*dt;
-            vel *= 0.96f;
-            pos.z = 0.0f;
-            atmCall(owner, setPosition, pos);
-            atmCall(owner, setVelocity, vel);
-        }
-    }
-};
-atmExportClass(Blinker);
-
-
-class Penetrator : public IDrive
-{
-typedef IDrive super;
-private:
-    istSerializeBlock(
-        istSerializeBase(super)
-        )
-public:
-};
-atmExportClass(Penetrator);
-
-
-class TimeWarp : public IDrive
-{
-typedef IDrive super;
-private:
-    istSerializeBlock(
-        istSerializeBase(super)
-        )
-public:
-};
-atmExportClass(TimeWarp);
-
-
-
-class BarrierGenerator : public IWeaponry
+class Booster : public IWeaponry
 {
 typedef IWeaponry super;
 private:
     EntityHandle m_barrier;
+    float32 m_cooldown;
 
     istSerializeBlock(
         istSerializeBase(super)
         istSerialize(m_barrier)
-        )
+        istSerialize(m_cooldown)
+    )
+
 public:
-    BarrierGenerator() : m_barrier(0)
+    Booster() : m_barrier(0), m_cooldown(0)
     {
     }
 
-    virtual void update(float32 dt)
+    void update(float32 dt) override
     {
         vec3 center_force;
         IEntity *barrier = atmGetEntity(m_barrier);
@@ -214,120 +86,195 @@ public:
         }
     }
 
-    virtual void asyncupdate(float32 dt)
+    void asyncupdate(float32 dt) override
     {
+        m_cooldown = stl::max<float32>(0.0f, m_cooldown-dt);
+
         IEntity *owner = getOwner();
-        IEntity *barrier = atmGetEntity(m_barrier);
-        if(owner && barrier) {
+        if(owner) {
+            vec3 move = vec3(atmGetIngameInputs().getMove()*0.01f, 0.0f);
+            vec3 pos, vel;
+            atmQuery(owner, getPosition, pos);
+            atmQuery(owner, getVelocity, vel);
+            pos += (move + vel) * dt;
+            vel *= 0.96f;
+            pos.z = 0.0f;
+            if(m_cooldown==0.0f && atmGetIngameInputs().isButtonTriggered(0)) {
+                vel += move * 2.0f;
+                m_cooldown = 10;
+            }
+            atmCall(owner, setPosition, pos);
+            atmCall(owner, setVelocity, vel);
         }
     }
 
-    virtual void draw() {}
+    void draw() override
+    {
+    }
 };
-atmExportClass(BarrierGenerator);
+atmExportClass(Booster);
 
 
-class GravityMineLauncher : public IWeaponry
+class Blinker : public IWeaponry
 {
 typedef IWeaponry super;
 private:
+    static const int32 max_pos_stack = 3;
+    EntityHandle m_barrier;
+    std::deque<vec3> m_blink_pos;
+
     istSerializeBlock(
         istSerializeBase(super)
-        )
+        istSerialize(m_barrier)
+        istSerialize(m_blink_pos)
+    )
+
 public:
+    Blinker() : m_barrier(0), m_blink_pos()
+    {
+    }
+
+    void update(float32 dt) override
+    {
+        vec3 center_force;
+        IEntity *barrier = atmGetEntity(m_barrier);
+        IEntity *owner = getOwner();
+        if(!barrier) {
+            IEntity *e = atmCreateEntityT(Barrier);
+            m_barrier = e->getHandle();
+            atmCall(e, setOwner, getOwnerHandle());
+            atmQuery(owner, getPosition, center_force);
+        }
+        else {
+            if(barrier && owner) {
+                vec3 barrier_pos;
+                atmQuery(owner, getPosition, barrier_pos);
+                atmCall(barrier, setPosition, barrier_pos);
+            }
+            atmQuery(barrier, getPosition, center_force);
+        }
+
+        {
+            psym::PointForce force;
+            force.x = center_force.x;
+            force.y = center_force.y;
+            force.z = center_force.z;
+            force.strength = 6.0f;
+            atmGetFluidModule()->addForce(force);
+        }
+    }
+
+    void asyncupdate(float32 dt) override
+    {
+        IEntity *owner = getOwner();
+        if(owner) {
+            vec3 move = vec3(atmGetIngameInputs().getMove()*0.01f, 0.0f);
+            vec3 pos, vel;
+            atmQuery(owner, getPosition, pos);
+            atmQuery(owner, getVelocity, vel);
+
+            pos += move*dt;
+            if(atmGetIngameInputs().isButtonTriggered(0)) {
+                m_blink_pos.push_back(pos);
+                if(m_blink_pos.size()>max_pos_stack) {
+                    m_blink_pos.pop_front();
+                }
+            }
+            if(atmGetIngameInputs().isButtonTriggered(1)) {
+                if(!m_blink_pos.empty()) {
+                    pos = m_blink_pos.back();
+                    m_blink_pos.pop_back();
+                    // todo: エフェクト出すとか
+                }
+            }
+
+            pos += vel*dt;
+            vel *= 0.96f;
+            pos.z = 0.0f;
+            atmCall(owner, setPosition, pos);
+            atmCall(owner, setVelocity, vel);
+        }
+    }
+
+    void draw() override
+    {
+        each(m_blink_pos, [](const vec3 &){
+            // todo: 位置表示
+        });
+    }
 };
-atmExportClass(GravityMineLauncher);
+atmExportClass(Blinker);
 
 
 class Catapult : public IWeaponry
 {
 typedef IWeaponry super;
 private:
+    float32 m_energy;
+    float32 m_cooldown;
+
     istSerializeBlock(
         istSerializeBase(super)
-        )
+        istSerialize(m_energy)
+        istSerialize(m_cooldown)
+    )
+
 public:
+    Catapult() : m_energy(), m_cooldown()
+    {
+    }
+
+    void catapult()
+    {
+        // todo:
+    }
+
+    void update(float32 dt) override
+    {
+        vec3 center_force;
+        IEntity *owner = getOwner();
+        atmQuery(owner, getPosition, center_force);
+        {
+            psym::PointForce force;
+            force.x = center_force.x;
+            force.y = center_force.y;
+            force.z = center_force.z;
+            force.strength = 6.0f;
+            atmGetFluidModule()->addForce(force);
+        }
+        if(atmGetIngameInputs().isButtonTriggered(1)) {
+            catapult();
+        }
+    }
+
+    void asyncupdate(float32 dt) override
+    {
+        m_cooldown = stl::max<float32>(0.0f, m_cooldown-dt);
+
+        IEntity *owner = getOwner();
+        if(owner) {
+            vec3 move = vec3(atmGetIngameInputs().getMove()*0.01f, 0.0f);
+            vec3 pos, vel;
+            atmQuery(owner, getPosition, pos);
+            atmQuery(owner, getVelocity, vel);
+            pos += (move + vel) * dt;
+            vel *= 0.96f;
+            pos.z = 0.0f;
+            if(m_cooldown==0.0f && atmGetIngameInputs().isButtonTriggered(0)) {
+                vel += move * 2.0f;
+                m_cooldown = 10;
+            }
+            atmCall(owner, setPosition, pos);
+            atmCall(owner, setVelocity, vel);
+        }
+    }
+
+    void draw() override
+    {
+    }
 };
 atmExportClass(Catapult);
 
-
-class Barrier : public EntityTemplate<Entity_Translate>
-{
-typedef EntityTemplate<Entity_Translate>    super;
-private:
-    EntityHandle    m_owner;
-    float32         m_life;
-
-    istSerializeBlock(
-        istSerializeBase(super)
-        istSerialize(m_owner)
-        istSerialize(m_life)
-    )
-
-public:
-    atmECallBlock(
-        atmECallSuper(super)
-        atmMethodBlock(
-        atmECall(setOwner)
-        atmECall(getOwner)
-        )
-    )
-
-public:
-    Barrier() : m_owner(0), m_life(100.0f)
-    {
-    }
-
-    void            setOwner(EntityHandle v)    { m_owner=v; }
-    EntityHandle    getOwner() const            { return m_owner; }
-
-    virtual void initialize()
-    {
-        initializeCollision(getHandle());
-        setCollisionShape(CS_Sphere);
-        setCollisionFlags(CF_SPH_Sender);
-        getCollisionSphere().pos_r.w = 0.125f*3.0f;
-    }
-
-    virtual void finalize()
-    {
-    }
-
-    virtual void update(float32 dt)
-    {
-    }
-
-    virtual void asyncupdate(float32 dt)
-    {
-        super::update(dt);
-
-        transform::updateTransformMatrix();
-        updateCollision(transform::getTransformMatrix());
-    }
-
-    virtual void draw()
-    {
-        const vec3 &pos = getPosition();
-        {
-            PointLight l;
-            l.setPosition(pos+vec3(0.0f, 0.0f, 0.3f));
-            l.setColor(vec4(0.3f, 0.2f, 1.0f, 1.0f));
-            l.setRadius(1.0f);
-            atmGetLightPass()->addLight(l);
-        }
-        {
-            float32 radius = 0.125f*3.0f;
-            PassForward_Generic::InstanceParams params;
-            params.transform *= glm::translate(mat4(), pos);
-            params.transform *= glm::scale(mat4(), vec3(radius));
-            //atmGetForwardPass()->drawModel(SH_BARRIER, MODEL_UNITSPHERE, t);
-            params.params[0] = vec4(radius, 0.1f, 1.0f, 1.0f);
-            atmGetForwardPass()->drawModel(SH_FEEDBACK_BLUR, MODEL_UNITSPHERE, params);
-        }
-    }
-};
-atmImplementEntity(Barrier);
-atmExportClass(Barrier);
 
 
 class Player : public Breakable<Entity_AxisRotationI>
@@ -340,7 +287,6 @@ private:
         State_Dead,
     };
 
-    IDrive      *m_drive;
     IWeaponry   *m_weapon;
     vec3        m_vel;
     vec3        m_lightpos[1];
@@ -349,7 +295,6 @@ private:
 
     istSerializeBlock(
         istSerializeBase(super)
-        istSerialize(m_drive)
         istSerialize(m_weapon)
         istSerialize(m_vel)
         istSerialize(m_lightpos)
@@ -359,14 +304,8 @@ private:
 
 public:
     enum {
-        Drive_Booster,
-        Drive_Blinker,
-        Drive_Penetrator,
-        Drive_TimeWarp,
-    };
-    enum {
-        Weponry_Barrier,
-        Weponry_GravityMineLauncher,
+        Weponry_Booster,
+        Weponry_Blinker,
         Weponry_Catapult,
     };
 
@@ -375,7 +314,6 @@ public:
         atmMethodBlock(
             atmECall(getVelocity)
             atmECall(setVelocity)
-            atmECall(setDrive)
             atmECall(setWeapon)
         )
     )
@@ -383,21 +321,19 @@ public:
 public:
     Player()
         : m_vel()
-        , m_drive(nullptr), m_weapon(nullptr)
+        , m_weapon(nullptr)
         , m_state(State_Normal)
     {
         wdmScope(
             wdmString path = wdmFormat("Player/0x%p", this);
             super::addDebugNodes(path);
             transform::addDebugNodes(path);
-            wdmAddNode(path+"/setDrive()", &Player::setDrive, this);
             wdmAddNode(path+"/setWeapon()", &Player::setWeapon, this);
         )
     }
 
     ~Player()
     {
-        istSafeDelete(m_drive);
         istSafeDelete(m_weapon);
         wdmEraseNode(wdmFormat("Player/0x%p", this));
     }
@@ -405,33 +341,18 @@ public:
     const vec3& getVelocity() const { return m_vel; }
     void setVelocity(const vec3 &v) { m_vel=v; }
 
-    void setDrive(int32 id) // id: Drive_Booster, etc
-    {
-        IDrive *old_drive = m_drive;
-        switch(id) {
-        case Drive_Booster:
-            m_drive = istNew(Booster)();
-            break;
-        case Drive_Blinker:
-            m_drive = istNew(Blinker)();
-            break;
-        default:
-            istAssert(false && "unknown drive type");
-            return;
-        }
-        m_drive->setOwner(this);
-        istSafeDelete(old_drive);
-    }
-
     void setWeapon(int32 id) // id: Weponry_Barrier, etc
     {
         IWeaponry *old_weapon = m_weapon;
         switch(id) {
-        case Weponry_Barrier:
-            m_weapon = istNew(BarrierGenerator)();
+        case Weponry_Booster:
+            m_weapon = istNew(Booster)();
             break;
-        case Weponry_GravityMineLauncher:
-            m_weapon = istNew(GravityMineLauncher)();
+        case Weponry_Blinker:
+            m_weapon = istNew(Blinker)();
+            break;
+        case Weponry_Catapult:
+            m_weapon = istNew(Catapult)();
             break;
         default:
             istAssert(false && "unknown weapon type");
@@ -445,8 +366,7 @@ public:
     {
         super::initialize();
 
-        setDrive(Drive_Booster);
-        setWeapon(Weponry_Barrier);
+        setWeapon(Weponry_Booster);
 
         initializeCollision(getHandle());
         setCollisionShape(CS_Sphere);
@@ -472,7 +392,6 @@ public:
             return;
         }
 
-        if(m_drive)  {m_drive->update(dt); }
         if(m_weapon) {m_weapon->update(dt); }
 
         // 流体パーティクルが 10000 以下なら追加
@@ -492,7 +411,6 @@ public:
     void asyncupdate(float32 dt) override
     {
         super::asyncupdate(dt);
-        if(m_drive)  {m_drive->asyncupdate(dt); }
         if(m_weapon) {m_weapon->asyncupdate(dt); }
 
         updateLights();
@@ -576,5 +494,86 @@ public:
 };
 atmImplementEntity(Player);
 atmExportClass(Player);
+
+
+
+
+class Barrier : public EntityTemplate<Entity_Translate>
+{
+typedef EntityTemplate<Entity_Translate>    super;
+private:
+    EntityHandle    m_owner;
+    float32         m_life;
+
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerialize(m_owner)
+        istSerialize(m_life)
+    )
+
+public:
+    atmECallBlock(
+        atmECallSuper(super)
+        atmMethodBlock(
+        atmECall(setOwner)
+        atmECall(getOwner)
+        )
+    )
+
+public:
+    Barrier() : m_owner(0), m_life(100.0f)
+    {
+    }
+
+    void            setOwner(EntityHandle v)    { m_owner=v; }
+    EntityHandle    getOwner() const            { return m_owner; }
+
+    virtual void initialize()
+    {
+        initializeCollision(getHandle());
+        setCollisionShape(CS_Sphere);
+        setCollisionFlags(CF_SPH_Sender);
+        getCollisionSphere().pos_r.w = 0.125f*3.0f;
+    }
+
+    virtual void finalize()
+    {
+    }
+
+    virtual void update(float32 dt)
+    {
+    }
+
+    virtual void asyncupdate(float32 dt)
+    {
+        super::update(dt);
+
+        transform::updateTransformMatrix();
+        updateCollision(transform::getTransformMatrix());
+    }
+
+    virtual void draw()
+    {
+        const vec3 &pos = getPosition();
+        {
+            PointLight l;
+            l.setPosition(pos+vec3(0.0f, 0.0f, 0.3f));
+            l.setColor(vec4(0.3f, 0.2f, 1.0f, 1.0f));
+            l.setRadius(1.0f);
+            atmGetLightPass()->addLight(l);
+        }
+        {
+            float32 radius = 0.125f*3.0f;
+            PassForward_Generic::InstanceParams params;
+            params.transform *= glm::translate(mat4(), pos);
+            params.transform *= glm::scale(mat4(), vec3(radius));
+            //atmGetForwardPass()->drawModel(SH_BARRIER, MODEL_UNITSPHERE, t);
+            params.params[0] = vec4(radius, 0.1f, 1.0f, 1.0f);
+            atmGetForwardPass()->drawModel(SH_FEEDBACK_BLUR, MODEL_UNITSPHERE, params);
+        }
+    }
+};
+atmImplementEntity(Barrier);
+atmExportClass(Barrier);
 
 } // namespace atm

@@ -170,6 +170,7 @@ namespace stl = std;
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/deque.hpp>
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/list.hpp>
 #pragma warning(pop)
