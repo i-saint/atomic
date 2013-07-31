@@ -26,6 +26,7 @@ AtomicGame::AtomicGame()
 , m_frame(0)
 , m_resource(0.0f)
 , m_skip_update(false)
+, m_is_edit(false)
 {
     wdmAddNode("Game/testSerialize()", &AtomicGame::testSerialize, this);
     wdmAddNode("Game/testDeserialize()", &AtomicGame::testDeserialize, this);
@@ -60,6 +61,11 @@ bool AtomicGame::config(const GameStartConfig &conf)
     PlayerName name = L"test";
     if(conf.gmode==GameStartConfig::GM_Replay) {
         readReplayFromFile(conf.path_to_replay.c_str());
+    }
+    else if(conf.gmode==GameStartConfig::GM_Edit) {
+        m_is_edit = true;
+        m_input_server = CreateInputServerLocal();
+        m_input_server->addPlayer(0, name, 0);
     }
     else if(conf.nmode==GameStartConfig::NM_Offline) {
         m_input_server = CreateInputServerLocal();
@@ -229,6 +235,10 @@ void AtomicGame::handleLevelEditorCommands( const LevelEditorCommand &c )
             e->call((FunctionID)cmd.function, &cmd.arg);
         }
     }
+
+    if(isEditMode()) {
+        // todo: コマンド保存
+    }
 }
 
 void AtomicGame::handleLevelEditorQueries( LevelEditorQuery &cmd )
@@ -317,6 +327,14 @@ void AtomicGame::testDeserialize()
     std::ifstream fs("state.atbin", std::ios::binary);
     zlib_stream::zip_istream zipper(fs);
     deserialize(zipper);
+}
+
+bool atmIsEditMode()
+{
+    if(AtomicGame *game=atmGetGame()) {
+        return game->isEditMode();
+    }
+    return false;
 }
 
 } // namespace atm

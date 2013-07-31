@@ -47,8 +47,6 @@ struct istInterModule AtomicConfig
     uint32 leveleditor_port;
     PlayerName name;
 
-    bool editmode;
-
     bool debug_show_grid;
     bool debug_show_distance;
     int32 debug_show_gbuffer;
@@ -117,7 +115,5 @@ private:
 #else  // atm_enable_debug_log
 #   define atmDebugLog(...)          
 #endif // atm_enable_debug_log
-
-#define atmIsEditMode()             atmGetConfig()->editmode
 
 #endif atm_Game_AtomicApplication_h

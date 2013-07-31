@@ -50,16 +50,20 @@ public:
 private:
     void onCampaign(Widget *);
     void onHorde(Widget *);
-    void onQuickJoin(Widget *);
+    void onEdit(Widget *);
 };
 
 class RecordWindow : public iui::Panel
 {
 public:
     RecordWindow();
+    void refresh();
 private:
     void onSelect(Widget *);
     void onStart(Widget *);
+
+    iui::List   *m_li_files;
+    iui::Button *m_bu_start;
     iui::String m_selection;
 };
 

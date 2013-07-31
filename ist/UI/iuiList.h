@@ -58,6 +58,7 @@ public:
 
     void update(Float dt);
 
+    void clearItems();
     void addListItem(ListItem *item, int32 pos=-1); // -1: 後ろに追加
     void addListItem(const String &text, void *userdata, int32 pos=-1);
 

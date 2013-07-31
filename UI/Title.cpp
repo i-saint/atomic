@@ -95,6 +95,7 @@ void TitleWindow::onRecord(Widget *)
 {
     hideAll();
     m_buttons[1]->setPressed(true, false);
+    m_record->refresh();
     m_record->setVisibility(true);
 }
 
@@ -131,9 +132,13 @@ StartWindow::StartWindow()
     using std::placeholders::_1;
     iui::Size size(150, 25);
     float32 vspace = 40.0f;
-    iui::Button *bu_start   = istNew(iui::Button)(this, L"campaign",    iui::Rect(iui::Position(0, vspace*0), size), std::bind(&StartWindow::onCampaign, this, _1));
-    iui::Button *bu_record  = istNew(iui::Button)(this, L"horde",       iui::Rect(iui::Position(0, vspace*1), size), std::bind(&StartWindow::onHorde, this, _1));
-    iui::Button *bu_qjoin   = istNew(iui::Button)(this, L"quick join",  iui::Rect(iui::Position(0, vspace*2), size), std::bind(&StartWindow::onQuickJoin, this, _1));
+    float n = 0.0f;
+    istNew(iui::Button)(this, L"campaign",iui::Rect(iui::Position(0, vspace*n), size), std::bind(&StartWindow::onCampaign, this, _1));
+    n += 1.0f;
+    istNew(iui::Button)(this, L"horde",   iui::Rect(iui::Position(0, vspace*n), size), std::bind(&StartWindow::onHorde, this, _1));
+    n += 1.0f;
+    istNew(iui::Button)(this, L"edit",    iui::Rect(iui::Position(0, vspace*n), size), std::bind(&StartWindow::onEdit, this, _1));
+    n += 1.0f;
 }
 
 void StartWindow::onCampaign(Widget *)
@@ -145,26 +150,38 @@ void StartWindow::onCampaign(Widget *)
 
 void StartWindow::onHorde(Widget *)
 {
-
+    GameStartConfig conf;
+    conf.gmode = GameStartConfig::GM_Horde;
+    atmGetApplication()->requestStartGame(conf);
+    atmGetTitleWindow()->setVisibility(false);
 }
 
-void StartWindow::onQuickJoin(Widget *)
+void StartWindow::onEdit( Widget * )
 {
-
+    GameStartConfig conf;
+    conf.gmode = GameStartConfig::GM_Edit;
+    atmGetApplication()->requestStartGame(conf);
+    atmGetTitleWindow()->setVisibility(false);
 }
 
 
 
 RecordWindow::RecordWindow()
+    : m_li_files(), m_bu_start()
 {
     using std::placeholders::_1;
-    iui::List   *ls         = istNew(iui::List)(this, iui::Rect(iui::Position(0, 0), iui::Size(300.0f, 250.0f)), std::bind(&RecordWindow::onSelect, this, _1));
-    iui::Button *bu_start   = istNew(iui::Button)(this, L"start", iui::Rect(iui::Position(0, 260.0f), iui::Size(150, 25)), std::bind(&RecordWindow::onStart, this, _1));
+    m_li_files  = istNew(iui::List)(this, iui::Rect(iui::Position(0, 0), iui::Size(300.0f, 250.0f)), std::bind(&RecordWindow::onSelect, this, _1));
+    m_bu_start  = istNew(iui::Button)(this, L"start", iui::Rect(iui::Position(0, 260.0f), iui::Size(150, 25)), std::bind(&RecordWindow::onStart, this, _1));
+}
+
+void RecordWindow::refresh()
+{
+    m_li_files->clearItems();
 
     Poco::DirectoryIterator end;
     for(Poco::DirectoryIterator it(Poco::Path("Replay")); it!=end; ++it) {
         if(it->isFile() && it->canRead()) {
-            ls->addListItem(ist::L(it->path()), nullptr);
+            m_li_files->addListItem(ist::L(it->path()), nullptr);
         }
     }
 }

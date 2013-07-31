@@ -17,8 +17,8 @@ struct GameStartConfig
     enum GameMode {
         GM_Campaign,
         GM_Horde,
-        GM_QuickJoin,
         GM_Replay,
+        GM_Edit,
     };
     enum NetworkMode {
         NM_Server,
@@ -27,6 +27,7 @@ struct GameStartConfig
     };
     GameMode    gmode;
     NetworkMode nmode;
+    std::string path_to_level;
     std::string path_to_replay;
     std::string server_address;
     uint16      server_port;
@@ -75,6 +76,7 @@ public:
     bool isUpdateSkipped() const            { return m_skip_update; }
     bool isDrawSkipped() const              { return m_skip_draw; }
     bool isWaitVSyncRequired() const        { return !isUpdateSkipped() && !isDrawSkipped(); }
+    bool isEditMode() const                 { return m_is_edit; }
 
     bool serialize(std::ostream &st);
     bool deserialize(std::istream &st);
@@ -98,15 +100,18 @@ private:
     EntitiesQueryContext m_ctx_entities_query;
     bool m_skip_update;
     bool m_skip_draw;
+    bool m_is_edit;
 #ifdef atm_enable_sync_lock
     bool m_sync_lock;
 #endif // atm_enable_sync_lock
 };
 
-#define atmGetWorld()            atmGetGame()->getWorld()
-#define atmGetIngameInputs()     atmGetGame()->getIngameInputs()
-#define atmGetRandom()           atmGetGame()->getRandom()
-#define atmGetFrame()            atmGetGame()->getFrame()
+#define atmGetWorld()           atmGetGame()->getWorld()
+#define atmGetIngameInputs()    atmGetGame()->getIngameInputs()
+#define atmGetRandom()          atmGetGame()->getRandom()
+#define atmGetFrame()           atmGetGame()->getFrame()
+
+bool atmIsEditMode();
 
 #ifdef atm_enable_sync_lock
 #   define  atmDbgLockSyncMethods()      atmGetGame()->dbgLockSyncMethods()

@@ -48,8 +48,6 @@ AtomicConfig::AtomicConfig()
     leveleditor_port        = atm_Leveleditor_DefaultPort;
     wcscpy(name, L"atom");
 
-    editmode = true;
-
     debug_show_grid         = false;
     debug_show_distance     = false;
     debug_show_gbuffer      = 0;
@@ -169,7 +167,7 @@ struct AtomicApplication::Members
 istMemberPtrImpl_Noncopyable(AtomicApplication,Members)
 
 void AtomicApplication::requestExit()                       { m->request_exit=true; }
-void AtomicApplication::requestReturnToTitleScreen()        {m->request_title=true; }
+void AtomicApplication::requestReturnToTitleScreen()        { m->request_title=true; }
 AtomicGame* AtomicApplication::getGame()                    { return m->game; }
 const InputState* AtomicApplication::getSystemInputs() const{ return &m->inputs; }
 AtomicConfig* AtomicApplication::getConfig()                { return &m->config; }

@@ -1,6 +1,7 @@
 ﻿#include "stdafx.h"
 #include "../FunctionID.h"
 #include "Game/AtomicApplication.h"
+#include "Game/AtomicGame.h"
 #include "Game/EntityClass.h"
 #include "WebServer.h"
 #include "LevelEditorCommandHandler.h"

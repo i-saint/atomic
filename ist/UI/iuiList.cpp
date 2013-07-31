@@ -159,7 +159,7 @@ List::List( Widget *parent, const Rect &rect, WidgetCallback on_item_click )
 
 List::~List()
 {
-    eachListItem([&](ListItem *item){ item->release(); });
+    clearItems();
 }
 
 void List::update(Float dt)
@@ -202,6 +202,12 @@ const ListItem* List::getSelectedItem( size_t i ) const
         if(item->isSelected() && nth==i) { ret=item; }
     });
     return ret;
+}
+
+void List::clearItems()
+{
+    eachListItem([&](ListItem *item){ item->release(); });
+    m->items.clear();
 }
 
 void List::addListItem(ListItem *item, int32 pos)
