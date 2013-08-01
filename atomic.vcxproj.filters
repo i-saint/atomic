@@ -183,6 +183,9 @@
     <ClCompile Include="Game\Entity\Layer.cpp">
       <Filter>Game\Entity</Filter>
     </ClCompile>
+    <ClCompile Include="UI\UICursor.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h">

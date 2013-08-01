@@ -8,13 +8,12 @@
 namespace atm {
 
 
-
 RootWindow::RootWindow()
     : m_title(nullptr)
     , m_log(nullptr)
+    , m_cursor(nullptr)
 {
     setSize(iui::Size(atmGetWindowSize().x, atmGetWindowSize().y));
-
     m_title  = istNew(TitleWindow)();
     m_log    = istNew(LogWindow)();
 
@@ -23,6 +22,14 @@ RootWindow::RootWindow()
         widgets[i]->setParent(this);
         widgets[i]->setSize(getSize());
     }
+
+    m_cursor = istNew(UICursor)();
+    m_cursor->setTarget(m_title);
+}
+
+RootWindow::~RootWindow()
+{
+    istSafeDelete(m_cursor);
 }
 
 void RootWindow::update(iui::Float dt)
@@ -32,6 +39,28 @@ void RootWindow::update(iui::Float dt)
     //f += 0.005f;
     //setPosition(iui::Position(std::cos(f)*100.0f, 0.0f));
     super::update(dt);
+    m_cursor->update(dt);
+}
+
+void RootWindow::draw()
+{
+    super::draw();
+    {
+        const iui::Position &pos = iui::Position();
+        const iui::Size &size = iuiGetSystem()->getScreen().getSize();
+        const iui::Rect &screen = iuiGetSystem()->getScreen();
+        const iui::Size viewport = iui::Size(istGetAplication()->getWindowSize().x, istGetAplication()->getWindowSize().y);
+        iui::Size r = viewport/screen.size;
+        iuiGetRenderer()->setViewport( (int32)(pos.x*r.x-0.5f), (int32)(viewport.y-(pos.y+size.y)*r.y-0.5f), (int32)(size.x*r.x+1.0f), (int32)(size.y*r.y+1.0f) );
+        iuiGetRenderer()->setScreen(-0.5f, -0.5f, size.x+1.0f, size.y+1.0f);
+
+        m_cursor->draw();
+    }
+}
+
+UICursor* atmGetUICursor()
+{
+    return ((RootWindow*)iui::UISystem::getInstance()->getRootWindow())->getCursor();
 }
 
 iui::RootWindow* atmCreateRootWindow()
@@ -89,6 +118,7 @@ void TitleWindow::onStart(Widget *)
     hideAll();
     m_buttons[0]->setPressed(true, false);
     m_start->setVisibility(true);
+    atmGetUICursor()->setTarget(m_start);
 }
 
 void TitleWindow::onRecord(Widget *)
@@ -97,6 +127,7 @@ void TitleWindow::onRecord(Widget *)
     m_buttons[1]->setPressed(true, false);
     m_record->refresh();
     m_record->setVisibility(true);
+    atmGetUICursor()->setTarget(m_record);
 }
 
 void TitleWindow::onConfig(Widget *)
@@ -104,6 +135,7 @@ void TitleWindow::onConfig(Widget *)
     hideAll();
     m_buttons[2]->setPressed(true, false);
     m_config->setVisibility(true);
+    atmGetUICursor()->setTarget(m_config);
 }
 
 void TitleWindow::onExit(Widget *)
@@ -121,6 +153,14 @@ void TitleWindow::hideAll()
     }
     for(size_t i=0; i<_countof(m_buttons); ++i) {
         m_buttons[i]->setPressed(false, false);
+    }
+}
+
+void TitleWindow::setVisibility( bool v )
+{
+    super::setVisibility(v);
+    if(v) {
+        atmGetUICursor()->setTarget(this);
     }
 }
 

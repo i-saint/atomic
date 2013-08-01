@@ -4,30 +4,68 @@
 
 namespace atm {
 
+class UICursor;
 class TitleWindow;
 class StartWindow;
 class RecordWindow;
 class ConfigWindow;
 class LogWindow;
 
+class UICursor
+{
+public:
+    struct State {
+        iui::Widget *widget;
+        uint32 index;
+        State(iui::Widget *w=nullptr, uint32 i=0) : widget(w), index(i) {}
+    };
+
+    UICursor();
+    void update(iui::Float dt);
+    void draw();
+
+    void pushStack(iui::Widget *v);
+    void popStack();
+    void clearStack();
+    void setTarget(iui::Widget *v);
+
+    void moveNext();
+    void movePrev();
+    void enter();
+    void cancel();
+
+private:
+    ist::vector<State> m_stack;
+    iui::Position m_pos;
+    iui::Size m_size;
+};
+
+
 class RootWindow : public iui::RootWindow
 {
 typedef iui::RootWindow super;
 public:
     RootWindow();
-    virtual void update(iui::Float dt=0.0f);
+    ~RootWindow();
+    void update(iui::Float dt=0.0f) override;
+    void draw() override;
+
+    UICursor* getCursor() { return m_cursor; }
 
 private:
     TitleWindow     *m_title;
     LogWindow       *m_log;
+    UICursor        *m_cursor;
 };
-
+UICursor* atmGetUICursor();
 
 class TitleWindow : public iui::Panel
 {
+typedef iui::Panel super;
 public:
     TitleWindow();
-    virtual void draw();
+    void draw() override;
+    void setVisibility(bool v) override;
 
 private:
     void onStart(Widget *);

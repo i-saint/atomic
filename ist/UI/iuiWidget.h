@@ -81,10 +81,11 @@ public:
     template<class F>
     void eachChildrenReverse(const F &f) const { const_cast<Widget*>(this)->eachChildrenReverse(f); }
 
+    virtual bool handleEvent(const WM_Base &wm);
+
 protected:
     virtual ~Widget();
     using SharedObject::release;
-    virtual bool handleEvent(const WM_Base &wm);
     void callIfValid(const WidgetCallback &v);
 
     typedef ist::TPoolFactory<WidgetCont, ist::PoolTraitsST<WidgetCont> > WorkspacePool;

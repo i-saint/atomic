@@ -85,6 +85,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="UI\Title.cpp" />
+    <ClCompile Include="UI\UICursor.cpp" />
     <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>
