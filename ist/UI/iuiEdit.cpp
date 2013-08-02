@@ -102,7 +102,7 @@ void EditboxMultilineStyle::draw()
 
 bool EditboxMultiline::isReadOnly() const           { return m_readonly; }
 const ivec2& EditboxMultiline::getCursor() const    { return m_cursor; }
-Style* EditboxMultiline::createDefaultStyle() const { return istNew(EditboxMultilineStyle)(); }
+Style* EditboxMultiline::createDefaultStyle() const { return iuiNew(EditboxMultilineStyle)(); }
 
 EditboxMultiline::EditboxMultiline( const wchar_t *text, WidgetCallback on_change )
     : m_readonly(false), m_cursor()

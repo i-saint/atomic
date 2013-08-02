@@ -19,12 +19,12 @@ public:
     void draw();
 
     UIRenderer*     getRenderer() const;
-    Widget*         getRootWindow() const;
+    RootWindow*     getRootWindow() const;
     Widget*         getFocus() const;
     const Position& getMousePos() const;
     const Rect&     getScreen() const;
 
-    void setRootWindow(Widget *root);
+    void setRootWindow(RootWindow *root);
     void setScreen(float32 width, float32 height);
     void sendMessage(const WM_Base &wm);
 
@@ -41,8 +41,15 @@ private:
     void updateR(Widget *widget, Float dt);
     void drawR(Widget *widget);
 
+    typedef UISystem::WMHandler WMHandler;
     static UISystem *s_inst;
-    istMemberPtrDecl(Members) m;
+    UIRenderer *m_renderer;
+    RootWindow *m_root;
+    Widget     *m_focus;
+    WidgetCont  m_new_widgets;
+    WMHandler   m_wmhandler;
+    Position    m_mouse_pos;
+    Rect        m_screen;
 };
 
 } // namespace iui

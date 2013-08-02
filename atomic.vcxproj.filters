@@ -114,9 +114,6 @@
       <Filter>Network</Filter>
     </ClCompile>
     <ClCompile Include="MemoryLeakBuster.cpp" />
-    <ClCompile Include="UI\Title.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
     <ClCompile Include="Game\Entity\Gear.cpp">
       <Filter>Game\Entity</Filter>
     </ClCompile>
@@ -183,7 +180,22 @@
     <ClCompile Include="Game\Entity\Layer.cpp">
       <Filter>Game\Entity</Filter>
     </ClCompile>
-    <ClCompile Include="UI\UICursor.cpp">
+    <ClCompile Include="UI\TitleWindow.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\UISelector.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\ConfigWindow.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\LogWindow.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\PauseWindow.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\RootWindow.cpp">
       <Filter>UI</Filter>
     </ClCompile>
   </ItemGroup>
@@ -290,9 +302,6 @@
     <ClInclude Include="Network\GameClient.h">
       <Filter>Network</Filter>
     </ClInclude>
-    <ClInclude Include="UI\Title.h">
-      <Filter>UI</Filter>
-    </ClInclude>
     <ClInclude Include="Game\Entity\EntityCommon.h">
       <Filter>Game\Entity</Filter>
     </ClInclude>
@@ -349,6 +358,24 @@
     </ClInclude>
     <ClInclude Include="Network\LevelEditorCommand.h">
       <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\TitleWindow.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\UISelector.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\ConfigWindow.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\LogWindow.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\PauseWindow.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\RootWindow.h">
+      <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

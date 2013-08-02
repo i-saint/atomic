@@ -165,7 +165,7 @@ private:
     virtual WidgetTypeID getTypeID() const { return WT_##WidgetType; }
 
 #define iuiImplDefaultStyle(WidgetType)\
-    static Style* Create##WidgetType##Style() { return istNew(WidgetType##Style); }\
+    static Style* Create##WidgetType##Style() { return iuiNew(WidgetType##Style); }\
     struct Register##WidgetType##Style {\
         Register##WidgetType##Style() { Style::getDefaultStyleCreators()[WT_##WidgetType]=&Create##WidgetType##Style; }\
     } g_register_##WidgetType##Style;

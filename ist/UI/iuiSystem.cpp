@@ -12,13 +12,13 @@ UISystem * UISystem::s_inst;
 void UISystem::initializeInstance()
 {
     if(s_inst==NULL) {
-        istNew(UISystem)();
+        iuiNew(UISystem)();
     }
 }
 
 void UISystem::finalizeInstance()
 {
-    istSafeDelete(s_inst);
+    iuiSafeDelete(s_inst);
 }
 
 UISystem* UISystem::getInstance()
@@ -27,67 +27,49 @@ UISystem* UISystem::getInstance()
 }
 
 
-struct UISystem::Members
+UIRenderer*     UISystem::getRenderer() const   { return m_renderer; }
+RootWindow*     UISystem::getRootWindow() const { return m_root; }
+Widget*         UISystem::getFocus() const      { return m_focus; }
+const Position& UISystem::getMousePos() const   { return m_mouse_pos;}
+const Rect&     UISystem::getScreen() const     { return m_screen; }
+
+void UISystem::setRootWindow( RootWindow *root )
 {
-    typedef UISystem::WMHandler WMHandler;
-
-    UIRenderer  *renderer;
-    Widget      *root_widget;
-    Widget      *focus;
-    WidgetCont  new_widgets;
-    WMHandler   wmhandler;
-    Position    mouse_pos;
-    Rect        screen;
-
-    Members()
-        : renderer(NULL)
-        , root_widget(NULL)
-        , focus(NULL)
-        , screen()
-    {
-    }
-};
-istMemberPtrImpl(UISystem,Members)
-
-UIRenderer*     UISystem::getRenderer() const   { return m->renderer; }
-Widget*         UISystem::getRootWindow() const { return m->root_widget; }
-Widget*         UISystem::getFocus() const      { return m->focus; }
-const Position& UISystem::getMousePos() const   { return m->mouse_pos;}
-const Rect&     UISystem::getScreen() const     { return m->screen; }
-
-void UISystem::setRootWindow( Widget *root )
-{
-    m->root_widget = root;
-    if(m->root_widget) {
-        m->root_widget->setPosition(m->screen.pos);
-        m->root_widget->setSize(m->screen.size);
+    m_root = root;
+    if(m_root) {
+        m_root->setPosition(m_screen.pos);
+        m_root->setSize(m_screen.size);
     }
 }
 
 void UISystem::setScreen( float32 width, float32 height )
 {
-    m->screen = Rect(Position(), Size(width, height));
+    m_screen = Rect(Position(), Size(width, height));
 }
 
 
 UISystem::UISystem()
+    : m_renderer(nullptr)
+    , m_root(nullptr)
+    , m_focus(nullptr)
+    , m_screen()
 {
     s_inst = this;
 
-    m->renderer = CreateUIRenderer();
-    m->wmhandler = std::bind(&UISystem::handleWindowMessage, this, std::placeholders::_1);
+    m_renderer = CreateUIRenderer();
+    m_wmhandler = std::bind(&UISystem::handleWindowMessage, this, std::placeholders::_1);
 
     ist::Application *app = istGetAplication();
     uvec2 wsize = app->getWindowSize();
-    app->addMessageHandler(&m->wmhandler);
+    app->addMessageHandler(&m_wmhandler);
     setScreen((float32)wsize.x, (float32)wsize.y);
 }
 
 UISystem::~UISystem()
 {
-    istGetAplication()->eraseMessageHandler(&m->wmhandler);
-    istSafeRelease(m->renderer);
-    istSafeRelease(m->root_widget);
+    istGetAplication()->eraseMessageHandler(&m_wmhandler);
+    istSafeRelease(m_renderer);
+    istSafeRelease(m_root);
 
     s_inst = NULL;
 }
@@ -106,22 +88,22 @@ bool UISystem::handleWindowMessage( const ist::WM_Base &wm )
             mouse = WM_Mouse::cast(wm);
             pwm = &mouse;
             uvec2 wsize = istGetAplication()->getWindowSize();
-            vec2 r = vec2(wsize.x, wsize.y) / m->screen.size;
+            vec2 r = vec2(wsize.x, wsize.y) / m_screen.size;
             mouse.mouse_pos /= r;
-            m->mouse_pos = mouse.mouse_pos;
+            m_mouse_pos = mouse.mouse_pos;
         }
     case WMT_iuiDelete:
         {
             auto &mes = WM_Widget::cast(wm);
-            if(mes.from!=NULL && m->focus==mes.from) {
-                m->focus->setFocus(false);
-                m->focus = NULL;
+            if(mes.from!=NULL && m_focus==mes.from) {
+                m_focus->setFocus(false);
+                m_focus = NULL;
             }
         }
         break;
     }
-    if(m->root_widget) {
-        handleWindowMessageR(m->root_widget, *pwm);
+    if(m_root) {
+        handleWindowMessageR(m_root, *pwm);
     }
     return false;
 }
@@ -152,15 +134,15 @@ bool UISystem::handleWindowMessageR( Widget *widget, const WM_Base &wm )
 
 void UISystem::update( Float dt )
 {
-    std::for_each(m->new_widgets.begin(), m->new_widgets.end(), [&](Widget *w){
+    std::for_each(m_new_widgets.begin(), m_new_widgets.end(), [&](Widget *w){
         WM_Widget mes;
         mes.type = WMT_iuiCreate;
         mes.from = w;
         sendMessage(mes);
     });
-    m->new_widgets.clear();
+    m_new_widgets.clear();
 
-    updateR(m->root_widget, dt);
+    updateR(m_root, dt);
 }
 
 void UISystem::updateR( Widget *widget, Float dt )
@@ -173,11 +155,11 @@ void UISystem::updateR( Widget *widget, Float dt )
 
 void UISystem::draw()
 {
-    m->renderer->begin();
-    drawR(m->root_widget);
-    m->renderer->setScreen(getScreen().getSize().x, getScreen().getSize().y);
-    m->renderer->setViewport(0,0);
-    m->renderer->end();
+    m_renderer->begin();
+    drawR(m_root);
+    m_renderer->setScreen(getScreen().getSize().x, getScreen().getSize().y);
+    m_renderer->setViewport(0,0);
+    m_renderer->end();
 }
 
 void UISystem::drawR( Widget *widget )
@@ -200,14 +182,14 @@ void UISystem::drawR( Widget *widget )
 
 void UISystem::setFocus( Widget *v )
 {
-    if(m->focus!=v) {
-        if(m->focus) {
+    if(m_focus!=v) {
+        if(m_focus) {
             WM_Widget wm;
             wm.type = WMT_iuiLostFocus;
-            wm.from = m->focus;
+            wm.from = m_focus;
             sendMessage(wm);
         }
-        m->focus = v;
+        m_focus = v;
         if(v) {
             WM_Widget wm;
             wm.type = WMT_iuiGainFocus;
@@ -219,7 +201,7 @@ void UISystem::setFocus( Widget *v )
 
 void UISystem::notifyNewWidget( Widget *w )
 {
-    m->new_widgets.insert(w);
+    m_new_widgets.insert(w);
 }
 
 

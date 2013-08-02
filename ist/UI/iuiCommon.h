@@ -12,6 +12,12 @@
 #   define iuiAPI
 #endif // iuiExportSymbols
 
+#define iuiNew          istNew
+#define iuiDelete       istDelete
+#define iuiSafeDelete   istSafeDelete
+#define iuiRelease      iuiRelease
+#define iuiSafeRelease  iuiSafeRelease
+
 
 namespace iui {
 
@@ -114,6 +120,7 @@ enum TextVAlign
 
 class UIRenderer;
 class Widget;
+class RootWindow;
 class Style;
 typedef ist::sv_set<Widget*, ist::less_id<Widget*> > WidgetCont;
 typedef ist::vector<Style*> StyleCont;

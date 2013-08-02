@@ -10,7 +10,7 @@ class UIRendererImpl : public UIRenderer
 {
 public:
     UIRendererImpl()
-        : m_drawer(NULL)
+        : m_drawer(nullptr)
     {
     }
 
@@ -20,10 +20,10 @@ public:
 
     virtual void release()
     {
-        istDelete(this);
+        iuiDelete(this);
     }
 
-    virtual void initialize(ist::i3dgl::EasyDrawer *drawer=NULL, ist::i3dgl::IFontRenderer *font=NULL)
+    virtual void initialize(ist::i3dgl::EasyDrawer *drawer=nullptr, ist::i3dgl::IFontRenderer *font=nullptr)
     {
         m_drawer = drawer ? drawer : i3d::CreateEasyDrawer();
         m_font = font;
@@ -75,7 +75,7 @@ public:
 
     virtual void drawFont(const TextPosition &tp, const Color &color, const wchar_t *text, uint32 len)
     {
-        if(m_font==NULL) { return; }
+        if(m_font==nullptr) { return; }
         vec2 pos  = tp.rect.getPosition();
         vec2 size = tp.rect.getSize();
         m_font->setSpacing(tp.hspace);
@@ -119,7 +119,7 @@ private:
 
 UIRenderer* CreateUIRenderer()
 {
-    return istNew(UIRendererImpl)();
+    return iuiNew(UIRendererImpl)();
 }
 
 

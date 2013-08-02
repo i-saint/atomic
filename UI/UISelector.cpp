@@ -1,10 +1,9 @@
 ﻿#include "stdafx.h"
 #include "Game/AtomicApplication.h"
 #include "Game/AtomicGame.h"
-#include "Title.h"
+#include "UISelector.h"
 
 namespace atm {
-
 
 bool IsClickable(iui::Widget *w)
 {
@@ -56,12 +55,12 @@ int32 GetPrevClickable(iui::Widget *w, int32 ci)
 }
 
 
-UICursor::UICursor()
+UISelector::UISelector()
     : m_selection(), m_pos(), m_size(), m_time()
 {
 }
 
-void UICursor::update(iui::Float dt)
+void UISelector::update(iui::Float dt)
 {
     m_time += dt;
     if(atmGetSystemInputs()->isDirectionTriggered(InputState::Dir_Down)) {
@@ -96,7 +95,7 @@ void UICursor::update(iui::Float dt)
     }
 }
 
-void UICursor::draw()
+void UISelector::draw()
 {
     if(m_selection.empty()) { return; }
     if(!m_selection.empty()) {
@@ -111,7 +110,7 @@ void UICursor::draw()
     iuiGetRenderer()->drawRect(rect, bg);
 }
 
-void UICursor::pushSelection(iui::Widget *v, int32 i)
+void UISelector::pushSelection(iui::Widget *v, int32 i)
 {
     if(v->getTypeID()==iui::WT_List) {
         m_selection.push_back(Selection(v,i));
@@ -125,27 +124,27 @@ void UICursor::pushSelection(iui::Widget *v, int32 i)
     }
 }
 
-void UICursor::popSelection()
+void UISelector::popSelection()
 {
     if(!m_selection.empty()) {
         m_selection.pop_back();
     }
 }
 
-void UICursor::clearSelection()
+void UISelector::clearSelection()
 {
     m_selection.clear();
 }
 
-void UICursor::setSelection( iui::Widget *v, int32 i )
+void UISelector::setSelection( iui::Widget *v, int32 i )
 {
     clearSelection();
     pushSelection(v,i);
 }
 
-UICursor::SelectionCont& UICursor::getSelection() { return m_selection; }
+UISelector::SelectionCont& UISelector::getSelection() { return m_selection; }
 
-void UICursor::moveNext()
+void UISelector::moveNext()
 {
     if(!m_selection.empty()) {
         Selection &state = m_selection.back();
@@ -171,7 +170,7 @@ void UICursor::moveNext()
     }
 }
 
-void UICursor::movePrev()
+void UISelector::movePrev()
 {
     if(!m_selection.empty()) {
         Selection &state = m_selection.back();
@@ -197,7 +196,7 @@ void UICursor::movePrev()
     }
 }
 
-void UICursor::enter()
+void UISelector::enter()
 {
     if(!m_selection.empty()) {
         Selection &state = m_selection.back();
@@ -217,7 +216,7 @@ void UICursor::enter()
     }
 }
 
-void UICursor::cancel()
+void UISelector::cancel()
 {
     if(!m_selection.empty()) {
         {

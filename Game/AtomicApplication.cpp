@@ -21,7 +21,7 @@ void atmInitializeCrashReporter();
 void atmFinalizeCrashReporter();
 iui::RootWindow*    atmCreateRootWindow();
 class TitleWindow;
-TitleWindow*        atmGetTitleWindow();
+iui::Widget*        atmGetTitleWindow();
 
 
 AtomicConfig::AtomicConfig()
@@ -136,79 +136,54 @@ void AtomicConfig::setupDebugMenu()
 
 
 
-struct AtomicApplication::Members
-{
-    typedef ist::Application::WMHandler WMHandler;
-    WMHandler                   wnhandler;
-    tbb::task_scheduler_init    tbb_init;
-
-    ist::IKeyboardDevice         *keyboard;
-    ist::IMouseDevice            *mouse;
-    ist::IControlerDevice        *controller;
-
-    AtomicGame              *game;
-    InputState              inputs;
-    AtomicConfig            config;
-    bool request_exit;
-    bool request_title;
-#ifdef atm_enable_debug_log
-    FILE *log;
-#endif // atm_enable_debug_log
-
-    Members()
-        : keyboard(nullptr)
-        , mouse(nullptr)
-        , controller(nullptr)
-        , game(nullptr)
-        , request_exit(false)
-        , request_title(false)
-    {
-    }
-};
-istMemberPtrImpl_Noncopyable(AtomicApplication,Members)
-
-void AtomicApplication::requestExit()                       { m->request_exit=true; }
-void AtomicApplication::requestReturnToTitleScreen()        { m->request_title=true; }
-AtomicGame* AtomicApplication::getGame()                    { return m->game; }
-const InputState* AtomicApplication::getSystemInputs() const{ return &m->inputs; }
-AtomicConfig* AtomicApplication::getConfig()                { return &m->config; }
+void AtomicApplication::requestExit()                       { m_request_exit=true; }
+void AtomicApplication::requestReturnToTitleScreen()        { m_request_title=true; }
+AtomicGame* AtomicApplication::getGame()                    { return m_game; }
+const InputState* AtomicApplication::getSystemInputs() const{ return &m_inputs; }
+AtomicConfig* AtomicApplication::getConfig()                { return &m_config; }
 
 
 
 AtomicApplication* AtomicApplication::getInstance() { return static_cast<AtomicApplication*>(ist::Application::getInstance()); }
 
 AtomicApplication::AtomicApplication()
+    : m_keyboard(nullptr)
+    , m_mouse(nullptr)
+    , m_controller(nullptr)
+    , m_game(nullptr)
+    , m_request_exit(false)
+    , m_request_title(false)
 {
-    m->wnhandler = std::bind(&AtomicApplication::handleWindowMessage, this, std::placeholders::_1);
-    addMessageHandler(&m->wnhandler);
+    m_wnhandler = std::bind(&AtomicApplication::handleWindowMessage, this, std::placeholders::_1);
+    addMessageHandler(&m_wnhandler);
 
 #ifdef atm_enable_debug_log
-    m->log = fopen("atomic.log", "wb");
+    m_log = fopen("atomic.log", "wb");
 #endif // atm_enable_debug_log
 }
 
 AtomicApplication::~AtomicApplication()
 {
 #ifdef atm_enable_debug_log
-    if(m->log!=nullptr) {
-        fclose(m->log);
+    if(m_log!=nullptr) {
+        fclose(m_log);
     }
 #endif // atm_enable_debug_log
 
-    eraseMessageHandler(&m->wnhandler);
+    eraseMessageHandler(&m_wnhandler);
 }
 
 bool AtomicApplication::initialize(int argc, char *argv[])
 {
-    AtomicConfig &conf = m->config;
+    AtomicConfig &conf = m_config;
     conf.readFromFile(ATOMIC_CONFIG_FILE_PATH);
     if(conf.window_pos.x >= 30000) { conf.window_pos.x = 0; }
     if(conf.window_pos.y >= 30000) { conf.window_pos.y = 0; }
     if(conf.window_size.x < 320 || conf.window_size.x < 240) { conf.window_size = ivec2(1024, 768); }
 
-    m->keyboard     = ist::CreateKeyboardDevice();
-    m->mouse        = ist::CreateMouseDevice();
-    m->controller   = ist::CreateControllerDevice();
+    m_keyboard     = ist::CreateKeyboardDevice();
+    m_mouse        = ist::CreateMouseDevice();
+    m_controller   = ist::CreateControllerDevice();
 
 #ifdef atm_enable_shader_live_edit
     ::AllocConsole();
@@ -247,7 +222,7 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     //    gconf.gmode = GameStartConfig::GM_Replay;
     //    gconf.path_to_replay = argv[1];
     //}
-    //m->game = istNew(AtomicGame)(gconf);
+    //m_game = istNew(AtomicGame)(gconf);
 
     // start server
     Poco::ThreadPool::defaultPool().addCapacity(8);
@@ -264,14 +239,14 @@ bool AtomicApplication::initialize(int argc, char *argv[])
 
 void AtomicApplication::finalize()
 {
-    m->config.writeToFile(ATOMIC_CONFIG_FILE_PATH);
+    m_config.writeToFile(ATOMIC_CONFIG_FILE_PATH);
 
     atmWebServerFinalize();
     atmGameClientFinalize();
     atmGameServerFinalize();
     Poco::ThreadPool::defaultPool().joinAll();
 
-    istSafeDelete(m->game);
+    istSafeDelete(m_game);
 
     AtomicSound::finalizeInstance();
     AtomicRenderingSystem::finalizeInstance();
@@ -283,9 +258,9 @@ void AtomicApplication::finalize()
 
     istTaskSchedulerFinalize();
 
-    istSafeRelease(m->controller);
-    istSafeRelease(m->mouse);
-    istSafeRelease(m->keyboard);
+    istSafeRelease(m_controller);
+    istSafeRelease(m_mouse);
+    istSafeRelease(m_keyboard);
 
     FinalizeText();
     atmFinalizeCrashReporter();
@@ -300,7 +275,7 @@ void AtomicApplication::mainLoop()
     const float32 delay = 16.666f;
     const float32 dt = 1.0f;
 
-    while(!m->request_exit)
+    while(!m_request_exit)
     {
         dpUpdate();
         wdmFlush();
@@ -308,7 +283,7 @@ void AtomicApplication::mainLoop()
         translateMessage();
         update();
 
-        AtomicGame *game = m->game;
+        AtomicGame *game = m_game;
         if(game) {
             game->frameBegin();
             game->update(dt);
@@ -318,9 +293,9 @@ void AtomicApplication::mainLoop()
             game->asyncupdateEnd();
             game->frameEnd();
 
-            if(m->request_title) {
-                m->request_title = false;
-                istSafeDelete(m->game);
+            if(m_request_title) {
+                m_request_title = false;
+                istSafeDelete(m_game);
                 ((iui::Widget*)atmGetTitleWindow())->setVisibility(true);
             }
         }
@@ -349,7 +324,7 @@ void AtomicApplication::update()
     istPoolUpdate();
     iuiUpdate();
 
-    AtomicConfig &conf = m->config;
+    AtomicConfig &conf = m_config;
     if(getKeyboardState().isKeyTriggered(ist::KEY_F1)) {
         wdmOpenBrowser();
     }
@@ -380,11 +355,11 @@ void AtomicApplication::update()
         conf.debug_show_resolution = !conf.debug_show_resolution;
     }
     if(getKeyboardState().isKeyTriggered(ist::KEY_ESCAPE)) {
-        if(m->game) {
-            m->request_title = true;
+        if(m_game) {
+            atmPauseAndShowPauseMenu();
         }
         else {
-            m->request_exit = true;
+            m_request_exit = true;
         }
     }
     if(getKeyboardState().isKeyTriggered('7')) {
@@ -402,7 +377,7 @@ void AtomicApplication::update()
 
 void AtomicApplication::draw()
 {
-    AtomicGame *game = m->game;
+    AtomicGame *game = m_game;
     if(game) {
         game->draw();
     }
@@ -414,19 +389,19 @@ void AtomicApplication::draw()
 
 void AtomicApplication::requestStartGame(const GameStartConfig &conf)
 {
-    istSafeDelete(m->game);
-    m->game = istNew(AtomicGame)();
-    m->game->config(conf);
+    istSafeDelete(m_game);
+    m_game = istNew(AtomicGame)();
+    m_game->config(conf);
 }
 
 
 void AtomicApplication::updateInput()
 {
-    m->keyboard->update();
-    m->mouse->update();
-    m->controller->update();
+    m_keyboard->update();
+    m_mouse->update();
+    m_controller->update();
 
-    AtomicConfig &conf = m->config;
+    AtomicConfig &conf = m_config;
 
     RepMove move;
     RepButton buttons = 0;
@@ -455,7 +430,7 @@ void AtomicApplication::updateInput()
         RepMove jpos(int16(pos.x*INT16_MAX), int16(pos.y*INT16_MAX));
         if(glm::length(jpos.toF())>0.4f) { move=jpos; }
     }
-    m->inputs.update(RepInput(move, buttons));
+    m_inputs.update(RepInput(move, buttons));
 }
 
 bool AtomicApplication::handleWindowMessage(const ist::WM_Base& wm)
@@ -464,7 +439,7 @@ bool AtomicApplication::handleWindowMessage(const ist::WM_Base& wm)
     {
     case ist::WMT_WindowClose:
         {
-            m->request_exit = true;
+            m_request_exit = true;
         }
         return true;
 
@@ -474,14 +449,14 @@ bool AtomicApplication::handleWindowMessage(const ist::WM_Base& wm)
     case ist::WMT_WindowSize:
         {
             auto &mes = static_cast<const ist::WM_Window&>(wm);
-            m->config.window_size = mes.window_size;
+            m_config.window_size = mes.window_size;
         }
         return true;
 
     case ist::WMT_WindowMove:
         {
             auto &mes = static_cast<const ist::WM_Window&>(wm);
-            m->config.window_pos = mes.window_pos;
+            m_config.window_pos = mes.window_pos;
         }
         return true;
 
@@ -525,8 +500,8 @@ void AtomicApplication::handleError(ErrorCode e)
 void AtomicApplication::drawCallback()
 {
     AtomicRenderer::getInstance()->beforeDraw();
-    if(m->game) {
-        m->game->drawCallback();
+    if(m_game) {
+        m_game->drawCallback();
     }
 }
 
@@ -535,11 +510,11 @@ void AtomicApplication::drawCallback()
 #ifdef atm_enable_debug_log
 void AtomicApplication::printDebugLog( const char *format, ... )
 {
-    if(m->log==nullptr) { return; }
+    if(m_log==nullptr) { return; }
     va_list vl;
     va_start(vl, format);
-    fprintf(m->log, "%d ", (uint32)atmGetFrame());
-    vfprintf(m->log, format, vl);
+    fprintf(m_log, "%d ", (uint32)atmGetFrame());
+    vfprintf(m_log, format, vl);
     va_end(vl);
 }
 #endif // atm_enable_debug_log
@@ -552,18 +527,21 @@ void AtomicApplication::registerCommands()
 
 const ist::KeyboardState& AtomicApplication::getKeyboardState() const
 {
-    return m->keyboard->getState();
+    return m_keyboard->getState();
 }
 
 const ist::MouseState& AtomicApplication::getMouseState() const
 {
-    return m->mouse->getState();
+    return m_mouse->getState();
 }
 
 const ist::ControllerState& AtomicApplication::getControllerState() const
 {
-    return m->controller->getState();
+    return m_controller->getState();
 }
 
+
+void atmPause(bool v)   { atmGetConfig()->pause=v; }
+bool atmIsPaused()      { return atmGetConfig()->pause; }
 
 } // namespace atm

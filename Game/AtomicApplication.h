@@ -100,8 +100,27 @@ public:
 private:
     void registerCommands();
 
-    istMemberPtrDecl(Members) m;
+    typedef ist::Application::WMHandler WMHandler;
+    WMHandler                   m_wnhandler;
+    tbb::task_scheduler_init    m_tbb_init;
+
+    ist::IKeyboardDevice   *m_keyboard;
+    ist::IMouseDevice      *m_mouse;
+    ist::IControlerDevice  *m_controller;
+
+    AtomicGame     *m_game;
+    InputState      m_inputs;
+    AtomicConfig    m_config;
+    bool            m_request_exit;
+    bool            m_request_title;
+#ifdef atm_enable_debug_log
+    FILE           *m_log;
+#endif // atm_enable_debug_log
 };
+
+void atmPause(bool v);
+bool atmIsPaused();
+void atmPauseAndShowPauseMenu();
 
 } // namespace atm
 
@@ -115,5 +134,8 @@ private:
 #else  // atm_enable_debug_log
 #   define atmDebugLog(...)          
 #endif // atm_enable_debug_log
+
+#define atmRequestReturnToTitleScreen() atmGetApplication()->requestReturnToTitleScreen()
+#define atmRequestExit()                atmGetApplication()->requestExit()
 
 #endif atm_Game_AtomicApplication_h

@@ -119,12 +119,12 @@ List::List( Widget *parent, const Rect &rect, WidgetCallback on_item_click )
     using std::placeholders::_1;
     Float sb_w = 18.0f;
     Rect scrollbar_rect(Position(rect.getSize().x-sb_w, sb_w), Size(sb_w, rect.getSize().y-(sb_w*2.0f)));
-    m_scrollbar = istNew(VScrollbar)(this, scrollbar_rect, std::bind(&List::onScroll, this, _1));
+    m_scrollbar = iuiNew(VScrollbar)(this, scrollbar_rect, std::bind(&List::onScroll, this, _1));
     m_scrollbar->setRange(0.0f);
     m_scrollbar->setPageSize(rect.getSize().y);
 
-    m_scroll_buttons[0] = istNew(Button)(this, L"△", Rect(Position(rect.getSize().x-sb_w, 0.0f), Size(sb_w,sb_w)), std::bind(&List::onScrollButton, this, _1));
-    m_scroll_buttons[1] = istNew(Button)(this, L"▽", Rect(Position(rect.getSize().x-sb_w, rect.getSize().y-sb_w), Size(sb_w,sb_w)), std::bind(&List::onScrollButton, this, _1));
+    m_scroll_buttons[0] = iuiNew(Button)(this, L"△", Rect(Position(rect.getSize().x-sb_w, 0.0f), Size(sb_w,sb_w)), std::bind(&List::onScrollButton, this, _1));
+    m_scroll_buttons[1] = iuiNew(Button)(this, L"▽", Rect(Position(rect.getSize().x-sb_w, rect.getSize().y-sb_w), Size(sb_w,sb_w)), std::bind(&List::onScrollButton, this, _1));
 }
 
 List::~List()
@@ -191,7 +191,7 @@ void List::addListItem(ListItem *item, int32 pos)
 
 void List::addListItem(const String &text, void *userdata, int32 pos)
 {
-    addListItem(istNew(ListItem)(text, userdata), pos);
+    addListItem(iuiNew(ListItem)(text, userdata), pos);
 }
 
 bool List::handleEvent( const WM_Base &wm )
