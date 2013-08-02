@@ -5,7 +5,7 @@
 namespace iui {
 
 
-class iuiInterModule UISystem
+class iuiAPI UISystem
 {
 friend class Widget;
 public:

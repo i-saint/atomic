@@ -4,14 +4,14 @@
 #include "iuiWidget.h"
 namespace iui {
 
-class iuiInterModule ButtonStyle : public Style
+class iuiAPI ButtonStyle : public Style
 {
 public:
     ButtonStyle();
     virtual void draw();
 };
 
-class iuiInterModule Button : public Widget
+class iuiAPI Button : public Widget
 {
 typedef Widget super;
 public:
@@ -23,7 +23,7 @@ public:
     bool isHovered() const;
 
     bool handleEvent(const WM_Base &wm) override;
-    bool onOK() override;
+    bool onOK(const WM_Widget &em) override;
     virtual void push();
 
 private:
@@ -33,14 +33,14 @@ private:
 };
 
 
-class iuiInterModule ToggleButtonStyle : public Style
+class iuiAPI ToggleButtonStyle : public Style
 {
 public:
     ToggleButtonStyle();
     virtual void draw();
 };
 
-class iuiInterModule ToggleButton : public Widget
+class iuiAPI ToggleButton : public Widget
 {
 typedef Widget super;
 public:
@@ -53,7 +53,7 @@ public:
     void setPressed(bool v, bool fire_event=true);
 
     bool handleEvent(const WM_Base &wm) override;
-    bool onOK() override;
+    bool onOK(const WM_Widget &em) override;
     virtual void toggle();
 
 private:
@@ -64,13 +64,13 @@ private:
 };
 
 
-class iuiInterModule CheckboxStyle : public Style
+class iuiAPI CheckboxStyle : public Style
 {
 public:
     virtual void draw();
 };
 
-class iuiInterModule Checkbox : public Widget
+class iuiAPI Checkbox : public Widget
 {
 typedef Widget super;
 public:
@@ -80,7 +80,7 @@ public:
     bool isPressing() const;
 
     bool handleEvent(const WM_Base &wm) override;
-    bool onOK() override;
+    bool onOK(const WM_Widget &em) override;
 
 private:
     WidgetCallback m_on_toggle;

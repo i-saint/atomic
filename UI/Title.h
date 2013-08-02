@@ -28,10 +28,10 @@ public:
     void update(iui::Float dt);
     void draw();
 
-    void pushSelection(iui::Widget *v);
+    void pushSelection(iui::Widget *v, int32 i=-1);
     void popSelection();
     void clearSelection();
-    void setSelection(iui::Widget *v);
+    void setSelection(iui::Widget *v, int32 i=-1);
 
     void moveNext();
     void movePrev();
@@ -42,6 +42,7 @@ private:
     ist::vector<State> m_stack;
     iui::Position m_pos;
     iui::Size m_size;
+    iui::Float m_time;
 };
 
 
@@ -51,7 +52,7 @@ typedef iui::RootWindow super;
 public:
     RootWindow();
     ~RootWindow();
-    void update(iui::Float dt=0.0f) override;
+    void update(iui::Float dt=1.0f) override;
     void draw() override;
 
     UICursor* getCursor() { return m_cursor; }
@@ -70,7 +71,7 @@ public:
     void draw() override;
     void setVisibility(bool v) override;
     void unselectAll();
-    bool onCancel() override;
+    bool onCancel(const iui::WM_Widget &wm) override;
 
 private:
     void onStart(Widget *);
@@ -93,7 +94,7 @@ private:
     void onCampaign(Widget *);
     void onHorde(Widget *);
     void onEdit(Widget *);
-    bool onCancel() override;
+    bool onCancel(const iui::WM_Widget &wm) override;
 };
 
 class RecordWindow : public iui::Panel
@@ -104,7 +105,7 @@ public:
 private:
     void onSelect(Widget *);
     void onStart(Widget *);
-    bool onCancel() override;
+    bool onCancel(const iui::WM_Widget &wm) override;
 
     iui::List   *m_li_files;
     iui::Button *m_bu_start;
@@ -124,7 +125,7 @@ private:
     void onBGMOnOff(Widget *);
     void onSEVolume(Widget *);
     void onSEOnOff(Widget *);
-    bool onCancel() override;
+    bool onCancel(const iui::WM_Widget &wm) override;
 };
 
 class LogWindow : public iui::Panel

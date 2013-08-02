@@ -53,7 +53,9 @@ class Widget;
 struct WM_Widget : public WM_Base
 {
     Widget *from;
+    size_t option;
 
+    WM_Widget(Widget *f=nullptr, size_t o=0) : from(f), option(o) {}
     static const WM_Widget& cast(const WM_Base &wm) { return static_cast<const WM_Widget&>(wm); }
 };
 

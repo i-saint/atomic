@@ -167,7 +167,7 @@ void TitleWindow::setVisibility( bool v )
     }
 }
 
-bool TitleWindow::onCancel()
+bool TitleWindow::onCancel(const iui::WM_Widget &wm)
 {
     unselectAll();
     atmGetUICursor()->popSelection();
@@ -214,9 +214,9 @@ void StartWindow::onEdit( Widget * )
     atmGetTitleWindow()->setVisibility(false);
 }
 
-bool StartWindow::onCancel()
+bool StartWindow::onCancel(const iui::WM_Widget &wm)
 {
-    return getParent()->onCancel();
+    return getParent()->onCancel(wm);
 }
 
 
@@ -258,9 +258,9 @@ void RecordWindow::onStart( Widget * )
     atmGetTitleWindow()->setVisibility(false);
 }
 
-bool RecordWindow::onCancel()
+bool RecordWindow::onCancel(const iui::WM_Widget &wm)
 {
-    return getParent()->onCancel();
+    return getParent()->onCancel(wm);
 }
 
 
@@ -310,9 +310,9 @@ void ConfigWindow::onSEOnOff(Widget *)
 {
 }
 
-bool ConfigWindow::onCancel()
+bool ConfigWindow::onCancel(const iui::WM_Widget &wm)
 {
-    return getParent()->onCancel();
+    return getParent()->onCancel(wm);
 }
 
 

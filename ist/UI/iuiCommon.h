@@ -5,11 +5,11 @@
 #include "ist/Window.h"
 
 #if defined(iuiExportSymbols)
-#   define iuiInterModule istDLLExport
+#   define iuiAPI istDLLExport
 #elif defined(iuiImportSymbols)
-#   define iuiInterModule istDLLImport
+#   define iuiAPI istDLLImport
 #else
-#   define iuiInterModule
+#   define iuiAPI
 #endif // iuiExportSymbols
 
 

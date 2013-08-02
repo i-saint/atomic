@@ -7,26 +7,13 @@
 namespace iui {
 
 
-struct HSlider::Members
-{
-    WidgetCallback on_change;
-    Range range;
-    Float position;
-    bool dragging;
-
-    Members() : position(0.0f), dragging(false)
-    {
-    }
-};
-istMemberPtrImpl(HSlider,Members);
-
-Float HSlider::getValue() const { return m->position; }
+Float HSlider::getValue() const { return m_position; }
 
 HSlider::HSlider( const WidgetCallback &on_change )
+    : m_position(0.0f), m_dragging(false)
 {
-    m->on_change = on_change;
+    m_on_change = on_change;
 }
-
 
 
 
@@ -49,28 +36,11 @@ void VScrollbarStyle::draw()
 iuiImplDefaultStyle(VScrollbar);
 
 
-struct VScrollbar::Members
-{
-    Float           value;
-    Float           pagesize;
-    Float           range;
-    Position        bar_pos;
-    Size            bar_size;
-    bool            bar_hovered;
-    bool            bar_draggind;
-    WidgetCallback  on_change_value;
-
-    Members() : value(0.0f), pagesize(0.0f), range(0.0f), bar_pos(), bar_size(), bar_hovered(false), bar_draggind(false)
-    {
-    }
-};
-istMemberPtrImpl(VScrollbar,Members);
-
-Float       VScrollbar::getValue() const       { return m->value; }
-Float       VScrollbar::getPageSize() const    { return m->pagesize; }
-Float       VScrollbar::getRange() const       { return m->range; }
-Position    VScrollbar::getBarPosition() const { return m->bar_pos; }
-Size        VScrollbar::getBarSize() const     { return m->bar_size; }
+Float       VScrollbar::getValue() const       { return m_value; }
+Float       VScrollbar::getPageSize() const    { return m_pagesize; }
+Float       VScrollbar::getRange() const       { return m_range; }
+Position    VScrollbar::getBarPosition() const { return m_bar_pos; }
+Size        VScrollbar::getBarSize() const     { return m_bar_size; }
 
 Rect VScrollbar::getBarRect() const
 {
@@ -87,30 +57,31 @@ Rect VScrollbar::getBarRect() const
     return bar;
 }
 
-bool        VScrollbar::isBarHovered() const   { return m->bar_hovered; }
-bool        VScrollbar::isBarDragging() const  { return m->bar_draggind; }
+bool        VScrollbar::isBarHovered() const   { return m_bar_hovered; }
+bool        VScrollbar::isBarDragging() const  { return m_bar_draggind; }
 
 void        VScrollbar::setValue(Float v)
 {
-    m->value = ist::clamp<Float>(0.0f, v, m->range);
-    callIfValid(m->on_change_value);
+    m_value = ist::clamp<Float>(0.0f, v, m_range);
+    callIfValid(m_on_change_value);
 }
 
 void VScrollbar::setPageSize( Float v )
 {
-    m->pagesize = v;
+    m_pagesize = v;
 }
 void        VScrollbar::setRange(Float v)
 {
-    m->range = std::max<Float>(0.0f, v-m->pagesize);
+    m_range = std::max<Float>(0.0f, v-m_pagesize);
 }
 
 VScrollbar::VScrollbar(Widget *parent, const Rect &rect, WidgetCallback on_change_value)
+    : m_value(0.0f), m_pagesize(0.0f), m_range(0.0f), m_bar_pos(), m_bar_size(), m_bar_hovered(false), m_bar_draggind(false)
 {
     setParent(parent);
     setPosition(rect.getPosition());
     setSize(rect.getSize());
-    m->on_change_value = on_change_value;
+    m_on_change_value = on_change_value;
 }
 
 VScrollbar::~VScrollbar()
@@ -121,14 +92,14 @@ void VScrollbar::update( Float dt )
 {
     Rect bar = getBarRect();
     bar.setPosition(bar.getPosition()+getPositionAbs());
-    HandleMouseHover(bar, m->bar_hovered);
+    HandleMouseHover(bar, m_bar_hovered);
     super::update(dt);
 }
 
 bool VScrollbar::handleEvent( const WM_Base &wm )
 {
     if(wm.type==WMT_MouseMove) {
-        if(m->bar_draggind) {
+        if(m_bar_draggind) {
             const WM_Mouse &m = WM_Mouse::cast(wm);
             Rect bar = getBarRect();
             Float scroll_range = getSize().y - bar.getSize().y;
@@ -140,11 +111,11 @@ bool VScrollbar::handleEvent( const WM_Base &wm )
         bar.setPosition(bar.getPosition()+getPositionAbs());
         switch(MouseHit(bar, wm)) {
         case WH_HitMouseLeftDown:
-            m->bar_draggind = true;
+            m_bar_draggind = true;
             break;
         case WH_HitMouseLeftUp:
         case WH_MissMouseLeftUp:
-            m->bar_draggind = false;
+            m_bar_draggind = false;
             break;
         }
         switch(MouseHit(this, wm)) {

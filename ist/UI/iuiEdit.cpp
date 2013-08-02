@@ -56,19 +56,8 @@ void EditboxStyle::draw()
 }
 iuiImplDefaultStyle(Editbox);
 
-struct Editbox::Members
-{
-    bool readonly;
-    bool hovered;
-    int32 cursor;
-
-    Members() : readonly(false), hovered(false), cursor(0)
-    {
-    }
-};
-istMemberPtrImpl(Editbox,Members);
-
 Editbox::Editbox(Widget *parent, const wchar_t *text, const Rect &rect, WidgetCallback on_edit)
+    : m_readonly(false), m_hovered(false), m_cursor(0)
 {
     setParent(parent);
     setText(text);
@@ -77,16 +66,16 @@ Editbox::Editbox(Widget *parent, const wchar_t *text, const Rect &rect, WidgetCa
     setTextHandler(on_edit);
 }
 
-int32   Editbox::getCursor() const      { return m->cursor; }
+int32   Editbox::getCursor() const      { return m_cursor; }
 
-bool    Editbox::isHovered() const      { return m->hovered; }
-bool    Editbox::isReadOnly() const     { return m->readonly; }
-void    Editbox::setReadOnly(bool ro)   { m->readonly=ro; }
-void    Editbox::setCursor(int32 cursor){ m->cursor=cursor; }
+bool    Editbox::isHovered() const      { return m_hovered; }
+bool    Editbox::isReadOnly() const     { return m_readonly; }
+void    Editbox::setReadOnly(bool ro)   { m_readonly=ro; }
+void    Editbox::setCursor(int32 cursor){ m_cursor=cursor; }
 
 void Editbox::update( Float dt )
 {
-    HandleMouseHover(this, m->hovered);
+    HandleMouseHover(this, m_hovered);
     super::update(dt);
 }
 
@@ -110,22 +99,16 @@ void EditboxMultilineStyle::draw()
     iuiGetRenderer()->drawOutlineRect(Rect(w->getPosition(), w->getSize()), getBorderColor());
 }
 
-struct EditboxMultiline::Members
-{
-    WidgetCallback on_change;
-    bool readonly;
-    ivec2 cursor;
-};
-istMemberPtrImpl(EditboxMultiline,Members);
 
-bool EditboxMultiline::isReadOnly() const           { return m->readonly; }
-const ivec2& EditboxMultiline::getCursor() const    { return m->cursor; }
+bool EditboxMultiline::isReadOnly() const           { return m_readonly; }
+const ivec2& EditboxMultiline::getCursor() const    { return m_cursor; }
 Style* EditboxMultiline::createDefaultStyle() const { return istNew(EditboxMultilineStyle)(); }
 
 EditboxMultiline::EditboxMultiline( const wchar_t *text, WidgetCallback on_change )
+    : m_readonly(false), m_cursor()
 {
-    m->on_change = on_change;
     setText(text);
+    setTextHandler(on_change);
 }
 
 

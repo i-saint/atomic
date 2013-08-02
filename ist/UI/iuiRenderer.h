@@ -27,7 +27,7 @@ struct TextPosition
         : rect(rc), halign(ha), valign(va), hspace(hs), vspace(vs) {}
 };
 
-class iuiInterModule UIRenderer
+class iuiAPI UIRenderer
 {
 public:
     virtual void release()=0;

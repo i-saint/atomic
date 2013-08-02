@@ -9,25 +9,11 @@ namespace iui {
 
 
 
-struct ListItem::Members
-{
-    String text;
-    void *userdata;
-    int32 index;
-    bool hovered;
-    bool selected;
-    bool destroyed;
-
-    Members()
-        : userdata(NULL), index(0), hovered(false), selected(false), destroyed(false)
-    {}
-};
-istMemberPtrImpl(ListItem,Members);
-
 ListItem::ListItem(const String &text, void *userdata)
+    : m_parent(nullptr), m_userdata(nullptr), m_index(0), m_hovered(false), m_selected(false), m_destroyed(false)
 {
-    m->text = text;
-    m->userdata = userdata;
+    m_text = text;
+    m_userdata = userdata;
 }
 
 ListItem::~ListItem()
@@ -38,20 +24,20 @@ void ListItem::update(Float dt)
 {
 }
 
-void            ListItem::destroy()                 { m->destroyed=true; }
+void            ListItem::destroy()                 { m_destroyed=true; }
 
-const String&   ListItem::getText() const           { return m->text; }
-void*           ListItem::getUserData() const       { return m->userdata; }
-int32           ListItem::getIndex() const          { return m->index; }
-bool            ListItem::isHovered() const         { return m->hovered; }
-bool            ListItem::isSelected() const        { return m->selected; }
-bool            ListItem::isDestroyed() const       { return m->destroyed; }
+const String&   ListItem::getText() const           { return m_text; }
+void*           ListItem::getUserData() const       { return m_userdata; }
+int32           ListItem::getIndex() const          { return m_index; }
+bool            ListItem::isHovered() const         { return m_hovered; }
+bool            ListItem::isSelected() const        { return m_selected; }
+bool            ListItem::isDestroyed() const       { return m_destroyed; }
 
-void            ListItem::setText(const String &v)  { m->text=v; }
-void            ListItem::setUserData(void *v)      { m->userdata=v; }
-void            ListItem::setIndex(int32 v)         { m->index=v; }
-void            ListItem::setHovered(bool v)        { m->hovered=v; }
-void            ListItem::setSelected(bool v)       { m->selected=v; }
+void            ListItem::setText(const String &v)  { m_text=v; }
+void            ListItem::setUserData(void *v)      { m_userdata=v; }
+void            ListItem::setIndex(int32 v)         { m_index=v; }
+void            ListItem::setHovered(bool v)        { m_hovered=v; }
+void            ListItem::setSelected(bool v)       { m_selected=v; }
 
 
 ListStyle::ListStyle()
@@ -105,56 +91,40 @@ iuiImplDefaultStyle(List);
 
 
 
-struct List::Members
-{
-    VScrollbar *scrollbar;
-    Button *scroll_buttons[2];
-    ListItemCont items;
-    WidgetCallback on_item_click;
-    WidgetCallback on_item_doubleclick;
-    WidgetCallback on_item_hovered;
-    Float item_height;
-    Float scroll_pos;
-
-    Members() : scrollbar(NULL), item_height(18.0f), scroll_pos(0.0f)
-    {
-        std::fill_n(scroll_buttons, _countof(scroll_buttons), (Button*)NULL);
-    }
-};
-istMemberPtrImpl(List,Members);
-
-Float               List::getItemHeight() const { return m->item_height; }
-Float               List::getScrollPos() const  { return m->scroll_pos; }
-VScrollbar*         List::getScrollbar() const  { return m->scrollbar; }
-ListItemCont&       List::getItems()            { return m->items; }
-const ListItemCont& List::getItems() const      { return m->items; }
+Float               List::getItemHeight() const { return m_item_height; }
+Float               List::getScrollPos() const  { return m_scroll_pos; }
+VScrollbar*         List::getScrollbar() const  { return m_scrollbar; }
+ListItemCont&       List::getItems()            { return m_items; }
+const ListItemCont& List::getItems() const      { return m_items; }
 Size List::getSizeWithoutScrollbar() const
 {
     Size size = getSize();
-    size.x -= m->scrollbar->getSize().x;
+    size.x -= m_scrollbar->getSize().x;
     return size;
 }
 
-void List::setItemClickHandler(WidgetCallback cb)       { m->on_item_click=cb; }
-void List::setItemDoubleClickHandler(WidgetCallback cb) { m->on_item_doubleclick=cb; }
-void List::setItemHoverHandler(WidgetCallback cb)       { m->on_item_hovered=cb; }
+void List::setItemClickHandler(WidgetCallback cb)       { m_on_item_click=cb; }
+void List::setItemDoubleClickHandler(WidgetCallback cb) { m_on_item_doubleclick=cb; }
+void List::setItemHoverHandler(WidgetCallback cb)       { m_on_item_hovered=cb; }
 
 List::List( Widget *parent, const Rect &rect, WidgetCallback on_item_click )
+    : m_scrollbar(nullptr), m_item_height(18.0f), m_scroll_pos(0.0f)
 {
+    std::fill_n(m_scroll_buttons, _countof(m_scroll_buttons), (Button*)nullptr);
     setParent(parent);
     setPosition(rect.getPosition());
     setSize(rect.getSize());
-    m->on_item_click = on_item_click;
+    m_on_item_click = on_item_click;
 
     using std::placeholders::_1;
     Float sb_w = 18.0f;
     Rect scrollbar_rect(Position(rect.getSize().x-sb_w, sb_w), Size(sb_w, rect.getSize().y-(sb_w*2.0f)));
-    m->scrollbar = istNew(VScrollbar)(this, scrollbar_rect, std::bind(&List::onScroll, this, _1));
-    m->scrollbar->setRange(0.0f);
-    m->scrollbar->setPageSize(rect.getSize().y);
+    m_scrollbar = istNew(VScrollbar)(this, scrollbar_rect, std::bind(&List::onScroll, this, _1));
+    m_scrollbar->setRange(0.0f);
+    m_scrollbar->setPageSize(rect.getSize().y);
 
-    m->scroll_buttons[0] = istNew(Button)(this, L"△", Rect(Position(rect.getSize().x-sb_w, 0.0f), Size(sb_w,sb_w)), std::bind(&List::onScrollButton, this, _1));
-    m->scroll_buttons[1] = istNew(Button)(this, L"▽", Rect(Position(rect.getSize().x-sb_w, rect.getSize().y-sb_w), Size(sb_w,sb_w)), std::bind(&List::onScrollButton, this, _1));
+    m_scroll_buttons[0] = istNew(Button)(this, L"△", Rect(Position(rect.getSize().x-sb_w, 0.0f), Size(sb_w,sb_w)), std::bind(&List::onScrollButton, this, _1));
+    m_scroll_buttons[1] = istNew(Button)(this, L"▽", Rect(Position(rect.getSize().x-sb_w, rect.getSize().y-sb_w), Size(sb_w,sb_w)), std::bind(&List::onScrollButton, this, _1));
 }
 
 List::~List()
@@ -168,12 +138,12 @@ void List::update(Float dt)
     bool hovered = false;
     HandleMouseHover(Rect(getPositionAbs(), getSizeWithoutScrollbar()), hovered);
     if(hovered) {
-        Position pos = getPositionAbs(); pos.y-=m->scroll_pos;
+        Position pos = getPositionAbs(); pos.y-=m_scroll_pos;
         Position rel = iuiGetSystem()->getMousePos() - pos;
-        int32 index = int32(rel.y / m->item_height);
-        if(index>=0 && index<(int32)m->items.size()) {
-            m->items[index]->setHovered(true);
-            callIfValid(m->on_item_hovered);
+        int32 index = int32(rel.y / m_item_height);
+        if(index>=0 && index<(int32)m_items.size()) {
+            m_items[index]->setHovered(true);
+            callIfValid(m_on_item_hovered);
         }
     }
 
@@ -187,7 +157,7 @@ void List::update(Float dt)
         }
     });
     if(num_destroyed>0) {
-        m->items.erase(std::remove(m->items.begin(), m->items.end(), (ListItem*)NULL), m->items.end());
+        m_items.erase(std::remove(m_items.begin(), m_items.end(), (ListItem*)NULL), m_items.end());
         onChangeNumItems();
     }
 
@@ -207,15 +177,15 @@ const ListItem* List::getSelectedItem( size_t i ) const
 void List::clearItems()
 {
     eachListItem([&](ListItem *item){ item->release(); });
-    m->items.clear();
+    m_items.clear();
 }
 
 void List::addListItem(ListItem *item, int32 pos)
 {
     if(pos<0) {
-        pos = (int32)m->items.size()+pos+1;
+        pos = (int32)m_items.size()+pos+1;
     }
-    m->items.insert(m->items.begin()+pos, item);
+    m_items.insert(m_items.begin()+pos, item);
     onChangeNumItems();
 }
 
@@ -229,53 +199,66 @@ bool List::handleEvent( const WM_Base &wm )
     switch(MouseHit(Rect(getPositionAbs(), getSizeWithoutScrollbar()), wm)) {
     case WH_HitMouseLeftDown:
         {
-            eachListItem([&](ListItem *item){ item->setSelected(false); });
-
-            Position pos = getPositionAbs(); pos.y-=m->scroll_pos;
+            Position pos = getPositionAbs(); pos.y-=m_scroll_pos;
             Position rel = WM_Mouse::cast(wm).mouse_pos - pos;
-            int32 index = int32(rel.y / m->item_height);
-            if(index>=0 && index<(int32)m->items.size()) {
-                m->items[index]->setSelected(true);
-                callIfValid(m->on_item_click);
+            int32 index = int32(rel.y / m_item_height);
+            if(index>=0 && index<(int32)m_items.size()) {
+                selectItem(index);
             }
             setFocus(true);
             return true;
         }
     case WH_HitMouseWheelUp:
         {
-            m->scrollbar->scroll(m->item_height*-2.0f);
+            m_scrollbar->scroll(m_item_height*-2.0f);
             return true;
         }
     case WH_HitMouseWheelDown:
         {
-            m->scrollbar->scroll(m->item_height*2.0f);
+            m_scrollbar->scroll(m_item_height*2.0f);
             return true;
         }
     }
     return super::handleEvent(wm);
 }
 
+bool List::selectItem( uint32 index )
+{
+    eachListItem([&](ListItem *item){ item->setSelected(false); });
+    if(index<m_items.size()) {
+        m_items[index]->setSelected(true);
+        callIfValid(m_on_item_click);
+        return true;
+    }
+    return false;
+}
+
+bool List::onOK(const WM_Widget &wm)
+{
+    return selectItem(wm.option);
+}
+
 void List::onChangeNumItems()
 {
-    Float scroll_size = m->items.size() * m->item_height;
-    m->scrollbar->setRange(scroll_size);
+    Float scroll_size = m_items.size() * m_item_height;
+    m_scrollbar->setRange(scroll_size);
 }
 
 void List::onScroll( Widget* )
 {
-    m->scroll_pos = m->scrollbar->getValue();
+    m_scroll_pos = m_scrollbar->getValue();
 }
 
 void List::onScrollButton( Widget *w )
 {
     float val = 0.0f;
-    if(w==m->scroll_buttons[0]) {
-        val = m->item_height * -2.0f;
+    if(w==m_scroll_buttons[0]) {
+        val = m_item_height * -2.0f;
     }
-    else if(w==m->scroll_buttons[1]) {
-        val = m->item_height * 2.0f;
+    else if(w==m_scroll_buttons[1]) {
+        val = m_item_height * 2.0f;
     }
-    m->scrollbar->scroll(val);
+    m_scrollbar->scroll(val);
 }
 
 } // namespace iui

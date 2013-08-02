@@ -68,7 +68,7 @@ bool Button::handleEvent( const WM_Base &wm )
     return super::handleEvent(wm);
 }
 
-bool Button::onOK()
+bool Button::onOK(const WM_Widget &em)
 {
     push();
     return true;
@@ -154,7 +154,7 @@ bool ToggleButton::handleEvent( const WM_Base &wm )
     return super::handleEvent(wm);
 }
 
-bool ToggleButton::onOK()
+bool ToggleButton::onOK(const WM_Widget &em)
 {
     toggle();
     return true;
@@ -204,7 +204,7 @@ bool Checkbox::handleEvent( const WM_Base &wm )
     return super::handleEvent(wm);
 }
 
-bool Checkbox::onOK()
+bool Checkbox::onOK(const WM_Widget &em)
 {
     return true;
 }

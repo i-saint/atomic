@@ -4,32 +4,30 @@
 #include "iuiWidget.h"
 namespace iui {
 
-class iuiInterModule LabelStyle : public Style
+class iuiAPI LabelStyle : public Style
 {
 public:
     LabelStyle();
     virtual void draw();
 };
 
-class iuiInterModule Label : public Widget
+class iuiAPI Label : public Widget
 {
 typedef Widget super;
 public:
     iuiImplWidget(Label)
     Label(Widget *parent, const wchar_t *text=L"", const Rect &rect=Rect());
-
-protected:
-    virtual bool handleEvent(const WM_Base &wm);
+    bool handleEvent(const WM_Base &wm) override;
 };
 
 
-class iuiInterModule EditboxStyle : public Style
+class iuiAPI EditboxStyle : public Style
 {
 public:
     virtual void draw();
 };
 
-class iuiInterModule Editbox : public Widget
+class iuiAPI Editbox : public Widget
 {
 typedef Widget super;
 public:
@@ -41,22 +39,23 @@ public:
     int32   getCursor() const;
     void    setReadOnly(bool ro);
     void    setCursor(int32 cursor);
+    bool    handleEvent(const WM_Base &wm) override;
 
-protected:
-    virtual bool handleEvent(const WM_Base &wm);
 private:
-    istMemberPtrDecl(Members) m;
+    bool m_readonly;
+    bool m_hovered;
+    int32 m_cursor;
 };
 
 
 
-class iuiInterModule EditboxMultilineStyle : public Style
+class iuiAPI EditboxMultilineStyle : public Style
 {
 public:
     virtual void draw();
 };
 
-class iuiInterModule EditboxMultiline : public Widget
+class iuiAPI EditboxMultiline : public Widget
 {
 typedef Widget super;
 public:
@@ -69,7 +68,8 @@ public:
 protected:
     virtual Style* createDefaultStyle() const;
 private:
-    istMemberPtrDecl(Members) m;
+    bool m_readonly;
+    ivec2 m_cursor;
 };
 
 } // namespace iui

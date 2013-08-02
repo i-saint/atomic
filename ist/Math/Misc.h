@@ -15,9 +15,23 @@ inline To force_cast(From v)
 }
 
 template<class T>
-inline T clamp(T v, T minmum, T maximum)
+inline T clamp(T v, T minimum, T maximum)
 {
-    return stl::min<T>(stl::max<T>(v, minmum), maximum);
+    return glm::min<T>(glm::max<T>(v, minimum), maximum);
+}
+
+template<class T> inline T mod(T v, T m) { return v%m; }
+template<> inline float32 mod<float32>(float32 v, float32 m) { return std::fmod(v,m); }
+template<> inline float64 mod<float64>(float64 v, float64 m) { return std::fmod(v,m); }
+
+template<class T>
+inline T wrap(T v, T minimum, T maximum)
+{
+    T range = maximum-minimum+1;
+    if(v < minimum) {
+        v += range * ((minimum-v) / range + 1);
+    }
+    return mod<T>(v-minimum, range) + minimum;
 }
 
 template<class T>

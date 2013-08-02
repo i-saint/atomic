@@ -5,13 +5,13 @@
 namespace iui {
 
 
-class iuiInterModule HSliderStyle : public Style
+class iuiAPI HSliderStyle : public Style
 {
 public:
     virtual void draw();
 };
 
-class iuiInterModule HSlider : public Widget
+class iuiAPI HSlider : public Widget
 {
 public:
     iuiImplWidget(HSlider)
@@ -19,19 +19,22 @@ public:
     Float getValue() const;
 
 private:
-    istMemberPtrDecl(Members) m;
+    WidgetCallback m_on_change;
+    Range   m_range;
+    Float   m_position;
+    bool    m_dragging;
 };
 
 
 
 
-class iuiInterModule HScrollbarStyle : public Style
+class iuiAPI HScrollbarStyle : public Style
 {
 public:
     virtual void draw();
 };
 
-class iuiInterModule HScrollbar : public Widget
+class iuiAPI HScrollbar : public Widget
 {
 public:
     iuiImplWidget(HScrollbar);
@@ -39,18 +42,17 @@ public:
     Float getValue() const;
 
 private:
-    istMemberPtrDecl(Members) m;
 };
 
 
 
-class iuiInterModule VScrollbarStyle : public Style
+class iuiAPI VScrollbarStyle : public Style
 {
 public:
     virtual void draw();
 };
 
-class iuiInterModule VScrollbar : public Widget
+class iuiAPI VScrollbar : public Widget
 {
 typedef Widget super;
 public:
@@ -75,11 +77,17 @@ public:
 
     void        scroll(Float v); // == setValue(getValue()+v);
 
-protected:
-    virtual bool handleEvent(const WM_Base &wm);
+    bool handleEvent(const WM_Base &wm) override;
 
 private:
-    istMemberPtrDecl(Members) m;
+    Float           m_value;
+    Float           m_pagesize;
+    Float           m_range;
+    Position        m_bar_pos;
+    Size            m_bar_size;
+    bool            m_bar_hovered;
+    bool            m_bar_draggind;
+    WidgetCallback  m_on_change_value;
 };
 
 

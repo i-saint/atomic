@@ -14,6 +14,7 @@ bool IsClickable(iui::Widget *w)
     case iui::WT_Checkbox:
     case iui::WT_Editbox:
     case iui::WT_EditboxMultiline:
+    case iui::WT_List:
         return true;
     default:
         return false;
@@ -22,40 +23,47 @@ bool IsClickable(iui::Widget *w)
 
 int32 GetNextClickable(iui::Widget *w, int32 ci)
 {
-    iui::WidgetCont &cont = w->getChildren();
-    if(ci>=0 && ci>=cont.size()) { return -1; }
+    iui::Widget *c = w->getNthChild(ci);
 
-    for(int32 i=ci+1; i<cont.size(); ++i) {
-        if(IsClickable(cont[i])) { return i; }
+    int i = ci+1;
+    if(c) {
+        for(iui::Widget *n=c->getNextSibling(); n; n=n->getNextSibling(),++i) {
+            if(IsClickable(n)) { return i; }
+        }
     }
-    for(int32 i=0; i<ci; ++i) {
-        if(IsClickable(cont[i])) { return i; }
+    i = 0;
+    for(iui::Widget *n=w->getFirstChild(); n && n!=c; n=n->getNextSibling(),++i) {
+        if(IsClickable(n)) { return i; }
     }
-    return ci;
+    return i;
 }
 
 int32 GetPrevClickable(iui::Widget *w, int32 ci)
 {
-    iui::WidgetCont &cont = w->getChildren();
-    if(ci>=cont.size()) { return -1; }
+    iui::Widget *c = w->getNthChild(ci);
 
-    for(int32 i=ci-1; i>=0 && i<cont.size(); --i) {
-        if(IsClickable(cont[i])) { return i; }
+    int i = ci-1;
+    if(c) {
+        for(iui::Widget *n=c->getPrevSibling(); n; n=n->getPrevSibling(),++i) {
+            if(IsClickable(n)) { return i; }
+        }
     }
-    for(int32 i=cont.size()-1; i>=0; --i) {
-        if(IsClickable(cont[i])) { return i; }
+    i = w->getNumChildren();
+    for(iui::Widget *n=w->getLastChild(); n && n!=c; n=n->getPrevSibling(),++i) {
+        if(IsClickable(n)) { return i; }
     }
-    return ci;
+    return i;
 }
 
 
 UICursor::UICursor()
-    : m_stack(), m_pos(), m_size()
+    : m_stack(), m_pos(), m_size(), m_time()
 {
 }
 
 void UICursor::update(iui::Float dt)
 {
+    m_time += dt;
     if(atmGetSystemInputs()->isDirectionTriggered(InputState::Dir_Down)) {
         moveNext();
     }
@@ -71,7 +79,7 @@ void UICursor::update(iui::Float dt)
 
     if(!m_stack.empty()) {
         State &state = m_stack.back();
-        iui::Widget *w = state.widget->getChildren()[state.index];
+        iui::Widget *w = state.widget->getNthChild(state.index);
 
         m_pos += (w->getPositionAbs()-m_pos) * 0.6f;
         m_size += (w->getSize()-m_size) * 0.6f;
@@ -87,16 +95,21 @@ void UICursor::draw()
         }
     }
 
-    iui::Color bg(1.0f,1.0f,1.0f,0.3f);
+    iui::Color bg(1.0f,1.0f,1.5f, 0.5f*glm::sin(glm::radians(m_time)));
     iui::Rect rect(m_pos, m_size);
     iuiGetRenderer()->drawRect(rect, bg);
 }
 
-void UICursor::pushSelection(iui::Widget *v)
+void UICursor::pushSelection(iui::Widget *v, int32 i)
 {
-    int32 pos = GetNextClickable(v, -1);
-    if(pos!=-1) {
-        m_stack.push_back(State(v,pos));
+    if(v->getTypeID()==iui::WT_List) {
+        m_stack.push_back(State(v,i));
+    }
+    else {
+        int32 pos = GetNextClickable(v, i);
+        if(pos!=-1) {
+            m_stack.push_back(State(v,pos));
+        }
     }
 }
 
@@ -112,17 +125,27 @@ void UICursor::clearSelection()
     m_stack.clear();
 }
 
-void UICursor::setSelection( iui::Widget *v )
+void UICursor::setSelection( iui::Widget *v, int32 i )
 {
     clearSelection();
-    pushSelection(v);
+    pushSelection(v,i);
 }
 
 void UICursor::moveNext()
 {
     if(!m_stack.empty()) {
         State &state = m_stack.back();
-        state.index = GetNextClickable(state.widget, state.index);
+        if(state.widget->getTypeID()==iui::WT_List) {
+            iui::List *ls = static_cast<iui::List*>(state.widget);
+            state.index = ist::wrap<int32>(state.index+1, 0, ls->getItems().size());
+        }
+        else {
+            state.index = GetNextClickable(state.widget, state.index);
+            iui::Widget *w = state.widget->getNthChild(state.index);
+            if(w->getTypeID()==iui::WT_List) {
+                pushSelection(w,0);
+            }
+        }
     }
 }
 
@@ -130,7 +153,13 @@ void UICursor::movePrev()
 {
     if(!m_stack.empty()) {
         State &state = m_stack.back();
-        state.index = GetPrevClickable(state.widget, state.index);
+        if(state.widget->getTypeID()==iui::WT_List) {
+            iui::List *ls = static_cast<iui::List*>(state.widget);
+            state.index = ist::wrap<int32>(state.index-1, 0, ls->getItems().size());
+        }
+        else {
+            state.index = GetPrevClickable(state.widget, state.index);
+        }
     }
 }
 
@@ -138,12 +167,19 @@ void UICursor::enter()
 {
     if(!m_stack.empty()) {
         State &state = m_stack.back();
-        iui::Widget *w = state.widget->getChildren()[state.index];
-
-        iui::WM_Widget wm;
-        wm.type = iui::WMT_iuiOK;
-        wm.from = nullptr;
-        w->handleEvent(wm);
+        if(state.widget->getTypeID()==iui::WT_List) {
+            iui::List *ls = static_cast<iui::List*>(state.widget);
+            iui::WM_Widget wm;
+            wm.type = iui::WMT_iuiOK;
+            wm.option = state.index;
+            ls->handleEvent(wm);
+        }
+        else {
+            iui::Widget *w = state.widget->getNthChild(state.index);
+            iui::WM_Widget wm;
+            wm.type = iui::WMT_iuiOK;
+            w->handleEvent(wm);
+        }
     }
 }
 

@@ -5,9 +5,9 @@
 
 namespace iui {
 
-iuiInterModule bool IsInside( const Rect &rect, const Position &pos );
-iuiInterModule bool IsInside( const Circle &circle, const Position &pos );
-iuiInterModule bool IsOverlaped( const Rect &r1, const Rect &r2 );
+iuiAPI bool IsInside( const Rect &rect, const Position &pos );
+iuiAPI bool IsInside( const Circle &circle, const Position &pos );
+iuiAPI bool IsOverlaped( const Rect &r1, const Rect &r2 );
 
 enum WidgetHit {
     WH_Nothing,
@@ -30,14 +30,14 @@ enum WidgetHit {
     WH_MouseInside,
     WH_MouseOutside,
 };
-iuiInterModule WidgetHit MouseHit(const Rect &rect, const WM_Base &wm);
-iuiInterModule WidgetHit MouseHit(Widget *w, const WM_Base &wm);
+iuiAPI WidgetHit MouseHit(const Rect &rect, const WM_Base &wm);
+iuiAPI WidgetHit MouseHit(Widget *w, const WM_Base &wm);
 
-iuiInterModule void HandleMouseHover(const Rect &rect, bool &hovered);
-iuiInterModule void HandleMouseHover(Widget *w, bool &hovered);
+iuiAPI void HandleMouseHover(const Rect &rect, bool &hovered);
+iuiAPI void HandleMouseHover(Widget *w, bool &hovered);
 
-iuiInterModule void SetupScreen( const Rect &rect );
-iuiInterModule void SetupScreen(Widget *w);
+iuiAPI void SetupScreen( const Rect &rect );
+iuiAPI void SetupScreen(Widget *w);
 
 } // namespace iui
 #endif // iui_Utilities_h

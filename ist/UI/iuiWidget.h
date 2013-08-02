@@ -5,7 +5,7 @@
 #include "iuiEvent.h"
 namespace iui {
 
-class iuiInterModule Widget : public SharedObject
+class iuiAPI Widget : public SharedObject
 {
 friend class UISystem;
 public:
@@ -22,10 +22,16 @@ public:
 
     uint32              getID() const;
     Widget*             getParent() const;
-    WidgetCont&         getChildren();
-    const WidgetCont&   getChildren() const;
     void                addChild(Widget *c);
     void                eraseChild(Widget *c);
+    void                breakLink();
+
+    Widget*             getFirstChild() const;
+    Widget*             getLastChild() const;
+    Widget*             getNextSibling() const;
+    Widget*             getPrevSibling() const;
+    uint32              getNumChildren() const;
+    Widget*             getNthChild(uint32 n) const;
 
     Style*              getStyle() const;
     const String&       getText() const;
@@ -56,14 +62,11 @@ public:
     template<class F>
     void eachChildren(const F &f)
     {
-        WidgetCont &children = getChildren();
-        if(children.empty()) { return; }
-        // 処理中に children の要素数が変動する可能性があるため、ワークスペースにコピーしてそれを処理。
-        // コストを伴いますが致し方ありません。
-        WidgetCont *workspace = getWorkspacePool().create();
-        *workspace = children;
-        std::for_each(workspace->begin(), workspace->end(), f);
-        getWorkspacePool().recycle(workspace);
+        for(Widget *w=getFirstChild(); w;) {
+            Widget *c = w;
+            w = w->getNextSibling();
+            f(c);
+        }
     }
     template<class F>
     void eachChildren(const F &f) const { const_cast<Widget*>(this)->eachChildren(f); }
@@ -71,19 +74,18 @@ public:
     template<class F>
     void eachChildrenReverse(const F &f)
     {
-        WidgetCont &children = getChildren();
-        if(children.empty()) { return; }
-        WidgetCont *workspace = getWorkspacePool().create();
-        *workspace = children;
-        std::for_each(workspace->rbegin(), workspace->rend(), f);
-        getWorkspacePool().recycle(workspace);
+        for(Widget *w=getLastChild(); w;) {
+            Widget *c = w;
+            w = w->getPrevSibling();
+            f(c);
+        }
     }
     template<class F>
     void eachChildrenReverse(const F &f) const { const_cast<Widget*>(this)->eachChildrenReverse(f); }
 
     virtual bool handleEvent(const WM_Base &wm);
-    virtual bool onOK();
-    virtual bool onCancel();
+    virtual bool onOK(const WM_Widget &em);
+    virtual bool onCancel(const WM_Widget &em);
 
 protected:
     virtual ~Widget();
@@ -94,11 +96,31 @@ protected:
     static WorkspacePool& getWorkspacePool();
 
 private:
-    istMemberPtrDecl(Members) m;
+    uint32      m_id;
+    Widget     *m_parent;
+    Widget     *m_first_child;
+    Widget     *m_last_child;
+    Widget     *m_next_sibling;
+    Widget     *m_prev_sibling;
+
+    Style      *m_style;
+    String      m_text;
+    Position    m_pos;
+    Size        m_size;
+    Float       m_zorder;
+    bool        m_visible;
+    bool        m_destroyed;
+
+    WidgetCallback m_on_text;
+    WidgetCallback m_on_pos;
+    WidgetCallback m_on_size;
+    WidgetCallback m_on_zorder;
+    WidgetCallback m_on_visibility;
+    WidgetCallback m_on_focus;
 };
 
 
-class iuiInterModule Style : public SharedObject
+class iuiAPI Style : public SharedObject
 {
 public:
     typedef Style* (*StyleCreator)();
@@ -129,7 +151,14 @@ public:
     void setTextVSpacing(Float v);
 
 private:
-    istMemberPtrDecl(Members) m;
+    Widget     *m_widget;
+    Color       m_font_color;
+    Color       m_bg_color;
+    Color       m_border_color;
+    TextHAlign  m_text_halign;
+    TextVAlign  m_text_valign;
+    Float       m_text_hspacing;
+    Float       m_text_vspacing;
 };
 
 #define iuiImplWidget(WidgetType)\

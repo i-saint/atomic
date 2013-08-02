@@ -6,21 +6,21 @@
 
 namespace iui {
 
-iuiInterModule bool IsInside( const Rect &rect, const Position &pos )
+iuiAPI bool IsInside( const Rect &rect, const Position &pos )
 {
     Position rel = pos - rect.getPosition();
     const Size &size = rect.getSize();
     return (rel.x>=0 && rel.x<=size.x) && (rel.y>=0 && rel.y<=size.y);
 }
 
-iuiInterModule bool IsInside( const Circle &circle, const Position &pos )
+iuiAPI bool IsInside( const Circle &circle, const Position &pos )
 {
     Float r = circle.getRadius();
     vec2 d = circle.getPosition() - pos;
     return glm::dot(d,d) < r*r;
 }
 
-iuiInterModule bool IsOverlaped( const Rect &r1, const Rect &r2 )
+iuiAPI bool IsOverlaped( const Rect &r1, const Rect &r2 )
 {
     Position rel = r1.getPosition() - r2.getPosition();
     Size size = r1.getSize();
@@ -33,7 +33,7 @@ iuiInterModule bool IsOverlaped( const Rect &r1, const Rect &r2 )
 }
 
 
-iuiInterModule WidgetHit MouseHit(const Rect &rect, const WM_Base &wm)
+iuiAPI WidgetHit MouseHit(const Rect &rect, const WM_Base &wm)
 {
     switch(wm.type) {
     case WMT_MouseDown:     // 
@@ -77,13 +77,13 @@ iuiInterModule WidgetHit MouseHit(const Rect &rect, const WM_Base &wm)
     return WH_Nothing;
 }
 
-iuiInterModule WidgetHit MouseHit(Widget *w, const WM_Base &wm)
+iuiAPI WidgetHit MouseHit(Widget *w, const WM_Base &wm)
 {
     return MouseHit(Rect(w->getPositionAbs(), w->getSize()), wm);
 }
 
 
-iuiInterModule void HandleMouseHover(const Rect &rect, bool &hovered)
+iuiAPI void HandleMouseHover(const Rect &rect, bool &hovered)
 {
     if(IsInside(rect, iuiGetMousePos())) {
         if(!hovered) {
@@ -97,13 +97,13 @@ iuiInterModule void HandleMouseHover(const Rect &rect, bool &hovered)
     }
 }
 
-iuiInterModule void HandleMouseHover(Widget *w, bool &hovered)
+iuiAPI void HandleMouseHover(Widget *w, bool &hovered)
 {
     return HandleMouseHover(Rect(w->getPositionAbs(), w->getSize()), hovered);
 }
 
 
-iuiInterModule void SetupScreen( const Rect &rect )
+iuiAPI void SetupScreen( const Rect &rect )
 {
     const Position &pos = rect.getPosition();
     const Size &size    = rect.getSize();
@@ -114,7 +114,7 @@ iuiInterModule void SetupScreen( const Rect &rect )
     iuiGetRenderer()->setScreen(-0.5f, -0.5f, size.x+1.0f, size.y+1.0f);
 }
 
-iuiInterModule void SetupScreen( Widget *w )
+iuiAPI void SetupScreen( Widget *w )
 {
     SetupScreen(Rect(w->getPositionAbs(), w->getSize()));
 }

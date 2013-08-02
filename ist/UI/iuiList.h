@@ -9,7 +9,7 @@ namespace iui {
 class ListItem;
 typedef ist::vector<ListItem*> ListItemCont;
 
-class iuiInterModule ListItem : public SharedObject
+class iuiAPI ListItem : public SharedObject
 {
 typedef SharedObject super;
 friend class List;
@@ -36,10 +36,16 @@ private:
     using super::release;
 
 private:
-    istMemberPtrDecl(Members) m;
+    List    *m_parent;
+    String  m_text;
+    void    *m_userdata;
+    int32   m_index;
+    bool    m_hovered;
+    bool    m_selected;
+    bool    m_destroyed;
 };
 
-class iuiInterModule ListStyle : public Style
+class iuiAPI ListStyle : public Style
 {
 public:
     ListStyle();
@@ -47,7 +53,7 @@ public:
     virtual void drawItem(ListItem *item, const Rect &irect);
 };
 
-class iuiInterModule List : public Widget
+class iuiAPI List : public Widget
 {
 typedef Widget super;
 public:
@@ -86,14 +92,24 @@ public:
         std::for_each(getItems().begin(), getItems().end(), f);
     }
 
+    bool handleEvent(const WM_Base &wm) override;
+    bool onOK(const WM_Widget &em) override;
+    bool selectItem(uint32 index);
+
 protected:
-    virtual bool handleEvent(const WM_Base &wm);
     void onChangeNumItems();
     void onScroll(Widget*);
     void onScrollButton(Widget*);
 
 private:
-    istMemberPtrDecl(Members) m;
+    VScrollbar *m_scrollbar;
+    Button *m_scroll_buttons[2];
+    ListItemCont m_items;
+    WidgetCallback m_on_item_click;
+    WidgetCallback m_on_item_doubleclick;
+    WidgetCallback m_on_item_hovered;
+    Float m_item_height;
+    Float m_scroll_pos;
 };
 
 } // namespace iui
