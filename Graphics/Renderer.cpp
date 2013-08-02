@@ -26,7 +26,7 @@ void AtomicRenderer::finalizeInstance()
 }
 
 AtomicRenderer::AtomicRenderer()
-    : m_frame(0)
+    : m_time(0.0f)
 {
     istMemset(&m_rstates3d, 0, sizeof(m_rstates3d));
 
@@ -46,7 +46,7 @@ AtomicRenderer::AtomicRenderer()
     m_df_lights           = istNew(PassDeferred_Lights)();
     m_fw_generic          = istNew(PassForward_Generic)();
     m_fw_bg               = istNew(PassForward_BackGround);
-    m_pass_distance_field   = istNew(PassForward_DistanceField)();
+    m_pass_distance_field = istNew(PassForward_DistanceField)();
     m_pp_microscopic      = istNew(PassPostprocess_Microscopic)();
     m_pp_fxaa             = istNew(PassPostprocess_FXAA)();
     m_pp_bloom            = istNew(PassPostprocess_Bloom)();
@@ -73,6 +73,12 @@ AtomicRenderer::AtomicRenderer()
 #endif // atm_enable_gbuffer_viewer
 
     m_default_viewport = Viewport(ivec2(0), atmGetWindowSize());
+
+    const uvec2 &wsize = atmGetWindowSize();
+    m_game_camera.setAspect((float32)wsize.x/(float32)wsize.y);
+    m_game_camera.setPosition(vec3(0.0f, 0.0f, 3.0f));
+    m_game_camera.setZNear(0.01f);
+    m_game_camera.setZFar(10.0f);
 }
 
 AtomicRenderer::~AtomicRenderer()
@@ -116,9 +122,8 @@ void AtomicRenderer::draw()
     glFrontFace(GL_CCW);
     glEnable(GL_CULL_FACE);
 
-    AtomicGame *game = atmGetGame();
-    if(game) {
-        PerspectiveCamera *camera   = atmGetGameCamera();
+    {
+        PerspectiveCamera *camera   = &m_game_camera;
         Buffer *ubo_rs              = atmGetUniformBuffer(UBO_RENDERSTATES_3D);
         const uvec2 &wsize          = atmGetWindowSize();
         if(dc->getDevice()->getSpec()->needs_transpose) {
@@ -135,7 +140,7 @@ void AtomicRenderer::draw()
         m_rstates3d.RcpAspectRatio  = 1.0f / m_rstates3d.AspectRatio;
         m_rstates3d.ScreenTexcoord  = m_rstates3d.ScreenSize / vec2(m_rt_gbuffer->getColorBuffer(0)->getDesc().size);
         m_rstates3d.Color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-        m_rstates3d.Frame = (float32)atmGetFrame();
+        m_rstates3d.Frame = m_time;
         MapAndWrite(dc, ubo_rs, &m_rstates3d, sizeof(m_rstates3d));
 
         ubo_rs              = atmGetUniformBuffer(UBO_RENDERSTATES_BG);
@@ -174,7 +179,6 @@ void AtomicRenderer::draw()
     passOutput();
 
     //glFinish();
-    ++m_frame;
 }
 
 void AtomicRenderer::passShadow()

@@ -54,6 +54,7 @@ void PassForward_DistanceField::draw()
 
 
 PassForward_Generic::PassForward_Generic()
+    : m_frame()
 {
 }
 
@@ -74,11 +75,12 @@ void PassForward_Generic::beforeDraw()
 void PassForward_Generic::draw()
 {
     if(m_commands.empty()) { return; }
+    ++m_frame;
 
     static const VBO_RID s_vboids[] = {VBO_GENERIC_PARAMS1, VBO_GENERIC_PARAMS2};
     i3d::DeviceContext *dc  = atmGetGLDeviceContext();
     RenderTarget *rt = atmGetBackRenderTarget();
-    Buffer *vbo_params = atmGetVertexBuffer(s_vboids[atmGetRenderFrame()%2]);
+    Buffer *vbo_params = atmGetVertexBuffer(s_vboids[m_frame%2]);
     rt->setDepthStencilBuffer(atmGetRenderTarget(RT_GBUFFER)->getDepthStencilBuffer());
     dc->setBlendState(atmGetBlendState(BS_BLEND_ALPHA));
     dc->setDepthStencilState(atmGetDepthStencilState(DS_DEPTH_ENABLED));

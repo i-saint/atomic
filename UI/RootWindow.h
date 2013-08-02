@@ -29,6 +29,7 @@ private:
 public:
     void update(iui::Float dt=1.0f) override;
     void draw() override;
+    void drawCallback();
 
     TitleWindow*    getTitleWindow() const  { return m_title; }
     PauseWindow*    getPauseWindow() const  { return m_pause; }

@@ -96,4 +96,9 @@ void PauseWindow::onExit( Widget * )
     atmPause(false);
 }
 
+void PauseWindow::drawCallback()
+{
+
+}
+
 } // namespace atm

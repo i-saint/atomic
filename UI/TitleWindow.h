@@ -15,7 +15,10 @@ friend class RootWindow;
 private:
     TitleWindow();
 public:
+    void update(iui::Float dt) override;
     void draw() override;
+    void drawCallback();
+
     void setVisibility(bool v) override;
     void unselectAll();
     bool onCancel(const iui::WM_Widget &wm) override;
@@ -26,11 +29,11 @@ private:
     void onConfig(Widget *);
     void onExit(Widget *);
 
-    StartWindow     *m_start;
-    RecordWindow    *m_record;
-    ConfigWindow    *m_config;
-
-    iui::ToggleButton *m_buttons[4];
+    StartWindow        *m_start;
+    RecordWindow       *m_record;
+    ConfigWindow       *m_config;
+    iui::ToggleButton  *m_buttons[4];
+    float32             m_time;
 };
 
 } // namespace atm

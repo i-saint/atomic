@@ -9,5 +9,10 @@ LogWindow::LogWindow()
 {
 }
 
+void LogWindow::drawCallback()
+{
+
+}
+
 
 } // namespace atm

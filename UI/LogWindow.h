@@ -10,6 +10,7 @@ typedef iui::Panel super;
 friend class RootWindow;
 private:
     LogWindow();
+    void drawCallback();
     void onTextEnter(Widget *);
 };
 } // namespace atm

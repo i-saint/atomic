@@ -40,6 +40,7 @@ private:
 TitleWindow::TitleWindow()
     : m_start(nullptr)
     , m_record(nullptr)
+    , m_time(0.0f)
 {
     std::fill_n(m_buttons, _countof(m_buttons), (iui::ToggleButton*)nullptr);
 
@@ -64,6 +65,12 @@ TitleWindow::TitleWindow()
     }
 }
 
+void TitleWindow::update( iui::Float dt )
+{
+    super::update(dt);
+    m_time += dt;
+}
+
 void TitleWindow::draw()
 {
     IFontRenderer *font = atmGetTitleFont();
@@ -74,6 +81,20 @@ void TitleWindow::draw()
     font->setColor(vec4(1.0f, 1.0f, 1.0f, 0.8f));
     font->addText(vec2(100.0f, 150.0f), L"atomic");
     font->draw();
+}
+
+void TitleWindow::drawCallback()
+{
+    const uvec2 &wsize = atmGetWindowSize();
+    PerspectiveCamera cam;
+    cam.setAspect((float32)wsize.x/(float32)wsize.y);
+    cam.setPosition(vec3(0.0f, 0.0f, 3.0f));
+    cam.setZNear(0.01f);
+    cam.setZFar(10.0f);
+
+    atmGetRenderer()->setGameCamera(cam);
+    atmGetRenderer()->setTime(m_time);
+    atmGetForwardBGPass()->setBGShader(SH_BG7);
 }
 
 void TitleWindow::onStart(Widget *)

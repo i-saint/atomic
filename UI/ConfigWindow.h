@@ -6,8 +6,10 @@ namespace atm {
 
 class ConfigWindow : public iui::Panel
 {
+typedef iui::Panel super;
 public:
     ConfigWindow();
+    void setVisibility(bool v) override;
     void sync();
 
 private:

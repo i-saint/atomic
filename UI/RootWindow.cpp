@@ -61,16 +61,28 @@ void RootWindow::draw()
     }
 }
 
+void RootWindow::drawCallback()
+{
+    if(m_title->isVisible()) { m_title->drawCallback(); }
+    if(m_pause->isVisible()) { m_pause->drawCallback(); }
+    if(m_log->isVisible())   { m_log->drawCallback(); }
+}
+
 iui::RootWindow*    atmCreateRootWindow()   { return iuiNew(RootWindow)(); }
 iui::RootWindow*    atmGetRootWindow()      { return iuiGetRootWindow(); }
 iui::Widget*        atmGetTitleWindow()     { return ((RootWindow*)atmGetRootWindow())->getTitleWindow(); }
 iui::Widget*        atmGetPauseWindow()     { return ((RootWindow*)atmGetRootWindow())->getPauseWindow(); }
 iui::Widget*        atmGetLogWindow()       { return ((RootWindow*)atmGetRootWindow())->getLogWindow(); }
-UISelector*           atmGetUISelector()      { return ((RootWindow*)atmGetRootWindow())->getCursor(); }
+UISelector*         atmGetUISelector()      { return ((RootWindow*)atmGetRootWindow())->getCursor(); }
 
 void atmPauseAndShowPauseMenu()
 {
     atmGetPauseWindow()->setVisibility(true);
+}
+
+void atmUIDrawCallback()
+{
+    ((RootWindow*)atmGetRootWindow())->drawCallback();
 }
 
 } // namespace atm

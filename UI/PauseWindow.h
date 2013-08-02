@@ -16,6 +16,7 @@ public:
     void setVisibility(bool v) override;
     void unselectAll();
     bool onCancel(const iui::WM_Widget &wm) override;
+    void drawCallback();
 
 private:
     void onResume(Widget *);

@@ -8,12 +8,26 @@ namespace atm {
 
 ConfigWindow::ConfigWindow()
 {
+    setVisibility(false);
+
     using std::placeholders::_1;
     iui::Size size(150, 25);
     float32 vspace = 40.0f;
-
     iui::Label *lb_name     = iuiNew(iui::Label)(this, L"name", iui::Rect(iui::Position(0, 0+vspace*0), iui::Size(40, 25)));
     iui::Editbox *ed_name   = iuiNew(iui::Editbox)(this, atmGetConfig()->name, iui::Rect(iui::Position(40, 0+vspace*0), size), std::bind(&ConfigWindow::onName, this, _1));
+}
+
+void ConfigWindow::setVisibility( bool v )
+{
+    super::setVisibility(v);
+    if(v) {
+        sync();
+    }
+}
+
+void ConfigWindow::sync()
+{
+    // todo: 実際の config の内容を UI に反映
 }
 
 void ConfigWindow::onName(Widget *w)

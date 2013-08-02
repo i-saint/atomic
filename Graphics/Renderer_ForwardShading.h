@@ -42,6 +42,7 @@ private:
     typedef std::map<SH_RID, ModelParamCont> ShModelParamCont;
     ShModelParamCont m_commands;
     ParamCont m_params;
+    int32 m_frame;
 };
 
 class PassForward_Barrier : public IRenderer
@@ -67,6 +68,8 @@ public:
     ~PassForward_BackGround();
     void beforeDraw();
     void draw();
+
+    void setBGShader(SH_RID v) { m_shader=v; }
 
 private:
     int32 m_shader;

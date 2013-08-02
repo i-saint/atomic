@@ -22,6 +22,7 @@ void atmFinalizeCrashReporter();
 iui::RootWindow*    atmCreateRootWindow();
 class TitleWindow;
 iui::Widget*        atmGetTitleWindow();
+void                atmUIDrawCallback();
 
 
 AtomicConfig::AtomicConfig()
@@ -377,6 +378,7 @@ void AtomicApplication::update()
 
 void AtomicApplication::draw()
 {
+    atmUIDrawCallback();
     AtomicGame *game = m_game;
     if(game) {
         game->draw();

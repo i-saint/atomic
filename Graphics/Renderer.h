@@ -70,7 +70,8 @@ private:
     RenderStates        m_rstatesBG;
     RenderStates        m_rstates2d;
 
-    uint32 m_frame;
+    PerspectiveCamera   m_game_camera;
+    float32             m_time;
 
 private:
     static AtomicRenderer *s_inst;
@@ -93,6 +94,9 @@ public:
     void beforeDraw();  // メインスレッドから、描画処理の前に呼ばれる
     void draw();        // 以下描画スレッドから呼ばれる
 
+    void setGameCamera(const PerspectiveCamera &v)  { m_game_camera=v; }
+    void setTime(float32 v)                         { m_time=v; }
+
     const Viewport* getDefaultViewport() const  { return &m_default_viewport; }
     RenderStates* getRenderStates3D()           { return &m_rstates3d; }
     RenderStates* getRenderStatesBG()           { return &m_rstatesBG; }
@@ -102,13 +106,13 @@ public:
     PassDeferred_Bloodstain* getBloodStainPass(){ return m_df_bloodstain; }
     PassDeferred_Lights* getLightPass()         { return m_df_lights; }
     PassForward_Generic* getForwardPass()       { return m_fw_generic; }
+    PassForward_BackGround* getForwardBGPass()  { return m_fw_bg; }
     PassPostprocess_Fade* getFader()            { return m_pp_fade; }
     SystemTextRenderer* getTextRenderer()       { return m_stext; }
     RenderTarget*   getFrontRenderTarget()      { return m_rt_out[0]; }
     RenderTarget*   getBackRenderTarget()       { return m_rt_out[1]; }
     RenderTarget*   getPrevBackbuffer()         { return m_rt_prev_frame; }
     void swapOutputRenderTarget()               { stl::swap(m_rt_out[0], m_rt_out[1]); }
-    uint32 getRenderFrame() const               { return m_frame; }
 };
 
 #define atmGetRenderer()            AtomicRenderer::getInstance()
@@ -120,6 +124,7 @@ public:
 #define atmGetParticlePass()        atmGetRenderer()->getParticlePass()
 #define atmGetLightPass()           atmGetRenderer()->getLightPass()
 #define atmGetForwardPass()         atmGetRenderer()->getForwardPass()
+#define atmGetForwardBGPass()       atmGetRenderer()->getForwardBGPass()
 #define atmGetFader()               atmGetRenderer()->getFader()
 #define atmGetTextRenderer()        atmGetRenderer()->getTextRenderer()
 

@@ -129,6 +129,9 @@ void World::asyncupdate(float32 dt)
 
 void World::draw()
 {
+    atmGetRenderer()->setTime((float32)atmGetFrame());
+    atmGetRenderer()->setGameCamera(m_camera_game);
+
     for(ModuleCont::iterator i=m_modules.begin(); i!=m_modules.end(); ++i) {
         (*i)->draw();
     }
