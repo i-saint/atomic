@@ -110,7 +110,7 @@ bool UISystem::handleWindowMessage( const ist::WM_Base &wm )
             mouse.mouse_pos /= r;
             m->mouse_pos = mouse.mouse_pos;
         }
-    case WMT_WidgetDelete:
+    case WMT_iuiDelete:
         {
             auto &mes = WM_Widget::cast(wm);
             if(mes.from!=NULL && m->focus==mes.from) {
@@ -154,7 +154,7 @@ void UISystem::update( Float dt )
 {
     std::for_each(m->new_widgets.begin(), m->new_widgets.end(), [&](Widget *w){
         WM_Widget mes;
-        mes.type = WMT_WidgetCretate;
+        mes.type = WMT_iuiCreate;
         mes.from = w;
         sendMessage(mes);
     });
@@ -203,14 +203,14 @@ void UISystem::setFocus( Widget *v )
     if(m->focus!=v) {
         if(m->focus) {
             WM_Widget wm;
-            wm.type = WMT_WidgetLostFocus;
+            wm.type = WMT_iuiLostFocus;
             wm.from = m->focus;
             sendMessage(wm);
         }
         m->focus = v;
         if(v) {
             WM_Widget wm;
-            wm.type = WMT_WidgetGainFocus;
+            wm.type = WMT_iuiGainFocus;
             wm.from = v;
             sendMessage(wm);
         }

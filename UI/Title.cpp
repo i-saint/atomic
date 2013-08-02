@@ -24,7 +24,7 @@ RootWindow::RootWindow()
     }
 
     m_cursor = istNew(UICursor)();
-    m_cursor->setTarget(m_title);
+    m_cursor->setSelection(m_title);
 }
 
 RootWindow::~RootWindow()
@@ -115,37 +115,37 @@ void TitleWindow::draw()
 
 void TitleWindow::onStart(Widget *)
 {
-    hideAll();
+    unselectAll();
     m_buttons[0]->setPressed(true, false);
     m_start->setVisibility(true);
-    atmGetUICursor()->setTarget(m_start);
+    atmGetUICursor()->pushSelection(m_start);
 }
 
 void TitleWindow::onRecord(Widget *)
 {
-    hideAll();
+    unselectAll();
     m_buttons[1]->setPressed(true, false);
     m_record->refresh();
     m_record->setVisibility(true);
-    atmGetUICursor()->setTarget(m_record);
+    atmGetUICursor()->pushSelection(m_record);
 }
 
 void TitleWindow::onConfig(Widget *)
 {
-    hideAll();
+    unselectAll();
     m_buttons[2]->setPressed(true, false);
     m_config->setVisibility(true);
-    atmGetUICursor()->setTarget(m_config);
+    atmGetUICursor()->pushSelection(m_config);
 }
 
 void TitleWindow::onExit(Widget *)
 {
-    hideAll();
+    unselectAll();
     m_buttons[3]->setPressed(true, false);
     atmGetApplication()->requestExit();
 }
 
-void TitleWindow::hideAll()
+void TitleWindow::unselectAll()
 {
     Widget *windows[] = {m_start, m_record, m_config};
     for(size_t i=0; i<_countof(windows); ++i) {
@@ -160,8 +160,18 @@ void TitleWindow::setVisibility( bool v )
 {
     super::setVisibility(v);
     if(v) {
-        atmGetUICursor()->setTarget(this);
+        atmGetUICursor()->setSelection(this);
     }
+    else {
+        atmGetUICursor()->clearSelection();
+    }
+}
+
+bool TitleWindow::onCancel()
+{
+    unselectAll();
+    atmGetUICursor()->popSelection();
+    return true;
 }
 
 iui::Widget* atmGetTitleWindow() { return g_titlewindow; }
@@ -175,8 +185,8 @@ StartWindow::StartWindow()
     float n = 0.0f;
     istNew(iui::Button)(this, L"campaign",iui::Rect(iui::Position(0, vspace*n), size), std::bind(&StartWindow::onCampaign, this, _1));
     n += 1.0f;
-    istNew(iui::Button)(this, L"horde",   iui::Rect(iui::Position(0, vspace*n), size), std::bind(&StartWindow::onHorde, this, _1));
-    n += 1.0f;
+    //istNew(iui::Button)(this, L"horde",   iui::Rect(iui::Position(0, vspace*n), size), std::bind(&StartWindow::onHorde, this, _1));
+    //n += 1.0f;
     istNew(iui::Button)(this, L"edit",    iui::Rect(iui::Position(0, vspace*n), size), std::bind(&StartWindow::onEdit, this, _1));
     n += 1.0f;
 }
@@ -202,6 +212,11 @@ void StartWindow::onEdit( Widget * )
     conf.gmode = GameStartConfig::GM_Edit;
     atmGetApplication()->requestStartGame(conf);
     atmGetTitleWindow()->setVisibility(false);
+}
+
+bool StartWindow::onCancel()
+{
+    return getParent()->onCancel();
 }
 
 
@@ -241,6 +256,11 @@ void RecordWindow::onStart( Widget * )
     conf.path_to_replay = path;
     atmGetApplication()->requestStartGame(conf);
     atmGetTitleWindow()->setVisibility(false);
+}
+
+bool RecordWindow::onCancel()
+{
+    return getParent()->onCancel();
 }
 
 
@@ -288,6 +308,11 @@ void ConfigWindow::onSEVolume(Widget *)
 
 void ConfigWindow::onSEOnOff(Widget *)
 {
+}
+
+bool ConfigWindow::onCancel()
+{
+    return getParent()->onCancel();
 }
 
 

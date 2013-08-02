@@ -11,23 +11,27 @@ class RecordWindow;
 class ConfigWindow;
 class LogWindow;
 
+iui::RootWindow*    atmCreateRootWindow();
+iui::Widget*        atmGetTitleWindow();
+UICursor* atmGetUICursor();
+
 class UICursor
 {
 public:
     struct State {
         iui::Widget *widget;
-        uint32 index;
-        State(iui::Widget *w=nullptr, uint32 i=0) : widget(w), index(i) {}
+        int32 index;
+        State(iui::Widget *w=nullptr, int32 i=0) : widget(w), index(i) {}
     };
 
     UICursor();
     void update(iui::Float dt);
     void draw();
 
-    void pushStack(iui::Widget *v);
-    void popStack();
-    void clearStack();
-    void setTarget(iui::Widget *v);
+    void pushSelection(iui::Widget *v);
+    void popSelection();
+    void clearSelection();
+    void setSelection(iui::Widget *v);
 
     void moveNext();
     void movePrev();
@@ -57,7 +61,6 @@ private:
     LogWindow       *m_log;
     UICursor        *m_cursor;
 };
-UICursor* atmGetUICursor();
 
 class TitleWindow : public iui::Panel
 {
@@ -66,13 +69,14 @@ public:
     TitleWindow();
     void draw() override;
     void setVisibility(bool v) override;
+    void unselectAll();
+    bool onCancel() override;
 
 private:
     void onStart(Widget *);
     void onRecord(Widget *);
     void onConfig(Widget *);
     void onExit(Widget *);
-    void hideAll();
 
     StartWindow     *m_start;
     RecordWindow    *m_record;
@@ -89,6 +93,7 @@ private:
     void onCampaign(Widget *);
     void onHorde(Widget *);
     void onEdit(Widget *);
+    bool onCancel() override;
 };
 
 class RecordWindow : public iui::Panel
@@ -99,6 +104,7 @@ public:
 private:
     void onSelect(Widget *);
     void onStart(Widget *);
+    bool onCancel() override;
 
     iui::List   *m_li_files;
     iui::Button *m_bu_start;
@@ -118,6 +124,7 @@ private:
     void onBGMOnOff(Widget *);
     void onSEVolume(Widget *);
     void onSEOnOff(Widget *);
+    bool onCancel() override;
 };
 
 class LogWindow : public iui::Panel

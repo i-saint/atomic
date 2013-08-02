@@ -5,8 +5,6 @@
 
 namespace atm {
 
-uint32 GetNextClickable(iui::Widget *w, uint32 i);
-uint32 GetPrevClickable(iui::Widget *w, uint32 i);
 
 bool IsClickable(iui::Widget *w)
 {
@@ -14,35 +12,37 @@ bool IsClickable(iui::Widget *w)
     case iui::WT_Button:
     case iui::WT_ToggleButton:
     case iui::WT_Checkbox:
+    case iui::WT_Editbox:
+    case iui::WT_EditboxMultiline:
         return true;
     default:
         return false;
     }
 }
 
-uint32 GetNextClickable(iui::Widget *w, uint32 ci)
+int32 GetNextClickable(iui::Widget *w, int32 ci)
 {
     iui::WidgetCont &cont = w->getChildren();
-    if(ci>=cont.size()) { return 0; }
+    if(ci>=0 && ci>=cont.size()) { return -1; }
 
-    for(uint32 i=ci+1; i<cont.size(); ++i) {
+    for(int32 i=ci+1; i<cont.size(); ++i) {
         if(IsClickable(cont[i])) { return i; }
     }
-    for(uint32 i=0; i<ci; ++i) {
+    for(int32 i=0; i<ci; ++i) {
         if(IsClickable(cont[i])) { return i; }
     }
     return ci;
 }
 
-uint32 GetPrevClickable(iui::Widget *w, uint32 ci)
+int32 GetPrevClickable(iui::Widget *w, int32 ci)
 {
     iui::WidgetCont &cont = w->getChildren();
-    if(ci>=cont.size()) { return 0; }
+    if(ci>=cont.size()) { return -1; }
 
-    for(uint32 i=ci-1; i>=0 && i<cont.size(); --i) {
+    for(int32 i=ci-1; i>=0 && i<cont.size(); --i) {
         if(IsClickable(cont[i])) { return i; }
     }
-    for(uint32 i=cont.size()-1; i>=0; --i) {
+    for(int32 i=cont.size()-1; i>=0; --i) {
         if(IsClickable(cont[i])) { return i; }
     }
     return ci;
@@ -82,7 +82,7 @@ void UICursor::draw()
 {
     if(!m_stack.empty()) {
         State &state = m_stack.back();
-        if(!state.widget->isVisibleAbs()) {
+        if(!state.widget->isVisibleAbs() || IsClickable(state.widget)) {
             return;
         }
     }
@@ -92,27 +92,30 @@ void UICursor::draw()
     iuiGetRenderer()->drawRect(rect, bg);
 }
 
-void UICursor::pushStack(iui::Widget *v)
+void UICursor::pushSelection(iui::Widget *v)
 {
-    m_stack.push_back(State(v,0));
+    int32 pos = GetNextClickable(v, -1);
+    if(pos!=-1) {
+        m_stack.push_back(State(v,pos));
+    }
 }
 
-void UICursor::popStack()
+void UICursor::popSelection()
 {
     if(!m_stack.empty()) {
         m_stack.pop_back();
     }
 }
 
-void UICursor::clearStack()
+void UICursor::clearSelection()
 {
     m_stack.clear();
 }
 
-void UICursor::setTarget( iui::Widget *v )
+void UICursor::setSelection( iui::Widget *v )
 {
-    clearStack();
-    pushStack(v);
+    clearSelection();
+    pushSelection(v);
 }
 
 void UICursor::moveNext()
@@ -137,19 +140,24 @@ void UICursor::enter()
         State &state = m_stack.back();
         iui::Widget *w = state.widget->getChildren()[state.index];
 
-        iui::WM_Mouse wm;
-        wm.type = iui::WMT_MouseDown;
-        wm.mouse_pos = w->getPositionAbs() + (w->getSize()*0.5f);
-        wm.button.left = 1;
-        w->handleEvent(wm);
-        wm.type = iui::WMT_MouseUp;
+        iui::WM_Widget wm;
+        wm.type = iui::WMT_iuiOK;
+        wm.from = nullptr;
         w->handleEvent(wm);
     }
 }
 
 void UICursor::cancel()
 {
-    popStack();
+    if(!m_stack.empty()) {
+        State &state = m_stack.back();
+        iui::Widget *w = state.widget;
+
+        iui::WM_Widget wm;
+        wm.type = iui::WMT_iuiCancel;
+        wm.from = nullptr;
+        w->handleEvent(wm);
+    }
 }
 
 

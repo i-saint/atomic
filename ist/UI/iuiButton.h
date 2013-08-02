@@ -18,14 +18,18 @@ public:
     iuiImplWidget(Button);
 
     Button(Widget *parent, const wchar_t *text=L"", const Rect &rect=Rect(), WidgetCallback on_press=WidgetCallback());
-    void update(Float dt);
+    void update(Float dt) override;
     bool isPressing() const;
     bool isHovered() const;
 
-protected:
-    virtual bool handleEvent(const WM_Base &wm);
+    bool handleEvent(const WM_Base &wm) override;
+    bool onOK() override;
+    virtual void push();
+
 private:
-    istMemberPtrDecl(Members) m;
+    WidgetCallback m_on_press;
+    bool m_pressing;
+    bool m_hovered;
 };
 
 
@@ -42,16 +46,21 @@ typedef Widget super;
 public:
     iuiImplWidget(ToggleButton)
     ToggleButton(Widget *parent, const wchar_t *text=L"", const Rect &rect=Rect(), WidgetCallback on_toggle=WidgetCallback());
-    void update(Float dt);
+    void update(Float dt) override;
     bool isPressed() const;
     bool isPressing() const;
     bool isHovered() const;
     void setPressed(bool v, bool fire_event=true);
 
-protected:
-    virtual bool handleEvent(const WM_Base &wm);
+    bool handleEvent(const WM_Base &wm) override;
+    bool onOK() override;
+    virtual void toggle();
+
 private:
-    istMemberPtrDecl(Members) m;
+    WidgetCallback m_on_toggle;
+    bool m_pressed;
+    bool m_pressing;
+    bool m_hovered;
 };
 
 
@@ -70,10 +79,13 @@ public:
     bool isChecked() const;
     bool isPressing() const;
 
-protected:
-    virtual bool handleEvent(const WM_Base &wm);
+    bool handleEvent(const WM_Base &wm) override;
+    bool onOK() override;
+
 private:
-    istMemberPtrDecl(Members) m;
+    WidgetCallback m_on_toggle;
+    bool m_checked;
+    bool m_pressing;
 };
 
 

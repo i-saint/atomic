@@ -35,10 +35,12 @@ using ist::WMT_IMEResult;
 
 enum WindowMessageType
 {
-    WMT_WidgetCretate = 256,
-    WMT_WidgetDelete,
-    WMT_WidgetGainFocus,
-    WMT_WidgetLostFocus,
+    WMT_iuiCreate = 256,
+    WMT_iuiDelete,
+    WMT_iuiOK,
+    WMT_iuiCancel,
+    WMT_iuiGainFocus,
+    WMT_iuiLostFocus,
 };
 
 typedef ist::WM_Base        WM_Base;

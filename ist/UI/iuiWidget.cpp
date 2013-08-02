@@ -106,7 +106,7 @@ void Widget::destroy()
     if(!m->destroyed) {
         m->destroyed = true;
         WM_Widget wm;
-        wm.type = (ist::WMType)WMT_WidgetDelete;
+        wm.type = (ist::WMType)WMT_iuiDelete;
         wm.from = this;
         iuiGetSystem()->sendMessage(wm);
     }
@@ -156,8 +156,14 @@ bool Widget::handleEvent(const WM_Base &wm)
         }
         return true;
     }
+    switch(wm.type) {
+    case WMT_iuiOK:     return onOK();
+    case WMT_iuiCancel: return onCancel();
+    }
     return false;
 }
+bool Widget::onOK()     { return false; }
+bool Widget::onCancel() { return false; }
 
 void Widget::callIfValid(const WidgetCallback &v) { if(v){ v(this); } }
 

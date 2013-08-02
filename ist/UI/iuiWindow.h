@@ -8,7 +8,7 @@ namespace iui {
 class RootWindowStyle : public Style
 {
 public:
-    virtual void draw();
+    void draw() override;
 };
 
 class RootWindow : public Widget
@@ -23,7 +23,7 @@ private:
 class PanelStyle : public Style
 {
 public:
-    virtual void draw();
+    void draw() override;
 };
 
 class Panel : public Widget
@@ -38,7 +38,7 @@ private:
 class WindowStyle : public Style
 {
 public:
-    virtual void draw();
+    void draw() override;
 };
 
 class Window : public Widget

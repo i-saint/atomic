@@ -30,33 +30,23 @@ void ButtonStyle::draw()
 }
 iuiImplDefaultStyle(Button);
 
-struct Button::Members
-{
-    WidgetCallback on_press;
-    bool pressing;
-    bool hovered;
 
-    Members() : pressing(false), hovered(false)
-    {
-    }
-};
-istMemberPtrImpl(Button,Members);
-
-bool Button::isPressing() const { return m->pressing;  }
-bool Button::isHovered() const  { return m->hovered; }
+bool Button::isPressing() const { return m_pressing;  }
+bool Button::isHovered() const  { return m_hovered; }
 
 Button::Button( Widget *parent, const wchar_t *text, const Rect &rect, WidgetCallback on_press )
+    : m_pressing(false), m_hovered(false)
 {
     setParent(parent);
     setText(text);
     setPosition(rect.getPosition());
     setSize(rect.getSize());
-    m->on_press = on_press;
+    m_on_press = on_press;
 }
 
 void Button::update(Float dt)
 {
-    HandleMouseHover(this, m->hovered);
+    HandleMouseHover(this, m_hovered);
     super::update(dt);
 }
 
@@ -65,17 +55,28 @@ bool Button::handleEvent( const WM_Base &wm )
     switch(MouseHit(this, wm)) {
     case WH_HitMouseLeftDown:
         setFocus(true);
-        m->pressing = true;
+        m_pressing = true;
         return true;
     case WH_HitMouseLeftUp:
-        callIfValid(m->on_press);
-        m->pressing = false;
+        push();
+        m_pressing = false;
         return true;
     case WH_MissMouseLeftUp:
-        m->pressing = false;
+        m_pressing = false;
         break;
     }
     return super::handleEvent(wm);
+}
+
+bool Button::onOK()
+{
+    push();
+    return true;
+}
+
+void Button::push()
+{
+    callIfValid(m_on_press);
 }
 
 
@@ -105,42 +106,31 @@ void ToggleButtonStyle::draw()
 
 iuiImplDefaultStyle(ToggleButton);
 
-struct ToggleButton::Members
-{
-    WidgetCallback on_toggle;
-    bool pressed;
-    bool pressing;
-    bool hovered;
-
-    Members() : pressed(false), pressing(false), hovered(false)
-    {}
-};
-istMemberPtrImpl(ToggleButton,Members);
-
-bool ToggleButton::isPressed() const    { return m->pressed; }
-bool ToggleButton::isPressing() const   { return m->pressing; }
-bool ToggleButton::isHovered() const    { return m->hovered; }
+bool ToggleButton::isPressed() const    { return m_pressed; }
+bool ToggleButton::isPressing() const   { return m_pressing; }
+bool ToggleButton::isHovered() const    { return m_hovered; }
 void ToggleButton::setPressed(bool v, bool fire_event)
 {
-    bool prev = m->pressed;
-    m->pressed = v;
+    bool prev = m_pressed;
+    m_pressed = v;
     if(fire_event && prev!=v) {
-        callIfValid(m->on_toggle);
+        callIfValid(m_on_toggle);
     }
 }
 
 ToggleButton::ToggleButton( Widget *parent, const wchar_t *text, const Rect &rect, WidgetCallback on_toggle )
+    : m_pressed(false), m_pressing(false), m_hovered(false)
 {
     setParent(parent);
     setText(text);
     setPosition(rect.getPosition());
     setSize(rect.getSize());
-    m->on_toggle = on_toggle;
+    m_on_toggle = on_toggle;
 }
 
 void ToggleButton::update( Float dt )
 {
-    HandleMouseHover(this, m->hovered);
+    HandleMouseHover(this, m_hovered);
     super::update(dt);
 }
 
@@ -149,19 +139,30 @@ bool ToggleButton::handleEvent( const WM_Base &wm )
     switch(MouseHit(this, wm)) {
     case WH_HitMouseLeftDown:
         setFocus(true);
-        m->pressing = true;
+        m_pressing = true;
         return true;
     case WH_HitMouseLeftUp:
-        if(m->pressing) {
-            setPressed(!m->pressed);
-            m->pressing = false;
+        if(m_pressing) {
+            toggle();
+            m_pressing = false;
         }
         return true;
     case WH_MissMouseLeftUp:
-        m->pressing = false;
+        m_pressing = false;
         break;
     }
     return super::handleEvent(wm);
+}
+
+bool ToggleButton::onOK()
+{
+    toggle();
+    return true;
+}
+
+void ToggleButton::toggle()
+{
+    setPressed(!m_pressed);
 }
 
 
@@ -175,23 +176,14 @@ void CheckboxStyle::draw()
 }
 iuiImplDefaultStyle(Checkbox);
 
-struct Checkbox::Members
-{
-    WidgetCallback on_toggle;
-    bool checked;
-    bool pressing;
 
-    Members() : checked(false), pressing(false)
-    {}
-};
-istMemberPtrImpl(Checkbox,Members);
-
-bool Checkbox::isChecked() const    { return m->checked; }
-bool Checkbox::isPressing() const   { return m->pressing; }
+bool Checkbox::isChecked() const    { return m_checked; }
+bool Checkbox::isPressing() const   { return m_pressing; }
 
 Checkbox::Checkbox( const wchar_t *text, WidgetCallback on_toggle )
+    : m_checked(false), m_pressing(false)
 {
-    m->on_toggle = on_toggle;
+    m_on_toggle = on_toggle;
     setText(text);
 }
 
@@ -199,17 +191,22 @@ bool Checkbox::handleEvent( const WM_Base &wm )
 {
     switch(MouseHit(this, wm)) {
     case WH_HitMouseLeftDown:
-        m->pressing = true;
+        m_pressing = true;
         return true;
     case WH_HitMouseLeftUp:
-        if(m->pressing) {
-            m->checked = !m->checked;
-            callIfValid(m->on_toggle);
-            m->pressing = false;
+        if(m_pressing) {
+            m_checked = !m_checked;
+            callIfValid(m_on_toggle);
+            m_pressing = false;
         }
         return true;
     }
     return super::handleEvent(wm);
+}
+
+bool Checkbox::onOK()
+{
+    return true;
 }
 
 
