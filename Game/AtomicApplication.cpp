@@ -20,7 +20,8 @@ namespace atm {
 void atmInitializeCrashReporter();
 void atmFinalizeCrashReporter();
 iui::RootWindow*    atmCreateRootWindow();
-iui::Widget*        atmGetTitleWindow();
+class TitleWindow;
+TitleWindow*        atmGetTitleWindow();
 
 
 AtomicConfig::AtomicConfig()
@@ -320,7 +321,7 @@ void AtomicApplication::mainLoop()
             if(m->request_title) {
                 m->request_title = false;
                 istSafeDelete(m->game);
-                atmGetTitleWindow()->setVisibility(true);
+                ((iui::Widget*)atmGetTitleWindow())->setVisibility(true);
             }
         }
         else {

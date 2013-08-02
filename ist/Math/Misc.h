@@ -27,7 +27,7 @@ template<> inline float64 mod<float64>(float64 v, float64 m) { return std::fmod(
 template<class T>
 inline T wrap(T v, T minimum, T maximum)
 {
-    T range = maximum-minimum+1;
+    T range = maximum-minimum;
     if(v < minimum) {
         v += range * ((minimum-v) / range + 1);
     }

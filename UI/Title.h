@@ -12,17 +12,18 @@ class ConfigWindow;
 class LogWindow;
 
 iui::RootWindow*    atmCreateRootWindow();
-iui::Widget*        atmGetTitleWindow();
+TitleWindow*        atmGetTitleWindow();
 UICursor* atmGetUICursor();
 
 class UICursor
 {
 public:
-    struct State {
+    struct Selection {
         iui::Widget *widget;
         int32 index;
-        State(iui::Widget *w=nullptr, int32 i=0) : widget(w), index(i) {}
+        Selection(iui::Widget *w=nullptr, int32 i=0) : widget(w), index(i) {}
     };
+    typedef ist::vector<Selection> SelectionCont;
 
     UICursor();
     void update(iui::Float dt);
@@ -32,6 +33,7 @@ public:
     void popSelection();
     void clearSelection();
     void setSelection(iui::Widget *v, int32 i=-1);
+    SelectionCont& getSelection();
 
     void moveNext();
     void movePrev();
@@ -39,7 +41,7 @@ public:
     void cancel();
 
 private:
-    ist::vector<State> m_stack;
+    SelectionCont m_selection;
     iui::Position m_pos;
     iui::Size m_size;
     iui::Float m_time;

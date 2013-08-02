@@ -14,7 +14,7 @@ Float               Widget::getZOrder() const       { return m_zorder; }
 bool                Widget::isVisible() const       { return m_visible;  }
 bool Widget::isVisibleAbs() const
 {
-    for(const Widget *p=this; p!=NULL; p=p->getParent()) {
+    for(const Widget *p=this; p; p=p->getParent()) {
         if(!p->m_visible) { return false; }
     }
     return true;
@@ -40,7 +40,7 @@ void Widget::setFocus(bool v)
         iuiGetSystem()->setFocus(this);
     }
     else if(iuiGetSystem()->getFocus()==this) {
-        iuiGetSystem()->setFocus(NULL);
+        iuiGetSystem()->setFocus(nullptr);
     }
     callIfValid(m_on_focus);
 }

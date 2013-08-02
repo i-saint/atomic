@@ -44,12 +44,12 @@ int32 GetPrevClickable(iui::Widget *w, int32 ci)
 
     int i = ci-1;
     if(c) {
-        for(iui::Widget *n=c->getPrevSibling(); n; n=n->getPrevSibling(),++i) {
+        for(iui::Widget *n=c->getPrevSibling(); n; n=n->getPrevSibling(),--i) {
             if(IsClickable(n)) { return i; }
         }
     }
-    i = w->getNumChildren();
-    for(iui::Widget *n=w->getLastChild(); n && n!=c; n=n->getPrevSibling(),++i) {
+    i = w->getNumChildren()-1;
+    for(iui::Widget *n=w->getLastChild(); n && n!=c; n=n->getPrevSibling(),--i) {
         if(IsClickable(n)) { return i; }
     }
     return i;
@@ -57,7 +57,7 @@ int32 GetPrevClickable(iui::Widget *w, int32 ci)
 
 
 UICursor::UICursor()
-    : m_stack(), m_pos(), m_size(), m_time()
+    : m_selection(), m_pos(), m_size(), m_time()
 {
 }
 
@@ -77,25 +77,36 @@ void UICursor::update(iui::Float dt)
         cancel();
     }
 
-    if(!m_stack.empty()) {
-        State &state = m_stack.back();
-        iui::Widget *w = state.widget->getNthChild(state.index);
-
-        m_pos += (w->getPositionAbs()-m_pos) * 0.6f;
-        m_size += (w->getSize()-m_size) * 0.6f;
+    if(!m_selection.empty()) {
+        Selection &state = m_selection.back();
+        iui::Position pos;
+        iui::Size size;
+        if(state.widget->getTypeID()==iui::WT_List) {
+            iui::List *ls = static_cast<iui::List*>(state.widget);
+            pos = ls->getPositionAbs() + iui::Position(0.0f, -ls->getScrollPos()+ls->getItemHeight()*state.index);
+            size = iui::Size(ls->getSizeWithoutScrollbar().x, ls->getItemHeight());
+        }
+        else {
+            iui::Widget *w = state.widget->getNthChild(state.index);
+            pos = w->getPositionAbs();
+            size = w->getSize();
+        }
+        m_pos += (pos-m_pos) * 0.6f;
+        m_size += (size-m_size) * 0.6f;
     }
 }
 
 void UICursor::draw()
 {
-    if(!m_stack.empty()) {
-        State &state = m_stack.back();
-        if(!state.widget->isVisibleAbs() || IsClickable(state.widget)) {
+    if(m_selection.empty()) { return; }
+    if(!m_selection.empty()) {
+        Selection &state = m_selection.back();
+        if(!state.widget->isVisibleAbs()) {
             return;
         }
     }
 
-    iui::Color bg(1.0f,1.0f,1.5f, 0.5f*glm::sin(glm::radians(m_time)));
+    iui::Color bg(0.6f,0.6f,1.0f, 0.5f*(glm::sin(glm::radians(m_time*4.0f))*0.5f+0.5f)+0.4f);
     iui::Rect rect(m_pos, m_size);
     iuiGetRenderer()->drawRect(rect, bg);
 }
@@ -103,26 +114,27 @@ void UICursor::draw()
 void UICursor::pushSelection(iui::Widget *v, int32 i)
 {
     if(v->getTypeID()==iui::WT_List) {
-        m_stack.push_back(State(v,i));
+        m_selection.push_back(Selection(v,i));
     }
     else {
-        int32 pos = GetNextClickable(v, i);
-        if(pos!=-1) {
-            m_stack.push_back(State(v,pos));
+        m_selection.push_back(Selection(v,i));
+        moveNext();
+        if(m_selection.back().index==-1) {
+            m_selection.pop_back();
         }
     }
 }
 
 void UICursor::popSelection()
 {
-    if(!m_stack.empty()) {
-        m_stack.pop_back();
+    if(!m_selection.empty()) {
+        m_selection.pop_back();
     }
 }
 
 void UICursor::clearSelection()
 {
-    m_stack.clear();
+    m_selection.clear();
 }
 
 void UICursor::setSelection( iui::Widget *v, int32 i )
@@ -131,19 +143,29 @@ void UICursor::setSelection( iui::Widget *v, int32 i )
     pushSelection(v,i);
 }
 
+UICursor::SelectionCont& UICursor::getSelection() { return m_selection; }
+
 void UICursor::moveNext()
 {
-    if(!m_stack.empty()) {
-        State &state = m_stack.back();
+    if(!m_selection.empty()) {
+        Selection &state = m_selection.back();
         if(state.widget->getTypeID()==iui::WT_List) {
             iui::List *ls = static_cast<iui::List*>(state.widget);
-            state.index = ist::wrap<int32>(state.index+1, 0, ls->getItems().size());
+            state.index++;
+            if(state.index>=ls->getItems().size()) {
+                popSelection();
+                Selection &back = m_selection.back();
+                back.index = GetNextClickable(back.widget, back.index);
+            }
         }
         else {
             state.index = GetNextClickable(state.widget, state.index);
             iui::Widget *w = state.widget->getNthChild(state.index);
             if(w->getTypeID()==iui::WT_List) {
-                pushSelection(w,0);
+                iui::List *ls = static_cast<iui::List*>(w);
+                if(!ls->getItems().empty()) {
+                    pushSelection(ls, 0);
+                }
             }
         }
     }
@@ -151,22 +173,34 @@ void UICursor::moveNext()
 
 void UICursor::movePrev()
 {
-    if(!m_stack.empty()) {
-        State &state = m_stack.back();
+    if(!m_selection.empty()) {
+        Selection &state = m_selection.back();
         if(state.widget->getTypeID()==iui::WT_List) {
             iui::List *ls = static_cast<iui::List*>(state.widget);
-            state.index = ist::wrap<int32>(state.index-1, 0, ls->getItems().size());
+            state.index--;
+            if(state.index<0) {
+                popSelection();
+                Selection &back = m_selection.back();
+                back.index = GetPrevClickable(back.widget, back.index);
+            }
         }
         else {
             state.index = GetPrevClickable(state.widget, state.index);
+            iui::Widget *w = state.widget->getNthChild(state.index);
+            if(w->getTypeID()==iui::WT_List) {
+                iui::List *ls = static_cast<iui::List*>(w);
+                if(!ls->getItems().empty()) {
+                    pushSelection(ls, (int32)ls->getItems().size()-1);
+                }
+            }
         }
     }
 }
 
 void UICursor::enter()
 {
-    if(!m_stack.empty()) {
-        State &state = m_stack.back();
+    if(!m_selection.empty()) {
+        Selection &state = m_selection.back();
         if(state.widget->getTypeID()==iui::WT_List) {
             iui::List *ls = static_cast<iui::List*>(state.widget);
             iui::WM_Widget wm;
@@ -185,14 +219,20 @@ void UICursor::enter()
 
 void UICursor::cancel()
 {
-    if(!m_stack.empty()) {
-        State &state = m_stack.back();
-        iui::Widget *w = state.widget;
-
-        iui::WM_Widget wm;
-        wm.type = iui::WMT_iuiCancel;
-        wm.from = nullptr;
-        w->handleEvent(wm);
+    if(!m_selection.empty()) {
+        {
+            Selection &state = m_selection.back();
+            if(state.widget->getTypeID()==iui::WT_List) {
+                m_selection.pop_back();
+            }
+        }
+        {
+            Selection &state = m_selection.back();
+            iui::WM_Widget wm;
+            wm.type = iui::WMT_iuiCancel;
+            wm.from = nullptr;
+            state.widget->handleEvent(wm);
+        }
     }
 }
 

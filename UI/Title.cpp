@@ -163,6 +163,7 @@ void TitleWindow::setVisibility( bool v )
         atmGetUICursor()->setSelection(this);
     }
     else {
+        unselectAll();
         atmGetUICursor()->clearSelection();
     }
 }
@@ -171,10 +172,13 @@ bool TitleWindow::onCancel(const iui::WM_Widget &wm)
 {
     unselectAll();
     atmGetUICursor()->popSelection();
+    if(atmGetUICursor()->getSelection().empty()) {
+        atmGetUICursor()->setSelection(this, 0);
+    }
     return true;
 }
 
-iui::Widget* atmGetTitleWindow() { return g_titlewindow; }
+TitleWindow* atmGetTitleWindow() { return g_titlewindow; }
 
 
 StartWindow::StartWindow()
@@ -320,5 +324,7 @@ LogWindow::LogWindow()
 {
 
 }
+
+
 
 } // namespace atm

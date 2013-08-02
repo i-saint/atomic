@@ -15,7 +15,7 @@ public:
     static void finalizeInstance();
     static UISystem* getInstance();
 
-    void update(Float dt=0.0f);
+    void update(Float dt=1.0f);
     void draw();
 
     UIRenderer*     getRenderer() const;
