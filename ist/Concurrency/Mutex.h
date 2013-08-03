@@ -75,7 +75,7 @@ typedef SpinMutex32 SpinMutex;
 /// mutex
 /// Windows では CRITICAL_SECTION による実装。
 /// recursive 対応
-class istInterModule Mutex
+class istAPI Mutex
 {
 istNonCopyable(Mutex);
 public:
@@ -101,7 +101,7 @@ private:
 
 // 何もしないダミー実装
 // policy base の実装でマルチスレッド対応/非対応 指定したい場合これが欲しくなる状況がある
-class istInterModule DummyMutex
+class istAPI DummyMutex
 {
 istNonCopyable(DummyMutex);
 public:

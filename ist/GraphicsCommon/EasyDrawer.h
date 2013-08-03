@@ -21,7 +21,7 @@ extern const char *g_vs_p2c4;
 extern const char *g_vs_p2t2c4;
 extern const char *g_vs_p3t2c4;
 
-class istInterModule EasyDrawState
+class istAPI EasyDrawState
 {
 public:
     EasyDrawState();
@@ -48,9 +48,9 @@ private:
 };
 
 
-class istInterModule EasyDrawer : public SharedObject
+class istAPI EasyDrawer : public SharedObject
 {
-friend istInterModule EasyDrawer* CreateEasyDrawer();
+friend istAPI EasyDrawer* CreateEasyDrawer();
 public:
     const EasyDrawState& getRenderStates();
     void forceSetRenderStates(const EasyDrawState &ds);
@@ -98,7 +98,7 @@ private:
     istMemberPtrDecl(Members) m;
 };
 
-istInterModule EasyDrawer* CreateEasyDrawer();
+istAPI EasyDrawer* CreateEasyDrawer();
 
 ist_EasyDraw_NamespaceEnd
 

@@ -6,11 +6,11 @@
 namespace ist {
 namespace isd {
 
-istInterModule bool CreateBufferFromWaveFile(const char *filepath, Buffer *buf);
-istInterModule bool CreateBufferFromOggFile(const char *filepath, Buffer *buf);
+istAPI bool CreateBufferFromWaveFile(const char *filepath, Buffer *buf);
+istAPI bool CreateBufferFromOggFile(const char *filepath, Buffer *buf);
 
-istInterModule Stream* CreateStreamFromWaveFile(const char* filepath);
-istInterModule Stream* CreateStreamFromOggFile(const char* filepath);
+istAPI Stream* CreateStreamFromWaveFile(const char* filepath);
+istAPI Stream* CreateStreamFromOggFile(const char* filepath);
 
 
 } // namespace isd

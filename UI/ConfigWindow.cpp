@@ -85,6 +85,19 @@ ConfigWindow::ConfigWindow()
         m_vw_reso->getList()->addListItem(tmp, nullptr);
     });
 
+    {
+        typedef std::tuple<const wchar_t*, size_t> pair;
+        pair graphics_options[] = {
+            pair(L"low",     0),
+            pair(L"medium",  1),
+            pair(L"high",    2),
+            pair(L"custom",  3),
+        };
+        each(graphics_options, [&](const pair &p){
+            m_vw_glevel->getList()->addListItem(std::get<0>(p), (void*)std::get<1>(p));
+        });
+    }
+
     hideAll();
     sync();
 }
@@ -206,9 +219,38 @@ void ConfigWindow::onPortV(Widget *w)
     atmGetUISelector()->popSelection();
 }
 
-void ConfigWindow::onRenderV(Widget *)
+void ConfigWindow::onRenderV(Widget *w)
 {
-
+    auto *ls = static_cast<iui::List*>(w);
+    if(const iui::ListItem *item = ls->getSelectedItem()) {
+        AtomicConfig &conf = *atmGetConfig();
+        size_t l = (size_t)item->getUserData();
+        switch(l) {
+        case 0: // low
+            conf.lighting = atmE_Lighting_Low;
+            conf.bg_level = atmE_BGResolution_x4;
+            conf.posteffect_bloom = false;
+            conf.show_bloodstain = false;
+            break;
+        case 1: // medium
+            conf.lighting = atmE_Lighting_Medium;
+            conf.bg_level = atmE_BGResolution_x2;
+            conf.posteffect_bloom = true;
+            conf.show_bloodstain = false;
+            break;
+        case 2: // high
+            conf.lighting = atmE_Lighting_High;
+            conf.bg_level = atmE_BGResolution_x1;
+            conf.posteffect_bloom = true;
+            conf.show_bloodstain = true;
+            break;
+        case 3: // custom
+            break;
+        }
+    }
+    hideAll();
+    sync();
+    atmGetUISelector()->popSelection();
 }
 
 void ConfigWindow::onBGMV(Widget *)

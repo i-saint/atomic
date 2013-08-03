@@ -14,7 +14,7 @@ namespace ist {
 
 #ifdef ist_env_Windows
 
-istInterModule bool InitializeDebugSymbol()
+istAPI bool InitializeDebugSymbol()
 {
     if(!::SymInitialize(::GetCurrentProcess(), NULL, TRUE)) {
         return false;
@@ -23,17 +23,17 @@ istInterModule bool InitializeDebugSymbol()
     return true;
 }
 
-istInterModule void FinalizeDebugSymbol()
+istAPI void FinalizeDebugSymbol()
 {
     ::SymCleanup(::GetCurrentProcess());
 }
 
-istInterModule int GetCallstack(void **callstack, int callstack_size, int skip_size)
+istAPI int GetCallstack(void **callstack, int callstack_size, int skip_size)
 {
     return CaptureStackBackTrace(skip_size, callstack_size, callstack, NULL);
 }
 
-istInterModule stl::string AddressToSymbolName(void *address)
+istAPI stl::string AddressToSymbolName(void *address)
 {
 #ifdef _WIN64
     typedef DWORD64 DWORDX;
@@ -71,7 +71,7 @@ istInterModule stl::string AddressToSymbolName(void *address)
     return buf;
 }
 
-istInterModule stl::string CallstackToSymbolNames(void **callstack, int callstack_size, int clamp_head, int clamp_tail, const char *indent)
+istAPI stl::string CallstackToSymbolNames(void **callstack, int callstack_size, int clamp_head, int clamp_tail, const char *indent)
 {
     stl::string tmp;
     int begin = stl::max<int>(0, clamp_head);
@@ -84,7 +84,7 @@ istInterModule stl::string CallstackToSymbolNames(void **callstack, int callstac
 }
 
 
-istInterModule bool IsStaticMemory(void *addr)
+istAPI bool IsStaticMemory(void *addr)
 {
     if(addr==NULL) { return false; }
     // static 領域はモジュール (exe,dll) が map されている領域内にある
@@ -100,7 +100,7 @@ istInterModule bool IsStaticMemory(void *addr)
     return addr>=modinfo.lpBaseOfDll && addr<reinterpret_cast<char*>(modinfo.lpBaseOfDll)+modinfo.SizeOfImage;
 }
 
-istInterModule bool IsStackMemory(void *addr)
+istAPI bool IsStackMemory(void *addr)
 {
     if(addr==NULL) { return false; }
     // Thread Information Block に上限下限情報が入っている
@@ -111,7 +111,7 @@ istInterModule bool IsStackMemory(void *addr)
     return addr>=tib->StackLimit && addr<tib->StackBase;
 }
 
-istInterModule bool IsHeapMemory(void *addr)
+istAPI bool IsHeapMemory(void *addr)
 {
     if(addr==NULL) { return false; }
     // static 領域ではない && stack 領域でもない && 有効なメモリ (::VirtualQuery() が成功する) なら true
@@ -134,7 +134,7 @@ static BOOL CALLBACK _CB_GetThisOfCaller( SYMBOL_INFO* si, ULONG size, PVOID p )
     return TRUE;
 }
 
-istInterModule void* GetThisOfCaller()
+istAPI void* GetThisOfCaller()
 {
     // thanks to http://jpassing.com/2008/03/12/walking-the-stack-of-the-current-thread/
     CONTEXT context;

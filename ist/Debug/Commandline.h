@@ -6,7 +6,7 @@
 
 namespace ist {
 
-class istInterModule Commandline
+class istAPI Commandline
 {
 istNonCopyable(Commandline);
 public:

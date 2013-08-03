@@ -5,12 +5,12 @@
 ist_EasyDrawer_NamespaceBegin
 
 
-istInterModule void DrawLine( EasyDrawer &drawer, const vec2 &pos1, const vec2 &pos2, const vec4 &color )
+istAPI void DrawLine( EasyDrawer &drawer, const vec2 &pos1, const vec2 &pos2, const vec4 &color )
 {
     DrawLine(drawer, pos1, pos2, color, color);
 }
 
-istInterModule void DrawLine( EasyDrawer &drawer, const vec2 &pos1, const vec2 &pos2, const vec4 &color1, const vec4 &color2 )
+istAPI void DrawLine( EasyDrawer &drawer, const vec2 &pos1, const vec2 &pos2, const vec4 &color1, const vec4 &color2 )
 {
     VertexP2C4 v[2] = {
         VertexP2C4(pos1, color1),
@@ -19,12 +19,12 @@ istInterModule void DrawLine( EasyDrawer &drawer, const vec2 &pos1, const vec2 &
     drawer.draw(I3D_LINES, v, _countof(v));
 }
 
-istInterModule void DrawOutlineRect( EasyDrawer &drawer, const vec2 &bl, const vec2 &ur, const vec4 &color )
+istAPI void DrawOutlineRect( EasyDrawer &drawer, const vec2 &bl, const vec2 &ur, const vec4 &color )
 {
     DrawOutlineRect(drawer, ur, bl, color, color, color, color);
 }
 
-istInterModule void DrawOutlineRect( EasyDrawer &drawer, const vec2 &bl, const vec2 &ur, const vec4 &cbl, const vec4 &cul, const vec4 &cur, const vec4 &cbr )
+istAPI void DrawOutlineRect( EasyDrawer &drawer, const vec2 &bl, const vec2 &ur, const vec4 &cbl, const vec4 &cul, const vec4 &cur, const vec4 &cbr )
 {
     VertexP2C4 vb[4] = {
         VertexP2C4(vec2(bl.x, bl.y), cbl),
@@ -38,12 +38,12 @@ istInterModule void DrawOutlineRect( EasyDrawer &drawer, const vec2 &bl, const v
     drawer.draw(I3D_LINES, vb, _countof(vb), ib, _countof(ib));
 }
 
-istInterModule void DrawRect( EasyDrawer &drawer, const vec2 &bl, const vec2 &ur, const vec4 &color )
+istAPI void DrawRect( EasyDrawer &drawer, const vec2 &bl, const vec2 &ur, const vec4 &color )
 {
     DrawRect(drawer, ur, bl, color, color, color, color);
 }
 
-istInterModule void DrawRect( EasyDrawer &drawer, const vec2 &bl, const vec2 &ur, const vec4 &cbl, const vec4 &cul, const vec4 &cur, const vec4 &cbr )
+istAPI void DrawRect( EasyDrawer &drawer, const vec2 &bl, const vec2 &ur, const vec4 &cbl, const vec4 &cul, const vec4 &cur, const vec4 &cbr )
 {
     VertexP2C4 vb[4] = {
         VertexP2C4(vec2(bl.x, bl.y), cbl),
@@ -57,7 +57,7 @@ istInterModule void DrawRect( EasyDrawer &drawer, const vec2 &bl, const vec2 &ur
     drawer.draw(I3D_TRIANGLES, vb, _countof(vb), ib, _countof(ib));
 }
 
-istInterModule void DrawRectT( EasyDrawer &drawer, const vec2 &bl, const vec2 &ur, const vec2 &tur, const vec2 &tbl, const vec4 &color )
+istAPI void DrawRectT( EasyDrawer &drawer, const vec2 &bl, const vec2 &ur, const vec2 &tur, const vec2 &tbl, const vec4 &color )
 {
     VertexP2T2C4 vb[4] = {
         VertexP2T2C4(vec2(bl.x, bl.y), vec2(tbl.x, tbl.y), color),

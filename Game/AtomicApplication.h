@@ -22,7 +22,7 @@ enum atmBGResolution {
     atmE_BGNone,
 };
 
-struct istInterModule AtomicConfig
+struct atmAPI AtomicConfig
 {
     ivec2 window_pos;
     ivec2 window_size;
@@ -60,7 +60,7 @@ struct istInterModule AtomicConfig
 };
 
 
-class istInterModule AtomicApplication : public ist::Application
+class atmAPI AtomicApplication : public ist::Application
 {
 typedef ist::Application super;
 public:

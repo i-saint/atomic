@@ -7,7 +7,7 @@ namespace ist {
 namespace isd {
 
 
-class istInterModule Buffer : public DeviceResource
+class istAPI Buffer : public DeviceResource
 {
 ISD_DECLARE_DEVICE_RESOURCE(Buffer);
 typedef DeviceResource super;

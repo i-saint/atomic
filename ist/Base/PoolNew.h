@@ -88,7 +88,7 @@ namespace ist {
 
 class PoolBase;
 
-class istInterModule PoolManager
+class istAPI PoolManager
 {
 istNoncpyable(PoolManager);
 public:
@@ -104,7 +104,7 @@ public:
 };
 
 
-class istInterModule PoolBase
+class istAPI PoolBase
 {
 istNoncpyable(PoolBase);
 public:

@@ -54,7 +54,7 @@ class TaskStream;
 class TaskScheduler;
 
 
-class istInterModule Task
+class istAPI Task
 {
 friend class TaskScheduler;
 friend class TaskWorker;
@@ -99,7 +99,7 @@ private:
 
 
 
-class istInterModule TaskScheduler
+class istAPI TaskScheduler
 {
 istNonCopyable(TaskScheduler);
 istMakeDestructable;

@@ -8,7 +8,7 @@
 namespace ist {
 
 
-class istInterModule Application
+class istAPI Application
 {
 public:
     enum DLG_TYPE {

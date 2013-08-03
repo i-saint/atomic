@@ -8,7 +8,7 @@
 
 namespace ist {
 
-class istInterModule SharedObject
+class istAPI SharedObject
 {
 public:
     SharedObject() : m_ref_counter(1) {}

@@ -18,6 +18,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <tuple>
 
 #define POCO_STATIC
 #include "Poco/Path.h"

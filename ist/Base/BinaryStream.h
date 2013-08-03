@@ -7,7 +7,7 @@
 
 namespace ist {
 
-class istInterModule IBinaryStream
+class istAPI IBinaryStream
 {
 istNonCopyable(IBinaryStream);
 public:
@@ -172,7 +172,7 @@ inline ist::IBinaryStream& operator>>(ist::IBinaryStream &s, T (&v)[N])
 namespace ist {
 
 #ifdef ist_with_zlib
-class istInterModule GZFileStream : public IBinaryStream
+class istAPI GZFileStream : public IBinaryStream
 {
 public:
     GZFileStream();

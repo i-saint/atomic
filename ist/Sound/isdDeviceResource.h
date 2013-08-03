@@ -8,7 +8,7 @@ namespace isd {
 
 class Device;
 
-class istInterModule DeviceResource : public SharedObject
+class istAPI DeviceResource : public SharedObject
 {
 istMakeDestructable;
 friend class Device;

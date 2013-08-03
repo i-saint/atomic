@@ -8,7 +8,7 @@ namespace ist {
 namespace i3dgl {
 
 
-class istInterModule BlendState : public DeviceResource
+class istAPI BlendState : public DeviceResource
 {
 I3DGL_DECLARE_DEVICE_RESOURCE(BlendState);
 typedef DeviceResource super;
@@ -24,7 +24,7 @@ private:
 };
 
 
-class istInterModule DepthStencilState : public DeviceResource
+class istAPI DepthStencilState : public DeviceResource
 {
 I3DGL_DECLARE_DEVICE_RESOURCE(DepthStencilState);
 typedef DeviceResource super;

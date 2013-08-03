@@ -7,7 +7,7 @@
 namespace ist {
 namespace i3dgl {
 
-class istInterModule Buffer : public DeviceResource
+class istAPI Buffer : public DeviceResource
 {
 I3DGL_DECLARE_DEVICE_RESOURCE(Buffer);
 typedef DeviceResource super;
@@ -27,7 +27,7 @@ protected:
 };
 
 
-class istInterModule VertexArray : public DeviceResource
+class istAPI VertexArray : public DeviceResource
 {
 I3DGL_DECLARE_DEVICE_RESOURCE(VertexArray);
 typedef DeviceResource super;

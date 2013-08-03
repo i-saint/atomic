@@ -6,7 +6,7 @@
 namespace ist {
 namespace isd {
 
-class istInterModule Device : public SharedObject
+class istAPI Device : public SharedObject
 {
 istMakeDestructable;
 friend Device* CreateDevice();

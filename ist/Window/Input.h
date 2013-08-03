@@ -116,7 +116,7 @@ private:
 };
 
 
-class istInterModule IKeyboardDevice
+class istAPI IKeyboardDevice
 {
 protected:
     virtual ~IKeyboardDevice() {}
@@ -127,7 +127,7 @@ public:
     virtual const KeyboardState& getState() const=0;
 };
 
-class istInterModule IMouseDevice
+class istAPI IMouseDevice
 {
 protected:
     virtual ~IMouseDevice() {}
@@ -138,7 +138,7 @@ public:
     virtual const MouseState& getState() const=0;
 };
 
-class istInterModule IControlerDevice
+class istAPI IControlerDevice
 {
 protected:
     virtual ~IControlerDevice() {}
@@ -149,9 +149,9 @@ public:
     virtual const ControllerState& getState() const=0;
 };
 
-istInterModule IKeyboardDevice*    CreateKeyboardDevice(uint32 nth=0);
-istInterModule IMouseDevice*       CreateMouseDevice(uint32 nth=0);
-istInterModule IControlerDevice*   CreateControllerDevice(uint32 nth=0);
+istAPI IKeyboardDevice*    CreateKeyboardDevice(uint32 nth=0);
+istAPI IMouseDevice*       CreateMouseDevice(uint32 nth=0);
+istAPI IControlerDevice*   CreateControllerDevice(uint32 nth=0);
 
 
 

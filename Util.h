@@ -5,12 +5,24 @@
 namespace atm {
 
     template<class T, class F>
-    inline void each(T &v, const F &f) { std::for_each(v.begin(), v.end(), f); }
+    inline void each(T &v, const F &f) {
+        std::for_each(v.begin(), v.end(), f);
+    }
+
+    template<class T, size_t L, class F>
+    inline void each(T (&v)[L], const F &f) {
+        for(size_t i=0; i<L; ++i) { f(v[i]); }
+    }
 
     template<class T, class F>
     inline void each_with_index(T &v, const F &f) {
         size_t idx=0;
         for(auto i=v.begin(); i!=v.end(); ++i, ++idx) { f(*i, idx); }
+    }
+
+    template<class T, size_t L, class F>
+    inline void each_with_index(T &v, const F &f) {
+        for(size_t i=0; i!=L; ++i) { f(v[i], i); }
     }
 
     template<class T, class F>

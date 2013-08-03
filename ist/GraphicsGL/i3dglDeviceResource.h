@@ -6,11 +6,11 @@
 namespace ist {
 namespace i3dgl {
 
-class istInterModule Device;
+class istAPI Device;
 
 
 
-class istInterModule DeviceResource : public SharedObject
+class istAPI DeviceResource : public SharedObject
 {
 istNonCopyable(DeviceResource);
 istMakeDestructable;

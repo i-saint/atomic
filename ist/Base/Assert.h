@@ -16,16 +16,16 @@ namespace ist {
 
     typedef int (*AssertHandler)();
     typedef int (*PanicHandler)();
-    istInterModule void SetAssertHandler(AssertHandler handler);
-    istInterModule void SetPanicHandler(PanicHandler handler);
+    istAPI void SetAssertHandler(AssertHandler handler);
+    istAPI void SetPanicHandler(PanicHandler handler);
 
-    istInterModule void DebugPrint(const char* file, int line, const char* fmt, ...);
-    istInterModule void DebugPrintV(const char* file, int line, const char* fmt, va_list vl);
-    istInterModule void DebugPrint(const char* file, int line, const wchar_t* fmt, ...);
-    istInterModule void DebugPrintV(const char* file, int line, const wchar_t* fmt, va_list vl);
+    istAPI void DebugPrint(const char* file, int line, const char* fmt, ...);
+    istAPI void DebugPrintV(const char* file, int line, const char* fmt, va_list vl);
+    istAPI void DebugPrint(const char* file, int line, const wchar_t* fmt, ...);
+    istAPI void DebugPrintV(const char* file, int line, const wchar_t* fmt, va_list vl);
 
-    istInterModule int DebugAssert(const char* file, int line, const char* fmt, ...);
-    istInterModule int DebugAssertV(const char* file, int line, const char* fmt, va_list vl);
+    istAPI int DebugAssert(const char* file, int line, const char* fmt, ...);
+    istAPI int DebugAssertV(const char* file, int line, const char* fmt, va_list vl);
 
 } // namespace ist
 

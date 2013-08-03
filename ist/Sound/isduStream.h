@@ -7,7 +7,7 @@ namespace ist {
 namespace isd {
 
 
-class istInterModule Stream : public SharedObject
+class istAPI Stream : public SharedObject
 {
 public:
     typedef ist::raw_vector<char> DataCont;

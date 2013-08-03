@@ -211,7 +211,7 @@ class BlendState;
 class DepthStencilState;
 
 
-struct istInterModule VertexDesc
+struct istAPI VertexDesc
 {
     GLuint location;        // shader value location
     I3D_TYPE type;          // value type
@@ -221,7 +221,7 @@ struct istInterModule VertexDesc
     GLuint divisor; // 0: per vertex, other: per n instance
 };
 
-struct istInterModule BufferDesc
+struct istAPI BufferDesc
 {
     I3D_BUFFER_TYPE type;
     I3D_USAGE usage;
@@ -237,7 +237,7 @@ struct istInterModule BufferDesc
     {}
 };
 
-struct istInterModule SamplerDesc
+struct istAPI SamplerDesc
 {
     I3D_TEXTURE_CLAMP wrap_s;
     I3D_TEXTURE_CLAMP wrap_t;
@@ -253,7 +253,7 @@ struct istInterModule SamplerDesc
     {}
 };
 
-struct istInterModule Texture1DDesc
+struct istAPI Texture1DDesc
 {
     I3D_COLOR_FORMAT format;
     uint32 size;
@@ -270,7 +270,7 @@ struct istInterModule Texture1DDesc
     {}
 };
 
-struct istInterModule Texture2DDesc
+struct istAPI Texture2DDesc
 {
     I3D_COLOR_FORMAT format;
     uvec2 size;
@@ -287,7 +287,7 @@ struct istInterModule Texture2DDesc
     {}
 };
 
-struct istInterModule Texture3DDesc
+struct istAPI Texture3DDesc
 {
     I3D_COLOR_FORMAT format;
     uvec3 size;
@@ -304,7 +304,7 @@ struct istInterModule Texture3DDesc
     {}
 };
 
-struct istInterModule ShaderDesc
+struct istAPI ShaderDesc
 {
     const char *source;
     uint32 source_len;
@@ -315,7 +315,7 @@ typedef ShaderDesc VertexShaderDesc;
 typedef ShaderDesc GeometryShaderDesc;
 typedef ShaderDesc PixelShaderDesc;
 
-struct istInterModule ShaderProgramDesc
+struct istAPI ShaderProgramDesc
 {
     VertexShader    *vs;
     PixelShader     *ps;
@@ -326,7 +326,7 @@ struct istInterModule ShaderProgramDesc
     {}
 };
 
-union istInterModule ColorMask
+union istAPI ColorMask
 {
     struct {
         uint8 red   : 1;
@@ -337,7 +337,7 @@ union istInterModule ColorMask
     uint8 mask;
 };
 
-struct istInterModule BlendStateDesc
+struct istAPI BlendStateDesc
 {
     BlendStateDesc()
         : enable_blend(false)
@@ -357,7 +357,7 @@ struct istInterModule BlendStateDesc
     ColorMask masks[I3D_MAX_RENDER_TARGETS];
 };
 
-struct istInterModule DepthStencilStateDesc
+struct istAPI DepthStencilStateDesc
 {
     DepthStencilStateDesc()
         : depth_enable(false), depth_write(true), depth_func(I3D_DEPTH_LESS)
@@ -380,7 +380,7 @@ struct istInterModule DepthStencilStateDesc
 };
 
 
-class istInterModule Viewport
+class istAPI Viewport
 {
 public:
     Viewport() : m_pos(0,0), m_size(0,0) {}
@@ -400,7 +400,7 @@ private:
     uvec2 m_size;
 };
 
-struct istInterModule Spec
+struct istAPI Spec
 {
     bool needs_transpose;
 

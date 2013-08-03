@@ -72,11 +72,11 @@
 //#define istExportSymbols
 
 #if defined(istExportSymbols)
-#   define istInterModule istDLLExport
+#   define istAPI istDLLExport
 #elif defined(istImportSymbols)
-#   define istInterModule istDLLImport
+#   define istAPI istDLLImport
 #else
-#   define istInterModule
+#   define istAPI
 #endif // istExportSymbols
 
 

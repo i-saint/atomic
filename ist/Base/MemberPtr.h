@@ -11,7 +11,7 @@
 
 #define istMemberPtrDecl(M)\
     struct M;\
-    class istInterModule member_ptr\
+    class istAPI member_ptr\
     {\
     public:\
         member_ptr();\
@@ -37,7 +37,7 @@
 
 #define istMemberPtrDecl_Noncopyable(M)\
     struct M;\
-    class istInterModule member_ptr\
+    class istAPI member_ptr\
     {\
     public:\
         member_ptr();\

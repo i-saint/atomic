@@ -8,7 +8,7 @@
 
 namespace ist {
 
-class istInterModule Condition
+class istAPI Condition
 {
 public:
 #ifdef ist_env_Windows

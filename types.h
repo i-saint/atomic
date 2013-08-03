@@ -3,6 +3,8 @@
 
 #include "ist/ist.h"
 
+#define atmAPI
+
 #define atmSafeRelease(Obj) if(Obj){Obj->release();Obj=nullptr;}
 
 #define atmGlobalNamespace(...)  } __VA_ARGS__ namespace atm {

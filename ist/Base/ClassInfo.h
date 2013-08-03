@@ -6,7 +6,7 @@
 namespace ist {
 
     template<class T>
-    struct istInterModule ClassInfo
+    struct istAPI ClassInfo
     {
         static int getClassID();
         static const char* getClassName();

@@ -9,7 +9,7 @@ stl::string S(const stl::wstring &wcs);
 stl::string S(const wchar_t *wcs, size_t len);
 
 
-class istInterModule StringSymbolPool
+class istAPI StringSymbolPool
 {
 public:
     typedef int32 id_t;
@@ -25,7 +25,7 @@ private:
 
 // 文字列から一意の整数を生成し、それを保持。比較を高速に行う class
 template<class T>
-class istInterModule TStringSymbol
+class istAPI TStringSymbol
 {
 public:
     typedef StringSymbolPool::id_t id_t;

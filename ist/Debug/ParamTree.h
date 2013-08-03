@@ -13,7 +13,7 @@ namespace ist {
 
 class IParamNode;
 
-class istInterModule IParamNode
+class istAPI IParamNode
 {
 istMakeDestructable;
 public:

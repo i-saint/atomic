@@ -16,16 +16,16 @@ template <typename Allocator>
 inline void BadAllocHandler(const Allocator* allocator) { BadAllocHandlerGeneric(allocator); }
 
 class IAllocator;
-istInterModule IAllocator* GetDefaultAllocator();
+istAPI IAllocator* GetDefaultAllocator();
 
 
-struct istInterModule Allocator_SingleThreadPolicy
+struct istAPI Allocator_SingleThreadPolicy
 {
     typedef int32       IndexT;
     typedef DummyMutex  MutexT;
 };
 
-struct istInterModule Allocator_MultiThreadPolicy
+struct istAPI Allocator_MultiThreadPolicy
 {
     typedef atomic_int32    IndexT;
     typedef Mutex           MutexT;
@@ -34,7 +34,7 @@ struct istInterModule Allocator_MultiThreadPolicy
 
 
 
-class istInterModule IAllocator
+class istAPI IAllocator
 {
 public:
     virtual ~IAllocator() {}
@@ -46,7 +46,7 @@ public:
 };
 
 
-class istInterModule HeapAllocator : public IAllocator
+class istAPI HeapAllocator : public IAllocator
 {
 public:
     virtual void* allocate(size_t size, size_t align); // thread safe
@@ -54,7 +54,7 @@ public:
 };
 
 
-class istInterModule StackAllocator : public IAllocator
+class istAPI StackAllocator : public IAllocator
 {
 public:
     StackAllocator();
@@ -83,7 +83,7 @@ private:
 // ブロックが尽きた場合 allocate() は NULL を返す。
 // ThreadPolicy==Allocator_MultiThreadPolicy であれば allocate()/deallocate() は thread safe
 template<class ThreadPolicy>
-class istInterModule TFixedAllocator : public IAllocator
+class istAPI TFixedAllocator : public IAllocator
 {
 public:
     typedef typename ThreadPolicy::IndexT IndexT;
@@ -129,7 +129,7 @@ typedef TFixedAllocator<Allocator_MultiThreadPolicy>    FixedAllocator; // threa
 // TFixedAllocator と大体同じ動作だが、ブロックが尽きた場合同サイズの TFixedAllocator を割り当ててそちらから確保を試みる
 // ThreadPolicy==Allocator_MultiThreadPolicy であれば allocate()/deallocate() は thread safe
 template<class ThreadPolicy>
-class istInterModule TChainedFixedAllocator
+class istAPI TChainedFixedAllocator
 {
 public:
     typedef TChainedFixedAllocator<ThreadPolicy> ThisT;
@@ -168,7 +168,7 @@ typedef TChainedFixedAllocator<Allocator_MultiThreadPolicy>  ChainedFixedAllocat
 
 // leak check 用にアロケート時のコールスタックを stl::map で保存したいが、その map にデフォルトのアロケータが使われると無限再起してしまう。
 // なので、malloc()/free() を呼ぶだけのアロケータを用意する。
-class istInterModule DebugAllocator : public IAllocator
+class istAPI DebugAllocator : public IAllocator
 {
 public:
     void* allocate(size_t size, size_t align) { return malloc(size); }

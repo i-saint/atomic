@@ -272,17 +272,17 @@ typedef ControlerDevice_DirectInput8 ControlerDevice;
 
 
 
-istInterModule IKeyboardDevice* CreateKeyboardDevice(uint32 nth)
+istAPI IKeyboardDevice* CreateKeyboardDevice(uint32 nth)
 {
     return istNew(KeyboardDevice)(nth);
 }
 
-istInterModule IMouseDevice* CreateMouseDevice(uint32 nth)
+istAPI IMouseDevice* CreateMouseDevice(uint32 nth)
 {
     return istNew(MouseDevice)(nth);
 }
 
-istInterModule IControlerDevice* CreateControllerDevice(uint32 nth)
+istAPI IControlerDevice* CreateControllerDevice(uint32 nth)
 {
     return istNew(ControlerDevice)(nth);
 }
