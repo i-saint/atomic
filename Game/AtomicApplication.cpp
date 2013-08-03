@@ -36,7 +36,7 @@ AtomicConfig::AtomicConfig()
     posteffect_microscopic  = false;
     posteffect_bloom        = true;
     posteffect_antialias    = false;
-    bg_level           = atmE_BGResolution_x1;
+    bg_level                = atmE_BGResolution_x1;
     bg_multiresolution      = false;
     light_multiresolution   = false;
     show_text               = true;
@@ -115,10 +115,12 @@ bool AtomicConfig::writeToFile( const char* filepath )
     fprintf(f, "bgm_volume = %f\n",             bgm_volume);
     fprintf(f, "se_volume = %f\n",              se_volume);
     fprintf(f, "lighting = %d\n",               lighting);
-    fprintf(f, "leveleditor_port = %d",         leveleditor_port);
+    fprintf(f, "leveleditor_port = %d\n",       leveleditor_port);
+#ifndef ist_env_Master
     fprintf(f, "debug_show_grid = %d\n",        debug_show_grid);
     fprintf(f, "debug_show_distance = %d\n",    debug_show_distance);
     fprintf(f, "debug_show_resolution = %d\n",  debug_show_resolution);
+#endif // ist_env_Master
     fclose(f);
     return true;
 }

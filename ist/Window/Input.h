@@ -22,6 +22,8 @@ enum KEY {
     KEY_F9      = VK_F9,
     KEY_F10     = VK_F10,
     KEY_F11     = VK_F11,
+    KEY_DELETE  = VK_DELETE,
+    KEY_BACK    = VK_BACK,
 };
 
 

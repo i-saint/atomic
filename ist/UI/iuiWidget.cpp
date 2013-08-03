@@ -28,13 +28,13 @@ void Widget::setParent( Widget *p )
     m_parent = p;
     if(m_parent) { m_parent->addChild(this); }
 }
-void Widget::setStyle( Style *style )           { m_style=style; }
-void Widget::setText( const String &text )      { m_text=text; callIfValid(m_on_text);        }
-void Widget::setPosition( const Position &pos ) { m_pos=pos;   callIfValid(m_on_pos);         }
-void Widget::setSize( const Size &size )        { m_size=size; callIfValid(m_on_size);        }
-void Widget::setZOrder(float v)                 { m_zorder=v;  callIfValid(m_on_zorder);      }
-void Widget::setVisibility(bool v)              { m_visible=v; callIfValid(m_on_visibility);  }
-void Widget::setFocus(bool v)
+void Widget::setStyle(Style *style)                   { m_style=style; }
+void Widget::setText(const String &text, bool e)      { m_text=text; if(e)callIfValid(m_on_text);        }
+void Widget::setPosition(const Position &pos, bool e) { m_pos=pos;   if(e)callIfValid(m_on_pos);         }
+void Widget::setSize(const Size &size, bool e)        { m_size=size; if(e)callIfValid(m_on_size);        }
+void Widget::setZOrder(float v, bool e)               { m_zorder=v;  if(e)callIfValid(m_on_zorder);      }
+void Widget::setVisibility(bool v, bool e)            { m_visible=v; if(e)callIfValid(m_on_visibility);  }
+void Widget::setFocus(bool v, bool e)
 {
     if(v) {
         iuiGetSystem()->setFocus(this);
@@ -42,7 +42,7 @@ void Widget::setFocus(bool v)
     else if(iuiGetSystem()->getFocus()==this) {
         iuiGetSystem()->setFocus(nullptr);
     }
-    callIfValid(m_on_focus);
+    if(e)callIfValid(m_on_focus);
 }
 
 void Widget::setTextHandler(WidgetCallback cb)      { m_on_text=cb; }

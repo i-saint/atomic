@@ -57,7 +57,7 @@ void EditboxStyle::draw()
 iuiImplDefaultStyle(Editbox);
 
 Editbox::Editbox(Widget *parent, const wchar_t *text, const Rect &rect, WidgetCallback on_edit)
-    : m_readonly(false), m_hovered(false), m_cursor(0)
+    : m_readonly(false), m_hovered(false), m_ime_on(false), m_cursor(0)
 {
     setParent(parent);
     setText(text);
@@ -83,11 +83,61 @@ bool Editbox::handleEvent( const WM_Base &wm )
 {
     if(wm.type==WMT_IMEResult) {
         if(isFocused() && !isReadOnly()) {
-            setText(WM_IME::cast(wm).text);
+            const WM_IME &m = WM_IME::cast(wm);
+            String text = getText();
+            text.insert(text.begin()+m_cursor, m.text, m.text+m.text_len);
+            m_cursor+=m.text_len;
+            setText(text);
+            return true;
+        }
+    }
+    else if(wm.type==WMT_IMEBegin) {
+        m_ime_on = true;
+    }
+    else if(wm.type==WMT_IMEEnd) {
+        m_ime_on = false;
+    }
+    else if(wm.type==WMT_KeyDown) {
+        if(!m_ime_on && isFocused()) {
+            const WM_Keyboard &m = WM_Keyboard::cast(wm);
+            wchar_t c = (wchar_t)m.key;
+            String text = getText();
+            bool changed = false;
+            if(c==ist::KEY_RIGHT) {
+                m_cursor = ist::clamp<int32>(m_cursor+1, 0, text.size());
+            }
+            else if(c==ist::KEY_LEFT) {
+                m_cursor = ist::clamp<int32>(m_cursor-1, 0, text.size());
+            }
+            else if(c==ist::KEY_DELETE) {
+                if(m_cursor<(int32)text.size()) {
+                    text.erase(text.begin()+m_cursor, text.begin()+m_cursor+1);
+                    changed = true;
+                }
+            }
+            else if(c==ist::KEY_BACK) {
+                if(m_cursor>0) {
+                    text.erase(text.begin()+m_cursor-1, text.begin()+m_cursor);
+                    --m_cursor;
+                    changed = true;
+                }
+            }
+            else if(isprint(c)) {
+                text.insert(text.begin()+m_cursor, &c, &c+1);
+                ++m_cursor;
+                changed = true;
+            }
+            if(changed) { setText(text); }
             return true;
         }
     }
     return super::handleEvent(wm);
+}
+
+void Editbox::setText( const String &v, bool e )
+{
+    super::setText(v,e);
+    m_cursor = ist::clamp<int32>(m_cursor, 0, v.size());
 }
 
 

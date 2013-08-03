@@ -32,9 +32,9 @@ PauseWindow::PauseWindow()
     }
 }
 
-void PauseWindow::setVisibility( bool v )
+void PauseWindow::setVisibility( bool v, bool e )
 {
-    super::setVisibility(v);
+    super::setVisibility(v,e);
     if(v) {
         atmPause(true);
         atmGetUISelector()->setSelection(this);

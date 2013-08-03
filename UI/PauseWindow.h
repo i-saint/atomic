@@ -13,7 +13,7 @@ friend class RootWindow;
 private:
     PauseWindow();
 public:
-    void setVisibility(bool v) override;
+    void setVisibility(bool v, bool e=true) override;
     void unselectAll();
     bool onCancel(const iui::WM_Widget &wm) override;
     void drawCallback();

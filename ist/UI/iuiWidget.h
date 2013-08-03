@@ -45,12 +45,12 @@ public:
 
     virtual void setParent(Widget *p);
     virtual void setStyle(Style *style);
-    virtual void setText(const String &text);
-    virtual void setPosition(const Position &pos);
-    virtual void setSize(const Size &pos);
-    virtual void setZOrder(Float v);
-    virtual void setVisibility(bool v);
-    virtual void setFocus(bool v);
+    virtual void setText(const String &text, bool fire_event=true);
+    virtual void setPosition(const Position &pos, bool fire_event=true);
+    virtual void setSize(const Size &pos, bool fire_event=true);
+    virtual void setZOrder(Float v, bool fire_event=true);
+    virtual void setVisibility(bool v, bool fire_event=true);
+    virtual void setFocus(bool v, bool fire_event=true);
 
     void setTextHandler(WidgetCallback cb);
     void setPositionHandler(WidgetCallback cb);

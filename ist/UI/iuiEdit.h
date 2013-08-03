@@ -40,10 +40,12 @@ public:
     void    setReadOnly(bool ro);
     void    setCursor(int32 cursor);
     bool    handleEvent(const WM_Base &wm) override;
+    void    setText(const String &v, bool e=true) override;
 
 private:
     bool m_readonly;
     bool m_hovered;
+    bool m_ime_on;
     int32 m_cursor;
 };
 
@@ -59,6 +61,7 @@ class iuiAPI EditboxMultiline : public Widget
 {
 typedef Widget super;
 public:
+    iuiImplWidget(EditboxMultiline)
     EditboxMultiline(const wchar_t *text=L"", WidgetCallback on_change=WidgetCallback());
     bool            isReadOnly() const;
     const ivec2&    getCursor() const;

@@ -73,9 +73,9 @@ void TitleWindow::update( iui::Float dt )
 
 void TitleWindow::draw()
 {
+    const iui::Rect &screen = iuiGetSystem()->getScreen();
     IFontRenderer *font = atmGetTitleFont();
-    const iui::Size &size = iuiGetRootWindow()->getSize();
-    font->setScreen(0.0f, size.x, size.y, 0.0f);
+    font->setScreen(0.0f, screen.size.x, screen.size.y, 0.0f);
     font->setSize(120.0f);
     font->setSpacing(5.0f);
     font->setColor(vec4(1.0f, 1.0f, 1.0f, 0.8f));
@@ -140,9 +140,9 @@ void TitleWindow::unselectAll()
     }
 }
 
-void TitleWindow::setVisibility( bool v )
+void TitleWindow::setVisibility( bool v, bool e )
 {
-    super::setVisibility(v);
+    super::setVisibility(v,e);
     if(v) {
         atmGetUISelector()->setSelection(this);
     }

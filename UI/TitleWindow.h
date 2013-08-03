@@ -19,7 +19,7 @@ public:
     void draw() override;
     void drawCallback();
 
-    void setVisibility(bool v) override;
+    void setVisibility(bool v, bool e) override;
     void unselectAll();
     bool onCancel(const iui::WM_Widget &wm) override;
 
