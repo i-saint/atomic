@@ -131,6 +131,16 @@ void UISelector::popSelection()
     }
 }
 
+uint32 UISelector::popSelection( iui::Widget *v )
+{
+    uint32 ret = 0;
+    while(!m_selection.empty() && m_selection.back().widget!=v) {
+        m_selection.pop_back();
+        ++ret;
+    }
+    return ret;
+}
+
 void UISelector::clearSelection()
 {
     m_selection.clear();
@@ -144,6 +154,26 @@ void UISelector::setSelection( iui::Widget *v, int32 i )
 
 UISelector::SelectionCont& UISelector::getSelection() { return m_selection; }
 
+void UISelector::enterList(bool backward)
+{
+    Selection &state = m_selection.back();
+    iui::Widget *w = state.widget->getNthChild(state.index);
+    if(w->getTypeID()==iui::WT_List) {
+        iui::List *ls = static_cast<iui::List*>(w);
+        if(!ls->getItems().empty()) {
+            pushSelection(ls, backward ? (int32)ls->getItems().size()-1 : 0);
+            updateListScroll();
+        }
+    }
+}
+
+void UISelector::updateListScroll()
+{
+    Selection &back = m_selection.back();
+    iui::List *ls = static_cast<iui::List*>(back.widget);
+    ls->setScrollPos(ls->getItemHeight()*back.index-ls->getSize().y*0.5f);
+}
+
 void UISelector::moveNext()
 {
     if(!m_selection.empty()) {
@@ -155,17 +185,15 @@ void UISelector::moveNext()
                 popSelection();
                 Selection &back = m_selection.back();
                 back.index = GetNextClickable(back.widget, back.index);
+                enterList(false);
+            }
+            else {
+                updateListScroll();
             }
         }
         else {
             state.index = GetNextClickable(state.widget, state.index);
-            iui::Widget *w = state.widget->getNthChild(state.index);
-            if(w->getTypeID()==iui::WT_List) {
-                iui::List *ls = static_cast<iui::List*>(w);
-                if(!ls->getItems().empty()) {
-                    pushSelection(ls, 0);
-                }
-            }
+            enterList(false);
         }
     }
 }
@@ -181,17 +209,15 @@ void UISelector::movePrev()
                 popSelection();
                 Selection &back = m_selection.back();
                 back.index = GetPrevClickable(back.widget, back.index);
+                enterList(true);
+            }
+            else {
+                updateListScroll();
             }
         }
         else {
             state.index = GetPrevClickable(state.widget, state.index);
-            iui::Widget *w = state.widget->getNthChild(state.index);
-            if(w->getTypeID()==iui::WT_List) {
-                iui::List *ls = static_cast<iui::List*>(w);
-                if(!ls->getItems().empty()) {
-                    pushSelection(ls, (int32)ls->getItems().size()-1);
-                }
-            }
+            enterList(true);
         }
     }
 }

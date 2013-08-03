@@ -79,6 +79,7 @@ public:
     Float               getScrollPos() const;
     VScrollbar*         getScrollbar() const;
     Size                getSizeWithoutScrollbar() const;
+    void                setScrollPos(Float v);
 
     template<class F>
     void eachListItem(const F &f)

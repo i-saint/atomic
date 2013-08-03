@@ -77,7 +77,8 @@ UISelector*         atmGetUISelector()      { return ((RootWindow*)atmGetRootWin
 
 void atmPauseAndShowPauseMenu()
 {
-    atmGetPauseWindow()->setVisibility(true);
+    PauseWindow *pw = (PauseWindow*)atmGetPauseWindow();
+    atmGetPauseWindow()->setVisibility(!pw->isVisible());
 }
 
 void atmUIDrawCallback()

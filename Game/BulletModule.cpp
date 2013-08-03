@@ -228,7 +228,7 @@ public:
         vec4 glow = vec4(1.2f, 1.2f, 2.5f, 0.0f);
         vec4 light  = glow;
         vec4 flash  = glow * 0.5f;
-        if(atmGetConfig()->lighting<atmE_Lighting_High) {
+        if(atmGetConfig()->lighting_level<atmE_Lighting_High) {
             flash  = glow * 0.7f;
         }
 
@@ -253,7 +253,7 @@ public:
             atmGetFluidPass()->addParticlesSolid(PSET_SPHERE_BULLET, inst);
         });
 
-        if(atmGetConfig()->lighting>=atmE_Lighting_Medium) {
+        if(atmGetConfig()->lighting_level>=atmE_Lighting_Medium) {
             PointLight l;
             l.setPosition(m_pos + vec3(0.0f, 0.0f, 0.3f));
             l.setColor(flash*inst.scale);
@@ -485,7 +485,7 @@ public:
         vec4 glow = vec4(2.0f, 1.2f, 0.1f, 0.0f);
         vec4 light  = glow;
         vec4 flash  = glow * 0.5f;
-        if(atmGetConfig()->lighting<atmE_Lighting_High) {
+        if(atmGetConfig()->lighting_level<atmE_Lighting_High) {
             flash  = glow * 0.7f;
         }
 
@@ -499,7 +499,7 @@ public:
             inst.transform = inst.rotate = p.computeTransformMatrix();
             atmGetFluidPass()->addParticles(PSET_SPHERE_BULLET, inst);
         });
-        if(atmGetConfig()->lighting>=atmE_Lighting_High) {
+        if(atmGetConfig()->lighting_level>=atmE_Lighting_High) {
             each(m_bullets, [&](BulletData &p){
                 PointLight l;
                 l.setPosition(p.pos + vec3(0.0f, 0.0f, 0.10f));

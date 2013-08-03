@@ -88,10 +88,10 @@ ConfigWindow::ConfigWindow()
     {
         typedef std::tuple<const wchar_t*, size_t> pair;
         pair graphics_options[] = {
-            pair(L"low",     0),
-            pair(L"medium",  1),
-            pair(L"high",    2),
-            pair(L"custom",  3),
+            pair(L"low",     atmE_Graphics_Low   ),
+            pair(L"medium",  atmE_Graphics_Medium),
+            pair(L"high",    atmE_Graphics_High  ),
+            //pair(L"custom",  atmE_Graphics_Custom),
         };
         each(graphics_options, [&](const pair &p){
             m_vw_glevel->getList()->addListItem(std::get<0>(p), (void*)std::get<1>(p));
@@ -112,23 +112,36 @@ void ConfigWindow::setVisibility( bool v, bool e )
 
 bool ConfigWindow::onCancel(const iui::WM_Widget &wm)
 {
-    atmGetUISelector()->popSelection();
+    if(atmGetUISelector()->popSelection(this)) {
+        hideAll();
+    }
+    else {
+        return getParent()->onCancel(wm);
+    }
     return true;
 }
 
 void ConfigWindow::sync()
 {
+    AtomicConfig &conf = *atmGetConfig();
     wchar_t tmp[128];
 
     m_bu_name->setText(atmGetConfig()->name);
-    m_vw_name->getEdit()->setText(atmGetConfig()->name, false);
+    m_vw_name->getEdit()->setText(conf.name, false);
 
-    istSPrintf(tmp, L"%dx%d", atmGetConfig()->window_size.x, atmGetConfig()->window_size.y);
+    istSPrintf(tmp, L"%dx%d", conf.window_size.x, conf.window_size.y);
     m_bu_reso->setText(tmp);
 
-    istSPrintf(tmp, L"%d", atmGetConfig()->leveleditor_port);
+    istSPrintf(tmp, L"%d", conf.leveleditor_port);
     m_bu_port->setText(tmp);
     m_vw_port->getEdit()->setText(tmp, false);
+
+    switch(conf.graphics_level) {
+    case atmE_Graphics_Low:    m_bu_glevel->setText(L"low");    break;
+    case atmE_Graphics_Medium: m_bu_glevel->setText(L"medium"); break;
+    case atmE_Graphics_High:   m_bu_glevel->setText(L"high");   break;
+    case atmE_Graphics_Custom: m_bu_glevel->setText(L"custom"); break;
+    }
 }
 
 void ConfigWindow::hideAll()
@@ -191,7 +204,7 @@ void ConfigWindow::onNameV(Widget *w)
     wcscpy(atmGetConfig()->name, w->getText().c_str());
     hideAll();
     sync();
-    atmGetUISelector()->popSelection();
+    atmGetUISelector()->popSelection(this);
 }
 
 void ConfigWindow::onResolutionV(Widget *w)
@@ -205,7 +218,7 @@ void ConfigWindow::onResolutionV(Widget *w)
     }
     hideAll();
     sync();
-    atmGetUISelector()->popSelection();
+    atmGetUISelector()->popSelection(this);
 }
 
 void ConfigWindow::onPortV(Widget *w)
@@ -216,7 +229,7 @@ void ConfigWindow::onPortV(Widget *w)
     }
     hideAll();
     sync();
-    atmGetUISelector()->popSelection();
+    atmGetUISelector()->popSelection(this);
 }
 
 void ConfigWindow::onRenderV(Widget *w)
@@ -226,31 +239,32 @@ void ConfigWindow::onRenderV(Widget *w)
         AtomicConfig &conf = *atmGetConfig();
         size_t l = (size_t)item->getUserData();
         switch(l) {
-        case 0: // low
-            conf.lighting = atmE_Lighting_Low;
+        case atmE_Graphics_Low:
+            conf.lighting_level = atmE_Lighting_Low;
             conf.bg_level = atmE_BGResolution_x4;
             conf.posteffect_bloom = false;
             conf.show_bloodstain = false;
             break;
-        case 1: // medium
-            conf.lighting = atmE_Lighting_Medium;
+        case atmE_Graphics_Medium:
+            conf.lighting_level = atmE_Lighting_Medium;
             conf.bg_level = atmE_BGResolution_x2;
             conf.posteffect_bloom = true;
             conf.show_bloodstain = false;
             break;
-        case 2: // high
-            conf.lighting = atmE_Lighting_High;
+        case atmE_Graphics_High:
+            conf.lighting_level = atmE_Lighting_High;
             conf.bg_level = atmE_BGResolution_x1;
             conf.posteffect_bloom = true;
             conf.show_bloodstain = true;
             break;
-        case 3: // custom
+        case atmE_Graphics_Custom:
             break;
         }
+        conf.graphics_level = l;
     }
     hideAll();
     sync();
-    atmGetUISelector()->popSelection();
+    atmGetUISelector()->popSelection(this);
 }
 
 void ConfigWindow::onBGMV(Widget *)

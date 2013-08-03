@@ -36,17 +36,18 @@ AtomicConfig::AtomicConfig()
     posteffect_microscopic  = false;
     posteffect_bloom        = true;
     posteffect_antialias    = false;
-    bg_level                = atmE_BGResolution_x1;
     bg_multiresolution      = false;
     light_multiresolution   = false;
     show_text               = true;
-    show_bloodstain         = true;
+    show_bloodstain         = false;
     output_replay           = true;
     sound_enable            = true;
     bgm_volume              = 0.3f;
     se_volume               = 0.3f;
     language                = lang_JP;
-    lighting                = atmE_Lighting_Medium;
+    bg_level                = atmE_BGResolution_x2;
+    lighting_level          = atmE_Lighting_Medium;
+    graphics_level          = atmE_Graphics_Medium;
     leveleditor_port        = atm_Leveleditor_DefaultPort;
     wcscpy(name, L"atom");
 
@@ -83,7 +84,7 @@ bool AtomicConfig::readFromFile( const char* filepath )
         if(sscanf(buf, "sound_enable = %f", &itmp.x)==1)            { sound_enable=(itmp.x!=0); }
         if(sscanf(buf, "bgm_volume = %f", &ftmp.x)==1)              { bgm_volume=ftmp.x; }
         if(sscanf(buf, "se_volume = %f", &ftmp.x)==1)               { se_volume=ftmp.x; }
-        if(sscanf(buf, "lighting = %d", &itmp.x)==1)                { lighting=itmp.x; }
+        if(sscanf(buf, "lighting = %d", &itmp.x)==1)                { lighting_level=itmp.x; }
         if(sscanf(buf, "leveleditor_port = %d", &utmp.x)==1)        { leveleditor_port=utmp.x; }
         if(sscanf(buf, "debug_show_grid = %d", &itmp.x)==1)         { debug_show_grid=(itmp.x!=0); }
         if(sscanf(buf, "debug_show_distance = %d", &itmp.x)==1)     { debug_show_distance=(itmp.x!=0); }
@@ -114,7 +115,7 @@ bool AtomicConfig::writeToFile( const char* filepath )
     fprintf(f, "sound_enable = %d\n",           sound_enable);
     fprintf(f, "bgm_volume = %f\n",             bgm_volume);
     fprintf(f, "se_volume = %f\n",              se_volume);
-    fprintf(f, "lighting = %d\n",               lighting);
+    fprintf(f, "lighting = %d\n",               lighting_level);
     fprintf(f, "leveleditor_port = %d\n",       leveleditor_port);
 #ifndef ist_env_Master
     fprintf(f, "debug_show_grid = %d\n",        debug_show_grid);
@@ -132,7 +133,7 @@ void AtomicConfig::setupDebugMenu()
     wdmAddNode("Config/UnlimitGameSpeed",   &unlimit_gamespeed);
     wdmAddNode("Config/PostEffect_Bloom",     &posteffect_bloom);
     wdmAddNode("Config/PostEffect_Antialias", &posteffect_antialias);
-    wdmAddNode("Config/Lighting", &lighting, (int32)atmE_Lighting_Low, (int32)atmE_Lighting_High);
+    wdmAddNode("Config/Lighting", &lighting_level, (int32)atmE_Lighting_Low, (int32)atmE_Lighting_High);
     wdmAddNode("Config/BG_Level", &bg_level, (int32)atmE_BGResolution_x1, (int32)atmE_BGNone);
     wdmAddNode("Config/BG_Multiresolution", &bg_multiresolution);
 }

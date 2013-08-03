@@ -8,6 +8,13 @@ class AtomicGame;
 class SoundThread;
 struct GameStartConfig;
 
+enum atmGraphicsLevel {
+    atmE_Graphics_Low,
+    atmE_Graphics_Medium,
+    atmE_Graphics_High,
+    atmE_Graphics_Custom,
+};
+
 enum atmLightingLevel {
     atmE_Lighting_Low,
     atmE_Lighting_Medium,
@@ -33,7 +40,6 @@ struct atmAPI AtomicConfig
     bool posteffect_microscopic;
     bool posteffect_bloom;
     bool posteffect_antialias;
-    int32 bg_level;
     bool bg_multiresolution;
     bool light_multiresolution;
     bool show_text;
@@ -43,7 +49,9 @@ struct atmAPI AtomicConfig
     float32 bgm_volume;
     float32 se_volume;
     int32 language;
-    int32 lighting;
+    int32 bg_level;
+    int32 lighting_level;
+    int32 graphics_level;
     uint32 leveleditor_port;
     PlayerName name;
 

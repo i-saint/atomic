@@ -157,7 +157,7 @@ public:
         }
 
         if(m_light_radius > 0.0f) {
-            if(atmGetConfig()->lighting>=atmE_Lighting_Medium) {
+            if(atmGetConfig()->lighting_level>=atmE_Lighting_Medium) {
                 PointLight l;
                 l.setPosition(getPosition() + vec3(0.0f, 0.0f, m_light_radius*0.5f));
                 l.setColor(light);

@@ -23,6 +23,7 @@ public:
 
     void pushSelection(iui::Widget *v, int32 i=-1);
     void popSelection();
+    uint32 popSelection(iui::Widget *v); // v のスタックまで pop。pop した回数を返す
     void clearSelection();
     void setSelection(iui::Widget *v, int32 i=-1);
     SelectionCont& getSelection();
@@ -33,6 +34,9 @@ public:
     void cancel();
 
 private:
+    void enterList(bool backward);
+    void updateListScroll();
+
     SelectionCont m_selection;
     iui::Position m_pos;
     iui::Size m_size;

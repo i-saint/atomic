@@ -103,6 +103,12 @@ Size List::getSizeWithoutScrollbar() const
     return size;
 }
 
+void List::setScrollPos(Float v)    {
+    Float lim = std::max<Float>(0.0f, getItems().size()*getItemHeight()-getSize().y);
+    m_scroll_pos = ist::clamp<Float>(v, 0.0f, lim);
+    m_scrollbar->setValue(m_scroll_pos);
+}
+
 void List::setItemClickHandler(WidgetCallback cb)       { m_on_item_click=cb; }
 void List::setItemDoubleClickHandler(WidgetCallback cb) { m_on_item_doubleclick=cb; }
 void List::setItemHoverHandler(WidgetCallback cb)       { m_on_item_hovered=cb; }
