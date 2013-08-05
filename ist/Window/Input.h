@@ -6,6 +6,7 @@
 namespace ist {
 
 enum KEY {
+    KEY_ENTER   = VK_RETURN,
     KEY_RIGHT   = VK_RIGHT,
     KEY_LEFT    = VK_LEFT,
     KEY_UP      = VK_UP,

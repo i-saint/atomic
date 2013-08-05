@@ -70,6 +70,7 @@ bool Button::handleEvent( const WM_Base &wm )
 
 bool Button::onOK(const WM_Widget &em)
 {
+    setFocus(true);
     push();
     return true;
 }
@@ -156,6 +157,7 @@ bool ToggleButton::handleEvent( const WM_Base &wm )
 
 bool ToggleButton::onOK(const WM_Widget &em)
 {
+    setFocus(true);
     toggle();
     return true;
 }
@@ -195,8 +197,7 @@ bool Checkbox::handleEvent( const WM_Base &wm )
         return true;
     case WH_HitMouseLeftUp:
         if(m_pressing) {
-            m_checked = !m_checked;
-            callIfValid(m_on_toggle);
+            toggle();
             m_pressing = false;
         }
         return true;
@@ -206,7 +207,15 @@ bool Checkbox::handleEvent( const WM_Base &wm )
 
 bool Checkbox::onOK(const WM_Widget &em)
 {
+    setFocus(true);
+    toggle();
     return true;
+}
+
+void Checkbox::toggle()
+{
+    m_checked = !m_checked;
+    callIfValid(m_on_toggle);
 }
 
 

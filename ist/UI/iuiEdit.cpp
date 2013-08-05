@@ -53,20 +53,24 @@ void EditboxStyle::draw()
     iuiGetRenderer()->drawRect(rect, bg);
     iuiGetRenderer()->drawOutlineRect(rect, getBorderColor());
     iuiGetRenderer()->drawFont(tpos, getFontColor(), w->getText().c_str(), w->getText().size());
+    if(w->isFocused()) {
+        vec2 tsize = iuiGetRenderer()->computeTextSize(w->getText().c_str(), w->getCursorPos());
+        Line l(Position(tsize.x, 0.0f), Position(tsize.x, tsize.y));
+        iuiGetRenderer()->drawLine(l, bg);
+    }
 }
 iuiImplDefaultStyle(Editbox);
 
-Editbox::Editbox(Widget *parent, const wchar_t *text, const Rect &rect, WidgetCallback on_edit)
-    : m_readonly(false), m_hovered(false), m_ime_on(false), m_cursor(0)
+Editbox::Editbox(Widget *parent, const wchar_t *text, const Rect &rect, WidgetCallback on_change)
+    : m_on_chnage(on_change), m_readonly(false), m_hovered(false), m_ime_on(false), m_cursor(0)
 {
     setParent(parent);
     setText(text);
     setPosition(rect.getPosition());
     setSize(rect.getSize());
-    setTextHandler(on_edit);
 }
 
-int32   Editbox::getCursor() const      { return m_cursor; }
+int32   Editbox::getCursorPos() const      { return m_cursor; }
 
 bool    Editbox::isHovered() const      { return m_hovered; }
 bool    Editbox::isReadOnly() const     { return m_readonly; }
@@ -97,13 +101,17 @@ bool Editbox::handleEvent( const WM_Base &wm )
     else if(wm.type==WMT_IMEEnd) {
         m_ime_on = false;
     }
-    else if(wm.type==WMT_KeyDown) {
+    else if(wm.type==WMT_KeyChar) {
         if(!m_ime_on && isFocused()) {
             const WM_Keyboard &m = WM_Keyboard::cast(wm);
             wchar_t c = (wchar_t)m.key;
             String text = getText();
             bool changed = false;
-            if(c==ist::KEY_RIGHT) {
+            if(c==ist::KEY_ENTER) {
+                callIfValid(m_on_chnage);
+                setFocus(false);
+            }
+            else if(c==ist::KEY_RIGHT) {
                 m_cursor = ist::clamp<int32>(m_cursor+1, 0, text.size());
             }
             else if(c==ist::KEY_LEFT) {
@@ -138,6 +146,18 @@ void Editbox::setText( const String &v, bool e )
 {
     super::setText(v,e);
     m_cursor = ist::clamp<int32>(m_cursor, 0, v.size());
+}
+
+bool Editbox::onOK( const WM_Widget &wm )
+{
+    setFocus(true);
+    return true;
+}
+
+bool Editbox::onCancel( const WM_Widget &wm )
+{
+    setFocus(false);
+    return true;
 }
 
 

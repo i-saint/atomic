@@ -32,17 +32,21 @@ class iuiAPI Editbox : public Widget
 typedef Widget super;
 public:
     iuiImplWidget(Editbox)
-    Editbox(Widget *parent, const wchar_t *text=L"", const Rect &rect=Rect(), WidgetCallback on_edit=WidgetCallback());
+    Editbox(Widget *parent, const wchar_t *text=L"", const Rect &rect=Rect(), WidgetCallback on_change=WidgetCallback());
     void    update(Float dt);
     bool    isHovered() const;
     bool    isReadOnly() const;
-    int32   getCursor() const;
+    int32   getCursorPos() const;
     void    setReadOnly(bool ro);
     void    setCursor(int32 cursor);
     bool    handleEvent(const WM_Base &wm) override;
     void    setText(const String &v, bool e=true) override;
 
+    bool    onOK(const WM_Widget &wm) override;
+    bool    onCancel(const WM_Widget &wm) override;
+
 private:
+    WidgetCallback m_on_chnage;
     bool m_readonly;
     bool m_hovered;
     bool m_ime_on;

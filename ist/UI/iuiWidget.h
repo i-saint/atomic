@@ -84,8 +84,8 @@ public:
     void eachChildrenReverse(const F &f) const { const_cast<Widget*>(this)->eachChildrenReverse(f); }
 
     virtual bool handleEvent(const WM_Base &wm);
-    virtual bool onOK(const WM_Widget &em);
-    virtual bool onCancel(const WM_Widget &em);
+    virtual bool onOK(const WM_Widget &wm);
+    virtual bool onCancel(const WM_Widget &wm);
 
 protected:
     virtual ~Widget();

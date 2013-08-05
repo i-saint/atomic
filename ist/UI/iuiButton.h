@@ -81,6 +81,7 @@ public:
 
     bool handleEvent(const WM_Base &wm) override;
     bool onOK(const WM_Widget &em) override;
+    virtual void toggle();
 
 private:
     WidgetCallback m_on_toggle;

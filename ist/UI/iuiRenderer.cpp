@@ -18,12 +18,12 @@ public:
     {
     }
 
-    virtual void release()
+    void release() override
     {
         iuiDelete(this);
     }
 
-    virtual void initialize(ist::i3dgl::EasyDrawer *drawer=nullptr, ist::i3dgl::IFontRenderer *font=nullptr)
+    void initialize(ist::i3dgl::EasyDrawer *drawer=nullptr, ist::i3dgl::IFontRenderer *font=nullptr) override
     {
         m_drawer = drawer ? drawer : i3d::CreateEasyDrawer();
         m_font = font;
@@ -31,49 +31,49 @@ public:
         istSafeAddRef(font);
     }
 
-    virtual void finalize()
+    void finalize() override
     {
         istSafeRelease(m_font);
         istSafeRelease(m_drawer);
     }
 
-    virtual void setViewport(int32 x, int32 y, int32 width, int32 height)
+    void setViewport(int32 x, int32 y, int32 width, int32 height) override
     {
         m_font->setViewport(x,y,width,height);
         m_drawer->setViewport(x,y,width,height);
     }
 
-    virtual void setScreen(float32 x, float32 y, float32 width, float32 height)
+    void setScreen(float32 x, float32 y, float32 width, float32 height) override
     {
         m_font->setScreen(x,x+width, y+height,y);
         m_drawer->setScreen(x,x+width, y+height,y);
     }
-    virtual void setTranslate(Position pos)
+    void setTranslate(Position pos) override
     {
         mat4 trans = glm::translate(mat4(), vec3(pos, 0.0f));
         m_drawer->setWorldMatrix(trans);
     }
 
 
-    virtual void drawLine(const Line &line, const Color &color)
+    void drawLine(const Line &line, const Color &color) override
     {
         if(color.a<=0.0f) { return; }
         i3d::DrawLine(*m_drawer,line.begin, line.end, color);
     }
 
-    virtual void drawRect(const Rect &rect, const Color &color)
+    void drawRect(const Rect &rect, const Color &color) override
     {
         if(color.a<=0.0f) { return; }
         i3d::DrawRectT(*m_drawer, rect.pos, rect.pos+rect.size, vec2(1.0f), vec2(0.0f), color);
     }
 
-    virtual void drawOutlineRect(const Rect &rect, const Color &color)
+    void drawOutlineRect(const Rect &rect, const Color &color) override
     {
         if(color.a<=0.0f) { return; }
         i3d::DrawOutlineRect(*m_drawer, rect.pos, rect.pos+rect.size, color);
     }
 
-    virtual void drawFont(const TextPosition &tp, const Color &color, const wchar_t *text, uint32 len)
+    void drawFont(const TextPosition &tp, const Color &color, const wchar_t *text, uint32 len) override
     {
         if(m_font==nullptr) { return; }
         vec2 pos  = tp.rect.getPosition();
@@ -90,7 +90,7 @@ public:
         m_font->draw();
     }
 
-    virtual void begin()
+    void begin() override
     {
         m_prev_state = m_drawer->getRenderStates();
         if(m_font) {
@@ -100,15 +100,26 @@ public:
         }
     }
 
-    virtual void end()
+    void end() override
     {
         m_drawer->forceSetRenderStates(m_prev_state);
     }
 
-    virtual void flush()
+    void flush() override
     {
         m_drawer->flush(i3d::GetDevice()->getImmediateContext());
     }
+
+
+    Size computeTextSize( const wchar_t *text, uint32 len/*=0*/ ) override
+    {
+        if(m_font==nullptr) { return Size(); }
+        return Size(m_font->computeTextSize(text,len));
+    }
+
+
+    ist::i3dgl::EasyDrawer*     getDrawer() const override { return m_drawer; }
+    ist::i3dgl::IFontRenderer*  getFont() const override  { return m_font; }
 
 private:
     i3d::EasyDrawer *m_drawer;

@@ -44,7 +44,13 @@ public:
     uint32          getUniformLocation() const;
 
 private:
-    istMemberPtrDecl(Members) m;
+    mat4            m_proj;
+    mat4            m_world;
+    Texture2D      *m_texture;
+    Sampler        *m_sampler;
+    ShaderProgram  *m_shader;
+    Viewport        m_viewport;
+    uint32          m_uniform_location;
 };
 
 
@@ -76,7 +82,6 @@ public:
     // template は dllexport できないのでマクロによる展開で代用
 #define Template(VertexT)\
     void draw(I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices);\
-    void draw(I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices, const uint8 *indices, uint32 num_indices);\
     void draw(I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices, const uint16 *indices, uint32 num_indices);\
     void draw(I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices, const uint32 *indices, uint32 num_indices);
     istEachVertexTypes(Template)
@@ -94,8 +99,27 @@ private:
     template<class VertexT, class IndexT>
     void drawImpl(I3D_TOPOLOGY topology, const VertexT *vertices, uint32 num_vertices, const IndexT *indices, uint32 num_indices);
 
-    struct DrawCall;
-    istMemberPtrDecl(Members) m;
+    class EasyShaders;
+    struct DrawCall
+    {
+        EasyDrawState state;
+        I3D_TOPOLOGY topology;
+        VertexType vertex_type;
+        I3D_TYPE index_type;
+        uint32 num_vertices;
+        size_t vb_offset; // in byte
+        uint32 num_indices;
+        size_t ib_offset; // in byte
+    };
+    VertexArray            *m_va;
+    Buffer                 *m_vbo;
+    Buffer                 *m_ibo;
+    Buffer                 *m_ubo;
+    EasyShaders            *m_shaders;
+    ist::raw_vector<char>   m_vertex_data;
+    ist::raw_vector<char>   m_index_data;
+    ist::vector<DrawCall>   m_draw_calls;
+    EasyDrawState           m_state;
 };
 
 istAPI EasyDrawer* CreateEasyDrawer();

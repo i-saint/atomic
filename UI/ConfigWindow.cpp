@@ -60,11 +60,11 @@ ConfigWindow::ConfigWindow()
 
     pos += iui::Position(0.0f, vspace);
     
-                iuiNew(iui::Label)(this, L"port", iui::Rect(pos, iui::Size(labelw, 25)));
-    m_bu_port = iuiNew(iui::ToggleButton)(this, L"", iui::Rect(pos+iui::Position(labelw, 0), size), std::bind(&ConfigWindow::onPortW, this, _1));
-    m_vw_port = iuiNew(EditboxWindow)(this, L"", iui::Rect(pos+iui::Position(hspace, 0), iui::Size(300, 180)), std::bind(&ConfigWindow::onPortV, this, _1));
-    m_buttons.push_back(m_bu_port);
-    m_windows.push_back(m_vw_port);
+                iuiNew(iui::Label)(this, L"httpd port", iui::Rect(pos, iui::Size(labelw, 25)));
+    m_bu_http = iuiNew(iui::ToggleButton)(this, L"", iui::Rect(pos+iui::Position(labelw, 0), size), std::bind(&ConfigWindow::onPortW, this, _1));
+    m_vw_http = iuiNew(EditboxWindow)(this, L"", iui::Rect(pos+iui::Position(hspace, 0), iui::Size(300, 180)), std::bind(&ConfigWindow::onPortV, this, _1));
+    m_buttons.push_back(m_bu_http);
+    m_windows.push_back(m_vw_http);
 
     pos += iui::Position(0.0f, vspace);
         
@@ -133,8 +133,8 @@ void ConfigWindow::sync()
     m_bu_reso->setText(tmp);
 
     istSPrintf(tmp, L"%d", conf.leveleditor_port);
-    m_bu_port->setText(tmp);
-    m_vw_port->getEdit()->setText(tmp, false);
+    m_bu_http->setText(tmp);
+    m_vw_http->getEdit()->setText(tmp, false);
 
     switch(conf.graphics_level) {
     case atmE_Graphics_Low:    m_bu_glevel->setText(L"low");    break;
@@ -169,9 +169,9 @@ void ConfigWindow::onResolutionW(Widget *)
 void ConfigWindow::onPortW(Widget *)
 {
     hideAll();
-    m_bu_port->setPressed(true, false);
-    m_vw_port->setVisibility(true);
-    atmGetUISelector()->pushSelection(m_vw_port);
+    m_bu_http->setPressed(true, false);
+    m_vw_http->setVisibility(true);
+    atmGetUISelector()->pushSelection(m_vw_http);
 }
 
 void ConfigWindow::onRenderW(Widget *)

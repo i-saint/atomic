@@ -49,6 +49,10 @@ public:
     virtual void end()=0;
     virtual void flush()=0;
 
+    virtual Size computeTextSize(const wchar_t *text, uint32 len=0)=0;
+    virtual ist::i3dgl::EasyDrawer*     getDrawer() const=0;
+    virtual ist::i3dgl::IFontRenderer*  getFont() const=0;
+
 protected:
     virtual ~UIRenderer() {}
 };

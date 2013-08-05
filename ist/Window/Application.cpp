@@ -98,11 +98,11 @@ LRESULT CALLBACK istWndProc(HWND hwnd , UINT message , WPARAM wParam , LPARAM lP
         {
             WM_Keyboard wm;
             switch(message) {
-            case WM_KEYDOWN:    wm.type=WMT_KeyDown; break;
-            case WM_KEYUP:      wm.type=WMT_KeyUp; break;
-            case WM_CHAR:       wm.type=WMT_KeyChar; break;
+            case WM_KEYDOWN: wm.type=WMT_KeyDown; break;
+            case WM_KEYUP:   wm.type=WMT_KeyUp;   break;
+            case WM_CHAR:    wm.type=WMT_KeyChar; break;
             }
-            wm.key = (short)wParam;
+            wm.key = (uint16)wParam;
             app->_handleWindowMessage(wm);
         }
         break;

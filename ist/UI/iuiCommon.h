@@ -100,6 +100,7 @@ struct Line
 {
     Position begin, end;
 
+    Line(const Position &b=Position(), const Position &e=Position()) : begin(b), end(e) {}
     Position& operator[](size_t i) { reinterpret_cast<Position*>(this)[i]; }
     const Position& operator[](size_t i) const { reinterpret_cast<const Position*>(this)[i]; }
 };

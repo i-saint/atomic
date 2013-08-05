@@ -136,12 +136,12 @@ private:
 
     EditboxWindow           *m_vw_name;
     ListWindow              *m_vw_reso;
-    EditboxWindow           *m_vw_port;
+    EditboxWindow           *m_vw_http;
     ListWindow              *m_vw_glevel;
 
     iui::ToggleButton *m_bu_name;
     iui::ToggleButton *m_bu_reso;
-    iui::ToggleButton *m_bu_port;
+    iui::ToggleButton *m_bu_http;
     iui::ToggleButton *m_bu_glevel;
 
     iui::Label *m_lb_desc;
