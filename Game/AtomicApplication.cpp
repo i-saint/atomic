@@ -155,6 +155,7 @@ AtomicApplication::AtomicApplication()
     : m_keyboard(nullptr)
     , m_mouse(nullptr)
     , m_controller(nullptr)
+    , m_time(0.0f)
     , m_game(nullptr)
     , m_request_exit(false)
     , m_request_title(false)
@@ -253,6 +254,7 @@ bool AtomicApplication::initialize(int argc, char *argv[])
         }
     }
 #endif // atm_enable_EntityDLL
+    atmGetTitleWindow()->setVisibility(true);
 
     return true;
 }
@@ -308,6 +310,7 @@ void AtomicApplication::mainLoop()
         istCommandlineFlush();
         translateMessage();
         update();
+        m_time += dt;
 
         AtomicGame *game = m_game;
         if(game) {
@@ -580,6 +583,11 @@ const ist::MouseState& AtomicApplication::getMouseState() const
 const ist::ControllerState& AtomicApplication::getControllerState() const
 {
     return m_controller->getState();
+}
+
+atm::float32 AtomicApplication::getPastTime() const
+{
+    return m_time;
 }
 
 

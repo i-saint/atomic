@@ -36,6 +36,7 @@ public:
 private:
     void enterList(bool backward);
     void updateListScroll();
+    void updatePosition(float32 r);
 
     SelectionCont m_selection;
     iui::Position m_pos;

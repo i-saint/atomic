@@ -15,7 +15,7 @@
 
 namespace atm {
 
-void FillScreen( const vec4 &color )
+atmAPI void FillScreen( const vec4 &color )
 {
     i3d::DeviceContext *dc = atmGetGLDeviceContext();
     AtomicShader *sh_fill   = atmGetShader(SH_FILL);
@@ -35,7 +35,7 @@ void FillScreen( const vec4 &color )
 }
 
 
-vec2 GenRandomVector2()
+atmAPI vec2 GenRandomVector2()
 {
     vec2 axis( atmGenRandFloat(), atmGenRandFloat() );
     axis -= vec2(0.5f, 0.5f);
@@ -43,7 +43,7 @@ vec2 GenRandomVector2()
     return axis;
 }
 
-vec3 GenRandomVector3()
+atmAPI vec3 GenRandomVector3()
 {
     vec3 axis( atmGenRandFloat(), atmGenRandFloat(), atmGenRandFloat() );
     axis -= 0.5f;
@@ -51,22 +51,28 @@ vec3 GenRandomVector3()
     return axis;
 }
 
-vec2 GenRandomUnitVector2()
+atmAPI vec2 GenRandomUnitVector2()
 {
     return glm::normalize(GenRandomVector2());
 }
 
-vec3 GenRandomUnitVector3()
+atmAPI vec3 GenRandomUnitVector3()
 {
     return glm::normalize(GenRandomVector3());
 }
 
-void CreateDateString(char *buf, uint32 len)
+atmAPI void CreateDateString(char *buf, uint32 len)
 {
     time_t t = ::time(0);
     tm *l = ::localtime(&t);
-    istSNPrintf(buf, len, "%d/%02d/%02d %02d:%02d:%02d",
+    istSNPrintf(buf, len, "%d%02d%02d_%02d%02d%02d",
         l->tm_year+1900, l->tm_mon+1, l->tm_mday, l->tm_hour, l->tm_min, l->tm_sec);
+}
+
+atmAPI bool mkdir( const char *path )
+{
+    Poco::File dir(path);
+    return dir.createDirectory();
 }
 
 

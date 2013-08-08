@@ -192,6 +192,7 @@ void PassPostprocess_Bloom::draw()
 
 PassPostprocess_Fade::PassPostprocess_Fade()
 {
+    m_begin_color = m_end_color = m_params.Color = vec4(0.0f, 0.0f, 0.0f, 1.0f);
     m_sh_fade       = atmGetShader(SH_FADE);
     m_va_quad       = atmGetVertexArray(VA_SCREEN_QUAD);
     m_ubo_fade      = atmGetUniformBuffer(UBO_FADE_PARAMS);
@@ -201,9 +202,7 @@ PassPostprocess_Fade::PassPostprocess_Fade()
 
 void PassPostprocess_Fade::beforeDraw()
 {
-    if(!atmGetGame()) { return; }
-
-    float32 frame = (float32)atmGetFrame();
+    float32 frame = atmGetPastTime();
     if(frame > m_end_frame) { return; }
 
     vec4 diff = m_end_color-m_begin_color;
@@ -236,7 +235,7 @@ void PassPostprocess_Fade::setFade(const vec4 &v, float32 frame)
 {
     m_begin_color = m_params.Color;
     m_end_color = v;
-    m_begin_frame = (float32)atmGetFrame();
+    m_begin_frame = atmGetPastTime();
     m_end_frame = m_begin_frame+frame;
 }
 

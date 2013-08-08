@@ -40,13 +40,11 @@ AtomicGame::~AtomicGame()
 {
     if(atmGetConfig()->output_replay)
     {
-        Poco::File dir("Replay");
-        dir.createDirectory();
+        mkdir("Replay");
 
         char path[128];
         char date[128];
         CreateDateString(date, _countof(date));
-        for(size_t i=0; i<_countof(date); ++i) { if(date[i]=='/' || date[i]==':') { date[i]='-'; } }
         istSPrintf(path, "Replay/%s.atmreplay", date);
         m_input_server->save(path);
     }
@@ -339,13 +337,11 @@ bool AtomicGame::deserializeFromFile(const char *path)
 #ifdef atm_enable_StateSave
 void AtomicGame::dbgSerialize()
 {
-    Poco::File dir("State");
-    dir.createDirectory();
+    mkdir("State");
 
     char path[128];
     char date[128];
     CreateDateString(date, _countof(date));
-    for(size_t i=0; i<_countof(date); ++i) { if(date[i]=='/' || date[i]==':') { date[i]='-'; } }
     istSPrintf(path, "State/%s.atmstate", date);
     if(serializeToFile(path)) {
         m_state_paths.push_back(path);

@@ -124,6 +124,7 @@ namespace atm {
     atmAPI vec2 GenRandomUnitVector2();
     atmAPI vec3 GenRandomUnitVector3();
     atmAPI void CreateDateString(char *buf, uint32 len);
+    atmAPI bool mkdir(const char *path);
 
     template<class T>
     inline T clamp(T v, T vmin, T vmax) { return stl::min<T>(stl::max<T>(v, vmin), vmax); }

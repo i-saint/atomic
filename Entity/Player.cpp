@@ -276,6 +276,7 @@ public:
 atmExportClass(Catapult);
 
 
+static const float32 g_max_player_life = 200.0f;
 
 class Player : public Breakable<Entity_AxisRotationI>
 {
@@ -372,7 +373,7 @@ public:
         setCollisionShape(CS_Sphere);
         getCollisionSphere().pos_r.w = 0.125f*0.5f;
 
-        setLife(500.0f);
+        setLife(g_max_player_life);
         setAxis1(GenRandomUnitVector3());
         setAxis2(GenRandomUnitVector3());
         setRotateSpeed1(1.4f);
@@ -392,6 +393,7 @@ public:
             return;
         }
 
+        setLife(std::min<float32>(getLife()+0.1f, g_max_player_life));
         if(m_weapon) {m_weapon->update(dt); }
 
         // 流体パーティクルが 10000 以下なら追加

@@ -144,6 +144,7 @@ void TitleWindow::setVisibility( bool v, bool e )
 {
     super::setVisibility(v,e);
     if(v) {
+        atmGetFader()->setFade(vec4(0.0f, 0.0f, 0.0f, 0.0f), 30.0f);
         atmGetUISelector()->setSelection(this);
     }
     else {

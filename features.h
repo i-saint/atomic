@@ -24,6 +24,7 @@
 //#define atm_enable_GameServer
 //#define atm_enable_GameClient
 #define atm_enable_EntityDLL
+//#define atm_enable_DistanceField
 
 #ifdef ist_env_Master
 #   define dpDisable
@@ -37,7 +38,5 @@
 #   define atm_enable_ShaderLiveEdit
 #   define atm_enable_StateSave
 #endif // ist_env_Master
-
-//#define atm_enable_DistanceField
 
 #endif //atm_features_h

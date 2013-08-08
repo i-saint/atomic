@@ -100,6 +100,7 @@ public:
     const ist::KeyboardState&   getKeyboardState() const;
     const ist::MouseState&      getMouseState() const;
     const ist::ControllerState& getControllerState() const;
+    float32 getPastTime() const;
 
 #ifdef atm_enable_DebugLog
     void printDebugLog(const char *format, ...);
@@ -115,6 +116,7 @@ private:
     ist::IKeyboardDevice   *m_keyboard;
     ist::IMouseDevice      *m_mouse;
     ist::IControlerDevice  *m_controller;
+    float32         m_time;
 
     AtomicGame     *m_game;
     InputState      m_inputs;
@@ -138,6 +140,7 @@ void atmPauseAndShowPauseMenu();
 #define atmGetSystemInputs()         atmGetApplication()->getSystemInputs()
 #define atmGetConfig()               atmGetApplication()->getConfig()
 #define atmGetWindowSize()           atmGetApplication()->getWindowSize()
+#define atmGetPastTime()             atmGetApplication()->getPastTime()
 #ifdef atm_enable_DebugLog
 #   define atmDebugLog(...)          atmGetApplication()->printDebugLog(__VA_ARGS__)
 #else  // atm_enable_DebugLog

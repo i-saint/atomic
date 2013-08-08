@@ -76,6 +76,11 @@ void UISelector::update(iui::Float dt)
         cancel();
     }
 
+    updatePosition(0.6f);
+}
+
+void UISelector::updatePosition( float32 r )
+{
     if(!m_selection.empty()) {
         Selection &state = m_selection.back();
         iui::Position pos;
@@ -90,8 +95,8 @@ void UISelector::update(iui::Float dt)
             pos = w->getPositionAbs();
             size = w->getSize();
         }
-        m_pos += (pos-m_pos) * 0.6f;
-        m_size += (size-m_size) * 0.6f;
+        m_pos += (pos-m_pos) * r;
+        m_size += (size-m_size) * r;
     }
 }
 
@@ -121,6 +126,10 @@ void UISelector::pushSelection(iui::Widget *v, int32 i)
         if(m_selection.back().index==-1) {
             m_selection.pop_back();
         }
+    }
+
+    if(m_selection.size()==1) {
+        updatePosition(1.0f);
     }
 }
 

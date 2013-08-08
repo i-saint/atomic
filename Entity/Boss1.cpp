@@ -11,6 +11,7 @@ private:
     enum State {
         St_Deploy,
         St_Form1,
+        St_Form1ToForm2,
         St_Form2,
         St_Destroy,
         St_Dead,
@@ -21,6 +22,8 @@ private:
     EntityHandle m_barrier;
     EntityHandle m_core;
     State m_state;
+    int32 m_state_frame;
+    int32 m_total_frame;
 
     istSerializeBlock(
         istSerializeBase(super)
@@ -30,6 +33,8 @@ private:
         istSerialize(m_barrier)
         istSerialize(m_core)
         istSerialize(m_state)
+        istSerialize(m_state_frame)
+        istSerialize(m_total_frame)
     )
     atmECallBlock(
         atmECallSuper(super)
@@ -37,7 +42,7 @@ private:
 
 public:
     Boss1()
-        : m_state(St_Deploy)
+        : m_state(St_Deploy), m_state_frame(), m_total_frame()
     {
         clear(m_gears);
         clear(m_turrents);
@@ -96,10 +101,11 @@ public:
         SweepDeadEntities(m_core);
 
         switch(m_state) {
-        case St_Deploy: updateDeploy(dt);   break;
-        case St_Form1:  updateForm1(dt);    break;
-        case St_Form2:  updateForm2(dt);    break;
-        case St_Destroy:updateDestroy(dt);  break;
+        case St_Deploy:         updateDeploy(dt);       break;
+        case St_Form1:          updateForm1(dt);        break;
+        case St_Form1ToForm2:   updateForm1ToForm2(dt); break;
+        case St_Form2:          updateForm2(dt);        break;
+        case St_Destroy:        updateDestroy(dt);      break;
         }
         updateLink();
     }
@@ -122,6 +128,10 @@ public:
     }
 
     void updateForm1(float32 dt)
+    {
+    }
+
+    void updateForm1ToForm2(float32 dt)
     {
     }
 
