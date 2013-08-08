@@ -26,6 +26,7 @@
     <ClCompile Include="Game\BulletModule.cpp" />
     <ClCompile Include="Game\CollisionModule.cpp" />
     <ClCompile Include="Game\EntityModule.cpp" />
+    <ClCompile Include="Game\Entity\Boss1.cpp" />
     <ClCompile Include="Game\Entity\Carrier.cpp" />
     <ClCompile Include="Game\Entity\Enemy.cpp" />
     <ClCompile Include="Game\Entity\EntityUtil.cpp" />

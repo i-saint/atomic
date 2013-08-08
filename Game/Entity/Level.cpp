@@ -309,6 +309,11 @@ public:
                 atmCall(e, setParent, layer->getHandle());
             }
             {
+                IEntity *e = atmCreateEntityT(GearMedium);
+                atmCall(e, setPosition, vec3(0.5f, -0.5f, 0.0f));
+                atmCall(e, setParent, layer->getHandle());
+            }
+            {
                 IEntity *e = atmCreateEntityT(GearLarge);
                 atmCall(e, setPosition, vec3(-1.0f, 0.5f, 0.0f));
                 atmCall(e, setParent, layer->getHandle());

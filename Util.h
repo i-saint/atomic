@@ -4,6 +4,15 @@
 
 namespace atm {
 
+    template<class T>
+    inline void clear(T &v) {
+        v = T();
+    }
+    template<class T, size_t L>
+    inline void clear(T (&v)[L]) {
+        for(size_t i=0; i<L; ++i) { v[i]=T(); }
+    }
+
     template<class T, class F>
     inline void each(T &v, const F &f) {
         std::for_each(v.begin(), v.end(), f);

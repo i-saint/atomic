@@ -205,6 +205,8 @@ public:
 atmExportClass(GearBase);
 
 
+
+
 class GearSmall : public GearBase
 {
 typedef GearBase super;
@@ -229,17 +231,17 @@ public:
 
     void initialize() override
     {
-        setMaxRotateSpeed(1.5f);
+        setMaxRotateSpeed(3.0f);
         setRotateDecel(0.99f);
-        setRotateAccel(0.0002f);
+        setRotateAccel(0.005f);
 
-        const int32 div = 6;
+        const int32 div = 4;
         const vec4 dir_x(1.0f,0.0f,0.0f,0.0f);
         CollisionGroup cg = atmGetCollisionModule()->genGroup();
         for(int i=0; i<div; ++i) {
             vec3 dir = vec3(glm::rotateZ(dir_x, 360.0f/div*i));
             GearParts *e = (GearParts*)atmCreateEntityT(GearParts);
-            e->setScale(vec3(0.6f, 0.125f, 0.3f));
+            e->setScale(vec3(0.3f, 0.075f, 0.15f));
             e->setParent(getHandle());
             e->setOrientation(dir);
             e->setCollisionGroup(cg);
@@ -249,6 +251,52 @@ public:
 };
 atmImplementEntity(GearSmall, DF_Editor);
 atmExportClass(GearSmall);
+
+
+class GearMedium : public GearBase
+{
+typedef GearBase super;
+private:
+    istSerializeBlock(
+        istSerializeBase(super)
+    )
+
+public:
+    GearMedium()
+    {
+        wdmScope(
+        wdmString path = wdmFormat("Level/GearMedium/0x%p", this);
+        super::addDebugNodes(path);
+        )
+    }
+
+    ~GearMedium()
+    {
+        wdmEraseNode(wdmFormat("Level/GearMedium/0x%p", this));
+    }
+
+    void initialize() override
+    {
+        setMaxRotateSpeed(1.5f);
+        setRotateDecel(0.99f);
+        setRotateAccel(0.0005f);
+
+        const int32 div = 6;
+        const vec4 dir_x(1.0f,0.0f,0.0f,0.0f);
+        CollisionGroup cg = atmGetCollisionModule()->genGroup();
+        for(int i=0; i<div; ++i) {
+            vec3 dir = vec3(glm::rotateZ(dir_x, 360.0f/div*i));
+            GearParts *e = (GearParts*)atmCreateEntityT(GearParts);
+            e->setScale(vec3(0.5f, 0.1f, 0.25f));
+            e->setParent(getHandle());
+            e->setOrientation(dir);
+            e->setCollisionGroup(cg);
+            addParts(e);
+        }
+    }
+};
+atmImplementEntity(GearMedium, DF_Editor);
+atmExportClass(GearMedium);
 
 
 class GearLarge : public GearBase

@@ -201,6 +201,27 @@ atmImplementEntity(Enemy_Test);
 atmExportClass(Enemy_Test);
 
 
+class Core : public Enemy_Test
+{
+typedef Enemy_Test super;
+public:
+    Core()
+    {
+    }
+
+    void initialize() override
+    {
+        super::initialize();
+        setCollisionShape(CS_Sphere);
+        setModel(PSET_SPHERE_SMALL);
+        setLife(5.0f);
+        setLightRadius(0.5f);
+    }
+};
+atmImplementEntity(Core, DF_Editor);
+atmExportClass(Core);
+
+
 class Electron : public Enemy_Test
 {
 typedef Enemy_Test super;
