@@ -80,9 +80,13 @@ public:
 
     bool serialize(std::ostream &st);
     bool deserialize(std::istream &st);
-
-    void testSerialize();
-    void testDeserialize();
+    bool serializeToFile(const char *path);
+    bool deserializeFromFile(const char *path);
+#ifdef atm_enable_statesave
+    void dbgSerialize();
+    void dbgDeserializePrev();
+    void dbgDeserializeNext();
+#endif // atm_enable_statesave
 
 #ifdef atm_enable_sync_lock
     void dbgLockSyncMethods()               { m_sync_lock=true; }
@@ -104,6 +108,10 @@ private:
 #ifdef atm_enable_sync_lock
     bool m_sync_lock;
 #endif // atm_enable_sync_lock
+#ifdef atm_enable_statesave
+    ist::vector<std::string> m_state_paths;
+    int32                    m_state_index;
+#endif // atm_enable_statesave
 };
 
 #define atmGetWorld()           atmGetGame()->getWorld()

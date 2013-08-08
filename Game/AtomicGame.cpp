@@ -27,20 +27,27 @@ AtomicGame::AtomicGame()
 , m_resource(0.0f)
 , m_skip_update(false)
 , m_is_edit(false)
+#ifdef atm_enable_statesave
+, m_state_index()
+#endif // atm_enable_statesave
 {
-    wdmAddNode("Game/testSerialize()", &AtomicGame::testSerialize, this);
-    wdmAddNode("Game/testDeserialize()", &AtomicGame::testDeserialize, this);
+    wdmAddNode("Game/dbgSerialize()", &AtomicGame::dbgSerialize, this);
+    wdmAddNode("Game/dbgDeserializePrev()", &AtomicGame::dbgDeserializePrev, this);
+    wdmAddNode("Game/dbgDeserializeNext()", &AtomicGame::dbgDeserializeNext, this);
 }
 
 AtomicGame::~AtomicGame()
 {
     if(atmGetConfig()->output_replay)
     {
+        Poco::File dir("Replay");
+        dir.createDirectory();
+
         char path[128];
         char date[128];
         CreateDateString(date, _countof(date));
         for(size_t i=0; i<_countof(date); ++i) { if(date[i]=='/' || date[i]==':') { date[i]='-'; } }
-        istSPrintf(path, "Replay/%s.replay", date);
+        istSPrintf(path, "Replay/%s.atmreplay", date);
         m_input_server->save(path);
     }
 
@@ -315,19 +322,53 @@ bool AtomicGame::deserialize( std::istream &st )
     return true;
 }
 
-void AtomicGame::testSerialize()
+bool AtomicGame::serializeToFile(const char *path)
 {
-    std::ofstream fs("state.atbin", std::ios::binary);
+    std::ofstream fs(path, std::ios::binary);
     zlib_stream::zip_ostream zipper(fs);
-    serialize(zipper);
+    return fs && zipper && serialize(zipper);
 }
 
-void AtomicGame::testDeserialize()
+bool AtomicGame::deserializeFromFile(const char *path)
 {
-    std::ifstream fs("state.atbin", std::ios::binary);
+    std::ifstream fs(path, std::ios::binary);
     zlib_stream::zip_istream zipper(fs);
-    deserialize(zipper);
+    return fs && zipper && deserialize(zipper);
 }
+
+#ifdef atm_enable_statesave
+void AtomicGame::dbgSerialize()
+{
+    Poco::File dir("State");
+    dir.createDirectory();
+
+    char path[128];
+    char date[128];
+    CreateDateString(date, _countof(date));
+    for(size_t i=0; i<_countof(date); ++i) { if(date[i]=='/' || date[i]==':') { date[i]='-'; } }
+    istSPrintf(path, "State/%s.atmstate", date);
+    if(serializeToFile(path)) {
+        m_state_paths.push_back(path);
+        m_state_index = m_state_paths.size()-1;
+    }
+}
+
+void AtomicGame::dbgDeserializePrev()
+{
+    if(m_state_index<m_state_paths.size()) {
+        deserializeFromFile(m_state_paths[m_state_index].c_str());
+        m_state_index = ist::clamp<int32>(m_state_index-1, 0, m_state_paths.size()-1);
+    }
+}
+
+void AtomicGame::dbgDeserializeNext()
+{
+    if(m_state_index<m_state_paths.size()) {
+        deserializeFromFile(m_state_paths[m_state_index].c_str());
+        m_state_index = ist::clamp<int32>(m_state_index+1, 0, m_state_paths.size()-1);
+    }
+}
+#endif // atm_enable_statesave
 
 bool atmIsEditMode()
 {

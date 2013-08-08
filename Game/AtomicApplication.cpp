@@ -242,7 +242,7 @@ bool AtomicApplication::initialize(int argc, char *argv[])
 
 #ifdef atm_enable_entity_dll
     {
-        std::regex reg("\\.dll$", std::regex::ECMAScript|std::regex::icase);
+        std::regex reg("\\.dll$");
         Poco::DirectoryIterator end;
         for(Poco::DirectoryIterator it(Poco::Path("Resources")); it!=end; ++it) {
             if(it->isFile() && it->canRead() && std::regex_search(it->path(), reg)) {
@@ -359,6 +359,19 @@ void AtomicApplication::update()
         sprintf(url, "http://localhost:%d", atmGetConfig()->leveleditor_port);
         ::ShellExecuteA(nullptr, "open", url, "", "", SW_SHOWDEFAULT);
     }
+#ifdef atm_enable_statesave
+    if(getKeyboardState().isKeyTriggered('1')) {
+        if(m_game) { m_game->dbgSerialize(); }
+    }
+    if(getKeyboardState().isKeyTriggered('2')) {
+        if(m_game) { m_game->dbgDeserializePrev(); }
+    }
+    if(getKeyboardState().isKeyTriggered('3')) {
+        if(m_game) { m_game->dbgDeserializeNext(); }
+    }
+#endif // atm_enable_statesave
+
+    /*
     if(getKeyboardState().isKeyTriggered(ist::KEY_F3)) {
         conf.debug_show_gbuffer--;
     }
@@ -380,6 +393,8 @@ void AtomicApplication::update()
     if(getKeyboardState().isKeyTriggered(ist::KEY_F9)) {
         conf.debug_show_resolution = !conf.debug_show_resolution;
     }
+    */
+
     if(getKeyboardState().isKeyTriggered(ist::KEY_ESCAPE)) {
         if(m_game) {
             atmPauseAndShowPauseMenu();

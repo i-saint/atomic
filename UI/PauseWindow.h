@@ -23,9 +23,10 @@ private:
     void onConfig(Widget *);
     void onTitle(Widget *);
     void onExit(Widget *);
+    void onState(Widget *);
 
     ConfigWindow       *m_config;
-    iui::ToggleButton  *m_buttons[4];
+    iui::ToggleButton  *m_buttons[5];
 };
 
 } // namespace atm

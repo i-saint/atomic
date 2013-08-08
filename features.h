@@ -37,6 +37,7 @@
 #   define atm_enable_sync_lock
 #   define atm_enable_gbuffer_viewer
 #   define atm_enable_shader_live_edit
+#   define atm_enable_statesave
 #endif // ist_env_Master
 
 //#define atm_enable_distance_field
