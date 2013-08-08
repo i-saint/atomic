@@ -2,6 +2,7 @@
 #include "types.h"
 #include "Game/AtomicApplication.h"
 #include "FunctionID.h"
+#include "Util.h"
 #include "ist/Base/BinaryCall.h"
 
 istImplementOperatorNewDelete();

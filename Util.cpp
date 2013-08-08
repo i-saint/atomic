@@ -75,5 +75,53 @@ atmAPI bool mkdir( const char *path )
     return dir.createDirectory();
 }
 
+/*
+    example:
+    {
+        std::string res;
+        HTTPGet("http://google.com/", [&](std::istream &is){
+            char buf[1024];
+            while(!is.eof()) {
+                is.read(buf, _countof(buf));
+                res += std::string(buf, (size_t)is.gcount());
+            }
+        });
+        ::OutputDebugStringA(res.c_str());
+    }
+
+*/
+atmAPI void HTTPGet(const char *url, const std::function<void (std::istream &res)> &on_complete, const std::function<void (int32)> &on_fail)
+{
+    try {
+        Poco::URI uri(url);
+        Poco::Net::HTTPClientSession session(uri.getHost(), uri.getPort());
+        session.setTimeout(Poco::Timespan(1,0)); // 1 sec
+
+        std::string path(uri.getPathAndQuery());
+        if(path.empty()) {
+            path = "/";
+        }
+
+        Poco::Net::HTTPRequest req(Poco::Net::HTTPRequest::HTTP_GET, path, Poco::Net::HTTPMessage::HTTP_1_1);
+        session.sendRequest(req);
+
+        Poco::Net::HTTPResponse res;
+        if(res.getStatus()==Poco::Net::HTTPResponse::HTTP_OK) {
+            std::istream &is = session.receiveResponse(res);
+            on_complete(is);
+        }
+        else {
+            if(on_fail) {
+                on_fail(res.getStatus());
+            }
+        }
+    }
+    catch(...) {
+        if(on_fail) {
+            on_fail(0);
+        }
+    }
+}
+
 
 } // namespace atm

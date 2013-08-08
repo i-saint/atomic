@@ -6,6 +6,7 @@
 #define atm_replay_version 2
 #define atm_crash_report_url "http://primitive-games.jp/atomic/crash_report/post"
 #define atm_patch_url        "http://primitive-games.jp/atomic/update/"
+#define atm_molecule_url     "http://primitive-games.jp/atomic/molecule/"
 
 #define atm_MaxPlayerNum 4
 

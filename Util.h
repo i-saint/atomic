@@ -125,6 +125,7 @@ namespace atm {
     atmAPI vec3 GenRandomUnitVector3();
     atmAPI void CreateDateString(char *buf, uint32 len);
     atmAPI bool mkdir(const char *path);
+    atmAPI void HTTPGet(const char *url, const std::function<void (std::istream &res)> &on_complete, const std::function<void (int32)> &on_fail=std::function<void (int32)>());
 
     template<class T>
     inline T clamp(T v, T vmin, T vmax) { return stl::min<T>(stl::max<T>(v, vmin), vmax); }
