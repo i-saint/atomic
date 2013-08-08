@@ -3,6 +3,7 @@
 #include "iuiRenderer.h"
 #include "iuiEdit.h"
 #include "iuiUtilities.h"
+#include "ist/Concurrency/Timer.h"
 namespace iui {
 
 
@@ -53,16 +54,16 @@ void EditboxStyle::draw()
     iuiGetRenderer()->drawRect(rect, bg);
     iuiGetRenderer()->drawOutlineRect(rect, getBorderColor());
     iuiGetRenderer()->drawFont(tpos, getFontColor(), w->getText().c_str(), w->getText().size());
-    if(w->isFocused()) {
+    if(w->isFocused() && ist::GetTick()%1000<500) {
         vec2 tsize = iuiGetRenderer()->computeTextSize(w->getText().c_str(), w->getCursorPos());
         Line l(Position(tsize.x, 0.0f), Position(tsize.x, tsize.y));
-        iuiGetRenderer()->drawLine(l, bg);
+        iuiGetRenderer()->drawLine(l, getBorderColor());
     }
 }
 iuiImplDefaultStyle(Editbox);
 
 Editbox::Editbox(Widget *parent, const wchar_t *text, const Rect &rect, WidgetCallback on_change)
-    : m_on_chnage(on_change), m_readonly(false), m_hovered(false), m_ime_chars(0), m_cursor(0)
+    : m_on_chnage(on_change), m_readonly(false), m_hovered(false), m_cursor(0)
 {
     setParent(parent);
     setText(text);
@@ -85,23 +86,8 @@ void Editbox::update( Float dt )
 
 bool Editbox::handleEvent( const WM_Base &wm )
 {
-    if(wm.type==WMT_IMEResult) {
-        if(isFocused() && !isReadOnly()) {
-            const WM_IME &m = WM_IME::cast(wm);
-            String text = getText();
-            text.insert(text.begin()+m_cursor, m.text, m.text+m.text_len);
-            m_cursor+=m.text_len;
-            m_ime_chars = m.text_len;
-            setText(text);
-            return true;
-        }
-    }
-    else if(wm.type==WMT_IMEBegin) {
-    }
-    else if(wm.type==WMT_IMEEnd) {
-    }
-    else if(wm.type==WMT_KeyChar) {
-        if(!m_ime_chars && isFocused()) {
+    if(wm.type==WMT_KeyChar) {
+        if(isFocused()) {
             const WM_Keyboard &m = WM_Keyboard::cast(wm);
             wchar_t c = (wchar_t)m.key;
             String text = getText();
@@ -114,12 +100,9 @@ bool Editbox::handleEvent( const WM_Base &wm )
             if(changed) { setText(text); }
             return true;
         }
-        if(m_ime_chars>0) {
-            --m_ime_chars;
-        }
     }
     else if(wm.type==WMT_KeyDown) {
-        if(!m_ime_chars && isFocused()) {
+        if(isFocused()) {
             const WM_Keyboard &m = WM_Keyboard::cast(wm);
             wchar_t c = (wchar_t)m.key;
             String text = getText();

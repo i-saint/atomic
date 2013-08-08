@@ -5,7 +5,7 @@
 
 namespace ist {
 
-class Timer
+class istAPI Timer
 {
 public:
     Timer();
@@ -20,8 +20,9 @@ private:
     LARGE_INTEGER m_start;
 #else // todo
 #endif // 
-
 };
+
+istAPI uint32 GetTick();
 
 } // namespace ist
 
