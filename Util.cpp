@@ -88,7 +88,6 @@ atmAPI bool mkdir( const char *path )
         });
         ::OutputDebugStringA(res.c_str());
     }
-
 */
 atmAPI void HTTPGet(const char *url, const std::function<void (std::istream &res)> &on_complete, const std::function<void (int32)> &on_fail)
 {
@@ -121,6 +120,35 @@ atmAPI void HTTPGet(const char *url, const std::function<void (std::istream &res
             on_fail(0);
         }
     }
+}
+
+class HTTPGetAsyncImpl : public ist::Thread
+{
+private:
+    std::string m_url;
+    std::function<void (std::istream &res)> m_on_complete;
+    std::function<void (int32)> m_on_fail;
+
+public:
+    HTTPGetAsyncImpl(const char *url, const std::function<void (std::istream &res)> &on_complete, const std::function<void (int32)> &on_fail)
+        : m_url(url)
+        , m_on_complete(on_complete)
+        , m_on_fail(on_fail)
+    {
+        setName("HTTPGetAsync");
+    }
+
+    void exec() override
+    {
+        HTTPGet(m_url.c_str(), m_on_complete, m_on_fail);
+        istDelete(this);
+    }
+};
+
+atmAPI void HTTPGetAsync( const char *url, const std::function<void (std::istream &res)> &on_complete, const std::function<void (int32)> &on_fail )
+{
+    auto *impl = istNew(HTTPGetAsyncImpl)(url, on_complete, on_fail);
+    impl->run();
 }
 
 
