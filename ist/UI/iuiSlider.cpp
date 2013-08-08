@@ -82,6 +82,7 @@ VScrollbar::VScrollbar(Widget *parent, const Rect &rect, WidgetCallback on_chang
     setPosition(rect.getPosition());
     setSize(rect.getSize());
     m_on_change_value = on_change_value;
+    setupDefaultParams();
 }
 
 VScrollbar::~VScrollbar()

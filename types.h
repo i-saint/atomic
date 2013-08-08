@@ -89,7 +89,7 @@ typedef uint32 CollisionGroup;
 enum FunctionID;
 
 typedef uint32 PlayerID;
-typedef wchar_t (PlayerName)[16];
+typedef wchar_t (PlayerName)[12];
 
 
 

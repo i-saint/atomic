@@ -13,7 +13,7 @@ public:
         setParent(parent);
         setPosition(rect.getPosition());
         setSize(rect.getSize());
-        m_ed = iuiNew(iui::Editbox)(this, value, iui::Rect(iui::Position(), iui::Size(100, 20)), on_value);
+        m_ed = iuiNew(iui::Editbox)(this, value, iui::Rect(iui::Position(), iui::Size(200, 20)), on_value);
     }
 
     iui::Editbox* getEdit() const { return m_ed; }

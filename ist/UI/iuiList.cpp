@@ -131,6 +131,7 @@ List::List( Widget *parent, const Rect &rect, WidgetCallback on_item_click )
 
     m_scroll_buttons[0] = iuiNew(Button)(this, L"△", Rect(Position(rect.getSize().x-sb_w, 0.0f), Size(sb_w,sb_w)), std::bind(&List::onScrollButton, this, _1));
     m_scroll_buttons[1] = iuiNew(Button)(this, L"▽", Rect(Position(rect.getSize().x-sb_w, rect.getSize().y-sb_w), Size(sb_w,sb_w)), std::bind(&List::onScrollButton, this, _1));
+    setupDefaultParams();
 }
 
 List::~List()

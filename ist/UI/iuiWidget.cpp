@@ -28,7 +28,7 @@ void Widget::setParent( Widget *p )
     m_parent = p;
     if(m_parent) { m_parent->addChild(this); }
 }
-void Widget::setStyle(Style *style)                   { m_style=style; }
+void Widget::setStyle(Style *style)                   { m_style=style; if(style)style->setWidget(this); }
 void Widget::setText(const String &text, bool e)      { m_text=text; if(e)callIfValid(m_on_text);        }
 void Widget::setPosition(const Position &pos, bool e) { m_pos=pos;   if(e)callIfValid(m_on_pos);         }
 void Widget::setSize(const Size &size, bool e)        { m_size=size; if(e)callIfValid(m_on_size);        }
@@ -104,10 +104,6 @@ void Widget::update(Float dt)
 
 void Widget::draw()
 {
-    if(m_style==nullptr) {
-        m_style = Style::createDefaultStyle(getTypeID());
-        if(m_style) { m_style->setWidget(this); }
-    }
     if(m_style) {
         m_style->draw();
     }
@@ -207,6 +203,11 @@ Position Widget::getPositionAbs() const
 }
 
 istImplPoolFunction(Widget::WorkspacePool, Widget::getWorkspacePool, "Widget::WorkspacePool");
+
+void Widget::setupDefaultParams()
+{
+    setStyle(Style::createDefaultStyle(getTypeID()));
+}
 
 
 

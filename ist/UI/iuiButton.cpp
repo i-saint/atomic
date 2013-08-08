@@ -42,6 +42,7 @@ Button::Button( Widget *parent, const wchar_t *text, const Rect &rect, WidgetCal
     setPosition(rect.getPosition());
     setSize(rect.getSize());
     m_on_press = on_press;
+    setupDefaultParams();
 }
 
 void Button::update(Float dt)
@@ -127,6 +128,7 @@ ToggleButton::ToggleButton( Widget *parent, const wchar_t *text, const Rect &rec
     setPosition(rect.getPosition());
     setSize(rect.getSize());
     m_on_toggle = on_toggle;
+    setupDefaultParams();
 }
 
 void ToggleButton::update( Float dt )
@@ -187,6 +189,7 @@ Checkbox::Checkbox( const wchar_t *text, WidgetCallback on_toggle )
 {
     m_on_toggle = on_toggle;
     setText(text);
+    setupDefaultParams();
 }
 
 bool Checkbox::handleEvent( const WM_Base &wm )

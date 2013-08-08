@@ -15,6 +15,7 @@ class RootWindow : public Widget
 {
 public:
     iuiImplWidget(RootWindow)
+    RootWindow();
 private:
 };
 
@@ -30,6 +31,7 @@ class Panel : public Widget
 {
 public:
     iuiImplWidget(Panel)
+    Panel();
 private:
 };
 

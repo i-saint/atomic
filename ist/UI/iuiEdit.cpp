@@ -30,6 +30,7 @@ Label::Label( Widget *parent, const wchar_t *text, const Rect &rect )
     setText(text);
     setPosition(rect.getPosition());
     setSize(rect.getSize());
+    setupDefaultParams();
 }
 
 bool Label::handleEvent( const WM_Base &wm )
@@ -69,6 +70,7 @@ Editbox::Editbox(Widget *parent, const wchar_t *text, const Rect &rect, WidgetCa
     setText(text);
     setPosition(rect.getPosition());
     setSize(rect.getSize());
+    setupDefaultParams();
 }
 
 int32   Editbox::getCursorPos() const      { return m_cursor; }
@@ -173,6 +175,7 @@ EditboxMultiline::EditboxMultiline( const wchar_t *text, WidgetCallback on_chang
 {
     setText(text);
     setTextHandler(on_change);
+    setupDefaultParams();
 }
 
 

@@ -46,7 +46,7 @@ ConfigWindow::ConfigWindow()
 
                 iuiNew(iui::Label)(this, L"name", iui::Rect(pos, iui::Size(labelw, 25)));
     m_bu_name = iuiNew(iui::ToggleButton)(this, L"", iui::Rect(pos+iui::Position(labelw, 0), size), std::bind(&ConfigWindow::onNameW, this, _1));
-    m_vw_name = iuiNew(EditboxWindow)(this, L"", iui::Rect(pos+iui::Position(hspace, 0), iui::Size(200, 30)), std::bind(&ConfigWindow::onNameV, this, _1));
+    m_vw_name = iuiNew(EditboxWindow)(this, L"", iui::Rect(pos+iui::Position(hspace, 0), iui::Size(400, 30)), std::bind(&ConfigWindow::onNameV, this, _1));
     m_buttons.push_back(m_bu_name);
     m_windows.push_back(m_vw_name);
 
@@ -78,6 +78,9 @@ ConfigWindow::ConfigWindow()
 
     m_lb_desc = iuiNew(iui::Label)(this, L"", iui::Rect(pos, iui::Size(600.0f, 300.0f)));
 
+    each(m_buttons, [](iui::ToggleButton *bu){
+        bu->getStyle()->setTextHSpacing(0.75f);
+    });
 
     EnumerateAvailableResolutiuons([&](const uvec2 &res){
         wchar_t tmp[64];

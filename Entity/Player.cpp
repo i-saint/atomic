@@ -276,7 +276,8 @@ public:
 atmExportClass(Catapult);
 
 
-static const float32 g_max_player_life = 200.0f;
+static const float32 g_player_life_max = 150.0f;
+static const float32 g_player_life_regen    = 150.0f/1200.0f;
 
 class Player : public Breakable<Entity_AxisRotationI>
 {
@@ -293,6 +294,8 @@ private:
     vec3        m_lightpos[1];
     vec3        m_lightvel[1];
     State       m_state;
+    float32     m_life_max;
+    float32     m_life_regen;
 
     istSerializeBlock(
         istSerializeBase(super)
@@ -301,6 +304,8 @@ private:
         istSerialize(m_lightpos)
         istSerialize(m_lightvel)
         istSerialize(m_state)
+        istSerialize(m_life_max)
+        istSerialize(m_life_regen)
     )
 
 public:
@@ -324,6 +329,8 @@ public:
         : m_vel()
         , m_weapon(nullptr)
         , m_state(State_Normal)
+        , m_life_max(g_player_life_max)
+        , m_life_regen(g_player_life_regen)
     {
         wdmScope(
             wdmString path = wdmFormat("Player/0x%p", this);
@@ -373,7 +380,7 @@ public:
         setCollisionShape(CS_Sphere);
         getCollisionSphere().pos_r.w = 0.125f*0.5f;
 
-        setLife(g_max_player_life);
+        setLife(m_life_max);
         setAxis1(GenRandomUnitVector3());
         setAxis2(GenRandomUnitVector3());
         setRotateSpeed1(1.4f);
@@ -393,7 +400,7 @@ public:
             return;
         }
 
-        setLife(std::min<float32>(getLife()+0.1f, g_max_player_life));
+        setLife(std::min<float32>(getLife()+m_life_regen, m_life_max));
         if(m_weapon) {m_weapon->update(dt); }
 
         // 流体パーティクルが 10000 以下なら追加
@@ -482,6 +489,12 @@ public:
         atmGetFluidModule()->addFluid(pset_id, getTransformMatrix());
         atmPlaySE(SE_CHANNEL5, SE_EXPLOSION5, getPosition(), true);
         m_state = State_Dead;
+    }
+
+    void eventFluid(const FluidMessage *m) override
+    {
+        addBloodstain(getInvTransformMatrix(), (vec4&)m->position);
+        damage(glm::length((const vec3&)m->velocity)*0.04f);
     }
 
     void eventCollide(const CollideMessage *m) override

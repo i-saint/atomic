@@ -91,6 +91,7 @@ protected:
     virtual ~Widget();
     using SharedObject::release;
     void callIfValid(const WidgetCallback &v);
+    void setupDefaultParams();
 
     typedef ist::TPoolFactory<WidgetCont, ist::PoolTraitsST<WidgetCont> > WorkspacePool;
     static WorkspacePool& getWorkspacePool();
