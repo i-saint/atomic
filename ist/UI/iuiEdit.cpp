@@ -62,7 +62,7 @@ void EditboxStyle::draw()
 iuiImplDefaultStyle(Editbox);
 
 Editbox::Editbox(Widget *parent, const wchar_t *text, const Rect &rect, WidgetCallback on_change)
-    : m_on_chnage(on_change), m_readonly(false), m_hovered(false), m_ime_on(false), m_cursor(0)
+    : m_on_chnage(on_change), m_readonly(false), m_hovered(false), m_ime_chars(0), m_cursor(0)
 {
     setParent(parent);
     setText(text);
@@ -91,18 +91,35 @@ bool Editbox::handleEvent( const WM_Base &wm )
             String text = getText();
             text.insert(text.begin()+m_cursor, m.text, m.text+m.text_len);
             m_cursor+=m.text_len;
+            m_ime_chars = m.text_len;
             setText(text);
             return true;
         }
     }
     else if(wm.type==WMT_IMEBegin) {
-        m_ime_on = true;
     }
     else if(wm.type==WMT_IMEEnd) {
-        m_ime_on = false;
     }
     else if(wm.type==WMT_KeyChar) {
-        if(!m_ime_on && isFocused()) {
+        if(!m_ime_chars && isFocused()) {
+            const WM_Keyboard &m = WM_Keyboard::cast(wm);
+            wchar_t c = (wchar_t)m.key;
+            String text = getText();
+            bool changed = false;
+            if(isprint(c)) {
+                text.insert(text.begin()+m_cursor, &c, &c+1);
+                ++m_cursor;
+                changed = true;
+            }
+            if(changed) { setText(text); }
+            return true;
+        }
+        if(m_ime_chars>0) {
+            --m_ime_chars;
+        }
+    }
+    else if(wm.type==WMT_KeyDown) {
+        if(!m_ime_chars && isFocused()) {
             const WM_Keyboard &m = WM_Keyboard::cast(wm);
             wchar_t c = (wchar_t)m.key;
             String text = getText();
@@ -110,12 +127,6 @@ bool Editbox::handleEvent( const WM_Base &wm )
             if(c==ist::KEY_ENTER) {
                 callIfValid(m_on_chnage);
                 setFocus(false);
-            }
-            else if(c==ist::KEY_RIGHT) {
-                m_cursor = ist::clamp<int32>(m_cursor+1, 0, text.size());
-            }
-            else if(c==ist::KEY_LEFT) {
-                m_cursor = ist::clamp<int32>(m_cursor-1, 0, text.size());
             }
             else if(c==ist::KEY_DELETE) {
                 if(m_cursor<(int32)text.size()) {
@@ -130,13 +141,13 @@ bool Editbox::handleEvent( const WM_Base &wm )
                     changed = true;
                 }
             }
-            else if(isprint(c)) {
-                text.insert(text.begin()+m_cursor, &c, &c+1);
-                ++m_cursor;
-                changed = true;
+            else if(c==ist::KEY_RIGHT) {
+                m_cursor = ist::clamp<int32>(m_cursor+1, 0, text.size());
+            }
+            else if(c==ist::KEY_LEFT) {
+                m_cursor = ist::clamp<int32>(m_cursor-1, 0, text.size());
             }
             if(changed) { setText(text); }
-            return true;
         }
     }
     return super::handleEvent(wm);

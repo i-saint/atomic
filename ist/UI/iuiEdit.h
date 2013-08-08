@@ -49,7 +49,7 @@ private:
     WidgetCallback m_on_chnage;
     bool m_readonly;
     bool m_hovered;
-    bool m_ime_on;
+    int32 m_ime_chars;
     int32 m_cursor;
 };
 
