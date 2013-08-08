@@ -58,9 +58,9 @@ private:
     PassPostprocess_Fade                *m_pp_fade;
     PassPostprocess_Microscopic         *m_pp_microscopic;
     PassForward_DistanceField           *m_pass_distance_field;
-#ifdef atm_enable_gbuffer_viewer
+#ifdef atm_enable_GBufferViewer
     PassHUD_DebugShowBuffer             *m_debug_show_gbuffer;
-#endif // atm_enable_gbuffer_viewer
+#endif // atm_enable_GBufferViewer
     ist::vector<IRenderer*>             m_renderers[PASS_END];
 
     SystemTextRenderer                  *m_stext;
@@ -154,7 +154,7 @@ public:
     void addText(const vec2 &pos, const wchar_t *text);
 };
 
-#ifdef atm_enable_gbuffer_viewer
+#ifdef atm_enable_GBufferViewer
 class atmAPI PassHUD_DebugShowBuffer : public IRenderer
 {
 private:
@@ -174,7 +174,7 @@ public:
     PassHUD_DebugShowBuffer();
     void draw();
 };
-#endif // atm_enable_gbuffer_viewer
+#endif // atm_enable_GBufferViewer
 
 } // namespace atm
 

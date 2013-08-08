@@ -8,11 +8,11 @@
 #include "World.h"
 #include "Task.h"
 
-#ifdef atm_enable_strict_handle_check
+#ifdef atm_enable_StrictHandleCheck
     #define atmStrictHandleCheck(h) if(!isValidHandle(h)) { istAssert("invalid entity handle\n"); }
-#else
+#else // atm_enable_StrictHandleCheck
     #define atmStrictHandleCheck(h)
-#endif
+#endif // atm_enable_StrictHandleCheck
 
 namespace atm {
 

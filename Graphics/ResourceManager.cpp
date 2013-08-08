@@ -276,24 +276,24 @@ void GraphicResourceManager::finalize()
 GraphicResourceManager::GraphicResourceManager()
     : m_flag_exit(false)
 {
-#ifdef atm_enable_shader_live_edit
+#ifdef atm_enable_ShaderLiveEdit
     m_glsl_modified = false;
     m_glsl_watcher.setName("GLSL Watcher");
     m_glsl_watcher.run( std::bind(&GraphicResourceManager::watchGLSLFiles, this) );
-#endif // atm_enable_shader_live_edit
+#endif // atm_enable_ShaderLiveEdit
 }
 
 GraphicResourceManager::~GraphicResourceManager()
 {
     m_flag_exit = true;
-#ifdef atm_enable_shader_live_edit
+#ifdef atm_enable_ShaderLiveEdit
     m_glsl_watcher.join();
-#endif // atm_enable_shader_live_edit
+#endif // atm_enable_ShaderLiveEdit
 }
 
 void GraphicResourceManager::update()
 {
-#ifdef atm_enable_shader_live_edit
+#ifdef atm_enable_ShaderLiveEdit
     if(m_glsl_modified) {
         m_glsl_modified = false;
         istPrint("recompiling shaders...");
@@ -304,10 +304,10 @@ void GraphicResourceManager::update()
         }
         istPrint("done.\n");
     }
-#endif // atm_enable_shader_live_edit
+#endif // atm_enable_ShaderLiveEdit
 }
 
-#ifdef atm_enable_shader_live_edit
+#ifdef atm_enable_ShaderLiveEdit
 
 
 void GraphicResourceManager::watchGLSLFiles()
@@ -326,7 +326,7 @@ void GraphicResourceManager::watchGLSLFiles()
         }
     }
 }
-#endif // atm_enable_shader_live_edit
+#endif // atm_enable_ShaderLiveEdit
 
 
 } // namespace atm

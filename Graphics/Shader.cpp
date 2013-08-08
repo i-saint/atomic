@@ -11,9 +11,9 @@ namespace atm {
 AtomicShader::AtomicShader()
 : m_shader(nullptr)
 , m_loc_renderstates(0)
-#ifdef atm_enable_shader_live_edit
+#ifdef atm_enable_ShaderLiveEdit
 , m_timestamp(0)
-#endif // atm_enable_shader_live_edit
+#endif // atm_enable_ShaderLiveEdit
 {
 }
 
@@ -38,7 +38,7 @@ bool AtomicShader::createShaders( const char *filename )
     i3d::Device *dev = atmGetGLDevice();
     ShaderProgramDesc sh_desc;
 
-#ifdef atm_enable_shader_live_edit
+#ifdef atm_enable_ShaderLiveEdit
     m_glsl_filename = filename;
     static const char s_glsl_path[] = "shader/";
     static const char s_shader_path[] = "shader/tmp/";
@@ -59,7 +59,7 @@ bool AtomicShader::createShaders( const char *filename )
         sh_desc.ps = dev->createPixelShader( PixelShaderDesc(ps_src.c_str(), ps_src.size()) );
         if(!sh_desc.vs || !sh_desc.ps) { return false; }
     }
-#else // atm_enable_shader_live_edit
+#else // atm_enable_ShaderLiveEdit
     // todo: shader ファイルをアーカイブにまとめる
     static const char s_glsl_path[] = "shader/";
     static const char s_shader_path[] = "shader/tmp/";
@@ -76,7 +76,7 @@ bool AtomicShader::createShaders( const char *filename )
         sh_desc.ps = dev->createPixelShader( PixelShaderDesc(ps_src.c_str(), ps_src.size()) );
         if(!sh_desc.vs || !sh_desc.ps) { return false; }
     }
-#endif // atm_enable_shader_live_edit
+#endif // atm_enable_ShaderLiveEdit
 
     ShaderProgram *shader = dev->createShaderProgram(sh_desc);
     istSafeRelease(sh_desc.vs);
@@ -133,7 +133,7 @@ void AtomicShader::assign( i3d::DeviceContext *dc )
     dc->setUniformBuffer(m_loc_renderstates, GLSL_RENDERSTATE_BINDING, atmGetUniformBuffer(UBO_RENDERSTATES_3D));
 }
 
-#ifdef atm_enable_shader_live_edit
+#ifdef atm_enable_ShaderLiveEdit
 bool AtomicShader::needsRecompile()
 {
     static const char s_glsl_path[] = "shader/";
@@ -151,6 +151,6 @@ bool AtomicShader::recompile()
 {
     return createShaders(m_glsl_filename.c_str());
 }
-#endif // atm_enable_shader_live_edit
+#endif // atm_enable_ShaderLiveEdit
 
 } // namespace atm

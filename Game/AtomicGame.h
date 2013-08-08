@@ -82,17 +82,17 @@ public:
     bool deserialize(std::istream &st);
     bool serializeToFile(const char *path);
     bool deserializeFromFile(const char *path);
-#ifdef atm_enable_statesave
+#ifdef atm_enable_StateSave
     void dbgSerialize();
     void dbgDeserializePrev();
     void dbgDeserializeNext();
-#endif // atm_enable_statesave
+#endif // atm_enable_StateSave
 
-#ifdef atm_enable_sync_lock
+#ifdef atm_enable_SyncLock
     void dbgLockSyncMethods()               { m_sync_lock=true; }
     void dbgUnlockSyncMethods()             { m_sync_lock=false; }
     bool dbgIsSyncMethodsEnabled() const    { return m_sync_lock; }
-#endif // atm_enable_sync_lock
+#endif // atm_enable_SyncLock
 
 private:
     IInputServer    *m_input_server;
@@ -105,13 +105,13 @@ private:
     bool m_skip_update;
     bool m_skip_draw;
     bool m_is_edit;
-#ifdef atm_enable_sync_lock
+#ifdef atm_enable_SyncLock
     bool m_sync_lock;
-#endif // atm_enable_sync_lock
-#ifdef atm_enable_statesave
+#endif // atm_enable_SyncLock
+#ifdef atm_enable_StateSave
     ist::vector<std::string> m_state_paths;
     int32                    m_state_index;
-#endif // atm_enable_statesave
+#endif // atm_enable_StateSave
 };
 
 #define atmGetWorld()           atmGetGame()->getWorld()
@@ -121,7 +121,7 @@ private:
 
 bool atmIsEditMode();
 
-#ifdef atm_enable_sync_lock
+#ifdef atm_enable_SyncLock
 #   define  atmDbgLockSyncMethods()      atmGetGame()->dbgLockSyncMethods()
 #   define  atmDbgUnlockSyncMethods()    atmGetGame()->dbgUnlockSyncMethods()
 #   define  atmDbgAssertSyncLock()       istAssert(!atmGetGame()||!atmGetGame()->dbgIsSyncMethodsEnabled())
@@ -129,7 +129,7 @@ bool atmIsEditMode();
 #   define  atmDbgLockSyncMethods()      
 #   define  atmDbgUnlockSyncMethods()    
 #   define  atmDbgAssertSyncLock()       
-#endif // atm_enable_sync_lock
+#endif // atm_enable_SyncLock
 
 } // namespace atm
 #endif atm_Game_AtomicGame_h

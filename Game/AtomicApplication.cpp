@@ -162,18 +162,18 @@ AtomicApplication::AtomicApplication()
     m_wnhandler = std::bind(&AtomicApplication::handleWindowMessage, this, std::placeholders::_1);
     addMessageHandler(&m_wnhandler);
 
-#ifdef atm_enable_debug_log
+#ifdef atm_enable_DebugLog
     m_log = fopen("atomic.log", "wb");
-#endif // atm_enable_debug_log
+#endif // atm_enable_DebugLog
 }
 
 AtomicApplication::~AtomicApplication()
 {
-#ifdef atm_enable_debug_log
+#ifdef atm_enable_DebugLog
     if(m_log!=nullptr) {
         fclose(m_log);
     }
-#endif // atm_enable_debug_log
+#endif // atm_enable_DebugLog
 
     eraseMessageHandler(&m_wnhandler);
 }
@@ -191,9 +191,9 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     m_mouse        = ist::CreateMouseDevice();
     m_controller   = ist::CreateControllerDevice();
 
-#ifdef atm_enable_shader_live_edit
+#ifdef atm_enable_ShaderLiveEdit
     ::AllocConsole();
-#endif // atm_enable_shader_live_edit
+#endif // atm_enable_ShaderLiveEdit
     wdmInitialize();
     istTaskSchedulerInitialize();
 
@@ -240,7 +240,7 @@ bool AtomicApplication::initialize(int argc, char *argv[])
 
     registerCommands();
 
-#ifdef atm_enable_entity_dll
+#ifdef atm_enable_EntityDLL
     {
         std::regex reg("\\.dll$");
         Poco::DirectoryIterator end;
@@ -252,7 +252,7 @@ bool AtomicApplication::initialize(int argc, char *argv[])
             }
         }
     }
-#endif // atm_enable_entity_dll
+#endif // atm_enable_EntityDLL
 
     return true;
 }
@@ -359,7 +359,7 @@ void AtomicApplication::update()
         sprintf(url, "http://localhost:%d", atmGetConfig()->leveleditor_port);
         ::ShellExecuteA(nullptr, "open", url, "", "", SW_SHOWDEFAULT);
     }
-#ifdef atm_enable_statesave
+#ifdef atm_enable_StateSave
     if(getKeyboardState().isKeyTriggered('1')) {
         if(m_game) { m_game->dbgSerialize(); }
     }
@@ -369,7 +369,7 @@ void AtomicApplication::update()
     if(getKeyboardState().isKeyTriggered('3')) {
         if(m_game) { m_game->dbgDeserializeNext(); }
     }
-#endif // atm_enable_statesave
+#endif // atm_enable_StateSave
 
     /*
     if(getKeyboardState().isKeyTriggered(ist::KEY_F3)) {
@@ -549,7 +549,7 @@ void AtomicApplication::drawCallback()
 
 
 
-#ifdef atm_enable_debug_log
+#ifdef atm_enable_DebugLog
 void AtomicApplication::printDebugLog( const char *format, ... )
 {
     if(m_log==nullptr) { return; }
@@ -559,7 +559,7 @@ void AtomicApplication::printDebugLog( const char *format, ... )
     vfprintf(m_log, format, vl);
     va_end(vl);
 }
-#endif // atm_enable_debug_log
+#endif // atm_enable_DebugLog
 
 
 void AtomicApplication::registerCommands()

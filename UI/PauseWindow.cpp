@@ -22,9 +22,9 @@ PauseWindow::PauseWindow()
     m_buttons[1] = iuiNew(iui::ToggleButton)(this, L"config",  iui::Rect(iui::Position(80, 400+vspace*1), size), std::bind(&PauseWindow::onConfig, this, _1));
     m_buttons[2] = iuiNew(iui::ToggleButton)(this, L"title",   iui::Rect(iui::Position(80, 400+vspace*2), size), std::bind(&PauseWindow::onTitle, this, _1));
     m_buttons[3] = iuiNew(iui::ToggleButton)(this, L"exit",    iui::Rect(iui::Position(80, 400+vspace*3), size), std::bind(&PauseWindow::onExit, this, _1));
-#ifdef atm_enable_statesave
+#ifdef atm_enable_StateSave
     m_buttons[4] = iuiNew(iui::ToggleButton)(this, L"state",   iui::Rect(iui::Position(80, 400+vspace*4), size), std::bind(&PauseWindow::onState, this, _1));
-#endif // atm_enable_statesave
+#endif // atm_enable_StateSave
 
     m_config    = iuiNew(ConfigWindow)();
 

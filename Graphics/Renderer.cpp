@@ -51,9 +51,9 @@ AtomicRenderer::AtomicRenderer()
     m_pp_fxaa             = istNew(PassPostprocess_FXAA)();
     m_pp_bloom            = istNew(PassPostprocess_Bloom)();
     m_pp_fade             = istNew(PassPostprocess_Fade)();
-#ifdef atm_enable_gbuffer_viewer
+#ifdef atm_enable_GBufferViewer
     m_debug_show_gbuffer        = istNew(PassHUD_DebugShowBuffer)();
-#endif // atm_enable_gbuffer_viewer
+#endif // atm_enable_GBufferViewer
 
     m_stext = istNew(SystemTextRenderer)();
 
@@ -68,9 +68,9 @@ AtomicRenderer::AtomicRenderer()
     m_renderers[PASS_POSTPROCESS].push_back(m_pp_microscopic);
     m_renderers[PASS_POSTPROCESS].push_back(m_pp_bloom);
     m_renderers[PASS_POSTPROCESS].push_back(m_pp_fade);
-#ifdef atm_enable_gbuffer_viewer
+#ifdef atm_enable_GBufferViewer
     m_renderers[PASS_HUD].push_back(m_debug_show_gbuffer);
-#endif // atm_enable_gbuffer_viewer
+#endif // atm_enable_GBufferViewer
 
     m_default_viewport = Viewport(ivec2(0), atmGetWindowSize());
 
@@ -84,9 +84,9 @@ AtomicRenderer::AtomicRenderer()
 AtomicRenderer::~AtomicRenderer()
 {
     istSafeDelete(m_stext);
-#ifdef atm_enable_gbuffer_viewer
+#ifdef atm_enable_GBufferViewer
     istSafeDelete(m_debug_show_gbuffer);
-#endif // atm_enable_gbuffer_viewer
+#endif // atm_enable_GBufferViewer
     istSafeDelete(m_pp_fade);
     istSafeDelete(m_pp_bloom);
     istSafeDelete(m_pp_fxaa);
@@ -393,7 +393,7 @@ void SystemTextRenderer::addText( const vec2 &pos, const wchar_t *text )
 
 
 
-#ifdef atm_enable_gbuffer_viewer
+#ifdef atm_enable_GBufferViewer
 
 void PassHUD_DebugShowBuffer::drawColorBuffer( const DebugShowBufferParams &params )
 {
@@ -509,6 +509,6 @@ void PassHUD_DebugShowBuffer::draw()
 
     //m_rt->unbind();
 }
-#endif // atm_enable_gbuffer_viewer
+#endif // atm_enable_GBufferViewer
 
 } // namespace atm

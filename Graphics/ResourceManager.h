@@ -82,12 +82,12 @@ private:
     DepthStencilState   *m_depth_states[DS_END];
     bool m_flag_exit;
 
-#ifdef atm_enable_shader_live_edit
+#ifdef atm_enable_ShaderLiveEdit
     void watchGLSLFiles();
     bool                m_glsl_modified;
     HANDLE              m_glsl_notifier;
     ist::FunctorThread<std::function<void ()> > m_glsl_watcher;
-#endif // atm_enable_shader_live_edit
+#endif // atm_enable_ShaderLiveEdit
 };
 
 

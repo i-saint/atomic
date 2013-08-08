@@ -27,7 +27,7 @@ protected:
     ShaderProgram   *m_shader;
     int32 m_loc_renderstates;
 
-#ifdef atm_enable_shader_live_edit
+#ifdef atm_enable_ShaderLiveEdit
 public:
     bool needsRecompile();
     bool recompile();
@@ -35,7 +35,7 @@ public:
 private:
     stl::string m_glsl_filename;
     Poco::Timestamp m_timestamp;
-#endif // atm_enable_shader_live_edit
+#endif // atm_enable_ShaderLiveEdit
 
 };
 

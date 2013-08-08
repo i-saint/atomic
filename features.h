@@ -1,9 +1,9 @@
 ﻿#ifndef atm_features_h
 #define atm_features_h
 
-#define atm_version 1
-#define atm_version_string "0.01"
-#define atm_replay_version 1
+#define atm_version 10
+#define atm_version_string "0.1"
+#define atm_replay_version 2
 #define atm_crash_report_url "http://primitive-games.jp/atomic/crash_report/post"
 #define atm_patch_url        "http://primitive-games.jp/atomic/update/"
 
@@ -23,23 +23,21 @@
 //// C84 版は coop 省略
 //#define atm_enable_GameServer
 //#define atm_enable_GameClient
-#define atm_enable_entity_dll
+#define atm_enable_EntityDLL
 
 #ifdef ist_env_Master
 #   define dpDisable
 #   define wdmDisable
 #else // ist_env_Master
 #   define ist_enable_Assert
-#   define atm_enable_debug_menu
-#   define atm_enable_debug_console
-#   define atm_enable_strict_handle_check
-#   define atm_enable_debug_log
-#   define atm_enable_sync_lock
-#   define atm_enable_gbuffer_viewer
-#   define atm_enable_shader_live_edit
-#   define atm_enable_statesave
+#   define atm_enable_StrictHandleCheck
+#   define atm_enable_DebugLog
+#   define atm_enable_SyncLock
+#   define atm_enable_GBufferViewer
+#   define atm_enable_ShaderLiveEdit
+#   define atm_enable_StateSave
 #endif // ist_env_Master
 
-//#define atm_enable_distance_field
+//#define atm_enable_DistanceField
 
 #endif //atm_features_h

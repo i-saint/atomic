@@ -101,9 +101,9 @@ public:
     const ist::MouseState&      getMouseState() const;
     const ist::ControllerState& getControllerState() const;
 
-#ifdef atm_enable_debug_log
+#ifdef atm_enable_DebugLog
     void printDebugLog(const char *format, ...);
-#endif // atm_enable_debug_log
+#endif // atm_enable_DebugLog
 
 private:
     void registerCommands();
@@ -121,9 +121,9 @@ private:
     AtomicConfig    m_config;
     bool            m_request_exit;
     bool            m_request_title;
-#ifdef atm_enable_debug_log
+#ifdef atm_enable_DebugLog
     FILE           *m_log;
-#endif // atm_enable_debug_log
+#endif // atm_enable_DebugLog
     ist::vector<HMODULE> m_dlls;
 };
 
@@ -138,11 +138,11 @@ void atmPauseAndShowPauseMenu();
 #define atmGetSystemInputs()         atmGetApplication()->getSystemInputs()
 #define atmGetConfig()               atmGetApplication()->getConfig()
 #define atmGetWindowSize()           atmGetApplication()->getWindowSize()
-#ifdef atm_enable_debug_log
+#ifdef atm_enable_DebugLog
 #   define atmDebugLog(...)          atmGetApplication()->printDebugLog(__VA_ARGS__)
-#else  // atm_enable_debug_log
+#else  // atm_enable_DebugLog
 #   define atmDebugLog(...)          
-#endif // atm_enable_debug_log
+#endif // atm_enable_DebugLog
 
 #define atmRequestReturnToTitleScreen() atmGetApplication()->requestReturnToTitleScreen()
 #define atmRequestExit()                atmGetApplication()->requestExit()

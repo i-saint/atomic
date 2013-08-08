@@ -29,7 +29,7 @@ void PassForward_DistanceField::beforeDraw()
 void PassForward_DistanceField::draw()
 {
     i3d::DeviceContext *dc = atmGetGLDeviceContext();
-#ifdef atm_enable_distance_field
+#ifdef atm_enable_DistanceField
     if(atmGetConfig()->debug_show_distance) {
         MapAndWrite(*m_vbo_cell_dist, atmGetCollisionModule()->getDistanceField()->getDistances(),
             sizeof(vec4) * SPH_DISTANCE_FIELD_DIV_X * SPH_DISTANCE_FIELD_DIV_Y);
@@ -39,7 +39,7 @@ void PassForward_DistanceField::draw()
         m_va_cell->unbind();
         m_sh_cell->unbind();
     }
-#endif // atm_enable_distance_field
+#endif // atm_enable_DistanceField
 
     if(atmGetConfig()->debug_show_grid) {
         m_sh_grid->bind();

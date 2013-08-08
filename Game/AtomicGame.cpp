@@ -27,9 +27,9 @@ AtomicGame::AtomicGame()
 , m_resource(0.0f)
 , m_skip_update(false)
 , m_is_edit(false)
-#ifdef atm_enable_statesave
+#ifdef atm_enable_StateSave
 , m_state_index()
-#endif // atm_enable_statesave
+#endif // atm_enable_StateSave
 {
     wdmAddNode("Game/dbgSerialize()", &AtomicGame::dbgSerialize, this);
     wdmAddNode("Game/dbgDeserializePrev()", &AtomicGame::dbgDeserializePrev, this);
@@ -60,9 +60,9 @@ AtomicGame::~AtomicGame()
 
 bool AtomicGame::config(const GameStartConfig &conf)
 {
-#ifdef atm_enable_sync_lock
+#ifdef atm_enable_SyncLock
     m_sync_lock = false;
-#endif // atm_enable_sync_lock
+#endif // atm_enable_SyncLock
     MessageRouter::initializeInstance();
 
     PlayerName name = L"test";
@@ -336,7 +336,7 @@ bool AtomicGame::deserializeFromFile(const char *path)
     return fs && zipper && deserialize(zipper);
 }
 
-#ifdef atm_enable_statesave
+#ifdef atm_enable_StateSave
 void AtomicGame::dbgSerialize()
 {
     Poco::File dir("State");
@@ -368,7 +368,7 @@ void AtomicGame::dbgDeserializeNext()
         m_state_index = ist::clamp<int32>(m_state_index+1, 0, m_state_paths.size()-1);
     }
 }
-#endif // atm_enable_statesave
+#endif // atm_enable_StateSave
 
 bool atmIsEditMode()
 {
