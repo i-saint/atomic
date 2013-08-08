@@ -7,7 +7,7 @@ namespace atm {
 
 class SoundThread;
 
-class AtomicSound
+class atmAPI AtomicSound
 {
 private:
     static AtomicSound  *s_instance;

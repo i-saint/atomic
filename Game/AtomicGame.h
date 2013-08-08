@@ -42,7 +42,7 @@ struct GameStartConfig
 };
 
 
-class AtomicGame
+class atmAPI AtomicGame
 {
 public:
     AtomicGame();

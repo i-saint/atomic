@@ -27,6 +27,7 @@ atmSerializeRaw(LaserParticle);
 
 class Laser : public ILaser
 {
+typedef ILaser super;
 public:
     enum State {
         State_Normal,
@@ -59,8 +60,9 @@ private:
     ist::vector<SingleParticle> m_drawdata;
 
     istSerializeBlock(
+        istSerializeBase(super)
         istSerialize(m_particles)
-        istSerialize(m_id)
+        istSerialize(m_handle)
         istSerialize(m_owner)
         istSerialize(m_group)
         istSerialize(m_state)
@@ -72,6 +74,10 @@ private:
     )
 
 public:
+    Laser()
+    {
+    }
+
     Laser(LaserHandle handle, const vec3 &pos, const vec3 &dir, EntityHandle owner)
         : m_handle(handle), m_owner(0), m_group(0), m_state(State_Normal), m_time(0.0f)
         , m_light_radius(0.75f)
@@ -268,9 +274,11 @@ const float32 Laser::s_lifetime = 100.0f;
 const float32 Laser::s_fadeout_time = 50.0f;
 const float32 Laser::s_radius = 0.04f;
 const float32 Laser::s_power = 0.5f;
+atmExportClass(Laser)
 
 class LaserManager : public IBulletManager
 {
+typedef IBulletManager super;
 private:
     typedef stl::vector<Laser*> Lasers;
     typedef stl::vector<LaserHandle> Handles;
@@ -282,6 +290,7 @@ private:
     Handles m_dead_prev;
 
     istSerializeBlock(
+        istSerializeBase(super)
         istSerialize(m_lasers)
         istSerialize(m_all)
         istSerialize(m_vacants)
@@ -387,6 +396,7 @@ public:
         });
     }
 };
+atmExportClass(LaserManager)
 
 
 
@@ -421,12 +431,18 @@ atmSerializeRaw(BulletData);
 
 class BulletManager : public IBulletManager
 {
+typedef IBulletManager super;
 private:
     typedef stl::vector<BulletData> Bullets;
     typedef CollisionModule::CollisionContext CollisionContext;
     typedef stl::vector<CollisionContext> CollisionContexts;
     Bullets m_bullets;
     CollisionContexts m_cctx; // serialize 不要
+
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerialize(m_bullets)
+    )
 
 public:
     BulletManager()
@@ -520,6 +536,7 @@ public:
     template<class F>
     void eachBullets(const F &f) { each(m_bullets, f); }
 };
+atmExportClass(BulletManager)
 
 
 
@@ -530,6 +547,14 @@ public:
 };
 
 
+
+istSerializeBlockImpl(BulletModule,
+    istSerializeBase(super)
+    istSerialize(m_lasers)
+    istSerialize(m_bullets)
+    istSerialize(m_managers)
+)
+atmExportClass(BulletModule)
 
 BulletModule::BulletModule()
     : m_lasers(), m_bullets()

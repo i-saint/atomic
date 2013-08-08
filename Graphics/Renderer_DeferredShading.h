@@ -3,7 +3,7 @@
 namespace atm {
 
 
-class PassDeferred_Bloodstain : public IRenderer
+class atmAPI PassDeferred_Bloodstain : public IRenderer
 {
 public:
     // 血痕パーティクル群
@@ -31,7 +31,7 @@ private:
 };
 
 
-class PassDeferred_Lights : public IRenderer
+class atmAPI PassDeferred_Lights : public IRenderer
 {
 public:
     PassDeferred_Lights();

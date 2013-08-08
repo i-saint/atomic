@@ -23,8 +23,11 @@
 //// C84 版は coop 省略
 //#define atm_enable_GameServer
 //#define atm_enable_GameClient
+#define atm_enable_entity_dll
 
 #ifdef ist_env_Master
+#   define dpDisable
+#   define wdmDisable
 #else // ist_env_Master
 #   define ist_enable_Assert
 #   define atm_enable_debug_menu

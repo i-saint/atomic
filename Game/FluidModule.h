@@ -10,7 +10,7 @@ namespace atm {
 struct CollisionEntity;
 typedef ist::raw_vector<psym::Particle> ParticleCont;
 
-class FluidModule : public IAtomicGameModule
+class atmAPI FluidModule : public IAtomicGameModule
 {
 typedef IAtomicGameModule super;
 public:
@@ -58,7 +58,6 @@ private:
     ParticleCont        m_new_fluid;
     AddFluidCtxCont     m_new_fluid_ctx;
 
-
     istSerializeBlock(
         istSerializeBase(super)
         istSerialize(m_world)
@@ -66,7 +65,6 @@ private:
         istSerialize(m_gravity_strength)
     )
 };
-
 
 
 } // namespace atm

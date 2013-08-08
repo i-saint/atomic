@@ -4,7 +4,7 @@ namespace atm {
 
 
 
-class PassGBuffer_Particle : public IRenderer
+class atmAPI PassGBuffer_Particle : public IRenderer
 {
 public:
     PassGBuffer_Particle();
@@ -18,7 +18,7 @@ private:
     ist::vector<SingleParticle> m_particles;
 };
 
-class PassGBuffer_Fluid : public IRenderer
+class atmAPI PassGBuffer_Fluid : public IRenderer
 {
 public:
     PassGBuffer_Fluid();

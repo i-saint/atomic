@@ -124,6 +124,7 @@ private:
 #ifdef atm_enable_debug_log
     FILE           *m_log;
 #endif // atm_enable_debug_log
+    ist::vector<HMODULE> m_dlls;
 };
 
 void atmPause(bool v);

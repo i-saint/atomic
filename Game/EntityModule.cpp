@@ -74,13 +74,12 @@ EntityClassInfo* GetEntityClassInfo( EntityClassID ecid )
 
 
 
+atmAPI EntityHandle atmCreateEntityHandle()
+{
+    return atmGetWorld() ? atmGetEntityModule()->getGeneratedHandle() : 0;
+}
 
 atmExportClass(IEntity);
-
-IEntity::IEntity()
-    : m_ehandle(atmGetWorld() ? atmGetEntityModule()->getGeneratedHandle() : 0)
-{
-}
 
 
 atmExportClass(EntityModule);
@@ -103,7 +102,7 @@ void EntityModule::finalize()
     Entities &entities = m_entities;
     uint32 s = entities.size();
     for(uint32 k=0; k<s; ++k) {
-        istSafeDelete(entities[k]);
+        istSafeRelease(entities[k]);
     }
     entities.clear();
     m_vacants.clear();

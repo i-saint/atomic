@@ -3,7 +3,11 @@
 
 #include "ist/ist.h"
 
-#define atmAPI
+#ifdef atmMainImpl
+#   define atmAPI __declspec(dllexport)
+#else // atmMainImpl
+#   define atmAPI __declspec(dllimport)
+#endif // atmMainImpl
 
 #define atmSafeRelease(Obj) if(Obj){Obj->release();Obj=nullptr;}
 

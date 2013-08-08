@@ -35,7 +35,7 @@ class PassHUD_DebugShowBuffer;
 class PassForward_DistanceField; // for debug
 
 
-class AtomicRenderer
+class atmAPI AtomicRenderer
 {
 istNonCopyable(AtomicRenderer);
 private:
@@ -136,7 +136,7 @@ public:
 #define atmGetRenderFrame()         atmGetRenderer()->getRenderFrame()
 
 
-class SystemTextRenderer : public IRenderer
+class atmAPI SystemTextRenderer : public IRenderer
 {
 private:
     struct Text {
@@ -155,7 +155,7 @@ public:
 };
 
 #ifdef atm_enable_gbuffer_viewer
-class PassHUD_DebugShowBuffer : public IRenderer
+class atmAPI PassHUD_DebugShowBuffer : public IRenderer
 {
 private:
     void drawColorBuffer(const DebugShowBufferParams &params);

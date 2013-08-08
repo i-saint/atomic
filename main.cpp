@@ -20,16 +20,12 @@ istImplementOperatorNewDelete();
 
 
 namespace atm {
-    void atmInitializeCrashReporter();
-    void atmFinalizeCrashReporter();
-} // namespace atm
-using namespace atm;
 
-void ExecApp(int argc, char* argv[])
+void atmInitializeCrashReporter();
+void atmFinalizeCrashReporter();
+
+void atmExecApplication(int argc, char* argv[])
 {
-    // クラッシュさせるテスト
-    //*static_cast<int*>(nullptr) = 0;
-
     atm::AtomicApplication app;
     if(app.initialize(argc, argv)) {
         app.mainLoop();
@@ -37,20 +33,26 @@ void ExecApp(int argc, char* argv[])
     app.finalize();
 }
 
-int istmain(int argc, char* argv[])
+atmAPI int32 atmMain(int argc, char* argv[])
 {
     dpInitialize();
     ist::forceLink();
-    //test();
 
     atm::atmInitializeCrashReporter();
-istCrashReportBegin
-    ExecApp(argc, argv);
-istCrashReportRescue
-istCrashReportEnd
+    istCrashReportBegin
+    atmExecApplication(argc, argv);
+    istCrashReportRescue
+    istCrashReportEnd
     atm::atmFinalizeCrashReporter();
 
     dpFinalize();
     return 0;
 }
 
+} // namespace atm
+using namespace atm;
+
+int istmain(int argc, char* argv[])
+{
+    return atmMain(argc, argv);
+}

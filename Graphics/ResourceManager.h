@@ -27,7 +27,7 @@ enum GBUFFER {
 };
 
 
-class istAlign(16) GraphicResourceManager
+class atmAPI istAlign(16) GraphicResourceManager
 {
 istNonCopyable(GraphicResourceManager);
 istMakeDestructable;

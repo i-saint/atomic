@@ -117,13 +117,13 @@ namespace atm {
     }
 
 
-    void FillScreen(const vec4 &color);
+    atmAPI void FillScreen(const vec4 &color);
 
-    vec2 GenRandomVector2();
-    vec3 GenRandomVector3();
-    vec2 GenRandomUnitVector2();
-    vec3 GenRandomUnitVector3();
-    void CreateDateString(char *buf, uint32 len);
+    atmAPI vec2 GenRandomVector2();
+    atmAPI vec3 GenRandomVector3();
+    atmAPI vec2 GenRandomUnitVector2();
+    atmAPI vec3 GenRandomUnitVector3();
+    atmAPI void CreateDateString(char *buf, uint32 len);
 
     template<class T>
     inline T clamp(T v, T vmin, T vmax) { return stl::min<T>(stl::max<T>(v, vmin), vmax); }

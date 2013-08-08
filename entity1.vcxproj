@@ -19,123 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CrashReport.cpp" />
-    <ClCompile Include="EnumStrings.cpp" />
-    <ClCompile Include="Game\AtomicApplication.cpp" />
-    <ClCompile Include="Game\AtomicGame.cpp" />
-    <ClCompile Include="Game\BulletModule.cpp" />
-    <ClCompile Include="Game\CollisionModule.cpp" />
-    <ClCompile Include="Game\EntityModule.cpp" />
-    <ClCompile Include="Game\FluidModule.cpp" />
-    <ClCompile Include="Game\Input.cpp" />
-    <ClCompile Include="Game\Message.cpp" />
-    <ClCompile Include="Game\Text.cpp" />
-    <ClCompile Include="Game\VFXModule.cpp" />
-    <ClCompile Include="Game\VFX\VFXBlur.cpp" />
-    <ClCompile Include="Game\VFX\VFXDistortion.cpp" />
-    <ClCompile Include="Game\VFX\VFXLight.cpp" />
-    <ClCompile Include="Game\VFX\VFXParticle.cpp" />
-    <ClCompile Include="Game\World.cpp" />
-    <ClCompile Include="Graphics\AtomicRenderingSystem.cpp" />
-    <ClCompile Include="Graphics\CreateModelData.cpp" />
-    <ClCompile Include="Graphics\Renderer.cpp" />
-    <ClCompile Include="Graphics\Renderer_DeferredShading.cpp" />
-    <ClCompile Include="Graphics\Renderer_ForwardShading.cpp" />
-    <ClCompile Include="Graphics\Renderer_GBuffer.cpp" />
-    <ClCompile Include="Graphics\Renderer_Postprocess.cpp" />
-    <ClCompile Include="Graphics\ResourceManager.cpp" />
-    <ClCompile Include="Graphics\Shader.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="MemoryLeakBuster.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Intel_SSA|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">NotUsing</PrecompiledHeader>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="Network\GameClient.cpp" />
-    <ClCompile Include="Network\GameServer.cpp" />
-    <ClCompile Include="Network\GameServerSession.cpp" />
-    <ClCompile Include="Network\InputServerLocal.cpp" />
-    <ClCompile Include="Network\InputServerNetwork.cpp" />
-    <ClCompile Include="Network\InputServerReplay.cpp" />
-    <ClCompile Include="Network\LevelEditorCommand.cpp" />
-    <ClCompile Include="Network\LevelEditorCommandHandler.cpp" />
-    <ClCompile Include="Network\Protocol.cpp" />
-    <ClCompile Include="Network\WebServer.cpp" />
-    <ClCompile Include="Sound\AtomicSound.cpp" />
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Intel_SSA|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="UI\ConfigWindow.cpp" />
-    <ClCompile Include="UI\LogWindow.cpp" />
-    <ClCompile Include="UI\PauseWindow.cpp" />
-    <ClCompile Include="UI\RootWindow.cpp" />
-    <ClCompile Include="UI\TitleWindow.cpp" />
-    <ClCompile Include="UI\UISelector.cpp" />
-    <ClCompile Include="Util.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="externals.h" />
-    <ClInclude Include="features.h" />
-    <ClInclude Include="FunctionID.h" />
-    <ClInclude Include="Game\AtomicApplication.h" />
-    <ClInclude Include="Game\AtomicGame.h" />
-    <ClInclude Include="Game\BulletModule.h" />
-    <ClInclude Include="Game\CollisionModule.h" />
-    <ClInclude Include="Game\EntityClass.h" />
-    <ClInclude Include="Game\EntityModule.h" />
-    <ClInclude Include="Game\EntityQuery.h" />
-    <ClInclude Include="Game\FluidModule.h" />
-    <ClInclude Include="Game\Input.h" />
-    <ClInclude Include="Game\Message.h" />
-    <ClInclude Include="Game\Task.h" />
-    <ClInclude Include="Game\Text.h" />
-    <ClInclude Include="Game\VFXModule.h" />
-    <ClInclude Include="Game\VFX\VFXBlur.h" />
-    <ClInclude Include="Game\VFX\VFXCommon.h" />
-    <ClInclude Include="Game\VFX\VFXDistortion.h" />
-    <ClInclude Include="Game\VFX\VFXInterfaces.h" />
-    <ClInclude Include="Game\VFX\VFXLight.h" />
-    <ClInclude Include="Game\VFX\VFXParticle.h" />
-    <ClInclude Include="Game\World.h" />
-    <ClInclude Include="Graphics\AtomicRenderingSystem.h" />
-    <ClInclude Include="Graphics\CreateModelData.h" />
-    <ClInclude Include="Graphics\Light.h" />
-    <ClInclude Include="Graphics\ParticleSet.h" />
-    <ClInclude Include="Graphics\Renderer.h" />
-    <ClInclude Include="Graphics\Renderer_DeferredShading.h" />
-    <ClInclude Include="Graphics\Renderer_ForwardShading.h" />
-    <ClInclude Include="Graphics\Renderer_GBuffer.h" />
-    <ClInclude Include="Graphics\Renderer_Postprocess.h" />
-    <ClInclude Include="Graphics\ResourceID.h" />
-    <ClInclude Include="Graphics\ResourceManager.h" />
-    <ClInclude Include="Graphics\Shader.h" />
-    <ClInclude Include="Network\GameClient.h" />
-    <ClInclude Include="Network\GameServer.h" />
-    <ClInclude Include="Network\GameServerSession.h" />
-    <ClInclude Include="Network\InputServer.h" />
-    <ClInclude Include="Network\InputServerInternal.h" />
-    <ClInclude Include="Network\LevelEditorCommand.h" />
-    <ClInclude Include="Network\LevelEditorCommandHandler.h" />
-    <ClInclude Include="Network\Protocol.h" />
-    <ClInclude Include="Network\WebServer.h" />
-    <ClInclude Include="Sound\AtomicSound.h" />
-    <ClInclude Include="Sound\SoundResourceID.h" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="types.h" />
-    <ClInclude Include="UI\ConfigWindow.h" />
-    <ClInclude Include="UI\LogWindow.h" />
-    <ClInclude Include="UI\PauseWindow.h" />
-    <ClInclude Include="UI\RootWindow.h" />
-    <ClInclude Include="UI\TitleWindow.h" />
-    <ClInclude Include="UI\UISelector.h" />
-    <ClInclude Include="Util.h" />
-  </ItemGroup>
-  <ItemGroup>
+    <ProjectReference Include="atomic.vcxproj">
+      <Project>{a8f5b4be-0942-4a93-bbfe-0716beac2551}</Project>
+    </ProjectReference>
     <ProjectReference Include="ist.vcxproj">
       <Project>{8d4b1790-f166-4122-9ce6-8af10214ed82}</Project>
     </ProjectReference>
@@ -150,37 +36,67 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="editor\draw.js" />
-    <None Include="editor\index.html" />
-    <None Include="editor\util.js" />
+    <ClCompile Include="Entity\Boss1.cpp" />
+    <ClCompile Include="Entity\Carrier.cpp" />
+    <ClCompile Include="Entity\Enemy.cpp" />
+    <ClCompile Include="Entity\entitymain.cpp" />
+    <ClCompile Include="Entity\EntityUtil.cpp" />
+    <ClCompile Include="Entity\Fighter.cpp" />
+    <ClCompile Include="Entity\Gear.cpp" />
+    <ClCompile Include="Entity\Hatch.cpp" />
+    <ClCompile Include="Entity\Layer.cpp" />
+    <ClCompile Include="Entity\Level.cpp" />
+    <ClCompile Include="Entity\LightEntity.cpp" />
+    <ClCompile Include="Entity\Obstacle.cpp" />
+    <ClCompile Include="Entity\Player.cpp" />
+    <ClCompile Include="Entity\Projectile.cpp" />
+    <ClCompile Include="Entity\Routine.cpp" />
+    <ClCompile Include="Entity\Turret.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Intel_SSA|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Entity\Enemy.h" />
+    <ClInclude Include="Entity\EntityAttributes.h" />
+    <ClInclude Include="Entity\EntityCommon.h" />
+    <ClInclude Include="Entity\EntityTemplate.h" />
+    <ClInclude Include="Entity\EntityTransform.h" />
+    <ClInclude Include="Entity\EntityUtil.h" />
+    <ClInclude Include="Entity\Level.h" />
+    <ClInclude Include="Entity\Routine.h" />
+    <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{A8F5B4BE-0942-4A93-BBFE-0716BEAC2551}</ProjectGuid>
-    <RootNamespace>atomic</RootNamespace>
-    <ProjectName>atomic</ProjectName>
+    <ProjectGuid>{F8E851F3-3570-41DB-9833-F34BB62AFF4A}</ProjectGuid>
+    <RootNamespace>entity1</RootNamespace>
+    <ProjectName>entity1</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Intel_SSA|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Master|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
@@ -203,10 +119,10 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>external\tbb\include;$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)$(Configuration);external\lib\win32;external\tbb\lib\ia32\vc10;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>bin;$(SolutionDir)$(Configuration);external\lib\win32;external\tbb\lib\ia32\vc10;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
     <OutDir>$(SolutionDir)bin\</OutDir>
-    <TargetName>$(ProjectName)_debug</TargetName>
+    <TargetName>$(ProjectName)</TargetName>
     <IntDir>$(SolutionDir)_tmp\$(Configuration)\$(ProjectName)\</IntDir>
     <CustomBuildAfterTargets>
     </CustomBuildAfterTargets>
@@ -219,13 +135,14 @@
     <OutDir>$(SolutionDir)bin\</OutDir>
     <CustomBuildAfterTargets>
     </CustomBuildAfterTargets>
+    <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>external\tbb\include;$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)$(Configuration);external\lib\win32;external\tbb\lib\ia32\vc10;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>bin;$(SolutionDir)$(Configuration);external\lib\win32;external\tbb\lib\ia32\vc10;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\</OutDir>
-    <TargetName>$(ProjectName)_develop</TargetName>
+    <TargetName>$(ProjectName)</TargetName>
     <IntDir>$(SolutionDir)_tmp\$(Configuration)\$(ProjectName)\</IntDir>
     <CustomBuildBeforeTargets>
     </CustomBuildBeforeTargets>
@@ -235,11 +152,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>external\tbb\include;$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)$(Configuration);external\lib\win32;external\tbb\lib\ia32\vc10;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>bin;$(SolutionDir)$(Configuration);external\lib\win32;external\tbb\lib\ia32\vc10;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\</OutDir>
     <IntDir>$(SolutionDir)_tmp\$(Configuration)\$(ProjectName)\</IntDir>
     <CustomBuildAfterTargets>
     </CustomBuildAfterTargets>
+    <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -249,7 +167,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <MinimalRebuild>false</MinimalRebuild>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
-      <PreprocessorDefinitions>atmMainImpl;DOL_StaticLink;ist_env_Debug;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DOL_StaticLink;ist_env_Debug;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
@@ -260,14 +178,13 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>imm32.lib;winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>atomic_debug.lib;imm32.lib;winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <OptimizeReferences>false</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>copy $(TargetPath) $(SolutionDir)Resources</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Intel_SSA|Win32'">
@@ -278,7 +195,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
-      <PreprocessorDefinitions>atmMainImpl;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -288,8 +205,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>copy $(TargetPath) $(SolutionDir)Resources</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -301,7 +217,7 @@
       <AdditionalIncludeDirectories>./;_tmp/$(Configuration)/psym;external;external/tbb/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PreprocessorDefinitions>atmMainImpl;DOL_DisableWarning_RTTI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DOL_DisableWarning_RTTI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
@@ -314,14 +230,13 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>imm32.lib;winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>atomic_develop.lib;imm32.lib;winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>copy $(TargetPath) $(SolutionDir)Resources</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">
@@ -333,7 +248,7 @@
       <AdditionalIncludeDirectories>./;_tmp/$(Configuration)/psym;external;external/tbb/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PreprocessorDefinitions>atmMainImpl;DOL_StaticLink;DisableMemoryLeakBuster;ist_env_Master;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DOL_StaticLink;DisableMemoryLeakBuster;ist_env_Master;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -344,14 +259,13 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>imm32.lib;winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>atomic.lib;imm32.lib;winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>copy $(TargetPath) $(SolutionDir)Resources</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

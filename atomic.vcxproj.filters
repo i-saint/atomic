@@ -10,9 +10,6 @@
     <Filter Include="Sound">
       <UniqueIdentifier>{ae8965f0-cc3f-4ee1-bf6e-87b420fdae61}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game\Entity">
-      <UniqueIdentifier>{1f1a3bf3-079c-4653-90b2-5e697bd4f0df}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Network">
       <UniqueIdentifier>{e0808553-5455-4898-b12a-efbfd7e38736}</UniqueIdentifier>
     </Filter>
@@ -60,18 +57,6 @@
       <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="Util.cpp" />
-    <ClCompile Include="Game\Entity\Enemy.cpp">
-      <Filter>Game\Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Entity\Level.cpp">
-      <Filter>Game\Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Entity\Player.cpp">
-      <Filter>Game\Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Entity\Routine.cpp">
-      <Filter>Game\Entity</Filter>
-    </ClCompile>
     <ClCompile Include="Game\Input.cpp">
       <Filter>Game</Filter>
     </ClCompile>
@@ -114,21 +99,6 @@
       <Filter>Network</Filter>
     </ClCompile>
     <ClCompile Include="MemoryLeakBuster.cpp" />
-    <ClCompile Include="Game\Entity\Gear.cpp">
-      <Filter>Game\Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Entity\Carrier.cpp">
-      <Filter>Game\Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Entity\Obstacle.cpp">
-      <Filter>Game\Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Entity\EntityUtil.cpp">
-      <Filter>Game\Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Entity\LightEntity.cpp">
-      <Filter>Game\Entity</Filter>
-    </ClCompile>
     <ClCompile Include="Game\FluidModule.cpp">
       <Filter>Game</Filter>
     </ClCompile>
@@ -143,18 +113,6 @@
     </ClCompile>
     <ClCompile Include="Game\EntityModule.cpp">
       <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Entity\Projectile.cpp">
-      <Filter>Game\Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Entity\Fighter.cpp">
-      <Filter>Game\Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Entity\Turret.cpp">
-      <Filter>Game\Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Entity\Hatch.cpp">
-      <Filter>Game\Entity</Filter>
     </ClCompile>
     <ClCompile Include="Game\VFX\VFXBlur.cpp">
       <Filter>Game\VFX</Filter>
@@ -177,9 +135,6 @@
     <ClCompile Include="Network\LevelEditorCommand.cpp">
       <Filter>Network</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Entity\Layer.cpp">
-      <Filter>Game\Entity</Filter>
-    </ClCompile>
     <ClCompile Include="UI\TitleWindow.cpp">
       <Filter>UI</Filter>
     </ClCompile>
@@ -197,9 +152,6 @@
     </ClCompile>
     <ClCompile Include="UI\RootWindow.cpp">
       <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Entity\Boss1.cpp">
-      <Filter>Game\Entity</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -255,15 +207,6 @@
     <ClInclude Include="Graphics\ParticleSet.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Entity\Enemy.h">
-      <Filter>Game\Entity</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\Entity\Level.h">
-      <Filter>Game\Entity</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\Entity\Routine.h">
-      <Filter>Game\Entity</Filter>
-    </ClInclude>
     <ClInclude Include="Sound\SoundResourceID.h">
       <Filter>Sound</Filter>
     </ClInclude>
@@ -304,21 +247,6 @@
     </ClInclude>
     <ClInclude Include="Network\GameClient.h">
       <Filter>Network</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\Entity\EntityCommon.h">
-      <Filter>Game\Entity</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\Entity\EntityUtil.h">
-      <Filter>Game\Entity</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\Entity\EntityTemplate.h">
-      <Filter>Game\Entity</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\Entity\EntityTransform.h">
-      <Filter>Game\Entity</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\Entity\EntityAttributes.h">
-      <Filter>Game\Entity</Filter>
     </ClInclude>
     <ClInclude Include="Game\BulletModule.h">
       <Filter>Game</Filter>

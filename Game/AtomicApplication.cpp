@@ -12,6 +12,7 @@
 #include "Network/GameServer.h"
 #include "Network/GameClient.h"
 #include "Util.h"
+#include "Poco/DirectoryIterator.h"
 
 #define ATOMIC_CONFIG_FILE_PATH "atomic.conf"
 
@@ -181,6 +182,7 @@ bool AtomicApplication::initialize(int argc, char *argv[])
 {
     AtomicConfig &conf = m_config;
     conf.readFromFile(ATOMIC_CONFIG_FILE_PATH);
+
     if(conf.window_pos.x >= 30000) { conf.window_pos.x = 0; }
     if(conf.window_pos.y >= 30000) { conf.window_pos.y = 0; }
     if(conf.window_size.x < 320 || conf.window_size.x < 240) { conf.window_size = ivec2(1024, 768); }
@@ -238,19 +240,39 @@ bool AtomicApplication::initialize(int argc, char *argv[])
 
     registerCommands();
 
+#ifdef atm_enable_entity_dll
+    {
+        std::regex reg("\\.dll$", std::regex::ECMAScript|std::regex::icase);
+        Poco::DirectoryIterator end;
+        for(Poco::DirectoryIterator it(Poco::Path("Resources")); it!=end; ++it) {
+            if(it->isFile() && it->canRead() && std::regex_search(it->path(), reg)) {
+                if(HMODULE dll = ::LoadLibraryA(it->path().c_str())) {
+                    m_dlls.push_back(dll);
+                }
+            }
+        }
+    }
+#endif // atm_enable_entity_dll
+
     return true;
 }
 
 void AtomicApplication::finalize()
 {
+    istSafeDelete(m_game);
+
+    {
+        each(m_dlls, [&](HMODULE h){
+            ::FreeLibrary(h);
+        });
+    }
+
     m_config.writeToFile(ATOMIC_CONFIG_FILE_PATH);
 
     atmWebServerFinalize();
     atmGameClientFinalize();
     atmGameServerFinalize();
     Poco::ThreadPool::defaultPool().joinAll();
-
-    istSafeDelete(m_game);
 
     AtomicSound::finalizeInstance();
     AtomicRenderingSystem::finalizeInstance();

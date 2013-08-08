@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
-#include "Game/Entity/EntityCommon.h"
-#include "Game/Entity/Routine.h"
-#include "Game/Entity/Level.h"
+#include "Entity/EntityCommon.h"
+#include "Entity/Routine.h"
+#include "Entity/Level.h"
 
 namespace atm {
 

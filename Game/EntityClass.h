@@ -116,9 +116,9 @@ struct EntityClassInfo
 
 class IEntity;
 typedef IEntity* (*EntityCreator)();
-void AddEntityCreator(EntityClassID entity_classid, EntityCreator creator, const EntityClassInfo &eci=EntityClassInfo());
-IEntity* CreateEntity(EntityClassID entity_classid);
-EntityClassInfo* GetEntityClassInfo(EntityClassID entity_classid);
+atmAPI void AddEntityCreator(EntityClassID entity_classid, EntityCreator creator, const EntityClassInfo &eci=EntityClassInfo());
+atmAPI IEntity* CreateEntity(EntityClassID entity_classid);
+atmAPI EntityClassInfo* GetEntityClassInfo(EntityClassID entity_classid);
 
 template<class EntityType> IEntity* CreateEntity();
 template<class EntityType> class AddEntityTable;

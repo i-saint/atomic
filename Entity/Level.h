@@ -9,6 +9,7 @@ typedef IEntity super;
 typedef TransAttr transform;
 private:
     istSerializeBlock(
+        istSerializeBase(super)
         istSerializeBase(transform)
     )
 public:

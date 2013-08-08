@@ -2,8 +2,8 @@
 #define atm_Graphics_Renderer_Postprocess_h
 namespace atm {
 
-    
-class PassPostprocess_Microscopic : public IRenderer
+
+class atmAPI PassPostprocess_Microscopic : public IRenderer
 {
 private:
     RenderTarget    *m_rt_gbuffer;
@@ -16,7 +16,7 @@ public:
     void draw();
 };
 
-class PassPostprocess_FXAA : public IRenderer
+class atmAPI PassPostprocess_FXAA : public IRenderer
 {
 private:
     VertexArray     *m_va_quad;
@@ -31,7 +31,7 @@ public:
     void draw();
 };
 
-class PassPostprocess_Bloom : public IRenderer
+class atmAPI PassPostprocess_Bloom : public IRenderer
 {
 private:
     RenderTarget    *m_rt_gbuffer;
@@ -52,7 +52,7 @@ public:
     void draw();
 };
 
-class PassPostprocess_Fade : public IRenderer
+class atmAPI PassPostprocess_Fade : public IRenderer
 {
 private:
     AtomicShader    *m_sh_fade;

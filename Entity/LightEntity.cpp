@@ -1,5 +1,5 @@
 ﻿#include "stdafx.h"
-#include "Game/Entity/EntityCommon.h"
+#include "Entity/EntityCommon.h"
 
 namespace atm {
 

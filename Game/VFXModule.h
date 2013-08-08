@@ -19,7 +19,7 @@ public:
     virtual void frameEnd() {}
 };
 
-class VFXModule : public IAtomicGameModule
+class atmAPI VFXModule : public IAtomicGameModule
 {
 typedef IAtomicGameModule super;
 private:

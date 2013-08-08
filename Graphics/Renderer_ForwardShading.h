@@ -3,7 +3,7 @@
 namespace atm {
 
 
-class PassForward_DistanceField : public IRenderer
+class atmAPI PassForward_DistanceField : public IRenderer
 {
 private:
     VertexArray     *m_va_grid;
@@ -21,7 +21,7 @@ public:
 };
 
 
-class PassForward_Generic : public IRenderer
+class atmAPI PassForward_Generic : public IRenderer
 {
 public:
     PassForward_Generic();
@@ -45,7 +45,7 @@ private:
     int32 m_frame;
 };
 
-class PassForward_Barrier : public IRenderer
+class atmAPI PassForward_Barrier : public IRenderer
 {
 public:
     PassForward_Barrier();
@@ -61,7 +61,7 @@ private:
     PSetDrawData m_solids;
 };
 
-class PassForward_BackGround : public IRenderer
+class atmAPI PassForward_BackGround : public IRenderer
 {
 public:
     PassForward_BackGround();

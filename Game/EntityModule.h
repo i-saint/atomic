@@ -8,6 +8,7 @@
 
 namespace atm {
 
+atmAPI EntityHandle atmCreateEntityHandle();
 
 class IEntity
 {
@@ -23,7 +24,10 @@ private:
         )
 
 public:
-    IEntity();
+    IEntity()
+        : m_ehandle(atmCreateEntityHandle())
+    {
+    }
     virtual ~IEntity() {}
     virtual void release() { istDelete(this); }
 
@@ -61,9 +65,9 @@ public:
 
 
 
-class EntityModule : public IAtomicGameModule
+class atmAPI EntityModule : public IAtomicGameModule
 {
-friend class IEntity;
+friend atmAPI EntityHandle atmCreateEntityHandle();
 typedef IAtomicGameModule super;
 public:
     typedef ist::vector<EntityHandle> Handles;

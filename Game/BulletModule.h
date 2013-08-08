@@ -12,6 +12,7 @@ typedef uint32 LaserHandle;
 
 class ILaser
 {
+    istSerializeBlock()
 public:
     virtual ~ILaser() {}
     virtual LaserHandle getHandle() const=0;
@@ -24,6 +25,7 @@ public:
 };
 class IBulletManager
 {
+    istSerializeBlock()
 public:
     virtual ~IBulletManager() {}
     virtual void frameBegin() {}
@@ -34,8 +36,9 @@ public:
 };
 
 
-class BulletModule : public IAtomicGameModule
+class atmAPI BulletModule : public IAtomicGameModule
 {
+typedef IAtomicGameModule super;
 public:
     BulletModule();
     ~BulletModule();
@@ -57,6 +60,8 @@ private:
     LaserManager    *m_lasers;
     BulletManager   *m_bullets;
     managers        m_managers;
+
+    istSerializeBlockDecl();
 };
 
 } // namespace atm

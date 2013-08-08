@@ -16,7 +16,7 @@ iui::Widget*        atmGetTitleWindow();
 iui::Widget*        atmGetPauseWindow();
 iui::Widget*        atmGetConfigWindow();
 iui::Widget*        atmGetLogWindow();
-UISelector*           atmGetUISelector();
+UISelector*         atmGetUISelector();
 
 
 class RootWindow : public iui::RootWindow
@@ -34,7 +34,7 @@ public:
     TitleWindow*    getTitleWindow() const  { return m_title; }
     PauseWindow*    getPauseWindow() const  { return m_pause; }
     LogWindow*      getLogWindow() const    { return m_log; }
-    UISelector*       getCursor() const       { return m_cursor; }
+    UISelector*     getCursor() const       { return m_cursor; }
 
 private:
     TitleWindow     *m_title;

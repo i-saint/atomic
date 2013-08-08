@@ -170,7 +170,7 @@ class CollideTask;
 class DistanceTask;
 
 
-class CollisionGrid
+class atmAPI CollisionGrid
 {
 public:
     static const int32 MAX_ENTITIES_IN_CELL = 64;
@@ -205,7 +205,7 @@ public:
 };
 
 
-class CollisionModule : public IAtomicGameModule
+class atmAPI CollisionModule : public IAtomicGameModule
 {
 typedef IAtomicGameModule super;
 public:
@@ -241,6 +241,9 @@ public:
 
     CollisionEntity* getEntity(CollisionHandle h);
     template<class T> T* createEntity();
+    template<> CollisionPlane*  createEntity<CollisionPlane>();
+    template<> CollisionSphere* createEntity<CollisionSphere>();
+    template<> CollisionBox*    createEntity<CollisionBox>();
     void deleteEntity(CollisionHandle e);
     void deleteEntity(CollisionEntity *e);
 

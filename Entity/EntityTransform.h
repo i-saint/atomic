@@ -57,6 +57,7 @@ private:
 
     istSerializeBlock(
         istSerialize(m_pivot)
+        istSerialize(m_pos)
         istSerialize(m_scale)
         istSerialize(m_axis)
         istSerialize(m_rot)
