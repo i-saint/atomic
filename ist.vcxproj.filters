@@ -260,7 +260,6 @@
     <ClInclude Include="ist\Concurrency.h" />
     <ClInclude Include="ist\Config.h" />
     <ClInclude Include="ist\Debug.h" />
-    <ClInclude Include="ist\GPGPU.h" />
     <ClInclude Include="ist\Graphics.h" />
     <ClInclude Include="ist\GraphicsUtil.h" />
     <ClInclude Include="ist\ist.h" />

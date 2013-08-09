@@ -63,7 +63,6 @@
     <ClInclude Include="ist\Debug\CrashDump.h" />
     <ClInclude Include="ist\Debug\Hook.h" />
     <ClInclude Include="ist\Debug\ParamTree.h" />
-    <ClInclude Include="ist\GPGPU.h" />
     <ClInclude Include="ist\Graphics.h" />
     <ClInclude Include="ist\GraphicsCommon\EasyDrawer.h" />
     <ClInclude Include="ist\GraphicsCommon\EasyDrawerShaders.h" />

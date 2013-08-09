@@ -65,31 +65,39 @@ bool AtomicConfig::readFromFile( const char* filepath )
     if(!f) { return false; }
 
     char buf[256];
+    char str[256];
     uvec2 utmp;
     ivec2 itmp;
     vec2 ftmp;
     while(fgets(buf, 256, f)) {
-        if(sscanf(buf, "window_pos = %d, %d", &itmp.x, &itmp.y)==2) { window_pos.x=itmp.x; window_pos.y=itmp.y; }
-        if(sscanf(buf, "window_size = %d, %d", &itmp.x, &itmp.y)==2){ window_size.x=itmp.x; window_size.y=itmp.y; }
-        if(sscanf(buf, "fullscreen = %d", &itmp.x)==1)              { fullscreen=itmp.x!=0; }
-        if(sscanf(buf, "vsync = %d", &itmp.x)==1)                   { vsync=itmp.x!=0; }
-        if(sscanf(buf, "unlimit_gamespeed = %d", &itmp.x)==1)       { unlimit_gamespeed=itmp.x!=0; }
-        if(sscanf(buf, "posteffect_bloom = %d", &itmp.x)==1)        { posteffect_bloom=(itmp.x!=0); }
-        if(sscanf(buf, "posteffect_antialias = %d", &itmp.x)==1)    { posteffect_antialias=(itmp.x!=0); }
-        if(sscanf(buf, "bg_level = %d", &itmp.x)==1)                { bg_level=itmp.x; }
-        if(sscanf(buf, "bg_multiresolution = %d", &itmp.x)==1)      { bg_multiresolution=(itmp.x!=0); }
-        if(sscanf(buf, "light_multiresolution = %d", &itmp.x)==1)   { light_multiresolution=(itmp.x!=0); }
-        if(sscanf(buf, "show_text = %d", &itmp.x)==1)               { show_text=(itmp.x!=0); }
-        if(sscanf(buf, "show_bloodstain = %d", &itmp.x)==1)         { show_bloodstain=(itmp.x!=0); }
-        if(sscanf(buf, "output_replay = %d", &itmp.x)==1)           { output_replay=(itmp.x!=0); }
-        if(sscanf(buf, "sound_enable = %f", &itmp.x)==1)            { sound_enable=(itmp.x!=0); }
-        if(sscanf(buf, "bgm_volume = %f", &ftmp.x)==1)              { bgm_volume=ftmp.x; }
-        if(sscanf(buf, "se_volume = %f", &ftmp.x)==1)               { se_volume=ftmp.x; }
-        if(sscanf(buf, "lighting = %d", &itmp.x)==1)                { lighting_level=itmp.x; }
-        if(sscanf(buf, "leveleditor_port = %d", &utmp.x)==1)        { leveleditor_port=utmp.x; }
-        if(sscanf(buf, "debug_show_grid = %d", &itmp.x)==1)         { debug_show_grid=(itmp.x!=0); }
-        if(sscanf(buf, "debug_show_distance = %d", &itmp.x)==1)     { debug_show_distance=(itmp.x!=0); }
-        if(sscanf(buf, "debug_show_resolution = %d", &itmp.x)==1)   { debug_show_resolution=(itmp.x!=0); }
+        if(sscanf(buf, "name:\"%[^\"]\"", str)==1) {
+            std::wstring ws = ist::L(str);
+            wcsncpy(name, ws.c_str(), _countof(name));
+            name[_countof(name)-1] = L'\0';
+        }
+        if(sscanf(buf, "window_pos:%d,%d", &itmp.x, &itmp.y)==2)  { window_pos.x=itmp.x; window_pos.y=itmp.y; }
+        if(sscanf(buf, "window_size:%d,%d", &itmp.x, &itmp.y)==2) { window_size.x=itmp.x; window_size.y=itmp.y; }
+        if(sscanf(buf, "fullscreen:%d", &itmp.x)==1)              { fullscreen=itmp.x!=0; }
+        if(sscanf(buf, "vsync:%d", &itmp.x)==1)                   { vsync=itmp.x!=0; }
+        if(sscanf(buf, "unlimit_gamespeed:%d", &itmp.x)==1)       { unlimit_gamespeed=itmp.x!=0; }
+        if(sscanf(buf, "posteffect_bloom:%d", &itmp.x)==1)        { posteffect_bloom=(itmp.x!=0); }
+        if(sscanf(buf, "posteffect_antialias:%d", &itmp.x)==1)    { posteffect_antialias=(itmp.x!=0); }
+        if(sscanf(buf, "bg_level:%d", &itmp.x)==1)                { bg_level=itmp.x; }
+        if(sscanf(buf, "bg_multiresolution:%d", &itmp.x)==1)      { bg_multiresolution=(itmp.x!=0); }
+        if(sscanf(buf, "light_multiresolution:%d", &itmp.x)==1)   { light_multiresolution=(itmp.x!=0); }
+        if(sscanf(buf, "show_text:%d", &itmp.x)==1)               { show_text=(itmp.x!=0); }
+        if(sscanf(buf, "show_bloodstain:%d", &itmp.x)==1)         { show_bloodstain=(itmp.x!=0); }
+        if(sscanf(buf, "output_replay:%d", &itmp.x)==1)           { output_replay=(itmp.x!=0); }
+        if(sscanf(buf, "sound_enable:%f", &itmp.x)==1)            { sound_enable=(itmp.x!=0); }
+        if(sscanf(buf, "bgm_volume:%f", &ftmp.x)==1)              { bgm_volume=ftmp.x; }
+        if(sscanf(buf, "se_volume:%f", &ftmp.x)==1)               { se_volume=ftmp.x; }
+        if(sscanf(buf, "lighting:%d", &itmp.x)==1)                { lighting_level=itmp.x; }
+        if(sscanf(buf, "leveleditor_port:%d", &utmp.x)==1)        { leveleditor_port=utmp.x; }
+#ifndef ist_env_Master
+        if(sscanf(buf, "debug_show_grid:%d", &itmp.x)==1)         { debug_show_grid=(itmp.x!=0); }
+        if(sscanf(buf, "debug_show_distance:%d", &itmp.x)==1)     { debug_show_distance=(itmp.x!=0); }
+        if(sscanf(buf, "debug_show_resolution:%d", &itmp.x)==1)   { debug_show_resolution=(itmp.x!=0); }
+#endif // ist_env_Master
     }
     fclose(f);
     return true;
@@ -100,28 +108,32 @@ bool AtomicConfig::writeToFile( const char* filepath )
     FILE *f = fopen(filepath, "w");
     if(!f) { return false; }
 
-    fprintf(f, "window_pos = %d, %d\n",         window_pos.x, window_pos.y);
-    fprintf(f, "window_size = %d, %d\n",        window_size.x, window_size.y);
-    fprintf(f, "fullscreen = %d\n",             fullscreen);
-    fprintf(f, "vsync = %d\n",                  vsync);
-    fprintf(f, "unlimit_gamespeed = %d\n",      unlimit_gamespeed);
-    fprintf(f, "posteffect_bloom = %d\n",       posteffect_bloom);
-    fprintf(f, "posteffect_antialias = %d\n",   posteffect_antialias);
-    fprintf(f, "bg_level = %d\n",               bg_level);
-    fprintf(f, "bg_multiresolution = %d\n",     bg_multiresolution);
-    fprintf(f, "light_multiresolution = %d\n",  light_multiresolution);
-    fprintf(f, "show_text = %d\n",              show_text);
-    fprintf(f, "show_bloodstain = %d\n",        show_bloodstain);
-    fprintf(f, "output_replay = %d\n",          output_replay);
-    fprintf(f, "sound_enable = %d\n",           sound_enable);
-    fprintf(f, "bgm_volume = %f\n",             bgm_volume);
-    fprintf(f, "se_volume = %f\n",              se_volume);
-    fprintf(f, "lighting = %d\n",               lighting_level);
-    fprintf(f, "leveleditor_port = %d\n",       leveleditor_port);
+    {
+        std::string str = ist::S(name);
+        fprintf(f, "name:\"%s\"\n",           str.c_str());
+    }
+    fprintf(f, "window_pos:%d,%d\n",          window_pos.x, window_pos.y);
+    fprintf(f, "window_size:%d,%d\n",         window_size.x, window_size.y);
+    fprintf(f, "fullscreen:%d\n",             fullscreen);
+    fprintf(f, "vsync:%d\n",                  vsync);
+    fprintf(f, "unlimit_gamespeed:%d\n",      unlimit_gamespeed);
+    fprintf(f, "posteffect_bloom:%d\n",       posteffect_bloom);
+    fprintf(f, "posteffect_antialias:%d\n",   posteffect_antialias);
+    fprintf(f, "bg_level:%d\n",               bg_level);
+    fprintf(f, "bg_multiresolution:%d\n",     bg_multiresolution);
+    fprintf(f, "light_multiresolution:%d\n",  light_multiresolution);
+    fprintf(f, "show_text:%d\n",              show_text);
+    fprintf(f, "show_bloodstain:%d\n",        show_bloodstain);
+    fprintf(f, "output_replay:%d\n",          output_replay);
+    fprintf(f, "sound_enable:%d\n",           sound_enable);
+    fprintf(f, "bgm_volume:%f\n",             bgm_volume);
+    fprintf(f, "se_volume:%f\n",              se_volume);
+    fprintf(f, "lighting:%d\n",               lighting_level);
+    fprintf(f, "leveleditor_port:%d\n",       leveleditor_port);
 #ifndef ist_env_Master
-    fprintf(f, "debug_show_grid = %d\n",        debug_show_grid);
-    fprintf(f, "debug_show_distance = %d\n",    debug_show_distance);
-    fprintf(f, "debug_show_resolution = %d\n",  debug_show_resolution);
+    fprintf(f, "debug_show_grid:%d\n",        debug_show_grid);
+    fprintf(f, "debug_show_distance:%d\n",    debug_show_distance);
+    fprintf(f, "debug_show_resolution:%d\n",  debug_show_resolution);
 #endif // ist_env_Master
     fclose(f);
     return true;

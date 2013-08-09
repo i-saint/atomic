@@ -19,7 +19,8 @@ public:
     id_t genID(const stl::string &str);
 
 private:
-    istMemberPtrDecl(Members) m;
+    StringTable m_table;
+    id_t m_idgen;
 };
 
 

@@ -75,7 +75,7 @@ void ShootSimpleBullet(EntityHandle owner, const vec3 &pos, const vec3 &vel)
 }
 
 
-IEntity* PutGroundBlock( EntityHandle parent, CollisionGroup group, const vec3 &pos, const vec3 &size, const vec3 &dir, const vec3 &pivot )
+IEntity* PutGroundBlock(EntityHandle parent, CollisionGroup group, const vec3 &pos, const vec3 &size, const vec3 &dir, const vec3 &pivot)
 {
     IEntity *e = atmCreateEntityT(GroundBlock);
     atmCall(e, setParent, parent);
@@ -86,9 +86,24 @@ IEntity* PutGroundBlock( EntityHandle parent, CollisionGroup group, const vec3 &
     atmCall(e, setCollisionGroup, group);
     return e;
 }
-IEntity* PutGroundBlock( IEntity *parent, CollisionGroup group, const vec3 &pos, const vec3 &size, const vec3 &dir, const vec3 &pivot )
+IEntity* PutGroundBlock(IEntity *parent, CollisionGroup group, const vec3 &pos, const vec3 &size, const vec3 &dir, const vec3 &pivot)
 {
     return PutGroundBlock(parent ? parent->getHandle() : 0, group, pos, size, dir, pivot);
+}
+
+IEntity* PutFluidFilter(EntityHandle parent, const vec3 &pos, const vec3 &size, const vec3 &dir, const vec3 &pivot)
+{
+    IEntity *e = atmCreateEntityT(FluidFilter);
+    atmCall(e, setParent, parent);
+    atmCall(e, setPosition, pos);
+    atmCall(e, setScale, size);
+    atmCall(e, setDirection, dir);
+    atmCall(e, setPivot, pivot);
+    return e;
+}
+IEntity* PutFluidFilter(IEntity *parent, const vec3 &pos, const vec3 &size, const vec3 &dir, const vec3 &pivot)
+{
+    return PutFluidFilter(parent ? parent->getHandle() : 0, pos, size, dir, pivot);
 }
 
 } // namespace atm
