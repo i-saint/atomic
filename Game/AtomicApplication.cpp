@@ -384,31 +384,29 @@ void AtomicApplication::update()
     if(getKeyboardState().isKeyTriggered('3')) {
         if(m_game) { m_game->dbgDeserializeNext(); }
     }
+    if(getKeyboardState().isKeyTriggered('4')) {
+        atmPause(!atmIsPaused());
+    }
 #endif // atm_enable_StateSave
 
-    /*
-    if(getKeyboardState().isKeyTriggered(ist::KEY_F3)) {
-        conf.debug_show_gbuffer--;
-    }
-    if(getKeyboardState().isKeyTriggered(ist::KEY_F4)) {
-        conf.debug_show_gbuffer++;
-    }
-    if(getKeyboardState().isKeyTriggered(ist::KEY_F5)) {
-        conf.debug_show_lights--;
-    }
-    if(getKeyboardState().isKeyTriggered(ist::KEY_F6)) {
-        conf.debug_show_lights++;
-    }
-    if(getKeyboardState().isKeyTriggered(ist::KEY_F7)) {
-        conf.pause = !conf.pause;
-    }
-    if(getKeyboardState().isKeyTriggered(ist::KEY_F8)) {
-        conf.bg_multiresolution = !conf.bg_multiresolution;
-    }
-    if(getKeyboardState().isKeyTriggered(ist::KEY_F9)) {
-        conf.debug_show_resolution = !conf.debug_show_resolution;
-    }
-    */
+    //if(getKeyboardState().isKeyTriggered(ist::KEY_F3)) {
+    //    conf.debug_show_gbuffer--;
+    //}
+    //if(getKeyboardState().isKeyTriggered(ist::KEY_F4)) {
+    //    conf.debug_show_gbuffer++;
+    //}
+    //if(getKeyboardState().isKeyTriggered(ist::KEY_F5)) {
+    //    conf.debug_show_lights--;
+    //}
+    //if(getKeyboardState().isKeyTriggered(ist::KEY_F6)) {
+    //    conf.debug_show_lights++;
+    //}
+    //if(getKeyboardState().isKeyTriggered(ist::KEY_F8)) {
+    //    conf.bg_multiresolution = !conf.bg_multiresolution;
+    //}
+    //if(getKeyboardState().isKeyTriggered(ist::KEY_F9)) {
+    //    conf.debug_show_resolution = !conf.debug_show_resolution;
+    //}
 
     if(getKeyboardState().isKeyTriggered(ist::KEY_ESCAPE)) {
         if(m_game) {

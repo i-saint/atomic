@@ -6,7 +6,7 @@
 namespace atm {
 
 
-class Level1 : public EntityWithPosition
+class dpPatch Level1 : public EntityWithPosition
 {
 typedef EntityWithPosition super;
 private:
@@ -37,7 +37,10 @@ private:
     )
 
 public:
-    Level1() : m_player(0), m_state(St_Begin), m_frame_total(0), m_frame_scene(0)
+    Level1()
+        : m_player(), m_boss()
+        , m_state(St_Begin)
+        , m_frame_total(0), m_frame_scene(0)
     {
         clear(m_planes);
     }
@@ -108,7 +111,7 @@ public:
 
     bool isPlayerAlive()
     {
-        if(!atmGetEntity(m_player)) {
+        if(m_player!=0 && !atmGetEntity(m_player)) {
             return false;
         }
         return true;
@@ -142,10 +145,10 @@ public:
         ++m_frame_scene;
         updateCamera();
         switch(getState()) {
-        case St_Begin:  break;
+        case St_Begin:  sceneBegin(dt); break;
         case St_Scene1: scene1(dt); break;
         case St_Scene2: scene2(dt); break;
-        case St_Boss:   sceneboss(dt); break;
+        case St_Boss:   sceneBoss(dt); break;
         case St_End:    break;
         }
         if(getState()==St_GameOver) {
@@ -179,6 +182,15 @@ public:
     }
 
 
+    void sceneBegin(float32 dt)
+    {
+        IEntity *e = atmCreateEntityT(Player);
+        m_player = e->getHandle();
+        atmCall(e, setPosition, vec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+        setState(St_Scene1);
+    }
+
     void scene1(float32 dt)
     {
         int32 f = m_frame_scene;
@@ -204,15 +216,22 @@ public:
     {
         if(m_frame_scene==1) {
             IEntity *layer = atmCreateEntityT(LevelLayer);
+            atmCall(layer, addPositionXCP, ControlPoint(   0.0f,  2.0f,  0.0f, 0.0f, ControlPoint::Linear));
+            atmCall(layer, addPositionXCP, ControlPoint(3600.0f, -5.0f,  0.0f, 0.0f));
+            {
+                IEntity *e = atmCreateEntityT(GearSmall);
+                atmCall(e, setPosition, vec3(0.5f, 0.5f, 0.0f));
+                atmCall(e, setParent, layer->getHandle());
+            }
         }
-        if(m_frame_scene>1000) {
+        if(m_frame_scene>3600) {
             setState(St_Boss);
         }
     }
 
-    void sceneboss(float32 dt)
+    void sceneBoss(float32 dt)
     {
-        if(m_frame_scene==0) {
+        if(m_frame_scene==1) {
             IEntity *e = atmCreateEntityT(Boss1);
             m_boss = e->getHandle();
         }

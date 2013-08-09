@@ -6,7 +6,7 @@
 namespace atm {
 
 
-class LevelTest : public EntityWithPosition
+class dpPatch LevelTest : public EntityWithPosition
 {
 typedef EntityWithPosition super;
 private:
@@ -287,25 +287,28 @@ public:
             }
 
             IEntity *layer = atmCreateEntityT(LevelLayer);
-            atmCall(layer, addPositionXCP, ControlPoint(  0.0f,  0.0f, 0.0f, -1.0f, ControlPoint::Bezier));
-            atmCall(layer, addPositionXCP, ControlPoint(300.0f, -1.0f, -1.0f, 0.0f));
+            //atmCall(layer, addPositionXCP, ControlPoint(  0.0f,  0.0f, 0.0f, -1.0f, ControlPoint::Bezier));
+            //atmCall(layer, addPositionXCP, ControlPoint(300.0f, -1.0f, -1.0f, 0.0f));
 
-            atmCall(layer, addPositionYCP, ControlPoint(300.0f,  0.0f, ControlPoint::Accel));
-            atmCall(layer, addPositionYCP, ControlPoint(600.0f,  1.0f));
+            //atmCall(layer, addPositionYCP, ControlPoint(300.0f,  0.0f, ControlPoint::Accel));
+            //atmCall(layer, addPositionYCP, ControlPoint(600.0f,  1.0f));
 
-            atmCall(layer, addPositionXCP, ControlPoint(600.0f,-1.0f, ControlPoint::Decel));
-            atmCall(layer, addPositionXCP, ControlPoint(900.0f, 0.0f));
+            //atmCall(layer, addPositionXCP, ControlPoint(600.0f,-1.0f, ControlPoint::Decel));
+            //atmCall(layer, addPositionXCP, ControlPoint(900.0f, 0.0f));
 
-            atmCall(layer, addPositionYCP, ControlPoint(900.0f,  1.0f, ControlPoint::Smooth));
-            atmCall(layer, addPositionYCP, ControlPoint(1200.0f,  0.0f));
+            //atmCall(layer, addPositionYCP, ControlPoint(900.0f,  1.0f, ControlPoint::Smooth));
+            //atmCall(layer, addPositionYCP, ControlPoint(1200.0f,  0.0f));
 
-            atmCall(layer, addRotationCP, ControlPoint(1200.0f, 0.0f));
-            atmCall(layer, addRotationCP, ControlPoint(1400.0f, 180.0f));
+            //atmCall(layer, addRotationCP, ControlPoint(1200.0f, 0.0f));
+            //atmCall(layer, addRotationCP, ControlPoint(1400.0f, 180.0f));
 
             {
                 IEntity *e = atmCreateEntityT(GearSmall);
                 atmCall(e, setPosition, vec3(0.5f, 0.5f, 0.0f));
                 atmCall(e, setParent, layer->getHandle());
+                atmCall(e, setSpinMinAngle,   0.0f);
+                atmCall(e, setSpinMaxAngle, 360.0f);
+                atmCall(e, setSpinReturnSpeed, 0.005f);
             }
             {
                 IEntity *e = atmCreateEntityT(GearMedium);

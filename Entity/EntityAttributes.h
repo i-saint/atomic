@@ -418,5 +418,130 @@ public:
     void asyncupdate(float32 dt){ updateBloodstain(dt); }
 };
 
+
+class Attr_Spin
+{
+private:
+    vec3 m_spin_center;
+    float32 m_spin_angle;
+    float32 m_spin_min_angle;
+    float32 m_spin_max_angle;
+    float32 m_spin_speed;
+    float32 m_spin_return_speed;
+    float32 m_spin_max_speed;
+    float32 m_spin_resist;
+    float32 m_spin_decel;
+
+    istSerializeBlock(
+        istSerialize(m_spin_center)
+        istSerialize(m_spin_angle)
+        istSerialize(m_spin_min_angle)
+        istSerialize(m_spin_max_angle)
+        istSerialize(m_spin_speed)
+        istSerialize(m_spin_return_speed)
+        istSerialize(m_spin_max_speed)
+        istSerialize(m_spin_resist)
+        istSerialize(m_spin_decel)
+    )
+
+public:
+    wdmScope(
+    void addDebugNodes(const wdmString &path)
+    {
+        wdmAddNode(path+"/m_spin_angle", &m_spin_angle);
+        wdmAddNode(path+"/m_spin_speed", &m_spin_speed);
+        wdmAddNode(path+"/m_spin_return_speed", &m_spin_return_speed);
+        wdmAddNode(path+"/m_spin_max_speed", &m_spin_max_speed);
+        wdmAddNode(path+"/m_spin_decel", &m_spin_decel);
+        wdmAddNode(path+"/m_spin_accel", &m_spin_resist);
+    }
+    )
+    atmECallBlock(
+        atmMethodBlock(
+            atmECall(pulse)
+            atmECall(addSpinSpeed)
+            atmECall(getSpinAngle)
+            atmECall(setSpinAngle)
+            atmECall(getSpinMinAngle)
+            atmECall(setSpinMinAngle)
+            atmECall(getSpinMaxAngle)
+            atmECall(setSpinMaxAngle)
+            atmECall(getSpinSpeed)
+            atmECall(setSpinSpeed)
+            atmECall(getSpinReturnSpeed)
+            atmECall(setSpinReturnSpeed)
+            atmECall(getSpinMaxSpeed)
+            atmECall(setSpinMaxSpeed)
+            atmECall(getSpinResist)
+            atmECall(setSpinResist)
+            atmECall(getSpinDecel)
+            atmECall(setSpinDecel)
+        )
+    )
+    atmJsonizeBlock(
+    )
+
+public:
+    Attr_Spin()
+        : m_spin_angle(0.0f), m_spin_min_angle(-9999.0f), m_spin_max_angle(9999.0f)
+        , m_spin_speed(0.0f), m_spin_return_speed(0.0f), m_spin_max_speed(0.5f)
+        , m_spin_resist(0.00002f), m_spin_decel(0.99f)
+    {
+    }
+
+    void updateSpin(float32 dt, const vec3 &center)
+    {
+        m_spin_center = center;
+        float32 speed = getSpinSpeed();
+        float32 angle = getSpinAngle();
+        setSpinAngle(angle + speed*dt);
+        speed += (glm::sign(-angle)*getSpinReturnSpeed()) * dt;
+        speed *= getSpinDecel();
+        setSpinSpeed(speed);
+    }
+
+    void pulse(const vec3 &pos, const vec3 &force)
+    {
+        vec3 diff    = pos-m_spin_center; diff.z=0.0f;
+        float32 dist = glm::length(diff);
+        vec3 dir     = vec3( glm::rotateZ(diff/dist, 90.0f) );
+        float32 lf   = glm::length(force);
+        vec3 nf      = force/lf;
+        float32 d    = glm::dot(dir, nf);
+        float32 f    = lf * m_spin_resist * dist * d;
+        addSpinSpeed(f);
+    }
+
+    void addSpinSpeed(float32 v)        { setSpinSpeed(getSpinSpeed()+v); }
+    float32 getSpinAngle() const        { return m_spin_angle; }
+    float32 getSpinMinAngle() const     { return m_spin_min_angle; }
+    float32 getSpinMaxAngle() const     { return m_spin_max_angle; }
+    float32 getSpinSpeed() const        { return m_spin_speed; }
+    float32 getSpinReturnSpeed() const  { return m_spin_return_speed; }
+    float32 getSpinMaxSpeed() const     { return m_spin_max_speed; }
+    float32 getSpinResist() const       { return m_spin_resist; }
+    float32 getSpinDecel() const        { return m_spin_decel; }
+    void setSpinAngle(float32 v) {
+        if(v>=m_spin_max_angle) {
+            m_spin_angle = m_spin_max_angle;
+            m_spin_speed = glm::min(m_spin_speed, 0.0f);
+        }
+        else if(v<=m_spin_min_angle) {
+            m_spin_angle = m_spin_min_angle;
+            m_spin_speed = glm::max(m_spin_speed, 0.0f);
+        }
+        else {
+            m_spin_angle = v;
+        }
+    }
+    void setSpinMinAngle(float32 v)     { m_spin_min_angle=v; }
+    void setSpinMaxAngle(float32 v)     { m_spin_max_angle=v; }
+    void setSpinSpeed(float32 v)        { m_spin_speed=glm::sign(v)*glm::min(glm::abs(v), m_spin_max_speed); }
+    void setSpinReturnSpeed(float32 v)  { m_spin_return_speed=v; }
+    void setSpinMaxSpeed(float32 v)     { m_spin_max_speed=v; }
+    void setSpinResist(float32 v)       { m_spin_resist=v; }
+    void setSpinDecel(float32 v)        { m_spin_decel=v; }
+};
+
 } // namespace atm
 #endif // atm_Game_Entity_EntityAttributes_h

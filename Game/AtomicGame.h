@@ -11,6 +11,7 @@ namespace atm {
 
 class World;
 class AtomicRenderer;
+enum EntityClassID;
 
 struct GameStartConfig
 {
@@ -25,18 +26,20 @@ struct GameStartConfig
         NM_Client,
         NM_Offline,
     };
-    GameMode    gmode;
-    NetworkMode nmode;
-    std::string path_to_level;
-    std::string path_to_replay;
-    std::string server_address;
-    uint16      server_port;
+    GameMode      gmode;
+    NetworkMode   nmode;
+    std::string   path_to_level;
+    std::string   path_to_replay;
+    std::string   server_address;
+    uint16        server_port;
+    EntityClassID levelclass;
 
     GameStartConfig()
         : gmode(GM_Campaign)
         , nmode(NM_Offline)
         , server_address("localhost")
         , server_port(10050)
+        , levelclass()
     {
     }
 };

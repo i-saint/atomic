@@ -6,6 +6,7 @@
 #include "TitleWindow.h"
 #include "ConfigWindow.h"
 #include "UISelector.h"
+#include "Game/EntityClass.h"
 #include "Poco/DirectoryIterator.h"
 
 namespace atm {
@@ -181,6 +182,8 @@ StartWindow::StartWindow()
 void StartWindow::onCampaign(Widget *)
 {
     GameStartConfig conf;
+    conf.levelclass = EC_Level1;
+
     atmGetApplication()->requestStartGame(conf);
     atmGetTitleWindow()->setVisibility(false);
 }
@@ -189,6 +192,8 @@ void StartWindow::onHorde(Widget *)
 {
     GameStartConfig conf;
     conf.gmode = GameStartConfig::GM_Horde;
+    conf.levelclass = EC_Level1;
+
     atmGetApplication()->requestStartGame(conf);
     atmGetTitleWindow()->setVisibility(false);
 }
@@ -197,6 +202,8 @@ void StartWindow::onEdit( Widget * )
 {
     GameStartConfig conf;
     conf.gmode = GameStartConfig::GM_Edit;
+    conf.levelclass = EC_LevelTest;
+
     atmGetApplication()->requestStartGame(conf);
     atmGetTitleWindow()->setVisibility(false);
 }

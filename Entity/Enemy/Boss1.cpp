@@ -4,7 +4,7 @@
 
 namespace atm {
 
-class Boss1 : public EntityWithPosition
+class dpPatch Boss1 : public EntityWithPosition
 {
 typedef EntityWithPosition super;
 private:
@@ -116,7 +116,7 @@ public:
             IEntity *gear = atmGetEntity(m_gears[i]);
             IEntity *wall = atmGetEntity(m_walls[i]);
             if(gear && wall) {
-                float32 rot; atmQuery(gear, getRotateAngle, rot);
+                float32 rot; atmQuery(gear, getSpinAngle, rot);
                 vec3 dir = glm::rotateZ(vec3(1.0f, 0.0f, 0.0f), rot);
                 atmCall(wall, setDirection, dir*0.2f);
             }

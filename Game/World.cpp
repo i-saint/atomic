@@ -97,10 +97,6 @@ void World::frameBegin()
 
 void World::update(float32 dt)
 {
-    if(atmGetFrame()==0) {
-        atmCreateEntityT(LevelTest);
-    }
-
     for(ModuleCont::iterator i=m_modules.begin(); i!=m_modules.end(); ++i) {
         (*i)->update(dt);
     }

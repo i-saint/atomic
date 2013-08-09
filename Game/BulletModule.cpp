@@ -197,7 +197,7 @@ public:
                     float32 d = s_power;
                     if(atmIsEnemy(p.hit_to)) { d*=0.2f; }
                     atmCall(p.hit_to, damage, d);
-                    atmCall(p.hit_to, addForce, atmArgs(pos, m_dir*s_speed*1000.0f));
+                    atmCall(p.hit_to, pulse, atmArgs(pos, m_dir*s_speed*1000.0f));
                     {
                         psym::Particle particles;
                         istAlign(16) vec4 spos = vec4(pos, 1.0f);
@@ -489,7 +489,7 @@ public:
                 if(atmIsEnemy(p.hit_to)) { d*=0.2f; }
                 atmGetFluidModule()->addFluid(PSET_SPHERE_BULLET, p.computeTransformMatrix());
                 atmCall(p.hit_to, damage, d);
-                atmCall(p.hit_to, addForce, atmArgs(p.pos, p.vel*10000.0f));
+                atmCall(p.hit_to, pulse, atmArgs(p.pos, p.vel*10000.0f));
             }
         });
         erase(m_bullets, [&](BulletData &p){ return p.time>=lifetime; });

@@ -13,7 +13,7 @@ private:
     )
     atmECallBlock(
         atmMethodBlock(
-            atmECall(addForce)
+            atmECall(pulse)
         )
         atmECallSuper(super)
     )
@@ -35,7 +35,7 @@ public:
     void initialize() override
     {
         super::initialize();
-        setPivot(vec3(-0.5f, 0.0f, -0.4f));
+        setPivot(vec3(-0.5f, 0.0f, -0.1f));
 
         initializeCollision(getHandle());
         setCollisionShape(CS_Box);
@@ -49,7 +49,7 @@ public:
         super::eventFluid(m);
         vec3 pos = (const vec3&)m->position;
         vec3 force = (const vec3&)m->velocity;
-        addForce(pos, force);
+        pulse(pos, force);
     }
 
     void eventCollide(const CollideMessage *m) override
@@ -62,87 +62,61 @@ public:
                 f = 40000.0f;
             }
             vec3 force = vec3(m->direction * (m->direction.w * f));
-            addForce(pos, force);
+            pulse(pos, force);
         }
     }
 
-    void addForce(const vec3 &pos, const vec3 &force)
+    void pulse(const vec3 &pos, const vec3 &force)
     {
-        atmCall(getParent(), addForce, atmArgs(pos, force));
+        atmCall(getParent(), pulse, atmArgs(pos, force));
     }
 };
 atmImplementEntity(GearParts);
 atmExportClass(GearParts);
 
 
+
 class GearBase
     : public IEntity
     , public TAttr_TransformMatrixI< TAttr_HaveParent<Attr_Transform> >
+    , public Attr_Spin
 {
     typedef IEntity super;
     typedef TAttr_TransformMatrixI< TAttr_HaveParent<Attr_Transform> > transform;
+    typedef Attr_Spin spin;
 
     stl::vector<EntityHandle> m_parts;
-    EntityHandle m_linkage;
-    float32 m_rot_angle;
-    float32 m_rot_speed;
-    float32 m_max_rot_speed;
-    float32 m_rot_accel;
-    float32 m_rot_decel;
 
     istSerializeBlock(
         istSerializeBase(super)
         istSerializeBase(transform)
-        istSerialize(m_linkage)
+        istSerializeBase(spin)
         istSerialize(m_parts)
-        istSerialize(m_rot_angle)
-        istSerialize(m_rot_speed)
-        istSerialize(m_max_rot_speed)
-        istSerialize(m_rot_accel)
-        istSerialize(m_rot_decel)
     )
 
 public:
     atmECallBlock(
-        atmMethodBlock(
-            atmECall(addForce)
-            atmECall(addRotateSpeed)
-            atmECall(getLinkage)
-            atmECall(setLinkage)
-            atmECall(getRotateAngle)
-            atmECall(setRotateAngle)
-            atmECall(getRotateSpeed)
-            atmECall(setRotateSpeed)
-            atmECall(getMaxRotateSpeed)
-            atmECall(setMaxRotateSpeed)
-            atmECall(getRotateAccel)
-            atmECall(setRotateAccel)
-            atmECall(getRotateDecel)
-            atmECall(setRotateDecel)
-        )
         atmECallSuper(super)
         atmECallSuper(transform)
+        atmECallSuper(spin)
     )
 
     wdmScope(
     void addDebugNodes(const wdmString &path)
     {
         transform::addDebugNodes(path);
-        wdmAddNode(path+"/m_rot_angle", &m_rot_angle);
-        wdmAddNode(path+"/m_rot_speed", &m_rot_speed);
-        wdmAddNode(path+"/m_rot_maxspeed", &m_max_rot_speed);
-        wdmAddNode(path+"/m_rot_decel", &m_rot_decel);
-        wdmAddNode(path+"/m_rot_accel", &m_rot_accel);
+        spin::addDebugNodes(path);
     }
     )
 
     void jsonize(stl::string &out) override
     {
         transform::jsonize(out);
+        spin::jsonize(out);
     }
 
 public:
-    GearBase() : m_linkage(0), m_rot_angle(0.0f), m_rot_speed(0.0f), m_max_rot_speed(0.5f), m_rot_accel(0.00002f), m_rot_decel(0.99f)
+    GearBase()
     {
     }
 
@@ -158,48 +132,16 @@ public:
 
     void update(float32 dt) override
     {
-        updateRotate(dt); // 子が参照するので asyncupdate() の中ではマズい
+        spin::updateSpin(dt, getPosition()); // 子が参照するので asyncupdate() の中ではマズい
+        transform::setRotate(getSpinAngle());
+        transform::updateTransformMatrix();
     }
 
     void asyncupdate(float32 dt) override
     {
     }
 
-    void updateRotate(float32 dt)
-    {
-        m_rot_angle += m_rot_speed * dt;
-        m_rot_speed *= m_rot_decel;
-        transform::setRotate(m_rot_angle);
-        transform::updateTransformMatrix();
-    }
-
-    void addForce(const vec3 &pos, const vec3 &force)
-    {
-        atmDbgAssertSyncLock();
-        vec3 diff = pos-getPosition(); diff.z=0.0f;
-        float32 dist = glm::length(diff);
-        vec3 dir = vec3( glm::rotateZ(diff/dist, 90.0f) );
-        float32 lf = glm::length(force);
-        vec3 nf = force/lf;
-        float32 d = glm::dot(dir, nf);
-        float32 f = lf * m_rot_accel * dist * d;
-        addRotateSpeed(f);
-    }
-
-    void addRotateSpeed(float32 v)      { setRotateSpeed(getRotateSpeed()+v); }
-    void addParts(GearParts *v)         { m_parts.push_back(v->getHandle()); }
-    EntityHandle getLinkage() const     { return m_linkage; }
-    float32 getRotateAngle() const      { return m_rot_angle; }
-    float32 getRotateSpeed() const      { return m_rot_speed; }
-    float32 getMaxRotateSpeed() const   { return m_max_rot_speed; }
-    float32 getRotateAccel() const      { return m_rot_accel; }
-    float32 getRotateDecel() const      { return m_rot_decel; }
-    void setLinkage(EntityHandle v)     { m_linkage=v; }
-    void setRotateAngle(float32 v)      { m_rot_angle=v; }
-    void setRotateSpeed(float32 v)      { m_rot_speed=glm::sign(v)*glm::min(glm::abs(v), m_max_rot_speed); }
-    void setMaxRotateSpeed(float32 v)   { m_max_rot_speed=v; }
-    void setRotateAccel(float32 v)      { m_rot_accel=v; }
-    void setRotateDecel(float32 v)      { m_rot_decel=v; }
+    void addParts(GearParts *v)     { m_parts.push_back(v->getHandle()); }
     template<class F> void eachParts(const F &f) { EachEntities(m_parts, f); }
 };
 atmExportClass(GearBase);
@@ -231,9 +173,9 @@ public:
 
     void initialize() override
     {
-        setMaxRotateSpeed(3.0f);
-        setRotateDecel(0.99f);
-        setRotateAccel(0.005f);
+        setSpinMaxSpeed(4.0f);
+        setSpinDecel(0.99f);
+        setSpinResist(0.003f);
 
         const int32 div = 5;
         const vec4 dir_x(1.0f,0.0f,0.0f,0.0f);
@@ -241,7 +183,7 @@ public:
         for(int i=0; i<div; ++i) {
             vec3 dir = vec3(glm::rotateZ(dir_x, 360.0f/div*i));
             GearParts *e = (GearParts*)atmCreateEntityT(GearParts);
-            e->setScale(vec3(0.3f, 0.075f, 0.15f));
+            e->setScale(vec3(0.3f, 0.1f, 0.15f));
             e->setParent(getHandle());
             e->setDirection(dir);
             e->setCollisionGroup(cg);
@@ -277,9 +219,9 @@ public:
 
     void initialize() override
     {
-        setMaxRotateSpeed(1.5f);
-        setRotateDecel(0.99f);
-        setRotateAccel(0.0005f);
+        setSpinMaxSpeed(1.5f);
+        setSpinDecel(0.99f);
+        setSpinResist(0.0003f);
 
         const int32 div = 6;
         const vec4 dir_x(1.0f,0.0f,0.0f,0.0f);
@@ -311,7 +253,7 @@ public:
     GearLarge()
     {
         wdmScope(
-            wdmString path = wdmFormat("Level/GearLarge/0x%p", this);
+        wdmString path = wdmFormat("Level/GearLarge/0x%p", this);
         super::addDebugNodes(path);
         )
     }
@@ -323,9 +265,9 @@ public:
 
     void initialize() override
     {
-        setMaxRotateSpeed(0.6f);
-        setRotateDecel(0.99f);
-        setRotateAccel(0.00003f);
+        setSpinMaxSpeed(0.6f);
+        setSpinDecel(0.99f);
+        setSpinResist(0.00004f);
 
         const int32 div = 6;
         const vec4 dir_x(1.0f,0.0f,0.0f,0.0f);
@@ -333,7 +275,7 @@ public:
         for(int i=0; i<div; ++i) {
             vec3 dir = vec3(glm::rotateZ(dir_x, 360.0f/div*i));
             GearParts *e = (GearParts*)atmCreateEntityT(GearParts);
-            e->setScale(vec3(1.0f, 0.15f, 0.4f));
+            e->setScale(vec3(1.0f, 0.15f, 0.3f));
             e->setParent(getHandle());
             e->setDirection(dir);
             e->setCollisionGroup(cg);
@@ -343,5 +285,52 @@ public:
 };
 atmImplementEntity(GearLarge, DF_Editor);
 atmExportClass(GearLarge);
+
+
+
+class GearExLarge : public GearBase
+{
+typedef GearBase super;
+private:
+    istSerializeBlock(
+        istSerializeBase(super)
+    )
+
+public:
+    GearExLarge()
+    {
+        wdmScope(
+        wdmString path = wdmFormat("Level/GearExLarge/0x%p", this);
+        super::addDebugNodes(path);
+        )
+    }
+
+    ~GearExLarge()
+    {
+        wdmEraseNode(wdmFormat("Level/GearExLarge/0x%p", this));
+    }
+
+    void initialize() override
+    {
+        setSpinMaxSpeed(0.45f);
+        setSpinDecel(0.99f);
+        setSpinResist(0.000025f);
+
+        const int32 div = 8;
+        const vec4 dir_x(1.0f,0.0f,0.0f,0.0f);
+        CollisionGroup cg = atmGetCollisionModule()->genGroup();
+        for(int i=0; i<div; ++i) {
+            vec3 dir = vec3(glm::rotateZ(dir_x, 360.0f/div*i));
+            GearParts *e = (GearParts*)atmCreateEntityT(GearParts);
+            e->setScale(vec3(1.25f, 0.2f, 0.3f));
+            e->setParent(getHandle());
+            e->setDirection(dir);
+            e->setCollisionGroup(cg);
+            addParts(e);
+        }
+    }
+};
+atmImplementEntity(GearExLarge, DF_Editor);
+atmExportClass(GearExLarge);
 
 } // namespace atm

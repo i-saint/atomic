@@ -86,6 +86,9 @@ bool AtomicGame::config(const GameStartConfig &conf)
 
     // 今回は固定値で初期化
     m_rand.initialize(0);
+
+    atmCreateEntity(conf.levelclass);
+
     return true;
 }
 

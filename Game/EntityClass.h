@@ -75,6 +75,7 @@ istSEnumBlock(EntityClassID,
     istSEnum(EC_GearSmall),
     istSEnum(EC_GearMedium),
     istSEnum(EC_GearLarge),
+    istSEnum(EC_GearExLarge),
     istSEnum(EC_Obstacle_End),
 
     istSEnumEq(EC_Level_Begin, ECA_Level<<9),
