@@ -4,9 +4,9 @@
 
 namespace atm {
 
-class GearParts : public Unbreakable<Entity_Orientation>
+class GearParts : public Unbreakable<Entity_Direction>
 {
-typedef Unbreakable<Entity_Orientation>  super;
+typedef Unbreakable<Entity_Direction>  super;
 private:
     istSerializeBlock(
         istSerializeBase(super)
@@ -235,7 +235,7 @@ public:
         setRotateDecel(0.99f);
         setRotateAccel(0.005f);
 
-        const int32 div = 4;
+        const int32 div = 5;
         const vec4 dir_x(1.0f,0.0f,0.0f,0.0f);
         CollisionGroup cg = atmGetCollisionModule()->genGroup();
         for(int i=0; i<div; ++i) {
@@ -243,7 +243,7 @@ public:
             GearParts *e = (GearParts*)atmCreateEntityT(GearParts);
             e->setScale(vec3(0.3f, 0.075f, 0.15f));
             e->setParent(getHandle());
-            e->setOrientation(dir);
+            e->setDirection(dir);
             e->setCollisionGroup(cg);
             addParts(e);
         }
@@ -289,7 +289,7 @@ public:
             GearParts *e = (GearParts*)atmCreateEntityT(GearParts);
             e->setScale(vec3(0.5f, 0.1f, 0.25f));
             e->setParent(getHandle());
-            e->setOrientation(dir);
+            e->setDirection(dir);
             e->setCollisionGroup(cg);
             addParts(e);
         }
@@ -335,7 +335,7 @@ public:
             GearParts *e = (GearParts*)atmCreateEntityT(GearParts);
             e->setScale(vec3(1.0f, 0.15f, 0.4f));
             e->setParent(getHandle());
-            e->setOrientation(dir);
+            e->setDirection(dir);
             e->setCollisionGroup(cg);
             addParts(e);
         }

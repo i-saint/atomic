@@ -5,9 +5,9 @@
 
 namespace atm {
 
-class HomingMine : public Breakable<Entity_Orientation>
+class HomingMine : public Breakable<Entity_Direction>
 {
-typedef Breakable<Entity_Orientation> super;
+typedef Breakable<Entity_Direction> super;
 private:
     istSerializeBlock(
         istSerializeBase(super)
@@ -19,9 +19,9 @@ atmImplementEntity(HomingMine);
 atmExportClass(HomingMine);
 
 
-class LaserMissile : public Breakable<Entity_Orientation>
+class LaserMissile : public Breakable<Entity_Direction>
 {
-typedef Breakable<Entity_Orientation> super;
+typedef Breakable<Entity_Direction> super;
 private:
     istSerializeBlock(
         istSerializeBase(super)

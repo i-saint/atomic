@@ -16,9 +16,9 @@ namespace atm {
     EC_Zab,
     */
 
-class BreakableParts : public Breakable<Entity_Orientation>
+class BreakableParts : public Breakable<Entity_Direction>
 {
-typedef Breakable<Entity_Orientation> super;
+typedef Breakable<Entity_Direction> super;
 private:
     istSerializeBlock(
         istSerializeBase(super)
@@ -30,9 +30,9 @@ atmImplementEntity(BreakableParts);
 atmExportClass(BreakableParts);
 
 
-class BreakableCore : public Breakable<Entity_Orientation>
+class BreakableCore : public Breakable<Entity_Direction>
 {
-typedef Breakable<Entity_Orientation> super;
+typedef Breakable<Entity_Direction> super;
 private:
     istSerializeBlock(
         istSerializeBase(super)
@@ -44,9 +44,9 @@ atmImplementEntity(BreakableCore);
 atmExportClass(BreakableCore);
 
 
-class SmallFighter : public Breakable<Entity_Orientation>
+class SmallFighter : public Breakable<Entity_Direction>
 {
-typedef Breakable<Entity_Orientation> super;
+typedef Breakable<Entity_Direction> super;
 private:
     istSerializeBlock(
         istSerializeBase(super)
@@ -58,9 +58,9 @@ atmImplementEntity(SmallFighter);
 atmExportClass(SmallFighter);
 
 
-class MediumFighter : public Breakable<Entity_Orientation>
+class MediumFighter : public Breakable<Entity_Direction>
 {
-typedef Breakable<Entity_Orientation> super;
+typedef Breakable<Entity_Direction> super;
 private:
     istSerializeBlock(
         istSerializeBase(super)
@@ -72,9 +72,9 @@ atmImplementEntity(MediumFighter);
 atmExportClass(MediumFighter);
 
 
-class LargeFighter : public Breakable<Entity_Orientation>
+class LargeFighter : public Breakable<Entity_Direction>
 {
-typedef Breakable<Entity_Orientation> super;
+typedef Breakable<Entity_Direction> super;
 private:
     istSerializeBlock(
         istSerializeBase(super)
@@ -86,9 +86,9 @@ atmImplementEntity(LargeFighter);
 atmExportClass(LargeFighter);
 
 
-class Shell : public Breakable<Entity_Orientation>
+class Shell : public Breakable<Entity_Direction>
 {
-typedef Breakable<Entity_Orientation> super;
+typedef Breakable<Entity_Direction> super;
 private:
     istSerializeBlock(
         istSerializeBase(super)
@@ -100,9 +100,9 @@ atmImplementEntity(Shell);
 atmExportClass(Shell);
 
 
-class Zab : public Breakable<Entity_Orientation>
+class Zab : public Breakable<Entity_Direction>
 {
-typedef Breakable<Entity_Orientation> super;
+typedef Breakable<Entity_Direction> super;
 private:
     istSerializeBlock(
         istSerializeBase(super)
@@ -114,9 +114,9 @@ atmImplementEntity(Zab);
 atmExportClass(Zab);
 
 
-class SmallNucleus : public Breakable<Entity_Orientation>
+class SmallNucleus : public Breakable<Entity_Direction>
 {
-typedef Breakable<Entity_Orientation> super;
+typedef Breakable<Entity_Direction> super;
 private:
     istSerializeBlock(
         istSerializeBase(super)

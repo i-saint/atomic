@@ -22,6 +22,43 @@ class Attr_Null
 public:
     atmECallBlock()
     wdmScope( void addDebugNodes(const wdmString &path) {} )
+
+public:
+    Attr_Null() {}
+    void update(float32 dt) {}
+    void asyncupdate(float32 dt) {}
+};
+
+class Attr_PastTime
+{
+private:
+    float32 m_time;
+
+    istSerializeBlock(
+        istSerialize(m_time)
+    )
+
+public:
+    atmECallBlock(
+        atmMethodBlock(
+            atmECall(getPastTime)
+            atmECall(setPastTime)
+        )
+    )
+
+    wdmScope(
+    void addDebugNodes(const wdmString &path)
+    {
+        wdmAddNode(path+"/m_time", &m_time);
+    }
+    )
+
+public:
+    Attr_PastTime() : m_time() {}
+    float32 getPastTime() const     { return m_time; }
+    void    setPastTime(float32 v)  { m_time=v; }
+    void update(float32 dt) { m_time+=dt; }
+    void asyncupdate(float32 dt) {}
 };
 
 class Attr_RefCount
@@ -56,6 +93,8 @@ public:
     uint32 getRefCount() const  { return m_refcount; }
     uint32 incRefCount()        { return ++m_refcount; }
     uint32 decRefCount()        { return --m_refcount; }
+    void update(float32 dt)     {}
+    void asyncupdate(float32 dt){}
 };
 
 
@@ -114,6 +153,9 @@ public:
         inst.transform = trans;
         atmGetFluidPass()->addParticles(getModel(), inst);
     }
+
+    void update(float32 dt)     {}
+    void asyncupdate(float32 dt){}
 };
 
 
@@ -278,6 +320,9 @@ public:
             }
         }
     }
+
+    void update(float32 dt)     {}
+    void asyncupdate(float32 dt){}
 };
 
 
@@ -309,6 +354,8 @@ public:
     virtual void eventDamage(const DamageMessage *m)    {}
     virtual void eventDestroy(const DestroyMessage *m)  {}
     virtual void eventKill(const KillMessage *m)        {}
+    void update(float32 dt)     {}
+    void asyncupdate(float32 dt){}
 };
 
 
@@ -366,6 +413,9 @@ public:
 
     uint32 getNumBloodstainParticles() const { return m_bloodstain.size(); }
     const BloodstainParticle* getBloodStainParticles() const { return m_bloodstain.empty() ? nullptr : &m_bloodstain[0]; }
+
+    void update(float32 dt)     {}
+    void asyncupdate(float32 dt){ updateBloodstain(dt); }
 };
 
 } // namespace atm

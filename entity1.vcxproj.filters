@@ -4,72 +4,69 @@
     <Filter Include="Entity">
       <UniqueIdentifier>{ad88ab52-9db0-4679-b712-356af1f796fa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Entity\Level">
+      <UniqueIdentifier>{6258b48a-7b13-43ad-b99e-da67dfcfdcaf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Entity\Enemy">
+      <UniqueIdentifier>{86bc953b-f10f-45ef-888f-df895d09564c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="Entity\EntityUtil.cpp">
-      <Filter>Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="Entity\Fighter.cpp">
-      <Filter>Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="Entity\Gear.cpp">
-      <Filter>Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="Entity\Hatch.cpp">
-      <Filter>Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="Entity\Layer.cpp">
-      <Filter>Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="Entity\Level.cpp">
-      <Filter>Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="Entity\LightEntity.cpp">
-      <Filter>Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="Entity\Obstacle.cpp">
-      <Filter>Entity</Filter>
-    </ClCompile>
     <ClCompile Include="Entity\Player.cpp">
-      <Filter>Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="Entity\Projectile.cpp">
-      <Filter>Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="Entity\Routine.cpp">
-      <Filter>Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="Entity\Turret.cpp">
-      <Filter>Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="Entity\Boss1.cpp">
-      <Filter>Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="Entity\Carrier.cpp">
-      <Filter>Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="Entity\Enemy.cpp">
       <Filter>Entity</Filter>
     </ClCompile>
     <ClCompile Include="Entity\entitymain.cpp">
       <Filter>Entity</Filter>
     </ClCompile>
+    <ClCompile Include="Entity\EntityUtil.cpp">
+      <Filter>Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity\Level\Gear.cpp">
+      <Filter>Entity\Level</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity\Level\Obstacle.cpp">
+      <Filter>Entity\Level</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity\Level\Layer.cpp">
+      <Filter>Entity\Level</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity\Level\Level1.cpp">
+      <Filter>Entity\Level</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity\Level\LevelTest.cpp">
+      <Filter>Entity\Level</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity\Level\LightEntity.cpp">
+      <Filter>Entity\Level</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity\Enemy\Projectile.cpp">
+      <Filter>Entity\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity\Enemy\Routine.cpp">
+      <Filter>Entity\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity\Enemy\Turret.cpp">
+      <Filter>Entity\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity\Enemy\Boss1.cpp">
+      <Filter>Entity\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity\Enemy\Carrier.cpp">
+      <Filter>Entity\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity\Enemy\Enemy.cpp">
+      <Filter>Entity\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity\Enemy\Fighter.cpp">
+      <Filter>Entity\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity\Enemy\Hatch.cpp">
+      <Filter>Entity\Enemy</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="Entity\EntityTemplate.h">
-      <Filter>Entity</Filter>
-    </ClInclude>
-    <ClInclude Include="Entity\EntityTransform.h">
-      <Filter>Entity</Filter>
-    </ClInclude>
-    <ClInclude Include="Entity\EntityUtil.h">
-      <Filter>Entity</Filter>
-    </ClInclude>
-    <ClInclude Include="Entity\Level.h">
-      <Filter>Entity</Filter>
-    </ClInclude>
     <ClInclude Include="Entity\Routine.h">
       <Filter>Entity</Filter>
     </ClInclude>
@@ -80,6 +77,18 @@
       <Filter>Entity</Filter>
     </ClInclude>
     <ClInclude Include="Entity\EntityCommon.h">
+      <Filter>Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity\EntityTemplate.h">
+      <Filter>Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity\EntityTransform.h">
+      <Filter>Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity\EntityUtil.h">
+      <Filter>Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity\Level.h">
       <Filter>Entity</Filter>
     </ClInclude>
   </ItemGroup>

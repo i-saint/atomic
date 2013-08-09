@@ -47,6 +47,11 @@ istSEnumBlock(EntityClassID,
     istSEnum(EC_BreakableParts),
     istSEnum(EC_BreakableCore),
     // boss
+    istSEnum(EC_Boss1),
+    istSEnum(EC_Boss2),
+    istSEnum(EC_Boss3),
+    istSEnum(EC_Boss4),
+    istSEnum(EC_Boss5),
     istSEnum(EC_Core),
     istSEnum(EC_Nova),
     istSEnum(EC_Nebula),
@@ -73,13 +78,12 @@ istSEnumBlock(EntityClassID,
     istSEnum(EC_Obstacle_End),
 
     istSEnumEq(EC_Level_Begin, ECA_Level<<9),
-    istSEnum(EC_Level_Test),
-    istSEnum(EC_Level_Stage1),
-    istSEnum(EC_Level_Stage2),
-    istSEnum(EC_Level_Stage3),
-    istSEnum(EC_Level_Stage4),
-    istSEnum(EC_Level_Stage5),
-    istSEnum(EC_Level_Stage6),
+    istSEnum(EC_LevelTest),
+    istSEnum(EC_Level1),
+    istSEnum(EC_Level2),
+    istSEnum(EC_Level3),
+    istSEnum(EC_Level4),
+    istSEnum(EC_Level5),
     istSEnum(EC_Level_End),
 
     istSEnum(EC_End),
@@ -98,6 +102,10 @@ inline uint32 EntityGetClassID(EntityHandle e)      { return (e & 0xFFF00000) >>
 inline uint32 EntityGetClassIndex(EntityHandle e)   { return (e & 0x1FF00000) >> 20; }
 inline uint32 EntityGetIndex(EntityHandle e)        { return (e & 0x000FFFFF) >>  0; }
 inline EntityHandle EntityCreateHandle(uint32 classid, uint32 index) { return (classid<<20) | index; }
+
+inline bool atmIsEnemy(EntityHandle e)   { return EntityGetCategory(e)==ECA_Enemy; }
+inline bool atmIsPlayer(EntityHandle e)  { return EntityGetCategory(e)==ECA_Player; }
+inline bool atmIsObstacle(EntityHandle e){ return EntityGetCategory(e)==ECA_Obstacle; }
 
 enum RoutineClassID;
 enum DeployFlags {

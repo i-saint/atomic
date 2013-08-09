@@ -118,7 +118,7 @@ public:
             if(gear && wall) {
                 float32 rot; atmQuery(gear, getRotateAngle, rot);
                 vec3 dir = glm::rotateZ(vec3(1.0f, 0.0f, 0.0f), rot);
-                atmCall(wall, setOrientation, dir*0.2f);
+                atmCall(wall, setDirection, dir*0.2f);
             }
         }
     }
@@ -143,5 +143,7 @@ public:
     {
     }
 };
+atmImplementEntity(Boss1);
+atmExportClass(Boss1);
 
 } // namespace atm

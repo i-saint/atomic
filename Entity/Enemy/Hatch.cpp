@@ -6,9 +6,9 @@
 namespace atm {
 
 
-class HatchBase : public Breakable<Entity_Orientation>
+class HatchBase : public Breakable<Entity_Direction>
 {
-typedef Breakable<Entity_Orientation> super;
+typedef Breakable<Entity_Direction> super;
 private:
     int32 m_frame;
 

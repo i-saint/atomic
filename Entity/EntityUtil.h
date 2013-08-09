@@ -16,6 +16,9 @@ void UpdateCollisionBox(CollisionBox &o, const mat4& t, const vec3 &size);
 vec3 GetNearestPlayerPosition(const vec3 &pos);
 void ShootSimpleBullet(EntityHandle owner, const vec3 &pos, const vec3 &vel);
 
+IEntity* PutGroundBlock(EntityHandle parent, CollisionGroup group, const vec3 &pos, const vec3 &size, const vec3 &dir=vec3(1.0f,0.0f,0.0f), const vec3 &pivot=vec3(0.0f,0.0f,-0.4f));
+IEntity* PutGroundBlock(IEntity *parent, CollisionGroup group, const vec3 &pos, const vec3 &size, const vec3 &dir=vec3(1.0f,0.0f,0.0f), const vec3 &pivot=vec3(0.0f,0.0f,-0.4f));
+
 
 inline size_t SweepDeadEntities(stl::vector<EntityHandle> &cont)
 {

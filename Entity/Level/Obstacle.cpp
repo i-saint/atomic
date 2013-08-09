@@ -5,13 +5,15 @@
 namespace atm {
 
 
-class GroundBlock : public Unbreakable<Entity_Orientation>
+class GroundBlock : public Unbreakable<Entity_Direction>
 {
-typedef Unbreakable<Entity_Orientation>  super;
+typedef Unbreakable<Entity_Direction>  super;
 private:
     istSerializeBlock(
         istSerializeBase(super)
     )
+
+public:
     atmECallBlock(
         atmECallSuper(super)
     )
@@ -36,7 +38,7 @@ public:
     void initialize() override
     {
         super::initialize();
-        setPivot(vec3(-0.5f, 0.0f, -0.4f));
+        setPivot(vec3(0.0f, 0.0f, -0.4f));
 
         initializeCollision(getHandle());
         setCollisionShape(CS_Box);
@@ -49,13 +51,15 @@ atmExportClass(GroundBlock);
 
 
 
-class FluidFilter : public Unbreakable<Entity_Orientation>
+class FluidFilter : public Unbreakable<Entity_Direction>
 {
-typedef Unbreakable<Entity_Orientation>  super;
+typedef Unbreakable<Entity_Direction> super;
 private:
     istSerializeBlock(
         istSerializeBase(super)
     )
+
+public:
     atmECallBlock(
         atmECallSuper(super)
     )
@@ -77,18 +81,30 @@ public:
     void initialize() override
     {
         super::initialize();
-        setPivot(vec3(-0.2f, 0.0f, -0.1f));
+        setPivot(vec3(0.0f, 0.0f, -0.4f));
 
         initializeCollision(getHandle());
         setCollisionShape(CS_Box);
         setCollisionFlags(CF_SPH_Sender);
-
-        setModel(PSET_CUBE_MEDIUM);
+        setModel(PSET_HOLLOW_CUBE);
     }
 
     void draw() override
     {
-        // todo
+        PSetInstance inst;
+        inst.diffuse = getDiffuseColor();
+        inst.glow = getGlowColor();
+        inst.flash = vec4();
+        inst.elapsed = 1000.0f;
+        inst.appear_radius = 10000.0f;
+        inst.transform = transform::getTransformMatrix();
+        inst.rotate = transform::computeRotationMatrix();
+        uint32 num = 0;
+        vec3 size;
+        if(atmQuery(this, getScale, size)) {
+            num = uint32((size.x*1.2f)*(size.y*1.2f)*size.z * 30000.0f);
+        }
+        atmGetFluidPass()->addParticlesSolid(getModel(), inst, num);
     }
 };
 atmImplementEntity(FluidFilter, DF_Editor, 0.0f);

@@ -36,22 +36,23 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Entity\Boss1.cpp" />
-    <ClCompile Include="Entity\Carrier.cpp" />
-    <ClCompile Include="Entity\Enemy.cpp" />
+    <ClCompile Include="Entity\Enemy\Boss1.cpp" />
+    <ClCompile Include="Entity\Enemy\Carrier.cpp" />
+    <ClCompile Include="Entity\Enemy\Enemy.cpp" />
+    <ClCompile Include="Entity\Enemy\Fighter.cpp" />
+    <ClCompile Include="Entity\Enemy\Hatch.cpp" />
+    <ClCompile Include="Entity\Enemy\Projectile.cpp" />
+    <ClCompile Include="Entity\Enemy\Routine.cpp" />
+    <ClCompile Include="Entity\Enemy\Turret.cpp" />
     <ClCompile Include="Entity\entitymain.cpp" />
     <ClCompile Include="Entity\EntityUtil.cpp" />
-    <ClCompile Include="Entity\Fighter.cpp" />
-    <ClCompile Include="Entity\Gear.cpp" />
-    <ClCompile Include="Entity\Hatch.cpp" />
-    <ClCompile Include="Entity\Layer.cpp" />
-    <ClCompile Include="Entity\Level.cpp" />
-    <ClCompile Include="Entity\LightEntity.cpp" />
-    <ClCompile Include="Entity\Obstacle.cpp" />
+    <ClCompile Include="Entity\Level\Gear.cpp" />
+    <ClCompile Include="Entity\Level\Layer.cpp" />
+    <ClCompile Include="Entity\Level\Level1.cpp" />
+    <ClCompile Include="Entity\Level\LevelTest.cpp" />
+    <ClCompile Include="Entity\Level\LightEntity.cpp" />
+    <ClCompile Include="Entity\Level\Obstacle.cpp" />
     <ClCompile Include="Entity\Player.cpp" />
-    <ClCompile Include="Entity\Projectile.cpp" />
-    <ClCompile Include="Entity\Routine.cpp" />
-    <ClCompile Include="Entity\Turret.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Intel_SSA|Win32'">Create</PrecompiledHeader>

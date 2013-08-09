@@ -138,20 +138,20 @@ public:
     void asyncupdate(float32 dt) {}
 };
 
-class Attr_Orientation
+class Attr_Direction
 {
 private:
     vec3 m_pivot;
     vec3 m_pos;
     vec3 m_scale;
-    vec3 m_orient;
+    vec3 m_dir;
     vec3 m_up;
 
     istSerializeBlock(
         istSerialize(m_pivot)
         istSerialize(m_pos)
         istSerialize(m_scale)
-        istSerialize(m_orient)
+        istSerialize(m_dir)
         istSerialize(m_up)
     )
 public:
@@ -163,8 +163,8 @@ public:
             atmECall(setPosition)
             atmECall(getScale)
             atmECall(setScale)
-            atmECall(getOrientation)
-            atmECall(setOrientation)
+            atmECall(getDirection)
+            atmECall(setDirection)
             atmECall(getUpVector)
             atmECall(setUpVector)
             atmECall(move)
@@ -180,7 +180,7 @@ public:
         wdmAddNode(path+"/m_pivot", &m_pivot, -3.0f, 3.0f);
         wdmAddNode(path+"/m_pos",   &m_pos, -3.0f, 3.0f);
         wdmAddNode(path+"/m_scale", &m_scale, 0.001f, 4.0f);
-        wdmAddNode(path+"/m_orient", this, &Attr_Orientation::getOrientation, &Attr_Orientation::setOrientation);
+        wdmAddNode(path+"/m_orient", this, &Attr_Direction::getDirection, &Attr_Direction::setDirection);
         wdmAddNode(path+"/m_up", &m_up, 0.0f, 360.0f);
     }
     )
@@ -189,37 +189,37 @@ public:
         atmJsonizeMember(m_pivot, getPivot, setPivot)
         atmJsonizeMember(m_pos, getPosition, setPosition)
         atmJsonizeMember(m_scale, getScale, setScale)
-        atmJsonizeMember(m_orient, getOrientation, setOrientation)
+        atmJsonizeMember(m_dir, getDirection, setDirection)
         atmJsonizeMember(m_up, getUpVector, setUpVector)
         atmJsonizeCall(move)
         atmJsonizeCall(orient)
     )
 
 public:
-    Attr_Orientation()
+    Attr_Direction()
         : m_scale(1.0f, 1.0f, 1.0f)
-        , m_orient(1.0f, 0.0f, 0.0f)
+        , m_dir(1.0f, 0.0f, 0.0f)
         , m_up(1.0f, 0.0f, 0.0f)
     {}
 
     const vec3& getPivot() const        { return m_pivot; }
     const vec3& getPosition() const     { return m_pos; }
     const vec3& getScale() const        { return m_scale; }
-    const vec3& getOrientation() const  { return m_orient; }
+    const vec3& getDirection() const    { return m_dir; }
     const vec3& getUpVector() const     { return m_up; }
     void setPivot(const vec3& v)        { m_pivot=v; }
     void setPosition(const vec3& v)     { m_pos=v; }
     void setScale(const vec3& v)        { m_scale=v; }
-    void setOrientation(const vec3& v)  { if(glm::dot(v,v)>0.001f) m_orient=glm::normalize(v); }
+    void setDirection(const vec3& v)    { if(glm::dot(v,v)>0.001f) m_dir=glm::normalize(v); }
     void setUpVector(const vec3& v)     { m_up=v; }
     void move(const vec3 &v)            { setPosition(getPosition()+v); }
-    void orient(const vec3 &v)          { setOrientation(v); }
+    void orient(const vec3 &v)          { setDirection(v); }
 
     mat4 computeTransformMatrix() const
     {
         mat4 mat;
         mat = glm::translate(mat, m_pos);
-        mat *= glm::orientation(m_orient, m_up);
+        mat *= glm::orientation(m_dir, m_up);
         mat = glm::scale(mat, m_scale);
         mat = glm::translate(mat, -m_pivot);
         return mat;
@@ -227,7 +227,7 @@ public:
 
     mat4 computeRotationMatrix() const
     {
-        return glm::orientation(m_orient, m_up);
+        return glm::orientation(m_dir, m_up);
     }
 
     void update(float32 dt) {}

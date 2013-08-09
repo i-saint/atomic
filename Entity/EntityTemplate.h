@@ -6,13 +6,14 @@
 
 namespace atm {
 
-struct Entity_Orientation
+struct Entity_Direction
 {
-    typedef TAttr_TransformMatrixI< TAttr_HaveParent<Attr_Orientation> > transform;
+    typedef TAttr_TransformMatrixI< TAttr_HaveParent<Attr_Direction> > transform;
     typedef Attr_ParticleSet    model;
     typedef Attr_Collision      collision;
     typedef Attr_Bloodstain     bloodstain;
     typedef Attr_MessageHandler mhandler;
+    typedef Attr_PastTime       pasttime;
 };
 
 struct Entity_AxisRotationI
@@ -22,6 +23,7 @@ struct Entity_AxisRotationI
     typedef Attr_Collision      collision;
     typedef Attr_Bloodstain     bloodstain;
     typedef Attr_MessageHandler mhandler;
+    typedef Attr_PastTime       pasttime;
 };
 
 struct Entity_AxisRotation
@@ -31,6 +33,7 @@ struct Entity_AxisRotation
     typedef Attr_Collision      collision;
     typedef Attr_Bloodstain     bloodstain;
     typedef Attr_MessageHandler mhandler;
+    typedef Attr_PastTime       pasttime;
 };
 
 struct Entity_Translate
@@ -40,6 +43,7 @@ struct Entity_Translate
     typedef Attr_Collision      collision;
     typedef Attr_Bloodstain     bloodstain;
     typedef Attr_MessageHandler mhandler;
+    typedef Attr_PastTime       pasttime;
 };
 
 template<class Attributes>
@@ -50,10 +54,11 @@ class EntityTemplate
     , public Attributes::collision
     , public Attributes::bloodstain
     , public Attributes::mhandler
+    , public Attributes::pasttime
     , public Attributes
 {
+typedef IEntity super;
 private:
-    typedef IEntity super;
     istSerializeBlock(
         istSerializeBase(super)
         istSerializeBase(transform)
@@ -61,6 +66,7 @@ private:
         istSerializeBase(collision)
         istSerializeBase(bloodstain)
         istSerializeBase(mhandler)
+        istSerializeBase(pasttime)
     )
 
 public:
@@ -71,6 +77,7 @@ public:
         atmECallSuper(collision)
         atmECallSuper(bloodstain)
         atmECallSuper(mhandler)
+        atmECallSuper(pasttime)
      )
 
     wdmScope(
@@ -81,6 +88,7 @@ public:
         collision::addDebugNodes(path);
         bloodstain::addDebugNodes(path);
         mhandler::addDebugNodes(path);
+        pasttime::addDebugNodes(path);
     }
     )
 
@@ -88,8 +96,18 @@ public:
         atmJsonizeSuper(transform)
     )
 
-    virtual void update(float32 dt) {}
-    virtual void asyncupdate(float32 dt) {}
+public:
+    EntityTemplate()
+    {}
+
+    virtual void update(float32 dt)
+    {
+        pasttime::update(dt);
+    }
+
+    virtual void asyncupdate(float32 dt)
+    {
+    }
 };
 
 } // namespace atm

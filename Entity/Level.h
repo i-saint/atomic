@@ -28,6 +28,7 @@ class Unbreakable : public EntityTemplate<TransAttr>
 {
 typedef EntityTemplate<TransAttr> super;
 private:
+
     istSerializeBlock(
         istSerializeBase(super)
     )
@@ -38,12 +39,6 @@ public:
     atmJsonizeBlock(
         atmJsonizeSuper(super)
     )
-
-public:
-    Unbreakable()
-    {
-    }
-
     wdmScope(
     void addDebugNode(const wdmString &path)
     {
@@ -51,10 +46,15 @@ public:
     }
     )
 
+public:
+    Unbreakable()
+    {
+    }
+
     void initialize() override
     {
         super::initialize();
-        setGlowColor(vec4(0.4f));
+        setGlowColor(vec4(0.0f));
         setDiffuseColor(vec4(vec3(0.5f), 50.0f));
     }
 
@@ -84,7 +84,7 @@ public:
         uint32 num = 0;
         vec3 size;
         if(atmQuery(this, getScale, size)) {
-            num = uint32(size.x*size.y*size.z * 30000.0f);
+            num = uint32((size.x*1.2f)*(size.y*1.2f)*size.z * 30000.0f);
         }
         atmGetFluidPass()->addParticlesSolid(getModel(), inst, num);
         atmGetBloodStainPass()->addBloodstainParticles(getTransformMatrix(), getBloodStainParticles(), getNumBloodstainParticles());

@@ -76,7 +76,6 @@ private:
     IRoutine    *m_routine;
     float32     m_life;
     float32     m_delta_damage;
-    int32       m_past_frame;
 
     istSerializeBlock(
         istSerializeBase(super)
@@ -84,7 +83,6 @@ private:
         istSerialize(m_routine)
         istSerialize(m_life)
         istSerialize(m_delta_damage)
-        istSerialize(m_past_frame)
     )
 
 public:
@@ -117,7 +115,7 @@ public:
 
 public:
     Breakable()
-    : m_routine(nullptr), m_life(1.0f), m_delta_damage(0.0f), m_past_frame(0)
+    : m_routine(nullptr), m_life(1.0f), m_delta_damage(0.0f)
     {}
 
     ~Breakable()
@@ -129,7 +127,6 @@ public:
     float32     getLife() const         { return m_life; }
     IRoutine*   getRoutine()            { return m_routine; }
     const vec4& getDamageColor() const  { return m_damage_color; }
-    int32       getPastFrame() const    { return m_past_frame; }
     void        damage(float32 d)       { m_delta_damage += d; }
 
     void setLife(float32 v)       { m_life=v; }
@@ -148,7 +145,7 @@ public:
 
     void update(float32 dt) override
     {
-        ++m_past_frame;
+        super::update(dt);
         updateRoutine(dt);
         updateDamageFlash();
         updateLife();
@@ -173,7 +170,7 @@ public:
     virtual void updateDamageFlash()
     {
         m_damage_color = vec4();
-        if(m_past_frame % 4 < 2) {
+        if(fmod(super::getPastTime(), 4.0f) < 2.0f) {
             const float32 threthold1 = 0.05f;
             const float32 threthold2 = 1.0f;
             const float32 threthold3 = 10.0f;
@@ -222,7 +219,7 @@ public:
         inst.diffuse = getDiffuseColor();
         inst.glow = getGlowColor();
         inst.flash = getDamageColor();
-        inst.elapsed = (float32)getPastFrame();
+        inst.elapsed = (float32)getPastTime();
         inst.appear_radius = 10000.0f;
         inst.transform = getTransformMatrix();
         atmGetFluidPass()->addParticles(getModel(), inst);

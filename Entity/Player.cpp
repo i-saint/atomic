@@ -469,7 +469,7 @@ public:
             inst.diffuse = vec4(0.6f, 0.6f, 0.6f, 50.0f);
             inst.glow = vec4(0.2f, 0.0f, 1.0f, 0.0f);
             inst.flash = vec4();
-            inst.elapsed = (float32)getPastFrame();
+            inst.elapsed = (float32)getPastTime();
             inst.appear_radius = 1000.0f;
             inst.transform = inst.rotate = getTransformMatrix();
             atmGetFluidPass()->addParticles(pset_id, inst);
@@ -491,11 +491,11 @@ public:
         m_state = State_Dead;
     }
 
-    void eventFluid(const FluidMessage *m) override
-    {
-        addBloodstain(getInvTransformMatrix(), (vec4&)m->position);
-        damage(glm::length((const vec3&)m->velocity)*0.04f);
-    }
+    //void eventFluid(const FluidMessage *m) override
+    //{
+    //    addBloodstain(getInvTransformMatrix(), (vec4&)m->position);
+    //    damage(glm::length((const vec3&)m->velocity)*0.015f);
+    //}
 
     void eventCollide(const CollideMessage *m) override
     {
@@ -582,9 +582,9 @@ public:
             PassForward_Generic::InstanceParams params;
             params.transform *= glm::translate(mat4(), pos);
             params.transform *= glm::scale(mat4(), vec3(radius));
-            //atmGetForwardPass()->drawModel(SH_BARRIER, MODEL_UNITSPHERE, t);
-            params.params[0] = vec4(radius, 0.1f, 1.0f, 1.0f);
-            atmGetForwardPass()->drawModel(SH_FEEDBACK_BLUR, MODEL_UNITSPHERE, params);
+            atmGetForwardPass()->drawModel(SH_BARRIER, MODEL_UNITSPHERE, params);
+            //params.params[0] = vec4(radius, 0.1f, 1.0f, 1.0f);
+            //atmGetForwardPass()->drawModel(SH_FEEDBACK_BLUR, MODEL_UNITSPHERE, params);
         }
     }
 };

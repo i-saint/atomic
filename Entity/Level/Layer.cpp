@@ -7,22 +7,23 @@ namespace atm {
 class LevelLayer
     : public IEntity
     , public TAttr_TransformMatrixI<Attr_Transform>
+    , public Attr_PastTime
 {
 typedef IEntity super;
 typedef TAttr_TransformMatrixI<Attr_Transform> transform;
+typedef Attr_PastTime pasttime;
 private:
     ControlPoints m_posxcp;
     ControlPoints m_posycp;
     ControlPoints m_rotcp;
-    float32 m_time;
 
     istSerializeBlock(
         istSerializeBase(super)
         istSerializeBase(transform)
+        istSerializeBase(pasttime)
         istSerialize(m_posxcp)
         istSerialize(m_posycp)
         istSerialize(m_rotcp)
-        istSerialize(m_time)
     )
 
 public:
@@ -40,6 +41,7 @@ public:
         )
         atmECallSuper(super)
         atmECallSuper(transform)
+        atmECallSuper(pasttime)
     )
 
     atmJsonizeBlock(
@@ -49,7 +51,7 @@ public:
     )
 
 public:
-    LevelLayer() : m_time(0.0f)
+    LevelLayer()
     {
         wdmScope(
         wdmString path = wdmFormat("Level/LevelLayer/0x%p", this);
@@ -69,12 +71,13 @@ public:
 
     void update(float32 dt) override
     {
-        m_time += dt;
+        pasttime::update(dt);
 
         // 子が参照するので asyncupdate ではダメ
-        vec3 pos(m_posxcp.computeValue(m_time), m_posycp.computeValue(m_time), 0.0f );
+        float32 t = getPastTime();
+        vec3 pos(m_posxcp.computeValue(t), m_posycp.computeValue(t), 0.0f );
         setPosition(pos);
-        setRotate(m_rotcp.computeValue(m_time));
+        setRotate(m_rotcp.computeValue(t));
         updateTransformMatrix();
     }
 

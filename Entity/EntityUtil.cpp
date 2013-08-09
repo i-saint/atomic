@@ -74,4 +74,21 @@ void ShootSimpleBullet(EntityHandle owner, const vec3 &pos, const vec3 &vel)
     atmGetBulletModule()->shootBullet(pos, vel, owner);
 }
 
+
+IEntity* PutGroundBlock( EntityHandle parent, CollisionGroup group, const vec3 &pos, const vec3 &size, const vec3 &dir, const vec3 &pivot )
+{
+    IEntity *e = atmCreateEntityT(GroundBlock);
+    atmCall(e, setParent, parent);
+    atmCall(e, setPosition, pos);
+    atmCall(e, setScale, size);
+    atmCall(e, setDirection, dir);
+    atmCall(e, setPivot, pivot);
+    atmCall(e, setCollisionGroup, group);
+    return e;
+}
+IEntity* PutGroundBlock( IEntity *parent, CollisionGroup group, const vec3 &pos, const vec3 &size, const vec3 &dir, const vec3 &pivot )
+{
+    return PutGroundBlock(parent ? parent->getHandle() : 0, group, pos, size, dir, pivot);
+}
+
 } // namespace atm

@@ -6,9 +6,9 @@
 namespace atm {
 
 
-class LaserTurret : public Breakable<Entity_Orientation>
+class LaserTurret : public Breakable<Entity_Direction>
 {
-typedef Breakable<Entity_Orientation> super;
+typedef Breakable<Entity_Direction> super;
 private:
     istSerializeBlock(
         istSerializeBase(super)

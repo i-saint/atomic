@@ -6,7 +6,7 @@
 namespace atm {
 
 
-class Level_Test : public EntityWithPosition
+class LevelTest : public EntityWithPosition
 {
 typedef EntityWithPosition super;
 private:
@@ -42,7 +42,7 @@ private:
     )
 
 public:
-    Level_Test() : m_frame(0), m_player(0), m_level(0), m_loop(0), m_state(St_Begin)
+    LevelTest() : m_frame(0), m_player(0), m_level(0), m_loop(0), m_state(St_Begin)
     {
         stl::fill_n(m_planes, _countof(m_planes), 0);
     }
@@ -287,20 +287,20 @@ public:
             }
 
             IEntity *layer = atmCreateEntityT(LevelLayer);
-            //atmCall(layer, addPositionXCP, ControlPoint(  0.0f,  0.0f, 0.0f, -1.0f, ControlPoint::Bezier));
-            //atmCall(layer, addPositionXCP, ControlPoint(300.0f, -1.0f, -1.0f, 0.0f));
+            atmCall(layer, addPositionXCP, ControlPoint(  0.0f,  0.0f, 0.0f, -1.0f, ControlPoint::Bezier));
+            atmCall(layer, addPositionXCP, ControlPoint(300.0f, -1.0f, -1.0f, 0.0f));
 
-            //atmCall(layer, addPositionYCP, ControlPoint(300.0f,  0.0f, ControlPoint::Accel));
-            //atmCall(layer, addPositionYCP, ControlPoint(600.0f,  1.0f));
+            atmCall(layer, addPositionYCP, ControlPoint(300.0f,  0.0f, ControlPoint::Accel));
+            atmCall(layer, addPositionYCP, ControlPoint(600.0f,  1.0f));
 
-            //atmCall(layer, addPositionXCP, ControlPoint(600.0f,-1.0f, ControlPoint::Decel));
-            //atmCall(layer, addPositionXCP, ControlPoint(900.0f, 0.0f));
+            atmCall(layer, addPositionXCP, ControlPoint(600.0f,-1.0f, ControlPoint::Decel));
+            atmCall(layer, addPositionXCP, ControlPoint(900.0f, 0.0f));
 
-            //atmCall(layer, addPositionYCP, ControlPoint(900.0f,  1.0f, ControlPoint::Smooth));
-            //atmCall(layer, addPositionYCP, ControlPoint(1200.0f,  0.0f));
+            atmCall(layer, addPositionYCP, ControlPoint(900.0f,  1.0f, ControlPoint::Smooth));
+            atmCall(layer, addPositionYCP, ControlPoint(1200.0f,  0.0f));
 
-            //atmCall(layer, addRotationCP, ControlPoint(1200.0f, 0.0f));
-            //atmCall(layer, addRotationCP, ControlPoint(1400.0f, 180.0f));
+            atmCall(layer, addRotationCP, ControlPoint(1200.0f, 0.0f));
+            atmCall(layer, addRotationCP, ControlPoint(1400.0f, 180.0f));
 
             {
                 IEntity *e = atmCreateEntityT(GearSmall);
@@ -433,8 +433,8 @@ public:
         atmGetTextRenderer()->addText(vec2(5.0f, 60.0f), buf);
     }
 };
-atmImplementEntity(Level_Test);
-atmExportClass(Level_Test);
+atmImplementEntity(LevelTest);
+atmExportClass(LevelTest);
 
 
 } // namespace atm

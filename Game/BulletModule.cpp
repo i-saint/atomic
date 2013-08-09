@@ -194,7 +194,9 @@ public:
                 if(p.hit_to) {
                     ++m_hitcount;
                     vec3 pos = p.pos_current;
-                    atmCall(p.hit_to, damage, s_power);
+                    float32 d = s_power;
+                    if(atmIsEnemy(p.hit_to)) { d*=0.2f; }
+                    atmCall(p.hit_to, damage, d);
                     atmCall(p.hit_to, addForce, atmArgs(pos, m_dir*s_speed*1000.0f));
                     {
                         psym::Particle particles;
@@ -452,10 +454,10 @@ public:
 
     void update(float32 dt) override
     {
+        const size_t blocksize = 32;
         const float32 radius = 0.03f;
         const float32 lifetime = 600.0f;
-        const float32 power = 5.0f;
-        const size_t blocksize = 32;
+        const float32 power = 20.0f;
 
         size_t num_tasks = ceildiv(m_bullets.size(), blocksize);
         if(num_tasks>m_cctx.size()) {
@@ -483,8 +485,11 @@ public:
         });
         each(m_bullets, [&](BulletData &p){
             if(p.hit_to) {
+                float32 d = power;
+                if(atmIsEnemy(p.hit_to)) { d*=0.2f; }
                 atmGetFluidModule()->addFluid(PSET_SPHERE_BULLET, p.computeTransformMatrix());
-                atmCall(p.hit_to, damage, power);
+                atmCall(p.hit_to, damage, d);
+                atmCall(p.hit_to, addForce, atmArgs(p.pos, p.vel*10000.0f));
             }
         });
         erase(m_bullets, [&](BulletData &p){ return p.time>=lifetime; });
