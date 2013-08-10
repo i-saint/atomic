@@ -241,9 +241,6 @@ public:
     {
         return glm::orientation(m_dir, m_up);
     }
-
-    void update(float32 dt) {}
-    void asyncupdate(float32 dt) {}
 };
 
 class Attr_DoubleAxisRotation

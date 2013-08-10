@@ -9,7 +9,7 @@ class Enemy_Test : public Breakable<Entity_AxisRotationI>
 {
 typedef Breakable<Entity_AxisRotationI> super;
 private:
-    static const int FADEIN_TIME = 180;
+    static const int FADEIN_TIME = 60;
     static const int FADEOUT_TIME = 60;
     enum State {
         State_Fadein,
@@ -223,9 +223,9 @@ public:
     void initialize() override
     {
         super::initialize();
-        setCollisionShape(CS_Sphere);
-        setModel(PSET_SPHERE_SMALL);
-        setLife(5.0f);
+        setCollisionShape(CS_Box);
+        setModel(PSET_UNIT_CUBE);
+        setLife(2000.0f);
         setLightRadius(0.5f);
     }
 };
@@ -251,7 +251,7 @@ public:
         super::initialize();
         setCollisionShape(CS_Sphere);
         setModel(PSET_SPHERE_SMALL);
-        setLife(12.0f);
+        setLife(15.0f);
         setAxis1(GenRandomUnitVector3());
         setAxis2(GenRandomUnitVector3());
         setRotateSpeed1(2.4f);

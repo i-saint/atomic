@@ -39,6 +39,7 @@ public:
     {
         super::initialize();
         initializeCollision(getHandle());
+        setScale(vec3(0.5f));
         setCollisionShape(CS_Box);
         setCollisionFlags(CF_Sender|CF_SPH_Sender);
         setModel(PSET_HOLLOW_CUBE);
@@ -80,6 +81,7 @@ public:
     {
         super::initialize();
         initializeCollision(getHandle());
+        setScale(vec3(0.5f));
         setCollisionShape(CS_Box);
         setCollisionFlags(CF_SPH_Sender);
         setModel(PSET_HOLLOW_CUBE);
@@ -98,7 +100,7 @@ public:
         uint32 num = 0;
         vec3 size;
         if(atmQuery(this, getScale, size)) {
-            num = uint32((size.x*1.2f)*(size.y*1.2f)*size.z * 30000.0f);
+            num = uint32((size.x*1.2f)*(size.y*1.2f)*size.z * 10000.0f);
         }
         atmGetBarrierPass()->addParticles(getModel(), inst, num);
     }
@@ -107,7 +109,7 @@ atmImplementEntity(FluidFilter, DF_Editor, 0.0f);
 atmExportClass(FluidFilter);
 
 
-class RigidFilter : public Unbreakable<Entity_Direction>
+class dpPatch RigidFilter : public Unbreakable<Entity_Direction>
 {
 typedef Unbreakable<Entity_Direction> super;
 private:
@@ -139,6 +141,7 @@ public:
         super::initialize();
 
         initializeCollision(getHandle());
+        setScale(vec3(0.5f));
         setCollisionShape(CS_Box);
         setCollisionFlags(CF_Sender);
         setModel(PSET_UNIT_CUBE);
@@ -157,9 +160,9 @@ public:
         uint32 num = 0;
         vec3 size;
         if(atmQuery(this, getScale, size)) {
-            num = uint32((size.x*0.2f)*(size.y*1.2f)*size.z * 10000.0f);
+            num = uint32((size.x*1.2f)*(size.y*1.2f)*size.z * 1500.0f);
         }
-        atmGetBarrierPass()->addParticles(getModel(), inst, num);
+        atmGetFluidPass()->addParticlesSolid(getModel(), inst, num);
     }
 };
 atmImplementEntity(RigidFilter, DF_Editor, 0.0f);

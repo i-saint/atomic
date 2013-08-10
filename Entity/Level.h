@@ -6,13 +6,15 @@ template<class TransAttr>
 class EntityWithTransAttr : public IEntity, public TransAttr
 {
 typedef IEntity super;
-typedef TransAttr transform;
 private:
     istSerializeBlock(
         istSerializeBase(super)
         istSerializeBase(transform)
     )
+
 public:
+    typedef TransAttr transform;
+
     atmECallBlock(
         atmECallSuper(transform)
     )
@@ -21,6 +23,7 @@ public:
     )
 };
 typedef EntityWithTransAttr<Attr_Position> EntityWithPosition;
+typedef EntityWithTransAttr< TAttr_TransformMatrixI< TAttr_HaveParent<Attr_Direction> > > EntityWithParent;
 
 
 template<class TransAttr>

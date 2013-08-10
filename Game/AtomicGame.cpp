@@ -35,6 +35,12 @@ AtomicGame::AtomicGame()
     wdmAddNode("Game/dbgSerialize()", &AtomicGame::dbgSerialize, this);
     wdmAddNode("Game/dbgDeserializePrev()", &AtomicGame::dbgDeserializePrev, this);
     wdmAddNode("Game/dbgDeserializeNext()", &AtomicGame::dbgDeserializeNext, this);
+#ifdef atm_enable_StateSave
+    glob("State", "\\.atmstate$", [&](const std::string &file){
+        m_state_paths.push_back(file);
+        m_state_index = m_state_paths.size()-1;
+    });
+#endif // atm_enable_StateSave
 }
 
 AtomicGame::~AtomicGame()

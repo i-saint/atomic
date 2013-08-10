@@ -454,7 +454,7 @@ bool CreateHollowCubeParticleSet( ParticleSet &pset, RigidInfo &ri, float32 half
         vec3 r = vec3(random.genFloat32(),random.genFloat32(),random.genFloat32())*0.5f-0.25f;
         vec3 dr = r * 4.0f;
         vec3 hr = r + vec3(0.75f)*glm::sign(r);
-        switch(i&3) {
+        switch(i%3) {
         case 0: r=vec3(hr.x,dr.y,dr.z); break;
         case 1: r=vec3(dr.x,hr.y,dr.z); break;
         case 2: r=vec3(dr.x,dr.y,hr.z); break;

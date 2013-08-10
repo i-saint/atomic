@@ -254,13 +254,21 @@ public:
             atmCall(layer, addPositionXCP, ControlPoint(lifetime, x-scroll*lifetime,  0.0f, 0.0f));
             atmCall(layer, setLifeTime, lifetime);
 
+            const vec4 light_color(0.5f, 0.7f, 1.0f, 1.0f);
             IEntity *e = nullptr;
+            e = PutChildEntity(PointLightEntity, layer, vec3(1.75f, 0.5f, 0.3f));
+            atmCall(e, setRadius, 1.0f);
+            atmCall(e, setDiffuse, light_color);
+            e = PutChildEntity(PointLightEntity, layer, vec3(3.75f, -1.1f, 0.3f));
+            atmCall(e, setRadius, 1.0f);
+            atmCall(e, setDiffuse, light_color);
+
             e = PutChildEntity(GearSmall, layer, vec3(0.0f, 0.7f, 0.0f));
-            e = PutChildEntity(GearMedium, layer, vec3(0.65f, -0.9f, 0.0f));
-            e = PutChildEntity(GearLarge, layer, vec3(1.75f, 0.5f, 0.0f));
-            e = PutChildEntity(GearSmall, layer, vec3(2.1f, -1.4f, 0.0f));
-            e = PutChildEntity(GearLarge, layer, vec3(3.75f, -1.1f, 0.0f));
-            e = PutChildEntity(GearMedium, layer, vec3(3.75f, 1.1f, 0.0f));
+            e = PutChildEntity(GearMedium, layer, vec3(0.85f, -0.9f, 0.0f));
+            e = PutChildEntity(GearLarge, layer, vec3(1.95f, 0.5f, 0.0f));
+            e = PutChildEntity(GearSmall, layer, vec3(2.3f, -1.4f, 0.0f));
+            e = PutChildEntity(GearLarge, layer, vec3(3.95f, -1.1f, 0.0f));
+            e = PutChildEntity(GearMedium, layer, vec3(4.1f, 1.1f, 0.0f));
       }
 
         {
@@ -272,7 +280,7 @@ public:
             }
         }
 
-        if(f>2500) {
+        if(f>2600) {
             setState(St_Scene3);
         }
     }
@@ -290,6 +298,14 @@ public:
             atmCall(layer, setLifeTime, lifetime);
 
             IEntity *e = nullptr;
+            const vec4 light_color(0.5f, 0.7f, 1.0f, 1.0f);
+            e = PutChildEntity(PointLightEntity, layer, vec3(0.0f, 0.0f, 0.3f));
+            atmCall(e, setRadius, 1.0f);
+            atmCall(e, setDiffuse, light_color);
+            e = PutChildEntity(PointLightEntity, layer, vec3(2.5f, 0.0f, 0.3f));
+            atmCall(e, setRadius, 1.0f);
+            atmCall(e, setDiffuse, light_color);
+
             PutGroundBlockByBox(layer, 1, vec3(1.0f, 0.5f, -0.1f), vec3(1.5f, 2.5f, 0.25f));
             PutGroundBlockByBox(layer, 1, vec3(1.0f,-0.5f, -0.1f), vec3(1.5f,-2.5f, 0.25f));
             {
@@ -298,7 +314,7 @@ public:
                 IEntity *linkage = atmCreateEntityT(GateLinkage);
                 atmCall(gear, setSpinMinAngle,   0.0f);
                 atmCall(gear, setSpinMaxAngle, 720.0f);
-                atmCall(gear, setSpinReturnSpeed, 0.01f);
+                atmCall(gear, setSpinReturnSpeed, 0.02f);
                 atmCall(gear, setSpinOneWay, 1.0f);
                 atmCall(linkage, setBlock, block->getHandle());
                 atmCall(linkage, setGear, gear->getHandle());
@@ -311,7 +327,7 @@ public:
                 IEntity *linkage = atmCreateEntityT(GateLinkage);
                 atmCall(gear, setSpinMinAngle,-720.0f);
                 atmCall(gear, setSpinMaxAngle,   0.0f);
-                atmCall(gear, setSpinReturnSpeed, 0.01f);
+                atmCall(gear, setSpinReturnSpeed, 0.02f);
                 atmCall(gear, setSpinOneWay, -1.0f);
                 atmCall(linkage, setBlock, block->getHandle());
                 atmCall(linkage, setGear, gear->getHandle());

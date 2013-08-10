@@ -217,10 +217,10 @@ void FluidModule::addForce( const psym::PointForce &v )
 
 void FluidModule::addFluid( psym::Particle *particles, uint32 num )
 {
-    const float32 enery_base = 2700.0f;
-    const float32 enery_diffuse = 300.0f;
+    const float32 energy_base = 2400.0f;
+    const float32 energy_diffuse = 600.0f;
     for(uint32 i=0; i<num; ++i) {
-        particles[i].energy = enery_base + (m_rand.genFloat32()*enery_diffuse);
+        particles[i].energy = energy_base + (m_rand.genFloat32()*energy_diffuse);
         particles[i].density = 0.0f;
         particles[i].hash = 0;
         particles[i].hit_to = 0;

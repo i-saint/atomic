@@ -1,23 +1,20 @@
 ﻿#include "stdafx.h"
 #include "Entity/EntityCommon.h"
+#include "Entity/Level.h"
 
 namespace atm {
 
 
-template<class Transform>
-class LightEntityBase
-    : public IEntity
-    , public Transform
+class LightEntityBase : public EntityWithParent
 {
-typedef IEntity super;
-typedef Transform trans;
+typedef EntityWithParent super;
 private:
     vec4 m_difuse;
     vec4 m_ambient;
 
     istSerializeBlock(
         istSerializeBase(super)
-        istSerializeBase(trans)
+        istSerialize(m_difuse)
         istSerialize(m_ambient)
     )
 
@@ -30,28 +27,45 @@ public:
             atmECall(setAmbient)
         )
         atmECallSuper(super)
-        atmECallSuper(trans)
     )
 
     wdmScope(
     void addDebugNodes(const wdmString &path)
     {
-        trans::addDebugNodes(path);
+        super::addDebugNodes(path);
         wdmAddNode(path+"/m_difuse", &m_difuse);
         wdmAddNode(path+"/m_ambient", &m_ambient);
     }
     )
 
+public:
+    void update(float32 dt) override
+    {
+        super::update(dt);
+        if(EntityHandle h=transform::getParent()) {
+            if(!atmGetEntity(h)) {
+                atmDeleteEntity(getHandle());
+                return;
+            }
+        }
+    }
+
+    void asyncupdate(float32 dt) override
+    {
+        super::asyncupdate(dt);
+        transform::updateTransformMatrix();
+    }
+
     const vec4& getDiffuse() const { return m_difuse; }
-    void setDiffuse(const vec4 &v) { m_difuse=v; }
     const vec4& getAmbient() const { return m_ambient; }
+    void setDiffuse(const vec4 &v) { m_difuse=v; }
     void setAmbient(const vec4 &v) { m_ambient=v; }
 };
 
 
-class PointLightEntity : public LightEntityBase<Attr_Position>
+class PointLightEntity : public LightEntityBase
 {
-typedef LightEntityBase<Attr_Position> super;
+typedef LightEntityBase super;
 private:
     float32 m_radius;
 
@@ -90,7 +104,7 @@ public:
     void draw() override
     {
         PointLight l;
-        l.setPosition(getPosition());
+        l.setPosition(getPositionAbs());
         l.setRadius(getRadius());
         l.setColor(getDiffuse());
         atmGetLightPass()->addLight(l);
@@ -100,9 +114,9 @@ atmImplementEntity(PointLightEntity);
 atmExportClass(PointLightEntity);
 
 
-class DirectionalLightEntity : public LightEntityBase<Attr_Position>
+class DirectionalLightEntity : public LightEntityBase
 {
-typedef LightEntityBase<Attr_Position> super;
+typedef LightEntityBase super;
 private:
     vec3 m_direction;
 
