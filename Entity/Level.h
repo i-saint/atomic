@@ -54,7 +54,7 @@ public:
     void initialize() override
     {
         super::initialize();
-        setGlowColor(vec4(0.0f));
+        setGlowColor(vec4(vec3(0.5f), 0.0f));
         setDiffuseColor(vec4(vec3(0.5f), 50.0f));
     }
 
@@ -77,8 +77,8 @@ public:
         inst.diffuse = getDiffuseColor();
         inst.glow = getGlowColor();
         inst.flash = vec4();
-        inst.elapsed = 1000.0f;
-        inst.appear_radius = 10000.0f;
+        inst.elapsed = pasttime::getPastTime();
+        inst.appear_radius = inst.elapsed * 0.004f;
         inst.transform = transform::getTransformMatrix();
         inst.rotate = transform::computeRotationMatrix();
         uint32 num = 0;

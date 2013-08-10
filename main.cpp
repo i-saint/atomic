@@ -4,6 +4,7 @@
 #include "FunctionID.h"
 #include "Util.h"
 #include "ist/Base/BinaryCall.h"
+#include "Poco/DirectoryIterator.h"
 
 istImplementOperatorNewDelete();
 

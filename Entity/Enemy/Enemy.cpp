@@ -174,7 +174,7 @@ public:
             inst.diffuse = diffuse;
             inst.glow = glow;
             inst.flash = flash;
-            inst.elapsed = (float32)getPastTime();
+            inst.elapsed = getPastTime();
             inst.appear_radius = inst.elapsed * 0.004f;
             inst.transform = inst.rotate = getTransformMatrix();
             atmGetFluidPass()->addParticles(getModel(), inst, computeNumParticles());

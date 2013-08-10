@@ -1,4 +1,4 @@
-module path: "_tmp\Release\entity1\*.obj"
+module path: "_tmp\Release\atomic\*.obj"
+preload path: "_tmp\Release\atomic\*.obj"
 source path: "Entity"
-preload path: "_tmp\Release\entity1\*.obj"
-msbuild command: "entity1.vcxproj /target:ClCompile /m /p:Configuration=Release;Platform=Win32"
+msbuild command: "atomic.vcxproj /target:ClCompile /m /p:Configuration=Release;Platform=Win32"

@@ -20,6 +20,23 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CrashReport.cpp" />
+    <ClCompile Include="Entity\Enemy\Boss1.cpp" />
+    <ClCompile Include="Entity\Enemy\Carrier.cpp" />
+    <ClCompile Include="Entity\Enemy\Enemy.cpp" />
+    <ClCompile Include="Entity\Enemy\Fighter.cpp" />
+    <ClCompile Include="Entity\Enemy\Hatch.cpp" />
+    <ClCompile Include="Entity\Enemy\Projectile.cpp" />
+    <ClCompile Include="Entity\Enemy\Routine.cpp" />
+    <ClCompile Include="Entity\Enemy\Turret.cpp" />
+    <ClCompile Include="Entity\entitymain.cpp" />
+    <ClCompile Include="Entity\EntityUtil.cpp" />
+    <ClCompile Include="Entity\Level\Gear.cpp" />
+    <ClCompile Include="Entity\Level\Layer.cpp" />
+    <ClCompile Include="Entity\Level\Level1.cpp" />
+    <ClCompile Include="Entity\Level\LevelTest.cpp" />
+    <ClCompile Include="Entity\Level\LightEntity.cpp" />
+    <ClCompile Include="Entity\Level\Obstacle.cpp" />
+    <ClCompile Include="Entity\Player.cpp" />
     <ClCompile Include="EnumStrings.cpp" />
     <ClCompile Include="Game\AtomicApplication.cpp" />
     <ClCompile Include="Game\AtomicGame.cpp" />
@@ -79,6 +96,14 @@
     <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Entity\Enemy.h" />
+    <ClInclude Include="Entity\EntityAttributes.h" />
+    <ClInclude Include="Entity\EntityCommon.h" />
+    <ClInclude Include="Entity\EntityTemplate.h" />
+    <ClInclude Include="Entity\EntityTransform.h" />
+    <ClInclude Include="Entity\EntityUtil.h" />
+    <ClInclude Include="Entity\Level.h" />
+    <ClInclude Include="Entity\Routine.h" />
     <ClInclude Include="externals.h" />
     <ClInclude Include="features.h" />
     <ClInclude Include="FunctionID.h" />

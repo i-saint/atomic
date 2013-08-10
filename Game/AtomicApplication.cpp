@@ -91,6 +91,7 @@ bool AtomicConfig::readFromFile( const char* filepath )
         if(sscanf(buf, "sound_enable:%f", &itmp.x)==1)            { sound_enable=(itmp.x!=0); }
         if(sscanf(buf, "bgm_volume:%f", &ftmp.x)==1)              { bgm_volume=ftmp.x; }
         if(sscanf(buf, "se_volume:%f", &ftmp.x)==1)               { se_volume=ftmp.x; }
+        if(sscanf(buf, "graphics:%d", &itmp.x)==1)                { graphics_level=itmp.x; }
         if(sscanf(buf, "lighting:%d", &itmp.x)==1)                { lighting_level=itmp.x; }
         if(sscanf(buf, "leveleditor_port:%d", &utmp.x)==1)        { leveleditor_port=utmp.x; }
 #ifndef ist_env_Master
@@ -128,6 +129,7 @@ bool AtomicConfig::writeToFile( const char* filepath )
     fprintf(f, "sound_enable:%d\n",           sound_enable);
     fprintf(f, "bgm_volume:%f\n",             bgm_volume);
     fprintf(f, "se_volume:%f\n",              se_volume);
+    fprintf(f, "graphics:%d\n",               graphics_level);
     fprintf(f, "lighting:%d\n",               lighting_level);
     fprintf(f, "leveleditor_port:%d\n",       leveleditor_port);
 #ifndef ist_env_Master
@@ -255,10 +257,10 @@ bool AtomicApplication::initialize(int argc, char *argv[])
 
 #ifdef atm_enable_EntityDLL
     {
-        std::regex reg("\\.dll$");
+        std::regex pattern_dll("\\.dll$");
         Poco::DirectoryIterator end;
         for(Poco::DirectoryIterator it(Poco::Path("Resources")); it!=end; ++it) {
-            if(it->isFile() && it->canRead() && std::regex_search(it->path(), reg)) {
+            if(std::regex_search(it->path(), pattern_dll)) {
                 if(HMODULE dll = ::LoadLibraryA(it->path().c_str())) {
                     m_dlls.push_back(dll);
                 }

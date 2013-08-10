@@ -216,8 +216,8 @@ public:
     {
         if(m_frame_scene==1) {
             IEntity *layer = atmCreateEntityT(LevelLayer);
-            atmCall(layer, addPositionXCP, ControlPoint(   0.0f,  2.0f,  0.0f, 0.0f, ControlPoint::Linear));
-            atmCall(layer, addPositionXCP, ControlPoint(3600.0f, -5.0f,  0.0f, 0.0f));
+            atmCall(layer, addPositionXCP, ControlPoint(   0.0f,  3.0f,  0.0f, 0.0f, ControlPoint::Linear));
+            atmCall(layer, addPositionXCP, ControlPoint(3600.0f, -7.0f,  0.0f, 0.0f));
             {
                 IEntity *e = atmCreateEntityT(GearSmall);
                 atmCall(e, setPosition, vec3(0.5f, 0.5f, 0.0f));

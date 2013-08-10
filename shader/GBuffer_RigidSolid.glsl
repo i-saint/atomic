@@ -77,13 +77,13 @@ void main()
         float ar = vs_InstanceParams.y;
         vec3 psetpos = vs_PSetPosition.xyz;
         vec3 diff3 = flag_pos.xyz - psetpos;
-        float d = dot(diff3,diff3);
-        if(d > ar*ar) {
+        float d = length(diff3);
+        if(d > ar) {
             discard;
         }
         float cr = max(0.0, 1.0f - (ar-d)*40.0);
         float co = max(0.0, 1.0f - (ar-d)*60.0);
-        glow += vec4(1.0, 0.6, 0.7, 0.0) * vec4(cr, co, co, 0.0);
+        glow += vec4(1.0, 0.9, 1.5, 0.0) * vec4(cr, co, co, 0.0);
     }
 
     ps_FlagColor    = vs_VertexColor + vs_Glow;
