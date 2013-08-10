@@ -402,6 +402,14 @@ public:
 
         setLife(std::min<float32>(getLife()+m_life_regen, m_life_max));
         if(m_weapon) {m_weapon->update(dt); }
+        {
+            vec3 pos = getPosition();
+            float32 l = PSYM_GRID_SIZE*0.5f*0.95f;
+            pos.x = clamp(pos.x, -l, l);
+            pos.y = clamp(pos.y, -l, l);
+            pos.z = 0.0f;
+            setPosition(pos);
+        }
 
         // 流体パーティクルが 10000 以下なら追加
         if(atmGetFluidModule()->getNumParticles()<10000) {

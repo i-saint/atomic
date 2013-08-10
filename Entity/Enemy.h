@@ -220,7 +220,7 @@ public:
         inst.glow = getGlowColor();
         inst.flash = getDamageColor();
         inst.elapsed = (float32)getPastTime();
-        inst.appear_radius = 10000.0f;
+        inst.appear_radius = inst.elapsed * 0.004f;
         inst.transform = getTransformMatrix();
         atmGetFluidPass()->addParticles(getModel(), inst);
         atmGetBloodStainPass()->addBloodstainParticles(getTransformMatrix(), getBloodStainParticles(), getNumBloodstainParticles());

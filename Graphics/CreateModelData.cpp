@@ -303,13 +303,17 @@ void CreateFieldGridLines( VertexArray *va, Buffer *&vbo )
     vec3 cell   = size / div;
     vertices.reserve((PSYM_GRID_DIV+1) * (PSYM_GRID_DIV+1) * 2);
 
-    vec4 color1 = vec4(0.25f, 0.5f, 1.0f, 0.1f);
+    vec4 color1 = vec4(0.25f, 0.5f, 1.0f, 0.0f);
     vec4 color2 = vec4(0.25f, 0.5f, 1.0f, 0.15f);
+    vec4 color3 = vec4(0.25f, 0.5f, 1.0f, 0.5f);
     for(uint32 xi=0; xi<=div.x; ++xi) {
         vertex_t t[2];
         t[0].pos = vec4(bl + vec3(cell.x*xi,   0.0f, 0.0f), 1.0f);
         t[1].pos = vec4(bl + vec3(cell.x*xi, size.y, 0.0f), 1.0f);
-        vec4 color = xi %4 == 0 ? color2 : color1;
+        vec4 color = color1;
+        if(xi%64==0) { color=color2; }
+        if(xi%256==0) { color=color3; }
+
         t[0].color = color;
         t[1].color = color;
         vertices.insert(vertices.end(), t, t+_countof(t));
@@ -318,7 +322,9 @@ void CreateFieldGridLines( VertexArray *va, Buffer *&vbo )
         vertex_t t[2];
         t[0].pos = vec4(bl + vec3(  0.0f, cell.y*yi, 0.0f), 1.0f);
         t[1].pos = vec4(bl + vec3(size.x, cell.y*yi, 0.0f), 1.0f);
-        vec4 color = yi %4 == 0 ? color2 : color1;
+        vec4 color = color1;
+        if(yi%64==0) { color=color2; }
+        if(yi%256==0) { color=color3; }
         t[0].color = color;
         t[1].color = color;
         vertices.insert(vertices.end(), t, t+_countof(t));

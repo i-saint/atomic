@@ -13,7 +13,7 @@ namespace atm {
 
 PassForward_DistanceField::PassForward_DistanceField()
 {
-    m_sh_grid       = atmGetShader(SH_FILL);
+    m_sh_grid       = atmGetShader(SH_FILL3D);
     m_va_grid       = atmGetVertexArray(VA_FIELD_GRID);
 
     m_sh_cell       = atmGetShader(SH_DISTANCE_FIELD);
@@ -40,14 +40,6 @@ void PassForward_DistanceField::draw()
         m_sh_cell->unbind();
     }
 #endif // atm_enable_DistanceField
-
-    if(atmGetConfig()->debug_show_grid) {
-        m_sh_grid->bind();
-        dc->setVertexArray(m_va_grid);
-        dc->draw(I3D_LINES, 0, (PSYM_GRID_DIV+1) * (PSYM_GRID_DIV+1) * 2);
-        dc->setVertexArray(nullptr);
-        m_sh_grid->unbind();
-    }
 }
 
 
@@ -159,6 +151,44 @@ void PassForward_Generic::drawModel( SH_RID shader, MODEL_RID model, const Insta
 
 
 
+PassForward_Indicators::PassForward_Indicators()
+{
+}
+
+PassForward_Indicators::~PassForward_Indicators()
+{
+}
+
+void PassForward_Indicators::beforeDraw()
+{
+}
+
+void PassForward_Indicators::draw()
+{
+    if(!atmGetGame()) { return; }
+
+    i3d::DeviceContext *dc  = atmGetGLDeviceContext();
+    VertexArray  *va_grid = atmGetVertexArray(VA_FIELD_GRID);
+    AtomicShader *sh_grid = atmGetShader(SH_FILL3D);
+    RenderTarget *rt = atmGetBackRenderTarget();
+
+    rt->setDepthStencilBuffer(atmGetRenderTarget(RT_GBUFFER)->getDepthStencilBuffer());
+    dc->setBlendState(atmGetBlendState(BS_BLEND_ALPHA));
+    dc->setDepthStencilState(atmGetDepthStencilState(DS_DEPTH_ENABLED));
+    dc->setRenderTarget(rt);
+
+    sh_grid->bind();
+    dc->setVertexArray(va_grid);
+    dc->draw(I3D_LINES, 0, (PSYM_GRID_DIV+1) * (PSYM_GRID_DIV+1) * 2);
+    dc->setVertexArray(nullptr);
+    sh_grid->unbind();
+
+    dc->setDepthStencilState(atmGetDepthStencilState(DS_NO_DEPTH_NO_STENCIL));
+    dc->setBlendState(atmGetBlendState(BS_NO_BLEND));
+    rt->setDepthStencilBuffer(nullptr);
+}
+
+
 
 PassForward_Barrier::PassForward_Barrier()
 {
@@ -200,22 +230,22 @@ void PassForward_Barrier::addParticles( PSET_RID psid, const PSetInstance &inst,
 
 
 
-PassForward_BackGround::PassForward_BackGround()
+PassForward_Background::PassForward_Background()
     : m_shader(SH_BG2)
 {
     wdmAddNode("Rendering/BG/Enable", &m_shader, (int32)SH_BG1, (int32)SH_BG_END);
 }
 
-PassForward_BackGround::~PassForward_BackGround()
+PassForward_Background::~PassForward_Background()
 {
     wdmEraseNode("Rendering/BG");
 }
 
-void PassForward_BackGround::beforeDraw()
+void PassForward_Background::beforeDraw()
 {
 }
 
-void PassForward_BackGround::draw()
+void PassForward_Background::draw()
 {
     if(atmGetConfig()->bg_level==atmE_BGNone) { return; }
 
@@ -331,5 +361,6 @@ void PassForward_BackGround::draw()
         dc->setRenderTarget(brt);
     }
 }
+
 
 } // namespace atm

@@ -25,7 +25,8 @@ class PassDeferred_Bloodstain;
 class PassDeferred_Lights;
 class PassForward_Generic;
 class PassForward_Barrier;
-class PassForward_BackGround;
+class PassForward_Background;
+class PassForward_Indicators;
 class PassPostprocess_Microscopic;
 class PassPostprocess_FXAA;
 class PassPostprocess_Bloom;
@@ -54,7 +55,8 @@ private:
     PassDeferred_Lights                 *m_df_lights;
     PassForward_Generic                 *m_fw_generic;
     PassForward_Barrier                 *m_fw_barrier;
-    PassForward_BackGround              *m_fw_bg;
+    PassForward_Background              *m_fw_bg;
+    PassForward_Indicators              *m_fw_ind;
     PassPostprocess_FXAA                *m_pp_fxaa;
     PassPostprocess_Bloom               *m_pp_bloom;
     PassPostprocess_Fade                *m_pp_fade;
@@ -109,7 +111,7 @@ public:
     PassDeferred_Lights* getLightPass()         { return m_df_lights; }
     PassForward_Generic* getForwardPass()       { return m_fw_generic; }
     PassForward_Barrier* getBarrierPass()       { return m_fw_barrier; }
-    PassForward_BackGround* getBackgroundPass() { return m_fw_bg; }
+    PassForward_Background* getBackgroundPass() { return m_fw_bg; }
     PassPostprocess_Fade* getFader()            { return m_pp_fade; }
     SystemTextRenderer* getTextRenderer()       { return m_stext; }
     RenderTarget*   getFrontRenderTarget()      { return m_rt_out[0]; }

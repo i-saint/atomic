@@ -93,7 +93,7 @@ public:
         uint32 num = 0;
         vec3 size;
         if(atmQuery(this, getScale, size)) {
-            num = uint32((size.x*1.2f)*(size.y*1.2f)*size.z * 30000.0f);
+            num = uint32(size.x*size.y*size.z * 20000.0f);
         }
         atmGetFluidPass()->addParticlesSolid(getModel(), inst, num);
         atmGetBloodStainPass()->addBloodstainParticles(getTransformMatrix(), getBloodStainParticles(), getNumBloodstainParticles());

@@ -46,7 +46,8 @@ AtomicRenderer::AtomicRenderer()
     m_df_lights           = istNew(PassDeferred_Lights)();
     m_fw_generic          = istNew(PassForward_Generic)();
     m_fw_barrier          = istNew(PassForward_Barrier);
-    m_fw_bg               = istNew(PassForward_BackGround);
+    m_fw_bg               = istNew(PassForward_Background);
+    m_fw_ind              = istNew(PassForward_Indicators);
     m_pass_distance_field = istNew(PassForward_DistanceField)();
     m_pp_microscopic      = istNew(PassPostprocess_Microscopic)();
     m_pp_fxaa             = istNew(PassPostprocess_FXAA)();
@@ -65,6 +66,7 @@ AtomicRenderer::AtomicRenderer()
     m_renderers[PASS_FORWARD].push_back(m_fw_bg);
     m_renderers[PASS_FORWARD].push_back(m_fw_barrier);
     m_renderers[PASS_FORWARD].push_back(m_fw_generic);
+    m_renderers[PASS_FORWARD].push_back(m_fw_ind);
     m_renderers[PASS_FORWARD].push_back(m_pass_distance_field);
     m_renderers[PASS_POSTPROCESS].push_back(m_pp_fxaa);
     m_renderers[PASS_POSTPROCESS].push_back(m_pp_microscopic);
@@ -94,8 +96,10 @@ AtomicRenderer::~AtomicRenderer()
     istSafeDelete(m_pp_fxaa);
     istSafeDelete(m_pp_microscopic);
 
-    istSafeDelete(m_fw_bg);
     istSafeDelete(m_pass_distance_field);
+    istSafeDelete(m_fw_ind);
+    istSafeDelete(m_fw_bg);
+    istSafeDelete(m_fw_barrier);
     istSafeDelete(m_fw_generic);
 
     istSafeDelete(m_df_bloodstain);

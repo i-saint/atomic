@@ -18,17 +18,7 @@ struct Entity_Direction
 
 struct Entity_AxisRotationI
 {
-    typedef TAttr_TransformMatrixI< TAttr_RotateSpeed<Attr_DoubleAxisRotation> > transform;
-    typedef Attr_ParticleSet    model;
-    typedef Attr_Collision      collision;
-    typedef Attr_Bloodstain     bloodstain;
-    typedef Attr_MessageHandler mhandler;
-    typedef Attr_PastTime       pasttime;
-};
-
-struct Entity_AxisRotation
-{
-    typedef TAttr_TransformMatrix< TAttr_RotateSpeed<Attr_DoubleAxisRotation> > transform;
+    typedef TAttr_TransformMatrixI< TAttr_HaveParent< TAttr_RotateSpeed<Attr_DoubleAxisRotation> > > transform;
     typedef Attr_ParticleSet    model;
     typedef Attr_Collision      collision;
     typedef Attr_Bloodstain     bloodstain;

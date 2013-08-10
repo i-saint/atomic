@@ -6,6 +6,7 @@ istSEnumBlock(RoutineClassID,
     istSEnum(RCID_Null),
 
     istSEnum(RCID_Routine_SingleShoot),
+    istSEnum(RCID_Routine_FixedShotgun),
     istSEnum(RCID_Routine_CircularShoot),
     istSEnum(RCID_Routine_HomingPlayer),
     istSEnum(RCID_Routine_Pinball),

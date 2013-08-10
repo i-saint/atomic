@@ -85,7 +85,7 @@ public:
         for(uint32 i=0; i<_countof(planes); ++i) {
             CollisionPlane *p = atmCreateCollision(CollisionPlane);
             p->setEntityHandle(getHandle());
-            p->setFlags(CF_Sender|CF_SPH_Sender);
+            p->setFlags(CF_SPH_Sender);
             p->bb = bboxes[i];
             p->plane = planes[i];
             m_planes[i] = p->getCollisionHandle();
@@ -158,11 +158,11 @@ public:
 
     void update(float32 dt)
     {
-        if(dt>0.0f) {
-            ++m_frame_total;
-            ++m_frame_scene;
-        }
         updateCamera();
+        if(dt==0.0f) { return; }
+
+        ++m_frame_total;
+        ++m_frame_scene;
         switch(getState()) {
         case St_Begin:  sceneBegin(dt); break;
         case St_Scene1: scene1(dt); break;
@@ -306,10 +306,12 @@ public:
             atmCall(e, setRadius, 1.0f);
             atmCall(e, setDiffuse, light_color);
 
-            PutGroundBlockByBox(layer, 1, vec3(1.0f, 0.5f, -0.1f), vec3(1.5f, 2.5f, 0.25f));
-            PutGroundBlockByBox(layer, 1, vec3(1.0f,-0.5f, -0.1f), vec3(1.5f,-2.5f, 0.25f));
+            e = PutChildEntity(Antiproton, layer, vec3(-0.7f, 0.0f, 0.0f));
+
+            PutGroundBlockByBox(layer, 1, vec3(1.0f, 0.5f, -0.1f), vec3(1.5f, 2.5f, 0.1f));
+            PutGroundBlockByBox(layer, 1, vec3(1.0f,-0.5f, -0.1f), vec3(1.5f,-2.5f, 0.1f));
             {
-                IEntity *block = PutGroundBlockByBox(layer, 1, vec3(1.5f, 1.0f, -0.1f), vec3(1.85f, 0.0f, 0.2f));
+                IEntity *block = PutGroundBlockByBox(layer, 1, vec3(1.5f, 1.0f, -0.1f), vec3(1.85f, 0.0f, 0.15f));
                 IEntity *gear = PutChildEntity(GearSmall, layer, vec3(0.0f, 0.5f, 0.0f));
                 IEntity *linkage = atmCreateEntityT(GateLinkage);
                 atmCall(gear, setSpinMinAngle,   0.0f);
@@ -322,7 +324,7 @@ public:
                 atmCall(linkage, setLinkSpeed, 0.5f/720.0f);
             }
             {
-                IEntity *block = PutGroundBlockByBox(layer, 1, vec3(1.5f,-1.0f, -0.1f), vec3(1.85f, 0.0f, 0.2f));
+                IEntity *block = PutGroundBlockByBox(layer, 1, vec3(1.5f,-1.0f, -0.1f), vec3(1.85f, 0.0f, 0.15f));
                 IEntity *gear = PutChildEntity(GearSmall, layer, vec3(0.0f, -0.5f, 0.0f));
                 IEntity *linkage = atmCreateEntityT(GateLinkage);
                 atmCall(gear, setSpinMinAngle,-720.0f);
@@ -334,6 +336,14 @@ public:
                 atmCall(linkage, setSlideDir, vec3(0.0f,1.0f,0.0f));
                 atmCall(linkage, setLinkSpeed, 0.5f/720.0f);
             }
+            PutGroundBlockByBox(layer, 1, vec3(1.5f,-2.0f, -0.1f), vec3(4.0f,-2.5f, 0.15f));
+            PutGroundBlockByBox(layer, 1, vec3(3.5f,-2.0f, -0.1f), vec3(4.0f,-0.5f, 0.15f));
+            PutFluidFilterByBox(layer, 1, vec3(3.5f,-0.5f, -0.1f), vec3(4.0f, 0.5f, 0.15f));
+            PutGroundBlockByBox(layer, 1, vec3(3.5f, 0.5f, -0.1f), vec3(4.0f, 1.5f, 0.15f));
+            PutGroundBlockByBox(layer, 1, vec3(4.0f, 1.5f, -0.1f), vec3(5.0f, 1.0f, 0.15f));
+            PutRigidFilterByBox(layer, 1, vec3(3.5f, 1.5f, -0.1f), vec3(4.0f, 2.5f, 0.15f));
+            e = PutChildEntity(Antiproton, layer, vec3( 5.9f,-2.0f, 0.0f));
+            e = PutChildEntity(Antiproton, layer, vec3( 6.5f,-2.0f, 0.0f));
         }
 
         {
@@ -345,7 +355,7 @@ public:
             }
         }
 
-        if(f>2500) {
+        if(f>3000) {
             setState(St_Scene4);
         }
     }

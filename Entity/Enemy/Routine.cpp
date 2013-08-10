@@ -129,6 +129,121 @@ public:
 atmImplementRoutine(Routine_SingleShoot);
 atmExportClass(Routine_SingleShoot);
 
+
+class Routine_FixedShotgun : public IRoutine, public Attr_MessageHandler
+{
+typedef IRoutine super;
+typedef Attr_MessageHandler mhandler;
+private:
+    enum State {
+        State_Normal,
+        State_Laser,
+    };
+    float32 m_time;
+    int32 m_cycle;
+    State m_state;
+    LaserHandle m_laser;
+
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerializeBase(mhandler)
+        istSerialize(m_time)
+        istSerialize(m_cycle)
+        istSerialize(m_state)
+        istSerialize(m_laser)
+    )
+
+public:
+    atmECallBlock(
+        atmECallSuper(mhandler)
+        atmMethodBlock(
+            atmECall(instruct)
+        )
+    )
+
+public:
+    Routine_FixedShotgun() : m_time(0.0f), m_cycle(0), m_state(State_Normal), m_laser(0)
+    {}
+
+    void setState(State v) { m_state=v; m_time=0.0f; }
+    State getState() const { return m_state; }
+
+    void finalize() override
+    {
+        if(ILaser *l=atmGetBulletModule()->getLaser(m_laser)) {
+            l->kill();
+        }
+    }
+
+    void update(float32 dt) override
+    {
+        switch(getState()) {
+        case State_Normal: update_Normal(dt); break;
+        case State_Laser: update_Laser(dt); break;
+        }
+    }
+
+    void update_Normal(float32 dt)
+    {
+        m_time += dt;
+        IEntity *e = getEntity();
+        if(moddiv(m_time, 300.0f)) {
+            vec3 pos = atmGetProperty(vec3, e, getPositionAbs);
+            vec3 player_pos = GetNearestPlayerPosition(pos);
+            float32 d = glm::length(vec2(player_pos)-vec2(pos));
+            if(d < 4.0f) {
+                vec3 dir = vec3(glm::normalize(vec2(player_pos)-vec2(pos)), 0.0f);
+                for(int i=0; i<20; ++i) {
+                    vec3 vel = (dir+GenRandomUnitVector3()*0.2f)*0.012f;
+                    vel.z = 0.0f;
+                    ShootSimpleBullet(e->getHandle(), pos, vel);
+                }
+            }
+            ++m_cycle;
+        }
+    }
+
+    void update_Laser(float32 dt)
+    {
+        m_time += dt;
+        if(m_time>100.0f) {
+            if(ILaser *l=atmGetBulletModule()->getLaser(m_laser)) {
+                l->fade();
+            }
+            else {
+                m_laser = 0;
+                setState(State_Normal);
+            }
+        }
+    }
+
+    void instruct(const vec3 &tpos, EntityHandle tobj)
+    {
+        if(getState()!=State_Laser) {
+            setState(State_Laser);
+
+            IEntity *e = getEntity();
+            vec3 pos; atmQuery(e, getPosition, pos);
+            vec3 dir = glm::normalize(tpos-pos);
+            m_laser = atmGetBulletModule()->createLaser(pos+dir*0.2f, dir, e->getHandle());
+        }
+    }
+
+    void eventCollide(const CollideMessage *m) override
+    {
+        IEntity *e = getEntity();
+        vec3 v = glm::normalize(vec3(m->direction.x,m->direction.y,0.0f)) * (m->direction.w * 0.1f);
+        vec3 pos; atmQuery(e, getPosition, pos);
+        pos += v;
+        pos.z = 0.0f;
+        atmCall(e, setPosition, pos);
+    }
+};
+atmImplementRoutine(Routine_FixedShotgun);
+atmExportClass(Routine_FixedShotgun);
+
+
+
 class Routine_CircularShoot : public IRoutine
 {
 typedef IRoutine super;

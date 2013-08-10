@@ -45,6 +45,17 @@ private:
     int32 m_frame;
 };
 
+class atmAPI PassForward_Indicators : public IRenderer
+{
+public:
+    PassForward_Indicators();
+    ~PassForward_Indicators();
+    void beforeDraw();
+    void draw();
+
+private:
+};
+
 class atmAPI PassForward_Barrier : public IRenderer
 {
 public:
@@ -59,11 +70,11 @@ private:
     PSetDrawData m_solids;
 };
 
-class atmAPI PassForward_BackGround : public IRenderer
+class atmAPI PassForward_Background : public IRenderer
 {
 public:
-    PassForward_BackGround();
-    ~PassForward_BackGround();
+    PassForward_Background();
+    ~PassForward_Background();
     void beforeDraw();
     void draw();
 

@@ -75,6 +75,7 @@
     <None Include="shader\Fade.glsl" />
     <None Include="shader\FeedbackBlur.glsl" />
     <None Include="shader\Fill.glsl" />
+    <None Include="shader\Fill3D.glsl" />
     <None Include="shader\FillInstanced.glsl" />
     <None Include="shader\Forward_Barrier.glsl" />
     <None Include="shader\Forward_BarrierRigidParticles.glsl" />

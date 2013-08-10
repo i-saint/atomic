@@ -191,6 +191,7 @@ bool GraphicResourceManager::initialize()
         m_shader[SH_BLOOM_COMPOSITE]    = CreateAtomicShader("Bloom_Composite");
         m_shader[SH_FADE]               = CreateAtomicShader("Fade");
         m_shader[SH_FILL]               = CreateAtomicShader("Fill");
+        m_shader[SH_FILL3D]             = CreateAtomicShader("Fill3D");
         m_shader[SH_FILL_INSTANCED]     = CreateAtomicShader("FillInstanced");
         m_shader[SH_DISTANCE_FIELD]     = CreateAtomicShader("DistanceField");
         m_shader[SH_OUTPUT]             = CreateAtomicShader("Out");

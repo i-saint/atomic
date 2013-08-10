@@ -200,7 +200,7 @@ public:
     void eventCollide(const CollideMessage *m) override
     {
         super::eventCollide(m);
-        damage( std::max<float32>(m->direction.w-0.01f, 0.0f) * 10.0f);
+        damage( std::max<float32>(m->direction.w-0.015f, 0.0f) * 10.0f);
     }
 };
 atmImplementEntity(Enemy_Test);
@@ -225,11 +225,18 @@ public:
         super::initialize();
         setCollisionShape(CS_Box);
         setModel(PSET_UNIT_CUBE);
+        setScale(vec3(0.3f));
         setLife(2000.0f);
-        setLightRadius(0.5f);
+        setAxis1(GenRandomUnitVector3());
+        setAxis2(GenRandomUnitVector3());
+        setRotateSpeed1(0.1f);
+        setRotateSpeed2(0.1f);
+        setLightRadius(1.4f);
+        setExplosionSE(SE_EXPLOSION5);
+        setExplosionChannel(SE_CHANNEL5);
     }
 };
-atmImplementEntity(Core, DF_Editor);
+atmImplementEntity(Core);
 atmExportClass(Core);
 
 
@@ -296,6 +303,39 @@ public:
 };
 atmImplementEntity(Proton, DF_RTS, 5.0f);
 atmExportClass(Proton);
+
+
+class Antiproton : public Enemy_Test
+{
+typedef Enemy_Test super;
+private:
+    istSerializeBlock(
+        istSerializeBase(super)
+    )
+
+public:
+    Antiproton()
+    {
+    }
+
+    void initialize() override
+    {
+        super::initialize();
+        setModel(PSET_CUBE_MEDIUM);
+        setCollisionShape(CS_Box);
+        setLife(120.0f);
+        setAxis1(GenRandomUnitVector3());
+        setAxis2(GenRandomUnitVector3());
+        setRotateSpeed1(0.4f);
+        setRotateSpeed2(0.4f);
+        setRoutine(RCID_Routine_FixedShotgun);
+        setLightRadius(0.8f);
+        setExplosionSE(SE_EXPLOSION4);
+        setExplosionChannel(SE_CHANNEL4);
+    }
+};
+atmImplementEntity(Antiproton, DF_RTS, 5.0f);
+atmExportClass(Antiproton);
 
 } // namespace atm
 

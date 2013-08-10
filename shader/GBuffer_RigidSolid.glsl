@@ -17,6 +17,7 @@ vs_out vec4 vs_VertexColor;         // w = shininess
 vs_out vec4 vs_Glow;
 vs_out vec4 vs_Flash;
 #endif
+const float scale = 1.5;
 
 #if defined(GLSL_VS)
 
@@ -41,7 +42,7 @@ void main()
     rot[3] = texelFetch(u_ParamBuffer, ivec2(11, ia_InstanceID), 0);
 
     vec4 instancePos = trans * vec4(ia_InstancePosition.xyz, 1.0);
-    vec4 vertexPos = rot * vec4(ia_VertexPosition.xyz*vs_InstanceParams.z, 0.0);
+    vec4 vertexPos = rot * vec4(ia_VertexPosition.xyz*scale*vs_InstanceParams.z, 0.0);
     vec4 vert = vec4(vertexPos.xyz+instancePos.xyz, 1.0);
 
     vec3 normal = normalize((rot * vec4(ia_VertexNormal.xyz, 0.0)).xyz);
