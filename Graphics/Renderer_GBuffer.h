@@ -29,10 +29,11 @@ public:
     void addParticles(PSET_RID psid, const PSetInstance &inst, uint32 n=0);
     void addParticlesSolid(PSET_RID psid, const PSetInstance &inst, uint32 n=0);
 
+    static bool culling(PSET_RID psid, const PSetInstance &inst);
+    static void drawParticleSets(PSetDrawData &pdd);
+
 private:
     void drawFluid();
-    void drawParticleSets(PSetDrawData &pdd);
-    bool culling(PSET_RID psid, const PSetInstance &inst);
 
     PSetDrawData m_rigid_sp;
     PSetDrawData m_rigid_so;

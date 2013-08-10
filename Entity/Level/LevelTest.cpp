@@ -50,7 +50,7 @@ public:
     void initialize()
     {
         super::initialize();
-        atmGetForwardBGPass()->setBGShader(SH_BG6);
+        atmGetBackgroundPass()->setBGShader(SH_BG6);
 
         const vec4 field_size = vec4(PSYM_GRID_SIZE*0.5f);
         atmGetWorld()->setFieldSize(field_size);

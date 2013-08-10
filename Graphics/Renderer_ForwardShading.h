@@ -53,11 +53,9 @@ public:
     void beforeDraw();
     void draw();
 
-    void addParticles(PSET_RID psid, const PSetInstance &inst);
+    void addParticles(PSET_RID psid, const PSetInstance &inst, uint32 n=0);
 
 private:
-    void drawParticles(PSetDrawData &pdd);
-
     PSetDrawData m_solids;
 };
 

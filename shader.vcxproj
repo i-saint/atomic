@@ -77,6 +77,7 @@
     <None Include="shader\Fill.glsl" />
     <None Include="shader\FillInstanced.glsl" />
     <None Include="shader\Forward_Barrier.glsl" />
+    <None Include="shader\Forward_BarrierRigidParticles.glsl" />
     <None Include="shader\FXAA.glsl" />
     <None Include="shader\FXAA_luma.glsl" />
     <None Include="shader\GBuffer_Floor.glsl" />

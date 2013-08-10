@@ -115,9 +115,9 @@ void PassGBuffer_Fluid::drawParticleSets( PSetDrawData &pdd )
 {
     if(pdd.update_info.empty()) { return; }
 
-    i3d::DeviceContext *dc = atmGetGLDeviceContext();
-    VertexArray     *va_cube  = atmGetVertexArray(VA_FLUID_CUBE);
-    Buffer          *vbo = atmGetVertexBuffer(pdd.vbo);
+    i3d::DeviceContext *dc  = atmGetGLDeviceContext();
+    VertexArray     *va_cube= atmGetVertexArray(VA_FLUID_CUBE);
+    Buffer          *vbo    = atmGetVertexBuffer(pdd.vbo);
     AtomicShader    *shader = atmGetShader(pdd.shader);
     Texture2D       *params = atmGetTexture2D(pdd.params);
 

@@ -45,6 +45,7 @@ AtomicRenderer::AtomicRenderer()
     m_df_bloodstain       = istNew(PassDeferred_Bloodstain)();
     m_df_lights           = istNew(PassDeferred_Lights)();
     m_fw_generic          = istNew(PassForward_Generic)();
+    m_fw_barrier          = istNew(PassForward_Barrier);
     m_fw_bg               = istNew(PassForward_BackGround);
     m_pass_distance_field = istNew(PassForward_DistanceField)();
     m_pp_microscopic      = istNew(PassPostprocess_Microscopic)();
@@ -62,6 +63,7 @@ AtomicRenderer::AtomicRenderer()
     m_renderers[PASS_DEFERRED].push_back(m_df_bloodstain);
     m_renderers[PASS_DEFERRED].push_back(m_df_lights);
     m_renderers[PASS_FORWARD].push_back(m_fw_bg);
+    m_renderers[PASS_FORWARD].push_back(m_fw_barrier);
     m_renderers[PASS_FORWARD].push_back(m_fw_generic);
     m_renderers[PASS_FORWARD].push_back(m_pass_distance_field);
     m_renderers[PASS_POSTPROCESS].push_back(m_pp_fxaa);

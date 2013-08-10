@@ -160,6 +160,18 @@ void PassForward_Generic::drawModel( SH_RID shader, MODEL_RID model, const Insta
 
 
 
+PassForward_Barrier::PassForward_Barrier()
+{
+    m_solids.vbo    = VBO_FW_RIGID_BARRIER;
+    m_solids.shader = SH_BARRIER_PARTICLES;
+    m_solids.params = TEX2D_PSET_PARAMS_FW_BARRIER;
+}
+
+PassForward_Barrier::~PassForward_Barrier()
+{
+
+}
+
 void PassForward_Barrier::beforeDraw()
 {
     m_solids.clear();
@@ -167,86 +179,19 @@ void PassForward_Barrier::beforeDraw()
 
 void PassForward_Barrier::draw()
 {
-    drawParticles(m_solids);
+    PassGBuffer_Fluid::drawParticleSets(m_solids);
 }
 
-void PassForward_Barrier::drawParticles( PSetDrawData &pdd )
+void PassForward_Barrier::addParticles( PSET_RID psid, const PSetInstance &inst, uint32 n )
 {
-    if(pdd.update_info.empty()) { return; }
+    if(!PassGBuffer_Fluid::culling(psid, inst)) { return; }
 
-    i3d::DeviceContext *dc  = atmGetGLDeviceContext();
-    VertexArray     *va_cube= atmGetVertexArray(VA_FLUID_CUBE);
-    Buffer          *vbo    = atmGetVertexBuffer(pdd.vbo);
-    AtomicShader    *shader = atmGetShader(pdd.shader);
-    Texture2D       *params = atmGetTexture2D(pdd.params);
-
-    // update rigid particle
-    uint32 num_particles = 0;
-    uint32 num_tasks = 0;
-    {
-        // 合計パーティクル数を算出して、それが収まるバッファを確保
-        uint32 num_instances = pdd.update_info.size();
-        for(uint32 ri=0; ri<num_instances; ++ri) {
-            num_particles += atmGetParticleSet(pdd.update_info[ri].psid)->getNumParticles();
-        }
-        pdd.particle_data.resize(num_particles);
-
-        size_t n = 0;
-        for(uint32 ri=0; ri<num_instances; ++ri) {
-            const ParticleSet *rc = atmGetParticleSet(pdd.update_info[ri].psid);
-            uint32 num_particles            = rc->getNumParticles();
-            const PSetParticle *particles   = rc->getParticleData();
-            for(uint32 i=0; i<num_particles; ++i) {
-                uint32 pi = n+i;
-                pdd.particle_data[pi].position     = particles[i].position;
-                pdd.particle_data[pi].normal       = particles[i].normal;
-                pdd.particle_data[pi].instanceid   = pdd.update_info[ri].instanceid;
-            }
-            n += atmGetParticleSet(pdd.update_info[ri].psid)->getNumParticles();
-        }
-    }
-
-    if(!pdd.instance_data.empty()) {
-        dc->updateResource(params, 0, uvec2(0,0), uvec2(sizeof(PSetInstance)/sizeof(vec4), pdd.instance_data.size()), &pdd.instance_data[0]);
-        MapAndWrite(dc, vbo, &pdd.particle_data[0], sizeof(PSetParticle)*num_particles);
-    }
-    {
-        const VertexDesc descs[] = {
-            {GLSL_INSTANCE_NORMAL,   I3D_FLOAT32,4,  0, false, 1},
-            {GLSL_INSTANCE_POSITION, I3D_FLOAT32,3, 16, false, 1},
-            {GLSL_INSTANCE_PARAM,    I3D_INT32,  1, 28, false, 1},
-        };
-        va_cube->setAttributes(1, vbo, 0, sizeof(PSetParticle), descs, _countof(descs));
-
-        shader->assign(dc);
-        dc->setTexture(GLSL_PARAM_BUFFER, params);
-        dc->setVertexArray(va_cube);
-        dc->setDepthStencilState(atmGetDepthStencilState(DS_GBUFFER_RIGID));
-        dc->drawInstanced(I3D_QUADS, 0, 24, num_particles);
-        dc->setDepthStencilState(atmGetDepthStencilState(DS_GBUFFER_BG));
-        dc->setVertexArray(nullptr);
-        dc->setTexture(GLSL_PARAM_BUFFER, nullptr);
-    }
-}
-
-void PassForward_Barrier::addParticles( PSET_RID psid, const PSetInstance &inst )
-{
-    {
-        const ParticleSet *rc = atmGetParticleSet(psid);
-        vec4 posf = inst.transform[3];
-        posf.w = 0.0f;
-        simdvec4 pos = simdvec4(posf);
-        AABB aabb = rc->getAABB();
-        aabb[0] = (simdvec4(aabb[0])+pos).Data;
-        aabb[1] = (simdvec4(aabb[1])+pos).Data;
-        if(!ist::TestFrustumAABB(*atmGetViewFrustum(), aabb)) {
-            return;
-        }
-    }
-
+    const ParticleSet *rc = atmGetParticleSet(psid);
+    uint32 num_particles = rc->getNumParticles();
     PSetUpdateInfo tmp;
     tmp.psid        = psid;
     tmp.instanceid  = m_solids.instance_data.size();
+    tmp.num = n!=0 ? std::min(n, num_particles) : num_particles;
     m_solids.update_info.push_back(tmp);
     m_solids.instance_data.push_back(inst);
 }

@@ -6,6 +6,7 @@
 #include "TitleWindow.h"
 #include "ConfigWindow.h"
 #include "UISelector.h"
+#include "Util.h"
 #include "Game/EntityClass.h"
 #include "Poco/DirectoryIterator.h"
 
@@ -19,6 +20,7 @@ private:
     void onCampaign(Widget *);
     void onHorde(Widget *);
     void onEdit(Widget *);
+    void onTest(Widget *);
     bool onCancel(const iui::WM_Widget &wm) override;
 };
 
@@ -43,7 +45,7 @@ TitleWindow::TitleWindow()
     , m_record(nullptr)
     , m_time(0.0f)
 {
-    std::fill_n(m_buttons, _countof(m_buttons), (iui::ToggleButton*)nullptr);
+    clear(m_buttons);
 
     using std::placeholders::_1;
     iui::Size size(200, 25);
@@ -95,7 +97,7 @@ void TitleWindow::drawCallback()
 
     atmGetRenderer()->setGameCamera(cam);
     atmGetRenderer()->setTime(m_time);
-    atmGetForwardBGPass()->setBGShader(SH_BG7);
+    atmGetBackgroundPass()->setBGShader(SH_BG7);
 }
 
 void TitleWindow::onStart(Widget *)
@@ -175,8 +177,12 @@ StartWindow::StartWindow()
     n += 1.0f;
     //istNew(iui::Button)(this, L"horde",   iui::Rect(iui::Position(0, vspace*n), size), std::bind(&StartWindow::onHorde, this, _1));
     //n += 1.0f;
+#ifndef ist_env_Master
     iuiNew(iui::Button)(this, L"edit",    iui::Rect(iui::Position(0, vspace*n), size), std::bind(&StartWindow::onEdit, this, _1));
     n += 1.0f;
+    iuiNew(iui::Button)(this, L"test",    iui::Rect(iui::Position(0, vspace*n), size), std::bind(&StartWindow::onTest, this, _1));
+    n += 1.0f;
+#endif // ist_env_Master
 }
 
 void StartWindow::onCampaign(Widget *)
@@ -199,6 +205,16 @@ void StartWindow::onHorde(Widget *)
 }
 
 void StartWindow::onEdit( Widget * )
+{
+    GameStartConfig conf;
+    conf.gmode = GameStartConfig::GM_Edit;
+    conf.levelclass = EC_Level1;
+
+    atmGetApplication()->requestStartGame(conf);
+    atmGetTitleWindow()->setVisibility(false);
+}
+
+void StartWindow::onTest( Widget * )
 {
     GameStartConfig conf;
     conf.gmode = GameStartConfig::GM_Edit;

@@ -48,7 +48,7 @@ public:
     void initialize()
     {
         super::initialize();
-        atmGetForwardBGPass()->setBGShader(SH_BG6);
+        atmGetBackgroundPass()->setBGShader(SH_BG6);
 
         const vec4 field_size = vec4(PSYM_GRID_SIZE*0.5f);
         atmGetWorld()->setFieldSize(field_size);
@@ -220,7 +220,22 @@ public:
             atmCall(layer, addPositionXCP, ControlPoint(3600.0f, -7.0f,  0.0f, 0.0f));
             {
                 IEntity *e = atmCreateEntityT(GearSmall);
-                atmCall(e, setPosition, vec3(0.5f, 0.5f, 0.0f));
+                atmCall(e, setPosition, vec3(0.0f, 0.5f, 0.0f));
+                atmCall(e, setParent, layer->getHandle());
+            }
+            {
+                IEntity *e = atmCreateEntityT(GearMedium);
+                atmCall(e, setPosition, vec3(0.5f, -0.4f, 0.0f));
+                atmCall(e, setParent, layer->getHandle());
+            }
+            {
+                IEntity *e = atmCreateEntityT(GearLarge);
+                atmCall(e, setPosition, vec3(1.2f, 0.3f, 0.0f));
+                atmCall(e, setParent, layer->getHandle());
+            }
+            {
+                IEntity *e = atmCreateEntityT(GearSmall);
+                atmCall(e, setPosition, vec3(1.4f, -0.6f, 0.0f));
                 atmCall(e, setParent, layer->getHandle());
             }
         }

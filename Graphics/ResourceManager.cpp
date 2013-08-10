@@ -149,6 +149,7 @@ bool GraphicResourceManager::initialize()
         m_vbo[VBO_GB_FLUID]             = CreateVertexBuffer(dev, sizeof(psym::Particle)*PSYM_MAX_PARTICLE_NUM, I3D_USAGE_DYNAMIC);
         m_vbo[VBO_GB_RIGID_SPHERICAL]   = CreateVertexBuffer(dev, sizeof(PSetParticle)*MAX_RIGID_PARTICLES, I3D_USAGE_DYNAMIC);
         m_vbo[VBO_GB_RIGID_SOLID]       = CreateVertexBuffer(dev, sizeof(PSetParticle)*MAX_RIGID_PARTICLES, I3D_USAGE_DYNAMIC);
+        m_vbo[VBO_FW_RIGID_BARRIER]     = CreateVertexBuffer(dev, sizeof(PSetParticle)*MAX_RIGID_PARTICLES, I3D_USAGE_DYNAMIC);
         m_vbo[VBO_PARTICLES]            = CreateVertexBuffer(dev, sizeof(SingleParticle)*MAX_EFFECT_PARTICLES, I3D_USAGE_DYNAMIC);
         m_vbo[VBO_DIRLIGHT_INSTANCES]   = CreateVertexBuffer(dev, sizeof(DirectionalLight)*ATOMIC_MAX_DIRECTIONAL_LIGHTS, I3D_USAGE_DYNAMIC);
         m_vbo[VBO_POINTLIGHT_INSTANCES] = CreateVertexBuffer(dev, sizeof(PointLight)*ATOMIC_MAX_POINT_LIGHTS, I3D_USAGE_DYNAMIC);
@@ -196,6 +197,7 @@ bool GraphicResourceManager::initialize()
         m_shader[SH_DEBUG_SHOW_RGB]     = CreateAtomicShader("Debug_ShowRGB");
         m_shader[SH_DEBUG_SHOW_AAA]     = CreateAtomicShader("Debug_ShowAAA");
         m_shader[SH_BARRIER]            = CreateAtomicShader("Forward_Barrier");
+        m_shader[SH_BARRIER_PARTICLES]  = CreateAtomicShader("Forward_BarrierRigidParticles");
         m_shader[SH_FEEDBACK_BLUR]      = CreateAtomicShader("FeedbackBlur");
 
         m_shader[SH_BG1]    = CreateAtomicShader("BG1");
@@ -219,6 +221,7 @@ bool GraphicResourceManager::initialize()
         m_tex2d[TEX2D_PSET_PARAMS_GB_SP] = dev->createTexture2D(Texture2DDesc(I3D_RGBA32F, uvec2(12, 4096)));
         m_tex2d[TEX2D_PSET_PARAMS_GB_SO] = dev->createTexture2D(Texture2DDesc(I3D_RGBA32F, uvec2(12, 4096)));
         m_tex2d[TEX2D_PSET_PARAMS_FW_SO] = dev->createTexture2D(Texture2DDesc(I3D_RGBA32F, uvec2(12, 4096)));
+        m_tex2d[TEX2D_PSET_PARAMS_FW_BARRIER] = dev->createTexture2D(Texture2DDesc(I3D_RGBA32F, uvec2(12, 4096)));
     }
     {
         // create render targets

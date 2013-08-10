@@ -24,6 +24,7 @@ class PassGBuffer_Particle;
 class PassDeferred_Bloodstain;
 class PassDeferred_Lights;
 class PassForward_Generic;
+class PassForward_Barrier;
 class PassForward_BackGround;
 class PassPostprocess_Microscopic;
 class PassPostprocess_FXAA;
@@ -52,6 +53,7 @@ private:
     PassDeferred_Bloodstain             *m_df_bloodstain;
     PassDeferred_Lights                 *m_df_lights;
     PassForward_Generic                 *m_fw_generic;
+    PassForward_Barrier                 *m_fw_barrier;
     PassForward_BackGround              *m_fw_bg;
     PassPostprocess_FXAA                *m_pp_fxaa;
     PassPostprocess_Bloom               *m_pp_bloom;
@@ -106,7 +108,8 @@ public:
     PassDeferred_Bloodstain* getBloodStainPass(){ return m_df_bloodstain; }
     PassDeferred_Lights* getLightPass()         { return m_df_lights; }
     PassForward_Generic* getForwardPass()       { return m_fw_generic; }
-    PassForward_BackGround* getForwardBGPass()  { return m_fw_bg; }
+    PassForward_Barrier* getBarrierPass()       { return m_fw_barrier; }
+    PassForward_BackGround* getBackgroundPass() { return m_fw_bg; }
     PassPostprocess_Fade* getFader()            { return m_pp_fade; }
     SystemTextRenderer* getTextRenderer()       { return m_stext; }
     RenderTarget*   getFrontRenderTarget()      { return m_rt_out[0]; }
@@ -124,7 +127,8 @@ public:
 #define atmGetParticlePass()        atmGetRenderer()->getParticlePass()
 #define atmGetLightPass()           atmGetRenderer()->getLightPass()
 #define atmGetForwardPass()         atmGetRenderer()->getForwardPass()
-#define atmGetForwardBGPass()       atmGetRenderer()->getForwardBGPass()
+#define atmGetBarrierPass()         atmGetRenderer()->getBarrierPass()
+#define atmGetBackgroundPass()      atmGetRenderer()->getBackgroundPass()
 #define atmGetFader()               atmGetRenderer()->getFader()
 #define atmGetTextRenderer()        atmGetRenderer()->getTextRenderer()
 

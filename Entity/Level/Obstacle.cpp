@@ -95,8 +95,8 @@ public:
         inst.diffuse = getDiffuseColor();
         inst.glow = getGlowColor();
         inst.flash = vec4();
-        inst.elapsed = 1000.0f;
-        inst.appear_radius = 10000.0f;
+        inst.elapsed = pasttime::getPastTime();
+        inst.appear_radius = inst.elapsed * 0.004f;
         inst.transform = transform::getTransformMatrix();
         inst.rotate = transform::computeRotationMatrix();
         uint32 num = 0;
@@ -104,7 +104,7 @@ public:
         if(atmQuery(this, getScale, size)) {
             num = uint32((size.x*1.2f)*(size.y*1.2f)*size.z * 30000.0f);
         }
-        atmGetFluidPass()->addParticlesSolid(getModel(), inst, num);
+        atmGetBarrierPass()->addParticles(getModel(), inst, num);
     }
 };
 atmImplementEntity(FluidFilter, DF_Editor, 0.0f);
