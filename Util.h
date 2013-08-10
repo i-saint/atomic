@@ -125,6 +125,8 @@ namespace atm {
     atmAPI vec3 GenRandomUnitVector3();
     atmAPI void CreateDateString(char *buf, uint32 len);
     atmAPI bool mkdir(const char *path);
+    atmAPI void glob( const char *path, const std::function<void (const std::string &file)> &f);
+    atmAPI void glob( const char *path, const char *filter_regex, const std::function<void (const std::string &file)> &f);
     atmAPI void HTTPGet(
         const char *url,
         const std::function<void (std::istream &res)> &on_complete,

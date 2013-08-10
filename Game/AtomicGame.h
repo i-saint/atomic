@@ -74,6 +74,7 @@ public:
     const InputState& getIngameInputs() const { return m_input_server->getInput(0); }
     World* getWorld()   { return m_world; }
     SFMT* getRandom();
+    float32 getElapsed() const              { return m_elapsed; }
     uint32 getFrame() const                 { return m_frame; }
     PlayerID getPlayerID() const            { return m_player_id; }
     bool isUpdateSkipped() const            { return m_skip_update; }
@@ -101,6 +102,7 @@ private:
     IInputServer    *m_input_server;
     World           *m_world;
     SFMT            m_rand;
+    float32         m_elapsed;
     uint32          m_frame;
     float32         m_resource; // RTS モードでユニットを生成するためのコスト。毎秒 1 追加 & 敵キャラ倒すと追加
     PlayerID        m_player_id;
@@ -121,6 +123,7 @@ private:
 #define atmGetIngameInputs()    atmGetGame()->getIngameInputs()
 #define atmGetRandom()          atmGetGame()->getRandom()
 #define atmGetFrame()           atmGetGame()->getFrame()
+#define atmGetElapsedTime()     atmGetGame()->getElapsed()
 
 bool atmIsEditMode();
 

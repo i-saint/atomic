@@ -175,7 +175,7 @@ public:
     {
         setSpinMaxSpeed(4.0f);
         setSpinDecel(0.99f);
-        setSpinResist(0.003f);
+        setSpinResist(0.001f);
 
         const int32 div = 5;
         const vec4 dir_x(1.0f,0.0f,0.0f,0.0f);
@@ -221,7 +221,7 @@ public:
     {
         setSpinMaxSpeed(1.5f);
         setSpinDecel(0.99f);
-        setSpinResist(0.0003f);
+        setSpinResist(0.0001f);
 
         const int32 div = 6;
         const vec4 dir_x(1.0f,0.0f,0.0f,0.0f);

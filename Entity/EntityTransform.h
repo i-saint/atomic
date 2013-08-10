@@ -17,6 +17,8 @@ public:
             atmECall(getPosition)
             atmECall(setPosition)
             atmECall(move)
+            atmECall(getPositionAbs)
+            atmECall(setPositionAbs)
         )
     )
 
@@ -37,6 +39,8 @@ public:
     const vec3& getPosition() const { return m_pos; }
     void setPosition(const vec3& v) { m_pos=v; }
     void move(const vec3 &v)        { setPosition(getPosition()+v); }
+    const vec3& getPositionAbs() const { return m_pos; }
+    void setPositionAbs(const vec3& v) { m_pos=v; }
 
     mat4 computeTransformMatrix() const
     {
@@ -78,6 +82,8 @@ public:
             atmECall(move)
             atmECall(computeTransformMatrix)
             atmECall(computeRotationMatrix)
+            atmECall(getPositionAbs)
+            atmECall(setPositionAbs)
         )
     )
 
@@ -118,6 +124,8 @@ public:
     void setAxis(const vec3& v)     { m_axis=v; }
     void setRotate(float32 v)       { m_rot=v; }
     void move(const vec3 &v)        { setPosition(getPosition()+v); }
+    const vec3& getPositionAbs() const { return m_pos; }
+    void setPositionAbs(const vec3& v) { m_pos=v; }
 
     mat4 computeTransformMatrix() const
     {
@@ -171,6 +179,8 @@ public:
             atmECall(orient)
             atmECall(computeTransformMatrix)
             atmECall(computeRotationMatrix)
+            atmECall(getPositionAbs)
+            atmECall(setPositionAbs)
         )
     )
 
@@ -214,6 +224,8 @@ public:
     void setUpVector(const vec3& v)     { m_up=v; }
     void move(const vec3 &v)            { setPosition(getPosition()+v); }
     void orient(const vec3 &v)          { setDirection(v); }
+    const vec3& getPositionAbs() const { return m_pos; }
+    void setPositionAbs(const vec3& v) { m_pos=v; }
 
     mat4 computeTransformMatrix() const
     {
@@ -275,6 +287,8 @@ public:
             atmECall(move)
             atmECall(computeTransformMatrix)
             atmECall(computeRotationMatrix)
+            atmECall(getPositionAbs)
+            atmECall(setPositionAbs)
         )
     )
 
@@ -324,6 +338,8 @@ public:
     void setRotate1(float32 v)      { m_rot1=v; }
     void setRotate2(float32 v)      { m_rot2=v; }
     void move(const vec3 &v)        { setPosition(getPosition()+v); }
+    const vec3& getPositionAbs() const { return m_pos; }
+    void setPositionAbs(const vec3& v) { m_pos=v; }
 
     mat4 computeTransformMatrix() const
     {
@@ -416,6 +432,8 @@ private:
 public:
     atmECallBlock(
         atmMethodBlock(
+            atmECall(getPositionAbs)
+            atmECall(setPositionAbs)
             atmECall(getParent)
             atmECall(setParent)
             atmECall(move)
@@ -444,6 +462,31 @@ public:
     {}
     EntityHandle getParent() const { return m_parent; }
     void setParent(EntityHandle v) { m_parent=v; }
+
+    vec3 getPositionAbs() const
+    {
+        vec3 pos = super::getPosition();
+        mat4 pmat;
+        if(atmQuery(getParent(), getTransformMatrix, pmat)) {
+            vec4 tmp = vec4(pos, 1.0f);
+            tmp = pmat * tmp;
+            pos = vec3(tmp);
+        }
+        return pos;
+    }
+
+    void setPositionAbs(const vec3 &pos)
+    {
+        mat4 pmat;
+        if(atmQuery(getParent(), getInvTransformMatrix, pmat)) {
+            vec4 tmp = vec4(pos, 1.0f);
+            tmp = pmat * tmp;
+            super::setPosition(vec3(tmp));
+        }
+        else {
+            super::setPosition(pos);
+        }
+    }
 
     void move(const vec3 &v)
     {

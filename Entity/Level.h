@@ -60,6 +60,12 @@ public:
 
     void update(float32 dt) override
     {
+        if(EntityHandle h=transform::getParent()) {
+            if(!atmGetEntity(h)) {
+                atmDeleteEntity(getHandle());
+                return;
+            }
+        }
         super::update(dt);
     }
 

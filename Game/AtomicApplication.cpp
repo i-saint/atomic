@@ -12,7 +12,6 @@
 #include "Network/GameServer.h"
 #include "Network/GameClient.h"
 #include "Util.h"
-#include "Poco/DirectoryIterator.h"
 
 #define ATOMIC_CONFIG_FILE_PATH "atomic.conf"
 
@@ -34,6 +33,7 @@ AtomicConfig::AtomicConfig()
     vsync                   = false;
     unlimit_gamespeed       = false;
     pause                   = false;
+    stop                    = false;
     posteffect_microscopic  = false;
     posteffect_bloom        = true;
     posteffect_antialias    = false;
@@ -255,19 +255,15 @@ bool AtomicApplication::initialize(int argc, char *argv[])
 
     registerCommands();
 
-#ifdef atm_enable_EntityDLL
+#ifdef atm_enable_Plugin
     {
-        std::regex pattern_dll("\\.dll$");
-        Poco::DirectoryIterator end;
-        for(Poco::DirectoryIterator it(Poco::Path("Resources")); it!=end; ++it) {
-            if(std::regex_search(it->path(), pattern_dll)) {
-                if(HMODULE dll = ::LoadLibraryA(it->path().c_str())) {
-                    m_dlls.push_back(dll);
-                }
+        glob("Resources", "\\.dll$", [&](const std::string &file){
+            if(HMODULE dll = ::LoadLibraryA(file.c_str())) {
+                m_dlls.push_back(dll);
             }
-        }
+        });
     }
-#endif // atm_enable_EntityDLL
+#endif // atm_enable_Plugin
     atmGetTitleWindow()->setVisibility(true);
 
     return true;
@@ -315,7 +311,6 @@ void AtomicApplication::mainLoop()
 
     ist::Timer pc;
     const float32 delay = 16.666f;
-    const float32 dt = 1.0f;
 
     while(!m_request_exit)
     {
@@ -324,7 +319,9 @@ void AtomicApplication::mainLoop()
         istCommandlineFlush();
         translateMessage();
         update();
-        m_time += dt;
+
+        const float32 dt = m_config.stop ? 0.0f : 1.0f;
+        if(!atmIsPaused()) { m_time+=dt; }
 
         AtomicGame *game = m_game;
         if(game) {
@@ -387,7 +384,10 @@ void AtomicApplication::update()
         if(m_game) { m_game->dbgDeserializeNext(); }
     }
     if(getKeyboardState().isKeyTriggered('4')) {
-        atmPause(!atmIsPaused());
+        m_config.stop = !m_config.stop;
+    }
+    if(getKeyboardState().isKeyTriggered('5')) {
+        m_config.pause = !m_config.pause;
     }
 #endif // atm_enable_StateSave
 

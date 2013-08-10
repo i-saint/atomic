@@ -15,10 +15,12 @@ istSEnumBlock(EntityCategoryID,
 istSEnumBlock(EntityClassID,
     istSEnum(EC_Unknown),
 
+
     istSEnumEq(EC_Player_Begin, ECA_Player<<9),
     istSEnum(EC_Player),
     istSEnum(EC_Barrier),
     istSEnum(EC_Player_End),
+
 
     istSEnumEq(EC_Enemy_Begin, ECA_Enemy<<9),
     istSEnum(EC_Enemy_Test),
@@ -61,12 +63,15 @@ istSEnumBlock(EntityClassID,
 
     istSEnum(EC_Enemy_End),
 
+
     istSEnumEq(EC_Obstacle_Begin, ECA_Obstacle<<9),
+    // light
     istSEnum(EC_PointLightEntity),
     istSEnum(EC_DirectionalLightEntity),
     istSEnum(EC_SpotLightEntity),
     istSEnum(EC_BoxLightEntity),
     istSEnum(EC_CylinderLightEntity),
+    // blocks
     istSEnum(EC_GroundBlock),
     istSEnum(EC_FluidFilter),
     istSEnum(EC_FluidFan),
@@ -76,7 +81,11 @@ istSEnumBlock(EntityClassID,
     istSEnum(EC_GearMedium),
     istSEnum(EC_GearLarge),
     istSEnum(EC_GearExLarge),
+    // linkage
+    istSEnum(EC_GateLinkage),
+
     istSEnum(EC_Obstacle_End),
+
 
     istSEnumEq(EC_Level_Begin, ECA_Level<<9),
     istSEnum(EC_LevelTest),

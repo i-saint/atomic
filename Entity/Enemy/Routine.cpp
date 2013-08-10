@@ -86,7 +86,7 @@ public:
             }
             ++m_cycle;
         }
-        pos += dir*0.0035f;
+        pos += dir*0.0035f*dt;
         atmCall(e, setPosition, pos);
     }
 

@@ -23,6 +23,7 @@ namespace atm {
 AtomicGame::AtomicGame()
 : m_input_server(nullptr)
 , m_world(nullptr)
+, m_elapsed(0.0f)
 , m_frame(0)
 , m_resource(0.0f)
 , m_skip_update(false)
@@ -118,6 +119,7 @@ void AtomicGame::update(float32 dt)
     if(!m_skip_update) {
         m_input_server->pushInput(0, atmGetSystemInputs()->getRawInput());
     }
+    m_elapsed += dt;
     m_resource += dt;
 
     atmLevelEditorHandleCommands( std::bind(&IInputServer::pushLevelEditorCommand, m_input_server, std::placeholders::_1));
@@ -128,7 +130,7 @@ void AtomicGame::update(float32 dt)
     if(!m_skip_update)
     {
         m_input_server->update();
-        m_world->update(1.0f);
+        m_world->update(dt);
     }
 }
 
@@ -303,6 +305,8 @@ bool AtomicGame::serialize( std::ostream &st )
     try {
         boost::archive::binary_oarchive ar(st);
         ar & m_world;
+        ar & m_elapsed;
+        ar & m_frame;
     }
     catch(std::exception &e) {
         istPrint(e.what());
@@ -316,6 +320,8 @@ bool AtomicGame::deserialize( std::istream &st )
     try {
         boost::archive::binary_iarchive ar(st);
         ar & m_world;
+        ar & m_elapsed;
+        ar & m_frame;
     }
     catch(std::exception &e) {
         istPrint(e.what());

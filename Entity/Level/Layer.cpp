@@ -16,6 +16,7 @@ private:
     ControlPoints m_posxcp;
     ControlPoints m_posycp;
     ControlPoints m_rotcp;
+    float32 m_lifetime;
 
     istSerializeBlock(
         istSerializeBase(super)
@@ -24,6 +25,7 @@ private:
         istSerialize(m_posxcp)
         istSerialize(m_posycp)
         istSerialize(m_rotcp)
+        istSerialize(m_lifetime)
     )
 
 public:
@@ -38,6 +40,8 @@ public:
             atmECall(setRotationCP)
             atmECall(addRotationCP)
             atmECall(clearRotationCP)
+            atmECall(getLifeTime)
+            atmECall(setLifeTime)
         )
         atmECallSuper(super)
         atmECallSuper(transform)
@@ -51,7 +55,7 @@ public:
     )
 
 public:
-    LevelLayer()
+    LevelLayer() : m_lifetime(3600.0f*3.0f)
     {
         wdmScope(
         wdmString path = wdmFormat("Level/LevelLayer/0x%p", this);
@@ -64,6 +68,8 @@ public:
         wdmEraseNode(wdmFormat("Level/LevelLayer/0x%p", this));
     }
 
+    float32 getLifeTime() const    { return m_lifetime; }
+    void    setLifeTime(float32 v) { m_lifetime=v; }
 
     void initialize() override
     {
@@ -72,6 +78,10 @@ public:
     void update(float32 dt) override
     {
         pasttime::update(dt);
+        if(getPastTime()>m_lifetime) {
+            atmDeleteEntity(getHandle());
+            return;
+        }
 
         // 子が参照するので asyncupdate ではダメ
         float32 t = getPastTime();

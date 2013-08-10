@@ -213,6 +213,9 @@
     <ClCompile Include="Entity\Enemy\Turret.cpp">
       <Filter>Entity\Enemy</Filter>
     </ClCompile>
+    <ClCompile Include="Entity\Level\Linkage.cpp">
+      <Filter>Entity\Level</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\AtomicApplication.h">

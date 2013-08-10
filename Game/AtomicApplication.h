@@ -37,6 +37,7 @@ struct atmAPI AtomicConfig
     bool vsync;
     bool unlimit_gamespeed;
     bool pause;
+    bool stop;
     bool posteffect_microscopic;
     bool posteffect_bloom;
     bool posteffect_antialias;

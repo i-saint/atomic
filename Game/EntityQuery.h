@@ -77,9 +77,25 @@ inline bool atmQueryImpl(C *e, FunctionID fid, Ret &ret, const Arg &args)
     return e->call(fid, &args, &ret);
 }
 
+template<class T>
+inline T atmGetProperyImpl(EntityHandle h, FunctionID fid)
+{
+    T ret = T();
+    if(IEntity *e=atmGetEntity(h)) { e->call(fid, nullptr, &ret); }
+    return ret;
+}
+template<class T>
+inline T atmGetProperyImpl(IEntity *e, FunctionID fid)
+{
+    T ret = T();
+    if(e) { e->call(fid, nullptr, &ret); }
+    return ret;
+}
+
 #define atmArgs(...)                    ist::MakeValueList(__VA_ARGS__)
 #define atmCall(entity, funcname, ...)  atmCallImpl(entity, FID_##funcname, __VA_ARGS__)
 #define atmQuery(entity, funcname, ...) atmQueryImpl(entity, FID_##funcname, __VA_ARGS__)
+#define atmGetProperty(type, entity, funcname, ...) atmGetProperyImpl<type>(entity, FID_##funcname)
 
 } // namespace atm
 #endif // atm_Game_EntityQuery_h

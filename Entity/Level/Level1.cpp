@@ -5,7 +5,6 @@
 
 namespace atm {
 
-
 class dpPatch Level1 : public EntityWithPosition
 {
 typedef EntityWithPosition super;
@@ -35,6 +34,9 @@ private:
         istSerialize(m_frame_total)
         istSerialize(m_frame_scene)
     )
+    atmJsonizeBlock(
+        atmJsonizeSuper(super)
+    )
 
 public:
     Level1()
@@ -43,6 +45,19 @@ public:
         , m_frame_total(0), m_frame_scene(0)
     {
         clear(m_planes);
+
+        wdmScope(
+        wdmString path = wdmFormat("Level/Level1/0x%p", this);
+        super::addDebugNodes(path);
+        wdmAddNode(path+"/m_state", (int32*)&m_state);
+        wdmAddNode(path+"/m_frame_total", &m_frame_total);
+        wdmAddNode(path+"/m_frame_scene", &m_frame_scene);
+        )
+    }
+
+    ~Level1()
+    {
+        wdmEraseNode(wdmFormat("Level/Level1/0x%p", this));
     }
 
     void initialize()
@@ -141,8 +156,10 @@ public:
 
     void update(float32 dt)
     {
-        ++m_frame_total;
-        ++m_frame_scene;
+        if(dt>0.0f) {
+            ++m_frame_total;
+            ++m_frame_scene;
+        }
         updateCamera();
         switch(getState()) {
         case St_Begin:  sceneBegin(dt); break;
@@ -212,34 +229,57 @@ public:
         }
     }
 
+    IEntity* _PutChildEntity(EntityClassID ecid, IEntity *parent, const vec3 &pos)
+    {
+        IEntity *e = atmCreateEntity(ecid);
+        atmCall(e, setPosition, pos);
+        atmCall(e, setParent, parent->getHandle());
+        return e;
+    }
+    #define PutChildEntity(Class, Parent, Pos) _PutChildEntity(EC_##Class, Parent, Pos)
+
     void scene2(float32 dt)
     {
-        if(m_frame_scene==1) {
+        float32 lifetime = 5000.0f;
+        int32 f = m_frame_scene;
+        if(f==1) {
             IEntity *layer = atmCreateEntityT(LevelLayer);
-            atmCall(layer, addPositionXCP, ControlPoint(   0.0f,  3.0f,  0.0f, 0.0f, ControlPoint::Linear));
-            atmCall(layer, addPositionXCP, ControlPoint(3600.0f, -7.0f,  0.0f, 0.0f));
+            atmCall(layer, addPositionXCP, ControlPoint(    0.0f,  3.0f,  0.0f, 0.0f, ControlPoint::Linear));
+            atmCall(layer, addPositionXCP, ControlPoint(lifetime,-15.0f,  0.0f, 0.0f));
+            atmCall(layer, setLifeTime, lifetime);
+
+            IEntity *e = nullptr;
+            e = PutChildEntity(GearSmall, layer, vec3(0.0f, 0.7f, 0.0f));
+            e = PutChildEntity(GearMedium, layer, vec3(0.65f, -0.9f, 0.0f));
+            e = PutChildEntity(GearLarge, layer, vec3(1.75f, 0.5f, 0.0f));
+            e = PutChildEntity(GearSmall, layer, vec3(2.1f, -1.4f, 0.0f));
             {
-                IEntity *e = atmCreateEntityT(GearSmall);
-                atmCall(e, setPosition, vec3(0.0f, 0.5f, 0.0f));
-                atmCall(e, setParent, layer->getHandle());
-            }
-            {
-                IEntity *e = atmCreateEntityT(GearMedium);
-                atmCall(e, setPosition, vec3(0.5f, -0.4f, 0.0f));
-                atmCall(e, setParent, layer->getHandle());
-            }
-            {
-                IEntity *e = atmCreateEntityT(GearLarge);
-                atmCall(e, setPosition, vec3(1.2f, 0.3f, 0.0f));
-                atmCall(e, setParent, layer->getHandle());
-            }
-            {
-                IEntity *e = atmCreateEntityT(GearSmall);
-                atmCall(e, setPosition, vec3(1.4f, -0.6f, 0.0f));
-                atmCall(e, setParent, layer->getHandle());
+                PutGroundBlock(layer, 1, vec3(5.5f, 1.0f, 0.0f), vec3(0.5f, 1.0f, 0.3f));
+                PutGroundBlock(layer, 1, vec3(5.0f,-1.0f, 0.0f), vec3(0.5f, 1.0f, 0.3f));
+
+                IEntity *block = PutGroundBlock(layer, 1, vec3(5.0f, 0.0f, 0.0f), vec3(0.5f, 1.0f, 0.4f));
+                IEntity *gear = PutChildEntity(GearSmall, layer, vec3(4.0f, 0.5f, 0.0f));
+                IEntity *linkage = atmCreateEntityT(GateLinkage);
+                atmCall(gear, setSpinMinAngle,   0.0f);
+                atmCall(gear, setSpinMaxAngle, 720.0f);
+                atmCall(gear, setSpinReturnSpeed, 0.004f);
+                atmCall(linkage, setBlock, block->getHandle());
+                atmCall(linkage, setGear, gear->getHandle());
+                atmCall(linkage, setSlideDir, vec3(0.0f,1.0f,0.0f));
+                atmCall(linkage, setLinkSpeed, 0.5f/720.0f);
             }
         }
-        if(m_frame_scene>3600) {
+
+        if(f < 4000) {
+            if(f % 40 == 0) {
+                IEntity *e = putElectron();
+            }
+            if(f % 300 == 0) {
+                IEntity *e = putProton();
+            }
+        }
+
+        if(f>int32(lifetime)) {
             setState(St_Boss);
         }
     }

@@ -196,6 +196,12 @@ public:
         atmGetFluidModule()->addFluid(getModel(), getTransformMatrix());
         atmPlaySE(m_explosion_channel, m_explosion_se, getPosition(), true);
     }
+
+    void eventCollide(const CollideMessage *m) override
+    {
+        super::eventCollide(m);
+        damage( std::max<float32>(m->direction.w-0.01f, 0.0f) * 10.0f);
+    }
 };
 atmImplementEntity(Enemy_Test);
 atmExportClass(Enemy_Test);
@@ -204,6 +210,11 @@ atmExportClass(Enemy_Test);
 class Core : public Enemy_Test
 {
 typedef Enemy_Test super;
+private:
+    istSerializeBlock(
+        istSerializeBase(super)
+    )
+
 public:
     Core()
     {
@@ -225,6 +236,11 @@ atmExportClass(Core);
 class Electron : public Enemy_Test
 {
 typedef Enemy_Test super;
+private:
+    istSerializeBlock(
+        istSerializeBase(super)
+    )
+
 public:
     Electron()
     {
@@ -252,6 +268,11 @@ atmExportClass(Electron);
 class Proton : public Enemy_Test
 {
 typedef Enemy_Test super;
+private:
+    istSerializeBlock(
+        istSerializeBase(super)
+    )
+
 public:
     Proton()
     {

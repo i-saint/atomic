@@ -243,13 +243,9 @@ void RecordWindow::refresh()
 {
     m_li_files->clearItems();
 
-    std::regex reg("\\.atmreplay$");
-    Poco::DirectoryIterator end;
-    for(Poco::DirectoryIterator it(Poco::Path("Replay")); it!=end; ++it) {
-        if(it->isFile() && it->canRead() && std::regex_search(it->path(), reg)) {
-            m_li_files->addListItem(ist::L(it->path()), nullptr);
-        }
-    }
+    glob("Replay", "\\.atmreplay$", [&](const std::string &file){
+        m_li_files->addListItem(ist::L(file), nullptr);
+    });
 }
 
 void RecordWindow::onSelect( Widget *w )
