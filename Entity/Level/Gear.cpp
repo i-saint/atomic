@@ -132,6 +132,10 @@ public:
 
     void update(float32 dt) override
     {
+        if(isParentDead()) {
+            atmDeleteEntity(getHandle());
+            return;
+        }
         spin::updateSpin(dt, getPositionAbs()); // 子が参照するので asyncupdate() の中ではマズい
         transform::setRotate(getSpinAngle());
         transform::updateTransformMatrix();

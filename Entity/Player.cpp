@@ -42,15 +42,17 @@ typedef IWeaponry super;
 private:
     EntityHandle m_barrier;
     float32 m_cooldown;
+    bool m_fixed;
 
     istSerializeBlock(
         istSerializeBase(super)
         istSerialize(m_barrier)
         istSerialize(m_cooldown)
+        istSerialize(m_fixed)
     )
 
 public:
-    Booster() : m_barrier(0), m_cooldown(0)
+    Booster() : m_barrier(0), m_cooldown(0), m_fixed(false)
     {
     }
 
@@ -59,6 +61,9 @@ public:
         vec3 center_force;
         IEntity *barrier = atmGetEntity(m_barrier);
         IEntity *owner = getOwner();
+        if(atmGetIngameInputs().isButtonTriggered(1)) {
+            m_fixed = !m_fixed;
+        }
         if(!barrier) {
             IEntity *e = atmCreateEntityT(Barrier);
             m_barrier = e->getHandle();
@@ -66,12 +71,9 @@ public:
             atmQuery(owner, getPosition, center_force);
         }
         else {
-            if(barrier && owner) {
-                if(!atmGetIngameInputs().isButtonPressed(1)) {
-                    vec3 barrier_pos;
-                    atmQuery(owner, getPosition, barrier_pos);
-                    atmCall(barrier, setPosition, barrier_pos);
-                }
+            if(barrier && owner && !m_fixed) {
+                vec3 barrier_pos = atmGetProperty(vec3, owner, getPositionAbs);
+                atmCall(barrier, setPosition, barrier_pos);
             }
             atmQuery(barrier, getPosition, center_force);
         }

@@ -460,6 +460,16 @@ public:
     EntityHandle getParent() const { return m_parent; }
     void setParent(EntityHandle v) { m_parent=v; }
 
+    bool isParentDead()
+    {
+        if(EntityHandle h=getParent()) {
+            if(!atmGetEntity(h)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     vec3 getPositionAbs() const
     {
         vec3 pos = super::getPosition();

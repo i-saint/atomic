@@ -194,7 +194,7 @@ public:
         setState(State_Fadeout);
         setRoutine(RCID_Null);
         atmGetFluidModule()->addFluid(getModel(), getTransformMatrix());
-        atmPlaySE(m_explosion_channel, m_explosion_se, getPosition(), true);
+        atmPlaySE(m_explosion_channel, m_explosion_se, getPositionAbs(), true);
     }
 
     void eventCollide(const CollideMessage *m) override
@@ -225,15 +225,16 @@ public:
         super::initialize();
         setCollisionShape(CS_Box);
         setModel(PSET_UNIT_CUBE);
-        setScale(vec3(0.3f));
-        setLife(2000.0f);
+        setScale(vec3(0.6f));
+        setLife(1000.0f);
         setAxis1(GenRandomUnitVector3());
         setAxis2(GenRandomUnitVector3());
-        setRotateSpeed1(0.1f);
-        setRotateSpeed2(0.1f);
+        setRotateSpeed1(0.3f);
+        setRotateSpeed2(0.3f);
         setLightRadius(1.4f);
         setExplosionSE(SE_EXPLOSION5);
         setExplosionChannel(SE_CHANNEL5);
+        setRoutine(RCID_Routine_FixedShotgun2);
     }
 };
 atmImplementEntity(Core);

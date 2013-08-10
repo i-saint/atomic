@@ -84,6 +84,7 @@ istSEnumBlock(EntityClassID,
     istSEnum(EC_GearExLarge),
     // linkage
     istSEnum(EC_GateLinkage),
+    istSEnum(EC_HingeLinkage),
 
     istSEnum(EC_Obstacle_End),
 

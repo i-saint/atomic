@@ -261,6 +261,8 @@ void RecordWindow::onStart( Widget * )
     conf.gmode = GameStartConfig::GM_Replay;
     std::string path = ist::S(m_selection);
     conf.path_to_replay = path;
+    conf.levelclass = EC_Level1;
+
     atmGetApplication()->requestStartGame(conf);
     atmGetTitleWindow()->setVisibility(false);
 }

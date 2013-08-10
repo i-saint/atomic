@@ -6,11 +6,11 @@ namespace atm {
 
 class LevelLayer
     : public IEntity
-    , public TAttr_TransformMatrixI<Attr_Transform>
+    , public TAttr_TransformMatrixI< TAttr_HaveParent<Attr_Transform> >
     , public Attr_PastTime
 {
 typedef IEntity super;
-typedef TAttr_TransformMatrixI<Attr_Transform> transform;
+typedef TAttr_TransformMatrixI< TAttr_HaveParent<Attr_Transform> > transform;
 typedef Attr_PastTime pasttime;
 private:
     ControlPoints m_posxcp;
@@ -55,7 +55,7 @@ public:
     )
 
 public:
-    LevelLayer() : m_lifetime(3600.0f*3.0f)
+    LevelLayer() : m_lifetime(0.0f)
     {
         wdmScope(
         wdmString path = wdmFormat("Level/LevelLayer/0x%p", this);
@@ -78,16 +78,20 @@ public:
     void update(float32 dt) override
     {
         pasttime::update(dt);
-        if(getPastTime()>m_lifetime) {
+        if(m_lifetime>0.0f && getPastTime()>m_lifetime) {
             atmDeleteEntity(getHandle());
             return;
         }
 
         // 子が参照するので asyncupdate ではダメ
         float32 t = getPastTime();
-        vec3 pos(m_posxcp.computeValue(t), m_posycp.computeValue(t), 0.0f );
-        setPosition(pos);
-        setRotate(m_rotcp.computeValue(t));
+        if(!m_posxcp.empty() || !m_posycp.empty()) {
+            vec3 pos(m_posxcp.computeValue(t), m_posycp.computeValue(t), 0.0f );
+            setPosition(pos);
+        }
+        if(!m_rotcp.empty()) {
+            setRotate(m_rotcp.computeValue(t));
+        }
         updateTransformMatrix();
     }
 

@@ -10,6 +10,7 @@ ia_out(GLSL_INSTANCE_PARAM)     int  ia_InstanceID;
 #if defined(GLSL_VS) || defined(GLSL_PS)
 vs_out vec4 vs_RefCoord;
 vs_out vec4 vs_Normal;
+vs_out float vs_Alpha;
 #endif
 const float scale = 1.5;
 
@@ -35,11 +36,14 @@ void main()
     rot[2] = texelFetch(u_ParamBuffer, ivec2(10, ia_InstanceID), 0);
     rot[3] = texelFetch(u_ParamBuffer, ivec2(11, ia_InstanceID), 0);
 
+    vec4 params = texelFetch(u_ParamBuffer, ivec2(3, ia_InstanceID), 0);
+    vs_Alpha = min(params.x*0.005, 1.0);
+
     vec4 instancePos = trans * vec4(ia_InstancePosition.xyz, 1.0);
     vec4 vertexPos = rot * vec4(ia_VertexPosition.xyz*scale*vs_InstanceParams.z, 0.0);
     vec4 vert = vec4(vertexPos.xyz+instancePos.xyz, 1.0);
     vec3 n = normalize((rot * vec4(ia_VertexNormal.xyz, 0.0)).xyz);
-    vec4 rp = u_RS.ModelViewProjectionMatrix * (vert + vec4(n.xyz*0.2, 0.0));
+    vec4 rp = u_RS.ModelViewProjectionMatrix * (vert + vec4(n.xyz*0.2*vs_Alpha, 0.0));
 
     vs_RefCoord = rp;
     vs_Normal= vec4(n,0.0);
@@ -56,7 +60,7 @@ void main()
     vec4 color = texture(u_BackBuffer, coord + vec2( 0.0, 0.0)*u_RS.RcpScreenSize);
     float s = 1.0-abs(dot(vs_Normal.xyz, u_RS.CameraDirection.xyz));
     float scanline = mod(gl_FragCoord.y+u_RS.Frame*0.7, 2.0)*0.02;
-    ps_FlagColor = vec4(color.xyz+vec3(s*0.2+scanline), s);
+    ps_FlagColor = vec4(color.xyz+vec3(s*0.2+scanline)*vs_Alpha, s);
 }
 
 #endif

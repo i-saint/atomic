@@ -195,7 +195,7 @@ public:
                     ++m_hitcount;
                     vec3 pos = p.pos_current;
                     float32 d = s_power;
-                    if(atmIsEnemy(p.hit_to)) { d*=0.2f; }
+                    if(atmIsEnemy(p.hit_to)) { d*=1.0f; }
                     atmCall(p.hit_to, damage, d);
                     atmCall(p.hit_to, pulse, atmArgs(pos, m_dir*s_speed*1000.0f));
                     {
@@ -235,9 +235,9 @@ public:
         vec4 diffuse = vec4(0.0f, 0.0f, 0.0f, 80.0f);
         vec4 glow = vec4(1.2f, 1.2f, 2.5f, 0.0f);
         vec4 light  = glow;
-        vec4 flash  = glow * 0.5f;
+        vec4 flash  = glow * 0.75f;
         if(atmGetConfig()->lighting_level<atmE_Lighting_High) {
-            flash  = glow * 0.7f;
+            flash  = glow * 1.0f;
         }
 
         PSetInstance inst;

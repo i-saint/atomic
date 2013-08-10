@@ -15,7 +15,7 @@ private:
         St_Scene2,
         St_Scene3,
         St_Scene4,
-        St_Boss,
+        St_Wait,
         St_End,
         St_GameOver,
     };
@@ -23,6 +23,8 @@ private:
     CollisionHandle m_planes[4];
     EntityHandle m_player;
     EntityHandle m_boss;
+    EntityHandle m_layer;
+    EntityHandle m_guards[3];
     State m_state;
     int m_frame_total;
     int m_frame_scene;
@@ -32,6 +34,8 @@ private:
         istSerialize(m_planes)
         istSerialize(m_player)
         istSerialize(m_boss)
+        istSerialize(m_layer)
+        istSerialize(m_guards)
         istSerialize(m_state)
         istSerialize(m_frame_total)
         istSerialize(m_frame_scene)
@@ -42,11 +46,12 @@ private:
 
 public:
     Level1()
-        : m_player(), m_boss()
+        : m_player(), m_boss(), m_layer()
         , m_state(St_Begin)
         , m_frame_total(0), m_frame_scene(0)
     {
         clear(m_planes);
+        clear(m_guards);
 
         wdmScope(
         wdmString path = wdmFormat("Level/Level1/0x%p", this);
@@ -169,7 +174,7 @@ public:
         case St_Scene2: scene2(dt); break;
         case St_Scene3: scene3(dt); break;
         case St_Scene4: scene4(dt); break;
-        case St_Boss:   sceneBoss(dt); break;
+        case St_Wait:   sceneWait(dt); break;
         case St_End:    break;
         }
         if(getState()==St_GameOver) {
@@ -209,7 +214,7 @@ public:
         m_player = e->getHandle();
         atmCall(e, setPosition, vec4(0.0f, 0.0f, 0.0f, 1.0f));
 
-        setState(St_Scene1);
+        setState(St_Scene3);
     }
 
     void scene1(float32 dt)
@@ -248,11 +253,11 @@ public:
         if(f==1) {
             float32 x = 4.0f;
             float32 scroll = 0.003f;
-            float32 lifetime = 6000.0f;
+            float32 timespan = 6000.0f;
             IEntity *layer = atmCreateEntityT(LevelLayer);
             atmCall(layer, addPositionXCP, ControlPoint(    0.0f, x,  0.0f, 0.0f, ControlPoint::Linear));
-            atmCall(layer, addPositionXCP, ControlPoint(lifetime, x-scroll*lifetime,  0.0f, 0.0f));
-            atmCall(layer, setLifeTime, lifetime);
+            atmCall(layer, addPositionXCP, ControlPoint(timespan, x-scroll*timespan,  0.0f, 0.0f));
+            atmCall(layer, setLifeTime, timespan);
 
             const vec4 light_color(0.5f, 0.7f, 1.0f, 1.0f);
             IEntity *e = nullptr;
@@ -291,11 +296,11 @@ public:
         if(f==1) {
             float32 x = 4.0f;
             float32 scroll = 0.003f;
-            float32 lifetime = 6000.0f;
+            float32 timespan = 6000.0f;
             IEntity *layer = atmCreateEntityT(LevelLayer);
             atmCall(layer, addPositionXCP, ControlPoint(    0.0f, x,  0.0f, 0.0f, ControlPoint::Linear));
-            atmCall(layer, addPositionXCP, ControlPoint(lifetime, x-scroll*lifetime,  0.0f, 0.0f));
-            atmCall(layer, setLifeTime, lifetime);
+            atmCall(layer, addPositionXCP, ControlPoint(timespan, x-scroll*timespan,  0.0f, 0.0f));
+            atmCall(layer, setLifeTime, timespan);
 
             IEntity *e = nullptr;
             const vec4 light_color(0.5f, 0.7f, 1.0f, 1.0f);
@@ -363,21 +368,96 @@ public:
     void scene4(float32 dt)
     {
         int32 f = m_frame_scene;
-        if(f>1000) {
-            setState(St_Boss);
+        if(f==1) {
+            float32 x = 4.0f;
+            float32 scroll = 0.003f;
+            float32 timespan = 1500.0f;
+            IEntity *layer = atmCreateEntityT(LevelLayer);
+            m_layer = layer->getHandle();
+            atmCall(layer, addPositionXCP, ControlPoint(    0.0f, x,  0.0f, 0.0f, ControlPoint::Linear));
+            atmCall(layer, addPositionXCP, ControlPoint(timespan, x-scroll*timespan,  0.0f, 0.0f));
+            atmCall(layer, setLifeTime, 0.0f);
+
+            IEntity *e = nullptr;
+            {
+                IEntity *gear = PutChildEntity(GearSmall, layer, vec3(-0.5f, 1.9f, 0.0f));
+                atmCall(gear, setSpinMinAngle,   0.0f);
+                atmCall(gear, setSpinMaxAngle, 720.0f);
+                atmCall(gear, setSpinReturnSpeed, 0.01f);
+                atmCall(gear, setSpinOneWay, 1.0f);
+                IEntity *l = PutChildEntity(LevelLayer, layer, vec3(0.0f, 1.25f, 0.0f));
+                PutGroundBlockByBox(l, 1, vec3(-0.75f,-0.1f, -0.1f), vec3(0.0f,0.1f, 0.15f));
+                PutGroundBlockByBox(l, 1, vec3(-0.2f,-0.6f, -0.1f), vec3(0.0f,0.1f, 0.15f));
+                IEntity *linkage = atmCreateEntityT(HingeLinkage);
+                atmCall(linkage, setBlock, l->getHandle());
+                atmCall(linkage, setGear, gear->getHandle());
+                atmCall(linkage, setLinkSpeed, 150.0f/720.0f);
+            }
+            {
+                IEntity *gear = PutChildEntity(GearSmall, layer, vec3(-0.5f,-1.9f, 0.0f));
+                atmCall(gear, setSpinMinAngle,-720.0f);
+                atmCall(gear, setSpinMaxAngle,   0.0f);
+                atmCall(gear, setSpinReturnSpeed, 0.01f);
+                atmCall(gear, setSpinOneWay, -1.0f);
+                IEntity *l = PutChildEntity(LevelLayer, layer, vec3(0.0f,-1.25f, 0.0f));
+                PutGroundBlockByBox(l, 1, vec3(-0.75f,-0.1f, -0.1f), vec3(0.0f,0.1f, 0.15f));
+                PutGroundBlockByBox(l, 1, vec3(-0.2f, 0.6f, -0.1f), vec3(0.0f,-0.1f, 0.15f));
+                IEntity *linkage = atmCreateEntityT(HingeLinkage);
+                atmCall(linkage, setBlock, l->getHandle());
+                atmCall(linkage, setGear, gear->getHandle());
+                atmCall(linkage, setLinkSpeed, 150.0f/720.0f);
+            }
+        }
+        if(f==1500) {
+            IEntity *layer = atmGetEntity(m_layer);
+            IEntity *core = PutChildEntity(Core, layer, vec3(1.9f, 0.0f, 0.0f));
+            IEntity *barrier = PutFluidFilter(core, 1, vec3(0.0f, 0.0f, 0.0f), vec3(1.4f));
+            m_boss = core->getHandle();
+        }
+        if(f > 1750) {
+            if(f % 60 == 0) {
+                IEntity *e = putElectron();
+            }
+            if(f % 1200 == 0) {
+                IEntity *e = putProton();
+            }
+        }
+        if(f > 1900) {
+            SweepDeadEntities(m_guards);
+            IEntity *layer = atmCreateEntityT(LevelLayer);
+            IEntity *e = nullptr;
+            if(m_guards[0]==0 && f%900==0) {
+                e = PutChildEntity(Antiproton, layer, vec3(1.2f, 1.4f, 0.0f));
+                m_guards[0] = e->getHandle();
+            }
+            if(m_guards[1]==0 && f%960==0) {
+                e = PutChildEntity(Antiproton, layer, vec3(1.2f,-1.4f, 0.0f));
+                m_guards[1] = e->getHandle();
+            }
+            if(m_guards[2]==0 && f%1020==0) {
+                e = PutChildEntity(Antiproton, layer, vec3(-2.0f, 0.0f, 0.0f));
+                atmCall(e, setRoutine, RCID_Routine_FixedLaser);
+                m_guards[2] = e->getHandle();
+            }
+        }
+
+
+        if(f>1500) {
+            SweepDeadEntities(m_boss);
+            if(!m_boss) {
+                setState(St_Wait);
+            }
         }
     }
 
-    void sceneBoss(float32 dt)
+    void sceneWait(float32 dt)
     {
-        if(m_frame_scene==1) {
-            IEntity *e = atmCreateEntityT(Boss1);
-            m_boss = e->getHandle();
+        int32 f = m_frame_scene;
+        if(f==1) {
+            atmGetFader()->setFade(vec4(0.0f, 0.0f, 0.0f, 1.0f), 300.0f);
         }
-        else {
-            if(!atmGetEntity(m_boss)) {
-                setState(St_End);
-            }
+        if(f==300) {
+            atmGetApplication()->requestReturnToTitleScreen();
         }
     }
 };

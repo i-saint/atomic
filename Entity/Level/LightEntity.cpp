@@ -42,11 +42,9 @@ public:
     void update(float32 dt) override
     {
         super::update(dt);
-        if(EntityHandle h=transform::getParent()) {
-            if(!atmGetEntity(h)) {
-                atmDeleteEntity(getHandle());
-                return;
-            }
+        if(isParentDead()) {
+            atmDeleteEntity(getHandle());
+            return;
         }
     }
 
