@@ -102,10 +102,18 @@ void TitleWindow::drawCallback()
 
 void TitleWindow::onStart(Widget *)
 {
+#ifdef ist_env_Master
+    GameStartConfig conf;
+    conf.levelclass = EC_Level1;
+
+    atmGetApplication()->requestStartGame(conf);
+    atmGetTitleWindow()->setVisibility(false);
+#else // ist_env_Master
     unselectAll();
     m_buttons[0]->setPressed(true, false);
     m_start->setVisibility(true);
     atmGetUISelector()->pushSelection(m_start);
+#endif // ist_env_Master
 }
 
 void TitleWindow::onRecord(Widget *)

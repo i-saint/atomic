@@ -55,10 +55,14 @@ void PauseWindow::unselectAll()
 {
     Widget *windows[] = {m_config};
     for(size_t i=0; i<_countof(windows); ++i) {
-        windows[i]->setVisibility(false);
+        if(windows[i]) {
+            windows[i]->setVisibility(false);
+        }
     }
     for(size_t i=0; i<_countof(m_buttons); ++i) {
-        m_buttons[i]->setPressed(false, false);
+        if(m_buttons[i]) {
+            m_buttons[i]->setPressed(false, false);
+        }
     }
 }
 
