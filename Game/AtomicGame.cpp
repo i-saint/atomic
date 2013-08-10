@@ -119,16 +119,15 @@ void AtomicGame::update(float32 dt)
     if(!m_skip_update) {
         m_input_server->pushInput(0, atmGetSystemInputs()->getRawInput());
     }
-    m_elapsed += dt;
-    m_resource += dt;
 
     atmLevelEditorHandleCommands( std::bind(&IInputServer::pushLevelEditorCommand, m_input_server, std::placeholders::_1));
     atmLevelEditorHandleQueries( std::bind(&AtomicGame::handleLevelEditorQueries, this, std::placeholders::_1) );
     atmGameClientHandleMessages( std::bind(&AtomicGame::handlePMessages, this, std::placeholders::_1) );
 
     m_skip_update = atmGetConfig()->pause || !m_input_server->sync();
-    if(!m_skip_update)
-    {
+    if(!m_skip_update) {
+        m_elapsed += dt;
+        m_resource += dt;
         m_input_server->update();
         m_world->update(dt);
     }

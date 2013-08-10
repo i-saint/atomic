@@ -251,7 +251,7 @@ public:
         super::initialize();
         setCollisionShape(CS_Sphere);
         setModel(PSET_SPHERE_SMALL);
-        setLife(5.0f);
+        setLife(12.0f);
         setAxis1(GenRandomUnitVector3());
         setAxis2(GenRandomUnitVector3());
         setRotateSpeed1(2.4f);

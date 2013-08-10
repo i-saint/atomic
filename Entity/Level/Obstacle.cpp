@@ -38,8 +38,6 @@ public:
     void initialize() override
     {
         super::initialize();
-        setPivot(vec3(0.0f, 0.0f, -0.4f));
-
         initializeCollision(getHandle());
         setCollisionShape(CS_Box);
         setCollisionFlags(CF_Sender|CF_SPH_Sender);
@@ -68,7 +66,7 @@ public:
     FluidFilter()
     {
         wdmScope(
-        wdmString path = wdmFormat("Level/GroundBlock/0x%p", this);
+        wdmString path = wdmFormat("Level/FluidFilter/0x%p", this);
         super::addDebugNodes(path);
         )
     }
@@ -81,8 +79,6 @@ public:
     void initialize() override
     {
         super::initialize();
-        setPivot(vec3(0.0f, 0.0f, -0.4f));
-
         initializeCollision(getHandle());
         setCollisionShape(CS_Box);
         setCollisionFlags(CF_SPH_Sender);
@@ -110,5 +106,63 @@ public:
 atmImplementEntity(FluidFilter, DF_Editor, 0.0f);
 atmExportClass(FluidFilter);
 
+
+class RigidFilter : public Unbreakable<Entity_Direction>
+{
+typedef Unbreakable<Entity_Direction> super;
+private:
+    istSerializeBlock(
+        istSerializeBase(super)
+    )
+
+public:
+    atmECallBlock(
+        atmECallSuper(super)
+    )
+
+public:
+    RigidFilter()
+    {
+        wdmScope(
+        wdmString path = wdmFormat("Level/RigidFilter/0x%p", this);
+        super::addDebugNodes(path);
+        )
+    }
+
+    ~RigidFilter()
+    {
+        wdmEraseNode(wdmFormat("Level/RigidFilter/0x%p", this));
+    }
+
+    void initialize() override
+    {
+        super::initialize();
+
+        initializeCollision(getHandle());
+        setCollisionShape(CS_Box);
+        setCollisionFlags(CF_Sender);
+        setModel(PSET_UNIT_CUBE);
+    }
+
+    void draw() override
+    {
+        PSetInstance inst;
+        inst.diffuse = getDiffuseColor();
+        inst.glow = getGlowColor();
+        inst.flash = vec4();
+        inst.elapsed = pasttime::getPastTime();
+        inst.appear_radius = inst.elapsed * 0.004f;
+        inst.transform = transform::getTransformMatrix();
+        inst.rotate = transform::computeRotationMatrix();
+        uint32 num = 0;
+        vec3 size;
+        if(atmQuery(this, getScale, size)) {
+            num = uint32((size.x*0.2f)*(size.y*1.2f)*size.z * 10000.0f);
+        }
+        atmGetBarrierPass()->addParticles(getModel(), inst, num);
+    }
+};
+atmImplementEntity(RigidFilter, DF_Editor, 0.0f);
+atmExportClass(RigidFilter);
 
 } // namespace atm

@@ -97,6 +97,8 @@ istSEnumBlock(FunctionID,
     istSEnum(FID_setSpinResist),
     istSEnum(FID_getSpinDecel),
     istSEnum(FID_setSpinDecel),
+    istSEnum(FID_getSpinOneWay),
+    istSEnum(FID_setSpinOneWay),
 
     istSEnum(FID_getParent),
     istSEnum(FID_setParent),

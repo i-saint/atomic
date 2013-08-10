@@ -5,7 +5,7 @@
 
 namespace atm {
 
-class GateLinkage : public EntityWithPosition
+class dpPatch GateLinkage : public EntityWithPosition
 {
 typedef EntityWithPosition super;
 private:
@@ -78,7 +78,7 @@ public:
             vec3 pos = atmGetProperty(vec3, block, getPosition);
             pos += m_slide_dir*(diff*m_link_speed);
             atmCall(block, setPosition, pos);
-            setPosition(atmGetProperty(vec3, block, getPositionAbs));
+            setPosition(atmGetProperty(vec3, block, getPositionAbs)+vec3(0.0f, -0.1f, 0.0f));
         }
     }
 };

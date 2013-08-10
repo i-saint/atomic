@@ -74,6 +74,7 @@ istSEnumBlock(EntityClassID,
     // blocks
     istSEnum(EC_GroundBlock),
     istSEnum(EC_FluidFilter),
+    istSEnum(EC_RigidFilter),
     istSEnum(EC_FluidFan),
     istSEnum(EC_LevelLayer),
     istSEnum(EC_GearParts),

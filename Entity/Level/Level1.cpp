@@ -13,6 +13,8 @@ private:
         St_Begin,
         St_Scene1,
         St_Scene2,
+        St_Scene3,
+        St_Scene4,
         St_Boss,
         St_End,
         St_GameOver,
@@ -165,6 +167,8 @@ public:
         case St_Begin:  sceneBegin(dt); break;
         case St_Scene1: scene1(dt); break;
         case St_Scene2: scene2(dt); break;
+        case St_Scene3: scene3(dt); break;
+        case St_Scene4: scene4(dt); break;
         case St_Boss:   sceneBoss(dt); break;
         case St_End:    break;
         }
@@ -211,7 +215,7 @@ public:
     void scene1(float32 dt)
     {
         int32 f = m_frame_scene;
-        if(f < 700) {
+        if(f < 500) {
             if(f % 40 == 0) {
                 IEntity *e = putElectron();
             }
@@ -224,7 +228,7 @@ public:
                 IEntity *e = putProton();
             }
         }
-        if(f>1500) {
+        if(f>1000) {
             setState(St_Scene2);
         }
     }
@@ -240,12 +244,14 @@ public:
 
     void scene2(float32 dt)
     {
-        float32 lifetime = 5000.0f;
         int32 f = m_frame_scene;
         if(f==1) {
+            float32 x = 4.0f;
+            float32 scroll = 0.003f;
+            float32 lifetime = 6000.0f;
             IEntity *layer = atmCreateEntityT(LevelLayer);
-            atmCall(layer, addPositionXCP, ControlPoint(    0.0f,  3.0f,  0.0f, 0.0f, ControlPoint::Linear));
-            atmCall(layer, addPositionXCP, ControlPoint(lifetime,-15.0f,  0.0f, 0.0f));
+            atmCall(layer, addPositionXCP, ControlPoint(    0.0f, x,  0.0f, 0.0f, ControlPoint::Linear));
+            atmCall(layer, addPositionXCP, ControlPoint(lifetime, x-scroll*lifetime,  0.0f, 0.0f));
             atmCall(layer, setLifeTime, lifetime);
 
             IEntity *e = nullptr;
@@ -253,24 +259,11 @@ public:
             e = PutChildEntity(GearMedium, layer, vec3(0.65f, -0.9f, 0.0f));
             e = PutChildEntity(GearLarge, layer, vec3(1.75f, 0.5f, 0.0f));
             e = PutChildEntity(GearSmall, layer, vec3(2.1f, -1.4f, 0.0f));
-            {
-                PutGroundBlock(layer, 1, vec3(5.5f, 1.0f, 0.0f), vec3(0.5f, 1.0f, 0.3f));
-                PutGroundBlock(layer, 1, vec3(5.0f,-1.0f, 0.0f), vec3(0.5f, 1.0f, 0.3f));
+            e = PutChildEntity(GearLarge, layer, vec3(3.75f, -1.1f, 0.0f));
+            e = PutChildEntity(GearMedium, layer, vec3(3.75f, 1.1f, 0.0f));
+      }
 
-                IEntity *block = PutGroundBlock(layer, 1, vec3(5.0f, 0.0f, 0.0f), vec3(0.5f, 1.0f, 0.4f));
-                IEntity *gear = PutChildEntity(GearSmall, layer, vec3(4.0f, 0.5f, 0.0f));
-                IEntity *linkage = atmCreateEntityT(GateLinkage);
-                atmCall(gear, setSpinMinAngle,   0.0f);
-                atmCall(gear, setSpinMaxAngle, 720.0f);
-                atmCall(gear, setSpinReturnSpeed, 0.004f);
-                atmCall(linkage, setBlock, block->getHandle());
-                atmCall(linkage, setGear, gear->getHandle());
-                atmCall(linkage, setSlideDir, vec3(0.0f,1.0f,0.0f));
-                atmCall(linkage, setLinkSpeed, 0.5f/720.0f);
-            }
-        }
-
-        if(f < 4000) {
+        {
             if(f % 40 == 0) {
                 IEntity *e = putElectron();
             }
@@ -279,7 +272,72 @@ public:
             }
         }
 
-        if(f>int32(lifetime)) {
+        if(f>2500) {
+            setState(St_Scene3);
+        }
+    }
+
+    void scene3(float32 dt)
+    {
+        int32 f = m_frame_scene;
+        if(f==1) {
+            float32 x = 4.0f;
+            float32 scroll = 0.003f;
+            float32 lifetime = 6000.0f;
+            IEntity *layer = atmCreateEntityT(LevelLayer);
+            atmCall(layer, addPositionXCP, ControlPoint(    0.0f, x,  0.0f, 0.0f, ControlPoint::Linear));
+            atmCall(layer, addPositionXCP, ControlPoint(lifetime, x-scroll*lifetime,  0.0f, 0.0f));
+            atmCall(layer, setLifeTime, lifetime);
+
+            IEntity *e = nullptr;
+            PutGroundBlockByBox(layer, 1, vec3(1.0f, 0.5f, -0.1f), vec3(1.5f, 2.5f, 0.25f));
+            PutGroundBlockByBox(layer, 1, vec3(1.0f,-0.5f, -0.1f), vec3(1.5f,-2.5f, 0.25f));
+            {
+                IEntity *block = PutGroundBlockByBox(layer, 1, vec3(1.5f, 1.0f, -0.1f), vec3(1.85f, 0.0f, 0.2f));
+                IEntity *gear = PutChildEntity(GearSmall, layer, vec3(0.0f, 0.5f, 0.0f));
+                IEntity *linkage = atmCreateEntityT(GateLinkage);
+                atmCall(gear, setSpinMinAngle,   0.0f);
+                atmCall(gear, setSpinMaxAngle, 720.0f);
+                atmCall(gear, setSpinReturnSpeed, 0.01f);
+                atmCall(gear, setSpinOneWay, 1.0f);
+                atmCall(linkage, setBlock, block->getHandle());
+                atmCall(linkage, setGear, gear->getHandle());
+                atmCall(linkage, setSlideDir, vec3(0.0f,1.0f,0.0f));
+                atmCall(linkage, setLinkSpeed, 0.5f/720.0f);
+            }
+            {
+                IEntity *block = PutGroundBlockByBox(layer, 1, vec3(1.5f,-1.0f, -0.1f), vec3(1.85f, 0.0f, 0.2f));
+                IEntity *gear = PutChildEntity(GearSmall, layer, vec3(0.0f, -0.5f, 0.0f));
+                IEntity *linkage = atmCreateEntityT(GateLinkage);
+                atmCall(gear, setSpinMinAngle,-720.0f);
+                atmCall(gear, setSpinMaxAngle,   0.0f);
+                atmCall(gear, setSpinReturnSpeed, 0.01f);
+                atmCall(gear, setSpinOneWay, -1.0f);
+                atmCall(linkage, setBlock, block->getHandle());
+                atmCall(linkage, setGear, gear->getHandle());
+                atmCall(linkage, setSlideDir, vec3(0.0f,1.0f,0.0f));
+                atmCall(linkage, setLinkSpeed, 0.5f/720.0f);
+            }
+        }
+
+        {
+            if(f % 25 == 0) {
+                IEntity *e = putElectron();
+            }
+            if(f % 500 == 0) {
+                IEntity *e = putProton();
+            }
+        }
+
+        if(f>2500) {
+            setState(St_Scene4);
+        }
+    }
+
+    void scene4(float32 dt)
+    {
+        int32 f = m_frame_scene;
+        if(f>1000) {
             setState(St_Boss);
         }
     }

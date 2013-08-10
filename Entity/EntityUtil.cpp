@@ -75,10 +75,10 @@ void ShootSimpleBullet(EntityHandle owner, const vec3 &pos, const vec3 &vel)
 }
 
 
-IEntity* PutGroundBlock(EntityHandle parent, CollisionGroup group, const vec3 &pos, const vec3 &size, const vec3 &dir, const vec3 &pivot)
+IEntity* PutGroundBlock(IEntity *parent, CollisionGroup group, const vec3 &pos, const vec3 &size, const vec3 &dir, const vec3 &pivot)
 {
     IEntity *e = atmCreateEntityT(GroundBlock);
-    atmCall(e, setParent, parent);
+    atmCall(e, setParent, parent ? parent->getHandle() : 0);
     atmCall(e, setPosition, pos);
     atmCall(e, setScale, size);
     atmCall(e, setDirection, dir);
@@ -86,24 +86,74 @@ IEntity* PutGroundBlock(EntityHandle parent, CollisionGroup group, const vec3 &p
     atmCall(e, setCollisionGroup, group);
     return e;
 }
-IEntity* PutGroundBlock(IEntity *parent, CollisionGroup group, const vec3 &pos, const vec3 &size, const vec3 &dir, const vec3 &pivot)
+IEntity* PutGroundBlockByBox(IEntity *parent, CollisionGroup group, const vec3 &_box_min, const vec3 &_box_max, const vec3 &dir)
 {
-    return PutGroundBlock(parent ? parent->getHandle() : 0, group, pos, size, dir, pivot);
+    vec3 box_min = glm::min(_box_min, _box_max);
+    vec3 box_max = glm::max(_box_min, _box_max);
+    vec3 size = box_max-box_min;
+    vec3 half_size = size*0.5f;
+    IEntity *e = atmCreateEntityT(GroundBlock);
+    atmCall(e, setParent, parent ? parent->getHandle() : 0);
+    atmCall(e, setPosition, box_min+half_size);
+    atmCall(e, setScale, size);
+    atmCall(e, setDirection, dir);
+    atmCall(e, setCollisionGroup, group);
+    return e;
 }
 
-IEntity* PutFluidFilter(EntityHandle parent, const vec3 &pos, const vec3 &size, const vec3 &dir, const vec3 &pivot)
+
+IEntity* PutFluidFilter(IEntity *parent, const vec3 &pos, const vec3 &_box_min, const vec3 &_box_max, const vec3 &dir)
 {
+    vec3 box_min = glm::min(_box_min, _box_max);
+    vec3 box_max = glm::max(_box_min, _box_max);
+    vec3 size = box_max-box_min;
+    vec3 half_size = size*0.5f;
+    IEntity *e = atmCreateEntityT(FluidFilter);
+    atmCall(e, setParent, parent ? parent->getHandle() : 0);
+    atmCall(e, setPosition, box_min+half_size);
+    atmCall(e, setScale, half_size);
+    atmCall(e, setDirection, dir);
+    return e;
+}
+IEntity* PutFluidFilter(EntityHandle parent, CollisionGroup group, const vec3 &_box_min, const vec3 &_box_max, const vec3 &dir)
+{
+    vec3 box_min = glm::min(_box_min, _box_max);
+    vec3 box_max = glm::max(_box_min, _box_max);
+    vec3 size = box_max-box_min;
+    vec3 half_size = size*0.5f;
     IEntity *e = atmCreateEntityT(FluidFilter);
     atmCall(e, setParent, parent);
+    atmCall(e, setPosition, box_min+half_size);
+    atmCall(e, setScale, half_size);
+    atmCall(e, setDirection, dir);
+    return e;
+}
+
+
+IEntity* PutRigidFilter(IEntity *parent, CollisionGroup group, const vec3 &pos, const vec3 &size, const vec3 &dir, const vec3 &pivot)
+{
+    IEntity *e = atmCreateEntityT(RigidFilter);
+    atmCall(e, setParent, parent ? parent->getHandle() : 0);
     atmCall(e, setPosition, pos);
     atmCall(e, setScale, size);
     atmCall(e, setDirection, dir);
     atmCall(e, setPivot, pivot);
+    atmCall(e, setCollisionGroup, group);
     return e;
 }
-IEntity* PutFluidFilter(IEntity *parent, const vec3 &pos, const vec3 &size, const vec3 &dir, const vec3 &pivot)
+IEntity* PutRigidFilterByBox(IEntity *parent, CollisionGroup group, const vec3 &_box_min, const vec3 &_box_max, const vec3 &dir)
 {
-    return PutFluidFilter(parent ? parent->getHandle() : 0, pos, size, dir, pivot);
+    vec3 box_min = glm::min(_box_min, _box_max);
+    vec3 box_max = glm::max(_box_min, _box_max);
+    vec3 size = box_max-box_min;
+    vec3 half_size = size*0.5f;
+    IEntity *e = atmCreateEntityT(RigidFilter);
+    atmCall(e, setParent, parent ? parent->getHandle() : 0);
+    atmCall(e, setPosition, box_min+half_size);
+    atmCall(e, setScale, half_size);
+    atmCall(e, setDirection, dir);
+    atmCall(e, setCollisionGroup, group);
+    return e;
 }
 
 } // namespace atm

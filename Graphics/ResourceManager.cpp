@@ -239,9 +239,9 @@ bool GraphicResourceManager::initialize()
     }
 
     {
-        CreateCubeParticleSet(m_pset[PSET_UNIT_CUBE],  m_rinfo[PSET_UNIT_CUBE],  0.5f, 5000.0f);
-        CreateSphereParticleSet(m_pset[PSET_UNIT_SPHERE],  m_rinfo[PSET_UNIT_SPHERE],  0.5f, 5000.0f);
-        CreateHollowCubeParticleSet(m_pset[PSET_HOLLOW_CUBE],  m_rinfo[PSET_HOLLOW_CUBE],  0.5f, 5000.0f );
+        CreateCubeParticleSet(m_pset[PSET_UNIT_CUBE],  m_rinfo[PSET_UNIT_CUBE],  0.5f, 10000.0f);
+        CreateSphereParticleSet(m_pset[PSET_UNIT_SPHERE],  m_rinfo[PSET_UNIT_SPHERE],  0.5f, 10000.0f);
+        CreateHollowCubeParticleSet(m_pset[PSET_HOLLOW_CUBE],  m_rinfo[PSET_HOLLOW_CUBE],  0.5f, 10000.0f );
         CreateCubeParticleSet(m_pset[PSET_CUBE_SMALL],  m_rinfo[PSET_CUBE_SMALL],  0.1f);
         CreateCubeParticleSet(m_pset[PSET_CUBE_MEDIUM], m_rinfo[PSET_CUBE_MEDIUM], 0.2f);
         CreateCubeParticleSet(m_pset[PSET_CUBE_LARGE],  m_rinfo[PSET_CUBE_LARGE],  0.4f);

@@ -132,7 +132,7 @@ public:
 
     void update(float32 dt) override
     {
-        spin::updateSpin(dt, getPosition()); // 子が参照するので asyncupdate() の中ではマズい
+        spin::updateSpin(dt, getPositionAbs()); // 子が参照するので asyncupdate() の中ではマズい
         transform::setRotate(getSpinAngle());
         transform::updateTransformMatrix();
     }
@@ -175,7 +175,7 @@ public:
     {
         setSpinMaxSpeed(4.0f);
         setSpinDecel(0.99f);
-        setSpinResist(0.001f);
+        setSpinResist(0.002f);
 
         const int32 div = 5;
         const vec4 dir_x(1.0f,0.0f,0.0f,0.0f);
@@ -221,7 +221,7 @@ public:
     {
         setSpinMaxSpeed(1.5f);
         setSpinDecel(0.99f);
-        setSpinResist(0.0001f);
+        setSpinResist(0.0003f);
 
         const int32 div = 6;
         const vec4 dir_x(1.0f,0.0f,0.0f,0.0f);

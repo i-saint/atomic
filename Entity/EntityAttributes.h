@@ -431,6 +431,7 @@ private:
     float32 m_spin_max_speed;
     float32 m_spin_resist;
     float32 m_spin_decel;
+    float32 m_spin_oneway;
 
     istSerializeBlock(
         istSerialize(m_spin_center)
@@ -442,6 +443,7 @@ private:
         istSerialize(m_spin_max_speed)
         istSerialize(m_spin_resist)
         istSerialize(m_spin_decel)
+        istSerialize(m_spin_oneway)
     )
 
 public:
@@ -454,6 +456,7 @@ public:
         wdmAddNode(path+"/m_spin_max_speed", &m_spin_max_speed);
         wdmAddNode(path+"/m_spin_decel", &m_spin_decel);
         wdmAddNode(path+"/m_spin_accel", &m_spin_resist);
+        wdmAddNode(path+"/m_spin_oneway", &m_spin_oneway);
     }
     )
     atmECallBlock(
@@ -476,6 +479,8 @@ public:
             atmECall(setSpinResist)
             atmECall(getSpinDecel)
             atmECall(setSpinDecel)
+            atmECall(getSpinOneWay)
+            atmECall(setSpinOneWay)
         )
     )
     atmJsonizeBlock(
@@ -486,6 +491,7 @@ public:
         : m_spin_angle(0.0f), m_spin_min_angle(-9999.0f), m_spin_max_angle(9999.0f)
         , m_spin_speed(0.0f), m_spin_return_speed(0.0f), m_spin_max_speed(0.5f)
         , m_spin_resist(0.00002f), m_spin_decel(0.99f)
+        , m_spin_oneway(0.0f)
     {
     }
 
@@ -509,7 +515,9 @@ public:
         vec3 nf      = force/lf;
         float32 d    = glm::dot(dir, nf);
         float32 f    = lf * m_spin_resist * dist * d;
-        addSpinSpeed(f);
+        if(m_spin_oneway==0.0f || glm::sign(m_spin_oneway)==glm::sign(f)) {
+            addSpinSpeed(f);
+        }
     }
 
     void addSpinSpeed(float32 v)        { setSpinSpeed(getSpinSpeed()+v); }
@@ -521,6 +529,7 @@ public:
     float32 getSpinMaxSpeed() const     { return m_spin_max_speed; }
     float32 getSpinResist() const       { return m_spin_resist; }
     float32 getSpinDecel() const        { return m_spin_decel; }
+    float32 getSpinOneWay() const       { return m_spin_oneway; }
     void setSpinAngle(float32 v) {
         if(v>=m_spin_max_angle) {
             m_spin_angle = m_spin_max_angle;
@@ -541,6 +550,7 @@ public:
     void setSpinMaxSpeed(float32 v)     { m_spin_max_speed=v; }
     void setSpinResist(float32 v)       { m_spin_resist=v; }
     void setSpinDecel(float32 v)        { m_spin_decel=v; }
+    void setSpinOneWay(float32 v)       { m_spin_oneway=v; }
 };
 
 } // namespace atm

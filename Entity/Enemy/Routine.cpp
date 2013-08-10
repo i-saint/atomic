@@ -79,9 +79,9 @@ public:
         vec3 pos; atmQuery(e, getPosition, pos);
         vec3 player_pos = GetNearestPlayerPosition(pos);
         vec3 dir = vec3(glm::normalize(vec2(player_pos)-vec2(pos)), 0.0f);
-        if(moddiv(m_time, 120.0f)) {
-            for(int i=0; i<3; ++i) {
-                vec3 vel = (dir*(0.008f + 0.002f*i));
+        if(moddiv(m_time, 150.0f)) {
+            for(int i=0; i<5; ++i) {
+                vec3 vel = (dir*(0.007f + 0.0015f*i));
                 ShootSimpleBullet(e->getHandle(), pos, vel);
             }
             ++m_cycle;
@@ -202,10 +202,10 @@ public:
         vec3 pos; atmQuery(e, getPosition, pos);
         m_target_pos = GetNearestPlayerPosition(pos);
 
-        if(moddiv(m_time, 180.0f)) {
-            vec3 vel = glm::normalize(m_target_pos-pos)*0.015f;
-            ShootSimpleBullet(e->getHandle(), pos, vel);
-        }
+        //if(moddiv(m_time, 180.0f)) {
+        //    vec3 vel = glm::normalize(m_target_pos-pos)*0.015f;
+        //    ShootSimpleBullet(e->getHandle(), pos, vel);
+        //}
     }
 
     void asyncupdate(float32 dt)
