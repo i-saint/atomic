@@ -155,16 +155,18 @@ RESPOND:
 
 void NucleiCommandHandler::handleDelete(HTTPServerRequest &request, HTTPServerResponse &response)
 {
-    std::string data;
-    GetDecodedRequestBody(request, data);
+    if(atmIsEditMode()) {
+        std::string data;
+        GetDecodedRequestBody(request, data);
+        uint32 h = 0;
+        if(sscanf(data.c_str(), "entity=%u", &h)==1) {
+            LevelEditorCommand_Delete cmd;
+            cmd.type = LEC_Delete;
+            cmd.entity =  h;
+            WebServer::getInstance()->pushCommand((LevelEditorCommand&)cmd);
 
-    uint32 h = 0;
-    sscanf(data.c_str(), "entity=%u", &h);
-
-    LevelEditorCommand_Delete cmd;
-    cmd.type = LEC_Delete;
-    cmd.entity =  h;
-    WebServer::getInstance()->pushCommand((LevelEditorCommand&)cmd);
+        }
+    }
 
     respondCode(response, 0);
 }

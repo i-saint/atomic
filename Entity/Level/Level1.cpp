@@ -324,7 +324,7 @@ public:
                 IEntity *linkage = atmCreateEntityT(GateLinkage);
                 atmCall(gear, setSpinMinAngle,   0.0f);
                 atmCall(gear, setSpinMaxAngle, 720.0f);
-                atmCall(gear, setSpinReturnSpeed, 0.02f);
+                atmCall(gear, setSpinReturnSpeed, 0.015f);
                 atmCall(gear, setSpinOneWay, 1.0f);
                 atmCall(linkage, setBlock, block->getHandle());
                 atmCall(linkage, setGear, gear->getHandle());
@@ -337,7 +337,7 @@ public:
                 IEntity *linkage = atmCreateEntityT(GateLinkage);
                 atmCall(gear, setSpinMinAngle,-720.0f);
                 atmCall(gear, setSpinMaxAngle,   0.0f);
-                atmCall(gear, setSpinReturnSpeed, 0.02f);
+                atmCall(gear, setSpinReturnSpeed, 0.015f);
                 atmCall(gear, setSpinOneWay, -1.0f);
                 atmCall(linkage, setBlock, block->getHandle());
                 atmCall(linkage, setGear, gear->getHandle());
@@ -411,6 +411,16 @@ public:
                 atmCall(linkage, setLinkSpeed, 150.0f/720.0f);
             }
         }
+
+        if(f < 1200) {
+            if(f % 50 == 0) {
+                IEntity *e = putElectron();
+            }
+            if(f % 500 == 0) {
+                IEntity *e = putProton();
+            }
+        }
+
         if(f==1500) {
             IEntity *layer = atmGetEntity(m_layer);
             IEntity *core = PutChildEntity(Core, layer, vec3(1.9f, 0.0f, 0.0f));

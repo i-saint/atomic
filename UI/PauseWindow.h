@@ -20,13 +20,14 @@ public:
 
 private:
     void onResume(Widget *);
+    void onBrowser(Widget *);
     void onConfig(Widget *);
     void onTitle(Widget *);
     void onExit(Widget *);
     void onState(Widget *);
 
     ConfigWindow       *m_config;
-    iui::ToggleButton  *m_buttons[5];
+    iui::ToggleButton  *m_buttons[6];
 };
 
 } // namespace atm
