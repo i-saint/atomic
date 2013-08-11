@@ -67,9 +67,9 @@ public:
             uint32 buttons = 0;
             uint8 key[256];
             ::GetKeyboardState(key);
-            buttons |= (key[VK_LBUTTON]&0x80) ? MouseState::Button_Left : 0;
-            buttons |= (key[VK_RBUTTON]&0x80) ? MouseState::Button_Right : 0;
-            buttons |= (key[VK_MBUTTON]&0x80) ? MouseState::Button_Middle : 0;
+            buttons |= (key[VK_LBUTTON]&0x80) ? 1<<MouseState::Button_Left : 0;
+            buttons |= (key[VK_RBUTTON]&0x80) ? 1<<MouseState::Button_Right : 0;
+            buttons |= (key[VK_MBUTTON]&0x80) ? 1<<MouseState::Button_Middle : 0;
             m_state.setButtons(buttons);
         }
 #else // todo
