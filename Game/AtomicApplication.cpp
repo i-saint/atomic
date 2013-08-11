@@ -206,9 +206,6 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     m_mouse        = ist::CreateMouseDevice();
     m_controller   = ist::CreateControllerDevice();
 
-#ifdef atm_enable_ShaderLiveEdit
-    ::AllocConsole();
-#endif // atm_enable_ShaderLiveEdit
     wdmInitialize();
     istTaskSchedulerInitialize();
 

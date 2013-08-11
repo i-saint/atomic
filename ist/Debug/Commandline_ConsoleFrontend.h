@@ -27,8 +27,13 @@ private:
 #endif
 };
 
+#ifdef ist_enable_Commandline
 #define istCommandlineConsoleInitialize()   ist::CommandlineConsole::initializeInstance()
 #define istCommandlineConsoleFinalize()     ist::CommandlineConsole::finalizeInstance()
+#else // ist_enable_Commandline
+#define istCommandlineConsoleInitialize()   
+#define istCommandlineConsoleFinalize()     
+#endif // ist_enable_Commandline
 
 } // namespace ist
 #endif // ist_Debug_Commandline_ConsoleFrontend_h

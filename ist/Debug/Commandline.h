@@ -6,6 +6,7 @@
 
 namespace ist {
 
+
 class istAPI Commandline
 {
 istNonCopyable(Commandline);
@@ -32,6 +33,7 @@ private:
     istMemberPtrDecl(Members) m;
 };
 
+#ifdef ist_enable_Commandline
 #define istCommandlineInitialize()          ist::Commandline::initializeInstance()
 #define istCommandlineFinalize()            ist::Commandline::finalizeInstance()
 #define istCommandlineExecute(S)            ist::Commandline::getInstance()->execute(S)
@@ -39,6 +41,15 @@ private:
 #define istCommandlineFlush()               ist::Commandline::getInstance()->flush()
 #define istCommandlineRegister(S, ...)      ist::Commandline::getInstance()->registerCommand(S, ist::CreateCLCommand(__VA_ARGS__))
 #define istCommandlineUnregister(S)         ist::Commandline::getInstance()->unregisterCommand(S)
+#else // ist_enable_Commandline
+#define istCommandlineInitialize()          
+#define istCommandlineFinalize()            
+#define istCommandlineExecute(S)            
+#define istCommandlinePush(S)               
+#define istCommandlineFlush()               
+#define istCommandlineRegister(S, ...)      
+#define istCommandlineUnregister(S)         
+#endif // ist_enable_Commandline
 
 } // namespace ist
 #endif // ist_Debug_Commandline_h

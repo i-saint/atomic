@@ -210,6 +210,9 @@ public:
 
     void sceneBegin(float32 dt)
     {
+        atmGetFader()->setColor(vec4(0.0f, 0.0f, 0.0f, 1.0f));
+        atmGetFader()->setFade(vec4(0.0f, 0.0f, 0.0f, 0.0f), 60.0f);
+
         IEntity *e = atmCreateEntityT(Player);
         m_player = e->getHandle();
         atmCall(e, setPosition, vec4(0.0f, 0.0f, 0.0f, 1.0f));
