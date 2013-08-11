@@ -78,20 +78,28 @@ atmAPI bool mkdir( const char *path )
 
 atmAPI void glob( const char *path, const std::function<void (const std::string &file)> &f)
 {
-    Poco::DirectoryIterator end;
-    for(Poco::DirectoryIterator i(Poco::Path((const char*)path)); i!=end; ++i) {
-        f(i->path());
+    try {
+        Poco::DirectoryIterator end;
+        for(Poco::DirectoryIterator i(Poco::Path((const char*)path)); i!=end; ++i) {
+            f(i->path());
+        }
+    }
+    catch(...) {
     }
 }
 
 atmAPI void glob( const char *path, const char *filter_regex, const std::function<void (const std::string &file)> &f)
 {
-    std::regex filter(filter_regex);
-    Poco::DirectoryIterator end;
-    for(Poco::DirectoryIterator i(Poco::Path((const char*)path)); i!=end; ++i) {
-        if(std::regex_search(i->path(), filter)) {
-            f(i->path());
+    try {
+        std::regex filter(filter_regex);
+        Poco::DirectoryIterator end;
+        for(Poco::DirectoryIterator i(Poco::Path((const char*)path)); i!=end; ++i) {
+            if(std::regex_search(i->path(), filter)) {
+                f(i->path());
+            }
         }
+    }
+    catch(...) {
     }
 }
 
