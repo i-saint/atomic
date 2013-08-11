@@ -501,11 +501,11 @@ public:
         m_state = State_Dead;
     }
 
-    //void eventFluid(const FluidMessage *m) override
-    //{
-    //    addBloodstain(getInvTransformMatrix(), (vec4&)m->position);
-    //    damage(glm::length((const vec3&)m->velocity)*0.015f);
-    //}
+    void eventFluid(const FluidMessage *m) override
+    {
+        addBloodstain(getInvTransformMatrix(), (vec4&)m->position);
+        damage(glm::length((const vec3&)m->velocity)*0.02f);
+    }
 
     void eventCollide(const CollideMessage *m) override
     {

@@ -137,12 +137,15 @@ istSEnumBlock(FunctionID,
 
     istSEnum(FID_getPositionAbs),
     istSEnum(FID_setPositionAbs),
+    istSEnum(FID_getDirectionAbs),
+    istSEnum(FID_setDirectionAbs),
     istSEnum(FID_setLifeTime),
     istSEnum(FID_getLifeTime),
     istSEnum(FID_setGear),
     istSEnum(FID_setBlock),
     istSEnum(FID_setSlideDir),
     istSEnum(FID_setLinkSpeed),
+    istSEnum(FID_poke),
 
     istSEnum(FID_End),
 );

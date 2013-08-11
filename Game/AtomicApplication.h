@@ -95,7 +95,8 @@ public:
     void requestReturnToTitleScreen();
     void requestExit();
     AtomicGame* getGame();
-    const InputState* getSystemInputs() const;
+    const InputState& getGameInput() const;
+    const InputState& getMenuInput() const;
     AtomicConfig* getConfig();
 
     const ist::KeyboardState&   getKeyboardState() const;
@@ -120,7 +121,8 @@ private:
     float32         m_time;
 
     AtomicGame     *m_game;
-    InputState      m_inputs;
+    InputState      m_gameinput;
+    InputState      m_menuinput;
     AtomicConfig    m_config;
     bool            m_request_exit;
     bool            m_request_title;
@@ -136,14 +138,15 @@ void atmPauseAndShowPauseMenu();
 
 } // namespace atm
 
-#define atmGetApplication()          AtomicApplication::getInstance()
-#define atmGetGame()                 atmGetApplication()->getGame()
-#define atmGetSystemInputs()         atmGetApplication()->getSystemInputs()
-#define atmGetConfig()               atmGetApplication()->getConfig()
-#define atmGetWindowSize()           atmGetApplication()->getWindowSize()
-#define atmGetPastTime()             atmGetApplication()->getPastTime()
+#define atmGetApplication()         AtomicApplication::getInstance()
+#define atmGetGame()                atmGetApplication()->getGame()
+#define atmGetGameInput()           atmGetApplication()->getGameInput()
+#define atmGetMenuInput()           atmGetApplication()->getMenuInput()
+#define atmGetConfig()              atmGetApplication()->getConfig()
+#define atmGetWindowSize()          atmGetApplication()->getWindowSize()
+#define atmGetPastTime()            atmGetApplication()->getPastTime()
 #ifdef atm_enable_DebugLog
-#   define atmDebugLog(...)          atmGetApplication()->printDebugLog(__VA_ARGS__)
+#   define atmDebugLog(...)         atmGetApplication()->printDebugLog(__VA_ARGS__)
 #else  // atm_enable_DebugLog
 #   define atmDebugLog(...)          
 #endif // atm_enable_DebugLog

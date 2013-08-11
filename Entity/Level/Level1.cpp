@@ -5,6 +5,101 @@
 
 namespace atm {
 
+
+class C84LaserTurret
+    : public EntityWithParent
+    , public Attr_PastTime
+{
+typedef EntityWithParent super;
+typedef Attr_PastTime pasttime;
+private:
+    enum State {
+        St_Dormant,
+        St_Active,
+        St_Firing,
+    };
+    LaserHandle    m_laser;
+    CollisionGroup m_group;
+    State          m_state;
+
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerializeBase(pasttime)
+        istSerialize(m_laser)
+        istSerialize(m_group)
+        istSerialize(m_state)
+    )
+
+public:
+    atmECallBlock(
+        atmMethodBlock(
+            atmECall(getCollisionGroup)
+            atmECall(setCollisionGroup)
+            atmECall(poke)
+        )
+        atmECallSuper(super)
+        atmECallSuper(pasttime)
+    )
+
+public:
+    C84LaserTurret() : m_laser(), m_group(), m_state(St_Dormant)
+    {}
+
+    CollisionGroup getCollisionGroup() const { return m_group; }
+    void setCollisionGroup(CollisionGroup v) { m_group=v; }
+    void poke() { m_state=St_Active; }
+
+    void update(float32 dt) override
+    {
+        super::update(dt);
+        if(isParentDead()) {
+            atmDeleteEntity(getHandle());
+            return;
+        }
+
+        if(m_state!=St_Dormant) {
+            pasttime::update(dt);
+        }
+
+        if(m_state==St_Active) {
+            float32 t = getPastTime();
+            if(moddiv(t, 600.0f)) {
+                setPastTime(t);
+                vec3 pos = getPositionAbs();
+                vec3 dir = getDirectionAbs();
+                m_laser = atmGetBulletModule()->createLaser(pos+dir*0.2f, dir, getHandle());
+                m_state = St_Firing;
+            }
+        }
+        else if(m_state==St_Firing) {
+            float32 t = getPastTime();
+            vec3 pos = getPositionAbs();
+            vec3 dir = getDirectionAbs();
+            if(ILaser *l = atmGetBulletModule()->getLaser(m_laser)) {
+                l->setPosition(pos);
+                l->setDirection(dir);
+                if(t>150.0f) {
+                    l->fade();
+                }
+            }
+            else {
+                m_laser = 0;
+                m_state = St_Active;
+            }
+        }
+    }
+
+    void asyncupdate(float32 dt) override
+    {
+        super::asyncupdate(dt);
+        transform::updateTransformMatrix();
+    }
+};
+atmImplementEntity(C84LaserTurret);
+atmExportClass(C84LaserTurret);
+
+
+
 class dpPatch Level1 : public EntityWithPosition
 {
 typedef EntityWithPosition super;
@@ -25,6 +120,7 @@ private:
     EntityHandle m_boss;
     EntityHandle m_layer;
     EntityHandle m_guards[3];
+    EntityHandle m_turrets[2];
     State m_state;
     int m_frame_total;
     int m_frame_scene;
@@ -36,6 +132,7 @@ private:
         istSerialize(m_boss)
         istSerialize(m_layer)
         istSerialize(m_guards)
+        istSerialize(m_turrets)
         istSerialize(m_state)
         istSerialize(m_frame_total)
         istSerialize(m_frame_scene)
@@ -52,6 +149,7 @@ public:
     {
         clear(m_planes);
         clear(m_guards);
+        clear(m_turrets);
 
         wdmScope(
         wdmString path = wdmFormat("Level/Level1/0x%p", this);
@@ -222,7 +320,7 @@ public:
         m_player = e->getHandle();
         atmCall(e, setPosition, vec4(0.0f, 0.0f, 0.0f, 1.0f));
 
-        setState(St_Scene4);
+        setState(St_Scene1);
     }
 
     void scene1(float32 dt)
@@ -285,10 +383,10 @@ public:
       }
 
         {
-            if(f % 40 == 0) {
+            if(f % 30 == 0) {
                 IEntity *e = putElectron();
             }
-            if(f % 300 == 0) {
+            if(f % 360 == 0) {
                 IEntity *e = putProton();
             }
         }
@@ -386,7 +484,8 @@ public:
             float32 x = 4.0f;
             float32 scroll = 0.003f;
             float32 timespan = 1500.0f;
-            CollisionGroup group = atmGetCollisionModule()->genGroup();
+            CollisionGroup group1 = atmGetCollisionModule()->genGroup();
+            CollisionGroup group2 = atmGetCollisionModule()->genGroup();
             const vec4 light_color(0.5f, 0.7f, 1.0f, 1.0f);
             IEntity *layer = atmCreateEntityT(LevelLayer);
             m_layer = layer->getHandle();
@@ -395,39 +494,49 @@ public:
             atmCall(layer, setLifeTime, 0.0f);
 
             IEntity *e = nullptr;
-            e = PutChildEntity(PointLightEntity, layer, vec3(-0.5f, 1.9f, 0.0f));
+            e = PutChildEntity(PointLightEntity, layer, vec3(-0.5f, 1.7f, 0.4f));
             atmCall(e, setRadius, 1.0f);
             atmCall(e, setDiffuse, light_color);
-            e = PutChildEntity(PointLightEntity, layer, vec3(-0.5f,-1.9f, 0.0f));
+            e = PutChildEntity(PointLightEntity, layer, vec3(-0.5f,-1.7f, 0.4f));
             atmCall(e, setRadius, 1.0f);
             atmCall(e, setDiffuse, light_color);
+
             {
-                IEntity *gear = PutChildEntity(GearSmall, layer, vec3(-0.5f, 1.9f, 0.0f));
-                atmCall(gear, setSpinMinAngle,   0.0f);
-                atmCall(gear, setSpinMaxAngle, 720.0f);
-                atmCall(gear, setSpinReturnSpeed, 0.01f);
-                atmCall(gear, setSpinOneWay, 1.0f);
-                IEntity *l = PutChildEntity(LevelLayer, layer, vec3(0.0f, 1.25f, 0.0f));
-                PutGroundBlockByBox(l, group, vec3(-0.75f,-0.1f, -0.1f), vec3(0.0f,0.1f, 0.15f));
-                PutGroundBlockByBox(l, group, vec3(-0.2f,-0.6f, -0.1f), vec3(0.0f,0.1f, 0.15f));
-                IEntity *linkage = atmCreateEntityT(HingeLinkage);
-                atmCall(linkage, setBlock, l->getHandle());
-                atmCall(linkage, setGear, gear->getHandle());
-                atmCall(linkage, setLinkSpeed, 150.0f/720.0f);
-            }
-            {
-                IEntity *gear = PutChildEntity(GearSmall, layer, vec3(-0.5f,-1.9f, 0.0f));
+                IEntity *gear = PutChildEntity(GearSmall, layer, vec3(-0.5f, 1.7f, 0.0f));
                 atmCall(gear, setSpinMinAngle,-720.0f);
                 atmCall(gear, setSpinMaxAngle,   0.0f);
                 atmCall(gear, setSpinReturnSpeed, 0.01f);
                 atmCall(gear, setSpinOneWay, -1.0f);
-                IEntity *l = PutChildEntity(LevelLayer, layer, vec3(0.0f,-1.25f, 0.0f));
-                PutGroundBlockByBox(l, group, vec3(-0.75f,-0.1f, -0.1f), vec3(0.0f,0.1f, 0.15f));
-                PutGroundBlockByBox(l, group, vec3(-0.2f, 0.6f, -0.1f), vec3(0.0f,-0.1f, 0.15f));
+                IEntity *l = PutChildEntity(LevelLayer, layer, vec3(0.0f, 1.05f, 0.0f));
+                PutGroundBlockByBox(l, group1, vec3(-0.2f,-0.6f, -0.1f), vec3(0.0f,0.1f, 0.15f));
+                e = PutGroundBlockByBox(l, group1, vec3(-0.75f,-0.1f, -0.1f), vec3(0.0f,0.1f, 0.15f));
+                IEntity *turret = PutChildEntity(C84LaserTurret, e, vec3(-0.5f, 0.0f, 0.0f));
+                atmCall(turret, setDirection, vec3(-1.0f, 0.0f, 0.0f));
+                atmCall(turret, setCollisionGroup, group1);
                 IEntity *linkage = atmCreateEntityT(HingeLinkage);
                 atmCall(linkage, setBlock, l->getHandle());
                 atmCall(linkage, setGear, gear->getHandle());
-                atmCall(linkage, setLinkSpeed, 150.0f/720.0f);
+                atmCall(linkage, setLinkSpeed, -150.0f/720.0f);
+                m_turrets[0] = turret->getHandle();
+            }
+            {
+                IEntity *gear = PutChildEntity(GearSmall, layer, vec3(-0.5f,-1.7f, 0.0f));
+                atmCall(gear, setSpinMinAngle,   0.0f);
+                atmCall(gear, setSpinMaxAngle, 720.0f);
+                atmCall(gear, setSpinReturnSpeed, 0.01f);
+                atmCall(gear, setSpinOneWay, 1.0f);
+                IEntity *l = PutChildEntity(LevelLayer, layer, vec3(0.0f,-1.05f, 0.0f));
+                PutGroundBlockByBox(l, group2, vec3(-0.2f, 0.6f, -0.1f), vec3(0.0f,-0.1f, 0.15f));
+                e = PutGroundBlockByBox(l, group2, vec3(-0.75f,-0.1f, -0.1f), vec3(0.0f,0.1f, 0.15f));
+                IEntity *turret = PutChildEntity(C84LaserTurret, e, vec3(-0.5f, 0.0f, 0.0f));
+                atmCall(turret, setDirection, vec3(-1.0f, 0.0f, 0.0f));
+                atmCall(turret, setCollisionGroup, group2);
+                atmCall(turret, setPastTime, 300.0f);
+                IEntity *linkage = atmCreateEntityT(HingeLinkage);
+                atmCall(linkage, setBlock, l->getHandle());
+                atmCall(linkage, setGear, gear->getHandle());
+                atmCall(linkage, setLinkSpeed, -150.0f/720.0f);
+                m_turrets[1] = turret->getHandle();
             }
         }
 
@@ -445,6 +554,9 @@ public:
             IEntity *core = PutChildEntity(Core, layer, vec3(1.9f, 0.0f, 0.0f));
             IEntity *barrier = PutFluidFilter(core, 1, vec3(0.0f, 0.0f, 0.0f), vec3(1.4f));
             m_boss = core->getHandle();
+        }
+        if(f==1650) {
+            each(m_turrets, [&](EntityHandle h){ atmCall1(h, poke); });
         }
         if(f > 1600) {
             if(f % 60 == 0) {

@@ -63,16 +63,16 @@ UISelector::UISelector()
 void UISelector::update(iui::Float dt)
 {
     m_time += dt;
-    if(atmGetSystemInputs()->isDirectionTriggered(InputState::Dir_Down)) {
+    if(atmGetMenuInput().isDirectionTriggered(InputState::Dir_Down)) {
         moveNext();
     }
-    else if(atmGetSystemInputs()->isDirectionTriggered(InputState::Dir_Up)) {
+    else if(atmGetMenuInput().isDirectionTriggered(InputState::Dir_Up)) {
         movePrev();
     }
-    else if(atmGetSystemInputs()->isButtonTriggered(0)) {
+    else if(atmGetMenuInput().isButtonTriggered(0)) {
         enter();
     }
-    else if(atmGetSystemInputs()->isButtonTriggered(1)) {
+    else if(atmGetMenuInput().isButtonTriggered(1)) {
         cancel();
     }
 

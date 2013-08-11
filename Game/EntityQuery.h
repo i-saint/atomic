@@ -31,6 +31,27 @@ namespace atm {
 
 class IEntity;
 
+template<class C>
+inline bool atmCallImpl(C *e, FunctionID fid)
+{
+    return e->call(fid, nullptr, nullptr);
+}
+template<class C, class Arg>
+inline bool atmCallImpl(C *e, FunctionID fid, const Arg &args)
+{
+    return e->call(fid, &args, nullptr);
+}
+template<class C, class Ret, class Arg>
+inline bool atmCallImpl(C *e, FunctionID fid, const Arg &args, Ret &ret)
+{
+    return e->call(fid, &args, &ret);
+}
+
+inline bool atmCallImpl(EntityHandle h, FunctionID fid)
+{
+    if(IEntity *e=atmGetEntity(h)) { return atmCallImpl(e, fid); }
+    return false;
+}
 template<class Arg>
 inline bool atmCallImpl(EntityHandle h, FunctionID fid, const Arg &args)
 {
@@ -42,16 +63,6 @@ inline bool atmCallImpl(EntityHandle h, FunctionID fid, const Arg &args, Ret &re
 {
     if(IEntity *e=atmGetEntity(h)) { return atmCallImpl(e, fid, args, ret); }
     return false;
-}
-template<class C, class Arg>
-inline bool atmCallImpl(C *e, FunctionID fid, const Arg &args)
-{
-    return e->call(fid, &args, nullptr);
-}
-template<class C, class Ret, class Arg>
-inline bool atmCallImpl(C *e, FunctionID fid, const Arg &args, Ret &ret)
-{
-    return e->call(fid, &args, &ret);
 }
 
 template<class Ret>
@@ -94,6 +105,7 @@ inline T atmGetProperyImpl(IEntity *e, FunctionID fid)
 
 #define atmArgs(...)                    ist::MakeValueList(__VA_ARGS__)
 #define atmCall(entity, funcname, ...)  atmCallImpl(entity, FID_##funcname, __VA_ARGS__)
+#define atmCall1(entity, funcname)  atmCallImpl(entity, FID_##funcname)
 #define atmQuery(entity, funcname, ...) atmQueryImpl(entity, FID_##funcname, __VA_ARGS__)
 #define atmGetProperty(type, entity, funcname, ...) atmGetProperyImpl<type>(entity, FID_##funcname)
 

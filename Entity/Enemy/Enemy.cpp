@@ -226,7 +226,7 @@ public:
         setCollisionShape(CS_Box);
         setModel(PSET_UNIT_CUBE);
         setScale(vec3(0.6f));
-        setLife(1000.0f);
+        setLife(900.0f);
         setAxis1(GenRandomUnitVector3());
         setAxis2(GenRandomUnitVector3());
         setRotateSpeed1(0.3f);

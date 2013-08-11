@@ -86,6 +86,8 @@ istSEnumBlock(EntityClassID,
     istSEnum(EC_GateLinkage),
     istSEnum(EC_HingeLinkage),
 
+    istSEnum(EC_C84LaserTurret),
+
     istSEnum(EC_Obstacle_End),
 
 

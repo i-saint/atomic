@@ -123,7 +123,7 @@ void AtomicGame::frameBegin()
 void AtomicGame::update(float32 dt)
 {
     if(!m_skip_update) {
-        m_input_server->pushInput(0, atmGetSystemInputs()->getRawInput());
+        m_input_server->pushInput(0, atmGetGameInput().getRawInput());
     }
 
     atmLevelEditorHandleCommands( std::bind(&IInputServer::pushLevelEditorCommand, m_input_server, std::placeholders::_1));
@@ -164,12 +164,12 @@ void AtomicGame::draw()
     m_skip_draw = false;
     if(m_input_server->getTypeID()==IInputServer::IS_Replay) {
         static uint32 f;
-        const InputState *is = atmGetSystemInputs();
+        const InputState &is = atmGetGameInput();
         ++f;
-        if(is->isButtonPressed(0) && f%2!=0) { m_skip_draw=true; return; }
-        if(is->isButtonPressed(1) && f%4!=0) { m_skip_draw=true; return; }
-        if(is->isButtonPressed(2) && f%8!=0) { m_skip_draw=true; return; }
-        if(is->isButtonPressed(3) && f%16!=0){ m_skip_draw=true; return; }
+        if(is.isButtonPressed(0) && f%2!=0) { m_skip_draw=true; return; }
+        if(is.isButtonPressed(1) && f%4!=0) { m_skip_draw=true; return; }
+        if(is.isButtonPressed(2) && f%8!=0) { m_skip_draw=true; return; }
+        if(is.isButtonPressed(3) && f%16!=0){ m_skip_draw=true; return; }
     }
 }
 

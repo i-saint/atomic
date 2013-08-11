@@ -158,7 +158,8 @@ void AtomicConfig::setupDebugMenu()
 void AtomicApplication::requestExit()                       { m_request_exit=true; }
 void AtomicApplication::requestReturnToTitleScreen()        { m_request_title=true; }
 AtomicGame* AtomicApplication::getGame()                    { return m_game; }
-const InputState* AtomicApplication::getSystemInputs() const{ return &m_inputs; }
+const InputState& AtomicApplication::getGameInput() const   { return m_gameinput; }
+const InputState& AtomicApplication::getMenuInput() const   { return m_menuinput; }
 AtomicConfig* AtomicApplication::getConfig()                { return &m_config; }
 
 
@@ -464,11 +465,6 @@ void AtomicApplication::updateInput()
     if(getControllerState().isButtonPressed(ist::ControllerState::Button_3)) { buttons |= 1<<2; }
     if(getControllerState().isButtonPressed(ist::ControllerState::Button_4)) { buttons |= 1<<3; }
 
-    const ist::MouseState &mouse = getMouseState();
-    if(mouse.isButtonPressed(ist::MouseState::Button_Left  )) { buttons |= 1<<0; }
-    if(mouse.isButtonPressed(ist::MouseState::Button_Right )) { buttons |= 1<<1; }
-    if(mouse.isButtonPressed(ist::MouseState::Button_Middle)) { buttons |= 1<<2; }
-
     const ist::KeyboardState &kb = getKeyboardState();
     if(kb.isKeyPressed('Z')) { buttons |= 1<<0; }
     if(kb.isKeyPressed('X')) { buttons |= 1<<1; }
@@ -484,7 +480,14 @@ void AtomicApplication::updateInput()
         RepMove jpos(int16(pos.x*INT16_MAX), int16(pos.y*INT16_MAX));
         if(glm::length(jpos.toF())>0.4f) { move=jpos; }
     }
-    m_inputs.update(RepInput(move, buttons));
+    m_menuinput.update(RepInput(move, buttons));
+
+    const ist::MouseState &mouse = getMouseState();
+    if(mouse.isButtonPressed(ist::MouseState::Button_Left  )) { buttons |= 1<<0; }
+    if(mouse.isButtonPressed(ist::MouseState::Button_Right )) { buttons |= 1<<1; }
+    if(mouse.isButtonPressed(ist::MouseState::Button_Middle)) { buttons |= 1<<2; }
+
+    m_gameinput.update(RepInput(move, buttons));
 }
 
 bool AtomicApplication::handleWindowMessage(const ist::WM_Base& wm)

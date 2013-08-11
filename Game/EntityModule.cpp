@@ -2,10 +2,10 @@
 #include "types.h"
 #include "AtomicGame.h"
 #include "Graphics/ResourceManager.h"
+#include "World.h"
 #include "EntityModule.h"
 #include "EntityQuery.h"
 #include "CollisionModule.h"
-#include "World.h"
 #include "Task.h"
 
 #ifdef atm_enable_StrictHandleCheck

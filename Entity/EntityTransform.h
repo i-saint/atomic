@@ -181,6 +181,8 @@ public:
             atmECall(computeRotationMatrix)
             atmECall(getPositionAbs)
             atmECall(setPositionAbs)
+            atmECall(getDirectionAbs)
+            atmECall(setDirectionAbs)
         )
     )
 
@@ -224,8 +226,10 @@ public:
     void setUpVector(const vec3& v)     { m_up=v; }
     void move(const vec3 &v)            { setPosition(getPosition()+v); }
     void orient(const vec3 &v)          { setDirection(v); }
-    const vec3& getPositionAbs() const { return m_pos; }
-    void setPositionAbs(const vec3& v) { m_pos=v; }
+    const vec3& getPositionAbs() const  { return m_pos; }
+    const vec3& getDirectionAbs() const { return m_dir; }
+    void setPositionAbs(const vec3& v)  { m_pos=v; }
+    void setDirectionAbs(const vec3& v) { m_dir=v; }
 
     mat4 computeTransformMatrix() const
     {
@@ -431,6 +435,8 @@ public:
         atmMethodBlock(
             atmECall(getPositionAbs)
             atmECall(setPositionAbs)
+            atmECall(getDirectionAbs)
+            atmECall(setDirectionAbs)
             atmECall(getParent)
             atmECall(setParent)
             atmECall(move)
@@ -470,6 +476,7 @@ public:
         return false;
     }
 
+
     vec3 getPositionAbs() const
     {
         vec3 pos = super::getPosition();
@@ -481,7 +488,6 @@ public:
         }
         return pos;
     }
-
     void setPositionAbs(const vec3 &pos)
     {
         mat4 pmat;
@@ -493,6 +499,27 @@ public:
         else {
             super::setPosition(pos);
         }
+    }
+
+    vec3 getDirectionAbs()
+    {
+        vec3 ret;
+        if(super::call(FID_getDirection, nullptr, &ret)) {
+            mat4 pmat;
+            if(atmQuery(getParent(), getTransformMatrix, pmat)) {
+                ret = vec3(pmat*vec4(ret,0.0f));
+            }
+        }
+        return ret;
+    }
+    void setDirectionAbs(const vec3 &v)
+    {
+        vec3 m = v;
+        mat4 pmat;
+        if(atmQuery(getParent(), getInvTransformMatrix, pmat)) {
+            m = vec3(pmat*vec4(v,0.0f));
+        }
+        super::call(FID_setDirection, &m, nullptr);
     }
 
     void move(const vec3 &v)
