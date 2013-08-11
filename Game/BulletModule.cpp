@@ -195,7 +195,7 @@ public:
                     ++m_hitcount;
                     vec3 pos = p.pos_current;
                     float32 d = s_power;
-                    if(atmIsEnemy(p.hit_to)) { d*=1.0f; }
+                    if(atmIsEnemy(p.hit_to)) { d*=0.5f; }
                     atmCall(p.hit_to, damage, d);
                     atmCall(p.hit_to, pulse, atmArgs(pos, m_dir*s_speed*1000.0f));
                     {
@@ -275,7 +275,7 @@ const float32 Laser::s_speed = 0.06f;
 const float32 Laser::s_lifetime = 100.0f;
 const float32 Laser::s_fadeout_time = 50.0f;
 const float32 Laser::s_radius = 0.04f;
-const float32 Laser::s_power = 0.5f;
+const float32 Laser::s_power = 1.0f;
 atmExportClass(Laser)
 
 class LaserManager : public IBulletManager

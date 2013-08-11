@@ -57,9 +57,9 @@ public:
         super::eventCollide(m);
         vec3 pos;
         if(atmQuery(m->from, getPosition, pos)) {
-            float32 f = 4000.0f;
+            float32 f = 1000.0f;
             if(EntityGetCategory(m->from)==ECA_Obstacle) {
-                f = 40000.0f;
+                f = 10000.0f;
             }
             vec3 force = vec3(m->direction * (m->direction.w * f));
             pulse(pos, force);

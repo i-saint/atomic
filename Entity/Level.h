@@ -68,14 +68,14 @@ public:
             return;
         }
         super::update(dt);
+        transform::updateTransformMatrix();
+        collision::updateCollisionByParticleSet(getModel(), getTransformMatrix());
+        bloodstain::updateBloodstain(dt);
     }
 
     void asyncupdate(float32 dt) override
     {
         super::asyncupdate(dt);
-        transform::updateTransformMatrix();
-        collision::updateCollisionByParticleSet(getModel(), getTransformMatrix());
-        bloodstain::updateBloodstain(dt);
     }
 
     void draw() override
