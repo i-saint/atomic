@@ -40,12 +40,13 @@ atmAPI int32 atmMain(int argc, char* argv[])
     dpInitialize();
     ist::forceLink();
 
-    atm::atmInitializeCrashReporter();
-    istCrashReportBegin
+    //// todo: C84 ではまだクラッシュレポート使わない
+    //atm::atmInitializeCrashReporter();
+    //istCrashReportBegin
     atmExecApplication(argc, argv);
-    istCrashReportRescue
-    istCrashReportEnd
-    atm::atmFinalizeCrashReporter();
+    //istCrashReportRescue
+    //istCrashReportEnd
+    //atm::atmFinalizeCrashReporter();
 
     dpFinalize();
     return 0;
