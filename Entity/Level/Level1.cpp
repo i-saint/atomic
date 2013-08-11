@@ -63,7 +63,7 @@ public:
 
         if(m_state==St_Active) {
             float32 t = getPastTime();
-            if(moddiv(t, 600.0f)) {
+            if(moddiv(t, 900.0f)) {
                 setPastTime(t);
                 vec3 pos = getPositionAbs();
                 vec3 dir = getDirectionAbs();
@@ -451,12 +451,12 @@ public:
                 atmCall(linkage, setSlideDir, vec3(0.0f,1.0f,0.0f));
                 atmCall(linkage, setLinkSpeed, 0.5f/720.0f);
             }
-            PutGroundBlockByBox(layer, group, vec3(1.5f,-2.0f, -0.1f), vec3(4.0f,-2.5f, 0.15f));
-            PutGroundBlockByBox(layer, group, vec3(3.5f,-2.0f, -0.1f), vec3(4.0f,-0.5f, 0.15f));
-            PutFluidFilterByBox(layer, group, vec3(3.5f,-0.5f, -0.1f), vec3(4.0f, 0.5f, 0.15f));
-            PutGroundBlockByBox(layer, group, vec3(3.5f, 0.5f, -0.1f), vec3(4.5f, 1.0f, 0.15f));
-            PutRigidFilterByBox(layer, group, vec3(3.5f, 1.0f, -0.1f), vec3(4.0f, 2.0f, 0.15f));
-            PutGroundBlockByBox(layer, group, vec3(3.5f, 2.0f, -0.1f), vec3(4.0f, 2.5f, 0.15f));
+            PutGroundBlockByBox(layer, group, vec3(1.5f,-2.0f, -0.1f), vec3(4.0f,-2.5f, 0.2f));
+            PutGroundBlockByBox(layer, group, vec3(3.5f,-2.0f, -0.1f), vec3(4.0f,-0.5f, 0.2f));
+            PutFluidFilterByBox(layer, group, vec3(3.5f,-0.5f, -0.1f), vec3(4.0f, 0.5f, 0.2f));
+            PutGroundBlockByBox(layer, group, vec3(3.5f, 0.5f, -0.1f), vec3(4.5f, 1.0f, 0.2f));
+            PutRigidFilterByBox(layer, group, vec3(3.5f, 1.0f, -0.1f), vec3(4.0f, 2.0f, 0.2f));
+            PutGroundBlockByBox(layer, group, vec3(3.5f, 2.0f, -0.1f), vec3(4.0f, 2.5f, 0.2f));
             e = PutChildEntity(Antiproton, layer, vec3( 4.5f, 1.5f, 0.0f));
             e = PutChildEntity(Antiproton, layer, vec3( 5.2f, 1.2f, 0.0f));
             e = PutChildEntity(Antiproton, layer, vec3( 2.7f,-1.0f, 0.0f));
@@ -472,7 +472,7 @@ public:
             }
         }
 
-        if(f>3000) {
+        if(f>2500) {
             setState(St_Scene4);
         }
     }
@@ -531,7 +531,7 @@ public:
                 IEntity *turret = PutChildEntity(C84LaserTurret, e, vec3(-0.5f, 0.0f, 0.0f));
                 atmCall(turret, setDirection, vec3(-1.0f, 0.0f, 0.0f));
                 atmCall(turret, setCollisionGroup, group2);
-                atmCall(turret, setPastTime, 300.0f);
+                atmCall(turret, setPastTime, 450.0f);
                 IEntity *linkage = atmCreateEntityT(HingeLinkage);
                 atmCall(linkage, setBlock, l->getHandle());
                 atmCall(linkage, setGear, gear->getHandle());
