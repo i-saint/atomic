@@ -11,39 +11,6 @@
 namespace atm {
 
 
-PassForward_DistanceField::PassForward_DistanceField()
-{
-    m_sh_grid       = atmGetShader(SH_FILL3D);
-    m_va_grid       = atmGetVertexArray(VA_FIELD_GRID);
-
-    m_sh_cell       = atmGetShader(SH_DISTANCE_FIELD);
-    m_vbo_cell_pos  = atmGetVertexBuffer(VBO_DISTANCE_FIELD_POS);
-    m_vbo_cell_dist = atmGetVertexBuffer(VBO_DISTANCE_FIELD_DIST);
-    m_va_cell       = atmGetVertexArray(VA_DISTANCE_FIELD);
-}
-
-void PassForward_DistanceField::beforeDraw()
-{
-}
-
-void PassForward_DistanceField::draw()
-{
-    i3d::DeviceContext *dc = atmGetGLDeviceContext();
-#ifdef atm_enable_DistanceField
-    if(atmGetConfig()->debug_show_distance) {
-        MapAndWrite(*m_vbo_cell_dist, atmGetCollisionModule()->getDistanceField()->getDistances(),
-            sizeof(vec4) * SPH_DISTANCE_FIELD_DIV_X * SPH_DISTANCE_FIELD_DIV_Y);
-        m_sh_cell->bind();
-        m_va_cell->bind();
-        glDrawArraysInstanced(GL_QUADS, 0, 4, SPH_DISTANCE_FIELD_DIV_X * SPH_DISTANCE_FIELD_DIV_Y);
-        m_va_cell->unbind();
-        m_sh_cell->unbind();
-    }
-#endif // atm_enable_DistanceField
-}
-
-
-
 
 PassForward_Generic::PassForward_Generic()
     : m_frame()

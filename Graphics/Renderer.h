@@ -34,8 +34,6 @@ class PassPostprocess_Fade;
 class SystemTextRenderer;
 class PassHUD_DebugShowBuffer;
 
-class PassForward_DistanceField; // for debug
-
 
 class atmAPI AtomicRenderer
 {
@@ -61,7 +59,6 @@ private:
     PassPostprocess_Bloom               *m_pp_bloom;
     PassPostprocess_Fade                *m_pp_fade;
     PassPostprocess_Microscopic         *m_pp_microscopic;
-    PassForward_DistanceField           *m_pass_distance_field;
 #ifdef atm_enable_GBufferViewer
     PassHUD_DebugShowBuffer             *m_debug_show_gbuffer;
 #endif // atm_enable_GBufferViewer

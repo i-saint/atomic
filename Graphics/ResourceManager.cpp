@@ -192,8 +192,6 @@ bool GraphicResourceManager::initialize()
         m_shader[SH_FADE]               = CreateAtomicShader("Fade");
         m_shader[SH_FILL]               = CreateAtomicShader("Fill");
         m_shader[SH_FILL3D]             = CreateAtomicShader("Fill3D");
-        m_shader[SH_FILL_INSTANCED]     = CreateAtomicShader("FillInstanced");
-        m_shader[SH_DISTANCE_FIELD]     = CreateAtomicShader("DistanceField");
         m_shader[SH_OUTPUT]             = CreateAtomicShader("Out");
         m_shader[SH_DEBUG_SHOW_RGB]     = CreateAtomicShader("Debug_ShowRGB");
         m_shader[SH_DEBUG_SHOW_AAA]     = CreateAtomicShader("Debug_ShowAAA");

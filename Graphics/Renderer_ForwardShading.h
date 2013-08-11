@@ -3,24 +3,6 @@
 namespace atm {
 
 
-class atmAPI PassForward_DistanceField : public IRenderer
-{
-private:
-    VertexArray     *m_va_grid;
-    AtomicShader    *m_sh_grid;
-
-    VertexArray     *m_va_cell;
-    Buffer          *m_vbo_cell_pos;
-    Buffer          *m_vbo_cell_dist;
-    AtomicShader    *m_sh_cell;
-
-public:
-    PassForward_DistanceField();
-    void beforeDraw();
-    void draw();
-};
-
-
 class atmAPI PassForward_Generic : public IRenderer
 {
 public:
