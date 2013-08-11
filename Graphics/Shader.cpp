@@ -61,8 +61,7 @@ bool AtomicShader::createShaders( const char *filename )
     }
 #else // atm_enable_ShaderLiveEdit
     // todo: shader ファイルをアーカイブにまとめる
-    static const char s_glsl_path[] = "shader/";
-    static const char s_shader_path[] = "shader/tmp/";
+    static const char s_shader_path[] = "Resources/shader/";
     {
         stl::string vs_path = stl::string(s_shader_path)+filename+".vs";
         stl::string vs_src;

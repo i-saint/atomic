@@ -1,0 +1,110 @@
+#version 330 core
+
+    
+
+struct  RenderStates
+{
+    mat4 ModelViewProjectionMatrix;
+    vec4 CameraPosition;
+    vec4 CameraDirection;
+    vec4 Color;
+
+    vec2 ScreenTexcoord;
+    vec2 ScreenSize;
+    vec2 RcpScreenSize;
+    float AspectRatio;
+    float RcpAspectRatio;
+    float Frame;
+    int Level;
+    int ShowMultiresolution;
+};
+
+struct  FXAAParams
+{
+    vec4 fxaaConsolePosPos;
+    vec4 fxaaConsoleRcpFrameOpt;
+    vec4 fxaaConsoleRcpFrameOpt2;
+    vec4 fxaaConsole360RcpFrameOpt2;
+    vec4 fxaaConsole360ConstDir;
+    vec2 fxaaQualityRcpFrame;
+    float fxaaQualitySubpix;
+    float fxaaQualityEdgeThreshold;
+    float fxaaQualityEdgeThresholdMin;
+    float fxaaConsoleEdgeSharpness;
+    float fxaaConsoleEdgeThreshold;
+    float fxaaConsoleEdgeThresholdMin;
+};
+
+struct  FadeParams
+{
+    vec4 Color;
+};
+
+struct  FillParams
+{
+    vec4 Color;
+};
+
+struct  MultiresolutionParams
+{
+    ivec4 Level;
+    vec4 Threshold;
+};
+
+struct  DebugShowBufferParams
+{
+    vec2 BottomLeft; 
+    vec2 UpperRight; 
+    vec2 ColorRange; 
+};
+
+    layout(std140) uniform render_states
+    {
+        RenderStates u_RS;
+    };
+
+    uniform sampler2D u_ColorBuffer;
+    uniform sampler2D u_NormalBuffer;
+    uniform sampler2D u_PositionBuffer;
+    uniform sampler2D u_GlowBuffer;
+    uniform sampler2D u_BackBuffer;
+    uniform sampler2D u_RandomBuffer;
+    uniform sampler2D u_ParamBuffer;
+
+    
+
+    
+
+    
+
+float SmoothInterpolation2(float v)
+{
+    return v < 0.5 ? 2.0*v*v : -1.0+4.0*v-2*v*v;
+}
+
+float SmoothInterpolation(float v, int n)
+{
+    return v < 0.5 ? pow(2.0*v, n) : 1.0 - pow(2.0-2.0*v, n);
+}
+
+in vec4 vs_VertexPosition;      
+in vec4 vs_VertexNormal;        
+in vec4 vs_VertexColor;
+in vec4 vs_FluidParam;
+
+layout(location=0) out vec4 ps_FlagColor;
+layout(location=1) out vec4 ps_FragNormal;
+layout(location=2) out vec4 ps_FragPosition;
+layout(location=3) out vec4 ps_FragGlow;
+
+void main()
+{
+    float density = vs_FluidParam.y;
+    float density_color = density/350.0;
+    vec4 p = vec4(0.1) + vec4(density_color*0.25, density_color*0.5, density_color, 1.0)*0.9;
+    ps_FlagColor    = vs_VertexColor * p;
+    ps_FragNormal   = vs_VertexNormal;
+    ps_FragPosition = vec4(vs_VertexPosition.xyz, 0.0f);
+    ps_FragGlow     = ps_FlagColor * 0.4;
+}
+

@@ -222,7 +222,7 @@ public:
         m_player = e->getHandle();
         atmCall(e, setPosition, vec4(0.0f, 0.0f, 0.0f, 1.0f));
 
-        setState(St_Scene3);
+        setState(St_Scene4);
     }
 
     void scene1(float32 dt)
@@ -306,17 +306,20 @@ public:
             float32 scroll = 0.003f;
             float32 timespan = 6000.0f;
             CollisionGroup group = atmGetCollisionModule()->genGroup();
+            const vec4 light_color(0.5f, 0.7f, 1.0f, 1.0f);
             IEntity *layer = atmCreateEntityT(LevelLayer);
             atmCall(layer, addPositionXCP, ControlPoint(    0.0f, x,  0.0f, 0.0f, ControlPoint::Linear));
             atmCall(layer, addPositionXCP, ControlPoint(timespan, x-scroll*timespan,  0.0f, 0.0f));
             atmCall(layer, setLifeTime, timespan);
 
             IEntity *e = nullptr;
-            const vec4 light_color(0.5f, 0.7f, 1.0f, 1.0f);
             e = PutChildEntity(PointLightEntity, layer, vec3(0.0f, 0.0f, 0.3f));
             atmCall(e, setRadius, 1.0f);
             atmCall(e, setDiffuse, light_color);
-            e = PutChildEntity(PointLightEntity, layer, vec3(2.5f, 0.0f, 0.3f));
+            e = PutChildEntity(PointLightEntity, layer, vec3(2.0f, 0.0f, 0.3f));
+            atmCall(e, setRadius, 1.0f);
+            atmCall(e, setDiffuse, light_color);
+            e = PutChildEntity(PointLightEntity, layer, vec3(4.0f, 0.0f, 0.3f));
             atmCall(e, setRadius, 1.0f);
             atmCall(e, setDiffuse, light_color);
 
@@ -356,8 +359,10 @@ public:
             PutGroundBlockByBox(layer, group, vec3(3.5f, 0.5f, -0.1f), vec3(4.5f, 1.0f, 0.15f));
             PutRigidFilterByBox(layer, group, vec3(3.5f, 1.0f, -0.1f), vec3(4.0f, 2.0f, 0.15f));
             PutGroundBlockByBox(layer, group, vec3(3.5f, 2.0f, -0.1f), vec3(4.0f, 2.5f, 0.15f));
-            e = PutChildEntity(Antiproton, layer, vec3( 4.4f, 1.4f, 0.0f));
-            e = PutChildEntity(Antiproton, layer, vec3( 4.8f, 1.0f, 0.0f));
+            e = PutChildEntity(Antiproton, layer, vec3( 4.5f, 1.5f, 0.0f));
+            e = PutChildEntity(Antiproton, layer, vec3( 5.2f, 1.2f, 0.0f));
+            e = PutChildEntity(Antiproton, layer, vec3( 2.7f,-1.0f, 0.0f));
+            e = PutChildEntity(Antiproton, layer, vec3( 2.7f, 1.5f, 0.0f));
         }
 
         {
@@ -382,6 +387,7 @@ public:
             float32 scroll = 0.003f;
             float32 timespan = 1500.0f;
             CollisionGroup group = atmGetCollisionModule()->genGroup();
+            const vec4 light_color(0.5f, 0.7f, 1.0f, 1.0f);
             IEntity *layer = atmCreateEntityT(LevelLayer);
             m_layer = layer->getHandle();
             atmCall(layer, addPositionXCP, ControlPoint(    0.0f, x,  0.0f, 0.0f, ControlPoint::Linear));
@@ -389,6 +395,12 @@ public:
             atmCall(layer, setLifeTime, 0.0f);
 
             IEntity *e = nullptr;
+            e = PutChildEntity(PointLightEntity, layer, vec3(-0.5f, 1.9f, 0.0f));
+            atmCall(e, setRadius, 1.0f);
+            atmCall(e, setDiffuse, light_color);
+            e = PutChildEntity(PointLightEntity, layer, vec3(-0.5f,-1.9f, 0.0f));
+            atmCall(e, setRadius, 1.0f);
+            atmCall(e, setDiffuse, light_color);
             {
                 IEntity *gear = PutChildEntity(GearSmall, layer, vec3(-0.5f, 1.9f, 0.0f));
                 atmCall(gear, setSpinMinAngle,   0.0f);

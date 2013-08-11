@@ -291,13 +291,13 @@ public:
     {
         m_time += dt;
         IEntity *e = getEntity();
-        if(moddiv(m_time, 400.0f)) {
+        if(moddiv(m_time, 200.0f)) {
             vec3 pos = atmGetProperty(vec3, e, getPositionAbs);
             vec3 player_pos = GetNearestPlayerPosition(pos);
             float32 d = glm::length(vec2(player_pos)-vec2(pos));
             if(d < 4.0f) {
                 vec3 dir = vec3(glm::normalize(vec2(player_pos)-vec2(pos)), 0.0f);
-                for(int i=0; i<20; ++i) {
+                for(int i=0; i<10; ++i) {
                     vec3 vel = (dir+GenRandomUnitVector3()*0.2f)*0.012f;
                     vel.z = 0.0f;
                     ShootSimpleBullet(e->getHandle(), pos, vel);

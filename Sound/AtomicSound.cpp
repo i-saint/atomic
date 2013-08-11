@@ -110,7 +110,7 @@ void SoundThread::initialize()
 
     {
         isd::OggVorbisFileStream *ovfs = istNew(isd::OggVorbisFileStream)();
-        ovfs->openStream("Resources/bgm1.ogg");
+        ovfs->openStream("Resources/bgm2.ogg");
         m_stream = ovfs;
     }
     {

@@ -1,0 +1,164 @@
+#version 330 core
+
+    
+
+struct  RenderStates
+{
+    mat4 ModelViewProjectionMatrix;
+    vec4 CameraPosition;
+    vec4 CameraDirection;
+    vec4 Color;
+
+    vec2 ScreenTexcoord;
+    vec2 ScreenSize;
+    vec2 RcpScreenSize;
+    float AspectRatio;
+    float RcpAspectRatio;
+    float Frame;
+    int Level;
+    int ShowMultiresolution;
+};
+
+struct  FXAAParams
+{
+    vec4 fxaaConsolePosPos;
+    vec4 fxaaConsoleRcpFrameOpt;
+    vec4 fxaaConsoleRcpFrameOpt2;
+    vec4 fxaaConsole360RcpFrameOpt2;
+    vec4 fxaaConsole360ConstDir;
+    vec2 fxaaQualityRcpFrame;
+    float fxaaQualitySubpix;
+    float fxaaQualityEdgeThreshold;
+    float fxaaQualityEdgeThresholdMin;
+    float fxaaConsoleEdgeSharpness;
+    float fxaaConsoleEdgeThreshold;
+    float fxaaConsoleEdgeThresholdMin;
+};
+
+struct  FadeParams
+{
+    vec4 Color;
+};
+
+struct  FillParams
+{
+    vec4 Color;
+};
+
+struct  MultiresolutionParams
+{
+    ivec4 Level;
+    vec4 Threshold;
+};
+
+struct  DebugShowBufferParams
+{
+    vec2 BottomLeft; 
+    vec2 UpperRight; 
+    vec2 ColorRange; 
+};
+
+    layout(std140) uniform render_states
+    {
+        RenderStates u_RS;
+    };
+
+    uniform sampler2D u_ColorBuffer;
+    uniform sampler2D u_NormalBuffer;
+    uniform sampler2D u_PositionBuffer;
+    uniform sampler2D u_GlowBuffer;
+    uniform sampler2D u_BackBuffer;
+    uniform sampler2D u_RandomBuffer;
+    uniform sampler2D u_ParamBuffer;
+
+    
+
+    
+
+    
+
+float SmoothInterpolation2(float v)
+{
+    return v < 0.5 ? 2.0*v*v : -1.0+4.0*v-2*v*v;
+}
+
+float SmoothInterpolation(float v, int n)
+{
+    return v < 0.5 ? pow(2.0*v, n) : 1.0 - pow(2.0-2.0*v, n);
+}
+
+const vec2 u_ScreenSize = vec2(512.0, 256.0);
+const vec2 u_RcpScreenSize = vec2(1.0,1.0)/u_ScreenSize;
+const vec2 u_HalfPixel = u_RcpScreenSize*0.5;
+
+in vec2 vs_Texcoord;
+in vec2 vs_TexcoordMin;
+in vec2 vs_TexcoordMax;
+in vec2 vs_Texcoords[4];
+
+uniform vec2 u_TexcoordMin;
+uniform vec2 u_TexcoordMax;
+const float Weight[5] = float[5](0.05, 0.09, 0.12, 0.16, 0.16);
+
+layout(location=0) out vec4 ps_FragColor;
+
+vec4 Luminance()
+{
+    vec4 color = texture(u_ColorBuffer, vs_Texcoord);
+    vec4 glow = texture(u_GlowBuffer, vs_Texcoord);
+    color = max(color-vec4(0.6), vec4(0.0))*2.5;
+    color += glow;
+    color.w += 0.5;
+    return color;
+}
+
+vec4 HorizontalBlur()
+{
+    vec4 color = vec4(0.0);
+    vec2 gap = vec2(u_RS.RcpScreenSize.x*3.7, 0.0);
+    color += texture(u_ColorBuffer, clamp(vs_Texcoord - gap*4.0, vs_TexcoordMin, vs_TexcoordMax)) * Weight[0];
+    color += texture(u_ColorBuffer, clamp(vs_Texcoord - gap*3.0, vs_TexcoordMin, vs_TexcoordMax)) * Weight[1];
+    color += texture(u_ColorBuffer, clamp(vs_Texcoord - gap*2.0, vs_TexcoordMin, vs_TexcoordMax)) * Weight[2];
+    color += texture(u_ColorBuffer, clamp(vs_Texcoord - gap*1.0, vs_TexcoordMin, vs_TexcoordMax)) * Weight[3];
+    color += texture(u_ColorBuffer, clamp(vs_Texcoord          , vs_TexcoordMin, vs_TexcoordMax)) * Weight[4];
+    color += texture(u_ColorBuffer, clamp(vs_Texcoord + gap*1.0, vs_TexcoordMin, vs_TexcoordMax)) * Weight[3];
+    color += texture(u_ColorBuffer, clamp(vs_Texcoord + gap*2.0, vs_TexcoordMin, vs_TexcoordMax)) * Weight[2];
+    color += texture(u_ColorBuffer, clamp(vs_Texcoord + gap*3.0, vs_TexcoordMin, vs_TexcoordMax)) * Weight[1];
+    color += texture(u_ColorBuffer, clamp(vs_Texcoord + gap*4.0, vs_TexcoordMin, vs_TexcoordMax)) * Weight[0];
+    return color;
+}
+
+vec4 VerticalBlur()
+{
+    vec4 color = vec4(0.0);
+    vec2 gap = vec2(0.0, u_RS.RcpScreenSize.y);
+    color += texture(u_ColorBuffer, clamp(vs_Texcoord - gap*4.0, vs_TexcoordMin, vs_TexcoordMax)) * Weight[0];
+    color += texture(u_ColorBuffer, clamp(vs_Texcoord - gap*3.0, vs_TexcoordMin, vs_TexcoordMax)) * Weight[1];
+    color += texture(u_ColorBuffer, clamp(vs_Texcoord - gap*2.0, vs_TexcoordMin, vs_TexcoordMax)) * Weight[2];
+    color += texture(u_ColorBuffer, clamp(vs_Texcoord - gap*1.0, vs_TexcoordMin, vs_TexcoordMax)) * Weight[3];
+    color += texture(u_ColorBuffer, clamp(vs_Texcoord          , vs_TexcoordMin, vs_TexcoordMax)) * Weight[4];
+    color += texture(u_ColorBuffer, clamp(vs_Texcoord + gap*1.0, vs_TexcoordMin, vs_TexcoordMax)) * Weight[3];
+    color += texture(u_ColorBuffer, clamp(vs_Texcoord + gap*2.0, vs_TexcoordMin, vs_TexcoordMax)) * Weight[2];
+    color += texture(u_ColorBuffer, clamp(vs_Texcoord + gap*3.0, vs_TexcoordMin, vs_TexcoordMax)) * Weight[1];
+    color += texture(u_ColorBuffer, clamp(vs_Texcoord + gap*4.0, vs_TexcoordMin, vs_TexcoordMax)) * Weight[0];
+    return color;
+}
+
+vec4 Composite()
+{
+    const float weight = 0.1;
+    vec4 col =
+           (texture(u_ColorBuffer, vs_Texcoords[0]) * weight)
+         + (texture(u_ColorBuffer, vs_Texcoords[1]) * weight)
+         + (texture(u_ColorBuffer, vs_Texcoords[2]) * weight)
+         + (texture(u_ColorBuffer, vs_Texcoords[3]) * weight);
+    return vec4(col.rgb, 1.0);
+}
+
+void main()
+{
+
+    ps_FragColor = Composite();
+
+}
+
