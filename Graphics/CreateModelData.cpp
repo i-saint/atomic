@@ -297,41 +297,39 @@ void CreateFieldGridLines( VertexArray *va, Buffer *&vbo )
     };
     ist::vector<vertex_t> vertices;
 
-    vec3 div    = vec3(PSYM_GRID_DIV, PSYM_GRID_DIV, PSYM_GRID_DIV);
+    int32 div   = 5;
     vec3 bl     = vec3(-PSYM_GRID_SIZE*0.5f, -PSYM_GRID_SIZE*0.5f, 0.0f);
     vec3 size   = vec3(PSYM_GRID_SIZE);
-    vec3 cell   = size / div;
-    vertices.reserve((PSYM_GRID_DIV+1) * (PSYM_GRID_DIV+1) * 2);
+    vec3 cell   = size / float32(div);
+    vertices.resize((div+1) * (div+1) * 2);
 
-    vec4 color1 = vec4(0.25f, 0.5f, 1.0f, 0.0f);
-    vec4 color2 = vec4(0.25f, 0.5f, 1.0f, 0.15f);
-    vec4 color3 = vec4(0.25f, 0.5f, 1.0f, 0.5f);
-    for(uint32 xi=0; xi<=div.x; ++xi) {
+    uint32 shift = 0;
+    vec4 color1 = vec4(0.25f, 0.5f, 1.0f, 0.15f);
+    vec4 color2 = vec4(0.25f, 0.5f, 1.0f, 0.5f);
+    for(uint32 xi=0; xi<=div; ++xi) {
         vertex_t t[2];
         t[0].pos = vec4(bl + vec3(cell.x*xi,   0.0f, 0.0f), 1.0f);
         t[1].pos = vec4(bl + vec3(cell.x*xi, size.y, 0.0f), 1.0f);
         vec4 color = color1;
-        if(xi%64==0) { color=color2; }
-        if(xi%256==0) { color=color3; }
+        if(xi%div==0) { color=color2; }
 
         t[0].color = color;
         t[1].color = color;
-        vertices.insert(vertices.end(), t, t+_countof(t));
+        vertices[shift + xi*2+0] = t[0];
+        vertices[shift + xi*2+1] = t[1];
     }
-    for(uint32 yi=0; yi<=div.y; ++yi) {
+    shift = (div+1) * 2;
+    for(uint32 yi=0; yi<=div; ++yi) {
         vertex_t t[2];
         t[0].pos = vec4(bl + vec3(  0.0f, cell.y*yi, 0.0f), 1.0f);
         t[1].pos = vec4(bl + vec3(size.x, cell.y*yi, 0.0f), 1.0f);
         vec4 color = color1;
-        if(yi%64==0) { color=color2; }
-        if(yi%256==0) { color=color3; }
+        if(yi%div==0) { color=color2; }
         t[0].color = color;
         t[1].color = color;
-        vertices.insert(vertices.end(), t, t+_countof(t));
+        vertices[shift + yi*2+0] = t[0];
+        vertices[shift + yi*2+1] = t[1];
    }
-
-    for(uint32 i=0; i<vertices.size(); ++i) {
-    }
 
     VertexDesc descs[] = {
         {GLSL_POSITION, I3D_FLOAT32,4, 0, false, 0},

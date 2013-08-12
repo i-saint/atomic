@@ -132,6 +132,7 @@ void PassForward_Indicators::beforeDraw()
 
 void PassForward_Indicators::draw()
 {
+	//return;
     if(!atmGetGame()) { return; }
 
     i3d::DeviceContext *dc  = atmGetGLDeviceContext();
@@ -146,7 +147,7 @@ void PassForward_Indicators::draw()
 
     sh_grid->bind();
     dc->setVertexArray(va_grid);
-    dc->draw(I3D_LINES, 0, (PSYM_GRID_DIV+1) * (PSYM_GRID_DIV+1) * 2);
+    dc->draw(I3D_LINES, 0, 6*6*2);
     dc->setVertexArray(nullptr);
     sh_grid->unbind();
 
