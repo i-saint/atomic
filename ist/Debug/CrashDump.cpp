@@ -20,6 +20,7 @@ int HandleCrash(EXCEPTION_POINTERS* ep)
     //    return EXCEPTION_CONTINUE_SEARCH;
     //}
 
+    // thanks to http://www.debuginfo.com/articles/effminidumps.html
     char filename[128];
     istSNPrintf(filename, _countof(filename), "crashdump_%u.dmp", (uint32)::time(0));
     HANDLE hFile = ::CreateFileA(filename, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
