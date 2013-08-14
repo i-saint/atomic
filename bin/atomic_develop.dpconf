@@ -1,4 +1,3 @@
 module path: "_tmp\Release\entity1\*.obj"
-preload path: "_tmp\Release\entity1\*.obj"
 source path: "Entity"
 msbuild command: "entity1.vcxproj /target:ClCompile /m /p:Configuration=Release;Platform=Win32"

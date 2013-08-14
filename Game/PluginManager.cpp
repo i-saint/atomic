@@ -39,8 +39,7 @@ PluginManager::PluginManager()
             m_dlls.push_back(dll);
 #ifndef dpDisable
             ++num_loaded;
-            DWORD64 base = 0x10000000 + 0x1000000*num_loaded;
-            if(!::SymLoadModuleEx(::GetCurrentProcess(), nullptr, file.c_str(), nullptr, base, 0, nullptr, 0)) {
+            if(!::SymLoadModuleEx(::GetCurrentProcess(), nullptr, file.c_str(), nullptr, 0, 0, nullptr, 0)) {
                 istPrint("SymLoadModuleEx() for %s failed\n", file.c_str());
             }
 #endif // dpDisable
