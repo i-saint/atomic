@@ -11,6 +11,7 @@
 #include "Network/WebServer.h"
 #include "Network/GameServer.h"
 #include "Network/GameClient.h"
+#include "PluginManager.h"
 #include "Util.h"
 
 #define ATOMIC_CONFIG_FILE_PATH "atomic.conf"
@@ -199,6 +200,8 @@ bool AtomicApplication::initialize(int argc, char *argv[])
     AtomicConfig &conf = m_config;
     conf.readFromFile(ATOMIC_CONFIG_FILE_PATH);
 
+    atmPluginManagerInitialize();
+
     if(conf.window_pos.x >= 30000) { conf.window_pos.x = 0; }
     if(conf.window_pos.y >= 30000) { conf.window_pos.y = 0; }
     if(conf.window_size.x < 320 || conf.window_size.x < 240) { conf.window_size = ivec2(1024, 768); }
@@ -253,15 +256,6 @@ bool AtomicApplication::initialize(int argc, char *argv[])
 
     registerCommands();
 
-#ifdef atm_enable_Plugin
-    {
-        glob("Resources", "\\.dll$", [&](const std::string &file){
-            if(HMODULE dll = ::LoadLibraryA(file.c_str())) {
-                m_dlls.push_back(dll);
-            }
-        });
-    }
-#endif // atm_enable_Plugin
     atmGetTitleWindow()->setVisibility(true);
 
     return true;
@@ -271,11 +265,7 @@ void AtomicApplication::finalize()
 {
     istSafeDelete(m_game);
 
-    {
-        each(m_dlls, [&](HMODULE h){
-            ::FreeLibrary(h);
-        });
-    }
+    atmPluginManagerFinalize();
 
     m_config.writeToFile(ATOMIC_CONFIG_FILE_PATH);
 

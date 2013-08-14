@@ -103,6 +103,63 @@ inline T atmGetProperyImpl(IEntity *e, FunctionID fid)
     return ret;
 }
 
+
+template<class T>
+class EntityProperty
+{
+public:
+    EntityProperty(EntityHandle h, FunctionID getter, FunctionID setter=FID_unknown)
+        : m_handle(h), m_getter(getter), m_setter(setter)
+    {}
+
+    EntityProperty(IEntity *e, FunctionID getter, FunctionID setter=FID_unknown)
+        : m_handle(e ? e->getHandle() : 0), m_getter(getter), m_setter(setter)
+    {}
+
+    bool get(T &v)
+    {
+        if(IEntity *e=atmGetEntity(m_handle)) {
+            if(e->call(m_getter, nullptr, &v)) {
+                return true;
+            }
+        }
+        else {
+            m_handle = 0;
+        }
+        return false;
+    }
+
+    bool set(const T &v)
+    {
+        if(IEntity *e=atmGetEntity(m_handle)) {
+            if(e->call(m_setter, &v, nullptr)) {
+                return true;
+            }
+        }
+        else {
+            m_handle = 0;
+        }
+        return false;
+    }
+
+    operator T()
+    {
+        T tmp = T();
+        get(&tmp);
+        return tmp;
+    }
+
+    void operator=(const T &v)
+    {
+        set(v);
+    }
+
+private:
+    EntityHandle m_handle;
+    FunctionID m_getter;
+    FunctionID m_setter;
+};
+
 #define atmArgs(...)                    ist::MakeValueList(__VA_ARGS__)
 #define atmCall(entity, funcname, ...)  atmCallImpl(entity, FID_##funcname, __VA_ARGS__)
 #define atmCall1(entity, funcname)  atmCallImpl(entity, FID_##funcname)

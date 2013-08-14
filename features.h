@@ -19,7 +19,7 @@
 #define atm_GameServer_DefaultPort 10051
 
 
-//#define atm_enable_Plugin
+#define atm_enable_Plugin
 #define atm_enable_LevelEditorServer
 #define atm_enable_WebGL
 //// C84 版は coop 省略

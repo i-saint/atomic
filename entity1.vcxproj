@@ -51,6 +51,7 @@
     <ClCompile Include="Entity\Level\Level1.cpp" />
     <ClCompile Include="Entity\Level\LevelTest.cpp" />
     <ClCompile Include="Entity\Level\LightEntity.cpp" />
+    <ClCompile Include="Entity\Level\Linkage.cpp" />
     <ClCompile Include="Entity\Level\Obstacle.cpp" />
     <ClCompile Include="Entity\Player.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -235,6 +236,8 @@
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <BaseAddress>
+      </BaseAddress>
     </Link>
     <PostBuildEvent>
       <Command>copy $(TargetPath) $(SolutionDir)Resources</Command>
