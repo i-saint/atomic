@@ -12,7 +12,6 @@
 #include "Graphics/Renderer.h"
 #include "Graphics/Shader.h"
 #include "Util.h"
-#include "Poco/DirectoryIterator.h"
 
 namespace atm {
 

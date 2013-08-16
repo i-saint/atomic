@@ -24,6 +24,7 @@
 #include "Poco/Path.h"
 #include "Poco/File.h"
 #include "Poco/FileStream.h"
+#include "Poco/DirectoryIterator.h"
 #include "Poco/Timestamp.h"
 #include "Poco/URI.h"
 #include "Poco/Net/TCPServer.h"

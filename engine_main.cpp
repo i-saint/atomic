@@ -25,6 +25,7 @@ namespace atm {
 
 void atmInitializeCrashReporter();
 void atmFinalizeCrashReporter();
+} // namespace atm
 
 void atmExecApplication(int argc, char* argv[])
 {
@@ -35,25 +36,23 @@ void atmExecApplication(int argc, char* argv[])
     app.finalize();
 }
 
-atmAPI int32 atmMain(int argc, char* argv[])
+using namespace ist;
+
+atmCLinkage atmAPI int32 atmMain(int argc, char* argv[])
 {
     dpInitialize();
     ist::forceLink();
 
-    //// todo: C84 ではまだクラッシュレポート使わない
-    //atm::atmInitializeCrashReporter();
-    //istCrashReportBegin
+    atm::atmInitializeCrashReporter();
+    istCrashReportBegin
     atmExecApplication(argc, argv);
-    //istCrashReportRescue
-    //istCrashReportEnd
-    //atm::atmFinalizeCrashReporter();
+    istCrashReportRescue
+    istCrashReportEnd
+    atm::atmFinalizeCrashReporter();
 
     dpFinalize();
     return 0;
 }
-
-} // namespace atm
-using namespace atm;
 
 int istmain(int argc, char* argv[])
 {

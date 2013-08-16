@@ -3,6 +3,7 @@
 
 #include "ist/ist.h"
 
+#define atmCLinkage extern "C"
 #ifdef atmMainImpl
 #   define atmAPI __declspec(dllexport)
 #else // atmMainImpl
