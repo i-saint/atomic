@@ -5,10 +5,6 @@
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Intel_SSA|Win32">
-      <Configuration>Intel_SSA</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Master|Win32">
       <Configuration>Master</Configuration>
       <Platform>Win32</Platform>
@@ -26,11 +22,9 @@
   <PropertyGroup Label="Configuration">
     <ConfigurationType>Utility</ConfigurationType>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)_out\$(Configuration)\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Intel_SSA|Win32'">$(SolutionDir)_out\$(Configuration)\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">$(SolutionDir)_out\$(Configuration)\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)_out\$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)_tmp\$(Configuration)\$(ProjectName)\</IntDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Intel_SSA|Win32'">$(SolutionDir)_tmp\$(Configuration)\$(ProjectName)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">$(SolutionDir)_tmp\$(Configuration)\$(ProjectName)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)_tmp\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
@@ -98,8 +92,6 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">shader\tmp\out</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd shader &amp;&amp; c:\cygwin\bin\ruby shader.rb</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">shader\tmp\out</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Intel_SSA|Win32'">cd shader &amp;&amp; c:\cygwin\bin\ruby shader.rb</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Intel_SSA|Win32'">shader\tmp\out</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">cd shader &amp;&amp; c:\cygwin\bin\ruby shader.rb</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">shader\tmp\out</Outputs>
     </CustomBuild>
