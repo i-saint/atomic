@@ -1,12 +1,10 @@
-#ifndef ist_Debug_Hook_h
-#define ist_Debug_Hook_h
-#ifdef ist_env_Windows
-
+ï»¿#ifndef ist_System_DLL_h
+#define ist_System_DLL_h
 namespace ist {
 
-// target: ŠÖ”ƒ|ƒCƒ“ƒ^B‘ÎÛŠÖ”‚ğ hotpatch ‚µ‚ÄŒ³‚ÌŠÖ”‚Ö‚Ìƒ|ƒCƒ“ƒ^‚ğ•Ô‚·
-void* Hotpatch( void *target, const void *replacement );
-void* UglyHotpatch( void *target, const void *replacement );
+#ifdef ist_env_Windows
+
+void EnumerateDependentModules(const char *path_to_dll_or_exe, const std::function<void (const char*)> &f);
 
 void EnumerateDLLImports(HMODULE module, const char *dllfilter,
     const std::function<void (const char*, void *&)> &f1,
@@ -26,6 +24,7 @@ void EnumerateDLLImportsEveryModule(const char *dllfilter,
 
 void* OverrideDLLExport(HMODULE module, const char *funcname, void *replacement);
 
-} // namespace ist
 #endif // ist_env_Windows
-#endif // ist_Debug_Hook_h
+
+} // namespace ist
+#endif // 

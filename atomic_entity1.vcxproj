@@ -162,7 +162,8 @@
       <OptimizeReferences>false</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) $(SolutionDir)Resources</Command>
+      <Command>mkdir Binaries\Modules
+copy $(TargetPath) Binaries\Modules</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -194,7 +195,8 @@
       <BaseAddress>0x11000000</BaseAddress>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) $(SolutionDir)Resources</Command>
+      <Command>mkdir Binaries\Modules
+copy $(TargetPath) Binaries\Modules</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">
@@ -223,7 +225,8 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) $(SolutionDir)Resources</Command>
+      <Command>mkdir Binaries\Modules
+copy $(TargetPath) Binaries\Modules</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

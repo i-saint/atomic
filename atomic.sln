@@ -22,6 +22,10 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "atomic_entity1", "atomic_entity1.vcxproj", "{F8E851F3-3570-41DB-9833-F34BB62AFF4A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "atomic", "atomic.vcxproj", "{20B8B304-C95C-447D-8BC9-8752281D5F2E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A8F5B4BE-0942-4A93-BBFE-0716BEAC2551} = {A8F5B4BE-0942-4A93-BBFE-0716BEAC2551}
+		{F8E851F3-3570-41DB-9833-F34BB62AFF4A} = {F8E851F3-3570-41DB-9833-F34BB62AFF4A}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

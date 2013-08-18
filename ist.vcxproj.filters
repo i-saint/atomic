@@ -28,20 +28,14 @@
     <Filter Include="Sound">
       <UniqueIdentifier>{875e69cf-538c-4299-a022-a3d49cc01212}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Window">
-      <UniqueIdentifier>{3eb5e79f-47ec-4ef2-b908-2bd9959e3cc0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="stdex">
       <UniqueIdentifier>{e7c346e2-26e8-400b-87fb-ddf5384ca898}</UniqueIdentifier>
     </Filter>
+    <Filter Include="System">
+      <UniqueIdentifier>{a824576b-c223-41b5-9d75-80337d1a0034}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ist\Window\Application.h">
-      <Filter>Window</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Window\WindowMessage.h">
-      <Filter>Window</Filter>
-    </ClInclude>
     <ClInclude Include="ist\Base\Allocator.h">
       <Filter>Base</Filter>
     </ClInclude>
@@ -354,20 +348,26 @@
     <ClInclude Include="ist\Concurrency\Sleep.h">
       <Filter>Concurrency</Filter>
     </ClInclude>
-    <ClInclude Include="ist\Window\Input.h">
-      <Filter>Window</Filter>
-    </ClInclude>
-    <ClInclude Include="ist\Debug\Hook.h">
-      <Filter>Debug</Filter>
-    </ClInclude>
     <ClInclude Include="ist\Math\Curve.h">
       <Filter>Math</Filter>
     </ClInclude>
+    <ClInclude Include="ist\System\Application.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\System\Input.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\System\WindowMessage.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\System\DLL.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\System\Hook.h">
+      <Filter>System</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ist\Window\Application.cpp">
-      <Filter>Window</Filter>
-    </ClCompile>
     <ClCompile Include="ist\Base\Allocator.cpp">
       <Filter>Base</Filter>
     </ClCompile>
@@ -526,11 +526,17 @@
     <ClCompile Include="ist\Concurrency\Sleep.cpp">
       <Filter>Concurrency</Filter>
     </ClCompile>
-    <ClCompile Include="ist\Window\Input.cpp">
-      <Filter>Window</Filter>
+    <ClCompile Include="ist\System\Application.cpp">
+      <Filter>System</Filter>
     </ClCompile>
-    <ClCompile Include="ist\Debug\Hook.cpp">
-      <Filter>Debug</Filter>
+    <ClCompile Include="ist\System\Input.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\System\DLL.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\System\Hook.cpp">
+      <Filter>System</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

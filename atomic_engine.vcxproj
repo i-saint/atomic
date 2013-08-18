@@ -193,7 +193,7 @@
     <IncludePath>external\tbb\include;$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)$(Configuration);external\lib\win32;external\tbb\lib\ia32\vc10;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
-    <OutDir>$(SolutionDir)bin\</OutDir>
+    <OutDir>$(SolutionDir)_out\$(Configuration)\</OutDir>
     <TargetName>$(ProjectName)_dbg</TargetName>
     <IntDir>$(SolutionDir)_tmp\$(Configuration)\$(ProjectName)\</IntDir>
     <CustomBuildAfterTargets>
@@ -203,7 +203,7 @@
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>external\tbb\include;$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)$(Configuration);external\lib\win32;external\tbb\lib\ia32\vc10;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)bin\</OutDir>
+    <OutDir>$(SolutionDir)_out\$(Configuration)\</OutDir>
     <TargetName>$(ProjectName)_dev</TargetName>
     <IntDir>$(SolutionDir)_tmp\$(Configuration)\$(ProjectName)\</IntDir>
     <CustomBuildBeforeTargets>
@@ -215,10 +215,11 @@
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>external\tbb\include;$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)$(Configuration);external\lib\win32;external\tbb\lib\ia32\vc10;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)bin\</OutDir>
+    <OutDir>$(SolutionDir)_out\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)_tmp\$(Configuration)\$(ProjectName)\</IntDir>
     <CustomBuildAfterTargets>
     </CustomBuildAfterTargets>
+    <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -245,8 +246,7 @@
       <OptimizeReferences>false</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>copy $(TargetPath) Binaries</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -306,8 +306,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>copy $(TargetPath) Binaries</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

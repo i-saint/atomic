@@ -5,7 +5,7 @@ istImplementOperatorNewDelete();
 namespace atm {
 
 
-atmAPI void glob( const char *path, const char *filter_regex, const std::function<void (const std::string &file)> &f)
+void glob( const char *path, const char *filter_regex, const std::function<void (const std::string &file)> &f)
 {
     try {
         std::regex filter(filter_regex);
@@ -35,14 +35,14 @@ private:
 public:
     Launcher() : m_commondlls(), m_enginedll()
     {
-        //// todo: 依存関係がある dll もスマートに解決したい。SetDllDirectoryA() では無理？
-        //::SetDllDirectoryA("Binaries");
-        for(int i=0; i<2; ++i) {
-            glob("Binaries\\Common", "\\.dll$", [&](const std::string &file){
-                if(HMODULE dll = ::LoadLibraryA(file.c_str())) {
-                    m_commondlls.push_back(dll);
-                }
-            });
+        // 環境変数 PATH に Binaries/Common を追加し、dll サーチパスに加える
+        {
+            std::string path;
+            path.resize(1024*64);
+            DWORD ret = ::GetEnvironmentVariableA("PATH", &path[0], path.size());
+            path.resize(ret);
+            path += ";Binaries\\Common";
+            ::SetEnvironmentVariableA("PATH", path.c_str());
         }
 
 #ifdef ist_env_Master

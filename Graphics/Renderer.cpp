@@ -211,12 +211,12 @@ void AtomicRenderer::passGBuffer()
     dc->setDepthStencilState(atmGetDepthStencilState(DS_NO_DEPTH_NO_STENCIL));
     dc->setRenderTarget(nullptr);
 
-    if(atmGetConfig()->light_multiresolution) {
-        dc->generateMips(m_rt_gbuffer->getColorBuffer(GBUFFER_COLOR));
-        dc->generateMips(m_rt_gbuffer->getColorBuffer(GBUFFER_COLOR));
-        dc->generateMips(m_rt_gbuffer->getColorBuffer(GBUFFER_NORMAL));
-        dc->generateMips(m_rt_gbuffer->getColorBuffer(GBUFFER_POSITION));
-    }
+    //{
+    //    dc->generateMips(m_rt_gbuffer->getColorBuffer(GBUFFER_COLOR));
+    //    dc->generateMips(m_rt_gbuffer->getColorBuffer(GBUFFER_COLOR));
+    //    dc->generateMips(m_rt_gbuffer->getColorBuffer(GBUFFER_NORMAL));
+    //    dc->generateMips(m_rt_gbuffer->getColorBuffer(GBUFFER_POSITION));
+    //}
 }
 
 void AtomicRenderer::passDeferredShading()

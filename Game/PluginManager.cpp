@@ -33,12 +33,10 @@ PluginManager* PluginManager::getInstance()
 
 PluginManager::PluginManager()
 {
-    int32 num_loaded = 0;
-    glob("Resources", "\\.dll$", [&](const std::string &file){
+    glob("Binaries\\Modules", "\\.dll$", [&](const std::string &file){
         if(HMODULE dll = ::LoadLibraryA(file.c_str())) {
             m_dlls.push_back(dll);
 #ifndef dpDisable
-            ++num_loaded;
             if(!::SymLoadModuleEx(::GetCurrentProcess(), nullptr, file.c_str(), nullptr, 0, 0, nullptr, 0)) {
                 istPrint("SymLoadModuleEx() for %s failed\n", file.c_str());
             }

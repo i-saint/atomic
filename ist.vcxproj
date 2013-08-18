@@ -61,7 +61,6 @@
     <ClInclude Include="ist\Debug\CommandlineCommand.h" />
     <ClInclude Include="ist\Debug\Commandline_ConsoleFrontend.h" />
     <ClInclude Include="ist\Debug\CrashDump.h" />
-    <ClInclude Include="ist\Debug\Hook.h" />
     <ClInclude Include="ist\Debug\ParamTree.h" />
     <ClInclude Include="ist\Graphics.h" />
     <ClInclude Include="ist\GraphicsCommon\EasyDrawer.h" />
@@ -127,11 +126,13 @@
     <ClInclude Include="ist\stdex\ist_raw_vector.h" />
     <ClInclude Include="ist\stdex\ist_sorted_vector.h" />
     <ClInclude Include="ist\stdex\ist_vector.h" />
+    <ClInclude Include="ist\System\Application.h" />
+    <ClInclude Include="ist\System\DLL.h" />
+    <ClInclude Include="ist\System\Hook.h" />
+    <ClInclude Include="ist\System\Input.h" />
+    <ClInclude Include="ist\System\WindowMessage.h" />
     <ClInclude Include="ist\targetver.h" />
     <ClInclude Include="ist\Window.h" />
-    <ClInclude Include="ist\Window\Application.h" />
-    <ClInclude Include="ist\Window\Input.h" />
-    <ClInclude Include="ist\Window\WindowMessage.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ist\Base\Allocator.cpp" />
@@ -161,7 +162,6 @@
     <ClCompile Include="ist\Debug\Commandline.cpp" />
     <ClCompile Include="ist\Debug\Commandline_ConsoleFrontend.cpp" />
     <ClCompile Include="ist\Debug\CrashDump.cpp" />
-    <ClCompile Include="ist\Debug\Hook.cpp" />
     <ClCompile Include="ist\Debug\ParamTree.cpp" />
     <ClCompile Include="ist\GraphicsCommon\EasyDrawer.cpp" />
     <ClCompile Include="ist\GraphicsCommon\EasyDrawerUtil.cpp" />
@@ -197,8 +197,10 @@
     <ClCompile Include="ist\Sound\isduStream.cpp" />
     <ClCompile Include="ist\Sound\isduStreamSource.cpp" />
     <ClCompile Include="ist\Sound\isdUtil.cpp" />
-    <ClCompile Include="ist\Window\Application.cpp" />
-    <ClCompile Include="ist\Window\Input.cpp" />
+    <ClCompile Include="ist\System\Application.cpp" />
+    <ClCompile Include="ist\System\DLL.cpp" />
+    <ClCompile Include="ist\System\Hook.cpp" />
+    <ClCompile Include="ist\System\Input.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="ist\Concurrency\atomic_x64.asm">

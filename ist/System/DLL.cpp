@@ -1,5 +1,6 @@
-#include "istPCH.h"
-#include "Hook.h"
+ï»¿#include "istPCH.h"
+#include "DLL.h"
+#include "ist/Base/FileLoader.h"
 
 #ifdef ist_env_Windows
 #pragma comment(lib, "psapi.lib")
@@ -9,97 +10,35 @@
 namespace ist {
 
 
-// target: ŠÖ”ƒ|ƒCƒ“ƒ^B‘ÎÛŠÖ”‚ğ hotpatch ‚µ‚ÄŒ³‚ÌŠÖ”‚Ö‚Ìƒ|ƒCƒ“ƒ^‚ğ•Ô‚·
-void* Hotpatch( void *target, const void *replacement )
+void EnumerateDependentModules( const char *path_to_dll_or_exe, const std::function<void (const char*)> &f )
 {
-    DWORD old;
-    BYTE *f = (BYTE*)target;
-    void *orig_func = f+2;
-    ::VirtualProtect(f-5, 7, PAGE_EXECUTE_READWRITE, &old);
-    f[-5]=0xE9; // jmp
-    *((ptrdiff_t*)(f-4)) = (ptrdiff_t)replacement-(ptrdiff_t)f;
-    f[0]=0xEB; f[1]=0xF9; // short jmp -7
-    ::VirtualProtect(f-5, 7, old, &old);
-    return orig_func;
-}
+    stl::string buf;
+    if(!FileToString(path_to_dll_or_exe, buf)) { return; }
 
+    size_t ImageBase = (size_t)&buf[0];
+    PIMAGE_DOS_HEADER pDosHeader = (PIMAGE_DOS_HEADER)ImageBase;
+    if(pDosHeader->e_magic!=IMAGE_DOS_SIGNATURE) { return; }
 
+    PIMAGE_NT_HEADERS pNTHeader = (PIMAGE_NT_HEADERS)(ImageBase + pDosHeader->e_lfanew);
+    DWORD RVAImports = pNTHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress;
+    if(RVAImports==0) { return; }
 
-// ŠÖ”ƒ|ƒCƒ“ƒ^ addr ‚©‚ç required byte ‚ğŠÜ‚Ş instruction ‚ÌƒTƒCƒY‚ğ‹‚ß‚é
-size_t GuessInstructionSize(void *addr, size_t required)
-{
-    // •sŠ®‘S‚É‚Â‚«A–¢‘Î‰‚Ì instruction ‚ª‚ ‚ê‚Î“K‹X’Ç‰Á‚·‚×‚µ
-    // ŠÖ”‚Ì“ª 5 byte ˆÈ“à‚ÅÀs‚³‚ê‚é‚à‚Ì‚Í‘½‚­‚ª mov,sub,push ‚ ‚½‚è‚È‚Ì‚Å‚±‚ê‚¾‚¯‚Å‚à‘½‚­‚É‘Î‰‚Í‚Å‚«‚éƒnƒY
-    size_t ret = 0;
-    BYTE *data = (BYTE*)addr;
-    for(; ret<required; ) {
-        switch(data[ret]) {
-            // push
-        case 0x55: ret+=1; break;
-        case 0x68:
-            ret+=1;
-            switch(data[ret]) {
-            case 0x6C: ret+=4; break;
-            default:   ret+=1; break;
-            }
+    PIMAGE_SECTION_HEADER pSectionHeader = IMAGE_FIRST_SECTION(pNTHeader);
+    for(size_t i=0; i<pNTHeader->FileHeader.NumberOfSections; ++i) {
+        PIMAGE_SECTION_HEADER s = pSectionHeader+i;
+        if(RVAImports >= s->VirtualAddress && RVAImports < s->VirtualAddress+s->SizeOfRawData) {
+            pSectionHeader = s;
             break;
-        case 0x6A: ret+=5; break;
-        case 0xFF: ret+=3; break;
-
-            // mov
-        case 0x8B:
-            ret+=1;
-            switch(data[ret]) {
-            case 0x44: ret+=3; break;
-            case 0x45: ret+=2; break;
-            default:   ret+=1; break;
-            }
-            break;
-        case 0xB8: ret+=5; break;
-
-            // sub
-        case 0x81: 
-            ret+=1;
-            switch(data[ret]) {
-            case 0xEC: ret+=5; break;
-            default:   ret+=1; break;
-            }
-            break;
-        case 0x83:
-            ret+=1;
-            switch(data[ret]) {
-            case 0xEC: ret+=2; break;
-            default:   ret+=1; break;
-            }
-            break;
-        default: ret+=1; break;
         }
     }
-    return ret;
-}
+    DWORD gap = pSectionHeader->VirtualAddress - pSectionHeader->PointerToRawData;
 
-// target: ŠÖ”ƒ|ƒCƒ“ƒ^B‘ÎÛŠÖ”‚ğã‘‚«‚µ‚Â‚ÂŒ³‚ÌƒR[ƒh‚Í‘Ş”ğ‚µ‚ÄAŒ³‚ÌŠÖ”‚Ö‚Ìƒ|ƒCƒ“ƒ^‚ğ•Ô‚·
-void* UglyHotpatch( void *target, const void *replacement )
-{
-    // Œ³ƒR[ƒh‚Ì‘Ş”ğæ
-    BYTE *before = (BYTE*)::VirtualAlloc(NULL, 64, MEM_COMMIT|MEM_RESERVE, PAGE_EXECUTE_READWRITE);
-
-    BYTE *f = (BYTE*)target;
-    DWORD old;
-    ::VirtualProtect(f, 32, PAGE_EXECUTE_READWRITE, &old);
-
-    // Œ³‚ÌƒR[ƒh‚ğƒRƒs[ & ÅŒã‚ÉƒRƒs[–{‚Ö jmp ‚·‚éƒR[ƒh‚ğ•t‰Á (==‚±‚ê‚ğ call ‚·‚ê‚Îã‘‚«‘O‚Ì“®ì‚ğ‚·‚éƒnƒY)
-    size_t slice = GuessInstructionSize(f, 5);
-    memcpy(before, f, slice);
-    before[slice]=0xE9; // jmp
-    *(DWORD*)(before+slice+1) = (ptrdiff_t)(f+slice)-(ptrdiff_t)(before+slice) - 5;
-
-    // ŠÖ”‚Ìæ“ª‚ğ hook ŠÖ”‚Ö‚Ì jmp ‚É‘‚«Š·‚¦‚é
-    f[0]=0xE9; // jmp
-    *(DWORD*)(f+1) = (ptrdiff_t)replacement-(ptrdiff_t)f - 5;
-    ::VirtualProtect(f, 32, old, &old);
-
-    return before;
+    IMAGE_IMPORT_DESCRIPTOR *pImportDesc = (IMAGE_IMPORT_DESCRIPTOR*)(ImageBase + RVAImports - gap);
+    while(pImportDesc->Name!=0) {
+        const char *pDLLName = (const char*)(ImageBase + pImportDesc->Name - gap);
+        f(pDLLName);
+        ++pImportDesc;
+    }
 }
 
 
@@ -185,9 +124,9 @@ void EnumerateDLLImportsEveryModule(const char *dllfilter,
 }
 
 
-// dll ‚ª export ‚µ‚Ä‚¢‚éŠÖ” (‚Ö‚Ì RVA) ‚ğ‘‚«Š·‚¦‚é
-// ‚»‚ê‚É‚æ‚èAGetProcAddress() ‚ª•Ô‚·ŠÖ”‚ğ‚·‚è‘Ö‚¦‚é
-// Œ³‚ÌŠÖ”‚Ö‚Ìƒ|ƒCƒ“ƒ^‚ğ•Ô‚·
+// dll ãŒ export ã—ã¦ã„ã‚‹é–¢æ•° (ã¸ã® RVA) ã‚’æ›¸ãæ›ãˆã‚‹
+// ãã‚Œã«ã‚ˆã‚Šã€GetProcAddress() ãŒè¿”ã™é–¢æ•°ã‚’ã™ã‚Šæ›¿ãˆã‚‹
+// å…ƒã®é–¢æ•°ã¸ã®ãƒã‚¤ãƒ³ã‚¿ã‚’è¿”ã™
 void* OverrideDLLExport(HMODULE module, const char *funcname, void *replacement)
 {
     if(!IsValidMemory(module)) { return NULL; }
