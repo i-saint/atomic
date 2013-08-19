@@ -9,6 +9,83 @@
 
 namespace ist {
 
+EnvironmentVariables::Value::Value(const char *name)
+{
+    m_name = name;
+    m_value.resize(1024*32);
+    DWORD ret = ::GetEnvironmentVariableA(name, &m_value[0], m_value.size());
+    m_value.resize(ret);
+}
+EnvironmentVariables::Value::operator const char*() const
+{
+    return m_value.c_str();
+}
+void EnvironmentVariables::Value::operator=(const char *value)
+{
+    m_value = value;
+    ::SetEnvironmentVariableA(m_name.c_str(), m_value.c_str());
+}
+void EnvironmentVariables::Value::operator+=(const char *value)
+{
+    m_value += value;
+    ::SetEnvironmentVariableA(m_name.c_str(), m_value.c_str());
+}
+
+EnvironmentVariables::Value EnvironmentVariables::get(const char *name)
+{
+    return Value(name);
+}
+
+
+DLL::DLL()
+    : m_mod(nullptr)
+{
+}
+DLL::DLL(const char *path)
+    : m_mod(nullptr)
+{
+    load(path);
+}
+DLL::~DLL()
+{
+    unload();
+}
+bool DLL::load(const char *path)
+{
+    unload();
+    if(HMODULE m=::LoadLibraryA(path)) {
+        m_mod = m;
+        char tmp[MAX_PATH];
+        ::GetModuleFileNameA(m, tmp, MAX_PATH);
+        m_path = tmp;
+        return true;
+    }
+    return false;
+}
+bool DLL::unload()
+{
+    if(m_mod) {
+        m_mod = nullptr;
+        m_path.clear();
+        return true;
+    }
+    return false;
+}
+void* DLL::findSymbol(const char *name) const
+{
+    return ::GetProcAddress(m_mod, name);
+}
+void* DLL::getHandle() const
+{
+    return m_mod;
+}
+const std::string& DLL::getPath() const
+{
+    return m_path;
+}
+
+
+
 
 void EnumerateDependentModules( const char *path_to_dll_or_exe, const std::function<void (const char*)> &f )
 {

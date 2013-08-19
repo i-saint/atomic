@@ -4,6 +4,42 @@ namespace ist {
 
 #ifdef ist_env_Windows
 
+
+class EnvironmentVariables
+{
+public:
+    class Value
+    {
+    public:
+        Value(const char *name);
+        operator const char*() const;
+        void operator=(const char *value);
+        void operator+=(const char *value);
+    private:
+        stl::string m_name;
+        stl::string m_value;
+    };
+public:
+    static Value get(const char *name);
+};
+
+class DLL
+{
+public:
+    DLL();
+    DLL(const char *path);
+    ~DLL();
+    bool load(const char *path);
+    bool unload();
+    void* findSymbol(const char *path) const;
+    void* getHandle() const;
+    const std::string& getPath() const;
+private:
+    HMODULE m_mod;
+    std::string m_path;
+};
+
+
 void EnumerateDependentModules(const char *path_to_dll_or_exe, const std::function<void (const char*)> &f);
 
 void EnumerateDLLImports(HMODULE module, const char *dllfilter,
