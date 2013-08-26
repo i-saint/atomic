@@ -109,7 +109,7 @@ atmImplementEntity(FluidFilter, DF_Editor, 0.0f);
 atmExportClass(FluidFilter);
 
 
-class dpPatch RigidFilter : public Unbreakable<Entity_Direction>
+class RigidFilter : public Unbreakable<Entity_Direction>
 {
 typedef Unbreakable<Entity_Direction> super;
 private:

@@ -508,7 +508,7 @@ public:
         vec3 pos; atmQuery(e, getPosition, pos);
         m_target_pos = GetNearestPlayerPosition(pos);
 
-        //if(moddiv(m_time, 180.0f)) {
+        //if(moddiv(m_time, 60.0f)) {
         //    vec3 vel = glm::normalize(m_target_pos-pos)*0.015f;
         //    ShootSimpleBullet(e->getHandle(), pos, vel);
         //}

@@ -4,7 +4,7 @@
 
 namespace atm {
 
-class dpPatch Boss1 : public EntityWithPosition
+class Boss1 : public EntityWithPosition
 {
 typedef EntityWithPosition super;
 private:

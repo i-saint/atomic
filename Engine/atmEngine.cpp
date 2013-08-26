@@ -40,7 +40,7 @@ using namespace ist;
 
 atmCLinkage atmAPI int32 atmMain(int argc, char* argv[])
 {
-    dpInitialize();
+    dpInitialize(dpConfig(dpE_LogAll, dpE_SysDefault, "atomic.dpconf"));
     ist::forceLink();
 
     atm::atmInitializeCrashReporter();

@@ -37,7 +37,7 @@ PluginManager::PluginManager()
         if(HMODULE dll = ::LoadLibraryA(file.c_str())) {
             m_dlls.push_back(dll);
 #ifndef dpDisable
-            if(!::SymLoadModuleEx(::GetCurrentProcess(), nullptr, file.c_str(), nullptr, 0, 0, nullptr, 0)) {
+            if(!::SymLoadModuleEx(::GetCurrentProcess(), nullptr, file.c_str(), nullptr, (DWORD64)dll, 0, nullptr, 0)) {
                 istPrint("SymLoadModuleEx() for %s failed\n", file.c_str());
             }
 #endif // dpDisable

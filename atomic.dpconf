@@ -1,5 +1,5 @@
-module path: "_tmp\Release\entity1\*.obj"
+module path: "_tmp\Release\atomic_entity1\*.obj"
 source path: "Entity"
-msbuild command: "entity1.vcxproj /target:ClCompile /m /p:Configuration=Release;Platform=Win32"
+msbuild command: "atomic_entity1.vcxproj /target:ClCompile /m /p:Configuration=Release;Platform=Win32"
 force host symbol pattern: "boost::serialization::.*"
 force host symbol pattern: "boost::archive::.*"
