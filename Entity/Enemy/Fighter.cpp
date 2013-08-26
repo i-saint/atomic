@@ -1,20 +1,9 @@
-﻿#include "stdafx.h"
+﻿#include "entityPCH.h"
 #include "Entity/EntityCommon.h"
 #include "Entity/Enemy.h"
 #include "Entity/Routine.h"
 
 namespace atm {
-
-    /*
-    EC_BreakableParts,
-    EC_BreakableCore,
-    EC_SmallFighter,
-    EC_MediumFighter,
-    EC_LargeFighter,
-    EC_Shell,
-    EC_Tortoise,
-    EC_Zab,
-    */
 
 class BreakableParts : public Breakable<Entity_Direction>
 {

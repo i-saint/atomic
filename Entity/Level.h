@@ -1,5 +1,5 @@
-﻿#ifndef atm_Game_Entity_Level_h
-#define atm_Game_Entity_Level_h
+﻿#ifndef atm_Entity_Level_h
+#define atm_Entity_Level_h
 namespace atm {
 
 template<class TransAttr>
@@ -104,4 +104,4 @@ public:
 };
 
 } // namespace atm
-#endif // atm_Game_Entity_Level_h
+#endif // atm_Entity_Level_h

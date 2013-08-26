@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+﻿#include "atmPCH.h"
 
 #include "ist/Base/EnumString.h"
 #include "FunctionID.h"
@@ -9,9 +9,9 @@
 #undef istStringnizeEnum
 
 #include "ist/Base/EnumString.h"
-#include "Game/EntityClass.h"
-#undef atm_Game_EntityClass_h
+#include "Engine/Game/EntityClass.h"
+#undef atm_Engine_Game_EntityClass_h
 #define istStringnizeEnum
 #include "ist/Base/EnumString.h"
-#include "Game/EntityClass.h"
+#include "Engine/Game/EntityClass.h"
 #undef istStringnizeEnum

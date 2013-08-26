@@ -1,7 +1,5 @@
-﻿#include "stdafx.h"
+﻿#include "entityPCH.h"
 #include "EntityUtil.h"
-#include "Game/CollisionModule.h"
-#include "Game/BulletModule.h"
 
 namespace atm {
 

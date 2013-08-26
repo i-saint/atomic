@@ -1,10 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="launcher_main.cpp" />
-    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="Launcher\atmLauncher.cpp">
+      <Filter>Launcher</Filter>
+    </ClCompile>
+    <ClCompile Include="Launcher\launcherPCH.cpp">
+      <Filter>Launcher</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Launcher\launcherPCH.h">
+      <Filter>Launcher</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Launcher">
+      <UniqueIdentifier>{e559832e-137f-4cd6-aea1-6481e7cab60e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

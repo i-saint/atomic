@@ -1,5 +1,5 @@
-﻿#ifndef atm_Game_Entity_EntityTransform_h
-#define atm_Game_Entity_EntityTransform_h
+﻿#ifndef atm_Entity_EntityTransform_h
+#define atm_Entity_EntityTransform_h
 namespace atm {
 
 
@@ -643,4 +643,4 @@ public:
 };
 
 } // namespace atm
-#endif // atm_Game_Entity_EntityTransform_h
+#endif // atm_Entity_EntityTransform_h

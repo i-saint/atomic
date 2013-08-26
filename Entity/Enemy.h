@@ -1,5 +1,5 @@
-﻿#ifndef atm_Game_Entity_Enemy_h
-#define atm_Game_Entity_Enemy_h
+﻿#ifndef atm_Entity_Enemy_h
+#define atm_Entity_Enemy_h
 
 #include "EntityCommon.h"
 #include "EntityTemplate.h"
@@ -228,4 +228,4 @@ public:
 };
 
 } // namespace atm
-#endif // atm_Game_Entity_Enemy_h
+#endif // atm_Entity_Enemy_h

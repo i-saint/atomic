@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Entity\entitymain.cpp">
       <Filter>Entity</Filter>
     </ClCompile>
@@ -56,9 +55,11 @@
     <ClCompile Include="Entity\Enemy\Turret.cpp">
       <Filter>Entity\Enemy</Filter>
     </ClCompile>
+    <ClCompile Include="Entity\entityPCH.cpp">
+      <Filter>Entity</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h" />
     <ClInclude Include="Entity\Enemy.h">
       <Filter>Entity</Filter>
     </ClInclude>
@@ -81,6 +82,9 @@
       <Filter>Entity</Filter>
     </ClInclude>
     <ClInclude Include="Entity\Routine.h">
+      <Filter>Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity\entityPCH.h">
       <Filter>Entity</Filter>
     </ClInclude>
   </ItemGroup>

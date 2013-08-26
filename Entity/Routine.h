@@ -1,5 +1,5 @@
-﻿#ifndef atm_Game_Entity_Routine_h
-#define atm_Game_Entity_Routine_h
+﻿#ifndef atm_Entity_Routine_h
+#define atm_Entity_Routine_h
 namespace atm {
 
 istSEnumBlock(RoutineClassID,
@@ -63,4 +63,4 @@ public:
 
 
 } // namespace atm
-#endif // atm_Game_Entity_Routine_h
+#endif // atm_Entity_Routine_h

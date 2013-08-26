@@ -1,5 +1,5 @@
-﻿#ifndef atm_Game_Entity_EntityTemplate_h
-#define atm_Game_Entity_EntityTemplate_h
+﻿#ifndef atm_Entity_EntityTemplate_h
+#define atm_Entity_EntityTemplate_h
 #include "EntityAttributes.h"
 #include "EntityTransform.h"
 
@@ -102,4 +102,4 @@ public:
 
 } // namespace atm
 
-#endif // atm_Game_Entity_EntityTemplate_h
+#endif // atm_Entity_EntityTemplate_h

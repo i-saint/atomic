@@ -1,10 +1,10 @@
-﻿#ifndef atm_Game_Entity_EntityUtil_h
-#define atm_Game_Entity_EntityUtil_h
+﻿#ifndef atm_Entity_EntityUtil_h
+#define atm_Entity_EntityUtil_h
 
-#include "Game/AtomicGame.h"
-#include "Game/World.h"
-#include "Game/EntityModule.h"
-#include "Game/EntityQuery.h"
+#include "Engine/Game/AtomicGame.h"
+#include "Engine/Game/World.h"
+#include "Engine/Game/EntityModule.h"
+#include "Engine/Game/EntityQuery.h"
 
 namespace atm {
 
@@ -208,4 +208,4 @@ inline void JsonizeMF(stl::string &out, const char *name, R (C::*f)(R0,R1)) {
 #define atmJsonizeCall(F) JsonizeMF(out, #F, &this_t::F);
 
 } // namespace atm
-#endif // atm_Game_Entity_EntityUtil_h
+#endif // atm_Entity_EntityUtil_h

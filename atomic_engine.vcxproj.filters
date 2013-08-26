@@ -1,324 +1,336 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Game">
-      <UniqueIdentifier>{ea30a809-02f7-432f-8d07-b19fe2870d90}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Graphics">
-      <UniqueIdentifier>{4befe200-1d0b-45fa-bf70-3fa44710a14a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Sound">
-      <UniqueIdentifier>{ae8965f0-cc3f-4ee1-bf6e-87b420fdae61}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Network">
-      <UniqueIdentifier>{e0808553-5455-4898-b12a-efbfd7e38736}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI">
-      <UniqueIdentifier>{405ff96c-19dd-4b7d-b8fe-512dd43ae5fb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="editor">
       <UniqueIdentifier>{87c5f29b-034a-471c-b4a1-f3e4c753435f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game\VFX">
+    <Filter Include="Engine">
+      <UniqueIdentifier>{ff714098-0f1c-4786-99e5-3176a0ea471f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Game">
+      <UniqueIdentifier>{ea30a809-02f7-432f-8d07-b19fe2870d90}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Game\VFX">
       <UniqueIdentifier>{2c10f52f-81de-4d40-9778-e697e7d1d8d6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game\LevelScript">
+    <Filter Include="Engine\Game\LevelScript">
       <UniqueIdentifier>{30feb843-580e-4ccc-8426-6b8e63d0b3be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Graphics">
+      <UniqueIdentifier>{4befe200-1d0b-45fa-bf70-3fa44710a14a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Network">
+      <UniqueIdentifier>{e0808553-5455-4898-b12a-efbfd7e38736}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Sound">
+      <UniqueIdentifier>{ae8965f0-cc3f-4ee1-bf6e-87b420fdae61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\UI">
+      <UniqueIdentifier>{405ff96c-19dd-4b7d-b8fe-512dd43ae5fb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Game\AtomicApplication.cpp">
-      <Filter>Game</Filter>
+    <ClCompile Include="Engine\Game\AtomicApplication.cpp">
+      <Filter>Engine\Game</Filter>
     </ClCompile>
-    <ClCompile Include="Game\AtomicGame.cpp">
-      <Filter>Game</Filter>
+    <ClCompile Include="Engine\Game\AtomicGame.cpp">
+      <Filter>Engine\Game</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Message.cpp">
-      <Filter>Game</Filter>
+    <ClCompile Include="Engine\Game\Message.cpp">
+      <Filter>Engine\Game</Filter>
     </ClCompile>
-    <ClCompile Include="Game\World.cpp">
-      <Filter>Game</Filter>
+    <ClCompile Include="Engine\Game\World.cpp">
+      <Filter>Engine\Game</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\CreateModelData.cpp">
-      <Filter>Graphics</Filter>
+    <ClCompile Include="Engine\Graphics\CreateModelData.cpp">
+      <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\ResourceManager.cpp">
-      <Filter>Graphics</Filter>
+    <ClCompile Include="Engine\Graphics\ResourceManager.cpp">
+      <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Renderer.cpp">
-      <Filter>Graphics</Filter>
+    <ClCompile Include="Engine\Graphics\Renderer.cpp">
+      <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Shader.cpp">
-      <Filter>Graphics</Filter>
+    <ClCompile Include="Engine\Graphics\Shader.cpp">
+      <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="Sound\AtomicSound.cpp">
-      <Filter>Sound</Filter>
+    <ClCompile Include="Engine\Sound\AtomicSound.cpp">
+      <Filter>Engine\Sound</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Text.cpp">
-      <Filter>Game</Filter>
+    <ClCompile Include="Engine\Game\Text.cpp">
+      <Filter>Engine\Game</Filter>
     </ClCompile>
     <ClCompile Include="Util.cpp" />
-    <ClCompile Include="Game\Input.cpp">
-      <Filter>Game</Filter>
+    <ClCompile Include="Engine\Game\Input.cpp">
+      <Filter>Engine\Game</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\AtomicRenderingSystem.cpp">
-      <Filter>Graphics</Filter>
+    <ClCompile Include="Engine\Graphics\AtomicRenderingSystem.cpp">
+      <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Renderer_DeferredShading.cpp">
-      <Filter>Graphics</Filter>
+    <ClCompile Include="Engine\Graphics\Renderer_DeferredShading.cpp">
+      <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Renderer_ForwardShading.cpp">
-      <Filter>Graphics</Filter>
+    <ClCompile Include="Engine\Graphics\Renderer_ForwardShading.cpp">
+      <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Renderer_GBuffer.cpp">
-      <Filter>Graphics</Filter>
+    <ClCompile Include="Engine\Graphics\Renderer_GBuffer.cpp">
+      <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Renderer_Postprocess.cpp">
-      <Filter>Graphics</Filter>
+    <ClCompile Include="Engine\Graphics\Renderer_Postprocess.cpp">
+      <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Network\GameServer.cpp">
-      <Filter>Network</Filter>
+    <ClCompile Include="Engine\Network\GameServer.cpp">
+      <Filter>Engine\Network</Filter>
     </ClCompile>
     <ClCompile Include="EnumStrings.cpp" />
     <ClCompile Include="CrashReport.cpp" />
-    <ClCompile Include="Network\GameServerSession.cpp">
-      <Filter>Network</Filter>
+    <ClCompile Include="Engine\Network\GameServerSession.cpp">
+      <Filter>Engine\Network</Filter>
     </ClCompile>
-    <ClCompile Include="Network\InputServerLocal.cpp">
-      <Filter>Network</Filter>
+    <ClCompile Include="Engine\Network\InputServerLocal.cpp">
+      <Filter>Engine\Network</Filter>
     </ClCompile>
-    <ClCompile Include="Network\InputServerNetwork.cpp">
-      <Filter>Network</Filter>
+    <ClCompile Include="Engine\Network\InputServerNetwork.cpp">
+      <Filter>Engine\Network</Filter>
     </ClCompile>
-    <ClCompile Include="Network\InputServerReplay.cpp">
-      <Filter>Network</Filter>
+    <ClCompile Include="Engine\Network\InputServerReplay.cpp">
+      <Filter>Engine\Network</Filter>
     </ClCompile>
-    <ClCompile Include="Network\GameClient.cpp">
-      <Filter>Network</Filter>
+    <ClCompile Include="Engine\Network\GameClient.cpp">
+      <Filter>Engine\Network</Filter>
     </ClCompile>
-    <ClCompile Include="Network\Protocol.cpp">
-      <Filter>Network</Filter>
+    <ClCompile Include="Engine\Network\Protocol.cpp">
+      <Filter>Engine\Network</Filter>
     </ClCompile>
     <ClCompile Include="MemoryLeakBuster.cpp" />
-    <ClCompile Include="Game\FluidModule.cpp">
-      <Filter>Game</Filter>
+    <ClCompile Include="Engine\Game\FluidModule.cpp">
+      <Filter>Engine\Game</Filter>
     </ClCompile>
-    <ClCompile Include="Game\CollisionModule.cpp">
-      <Filter>Game</Filter>
+    <ClCompile Include="Engine\Game\CollisionModule.cpp">
+      <Filter>Engine\Game</Filter>
     </ClCompile>
-    <ClCompile Include="Game\VFXModule.cpp">
-      <Filter>Game</Filter>
+    <ClCompile Include="Engine\Game\VFXModule.cpp">
+      <Filter>Engine\Game</Filter>
     </ClCompile>
-    <ClCompile Include="Game\BulletModule.cpp">
-      <Filter>Game</Filter>
+    <ClCompile Include="Engine\Game\BulletModule.cpp">
+      <Filter>Engine\Game</Filter>
     </ClCompile>
-    <ClCompile Include="Game\EntityModule.cpp">
-      <Filter>Game</Filter>
+    <ClCompile Include="Engine\Game\EntityModule.cpp">
+      <Filter>Engine\Game</Filter>
     </ClCompile>
-    <ClCompile Include="Game\VFX\VFXBlur.cpp">
-      <Filter>Game\VFX</Filter>
+    <ClCompile Include="Engine\Game\VFX\VFXBlur.cpp">
+      <Filter>Engine\Game\VFX</Filter>
     </ClCompile>
-    <ClCompile Include="Game\VFX\VFXDistortion.cpp">
-      <Filter>Game\VFX</Filter>
+    <ClCompile Include="Engine\Game\VFX\VFXDistortion.cpp">
+      <Filter>Engine\Game\VFX</Filter>
     </ClCompile>
-    <ClCompile Include="Game\VFX\VFXLight.cpp">
-      <Filter>Game\VFX</Filter>
+    <ClCompile Include="Engine\Game\VFX\VFXLight.cpp">
+      <Filter>Engine\Game\VFX</Filter>
     </ClCompile>
-    <ClCompile Include="Game\VFX\VFXParticle.cpp">
-      <Filter>Game\VFX</Filter>
+    <ClCompile Include="Engine\Game\VFX\VFXParticle.cpp">
+      <Filter>Engine\Game\VFX</Filter>
     </ClCompile>
-    <ClCompile Include="Network\WebServer.cpp">
-      <Filter>Network</Filter>
+    <ClCompile Include="Engine\Network\WebServer.cpp">
+      <Filter>Engine\Network</Filter>
     </ClCompile>
-    <ClCompile Include="Network\LevelEditorCommandHandler.cpp">
-      <Filter>Network</Filter>
+    <ClCompile Include="Engine\Network\LevelEditorCommandHandler.cpp">
+      <Filter>Engine\Network</Filter>
     </ClCompile>
-    <ClCompile Include="Network\LevelEditorCommand.cpp">
-      <Filter>Network</Filter>
+    <ClCompile Include="Engine\Network\LevelEditorCommand.cpp">
+      <Filter>Engine\Network</Filter>
     </ClCompile>
-    <ClCompile Include="UI\TitleWindow.cpp">
-      <Filter>UI</Filter>
+    <ClCompile Include="Engine\UI\TitleWindow.cpp">
+      <Filter>Engine\UI</Filter>
     </ClCompile>
-    <ClCompile Include="UI\UISelector.cpp">
-      <Filter>UI</Filter>
+    <ClCompile Include="Engine\UI\UISelector.cpp">
+      <Filter>Engine\UI</Filter>
     </ClCompile>
-    <ClCompile Include="UI\ConfigWindow.cpp">
-      <Filter>UI</Filter>
+    <ClCompile Include="Engine\UI\ConfigWindow.cpp">
+      <Filter>Engine\UI</Filter>
     </ClCompile>
-    <ClCompile Include="UI\LogWindow.cpp">
-      <Filter>UI</Filter>
+    <ClCompile Include="Engine\UI\LogWindow.cpp">
+      <Filter>Engine\UI</Filter>
     </ClCompile>
-    <ClCompile Include="UI\PauseWindow.cpp">
-      <Filter>UI</Filter>
+    <ClCompile Include="Engine\UI\PauseWindow.cpp">
+      <Filter>Engine\UI</Filter>
     </ClCompile>
-    <ClCompile Include="UI\RootWindow.cpp">
-      <Filter>UI</Filter>
+    <ClCompile Include="Engine\UI\RootWindow.cpp">
+      <Filter>Engine\UI</Filter>
     </ClCompile>
-    <ClCompile Include="Game\PluginManager.cpp">
-      <Filter>Game</Filter>
+    <ClCompile Include="Engine\Game\PluginManager.cpp">
+      <Filter>Engine\Game</Filter>
     </ClCompile>
-    <ClCompile Include="engine_main.cpp" />
+    <ClCompile Include="Engine\atmPCH.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\atmEngine.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Game\AtomicApplication.h">
-      <Filter>Game</Filter>
+    <ClInclude Include="Engine\Game\AtomicApplication.h">
+      <Filter>Engine\Game</Filter>
     </ClInclude>
-    <ClInclude Include="Game\AtomicGame.h">
-      <Filter>Game</Filter>
+    <ClInclude Include="Engine\Game\AtomicGame.h">
+      <Filter>Engine\Game</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Message.h">
-      <Filter>Game</Filter>
+    <ClInclude Include="Engine\Game\Message.h">
+      <Filter>Engine\Game</Filter>
     </ClInclude>
-    <ClInclude Include="Game\World.h">
-      <Filter>Game</Filter>
+    <ClInclude Include="Engine\Game\World.h">
+      <Filter>Engine\Game</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\CreateModelData.h">
-      <Filter>Graphics</Filter>
+    <ClInclude Include="Engine\Graphics\CreateModelData.h">
+      <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\ResourceManager.h">
-      <Filter>Graphics</Filter>
+    <ClInclude Include="Engine\Graphics\ResourceManager.h">
+      <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Renderer.h">
-      <Filter>Graphics</Filter>
+    <ClInclude Include="Engine\Graphics\Renderer.h">
+      <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Shader.h">
-      <Filter>Graphics</Filter>
+    <ClInclude Include="Engine\Graphics\Shader.h">
+      <Filter>Engine\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="types.h" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="Sound\AtomicSound.h">
-      <Filter>Sound</Filter>
+    <ClInclude Include="Engine\Sound\AtomicSound.h">
+      <Filter>Engine\Sound</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Light.h">
-      <Filter>Graphics</Filter>
+    <ClInclude Include="Engine\Graphics\Light.h">
+      <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Text.h">
-      <Filter>Game</Filter>
+    <ClInclude Include="Engine\Game\Text.h">
+      <Filter>Engine\Game</Filter>
     </ClInclude>
-    <ClInclude Include="Game\EntityQuery.h">
-      <Filter>Game</Filter>
+    <ClInclude Include="Engine\Game\EntityQuery.h">
+      <Filter>Engine\Game</Filter>
     </ClInclude>
     <ClInclude Include="features.h" />
-    <ClInclude Include="Graphics\ResourceID.h">
-      <Filter>Graphics</Filter>
+    <ClInclude Include="Engine\Graphics\ResourceID.h">
+      <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Task.h">
-      <Filter>Game</Filter>
+    <ClInclude Include="Engine\Game\Task.h">
+      <Filter>Engine\Game</Filter>
     </ClInclude>
     <ClInclude Include="Util.h" />
-    <ClInclude Include="Game\EntityClass.h">
-      <Filter>Game</Filter>
+    <ClInclude Include="Engine\Game\EntityClass.h">
+      <Filter>Engine\Game</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\ParticleSet.h">
-      <Filter>Graphics</Filter>
+    <ClInclude Include="Engine\Graphics\ParticleSet.h">
+      <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Sound\SoundResourceID.h">
-      <Filter>Sound</Filter>
+    <ClInclude Include="Engine\Sound\SoundResourceID.h">
+      <Filter>Engine\Sound</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Input.h">
-      <Filter>Game</Filter>
+    <ClInclude Include="Engine\Game\Input.h">
+      <Filter>Engine\Game</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\AtomicRenderingSystem.h">
-      <Filter>Graphics</Filter>
+    <ClInclude Include="Engine\Graphics\AtomicRenderingSystem.h">
+      <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Renderer_DeferredShading.h">
-      <Filter>Graphics</Filter>
+    <ClInclude Include="Engine\Graphics\Renderer_DeferredShading.h">
+      <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Renderer_ForwardShading.h">
-      <Filter>Graphics</Filter>
+    <ClInclude Include="Engine\Graphics\Renderer_ForwardShading.h">
+      <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Renderer_GBuffer.h">
-      <Filter>Graphics</Filter>
+    <ClInclude Include="Engine\Graphics\Renderer_GBuffer.h">
+      <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Renderer_Postprocess.h">
-      <Filter>Graphics</Filter>
+    <ClInclude Include="Engine\Graphics\Renderer_Postprocess.h">
+      <Filter>Engine\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="FunctionID.h" />
-    <ClInclude Include="Network\GameServer.h">
-      <Filter>Network</Filter>
+    <ClInclude Include="Engine\Network\GameServer.h">
+      <Filter>Engine\Network</Filter>
     </ClInclude>
     <ClInclude Include="externals.h" />
-    <ClInclude Include="Network\Protocol.h">
-      <Filter>Network</Filter>
+    <ClInclude Include="Engine\Network\Protocol.h">
+      <Filter>Engine\Network</Filter>
     </ClInclude>
-    <ClInclude Include="Network\GameServerSession.h">
-      <Filter>Network</Filter>
+    <ClInclude Include="Engine\Network\GameServerSession.h">
+      <Filter>Engine\Network</Filter>
     </ClInclude>
-    <ClInclude Include="Network\InputServer.h">
-      <Filter>Network</Filter>
+    <ClInclude Include="Engine\Network\InputServer.h">
+      <Filter>Engine\Network</Filter>
     </ClInclude>
-    <ClInclude Include="Network\InputServerInternal.h">
-      <Filter>Network</Filter>
+    <ClInclude Include="Engine\Network\InputServerInternal.h">
+      <Filter>Engine\Network</Filter>
     </ClInclude>
-    <ClInclude Include="Network\GameClient.h">
-      <Filter>Network</Filter>
+    <ClInclude Include="Engine\Network\GameClient.h">
+      <Filter>Engine\Network</Filter>
     </ClInclude>
-    <ClInclude Include="Game\BulletModule.h">
-      <Filter>Game</Filter>
+    <ClInclude Include="Engine\Game\BulletModule.h">
+      <Filter>Engine\Game</Filter>
     </ClInclude>
-    <ClInclude Include="Game\FluidModule.h">
-      <Filter>Game</Filter>
+    <ClInclude Include="Engine\Game\FluidModule.h">
+      <Filter>Engine\Game</Filter>
     </ClInclude>
-    <ClInclude Include="Game\CollisionModule.h">
-      <Filter>Game</Filter>
+    <ClInclude Include="Engine\Game\CollisionModule.h">
+      <Filter>Engine\Game</Filter>
     </ClInclude>
-    <ClInclude Include="Game\VFXModule.h">
-      <Filter>Game</Filter>
+    <ClInclude Include="Engine\Game\VFXModule.h">
+      <Filter>Engine\Game</Filter>
     </ClInclude>
-    <ClInclude Include="Game\EntityModule.h">
-      <Filter>Game</Filter>
+    <ClInclude Include="Engine\Game\EntityModule.h">
+      <Filter>Engine\Game</Filter>
     </ClInclude>
-    <ClInclude Include="Game\VFX\VFXCommon.h">
-      <Filter>Game\VFX</Filter>
+    <ClInclude Include="Engine\Game\VFX\VFXCommon.h">
+      <Filter>Engine\Game\VFX</Filter>
     </ClInclude>
-    <ClInclude Include="Game\VFX\VFXInterfaces.h">
-      <Filter>Game\VFX</Filter>
+    <ClInclude Include="Engine\Game\VFX\VFXInterfaces.h">
+      <Filter>Engine\Game\VFX</Filter>
     </ClInclude>
-    <ClInclude Include="Game\VFX\VFXParticle.h">
-      <Filter>Game\VFX</Filter>
+    <ClInclude Include="Engine\Game\VFX\VFXParticle.h">
+      <Filter>Engine\Game\VFX</Filter>
     </ClInclude>
-    <ClInclude Include="Game\VFX\VFXLight.h">
-      <Filter>Game\VFX</Filter>
+    <ClInclude Include="Engine\Game\VFX\VFXLight.h">
+      <Filter>Engine\Game\VFX</Filter>
     </ClInclude>
-    <ClInclude Include="Game\VFX\VFXBlur.h">
-      <Filter>Game\VFX</Filter>
+    <ClInclude Include="Engine\Game\VFX\VFXBlur.h">
+      <Filter>Engine\Game\VFX</Filter>
     </ClInclude>
-    <ClInclude Include="Game\VFX\VFXDistortion.h">
-      <Filter>Game\VFX</Filter>
+    <ClInclude Include="Engine\Game\VFX\VFXDistortion.h">
+      <Filter>Engine\Game\VFX</Filter>
     </ClInclude>
-    <ClInclude Include="Network\WebServer.h">
-      <Filter>Network</Filter>
+    <ClInclude Include="Engine\Network\WebServer.h">
+      <Filter>Engine\Network</Filter>
     </ClInclude>
-    <ClInclude Include="Network\LevelEditorCommandHandler.h">
-      <Filter>Network</Filter>
+    <ClInclude Include="Engine\Network\LevelEditorCommandHandler.h">
+      <Filter>Engine\Network</Filter>
     </ClInclude>
-    <ClInclude Include="Network\LevelEditorCommand.h">
-      <Filter>Network</Filter>
+    <ClInclude Include="Engine\Network\LevelEditorCommand.h">
+      <Filter>Engine\Network</Filter>
     </ClInclude>
-    <ClInclude Include="UI\TitleWindow.h">
-      <Filter>UI</Filter>
+    <ClInclude Include="Engine\UI\TitleWindow.h">
+      <Filter>Engine\UI</Filter>
     </ClInclude>
-    <ClInclude Include="UI\UISelector.h">
-      <Filter>UI</Filter>
+    <ClInclude Include="Engine\UI\UISelector.h">
+      <Filter>Engine\UI</Filter>
     </ClInclude>
-    <ClInclude Include="UI\ConfigWindow.h">
-      <Filter>UI</Filter>
+    <ClInclude Include="Engine\UI\ConfigWindow.h">
+      <Filter>Engine\UI</Filter>
     </ClInclude>
-    <ClInclude Include="UI\LogWindow.h">
-      <Filter>UI</Filter>
+    <ClInclude Include="Engine\UI\LogWindow.h">
+      <Filter>Engine\UI</Filter>
     </ClInclude>
-    <ClInclude Include="UI\PauseWindow.h">
-      <Filter>UI</Filter>
+    <ClInclude Include="Engine\UI\PauseWindow.h">
+      <Filter>Engine\UI</Filter>
     </ClInclude>
-    <ClInclude Include="UI\RootWindow.h">
-      <Filter>UI</Filter>
+    <ClInclude Include="Engine\UI\RootWindow.h">
+      <Filter>Engine\UI</Filter>
     </ClInclude>
-    <ClInclude Include="Game\LevelScript\LevelScript.h">
-      <Filter>Game\LevelScript</Filter>
+    <ClInclude Include="Engine\Game\LevelScript\LevelScript.h">
+      <Filter>Engine\Game\LevelScript</Filter>
     </ClInclude>
-    <ClInclude Include="Game\PluginManager.h">
-      <Filter>Game</Filter>
+    <ClInclude Include="Engine\Game\PluginManager.h">
+      <Filter>Engine\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\atmPCH.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\atmEngine.h">
+      <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

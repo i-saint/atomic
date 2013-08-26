@@ -41,6 +41,11 @@
     <ClCompile Include="Entity\Enemy\Routine.cpp" />
     <ClCompile Include="Entity\Enemy\Turret.cpp" />
     <ClCompile Include="Entity\entitymain.cpp" />
+    <ClCompile Include="Entity\entityPCH.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Entity\EntityUtil.cpp" />
     <ClCompile Include="Entity\Level\Gear.cpp" />
     <ClCompile Include="Entity\Level\Layer.cpp" />
@@ -50,22 +55,17 @@
     <ClCompile Include="Entity\Level\Linkage.cpp" />
     <ClCompile Include="Entity\Level\Obstacle.cpp" />
     <ClCompile Include="Entity\Player.cpp" />
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entity\Enemy.h" />
     <ClInclude Include="Entity\EntityAttributes.h" />
     <ClInclude Include="Entity\EntityCommon.h" />
+    <ClInclude Include="Entity\entityPCH.h" />
     <ClInclude Include="Entity\EntityTemplate.h" />
     <ClInclude Include="Entity\EntityTransform.h" />
     <ClInclude Include="Entity\EntityUtil.h" />
     <ClInclude Include="Entity\Level.h" />
     <ClInclude Include="Entity\Routine.h" />
-    <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{F8E851F3-3570-41DB-9833-F34BB62AFF4A}</ProjectGuid>
@@ -114,6 +114,7 @@
     <IntDir>$(SolutionDir)_tmp\$(Configuration)\$(ProjectName)\</IntDir>
     <CustomBuildAfterTargets>
     </CustomBuildAfterTargets>
+    <TargetExt>.atmmod</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -126,6 +127,7 @@
     </CustomBuildBeforeTargets>
     <CustomBuildAfterTargets>
     </CustomBuildAfterTargets>
+    <TargetExt>.atmmod</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -136,6 +138,7 @@
     <CustomBuildAfterTargets>
     </CustomBuildAfterTargets>
     <TargetName>$(ProjectName)</TargetName>
+    <TargetExt>.atmmod</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -152,6 +155,7 @@
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <FloatingPointModel>Fast</FloatingPointModel>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <PrecompiledHeaderFile>entityPCH.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -176,7 +180,7 @@ copy $(TargetPath) Binaries\Modules</Command>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PreprocessorDefinitions>DOL_DisableWarning_RTTI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>entityPCH.h</PrecompiledHeaderFile>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
@@ -213,6 +217,7 @@ copy $(TargetPath) Binaries\Modules</Command>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <PrecompiledHeaderFile>entityPCH.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

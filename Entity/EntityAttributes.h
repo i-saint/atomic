@@ -1,10 +1,10 @@
-﻿#ifndef atm_Game_Entity_EntityAttributes_h
-#define atm_Game_Entity_EntityAttributes_h
+﻿#ifndef atm_Entity_EntityAttributes_h
+#define atm_Entity_EntityAttributes_h
 
 #include "Util.h"
-#include "Game/CollisionModule.h"
-#include "Game/FluidModule.h"
-#include "Graphics/Renderer.h"
+#include "Engine/Game/CollisionModule.h"
+#include "Engine/Game/FluidModule.h"
+#include "Engine/Graphics/Renderer.h"
 #include "psym/psym.h"
 
 namespace atm {
@@ -554,4 +554,4 @@ public:
 };
 
 } // namespace atm
-#endif // atm_Game_Entity_EntityAttributes_h
+#endif // atm_Entity_EntityAttributes_h
