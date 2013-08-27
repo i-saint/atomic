@@ -4,10 +4,41 @@
 
 #ifdef ist_env_Windows
 #pragma comment(lib, "psapi.lib")
+#pragma comment(lib, "advapi32.lib")
+#pragma comment(lib, "rpcrt4.lib")
 #include <windows.h>
 #include <psapi.h>
+#include <rpc.h>
 
 namespace ist {
+
+istAPI stl::string GetMachineID()
+{
+    stl::string ret;
+    char value[64];
+    DWORD size = _countof(value);
+    DWORD type = REG_SZ;
+    HKEY key;
+    LONG retKey = ::RegOpenKeyExA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Cryptography", 0, KEY_READ|KEY_WOW64_64KEY, &key);
+    LONG retVal = ::RegQueryValueExA(key, "MachineGuid", nullptr, &type, (LPBYTE)value, &size );
+    if( retKey==ERROR_SUCCESS && retVal==ERROR_SUCCESS  ) {
+        ret = value;
+    }
+    ::RegCloseKey( key );
+    return ret;
+}
+
+istAPI stl::string CreateUUID()
+{
+    UUID uuid;
+    ::UuidCreate(&uuid);
+    char value[64];
+    istSPrintf(value, "%08x-%04x-%04x-%02x%02x%02x%02x%02x%02x%02x%02x",
+        uuid.Data1, uuid.Data2, uuid.Data3,
+        uuid.Data4[0], uuid.Data4[1], uuid.Data4[2], uuid.Data4[3], uuid.Data4[4], uuid.Data4[5], uuid.Data4[6], uuid.Data4[7]);
+    return value;
+}
+
 
 EnvironmentVariables::Value::Value(const char *name)
 {

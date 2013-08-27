@@ -4,8 +4,10 @@ namespace ist {
 
 #ifdef ist_env_Windows
 
+istAPI stl::string GetMachineID();
+istAPI stl::string CreateUUID();
 
-class EnvironmentVariables
+class istAPI EnvironmentVariables
 {
 public:
     class Value
@@ -23,7 +25,7 @@ public:
     static Value get(const char *name);
 };
 
-class DLL
+class istAPI DLL
 {
 public:
     DLL();
