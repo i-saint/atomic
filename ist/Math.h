@@ -6,7 +6,7 @@
 //#include "Math/simdvec.h"
 #include "Math/soavec.h"
 #include "Math/Constants.h"
-//#include "Math/Linear.h"
+#include "Math/Linear.h"
 #include "Math/SFMT/SFMT.h"
 #include "Math/FrustumCulling.h"
 #include "Math/Curve.h"
