@@ -66,6 +66,7 @@
     <None Include="shader\Debug_ShowRGB.glsl" />
     <None Include="shader\Deferred_Bloodstain.glsl" />
     <None Include="shader\Deferred_DirectionalLight.glsl" />
+    <None Include="shader\Deferred_LineLight.glsl" />
     <None Include="shader\Deferred_PointLight.glsl" />
     <None Include="shader\Deferred_Upsampling.glsl" />
     <None Include="shader\Fade.glsl" />
