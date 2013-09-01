@@ -8,21 +8,8 @@
 
 istImplementOperatorNewDelete();
 
-#ifdef _M_X64
-#   define dpPlatform "x64"
-#else
-#   define dpPlatform "Win32"
-#endif
-#ifdef _DEBUG
-#   define dpConfiguration "Debug"
-#else
-#   define dpConfiguration "Release"
-#endif
-#define dpObjDir "_tmp/" dpConfiguration "/atomic" 
-
 
 namespace atm {
-
 void atmInitializeCrashReporter();
 void atmFinalizeCrashReporter();
 } // namespace atm
@@ -40,7 +27,7 @@ using namespace ist;
 
 atmCLinkage atmAPI int32 atmMain(int argc, char* argv[])
 {
-    dpInitialize(dpConfig(dpE_LogAll, dpE_SysDefault, "atomic.dpconf"));
+    dpInitialize(dpConfig(dpE_LogSimple, dpE_SysDefault, "atomic.dpconf"));
     ist::forceLink();
 
     atm::atmInitializeCrashReporter();

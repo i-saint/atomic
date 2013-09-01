@@ -164,10 +164,11 @@
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <OptimizeReferences>false</OptimizeReferences>
+      <GenerateMapFile>true</GenerateMapFile>
     </Link>
     <PostBuildEvent>
-      <Command>mkdir Binaries\Modules
-copy $(TargetPath) Binaries\Modules</Command>
+      <Command>copy $(TargetPath) Binaries
+copy $(TargetDir)$(TargetName).map Binaries</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -197,10 +198,11 @@ copy $(TargetPath) Binaries\Modules</Command>
       <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <BaseAddress>0x11000000</BaseAddress>
+      <GenerateMapFile>true</GenerateMapFile>
     </Link>
     <PostBuildEvent>
-      <Command>mkdir Binaries\Modules
-copy $(TargetPath) Binaries\Modules</Command>
+      <Command>copy $(TargetPath) Binaries
+copy $(TargetDir)$(TargetName).map Binaries</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">
@@ -228,10 +230,11 @@ copy $(TargetPath) Binaries\Modules</Command>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <GenerateMapFile>true</GenerateMapFile>
     </Link>
     <PostBuildEvent>
-      <Command>mkdir Binaries\Modules
-copy $(TargetPath) Binaries\Modules</Command>
+      <Command>copy $(TargetPath) Binaries
+copy $(TargetDir)$(TargetName).map Binaries</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -33,7 +33,7 @@ PluginManager* PluginManager::getInstance()
 
 PluginManager::PluginManager()
 {
-    glob("Binaries\\Modules", "\\.atmmod$", [&](const std::string &file){
+    glob("Binaries", "\\.atmmod$", [&](const std::string &file){
         if(HMODULE dll = ::LoadLibraryA(file.c_str())) {
             m_dlls.push_back(dll);
 #ifndef dpDisable
@@ -43,10 +43,12 @@ PluginManager::PluginManager()
 #endif // dpDisable
         }
     });
+    dpLoadMapFiles();
 }
 
 PluginManager::~PluginManager()
 {
+    dpUnpatchAll();
     each(m_dlls, [&](HMODULE h){
         ::FreeLibrary(h);
     });
