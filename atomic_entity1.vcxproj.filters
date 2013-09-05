@@ -40,9 +40,6 @@
     <ClCompile Include="Entity\Enemy\Enemy.cpp">
       <Filter>Entity\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="Entity\Enemy\Fighter.cpp">
-      <Filter>Entity\Enemy</Filter>
-    </ClCompile>
     <ClCompile Include="Entity\Enemy\Hatch.cpp">
       <Filter>Entity\Enemy</Filter>
     </ClCompile>
@@ -57,6 +54,9 @@
     </ClCompile>
     <ClCompile Include="Entity\entityPCH.cpp">
       <Filter>Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity\Enemy\Roller.cpp">
+      <Filter>Entity\Enemy</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

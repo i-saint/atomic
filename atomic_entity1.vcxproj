@@ -35,9 +35,9 @@
     <ClCompile Include="Entity\Enemy\Boss1.cpp" />
     <ClCompile Include="Entity\Enemy\Carrier.cpp" />
     <ClCompile Include="Entity\Enemy\Enemy.cpp" />
-    <ClCompile Include="Entity\Enemy\Fighter.cpp" />
     <ClCompile Include="Entity\Enemy\Hatch.cpp" />
     <ClCompile Include="Entity\Enemy\Projectile.cpp" />
+    <ClCompile Include="Entity\Enemy\Roller.cpp" />
     <ClCompile Include="Entity\Enemy\Routine.cpp" />
     <ClCompile Include="Entity\Enemy\Turret.cpp" />
     <ClCompile Include="Entity\entitymain.cpp" />

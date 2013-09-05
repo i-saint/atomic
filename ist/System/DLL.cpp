@@ -33,7 +33,7 @@ istAPI stl::string CreateUUID()
     UUID uuid;
     ::UuidCreate(&uuid);
     char value[64];
-    istSPrintf(value, "%08x-%04x-%04x-%02x%02x%02x%02x%02x%02x%02x%02x",
+    istSPrintf(value, "%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X",
         uuid.Data1, uuid.Data2, uuid.Data3,
         uuid.Data4[0], uuid.Data4[1], uuid.Data4[2], uuid.Data4[3], uuid.Data4[4], uuid.Data4[5], uuid.Data4[6], uuid.Data4[7]);
     return value;

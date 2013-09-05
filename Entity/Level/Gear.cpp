@@ -125,6 +125,9 @@ public:
         eachParts([&](EntityHandle h){ atmDeleteEntity(h); });
     }
 
+    void addParts(GearParts *v)     { m_parts.push_back(v->getHandle()); }
+    template<class F> void eachParts(const F &f) { EachEntities(m_parts, f); }
+
     void initialize() override
     {
         transform::setAxis(vec3(0.0f, 0.0f, 1.0f));
@@ -144,9 +147,6 @@ public:
     void asyncupdate(float32 dt) override
     {
     }
-
-    void addParts(GearParts *v)     { m_parts.push_back(v->getHandle()); }
-    template<class F> void eachParts(const F &f) { EachEntities(m_parts, f); }
 };
 atmExportClass(GearBase);
 
