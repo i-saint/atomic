@@ -34,21 +34,21 @@ private:
 };
 
 #ifdef ist_enable_Commandline
-#define istCommandlineInitialize()          ist::Commandline::initializeInstance()
-#define istCommandlineFinalize()            ist::Commandline::finalizeInstance()
-#define istCommandlineExecute(S)            ist::Commandline::getInstance()->execute(S)
-#define istCommandlinePush(S)               ist::Commandline::getInstance()->pushCommand(S)
-#define istCommandlineFlush()               ist::Commandline::getInstance()->flush()
-#define istCommandlineRegister(S, ...)      ist::Commandline::getInstance()->registerCommand(S, ist::CreateCLCommand(__VA_ARGS__))
-#define istCommandlineUnregister(S)         ist::Commandline::getInstance()->unregisterCommand(S)
+#   define istCommandlineInitialize()          ist::Commandline::initializeInstance()
+#   define istCommandlineFinalize()            ist::Commandline::finalizeInstance()
+#   define istCommandlineExecute(S)            ist::Commandline::getInstance()->execute(S)
+#   define istCommandlinePush(S)               ist::Commandline::getInstance()->pushCommand(S)
+#   define istCommandlineFlush()               ist::Commandline::getInstance()->flush()
+#   define istCommandlineRegister(S, ...)      ist::Commandline::getInstance()->registerCommand(S, ist::CreateCLCommand(__VA_ARGS__))
+#   define istCommandlineUnregister(S)         ist::Commandline::getInstance()->unregisterCommand(S)
 #else // ist_enable_Commandline
-#define istCommandlineInitialize()          
-#define istCommandlineFinalize()            
-#define istCommandlineExecute(S)            
-#define istCommandlinePush(S)               
-#define istCommandlineFlush()               
-#define istCommandlineRegister(S, ...)      
-#define istCommandlineUnregister(S)         
+#   define istCommandlineInitialize()          
+#   define istCommandlineFinalize()            
+#   define istCommandlineExecute(S)            
+#   define istCommandlinePush(S)               
+#   define istCommandlineFlush()               
+#   define istCommandlineRegister(S, ...)      
+#   define istCommandlineUnregister(S)         
 #endif // ist_enable_Commandline
 
 } // namespace ist

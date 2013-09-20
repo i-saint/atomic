@@ -38,6 +38,7 @@
     <ClInclude Include="ist\Base\StringCall.h" />
     <ClInclude Include="ist\Base\Stringnize.h" />
     <ClInclude Include="ist\Base\StringSymbol.h" />
+    <ClInclude Include="ist\Base\StringUtil.h" />
     <ClInclude Include="ist\Base\Types.h" />
     <ClInclude Include="ist\Base\Variant.h" />
     <ClInclude Include="ist\Base\VariantCall.h" />
@@ -61,6 +62,8 @@
     <ClInclude Include="ist\Debug\CommandlineCommand.h" />
     <ClInclude Include="ist\Debug\Commandline_ConsoleFrontend.h" />
     <ClInclude Include="ist\Debug\CrashDump.h" />
+    <ClInclude Include="ist\Debug\EachMembers.h" />
+    <ClInclude Include="ist\Debug\GenSerializer.h" />
     <ClInclude Include="ist\Debug\ParamTree.h" />
     <ClInclude Include="ist\Graphics.h" />
     <ClInclude Include="ist\GraphicsCommon\EasyDrawer.h" />
@@ -150,6 +153,7 @@
     <ClCompile Include="ist\Base\Serialize.cpp" />
     <ClCompile Include="ist\Base\Stringnize.cpp" />
     <ClCompile Include="ist\Base\StringSymbol.cpp" />
+    <ClCompile Include="ist\Base\StringUtil.cpp" />
     <ClCompile Include="ist\Concurrency\Condition.cpp" />
     <ClCompile Include="ist\Concurrency\Mutex.cpp" />
     <ClCompile Include="ist\Concurrency\Process.cpp" />
@@ -162,6 +166,8 @@
     <ClCompile Include="ist\Debug\Commandline.cpp" />
     <ClCompile Include="ist\Debug\Commandline_ConsoleFrontend.cpp" />
     <ClCompile Include="ist\Debug\CrashDump.cpp" />
+    <ClCompile Include="ist\Debug\EachMembers.cpp" />
+    <ClCompile Include="ist\Debug\GenSerializer.cpp" />
     <ClCompile Include="ist\Debug\ParamTree.cpp" />
     <ClCompile Include="ist\GraphicsCommon\EasyDrawer.cpp" />
     <ClCompile Include="ist\GraphicsCommon\EasyDrawerUtil.cpp" />

@@ -366,6 +366,15 @@
     <ClInclude Include="ist\System\Hook.h">
       <Filter>System</Filter>
     </ClInclude>
+    <ClInclude Include="ist\Debug\EachMembers.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Debug\GenSerializer.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="ist\Base\StringUtil.h">
+      <Filter>Base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ist\Base\Allocator.cpp">
@@ -537,6 +546,15 @@
     </ClCompile>
     <ClCompile Include="ist\System\Hook.cpp">
       <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Debug\EachMembers.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Debug\GenSerializer.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="ist\Base\StringUtil.cpp">
+      <Filter>Base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -5,8 +5,8 @@
 
 namespace ist {
 
-bool FileToString(const char *path, stl::string &out);
-bool FileToString(const stl::string &path, stl::string &out);
+istAPI bool FileToString(const char *path, stl::string &out);
+istAPI bool FileToString(const stl::string &path, stl::string &out);
 
 } // namespace ist
 
