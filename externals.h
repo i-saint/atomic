@@ -55,7 +55,7 @@
 #include "types.h"
 
 #include "WebDebugMenu.h"
-#define dpLinkDynamic
+#define dpDisable
 #include "DynamicPatcher.h"
 
 #pragma comment(lib, "psapi.lib")
