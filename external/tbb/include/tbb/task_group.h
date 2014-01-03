@@ -1,5 +1,5 @@
 /*
-    Copyright 2005-2012 Intel Corporation.  All Rights Reserved.
+    Copyright 2005-2013 Intel Corporation.  All Rights Reserved.
 
     This file is part of Threading Building Blocks.
 
@@ -68,20 +68,6 @@ enum task_group_status {
 };
 
 namespace internal {
-
-// Suppress gratuitous warnings from icc 11.0 when lambda expressions are used in instances of function_task.
-//#pragma warning(disable: 588)
-
-template<typename F>
-class function_task : public task {
-    F my_func;
-    /*override*/ task* execute() {
-        my_func();
-        return NULL;
-    }
-public:
-    function_task( const F& f ) : my_func(f) {}
-};
 
 template<typename F>
 class task_handle_task : public task {
