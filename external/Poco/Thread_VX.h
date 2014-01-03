@@ -1,7 +1,7 @@
 //
 // Thread_VX.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/Thread_VX.h#4 $
+// $Id: //poco/1.4/Foundation/include/Poco/Thread_VX.h#3 $
 //
 // Library: Foundation
 // Package: Threading
@@ -56,7 +56,7 @@ namespace Poco {
 class Foundation_API ThreadImpl
 {
 public:	
-    typedef int TIDImpl;
+	typedef int TIDImpl;
 	typedef void (*Callable)(void*);
 
 	enum Priority
@@ -88,9 +88,9 @@ public:
 		void*     pData; 
 	};
 
-	ThreadImpl();				
+	ThreadImpl();
 	~ThreadImpl();
-    
+
 	TIDImpl tidImpl() const;
 	void setPriorityImpl(int prio);
 	int getPriorityImpl() const;

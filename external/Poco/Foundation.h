@@ -1,7 +1,7 @@
 //
 // Foundation.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/Foundation.h#3 $
+// $Id: //poco/1.4/Foundation/include/Poco/Foundation.h#2 $
 //
 // Library: Foundation
 // Package: Core
@@ -76,7 +76,11 @@
 
 
 #if !defined(Foundation_API)
-	#define Foundation_API
+	#if !defined(POCO_NO_GCC_API_ATTRIBUTE) && defined (__GNUC__) && (__GNUC__ >= 4)
+		#define Foundation_API __attribute__ ((visibility ("default")))
+	#else
+		#define Foundation_API
+	#endif
 #endif
 
 
@@ -124,6 +128,11 @@
 	#include "Poco/Platform_POSIX.h"
 #endif
 
+
+//
+// Include alignment settings early
+//
+#include "Poco/Alignment.h"
 
 //
 // Cleanup inconsistencies

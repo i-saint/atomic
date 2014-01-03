@@ -1,7 +1,7 @@
 //
 // LogFile.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/LogFile.h#2 $
+// $Id: //poco/1.4/Foundation/include/Poco/LogFile.h#1 $
 //
 // Library: Foundation
 // Package: Logging
@@ -72,7 +72,7 @@ public:
 		/// Writes the given text to the log file.
 		/// If flush is true, the text will be immediately
 		/// flushed to the file.
-	
+
 	UInt64 size() const;
 		/// Returns the current size in bytes of the log file.
 	

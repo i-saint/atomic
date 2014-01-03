@@ -1,7 +1,7 @@
 //
 // FPEnvironment_DUMMY.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/FPEnvironment_DUMMY.h#3 $
+// $Id: //poco/1.4/Foundation/include/Poco/FPEnvironment_DUMMY.h#1 $
 //
 // Library: Foundation
 // Package: Core
@@ -70,18 +70,18 @@ protected:
 	FPEnvironmentImpl(const FPEnvironmentImpl& env);
 	~FPEnvironmentImpl();
 	FPEnvironmentImpl& operator = (const FPEnvironmentImpl& env);
-	void keepCurrentImpl();		
+	void keepCurrentImpl();
 	static void clearFlagsImpl();
-	static bool isFlagImpl(FlagImpl flag);	
+	static bool isFlagImpl(FlagImpl flag);
 	static void setRoundingModeImpl(RoundingModeImpl mode);
 	static RoundingModeImpl getRoundingModeImpl();
-	static bool isInfiniteImpl(float value);		
+	static bool isInfiniteImpl(float value);
 	static bool isInfiniteImpl(double value);
 	static bool isInfiniteImpl(long double value);
-	static bool isNaNImpl(float value);		
+	static bool isNaNImpl(float value);
 	static bool isNaNImpl(double value);
 	static bool isNaNImpl(long double value);
-	static float copySignImpl(float target, float source);		
+	static float copySignImpl(float target, float source);
 	static double copySignImpl(double target, double source);
 	static long double copySignImpl(long double target, long double source);
 
@@ -131,21 +131,13 @@ inline bool FPEnvironmentImpl::isNaNImpl(long double value)
 
 inline float FPEnvironmentImpl::copySignImpl(float target, float source)
 {
-#if defined(__APPLE__) || defined(POCO_ANDROID)
 	return copysignf(target, source);
-#else
-	return std::copysignf(target, source);
-#endif
 }
 
 
 inline double FPEnvironmentImpl::copySignImpl(double target, double source)
 {
-#if defined(__APPLE__) || defined(POCO_ANDROID)
 	return copysign(target, source);
-#else
-	return std::copysign(target, source);
-#endif
 }
 
 

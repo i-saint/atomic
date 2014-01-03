@@ -1,7 +1,7 @@
 //
 // SimpleFileChannel.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/SimpleFileChannel.h#2 $
+// $Id: //poco/1.4/Foundation/include/Poco/SimpleFileChannel.h#1 $
 //
 // Library: Foundation
 // Package: Logging
@@ -92,7 +92,7 @@ class Foundation_API SimpleFileChannel: public Channel
 	/// The flush property specifies whether each log message is flushed
 	/// immediately to the log file (which may hurt application performance,
 	/// but ensures that everything is in the log in case of a system crash),
-	//  or whether it's allowed to stay in the system's file buffer for some time. 
+	//  or whether it's allowed to stay in the system's file buffer for some time.
 	/// Valid values are:
 	///
 	///   * true:   Every essages is immediately flushed to the log file (default).

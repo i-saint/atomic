@@ -1,7 +1,7 @@
 //
 // Environment.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/Environment.h#3 $
+// $Id: //poco/1.4/Foundation/include/Poco/Environment.h#2 $
 //
 // Library: Foundation
 // Package: Core

@@ -1,7 +1,7 @@
 //
 // TaskManager.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/TaskManager.h#3 $
+// $Id: //poco/1.4/Foundation/include/Poco/TaskManager.h#2 $
 //
 // Library: Foundation
 // Package: Tasks
@@ -122,8 +122,8 @@ public:
 
 protected:
 	void postNotification(const Notification::Ptr& pNf);
-	  /// Posts a notification to the task manager's 
-	  /// notification center.
+		/// Posts a notification to the task manager's 
+		/// notification center.
 
 	void taskStarted(Task* pTask);
 	void taskProgress(Task* pTask, float progress);

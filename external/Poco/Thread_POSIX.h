@@ -1,7 +1,7 @@
 //
 // Thread_POSIX.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/Thread_POSIX.h#6 $
+// $Id: //poco/1.4/Foundation/include/Poco/Thread_POSIX.h#3 $
 //
 // Library: Foundation
 // Package: Threading
@@ -64,7 +64,7 @@ namespace Poco {
 class Foundation_API ThreadImpl
 {
 public:	
-    typedef pthread_t TIDImpl;
+	typedef pthread_t TIDImpl;
 	typedef void (*Callable)(void*);
 
 	enum Priority
@@ -91,9 +91,9 @@ public:
 		void*     pData; 
 	};
 
-	ThreadImpl();				
+	ThreadImpl();
 	~ThreadImpl();
-    
+
 	TIDImpl tidImpl() const;
 	void setPriorityImpl(int prio);
 	int getPriorityImpl() const;
@@ -155,7 +155,9 @@ private:
 			prio(PRIO_NORMAL_IMPL),
 			policy(SCHED_OTHER),
 			done(false),
-			stackSize(POCO_THREAD_STACK_SIZE)
+			stackSize(POCO_THREAD_STACK_SIZE),
+			started(false),
+			joined(false)
 		{
 		#if defined(POCO_VXWORKS)
 			// This workaround is for VxWorks 5.x where
@@ -172,6 +174,8 @@ private:
 		int           policy;
 		Event         done;
 		std::size_t   stackSize;
+		bool          started;
+		bool          joined;
 	};
 
 	AutoPtr<ThreadData> _pData;
