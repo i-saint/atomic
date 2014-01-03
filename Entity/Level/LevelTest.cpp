@@ -272,10 +272,28 @@ public:
         goNextLevel();
     }
 
+
+    IEntity* _PutChildEntity(EntityClassID ecid, IEntity *parent, const vec3 &pos)
+    {
+        IEntity *e = atmCreateEntity(ecid);
+        atmCall(e, setPosition, pos);
+        atmCall(e, setParent, parent->getHandle());
+        return e;
+    }
+    #define PutChildEntity(Class, Parent, Pos) _PutChildEntity(EC_##Class, Parent, Pos)
+
+
     void level1()
     {
         // 敵テスト用
         if(m_frame==1) {
+            {
+                IEntity *core = atmCreateEntityT(Core);
+                atmCall(core, setPosition, vec3(0.0f, 0.4f, 0.0f));
+                IEntity *barrier = PutFluidFilter(core, 1, vec3(0.0f, 0.0f, 0.0f), vec3(1.4f));
+            }
+
+
             {
                 //IEntity *e = putLargeEnemy();
                 //atmCall(e, setRoutine, RCID_Routine_CircularShoot);
@@ -302,42 +320,42 @@ public:
             //atmCall(layer, addRotationCP, ControlPoint(1200.0f, 0.0f));
             //atmCall(layer, addRotationCP, ControlPoint(1400.0f, 180.0f));
 
-            {
-                IEntity *e = atmCreateEntityT(GearSmall);
-                atmCall(e, setPosition, vec3(0.5f, 0.5f, 0.0f));
-                atmCall(e, setParent, layer->getHandle());
-                atmCall(e, setSpinMinAngle,   0.0f);
-                atmCall(e, setSpinMaxAngle, 360.0f);
-                atmCall(e, setSpinReturnSpeed, 0.005f);
-            }
-            {
-                IEntity *e = atmCreateEntityT(GearMedium);
-                atmCall(e, setPosition, vec3(0.5f, -0.5f, 0.0f));
-                atmCall(e, setParent, layer->getHandle());
-            }
-            {
-                IEntity *e = atmCreateEntityT(GearLarge);
-                atmCall(e, setPosition, vec3(-1.0f, 0.5f, 0.0f));
-                atmCall(e, setParent, layer->getHandle());
-            }
+            //{
+            //    IEntity *e = atmCreateEntityT(GearSmall);
+            //    atmCall(e, setPosition, vec3(0.5f, 0.5f, 0.0f));
+            //    atmCall(e, setParent, layer->getHandle());
+            //    atmCall(e, setSpinMinAngle,   0.0f);
+            //    atmCall(e, setSpinMaxAngle, 360.0f);
+            //    atmCall(e, setSpinReturnSpeed, 0.005f);
+            //}
+            //{
+            //    IEntity *e = atmCreateEntityT(GearMedium);
+            //    atmCall(e, setPosition, vec3(0.5f, -0.5f, 0.0f));
+            //    atmCall(e, setParent, layer->getHandle());
+            //}
+            //{
+            //    IEntity *e = atmCreateEntityT(GearLarge);
+            //    atmCall(e, setPosition, vec3(-1.0f, 0.5f, 0.0f));
+            //    atmCall(e, setParent, layer->getHandle());
+            //}
             //for(int i=0; i<8; ++i) {
             //    IEntity *e = putMediumEnemy();
             //    atmCall(e, setLife, 3000.0f);
             //}
         }
 
-        if(m_frame < 1200) {
-            //if(m_frame % 1 == 0) {
-            //    putPinballEnemy();
-            //    putPinballEnemy();
-            //}
-            if(m_frame % 50 == 0) {
-                IEntity *e = putSmallEnemy();
-            }
-        }
-        else if(isAllDead()) {
-            goNextLevel();
-        }
+        //if(m_frame < 1200) {
+        //    //if(m_frame % 1 == 0) {
+        //    //    putPinballEnemy();
+        //    //    putPinballEnemy();
+        //    //}
+        //    if(m_frame % 50 == 0) {
+        //        IEntity *e = putSmallEnemy();
+        //    }
+        //}
+        //else if(isAllDead()) {
+        //    goNextLevel();
+        //}
     }
 
     void level2()

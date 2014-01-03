@@ -388,6 +388,7 @@ public:
     void update(float32 dt) override
     {
         super::update(dt);
+        setLife(m_life_max);
         if(m_state==State_Dead) {
             atmDeleteEntity(getHandle());
             return;

@@ -91,6 +91,7 @@ istSEnumBlock(EntityClassID,
     istSEnum(EC_HingeLinkage),
 
     istSEnum(EC_C84LaserTurret),
+    istSEnum(EC_InvisibleLaserTurret),
 
     istSEnum(EC_Obstacle_End),
 

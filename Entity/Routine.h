@@ -13,6 +13,8 @@ istSEnumBlock(RoutineClassID,
     istSEnum(RCID_Routine_HomingPlayer),
     istSEnum(RCID_Routine_Pinball),
 
+    istSEnum(RCID_Routine_AlcantareaDemo),
+
     istSEnum(RCID_End)
 )
 

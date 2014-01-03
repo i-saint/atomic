@@ -508,7 +508,7 @@ public:
         vec3 pos; atmQuery(e, getPosition, pos);
         m_target_pos = GetNearestPlayerPosition(pos);
 
-        //if(moddiv(m_time, 60.0f)) {
+        //if(moddiv(m_time, 10.0f)) {
         //    vec3 vel = glm::normalize(m_target_pos-pos)*0.015f;
         //    ShootSimpleBullet(e->getHandle(), pos, vel);
         //}
@@ -609,5 +609,88 @@ public:
 };
 atmImplementRoutine(Routine_Pinball);
 atmExportClass(Routine_Pinball);
+
+
+
+
+
+
+inline IEntity* PutSmallEnemy()
+{
+    IEntity *e = nullptr;
+    e = atmCreateEntityT(Enemy_Test);
+    atmCall(e, setCollisionShape, CS_Sphere);
+    atmCall(e, setModel, PSET_SPHERE_SMALL);
+    atmCall(e, setPosition, vec3(GenRandomVector2()*2.2f, 0.0f));
+    atmCall(e, setLife, 25.0f);
+    atmCall(e, setAxis1, GenRandomUnitVector3());
+    atmCall(e, setAxis2, GenRandomUnitVector3());
+    atmCall(e, setRotateSpeed1, 2.4f);
+    atmCall(e, setRotateSpeed2, 2.4f);
+    atmCall(e, setRoutine, RCID_Routine_HomingPlayer);
+    atmCall(e, setLightRadius, 0.5f);
+    return e;
+}
+
+class Routine_AlcantareaDemo : public IRoutine, public Attr_MessageHandler
+{
+typedef IRoutine super;
+typedef Attr_MessageHandler mhandler;
+private:
+    int32 m_frame;
+    vec3 m_vel;
+    vec3 m_target_pos;
+    int32 m_cycle;
+
+    istSerializeBlock(
+        istSerializeBase(super)
+        istSerializeBase(mhandler)
+        istSerialize(m_frame)
+        istSerialize(m_vel)
+        istSerialize(m_target_pos)
+        istSerialize(m_cycle)
+    )
+
+public:
+    atmECallBlock(
+        atmECallSuper(mhandler)
+    )
+
+public:
+    Routine_AlcantareaDemo() : m_frame(), m_cycle()
+    {}
+
+    void update(float32 dt)
+    {
+        m_frame++;
+
+        IEntity *e = getEntity();
+        vec3 pos; atmQuery(e, getPosition, pos);
+        m_target_pos = GetNearestPlayerPosition(pos);
+
+        if(m_frame%5==0) {
+            ++m_cycle;
+            for(int i=0; i<10; ++i) {
+                vec3 vel = glm::normalize(m_target_pos-pos) * (0.01f+0.001f*i);
+                vel = glm::rotate(vel, 10.0f*m_cycle, vec3(0.0f,0.0f,1.0f));
+                ShootSimpleBullet(e->getHandle(), pos, vel);
+            }
+        }
+        //if(m_frame%25==0) {
+        //    vec3 dir = glm::normalize(m_target_pos-pos);
+        //    vec3 pos = GenRandomUnitVector3()*0.8f + pos;
+        //    pos.z = 0.0f;
+        //    IEntity *t = atmCreateEntityT(InvisibleLaserTurret);
+        //    atmCall(t, setPosition, pos);
+        //    atmCall(t, setDirection, dir);
+        //    atmCall(t, setOwner, e->getHandle());
+        //}
+        //if(m_frame%30==0) {
+        //    PutSmallEnemy();
+        //}
+    }
+};
+atmImplementRoutine(Routine_AlcantareaDemo);
+atmExportClass(Routine_AlcantareaDemo);
 
 } // namespace atm

@@ -234,7 +234,7 @@ public:
         setLightRadius(1.4f);
         setExplosionSE(SE_EXPLOSION5);
         setExplosionChannel(SE_CHANNEL5);
-        setRoutine(RCID_Routine_FixedShotgun2);
+        setRoutine(RCID_Routine_AlcantareaDemo);
     }
 };
 atmImplementEntity(Core);

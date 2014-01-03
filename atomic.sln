@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+# Visual Studio 2013
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shader", "shader.vcxproj", "{9EF1B96E-375A-46D3-9181-882E6EB3DA6A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "atomic_engine", "atomic_engine.vcxproj", "{A8F5B4BE-0942-4A93-BBFE-0716BEAC2551}"

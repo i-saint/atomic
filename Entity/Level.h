@@ -23,6 +23,7 @@ public:
     )
 };
 typedef EntityWithTransAttr<Attr_Position> EntityWithPosition;
+typedef EntityWithTransAttr<Attr_Direction> EntityWithDirection;
 typedef EntityWithTransAttr< TAttr_TransformMatrixI< TAttr_HaveParent<Attr_Direction> > > EntityWithParent;
 
 
