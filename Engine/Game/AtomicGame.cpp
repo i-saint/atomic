@@ -337,15 +337,13 @@ bool AtomicGame::deserialize( std::istream &st )
 bool AtomicGame::serializeToFile(const char *path)
 {
     std::ofstream fs(path, std::ios::binary);
-    zlib_stream::zip_ostream zipper(fs);
-    return fs && zipper && serialize(zipper);
+    return fs && serialize(fs);
 }
 
 bool AtomicGame::deserializeFromFile(const char *path)
 {
     std::ifstream fs(path, std::ios::binary);
-    zlib_stream::zip_istream zipper(fs);
-    return fs && zipper && deserialize(zipper);
+    return fs && deserialize(fs);
 }
 
 #ifdef atm_enable_StateSave

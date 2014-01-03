@@ -138,7 +138,7 @@ public:
         wdmScope(
         wdmString path = wdmFormat("Level/DirectionalLight/0x%p", this);
         super::addDebugNodes(path);
-        wdmAddNode(path+"/m_direction", this, &DirectionalLightEntity::getDirection, &DirectionalLightEntity::setDirection, -1.0f, 1.0f);
+        /*wdmAddNode(path+"/m_direction", this, &DirectionalLightEntity::getDirection, &DirectionalLightEntity::setDirection, -1.0f, 1.0f);*/
         )
     }
 

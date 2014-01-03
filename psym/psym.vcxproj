@@ -36,14 +36,14 @@
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ispc %(FullPath) -o $(IntDir)%(Filename).obj -h $(IntDir)%(Filename)_ispc.h --target=sse2,sse4,avx --arch=x86 --opt=fast-masked-vload --opt=fast-math</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">ispc %(FullPath) -o $(IntDir)%(Filename).obj -h $(IntDir)%(Filename)_ispc.h --target=sse2,sse4,avx --arch=x86 --opt=fast-masked-vload --opt=fast-math</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;$(IntDir)%(Filename)_sse2.obj;$(IntDir)%(Filename)_sse4.obj;$(IntDir)%(Filename)_avx.obj;$(IntDir)%(Filename)_ispc.h</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">$(IntDir)%(Filename).obj;$(IntDir)%(Filename)_sse2.obj;$(IntDir)%(Filename)_sse4.obj;$(IntDir)%(Filename)_avx.obj;$(IntDir)%(Filename)_ispc.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;$(IntDir)%(Filename)_sse2.obj;$(IntDir)%(Filename)_sse4.obj;$(IntDir)%(Filename)_avx.obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">$(IntDir)%(Filename).obj;$(IntDir)%(Filename)_sse2.obj;$(IntDir)%(Filename)_sse4.obj;$(IntDir)%(Filename)_avx.obj</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">
       </AdditionalInputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ispc %(FullPath) -o $(IntDir)%(Filename).obj -h $(IntDir)%(Filename)_ispc.h --target=sse2,sse4,avx --arch=x86 --opt=fast-masked-vload --opt=fast-math</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;$(IntDir)%(Filename)_sse2.obj;$(IntDir)%(Filename)_sse4.obj;$(IntDir)%(Filename)_avx.obj;$(IntDir)%(Filename)_ispc.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;$(IntDir)%(Filename)_sse2.obj;$(IntDir)%(Filename)_sse4.obj;$(IntDir)%(Filename)_avx.obj</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </AdditionalInputs>
     </CustomBuild>
@@ -59,21 +59,21 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Master|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">

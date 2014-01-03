@@ -17,6 +17,8 @@ bool ExecVCTool( const char *params )
         VCVersion = "10.0";
 #elif   _MSC_VER==1700
         VCVersion = "11.0";
+#elif   _MSC_VER==1800
+        VCVersion = "12.0";
 #else
 #   error
 #endif

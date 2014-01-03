@@ -90,8 +90,8 @@ public:
 
         wdmScope(
         wdmString path = wdmFormat("Bullet/Laser/0x%p", this);
-        wdmAddNode(path+"/m_pos", &m_pos, -4.0f, 4.0f );
-        wdmAddNode(path+"/m_dir", this, &Laser::getDirection, &Laser::setDirection, -2.0f, 2.0f );
+        /*wdmAddNode(path+"/m_pos", &m_pos, -4.0f, 4.0f );*/
+        /*wdmAddNode(path+"/m_dir", this, &Laser::getDirection, &Laser::setDirection, -2.0f, 2.0f );*/
         wdmAddNode(path+"/m_light_radius", &m_light_radius, 0.0f, 2.0f);
         wdmAddNode(path+"/fade()", &Laser::fade, this );
         wdmAddNode(path+"/kill()", &Laser::kill, this );

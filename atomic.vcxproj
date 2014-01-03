@@ -49,21 +49,21 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Master|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -79,7 +79,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>external\tbb\include;$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)$(Configuration);external\lib\win32;external\tbb\lib\ia32\vc10;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)$(Configuration);external\lib\win32;external\tbb\lib\ia32\vc11;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
     <OutDir>$(SolutionDir)_out\$(Configuration)\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
@@ -90,7 +90,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>external\tbb\include;$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)$(Configuration);external\lib\win32;external\tbb\lib\ia32\vc10;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)$(Configuration);external\lib\win32;external\tbb\lib\ia32\vc11;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)_out\$(Configuration)\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
     <IntDir>$(SolutionDir)_tmp\$(Configuration)\$(ProjectName)\</IntDir>
@@ -102,7 +102,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Master|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>external\tbb\include;$(CG_INC_PATH);$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)$(Configuration);external\lib\win32;external\tbb\lib\ia32\vc10;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)$(Configuration);external\lib\win32;external\tbb\lib\ia32\vc11;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)_out\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)_tmp\$(Configuration)\$(ProjectName)\</IntDir>
     <CustomBuildAfterTargets>
@@ -132,6 +132,7 @@
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <OptimizeReferences>false</OptimizeReferences>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -163,6 +164,7 @@
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -193,6 +195,7 @@
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
       <Command>

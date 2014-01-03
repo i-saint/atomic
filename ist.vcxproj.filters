@@ -556,6 +556,9 @@
     <ClCompile Include="ist\Base\StringUtil.cpp">
       <Filter>Base</Filter>
     </ClCompile>
+    <ClCompile Include="ist\Math\Curve.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ist\Math\FrustumCulling.inl">

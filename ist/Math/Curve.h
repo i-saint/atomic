@@ -24,11 +24,12 @@ struct TControlPoint
     float32 time;
     Interpolation interp;
 
-    TControlPoint() : time(0.0f), value(0.0f), in(0.0f),out(0.0f), interp(Linear) {}
-    TControlPoint(float32 t, T v, Interpolation ts=Linear) : time(t), value(v), in(0.0f),out(0.0f), interp(ts) {}
-    TControlPoint(float32 t, T v, T i, T o, Interpolation ts=Linear) : time(t), value(v), in(i),out(o), interp(ts) {}
-    bool operator<(const TControlPoint &p) const { return time<p.time; }
+    TControlPoint() : time(0.0f), value(0.0f), in(0.0f), out(0.0f), interp(Linear) {}
+    TControlPoint(float32 t, T v, Interpolation ts = Linear) : time(t), value(v), in(0.0f), out(0.0f), interp(ts) {}
+    TControlPoint(float32 t, T v, T i, T o, Interpolation ts = Linear) : time(t), value(v), in(i), out(o), interp(ts) {}
+    bool operator<(const TControlPoint &p) const { return time < p.time; }
 };
+
 
 template<class T>
 inline T Interpolate(const TControlPoint<T> &v1, const TControlPoint<T> &v2, float32 time)
@@ -48,8 +49,9 @@ inline T Interpolate(const TControlPoint<T> &v1, const TControlPoint<T> &v2, flo
 }
 
 template<class T>
-class TControlPoints : public ist::vector< TControlPoint<T> >
+class TControlPoints : public std::vector< TControlPoint<T> >
 {
+typedef std::vector< TControlPoint<T> > super;
 public:
     typedef TControlPoint<T> PointT;
 
@@ -87,13 +89,19 @@ public:
         }
         return r;
     }
+
+    template<class A>
+    void serialize(A &ar, const uint32 version)
+    {
+        istSerializeBase(super);
+    }
 };
 
 typedef TControlPoint<float32>  ControlPoint;
-typedef TControlPoints<float32> ControlPoints;
 typedef TControlPoint<vec2>     ControlPoint2D;
-typedef TControlPoints<vec2>    ControlPoints2D;
 typedef TControlPoint<vec3>     ControlPoint3D;
+typedef TControlPoints<float32> ControlPoints;
+typedef TControlPoints<vec2>    ControlPoints2D;
 typedef TControlPoints<vec3>    ControlPoints3D;
 
 } // namespace ist
