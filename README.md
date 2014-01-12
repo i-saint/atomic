@@ -4,5 +4,4 @@ fluid based multiplayer online shumap.
 work in progress.  
 web site: http://primitive-games.jp/atomic  
 
-![sc0.png](/img/sc0.png "sc0.png")
-written by i-saint ( http://primitive-games.jp )  
+[![atomic C84 preview](http://img.youtube.com/vi/ZG94ieuDT-w/0.jpg)](http://www.youtube.com/watch?v=ZG94ieuDT-w)
