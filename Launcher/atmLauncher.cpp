@@ -38,10 +38,28 @@ public:
         // 環境変数 PATH に Binaries/Common を追加し、dll サーチパスに加える
         {
             std::string path;
-            path.resize(1024*64);
-            DWORD ret = ::GetEnvironmentVariableA("PATH", &path[0], path.size());
-            path.resize(ret);
-            path += ";Binaries\\Common";
+            //path.resize(1024*64);
+            //DWORD ret = ::GetEnvironmentVariableA("PATH", &path[0], path.size());
+            {
+                char path_to_this_module[MAX_PATH + 1];
+                HMODULE mod = 0;
+                ::GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCSTR)&glob, &mod);
+                DWORD size = ::GetModuleFileNameA(mod, path_to_this_module, sizeof(path_to_this_module));
+                for (int i = size - 1; i >= 0; --i) {
+                    if (path_to_this_module[i] == '\\') {
+                        path_to_this_module[i] = '\0';
+                        break;
+                    }
+                }
+                path += path_to_this_module;
+                path += "\\Binaries\\Common;";
+            }
+            {
+                char currentdir[MAX_PATH + 1];
+                GetCurrentDirectoryA(sizeof(currentdir), currentdir);
+                path += currentdir;
+                path += "\\Binaries\\Common;";
+            }
             ::SetEnvironmentVariableA("PATH", path.c_str());
         }
 
