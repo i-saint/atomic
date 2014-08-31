@@ -201,7 +201,7 @@ void PassForward_Barrier::addParticles( PSET_RID psid, const PSetInstance &inst,
 PassForward_Background::PassForward_Background()
     : m_shader(SH_BG2)
 {
-    wdmAddNode("Rendering/BG/Enable", &m_shader, (int32)SH_BG1, (int32)SH_BG_END);
+    wdmAddNode("Rendering/BG/Enable", &m_shader, wdmMakeRange((int32)SH_BG1, (int32)SH_BG_END));
 }
 
 PassForward_Background::~PassForward_Background()

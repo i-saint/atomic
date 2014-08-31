@@ -24,6 +24,10 @@
 // )
 
 
+#define istDisableSerializer
+
+#ifndef istDisableSerializer
+
 #define istSerializeBlock(...)\
 private:\
     friend class boost::serialization::access;\
@@ -87,5 +91,19 @@ namespace serialization {\
     ar & boost::serialization::base_object<BaseClass>(*this);
 
 
+#else  // istDisableSerializer
+
+#define istSerializeBlock(...)
+#define istSerializeBlockDecl()
+#define istSerializeBlockImpl(ClassName, ...)
+#define istSerializeSaveBlock(...)
+#define istSerializeLoadBlock(...)
+#define istSerializeExportClass(ClassName)
+#define istSerializeRaw(ClassName)
+#define istSerializeBlockEx(ValueType, ...)
+#define istSerialize(Value)
+#define istSerializeBase(BaseClass)
+
+#endif // istDisableSerializer
 
 #endif // ist_Base_Serialize_h

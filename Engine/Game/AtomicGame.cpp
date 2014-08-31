@@ -307,7 +307,8 @@ void AtomicGame::handlePMessages( const PMessage &mes )
 
 bool AtomicGame::serialize( std::ostream &st )
 {
-    try {
+#ifndef istDisableSerializer
+	try {
         boost::archive::binary_oarchive ar(st);
         ar & m_world;
         ar & m_elapsed;
@@ -316,12 +317,14 @@ bool AtomicGame::serialize( std::ostream &st )
     catch(std::exception &e) {
         istPrint(e.what());
     }
+#endif // istDisableSerializer
     return true;
 }
 
 bool AtomicGame::deserialize( std::istream &st )
 {
-    istSafeDelete(m_world);
+#ifndef istDisableSerializer
+	istSafeDelete(m_world);
     try {
         boost::archive::binary_iarchive ar(st);
         ar & m_world;
@@ -331,7 +334,8 @@ bool AtomicGame::deserialize( std::istream &st )
     catch(std::exception &e) {
         istPrint(e.what());
     }
-    return true;
+#endif // istDisableSerializer
+	return true;
 }
 
 bool AtomicGame::serializeToFile(const char *path)

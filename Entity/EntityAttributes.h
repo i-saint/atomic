@@ -126,8 +126,8 @@ public:
     wdmScope(
     void addDebugNodes(const wdmString &path)
     {
-        wdmAddNode(path+"/m_diffuse_color", &m_diffuse_color, 0.0f, 1.0f);
-        wdmAddNode(path+"/m_glow_color", &m_glow_color, 0.0f, 1.0f);
+		wdmAddNode(path + "/m_diffuse_color", &m_diffuse_color, wdmMakeRange(0.0f, 1.0f));
+        wdmAddNode(path+"/m_glow_color", &m_glow_color, wdmMakeRange(0.0f, 1.0f));
     }
     )
 

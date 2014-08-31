@@ -20,7 +20,7 @@ FluidModule::FluidModule()
     : m_current_fluid_task(0)
     , m_gravity_strength(15.0f)
 {
-    wdmAddNode("SPH/gravity_strength", &m_gravity_strength, 0.0f, 100.0f);
+    wdmAddNode("SPH/gravity_strength", &m_gravity_strength, wdmMakeRange(0.0f, 100.0f));
 }
 
 FluidModule::~FluidModule()

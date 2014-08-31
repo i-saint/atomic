@@ -178,7 +178,7 @@ var create_scalar_control = function(type, data)
     d.appendChild(t);
     d.dataChildren = t;
     d.handleChange = function(n) {
-        postCommand(data.id.toString()+"->set(" + this.getValue() + ")");
+        postCommand(data.id.toString()+"->set([" + this.getValue() + "])");
     }
     create_control_common(d);
     return d;

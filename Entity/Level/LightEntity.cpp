@@ -87,7 +87,7 @@ public:
         wdmScope(
         wdmString path = wdmFormat("Level/PointLight/0x%p", this);
         super::addDebugNodes(path);
-        wdmAddNode(path+"/m_radius", &m_radius, 0.0f, 3.0f);
+		wdmAddNode(path + "/m_radius", &m_radius, wdmMakeRange(0.0f, 3.0f));
         )
     }
 

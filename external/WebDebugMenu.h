@@ -32,6 +32,7 @@
 #       pragma comment(lib, "WebDebugMenu32.lib")
 #   endif // _WIN64
 #endif
+#define wdmCLinkage extern "C"
 
 #ifndef wdmDisableEnumMemberVariables
 #include <map>
@@ -49,10 +50,10 @@ struct wdmMemberInfo
 };
 typedef std::function<void (wdmMemberInfo&)> wdmMemberInfoCallback;
 
-wdmAPI bool wdmGetClassName(void *_this, char *out, size_t len);
-wdmAPI bool wdmEnumMemberVariablesByTypeName(const char *classname, const wdmMemberInfoCallback &f);
-wdmAPI bool wdmEnumMemberVariablesByTypeName(const char *classname, void *_this, const wdmMemberInfoCallback &f);
-wdmAPI bool wdmEnumMemberVariablesByPointer(void *_this, const wdmMemberInfoCallback &f);
+wdmCLinkage wdmAPI bool wdmGetClassName(void *_this, char *out, size_t len);
+wdmCLinkage wdmAPI bool wdmEnumMemberVariablesByTypeName(const char *classname, const wdmMemberInfoCallback &f);
+wdmCLinkage wdmAPI bool wdmEnumMemberVariablesByTypeName2(const char *classname, void *_this, const wdmMemberInfoCallback &f);
+wdmCLinkage wdmAPI bool wdmEnumMemberVariablesByPointer(void *_this, const wdmMemberInfoCallback &f);
 #endif // wdmDisableEnumMemberVariables
 
 
@@ -96,20 +97,18 @@ public:
     virtual bool        handleEvent(const wdmEvent &evt)=0;
 };
 
-extern "C" {
-    wdmAPI void             wdmInitialize();
-    wdmAPI void             wdmFinalize();
-    wdmAPI void             wdmFlush();
+wdmCLinkage wdmAPI void             wdmInitialize();
+wdmCLinkage wdmAPI void             wdmFinalize();
+wdmCLinkage wdmAPI void             wdmFlush();
 
-    wdmAPI void             wdmOpenBrowser();
-    wdmAPI const wdmConfig* wdmGetConfig();
+wdmCLinkage wdmAPI void             wdmOpenBrowser();
+wdmCLinkage wdmAPI const wdmConfig* wdmGetConfig();
 
-    // 内部実装用
-    wdmAPI wdmID    _wdmGenerateID();
-    wdmAPI wdmNode* _wdmGetRootNode();
-    wdmAPI void     _wdmRegisterNode(wdmNode *node);
-    wdmAPI void     _wdmUnregisterNode(wdmNode *node);
-};
+wdmCLinkage // 内部実装用
+wdmCLinkage wdmAPI wdmID    _wdmGenerateID();
+wdmCLinkage wdmAPI wdmNode* _wdmGetRootNode();
+wdmCLinkage wdmAPI void     _wdmRegisterNode(wdmNode *node);
+wdmCLinkage wdmAPI void     _wdmUnregisterNode(wdmNode *node);
 
 
 
@@ -343,6 +342,13 @@ template<class T> struct wdmCanBeRanged
     static const bool value = std::is_arithmetic<value_t>::value;
 };
 
+struct wdmArraySize
+{
+    size_t m_size;
+
+    explicit wdmArraySize(size_t n = 0) : m_size(n) {}
+};
+
 template<class T, bool valid=wdmCanBeRanged<T>::value>
 struct wdmRange
 {
@@ -370,8 +376,13 @@ template<class T>
 struct wdmRange<T, false>
 {
     wdmRange() {}
+    wdmRange(T /*min_v*/, T /*max_v*/) {}
     size_t jsonize(char* /*out*/, size_t /*len*/) const { return 0; }
 };
+
+template<class T>
+inline wdmRange<T> wdmMakeRange(T min_v, T max_v) { return wdmRange<T>(min_v, max_v);  }
+
 
 template<class T, bool available=!wdmIsReadOnly<T>::value>
 struct wdmHandleSet
@@ -379,7 +390,12 @@ struct wdmHandleSet
     bool operator()(const wdmEvent &evt, T *value, size_t num)
     {
         if(strncmp(evt.command, "set(", 4)==0) {
-            wdmParse(evt.command+4, value, num);
+            if (num==1) {
+                wdmParse(evt.command + 4, *value);
+            }
+            else {
+                wdmParse(evt.command + 4, value, num);
+            }
             return true;
         }
         return false;
@@ -465,7 +481,7 @@ public:
     typedef typename wdmRemoveConstReference<T>::type value_t;
     typedef wdmRange<T2> range_t;
 
-    wdmArrayNode(T *value, size_t num, const range_t &range=range_t()) : m_range(range), m_value(value), m_num(num) {}
+    wdmArrayNode(T *value, wdmArraySize num, const range_t &range = range_t()) : m_range(range), m_value(value), m_num(num.m_size) {}
 
     virtual size_t jsonize(char *out, size_t len, int recursion) const
     {
@@ -705,31 +721,31 @@ inline void wdmAddNode(const wdmString &path, T *value)
     _wdmGetRootNode()->addChild(path.c_str(), new wdmDataNode<T>(value));
 }
 template<class T, class T2>
-inline void wdmAddNode(const wdmString &path, T *value, T2 min_value, T2 max_value)
+inline void wdmAddNode(const wdmString &path, T *value, const wdmRange<T2> &range)
 {
-    _wdmGetRootNode()->addChild(path.c_str(), new wdmDataNode<T, T2>(value, wdmRange<T2>(min_value, max_value)));
+    _wdmGetRootNode()->addChild(path.c_str(), new wdmDataNode<T, T2>(value, range));
 }
 
 // array node
 template<class T>
-inline void wdmAddNode(const wdmString &path, T *value, size_t L)
+inline void wdmAddNode(const wdmString &path, T *value, wdmArraySize L)
 {
     _wdmGetRootNode()->addChild(path.c_str(), new wdmArrayNode<T>(value, L));
 }
 template<class T, class T2>
-inline void wdmAddNode(const wdmString &path, T *value, size_t L, T2 min_value, T2 max_value)
+inline void wdmAddNode(const wdmString &path, T *value, wdmArraySize L, const wdmRange<T2> &range)
 {
-    _wdmGetRootNode()->addChild(path.c_str(), new wdmArrayNode<T,T2>(value, L, wdmRange<T2>(min_value, max_value)));
+    _wdmGetRootNode()->addChild(path.c_str(), new wdmArrayNode<T, T2>(value, L, range));
 }
 template<class T, size_t L>
 inline void wdmAddNode(const wdmString &path, T (*value)[L])
 {
-    _wdmGetRootNode()->addChild(path.c_str(), new wdmArrayNode<T>(&(*value)[0], L));
+    _wdmGetRootNode()->addChild(path.c_str(), new wdmArrayNode<T>(&(*value)[0], wdmArraySize(L)));
 }
-template<class T, size_t L, class T2>
-inline void wdmAddNode(const wdmString &path, T (*value)[L], T2 min_value, T2 max_value)
+template<class T, class T2, size_t L>
+inline void wdmAddNode(const wdmString &path, T(*value)[L], const wdmRange<T2> &range)
 {
-    _wdmGetRootNode()->addChild(path.c_str(), new wdmArrayNode<T,T2>(&(*value)[0], L, wdmRange<T2>(min_value, max_value)));
+    _wdmGetRootNode()->addChild(path.c_str(), new wdmArrayNode<T, T2>(&(*value)[0], wdmArraySize(L), range));
 }
 
 // property node
@@ -740,9 +756,9 @@ inline void wdmAddNode(const wdmString &path, T (*getter)(), void (*setter)(T))
     _wdmGetRootNode()->addChild(path.c_str(), n);
 }
 template<class T, class T2>
-inline void wdmAddNode(const wdmString &path, T (*getter)(), void (*setter)(T), T2 min_value, T2 max_value)
+inline void wdmAddNode(const wdmString &path, T(*getter)(), void(*setter)(T), const wdmRange<T2> &range)
 {
-    auto *n = new wdmPropertyNode<T>(std::function<T ()>(getter), std::bind(setter, std::placeholders::_1), wdmRange<T>(min_value, max_value));
+    auto *n = new wdmPropertyNode<T>(std::function<T()>(getter), std::bind(setter, std::placeholders::_1), range);
     _wdmGetRootNode()->addChild(path.c_str(), n);
 }
 template<class C, class C2, class T>
@@ -752,9 +768,9 @@ inline void wdmAddNode(const wdmString &path, C *_this, T (C2::*getter)() const,
     _wdmGetRootNode()->addChild(path.c_str(), n);
 }
 template<class C, class C2, class T, class T2>
-inline void wdmAddNode(const wdmString &path, C *_this, T (C2::*getter)() const, void (C2::*setter)(T), T2 min_value, T2 max_value)
+inline void wdmAddNode(const wdmString &path, C *_this, T(C2::*getter)() const, void (C2::*setter)(T), const wdmRange<T2> &range)
 {
-    auto *n = new wdmPropertyNode<T>(std::bind(getter, _this), std::bind(setter, _this, std::placeholders::_1), wdmRange<T>(min_value, max_value));
+    auto *n = new wdmPropertyNode<T,T2>(std::bind(getter, _this), std::bind(setter, _this, std::placeholders::_1), range);
     _wdmGetRootNode()->addChild(path.c_str(), n);
 }
 template<class C, class C2, class T>
@@ -1009,7 +1025,7 @@ template<> inline size_t wdmToS(char *text, size_t len, XMFLOAT4 v) { return wdm
 
 inline void wdmAddMemberNodes(const wdmString &path, void *_this, const char *class_name)
 {
-    wdmEnumMemberVariablesByTypeName(class_name, _this, [&](wdmMemberInfo &mi){
+    wdmEnumMemberVariablesByTypeName2(class_name, _this, [&](wdmMemberInfo &mi){
         typedef std::map<std::string, std::function<void (const wdmString &p, wdmMemberInfo &mi)> > handler_table;
         static handler_table s_handlers;
         if(s_handlers.empty()) {
@@ -1034,7 +1050,7 @@ inline void wdmAddMemberNodes(const wdmString &path, void *_this, const char *cl
             Handler("__m128i",   wdmInt32x4);
             Handler( "__m128", wdmFloat32x4);
 #endif // defined(_INCLUDED_MM2) || defined(_XMMINTRIN_H_INCLUDED)
-#ifdef glm_glm
+#if defined(glm_glm) || defined(GLM_INCLUDED)
             Handler("glm::ivec2",   wdmInt32x2);
             Handler("glm::ivec3",   wdmInt32x3);
             Handler("glm::ivec4",   wdmInt32x4);
@@ -1060,10 +1076,10 @@ inline void wdmAddMemberNodes(const wdmString &path, void *_this, const char *cl
             mi.type_name = t.c_str();
 
             if(t=="char") {
-                wdmAddNode(path+"/"+mi.value_name, (char*)mi.value, num);
+                wdmAddNode(path+"/"+mi.value_name, (char*)mi.value, wdmArraySize(num));
             }
             else if(t=="wchar") {
-                wdmAddNode(path+"/"+mi.value_name, (wchar_t*)mi.value, num);
+                wdmAddNode(path + "/" + mi.value_name, (wchar_t*)mi.value, wdmArraySize(num));
             }
             else {
                 const char *value_name = mi.value_name;

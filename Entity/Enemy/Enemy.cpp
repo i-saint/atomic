@@ -53,7 +53,7 @@ public:
             wdmString path = wdmFormat("Enemy/0x%p", this);
             super::addDebugNodes(path);
             wdmAddNode(path+"/m_light_radius", &m_light_radius );
-            wdmAddNode(path+"/m_light_color", &m_light_color, 0.0f, 1.0f );
+			wdmAddNode(path + "/m_light_color", &m_light_color, wdmMakeRange(0.0f, 1.0f));
         )
     }
 

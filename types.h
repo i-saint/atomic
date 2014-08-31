@@ -12,6 +12,8 @@
 
 #define atmSafeRelease(Obj) if(Obj){Obj->release();Obj=nullptr;}
 
+#ifndef istDisableSerializer
+
 #define atmGlobalNamespace(...)  } __VA_ARGS__ namespace atm {
 #define atmExportClass(ClassName)        \
     atmGlobalNamespace(                  \
@@ -23,6 +25,13 @@
         istSerializeRaw(atm::ClassName); \
     )
 
+#else // istDisableSerializer
+
+#define atmGlobalNamespace(...)
+#define atmExportClass(ClassName)
+#define atmSerializeRaw(ClassName)
+
+#endif // istDisableSerializer
 
 namespace atm {
 

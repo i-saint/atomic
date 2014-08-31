@@ -42,7 +42,7 @@ World::World()
 , m_bullet_module(nullptr)
 , m_vfx_module(nullptr)
 {
-    wdmAddNode("Game/World/cameraFovy", &m_camera_game, &i3d::PerspectiveCamera::getFovy, &i3d::PerspectiveCamera::setFovy, 1.0f, 180.0f);
+    wdmAddNode("Game/World/cameraFovy", &m_camera_game, &i3d::PerspectiveCamera::getFovy, &i3d::PerspectiveCamera::setFovy, wdmMakeRange(1.0f, 180.0f));
 }
 
 World::~World()

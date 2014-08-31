@@ -149,8 +149,8 @@ void AtomicConfig::setupDebugMenu()
     wdmAddNode("Config/UnlimitGameSpeed",   &unlimit_gamespeed);
     wdmAddNode("Config/PostEffect_Bloom",     &posteffect_bloom);
     wdmAddNode("Config/PostEffect_Antialias", &posteffect_antialias);
-    wdmAddNode("Config/Lighting", &lighting_level, (int32)atmE_Lighting_Low, (int32)atmE_Lighting_High);
-    wdmAddNode("Config/BG_Level", &bg_level, (int32)atmE_BGResolution_x1, (int32)atmE_BGNone);
+    wdmAddNode("Config/Lighting", &lighting_level, wdmMakeRange((int32)atmE_Lighting_Low, (int32)atmE_Lighting_High));
+	wdmAddNode("Config/BG_Level", &bg_level, wdmMakeRange((int32)atmE_BGResolution_x1, (int32)atmE_BGNone));
     wdmAddNode("Config/BG_Multiresolution", &bg_multiresolution);
 }
 

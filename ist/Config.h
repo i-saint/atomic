@@ -17,6 +17,7 @@
 #ifndef ist_env_Master
 #   define ist_enable_Assert
 #   define i3d_enable_assert
+//#	define ist_enable_CrashReport
 #endif // ist_env_Master
 #ifdef ist_env_Debug
 //#   define ist_enable_memory_leak_check
@@ -24,7 +25,6 @@
 //#   define i3d_enable_resource_leak_check
 #endif // ist_env_Debug
 #define ist_leak_check_max_callstack_size 64
-#define ist_enable_CrashReport
 
 
 #if defined(_MSC_VER)

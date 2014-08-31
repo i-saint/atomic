@@ -35,31 +35,37 @@ private:
 public:
     Launcher() : m_commondlls(), m_enginedll()
     {
+        std::string module_dir;
+        std::string current_dir;
+        {
+            char buf[MAX_PATH + 1];
+            HMODULE mod = 0;
+            ::GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCSTR)&glob, &mod);
+            DWORD size = ::GetModuleFileNameA(mod, buf, sizeof(buf));
+            for (int i = size - 1; i >= 0; --i) {
+                if (buf[i] == '\\') {
+                    buf[i] = '\0';
+                    break;
+                }
+            }
+            module_dir = buf;
+        }
+        {
+            char buf[MAX_PATH + 1];
+            GetCurrentDirectoryA(sizeof(buf), buf);
+            current_dir = buf;
+        }
+
         // 環境変数 PATH に Binaries/Common を追加し、dll サーチパスに加える
         {
+
             std::string path;
             //path.resize(1024*64);
             //DWORD ret = ::GetEnvironmentVariableA("PATH", &path[0], path.size());
-            {
-                char path_to_this_module[MAX_PATH + 1];
-                HMODULE mod = 0;
-                ::GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCSTR)&glob, &mod);
-                DWORD size = ::GetModuleFileNameA(mod, path_to_this_module, sizeof(path_to_this_module));
-                for (int i = size - 1; i >= 0; --i) {
-                    if (path_to_this_module[i] == '\\') {
-                        path_to_this_module[i] = '\0';
-                        break;
-                    }
-                }
-                path += path_to_this_module;
-                path += "\\Binaries\\Common;";
-            }
-            {
-                char currentdir[MAX_PATH + 1];
-                GetCurrentDirectoryA(sizeof(currentdir), currentdir);
-                path += currentdir;
-                path += "\\Binaries\\Common;";
-            }
+            path += module_dir;
+            path += "\\Binaries\\Common;";
+            path += current_dir;
+            path += "\\Binaries\\Common;";
             ::SetEnvironmentVariableA("PATH", path.c_str());
         }
 
@@ -71,6 +77,12 @@ public:
         const char *engine = "Binaries\\atomic_engine_dev.dll";
 #endif
         m_enginedll = ::LoadLibraryA(engine);
+        if (m_enginedll == nullptr) {
+            m_enginedll = ::LoadLibraryA((module_dir + "\\" + engine).c_str());
+        }
+        if (m_enginedll == nullptr) {
+            m_enginedll = ::LoadLibraryA((current_dir + "\\" + engine).c_str());
+        }
     }
 
     ~Launcher()
@@ -78,7 +90,7 @@ public:
         each(m_commondlls, [&](HMODULE dll){ ::FreeLibrary(dll); });
     }
 
-    int32 run(int argc, char* argv[])
+    __declspec(noinline) int32 run(int argc, char* argv[])
     {
         typedef int (*EntryPoint)(int argc, char *argv[]);
         if(EntryPoint e = (EntryPoint)::GetProcAddress(m_enginedll, "atmMain")) {

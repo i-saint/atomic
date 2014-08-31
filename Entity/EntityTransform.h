@@ -25,7 +25,7 @@ public:
     wdmScope(
     void addDebugNodes(const wdmString &path)
     {
-        wdmAddNode(path+"/m_pos",   &m_pos,   -3.0f, 3.0f);
+        wdmAddNode(path + "/m_pos", &m_pos, wdmMakeRange(-3.0f, 3.0f));
     }
     )
     atmJsonizeBlock(
@@ -90,10 +90,10 @@ public:
     wdmScope(
     void addDebugNodes(const wdmString &path)
     {
-        wdmAddNode(path+"/m_pivot", &m_pivot, -3.0f, 3.0f);
-        wdmAddNode(path+"/m_pos",   &m_pos,   -3.0f, 3.0f);
-        wdmAddNode(path+"/m_scale", &m_scale,  0.001f, 4.0f);
-        wdmAddNode(path+"/m_rot",   &m_rot,    0.0f, 360.0f);
+        wdmAddNode(path+"/m_pivot", &m_pivot, wdmMakeRange(-3.0f, 3.0f));
+        wdmAddNode(path+"/m_pos",   &m_pos,   wdmMakeRange(-3.0f, 3.0f));
+        wdmAddNode(path+"/m_scale", &m_scale, wdmMakeRange( 0.001f, 4.0f));
+        wdmAddNode(path+"/m_rot",   &m_rot,   wdmMakeRange( 0.0f, 360.0f));
     }
     )
 
@@ -189,11 +189,11 @@ public:
     wdmScope(
     void addDebugNodes(const wdmString &path)
     {
-        wdmAddNode(path+"/m_pivot", &m_pivot, -3.0f, 3.0f);
-        wdmAddNode(path+"/m_pos",   &m_pos, -3.0f, 3.0f);
-        wdmAddNode(path+"/m_scale", &m_scale, 0.001f, 4.0f);
+        wdmAddNode(path + "/m_pivot", &m_pivot, wdmMakeRange(-3.0f, 3.0f));
+        wdmAddNode(path + "/m_pos", &m_pos, wdmMakeRange(-3.0f, 3.0f));
+        wdmAddNode(path + "/m_scale", &m_scale, wdmMakeRange(0.001f, 4.0f));
         wdmAddNode(path+"/m_orient", this, &Attr_Direction::getDirection, &Attr_Direction::setDirection);
-        wdmAddNode(path+"/m_up", &m_up, 0.0f, 360.0f);
+		wdmAddNode(path + "/m_up", &m_up, wdmMakeRange(0.0f, 360.0f));
     }
     )
 
@@ -296,11 +296,11 @@ public:
     wdmScope(
     void addDebugNodes(const wdmString &path)
     {
-        wdmAddNode(path+"/m_pivot", &m_pivot, -3.0f, 3.0f);
-        wdmAddNode(path+"/m_pos", &m_pos, -3.0f, 3.0f);
-        wdmAddNode(path+"/m_scale", &m_scale, 0.001f, 4.0f);
-        wdmAddNode(path+"/m_rot1", &m_rot1, 0.0f, 360.0f);
-        wdmAddNode(path+"/m_rot2", &m_rot2, 0.0f, 360.0f);
+        wdmAddNode(path + "/m_pivot", &m_pivot, wdmMakeRange(-3.0f, 3.0f));
+        wdmAddNode(path + "/m_pos", &m_pos, wdmMakeRange(-3.0f, 3.0f));
+        wdmAddNode(path + "/m_scale", &m_scale, wdmMakeRange(0.001f, 4.0f));
+        wdmAddNode(path + "/m_rot1", &m_rot1, wdmMakeRange(0.0f, 360.0f));
+        wdmAddNode(path + "/m_rot2", &m_rot2, wdmMakeRange(0.0f, 360.0f));
     }
     )
 
@@ -391,8 +391,8 @@ public:
     void addDebugNodes(const wdmString &path)
     {
         T::addDebugNodes(path);
-        wdmAddNode(path+"/m_rspeed1", &m_rspeed1, -3.0f, 3.0f);
-        wdmAddNode(path+"/m_rspeed2", &m_rspeed2, -3.0f, 3.0f);
+		wdmAddNode(path + "/m_rspeed1", &m_rspeed1, wdmMakeRange(-3.0f, 3.0f));
+		wdmAddNode(path + "/m_rspeed2", &m_rspeed2, wdmMakeRange(-3.0f, 3.0f));
     }
     )
 
