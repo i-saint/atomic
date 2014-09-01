@@ -73,6 +73,7 @@ struct wdmConfig
     uint16_t max_queue;
     uint16_t max_threads;
     uint32_t json_reserve_size;
+	bool disabled;
 
     wdmConfig();
     bool load(const char *path);
@@ -713,16 +714,19 @@ inline wdmString wdmFormat(const char *fmt, ...)
 }
 
 #define wdmScope(...) __VA_ARGS__
+#define wdmReturnIfDisabled if(wdmGetConfig()->disabled) { return; }
 
 // data node
 template<class T>
 inline void wdmAddNode(const wdmString &path, T *value)
 {
+	wdmReturnIfDisabled;
     _wdmGetRootNode()->addChild(path.c_str(), new wdmDataNode<T>(value));
 }
 template<class T, class T2>
 inline void wdmAddNode(const wdmString &path, T *value, const wdmRange<T2> &range)
 {
+	wdmReturnIfDisabled;
     _wdmGetRootNode()->addChild(path.c_str(), new wdmDataNode<T, T2>(value, range));
 }
 
@@ -730,53 +734,62 @@ inline void wdmAddNode(const wdmString &path, T *value, const wdmRange<T2> &rang
 template<class T>
 inline void wdmAddNode(const wdmString &path, T *value, wdmArraySize L)
 {
+	wdmReturnIfDisabled;
     _wdmGetRootNode()->addChild(path.c_str(), new wdmArrayNode<T>(value, L));
 }
 template<class T, class T2>
 inline void wdmAddNode(const wdmString &path, T *value, wdmArraySize L, const wdmRange<T2> &range)
 {
+	wdmReturnIfDisabled;
     _wdmGetRootNode()->addChild(path.c_str(), new wdmArrayNode<T, T2>(value, L, range));
 }
 template<class T, size_t L>
 inline void wdmAddNode(const wdmString &path, T (*value)[L])
 {
-    _wdmGetRootNode()->addChild(path.c_str(), new wdmArrayNode<T>(&(*value)[0], wdmArraySize(L)));
+	wdmReturnIfDisabled;
+	_wdmGetRootNode()->addChild(path.c_str(), new wdmArrayNode<T>(&(*value)[0], wdmArraySize(L)));
 }
 template<class T, class T2, size_t L>
 inline void wdmAddNode(const wdmString &path, T(*value)[L], const wdmRange<T2> &range)
 {
-    _wdmGetRootNode()->addChild(path.c_str(), new wdmArrayNode<T, T2>(&(*value)[0], wdmArraySize(L), range));
+	wdmReturnIfDisabled;
+	_wdmGetRootNode()->addChild(path.c_str(), new wdmArrayNode<T, T2>(&(*value)[0], wdmArraySize(L), range));
 }
 
 // property node
 template<class T>
 inline void wdmAddNode(const wdmString &path, T (*getter)(), void (*setter)(T))
 {
-    auto *n = new wdmPropertyNode<T>(std::function<T ()>(getter), std::bind(setter, std::placeholders::_1));
+	wdmReturnIfDisabled;
+	auto *n = new wdmPropertyNode<T>(std::function<T()>(getter), std::bind(setter, std::placeholders::_1));
     _wdmGetRootNode()->addChild(path.c_str(), n);
 }
 template<class T, class T2>
 inline void wdmAddNode(const wdmString &path, T(*getter)(), void(*setter)(T), const wdmRange<T2> &range)
 {
-    auto *n = new wdmPropertyNode<T>(std::function<T()>(getter), std::bind(setter, std::placeholders::_1), range);
+	wdmReturnIfDisabled;
+	auto *n = new wdmPropertyNode<T>(std::function<T()>(getter), std::bind(setter, std::placeholders::_1), range);
     _wdmGetRootNode()->addChild(path.c_str(), n);
 }
 template<class C, class C2, class T>
 inline void wdmAddNode(const wdmString &path, C *_this, T (C2::*getter)() const, void (C2::*setter)(T))
 {
-    auto *n = new wdmPropertyNode<T>(std::bind(getter, _this), std::bind(setter, _this, std::placeholders::_1));
+	wdmReturnIfDisabled;
+	auto *n = new wdmPropertyNode<T>(std::bind(getter, _this), std::bind(setter, _this, std::placeholders::_1));
     _wdmGetRootNode()->addChild(path.c_str(), n);
 }
 template<class C, class C2, class T, class T2>
 inline void wdmAddNode(const wdmString &path, C *_this, T(C2::*getter)() const, void (C2::*setter)(T), const wdmRange<T2> &range)
 {
-    auto *n = new wdmPropertyNode<T,T2>(std::bind(getter, _this), std::bind(setter, _this, std::placeholders::_1), range);
+	wdmReturnIfDisabled;
+	auto *n = new wdmPropertyNode<T, T2>(std::bind(getter, _this), std::bind(setter, _this, std::placeholders::_1), range);
     _wdmGetRootNode()->addChild(path.c_str(), n);
 }
 template<class C, class C2, class T>
 inline void wdmAddNode(const wdmString &path, C *_this, T (C2::*getter)() const)
 {
-    auto *n = new wdmPropertyNode<T>(std::bind(getter, _this));
+	wdmReturnIfDisabled;
+	auto *n = new wdmPropertyNode<T>(std::bind(getter, _this));
     _wdmGetRootNode()->addChild(path.c_str(), n);
 }
 
@@ -784,55 +797,65 @@ inline void wdmAddNode(const wdmString &path, C *_this, T (C2::*getter)() const)
 template<class R>
 inline void wdmAddNode(const wdmString &path, R (*f)())
 {
-    _wdmGetRootNode()->addChild( path.c_str(), new wdmFunctionNode0<R>(std::function<R ()>(f)) );
+	wdmReturnIfDisabled;
+	_wdmGetRootNode()->addChild(path.c_str(), new wdmFunctionNode0<R>(std::function<R()>(f)));
 }
 template<class R, class C, class C2>
 inline void wdmAddNode(const wdmString &path, R (C::*mf)(), C2 *_this)
 {
-    _wdmGetRootNode()->addChild( path.c_str(), new wdmFunctionNode0<R>(std::bind(mf, _this)) );
+	wdmReturnIfDisabled;
+	_wdmGetRootNode()->addChild(path.c_str(), new wdmFunctionNode0<R>(std::bind(mf, _this)));
 }
 template<class R, class C, class C2>
 inline void wdmAddNode(const wdmString &path, R (C::*cmf)() const, const C2 *_this)
 {
-    _wdmGetRootNode()->addChild( path.c_str(), new wdmFunctionNode0<R>(std::bind(cmf, _this)) );
+	wdmReturnIfDisabled;
+	_wdmGetRootNode()->addChild(path.c_str(), new wdmFunctionNode0<R>(std::bind(cmf, _this)));
 }
 // function node (1 args)
 template<class R, class A0>
 inline void wdmAddNode(const wdmString &path, R (*f)(A0))
 {
-    _wdmGetRootNode()->addChild( path.c_str(), new wdmFunctionNode1<R,A0>(std::bind(f, std::placeholders::_1)) );
+	wdmReturnIfDisabled;
+	_wdmGetRootNode()->addChild(path.c_str(), new wdmFunctionNode1<R, A0>(std::bind(f, std::placeholders::_1)));
 }
 template<class R, class C, class C2, class A0>
 inline void wdmAddNode(const wdmString &path, R (C::*mf)(A0), C2 *_this)
 {
-    _wdmGetRootNode()->addChild( path.c_str(), new wdmFunctionNode1<R,A0>(std::bind(mf, _this, std::placeholders::_1)) );
+	wdmReturnIfDisabled;
+	_wdmGetRootNode()->addChild(path.c_str(), new wdmFunctionNode1<R, A0>(std::bind(mf, _this, std::placeholders::_1)));
 }
 template<class R, class C, class C2, class A0>
 inline void wdmAddNode(const wdmString &path, R (C::*cmf)(A0) const, const C2 *_this)
 {
-    _wdmGetRootNode()->addChild( path.c_str(), new wdmFunctionNode1<R,A0>(std::bind(cmf, _this, std::placeholders::_1)) );
+	wdmReturnIfDisabled;
+	_wdmGetRootNode()->addChild(path.c_str(), new wdmFunctionNode1<R, A0>(std::bind(cmf, _this, std::placeholders::_1)));
 }
 // function node (2 args)
 template<class R, class A0, class A1>
 inline void wdmAddNode(const wdmString &path, R (*f)(A0,A1))
 {
-    _wdmGetRootNode()->addChild( path.c_str(), new wdmFunctionNode2<R,A0,A1>(std::bind(f, std::placeholders::_1, std::placeholders::_2)) );
+	wdmReturnIfDisabled;
+	_wdmGetRootNode()->addChild(path.c_str(), new wdmFunctionNode2<R, A0, A1>(std::bind(f, std::placeholders::_1, std::placeholders::_2)));
 }
 template<class R, class C, class C2, class A0, class A1>
 inline void wdmAddNode(const wdmString &path, R (C::*mf)(A0,A1), C2 *_this)
 {
-    _wdmGetRootNode()->addChild( path.c_str(), new wdmFunctionNode2<R,A0,A1>(std::bind(mf, _this, std::placeholders::_1, std::placeholders::_2)) );
+	wdmReturnIfDisabled;
+	_wdmGetRootNode()->addChild(path.c_str(), new wdmFunctionNode2<R, A0, A1>(std::bind(mf, _this, std::placeholders::_1, std::placeholders::_2)));
 }
 template<class R, class C, class C2, class A0, class A1>
 inline void wdmAddNode(const wdmString &path, R (C::*cmf)(A0,A1) const, const C2 *_this)
 {
-    _wdmGetRootNode()->addChild( path.c_str(), new wdmFunctionNode2<R,A0,A1>(std::bind(cmf, _this, std::placeholders::_1, std::placeholders::_2)) );
+	wdmReturnIfDisabled;
+	_wdmGetRootNode()->addChild(path.c_str(), new wdmFunctionNode2<R, A0, A1>(std::bind(cmf, _this, std::placeholders::_1, std::placeholders::_2)));
 }
 
 
 inline void wdmEraseNode(const wdmString &path)
 {
-    _wdmGetRootNode()->eraseChild(path.c_str());
+	wdmReturnIfDisabled;
+	_wdmGetRootNode()->eraseChild(path.c_str());
 }
 
 
@@ -1025,7 +1048,8 @@ template<> inline size_t wdmToS(char *text, size_t len, XMFLOAT4 v) { return wdm
 
 inline void wdmAddMemberNodes(const wdmString &path, void *_this, const char *class_name)
 {
-    wdmEnumMemberVariablesByTypeName2(class_name, _this, [&](wdmMemberInfo &mi){
+	wdmReturnIfDisabled;
+	wdmEnumMemberVariablesByTypeName2(class_name, _this, [&](wdmMemberInfo &mi){
         typedef std::map<std::string, std::function<void (const wdmString &p, wdmMemberInfo &mi)> > handler_table;
         static handler_table s_handlers;
         if(s_handlers.empty()) {
@@ -1112,7 +1136,8 @@ inline void wdmAddMemberNodes(const wdmString &path, void *_this, const char *cl
 
 inline void wdmAddMemberNodes(const wdmString &path, void *_this)
 {
-    char class_name[4096];
+	wdmReturnIfDisabled;
+	char class_name[4096];
     if(wdmGetClassName(_this, class_name, sizeof(class_name))) {
         wdmAddMemberNodes(path, _this, class_name);
     }
